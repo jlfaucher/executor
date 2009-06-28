@@ -1,0 +1,19 @@
+/**********************************
+RxMath 
+**********************************/
+
+MathLoadFuncs ::= "MathLoadFuncs()"
+
+RxCalcSqrt ::= "RxCalcSqrt(" number ("," precision)? ")"
+
+/**********************************
+rexxref 
+**********************************/
+
+DO ::= "DO" ("LABEL" name)? (repetitor)? (conditional)? ";" (instruction)* "END" (name)?
+DO_repetitor ::=   control1 "=" expri ("TO" exprt)? ("BY" exprb)? ("FOR" exprf)?
+                 | control2 "OVER" collection
+                 | "FOREVER"
+                 | exprr
+DO_conditional ::=   "WHILE" exprw
+                   | "UNTIL" expru

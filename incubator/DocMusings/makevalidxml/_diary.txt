@@ -1,0 +1,17 @@
+===============================================================================
+2009 june 27
+
+First step : 
+I want to see if I can read an sgml file with the XML parser, and dump it almost as-is
+(I want to keep the current layout in the files).
+I don't know if I can do that only by overriding the public methods, so I made a
+copy of the parser.
+
+Second step :
+Generate a valid XML file.
+
+Third step :
+Write a script which iterates over the sgml files from a given root and generates
+a valid XML file for each sgml file.
+
+For the moment, nothing implemented...

@@ -1,0 +1,285 @@
+<syntaxdiagrams>
+
+
+<!--===============================
+RxMath 
+================================-->
+
+<syntaxdiagram>
+    <title>MathLoadFuncs</title>
+    <groupcomp>
+        <kwd>MathLoadFuncs</kwd>
+        <delim>(</delim>
+        <delim>)</delim>
+    </groupcomp>
+</syntaxdiagram>
+
+<syntaxdiagram>
+    <title>RxCalcSqrt</title>
+    <groupseq>
+        <groupcomp>
+            <kwd>RxCalcSqrt</kwd>
+            <delim>(</delim>
+        </groupcomp>
+        <var>number</var>
+        <groupseq importance="optional">
+            <delim>,</delim>
+            <var>precision</var>
+        </groupseq>
+        <delim>)</delim>
+    </groupseq>
+</syntaxdiagram>
+
+<!--===============================
+rexxref 
+================================-->
+
+<syntaxdiagram>
+    <title>DO</title>
+    <groupseq>
+        <kwd>DO</kwd>
+        <groupseq importance="optional">
+            <kwd>LABEL</kwd>
+            <var>name</var>
+        </groupseq>
+        <fragref href="#DO_repetitor" importance="optional"/>
+        <fragref href="#DO_conditional" importance="optional"/>
+        <sep>;</sep>
+        <groupseq>
+            <repsep/>
+            <var>instruction</var>
+            <sep>;</sep>
+        </groupseq>
+        <kwd>END</kwd>
+        <var importance="optional">name</var>
+    </groupseq>
+    <fragment id="DO_repetitor">
+        <title>repetitor</title>
+        <groupchoice>
+            <groupseq>
+                <var>control1</var>
+                <oper>=</oper>
+                <var>expri</var>
+                <groupseq importance="optional">
+                    <kwd>TO</kwd>
+                    <var>exprt</var>
+                </groupseq>
+                <groupseq importance="optional">
+                    <kwd>BY</kwd>
+                    <var>exprb</var>
+                </groupseq>
+                <groupseq importance="optional">
+                    <kwd>FOR</kwd>
+                    <var>exprf</var>
+                </groupseq>
+            </groupseq>
+            <groupseq>
+                <var>control2</var>
+                <kwd>OVER</kwd>
+                <var>collection</var>
+            </groupseq>
+            <kwd>FOREVER</kwd>
+            <var>exprr</var>
+        </groupchoice>
+    </fragment>
+    <fragment id="DO_conditional">
+        <title>conditional</title>
+        <groupchoice>
+            <groupseq>
+                <kwd>WHILE</kwd>
+                <var>exprw</var>
+            </groupseq>
+            <groupseq>
+                <kwd>UNTIL</kwd>
+                <var>expru</var>
+            </groupseq>
+        </groupchoice>
+    </fragment>
+</syntaxdiagram>
+
+
+<!--===============================
+Examples taken from Dita web site
+================================-->
+
+<syntaxdiagram>
+    <title>URL syntax 1</title>
+    <groupseq>
+        <groupseq>
+            <kwd>http</kwd>
+            <sep>:</sep>
+        </groupseq>
+        <groupseq>
+            <sep>//</sep>
+            <var>host</var>
+        </groupseq>
+        <groupseq importance="optional">
+            <sep>:</sep>
+            <var>port</var>
+        </groupseq>
+        <groupseq>
+            <sep>/</sep>
+            <var>path</var>
+        </groupseq>
+    </groupseq>
+</syntaxdiagram>
+
+<syntaxdiagram>
+    <title>URL syntax 2</title>
+    <groupseq>
+        <groupchoice>
+            <groupseq>
+                <groupseq>
+                    <groupchoice>
+                        <kwd>http</kwd>
+                        <kwd>https</kwd>
+                        <kwd>ftp</kwd>
+                        <kwd>file</kwd>
+                    </groupchoice>
+                    <sep>:</sep>
+                </groupseq>
+                <groupseq>
+                    <sep>//</sep>
+                    <groupcomp importance="optional">
+                        <var>user</var>
+                        <sep>@</sep>
+                    </groupcomp>
+                    <var>host</var>
+                    <groupcomp importance="optional">
+                        <sep>:</sep>
+                        <var>port</var>
+                    </groupcomp>
+                    <sep>/</sep>
+                </groupseq>
+            </groupseq>
+            <groupseq importance="optional">
+                <sep>/</sep>
+            </groupseq>
+        </groupchoice>
+        <var>path</var>
+    </groupseq>
+</syntaxdiagram>
+
+<syntaxdiagram>
+    <title>Hexadecimal literal</title>
+    <groupseq>
+        <kwd>0x</kwd>
+    </groupseq>
+    <groupchoice>
+        <repsep/>
+        <var>digit</var>
+        <var>letter-a-to-f</var>
+        <var>letter-A-to-F</var>
+    </groupchoice>
+</syntaxdiagram>
+
+<syntaxdiagram>
+    <title>IPV4 address in dot form</title>
+    <groupseq>
+        <fragref href="#zero-to-255"/>
+        <sep>.</sep>
+        <fragref href="#zero-to-255"/>
+        <sep>.</sep>
+        <fragref href="#zero-to-255"/>
+        <sep>.</sep>
+        <fragref href="#zero-to-255"/>
+    </groupseq>
+    <fragment id="zero-to-255">
+        <title>IPv4-range integer</title>
+        <groupchoice>
+            <groupseq>
+                <fragref href="#digit"/>
+            </groupseq>
+            <groupseq>
+                <groupchoice>
+                    <kwd>1</kwd>
+                    <kwd>2</kwd>
+                    <kwd>3</kwd>
+                    <kwd>4</kwd>
+                    <kwd>5</kwd>
+                    <kwd>6</kwd>
+                    <kwd>7</kwd>
+                    <kwd>8</kwd>
+                    <kwd>9</kwd>
+                </groupchoice>
+                <fragref href="#digit"/>
+            </groupseq>
+            <groupseq>
+                <kwd>1</kwd>
+                <fragref href="#digit"/>
+                <fragref href="#digit"/>
+            </groupseq>
+            <groupseq>
+                <kwd>2</kwd>
+                <groupchoice>
+                    <kwd>0</kwd>
+                    <kwd>1</kwd>
+                    <kwd>2</kwd>
+                    <kwd>3</kwd>
+                    <kwd>4</kwd>
+                </groupchoice>
+                <fragref href="#digit"/>
+            </groupseq>
+            <groupseq>
+                <kwd>2</kwd>
+                <kwd>5</kwd>
+                <groupchoice>
+                    <kwd>0</kwd>
+                    <kwd>1</kwd>
+                    <kwd>2</kwd>
+                    <kwd>3</kwd>
+                    <kwd>4</kwd>
+                    <kwd>5</kwd>
+                </groupchoice>
+            </groupseq>
+        </groupchoice>
+    </fragment>
+    <fragment id="digit">
+        <title>decimal digit</title>
+        <groupchoice>
+            <kwd>0</kwd>
+            <kwd>1</kwd>
+            <kwd>2</kwd>
+            <kwd>3</kwd>
+            <kwd>4</kwd>
+            <kwd>5</kwd>
+            <kwd>6</kwd>
+            <kwd>7</kwd>
+            <kwd>8</kwd>
+            <kwd>9</kwd>
+        </groupchoice>
+    </fragment>
+</syntaxdiagram>
+
+<syntaxdiagram>
+    <title>Decimal integer</title>
+    <groupseq>
+        <groupseq importance="optional">
+            <kwd>-</kwd>
+            <synnote>Minus sign must not be followed by zero
+                digit.</synnote>
+        </groupseq>
+        <groupchoice>
+            <repsep/>
+            <kwd>0</kwd>
+            <synnote>Zero must not be chosen for the first digit,
+                unless it is the only digit.</synnote>
+            <kwd>1</kwd>
+            <kwd>2</kwd>
+            <kwd>3</kwd>
+            <kwd>4</kwd>
+            <kwd>5</kwd>
+            <kwd>6</kwd>
+            <kwd>7</kwd>
+            <kwd>8</kwd>
+            <kwd>9</kwd>
+        </groupchoice>
+        <synnote>Thousands separator of <synph>
+            <sep>,</sep>
+        </synph> or <synph>
+            <sep>.</sep>
+        </synph> may occur every three digits.</synnote>
+    </groupseq>
+</syntaxdiagram>
+
+</syntaxdiagrams>
