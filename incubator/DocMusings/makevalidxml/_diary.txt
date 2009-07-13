@@ -1,4 +1,36 @@
 ===============================================================================
+2009 july 12
+
+The first step has been reached...
+The command makevalidxml can read a SGML file and print it to stdout unchanged (same layout).
+But behind the scene, I have all the informations needed to transform the XML where needed.
+The following options remain to implement :
+-fix
+-xinclude
+
+
+===============================================================================
+2009 july 11
+
+I need effectively to modify the XML parser, to keep the text as-is :
+- getchar returns EOL as any other char.
+- Each chunk has a value in its text property, to be used for printing as-is.
+
+
+Things to fix to have a valid XML :
+
+<?xml version="1.0" standalone="no">
+must be
+<?xml version="1.0" standalone="no"?>
+
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
+must have a system identifier
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
+
+<imagedata> must be completed by </imagedata>
+
+
+===============================================================================
 2009 june 27
 
 First step : 

@@ -84,8 +84,7 @@
 JLF : adaptation of xmlparser.cls to my own needs.
 - reprint the parsed XML the most possible like the original one.
 - add missing closing tags
-Don't know yet if can do that only by overriding the public methods, so I made
-a copy of the XML parser.
+I need to modify the parser, to keep the text unchanged, hence this copy...
 */
 
 
@@ -112,6 +111,12 @@ a copy of the XML parser.
 ::method charidx     attribute private -- the index into a xml line
 ::method errortxt    attribute private -- error text
 ::method eof         attribute private -- done parsing?
+::attribute endofline                  -- derived from the first line of the xml file, assume all lines have this EOL
+::attribute lastlineendofline          -- except the last line which may have no EOL 
+::attribute debug
+
+::method init
+self~debug = .false
 
 
 /*----------------------------------------------------------------------------*/
@@ -143,15 +148,49 @@ return text
 
 
 /*----------------------------------------------------------------------------*/
+/* Method: detect_eol_style                                                   */
+/* Description: detect the EOL style of the first line and last line          */
+/*----------------------------------------------------------------------------*/
+::method detect_eol_style
+use strict arg stream
+self~endofline = ""
+previouschar = ""
+stream~seek("=1")
+do forever
+    currentchar = stream~charin
+    if currentchar == "" then leave -- EOF
+    if c2x(currentchar) == "0A" then do
+        if c2x(previouschar) == "0D" then self~endofline = x2c("0D0A")
+        else self~endofline = x2c("0A")
+        leave
+    end
+    previouschar = currentchar
+end
+
+-- It's not possible to make a distinction between a last (non empty) line without EOL
+-- and a last (non empty) line with EOL, when working with the array returned by stream~arrayIn.
+-- Hence this attribute...
+self~lastlineendofline = ""
+stream~seek("<1")
+lastchar = stream~charin
+if c2x(lastchar) == "0A" then self~lastlineendofline = self~endofline
+return
+
+
+/*----------------------------------------------------------------------------*/
 /* Method: current char                                                       */
-/* Description: return the current character.                                 */
+/* Description: return the current character, or one of the relative          */
+/* characters of the current line                                             */
 /*----------------------------------------------------------------------------*/
 
 ::method currentchar private
 expose src lineidx charidx
-use strict arg
-if lineidx > src~items then return .nil
-return src[lineidx]~substr(charidx, 1)
+use strict arg offset=0 -- can be negative
+if lineidx > src~items then return ''
+charpos = charidx + offset
+if charpos < 1 then return ''
+if charpos > src[lineidx]~length then return ''
+return src[lineidx]~substr(charpos, 1)
 
 
 /*----------------------------------------------------------------------------*/
@@ -162,16 +201,22 @@ return src[lineidx]~substr(charidx, 1)
 ::method getchar private
 expose src lineidx charidx eof
 use strict arg
-character = src[lineidx]~substr(charidx, 1)
-charidx = charidx + 1
-if charidx > src[lineidx]~length then do
-   lineidx = lineidx + 1
-   charidx = 1
-   end
 if lineidx > src~items then do
    eof = .true
    return ''
    end
+if charidx > src[lineidx]~length then do
+   lineidx = lineidx + 1
+   charidx = 1
+   if lineidx > src~items then do
+      if self~lastlineendofline <> "" then return self~lastlineendofline
+      eof = .true
+      return ''
+      end
+   return self~endofline
+   end
+character = src[lineidx]~substr(charidx, 1)
+charidx = charidx + 1
 return character
 
 
@@ -186,33 +231,39 @@ use strict arg
 errlineidx = lineidx
 errcharidx = charidx
 chunk = .xmlchunk~new
+chunk~line = lineidx
+chunk~col = charidx
 if self~currentchar() <> '<' then do
-   /* we found some CDATA */
-   chunk~text = ''
+   /* we found some TEXT */
    curline = lineidx
+   buffer1 = .MutableBuffer~new
    do while eof = .false & self~currentchar() <> '<'
       -- Do NOT collapse the white space and newlines out of the chunk!
       -- We leave that task up to the client of this class.
-      -- Instead, we return a chunk with .endofline stuck in between
+      -- Instead, we return a chunk with self~endofline stuck in between
       -- at the linebreaks.
-      chunk~text = chunk~text || self~getchar()
+      buffer1~append(self~getchar())
       if curline <> lineidx then do
-         chunk~text = chunk~text || .endofline
          curline = lineidx
          end
       end
-   chunk~text = self~xlatetext(chunk~text)
-   if chunk~text~strip <> '' then ,
+   chunk~text = self~xlatetext(buffer1)~string
+   -- if chunk~text~strip <> '' then ,              -- never strip a TEXT
     self~text(chunk) -- call the public override method
    return chunk
    end
 /* we found an XML tag, process it */
 character = self~getchar() -- skip the '<'
-element = ''
 curline = lineidx
 nestlevel = 0
+buffer2 = .MutableBuffer~new
+do i=0 to 7
+   buffer2~append(self~currentchar(i))
+end
+iscdata = (buffer2~string == "![CDATA[")
+buffer3 = .MutableBuffer~new
 do while eof = .false
-   if element~substr(1, 1) = '!' then do
+   if \iscdata & buffer3~substr(1, 1) = '!' then do
       -- It is possible for tags to be contained within other tags in XML
       -- processing tags. The next two IF statements take care of that nesting
       -- possibility. It will be up to the user to parse out the contained
@@ -220,61 +271,87 @@ do while eof = .false
       if self~currentchar() = '<' then nestlevel = nestlevel + 1
       if self~currentchar() = '>' & level > 0 then nestlevel = nestlevel - 1
       end
-   element = element || self~getchar()
+   buffer3~append(self~getchar())
    if curline <> lineidx then do
-      element = element || ' '
       curline = lineidx
       end
-   if self~currentchar() = '>' & nestlevel = 0 then leave
+   if self~currentchar() = '>' then do
+      if iscdata then do
+         if self~currentchar(-2) || self~currentchar(-1) == "]]" then leave
+         end
+      else if nestlevel = 0 then leave
+      end
+   if eof = .true then do
+      errortxt = 'Error line' errlineidx': EOF within an XML tag.'
+      self~error(self~create_error(errortxt, errlineidx, errcharidx)) -- call the public override method
+      return .nil
+      end
    end
-if eof = .true then do
-   errortxt = 'Error line' errlineidx': EOF within an XML tag.'
-   self~error(self~create_error(errortxt, errlineidx, errcharidx)) -- call the public override method
-   return .nil
-   end
-element = element~strip()
+raw_element = buffer3~string
+if \iscdata then buffer3~changeStr(self~endofline, " "~copies(self~endofline~length)) -- replace endofline by space(s)
+element = buffer3~string~strip()
+if self~debug then call lineout "stderr", errlineidx":"currentSourceLine()":element=["element"]"
 select
    when element~substr(1, 1) = '/' then do
       chunk~tag = element~substr(2)
+      chunk~text = '' -- empty ==> </tag> will be displayed
       self~end_element(chunk) -- call the public override method
       end
    when pos('?', element~substr(1, 1)) > 0 then do
       chunk~tag = ''
-      chunk~text = element
+      chunk~text = raw_element
       self~passthrough(chunk) -- call the public override method
       end
    when pos('!--', element~substr(1, 3)) > 0 then do
       chunk~tag = ''
-      chunk~text = element
+      chunk~text = raw_element
       self~passthrough(chunk) -- call the public override method
       end
    when pos('!', element~substr(1, 1)) > 0 then do
       chunk~tag = ''
-      chunk~text = element
+      chunk~text = raw_element
       self~passthrough(chunk) -- call the public override method
       end
    when pos(element~substr(1, 1), xrange('a', 'z') || xrange('A', 'Z')) > 0 then do
       parse var element tag element
+      element = element~strip()
+      if self~debug then 
+          do
+              call lineout "stderr", errlineidx":"currentSourceLine()":tag    =["tag"]"
+              call lineout "stderr", errlineidx":"currentSourceLine()":element=["element"]"
+          end
       -- the following is needed in case the '/' immediately follows the tag
       if tag~pos('/') > 0 then do
          tag = tag~substr(1, tag~length - 1)
          element = '/' element
          end
       chunk~tag = tag
+      chunk~text = raw_element
       /* process the attributes */
       if element~length > 0 then chunk~attr = .directory~new
       do while element~length() > 0
+         -- To increase the chances of parsing success, remove all the spaces before the first quote, if any
+         -- before: a  =  " value of a "  b  =  ' value of b '
+         -- after : a=" value of a "  b  =  ' value of b '
+         firstQuote = element~pos('"')
+         firstApos = element~pos("'")
+         if firstQuote <> 0 & firstApos <> 0 then pos = min(firstQuote, firstApos)
+         else if firstQuote <> 0 then pos = firstQuote
+         else if firstApos <> 0 then pos = firstApos
+         else pos = 0
+         if pos <> 0 then element = element~left(pos - 1)~space(0) || element~substr(pos)
+         if self~debug then call lineout "stderr", errlineidx":"currentSourceLine()":element=["element"]"
          if pos('="', element~word(1)) > 0 then do
             parse var element attrname '="' attrvalue '"' element
             attrname = attrname~strip()
-            attrvalue = attrvalue~strip()
+            --attrvalue = attrvalue~strip() -- the value between quotes must remain as-is
             attrvalue = self~xlatetext(attrvalue)
             chunk~attr[attrname] = attrvalue
             end
          else if pos("='", element~word(1)) > 0 then do
             parse var element attrname "='" attrvalue "'" element
             attrname = attrname~strip()
-            attrvalue = attrvalue~strip()
+            --attrvalue = attrvalue~strip() -- the value between quotes must remain as-is
             attrvalue = self~xlatetext(attrvalue)
             chunk~attr[attrname] = attrvalue
             end
@@ -294,6 +371,9 @@ select
       self~start_element(chunk) -- call the public override method
       if attrname = '/' then do
          endchunk = .xmlchunk~new
+         endchunk~line = lineidx
+         endchunk~col = charidx
+         endchunk~text = raw_element -- won't be printed as-is (because already printed by start_element), but will be used to decide to print nothing instead of </tag>
          endchunk~tag = tag
          self~end_element(endchunk) -- call the public override method
          end
@@ -309,6 +389,8 @@ select
 character = self~getchar() -- skip the '>'
 return chunk
 
+currentSourceLine:
+return SIGL
 
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
@@ -400,11 +482,13 @@ expose src lineidx charidx errortxt eof
 use strict arg src
 eof = .false
 /* make sure this is an xml document */
+/* Not applicable to the SGML files of oorexx
 if src[1]~pos('<?xml') <> 1 then do
    errortxt = 'Error: Invalid XML document.'
    self~error(self~create_error(errortxt, 1, 1))
-   return
+   return ""
    end
+*/
 /* parse the xml array */
 lineidx = 1
 charidx = 1
@@ -430,6 +514,7 @@ if errortxt <> 'READY:' then do
    return errortxt
    end
 lines = tfile~arrayin()
+self~detect_eol_style(tfile) -- don't assume that the file has the eol style of the current platform
 tfile~close()
 
 errortxt = self~parse_array(lines)
@@ -462,7 +547,8 @@ return errortxt
 ::method text        attribute         -- the text
 ::method tag         attribute         -- the xml tag name
 ::method attr        attribute         -- the tag attributes
-
+::attribute line                       -- the start line of the chunk
+::attribute col                        -- the start col of the chunk             
 
 /*----------------------------------------------------------------------------*/
 /* Method: init                                                               */
@@ -481,6 +567,8 @@ self~tag = .nil   -- For  the start_element and end_element methods this is
 self~attr = .nil  -- For the start_element method this is an ooRexx directory
                   -- class instance. Each attribute and value is contained in
                   -- the ooRexx directory instance.
+self~line = 0
+self~col = 0
 return
 
 

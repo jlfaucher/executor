@@ -1,4 +1,37 @@
 ===============================================================================
+2009 july 11
+
+I have a small documentation which gives examples of railroads generated
+from DITA syntax diagrams, but I can't remember from where I downloaded it...
+In the meantime, remember that :
+http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.infomanager.LangSpec1.1/common/pr-d.html
+http://en.wikipedia.org/wiki/Syntax_diagram
+http://www.cs.man.ac.uk/~pjj/bnf/bnf.html
+http://ditaa.sourceforge.net/
+
+
+===============================================================================
+2009 june 29
+
+generate.rex :
+No need to iterate over the svg files. Batik rasterizer does that automatically.
+
+I find that the letters of the keywords are a little bit blurred.
+--> Changed the CSS stylesheet to declare stroke-width: 0.0; instead of 0.1
+Since the look is better, changed all the 0.1 to 0.0
+
+Another possible improvement : in constants.xml, there is a suggestion to try 
+diagram_scale=0.28
+diagram_unit=in
+This is lot more CPU intensive, and I needed to declare a bigger heap for java.
+The resolution is better but the png are bigger and very slow to display.
+--> not activated for now.
+
+To investigate : I see that integer.png has small boxes floating near the symbols.
+It's probably because of <synnote>.
+
+
+===============================================================================
 2009 june 28
 
 About Clapham :
