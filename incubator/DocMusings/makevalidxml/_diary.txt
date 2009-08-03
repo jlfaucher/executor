@@ -1,4 +1,71 @@
 ===============================================================================
+2009 july 26
+
+[out of subject, but...]
+Continuation of the profiling of csvStream.
+Valgrind gives the total number of instructions executed during the profiling.
+stream :                   38 770 387 when reading all_cp_docs-500.txt (1 title line, 498 data lines)
+csvStream :             1 104 254 540 when reading the same file
+csvStreamBufferized :   1 212 977 855 when reading the same file
+ratio is 28:1 for csvStream compared to stream
+ratio is 31:1 for csvStreamBufferized compared to stream
+
+See http://jean-louis.faucher.perso.neuf.fr/ooRexx/profiling/csv/
+In the directories stream, csvStream and csvStreamBufferized, there are :
+callgrind.out.1 : profiling datas when working on all_cp_docs-1.txt (1 title line, 1 data line)
+callgrind.out.500 : profiling datas when working on all_cp_docs-500.txt (1 title line, 498 data lines)
+main-1.png : callgraph with cumulative instructions numbers on each node (the top-level node is 100%)
+main-500.png : idem
+
+I'm investigating why there is a so big difference between the stream implementation
+and the two other implementations based on the class csvStream (I have the same problem
+with the XML parser).
+
+stream : main.1         main =     9 835 350 instructions
+stream : main.500       main =    31 172 287 instructions
+ratio = 3.17
+
+csvStream : main.1      main =    17 712 222 instructions
+csvStream : main.500    main = 1 096 656 440 instructions
+ratio = 61.92 !!!!!
+
+Similar results for csvStreamBufferized (even slightly worst, which is surprising...)
+
+To analyze the profiling data, you need kcachegrind. With this tool, you can sort the nodes
+by individual cost (local instruction number, call counter) and see the associated source.
+
+
+===============================================================================
+2009 july 18
+
+[out of subject, but...]
+Continuation of the previous observation about performance : I use valgrind
+to profile the execution of csvStreamBufferized under Linux.
+During the study, I discovered a bug with relative paths under Linux, which
+took me some time to analyze and (partially) fix.
+Did not spent more time on profiling this day...
+
+
+===============================================================================
+2009 july 13
+
+I made a test on one of my XML files : 
+3908 Kb, 98261 node(), 53510 text()
+Conclusion : it's *very* slow... About 15 min to process the file !
+
+I made already the same observation for the class csvStream : 
+Reading a file which contains 243658 lignes made of 12 fields :
+- without csvStream (only line=stream~linein; parse var line...) : 00:00:04
+- with csvStream : 00:03:24, 50 times slower !!!
+- with csvStreamBufferized (a version where I use MutableBuffer) : 00:03:38 (!)
+
+Since I use MutableBuffer, the problem is not in the construction of strings by
+appending one character at a time... 
+It's not either in the fact I create an instance of MutableBuffer for each XML tag,
+because in csvStreamBufferized I create the buffer only once and reset it at each line.
+
+
+===============================================================================
 2009 july 12
 
 The first step has been reached...

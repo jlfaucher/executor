@@ -1,4 +1,186 @@
 ===============================================================================
+2009 august 01
+
+I want to generate the PDF from WinXP using the Makefiles available in
+docs/trunk
+They depend on :
+docbook2pdf
+docbook2html
+pdftex (and pdfjadetex) --> already installed outside cygwin, in TeXLive (but won't work, to reinstall under Cygwin)
+collateindex.pl
+jade
+And they are only for Unix.
+
+Cygwin seems to be the most reasonable choice to do that.
+The setup shows only XML DocBook, nothing for SGML DocBook... Don't know if I make
+the right choice... Added these packages to my current configuration :
+docbook-xml-42-4.2-3
+docbook-xml-43-4.3-1
+docbook-xml-44-4.4-1
+openjade-1.3.3-1
+OpenSP-1.5.1-1
+xmlto-0.0.18-2 (expected to have docbook2pdf inside, but this is not the case)
+
+Create a symbolic link jade --> openjade
+ln -s /usr/bin/openjade.exe /usr/bin/jade
+
+docs/trunk/README does not indicate which version of DocBook DSSSL to use. 
+I download the only version available from 
+http://sourceforge.net/projects/docbook/files/
+1.79
+Install it into /usr/share/sgml/docbook/dsssl-stylesheets
+to be compatible with the Makefiles in docs/trunk/
+Ensure you have these files :
+/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl
+/usr/share/sgml/docbook/dsssl-stylesheets/html/docbook.dsl
+
+Now following the instructions in docbook-dsssl-1.79\doc\install.html
+Try :
+jade -t rtf -d jtest.dsl jtest.sgm
+Does not work...
+It seems I need the SGML version of the catalogs.
+Download from http://www.oasis-open.org/docbook/sgml/
+docbook-4.2.zip
+docbook-4.3.zip
+docbook-4.4.zip
+Installed in /usr/share/sgml/docbook (following the same organisation as for xml)
+
+Study of http://debian-xml-sgml.alioth.debian.org/sgml-policy/sgml-catalogs.html
+Creation by hand of /etc/sgml/catalog which contains
+CATALOG /usr/share/sgml/docbook/4.2/docbook.cat
+CATALOG /usr/share/sgml/docbook/4.3/docbook.cat
+CATALOG /usr/share/sgml/docbook/4.4/docbook.cat
+
+Add that to ~/.bashrc :
+export SGML_CATALOG_FILES=/etc/sgml/catalog
+
+/usr/share/openjade seems incomplete : no catalog, whereas openjade's doc say :
+<<
+OpenJade requires the file dsssl/builtins.dsl to operate. 
+You can tell OpenJade where this file is in one of two ways: 
+By including a SYSTEM catalog entry for "builtins.dsl" pointing to this file. See dsssl/catalog for an example.
+By including the dsssl/catalog catalog with the -c command line option or the SGML_CATALOG_FILES environment variable.
+>>
+Using Cygwin setup, I install the sources of openjade and OpenSP.
+I don't want to build, only have a look at the source :
+cd /usr/src
+./openjade-1.3.3-1.sh prep
+./OpenSP-1.5.1-1.sh prep
+Ok, in /usr/src/openjade-1.3.3-pre1/dsssl
+I find what I'm looking for : catalog and a bunch of dsl and dtd files.
+Copy dsssl/* into /usr/share/openjade
+And add this line to /etc/sgml/catalog :
+CATALOG /usr/share/openjade/catalog
+
+Retry : 
+jade -t rtf -d jtest.dsl jtest.sgm
+Good, it works...
+
+Continue to follow the instructions in docbook-dsssl-1.79\doc\install.html
+Try :
+onsgmls -sv test.sgm (must replace nsgmls by onsgmls)
+Does not work... This declaration in test.sgm seems deprecated :
+<!doctype chapter public "-//Davenport//DTD DocBook V3.0//EN">
+I download http://www.oasis-open.org/docbook/sgml/3.0/docbk30.zip
+Install it in /usr/share/sgml/docbook/3.0
+Add this line to /etc/sgml/catalog :
+CATALOG /usr/share/sgml/docbook/3.0/docbook.cat
+
+Retry :
+onsgmls -sv test.sgm (must replace nsgmls by onsgmls)
+Does not work... SGML entities not found
+Download http://www.oasis-open.org/docbook/sgml/2.4.1/dbent241.zip
+Extract the files and copy them directly in
+/usr/share/sml/docbook/3.0
+/usr/share/sml/docbook/4.2
+/usr/share/sml/docbook/4.3
+/usr/share/sml/docbook/4.4
+
+Retry :
+onsgmls -sv test.sgm (must replace nsgmls by onsgmls)
+Good, it works...
+
+Continue to follow the instructions in docbook-dsssl-1.79\doc\install.html
+I have already installed the Modular DocBook Stylesheets in
+/usr/share/sgml/docbook/dsssl-stylesheets (version 1.79)
+Add this line to /etc/sgml/catalog :
+CATALOG /usr/share/sgml/docbook/dsssl-stylesheets/catalog
+
+Try :
+jade -t rtf -d /usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl test.sgm
+Good, it works...
+
+Try :
+jade -t sgml -d /usr/share/sgml/docbook/dsssl-stylesheets/html/docbook.dsl test.sgm
+Good, it works...
+
+collateindex.pl must be directly executable :
+Add this path to ~/.bashrc :
+PATH=/usr/share/sgml/docbook/dsssl-stylesheets/bin:${PATH}
+
+Need docbook2pdf and docbook2html
+No package available for Cygwin.
+Download from http://cblfs.cross-lfs.org/index.php/DocBook_Utils
+Follow the instructions, make and... error :
+jade:../../doc/docbook-utils.sgml:1:55:W: cannot generate system identifier for public text "-//OASIS//DTD DocBook V3.1//EN"
+Ok, must install DocBook 3.1 :
+I download http://www.oasis-open.org/docbook/sgml/3.1/docbk31.zip
+Install it in /usr/share/sgml/docbook/3.1
+Add this line to /etc/sgml/catalog :
+CATALOG /usr/share/sgml/docbook/3.1/docbook.cat
+
+Retry make
+Good, it works...
+make install and... error :
+cd: //usr/man/man1: No such file or directory
+Don't care, it's about doc.
+[later] 
+Pfff, because of this error, I don't have the frontends installed.
+After investigation, can't find from where comes this additional slash.
+I add /. in front of cd $(DESTDIR)/$(mandir)/man1 in doc/Makefile, 
+redo make install, and now the install is ok.
+
+[Don't do that]
+Remaining missing stuff : pdftex
+Let's see if I can avoid to re-install TeXLive under Cygwin (already installed as a pure Windows package)
+Add this path to ~/.bashrc :
+PATH=/cygdrive/d/local/XmlToolSet/TeXLive/2008/bin/win32:${PATH}
+Go to docs/trunk/readme
+make
+Does not work... pdftex can't work that way.
+No choice, must install TeX under Cygwin.
+
+I don't use the packages available via the setup because they are obsolete (tetex)
+I prefer to install TeXLive from http://www.webalice.it/angelo.graziosi/cygwin/texlive/texlive.html
+(yes, no cygwin binaries from the official TexLive site, so...)
+Do the steps 0, 1 and 2.
+NO NEED to download the iso image 1.246.282 KB, just use the network installer from
+http://www.tug.org/texlive/acquire.html
+(default mirror too slow, using
+./install-tl -no-gui -location ftp://ftp.inria.fr/pub/TeX/CTAN/systems/texlive/tlnet/2008/
+)
+Install medium scheme (f)
+It's ok to have "no available_architectures, continuing anyway"
+When done, add this path to ~/.bashrc :
+PATH=/usr/local/texlive/2008/bin/i386-cygwin:${PATH}
+Remember : tlmgr for managing TEX Live after the initial installation.
+Ex : tlmgr list
+Ex : tlmgr list schemes
+Must install scheme-xml to have passivetex, jadetex :
+tlmgr install scheme-xml
+
+Copy the contents of docs/trunk/texmf.cnf into /usr/local/texlive/2008/texmf.cnf
+
+Try again, go to docs/trunk/readme
+make
+Good, it works... I have a pdf and a html
+
+Go to docs/trunk/rexxref
+make
+Good, it works... but it's slooow : about 45 min
+
+
+===============================================================================
 2009 june 28
 
 I need Batk to visualize the railroads generated by com.moldflow.dita.syntaxdiagram2svg
