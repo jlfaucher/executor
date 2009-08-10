@@ -290,7 +290,7 @@ do while eof = .false
 raw_element = buffer3~string
 if \iscdata then buffer3~changeStr(self~endofline, " "~copies(self~endofline~length)) -- replace endofline by space(s)
 element = buffer3~string~strip()
-if self~debug then call lineout "stderr", errlineidx":"currentSourceLine()":element=["element"]"
+if self~debug then .stderr~lineout("[debug] "errlineidx":"currentSourceLine()":element=["element"]")
 select
    when element~substr(1, 1) = '/' then do
       chunk~tag = element~substr(2)
@@ -317,8 +317,8 @@ select
       element = element~strip()
       if self~debug then 
           do
-              call lineout "stderr", errlineidx":"currentSourceLine()":tag    =["tag"]"
-              call lineout "stderr", errlineidx":"currentSourceLine()":element=["element"]"
+              .stderr~lineout("[debug] "errlineidx":"currentSourceLine()":tag    =["tag"]")
+              .stderr~lineout("[debug] "errlineidx":"currentSourceLine()":element=["element"]")
           end
       -- the following is needed in case the '/' immediately follows the tag
       if tag~pos('/') > 0 then do
@@ -340,7 +340,7 @@ select
          else if firstApos <> 0 then pos = firstApos
          else pos = 0
          if pos <> 0 then element = element~left(pos - 1)~space(0) || element~substr(pos)
-         if self~debug then call lineout "stderr", errlineidx":"currentSourceLine()":element=["element"]"
+         if self~debug then .stderr~lineout("[debug] "errlineidx":"currentSourceLine()":element=["element"]")
          if pos('="', element~word(1)) > 0 then do
             parse var element attrname '="' attrvalue '"' element
             attrname = attrname~strip()
@@ -510,6 +510,7 @@ use strict arg xmlfile
 tfile = .stream~new(xmlfile)
 errortxt = tfile~open('read')
 if errortxt <> 'READY:' then do
+   errortxt = tfile~description
    tfile~close()
    return errortxt
    end

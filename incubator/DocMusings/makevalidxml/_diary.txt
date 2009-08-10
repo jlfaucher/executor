@@ -1,4 +1,62 @@
 ===============================================================================
+2009 august 09
+
+Renamed makevalidxml to transformfile because the script is not limited to 
+making a valid XML file.
+
+Added transformdir which lets process all the sgml files of a given directory.
+Transformation in place is not allowed, must pass an output directory different
+from input directory. Does not process recursively, so must process separately
+each directory under trunk.
+Ex : 
+rexx transformdir.rex trunk/rexxref trunk/rexxref.new
+
+A minimal conformity checking is done, and some errors are found :
+buildmachine\vmware.sgml
+    line 2 : missing closing ">" : <title
+oodialog\editcontrolc.sgml
+    line 1393 : Uppercase "L" in <Listitem>
+    line 1501 : Uppercase "L" in <Listitem>
+    line 1573 : Uppercase "L" in <Listitem>
+    line 1643 : Uppercase "L" in <Listitem>
+oodialog\progressbarc.sgml
+    line 173 : Missing quotes around mthStep in <link linkend=mthStep>
+    line 180 : Missing quotes around mthStep in <section id=mthStep>
+oodialog\windowBaseCommon.sgml
+    Lot of errors because railroad not in cdata
+    For the moment, I skip this file when iterating over the sgml files
+oodialog\windowExtensionsCommon.sgml
+    Lot of errors because railroad not in cdata
+    For the moment, I skip this file when iterating over the sgml files
+readme\newinrelease.sgml
+    line 407 : Insert the missing </listitem></varlistentry> after </para> 
+               to close <varlistentry> at line 401 and <listitem> at line 402
+readme\windows.sgml
+    line 107 : <para> has no closing </para>
+    line 510 : <para> has no closing </para>
+rexxpg\api.sgml
+    line 4294 : <</para>
+rexxpg\classicapi.sgml
+    line 3042 : missing closing ">" : </title
+    line 3105 : remove this tag <section>, it has no counterpart
+rexxref\instrc.sgml
+    line 3576 : Use &lt; instead of "<" in <computeroutput><=</computeroutput>
+winextensions\windowmanager.sgml
+    line 56 : lower case <computeroutput>winSystm.cls</COMPUTEROUTPUT>
+winextensions\wineventlog.sgml
+    line 55 : lower case <computeroutput>winSystm.cls</COMPUTEROUTPUT>
+
+Except these errors, all the sgml files are parsed correctly. A diff between the
+original version and the generated file shows zero difference.
+Unbalanced <imagedata> and <colspec> are supported (that will be easy to generate
+a valid XML with balanced tags).
+In fact, I realize it will be easy to do a roundtrip sgml docbook-->xml docbook
+and vice versa.
+
+Todo : Implement -dsssl, -xslt and -xinclude.
+
+
+===============================================================================
 2009 july 26
 
 [out of subject, but...]
@@ -92,7 +150,7 @@ must be
 
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
 must have a system identifier
-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
 
 <imagedata> must be completed by </imagedata>
 
