@@ -1,4 +1,157 @@
 ===============================================================================
+2009 september 12
+
+Generated the 4.0.0 documentation with syntax diagrams as image.
+Configuration :
+WinXP + Cygwin + OpenJade + TexLive
+For an example of generated PDF, go to :
+http://sites.google.com/site/jfaucherfr/oorexx/syntax-diagrams
+
+Procedure :
+Go to directory docs/releases/4.0.0
+Copy the directory trunk to trunk.out
+Apply the fixes described below (9 aug and 5 sept ) in trunk
+Run : transformdir -syntdiag trunk trunk.out (25 min on my laptop).
+Go to directory trunk.out and make the doc as usual.
+The syntax diagrams that can't be converted remain as text.
+
+Remember : 
+There are errors remaining in oodialog : userdialog.sgml and utilityclasses.
+The files windowBaseCommon.sgml and windowExtensionsCommon.sgml are not processed.
+
+
+Todo : 
+Improve the quality of the image, the PNG looks a little bit blurred.
+Two image formats are generated from SVG : PDF and PNG
+PDF images are very good, even if viewed at 400%.
+The transformed XML contains a reference to each format, but the references 
+to the PDF are not taken into account.
+
+Todo : 
+Implement -dsssl, -xslt and -xinclude.
+
+
+===============================================================================
+2009 september 5
+
+Now process recursively the directories.
+
+Added option -syntdiag
+When the input <file>.sgml contains at least one syntax diagram, a file 
+sd_<file>.xml is created, which contains (for each syntax diagram) the text of 
+the syntax diagram, a diagnostic and (if valid) a DITA XML representation.
+
+To be recognized as a syntax diagram, the text must be in CDATA and must contain
+at least one entry point ">>" or "|-" at the begining of line.
+
+Some errors are detected during the tokenization or the parsing :
+oodialog\basedialog.sgml
+    line 1837, near aBaseDialog~AutoDetection : must be terminated by ><
+    line 2662, near aBaseDialog~ConnectMouseCapture : must be terminated by ><
+    line 2801, near >>-aBaseDialog~ConnectKeyPress( : must shift the line one character to the right
+oodialog\listcontrolc.sgml :
+    line 1862, near aListControl~ModifyColumn : replace "." by "+"
+oodialog\standarddialog.sgml :
+    line 856, near >>-aCheckList~Init( : the second >> must be a continuation >-
+    line 1206, near FileNameDialog( : replace the first "+" by "-"
+    line 1664, near >>--CheckList( : the second >> must be a continuation >-
+oodialog\userdialog.sgml :
+    line 6593, near >>--addInput( : a "+" is missing for "+-,-style-+"
+    line 6896, near >>--addInputGroup( : a "+" is missing for "+-,-style-+"
+    line 7391, near >>--addInputGroup( : a "+" is missing for "+-,-style-+"
+    and the same error which occurs several times : wrong optional declaration (I think), not fixed :
+    line 1056, near dlg~addGroupBox(
+    line 2337, near addRadioGroup(
+    line 2576, near addRadioStem(
+    line 3117, near addCheckGroup(
+    line 3368, near addCheckBoxStem(
+    line 3694, near dlg~addStatic(
+    line 4543, near addWhiteRect(-
+    line 4659, near addWhiteFrame(
+    line 4775, near addGrayRect(
+    line 4891, near addGrayFrame(
+    line 5007, near addBlackRect(
+    line 5123, near addBlackFrame(
+    line 5239, near addEtchedFramed(
+    line 5354, near addEtchedHorizontal(
+    line 5469, near addEtchedVertical(
+oodialog\utilityclasses.sgml :
+    line 241, near >>-.DlgUtil~version( : two "+" are missing
+    line 315, near >>-.DlgUtil~comCtl32Version( : two "+" are missing
+    line 2121, near aDlgAreaU~Init(Dialog : this sd looks strange, don't know how to fix that...
+rexxref\collclasses.sgml :
+    line 1314, near makeString(-+ : 
+        replace the second "+" by "-" and move the end of the choice (CHAR) to the same position as (LINE)
+    line 1676, near toString(-+ :
+        replace the second "+" by "-" and move the end of the choice (CHAR) to the same position as (LINE)
+rexxref\dire.sgml : 
+    line 362, near >>-::CONSTANT : must be terminated by ><
+rexxref\funct.sgml :
+    line 3431, near >>-RANDOM( : the final "+" of "+--min--+" must be shifted one character to the right
+    line 4937, near >>-TRANSLATE( : 
+        the closing parenthesis is not at the right place, must be after the last parameter
+        the three lines of the last block "+-pos-+  +-,length-+" must be moved one line upper
+        (to be similar to string~translate)
+        BUT... Seems still not good to me : TRANSLATE("abcdef", , , , 2, 3) is NOT allowed by the diagram
+        pos and length should be declared optional in the continuation of pad (I think)
+rexxref\fundclasses.sgml :
+    line 2719, near >>-caselessCompareTo( : a " " must be replaced by "-"
+    line 2881, near >>-caselessMatch( : the last "+" must be shifted to the right, to align it with the upper "+"
+    line 3189, near >>-compareTo( : a " " must be replaced by "-"
+    line 4097, near >>-match( : the last "+" must be shifted to the right, to align it with the upper "+"
+    line 4169, near >>-max-+ : replace the "." by "+" (or the "+" by ".")
+    line 4199, near >>-min-+ : replace the "." by "+" (or the "+" by ".")
+    line 5603, near >>-call-+ : replace the "." by "+" (or the "+" by ".")
+    line 4669, near >>-translate : the last "+" must be shifted to the right, to align it with the upper "+"
+        This syntax diagram seems not good : translate(, , , 3, 2) is NOT allowed by the diagram
+rexxref\instrc.sgml :
+    line 388, near >>-CALL : must end with ><
+    line 390, near >>-CALL : must align the end choice with the upper "+"
+rexxref\intro.sgml :
+    line 1900, near >>-receiver-+ : replace "+" by "." (or "." by "+")
+rexxref\preface.sgml :
+    line 163, near |--expansion : this syntax diagram must be put in CDATA to be recognized.    
+rexxref\rexutil.sgml :
+    line 2029, near >>-SysGetMessage( : 
+        not supported, the 2nd "+" has no counterpart (must have a -+-, not just a -+)
+        solution : do a clean separation for each end of choice
+    line 2035, near >>-SysGetMessage( : the 2nd "+" must be shifted one character left, to be aligned
+    line 2086, near >>-SysGetMessageX( : 
+        not supported, the 2nd "+" has no counterpart (must have a -+-, not just a -+)
+        solution : do a clean separation for each end of choice
+    line 2212, near 2nd >>-SysIni( : the line must be shifted 10 characters to the left
+    line 3366, near >>-SysShutdownSystem( : 
+        replace "*" by "+"
+        not supported, the 2nd "+" has no counterpart (must have a -+-, not just a -+)
+        solution : do a clean separation for each end of choice
+rexxref\utilityclasses.sgml :
+    line 141, near >>-fromNormalDate( : the 3rd "+" has no counterpart
+    line 169, near >>-fromEuropeanDate( : the 3rd "+" has no counterpart
+    line 199, near >>-fromOrderedDate( : the 3rd "+" has no counterpart
+    line 228, near >>-fromStandardDate( : the 3rd "+" has no counterpart
+    line 256, near >>-fromUsaDate( : the 3rd "+" has no counterpart
+    line 446, near >>-init(year,month,day-+ : the last "+" must be replaced by ")"
+    line 3303, near >>-caselessMatch( : the last "+" must be shifted to the right, to be aligned
+    line 3718, near >>-match( : the last "+" must be shifted to the right, to be aligned
+    line 3993, near >>-translate : the last "+" must be shifted to the right, to align it with the upper "+"
+        This syntax diagram seems not good (same problem as string~translate)
+rxftp\rxftp :
+    line 1096, near myftpobj~FtpSetUser( : the 2nd "+" has no counterpart
+
+Remember, fragments :
+rexxref\funct.sgml : Stream commands
+rexxref\instrc.sgml : DO repetitor, conditional
+rexxref\instrc.sgml : LOOP repetitor, conditional
+rexxref\instrc.sgml : RAISE options, options exit
+rexxref\streamclasses.sgml : Stream commands
+rexxref\streamclasses.sgml : Stream open
+winextensions\winregistry.sgml : open access
+
+
+Todo : Implement -dsssl, -xslt and -xinclude.
+
+
+===============================================================================
 2009 august 09
 
 Renamed makevalidxml to transformfile because the script is not limited to 
@@ -38,7 +191,6 @@ rexxpg\api.sgml
     line 4294 : <</para>
 rexxpg\classicapi.sgml
     line 3042 : missing closing ">" : </title
-    line 3105 : remove this tag <section>, it has no counterpart
 rexxref\instrc.sgml
     line 3576 : Use &lt; instead of "<" in <computeroutput><=</computeroutput>
 winextensions\windowmanager.sgml

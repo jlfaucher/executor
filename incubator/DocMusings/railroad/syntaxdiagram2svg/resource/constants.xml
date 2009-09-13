@@ -64,7 +64,7 @@
     <scalar name="diagram_wrap_indent">30</scalar>
     
     <!-- Maximum diagram size, in SVG pixels. -->
-    <scalar name="diagram_max_width">650</scalar>
+    <scalar name="diagram_max_width">600</scalar> <!-- JLF : 650 too big for our doc, try 550 -->
     <scalar name="diagram_max_height">1000</scalar>
     <!-- One SVG pixel is this many units for the container.   Try "0.28" and "in" for 90 DPI print output. -->
     <scalar name="diagram_scale">1</scalar>

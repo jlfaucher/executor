@@ -100,7 +100,7 @@
 
     
     
-    syntaxdiagram_Constants.diagram_max_width=650;
+    syntaxdiagram_Constants.diagram_max_width=550;
 
     syntaxdiagram_Constants.diagram_max_height=1000;
 

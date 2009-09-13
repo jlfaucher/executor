@@ -20,8 +20,8 @@ RxMath
         <groupcomp>
             <kwd>RxCalcSqrt</kwd>
             <delim>(</delim>
+            <var>number</var>
         </groupcomp>
-        <var>number</var>
         <groupseq importance="optional">
             <delim>,</delim>
             <var>precision</var>
@@ -42,7 +42,10 @@ rexxref
             <kwd>LABEL</kwd>
             <var>name</var>
         </groupseq>
-        <fragref href="#DO_repetitor" importance="optional"/>
+        <!-- can insert the text to display directly in the fragref.
+             that way, no need to retrieve the fragment to get its title -->
+        <fragref importance="optional">repetitor</fragref>
+        <!-- <fragref href="#DO_repetitor" importance="optional"/> -->
         <fragref href="#DO_conditional" importance="optional"/>
         <sep>;</sep>
         <groupseq>
@@ -124,6 +127,25 @@ Examples taken from Dita web site
     </groupseq>
 </syntaxdiagram>
 
+<!-- Same as previous, but use less groups -->
+<syntaxdiagram>
+    <title>URL syntax 1a</title>
+    <groupseq>
+        <kwd>http</kwd>
+        <sep>:</sep>
+        <sep>//</sep>
+        <var>host</var>
+        <groupseq importance="optional">
+            <sep>:</sep>
+            <var>port</var>
+        </groupseq>
+        <groupseq>
+            <sep>/</sep>
+            <var>path</var>
+        </groupseq>
+    </groupseq>
+</syntaxdiagram>
+
 <syntaxdiagram>
     <title>URL syntax 2</title>
     <groupseq>
@@ -151,6 +173,39 @@ Examples taken from Dita web site
                     </groupcomp>
                     <sep>/</sep>
                 </groupseq>
+            </groupseq>
+            <groupseq importance="optional">
+                <sep>/</sep>
+            </groupseq>
+        </groupchoice>
+        <var>path</var>
+    </groupseq>
+</syntaxdiagram>
+
+<!-- Same as previous but with less groups -->
+<syntaxdiagram>
+    <title>URL syntax 2a</title>
+    <groupseq>
+        <groupchoice>
+            <groupseq>
+                <groupchoice>
+                    <kwd>http</kwd>
+                    <kwd>https</kwd>
+                    <kwd>ftp</kwd>
+                    <kwd>file</kwd>
+                </groupchoice>
+                <sep>:</sep>
+                <sep>//</sep>
+                <groupcomp importance="optional">
+                    <var>user</var>
+                    <sep>@</sep>
+                </groupcomp>
+                <var>host</var>
+                <groupcomp importance="optional">
+                    <sep>:</sep>
+                    <var>port</var>
+                </groupcomp>
+                <sep>/</sep>
             </groupseq>
             <groupseq importance="optional">
                 <sep>/</sep>

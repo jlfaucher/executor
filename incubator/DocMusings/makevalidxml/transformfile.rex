@@ -42,7 +42,7 @@
 /**** 
 Usage :
     $sourcename 
-        [-debug] [-dsssl] [-dump] [-help] [-xinclude] [-xslt] 
+        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xinclude] [-xslt] 
         <inputFile> [<outputFile> [<logFile>]]
 Description :
     This script is intended to work on the XML files of the ooRexx doc.
@@ -54,9 +54,15 @@ Description :
     -debug    : Insert additional informations in the ouptut. A part is sent to
                 stderr, another part is inserted in the XML output (making it
                 non valid).
-    -dsssl    : Generate DocBook XML compatible with DSSSL.
-    -dump     : The elements and attributes are dumped without attempting to
+    -dsssl    : Generate DocBook XML compatible with DSSSL (default).
+    -dump     : The XML elements and attributes are dumped without attempting to
                 keep the original layout.
+                When used with -syntdiag, the internal structures of the parser
+                are dumped in the sd_<file>.xml.
+    -syntdiag : Replace textual syntax diagrams by a reference to an image (the
+                name of the image is derived from the enclosing DocBook section).
+                And generate an XML syntax diagram file that will be processed 
+                by syntaxdiagram2svg. Batik can generate the image from the svg.
     -xinclude : Use <xi:include> instead of XML entities to include files.
                 Will be ignored if the target format is not XSLT.
     -xslt     : Generate DocBook XML compatible with XSLT.
@@ -89,45 +95,90 @@ if arguments~outputFile <> "" then do
         log~lineout("[error] "parser~output~description)
         return 1
     end
+    parser~outputFile = arguments~outputFile
 end
 
-signal on syntax -- The parser can abort by raising a syntax 4 (??? why only a "syntax" can be propagated automatically ???)
+if arguments~syntdiag then do
+    parser~syntdiag = .true 
+    -- The name of the syntax diagram file is derived from the output file, if any
+    -- Otherwise use the default name
+    if arguments~outputFile <> "" then do -- Don't use parser~outputFile here ! Its default value is "stdout", not ""
+        location = filespec("location", arguments~outputFile)
+        nameSuffix = filespec("name", arguments~outputFile)
+        suffix = filespec("extension", arguments~outputFile)
+        name = nameSuffix~left(nameSuffix~length - suffix~length - 1)
+        parser~syntdiagBasename = "sd_" || name
+        parser~syntdiagOutputFile = location || parser~syntdiagBasename || ".xml"
+    end
+    -- The file will be created later, when the first syntax diagram is created
+end
+
+-- signal on syntax -- The parser can abort by raising a syntax 4 (??? why only a "syntax" can be propagated automatically ???)
 errortxt = parser~parse_file(arguments~inputFile)
 if errortxt <> "" then do
     log~lineout("[error] The XML parser returned "errortxt)
     return 1
 end
 
+if parser~syntdiagOutput <> .nil then do
+    parser~syntdiagOutput~lineout("</syntaxdiagrams>")
+    parser~syntdiagOutput~close
+end
+
 parser~check_stack_empty
+
+-- Convert the syntax diagrams to images
+if parser~syntdiagOutput <> .nil then call sd2image parser~syntdiagOutputFile
 
 return 0
 
 syntax: -- In fact, it's an abort, not a syntax error...
     return 1
 
-::requires 'arguments.rex'
+::requires 'arguments.cls'
 ::requires 'help.rex'
 ::requires 'myxmlparser.cls'
+::requires 'rxregexp.cls'
+::requires 'sdtokenizer.cls'
+::requires 'sdparser.cls'
+::requires 'sdxmlizer.cls'
+
 
 -------------------------------------------------------------------------------
 ::class myparser subclass xmlparser
+::attribute documentNode
 ::attribute dump
 ::attribute elementsStack
 ::attribute log
 ::attribute output
+::attribute outputFile
+::attribute syntdiag
+::attribute syntdiagBasename
+::attribute syntdiagNames
+::attribute syntdiagOutput
+::attribute syntdiagOutputFile
 ::attribute target
+
 
 ::method init
     self~init:super
+    self~documentNode = .Node~new(.nil) -- Toplevel title is ""
     self~dump = .false
     self~elementsStack = .Queue~new
     self~log = .stderr
     self~output = .stdout
-    self~target = ""
+    self~outputFile = "stdout"
+    self~syntdiag = .false
+    self~syntdiagBasename = "SyntaxDiagram"
+    self~syntdiagNames = .Directory~new -- To avoid name collision, manage a counter per name
+    self~syntdiagOutput = .nil -- The file will be created when the first syntax diagram is added
+    self~syntdiagOutputFile = self~syntdiagBasename".xml"
+    self~target = "dsssl"
 
+    
 ::method start_element
-    use arg chunk
-    self~elementsStack~push(chunk)
+    use strict arg chunk
+    self~elementsStack~push(.Node~new(chunk))
     if self~debug then self~output~charout('[start_element:'chunk~line':'chunk~col'[')
     if self~dump then do
         self~output~charout('<'chunk~tag)
@@ -143,8 +194,9 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if self~debug then self~output~charout(']start_element]')
     return
 
+    
 ::method end_element
-    use arg chunk
+    use strict arg chunk
     self~check_endtag_validity(chunk)
     if self~debug then self~output~charout('[end_element:'chunk~line':'chunk~col'[')
     if self~dump then do
@@ -157,8 +209,12 @@ syntax: -- In fact, it's an abort, not a syntax error...
     self~elementsStack~pull
     return
 
+    
 ::method passthrough
-    use arg chunk
+    use strict arg chunk
+    if self~syntdiag, self~transform_syntax_diagram(chunk) == .true then return
+    -- okay, the cdata does not contain a syntax diagram, or the transformation to image is not activated
+    -- insert the cdata normally
     if self~debug then self~output~charout('[passthrough:'chunk~line':'chunk~col'[')
     if self~dump then do
         self~output~charout('<'chunk~text'>')
@@ -169,8 +225,10 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if self~debug then self~output~charout(']passthrough]')
     return
 
+    
 ::method text
-    use arg chunk
+    use strict arg chunk
+    if self~is_title_text(chunk) then self~set_title(chunk)
     if self~debug then self~output~charout('[text:'chunk~line':'chunk~col'[')
     if self~dump then do
         self~output~charout(chunk~text)
@@ -181,13 +239,15 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if self~debug then self~output~charout(']text]')
     return
 
+    
 ::method error
-    use arg err
+    use strict arg err
     self~log~lineout("[error] "err~text)
     return
 
+    
 ::method xlatetext private
-    use arg text
+    use strict arg text
     /*
     text = text~changestr('&', '&amp;') -- always do this one first!
     text = text~changestr('>', '&gt;')
@@ -195,38 +255,269 @@ syntax: -- In fact, it's an abort, not a syntax error...
     */
     return text
 
+    
 ::method check_endtag_validity
-    use arg chunk
+    use strict arg chunk
     loop
-        topChunk = self~elementsStack~peek
-        if topChunk == nil then do
+        topNode = self~elementsStack~peek
+        if topNode == .nil then do
             self~log~lineout("[error] The elements stack is empty. Can't close "chunk~tag":"chunk~line':'chunk~col)
             self~abort
         end
-        if topChunk~tag == chunk~tag then return 1
-        if topChunk~tag == "imagedata" then do
+        if topNode~chunk~tag == chunk~tag then return 1
+        if topNode~chunk~tag == "imagedata" then do
             self~elementsStack~pull -- Known problem, imagedata not closed, remove it
             iterate
         end
-        if topChunk~tag == "colspec" then do
+        if topNode~chunk~tag == "colspec" then do
             self~elementsStack~pull -- Known problem, colspec not closed, remove it
             iterate
         end
-        if topChunk~tag == chunk~tag then return 1
         self~log~lineout("[error] The closing tag does not match the last opened tag :")
-        self~log~lineout("[error]     opened tag  = "topChunk~tag":"topChunk~line':'topChunk~col)
+        self~log~lineout("[error]     opened tag  = "topNode~chunk~tag":"topNode~chunk~line':'topNode~chunk~col)
         self~log~lineout("[error]     closing tag = "chunk~tag":"chunk~line':'chunk~col)
         self~abort
     end
 
+    
 ::method check_stack_empty
     if self~elementsStack~isEmpty then return 1
-    self~log~lineout("The elements stack is not empty.")
+    self~log~lineout("[error] The elements stack is not empty.")
     self~abort
 
+    
+::method transform_syntax_diagram
+    use strict arg chunk
+    text = chunk~cdata_text
+    if text == .nil then return .false
+    
+    tokenizer = self~tokenize_syntax_diagram(text)
+    if tokenizer == .nil then return .false
+    if tokenizer~errorCount <> 0 then return .false
+    
+    parser = self~parse_syntax_diagram(tokenizer)
+    if parser~errorCount <> 0 then return .false
+    
+    xmlizer = self~xmlize_syntax_diagram(tokenizer, parser)
+    if xmlizer~errorCount <> 0 then return .false
+    
+    -- good, from here, we know that the syntax diagram has been converted to XML.
+    -- we can reference each image or insert the comments.
+    self~reference_syntax_diagram(parser)
+    
+    return .true
+
+    
+::method tokenize_syntax_diagram
+    use strict arg text
+    tokenizer = .SyntaxDiagramTokenizer~tokenize(text, self~endofline)
+    if tokenizer == .nil then return .nil
+    
+    -- From here, we know that this cdata contains a textual syntax diagram
+    if self~syntdiagOutput == .nil then do
+        self~syntdiagOutput = .stream~new(self~syntdiagOutputFile)
+        if self~syntdiagOutput~command("open write replace") <> "READY:" then do
+            self~log~lineout("[error] Error opening "self~syntdiagOutputFile)
+            self~log~lineout("[error] "self~syntdiagOutput~description)
+            self~abort
+        end
+        self~syntdiagOutput = .IndentedStream~new(self~syntdiagOutput)
+        self~syntdiagOutput~lineout("<syntaxdiagrams>")
+        self~syntdiagOutput~lineout("")
+    end
+    
+    tokenizer~name = self~syntax_diagram_name -- name guaranted unique
+    
+    self~syntdiagOutput~charout("<!--")
+    self~syntdiagOutput~lineout("="~copies(76))
+    self~syntdiagOutput~lineout(tokenizer~name)
+    self~syntdiagOutput~charout("="~copies(77))
+    self~syntdiagOutput~lineout("-->")
+    self~syntdiagOutput~lineout("")
+    
+    -- I don't want to enforce the rule that any syntax diagram must be in a <programlisting>
+    -- But I'd like to know when it's not the case...
+    topNode = self~elementsStack~peek
+    if topNode~chunk~tag <> "programlisting" then do
+        self~log~lineout("[warning] "tokenizer~name" not in <programlisting>...</programlisting>")
+    end
+    
+    if tokenizer~errorCount <> 0 then do
+        self~syntdiagOutput~lineout("<![CDATA[")
+        tokenizer~inspect(self~syntdiagOutput)
+        self~syntdiagOutput~lineout("]]>")
+        self~syntdiagOutput~lineout("")
+        
+        self~log~lineout("[error] Syntax diagram tokenization failed for "tokenizer~name)
+        -- not abort because we can continue by inserting the textual sd
+    end
+    return tokenizer
+        
+    
+::method parse_syntax_diagram
+    use strict arg tokenizer
+    parser = .SyntaxDiagramParser~parse(tokenizer, self)
+    if parser~errorCount <> 0 then do
+        self~syntdiagOutput~lineout("<![CDATA[")
+        tokenizer~inspect(self~syntdiagOutput)
+        self~syntdiagOutput~lineout("]]>")
+        self~syntdiagOutput~lineout("")
+        
+        self~syntdiagOutput~lineout("<![CDATA[")
+        parser~inspect(self~syntdiagOutput)
+        self~syntdiagOutput~lineout("]]>")
+        self~syntdiagOutput~lineout("")
+        
+        self~log~lineout("[error] Syntax diagram parsing failed for "tokenizer~name)
+        -- not abort because we can continue by inserting the textual sd
+    end
+    return parser
+    
+        
+::method xmlize_syntax_diagram
+    use strict arg tokenizer, parser
+    self~syntdiagOutput~lineout("<![CDATA[")
+    tokenizer~dumpText(self~syntdiagOutput)
+    self~syntdiagOutput~lineout("]]>")
+    self~syntdiagOutput~lineout("")
+
+    xmlizer = .SyntaxDiagramXMLizer~xmlize(parser~mainEntries, self~syntdiagOutput)
+    self~syntdiagOutput~lineout("")
+
+    if xmlizer~errorCount <> 0 | self~dump then do
+        self~syntdiagOutput~lineout("<![CDATA[")
+        xmlizer~inspect(self~syntdiagOutput)
+        parser~dumpAbstractSyntaxTree(self~syntdiagOutput)
+        self~syntdiagOutput~lineout("]]>")
+        self~syntdiagOutput~lineout("")
+    end
+        
+    if xmlizer~errorCount <> 0 then do
+        self~log~lineout("[error] Syntax diagram XML generation failed for "tokenizer~name)
+        -- not abort because we can continue by inserting the textual sd
+    end
+    return xmlizer
+    
+    
+::method reference_syntax_diagram
+    use strict arg parser
+    cdata = .false -- consecutive comments will be serialized in the same cdata
+    newline = .false -- don't insert a newline if last line, because on return a newline will be inserted 
+    do entry over parser~mainEntries
+        if newline then do
+            self~output~lineout("")
+            newline = .false
+        end
+        if entry~isA(.sdparser~Comment) then do
+            if cdata == .false then do
+                self~output~lineout("<![CDATA[")
+                cdata = .true
+            end
+            self~output~lineout(entry~text)
+        end
+        else do
+            if cdata == .true then do
+                self~output~lineout("]]>")
+                cdata = .false
+            end
+            
+            -- I have two candidate formats : PDF and PNG
+            -- Inside programlisting, only inline media objects are allowed
+            -- Let see if OpenJade and TexLive will support inlinemediaobject...
+            -- [later] inlinemediaobject is supported but the PDF format is not taken into account...
+            fileref = self~syntdiagBasename"/"entry~hrefbase -- relative path without extension
+            self~output~lineout('<inlinemediaobject>')
+            -- first candidate format : PDF
+            self~output~lineout('    <imageobject>')
+            self~output~charout('        <imagedata fileref="'fileref'.pdf"')
+            if self~target == "dsssl" then self~output~lineout('>') -- bug OpenJade
+            else self~output~lineout('/>')
+            self~output~charout('    </imageobject>')
+            -- second candidate format : PNG
+            self~output~lineout("")
+            self~output~lineout('    <imageobject>')
+            self~output~charout('        <imagedata fileref="'fileref'.png"')
+            if self~target == "dsssl" then self~output~lineout('>') -- bug OpenJade
+            else self~output~lineout('/>')
+            self~output~lineout('    </imageobject>')
+            self~output~charout('</inlinemediaobject>')
+            
+            /*
+            -- Inside programlisting, only inline graphics are allowed
+            fileref = self~syntdiagBasename"/"entry~hrefbase".png" -- relative path
+            self~output~charout('<inlinegraphic fileref="'fileref'"')
+            if self~target == "dsssl" then self~output~charout('>') -- bug OpenJade
+            else self~output~charout('/>')
+            */
+            
+            newline = .true
+        end
+    end
+    if cdata == .true then self~output~charout("]]>")
+    
+    
+::method syntax_diagram_name
+    use strict arg prefix="", suffix=""
+    -- Use the concatenation of two titles to reduce the risk of collision
+    parent1 = self~parent_with_title(1)
+    parent2 = self~parent_with_title(2)
+    name = prefix" "parent2~title" "parent1~title" "suffix
+    name = filename(name, "_")
+    if self~syntdiagNames[name] == .nil then do
+        self~syntdiagNames[name] = 1
+    end
+    else do
+        self~syntdiagNames[name] += 1
+        name = name"_"self~syntdiagNames[name]
+    end
+    return name
+
+    
+::method is_title_text
+    use strict arg chunk
+    topNode = self~elementsStack~peek
+    if topNode = .nil then return .false
+    return topNode~chunk~tag == "title" -- <title>text
+
+    
+::method set_title
+    -- Store the text of the <title> in the 'title' property of the <parent>
+    -- ...<parent><title>text
+    --  3     2      1
+    use strict arg chunk
+    if self~elementsStack~hasIndex(2) then self~elementsStack~at(2)~title = chunk~text
+
+    
+::method parent_with_title
+    use strict arg number
+    index = self~elementsStack~first
+    do while index <> .nil
+        node = self~elementsStack~at(index)
+        if node~title <> "" then do
+            number -= 1
+            if number <= 0 then return node
+        end
+        index = self~elementsStack~next(index)
+    end
+    return self~documentNode -- fallback if no parent with title in the stack
+    
+    
 ::method abort
     self~log~lineout("[error] Aborting !")
-    raise syntax 4 -- Don't know what's the best here... I want to abort the program, but exit 1 does not work, raise user abort does not work, it seems that only raise syntax works...
+    -- Don't know what's the best here... I want to abort the program, but exit 1 does not work, raise user abort does not work, it seems that only raise syntax works...
+    raise syntax 4 -- ABORT
+
+
+-------------------------------------------------------------------------------
+-- I need to store additional infos about the chunk, use a wrapper
+::class Node
+::attribute chunk
+::attribute title
+
+::method init
+    use strict arg chunk
+    self~chunk = chunk
+    self~title = ""
 
 
 -------------------------------------------------------------------------------
@@ -291,4 +582,17 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if i > self~args~items then return
     self~errors~append("[error] Unexpected arguments :" self~args~section(i)~toString("L", " "))
     return
+
+
+-------------------------------------------------------------------------------
+::routine filename
+    -- "my name" --> "my_name"
+    -- "special characters (like +?%) supported ? yes !" --> "special_characters_like_supported_yes" 
+    use strict arg text, separator
+    buffer = .MutableBuffer~new(text)
+    alnum = .RegularExpression~new("[:ALNUM:]")
+    do i=1 to buffer~length
+        if \alnum~match(buffer~subchar(i)) then buffer~replaceAt(" ", i, 1)
+    end
+    return buffer~string~space~translate(separator, " ")
 

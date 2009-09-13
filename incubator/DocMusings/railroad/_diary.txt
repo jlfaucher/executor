@@ -1,4 +1,17 @@
 ===============================================================================
+2009 sept 13
+
+Small tuning in CSS and resources :
+No longer use bold.
+Adjust diagram max width (still too big, I think).
+
+transform.xsl : 
+Changed the way the titles (or lack of titles) are managed.
+Currently, the fragments have their own full name, no need of title in their
+enclosing syntax diagram.
+
+
+===============================================================================
 2009 july 11
 
 I have a small documentation which gives examples of railroads generated

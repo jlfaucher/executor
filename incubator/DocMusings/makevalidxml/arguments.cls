@@ -10,6 +10,7 @@
     self~dump = .false
     self~errors = .List~new
     self~help = .false
+    self~syntdiag = .false
     self~xinclude = .false
     self~xslt = .false
     
@@ -52,6 +53,10 @@
         when "-help"~caseLessEquals(option) then do
             self~help = .true
             self~helpOption = option
+        end
+        when "-syntdiag"~caseLessEquals(option) then do
+            self~syntdiag = .true
+            self~syntdiagOption = option
         end
         when "-xinclude"~caseLessEquals(option) then do
             self~xinclude = .true

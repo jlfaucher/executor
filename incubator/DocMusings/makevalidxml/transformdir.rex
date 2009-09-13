@@ -1,13 +1,15 @@
 /**** 
 Usage :
     $sourcename 
-        [-debug] [-dsssl] [-dump] [-help] [-startat <filename>] [-xinclude] [-xslt] 
+        [-debug] [-dsssl] [-dump] [-help] [-startat <filename>] [-syntdiag] 
+        [-xinclude] [-xslt] 
         <inputDirectory> [<outputDirectory>] [<logFile>]
 Description :
     This script is intended to work on the XML files of the ooRexx doc.
-    It iterates over the files found in <inputDirectory> and applies 
-    makevalidxml on the *.sgml files, using the options passed
-    as parameters. The sgml files are written to <outputDirectory>.
+    It iterates over the directories and files found in <inputDirectory> and 
+    applies transformfile on the *.sgml files, using the options passed
+    as parameters. The sgml files are written to <outputDirectory>, with the
+    same relative path.
     By default, there is no transformation.
     Options :
     -debug    : Insert additional informations in the ouptut. A part is sent to
@@ -18,6 +20,10 @@ Description :
                 keep the original layout.
     -startat  : Lets start the iteration at <filename>. Useful when you have
                 to bypass errors in the XML files and restart the iteration.
+    -syntdiag : Replace textual syntax diagrams by a reference to an image (the
+                name of the image is derived from the enclosing DocBook section).
+                And generate an XML syntax diagram file that will be processed 
+                by syntaxdiagram2svg. Batik can generate the image from the svg.
     -xinclude : Use <xi:include> instead of XML entities to include files.
                 Will be ignored if the target format is not XSLT.
     -xslt     : Generate DocBook XML compatible with XSLT.
@@ -47,7 +53,7 @@ if \SysFileExists(inputDirectory) then do
     return 1
 end
 
-call SysFileTree inputDirectory"*.sgml", "files", "FO"
+call SysFileTree inputDirectory"*.sgml", "files", "FOS"
 if files.0 <> 0 then do
     if createDirectoryVerbose(outputDirectory, log) < 0 then return 1
     skip = arguments~startat
@@ -58,19 +64,22 @@ if files.0 <> 0 then do
             return 1
         end
         relativepath = fullpath~substr(inputDirectory~length + 1)
+        filename = filespec("name", relativepath)
 
-        if skip then if relativepath <> arguments~startatValue then iterate
+        if skip then if filename <> arguments~startatValue then iterate
         skip = .false
         
         -- oodialog
-        if relativepath == "dialogcontrolCommon.sgml" then iterate -- not used
-        if relativepath == "menus.sgml" then iterate -- not used
-        if relativepath == "windowBaseCommon.sgml" then iterate -- to fix ! used.
+        if filename == "dialogcontrolCommon.sgml" then iterate -- not used
+        if filename == "menus.sgml" then iterate -- not used
+        if filename == "windowBaseCommon.sgml" then iterate -- to fix ! used.
+        if filename == "windowExtensionsCommon.sgml" then iterate -- to fix ! used.
 
         log~lineout("[info] Processing file "fullpath)
         call transformfile arguments~debugOption,,
                            arguments~dssslOption,,
                            arguments~dumpOption,,
+                           arguments~syntdiagOption,,
                            arguments~xincludeOption,,
                            arguments~xsltOption,,
                            fullpath,,
@@ -85,7 +94,7 @@ end
 
 return 0
 
-::requires 'arguments.rex'
+::requires 'arguments.cls'
 ::requires 'help.rex'
 ::requires 'directory.rex'
 
