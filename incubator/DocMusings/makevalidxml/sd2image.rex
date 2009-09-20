@@ -4,11 +4,12 @@ Usage :
 Description :
     Create a subdirectory <sd_File> (without suffix) and generate an image file 
     for each syntax diagram or fragment in <sd_File>.
+    Generated formats : SVG, PNG, PDF.
 Prerequisites :
-    Depends on xsltproc. 
-    Assumes that the XSLT script to generate SVG is located in the directory
+    Assumes that the syntaxdiagram2svg addin is located in the directory
     ../railroad/syntaxdiagram2svg (path relative to current script directory).
-    Depends on the environment variable BATIK_ROOT to retrieve Batik.
+    Depends on xsltproc. 
+    Depends on the environment variable BATIK_RASTERIZER_JAR.
 ****/
 
 log = .stderr
@@ -23,7 +24,6 @@ if arguments~help | \arguments~errors~isEmpty then return 1
 if arguments~logFile <> "" then log = .stream~new(arguments~logFile)
 
 sdFile = qualify(arguments~sdFile)
-
 if \SysFileExists(sdFile) then do
     log~lineout("[error] <sd_File> not found")
     return 1
@@ -39,6 +39,22 @@ sdFileName = sdFileNameExt~left(sdFileNameExt~length - sdFileExt~length - 1)
 outputDir = sdFileDir || sdFileName
 if createDirectoryVerbose(outputDir, log) < 0 then return 1
 
+----------------
+-- Prerequisites
+----------------
+
+error = .false
+BATIK_RASTERIZER_JAR = value("BATIK_RASTERIZER_JAR",,"ENVIRONMENT")
+if BATIK_RASTERIZER_JAR == "" then do
+    log~lineout("[error] The environment variable BATIK_RASTERIZER_JAR is not defined")
+    error = .true
+end
+if error then return 1
+
+------------------
+-- DITA XML to SVG
+------------------
+
 -- For the time being, the path to syntaxdiagram2svg is derived from the current script path,
 -- assuming it is located in the ../railroad/syntaxdiagram2svg directory
 -- (incubator directories)
@@ -47,53 +63,76 @@ if meDir~right(1)~matchChar(1, "/\") then meDir = meDir~left(meDir~length - 1)
 meUpperDir = filespec("location", meDir)
 syntaxdiagram2svg = qualify(meUpperDir || "railroad/syntaxdiagram2svg")
 
-if \SysFileExists(syntaxdiagram2svg"/transform.xsl") then do
-    log~lineout("[error] XSLT script for SVG generation not found")
-    return 1
-end
-
 csspath = qualify(syntaxdiagram2svg"/css")
 jspath = qualify(syntaxdiagram2svg"/js")
-xsltscript = qualify(syntaxdiagram2svg"/transform.xsl")
-xsltproc_log = qualify(outputDir"/_xsltproc.log")
+syntaxdiagram2svg_xsltscript = qualify(syntaxdiagram2svg"/transform.xsl")
+syntaxdiagram2svg_log = qualify(outputDir"/_syntaxdiagram2svg.log")
 
 -- Todo : test under Linux, is file:/// supported ?
 -- Something sure : I need it under Windows, otherwise absolute path not supported
-'xsltproc --stringparam CSSPATH file:///"'csspath'"',
-         '--stringparam JSPATH file:///"'jspath'"',
-         '--stringparam OUTPUTDIR file:///"'outputDir'"',
-         '"'xsltscript'"',
+'xsltproc --stringparam CSSPATH "file:///'csspath'"',
+         '--stringparam JSPATH "file:///'jspath'"',
+         '--stringparam OUTPUTDIR "file:///'outputDir'"',
+         '"'syntaxdiagram2svg_xsltscript'"',
          '"'sdFile'"',
-         '>"'xsltproc_log'" 2>&1'
+         '>"'syntaxdiagram2svg_log'" 2>&1'
 if RC <> 0 then do
     log~lineout("[error] XSLT script for SVG generation failed")
     return 1
 end
 
-BATIK_ROOT = value("BATIK_ROOT",,"ENVIRONMENT")
-if BATIK_ROOT == "" then do
-    log~lineout("[error] The environment variable BATIK_ROOT has no value")
-end
+-----------------
+-- SVG rasterizer
+-----------------
 
-rasterizer = qualify(BATIK_ROOT"/extensions/batik-rasterizer-ext.jar")
+constants_xml = qualify(syntaxdiagram2svg"/resource/constants.xml")
+constants_js = qualify(syntaxdiagram2svg"/js/constants.js") -- this file is generated from constants.xml, included by each SVG file, and read on load
+make_constants_xsltscript = qualify(syntaxdiagram2svg"/xsl/make-constants.xsl")
+make_constants_log = qualify(outputDir"/_make_constants.log")
 allsvg = qualify(outputDir"/*.svg")
 batik_log = qualify(outputDir"/_batik.log")
 
--- SVG to PNG
--- If I surround allsvg by quotes then the wildcard character no longer works.
--- so don't use a path with spaces...
-'java -Xmx1024M -jar "'rasterizer'" -onload -m image/png 'allsvg' >"'batik_log'" 2>&1'
+--------------------------
+-- SVG rasterizer : to PNG
+--------------------------
+
+'xsltproc --stringparam TARGET_FORMAT PNG',
+         '--output "'constants_js'"',
+         '"'make_constants_xsltscript'"',
+         '"'constants_xml'"',
+         '>"'make_constants_log'" 2>&1'
 if RC <> 0 then do
-    log~lineout("[error] Batik's rasterizer for SVG to PNG generation failed")
+    log~lineout("[error] XSLT script for generation of PNG constants failed")
     return 1
 end
 
--- SVG to PDF (better quality)
 -- If I surround allsvg by quotes then the wildcard character no longer works.
 -- so don't use a path with spaces...
-'java -Xmx1024M -jar "'rasterizer'" -onload -m application/pdf 'allsvg' >"'batik_log'" 2>&1'
+'java -jar "'BATIK_RASTERIZER_JAR'" -onload -m image/png -cssMedia screen 'allsvg' >"'batik_log'" 2>&1'
 if RC <> 0 then do
-    log~lineout("[error] Batik's rasterizer for SVG to PDF generation failed")
+    log~lineout("[error] Batik's rasterizer failed when converting to PNG")
+    return 1
+end
+
+-------------------------------------------
+-- SVG rasterizer : to PDF (better quality)
+-------------------------------------------
+
+'xsltproc --stringparam TARGET_FORMAT PDF',
+         '--output "'constants_js'"',
+         '"'make_constants_xsltscript'"',
+         '"'constants_xml'"',
+         '>"'make_constants_log'" 2>&1'
+if RC <> 0 then do
+    log~lineout("[error] XSLT script for generation of PNG constants failed")
+    return 1
+end
+
+-- If I surround allsvg by quotes then the wildcard character no longer works.
+-- so don't use a path with spaces...
+'java -jar "'BATIK_RASTERIZER_JAR'" -onload -m application/pdf -cssMedia print 'allsvg' >"'batik_log'" 2>&1'
+if RC <> 0 then do
+    log~lineout("[error] Batik's rasterizer failed when converting to PDF")
     return 1
 end
 

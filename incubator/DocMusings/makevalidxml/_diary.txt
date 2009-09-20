@@ -1,4 +1,86 @@
 ===============================================================================
+2009 september 19
+
+sd2image :
+Added instructions to generate the file constants.js (included by each SVG file)
+before calling Batik. By passing the parameter TARGET_FORMAT, I can select values
+that are appropriate for the target format. First need : I want no wrap when
+generating PNG.
+Replaced xsltproc by saxon, because I plan to investigate the XSLT2 stylesheets
+of DocBook 5. Better to have a single XSLT processor right now...
+
+Oooops ! now 41 min to run : 
+transformdir -syntdiag trunk trunk.out 
+(36 min with xsltproc).
+There are 52 sd_*.xml files to process. 
+Which makes 3 x 52 = 156 additional invocations of the java VM.
+I revert to xsltproc. After all, the XSLT 2.0 stylesheets for DocBook are
+still in beta stage, so...
+
+Remember, to create a zip file which contains the HTML documentation :
+find . -name "*.htm" -o -name "*.jpg" -o -name "*.png" | zip -@ myfile-html
+
+
+Todo : 
+Implement -dsssl, -xslt and -xinclude.
+
+
+===============================================================================
+2009 september 17
+
+Investigate why the PDF format is not supported as image format
+by my current toolset.
+The script to analyze is
+\Cygwin\usr\share\sgml\docbook\utils-0.6.14\backends\pdf
+Despite its name, this script is doing both frontend and backend
+Added some echos and put in comment the rm commands to keep the intermediate files.
+
+This command :
+cd trunk/rxmath
+docbook2pdf -d ../shared/oorexx.print.dsl rxmath.sgml
+triggers this execution :
+jade -t tex -o rxmath.tex -i print -d /cygdrive/d/local/Rexx/ooRexx/svn/incubator/DocMusings/makevalidxml/test/trunk.out/rxmath/../shared/oorexx.print.dsl /cygdrive/d/local/Rexx/ooRexx/svn/incubator/DocMusings/makevalidxml/test/trunk.out/rxmath/rxmath.sgml
+pdfjadetex rxmath.tex >rxmath.tmp
+pdfjadetex rxmath.tex >/dev/null
+pdfjadetex rxmath.tex >/dev/null
+
+Good news ! When I replace .png by .pdf in rxmath.tex, and run pdfjadetex rxmath.tex
+then the PDF images are used and the quality in rxmath.pdf is very good, even at zoom 400%.
+Now, how to do that automatically ?
+
+Remember :
+http://www.miwie.org/docbkmake/docbookmk.html
+    Explains how to use a single reference to the image, without extension,
+    by customizing :
+    find-displayable-object (in common/dbcommon.dsl)
+    graphic-file (in html/dbgraph.dsl and print/dbgraph.dsl)
+
+Remember :
+%graphic-default-extension%
+    data-filename
+        find-displayable-object
+            select-displayable-object --> preferred-mediaobject-extensions
+                $mediaobject$
+
+Finally, it's easy to support PDF format, just define %graphic-default-extension%
+in the customization layer, with the right value :
+pdf in oorexx.print.dsl
+    (define %graphic-default-extension% 
+      ;; Default extension for graphic FILEREFs
+      "pdf")
+    (define preferred-mediaobject-extensions
+      (list "pdf" "eps" "ps" "jpg" "jpeg" "png"))
+png in oorexx.html.dsl
+    (define %graphic-default-extension% 
+      ;; Default extension for graphic FILEREFs
+      "png")
+and don't include the file extension in fileref of imagedata.
+
+Todo : 
+Implement -dsssl, -xslt and -xinclude.
+
+
+===============================================================================
 2009 september 12
 
 Generated the 4.0.0 documentation with syntax diagrams as image.
@@ -12,6 +94,7 @@ Go to directory docs/releases/4.0.0
 Copy the directory trunk to trunk.out
 Apply the fixes described below (9 aug and 5 sept ) in trunk
 Run : transformdir -syntdiag trunk trunk.out (25 min on my laptop).
+[20 sept 2009] 25 min when generating only PNG, 36 min when generating both PDF and PNG.
 Go to directory trunk.out and make the doc as usual.
 The syntax diagrams that can't be converted remain as text.
 

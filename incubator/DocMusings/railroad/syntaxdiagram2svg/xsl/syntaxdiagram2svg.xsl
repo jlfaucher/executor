@@ -592,7 +592,7 @@ All tests "contains(@class, ...) have been replaced by "name() = ...)
 
     <!-- Text inside a box. -->
     <xsl:template match="text()" mode="syntaxdiagram2svg:box-contents">
-        <xsl:message>match#16 for <xsl:value-of select="concat(name(.), ' ', @id)"/></xsl:message>
+        <xsl:message>match#16 for <xsl:value-of select="name(.)"/></xsl:message>
         <xsl:choose>
             <xsl:when test="normalize-space(.)">
                 <svg:g class="text" syntaxdiagram2svg:dispatch="text">

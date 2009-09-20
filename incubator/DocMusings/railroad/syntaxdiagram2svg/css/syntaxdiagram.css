@@ -1,100 +1,196 @@
+/* 
+For PDF (media print) :
+Changed font-family to Times-New-Roman (was Sans-serif)
+Increased font-size of 2 (now 10pt)
+
+For HTML (media screen) :
+Increased font-size of 4 (now 12pt)
+*/
+
 @namespace "http://www.w3.org/2000/svg";
 
 svg[class="syntaxdiagram"] *.arrow {
   fill: none;
-  stroke: black;
+  stroke: silver; /*black*/; 
 }
 
 svg[class="syntaxdiagram"] *.arrowhead {
-  stroke: black;
-  fill: black;
+  stroke: silver; /*black*/; 
+  fill: silver /*black*/;
 }
 
 svg[class="syntaxdiagram"] a[class~="boxed"] > rect {
     fill: none;
-    stroke: black;
+  stroke: silver; /*black*/; 
 }
 
 svg[class="syntaxdiagram"] g[class~="boxed"] > rect {
     fill: none;
-    stroke: black;
+  stroke: silver; /*black*/; 
 }
 
 svg[class="syntaxdiagram"] g[class~="kwd"] text {
     fill: #000000;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: normal;
     font-weight: normal /*bold*/; /* JLF : I find that bold is not very readable with a small font */
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
+}
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="kwd"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="kwd"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
 }
 
 svg[class="syntaxdiagram"] g[class~="var"] text {
     fill: #000000;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: italic;
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
+}
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="var"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="var"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
 }
 
 svg[class="syntaxdiagram"] g[class~="delim"] text {
     fill: #000000;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: normal;
     font-weight: normal;
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
+}
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="delim"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="delim"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
 }
 
 svg[class="syntaxdiagram"] g[class~="oper"] text {
     fill: #000000;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: normal;
     font-weight: normal;
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
+}
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="oper"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="oper"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
 }
 
 svg[class="syntaxdiagram"] g[class~="sep"] text {
     fill: #000000;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: normal;
     font-weight: normal;
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
+}
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="sep"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="sep"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
 }
 
 svg[class="syntaxdiagram"] g[class~="repsep"] text {
     fill: #000000;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: normal;
     font-weight: normal;
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
+}
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="repsep"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="repsep"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
 }
 
 svg[class="syntaxdiagram"] a[class~="fragref"] text {
     fill: blue;
     fill-opacity: 1;
-    font-family: Sans-serif;
     font-style: normal;
     font-weight: normal;
-    font-size: 8pt;
     stroke: #000000;
     stroke-width: 0.0;
 }
+
+@media print {
+    svg[class="syntaxdiagram"] g[class~="fragref"] text {
+        font-family: Times-New-Roman;
+        font-size: 10pt;
+    }
+}
+
+@media screen {
+    svg[class="syntaxdiagram"] g[class~="fragref"] text {
+        font-family: Times-New-Roman;
+        font-size: 12pt;
+    }
+}
+
+
+/* "note" is not used */
 
 svg[class="syntaxdiagram"] g[class~="note"] text {
     font-family: Sans-serif;

@@ -94,14 +94,16 @@
 
     
     
-    syntaxdiagram_Constants.diagram_wrap_width=700;
-
+    syntaxdiagram_Constants.diagram_wrap_width=550;
+ 
+     
     syntaxdiagram_Constants.diagram_wrap_indent=30;
 
     
     
     syntaxdiagram_Constants.diagram_max_width=550;
-
+ 
+     
     syntaxdiagram_Constants.diagram_max_height=1000;
 
     

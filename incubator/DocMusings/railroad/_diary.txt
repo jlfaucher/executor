@@ -1,4 +1,35 @@
 ===============================================================================
+2009 sept 18
+
+constants.xml : 
+I made a wrong assumption about diagram_max_width.
+This constant is not used to limit the witdth of the image, it's used to
+calculate the xscale. If too small, then the xscale will be < 1.0 and the
+image's contents will become less readable. So assign a big value to it (10000)
+and tune the constant diagram_wrap_width to ensure that the syntax diagrams
+will fit in the page.
+
+Hum, I see that the syntax diagram of String~translate 5.1.3.64 does not fit in 
+the page. It's probably because no wrap was possible (would need two continuation
+points, and I think that syntaxdiagram2svg can't do that).
+So, I re-assign to diagram_max_width the same value as diagram_wrap_width.
+See also :
+MutableBuffer~translate 5.4.14.32
+Format 7.4.33
+SysStemCopy 8.66
+
+Use CSS @media types to select different fonts for PDF and HTML :
+PDF : Times-New-Roman 10pt
+HTML : Times-New-Roman 12pt
+
+When generating PNG, I'd like to use an "infinite" value, to have no wrapping.
+Done by modifying the XSLT script make-constants.xsl and passing a parameter
+("PDF" or "PNG") from the script sd2image.rex.
+Not sure it's a good idea : 
+see oodialog\sd_basedialog\sd_Animated_Buttons_ConnectAnimatedButton.png
+
+
+===============================================================================
 2009 sept 13
 
 Small tuning in CSS and resources :
@@ -16,6 +47,10 @@ enclosing syntax diagram.
 
 I have a small documentation which gives examples of railroads generated
 from DITA syntax diagrams, but I can't remember from where I downloaded it...
+[14/09/2009] 
+I remember now : from http://tech.groups.yahoo.com/group/dita-users/files/
+search for syntaxdiagram-doc.zip
+
 In the meantime, remember that :
 http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.infomanager.LangSpec1.1/common/pr-d.html
 http://en.wikipedia.org/wiki/Syntax_diagram
@@ -92,6 +127,7 @@ Is it possible to reuse the best of Clapham and syntaxdiagram2svg ?
 The XML file read by syntaxdiagram2svg is diffcult to enter by hand, but the output is great.
 The BNF or WSN files supported by Clapham are lot easier to enter by hand, but the output is not very pretty.
 What about generating the XML file from the BNF|WSN ?
+[19 sep 2009] no longer topical
 
 
 ===============================================================================

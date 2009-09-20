@@ -194,11 +194,13 @@ current is : 1.7
 ===============================================================================
 2009 june 27
 
+[20 sep 2009] Updated.
+
 For investigation, I downloaded the following tools.
 Some are redundants, I want to test different configurations.
 Editor : XXE
 FO processor : FOP PassiveTeX XEP
-Railroad diagram generator : Clapham
+Railroad diagram generator : Clapham [19 sept 2009] no longer needed
 XSLT processor : Saxon Xalan xsltproc
 My main platform is Win XP.
 
@@ -209,8 +211,8 @@ http://clapham.sourceforge.net/
 
 DocBook XSL
 http://sourceforge.net/project/showfiles.php?group_id=21935
-docbook-xsl-ns      current is : 1.75.1
-docbook-xsl-doc     current is : 1.75.1
+docbook-xsl-ns      current is : 1.75.2
+docbook-xsl-doc     current is : 1.75.2
 docbook-xsl-saxon   current is : 1.00
 docbook-xsl-xalan   current is : 1.00
 
@@ -229,7 +231,7 @@ current is : Tex Live 2008
 
 Saxon
 http://saxon.sourceforge.net/
-current is : saxonb9-1-0-7j
+current is : saxonhe9-2-0-2j
 
 
 Xalan
@@ -239,7 +241,7 @@ current is : 2.7.1
 
 XEP Personal Edition
 http://www.renderx.com/download/personal.html
-current is : xep-4.15-20090409-personal.zip
+current is : xep-4.16-20090723-personal.zip
 
 
 xsltproc

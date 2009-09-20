@@ -422,33 +422,17 @@ syntax: -- In fact, it's an abort, not a syntax error...
             end
             
             -- I have two candidate formats : PDF and PNG
+            -- No need of two distinct imagedata. Use a single one, without extension, and
+            -- assign PDF or PNG to %graphic-default-extension%.
             -- Inside programlisting, only inline media objects are allowed
-            -- Let see if OpenJade and TexLive will support inlinemediaobject...
-            -- [later] inlinemediaobject is supported but the PDF format is not taken into account...
             fileref = self~syntdiagBasename"/"entry~hrefbase -- relative path without extension
             self~output~lineout('<inlinemediaobject>')
-            -- first candidate format : PDF
             self~output~lineout('    <imageobject>')
-            self~output~charout('        <imagedata fileref="'fileref'.pdf"')
-            if self~target == "dsssl" then self~output~lineout('>') -- bug OpenJade
-            else self~output~lineout('/>')
-            self~output~charout('    </imageobject>')
-            -- second candidate format : PNG
-            self~output~lineout("")
-            self~output~lineout('    <imageobject>')
-            self~output~charout('        <imagedata fileref="'fileref'.png"')
+            self~output~charout('        <imagedata fileref="'fileref'"')
             if self~target == "dsssl" then self~output~lineout('>') -- bug OpenJade
             else self~output~lineout('/>')
             self~output~lineout('    </imageobject>')
             self~output~charout('</inlinemediaobject>')
-            
-            /*
-            -- Inside programlisting, only inline graphics are allowed
-            fileref = self~syntdiagBasename"/"entry~hrefbase".png" -- relative path
-            self~output~charout('<inlinegraphic fileref="'fileref'"')
-            if self~target == "dsssl" then self~output~charout('>') -- bug OpenJade
-            else self~output~charout('/>')
-            */
             
             newline = .true
         end
