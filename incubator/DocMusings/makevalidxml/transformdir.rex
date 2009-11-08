@@ -1,8 +1,8 @@
 /**** 
 Usage :
     $sourcename 
-        [-debug] [-dsssl] [-dump] [-help] [-startat <filename>] [-syntdiag] 
-        [-xinclude] [-xslt] 
+        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xslt]
+        [-startat <filename>]
         <inputDirectory> [<outputDirectory>] [<logFile>]
 Description :
     This script is intended to work on the XML files of the ooRexx doc.
@@ -24,8 +24,6 @@ Description :
                 name of the image is derived from the enclosing DocBook section).
                 And generate an XML syntax diagram file that will be processed 
                 by syntaxdiagram2svg. Batik can generate the image from the svg.
-    -xinclude : Use <xi:include> instead of XML entities to include files.
-                Will be ignored if the target format is not XSLT.
     -xslt     : Generate DocBook XML compatible with XSLT.
 ****/
 
@@ -40,8 +38,12 @@ if arguments~help | \arguments~errors~isEmpty then return 1
 
 if arguments~logFile <> "" then log = .stream~new(arguments~logFile)
 
-inputDirectory = qualify(arguments~inputDirectory"/")
-outputDirectory = qualify(arguments~outputDirectory"/")
+-- Beware ! qualify has not the same behaviour under Windows and under Linux :
+-- Under Windows, the final slash is not removed
+-- Under Linux, the final slash is removed
+-- That's why the final "/" is outside the call to qualify
+inputDirectory = qualify(arguments~inputDirectory)"/"
+outputDirectory = qualify(arguments~outputDirectory)"/"
 
 if inputDirectory == outputDirectory then do
     log~lineout("[error] <outputDirectory> must be different from <inputDirectory>")
@@ -69,18 +71,11 @@ if files.0 <> 0 then do
         if skip then if filename <> arguments~startatValue then iterate
         skip = .false
         
-        -- oodialog
-        if filename == "dialogcontrolCommon.sgml" then iterate -- not used
-        if filename == "menus.sgml" then iterate -- not used
-        if filename == "windowBaseCommon.sgml" then iterate -- to fix ! used.
-        if filename == "windowExtensionsCommon.sgml" then iterate -- to fix ! used.
-
         log~lineout("[info] Processing file "fullpath)
         call transformfile arguments~debugOption,,
                            arguments~dssslOption,,
                            arguments~dumpOption,,
                            arguments~syntdiagOption,,
-                           arguments~xincludeOption,,
                            arguments~xsltOption,,
                            fullpath,,
                            outputDirectory || relativepath,,

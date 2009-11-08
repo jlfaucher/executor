@@ -1,4 +1,87 @@
 ===============================================================================
+2009 november 8
+
+Starting to work on a bridge with BNF4OOo
+http://sourceforge.net/projects/bnf4ooo/
+a project of Franz Hohenegger, introduced by Rony.
+I need the core of the program, not the OpenOffice interface.
+
+The goal is to generate a bnf representation of the syntax diagrams.
+
+Current status :
+The generated XML4BNF is wrong, so the BNF as well, but the integration is ok.
+Can iterate over the whole doc and generate a BNF for each syntax diagram.
+
+
+===============================================================================
+2009 october 18
+
+Modified the XML parser to support the following files :
+    oodialog/dialogcontrolCommon.sgml
+    oodialog/windowBaseCommon.sgml
+    oodialog/windowExtensionsCommon.sgml
+Now I can process these files, no longer needed to skip them in transformdir.rex
+
+Added the support of "->" operator to let generate good syntax diagrams for rexxpg.
+Changed the font family to monospace for oper in CSS because "->" was not looking
+good with Times-New-Roman.
+Why are these functions described with syntax diagrams ? They are not real syntax
+diagrams...
+
+I see a problem with the spaces in rexxpg... They are removed by the SGV processor
+when they are at the end of the text, even if I use xml:space="preserve".
+<svg:text xml:space="preserve">, </svg:text>
+is displayed without trailing space.
+This is bug 46127 in Batik.
+
+
+===============================================================================
+2009 october 11
+
+Started implemention of the -xslt option.
+
+Removed the -xinclude option because it is always used with -xslt and not supported
+with -dsssl
+
+
+===============================================================================
+2009 october 10
+
+Testing by hand the changes that must be done to let rxmath.sgml be edited with XXE. 
+
+Must apply the changes listed in section 2009 july 11.
+
+Must use xinclude, because XXE does not support inclusion by entities.
+
+I keep the entities to have the path declaration in a single place
+<!ENTITY legalstuff "../shared/legalstuff.sgml">
+<xi:include href="&legalstuff;"/>
+but when saving the file, XXE saves as
+<xi:include href="../shared/legalstuff.xml"/>
+because the entities are expanded and replaced by their values.
+
+A file which is xincluded must be a valid XML file on its own.
+Must add that if needed :
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE root PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+where root is the root element of the xincluded file (ex : section, bookinfo, ...)
+
+I have a problem with shared/legalstuff.sgml : 
+This file has several roots, so can't be xincluded as-is. 
+And no way to make it single-root.
+Except if I put bookinfo in this file, and remove it from rxmath.sgml. But then I 
+have another problem : the value of subtitle and titleabrev are different for each 
+book. Will address that later...
+
+When using xinclude, the following files must be in the directory "shared" :
+docbook-1.png
+oorexx.jpg
+xinclude.mod : 
+    Must be included to extend the DocBook schema, to support <xi:include>
+    (needed by the validating XML editors)
+
+
+===============================================================================
 2009 september 19
 
 sd2image :
@@ -101,7 +184,7 @@ The syntax diagrams that can't be converted remain as text.
 Remember : 
 There are errors remaining in oodialog : userdialog.sgml and utilityclasses.
 The files windowBaseCommon.sgml and windowExtensionsCommon.sgml are not processed.
-
+[18 oct 2009] Now the files windowBaseCommon.sgml and windowExtensionsCommon.sgml are processed.
 
 Todo : 
 Improve the quality of the image, the PNG looks a little bit blurred.
@@ -189,6 +272,7 @@ rexxref\fundclasses.sgml :
         This syntax diagram seems not good : translate(, , , 3, 2) is NOT allowed by the diagram
 rexxref\instrc.sgml :
     line 388, near >>-CALL : must end with ><
+    line 388, near >>-CALL : replace the space after name- by "-"
     line 390, near >>-CALL : must align the end choice with the upper "+"
 rexxref\intro.sgml :
     line 1900, near >>-receiver-+ : replace "+" by "." (or "." by "+")
@@ -388,6 +472,7 @@ must have a system identifier
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
 
 <imagedata> must be completed by </imagedata>
+<colspec> must be completed by </colspec>
 
 
 ===============================================================================

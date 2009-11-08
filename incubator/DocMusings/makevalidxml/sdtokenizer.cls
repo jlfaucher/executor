@@ -244,6 +244,7 @@ depending on the number of begining of statements, or in case of fragments.
                     otherwise stop = .true
                 end
             end
+            when .MemberByPointer~match(symbol) then token = .MemberByPointer~tokenize(symbol)
             when .EndOfStatement~match(symbol) then token = .EndOfStatement~tokenize(symbol)
             when .EndOfFragment~match(symbol) then token = .EndOfFragment~tokenize(symbol)
             when .BeginingOfFragmentReference~match(symbol) then token = .BeginingOfFragmentReference~tokenize(symbol)
@@ -1789,6 +1790,29 @@ Use -- -  - - which is tokenized as EscapedCharacter"-" EscapedCharacter"-" (car
         return token
     end
     return .nil
+    
+    
+-------------------------------------------------------------------------------
+-- Superclass of all the special sequence of characters
+::class "SpecialCharacters" subclass "Token" inherit "l2rToken"
+
+
+-------------------------------------------------------------------------------
+/*
+This class is needed to support the C++ member-by-pointer operator "->" used in rexxpg :
+>>--arr = context->Array(obj1);-----------------------------------------><
+*/
+::class "MemberByPointer" subclass "SpecialCharacters"
+::constant text "->"
+
+    
+::method match class
+    use strict arg symbol
+    if self~match:super(symbol) == .false then return .false
+    -- Additional constraint : must not be followed by "[EOL]" or "<[EOL]"
+    if symbol~l2rText~substr(3)~strip("Trailing") == "" then return .false
+    if symbol~l2rText~substr(3)~strip("Trailing") == "<" then return .false
+    return .true
     
     
 -------------------------------------------------------------------------------

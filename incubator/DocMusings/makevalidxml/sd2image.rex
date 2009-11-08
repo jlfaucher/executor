@@ -61,14 +61,14 @@ if error then return 1
 meDir = filespec("location", me)
 if meDir~right(1)~matchChar(1, "/\") then meDir = meDir~left(meDir~length - 1)
 meUpperDir = filespec("location", meDir)
-syntaxdiagram2svg = qualify(meUpperDir || "railroad/syntaxdiagram2svg")
+syntaxdiagram2svg = meUpperDir || "railroad/syntaxdiagram2svg"
 
-csspath = qualify(syntaxdiagram2svg"/css")
-jspath = qualify(syntaxdiagram2svg"/js")
-syntaxdiagram2svg_xsltscript = qualify(syntaxdiagram2svg"/transform.xsl")
-syntaxdiagram2svg_log = qualify(outputDir"/_syntaxdiagram2svg.log")
+csspath = (syntaxdiagram2svg"/css")
+jspath = (syntaxdiagram2svg"/js")
+syntaxdiagram2svg_xsltscript = syntaxdiagram2svg"/transform.xsl"
+syntaxdiagram2svg_log = outputDir"/_syntaxdiagram2svg.log"
 
--- Todo : test under Linux, is file:/// supported ?
+-- Todo : test under Linux, is file:/// supported ? --> yes
 -- Something sure : I need it under Windows, otherwise absolute path not supported
 'xsltproc --stringparam CSSPATH "file:///'csspath'"',
          '--stringparam JSPATH "file:///'jspath'"',
@@ -85,12 +85,12 @@ end
 -- SVG rasterizer
 -----------------
 
-constants_xml = qualify(syntaxdiagram2svg"/resource/constants.xml")
-constants_js = qualify(syntaxdiagram2svg"/js/constants.js") -- this file is generated from constants.xml, included by each SVG file, and read on load
-make_constants_xsltscript = qualify(syntaxdiagram2svg"/xsl/make-constants.xsl")
-make_constants_log = qualify(outputDir"/_make_constants.log")
-allsvg = qualify(outputDir"/*.svg")
-batik_log = qualify(outputDir"/_batik.log")
+constants_xml = syntaxdiagram2svg"/resource/constants.xml"
+constants_js = syntaxdiagram2svg"/js/constants.js" -- this file is generated from constants.xml, included by each SVG file, and read on load
+make_constants_xsltscript = syntaxdiagram2svg"/xsl/make-constants.xsl"
+make_constants_log = outputDir"/_make_constants.log"
+allsvg = outputDir"/*.svg"
+batik_log = outputDir"/_batik.log"
 
 --------------------------
 -- SVG rasterizer : to PNG

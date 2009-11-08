@@ -85,6 +85,16 @@ JLF : adaptation of xmlparser.cls to my own needs.
 - reprint the parsed XML the most possible like the original one.
 - add missing closing tags
 I need to modify the parser, to keep the text unchanged, hence this copy...
+
+The following files contain unsupported text under programlisting :
+    oodialog/dialogcontrolCommon.sgml
+    oodialog/windowBaseCommon.sgml
+    oodialog/windowExtensionsCommon.sgml
+Must modify the parser to support that :
+    <programlisting format='linespecific'>
+    >>--<link linkend="disable">disable</link>----------------------------><
+    </programlisting>
+The parser raises an "invalid tag name" because of the < followed by EOL
 */
 
 
@@ -237,7 +247,16 @@ if self~currentchar() <> '<' then do
    /* we found some TEXT */
    curline = lineidx
    buffer1 = .MutableBuffer~new
-   do while eof = .false & self~currentchar() <> '<'
+   do while eof = .false 
+      /*
+      To support that :
+          <programlisting format='linespecific'>
+          >>--<link linkend="disable">disable</link>----------------------------><
+          </programlisting>
+      must do that :
+          '<' followed by EOL or EOF is part of the text
+      */
+      if self~currentchar() == '<' & self~currentchar(1) <> '' then leave 
       -- Do NOT collapse the white space and newlines out of the chunk!
       -- We leave that task up to the client of this class.
       -- Instead, we return a chunk with self~endofline stuck in between

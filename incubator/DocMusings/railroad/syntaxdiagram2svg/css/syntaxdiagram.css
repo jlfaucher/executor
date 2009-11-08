@@ -1,6 +1,9 @@
 /* 
-For PDF (media print) :
 Changed font-family to Times-New-Roman (was Sans-serif)
+Use monospace with reduced (-2) font size for oper because of "->" which looks not good with Times-New-Roman
+
+
+For PDF (media print) :
 Increased font-size of 2 (now 10pt)
 
 For HTML (media screen) :
@@ -108,15 +111,15 @@ svg[class="syntaxdiagram"] g[class~="oper"] text {
 
 @media print {
     svg[class="syntaxdiagram"] g[class~="oper"] text {
-        font-family: Times-New-Roman;
-        font-size: 10pt;
+        font-family: monospace;
+        font-size: 8pt;
     }
 }
 
 @media screen {
     svg[class="syntaxdiagram"] g[class~="oper"] text {
-        font-family: Times-New-Roman;
-        font-size: 12pt;
+        font-family: monospace;
+        font-size: 10pt;
     }
 }
 

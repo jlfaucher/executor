@@ -11,7 +11,6 @@
     self~errors = .List~new
     self~help = .false
     self~syntdiag = .false
-    self~xinclude = .false
     self~xslt = .false
     
     -- Tokenize the arguments, if needed
@@ -58,10 +57,6 @@
             self~syntdiag = .true
             self~syntdiagOption = option
         end
-        when "-xinclude"~caseLessEquals(option) then do
-            self~xinclude = .true
-            self~xincludeOption = option
-        end
         when "-xslt"~caseLessEquals(option) then do
             self~xslt = .true
             self~xsltOption = option
@@ -73,5 +68,4 @@
 ::method verifyOptions
     self~errors~empty
     if self~dsssl & self~xslt then self~errors~append("[error] You can't specify both "self~dssslOption" and "self~xsltOption)
-    if self~xinclude & \self~xslt then self~errors~append("[error] You must specify -xslt if you want to use "self~xincludeOption)
     return self~errors~isEmpty

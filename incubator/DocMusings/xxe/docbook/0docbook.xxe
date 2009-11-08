@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<configuration name="DocBook" mimeType="application/docbook+xml"
+  xmlns="http://www.xmlmind.com/xmleditor/schema/configuration"
+  xmlns:cfg="http://www.xmlmind.com/xmleditor/schema/configuration">
+
+  <include location="xxe-config:docbook/docbook.xxe"/>
+
+  <cfg:saveOptions xmlns="" 
+      cdataSectionElements="programlisting"
+      indent="none"
+      maxLineLength="80"
+      saveCharsAsEntityRefs="true"
+  />
+
+</configuration>

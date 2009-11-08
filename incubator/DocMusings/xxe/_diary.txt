@@ -1,0 +1,36 @@
+===============================================================================
+2009 october 10
+
+By default, XXE does not use cdata when saving programlisting. Since the conversion
+of syntax diagrams to image depends on cdata, must find a way to keep the cdata...
+
+Configuration and deployment
+Chapter 5 Customizing an existing configuration
+DocBook
+ I'm under WinXP, my addon directory is
+ C:\Documents and Settings\JFaucher\Application Data\XMLmind\XMLEditor4\addon
+ Create the subdirectory docbook.
+ Copy 0docbook.xxe to addon\docbook.
+ Restart XXE
+ Help/About XMLmind : you must see your custom config file in the list.
+
+
+Other technique : use the variable XXE_ADDON_PATH
+set XXE_ADDON_PATH=D:\local\Rexx\ooRexx\svn\incubator\DocMusings\xxe;+
+Doc excerpt :
+The content of this variable must be a list of directory names separated by character ";" (even on Unix). 
+All the directories referenced in this list are recursively scanned by XXE.
+If this path ends with ";+", the addon/ subdirectory of XXE installation directory is also scanned at startup time. 
+
+
+Now I have a custom configuration file, I can keep the cdata under programlisting :
+<saveOptions cdataSectionElements="programlisting" ...
+
+
+By default, XXE indents the XML file, better to not ident :
+<saveOptions indent="none" ...
+
+
+The resulting saved file is still very different from the original layout.
+Not sure I can do better... So XXE is probably not recommended to edit the ooRexx doc,
+but it can be used as a preview tool.

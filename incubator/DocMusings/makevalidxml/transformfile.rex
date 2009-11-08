@@ -42,7 +42,7 @@
 /**** 
 Usage :
     $sourcename 
-        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xinclude] [-xslt] 
+        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xslt] 
         <inputFile> [<outputFile> [<logFile>]]
 Description :
     This script is intended to work on the XML files of the ooRexx doc.
@@ -63,8 +63,6 @@ Description :
                 name of the image is derived from the enclosing DocBook section).
                 And generate an XML syntax diagram file that will be processed 
                 by syntaxdiagram2svg. Batik can generate the image from the svg.
-    -xinclude : Use <xi:include> instead of XML entities to include files.
-                Will be ignored if the target format is not XSLT.
     -xslt     : Generate DocBook XML compatible with XSLT.
 ****/
 
@@ -137,8 +135,10 @@ syntax: -- In fact, it's an abort, not a syntax error...
 
 ::requires 'arguments.cls'
 ::requires 'help.rex'
+::requires "indentedstream.cls"
 ::requires 'myxmlparser.cls'
 ::requires 'rxregexp.cls'
+::requires 'sdbnfizer.cls'
 ::requires 'sdtokenizer.cls'
 ::requires 'sdparser.cls'
 ::requires 'sdxmlizer.cls'
@@ -203,6 +203,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
         self~output~charout('</'chunk~tag'>')
     end
     else do
+        -- print nothing if not empty, because already printed by start_element (text is used as a flag to decide if the element must be closed or not)
         if chunk~text = '' then self~output~charout('</'chunk~tag'>')
     end
     if self~debug then self~output~charout(']end_element]')
@@ -212,16 +213,12 @@ syntax: -- In fact, it's an abort, not a syntax error...
     
 ::method passthrough
     use strict arg chunk
-    if self~syntdiag, self~transform_syntax_diagram(chunk) == .true then return
-    -- okay, the cdata does not contain a syntax diagram, or the transformation to image is not activated
+    if self~syntdiag, self~transform_syntax_diagram(chunk) then return
+    if self~target == "dsssl", self~make_dsssl_compliant(chunk) then return
+    if self~target == "xslt", self~make_xslt_compliant(chunk) then return
     -- insert the cdata normally
     if self~debug then self~output~charout('[passthrough:'chunk~line':'chunk~col'[')
-    if self~dump then do
-        self~output~charout('<'chunk~text'>')
-    end
-    else do
-        self~output~charout('<'chunk~text'>')
-    end
+    self~output~charout('<'chunk~text'>')
     if self~debug then self~output~charout(']passthrough]')
     return
 
@@ -230,12 +227,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     use strict arg chunk
     if self~is_title_text(chunk) then self~set_title(chunk)
     if self~debug then self~output~charout('[text:'chunk~line':'chunk~col'[')
-    if self~dump then do
-        self~output~charout(chunk~text)
-    end
-    else do
-        self~output~charout(chunk~text)
-    end
+    self~output~charout(chunk~text)
     if self~debug then self~output~charout(']text]')
     return
 
@@ -297,9 +289,12 @@ syntax: -- In fact, it's an abort, not a syntax error...
     
     parser = self~parse_syntax_diagram(tokenizer)
     if parser~errorCount <> 0 then return .false
-    
+
     xmlizer = self~xmlize_syntax_diagram(tokenizer, parser)
     if xmlizer~errorCount <> 0 then return .false
+    
+    bnfizer = self~bnfize_syntax_diagram(tokenizer, parser)
+    -- if bnfizer <> .nil, bnfizer~errorCount <> 0 then return .false
     
     -- good, from here, we know that the syntax diagram has been converted to XML.
     -- we can reference each image or insert the comments.
@@ -399,6 +394,23 @@ syntax: -- In fact, it's an abort, not a syntax error...
     return xmlizer
     
     
+::method bnfize_syntax_diagram
+    use strict arg tokenizer, parser
+    bnfizer = .SyntaxDiagramBNFizer~bnfize(parser~mainEntries)
+    if bnfizer == .nil then return .nil
+    
+    self~syntdiagOutput~lineout("<![CDATA[")
+    bnfizer~inspect(self~syntdiagOutput)
+    self~syntdiagOutput~lineout("]]>")
+    self~syntdiagOutput~lineout("")
+        
+    if bnfizer~errorCount <> 0 then do
+        self~log~lineout("[error] Syntax diagram BNF generation failed for "tokenizer~name)
+        -- not abort because we can continue by inserting the textual sd
+    end
+    return bnfizer
+    
+    
 ::method reference_syntax_diagram
     use strict arg parser
     cdata = .false -- consecutive comments will be serialized in the same cdata
@@ -440,6 +452,13 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if cdata == .true then self~output~charout("]]>")
     
     
+::method syntax_diagram_label
+    use strict arg -- none
+    parent1 = self~parent_with_title(1)
+    label = parent1~title
+    return label
+
+    
 ::method syntax_diagram_name
     use strict arg prefix="", suffix=""
     -- Use the concatenation of two titles to reduce the risk of collision
@@ -455,6 +474,28 @@ syntax: -- In fact, it's an abort, not a syntax error...
         name = name"_"self~syntdiagNames[name]
     end
     return name
+
+    
+::method make_dsssl_compliant
+    use strict arg chunk
+    return .false
+
+    
+::method make_xslt_compliant
+    use strict arg chunk
+    if chunk~text~left(6) == "<?xml " then do
+        self~output~lineout('<?xml version="1.0" standalone="no"?>')
+        return .true
+    end
+    if chunk~text~left(10) == "<!DOCTYPE " then do
+    /*
+    <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
+    must have a system identifier
+    <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd"
+    */
+        return .false -- not yet implemented
+    end
+    return .false
 
     
 ::method is_title_text

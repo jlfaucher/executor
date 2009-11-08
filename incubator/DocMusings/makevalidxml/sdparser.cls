@@ -263,6 +263,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
 ::class "SyntaxDiagram" subclass "AbstractSyntaxElement" 
 ::attribute hasFirstIdentifier -- to make proper distinction between kwd and var
 ::attribute hrefbase -- the basename that will be used to build the complete image href
+::attribute label
 ::attribute title
 
 
@@ -270,6 +271,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     forward class (super) continue
     self~hasFirstIdentifier = .false
     self~hrefbase = ""
+    self~label = ""
     self~title = ""
     
 
@@ -284,6 +286,10 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~firstToken = beginingOfStatement
     beginingOfStatement~setVisitMark
     self~title = self~parser~nameGenerator~syntax_diagram_name("sd", beginingOfStatement~label) -- will be used as filename when generating the SVG
+    self~label = beginingOfStatement~label
+    if self~label == "" then do
+        self~label = self~parser~nameGenerator~syntax_diagram_label
+    end
     token = beginingOfStatement~rightToken
     do forever
         group = .Group~new(.nil, self~parser)
@@ -308,12 +314,14 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
 -------------------------------------------------------------------------------
 ::class "Fragment" subclass "AbstractSyntaxElement"
 ::attribute hasFirstIdentifier -- to make proper distinction between kwd and var
+::attribute label
 ::attribute title
 
 
 ::method init
     forward class (super) continue
     self~hasFirstIdentifier = .false
+    self~label = ""
     self~title = ""
     
 
@@ -328,6 +336,10 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~firstToken = beginingOfFragment
     beginingOfFragment~setVisitMark
     self~title = self~parser~nameGenerator~syntax_diagram_name("sd", beginingOfFragment~label) -- will be used as filename when generating the SVG
+    self~label = beginingOfFragment~label
+    if self~label == "" then do
+        self~label = self~parser~nameGenerator~syntax_diagram_label
+    end
     token = beginingOfFragment~rightToken
     do forever
         group = .Group~new(.nil, self~parser)
@@ -441,6 +453,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
             when token~isA(.sdtokenizer~Number) then token = .Kwd~new(self, self~parser)~parse(token)
             when token~isA(.sdtokenizer~Character) then token = .Characters~new(self, self~parser)~parse(token)
             when token~isA(.sdtokenizer~EscapedCharacter) then token = .Characters~new(self, self~parser)~parse(token)
+            when token~isA(.sdtokenizer~SpecialCharacters) then token = .Characters~new(self, self~parser)~parse(token)
             when token~isA(.sdtokenizer~BeginingOfFragmentReference) then token = .FragRef~new(self, self~parser)~parse(token)
             otherwise return token -- end of group
         end
@@ -520,7 +533,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
                 token~setVisitMark
                 -- follow the horizontal path of default choice
                 group = .Group~new(.nil, self~parser)
-                group~importance = self~default
+                group~importance = .AbstractSyntaxElement~default
                 -- the topmost path must be the first : we are moving b2t so must always be the first child
                 self~childs~insert(group, .nil)
                 endTokenClass = token~class
@@ -551,7 +564,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     if .t~istraced("parseChoiceMainPath") then call trace .t~traceoption("parseChoiceMainPath")
     use strict arg token
     group = .Group~new(self, self~parser)
-    -- group~importance = self~required -- not needed
+    -- group~importance = .AbstractSyntaxElement~required -- not needed
     endtoken = group~parseDelimitedPath(token, .false, .sdtokenizer~l2rCrossroads)
     if endtoken == .nil then return .nil
     endtoken~setVisitMark
@@ -573,7 +586,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
                 token~setVisitMark
                 -- follow the horizontal path of optional choice
                 group = .Group~new(self, self~parser)
-                -- group~importance = self~optional -- not needed
+                -- group~importance = .AbstractSyntaxElement~optional -- not needed
                 endTokenClass = token~class
                 if endTokenClass == .sdtokenizer~t2bCorner then endTokenClass = .sdtokenizer~l2rCorner -- todo : should modify the tokenizer to be symmetrical
                 endtoken = group~parseDelimitedPath(token, .false, endTokenClass)
@@ -730,7 +743,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
             index2 = group~childs~next(index1)
             path2 = group~childs[index2] -- not [2] ! todo : improve doc...
             if path1~isA(.Group) & path1~childs~isEmpty & path2~importance == 0 then do
-                path2~importance = group~optional
+                path2~importance = .AbstractSyntaxElement~optional
                 return path2
             end
             return group
@@ -801,6 +814,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
             when token~isA(.sdtokenizer~Identifier) then buffer~append(token~value)
             when token~isA(.sdtokenizer~Character) then buffer~append(token~value)
             when token~isA(.sdtokenizer~EscapedCharacter) then buffer~append(token~value)
+            when token~isA(.sdtokenizer~SpecialCharacters) then buffer~append(token~value)
             when token~isA(.sdtokenizer~Number) then buffer~append(token~value)
             otherwise leave
         end
@@ -862,6 +876,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         select
             when token~isA(.sdtokenizer~Character) then buffer~append(token~value)
             when token~isA(.sdtokenizer~EscapedCharacter) then buffer~append(token~value)
+            when token~isA(.sdtokenizer~SpecialCharacters) then buffer~append(token~value) -- could be parsed as a distinct Characters instance, if the need arises
             otherwise leave
         end
         token~setVisitMark
@@ -873,7 +888,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     select
         when self~text == " " then self~kind = .Characters~oper
         when self~text == "||" then self~kind = .Characters~oper
-        when self~text == "°" then self~kind = .Characters~oper
+        when self~text == "+" then self~kind = .Characters~oper
         when self~text == "-" then self~kind = .Characters~oper
         when self~text == "*" then self~kind = .Characters~oper
         when self~text == "/" then self~kind = .Characters~oper
@@ -904,6 +919,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         when self~text == "\" then self~kind = .Characters~oper
         when self~text == "~" then self~kind = .Characters~oper
         when self~text == "~~" then self~kind = .Characters~oper
+        when self~text == "->" then self~kind = .Characters~oper
         
         when self~text == "," then self~kind = .Characters~sep
         when self~text == ";" then self~kind = .Characters~sep

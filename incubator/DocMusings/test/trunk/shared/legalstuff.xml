@@ -1,0 +1,125 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<!--#########################################################################
+    #
+    # Description: Common SGML file for all Open Object Rexx Documentation.
+    #
+    # Copyright (c) 2005-2009, Rexx Language Association. All rights reserved.
+    # Portions Copyright (c) 2004, IBM Corporation. All rights reserved.
+    #
+    # This program and the accompanying materials are made available under
+    # the terms of the Common Public License v1.0 which accompanies this
+    # distribution. A copy is also available at the following address:
+    # http://www.oorexx.org/license.html
+    #
+    # Redistribution and use in source and binary forms, with or
+    # without modification, are permitted provided that the following
+    # conditions are met:
+    #
+    # Redistributions of source code must retain the above copyright
+    # notice, this list of conditions and the following disclaimer.
+    # Redistributions in binary form must reproduce the above copyright
+    # notice, this list of conditions and the following disclaimer in
+    # the documentation and/or other materials provided with the distribution.
+    #
+    # Neither the name of Rexx Language Association nor the names
+    # of its contributors may be used to endorse or promote products
+    # derived from this software without specific prior written permission.
+    #
+    # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    # FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+    # OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    # SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+    # TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+    # OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+    # OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    #
+    # Author(s):
+    #      W. David Ashley <dashley@us.ibm.com>
+    #
+    #########################################################################
+-->
+<bookinfo>
+<title>Open Object Rexx&trade;</title>
+
+<!-- Next elements are replaced on the fly during build -->
+<subtitle>SubTitle</subtitle>
+<titleabbrev>TitleAbbrev</titleabbrev>
+
+<orgname>Rexx Language Association</orgname>
+<copyright>
+   <year>1995</year>
+   <year>2004</year>
+   <holder>IBM Corporation and others. All rights reserved.</holder>
+</copyright>
+<copyright>
+   <year>2005</year>
+   <year>2006</year>
+   <year>2007</year>
+   <year>2008</year>
+   <year>2009</year>
+   <holder>Rexx Language Association. All rights reserved.</holder>
+</copyright>
+<authorgroup>
+   <collab><collabname>W. David Ashley</collabname></collab>
+   <collab><collabname>Rony G. Flatscher</collabname></collab>
+   <collab><collabname>Mark Hessling</collabname></collab>
+   <collab><collabname>Rick McGuire</collabname></collab>
+   <collab><collabname>Mark Miesfeld</collabname></collab>
+   <collab><collabname>Lee Peedin</collabname></collab>
+   <collab><collabname>Rainer Tammer</collabname></collab>
+   <collab><collabname>Jon Wolfers</collabname></collab>
+</authorgroup>
+
+<!--#######################################################################
+    # The following need to be modified for each release!
+    #######################################################################-->
+<edition>Version 4.0.0</edition>
+<pubdate>August 14, 2009</pubdate>
+<!--#######################################################################
+    # The releaseinfo tag is used to show the release status of a document.
+    #
+    # Use the following for production releases.
+    #
+    # <releaseinfo>Revision 1</releaseinfo>
+    #              or
+    # <releaseinfo></releaseinfo>
+    #
+    # Use the following for draft releases of a document.
+    #
+    # <releaseinfo>Draft - SVN Rev &svnrev;</releaseinfo>
+    #   Draft - SVN Rev &svnrev;
+    #
+  #########################################################################-->
+<releaseinfo></releaseinfo>
+<!--#######################################################################
+    # End of modification area.
+    #######################################################################-->
+
+<mediaobject>
+<imageobject>
+<!-- Note! - if we include a /imagedata tag we get an error for DSSSL! -->
+<imagedata fileref="oorexx.jpg" align="center"/>
+</imageobject>
+</mediaobject>
+<legalnotice>
+<para>This program and the accompanying materials are made available under the
+terms of the <link linkend="cplv10" endterm="cplv10.title"></link>.
+</para>
+<para>Before using this information and the product it supports, be sure to read
+the general information under <link linkend="notices" endterm="notices.title"></link>.
+</para>
+<para>This document was originally owned and
+copyrighted by IBM Corporation 1995, 2004. It was donated
+as open source under the <link linkend="cplv10" endterm="cplv10.title"></link>
+to the Rexx Language Association in 2004.
+</para>
+<para>Thanks to Julian Choy for the ooRexx logo design.
+</para>
+</legalnotice>
+</bookinfo>
+
