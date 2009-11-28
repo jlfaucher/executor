@@ -1,4 +1,11 @@
 ===============================================================================
+2009 november 29
+
+Fixed a bug in the parser : The repetition separator (ex : comma in USE ARG)
+was not included.
+
+
+===============================================================================
 2009 november 8
 
 Starting to work on a bridge with BNF4OOo

@@ -775,22 +775,25 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     self~text = ""
 
 
-::method parse
+::method parseDelimitedPath
     forward class (super) continue
+    endtoken = result
+    self~simplify -- next loop will iterate on childs, better to simplify first
     buffer = .MutableBuffer~new
     -- For the time being, the repsep must be a simple text : 
     -- iterate over the grammar elements that can be converted to text, and concatenate
     do child over self~childs
         select
-            when child.isA(.Kwd) then buffer~append(child~text)
-            when child.isA(.Var) then buffer~append(child~text)
-            when child.isA(.Characters) then buffer~append(child~text)
+            when child~isA(.Kwd) then buffer~append(child~text)
+            when child~isA(.Var) then buffer~append(child~text)
+            when child~isA(.Characters) then buffer~append(child~text)
             otherwise do
                 self~parser~addError("[error] "child" is not supported in repsep")
             end
         end
     end
     self~text = buffer~string
+    return endtoken
     
     
 -------------------------------------------------------------------------------

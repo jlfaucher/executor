@@ -254,7 +254,7 @@ return 0
     Note : we loose the distinction between groupcomp and groupseq, so will need to rebuild it
     when parsing the bnf, based on the presence of spaces between elements (tricky).
     
-    Note : expression in repspep are not supported (not needed for ooRexx doc - currently)
+    Note : expression in repspep are not supported (needed for ooRexx doc - see USE ARG)
     */
     if group~childs~firstItem~isA(.sdparser~RepSep) then do
         bnfizer~xmlstream~lineout("<loop>")
