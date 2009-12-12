@@ -1,0 +1,134 @@
+/**** 
+Usage :
+    $sourcename [<odgFile>]
+Description :
+   .odg to .png/.pdf converter.
+   Convert the specified .odg file (if passed as argument).
+   Convert all the .odg files of the current directory (if no argument).
+   In both cases, the .png/.pdf file is generated only if it does not exist
+   or is less recent than the .odg file.
+****/
+
+/* initialize connection to server, get XContext */
+xContext = UNO.connect()  -- connect to server and retrieve the XContext object
+XMcf = xContext~getServiceManager   -- retrieve XMultiComponentFactory
+
+-- get GraphicExportFilter from the XMultiComponentFactory
+xGraphicExportFilter = xMcf~createInstanceWithContext("com.sun.star.drawing.GraphicExportFilter", xContext)
+xExporter = xGraphicExportFilter~XExporter   -- get the exporter interface
+xFilter   = xGraphicExportFilter~XFilter     -- get the filter interface
+
+oDesktop = UNO.createDesktop(xContext)
+xComponentLoader = oDesktop~XDesktop~XComponentLoader
+
+odgCount = 0
+pdfCount = 0
+pngCount = 0
+errorCount = 0
+
+if arg() == 0 then do
+    call SysFileTree "*.odg", "files", "FO"
+    do i=1 to files.0
+        call odg2image files.i -- internal
+    end
+end
+else do
+    call odg2image qualify(arg(1)) -- internal
+end
+
+say "[info] odgCount = "odgCount
+say "[info] pdfCount = "pdfCount
+say "[info] pngCount = "pngCount
+say "[info] errorCount = "errorCount
+
+if errorCount == 0 then return 0
+return 1
+
+
+/****************************************************************************/
+odg2image:
+/****************************************************************************/
+
+use strict arg odgFile
+
+if \ SysFileExists(odgFile) then do
+   say "[error] File not found : "odgFile
+   errorCount += 1
+   return
+end
+
+odgCount += 1
+
+odgFileLastUpdate = SysGetFileDateTime(odgFile, "W")
+if odgFileLastUpdate == -1 then do
+    say "[error] Can't get last update time of : "odgFile
+    errorCount += 1
+    return
+end
+
+pdfFile = substr(odgFile, 1, lastpos(".", odgFile)) || "pdf"
+pdfFileLastUpdate = SysGetFileDateTime(pdfFile, "W")
+pdf = .false
+if pdfFileLastUpdate == -1 | pdfFileLastUpdate << odgFileLastUpdate then pdf = .true
+
+pngFile  = substr(odgFile, 1, lastpos(".", odgFile)) || "png"
+pngFileLastUpdate = SysGetFileDateTime(pngFile, "W")
+png = .false
+if pngFileLastUpdate == -1 | pngFileLastUpdate << odgFileLastUpdate then png = .true
+
+if \png & \pdf then return -- all is up-to-date
+
+
+--Load ODG --------
+
+odgURL = uno.ConvertToURL(odgFile)
+
+props = bsf.createArray(.UNO~PropertyValue, 1)  -- create Java array
+props[1]=uno.createProperty("ReadOnly", box("boolean",.true))
+
+xDrawComponent = xComponentLoader~loadComponentFromURL(odgURL, "_blank", 0, props)
+
+
+--PDF--------------
+
+if pdf then do
+    say "[info] Generating "pdfFile
+    
+    /* extracted from example10_swriter_pdf.rxo */
+    props = bsf.createArray(.UNO~propertyValue, 1)     -- create Java array
+    props[1]=uno.createProperty("FilterName",   "draw_pdf_Export")
+    
+    pdfURL = uno.ConvertToURL(pdfFile)
+    xStorable = xDrawComponent~XStorable -- get xStorable interface
+    xStorable~storeToURL(pdfURL, props)
+    
+    pdfCount += 1
+end
+
+
+--PNG--------------
+
+if png then do
+    say "[info] Generating "pngFile
+
+    /* create filter properties and filter it*/
+    pngURL = uno.ConvertToURL(pngFile)
+    filterprops = bsf.createArray(.UNO~propertyValue, 2)  -- create Java array
+    filterProps[1]=uno.createProperty("MediaType", "image/png")
+    filterProps[2]=uno.createProperty("URL", pngURL)
+    
+    drawPages = xDrawComponent~XDrawPagesSupplier~getDrawPages
+    xComp = drawPages~getByIndex(0)~XComponent --get the page by 0-based index
+    xExporter~setSourceDocument(xComp)
+    xFilter~filter(filterprops)   -- now carry out the conversion ("filtering")
+    
+    pngCount += 1
+end
+
+--Close------------
+
+xDrawComponent~dispose
+return
+
+
+::requires UNO.CLS    -- get UNO support
