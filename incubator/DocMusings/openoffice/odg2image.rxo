@@ -29,7 +29,13 @@ errorCount = 0
 if arg() == 0 then do
     call SysFileTree "*.odg", "files", "FO"
     do i=1 to files.0
-        call odg2image files.i -- internal
+        file = files.i
+        if \ filespec("extension", file)~caseLessEquals("odg") then do
+            -- bypass a problem (bug ?) with SysFileTree : "*.odg" returns files like .~lock.dlgArea.odg# (under Windows)
+            say "[info] skipping : "file
+            iterate
+        end
+        call odg2image file -- internal
     end
 end
 else do
@@ -57,6 +63,7 @@ if \ SysFileExists(odgFile) then do
    return
 end
 
+say "[info] Processing : "odgFile
 odgCount += 1
 
 odgFileLastUpdate = SysGetFileDateTime(odgFile, "W")
@@ -87,6 +94,11 @@ props = bsf.createArray(.UNO~PropertyValue, 1)  -- create Java array
 props[1]=uno.createProperty("ReadOnly", box("boolean",.true))
 
 xDrawComponent = xComponentLoader~loadComponentFromURL(odgURL, "_blank", 0, props)
+if xDrawComponent == .nil then do
+    say "[error] Can't load : "odgFile
+    errorCount += 1
+    return
+end
 
 
 --PDF--------------
@@ -113,14 +125,20 @@ if png then do
 
     /* create filter properties and filter it*/
     pngURL = uno.ConvertToURL(pngFile)
-    filterprops = bsf.createArray(.UNO~propertyValue, 2)  -- create Java array
+    filterProps = bsf.createArray(.UNO~propertyValue, 3)  -- create Java array
     filterProps[1]=uno.createProperty("MediaType", "image/png")
     filterProps[2]=uno.createProperty("URL", pngURL)
+
+    /* filer dependent properties */
+    filterData = bsf.createArray(.UNO~propertyValue, 2)  -- create Java array
+    filterData[1]=uno.createProperty("Compression", box("int", 6))
+    filterData[2]=uno.createProperty("Interlaced", box("int", 1))
+    filterProps[3]=uno.createProperty("FilterData", filterData)
     
     drawPages = xDrawComponent~XDrawPagesSupplier~getDrawPages
     xComp = drawPages~getByIndex(0)~XComponent --get the page by 0-based index
     xExporter~setSourceDocument(xComp)
-    xFilter~filter(filterprops)   -- now carry out the conversion ("filtering")
+    xFilter~filter(filterProps)   -- now carry out the conversion ("filtering")
     
     pngCount += 1
 end
