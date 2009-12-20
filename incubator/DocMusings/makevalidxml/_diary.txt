@@ -1,4 +1,14 @@
 ===============================================================================
+2009 december 20
+
+transformdir iterates over all the files, not just *.sgml
+The files other than *.sgml are copied if needed (date comparison), 
+except the .svn files.
+The file *.sgml are transformed if needed (date comparison).
+Added the option -doit
+
+
+===============================================================================
 2009 december 19
 The log file was not correctly opened : must be APPEND SHARED NOBUFFER to ensure
 that each new line is added at the end of the file.

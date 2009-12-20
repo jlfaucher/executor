@@ -1,20 +1,29 @@
 /**** 
 Usage :
     $sourcename 
-        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xslt]
+        [-debug] [-dsssl] [-doit] [-dump] [-help] [-syntdiag] [-xslt]
         [-startat <filename>]
         <inputDirectory> <outputDirectory> [<logFile>]
+        
 Description :
-    This script is intended to work on the XML files of the ooRexx doc.
+    This script is intended to work on the files of the ooRexx doc.
+
     It iterates over the directories and files found in <inputDirectory> and 
     applies transformfile on the *.sgml files, using the options passed
     as parameters. The sgml files are written to <outputDirectory>, with the
-    same relative path.
-    By default, there is no transformation.
+    same relative path. 
+    transformfile is called only when needed (date comparison).
+
+    The files other than *.sgml are copied if needed (date comparison).
+
+    By default, no action is performed, except listing the actions that would
+    be done if the option -doit was specified.
+
     Options :
     -debug    : Insert additional informations in the ouptut. A part is sent to
                 stderr, another part is inserted in the XML output (making it
                 non valid).
+    -doit     : Perform the actions.
     -dsssl    : Generate DocBook XML compatible with DSSSL.
     -dump     : The elements and attributes are dumped without attempting to
                 keep the original layout.
@@ -59,37 +68,76 @@ if \SysFileExists(inputDirectory) then do
     return 1
 end
 
-call SysFileTree inputDirectory"*.sgml", "files", "FOS"
-if files.0 <> 0 then do
+say "Working..."
+actionCount = 0
+call SysFileTree inputDirectory"*", "inputFiles", "FOS"
+if inputFiles.0 <> 0 then do
     skip = arguments~startat
-    do i=1 to files.0
-        fullpath = files.i
-        if fullpath~pos(inputDirectory) <> 1 then do
-            log~lineout("[error] Assert failed : fullpath does not start with <inputDirectory>")
+    do i=1 to inputFiles.0
+        inputFile = inputFiles.i
+
+        -- Files having ".svn" in their path are skipped
+        if inputFile~pos(".svn") <> 0 then iterate
+        
+        if inputFile~pos(inputDirectory) <> 1 then do
+            log~lineout("[error] Assert failed : inputFile does not start with <inputDirectory>")
             return 1
         end
-        relativepath = fullpath~substr(inputDirectory~length + 1)
-        filepath = filespec("path", relativepath)
-        filename = filespec("name", relativepath)
+        relativeFile = inputFile~substr(inputDirectory~length + 1)
+        relativePath = filespec("path", relativeFile)
+        filename = filespec("name", relativeFile)
 
         if skip then if filename <> arguments~startatValue then iterate
         skip = .false
         
-        log~lineout("[info] Processing file "fullpath)
-        if createDirectoryVerbose(outputDirectory || filepath, log) < 0 then return 1
-        call transformfile arguments~debugOption,,
-                           arguments~dssslOption,,
-                           arguments~dumpOption,,
-                           arguments~syntdiagOption,,
-                           arguments~xsltOption,,
-                           fullpath,,
-                           outputDirectory || relativepath,,
-                           arguments~logFile
-        if result <> 0 then do
-            log~lineout("[error] Got an error while processing "fullpath)
+        -- if outputFile more recent than inputFile then nothing to do
+        inputFileLastUpdate = SysGetFileDateTime(inputFile, "W")
+        if inputFileLastUpdate == -1 then do
+            log~lineout("[error] Can't get last update time of "inputFile)
             return 1
         end
+        outputFile = outputDirectory || relativeFile
+        outputFileLastUpdate = SysGetFileDateTime(outputFile, "W")
+        if outputFileLastUpdate <> -1, outputFileLastUpdate >>= inputFileLastUpdate then iterate
+    
+        actionCount += 1
+        
+        if \ filespec("extension", inputFile)~caseLessEquals("sgml") then do
+            if arguments~doit then do
+                log~lineout("[info] Copying file "inputFile)
+                if createDirectoryVerbose(outputDirectory || relativePath, log) < 0 then return 1
+                if SysFileCopy(inputFile, outputFile) <> 0 then do
+                    log~lineout("[error] Can't make a copy of "inputFile)
+                    return 1
+                end
+            end
+            else log~lineout("[info] Would make a copy of "inputFile)
+        end
+        else do
+            if arguments~doit then do
+                log~lineout("[info] Processing file "inputFile)
+                if createDirectoryVerbose(outputDirectory || relativePath, log) < 0 then return 1
+                call transformfile arguments~debugOption,,
+                                   arguments~dssslOption,,
+                                   arguments~dumpOption,,
+                                   arguments~syntdiagOption,,
+                                   arguments~xsltOption,,
+                                   inputFile,,
+                                   outputFile,,
+                                   arguments~logFile
+                if result <> 0 then do
+                    log~lineout("[error] Got an error while processing "inputFile)
+                    return 1
+                end
+            end
+            else log~lineout("[info] Would process file "inputFile)
+        end
     end
+end
+
+if \arguments~doit & actionCount <> 0 then do
+    say
+    say "Use the option -doit to really execute the actions"
 end
 
 return 0
@@ -110,6 +158,7 @@ return 0
     self~inputDirectory = ""
     self~logFile = ""
     self~outputDirectory = ""
+    self~doit = .false
     self~startat = .false
     
     -- Process the options
@@ -118,6 +167,10 @@ return 0
         if option~left(1) <> "-" then leave
         select
             when self~parseOption(option) then nop
+            when "-doit"~caseLessEquals(option) then do 
+                self~doit = .true
+                self~startatOption = option
+            end
             when "-startat"~caseLessEquals(option) then do 
                 value = self~args[i+1]
                 if value == "" | value~left(1) == "-" then do
