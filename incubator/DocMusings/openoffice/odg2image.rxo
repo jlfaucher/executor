@@ -1,13 +1,31 @@
 /**** 
 Usage :
-    $sourcename [<odgFile>]
+    $sourcename [-doit] [<odgFile>]
 Description :
    .odg to .png/.pdf converter.
+   By default, no action is performed, except listing the actions that would
+   be done if the option -doit was specified.
    Convert the specified .odg file (if passed as argument).
    Convert all the .odg files of the current directory (if no argument).
    In both cases, the .png/.pdf file is generated only if it does not exist
    or is less recent than the .odg file.
 ****/
+
+doit = .false
+parse lower arg option .
+if option~left(1) == "-" then do
+    if option <> "-doit" then do
+        say "[error] Invalid option : "option
+        return 1
+    end
+    doit = .true
+    -- We have a valid option. Get the optional odgFile
+    parse arg . odgFile 
+end
+else do
+    -- No option, get the optional odgFile
+    parse arg odgFile
+end
 
 /* initialize connection to server, get XContext */
 xContext = UNO.connect()  -- connect to server and retrieve the XContext object
@@ -26,7 +44,7 @@ pdfCount = 0
 pngCount = 0
 errorCount = 0
 
-if arg() == 0 then do
+if odgFile == "" then do
     call SysFileTree "*.odg", "files", "FO"
     do i=1 to files.0
         file = files.i
@@ -35,17 +53,22 @@ if arg() == 0 then do
             say "[info] skipping : "file
             iterate
         end
-        call odg2image file -- internal
+        call odg2image file, doit -- internal
     end
 end
 else do
-    call odg2image qualify(arg(1)) -- internal
+    call odg2image qualify(odgFile), doit -- internal
 end
 
 say "[info] odgCount = "odgCount
 say "[info] pdfCount = "pdfCount
 say "[info] pngCount = "pngCount
 say "[info] errorCount = "errorCount
+
+if \doit then do
+    say
+    say "Use the option -doit to really execute the conversion"
+end
 
 if errorCount == 0 then return 0
 return 1
@@ -55,7 +78,7 @@ return 1
 odg2image:
 /****************************************************************************/
 
-use strict arg odgFile
+use strict arg odgFile, doit
 
 if \ SysFileExists(odgFile) then do
    say "[error] File not found : "odgFile
@@ -88,64 +111,71 @@ if \png & \pdf then return -- all is up-to-date
 
 --Load ODG --------
 
-odgURL = uno.ConvertToURL(odgFile)
-
-props = bsf.createArray(.UNO~PropertyValue, 1)  -- create Java array
-props[1]=uno.createProperty("ReadOnly", box("boolean",.true))
-
-xDrawComponent = xComponentLoader~loadComponentFromURL(odgURL, "_blank", 0, props)
-if xDrawComponent == .nil then do
-    say "[error] Can't load : "odgFile
-    errorCount += 1
-    return
+if doit then do
+    odgURL = uno.ConvertToURL(odgFile)
+    
+    props = bsf.createArray(.UNO~PropertyValue, 1)  -- create Java array
+    props[1]=uno.createProperty("ReadOnly", box("boolean",.true))
+    
+    xDrawComponent = xComponentLoader~loadComponentFromURL(odgURL, "_blank", 0, props)
+    if xDrawComponent == .nil then do
+        say "[error] Can't load : "odgFile
+        errorCount += 1
+        return
+    end
 end
-
 
 --PDF--------------
 
 if pdf then do
-    say "[info] Generating "pdfFile
-    
-    /* extracted from example10_swriter_pdf.rxo */
-    props = bsf.createArray(.UNO~propertyValue, 1)     -- create Java array
-    props[1]=uno.createProperty("FilterName",   "draw_pdf_Export")
-    
-    pdfURL = uno.ConvertToURL(pdfFile)
-    xStorable = xDrawComponent~XStorable -- get xStorable interface
-    xStorable~storeToURL(pdfURL, props)
-    
-    pdfCount += 1
+    if doit then do
+        say "[info] Generating "pdfFile
+        
+        /* extracted from example10_swriter_pdf.rxo */
+        props = bsf.createArray(.UNO~propertyValue, 1)     -- create Java array
+        props[1]=uno.createProperty("FilterName",   "draw_pdf_Export")
+        
+        pdfURL = uno.ConvertToURL(pdfFile)
+        xStorable = xDrawComponent~XStorable -- get xStorable interface
+        xStorable~storeToURL(pdfURL, props)
+        
+        pdfCount += 1
+    end
+    else say "[info] Would generate "pdfFile
 end
 
 
 --PNG--------------
 
 if png then do
-    say "[info] Generating "pngFile
-
-    /* create filter properties and filter it*/
-    pngURL = uno.ConvertToURL(pngFile)
-    filterProps = bsf.createArray(.UNO~propertyValue, 3)  -- create Java array
-    filterProps[1]=uno.createProperty("MediaType", "image/png")
-    filterProps[2]=uno.createProperty("URL", pngURL)
-
-    /* filer dependent properties */
-    filterData = bsf.createArray(.UNO~propertyValue, 2)  -- create Java array
-    filterData[1]=uno.createProperty("Compression", box("int", 6))
-    filterData[2]=uno.createProperty("Interlaced", box("int", 1))
-    filterProps[3]=uno.createProperty("FilterData", filterData)
+    if doit then do
+        say "[info] Generating "pngFile
     
-    drawPages = xDrawComponent~XDrawPagesSupplier~getDrawPages
-    xComp = drawPages~getByIndex(0)~XComponent --get the page by 0-based index
-    xExporter~setSourceDocument(xComp)
-    xFilter~filter(filterProps)   -- now carry out the conversion ("filtering")
+        /* create filter properties and filter it*/
+        pngURL = uno.ConvertToURL(pngFile)
+        filterProps = bsf.createArray(.UNO~propertyValue, 3)  -- create Java array
+        filterProps[1]=uno.createProperty("MediaType", "image/png")
+        filterProps[2]=uno.createProperty("URL", pngURL)
     
-    pngCount += 1
+        /* filer dependent properties */
+        filterData = bsf.createArray(.UNO~propertyValue, 2)  -- create Java array
+        filterData[1]=uno.createProperty("Compression", box("int", 6))
+        filterData[2]=uno.createProperty("Interlaced", box("int", 1))
+        filterProps[3]=uno.createProperty("FilterData", filterData)
+        
+        drawPages = xDrawComponent~XDrawPagesSupplier~getDrawPages
+        xComp = drawPages~getByIndex(0)~XComponent --get the page by 0-based index
+        xExporter~setSourceDocument(xComp)
+        xFilter~filter(filterProps)   -- now carry out the conversion ("filtering")
+        
+        pngCount += 1
+    end
+    else say "[info] Would generate "pngFile
 end
 
 --Close------------
 
-xDrawComponent~dispose
+if doit then xDrawComponent~dispose
 return
 
 
