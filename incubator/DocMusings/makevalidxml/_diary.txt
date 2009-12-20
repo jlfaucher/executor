@@ -1,4 +1,13 @@
 ===============================================================================
+2009 december 19
+The log file was not correctly opened : must be APPEND SHARED NOBUFFER to ensure
+that each new line is added at the end of the file.
+
+Fixed the transformation of a hierarchy of directories : must create each
+intermediate directory (not only the outputDirectory given on command line).
+
+
+===============================================================================
 2009 november 29
 
 Fixed a bug in the parser : The repetition separator (ex : comma in USE ARG)

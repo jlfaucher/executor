@@ -76,7 +76,10 @@ do error over arguments~errors
 end
 if arguments~help | \arguments~errors~isEmpty then return 1
 
-if arguments~logFile <> "" then log = .stream~new(arguments~logFile)
+if arguments~logFile <> "" then do
+    log = .stream~new(arguments~logFile)
+    log~open("write append shared nobuffer")
+end
 
 parser = .myparser~new()
 parser~debug = arguments~debug
@@ -111,7 +114,7 @@ if arguments~syntdiag then do
     -- The file will be created later, when the first syntax diagram is created
 end
 
--- signal on syntax -- The parser can abort by raising a syntax 4 (??? why only a "syntax" can be propagated automatically ???)
+signal on syntax -- The parser can abort by raising a syntax 4 (??? why only a "syntax" can be propagated automatically ???)
 errortxt = parser~parse_file(arguments~inputFile)
 if errortxt <> "" then do
     log~lineout("[error] The XML parser returned "errortxt)
@@ -293,7 +296,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     xmlizer = self~xmlize_syntax_diagram(tokenizer, parser)
     if xmlizer~errorCount <> 0 then return .false
     
-    bnfizer = self~bnfize_syntax_diagram(tokenizer, parser)
+    -- bnfizer = self~bnfize_syntax_diagram(tokenizer, parser)
     -- if bnfizer <> .nil, bnfizer~errorCount <> 0 then return .false
     
     -- good, from here, we know that the syntax diagram has been converted to XML.

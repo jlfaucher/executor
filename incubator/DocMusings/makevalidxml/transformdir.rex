@@ -3,7 +3,7 @@ Usage :
     $sourcename 
         [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xslt]
         [-startat <filename>]
-        <inputDirectory> [<outputDirectory>] [<logFile>]
+        <inputDirectory> <outputDirectory> [<logFile>]
 Description :
     This script is intended to work on the XML files of the ooRexx doc.
     It iterates over the directories and files found in <inputDirectory> and 
@@ -36,7 +36,11 @@ do error over arguments~errors
 end
 if arguments~help | \arguments~errors~isEmpty then return 1
 
-if arguments~logFile <> "" then log = .stream~new(arguments~logFile)
+if arguments~logFile <> "" then do
+    log = .stream~new(arguments~logFile)
+    log~open("write replace")
+    log~open("write append shared nobuffer")
+end
 
 -- Beware ! qualify has not the same behaviour under Windows and under Linux :
 -- Under Windows, the final slash is not removed
@@ -57,7 +61,6 @@ end
 
 call SysFileTree inputDirectory"*.sgml", "files", "FOS"
 if files.0 <> 0 then do
-    if createDirectoryVerbose(outputDirectory, log) < 0 then return 1
     skip = arguments~startat
     do i=1 to files.0
         fullpath = files.i
@@ -66,12 +69,14 @@ if files.0 <> 0 then do
             return 1
         end
         relativepath = fullpath~substr(inputDirectory~length + 1)
+        filepath = filespec("path", relativepath)
         filename = filespec("name", relativepath)
 
         if skip then if filename <> arguments~startatValue then iterate
         skip = .false
         
         log~lineout("[info] Processing file "fullpath)
+        if createDirectoryVerbose(outputDirectory || filepath, log) < 0 then return 1
         call transformfile arguments~debugOption,,
                            arguments~dssslOption,,
                            arguments~dumpOption,,
