@@ -135,10 +135,12 @@ if inputFiles.0 <> 0 then do
     end
 end
 
-if \arguments~doit & actionCount <> 0 then do
+if actionCount == 0 then say "Nothing to do."
+else if \arguments~doit then do
     say
     say "Use the option -doit to really execute the actions"
 end
+else say "Done."
 
 return 0
 

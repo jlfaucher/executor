@@ -27,17 +27,20 @@ else do
     parse arg odgFile
 end
 
-/* initialize connection to server, get XContext */
-xContext = UNO.connect()  -- connect to server and retrieve the XContext object
-XMcf = xContext~getServiceManager   -- retrieve XMultiComponentFactory
-
--- get GraphicExportFilter from the XMultiComponentFactory
-xGraphicExportFilter = xMcf~createInstanceWithContext("com.sun.star.drawing.GraphicExportFilter", xContext)
-xExporter = xGraphicExportFilter~XExporter   -- get the exporter interface
-xFilter   = xGraphicExportFilter~XFilter     -- get the filter interface
-
-oDesktop = UNO.createDesktop(xContext)
-xComponentLoader = oDesktop~XDesktop~XComponentLoader
+say "Working..."
+if doit then do
+    /* initialize connection to server, get XContext */
+    xContext = UNO.connect()  -- connect to server and retrieve the XContext object
+    XMcf = xContext~getServiceManager   -- retrieve XMultiComponentFactory
+    
+    -- get GraphicExportFilter from the XMultiComponentFactory
+    xGraphicExportFilter = xMcf~createInstanceWithContext("com.sun.star.drawing.GraphicExportFilter", xContext)
+    xExporter = xGraphicExportFilter~XExporter   -- get the exporter interface
+    xFilter   = xGraphicExportFilter~XFilter     -- get the filter interface
+    
+    oDesktop = UNO.createDesktop(xContext)
+    xComponentLoader = oDesktop~XDesktop~XComponentLoader
+end
 
 odgCount = 0
 pdfCount = 0
@@ -65,10 +68,12 @@ say "[info] pdfCount = "pdfCount
 say "[info] pngCount = "pngCount
 say "[info] errorCount = "errorCount
 
-if \doit then do
+if pngCount == 0 & pdfCount == 0 then say "Nothing to do."
+else if \doit then do
     say
     say "Use the option -doit to really execute the conversion"
 end
+else say "Done."
 
 if errorCount == 0 then return 0
 return 1
@@ -86,7 +91,6 @@ if \ SysFileExists(odgFile) then do
    return
 end
 
-say "[info] Processing : "odgFile
 odgCount += 1
 
 odgFileLastUpdate = SysGetFileDateTime(odgFile, "W")
@@ -128,6 +132,7 @@ end
 --PDF--------------
 
 if pdf then do
+    pdfCount += 1
     if doit then do
         say "[info] Generating "pdfFile
         
@@ -138,8 +143,6 @@ if pdf then do
         pdfURL = uno.ConvertToURL(pdfFile)
         xStorable = xDrawComponent~XStorable -- get xStorable interface
         xStorable~storeToURL(pdfURL, props)
-        
-        pdfCount += 1
     end
     else say "[info] Would generate "pdfFile
 end
@@ -148,6 +151,7 @@ end
 --PNG--------------
 
 if png then do
+    pngCount += 1
     if doit then do
         say "[info] Generating "pngFile
     
@@ -167,8 +171,6 @@ if png then do
         xComp = drawPages~getByIndex(0)~XComponent --get the page by 0-based index
         xExporter~setSourceDocument(xComp)
         xFilter~filter(filterProps)   -- now carry out the conversion ("filtering")
-        
-        pngCount += 1
     end
     else say "[info] Would generate "pngFile
 end
