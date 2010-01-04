@@ -9,12 +9,12 @@ Description :
     This script is intended to work on the files of the ooRexx doc.
 
     It iterates over the directories and files found in <inputDirectory> and 
-    applies transformfile on the *.sgml files, using the options passed
-    as parameters. The sgml files are written to <outputDirectory>, with the
+    applies transformfile on the *(.sgml|.xml) files, using the options passed
+    as parameters. The sgml|xml files are written to <outputDirectory>, with the
     same relative path. 
     transformfile is called only when needed (date comparison).
 
-    The files other than *.sgml are copied if needed (date comparison).
+    The files other than *(.sgml|.xml) are copied if needed (date comparison).
 
     By default, no action is performed, except listing the actions that would
     be done if the option -doit was specified.
@@ -102,7 +102,11 @@ if inputFiles.0 <> 0 then do
     
         actionCount += 1
         
-        if \ filespec("extension", inputFile)~caseLessEquals("sgml") then do
+        isDocbookFile = ,
+            filespec("extension", inputFile)~caseLessEquals("sgml") ,
+            | ,
+            filespec("extension", inputFile)~caseLessEquals("xml") & \ filespec("name", inputFile)~caseLessMatch(1, "sd_")
+        if \ isDocBookFile then do
             if arguments~doit then do
                 log~lineout("[info] Copying file "inputFile)
                 if createDirectoryVerbose(outputDirectory || relativePath, log) < 0 then return 1

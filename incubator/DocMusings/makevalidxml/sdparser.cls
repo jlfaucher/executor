@@ -294,7 +294,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     do forever
         group = .Group~new(.nil, self~parser)
         token = group~parse(token)
-        if group~childs~isEmpty then leave
+        if group~childs~isEmpty & group~repsep == .nil then leave
         self~childs~append(group)
     end
     if token~isA(.sdtokenizer~EndOfStatement) then do
@@ -344,7 +344,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     do forever
         group = .Group~new(.nil, self~parser)
         token = group~parse(token)
-        if group~childs~isEmpty then leave
+        if group~childs~isEmpty & group~repsep == .nil then leave
         self~childs~append(group)
     end
     if token~isA(.sdtokenizer~EndOfFragment) then do
@@ -445,6 +445,12 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
                 else if token~leftToken <> .nil, token~leftToken~value == "~" then token = .Kwd~new(self, self~parser)~parse(token)
                 -- Before a "(", we have a kwd (most of the time)
                 else if token~rightToken <> .nil, token~rightToken~value == "(" then token = .Kwd~new(self, self~parser)~parse(token)
+                -- An identifier surrounded by quotes is a kwd
+                else if token~leftToken <> .nil, token~rightToken <> .nil,,
+                        (token~leftToken~value == '"' & token~rightToken~value == '"'),
+                        |,
+                        (token~leftToken~value == "'" & token~rightToken~value == "'"),
+                     then token = .Kwd~new(self, self~parser)~parse(token)
                 -- The doc says "Variables appear in all lowercase letters" but this is not true...
                 -- We have a lot of variables whose name is a mix of upper- and lowercase letters, so...
                 else token = .Var~new(self, self~parser)~parse(token)
@@ -675,7 +681,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
     do forever
         group = .Group~new(.nil, self~parser)
         token = group~parse(token)
-        if group~childs~isEmpty then leave
+        if group~childs~isEmpty & group~repsep == .nil then leave
         self~childs~append(group)
         if token~isA(endTokenClass) then do
             if \ token~isA(.sdtokenizer~l2rCrossroads) then leave
@@ -726,6 +732,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
 ::method simplify
     if .t~istraced("simplify") then call trace .t~traceoption("simplify")
     use strict arg -- none
+    if self~repsep <> .nil then self~repsep = self~repsep~simplify
     group = self~simplify:super -- simplify each child separately
     select
         when group~repsep <> .nil then return group -- a group with repeat can't be simplified
@@ -769,31 +776,19 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
 -------------------------------------------------------------------------------
 ::class "RepSep" subclass "Group"
 
-
-::method init
-    forward class (super) continue
-    self~text = ""
-
-
-::method parseDelimitedPath
-    forward class (super) continue
-    endtoken = result
-    self~simplify -- next loop will iterate on childs, better to simplify first
-    buffer = .MutableBuffer~new
-    -- For the time being, the repsep must be a simple text : 
-    -- iterate over the grammar elements that can be converted to text, and concatenate
-    do child over self~childs
-        select
-            when child~isA(.Kwd) then buffer~append(child~text)
-            when child~isA(.Var) then buffer~append(child~text)
-            when child~isA(.Characters) then buffer~append(child~text)
-            otherwise do
-                self~parser~addError("[error] "child" is not supported in repsep")
-            end
+::method simplify
+    if .t~istraced("simplify") then call trace .t~traceoption("simplify")
+    use strict arg -- none
+    self~simplify:super -- simplify the childs
+    if self~childs~items == 1 then do
+        child = self~childs~firstItem
+        if child~isA(.Kwd) | child~isA(.Characters) then do
+            -- not displayed in italic, so can be stored in text
+            self~text = child~text
+            self~childs~empty
         end
     end
-    self~text = buffer~string
-    return endtoken
+    return self
     
     
 -------------------------------------------------------------------------------
@@ -923,6 +918,16 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         when self~text == "~" then self~kind = .Characters~oper
         when self~text == "~~" then self~kind = .Characters~oper
         when self~text == "->" then self~kind = .Characters~oper
+        when self~text == "+=" then self~kind = .Characters~oper
+        when self~text == "-=" then self~kind = .Characters~oper
+        when self~text == "*=" then self~kind = .Characters~oper
+        when self~text == "/=" then self~kind = .Characters~oper
+        when self~text == "%=" then self~kind = .Characters~oper
+        when self~text == "//=" then self~kind = .Characters~oper
+        when self~text == "||=" then self~kind = .Characters~oper
+        when self~text == "&=" then self~kind = .Characters~oper
+        when self~text == "|=" then self~kind = .Characters~oper
+        when self~text == "&&=" then self~kind = .Characters~oper
         
         when self~text == "," then self~kind = .Characters~sep
         when self~text == ";" then self~kind = .Characters~sep
@@ -932,6 +937,7 @@ See http://www.ditainfocenter.com/eclipsehelp/index.jsp?topic=/org.ditausers.inf
         when self~text == ")" then self~kind = .Characters~delim
         when self~text == "[" then self~kind = .Characters~delim
         when self~text == "]" then self~kind = .Characters~delim
+        when self~text == '"' then self~kind = .Characters~delim
         
         otherwise self~kind = .Characters~sep
     end

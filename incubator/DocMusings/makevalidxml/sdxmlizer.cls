@@ -143,9 +143,23 @@ It's available under the same open-source terms as DITA-OT.
 
 ::method serialize class
     use strict arg repsep, xmlizer
-    xmlizer~stream~lineout("<repsep" || self~attributes(repsep) || ">" || repsep~text || "</repsep>")
-    return .true
+    if repsep~childs~isEmpty then do
+        -- Concise representation
+        xmlizer~stream~lineout("<repsep" || self~attributes(repsep) || ">" || repsep~text || "</repsep>")
+        return .true
+    end
+    else return self~serialize:super(repsep, xmlizer)
 
+
+::method opentag class
+    use strict arg group, xmlizer
+    xmlizer~stream~lineout("<repsep" || self~attributes(group) || ">")
+    
+    
+::method closetag class
+    use strict arg group, xmlizer
+    xmlizer~stream~lineout("</repsep>")
+    
 
 -------------------------------------------------------------------------------
 ::class "FragRef" subclass "XMLSerializer"
