@@ -127,7 +127,7 @@ main: procedure
             when .ooRexxShell~interpreter == "ooRexx" then
                 call interpretCommand
             otherwise 
-                call addressCommand
+                RC = .ooRexxShell~addressCommand(.ooRexxShell~interpreter, .ooRexxShell~inputrx)
         end
         if \.ooRexxShell~isInteractive & queued() == 0 then leave -- For one-liner, stop loop when queue is empty.
     end
@@ -221,15 +221,15 @@ help: procedure
     -- Switch to the system address
     address value .ooRexxShell~systemAddress
     select
-        when platform() == "windows" then do
+        when .platform~is("windows") then do
             /* issue the pdf as a command using quotes because the install dir may contain blanks */
             'start "Rexx Online Documentation"' '"' || value("REXX_HOME",,"ENVIRONMENT") || "\doc\rexxref.pdf" || '"'
         end
-        when platform() == "aix" | platform() == "linux" | platform() == "sunos" then do
+        when .platform~is("aix") | .platform~is("linux") | .platform~is("sunos") then do
             'acroread /opt/oorexx/doc/rexxref.pdf&'
         end
         otherwise do
-            say platform() "has no online help for ooRexx."
+            say .platform~name "has no online help for ooRexx."
         end
     end
     address -- restore
@@ -244,10 +244,10 @@ help: procedure
 systemAddress: procedure
     parse source sysrx .
     select
-        when platform() == "windows" then return "cmd"
+        when .platform~is("windows") then return "cmd"
         -- From here, calculated like SYSINITIALADDRESS in utilities\rexx\platform\unix\rexx.cpp
-        when platform() == "aix" then return "ksh"
-        when platform() == "sunos" then return "sh"
+        when .platform~is("aix") then return "ksh"
+        when .platform~is("sunos") then return "sh"
         otherwise return "bash"
     end
 
@@ -295,32 +295,6 @@ interpretCommand:
 
 
 -------------------------------------------------------------------------------
-addressCommand:
-    address value .ooRexxShell~interpreter
-    (.ooRexxShell~inputrx)
-    address -- restore previous
-    if RC <> 0 then do
-        .color~select(.ooRexxShell~infoColor)
-        say .ooRexxShell~inputrx
-        .color~select(.ooRexxShell~errorColor)
-        say "RC=" RC
-        .color~select(.ooRexxShell~defaultColor)
-    end
-    return
-    
-
--------------------------------------------------------------------------------
-platform: procedure
-    parse source sysrx .
-    select
-        when sysrx~caselessAbbrev("windows") then return "windows"
-        when sysrx~caselessAbbrev("aix") then return "aix"
-        when sysrx~caselessAbbrev("sunos") then return "sunos"
-        when sysrx~caselessAbbrev("linux") then return "linux"
-        otherwise return sysrx~word(1)~lower
-    end
-
--------------------------------------------------------------------------------
 ::class ooRexxShell
 -------------------------------------------------------------------------------
 ::attribute inputrx class -- The current input to interpret
@@ -342,6 +316,24 @@ platform: procedure
     end
     
     
+-------------------------------------------------------------------------------
+-- Remember : MUST be a method to let the command be caught by the security manager.
+-- If not caught then the doskey history won't work...
+::method addressCommand class
+    use strict arg address, command
+    address value address
+    command
+    address -- restore previous
+    if RC <> 0 then do
+        .color~select(.ooRexxShell~infoColor)
+        say command
+        .color~select(.ooRexxShell~errorColor)
+        say "RC=" RC
+        .color~select(.ooRexxShell~defaultColor)
+    end
+    return RC
+    
+
 -------------------------------------------------------------------------------
 ::class securityManager 
 -------------------------------------------------------------------------------
@@ -422,9 +414,8 @@ platform: procedure
 
 ::method select class
     use strict arg color
-    parse source sysrx .
     select
-        when abbrev(sysrx, "Windows") then do
+        when .platform~is("windows") then do
             -- The current address can be anything, not necessarily the system address.
             -- Switch to the system address
             address value .ooRexxShell~systemAddress
@@ -434,7 +425,7 @@ platform: procedure
             end
             address -- restore
         end
-        when sysrx == "LINUX" then do
+        when .platform~is("linux") then do
             select
                 when color~caselessEquals("white") then call charout , d2c(27)"[m"
                 when color~caselessEquals("bwhite") then call charout , d2c(27)"[1m"
@@ -448,6 +439,25 @@ platform: procedure
             end
         end
         otherwise nop
+    end
+
+
+-------------------------------------------------------------------------------
+::class platform
+-------------------------------------------------------------------------------
+::method is class
+    use strict arg name
+    return self~name == name
+    
+    
+::method name class
+    parse source sysrx .
+    select
+        when sysrx~caselessAbbrev("windows") then return "windows"
+        when sysrx~caselessAbbrev("aix") then return "aix"
+        when sysrx~caselessAbbrev("sunos") then return "sunos"
+        when sysrx~caselessAbbrev("linux") then return "linux"
+        otherwise return sysrx~word(1)~lower
     end
 
 
