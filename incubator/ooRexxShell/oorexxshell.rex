@@ -53,8 +53,10 @@ Example (Windows) :
 CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
 CMD> cd c:\program files
 CMD> say 1+2                                        error, the ooRexx interpreter is not active here
+CMD> oorexx say 1+2                                 you can temporarily select an interpreter
 CMD> oorexx                                         switch to the ooRexx interpreter
 ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
+ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd 
 ooRexx[CMD] say 1+2                                 3
 ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
 ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
@@ -76,14 +78,26 @@ call on halt name haltHandler
 .ooRexxShell~interpreters~setEntry("oorexx", "ooRexx")
 .ooRexxShell~interpreters~setEntry(.ooRexxShell~systemAddress, .ooRexxShell~systemAddress)
 .ooRexxShell~interpreters~setEntry(address(), address()) -- maybe the same as systemAddress, maybe not
+
+-- Load optional packages/libraries
+if .platform~is("windows") then do
+    .context~package~loadPackage("bsf.cls")
+    .context~package~loadPackage("oodialog.cls")
+    .context~package~loadPackage("uno.cls")
+    .context~package~loadPackage("winsystm.cls")
+end
 if .context~package~loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
+.context~package~loadPackage("rxftp.cls")
+.context~package~loadLibrary("rxmath")
+.context~package~loadPackage("socket.cls")
 
 .ooRexxShell~interpreter = address()
 
 -- Use the security manager to trap the calls to the systemCommandHandler :
 -- Windows : don't call directly CreateProcess, to avoid loss of doskey history (prepend "cmd /c")
 -- Unix : support aliases (prepend "bash -O expand_aliases -c")
-.Context~package~setSecurityManager(.securityManager~new)
+.ooRexxShell~securityManager = .securityManager~new -- make it accessible from command line
+.Context~package~setSecurityManager(.ooRexxShell~securityManager)
 
 parse arg argrx
 select
@@ -94,7 +108,7 @@ select
     end
     otherwise do
         -- One-liner for default address() and exit.
-        -- Beware ! It's NEVER ooRexx !
+        -- Beware ! It's not ooRexx by default, unless you start the line by the word oorexx. 
         .ooRexxShell~isInteractive = .false
         push argrx
         call main
@@ -107,27 +121,38 @@ return
 -------------------------------------------------------------------------------
 main: procedure
 
+    -- trace i
     history = "" -- No history by default
 	
     REPL:
     do forever
-        prompt = ""
-        if .ooRexxShell~isInteractive then prompt = prompt(address())
-        .ooRexxShell~inputrx = readline(prompt)
+        .ooRexxShell~prompt = ""
+        if .ooRexxShell~isInteractive then .ooRexxShell~prompt = prompt(address())
+        .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
         if history <> "" then call updateHistory .ooRexxShell~inputrx
         select
-            when .ooRexxShell~inputrx~strip == "?" then 
+            when .ooRexxShell~inputrx == "?" then 
                 call help
-            when .ooRexxShell~inputrx~strip~caselessEquals("exit") then 
+            when .ooRexxShell~inputrx~caselessEquals("exit") then 
                 exit
-            when .ooRexxShell~inputrx~strip~caselessEquals("interpreters") then
+            when .ooRexxShell~inputrx~caselessEquals("interpreters") then
                 .ooRexxShell~sayInterpreters
-            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx~strip) then
-                .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx~strip)
-            when .ooRexxShell~interpreter == "ooRexx" then
-                call interpretCommand
-            otherwise 
-                RC = .ooRexxShell~addressCommand(.ooRexxShell~interpreter, .ooRexxShell~inputrx)
+            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
+                -- Change the default interpreter
+                .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx)
+            end
+            when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx~word(1)) then do
+                -- The line starts with an interpreter name : use it instead of the default interpreter
+                .ooRexxShell~commandInterpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx~word(1))
+                .ooRexxShell~command = .ooRexxShell~inputrx~substr(.ooRexxShell~inputrx~wordIndex(2))
+                call dispatchCommand
+            end
+            otherwise do
+                -- Interpret the line with the default interpreter
+                .ooRexxShell~commandInterpreter = .ooRexxShell~interpreter
+                .ooRexxShell~command = .ooRexxShell~inputrx
+                call dispatchCommand
+            end
         end
         if \.ooRexxShell~isInteractive & queued() == 0 then leave -- For one-liner, stop loop when queue is empty.
     end
@@ -156,7 +181,7 @@ prompt: procedure
     .color~select(.ooRexxShell~defaultColor)
     -- No longer display the prompt, return it and let readline display it
     prompt = .ooRexxShell~interpreter
-    if .ooRexxShell~interpreter == "ooRexx" then prompt ||= "["systemAddress"]"
+    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["systemAddress"]"
     prompt ||= "> "
     return prompt
     
@@ -179,7 +204,7 @@ readline: procedure
             -- Must use explicitely bash because, under linux, system("a command") delegates to /bin/sh
             -- and /bin/sh does not activate the history (I think).
             address value .ooRexxShell~systemAddress
-            "bash -c '(set -o history ; history -a ; shopt -s histappend ; shopt -s expand_aliases ; read -e -p "quoted(prompt)" ; echo -E $REPLY) | rxqueue'"
+            "bash -c '(set -o noglob ; set -o history ; history -a ; shopt -s histappend ; shopt -s expand_aliases ; read -e -p "quoted(prompt)" ; echo -E $REPLY) | rxqueue'"
             address -- restore
             if queued() <> 0 then parse pull inputrx
         end
@@ -242,7 +267,6 @@ help: procedure
 -- to execute the command. But in THE (for example), the default address is THE,
 -- and that command wouldn't work.
 systemAddress: procedure
-    parse source sysrx .
     select
         when .platform~is("windows") then return "cmd"
         -- From here, calculated like SYSINITIALADDRESS in utilities\rexx\platform\unix\rexx.cpp
@@ -267,16 +291,26 @@ haltHandler:
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or method !
+dispatchCommand:
+    if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
+        call interpretCommand
+    else 
+        call addressCommand
+    return
+    
+
+-------------------------------------------------------------------------------
+-- Remember : don't implement that as a procedure or method !
 -- Any variable created by interpret would not be available to the next interpret,
 -- because not created in the global context.
 interpretCommand:
     RC = 0
     signal on syntax name interpretError
-    interpret .ooRexxShell~inputrx
+    interpret .ooRexxShell~command
     signal off syntax
     if RC <> 0 then do
         .color~select(.ooRexxShell~infoColor)
-        say .ooRexxShell~inputrx
+        say .ooRexxShell~command
         .color~select(.ooRexxShell~errorColor)
         say "RC=" RC
         .color~select(.ooRexxShell~defaultColor)
@@ -285,7 +319,7 @@ interpretCommand:
     
     interpretError:
     .color~select(.ooRexxShell~infoColor)
-    say .ooRexxShell~inputrx
+    say .ooRexxShell~command
     .color~select(.ooRexxShell~errorColor)
     say condition("O")~message
     RC = condition("O")~code
@@ -295,12 +329,43 @@ interpretCommand:
 
 
 -------------------------------------------------------------------------------
+-- Remember : don't implement that as a procedure or method !
+addressCommand:
+    if .ooRexxShell~commandInterpreter~caselessEquals(systemAddress()) then do
+        -- Here we call the systemCommandHandler within the context of a method.
+        -- It's ok because no risk of rexx variable creation/update.
+        -- Will be caught by the security manager, to adjust the command, if needed.
+        RC = .ooRexxShell~addressCommand(.ooRexxShell~commandInterpreter, .ooRexxShell~command)
+    end
+    else do
+        -- Here we call the subCommandHandler within the global context.
+        -- Any created/updated variable will be seen from the global context (we need that).
+        -- Not caught by the security manager.
+        address value .ooRexxShell~commandInterpreter
+        (.ooRexxShell~command)
+        address -- restore previous
+        if RC <> 0 then do
+            .color~select(.ooRexxShell~infoColor)
+            say .ooRexxShell~command
+            .color~select(.ooRexxShell~errorColor)
+            say "RC=" RC
+            .color~select(.ooRexxShell~defaultColor)
+        end
+    end
+    return
+    
+    
+-------------------------------------------------------------------------------
 ::class ooRexxShell
 -------------------------------------------------------------------------------
+::attribute command class -- The current command to interpret, can be a substring of inputrx
+::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute inputrx class -- The current input to interpret
 ::attribute interpreter class -- One of the environments in 'interpreters' or the special value "ooRexx"
 ::attribute interpreters class -- The set of interpreters that can be activated
-::attribute isInteractive class -- Are we in interactive mode, or are we executing a one-liner ? 
+::attribute isInteractive class -- Are we in interactive mode, or are we executing a one-liner ?
+::attribute prompt class -- The prompt to display
+::attribute securityManager class
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
 
 ::attribute defaultColor class
@@ -314,6 +379,11 @@ interpretCommand:
     do interpreter over .ooRexxShell~interpreters~allIndexes~sort 
         say interpreter~lower" : to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
     end
+    
+
+::method traceSystemCommand
+    use strict arg trace
+    self~securityManager~traceCommand = trace
     
     
 -------------------------------------------------------------------------------
@@ -338,17 +408,21 @@ interpretCommand:
 ::class securityManager 
 -------------------------------------------------------------------------------
 ::attribute isRunningCommand
+::attribute traceCommand
 
 
 ::method init
    self~isRunningCommand = .false
+   self~traceCommand = .false
    
    
 ::method command
     use arg info
+    if self~traceCommand then do
+        say "[securityManager] command=" info~command
+        say "[securityManager] address=" info~address
+    end
     if self~isRunningCommand then return 0 -- recursive call, delegate to system 
-    -- say "[securityManager] command=" info~command
-    -- say "[securityManager] address=" info~address
     command = self~adjustCommand(info~address, info~command)
     if command == info~command then return 0 -- command not impacted, delegate to system
     self~isRunningCommand = .true

@@ -20,8 +20,10 @@ Example (Windows) :
 CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
 CMD> cd c:\program files
 CMD> say 1+2                                        error, the ooRexx interpreter is not active here
+CMD> oorexx say 1+2                                 you can temporarily select an interpreter
 CMD> oorexx                                         switch to the ooRexx interpreter
 ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
+ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd 
 ooRexx[CMD] say 1+2                                 3
 ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
 ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
@@ -34,10 +36,8 @@ Current problems :
 - Under Windows, if you want the colors then you must put ctext.exe in your PATH
   You can get ctext here : http://dennisbareis.com/freew32.htm
 - Under Unix, the readline history does not work.
-- Under Unix, the expansion of "*" brings problem : 
-  sometimes, what you interpret is not what you typed. Try 
-  say 2 * 3
-
+- Under Unix, it seems that rxqueue does not work correctly the first time ooRexxShell is launched
+  (always empty). After a break+restart, it works...
 
 See demo/hostemu_from_THE.png
 for an example of shell with 4 interpreters.
