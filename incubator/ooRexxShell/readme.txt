@@ -35,16 +35,9 @@ MYHANDLER> exit                                     the exit command is supporte
 Current problems :
 - Under Windows, if you want the colors then you must put ctext.exe in your PATH
   You can get ctext here : http://dennisbareis.com/freew32.htm
-- Under Windows, the doskey history does not work correctly when cmd.exe is not a parent process
-  of ooRexx (directly or indirectly). It's easy to bypass this problem : use cmd /c
-  Ex :
-  If you have a .bat file which contains
-      "my path to\rexx" "my path to\ooRexxShell"
-  and if you double-clic on this .bat file from the file explorer, then the doskey history won't work.
-  If you modify the .bat that way :
+- Under Windows, if you launch oorexx from a .bat file, then you need to prepend cmd /c
+  to have the doskey history working correctly.
       cmd /c ""my path to\rexx" "my path to\ooRexxShell""
-  then the doskey history will work. The whole old command line has been surrounded by "...".
-
 
 See demo/hostemu_from_THE.png
 for an example of shell with 4 interpreters.

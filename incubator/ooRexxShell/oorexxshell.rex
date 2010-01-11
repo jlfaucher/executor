@@ -65,6 +65,18 @@ MYHANDLER> myCommand myArg                          an hypothetic command, no ne
 MYHANDLER> exit                                     the exit command is supported whatever the interpreter
 */
 
+-- Use a security manager to trap the calls to the systemCommandHandler :
+-- Windows : don't call directly CreateProcess, to avoid loss of doskey history (prepend "cmd /c")
+-- Unix : support aliases (prepend "bash -O expand_aliases -c")
+.ooRexxShell~securityManager = .securityManager~new -- make it accessible from command line
+shell = .context~package~findRoutine("SHELL")
+shell~setSecurityManager(.ooRexxShell~securityManager)
+shell~call
+return
+
+
+::routine SHELL
+
 call on halt name haltHandler
 
 .ooRexxShell~defaultColor = "white"
@@ -81,12 +93,6 @@ call on halt name haltHandler
 .ooRexxShell~interpreter = address()
 
 call loadOptionalComponents
-
--- Use the security manager to trap the calls to the systemCommandHandler :
--- Windows : don't call directly CreateProcess, to avoid loss of doskey history (prepend "cmd /c")
--- Unix : support aliases (prepend "bash -O expand_aliases -c")
-.ooRexxShell~securityManager = .securityManager~new -- make it accessible from command line
-.Context~package~setSecurityManager(.ooRexxShell~securityManager)
 
 parse arg argrx
 select
@@ -116,6 +122,8 @@ main: procedure
         if .ooRexxShell~isInteractive then .ooRexxShell~prompt = prompt(address())
         .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
         select
+            when .ooRexxShell~inputrx == "" then
+                nop
             when .ooRexxShell~inputrx == "?" then 
                 call help
             when .ooRexxShell~inputrx~caselessEquals("exit") then 
@@ -273,12 +281,8 @@ haltHandler:
 
 
 -------------------------------------------------------------------------------
--- Remember : don't implement that as a procedure or method !
+-- Remember : don't implement that as a procedure or routine or method !
 dispatchCommand:
-    if .ooRexxShell~traceDispatchCommand then do
-        say "[dispatchCommand] interpreter=" .ooRexxShell~commandInterpreter
-        say "[dispatchCommand] command=" .ooRexxShell~command
-    end
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         call interpretCommand
     else 
@@ -287,10 +291,13 @@ dispatchCommand:
     
 
 -------------------------------------------------------------------------------
--- Remember : don't implement that as a procedure or method !
+-- Remember : don't implement that as a procedure or routine or method !
 -- Any variable created by interpret would not be available to the next interpret,
--- because not created in the global context.
+-- because not created in the same context.
 interpretCommand:
+    if .ooRexxShell~traceDispatchCommand then do
+        say "[interpret] command=" .ooRexxShell~command
+    end
     RC = 0
     signal on syntax name interpretError
     interpret .ooRexxShell~command
@@ -316,35 +323,24 @@ interpretCommand:
 
 
 -------------------------------------------------------------------------------
--- Remember : don't implement that as a procedure or method !
+-- Remember : don't implement that as a procedure or routine or method !
 addressCommand:
-    if .ooRexxShell~commandInterpreter~caselessEquals(systemAddress()) then do
-        -- Here we call the systemCommandHandler within the context of a method.
-        -- It's ok because no risk of rexx variable creation/update.
-        -- Will be caught by the security manager, to adjust the command, if needed.
-        RC = .ooRexxShell~addressCommand(.ooRexxShell~commandInterpreter, .ooRexxShell~command)
-    end
-    else do
-        -- Here we call the subCommandHandler within the global context.
-        -- Any created/updated variable will be seen from the global context (we need that).
-        -- Not caught by the security manager.
-        address value .ooRexxShell~commandInterpreter
-        (.ooRexxShell~command)
-        address -- restore previous
-        if RC <> 0 then do
-            .color~select(.ooRexxShell~infoColor)
-            say .ooRexxShell~command
-            .color~select(.ooRexxShell~errorColor)
-            say "RC=" RC
-            .color~select(.ooRexxShell~defaultColor)
-        end
+    address value .ooRexxShell~commandInterpreter
+    (.ooRexxShell~command)
+    address -- restore previous
+    if RC <> 0 then do
+        .color~select(.ooRexxShell~infoColor)
+        say .ooRexxShell~command
+        .color~select(.ooRexxShell~errorColor)
+        say "RC=" RC
+        .color~select(.ooRexxShell~defaultColor)
     end
     return
     
     
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
--- Remember : don't implement that as a procedure or method !
+-- Remember : don't implement that as a procedure or routine or method !
 loadOptionalComponents:
     if .platform~is("windows") then do
         call loadPackage("oodialog.cls")
@@ -360,7 +356,7 @@ loadOptionalComponents:
     
 
 -------------------------------------------------------------------------------
--- Remember : don't implement that as a procedure or method !
+-- Remember : don't implement that as a procedure or routine or method !
 loadPackage:
     use strict arg filename
     signal on syntax name loadPackageError
@@ -371,7 +367,7 @@ loadPackage:
 
     
 -------------------------------------------------------------------------------
--- Remember : don't implement that as a procedure or method !
+-- Remember : don't implement that as a procedure or routine or method !
 loadLibrary:
     use strict arg filename
     signal on syntax name loadLibraryError
@@ -420,24 +416,6 @@ loadLibrary:
     self~securityManager~traceCommand = trace
     
     
--------------------------------------------------------------------------------
--- Remember : MUST be a method to let the command be caught by the security manager.
--- If not caught then the doskey history won't work...
-::method addressCommand class
-    use strict arg address, command
-    address value address
-    command
-    address -- restore previous
-    if RC <> 0 then do
-        .color~select(.ooRexxShell~infoColor)
-        say command
-        .color~select(.ooRexxShell~errorColor)
-        say "RC=" RC
-        .color~select(.ooRexxShell~defaultColor)
-    end
-    return RC
-    
-
 -------------------------------------------------------------------------------
 ::class securityManager 
 -------------------------------------------------------------------------------
