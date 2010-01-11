@@ -75,6 +75,7 @@ shell~call
 return
 
 
+-------------------------------------------------------------------------------
 ::routine SHELL
 
 call on halt name haltHandler
@@ -117,7 +118,6 @@ return
 main: procedure
 
     REPL:
-    do forever
         .ooRexxShell~prompt = ""
         if .ooRexxShell~isInteractive then .ooRexxShell~prompt = prompt(address())
         .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
@@ -142,18 +142,19 @@ main: procedure
                 -- The line starts with an interpreter name : use it instead of the default interpreter
                 .ooRexxShell~commandInterpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx~word(1))
                 .ooRexxShell~command = .ooRexxShell~inputrx~substr(.ooRexxShell~inputrx~wordIndex(2))
-                call dispatchCommand
+                signal dispatchCommand -- don't call, because some ooRexx interpreter informations would be saved/restored
             end
             otherwise do
                 -- Interpret the line with the default interpreter
                 .ooRexxShell~commandInterpreter = .ooRexxShell~interpreter
                 .ooRexxShell~command = .ooRexxShell~inputrx
-                call dispatchCommand
+                signal dispatchCommand -- don't call, because some ooRexx interpreter informations would be saved/restored
             end
         end
-        if \.ooRexxShell~isInteractive & queued() == 0 then leave -- For one-liner, stop loop when queue is empty.
-    end
-    return
+        
+        CONTINUE_REPL:
+        if \.ooRexxShell~isInteractive & queued() == 0 then return -- For one-liner, stop loop when queue is empty.
+    signal REPL
 
     
 -------------------------------------------------------------------------------
@@ -189,6 +190,7 @@ readline: procedure
     select
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") then do
             -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
+            -- HKEY_CURRENT_USER/Software/Microsoft/Command Processor/CompletionChar = 9
             address value .ooRexxShell~systemAddress
             "(title ooRexxShell) & (set inputrx=) & (set /p inputrx="quoted(prompt)") & (if defined inputrx set inputrx | rxqueue)"
             address -- restore
@@ -282,18 +284,19 @@ haltHandler:
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
+-- Moreover don't call it, you must jump to (signal) it...
 dispatchCommand:
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
-        call interpretCommand
+        signal interpretCommand -- don't call
     else 
-        call addressCommand
-    return
+        signal addressCommand -- don't call
     
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
 -- Any variable created by interpret would not be available to the next interpret,
 -- because not created in the same context.
+-- Moreover don't call it, you must jump to (signal) it...
 interpretCommand:
     if .ooRexxShell~traceDispatchCommand then do
         say "[interpret] command=" .ooRexxShell~command
@@ -309,7 +312,7 @@ interpretCommand:
         say "RC=" RC
         .color~select(.ooRexxShell~defaultColor)
     end
-    return
+    signal CONTINUE_REPL
     
     interpretError:
     .color~select(.ooRexxShell~infoColor)
@@ -319,11 +322,12 @@ interpretCommand:
     RC = condition("O")~code
     if RC <> 0 then say "RC=" RC
     .color~select(.ooRexxShell~defaultColor)
-    return
+    signal CONTINUE_REPL
 
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
+-- Moreover don't call it, you must jump to (signal) it...
 addressCommand:
     address value .ooRexxShell~commandInterpreter
     (.ooRexxShell~command)
@@ -335,7 +339,7 @@ addressCommand:
         say "RC=" RC
         .color~select(.ooRexxShell~defaultColor)
     end
-    return
+    signal CONTINUE_REPL
     
     
 -------------------------------------------------------------------------------
