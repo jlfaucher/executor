@@ -32,16 +32,19 @@ MYHANDLER> myCommand myArg                          an hypothetic command, no ne
 MYHANDLER> exit                                     the exit command is supported whatever the interpreter
 
 
-Current problems :
-- Under Windows, if you want the colors then you must put ctext.exe in your PATH
+Known problems under Windows :
+
+- If you want the colors then you must put ctext.exe in your PATH.
   You can get ctext here : http://dennisbareis.com/freew32.htm
-- Under Windows, if you launch oorexx from a .bat file, then you need to prepend cmd /c
-  to have the doskey history working correctly.
+  
+- If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
+  doskey history working correctly.
       cmd /c ""my path to\rexx" "my path to\ooRexxShell""
-- Under Windows, the default console code page is the OEMCP, which does not match the
-  default ANSI code page (ACP). That bring troubles when you execute a command which
-  contains letters with accent. I could bypass this problem by converting OEMCP to ACP
-  in the securiy manager, but there is a more general workaround that can be used :
+      
+- The default console code page is the OEMCP, which does not match the default ANSI
+  code page (ACP). That bring troubles when you execute a command which contains
+  letters with accent. This problem could be bypassed by converting OEMCP to ACP in the
+  securiy manager, but there is a more general workaround that can be used :
   Change the default code page of the console to ACP. For example, european users could
   enter this command : chcp 1252
   You must also change the font of the console, because a raster font can't display letters
@@ -49,14 +52,37 @@ Current problems :
   See:
   http://blogs.msdn.com/michkap/archive/2005/02/08/369197.aspx
   http://en.wikipedia.org/wiki/Windows-1252
-- Under Windows, if you launch a GUI application then the ooRexxShell will wait until the end
-  of the execution (which is not the case when launched from the command prompt).
-- All platforms, when the first word of the command is an interpreter name, then it is assumed
-  you want to temporarily select this interpreter. The first word is removed from the command
-  passed to the subcommand handler. Ex : if you enter cmd /? then only /? will be executed.
+  
+- Assuming you defined this doskey macro : ll=ls -lap $*
+  you will see a difference of behavior between
+  CMD> ll
+  and
+  CMD> cmd ll
+  and
+  ooRexx[CMD]> 'll'
+  and
+  ooRexx[CMD]> ll
+  - In the first case, the macro works as expected.
+  - In the second and third case, the macro is not expanded. This is because the macro expansion 
+    is done by readline (not when evaluating the command) and only the first word of the command
+    line is expanded by doskey (here "cmd" or 'll' is the first word).
+  - In the last case, the macro is expanded, but you don't what that...
+        ls -lap
+        Nonnumeric value ("LS") used in arithmetic operation
+        RC= 41.1  
+  [Note : these problems do not occur under Linux with Bash because the aliases are expanded
+  only when the interpreter is Bash and the command is evaluated.]
+ 
+Known problems under all platforms :
+
+- When the first word of the command is an interpreter name, then it is assumed you want to
+  temporarily select this interpreter. The first word is removed from the command passed to
+  the subcommand handler. Ex : if you enter cmd /? then only /? will be executed.
   If you want to execute this interpreter instead of selecting it, then you can enter :
   "cmd" /?
   cmd cmd /?
+  "bash" --help
+  bash bash --help
 
 
 See demo/hostemu_from_THE.png
