@@ -34,8 +34,8 @@ MYHANDLER> exit                                     the exit command is supporte
 
 Known problems under Windows :
 
-- If you want the colors then you must put ctext.exe in your PATH.
-  You can get ctext here : http://dennisbareis.com/freew32.htm
+- If you want the colors then you must put gci.dll in your PATH.
+  You can get gci here : http://rexx-gci.sourceforge.net
   
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.

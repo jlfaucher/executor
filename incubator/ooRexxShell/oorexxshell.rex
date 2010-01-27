@@ -93,7 +93,8 @@ call on halt name haltHandler
 .ooRexxShell~defaultColor = "white"
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
-.ooRexxShell~promptColor = "yellow"
+.ooRexxShell~promptColor = "byellow"
+.ooRexxShell~traceColor = "yellow"
 
 .ooRexxShell~systemAddress = systemAddress()
 
@@ -238,8 +239,10 @@ readline: procedure
                 parse pull "inputrx=" inputrx1 -- output of 'set'
                 parse pull inputrx2 -- output of 'echo'
                 if .ooRexxShell~traceReadline then do
+                    .color~select(.ooRexxShell~traceColor)
                     say "[readline] inputrx1=" inputrx1
                     say "[readline] inputrx2=" inputrx2
+                    .color~select(.ooRexxShell~defaultColor)
                 end
                 
                 -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
@@ -259,7 +262,11 @@ readline: procedure
             parse pull inputrx -- Input keyboard or queue.
         end
     end
-    if .ooRexxShell~traceReadline then say "[readline] inputrx=" inputrx
+    if .ooRexxShell~traceReadline then do
+        .color~select(.ooRexxShell~traceColor)
+        say "[readline] inputrx=" inputrx
+        .color~select(.ooRexxShell~defaultColor)
+    end
     return inputrx
 
         
@@ -344,7 +351,9 @@ dispatchCommand:
 -- Moreover don't call it, you must jump to (signal) it...
 interpretCommand:
     if .ooRexxShell~traceDispatchCommand then do
+        .color~select(.ooRexxShell~traceColor)
         say "[interpret] command=" .ooRexxShell~command
+        .color~select(.ooRexxShell~defaultColor)
     end
     RC = 0
     signal on syntax name interpretError
@@ -448,6 +457,7 @@ loadLibrary:
 ::attribute errorColor class
 ::attribute infoColor class
 ::attribute promptColor class
+::attribute traceColor class
 
 ::attribute traceReadline class
 ::attribute traceDispatchCommand class
@@ -490,8 +500,10 @@ loadLibrary:
 ::method command
     use arg info
     if self~traceCommand then do
+        .color~select(.ooRexxShell~traceColor)
         say "[securityManager] address=" info~address
         say "[securityManager] command=" info~command
+        .color~select(.ooRexxShell~defaultColor)
     end
     if self~isRunningCommand then return 0 -- recursive call, delegate to system 
     command = self~adjustCommand(info~address, info~command)
@@ -545,19 +557,21 @@ loadLibrary:
 -------------------------------------------------------------------------------
 ::class color
 -------------------------------------------------------------------------------
-
 ::method select class
     use strict arg color
     select
         when .platform~is("windows") then do
-            -- The current address can be anything, not necessarily the system address.
-            -- Switch to the system address
-            address value .ooRexxShell~systemAddress
-            -- You can get ctext here : http://dennisbareis.com/freew32.htm
-            if SysSearchPath("path", "ctext.exe") <> "" then do
-                'ctext {'color'}'
+            select
+                when color~caselessEquals("white") then .platform~SetConsoleTextColor(7)
+                when color~caselessEquals("bwhite") then .platform~SetConsoleTextColor(15)
+                when color~caselessEquals("red") then .platform~SetConsoleTextColor(4)
+                when color~caselessEquals("bred") then .platform~SetConsoleTextColor(12)
+                when color~caselessEquals("green") then .platform~SetConsoleTextColor(2)
+                when color~caselessEquals("bgreen") then .platform~SetConsoleTextColor(10) 
+                when color~caselessEquals("yellow") then .platform~SetConsoleTextColor(6) -- (called brown by by ctext)
+                when color~caselessEquals("byellow") then .platform~SetConsoleTextColor(14) -- (called yellow by ctext)
+                otherwise nop
             end
-            address -- restore
         end
         when .platform~is("linux") then do
             select
@@ -567,13 +581,41 @@ loadLibrary:
                 when color~caselessEquals("bred") then call charout , d2c(27)"[1;31m"
                 when color~caselessEquals("green") then call charout , d2c(27)"[32m"
                 when color~caselessEquals("bgreen") then call charout , d2c(27)"[1;32m"
-                when color~caselessEquals("brown") then call charout , d2c(27)"[33m"
-                when color~caselessEquals("yellow") then call charout , d2c(27)"[1;33m"
+                when color~caselessEquals("yellow") then call charout , d2c(27)"[33m"
+                when color~caselessEquals("byellow") then call charout , d2c(27)"[1;33m"
                 otherwise nop
             end
         end
         otherwise nop
     end
+
+
+-------------------------------------------------------------------------------
+::class GCI -- http://rexx-gci.sourceforge.net/
+-------------------------------------------------------------------------------
+::attribute isInstalled class
+
+
+::method init class
+    self~isInstalled = .false
+    if RxFuncadd(RxFuncDefine, "gci", "RxFuncDefine") <> 0 then return
+    if RxFuncadd(GciFuncDrop, "gci", "GciFuncDrop") <> 0 then return
+    if RxFuncadd(GciPrefixChar, "gci", "GciPrefixChar") <> 0 then return
+    self~isInstalled = .true
+    
+    
+/*
+To compile gci-sources.1.1 for ooRexx under Win32, I had to create the file rexxsaa.h,
+located above the GCI source directory, which contains :
+
+#include "<your path to> rexx.h"
+typedef void* PVOID ;
+# define APIRET ULONG
+typedef CONST char *PCSZ ;
+
+Other change in gci-win32.def:
+LIBRARY gci ; INITINSTANCE
+*/
 
 
 -------------------------------------------------------------------------------
@@ -627,6 +669,28 @@ loadLibrary:
 -------------------------------------------------------------------------------
 ::class WindowsPlatform subclass platform
 -------------------------------------------------------------------------------
+
+-- GCI type definitions
+::constant ULONG "unsigned32"   -- typedef unsigned long       ULONG;
+::constant USHORT "unsigned16"  -- typedef unsigned short      USHORT;
+::constant UCHAR "unsigned8"    -- typedef unsigned char       UCHAR;
+::constant DWORD "unsigned32"   -- typedef unsigned long       DWORD;
+::constant BOOL "integer32"     -- typedef int                 BOOL;
+::constant BYTE "unsigned8"     -- typedef unsigned char       BYTE;
+::constant WORD "unsigned16"    -- typedef unsigned short      WORD;
+::constant FLOAT "float32"      -- typedef float               FLOAT;
+::constant INT "integer32"      -- typedef int                 INT;
+::constant UINT "unsigned32"    -- typedef unsigned int        UINT;
+::constant HANDLE "integer"     -- typedef void                *HANDLE; -- todo : must be integer64 under win64, is it managed by GCI ?
+
+
+::method init class
+    if .GCI~isInstalled then do
+        self~defineSetConsoleTextAttribute
+        self~defineGetStdHandle
+    end
+    
+    
 ::method which
     -- The order of precedence in locating executable files is given by the PATHEXT environment variable.
     use strict arg filespec
@@ -726,17 +790,86 @@ loadLibrary:
     e_magic = stream~charIn(1, 2)
     if e_magic <> "4D5A"x then return 0 -- MZ
     e_lfnanew = stream~charIn(61, 4)
-    stream~seek(bytes2integer32(e_lfnanew) + 1)
+    stream~seek(littleendian2integer32(e_lfnanew) + 1)
     ntSignature = stream~charIn(, 4)
     if ntSignature <> "50450000"x then return 0 -- PE\0\0
     stream~seek("+88")
     subsystem = stream~charIn(, 2)
-    return bytes2integer16(subsystem)
+    return littleendian2integer16(subsystem)
     notready:
     return .false
     
     
-::routine bytes2integer16
+::constant STD_INPUT_HANDLE -10
+::constant STD_OUTPUT_HANDLE -11
+::constant STD_ERROR_HANDLE -12
+::constant INVALID_HANDLE_VALUE -1
+
+::method defineGetStdHandle class private
+    /*
+    HANDLE WINAPI GetStdHandle(
+      __in  DWORD nStdHandle
+    );
+    */
+    stem.calltype = "stdcall"
+    stem.0 = 1
+    stem.1.type = self~DWORD
+    stem.return.type = self~HANDLE
+    return RxFuncDefine("GetStdHandle", "kernel32", "GetStdHandle", "stem") == 0 -- return .true if no error
+
+    
+::method GetStdHandle private
+    use strict arg deviceId
+    stem.1.value = unsigned32(deviceId) -- GCI complains when passing a negative value...
+    call GetStdHandle "stem"
+    return stem.return.value
+
+    
+::method defineSetConsoleTextAttribute class private
+    /*
+    BOOL WINAPI SetConsoleTextAttribute(
+      __in  HANDLE hConsoleOutput,
+      __in  WORD wAttributes
+    );
+    */
+    stem.calltype = "stdcall"
+    stem.0 = 2
+    stem.1.type = self~HANDLE
+    stem.2.type = self~WORD
+    stem.return.type = self~BOOL
+    return RxFuncDefine("SetConsoleTextAttribute", "kernel32", "SetConsoleTextAttribute", "stem") == 0 -- return .true if no error
+
+
+::method SetConsoleTextAttribute private
+    use strict arg consoleHandle, characterAttributes
+    stem.1.value = consoleHandle
+    stem.2.value = characterAttributes
+    call SetConsoleTextAttribute "stem"
+    return stem.return.value
+
+
+::method SetConsoleTextColor
+    use strict arg colorNumber
+    signal on syntax -- trap unregistered GCI functions
+    consoleHandle = self~GetStdHandle(self~STD_OUTPUT_HANDLE)
+    if consoleHandle == self~INVALID_HANDLE_VALUE then return .false
+    self~SetConsoleTextAttribute(consoleHandle, colorNumber)
+    return result <> 0 -- return .true if no error
+    syntax:
+    return .false
+    
+    
+-------------------------------------------------------------------------------
+-- Helpers
+-------------------------------------------------------------------------------
+::routine unsigned32
+    use strict arg number
+    numeric digits 10
+    if number >= 0 then return number
+    return 4294967296 + number
+    
+    
+::routine littleendian2integer16
     use strict arg string
     byte2 = string~subchar(2)~c2d
     byte1 = string~subchar(1)~c2d
@@ -745,7 +878,7 @@ loadLibrary:
     return integer16
     
     
-::routine bytes2integer32
+::routine littleendian2integer32
     use strict arg string
     numeric digits 10
     byte4 = string~subchar(4)~c2d
