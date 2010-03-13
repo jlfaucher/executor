@@ -74,7 +74,7 @@ MYHANDLER> exit                                     the exit command is supporte
 shell = .context~package~findRoutine("SHELL")
 shell~setSecurityManager(.ooRexxShell~securityManager)
 
--- Bypass defect 2933583 (fixed in next release after 4.0) : 
+-- Bypass defect 2933583 (fixed in release 4.0.1) : 
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
 shell~call(arg(1), address())
 
@@ -85,8 +85,6 @@ return .ooRexxShell~RC <> 0
 -------------------------------------------------------------------------------
 ::routine SHELL
 use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
-
-call on halt name haltHandler
 
 .ooRexxShell~readline = .true -- assign .false if you want only the basic "parse pull" functionality
 
@@ -136,6 +134,7 @@ return
 main: procedure
 
     REPL:
+        call on halt name haltHandler
         .ooRexxShell~prompt = ""
         if .ooRexxShell~isInteractive then .ooRexxShell~prompt = prompt(address())
         .ooRexxShell~inputrx = readline(.ooRexxShell~prompt)~strip
@@ -191,14 +190,14 @@ intro: procedure
 
 -------------------------------------------------------------------------------
 prompt: procedure
-    use strict arg systemAddress
+    use strict arg currentAddress
     .color~select(.ooRexxShell~promptColor)
     say
     say directory()
     .color~select(.ooRexxShell~defaultColor)
     -- No longer display the prompt, return it and let readline display it
     prompt = .ooRexxShell~interpreter
-    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["systemAddress"]"
+    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]"
     prompt ||= "> "
     return prompt
     
@@ -410,6 +409,7 @@ loadOptionalComponents:
     call loadPackage("socket.cls")
     call loadPackage("bsf.cls")
     call loadPackage("uno.cls")
+    call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     return
     
 
@@ -527,7 +527,7 @@ loadLibrary:
         -- But I don't want it for the commands directly managed by the systemCommandHandler.
         if command~caselessPos("set ") == 1 then return command -- variable assignment
         if command~caselessPos("cd ") == 1 then return command -- change directory
-        if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 then return command -- change drive
+        if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return command -- change drive
         args = .platform~string2args(command)
         if args[1]~caselessEquals("cmd") then return command -- already prefixed by "cmd ..."
         if args[1]~caselessEquals("start") then return command -- already prefixed by "start ..."
@@ -691,6 +691,11 @@ LIBRARY gci ; INITINSTANCE
     end
     
     
+::method init
+    forward class (super) continue
+    self~class~current = self -- normally you never call directly a method of .WindowsPlatform, but just in case...
+    
+    
 ::method which
     -- The order of precedence in locating executable files is given by the PATHEXT environment variable.
     use strict arg filespec
@@ -718,7 +723,7 @@ LIBRARY gci ; INITINSTANCE
     return ""
     
     
-::method string2args public
+::method string2args
     -- Converts a string to an array of arguments.
     -- Arguments are separated by whitespaces (anything < 32) and can be quoted.
     use strict arg string
