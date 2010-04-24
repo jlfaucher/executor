@@ -60,7 +60,7 @@ friend class SysInterpreterInstance;
 public:
 
     // methods associated with actual interpreter instances
-    inline InterpreterInstance(RESTORETYPE restoreType) { ; }
+    inline InterpreterInstance(RESTORETYPE restoreType) : terminationSem("InterpreterInstance::terminationSem") { ; }
     InterpreterInstance();
 
     inline void *operator new(size_t, void *ptr) {return ptr;}

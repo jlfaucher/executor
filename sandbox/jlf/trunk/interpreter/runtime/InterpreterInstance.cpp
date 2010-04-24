@@ -64,6 +64,7 @@ void *InterpreterInstance::operator new(size_t size)
 }
 
 InterpreterInstance::InterpreterInstance()
+: terminationSem("InterpreterInstance::terminationSem")
 {
     // this needs to be created and set
     terminationSem.create();
@@ -210,7 +211,7 @@ RexxActivity *InterpreterInstance::attachThread()
     // resource lock must come AFTER we attach the thread, otherwise
     // we can create a deadlock situation when we attempt to get the kernel
     // lock
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::attachThread", 0);
     // add this to the activity lists
     allActivities->append((RexxObject *)activity);
     // associate the thread with this instance
@@ -248,7 +249,7 @@ bool InterpreterInstance::detachThread(RexxActivity *activity)
     // this activity owned the kernel semaphore before entering here...release it
     // now.
     activity->releaseAccess();
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::detachThread", 0);
 
     allActivities->removeItem((RexxObject *)activity);
     // have the activity manager remove this from the global tables
@@ -291,7 +292,7 @@ RexxActivity *InterpreterInstance::spawnActivity(RexxActivity *parent)
     // associate the thread with this instance
     activity->addToInstance(this);
     // add this to the activities list
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::spawnActivity", 0);
 
     allActivities->append((RexxObject *)activity);
     return activity;
@@ -310,7 +311,7 @@ RexxActivity *InterpreterInstance::spawnActivity(RexxActivity *parent)
  */
 bool InterpreterInstance::poolActivity(RexxActivity *activity)
 {
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::poolActivity", 0);
     // detach from this instance
     activity->detachInstance();
     // remove from the activities lists for the instance
@@ -344,7 +345,7 @@ bool InterpreterInstance::poolActivity(RexxActivity *activity)
 RexxActivity *InterpreterInstance::findActivity(thread_id_t threadId)
 {
     // this is a critical section
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::findActivity", 0);
     // NB:  New activities are pushed on to the end, so it's prudent to search
     // from the list end toward the front of the list.  Also, this ensures we
     // will find the toplevel activity nested on a given thread first.
@@ -386,7 +387,7 @@ RexxActivity *InterpreterInstance::enterOnCurrentThread()
 {
     RexxActivity *activity;
     {
-        ResourceSection lock;              // lock the outer control block access
+        ResourceSection lock("InterpreterInstance::enterOnCurrentThread", 0);              // lock the outer control block access
         // attach this thread to the current activity
         activity = attachThread();
         // this will also get us the kernel lock, and take care of nesting
@@ -460,7 +461,7 @@ bool InterpreterInstance::terminate()
 
     {
 
-        ResourceSection lock;
+        ResourceSection lock("InterpreterInstance::terminate", 0);
         // remove the current activity from the list so we don't clean everything
         // up.  We need to
         allActivities->removeItem((RexxObject *)current);
@@ -476,7 +477,7 @@ bool InterpreterInstance::terminate()
     // they all finish
     if (!terminated)
     {
-        terminationSem.wait();
+        terminationSem.wait("InterpreterInstance::terminate", 0);
     }
 
     // if everything has terminated, then make sure we run the uninits before shutting down.
@@ -540,7 +541,7 @@ bool InterpreterInstance::haltAllActivities()
 {
     // make sure we lock this, since it is possible the table can get updated
     // as a result of setting these flags
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::haltAllActivities", 0);
     bool result = true;
     for (size_t listIndex = allActivities->firstIndex() ;
          listIndex != LIST_END;
@@ -566,7 +567,7 @@ void InterpreterInstance::traceAllActivities(bool on)
 {
     // make sure we lock this, since it is possible the table can get updated
     // as a result of setting these flags
-    ResourceSection lock;
+    ResourceSection lock("InterpreterInstance::traceAllActivities", 0);
     for (size_t listIndex = allActivities->firstIndex() ;
          listIndex != LIST_END;
          listIndex = allActivities->nextIndex(listIndex) )

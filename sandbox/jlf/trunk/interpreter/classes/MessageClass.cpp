@@ -77,6 +77,7 @@ void RexxMessage::createInstance()
  * @param _args   An array of arguments to the message.
  */
 RexxMessage::RexxMessage(RexxObject *_target, RexxString *msgName, RexxObject *scope, RexxArray *_args)
+ : waitResultSem("RexxMessage::waitResultSem")
 {
                                          /* defult target is target specified */
     OrefSet(this, this->receiver, _target);

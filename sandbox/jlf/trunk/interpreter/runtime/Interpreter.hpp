@@ -73,8 +73,8 @@ public:
     static void processStartup();
     static void processShutdown();
 
-    static inline void getResourceLock() { resourceLock.request(); }
-    static inline void releaseResourceLock() { resourceLock.release(); }
+    static inline void getResourceLock(const char *ds, int di) { resourceLock.request(ds, di); }
+    static inline void releaseResourceLock(const char *ds, int di) { resourceLock.release(ds, di); }
     static inline void createLocks()
     {
         resourceLock.create();
@@ -154,9 +154,9 @@ protected:
 class ResourceSection
 {
 public:
-    inline ResourceSection()
+    inline ResourceSection(const char *ds, int di) : dbgds(ds), dbgdi(di)
     {
-        Interpreter::getResourceLock();
+        Interpreter::getResourceLock(dbgds, dbgdi);
         terminated = false;
     }
 
@@ -164,7 +164,7 @@ public:
     {
         if (!terminated)
         {
-            Interpreter::releaseResourceLock();
+            Interpreter::releaseResourceLock(dbgds, dbgdi);
         }
     }
 
@@ -172,7 +172,7 @@ public:
     {
         if (!terminated)
         {
-            Interpreter::releaseResourceLock();
+            Interpreter::releaseResourceLock(dbgds, dbgdi);
             terminated = true;
         }
     }
@@ -182,7 +182,7 @@ public:
     {
         if (terminated)
         {
-            Interpreter::getResourceLock();
+            Interpreter::getResourceLock(dbgds, dbgdi);
             terminated = false;
         }
     }
@@ -190,6 +190,8 @@ public:
 private:
 
     bool terminated;       // we can release these as needed
+    const char *dbgds;
+    int dbgdi;
 };
 
 

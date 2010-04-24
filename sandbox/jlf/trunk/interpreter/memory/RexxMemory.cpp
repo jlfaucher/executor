@@ -99,9 +99,9 @@ RexxDirectory *RexxMemory::kernel = OREF_NULL;
 RexxDirectory *RexxMemory::system = OREF_NULL;
 
 // locks for the memory process access
-SysMutex RexxMemory::flattenMutex;
-SysMutex RexxMemory::unflattenMutex;
-SysMutex RexxMemory::envelopeMutex;
+SysMutex RexxMemory::flattenMutex("RexxMemory::flattenMutex");
+SysMutex RexxMemory::unflattenMutex("RexxMemory::unflattenMutex");
+SysMutex RexxMemory::envelopeMutex("RexxMemory::envelopeMutex");
 
 static void logMemoryCheck(FILE *outfile, const char *message, ...)
 {
@@ -1940,12 +1940,12 @@ void RexxMemory::setObjectOffset(size_t offset)
 
         /* have a value, starting unflatten.  See if we can get MUTEX */
         /* immed */
-        if (!unflattenMutex.requestImmediate())
+        if (!unflattenMutex.requestImmediate("RexxMemory::setObjectOffset", 0))
         {
             {
                 UnsafeBlock releaser;
                 /* wait for current unflatten to end */
-                unflattenMutex.request();
+                unflattenMutex.request("RexxMemory::setObjectOffset", 0);
             }
         }
     }
@@ -1953,7 +1953,7 @@ void RexxMemory::setObjectOffset(size_t offset)
     {
         /* no value, ending an unflatten */
         /* Release the MUTEX.                */
-        unflattenMutex.release();
+        unflattenMutex.release("RexxMemory::setObjectOffset", 0);
     }
 
     /* setup offSet value.               */
@@ -1974,20 +1974,20 @@ void      RexxMemory::setEnvelope(RexxEnvelope *_envelope)
     {
         /* have a value, starting unflatt    */
         /* See if we can get MUTEX immed     */
-        if (!envelopeMutex.requestImmediate())
+        if (!envelopeMutex.requestImmediate("RexxMemory::setEnvelope", 0))
         {
             /* Nope, have to wait for it.        */
             /* release kernel access.            */
             {
                 UnsafeBlock releaser;
-                envelopeMutex.request();   /* wait for current unflat to end    */
+                envelopeMutex.request("RexxMemory::setEnvelope", 0);   /* wait for current unflat to end    */
             }
         }
     }
     else
     {
         /* no value, ending an unflatten     */
-        envelopeMutex.release();         /* Release the MUTEX.                */
+        envelopeMutex.release("RexxMemory::setEnvelope", 0);         /* Release the MUTEX.                */
     }
 
     this->envelope = _envelope;          /* set the envelope object           */
@@ -2132,13 +2132,13 @@ RexxStack *RexxMemory::getFlattenStack(void)
 /* Function:  Allocate and lock the flatten stack capability.                 */
 /******************************************************************************/
 {
-    if (!flattenMutex.requestImmediate())
+    if (!flattenMutex.requestImmediate("RexxMemory::getFlattenStack", 0))
     {
         /* Nope, have to wait for it.        */
         /* release kernel access.            */
         {
             UnsafeBlock releaser;
-            flattenMutex.request();         /* wait for current flattento end    */
+            flattenMutex.request("RexxMemory::getFlattenStack", 0);         /* wait for current flattento end    */
         }
     }
     /* create a temporary stack          */
@@ -2152,7 +2152,7 @@ void RexxMemory::returnFlattenStack(void)
 /******************************************************************************/
 {
    free((void *)this->flattenStack);   /* release the flatten stack         */
-   this->flattenMutex.release();       /* and release the semaphore         */
+   this->flattenMutex.release("RexxMemory::returnFlattenStack", 0);       /* and release the semaphore         */
 }
 
 RexxObject *RexxMemory::dumpImageStats(void)

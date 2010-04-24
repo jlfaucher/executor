@@ -68,10 +68,10 @@ bool ActivityManager::processTerminating = false;
 size_t ActivityManager::interpreterInstances = 0;
 
 // global lock for the interpreter
-SysMutex ActivityManager::kernelSemaphore;
+SysMutex ActivityManager::kernelSemaphore("ActivityManager::kernelSemaphore");
 
 // the termination complete semaphore
-SysSemaphore ActivityManager::terminationSem;
+SysSemaphore ActivityManager::terminationSem("ActivityManager::terminationSem");
 
 /**
  * Initialize the activity manager when the interpreter starts up.
@@ -124,7 +124,7 @@ void ActivityManager::liveGeneral(int reason)
  */
 void ActivityManager::addWaitingActivity(RexxActivity *waitingAct, bool release )
 {
-    ResourceSection lock;                // need the control block locks
+    ResourceSection lock("ActivityManager::addWaitingActivity", 0);                // need the control block locks
 
     // nobody waiting yet?  If the release flag is true, we already have the
     // kernel lock, but nobody is waiting.  In theory, this can't really
@@ -212,7 +212,7 @@ void ActivityManager::createInterpreter()
  */
 void ActivityManager::terminateInterpreter()
 {
-    ResourceSection lock;
+    ResourceSection lock("ActivityManager::terminateInterpreter", 0);
     interpreterInstances--;              /* reduce the active count           */
     if (interpreterInstances == 0)       /* down to nothing?                  */
     {
@@ -335,7 +335,7 @@ RexxNativeActivation *ActivityManager::newNativeActivation(RexxActivity *activit
  */
 RexxActivity *ActivityManager::createNewActivity()
 {
-    ResourceSection lock;                // lock the control information
+    ResourceSection lock("ActivityManager::createNewActivity", 0);                // lock the control information
         /* try to get one from the free table*/
     RexxActivity *activity =  (RexxActivity *)availableActivities->removeFirstItem();
     if (activity == OREF_NULL)
@@ -368,7 +368,7 @@ RexxActivity *ActivityManager::createCurrentActivity()
 {
     // create an activity object without creating a new thread
     RexxActivity *activity = new RexxActivity(false);
-    ResourceSection lock;                // lock the control information
+    ResourceSection lock("ActivityManager::createCurrentActivity", 0);                // lock the control information
                                        /* Add this activity to the table of */
                                        /* in use activities and the global  */
                                        /* table                             */
@@ -451,7 +451,7 @@ bool ActivityManager::haltActivity(
 /* Function:   Flip on a bit in a target activities top activation            */
 /******************************************************************************/
 {
-    ResourceSection lock;
+    ResourceSection lock("ActivityManager::haltActivity", 0);
     // locate the activity associated with this thread_id.  If not found, return
     // a failure.
     RexxActivity *activity = findActivity(thread_id);
@@ -470,7 +470,7 @@ bool ActivityManager::setActivityTrace(
 /* Function:   Flip on a bit in a target activities top activation            */
 /******************************************************************************/
 {
-    ResourceSection lock;
+    ResourceSection lock("ActivityManager::setActivityTrace", 0);
     // locate the activity associated with this thread_id.  If not found, return
     // a failure.
     RexxActivity *activity = findActivity(thread_id);
@@ -487,7 +487,7 @@ void ActivityManager::yieldCurrentActivity()
 /* Function:   Signal an activation to yield control                          */
 /******************************************************************************/
 {
-    ResourceSection lock;
+    ResourceSection lock("ActivityManager::yieldCurrentActivity", 0);
 
     RexxActivity *activity = ActivityManager::currentActivity;
     if (activity != OREF_NULL)
@@ -503,7 +503,7 @@ RexxActivity *ActivityManager::findActivity(thread_id_t threadId)
 /******************************************************************************/
 {
     // this is a critical section
-    ResourceSection lock;
+    ResourceSection lock("ActivityManager::findActivity", 0);
 
     // NB:  New activities are pushed on to the end, so it's prudent to search
     // from the list end toward the front of the list.  Also, this ensures we
@@ -545,7 +545,7 @@ void ActivityManager::lockKernel()
 /* Function:  Request access to the kernel                                    */
 /******************************************************************************/
 {
-    kernelSemaphore.request();   /* just request the semaphore        */
+    kernelSemaphore.request("ActivityManager::lockKernel", 0);   /* just request the semaphore        */
 }
 
 void ActivityManager::unlockKernel()
@@ -558,7 +558,7 @@ void ActivityManager::unlockKernel()
     sentinel = false;
     currentActivity = OREF_NULL;         /* no current activation             */
     sentinel = true;
-    kernelSemaphore.release();           /* release the kernel semaphore      */
+    kernelSemaphore.release("ActivityManager::unlockKernel", 0);           /* release the kernel semaphore      */
 }
 
 /**
@@ -596,7 +596,7 @@ bool ActivityManager::lockKernelImmediate()
     // dispatch queue
     if (waitingActivities.empty())
     {
-        return kernelSemaphore.requestImmediate();
+        return kernelSemaphore.requestImmediate("ActivityManager::lockKernelImmediate", 0);
     }
     return false;
 }
@@ -617,7 +617,7 @@ void ActivityManager::returnActivity(RexxActivity *activityObject)
 {
     // START OF CRITICAL SECTION
     {
-        ResourceSection lock;
+        ResourceSection lock("ActivityManager::returnActivity", 0);
         // and also remove from the global list
         allActivities->removeItem((RexxObject *)activityObject);
         // if we ended up pushing an old activity down when we attached this
@@ -643,7 +643,7 @@ void ActivityManager::activityEnded(RexxActivity *activityObject)
 {
     // START OF CRITICAL SECTION
     {
-        ResourceSection lock;       // this is a critical section
+        ResourceSection lock("ActivityManager::activityEnded", 0);       // this is a critical section
         // and also remove from the global list
         allActivities->removeItem((RexxObject *)activityObject);
         // cleanup any system resources this activity might own
@@ -715,7 +715,7 @@ void ActivityManager::returnRootActivity(RexxActivity *activity)
     // make sure we release any system resources used by this activity, such as the semaphores
     activity->cleanupActivityResources();
 
-    ResourceSection lock;                // need the control block locks
+    ResourceSection lock("ActivityManager::returnRootActivity", 0);                // need the control block locks
     // remove this from the activity list so it will never get
     // picked up again.
     allActivities->removeItem((RexxObject *)activity);

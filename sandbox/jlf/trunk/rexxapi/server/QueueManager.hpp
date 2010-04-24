@@ -91,18 +91,18 @@ class DataQueue
 {
     friend class QueueTable;
 public:
-    DataQueue()
+    DataQueue(const char *ds, int di) : waitSem("DataQueue::waitSem"), dbgds(ds), dbgdi(di)
     {
         init();      // do common initilization
     }
 
-    DataQueue(SessionID s)
+    DataQueue(SessionID s, const char *ds, int di) : waitSem("DataQueue::waitSem"), dbgds(ds), dbgdi(di)
     {
         init();      // do common initilization
         session = s;
     }
 
-    DataQueue(const char *name)
+    DataQueue(const char *name, const char *ds, int di) : waitSem("DataQueue::waitSem"), dbgds(ds), dbgdi(di)
     {
         init();      // do common initilization
         setName(name);
@@ -143,7 +143,7 @@ public:
 
     inline void waitForData()
     {
-        waitSem.wait();
+        waitSem.wait(dbgds, dbgdi);
     }
 
     inline bool hasWaiters()
@@ -184,6 +184,8 @@ protected:
     QueueItem *lastItem;         // last queue item
     const char *queueName;       // pointer to queue name
     SessionID  session;          // session of queue
+    const char *dbgds;
+    int dbgdi;
 };
 
 // a table of queues
@@ -247,7 +249,7 @@ class ServerQueueManager
 {
     friend class DataQueue;     // needs access to the instance lock
 public:
-    ServerQueueManager() : namedQueues(), sessionQueues(), lock() { lock.create(); }
+    ServerQueueManager() : namedQueues(), sessionQueues(), lock("ServerQueueManager::lock") { lock.create(); }
 
     void terminateServer();
     void addToSessionQueue(ServiceMessage &message);

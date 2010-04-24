@@ -96,7 +96,7 @@ void RexxActivity::runThread()
 
         try
         {
-            this->runsem.wait();             /* wait for run permission           */
+            this->runsem.wait("RexxActivity::runThread", 0);             /* wait for run permission           */
             if (this->exit)                  /* told to exit?                     */
             {
                 break;                       /* we're out of here                 */
@@ -224,6 +224,7 @@ void *RexxActivity::operator new(size_t size)
  *               current thread, or creating a new thread.
  */
 RexxActivity::RexxActivity(bool createThread)
+: runsem("RexxActivity::runsem"), guardsem("RexxActivity::guardsem")
 {
     // we need to protect this from garbage collection while constructing.
     // unfortunately, we can't use ProtectedObject because that requires an
@@ -1754,7 +1755,7 @@ void RexxActivity::waitReserve(
     runsem.reset();                      /* clear the run semaphore           */
     this->waitingObject = resource;      /* save the waiting resource         */
     releaseAccess();                     /* release the kernel access         */
-    runsem.wait();                       /* wait for the run to be posted     */
+    runsem.wait("RexxActivity::waitReserve", 0);                       /* wait for the run to be posted     */
     requestAccess();                     /* reaquire the kernel access        */
 }
 
@@ -1764,7 +1765,7 @@ void RexxActivity::guardWait()
 /******************************************************************************/
 {
     releaseAccess();                     /* release kernel access             */
-    guardsem.wait();                     /* wait on the guard semaphore       */
+    guardsem.wait("RexxActivity::guardWait", 0);                     /* wait on the guard semaphore       */
     requestAccess();                     /* reaquire the kernel lock          */
 }
 

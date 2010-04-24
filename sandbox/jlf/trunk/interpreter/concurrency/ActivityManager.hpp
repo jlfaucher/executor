@@ -99,9 +99,9 @@ public:
         terminationSem.post();              /* let anyone who cares know we're done*/
     }
 
-    static inline void waitForTermination()
+    static inline void waitForTermination(const char *ds, int di)
     {
-        terminationSem.wait();              // wait until this is posted
+        terminationSem.wait(ds, di);              // wait until this is posted
     }
 
 protected:

@@ -53,8 +53,9 @@ DWORD SysSemaphore::tlsNoMessageLoopIndex = TLS_OUT_OF_INDEXES;
  *
  * @param create Indicates whether the semaphore should be created now.
  */
-SysSemaphore::SysSemaphore(bool createSem)
+SysSemaphore::SysSemaphore(const char *variable, bool createSem)
 {
+    semVariable = variable;
     sem = 0;
     if (createSem)
     {
@@ -94,8 +95,9 @@ void SysSemaphore::close()
  *
  * @param create Indicates whether the semaphore should be created now.
  */
-SysMutex::SysMutex(bool createSem)
+SysMutex::SysMutex(const char *variable, bool createSem)
 {
+    mutexVariable = variable;
     mutexMutex = 0;
     if (createSem)
     {

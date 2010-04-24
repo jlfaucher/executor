@@ -58,7 +58,7 @@
 
 
 // global resource lock
-SysMutex Interpreter::resourceLock;
+SysMutex Interpreter::resourceLock("Interpreter::resourceLock");
 
 RexxList *Interpreter::interpreterInstances = OREF_NULL;
 
@@ -123,7 +123,7 @@ void Interpreter::processShutdown()
  */
 void Interpreter::startInterpreter(InterpreterStartupMode mode)
 {
-    ResourceSection lock;
+    ResourceSection lock("Interpreter::startInterpreter", 0);
 
     // has everything been shutdown?
     if (!isActive())
@@ -187,7 +187,7 @@ void Interpreter::initLocal()
 bool Interpreter::terminateInterpreter()
 {
     {
-        ResourceSection lock;   // lock in this section
+        ResourceSection lock("Interpreter::terminateInterpreter", 0);   // lock in this section
         // if never even started up, then we've got a quick return
         if (!isActive())
         {
@@ -289,7 +289,7 @@ InterpreterInstance *Interpreter::createInterpreterInstance(RexxOption *options)
     // so this needs to be done carefully and the initialization needs to be protected by
     // the resource lock during the entire process.
     {
-        ResourceSection lock;
+        ResourceSection lock("Interpreter::createInterpreterInstance", 0);
         // if our instances list has not been created yet, then the memory subsystem has not
         // been created yet.  Keep the lock during the entire process.
         if (interpreterInstances == OREF_NULL)
@@ -306,7 +306,7 @@ InterpreterInstance *Interpreter::createInterpreterInstance(RexxOption *options)
     InterpreterInstance *instance = new InterpreterInstance();
 
     {
-        ResourceSection lock;
+        ResourceSection lock("Interpreter::createInterpreterInstance", 0);
 
         // add this to the active list
         interpreterInstances->append((RexxObject *)instance);
@@ -330,7 +330,7 @@ bool Interpreter::terminateInterpreterInstance(InterpreterInstance *instance)
 {
     // instance has already shut itself down....we need to remove it from
     // the active list.
-    ResourceSection lock;
+    ResourceSection lock("Interpreter::terminateInterpreterInstance", 0);
 
     interpreterInstances->removeItem((RexxObject *)instance);
     return true;
@@ -342,7 +342,7 @@ bool Interpreter::terminateInterpreterInstance(InterpreterInstance *instance)
  */
 bool Interpreter::haltAllActivities()
 {
-    ResourceSection lock;
+    ResourceSection lock("Interpreter::haltAllActivities", 0);
     bool result = true;
 
     for (size_t listIndex = interpreterInstances->firstIndex() ;

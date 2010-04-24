@@ -44,7 +44,7 @@
 
 // initialize static variables
 LocalAPIManager* LocalAPIManager::singleInstance = NULL;
-SysMutex LocalAPIManager::messageLock(true);
+SysMutex LocalAPIManager::messageLock("LocalAPIManager::messageLock", true);
 
 /**
  * Get the singleton instance of the local API manager.
@@ -53,7 +53,7 @@ SysMutex LocalAPIManager::messageLock(true);
  */
 LocalAPIManager *LocalAPIManager::getInstance()
 {
-    Lock lock(messageLock);                     // make sure we single thread this
+    Lock lock(messageLock, "LocalAPIManager::getInstance", 0);                     // make sure we single thread this
     if (singleInstance == NULL)
     {
         // create an intialize this.  If this fails, an exception is thrown
@@ -70,7 +70,7 @@ LocalAPIManager *LocalAPIManager::getInstance()
  */
 void LocalAPIManager::deleteInstance()
 {
-    Lock lock(messageLock);                     // make sure we single thread this
+    Lock lock(messageLock, "LocalAPIManager::deleteInstance", 0);                     // make sure we single thread this
     if (singleInstance != NULL)
     {
                               // clean up all local resources
@@ -228,7 +228,7 @@ void LocalAPIManager::establishServerConnection()
 SysClientStream *LocalAPIManager::getConnection()
 {
     {
-        Lock lock(messageLock);                     // make sure we single thread this
+        Lock lock(messageLock, "LocalAPIManager::getConnection", 0);                     // make sure we single thread this
         // if we have an active connection, grab it from the cache and
         // reuse it.
         if (!connections.empty())
@@ -265,7 +265,7 @@ void LocalAPIManager::returnConnection(SysClientStream *connection)
     }
 
     {
-        Lock lock(messageLock);                     // make sure we single thread this
+        Lock lock(messageLock, "LocalAPIManager::returnConnection", 0);                     // make sure we single thread this
         if (connections.size() < MAX_CONNECTIONS)
         {
             connections.push_back(connection);

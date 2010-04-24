@@ -193,7 +193,7 @@ QueueItem *DataQueue::getFirst()
  */
 bool DataQueue::pullData(ServerQueueManager *manager, ServiceMessage &message)
 {
-    Lock managerLock(manager->lock);   // this needs synchronization here
+    Lock managerLock(manager->lock, "DataQueue::pullData", 0);   // this needs synchronization here
 
     // now that we have the lock, clear the wait sem unconditionally.
     // this should be safe, as it is either already clear, and has waiters camped
@@ -251,7 +251,7 @@ void DataQueue::pull(ServerQueueManager *manager, ServiceMessage &message)
     else
     {
         {
-            Lock managerLock(manager->lock);
+            Lock managerLock(manager->lock, "DataQueue::pull#1", 0);
             // indicate we have another waiting queue
             addWaiter();
         }
@@ -265,7 +265,7 @@ void DataQueue::pull(ServerQueueManager *manager, ServiceMessage &message)
                 if (pullData(manager, message))
                 {
                     {
-                        Lock managerLock(manager->lock);
+                        Lock managerLock(manager->lock, "DataQueue::pull#2", 0);
                         // remove us as a waiter
                         removeWaiter();
                     }
@@ -409,7 +409,7 @@ DataQueue *QueueTable::remove(SessionID id)
         previous = current;         // remember this block
         current = current->next;    // to the next block
     }
-    current = new DataQueue(id);    // create a new session queue
+    current = new DataQueue(id, "QueueTable::remove", 0);    // create a new session queue
     add(current);                   // and add it to the table.
     return current;
 }
@@ -508,7 +508,7 @@ DataQueue *ServerQueueManager::getSessionQueue(SessionID session)
     if (queue == NULL)
     {
         // this is easy, just create a new queue and add it to the table
-        queue = new DataQueue(session);
+        queue = new DataQueue(session, "ServerQueueManager::getSessionQueue", 0);
         sessionQueues.add(queue);
     }
     return queue;
@@ -525,7 +525,7 @@ void ServerQueueManager::createSessionQueue(SessionID session)
     if (queue == NULL)
     {
         // this is easy, just create a new queue and add it to the table
-        queue = new DataQueue(session);
+        queue = new DataQueue(session, "ServerQueueManager::createSessionQueue", 0);
         sessionQueues.add(queue);
     }
     // name collision...we need to update
@@ -557,7 +557,7 @@ void ServerQueueManager::createSessionQueue(ServiceMessage &message)
  */
 void ServerQueueManager::createUniqueQueue(ServiceMessage &message)
 {
-    DataQueue *queue = new DataQueue();   // get an anonymous queue
+    DataQueue *queue = new DataQueue("ServerQueueManager::createUniqueQueue", 0);   // get an anonymous queue
     // the queue pointer makes a good starting point for an anonymous tag
     uintptr_t tag = (uintptr_t)queue;
     for (;;)                   // we need to loop until we get a unique one.
@@ -607,7 +607,7 @@ void ServerQueueManager::createNamedQueue(ServiceMessage &message)
     if (queue == NULL)
     {
         // this is easy, just create a new queue and add it to the table
-        queue = new DataQueue(message.nameArg);
+        queue = new DataQueue(message.nameArg, "ServerQueueManager::createNamedQueue", 0);
         namedQueues.add(queue);
         message.setResult(QUEUE_CREATED);
         return;
@@ -634,7 +634,7 @@ void ServerQueueManager::openNamedQueue(ServiceMessage &message)
     if (queue == NULL)
     {
         // this is easy, just create a new queue and add it to the table
-        queue = new DataQueue(message.nameArg);
+        queue = new DataQueue(message.nameArg, "ServerQueueManager::openNamedQueue", 0);
         namedQueues.add(queue);
         message.setResult(QUEUE_CREATED);
     }
@@ -845,7 +845,7 @@ void ServerQueueManager::dispatch(ServiceMessage &message)
         pullFromSessionQueue(message);
     }
     else {
-        Lock managerLock(lock);     // we need to synchronize on this instance
+        Lock managerLock(lock, "ServerQueueManager::dispatch", 0);     // we need to synchronize on this instance
         switch (message.operation)
         {
             case NEST_SESSION_QUEUE:

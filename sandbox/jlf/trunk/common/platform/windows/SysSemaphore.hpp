@@ -48,26 +48,38 @@
 #include "rexx.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 inline void waitHandle(HANDLE s);
 
 class SysSemaphore {
 public:
-     SysSemaphore() : sem(0) { ; }
-     SysSemaphore(bool);
+     SysSemaphore(const char *variable) : semVariable(variable), sem(0) { ; }
+     SysSemaphore(const char *variable, bool);
      ~SysSemaphore() { ; }
      void create();
      inline void open() { ; }
      void close();
      void post() { SetEvent(sem); };
-     inline void wait()
+     inline void wait(const char *ds, int di)
      {
+         char buffer[1024];
+         sprintf(buffer, "(SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
          waitHandle(sem);
+         sprintf(buffer, "(SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
      }
 
-     inline bool wait(uint32_t timeout)
+     inline bool wait(const char *ds, int di, uint32_t timeout)
      {
-         return WaitForSingleObject(sem, timeout) != WAIT_TIMEOUT;
+         char buffer[1024];
+         sprintf(buffer, "(SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
+         bool result = WaitForSingleObject(sem, timeout) != WAIT_TIMEOUT;
+         sprintf(buffer, "(SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
+         return result;
      }
 
      inline void reset() { ResetEvent(sem); }
@@ -89,6 +101,7 @@ public:
      static inline bool noMessageLoop() { return usingTls && ((DWORD_PTR)TlsGetValue(tlsNoMessageLoopIndex) == 1); }
 
 protected:
+     const char *semVariable;
      HANDLE sem;
 
 private:
@@ -100,27 +113,44 @@ private:
 
 class SysMutex {
 public:
-     SysMutex() : mutexMutex(0) { }
-     SysMutex(bool);
+     SysMutex(const char *variable) : mutexVariable(variable), mutexMutex(0) { }
+     SysMutex(const char *, bool);
      ~SysMutex() { ; }
      void create();
      void close();
-     inline void request()
+     inline void request(const char *ds, int di)
      {
+         char buffer[1024];
+         sprintf(buffer, "(SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
          waitHandle(mutexMutex);
+         sprintf(buffer, "(SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
      }
 
-     inline void release()
+     inline void release(const char *ds, int di)
      {
+         char buffer[1024];
+         sprintf(buffer, "(SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
          ReleaseMutex(mutexMutex);
+         sprintf(buffer, "(SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
      }
 
-     inline bool requestImmediate()
+     inline bool requestImmediate(const char *ds, int di)
      {
-         return WaitForSingleObject(mutexMutex, 0) != WAIT_TIMEOUT;
+         char buffer[1024];
+         sprintf(buffer, "(SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
+         bool result = WaitForSingleObject(mutexMutex, 0) != WAIT_TIMEOUT;
+         sprintf(buffer, "(SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
+         OutputDebugString(buffer);
+         return result;
      }
 
 protected:
+     const char *mutexVariable;
      HANDLE mutexMutex;      // the actual mutex
 };
 

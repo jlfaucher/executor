@@ -1,6 +1,7 @@
 Sandbox for experimental work, some ideas to investigate :
 
 Try to understand the internal locks.
+--> added some OutputDebugString (Windows only), now must analyze...
 
 Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
 

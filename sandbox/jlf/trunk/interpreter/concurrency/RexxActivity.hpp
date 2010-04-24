@@ -132,7 +132,7 @@ typedef enum
    inline void  operator delete(void *) { ; }
    inline void  operator delete(void *, void *) { ; }
 
-   inline RexxActivity(RESTORETYPE restoreType) { ; };
+   inline RexxActivity(RESTORETYPE restoreType) : runsem("RexxActivity::runsem"), guardsem("RexxActivity::guardsem") { ; };
    RexxActivity();
    RexxActivity(bool);
 
@@ -282,7 +282,7 @@ typedef enum
    inline void        removeRunningRequires(RexxObject *program) {this->requiresTable->remove(program);}
    inline void        resetRunningRequires() {this->requiresTable->reset();}
    inline bool        checkRequires(RexxString *n) { return runningRequires(n) != OREF_NULL; }
-   inline void        waitForDispatch() { runsem.wait(); }
+   inline void        waitForDispatch() { runsem.wait("runsem", 0); }
    inline void        clearWait()  { runsem.reset(); }
    inline uint64_t    getRandomSeed() { return randomSeed; }
    inline void setRandomSeed(uint64_t seed) { randomSeed = seed; };

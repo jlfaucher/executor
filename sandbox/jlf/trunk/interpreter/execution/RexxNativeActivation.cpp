@@ -1590,6 +1590,7 @@ void RexxNativeActivation::run(CallbackDispatcher &dispatcher)
         dispatcher.setContext(activity, this);
         activity->releaseAccess();           /* force this to "safe" mode         */
         dispatcher.run();
+        OutputDebugString("after dispatcher.run");
         activity->requestAccess();           /* now in unsafe mode again          */
     }
     catch (ActivityException)

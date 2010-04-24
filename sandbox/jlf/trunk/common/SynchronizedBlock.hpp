@@ -50,19 +50,21 @@
 class Lock
 {
 public:
-    inline Lock(SysMutex &l) : lock(l)
+    inline Lock(SysMutex &l,const char *ds, int di) : lock(l), dbgds(ds), dbgdi(di)
     {
-        lock.request();
+        lock.request(dbgds, dbgdi);
     }
 
 
     inline ~Lock()
     {
-        lock.release();
+        lock.release(dbgds, dbgdi);
     }
 
 protected:
      SysMutex &lock;
+     const char *dbgds;
+     int dbgdi;
 };
 #endif
 

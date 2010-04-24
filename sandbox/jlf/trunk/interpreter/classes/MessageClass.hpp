@@ -57,7 +57,7 @@
    inline void * operator new(size_t size, void *objectPtr) { return objectPtr; };
                                         /* So it doesn't need to do anythin*/
    RexxMessage(RexxObject *, RexxString *, RexxObject *, RexxArray *);
-   inline RexxMessage(RESTORETYPE restoreType) { ; };
+   inline RexxMessage(RESTORETYPE restoreType) : waitResultSem("RexxMessage::waitResultSem") { ; };
 
    void          live(size_t);
    void          liveGeneral(int reason);
