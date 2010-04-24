@@ -1,0 +1,121 @@
+#!/bin/sh
+#/*----------------------------------------------------------------------------*/
+#/*                                                                            */
+#/* Copyright (c) 2007-2009 Rexx Language Association. All rights reserved.    */
+#/*                                                                            */
+#/* This program and the accompanying materials are made available under       */
+#/* the terms of the Common Public License v1.0 which accompanies this         */
+#/* distribution. A copy is also available at the following address:           */
+#/* http://www.oorexx.org/license.html                                         */
+#/*                                                                            */
+#/* Redistribution and use in source and binary forms, with or                 */
+#/* without modification, are permitted provided that the following            */
+#/* conditions are met:                                                        */
+#/*                                                                            */
+#/* Redistributions of source code must retain the above copyright             */
+#/* notice, this list of conditions and the following disclaimer.              */
+#/* Redistributions in binary form must reproduce the above copyright          */
+#/* notice, this list of conditions and the following disclaimer in            */
+#/* the documentation and/or other materials provided with the distribution.   */
+#/*                                                                            */
+#/* Neither the name of Rexx Language Association nor the names                */
+#/* of its contributors may be used to endorse or promote products             */
+#/* derived from this software without specific prior written permission.      */
+#/*                                                                            */
+#/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS        */
+#/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT          */
+#/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS          */
+#/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   */
+#/* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,      */
+#/* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+#/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,        */
+#/* OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY     */
+#/* OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING    */
+#/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
+#/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
+#/*                                                                            */
+#/*----------------------------------------------------------------------------*/
+
+orx_current=@ORX_SUBST_CURRENT@
+orx_revision=@ORX_SUBST_REVISION@
+orx_age=@ORX_SUBST_AGE@
+
+# the order of these looks wrong, but that is how it comes out!
+orx_libversion=${orx_current}.${orx_age}.${orx_revision}
+
+orx_prefix=@prefix@
+
+# We only need to create the links if we are installed in /opt/ooRexx
+if [ -d /opt/ooRexx ]; then
+   ln -sf ${orx_prefix}/bin/rexx                             /usr/bin/rexx
+   ln -sf ${orx_prefix}/bin/rexxc                            /usr/bin/rexxc
+   ln -sf ${orx_prefix}/bin/rxapi                            /usr/bin/rxapi
+   ln -sf ${orx_prefix}/bin/rxqueue                          /usr/bin/rxqueue
+   ln -sf ${orx_prefix}/bin/rxsubcom                         /usr/bin/rxsubcom
+   ln -sf ${orx_prefix}/bin/rexx.img                         /usr/bin/rexx.img
+   ln -sf ${orx_prefix}/bin/rexx.cat                         /usr/bin/rexx.cat
+   ln -sf ${orx_prefix}/bin/rxregexp.cls                     /usr/bin/rxregexp.cls
+   ln -sf ${orx_prefix}/bin/rxftp.cls                        /usr/bin/rxftp.cls
+   ln -sf ${orx_prefix}/bin/socket.cls                       /usr/bin/socket.cls
+   ln -sf ${orx_prefix}/bin/streamsocket.cls                 /usr/bin/streamsocket.cls
+   ln -sf ${orx_prefix}/bin/mime.cls                         /usr/bin/mime.cls
+   ln -sf ${orx_prefix}/bin/smtp.cls                         /usr/bin/smtp.cls
+   ln -sf ${orx_prefix}/bin/oorexx-config                    /usr/bin/oorexx-config
+   ln -sf ${orx_prefix}/lib/ooRexx/librexx.so.${orx_libversion}     /usr/lib/librexx.so.${orx_libversion}
+   ln -sf ${orx_prefix}/lib/ooRexx/librexx.so.${orx_libversion}     /usr/lib/librexx.so.${orx_current}
+   ln -sf ${orx_prefix}/lib/ooRexx/librexx.so.${orx_libversion}     /usr/lib/librexx.so
+   ln -sf ${orx_prefix}/lib/ooRexx/librexx.la                       /usr/lib/librexx.la
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxapi.so.${orx_libversion}  /usr/lib/librexxapi.so.${orx_libversion}
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxapi.so.${orx_libversion}  /usr/lib/librexxapi.so.${orx_current}
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxapi.so.${orx_libversion}  /usr/lib/librexxapi.so
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxapi.la                    /usr/lib/librexxapi.la
+   ln -sf ${orx_prefix}/lib/ooRexx/librxsock.so.${orx_libversion}   /usr/lib/librxsock.so.${orx_libversion}
+   ln -sf ${orx_prefix}/lib/ooRexx/librxsock.so.${orx_libversion}   /usr/lib/librxsock.so.${orx_current}
+   ln -sf ${orx_prefix}/lib/ooRexx/librxsock.so.${orx_libversion}   /usr/lib/librxsock.so
+   ln -sf ${orx_prefix}/lib/ooRexx/librxsock.la                     /usr/lib/librxsock.la
+   ln -sf ${orx_prefix}/lib/ooRexx/librxmath.so.${orx_libversion}   /usr/lib/librxmath.so.${orx_libversion}
+   ln -sf ${orx_prefix}/lib/ooRexx/librxmath.so.${orx_libversion}   /usr/lib/librxmath.so.${orx_current}
+   ln -sf ${orx_prefix}/lib/ooRexx/librxmath.so.${orx_libversion}   /usr/lib/librxmath.so
+   ln -sf ${orx_prefix}/lib/ooRexx/librxmath.la                     /usr/lib/librxmath.la
+   ln -sf ${orx_prefix}/lib/ooRexx/librxregexp.so.${orx_libversion} /usr/lib/librxregexp.so.${orx_libversion}
+   ln -sf ${orx_prefix}/lib/ooRexx/librxregexp.so.${orx_libversion} /usr/lib/librxregexp.so.${orx_current}
+   ln -sf ${orx_prefix}/lib/ooRexx/librxregexp.so.${orx_libversion} /usr/lib/librxregexp.so
+   ln -sf ${orx_prefix}/lib/ooRexx/librxregexp.la                   /usr/lib/librxregexp.la
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxutil.so.${orx_libversion} /usr/lib/librexxutil.so.${orx_libversion}
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxutil.so.${orx_libversion} /usr/lib/librexxutil.so.${orx_current}
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxutil.so.${orx_libversion} /usr/lib/librexxutil.so
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxutil.la                   /usr/lib/librexxutil.la
+   ln -sf ${orx_prefix}/include/rexx.h                       /usr/include/rexx.h
+   ln -sf ${orx_prefix}/include/rexxapidefs.h                /usr/include/rexxapidefs.h
+   ln -sf ${orx_prefix}/include/rexxapitypes.h               /usr/include/rexxapitypes.h
+   ln -sf ${orx_prefix}/include/rexxplatformapis.h           /usr/include/rexxplatformapis.h
+   ln -sf ${orx_prefix}/include/rexxplatformdefs.h           /usr/include/rexxplatformdefs.h
+   ln -sf ${orx_prefix}/include/oorexxapi.h                  /usr/include/oorexxapi.h
+   ln -sf ${orx_prefix}/include/oorexxerrors.h               /usr/include/oorexxerrors.h
+   ln -sf ${orx_prefix}/share/man/man1/oorexx-config.1       /usr/share/man/man1/oorexx-config.1
+   ln -sf ${orx_prefix}/share/man/man1/rexx.1                /usr/share/man/man1/rexx.1
+   ln -sf ${orx_prefix}/share/man/man1/rexxc.1               /usr/share/man/man1/rexxc.1
+   ln -sf ${orx_prefix}/share/man/man1/rxsubcom.1            /usr/share/man/man1/rxsubcom.1
+   ln -sf ${orx_prefix}/share/man/man1/rxqueue.1             /usr/share/man/man1/rxqueue.1
+   ln -sf ${orx_prefix}/share/ooRexx/rexxtry.rex             /usr/bin/rexxtry.rex
+# allow backwards compatibility to previous versions
+   ln -sf ${orx_prefix}/lib/ooRexx/librexx.so.${orx_libversion}     /usr/lib/librexx.so.2
+   ln -sf ${orx_prefix}/lib/ooRexx/librexx.so.${orx_libversion}     /usr/lib/librexx.so.3
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxapi.so.${orx_libversion}  /usr/lib/librexxapi.so.2
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxapi.so.${orx_libversion}  /usr/lib/librexxapi.so.3
+   ln -sf ${orx_prefix}/lib/ooRexx/librxsock.so.${orx_libversion}   /usr/lib/librxsock.so.2
+   ln -sf ${orx_prefix}/lib/ooRexx/librxsock.so.${orx_libversion}   /usr/lib/librxsock.so.3
+   ln -sf ${orx_prefix}/lib/ooRexx/librxmath.so.${orx_libversion}   /usr/lib/librxmath.so.2
+   ln -sf ${orx_prefix}/lib/ooRexx/librxmath.so.${orx_libversion}   /usr/lib/librxmath.so.3
+   ln -sf ${orx_prefix}/lib/ooRexx/librxregexp.so.${orx_libversion} /usr/lib/librxregexp.so.2
+   ln -sf ${orx_prefix}/lib/ooRexx/librxregexp.so.${orx_libversion} /usr/lib/librxregexp.so.3
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxutil.so.${orx_libversion} /usr/lib/librexxutil.so.2
+   ln -sf ${orx_prefix}/lib/ooRexx/librexxutil.so.${orx_libversion} /usr/lib/librexxutil.so.3
+fi
+
+# Debian specific set up for rxapid
+cp ${orx_prefix}/bin/rxapid       /etc/init.d
+update-rc.d rxapid start 89 2 3 4 5 . stop 89 0 1 6 .
+ldconfig
+/etc/init.d/rxapid start
+

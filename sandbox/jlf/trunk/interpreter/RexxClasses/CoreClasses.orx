@@ -1,0 +1,3669 @@
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
+/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/*                                                                            */
+/* This program and the accompanying materials are made available under       */
+/* the terms of the Common Public License v1.0 which accompanies this         */
+/* distribution. A copy is also available at the following address:           */
+/* http://www.oorexx.org/license.html                          */
+/*                                                                            */
+/* Redistribution and use in source and binary forms, with or                 */
+/* without modification, are permitted provided that the following            */
+/* conditions are met:                                                        */
+/*                                                                            */
+/* Redistributions of source code must retain the above copyright             */
+/* notice, this list of conditions and the following disclaimer.              */
+/* Redistributions in binary form must reproduce the above copyright          */
+/* notice, this list of conditions and the following disclaimer in            */
+/* the documentation and/or other materials provided with the distribution.   */
+/*                                                                            */
+/* Neither the name of Rexx Language Association nor the names                */
+/* of its contributors may be used to endorse or promote products             */
+/* derived from this software without specific prior written permission.      */
+/*                                                                            */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS        */
+/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT          */
+/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS          */
+/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   */
+/* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,      */
+/* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,        */
+/* OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY     */
+/* OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING    */
+/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
+/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+/******************************************************************************/
+/* REXX Macros                                                                */
+/*                                                                            */
+/* Create the Rexx base (Object/Class) classes.                               */
+/*                                                                            */
+/******************************************************************************/
+
+use arg kernel_methods
+
+say ('creating the system specific methods ...')
+                                       /* name the common objects           */
+.environment~objectname = "The Environment Directory"
+.kernel~objectname = "The kernel directory"
+.nil~objectname = "The NIL object"
+
+-- Add serialization support
+call "Serializable.orx"
+
+say ('Adding setlike methods to RELATION')
+set_methods = .table~new               /* get a table directory             */
+                                       /* add the many item methods       */
+set_methods~put(.methods~many_union,        'UNION')
+set_methods~put(.methods~many_subset,       'SUBSET')
+set_methods~put(.methods~many_intersection, 'INTERSECTION')
+set_methods~put(.methods~many_difference,   'DIFFERENCE')
+set_methods~put(.methods~many_xor,          'XOR')
+.relation~!define_methods(set_methods) /* add to relation                   */
+
+.collection~!rexxdefined
+.orderedcollection~!rexxdefined
+.mapcollection~!rexxdefined
+
+supplier_methods = .table~new
+
+supplier_methods~put(.methods~supplier_allitems, 'ALLITEMS')
+supplier_methods~put(.methods~supplier_allindexes, 'ALLINDEXES')
+supplier_methods~put(.methods~supplier_getarrays, 'GETARRAYS')
+supplier_methods~put(.methods~supplier_supplier, 'SUPPLIER')
+
+.supplier~!define_methods(supplier_methods)
+.supplier~!rexxdefined
+
+.environment~setentry('COLLECTION', .collection)
+.environment~setentry('ORDEREDCOLLECTION', .orderedcollection)
+.environment~setentry('MAPCOLLECTION', .mapcollection)
+.environment~setentry('SETCOLLECTION', .setcollection)
+
+.environment~setentry('COMPARABLE', .comparable)
+.environment~setentry('COMPARATOR', .comparator)
+.environment~setentry('DESCENDINGCOMPARATOR', .descendingcomparator)
+.environment~setentry('CASELESSCOMPARATOR', .caselesscomparator)
+.environment~setentry('CASELESSDESCENDINGCOMPARATOR', .caselessdescendingcomparator)
+.environment~setentry('COLUMNCOMPARATOR', .columncomparator)
+.environment~setentry('CASELESSCOLUMNCOMPARATOR', .caselesscolumncomparator)
+.environment~setentry('INVERTINGCOMPARATOR', .invertingcomparator)
+.environment~setentry('ORDERABLE', .orderable)
+
+say ('creating .!server and defining its instance methods')
+server = .object~subclass('server')
+server_mdict = .table~new
+
+server_mdict~put(.methods~server_init, 'INIT')
+server_mdict~put(.methods~server_init_instance, 'INITINSTANCE')
+
+server~!define_methods(server_mdict)
+server~!rexxdefined                     /* Mark as unchangeable          */
+.environment~setentry('!server', server)
+
+/* make references to .local return the local environment */
+.environment~setmethod('LOCAL',kernel_methods['LOCAL'])
+
+
+.Monitor~!REXXDefined                  /* define this as "unchangeable"     */
+.Set~define('PUT', .methods['PUT'])    /* add common methods to SET and BAG */
+.Set~define('[]=', .methods['PUT'])
+.Set~!REXXDefined
+
+.Bag~define('PUT', .methods['PUT'])
+.Bag~define('[]=', .methods['PUT'])
+.Bag~!REXXDefined
+
+Say "Adding serialization support..."
+.Array~inherit(.Serializable)
+array_methods = .Table~new
+array_methods~put(.methods~array_wo, "WRITEOBJECT")
+array_methods~put(.methods~array_ro, "READOBJECT")
+.Array~!define_methods(array_methods)
+
+.Directory~inherit(.Serializable)
+directory_methods = .Table~new
+directory_methods~put(.methods~directory_wo, "WRITEOBJECT")
+directory_methods~put(.methods~directory_ro, "READOBJECT")
+.Directory~!define_methods(directory_methods)
+
+mb_methods = .Table~new
+mb_methods~put(.methods~mutablebuffer_wo, "WRITEOBJECT")
+mb_methods~put(.methods~mutablebuffer_ro, "READOBJECT")
+.MutableBuffer~inherit(.Serializable)
+.MutableBuffer~!define_methods(mb_methods)
+
+.Relation~inherit(.Serializable)
+.Relation~!define_methods(directory_methods)
+
+.Table~inherit(.Serializable)
+.Table~!define_methods(directory_methods)
+
+.Stem~inherit(.Serializable)
+stem_methods = .Table~new
+stem_methods~put(.methods~stem_wo, "WRITEOBJECT")
+stem_methods~put(.methods~stem_ro, "READOBJECT")
+.Stem~!define_methods(stem_methods)
+
+.Queue~inherit(.Serializable)
+queue_methods = .Table~new
+queue_methods~put(.methods~queue_wo, "WRITEOBJECT")
+queue_methods~put(.methods~queue_ro, "READOBJECT")
+.Queue~!define_methods(queue_methods)
+
+.Alarm~!REXXDefined
+.CircularQueue~!REXXDefined
+.Properties~!REXXDefined
+.DateTime~!REXXDefined
+.TimeSpan~!REXXDefined
+.ArgUtil~!REXXDefined
+
+.environment~setentry('MONITOR', .Monitor)
+.environment~setentry('SET', .Set)
+.environment~setentry('BAG', .Bag)
+.environment~setentry('CIRCULARQUEUE', .CircularQueue)
+.environment~setentry('PROPERTIES', .Properties)
+.environment~setentry('ALARM', .Alarm)
+.environment~setentry('DATETIME', .DateTime)
+.environment~setentry('TIMESPAN', .TimeSpan)
+.environment~setentry('ARGUTIL', .ArgUtil)
+
+.environment~setEntry('SERIALIZABLE', .Serializable)
+.environment~setEntry('SERIALIZEFUNCTIONS', .SerializeFunctions)
+
+call 'StreamClasses.orx'
+
+say 'Stream methods setup'
+
+call 'PlatformObjects.orx'                   -- now load platform-specific builtin classes
+
+say ('Base objects created')
+
+-- add all of the defined routine functions into our global list
+.kernel~functions['RXQUEUE'] = .routines~rxqueue
+
+exit
+
+/* ************************************************************************** */
+/* ************************************************************************** */
+/* *** Start of unattached METHOD definitions for the various enhanced    *** */
+/* *** objects created above                                              *** */
+/* ************************************************************************** */
+/* ************************************************************************** */
+
+::METHOD array_test
+  say "Hello"
+
+/* Serializable support methods */
+::METHOD array_wo
+    use strict arg handler
+    handler~writeNumber(self~items)
+    do i over self
+        handler~writeObject(i)
+    end
+
+::METHOD array_ro
+    use strict arg handler
+    count = handler~readNumber
+    self[count] = .nil
+    do i = 1 to count
+        self[i] = handler~readObject
+    end
+
+::METHOD queue_wo
+    use strict arg handler
+    handler~writeNumber(self~items)
+    do i over self
+        handler~writeObject(i)
+    end
+
+::METHOD queue_ro
+    use strict arg handler
+    count = handler~readNumber
+    do i = 1 to count
+        self~append(handler~readObject)
+    end
+
+::METHOD stem_wo
+    use strict arg handler
+    handler~writeObject(self[])
+    handler~writeNumber(self~items)
+    do i over self
+        handler~writeObject(i)
+    end
+
+::METHOD stem_ro
+    use strict arg handler
+    self[] = handler~readObject
+    count = handler~readNumber
+    self[count] = .nil
+    do i = 1 to count
+        self[i] = handler~readObject
+    end
+
+-- directory methods are also used for relation and table
+::METHOD directory_wo
+    use strict arg handler
+    handler~writeNumber(self~items)
+    content = self~supplier
+    do while content~available
+        handler~writeObject(content~index)
+        handler~writeObject(content~item)
+        content~next
+    end
+
+::METHOD directory_ro
+    use strict arg handler
+    count = handler~readNumber
+    do i = 1 to count
+        index = handler~readObject
+        item = handler~readObject
+        self[index] = item
+    end
+
+::METHOD mutablebuffer_wo
+    use strict arg handler
+    handler~writeObject(self~string)
+
+::METHOD mutablebuffer_ro
+    use strict arg handler
+    -- just append the string representation to the empty buffer
+    self~append(handler~readObject)
+
+-- Methods cannot be serialized at the moment - later this code may be used.
+/*
+::METHOD method_wo
+    use strict arg handler
+    if Object~source~size = 0 then
+        raise syntax 93.900 array ("Unable to serialize method without source")
+    handler~writeNumber(self~isGuarded*4+self~isPrivate*2+self~isProtected)
+    handler~writeObject(self~source)
+
+-- This does not work yet.
+::METHOD method_ro
+    use strict arg handler
+    m =    .Method~new('', Caller~FromSerializedData(arguments))
+    if mode~bitAnd(4) = 4 then m~setGuarded
+    if mode~bitAnd(2) = 2 then m~setPrivate
+    if mode~bitAnd(1) = 1 then m~setProtected
+    return m
+
+*/
+/*============================================================================*/
+/*    Additional S U P P L I E R methods                                      */
+/*============================================================================*/
+::method supplier_allItems
+  expose items
+  use strict arg    -- enforces no arguments
+
+  self~getArrays
+
+  return items
+
+
+::method supplier_allIndexes
+  expose indexes
+  use strict arg    -- enforces no arguments
+
+  self~getArrays
+
+  return indexes
+
+
+::method supplier_getArrays private
+  expose indexes items
+
+  if \var('INDEXES') then do
+     indexes = .array~new
+     items = .array~new
+
+     do while self~available
+         indexes~append(self~index)
+         items~append(self~item)
+         self~next
+     end
+  end
+
+
+::method supplier_supplier
+  use strict arg
+  return self
+
+/* Unattached methods used by SET and BAG */
+
+/*****************************************/
+/* PUT           method                  */
+/*****************************************/
+::METHOD put                           /* add an entry to the set           */
+use strict arg index, value=(index)    /* get the index                     */
+
+  if index \== value then              /* these must be identical           */
+    raise syntax 93.949                /* this is an error                  */
+  self~put:super(index, index)         /* add to the table                  */
+  return
+
+
+
+/*============================================================================*/
+/*    M A N Y I T E M       M I X I N         (for Relation)                  */
+/*============================================================================*/
+
+/*****************************************/
+/* UNION         method                  */
+/*****************************************/
+::METHOD many_union                    -- union of collections
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- copy ourself
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+
+-- just copy all of the items into the relation
+do while supplier~available            -- now iterate over the supplier seeing if
+    new~put(supplier~item, supplier~index)
+    supplier~next
+end
+
+return new                             -- return the union collection
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* DIFFERENCE    method                  */
+/*****************************************/
+::METHOD many_difference               -- take the difference of collections
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- copy ourself
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+
+-- remove the tuples from the result collection
+do while supplier~available            -- now iterate over the supplier seeing if
+    new~removeItem(supplier~item, supplier~index)
+    supplier~next
+end
+
+return new                             -- return the difference collection
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* XOR           method                  */
+/*****************************************/
+::METHOD many_xor                      -- take the exclusive or of a relation
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- we need a copy of our self, plus
+catcher = self~class~new               -- a catcher method use to accumulate values
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+-- now loop over the supplier checking the existance.  If we have this
+-- item, we remove it from the copy.  Otherwise, it is put into the
+-- catcher.  When we're finished, we merge the two collections.
+do while supplier~available
+    index = supplier~index
+    value = supplier~item
+    if new~hasitem(value, index) then  -- in the reference collection?
+        new~removeitem(value, index)   -- remove from the reference set
+    else
+        catcher~put(value, index)      -- add non-located to the catcher
+    supplier~next                      -- step to the next item
+end
+
+new~putall(catcher)                    -- now copy into the result
+return new                             -- now return the merged collection
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* INTERSECTION  method                  */
+/*****************************************/
+::METHOD many_intersection             -- take the intersection of relations
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~class~new                   -- start with a new collection
+ref = self~copy                        -- our reference copy
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+-- now loop over the values supplied by the other, checking our
+-- reference collection for existance.  We remove any matches from the
+-- reference to eliminate duplicate errors
+
+do while supplier~available
+    index = supplier~index
+    value = supplier~item
+    -- if found, copy to the result, and remove from the reference checker
+    if ref~hasitem(value, index) then do
+        new~put(value, index)
+        ref~removeitem(value, index)
+    end
+    supplier~next
+end
+
+return new
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* SUBSET        method                  */
+/*****************************************/
+::METHOD many_subset                   -- do we have a subset?
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+ref = self~copy                        -- make a copy of this object
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+-- now iterate and try removing the items from the reference.
+-- if it's all gone when we're finished
+do while supplier~available
+  ref~removeitem(supplier~item, supplier~index)
+  supplier~next
+end
+
+return ref~isEmpty                     -- if nothing left -> proper subset
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+::METHOD server_init
+ /* initialize a server */
+  expose input output error
+ /* set system objects in the local environment */
+  input = .stream~new('STDIN')~~command('open')
+  output = .stream~new('STDOUT')~~command('open nobuffer')
+  error = .stream~new('STDERR')~~command('open nobuffer')
+  self~initinstance
+
+::METHOD server_init_instance
+ /* initialize a server */
+  expose input output error
+
+  .local~objectname = "The Local Directory"  -- give the local environment a nicer descriptive name.
+
+  .local~setentry('LOCALSERVER', self)
+
+ /* set system objects in the local environment */
+  .local~setentry('STDIN', input)
+  .local~setentry('INPUT',.monitor~new(.stdin))
+  .input~objectname = "The INPUT monitor"
+  .local~setentry('STDOUT', output)
+  .local~setentry('OUTPUT',.monitor~new(.stdout))
+  .output~objectname = "The OUTPUT monitor"
+  .local~setentry('STDERR', error)
+  .local~setentry('ERROR', .monitor~new(.stderr))
+  .error~objectname = "The ERROR monitor"
+
+  .local~setentry('STDQUE',.RexxQueue~new('SESSION'))
+
+
+-- tagging classes for Collection class types
+-- methods defined for all collection classes, abstract methods must be implemented
+-- by subclasses
+::CLASS 'Collection' MIXINCLASS Object
+::METHOD 'at'           ABSTRACT
+::METHOD '[]'           ABSTRACT
+::METHOD 'put'          ABSTRACT
+::METHOD '[]='          ABSTRACT
+::METHOD index          ABSTRACT
+::METHOD allIndexes     ABSTRACT
+::METHOD allItems       ABSTRACT
+
+::METHOD supplier
+  return .supplier~new(self~allItems, self~allIndexes)
+
+::method 'hasIndex'
+  use strict arg index
+  return self~allIndexes~hasItem(index)
+
+::method 'hasItem'
+  use strict arg item
+  return self~allItems~hasItem(item)
+
+::method 'items'
+  return self~allIndexes~items
+
+::method 'makeArray'
+  return self~allItems
+
+
+
+/*****************************************/
+/* DIFFERENCE method                     */
+/*****************************************/
+::METHOD 'difference'   -- single_difference             -- take the difference between collections
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+-- all set operations are done using the receiver index values.  However, the
+-- objects we use for the index differ depending on the other class.
+
+if (other~isA(.OrderedCollection))     -- for ordered collections, us the items
+    then indexes = other~allItems
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then indexes = other~allIndexes    -- use the index values
+else indexes = other~makearray         -- an arbitrary class supporting makearray
+
+new = self~copy                        -- make a new collection we can modify
+
+count = other~items                    -- get the size of the array
+
+-- loop over the other collection using an index do rather than DO OVER so
+-- we don't make another copy of the index array
+do i = 1 to count
+  new~remove(indexes[i])               -- "subtract" this item
+end
+
+return new                             -- return the difference collection  */
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* INTERSECTION  method                  */
+/*****************************************/
+::METHOD 'interSection' -- single_intersection           -- take the intersection of sets
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~class~new                   -- create a new collection
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+do while supplier~available            -- now iterate over the supplier seeing if
+    index = supplier~index             -- the item is defined in the target.  If
+    if self~hasIndex(index) then       -- so, we we copy into the result collection
+        new~put(supplier~item, index)
+    supplier~next
+end
+
+return new                             -- return the result collection
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* SUBSET        method                  */
+/*****************************************/
+::METHOD 'subSet' -- single_subset                 -- is the target a subset of the other?
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+-- all set operations are done using the receiver index values.  However, the
+-- objects we use for the index differ depending on the other class.
+
+if (other~isA(.OrderedCollection))     -- for ordered collections, us the items
+    then indexes = other~allItems
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then indexes = other~allIndexes    -- use the index values
+else indexes = other~makearray         -- an arbitrary class supporting makearray
+
+new = self~copy                        -- make a new collection we can modify
+
+count = other~items                    -- get the size of the array
+
+-- loop over the other collection using an index do rather than DO OVER so
+-- we don't make another copy of the index array
+do index over self                     -- now check all of my indexes against the reference
+   if \indexes~hasItem(index)
+       then return .false              -- something missing, not a subset
+end
+
+return .true                           -- collection is a proper subset
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* UNION         method                  */
+/*****************************************/
+::METHOD 'union'  -- single_union                  -- take the union of sets
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- copy the collection
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+do while supplier~available            -- now iterate over the supplier seeing if
+    index = supplier~index             -- the item is not defined in the target.  If
+    if \new~hasIndex(index) then       -- so, we we copy into the result collection
+        new~put(supplier~item, index)
+    supplier~next
+end
+
+return new                             -- return the target collection
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* XOR        method                     */
+/*****************************************/
+::METHOD 'xor' -- single_xor                    -- take the exclusive or of a set
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy
+
+if (other~isA(.OrderedCollection)) then do    -- for ordered collections, us the items
+    indexes = other~allItems
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+else if (other~isA(.MapCollection))    -- this includes the SetCollections
+    then supplier = other~supplier     -- get the supplier directly
+else do
+    indexes = other~makearray          -- an arbitrary class supporting makearray
+    supplier = .supplier~new(indexes, indexes)  -- create a supplier from the index values
+end
+
+do while supplier~available            -- now iterate over the supplier seeing if
+    index = supplier~index             -- the item is defined in the target.  If
+    if new~hasIndex(index) then        -- not, then we copy into the result collection
+        new~remove(index)
+    else
+        new~put(supplier~item, index)
+    supplier~next
+end
+
+return new                             -- return the XOR collection
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+/** Serialization support **/
+::CLASS "Serializable" MIXINCLASS Object PUBLIC
+::METHOD writeObject ABSTRACT
+::METHOD readObject ABSTRACT
+
+
+
+-- methods defined for OrderedCollection classes
+::CLASS 'OrderedCollection' MIXINCLASS Collection
+::method 'append'    ABSTRACT
+
+/*****************************************/
+/* APPENDALL     method                  */
+/*****************************************/
+::method 'appendAll' -- ordered_appendall
+  use strict arg other
+
+  signal on nomethod
+
+  do item over other~allItems            /* loop over the other collection    */
+    self~append(item)                    -- appending the item
+  end
+  return
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* DIFFERENCE method                     */
+/*****************************************/
+::METHOD 'difference'   -- ordered_difference            -- difference between an array and another collection
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- we need to work off of a copy
+
+if \other~isA(.Collection) then do     -- if not a collection, then ask for an
+    other = other~makearray            -- array value and use that as the iterator
+end
+
+do item over other~allitems            -- loop over the items of the other collection
+  new~removeItem(item)                 -- "subtract" this item from the copy
+end
+
+
+if new~isA(.array) then                -- if this is an array, remove sparse entries
+    return new~makearray
+
+return new                             -- not an array
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+
+/*****************************************/
+/* INTERSECTION  method                  */
+/*****************************************/
+::METHOD 'interSection' -- ordered_intersection          -- take the intersection of arrays
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~class~new                   -- create a new instance of this class
+reference = self~copy                  -- we need a reference we can remove stuff from to eliminate dups
+
+if \other~isA(.Collection) then do     -- if not a collection, then ask for an
+    other = other~makearray            -- array value and use that as the iterator
+end
+
+do item over other~allitems            -- loop over the items in the collection
+  if reference~hasitem(item) then do   -- if in both, this goes into the result
+      new~append(item)                 -- add to the target collection
+      reference~removeItem(item)       -- remove from the reference so we know we've seen this
+  end
+end
+
+return new                             -- NB, since we started with an empty collection
+                                       -- don't need to send the makearray
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* SUBSET        method                  */
+/*****************************************/
+::METHOD 'subSet' -- ordered_subset                -- do we have a subset?
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+if \other~isA(.Collection) then do     -- if not a collection, then ask for an
+    other = other~makearray            -- array value and use that as the iterator
+end
+
+
+object = self~copy                     -- get a reference copy
+do item over other~allItems            -- loop over the other collection
+    object~removeItem(item)            -- remove from the reference
+end
+
+return 0=object~items                  -- if nothing left -> proper subset
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* UNION         method                  */
+/*****************************************/
+::METHOD 'union'  -- ordered_union                 -- take the union of sets
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- copy the original (this removes sparse entries too)
+
+if \other~isA(.Collection) then do     -- if not a collection, then ask for an
+    other = other~makearray            -- array value and use that as the iterator
+end
+
+do item over other~allItems            -- iterate over all of the items
+    new~append(item)                   -- ordered lists behave more like bags...duplicates are allowed.
+end
+
+if new~isA(.array) then                -- if this is an array, remove sparse entries
+    return new~makearray
+
+return new                             -- not an array
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* XOR        method                     */
+/*****************************************/
+::METHOD 'xor' -- ordered_xor                   -- take the exclusive or of an array
+use strict arg other
+
+signal on nomethod                     -- trap unknown method calls
+
+new = self~copy                        -- we need to work off of a copy
+reference = self~copy                  -- the reference handles adding duplicates
+
+if \other~isA(.Collection) then do     -- if not a collection, then ask for an
+    other = other~makearray            -- array value and use that as the iterator
+end
+
+do item over other~allitems            -- iterate over the items of the other collection
+  if reference~hasItem(item) then      -- in the accumulator collection still?
+  do
+      new~removeItem(item)             -- remove it
+      reference~removeItem(item)       -- remove it from both the accumulator and the ref
+  end
+  else
+  do
+      new~append(item)                 -- append to the end of the accumulator
+  end
+end
+
+if new~isA(.array) then                -- if this is an array, remove sparse entries
+    return new~makearray
+
+return new                             -- not an array
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+
+
+::CLASS 'MapCollection' MIXINCLASS Collection
+
+/*****************************************/
+/* PUTALL        method                  */
+/*****************************************/
+::method 'putAll' -- collection_putall
+  use strict arg other
+  signal on nomethod
+
+  supplier = other~supplier              /* get an other supplier             */
+
+  do while supplier~available            /* loop over the other collection    */
+    self~put(supplier~item, supplier~index)   -- putting the item using the same index
+    supplier~next
+  end
+  return
+
+nomethod:
+      -- an unknown method is an argument problem.  report it as such.
+  raise syntax 93.948 array(1, "Collection")
+
+-- MapCollections return all of the indices for makeArray
+::method 'makeArray'
+  return self~allIndexes
+
+
+::CLASS 'SetCollection' MIXINCLASS Collection INHERIT Serializable
+::METHOD writeObject
+    use strict arg handler
+    handler~writeNumber(items)
+    do i over self
+        handler~writeObject(i)
+    end
+
+::METHOD readObject
+    use strict arg handler
+    count = handler~readNumber
+    do i = 1 to count
+        o = handler~readObject
+        self~put(o, o)
+    end
+
+
+-- sort comparison classes.
+::CLASS 'Comparable' MIXINCLASS Object
+::METHOD compareTo ABSTRACT
+
+::CLASS 'Comparator' MIXINCLASS Object
+::METHOD compare
+use strict arg left, right
+return left~compareTo(right)
+
+::CLASS 'DescendingComparator' MIXINCLASS Comparator
+::METHOD compare
+use strict arg left, right
+return -left~compareTo(right)
+
+::CLASS 'CaselessComparator' MIXINCLASS Comparator
+::METHOD compare
+use strict arg left, right
+return left~caselessCompareTo(right)
+
+::CLASS 'CaselessDescendingComparator' MIXINCLASS Comparator
+::METHOD compare
+use strict arg left, right
+return -left~caselessCompareTo(right)
+
+::CLASS 'ColumnComparator' MIXINCLASS Comparator
+::METHOD init
+expose start length
+use strict arg start, length
+
+::METHOD compare
+expose start length
+
+use strict arg left, right
+return left~compareTo(right, start, length)
+
+::CLASS 'InvertingComparator' MIXINCLASS Comparator
+::METHOD init
+expose comparator
+use strict arg comparator
+
+::METHOD compare
+expose comparator
+
+use strict arg left, right
+return -comparator~compare(left, right)
+
+::CLASS 'CaselessColumnComparator' MIXINCLASS Comparator
+::METHOD init
+expose start length
+use strict arg start, length
+
+::METHOD compare
+expose start length
+
+use strict arg left, right
+return left~caselessCompareTo(right, start, length)
+
+
+
+/* ******************************** */
+/*    M O N I T O R    C L A S S    */
+/* ******************************** */
+ /**************************************************************************/
+ /* The monitor class will keep track of a stack of destination objects    */
+ /* with the last one being the active destination for message sends that  */
+ /* are processed by the monitor unknown method.                           */
+ /**************************************************************************/
+
+::CLASS 'Monitor'
+
+::METHOD init
+ /**************************************************************************/
+ /* Class  Monitor                                                         */
+ /* Method INIT                                                            */
+ /* Function                                                               */
+ /*        To initialize the monitor object with a destination for any     */
+ /*        non-monitor messages                                            */
+ /* Input  Destination object                                              */
+ /* Output Self (monitor object)                                           */
+ /**************************************************************************/
+ expose destination
+ use strict arg dest = .nil
+ destination = .queue~new
+ if arg(1,'e') then
+   destination~push(dest)
+ return
+
+::METHOD destination
+ /**************************************************************************/
+ /* Class  Monitor                                                         */
+ /* Method DESTINATION                                                     */
+ /* Function                                                               */
+ /*        To stack a destination if one is passed as an argument.         */
+ /*        To unstack a destination if no argument is passed in.           */
+ /* Input  Destination object                                              */
+ /* Output The destination object to be unstacked next after the current   */
+ /*        message function is handled                                     */
+ /**************************************************************************/
+ expose destination
+ use strict arg dest = .nil
+ if arg(1,'e') then
+   destination~push(dest)
+ else
+   destination~pull
+ return destination~peek
+
+
+::METHOD current
+ /**************************************************************************/
+ /* Class  Monitor                                                         */
+ /* Method CURRENT                                                         */
+ /* Function                                                               */
+ /*        To return the active destination for this monitor object        */
+ /* Input  None                                                            */
+ /* Output Current destination object                                      */
+ /**************************************************************************/
+ expose destination
+ use strict arg
+ return destination~peek
+
+::METHOD unknown unguarded
+ /**************************************************************************/
+ /* Class  Monitor                                                         */
+ /* Method UNKNOWN                                                         */
+ /* Function                                                               */
+ /*        To forward any message sends that are not monitor messages      */
+ /*        to the currently active destination                             */
+ /* Input  Message name and Argument list                                  */
+ /* Output Any return from the forwarded message                           */
+ /**************************************************************************/
+ /* unknown: forward monitored message to destination */
+  expose destination
+  use strict arg msgname, arglist
+
+  forward to (destination~peek) message (msgname) arguments (arglist)
+
+
+/* *************************************** */
+/*    S E T                   C L A S S    */
+/* *************************************** */
+
+::CLASS 'Set' SUBCLASS table INHERIT setcollection
+/*****************************************/
+/* OF         method                     */
+/*****************************************/
+::METHOD of CLASS
+new = self~new                         /* create a new set                  */
+do i = 1 to arg()                      /* loop through all the arguments    */
+  if arg(i, 'O') then                  /* omitted argument?                 */
+    raise syntax 93.903 array (i)      /* raise an error                    */
+  new~put(arg(i))                      /* add this argument                 */
+end
+return new                             /* return new set                    */
+
+/*****************************************/
+/* XOR        method                     */
+/*****************************************/
+::METHOD xor                           -- take the exclusive or of a set
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- work off of a copy
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- if in the collection, remove it from the result.
+    -- otherwise, add to the result
+    if self~hasindex(index) then
+        new~remove(index)
+    else
+        new~put(index)
+end
+
+return new                             -- return the XOR collection
+
+nomethod:
+  raise syntax 93.948 array(1, "Collection") -- no, complain about it
+
+/*****************************************/
+/* INTERSECTION  method                  */
+/*****************************************/
+::METHOD intersection                  -- take the intersection of sets
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~class~new                   -- use a new instance
+
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- if we have one of these, put into the result
+    -- NB:  Since this is a SET, there will only be one copy accumulated.
+    if self~hasindex(index) then
+         new~put(index)
+end
+
+return new                             -- return the difference collection
+
+nomethod:                              -- unknown method sent
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* UNION         method                  */
+/*****************************************/
+::METHOD union                         -- take the union of sets
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- use a copy of this instance
+
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- only add if not already there
+    if \new~hasindex(index) then
+         new~put(index)
+end
+
+return new                             -- return the union collection
+
+nomethod:                              -- unknown method sent
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* SUBSET        method                  */
+/*****************************************/
+::METHOD subset                        -- do we have a subset?
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- use a copy of this instance
+
+values = other~allitems                -- get all of the items from the other collection
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- subtract each item
+    new~remove(index)
+end
+
+return new~isempty                     -- subset of this is empty
+
+nomethod:                              -- unknown method sent
+  raise syntax 93.948 array(1, "Collection")
+
+
+/*****************************************/
+/* PUTALL        method                  */
+/*****************************************/
+::METHOD putall
+  use strict arg other                   -- get the companion object
+
+  signal on nomethod
+
+  if other~isA(.Collection) then
+      values = other~allitems            -- get all of the items from the other collection
+  else
+      values = other~makearray           -- ask for an array version of the source
+
+  count = values~items
+
+  do i = 1 to count
+      -- just put each item into the set
+      self~put(values[i])
+  end
+
+  return                                 -- no return value
+
+  nomethod:                              -- unknown method sent
+    raise syntax 93.948 array(1, "Collection")
+
+
+/* *************************************** */
+/*    B A G                   C L A S S    */
+/* *************************************** */
+
+::CLASS 'Bag' SUBCLASS relation INHERIT setcollection
+::METHOD of CLASS
+
+new = self~new                         /* create a new bag                  */
+do i = 1 to arg()                      /* loop through all the arguments    */
+  if arg(i, 'O') then                  /* omitted argument?                 */
+    raise syntax 93.903 array (i)      /* raise an error                    */
+  new~put(arg(i))                      /* add this argument                 */
+end
+return new                             /* return new bag                    */
+
+/*****************************************/
+/* UNION         method                  */
+/*****************************************/
+::METHOD union
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- work off of a copy
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- just add each item
+    new~put(index)
+end
+
+return new                             -- return the XOR collection
+
+nomethod:
+  raise syntax 93.948 array(1, "Collection") -- no, complain about it
+
+/*****************************************/
+/* XOR           method                  */
+/*****************************************/
+::METHOD xor
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- copy ourselves
+catcher = self~class~new               -- and create an empty result
+
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- if the index is not in the reference, we
+    -- copy it to the catcher, otherwise we remove it from the reference
+    if new~hasindex(index) then
+        new~remove(index)
+    else
+        catcher~put(index)
+end
+
+new~putall(catcher)                    -- remerge the two collections
+return new
+
+nomethod:
+  raise syntax 93.948 array(1, "Collection") -- no, complain about it
+
+/*****************************************/
+/* INTERSECTION  method                  */
+/*****************************************/
+::METHOD intersection
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~class~new                   -- start with a new collection
+object = self~copy                     -- copy the target collection
+
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    -- if the reference collection contains this index, then
+    -- add to the result and remove from the reference.
+    if object~hasindex(index) then do
+        new~put(index)
+        object~remove(index)
+    end
+end
+
+return new                             -- and return the new collection
+
+nomethod:
+  raise syntax 93.948 array(1, "Collection") -- no, complain about it
+
+/*****************************************/
+/* DIFFERENCE method                     */
+/*****************************************/
+::METHOD difference
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- copy the target collection
+
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    new~remove(index)                  -- just subtract this from the copy
+end
+
+return new                             -- and return the new collection
+
+nomethod:
+  raise syntax 93.948 array(1, "Collection") -- no, complain about it
+
+/*****************************************/
+/* SUBSET        method                  */
+/*****************************************/
+::METHOD subset
+use strict arg other                   -- get the companion object
+
+signal on nomethod
+
+new = self~copy                        -- copy the target collection
+
+if other~isA(.Collection) then
+    values = other~allitems            -- get all of the items from the other collection
+else
+    values = other~makearray           -- ask for an array version of the source
+count = values~items
+
+do i = 1 to count
+    index = values[i]
+    new~remove(index)                  -- just subtract this from the copy
+end
+
+return new~isempty                     -- and test to see if we used everything up
+
+nomethod:
+  raise syntax 93.948 array(1, "Collection") -- no, complain about it
+
+
+/*****************************************/
+/* PUTALL        method                  */
+/*****************************************/
+::METHOD putall
+  use strict arg other                   -- get the companion object
+
+  signal on nomethod
+
+  if other~isA(.Collection) then
+      values = other~allitems            -- get all of the items from the other collection
+  else
+      values = other~makearray           -- ask for an array version of the source
+
+  count = values~items
+
+  do i = 1 to count
+      -- just put each item into the set
+      self~put(values[i])
+  end
+
+  return                                 -- no return value
+
+  nomethod:                              -- unknown method sent
+    raise syntax 93.948 array(1, "Collection")
+
+/* ******************************** */
+/*    A L A R M        C L A S S    */
+/* ******************************** */
+ /**************************************************************************/
+ /* The Alarm class provides timing and notification capability by         */
+ /* providing a facility to send any message to any object at a given      */
+ /* time. A pending alram request can also be cancelled.                   */
+ /**************************************************************************/
+
+::CLASS 'Alarm' SUBCLASS object
+
+::METHOD init
+ /**************************************************************************/
+ /* Class  Alarm                                                           */
+ /* Method INIT                                                            */
+ /* Function                                                               */
+ /*        To set up an alarm for a future time 'atime'. At that time      */
+ /*        the alarm object sends the message specified by the message     */
+ /*        object 'message'.                                               */
+ /* Input  atime - a string. Can be specified in 2 formats.                */
+ /*        1. 'hh:mm:ss' - An absolute time. At the specified time         */
+ /*            the alarm object send the message specified by the message  */
+ /*            object.                                                     */
+ /*        2. 'secs'     - number of seconds from the present time.        */
+ /*        message - a message object                                      */
+ /* Output Nothing                                                         */
+ /**************************************************************************/
+
+ expose timer canceled msgobj timerStarted eventSemHandle;
+ timer = 0                             /* set up initial flag states        */
+ eventSemHandle = 0
+ timerStarted = 0
+ canceled = .false
+
+ use strict arg atime, msgobj          /* get the arguments                 */
+
+                                       /* not a message object?             */
+ if (msgobj~request('MESSAGE') = .nil) then
+                                       /* have an error                     */
+   raise syntax 93.948 array (2,'MESSAGE')
+
+ current = .DateTime~new               -- get a current time value
+
+ numeric digits 18                     -- we'll be doing math with large numbers potentially
+
+ if atime~isA(.DateTime) then do
+     timespan = atime - current        -- get the interval
+ end
+ else if atime~isA(.TimeSpan) then do  -- already in timespan form?
+     timespan = atime                  -- we can use this directly
+ end
+ else if datatype(atime, 'W') then do  /* just a delta specification?       */
+   -- convert seconds into a timespan
+   timespan = .timespan~fromSeconds(atime)
+ end
+ else do
+   parse var atime intime ' ' indate   /* split into a date and time        */
+   SIGNAL ON syntax NAME invalid_time  /* enable a syntax trap              */
+   -- fully specified, this is easy
+   if indate \= "" then do
+       target = .DateTime~fromNormalDate(indate) + .timespan~fromNormalTime(intime)
+       timespan = target - current
+   end
+   else do
+       -- ok, we need to figure out the next location in the future
+       target = current~date + .TimeSpan~fromNormalTime(atime)
+       -- if this is in the past, then just step to the next day
+       if target < current then do
+           target = target~addDays(1)
+       end
+       -- and calculate the interval
+       timespan = target - current
+   end
+
+
+ end
+
+ if timespan~sign < 0 then do
+    raise syntax 93.951 array (atime~string)
+ end
+
+ -- break this into days an remainder
+ numdays = timespan~days
+ alarmtime = timespan~totalMicroseconds - .TimeSpan~fromDays(numdays)~totalMicroseconds
+
+ -- the remainder needs to be in milliseconds
+ alarmtime %= 1000
+
+ guard off                             /* Allow other processess access     */
+ reply                                 /* and go concurrent                 */
+
+ self~!startTimer(numdays, alarmtime)  /* Call native method to start timer */
+ eventSemHandle = 0                    /* cleared it to indicate (to cancel)*/
+                                       /*  That the timer has expired.      */
+ guard on                              /* get exclusive use of object       */
+
+ if canceled = 0 then do               /* is the timer canceled?            */
+   SIGNAL ON syntax NAME exception     /* enable syntax traps               */
+   msgobj~send                         /* run the message                   */
+ end
+ exit
+
+ invalid_time:
+   signal on syntax
+   raise syntax 93.951 array (atime)   /* Invalid alarmtime                 */
+
+ exception:                            /* define exception handler          */
+ syntax:
+   raise propagate                     /* just propagate the error          */
+
+::METHOD !startTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX alarm_startTimer'
+
+ /**************************************************************************/
+ /* Class  Alarm                                                           */
+ /* Method CANCEL                                                          */
+ /* Function                                                               */
+ /*        To cancel a pending alarm request represented by the receiver.  */
+ /*        This method taken no action if the timer has already expired.   */
+ /* Input  none                                                            */
+ /* Output Nothing                                                         */
+ /**************************************************************************/
+
+::METHOD cancel unguarded
+ expose canceled eventSemHandle timerStarted
+
+ use strict arg
+
+ guard on  when timerStarted              /* Wait until timer is actually set  */
+                                          /* if time hasn't expired?           */
+ if eventSemHandle \= 0 then
+   do
+                                          /* cancel the timer.                 */
+      canceled = 1
+      self~!stopTimer(eventSemHandle)
+   end
+ return
+
+::METHOD !stopTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX alarm_stopTimer'
+
+
+
+/*
+   name:    CircularQueue.rex
+   author:  Rony G. Flatscher, Rick McGuire
+   date:    2006-05-09, 2006-05-11, 2006-05-15, 2006-05-16, 2006-05-17, 2006-05-27
+   purpose: allow to use a circular queue (buffer) of predefined size; if queue is full
+            new entries overwrite existing ones in a circular fashion; also allows for
+            resizing the circular queue at runtime
+   license: CPL 1.0
+
+   documentation:
+
+   The CircularQueue class
+   =======================
+
+      This is a collection class which allows for storing objects in a circular queue
+      of a predefined size. Once the end of the queue has been reached, new item
+      objects are inserted from the beginning, replacing earlier entries.
+
+      The collected objects can be processed in FIFO (first in, first out) or in a
+      stack-like LIFO (last in, first out) order.
+
+
+
+   OF (Class Method)
+   =================
+
+          +-,----+
+          v      |
+   >>-OF(---item-+-)--------------------------<<
+
+   Returns a newly created CircularQueue object containing the specified item
+   objects in the order specified. The number of listed items determines the
+   size of the circular queue.
+
+
+   INIT
+   ====
+
+   >>-INIT(size)----------------------------------<<
+
+   Constructor method invoked by the NEW method, which determines the size of
+   the circular queue.
+
+
+   MAKEARRAY
+   =========
+                 +-Fifo-----+
+   >>-MAKEARRAY(-+----------+-)----------------------<<
+                 +-,-order--+
+
+   Returns a single-index array containing the items of the circular queue in the
+   specified order.
+
+   The following orders can be used. (Only the capitalized letter is needed; all
+   characters following it are ignored.)
+
+   Fifo
+      "first-in, first-out", default
+
+   Lifo
+      stacklike, "last-in, first-out"
+
+
+   PUSH
+   ====
+
+   >>-PUSH(item)----------------------------------<<
+
+   Makes the object item a member item of the circular queue, inserting the item
+   object in front of the first item in the queue. The pushed item object will be
+   the new first item in the circular queue.
+
+   If the circular queue is full, than the last item stored in the circular queue
+   will be deleted, before the insertion takes place. In this case the deleted item
+   will be returned, otherwise .nil.
+
+
+
+   QUEUE
+   =====
+
+   >>-QUEUE(item)---------------------------------<<
+
+   Makes the object item a member item of the circular queue, inserting the item
+   at the end of the circular queue.
+
+   If the circular queue is full, than the first item will be deleted, before the
+   insertion takes place. In this case the deleted item will be returned, otherwise .nil.
+
+
+
+   RESIZE
+   ======
+
+                      +-Fifo-----+
+   >>-RESIZE(-newSize-+----------+-)----------------------<<
+                      +-,-order--+
+
+   Resizes the circular queue object to be able to contain "newSize" items.
+   If the previous size was larger than "newSize", than the now superfluous
+   items are removed in the specified order.
+
+   The following orders can be used. (Only the capitalized letter is needed; all
+   characters following it are ignored.)
+
+   Fifo
+      "first-in, first-out", default: keeps the newest entries
+
+   Lifo
+      stacklike, "last-in, first-out": keeps the oldest entries
+
+   Note: resizing with a value of "0" effectively removes all items from the
+   circular queue.
+
+
+   SIZE
+   =====
+
+   >>-SIZE----------------------------------------<<
+
+   Returns the maximum number of objects that can be stored in the circular queue.
+
+
+
+   SUPPLIER
+   =========
+                +-Fifo-----+
+   >>-SUPPLIER(-+----------+-)----------------------<<
+                +-,-order--+
+
+   Returns a supplier object for the collection. After you have obtained a supplier,
+   you can send it messages (see The Supplier Class) to enumerate all the items
+   that were in the circular queue at the time of the supplier's creation.
+
+   The supplier will enumerate the items in the specified order. (Only the capitalized
+   letter is needed; all characters following it are ignored.)
+
+   Fifo
+      "first-in, first-out", default
+
+   Lifo
+      stacklike, "last-in, first-out"
+
+
+   STRING
+   ======
+              +-----","---+  +-Fifo----+
+   >>-STRING(-+-----------+--+---------+-)---------<<
+              +-delimiter-+  +-,-order-+
+
+   Returns a string object that concatenates the string values of the collected
+   item objects, using the delimiter string to delimit them, in the specified order.
+
+   If the delimiter string argument is omitted the comma character is used as the
+   default delimiter string.
+
+   The following orders can be used. (Only the capitalized letter is needed;
+   all characters following it are ignored.)
+
+   Fifo
+      "first-in, first-out", default
+
+   Lifo
+      stacklike, "last-in, first-out"
+
+   --------------- CircularQueue example --------------
+
+      -- create a circular buffer with five items
+   u=.circularQueue~of("a", "b", "c", "d", "e")
+   say "content: ["u"]," "content (LIFO): ["u~string("->","L")"]"
+   say
+
+   u~resize(4, "FIFO")     -- resize fifo-style (keep newest)
+   say "after resizing to 4 items in FIFO style (keeping the newest):"
+   say "content: ["u"]," "content (LIFO): ["u~string("->","L")"]"
+   say
+
+   u~resize(2, "LILO")     -- resize lifo-style (keep oldest)
+   say "after resizing to 2 items in LIFO style (keeping the oldest):"
+   say "content: ["u"]," "content (LIFO): ["u~string("->","L")"]"
+   say
+
+   u~resize(0)             -- resize lifo-style (keep oldest)
+   say "after resizing to 0 items, thereby deleting all items:"
+   say "content: ["u"]," "content (LIFO): ["u~string("->","L")"]"
+   say
+
+   u~resize(2)             -- resize lifo-style (keep oldest)
+   say "after resizing to 2, size="u~size "and items="u~items
+   u~~queue('x')~~queue('y')~~queue('z')
+   say "after queuing the three items 'x', 'y', 'z':"
+   say "content: ["u"]," "content (LIFO): ["u~string("->","L")"]"
+   say
+
+   u~~push('1')~~push('2')~~push('3')
+   say "after pushing the three items '1', '2', '3':"
+   say "content: ["u"]," "content (LIFO): ["u~string("->","L")"]"
+   say
+
+
+/*
+Output:
+
+   content: [a,b,c,d,e], content (LIFO): [e->d->c->b->a]
+
+   after resizing to 4 items in FIFO style (keeping the newest):
+   content: [b,c,d,e], content (LIFO): [e->d->c->b]
+
+   after resizing to 2 items in LIFO style (keeping the oldest):
+   content: [b,c], content (LIFO): [c->b]
+
+   after resizing to 0 items, thereby deleting all items:
+   content: [], content (LIFO): []
+
+   after resizing to 2, size=2 and items=0
+   after queuing the three items 'x', 'y', 'z':
+   content: [y,z], content (LIFO): [z->y]
+
+   after pushing the three items '1', '2', '3':
+   content: [3,2], content (LIFO): [2->3]
+
+*/
+
+
+*/
+
+   -- circular buffer (round-robin queue) of a defined size
+::CLASS 'CircularQueue' subclass queue public
+
+
+::method of class
+
+  storage=self~new(arg())     -- create a circular queue of appropriate size
+
+  do i=1 to arg()
+     storage~queue(arg(i))    -- place item object into the circular queue
+  end
+  return storage              -- return instance
+
+::METHOD readObject CLASS
+    use strict arg handler
+    return self~new(handler~readNumber)
+
+::method init                 -- create an instance, memorizes the size
+  expose size
+  use strict arg size
+
+  -- check for whole number >= 0, raise error
+  if datatype(size, "Whole")=.false | size<0  then
+     raise syntax 93.906 array ("size", size)
+
+  self~init:super
+  return
+
+::METHOD writeObject
+    expose size
+    use strict arg handler
+    handler~writeNumber(size)
+    forward class (super)
+
+::METHOD size                 -- return size
+  expose size
+  use strict arg
+  return size
+
+
+::METHOD resize               -- allow to resize the circularQueue
+  expose size
+
+  use strict arg newSize, order = "F"
+
+   -- check for whole number >= 0, raise error
+   if datatype(newSize, "Whole")=.false | newSize<0  then
+      raise syntax 93.906 array (1, arg(1))
+
+   order = order~upper~left(1)
+
+   if pos(order, "FL")=0 then  -- oops: not a valid argument!
+      raise syntax 93.914 array (2, '"F" (FIFO) or "L" (LIFO)', arg(2))
+
+
+   if newSize<size then       -- too many items, we need to remove the superfluous ones
+   do
+      removeNr=size-newSize   -- number of elements to remove
+
+      if order="L" then       -- LIFO: remove the newest entries (keep the oldest)
+         idx=self~items-removeNr+1    -- determine the index to which (includingly) the removes need to take place
+      else                    -- FIFO: remove the oldest entries (keep the newest)
+         idx=1                -- remove the first element(s)
+
+      do removeNr             -- repeat removal
+         self~remove(idx)     -- remove item
+      end
+   end
+   size=newSize               -- remember new size
+   return newSize             -- return the new size
+
+
+::METHOD queue                -- put an element into the queue, possibly replacing an existing one
+  expose size
+
+  use strict arg item, option = "Normal"
+
+  if size=0 then return .nil  -- size is 0, do not process!
+
+  if option~caselessMatchChar(1,'u')    -- if option is unique remove any instances extant
+  then do while self~hasItem(item)
+          self~removeItem(item)
+       end
+
+  if self~items >= size then
+     ret = self~pull           -- if we've gone over the size, remove this
+  else
+     ret = .nil               -- return value a .nil to indicate that we were not forced to remove an existing item
+
+  forward class (super) continue array (item) -- allow the superclass to handle adding the item
+  return ret                  -- return pulled item
+
+::METHOD push
+  expose size
+  use strict arg item, option = "Normal"
+
+  if size=0 then return .nil  -- size is 0, do not process !
+
+  if option~caselessMatchChar(1,'u')    -- if option is unique remove any instances extant
+  then do while self~hasItem(item)
+          self~removeItem(item)
+       end
+
+  if self~items >= size then
+     ret = self~remove(self~items)   -- remove the end item.
+  else
+     ret = .nil                     -- return value a .nil to indicate that we were not forced to remove an existing item
+
+  forward class (super) continue array (item)   -- allow the superclass to handle adding the item
+  return ret                      -- return removed item
+
+
+-----------------------------
+
+
+::method makearray            -- return a supplier object
+  expose size storage
+
+  use strict arg order="F"
+
+  order = order~upper~left(1)
+
+  if pos(order, "FL")=0 then  -- oops: not a valid argument!
+     raise syntax 93.914 array (1, '"F" (FIFO) or "L" (LIFO)', arg(1))
+
+  if order="L" then           -- in LIFO (last-in, first-out) order (stack-like)
+  do
+     aCopy=self~copy          -- work on a copy (= snapshot)
+     items=aCopy~items        -- get number of items
+     valArr=.array~new(items)
+     k=0
+     do i=items to 1 by -1
+        k=k+1
+        valArr[k]=aCopy~at(i)
+     end
+     return valArr
+  end
+  else
+  do
+     arr=.array~new(0)
+     FORWARD class (super) arguments (arr)-- forward to superclass, remove possible argument
+     -- FORWARD class super array ()-- forward to superclass, remove possible argument
+  end
+
+::method supplier             -- return a supplier object
+  expose size
+
+  use strict arg order="F"
+
+  order = order~upper~left(1)
+  if pos(order, "FL")=0 then  -- oops: not a valid argument!
+     raise syntax 93.914 array (1, '"F" (FIFO) or "L" (LIFO)', arg(1))
+
+  if order="L" then           -- in LIFO (last-in, first-out) order (stack-like)
+  do
+     aCopy=self~copy          -- work on a copy (= snapshot)
+     items=aCopy~items        -- get number of items
+     valArr=.array~new(items) -- create value (item) array
+     idxArr=.array~new(items) -- create index array
+     k=0
+     do i=items to 1 by -1    -- iterate through circular queue
+        k=k+1
+        valArr[k]=aCopy~at(i)
+        idxArr[k]=i
+     end
+     return .supplier~new(valArr, idxArr)
+  end
+  else                        -- let the superclass create and return the supplier object
+  do
+     FORWARD class (super) array ()-- forward to superclass, remove possible argument
+  end
+
+
+::method string               -- create a string representation, using the optional delimiter
+  expose size
+
+  use strict arg delimiter=",", order = "F"
+
+  order = order~upper~left(1)
+  if self~items=0 then        -- return empty strings, if no elements
+     return ""
+
+  order = order~upper~left(1)
+  if pos(order, "FL")=0 then  -- oops: not a valid argument!
+     raise syntax 93.914 array (2, '"F" (FIFO) or "L" (LIFO)', arg(2))
+
+  mb=.MutableBuffer~new       -- use a MutableBuffer for the string chunks
+                              -- use MAKEARRAY for a snapshot in the desired order
+  array=self~makearray(order) -- use supplied order
+
+  k=.false                    -- append supplied delimiter?
+  do i=1 to array~items
+     if k then                -- at least one item already there, hence use delimiter
+        mb~append(delimiter)
+     else                     -- first iteration
+        k=.true
+
+     mb~append(array[i]~string) -- get element from array, get its string value
+  end
+
+  return mb~string            -- now turn MutableBuffer object into a plain string
+
+::CLASS 'Properties' subclass Directory public
+::METHOD load class
+  use arg input
+  properties = .properties~new
+  forward to (properties) continue
+  return properties
+
+
+::METHOD load
+  use strict arg input
+  if input~isInstanceOf(.string) then  -- if a string use it as a filename
+  do
+     stream=.stream~new(input)      -- create stream object
+     self~load(stream)              -- load its properties
+     stream~close                   -- close stream
+     return
+  end
+
+  signal on notready
+
+  do forever
+     line = input~linein~strip('L')
+     -- ignore comment lines
+     if line == "" | line~substr(1, 2) == "--" then
+         iterate
+     parse var line name '=' value
+     name = name~strip
+
+     self~put(value, name)
+
+  end
+  -- hit EOF, just return
+  notready:
+  return
+
+::METHOD save
+  use strict arg output
+
+  if output~isInstanceOf(.string) then  -- if a string use it as a filename
+  do
+     stream=.stream~new(output)     -- create stream object
+     stream~open("WRITE REPLACE")   -- make sure we open in replace mode
+     self~save(stream)              -- load its properties
+     stream~close                   -- close stream
+     return
+  end
+
+  supplier = self~supplier
+
+  do while supplier~available
+      name = supplier~index
+      value = supplier~item
+
+      output~lineout(name||"="||value)
+
+      supplier~next
+  end
+
+
+::METHOD setProperty
+  use strict arg name, value
+
+  value = value~request('STRING')
+
+  if .nil == value then do
+     raise syntax 93.938 array (2)  -- raise an error
+  end
+
+  self~put:super(value, name)
+
+
+::METHOD getProperty
+  use strict arg name, default=.nil
+
+  value = self~at(name)
+  if .nil == value then do
+      if arg(2, 'e') then
+          value = default
+  end
+
+  return value
+
+::METHOD setWhole
+  args = arg(1, 'A')
+
+  if \args~hasIndex(2) then
+     raise syntax 93.903 array (2)  -- raise an error
+
+  if \datatype(args[2], 'W') then
+     raise syntax 93.905 array (2, args[2])  -- raise an error
+
+  forward message 'SETPROPERTY'
+
+
+::METHOD getWhole
+  forward message 'GETPROPERTY' continue
+
+  value = result
+  if \datatype(value, 'W') then
+     raise syntax 26.901 array (value)  -- raise an error
+
+  return value
+
+
+::METHOD setLogical
+  args = arg(1, 'A')
+
+  if \args~hasIndex(2) then
+     raise syntax 93.903 array (2)  -- raise an error
+
+  if \datatype(args[2], 'O') then
+     raise syntax 34.901 array (2, args[2])  -- raise an error
+
+  if args[2] then
+     args[2] = "true"
+  else
+     args[2] = "false"
+
+  forward message 'SETPROPERTY' arguments (args)
+
+
+::METHOD getLogical
+  forward message 'GETPROPERTY' continue
+
+  value = result
+  if value == '1' | value == 'true' then
+      return .true
+  else if value == '0' | value == 'false' then
+      return .false
+  raise syntax 34.904 array (value)  -- raise an error
+
+
+::METHOD "[]="
+  use strict arg value, name
+
+  value = value~request('STRING')
+
+  if .nil == value then do
+     raise syntax 93.938 array (1)  -- raise an error
+  end
+
+  forward class (super) array (value, name)
+
+
+::METHOD put
+  use strict arg value, name
+
+  value = value~request('STRING')
+
+  if .nil == value then do
+     raise syntax 93.938 array (1)  -- raise an error
+  end
+
+  forward class (super) array (value, name)
+
+
+
+::CLASS 'DateTime' public inherit Comparable Orderable
+
+-- return the DateTime for the earliest time in the Rexx calendar system
+::METHOD minDate class
+  use strict arg
+  -- this is returned in utc
+  return self~new(1, 1, 1, 0)
+
+-- return the DateTime for the end of the supported Rexx calendar system
+::METHOD maxDate class
+  use strict arg
+  -- this is returned in UTC
+  return self~new(9999, 12, 31, 23, 59, 59, 999999, 0)
+
+-- return a DateTime object for today's date, and a time
+-- of 00:00:0).000000
+::METHOD today class
+  use strict arg, offset=(time('O')/60000000)
+  -- just grab the date in standard format and convert
+  return self~fromStandardDate(date('s'),, offset)
+
+-- Create a DateTime object from a Normal date string.  An optional
+-- separator character can be specified.
+::METHOD fromNormalDate class
+  use strict arg date, sep = (" "), offset=(time('O')/60000000)
+
+  signal on syntax
+  return self~new(date('F', date, 'N', , sep), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", date)
+
+
+-- Create a DateTime object from a European date string.  An optional
+-- separator character can be specified.
+::METHOD fromEuropeanDate class
+  use strict arg date, sep = ("/"), offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(date('F', date, 'E', , sep), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", date)
+
+
+-- Create a DateTime object from an Ordered date string.  An optional
+-- separator character can be specified.
+::METHOD fromOrderedDate class
+  use strict arg date, sep = ("/"), offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(date('F', date, 'O', , sep), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", date)
+
+
+-- Create a DateTime object from a Standard date string.  An optional
+-- separator character can be specified.
+::METHOD fromStandardDate class
+  use strict arg date, sep = (""), offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(date('F', date, 'S', , sep), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", date)
+
+
+-- Create a DateTime object from a Usa date string.  An optional
+-- separator character can be specified.
+::METHOD fromUsaDate class
+  use strict arg date, sep = ("/"), offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(date('F', date, 'U', , sep), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", date)
+
+
+-- Create a DateTime object from a Normal time string.
+::METHOD fromNormalTime class
+  use strict arg time, offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(time('F', time, 'N'), offset)
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+
+-- Create a DateTime object from a Civil time string.
+::METHOD fromCivilTime class
+  use strict arg time, offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(time('F', time, 'C'), offset)
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+-- Create a DateTime object from a Long time string.
+::METHOD fromLongTime class
+  use strict arg time, offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(time('F', time, 'L'), offset)
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+
+-- Create a DateTime object from a ISO date/time string.
+::METHOD fromIsoDate class
+  use strict arg _date, offset=(time('O')/60000000)
+  parse var _date date 'T' time
+  numeric digits 18
+
+  signal on syntax
+  return self~new(date('F', date, 'S',,"-") + time("F", time, "L"), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", _date)
+
+-- Create a DateTime object from a UTC ISO date/time string.
+::METHOD fromUtcIsoDate class
+  use strict arg time
+  parse var time date 'T' time
+  numeric digits 18
+
+  signal on syntax
+  if time~right(1) == 'Z' then do
+      offset = 0
+      time = time~left(time~length - 1)
+  end
+  else if time~pos('+') > 0 then do
+      parse var time time '+' tz
+      offset = tz~left(2) * 60 + tz~right(2)
+  end
+  else if time~pos('-') > 0 then do
+      parse var time time '-' tz
+      offset = -(tz~left(2) * 60 + tz~right(2))
+  end
+
+  -- our standard format uses 6 digits for the fraction,
+  -- but the standard also allows for just 2 or even omitted,
+  -- so pad it out to a long time format
+  parse var time base '.' fraction
+  time = base'.'fraction~left(6, '0')
+
+  numeric digits 18
+  -- convert this time stamp to local time, then create the date time object
+  -- using the adjusted time and offset
+  time = date('F', date, 'S',,"-") + time("F", time, "L")
+  time = time + (offset *60000000)
+  return self~new(time, offset);
+
+  syntax:
+  raise syntax 88.918 array("date", time)
+
+
+-- Create a DateTime object from Unix Ticks value
+::METHOD fromTicks class
+  use strict arg date, offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(date('F', date, 'T'), offset)
+
+  syntax:
+  raise syntax 88.918 array("ticks", date)
+
+
+-- Create a DateTime object from a basedate value
+::METHOD fromBaseDate class
+  use strict arg date, offset=(time('O')/60000000)
+  signal on syntax
+  return self~new(date('F', date, 'B'), offset)
+
+  syntax:
+  raise syntax 88.918 array("date", date)
+
+
+-- initialize a DateTime instance.  There are multiple forms of this:
+--
+-- init(fulltime<,offset>)
+--      input is a full time number such as returned from date('f')
+-- init(year, month, day<,offset>)
+--      initialize from a year/month/day value.  The time will be set to
+--      00:00:00.000000 of the current date
+-- init(year, month, day, hours, minutes, seconds, microseconds<,offset>)
+--      initialize from a fully specified time specification.  The microseconds
+--      are optional and default to zero.
+::METHOD init
+  numeric digits 18    -- need higher digits for time calculations
+
+  argCount = arg()
+
+  select
+      when argCount == 0 then do
+          -- no arguments, use current time and local timezone offset
+          self~setTimeStamp(date('Full'), time('O')/60000000)
+      end
+      when arg() <= 2 then do    -- just create from a microseconds value
+          use strict arg timestamp, offset=(time('O')/60000000)
+          -- seems silly, but this validates the time
+          self~setTimeStamp(date('f', timestamp, 'f'), offset)
+      end
+      when arg() <= 4 then do
+          -- year month day to microseconds value
+          use strict arg year, month, day, offset=(time('O')/60000000)
+
+          -- format into a convertable date
+          timestamp = self~convertDate(year, month, day)
+          self~setTimeStamp(self~convertDate(year, month, day), offset)
+      end
+      -- only other format is everything, and only the microseconds are optional.
+      otherwise
+          -- starting with year, month, day, hours, minutes, seconds
+          use strict arg year, month, day, hours, minutes, seconds, usecs = 0, offset=(time('O')/60000000)
+
+          timestamp = self~convertDate(year, month, day) + self~convertTime(hours, minutes, seconds, usecs)
+          self~setTimeStamp(timestamp, offset)
+  end
+
+-- private method to adjust the date's timestamp and timezone information during construction
+::METHOD setTimeStamp private
+  expose utctimestamp timestamp offset
+  use arg timestamp, offset
+
+  numeric digits 18
+  -- if this is a timespan, then grab the number of microseconds in the
+  -- span, retaining the sign
+  if offset~isa(.TimeSpan) then
+      offset = offset~totalMicroseconds
+  else do
+     -- must be a whole number
+     .argUtil~validateWhole("offset", offset)
+     -- we need to convert from minutes to microseconds
+     offset = offset * 60000000
+  end
+  -- adjust the internal timestamp back to UTC
+  utctimestamp = timestamp - offset
+
+-- private utility method to get a full date value from year/month/day.
+::METHOD convertDate private
+  use arg year, month, day
+  .argUtil~validateWholeRange("year", year, 1, 9999)
+  .argUtil~validateWholeRange("month", month, 1, 12)
+  .argUtil~validateWholeRange("day", day, 1, 31)
+
+  date = year~right(4, '0')month~right(2, '0')day~right(2, '0')
+  return date('F', date, 'S')
+
+-- private utility method to get a full date value from an hour/minute/second/microseconds set.
+::METHOD convertTime private
+  use arg hours, minutes, seconds, usecs = 0
+
+  .argUtil~validateWholeRange("hours", hours, 0, 23)
+  .argUtil~validateWholeRange("minutes", minutes, 0, 59)
+  .argUtil~validateWholeRange("seconds", seconds, 0, 59)
+  .argUtil~validateWholeRange("microseconds", usecs, 0, 999999)
+
+  time = hours~right(2, '0')':'minutes~right(2, '0')':'seconds~right(2, '0')'.'usecs~right(6, '0')
+  return time('f', time, 'l')
+
+
+-- perform a sort comparison of two datetimes
+::METHOD compareTo
+  expose utcTimeStamp
+
+  use strict arg other
+
+  .ArgUtil~validateClass("other", other, .DateTime)
+
+  othertime = other~utcDate
+
+  numeric digits 18
+  -- just pick up the sign value of the subtraction
+  return (utcTimeStamp - othertime)~sign
+
+-- return the year value of the datetime.
+::METHOD year
+  expose timestamp
+  return date('Standard', timestamp, 'Full')~substr(1, 4)
+
+-- return the month value of the datetime
+::METHOD month
+  expose timestamp
+  -- NB make sure the leading zeros are stripped
+  return date('Standard', timestamp, 'Full')~substr(5, 2) + 0
+
+-- return the day value of the datetime
+::METHOD day
+  expose timestamp
+  -- NB make sure the leading zeros are stripped
+  return date('Standard', timestamp, 'Full')~substr(7, 2) + 0
+
+-- return the hours value of the datetime
+::METHOD hours
+  expose timestamp
+  return time('Hours', timestamp, 'Full')
+
+-- return the minutes value of the datetime
+::METHOD minutes
+  expose timestamp
+  return time('Minutes', timestamp, 'Full') // 60
+
+-- return the seconds value of the datetime
+::METHOD seconds
+  expose timestamp
+  return time('Seconds', timestamp, 'Full') // 60
+
+-- return the microseconds value of the datetime
+::METHOD microseconds
+  expose timestamp
+
+  parse value time('Long', timestamp, 'Full')  with '.' microseconds
+  return microseconds + 0
+
+-- return the number of minutes since 00:00:00.000000
+::METHOD dayMinutes
+  expose timestamp
+  return time('Minutes', timestamp, 'Full')
+
+-- return the number of seconds since 00:00:00.000000
+::METHOD daySeconds
+  expose timestamp
+  return time('Seconds', timestamp, 'Full')
+
+-- return the number of microseconds since 00:00:00.000000
+::METHOD dayMicroseconds
+  expose timestamp
+  numeric digits 18
+
+  return self~daySeconds * 1000000 + self~microseconds
+
+-- hashcode override for MapCollection interaction.
+::METHOD hashCode
+  expose timestamp
+  return timestamp~hashcode
+
+-- perform subtraction between two datetime objects or a datetime
+-- object and a timespan object.  The original object is left unchanged
+-- and new instance is returned.
+--
+-- Prefix minus has no meaning, and will result in an error.
+::METHOD "-"
+  expose timeStamp utcTimeStamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- could be a prefix "-", but we'll treat it as dyadic
+
+  -- actual subtraction op
+  use strict arg other
+
+  -- "-" is not commutative with .DateTime.  We don't support
+  -- subtracting a time from a TimeStamp.  The reverse operation,
+  -- however, makes sense.
+  if other~isa(.timespan) then do
+      -- subtract the timespan from this class
+      return self~class~new(timestamp - other~totalMicroseconds)
+  end
+  -- subtracting two dates
+  else if other~isa(.datetime) then do
+      -- perform the math using the big numbers...the result may be negative
+      -- we also use the UTC time, since these might represent different timezones
+      return .timespan~new(utcTimeStamp - other~utcDate)
+  end
+
+  raise syntax 88.914 array("subtractor", "DateTime or TimeSpan")
+
+
+-- add a datetime instance to a timespan instance, returning a new datetime.
+::METHOD "+"
+  expose timestamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- could be a prefix "+"
+  if arg() == 0 then do
+      -- this is pretty meaningless, but less so than
+      -- prefix -.  We'll just make this a noop and return a copy of ourselves
+      return self~class~new(timestamp, self~offset)
+  end
+
+  -- ok, actually addition.  We require a timespan.  Trying to add
+  -- 2 dates is pretty meaningless
+  use strict arg other
+
+  -- "+" can do the addition to either a timespan or a datetime.
+  -- When addition occurs between two timespaces, the result is a timespan.
+  -- When adding to a datatime, the result is a datetime.
+  if other~isa(.timespan) then do
+      -- combine the two intervals, using the same timezone value
+      return self~class~new(timestamp + other~totalMicroseconds, self~offset)
+  end
+
+  raise syntax 93.948 array(1, "TimeSpan")
+
+
+-- Add a number of years to a datetime object, returning a new object
+-- instance.  Leap years are accounted for, and if the resulting date
+-- will be February 29th in a non-leap year, the day is rolled back to the
+-- 28th.
+::METHOD addYears
+  expose timestamp
+  use strict arg years
+
+  .ArgUtil~validateWhole("years", years)
+
+  -- This is easier to deal with if we split the date and time into
+  -- two components first
+  basedate = self~date
+  dayoffset = self~timeofday
+
+  year = basedate~year
+  month = basedate~month
+  day = basedate~day
+
+  year += years
+
+  -- if we're on Feb 29th, then we have a leap day problem to deal with
+  -- we need to check to see if the resulting year will be a leap year
+  -- or not.  If it is, we're fine, otherwise we have to step back to the
+  -- 28th.
+  if month = 2 & day = 29 then do
+      -- test for the leap year on the new target
+      if year // 4 == 0 & ((year // 100 \= 0) | (year // 400 == 0))  then nop
+      else do
+          day -= 1
+      end
+  end
+
+  -- now adjust that component by the corresponding years
+  newDate = self~class~new(year, month, day, self~offset)
+
+  -- and finally recombine with the time to get the adjusted timestamp
+  return newDate + dayoffset
+
+-- Add a number of 7-day units to the datetime, returning a new instance
+::METHOD addWeeks
+  expose timestamp
+  use strict arg weeks
+
+  .ArgUtil~validateNumber("weeks", weeks)
+
+  numeric digits 18
+  -- return a new instance of DateTime
+  return self~class~new(trunc(timestamp + weeks * (7 * 24 * 3600 * 1000000)), self~offset)
+
+
+-- Add a number of days to a datetime, returning a new datetime instance.
+::METHOD addDays
+  expose timestamp
+  use strict arg days
+
+  .ArgUtil~validateNumber("days", days)
+
+  numeric digits 18
+  -- return a new instance of DateTime
+  return self~class~new(trunc(timestamp + days * (24 * 3600 * 1000000)), self~offset)
+
+
+-- Add a number of hours to a datetime, returning a new datetime instance.
+::METHOD addHours
+  expose timestamp
+  use strict arg hours
+
+  .ArgUtil~validateNumber("hours", hours)
+
+  numeric digits 18
+
+  -- return a new instance of DateTime.
+  -- NB, we trunk the value, as it's possible to add non-whole numbers of
+  -- these units.
+  return self~class~new(trunc(timestamp + (hours * (3600 * 1000000))), self~offset)
+
+
+-- Add a number of minutes to a datetime, returning a new datetime instance.
+::METHOD addMinutes
+  expose timestamp
+  use strict arg minutes
+
+  .ArgUtil~validateNumber("minutes", minutes)
+
+  numeric digits 18
+
+  -- return a new instance of DateTime
+  -- NB, we trunk the value, as it's possible to add non-whole numbers of
+  -- these units.
+  return self~class~new(trunc(timestamp + (minutes * (60 * 1000000))), self~offset)
+
+
+-- Add a number of seconds to a datetime, returning a new datetime instance.
+::METHOD addSeconds
+  expose timestamp
+  use strict arg seconds
+
+  .ArgUtil~validateNumber("seconds", seconds)
+
+  numeric digits 18
+
+  -- return a new instance of DateTime
+  -- NB, we trunk the value, as it's possible to add non-whole numbers of
+  -- these units.
+  return self~class~new(trunc(timestamp + (seconds * 1000000)), self~offset)
+
+
+-- Add a number of microseconds to a datetime, returning a new datetime instance.
+::METHOD addMicroseconds
+  expose timestamp
+  use strict arg usecs
+
+  numeric digits 18
+
+  -- return a new instance of DateTime
+  -- NB, we trunk the value, as it's possible to add non-whole numbers of
+  -- these units.
+  return self~class~new(trunc(timestamp + usecs), self~offset)
+
+-- Format the datetime into ISO format, yyyy-mm-ddT00:00:00.000000
+::METHOD isoDate
+  expose timestamp
+  use strict arg
+  return date("S",timestamp,"F","-")"T"time("L", timestamp, "F")
+
+-- Format the datetime into full ISO format, yyyy-mm-ddT00:00:00.000000+hhmm
+::METHOD utcIsoDate
+  expose utcTimeStamp offset
+  use strict arg
+  base = date("S",utcTimeStamp,"F","-")"T"time("L", utcTimeStamp, "F")
+  if offset = 0 then
+     return base||'Z'  -- this is Zulu time
+  numeric digits 18
+  -- we only append hours and minutes, so pull that out
+  minutes = offset / (1000000 * 60)
+  if minutes < 0 then do
+     sign = '-'
+     minutes = -minutes
+  end
+  else sign = '+'
+
+  hours = minutes%60
+  minutes = minutes//60
+  --this returns the padded value
+  return base||sign||right(hours, 2, '0')||right(minutes, 2, '0')
+
+-- Return the basedate for this datetime instance.
+::METHOD baseDate
+  expose timestamp
+  use strict arg
+  return date("B", timestamp, "F")
+
+-- Return the day number within the year.
+::METHOD yearDay
+  expose timestamp
+  use strict arg
+  return date("D", timestamp, "F");
+
+-- Format the datetime into European format, dd/mm/yy.  An optional
+-- separator may be specified.
+::METHOD europeanDate
+  expose timestamp
+  use strict arg sep = ("/")
+  return date("E", timestamp, "F", sep);
+
+-- Format the datetime into the Language format.
+::METHOD languageDate
+  expose timestamp
+  use strict arg
+  return date("L", timestamp, "F");
+
+-- Return the name of the current month, in English
+::METHOD monthName
+  expose timestamp
+  use strict arg
+  return date("M", timestamp, "F");
+
+-- Return the day of the week, in English
+::METHOD dayName
+  expose timestamp
+  use strict arg
+  return date("W", timestamp, "F");
+
+
+-- Format the datetime into Normal format, 1 Sep 2007.  An optional
+-- separator may be specified.
+::METHOD normalDate
+  expose timestamp
+  use strict arg sep = (" ")
+  return date("N", timestamp, "F", sep);
+
+
+-- Format the datetime into Ordered format, yy/mm/dd.  An optional
+-- separator may be specified.
+::METHOD orderedDate
+  expose timestamp
+  use strict arg sep = ("/")
+  return date("O", timestamp, "F", sep);
+
+
+-- Format the datetime into Standard format, yyyymmdd.  An optional
+-- separator may be specified.
+::METHOD standardDate
+  expose timestamp
+  use strict arg sep = ("")
+  return date("S", timestamp, "F", sep);
+
+-- Format the datetime into USA format, mm/dd/yy.  An optional
+-- separator may be specified.
+::METHOD usaDate
+  expose timestamp
+  use strict arg sep = ("/")
+  return date("U", timestamp, "F", sep);
+
+-- Return the day of the week as an integer.  1 = Monday,
+-- 2 = Tuesday, etc.  These are the ISO definitions for the
+-- day numbers.
+::METHOD weekDay
+  expose timestamp
+  use strict arg
+  return (date("B", timestamp, "F") // 7) + 1
+
+-- Format the datetime into Civil format, hh:mmam/pm.
+::METHOD civilTime
+  expose timestamp
+  use strict arg
+  return time("C", timestamp, "F")
+
+
+-- Format the datetime into Normal time format, hh:mm:ss
+::METHOD normalTime
+  expose timestamp
+  use strict arg
+  return time("N", timestamp, "F")
+
+
+-- Format the datetime into Long time format, hh:mm:ss.uuuuuu
+::METHOD longTime
+  expose timestamp
+  use strict arg
+  return time("L", timestamp, "F")
+
+-- Return the full date timestamp value for this date.
+::METHOD fullDate
+  expose timestamp
+  return timestamp
+
+-- return the UTC timestamp in fulldate format
+::METHOD utcDate
+  expose utcTimeStamp
+  return utcTimeStamp
+
+::METHOD toTimeZone
+  expose utcTimeStamp
+  -- default offset is for UTC
+  use strict arg offset=0
+
+  numeric digits 18
+  -- if this is a timespan, then grab the number of microseconds in the
+  -- span, retaining the sign
+  if offset~isa(.TimeSpan) then do
+      adjustment = offset~totalMicroseconds
+      offset = adjustment/60000000
+  end
+  else do
+     -- must be a whole number
+     .argUtil~validateWhole("offset", offset, 18)
+     adjustment = offset * 60000000
+  end
+  -- we create a new DateTime by converting the UTC time to
+  -- the target timezone, then create a new object using that offset
+  return self~class~new(utcTimeStamp + adjustment, offset)
+
+-- return the time zone offset, as a TimeSpan object
+::METHOD offset
+  expose offset
+  return .TimeSpan~new(offset)
+
+-- Return the Unix Ticks value for this timestamp.
+::METHOD ticks
+  expose timestamp
+  use strict arg
+  return time("T", timestamp, "F")
+
+-- Returns a datetime object with a time of day value set to
+-- 00:00:00.000000
+::METHOD date
+  use strict arg
+  return self~class~new(date('F', self~standardDate, 'S'), self~offset)
+
+-- Returns the time of day as a TimeSpan object with the interval
+-- from 00:00:00.000000 of the datetime day.
+::METHOD timeOfDay
+  use strict arg
+  return .timespan~new(time('F', self~LongTime, 'L'))
+
+-- Returns the difference between the current time and the receiver object.
+::METHOD elapsed
+  expose timestamp
+  use strict arg
+
+  numeric digits 18
+  return .timespan~new(time('F') - timestamp)
+
+-- Returns true if the datetime object year is a leap year.
+::METHOD isLeapYear
+  use strict arg
+  year = self~year
+
+  return year // 4 == 0 & ((year // 100 \= 0) | (year // 400 == 0))
+
+-- Returns the number of days in the current month.  This accounts
+-- for leap years.
+::METHOD daysInMonth
+  use strict arg
+  month = self~month
+
+  if self~isLeapYear then do
+      return "31 29 31 30 31 30 31 31 30 31 30 31"~word(month)
+  end
+  else do
+      return "31 28 31 30 31 30 31 31 30 31 30 31"~word(month)
+  end
+
+-- Returns the number of days in the current year.  This accounts
+-- for leap years.
+::METHOD daysInYear
+  use strict arg
+
+  if self~isLeapYear then do
+      return 366
+  end
+  else do
+      return 365
+  end
+
+-- Returns a string form for this date time.  The string value
+-- is the ISO date.
+::METHOD string      -- return a formatted string value
+  return self~isoDate
+
+
+-- TimeSpan represents an interval of time.  Timespans are created by subtracting
+-- two DateTime objects.  They also can added to DateTime objects.
+::CLASS 'TimeSpan' public inherit Comparable Orderable
+
+-- Create a timespan object representing a number of days
+::METHOD fromDays class
+  use strict arg days
+
+  .ArgUtil~validateNumber("days", days)
+  return self~new(days, 0, 0, 0, 0)
+
+-- Create a timespan object representing a number of hours
+::METHOD fromHours class
+  use strict arg hours
+  .ArgUtil~validateNumber("hours", hours)
+  return self~new(0, hours, 0, 0, 0)
+
+-- Create a timespan object representing a number of minutes
+::METHOD fromMinutes class
+  use strict arg minutes
+  .ArgUtil~validateNumber("minutes", minutes)
+  return self~new(0, 0, minutes, 0, 0)
+
+-- Create a timespan object representing a number of seconds
+::METHOD fromSeconds class
+  use strict arg seconds
+  .ArgUtil~validateNumber("seconds", seconds)
+  return self~new(0, 0, 0, seconds, 0)
+
+-- Create a timespan object representing a number of microseconds
+::METHOD fromMicroseconds class
+  use strict arg usec
+  return self~new(usec)
+
+-- Create a timespan object representing the interval from a Civil time
+::METHOD fromCivilTime class
+  use strict arg time
+  signal on syntax
+  return self~new(Time('F', time, 'C'))
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+-- Create a timespan object representing the interval from a Normal time
+::METHOD fromNormalTime class
+  use strict arg time
+  signal on syntax
+  return self~new(Time('F', time, 'N'))
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+-- Create a timespan object representing the interval from a Long time
+::METHOD fromLongTime class
+  use strict arg time
+  signal on syntax
+  return self~new(Time('F', time, 'L'))
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+-- create a TimeSpan object from the string format
+::METHOD fromStringFormat class
+  use strict arg time
+
+  numeric digits 18
+  signal on syntax   -- trap any errors and give the format error message
+  parse var time days "." hours ":" minutes ":" seconds "." microseconds
+  sign = 1
+
+  if minutes \= "" then do  -- if minutes got something, then we have leading days
+     if days < 0 then do
+        days = -days
+        sign = -1
+     end
+     timestamp = (((days * 24 * 3600) + (hours * 3600) + (minutes * 60) + seconds) * 1000000) + microseconds
+     return .timespan~new(sign * timestamp)
+  end
+  else do
+     -- form with no days in front
+     parse var time hours ":" minutes ":" seconds "." microseconds
+     if hours < 0 then do
+        hours = -hours
+        sign = -1
+     end
+     timestamp = (((hours * 3600) + (minutes * 60) + seconds) * 1000000) + microseconds
+     return .timespan~new(sign * timestamp)
+  end
+
+  syntax:
+  raise syntax 88.918 array("time", time)
+
+
+-- Initialize a timespan object
+-- initialize a TimeSpan instance.  There are multiple forms of this:
+--
+-- init(microseconds)
+--      input is a full time number of microseconds from time('f')
+-- init(hours, minutes, seconds)
+--      initialize from an hours, minutes, seconds combo.
+-- init(days, hours, minutes, seconds, microseconds)
+--      initialize from a fully specified time specification.  The microseconds
+--      are optional and default to zero.
+::METHOD init
+  expose timestamp
+
+  numeric digits 20    -- need higher digits for time calculations
+
+  select
+      when arg() <= 1 then do    -- just create from a microseconds value
+          use strict arg timestamp
+      end
+      when arg() <= 3 then do
+          -- convert hours, minutes, seconds to microseconds value
+          use strict arg hours, minutes, seconds
+          timestamp = ((hours * 3600) + (minutes * 60) + seconds) * 1000000
+      end
+      otherwise
+          -- starting with days, hours, minutes, seconds, and microseconds
+          use strict arg days, hours, minutes, seconds, microseconds = 0
+          timestamp = (((days * 24 * 3600) + (hours * 3600) + (minutes * 60) + seconds) * 1000000) + microseconds
+  end
+  -- this will validate the timestamp value
+  timestamp = date('f', abs(timestamp), 'f') * sign(timestamp)
+
+-- perform a sort comparison of two timespans
+::METHOD compareTo
+  expose timestamp
+
+  use strict arg other
+
+  .ArgUtil~validateClass("other", other, .TimeSpan)
+
+  numeric digits 18
+  othertime = other~totalMicroseconds
+
+  -- now produce a compare result based on the relative values.
+  -- NOTE:  the timestamp values can be negative, so just subtraction won't work for
+  -- a relative size test.
+  if timestamp < othertime then do
+      return -1
+  end
+  else if timestamp > othertime then do
+      return 1
+  end
+  return 0
+
+-- return a timespan instance as a positive value
+::METHOD duration
+  expose timestamp
+  return self~class~new(abs(timestamp))
+
+-- return the number of whole days in the timespan
+::METHOD days
+  expose timestamp
+  numeric digits 18
+  return abs(timestamp) % (24 * 3600 * 1000000)
+
+
+-- return the hours component of the timespan
+::METHOD hours
+  expose timestamp
+
+  numeric digits 18
+  -- subtract out the higher components
+  remainder = abs(timestamp) // (24 * 3600 * 1000000)
+  -- and return the number full units remaining
+  return remainder % (3600 * 1000000)
+
+
+-- return the minutes component of the timespan
+::METHOD minutes
+  expose timestamp
+
+  numeric digits 18
+  -- subtract out the higher components
+  remainder = abs(timestamp) // (3600 * 1000000)
+  -- and return the number full units remaining
+  return remainder % (60 * 1000000)
+
+
+-- return the seconds component of the timespan
+::METHOD seconds
+  expose timestamp
+
+  numeric digits 18
+  -- subtract out the higher components
+  remainder = abs(timestamp) // (60 * 1000000)
+  -- and return the number full units remaining
+  return remainder % (1000000)
+
+-- return the microseconds component of the timespan
+::METHOD microseconds
+  expose timestamp
+
+  numeric digits 18
+  -- subtract out the higher components
+  remainder = abs(timestamp) // 1000000
+  -- and return the number full units remaining
+  return remainder
+
+
+-- return the timespan as a number of days (including fractional days)
+::METHOD totalDays
+  expose timestamp
+  numeric digits 18
+  return timestamp / (24 * 3600 * 1000000)
+
+
+-- return the timespan as a number of hours (including fractional hours)
+::METHOD totalHours
+  expose timestamp
+
+  numeric digits 18
+  return timestamp / (3600 * 1000000)
+
+
+-- return the timespan as a number of minutes (including fractional minutes)
+::METHOD totalMinutes
+  expose timestamp
+
+  numeric digits 18
+  return timestamp / (60 * 1000000)
+
+
+-- return the timespan as a number of seconds (including fractional seconds)
+::METHOD totalSeconds
+  expose timestamp
+
+  numeric digits 18
+  return timestamp / (1000000)
+
+
+-- return the timespan as a number of microseconds
+::METHOD totalMicroseconds
+  expose timestamp
+  return timestamp
+
+-- hashcode override for MapCollection interaction.
+::METHOD hashCode
+  expose timestamp
+  return timestamp~hashcode
+
+-- perform timespan subtraction.  If this is a prefix "-",
+-- then the timespan is just negated.  Otherwise, the other
+-- argument must be a timespan.  The return result is a new
+-- timespan representing the difference between the two values.
+::METHOD "-"
+  expose timestamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- could be a prefix "-"
+  if arg() == 0 then do
+      return self~class~new(-timestamp)
+  end
+
+  -- actual subtraction op
+  use strict arg other
+
+  -- "-" is not commutative with .DateTime.  We don't support
+  -- subtracting a time from a TimeStamp.  The reverse operation,
+  -- however, makes sense.
+  if !other~isa(.timespan) then do
+      raise syntax 93.948 array(1, "TimeSpan")
+  end
+
+  -- combine the two intervals
+  return self~class~new(timestamp - other~totalMicroseconds)
+
+
+-- perform timespan addition.  If this is the prefix "+" operator,
+-- a new timespan instance with the same value is returned.  Otherwise,
+-- if the argument is a TimeSpan object, the two timespans are added together,
+-- returning a new TimeSpan.  If the argument object is a DateTime, the TimeSpan
+-- is added to the DateTime and an new, adjusted DateTime object is returned.
+::METHOD "+"
+  expose timestamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- could be a prefix "+"
+  if arg() == 0 then do
+      return self~class~new(timestamp)
+  end
+
+  -- ok, actually addition.  We require
+  use strict arg other
+
+  -- "+" can do the addition to either a timespan or a datetime.
+  -- When addition occurs between two timespaces, the result is a timespan.
+  -- When adding to a datatime, the result is a datetime.
+  if other~isa(.timespan) then do
+      -- combine the two intervals
+      return self~class~new(timestamp + other~totalMicroseconds)
+  end
+
+  if other~isa(.datetime) then do
+      -- combine the interval with the timestamp
+      return other~class~new(timestamp + other~fullDate)
+  end
+
+  raise syntax 88.914 array(1, "TimeSpan or DateTime")
+
+
+-- perform integer division on a timespan.  This divides the interval
+-- and returns a new TimeSpan instance.
+::METHOD "%"
+  expose timestamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- we just get a divisor and use it.  If it's bad, it's bad
+  use strict arg divisor
+
+  -- do the division and create a new interval
+  return self~class~new(timestamp % divisor)
+
+-- perform division on a timespan.  This divides the interval
+-- and returns a new TimeSpan instance.  This is the same as integer division.
+::METHOD "/"
+  -- dividing a timespan is inherently an integer operation.  Handle as
+  -- integer division.
+  forward message("%")
+
+
+-- perform remainder division on a timespan.  This divides the interval
+-- and returns a new TimeSpan instance with the remainder.
+::METHOD "//"
+  expose timestamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- we just get a divisor and use it.  If it's bad, it's bad
+  use strict arg divisor
+
+
+  -- do the remainder and create a new interval
+  return self~class~new(timestamp // divisor)
+
+
+-- perform multiplication on a timespan.  This multiplies the interval
+-- and returns a new TimeSpan instance.
+::METHOD "*"
+  expose timestamp
+
+  numeric digits 18     -- need this to do math on the value
+
+  -- we just get a multiplier and use it.  If it's bad, it's bad
+  use strict arg multiplier
+
+  -- do the multiply and create a new interval
+  return self~class~new(trunc(timestamp * multiplier))
+
+
+-- Add a number of 7-day units to the datetime, returning a new instance
+::METHOD addWeeks
+  expose timestamp
+  use strict arg weeks
+
+  .ArgUtil~validateNumber("weeks", weeks)
+
+  numeric digits 18
+  -- return a new instance of DateTime
+  return self~class~new(trunc(timestamp + weeks * (7 * 24 * 3600 * 1000000)))
+
+
+-- Add a number of days to a timespan, returning a new timespan instance.
+::METHOD addDays
+  expose timestamp
+  use strict arg days
+
+  .ArgUtil~validateNumber("days", days)
+
+  numeric digits 18
+  -- return a new instance of TimeSpan
+  return self~class~new(trunc(timestamp + (days * (24 * 3600 * 1000000))))
+
+
+-- Add a number of hours to a timespan, returning a new timespan instance.
+::METHOD addHours
+  expose timestamp
+  use strict arg hours
+
+  .ArgUtil~validateNumber("hours", hours)
+
+  numeric digits 18
+
+  -- return a new instance of TimeSpan
+  return self~class~new(trunc(timestamp + (hours * (3600 * 1000000))))
+
+
+-- Add a number of minutes to a timespan, returning a new timespan instance.
+::METHOD addMinutes
+  expose timestamp
+  use strict arg minutes
+
+  .ArgUtil~validateNumber("minutes", minutes)
+
+  numeric digits 18
+
+  -- return a new instance of TimeSpan
+  return self~class~new(trunc(timestamp + (minutes * (60 * 1000000))))
+
+
+-- Add a number of seconds to a timespan, returning a new timespan instance.
+::METHOD addSeconds
+  expose timestamp
+  use strict arg seconds
+
+  .ArgUtil~validateNumber("seconds", seconds)
+
+  numeric digits 18
+
+  -- return a new instance of TimeSpan
+  return self~class~new(trunc(timestamp + (seconds * 1000000)))
+
+
+-- Add a number of microseconds to a timespan, returning a new timespan instance.
+::METHOD addMicroseconds
+  expose timestamp
+  use strict arg usecs
+
+  numeric digits 18
+
+  -- return a new instance of TimeSpan
+  return self~class~new(trunc(timestamp + usecs))
+
+
+-- Return the sign (-1, 0, 1) for this timestamp for easy negative checking
+::METHOD sign
+  expose timestamp
+  use strict arg
+
+  numeric digits 10
+  return timestamp~sign
+
+
+-- format the TimeSpan into string form.  The format is
+-- (-)(ddddddd.)hh:mm:ss.uuuuuu  The portions in parentheses
+-- are optional.
+::METHOD string      -- return a formatted string value
+  expose timestamp
+  use strict arg
+
+  days = self~days
+  hours = self~hours
+  minutes = self~minutes
+  seconds = self~seconds
+  microseconds = self~microseconds
+
+  sign = ""
+
+  if timestamp < 0 then do
+      sign = "-"
+  end
+
+  -- only include the days portion if it's non-zero.
+  if days > 0 then do
+      return sign||days"."hours~right(2, '0')":"minutes~right(2, '0')":"seconds~right(2, '0')"."microseconds~right(6, '0')
+  end
+  else do
+      return sign||hours~right(2, '0')":"minutes~right(2, '0')":"seconds~right(2, '0')"."microseconds~right(6, '0')
+  end
+
+
+::CLASS 'ArgUtil' public
+::METHOD validateNumber class
+  use strict arg name, number
+  if \number~dataType('Number') then do
+      raise syntax 88.902 array(name, number)
+  end
+
+-- Validates the argument is a number and is in range.  This gives the
+-- 907 message for all error conditions to be most specific.
+::METHOD validateNumberRange class
+  use strict arg name, number, min, max
+  numeric digits digits
+  -- validate the numeric part first
+  if \number~dataType('Number') then do
+      raise syntax 88.907 array(name, min, max, number)
+  end
+  -- now validate it's within range
+  if number < min | number > max then do
+      raise syntax 88.907 array(name, min, max, number)
+  end
+
+
+-- Validates the argument is a whole number and is in range.  This gives the
+-- 907 message for all error conditions to be most specific.
+::METHOD validateWholeRange class
+  use strict arg name, number, min, max, digits=(digits())
+  numeric digits digits
+  -- validate the numeric part first
+  if \number~dataType('Whole') then do
+      raise syntax 88.907 array(name, min, max, number)
+  end
+  -- now validate it's within range
+  if number < min | number > max then do
+      raise syntax 88.907 array(name, min, max, number)
+  end
+
+::METHOD validateWhole class
+  use strict arg name, number, digits=(digits())
+  numeric digits digits
+  if \number~dataType('Whole') then do
+      raise syntax 88.903 array(name, number)
+  end
+
+-- Note, this uses the 904 message for both, which is most specific
+::METHOD validateNonNegative class
+  use strict arg name, number, digits=(digits())
+  numeric digits digits
+  -- first validate whole number status
+  if \number~dataType('Whole') then do
+      raise syntax 88.904 array(name, number)
+  end
+  -- then check range status
+  if number < 0 then do
+      raise syntax 88.904 array(name, number)
+  end
+
+::METHOD validatePositive class
+  use strict arg name, number, digits=(digits())
+  numeric digits digits
+  -- first validate whole number status
+  if \number~dataType('Whole') then do
+      raise syntax 88.905 array(name, number)
+  end
+  -- then check range status
+  if number <= 0 then do
+      raise syntax 88.905 array(name, number)
+  end
+
+-- validate a length parameter.  This is essentially the same
+-- as validateNonNegative, but a more specific message.
+::METHOD validateLength class
+  use strict arg name, number, digits=(digits())
+  numeric digits digits
+  -- first validate whole number status
+  if \number~dataType('Whole') then do
+      raise syntax 88.911 array(name, number)
+  end
+  -- then check range status
+  if number < 0 then do
+      raise syntax 88.911 array(name, number)
+  end
+
+-- validate a position parameter.  This is essentially the same
+-- as validatePosition, but a more specific message.
+::METHOD validatePosition class
+  use strict arg name, number, digits=(digits())
+  numeric digits digits
+  -- first validate whole number status
+  if \number~dataType('Whole') then do
+      raise syntax 88.912 array(name, number)
+  end
+  -- then check range status
+  if number <= 0 then do
+      raise syntax 88.912 array(name, number)
+  end
+
+-- validate that an argument is an instance of a specific class.
+::METHOD validateClass class
+  use strict arg name, obj, class
+
+  if \obj~isa(class) then do
+      raise syntax 88.914 array(name, class~id)
+  end
+
+
+
+/* **************************************** */
+/*    F U N C T I O N S                     */
+/* **************************************** */
+
+::routine rxqueue
+  use arg keyword, queue_name
+  parse upper var keyword keyword
+  signal on syntax
+  if arg() > 2 then
+     raise syntax 40.004 array ('RXQUEUE', 2)
+
+  if substr(keyword,1,1) = 'G' then
+    if arg() > 1 then
+      raise syntax 40.004 array ('RXQUEUE', 1)
+    else
+      return .stdque~get
+
+  if substr(keyword,1,1) = 'S' then do
+    queue_name = !queueexit(queue_name)/* give the exit a pass     */
+    if symbol(queue_name) = 'BAD' then
+      raise syntax 40.026 array ('RXQUEUE', 2, queue_name)
+    return .stdque~set(queue_name)
+  end
+
+  if substr(keyword,1,1) = 'C' then do
+    if symbol(queue_name) = 'BAD' then
+      raise syntax 40.026 array ('RXQUEUE', 2, queue_name)
+    if (Arg(2,'o') = 1) then
+      return .RexxQueue~create
+    else
+      return .RexxQueue~create(queue_name)
+  end
+
+  if substr(keyword,1,1) = 'O' then do
+    if symbol(queue_name) = 'BAD' then
+      raise syntax 40.026 array ('RXQUEUE', 2, queue_name)
+    return .RexxQueue~open(queue_name)
+  end
+
+  if substr(keyword,1,1) = 'e' then do
+    if symbol(queue_name) = 'BAD' then
+      raise syntax 40.026 array ('RXQUEUE', 2, queue_name)
+    return .RexxQueue~exists(queue_name)
+  end
+
+  if substr(keyword,1,1) = 'D' then do
+    if symbol(queue_name) = 'BAD' then
+      raise syntax 40.026 array ('RXQUEUE', 2, queue_name)
+    return .RexxQueue~delete(queue_name)
+  end
+  raise syntax 40.904 array ('RXQUEUE', 1, 'CDGS', keyword)
+  return
+
+syntax: raise propagate
+
+
+
+-- A mixin class for easily adding comparison methods to a
+-- class
+::CLASS 'Orderable' PUBLIC MIXINCLASS Object
+
+-- perform an ordered comparison of two objects
+::METHOD compareTo ABSTRACT
+
+
+-- compare two instances
+-- == and \== don't raise an error if these
+-- are not of the same type, they will apply object
+-- comparison rules for that.
+::METHOD "=="
+  use strict arg other
+
+  if \other~isa(self~class) then do
+      return .false
+  end
+
+  return self~compareTo(other) == 0
+
+
+-- compare two instances
+::METHOD "\=="
+  use strict arg other
+
+  if \other~isa(self~class) then do
+      return .true
+  end
+
+  return self~compareTo(other) \== 0
+
+::METHOD "="
+  -- this is equivalent of "=="
+  forward message("==")
+
+::METHOD "\="
+  -- this is equivalent of "\=="
+  forward message("\==")
+
+::METHOD "<>"
+  -- this is equivalent of "\=="
+  forward message("\==")
+
+::METHOD "><"
+  -- this is equivalent of "\=="
+  forward message("\==")
+
+::METHOD "<"
+  use strict arg other
+  return self~compareTo(other) < 0
+
+::METHOD "<="
+  use strict arg other
+  return self~compareTo(other) <= 0
+
+::METHOD "\>"
+  use strict arg other
+  return self~compareTo(other) <= 0
+
+::METHOD "<<"
+  use strict arg other
+  return self~compareTo(other) < 0
+
+::METHOD "<<="
+  use strict arg other
+  return self~compareTo(other) <= 0
+
+::METHOD "\>>"
+  use strict arg other
+  return self~compareTo(other) <= 0
+
+::METHOD ">"
+  use strict arg other
+  return self~compareTo(other) > 0
+
+::METHOD ">="
+  use strict arg other
+  return self~compareTo(other) >= 0
+
+::METHOD "\<"
+  use strict arg other
+  return self~compareTo(other) >= 0
+
+::METHOD ">>"
+  use strict arg other
+  return self~compareTo(other) > 0
+
+::METHOD ">>="
+  use strict arg other
+  return self~compareTo(other) >= 0
+
+::METHOD "\<<"
+  use strict arg other
+  return self~compareTo(other) >= 0
