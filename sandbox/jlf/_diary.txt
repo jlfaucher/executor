@@ -4,6 +4,7 @@ Try to understand the internal locks.
 --> added some OutputDebugString (Windows only), now must analyze...
 
 Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
+--> done by unlocking the define method : see samples/functional for an example of use.
 
 Add the "in" keyword to the DO repetitor : Similar to "over" but calls the method "supplier" instead of "makearray".
 See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...

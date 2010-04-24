@@ -622,12 +622,14 @@ RexxObject *RexxClass::defineMethod(
 /* Function:  Define an instance method on this class object                 */
 /*****************************************************************************/
 {
+#if 0
     /* check if this is a rexx class     */
     if ( this->isRexxDefined())
     {
         /* report as a nomethod condition    */
         reportNomethod(lastMessageName(), this);
     }
+#endif
     /* make sure there is at least one   */
     /* parameter                         */
     method_name = stringArgument(method_name, ARG_ONE)->upper();
@@ -663,7 +665,7 @@ RexxObject *RexxClass::defineMethod(
     /* make a copy of the instance       */
     /* behaviour so any previous objects */
     /* aren't enhanced                   */
-    OrefSet(this, this->instanceBehaviour, (RexxBehaviour *)this->instanceBehaviour->copy());
+    //JLF OrefSet(this, this->instanceBehaviour, (RexxBehaviour *)this->instanceBehaviour->copy());
     /* add method to the instance mdict  */
     this->instanceMethodDictionary->stringPut((RexxObject *)method_object, method_name);
     /* any subclasses that we have need  */
@@ -767,7 +769,7 @@ RexxObject *RexxClass::deleteMethod(
     /* make a copy of the instance        */
     /* behaviour so any previous objects  */
     /* aren't enhanced                    */
-    OrefSet(this, this->instanceBehaviour, (RexxBehaviour *)this->instanceBehaviour->copy());
+    //JLF OrefSet(this, this->instanceBehaviour, (RexxBehaviour *)this->instanceBehaviour->copy());
     /* if there is a method to remove     */
     /* from the instance mdict            */
     /* remove it                          */
