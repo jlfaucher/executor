@@ -1,0 +1,34 @@
+Sandbox for experimental work, some ideas to investigate :
+
+Try to understand the internal locks.
+
+Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
+
+Add the "in" keyword to the DO repetitor : Similar to "over" but calls the method "supplier" instead of "makearray".
+See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...
+
+Export the classes instantiated by the parser and make expression instances available from an ooRexx script. 
+Inspired by C# LINQ and the expression tree API.
+See if that can be used to write macros (i.e. transform expression tree), user directives, DSL...
+
+Named parameters (by opposition to positional parameters). 
+In C#, they say it's useful for calling COM services. 
+I have some Excel macros that would be simpler to call with that.
+
+Deferred evaluation of parameters. 
+Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, ifalse)
+
+Investigate the Activation stack (reify ? closure ? continuation ?)
+
+
+===============================================================================
+2010 april 24
+
+cd D:\local\Rexx\ooRexx\svn\sandbox
+mkdir jlf
+svn add jlf
+svn commit jlf
+svn copy https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/trunk https://oorexx.svn.sourceforge.net/svnroot/oorexx/sandbox/jlf
+svn update jlf
+
+rev 5812
