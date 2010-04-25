@@ -44,6 +44,8 @@
 #include "Utilities.hpp"
 #include "SynchronizedBlock.hpp"
 
+extern int rxapiCounter;
+
 /**
  * Set the update time for a macro item.
  */

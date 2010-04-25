@@ -74,8 +74,9 @@
  *
  * @param create Indicates whether the semaphore should be created now.
  */
-SysSemaphore::SysSemaphore(bool createSem)
+SysSemaphore::SysSemaphore(const char *variable, bool createSem)
 {
+    semVariable = variable;
     if (createSem)
     {
         create();
@@ -168,7 +169,7 @@ void SysSemaphore::post()
     rc = pthread_mutex_unlock(&(this->semMutex));    // Unlock access to Semaphore mutex
 }
 
-void SysSemaphore::wait()
+void SysSemaphore::wait(const char *ds, int di)
 {
     int rc;
     int schedpolicy, i_prio;
@@ -179,16 +180,23 @@ void SysSemaphore::wait()
     schedparam.sched_priority = 100;
     pthread_setschedparam(pthread_self(),SCHED_OTHER, &schedparam);
     rc = pthread_mutex_lock(&(this->semMutex));      // Lock access to semaphore
+    
     if (this->postedCount == 0)                      // Has it been posted?
     {
+         char buffer[1024];    
+         sprintf(buffer, "(SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());    
+         OutputDebugString(buffer);    
         rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
+         sprintf(buffer, "(SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());    
+         OutputDebugString(buffer);    
     }
+    
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
     schedparam.sched_priority = i_prio;
     pthread_setschedparam(pthread_self(),SCHED_OTHER, &schedparam);
 }
 
-bool SysSemaphore::wait(uint32_t t)           // takes a timeout in msecs
+bool SysSemaphore::wait(const char *ds, int di, uint32_t t)           // takes a timeout in msecs
 {
     struct timespec timestruct;
     time_t *Tpnt = NULL;
@@ -199,8 +207,13 @@ bool SysSemaphore::wait(uint32_t t)           // takes a timeout in msecs
     pthread_mutex_lock(&(this->semMutex));    // Lock access to semaphore
     if (!this->postedCount)                   // Has it been posted?
     {
+         char buffer[1024];
+         sprintf(buffer, "(SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());
+         OutputDebugString(buffer);
                                               // wait with timeout
         result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
+         sprintf(buffer, "(SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());        
+         OutputDebugString(buffer);        
     }
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
     // a false return means this timed out
@@ -224,8 +237,9 @@ void SysSemaphore::reset()
  *
  * @param create Indicates whether the semaphore should be created now.
  */
-SysMutex::SysMutex(bool createSem)
+SysMutex::SysMutex(const char *variable, bool createSem)
 {
+    mutexVariable = variable;
     if (createSem)
     {
         create();

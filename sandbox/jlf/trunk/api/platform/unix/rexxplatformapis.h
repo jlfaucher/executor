@@ -63,5 +63,7 @@ RexxReturnCode REXXENTRY RexxPullQueue (
 typedef RexxReturnCode (REXXENTRY *PFNREXXPULLQUEUE)(CONSTANT_STRING, PRXSTRING, REXXDATETIME *,
                                            size_t);
 
+#define OutputDebugString(s) fprintf(stderr, "%s", s)
+
 #endif /* REXXPLATFORMAPIS_INCLUDED */
 

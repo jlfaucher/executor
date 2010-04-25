@@ -45,6 +45,8 @@
 #include "ServiceException.hpp"
 #include <stdio.h>
 
+int rxapiCounter = 0;
+
 /**
  * Initialize the server side of the operation.
  */
@@ -135,6 +137,75 @@ void APIServer::cleanupTerminatedSessions()
     }
 }
 
+#define ENUM_TEXT(code) case code : return #code;
+
+const char *ServerManagerText(ServerManager code)
+{
+	switch(code)
+	{
+    ENUM_TEXT(QueueManager)
+    ENUM_TEXT(RegistrationManager)
+    ENUM_TEXT(MacroSpaceManager)
+    ENUM_TEXT(APIManager)
+	default: return "<Unknown>";
+    }
+}
+
+const char *ServerOperationText(ServerOperation code)
+{
+	switch(code)
+	{
+    // macro space operations
+    ENUM_TEXT(ADD_MACRO)
+    ENUM_TEXT(ITERATE_MACRO_DESCRIPTORS)
+    ENUM_TEXT(NEXT_MACRO_DESCRIPTOR)
+    ENUM_TEXT(GET_MACRO_IMAGE)
+    ENUM_TEXT(GET_MACRO_DESCRIPTOR)
+    ENUM_TEXT(CLEAR_MACRO_SPACE)
+    ENUM_TEXT(REMOVE_MACRO)
+    ENUM_TEXT(QUERY_MACRO)
+    ENUM_TEXT(REORDER_MACRO)
+    ENUM_TEXT(MACRO_SEND_NEXT)
+    ENUM_TEXT(ITERATE_MACROS)
+    ENUM_TEXT(NEXT_MACRO_IMAGE)
+    ENUM_TEXT(MACRO_RETRIEVE_NEXT)
+
+    // queue manager operations
+    ENUM_TEXT(NEST_SESSION_QUEUE)
+    ENUM_TEXT(CREATE_SESSION_QUEUE)
+    ENUM_TEXT(CREATE_NAMED_QUEUE)
+    ENUM_TEXT(DELETE_SESSION_QUEUE)
+    ENUM_TEXT(DELETE_NAMED_QUEUE)
+    ENUM_TEXT(GET_SESSION_QUEUE_COUNT)
+    ENUM_TEXT(GET_NAMED_QUEUE_COUNT)
+    ENUM_TEXT(ADD_TO_NAMED_QUEUE)
+    ENUM_TEXT(ADD_TO_SESSION_QUEUE)
+    ENUM_TEXT(PULL_FROM_NAMED_QUEUE)
+    ENUM_TEXT(PULL_FROM_SESSION_QUEUE)
+    ENUM_TEXT(CLEAR_SESSION_QUEUE)
+    ENUM_TEXT(CLEAR_NAMED_QUEUE)
+    ENUM_TEXT(OPEN_NAMED_QUEUE)
+    ENUM_TEXT(QUERY_NAMED_QUEUE)
+
+    // registration manager operations
+    ENUM_TEXT(REGISTER_LIBRARY)
+    ENUM_TEXT(REGISTER_ENTRYPOINT)
+    ENUM_TEXT(REGISTER_DROP)
+    ENUM_TEXT(REGISTER_DROP_LIBRARY)
+    ENUM_TEXT(REGISTER_QUERY)
+    ENUM_TEXT(REGISTER_QUERY_LIBRARY)
+    ENUM_TEXT(REGISTER_LOAD_LIBRARY)
+    ENUM_TEXT(UPDATE_CALLBACK)
+
+    // global API operations
+    ENUM_TEXT(SHUTDOWN_SERVER)
+    ENUM_TEXT(PROCESS_CLEANUP)
+    ENUM_TEXT(CONNECTION_ACTIVE)
+    ENUM_TEXT(CLOSE_CONNECTION)
+	
+	default: return "<Unknown>";
+    }
+}
 
 /**
  * Process the Rexx API requests as a queue of messages.  Each
@@ -149,17 +220,22 @@ void APIServer::processMessages(SysServerConnection *connection)
         try
         {
             // read the message.
+            rxapiCounter++;
             message.readMessage(connection);
         } catch (ServiceException *e)
         {
             // an error here is likely caused by the client closing the connection.
             // delete both the exception and the connection and terminate the thread.
+			fprintf(stderr, "[rxapi %05i] ServiceException caught\n", rxapiCounter);
             delete e;
             delete connection;
             return;
         }
 
-
+        fprintf(stderr, "[rxapi %05i] ServiceMessage %s %s\n", rxapiCounter, ServerManagerText(message.messageTarget), ServerOperationText(message.operation));
+        fprintf(stderr, "[rxapi %05i] session=%i\n", rxapiCounter, message.session);
+        fprintf(stderr, "[rxapi %05i] nameArg=%s\n", rxapiCounter, message.nameArg);
+        fprintf(stderr, "[rxapi %05i] userid=%s\n", rxapiCounter, message.userid);
         message.result = MESSAGE_OK;     // unconditionally zero the result
         try
         {

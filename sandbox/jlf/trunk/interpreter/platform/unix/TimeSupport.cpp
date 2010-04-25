@@ -103,7 +103,7 @@ RexxMethod2(int, alarm_startTimer,
                      wholenumber_t, numdays,
                      wholenumber_t, alarmtime)
 {
-    SysSemaphore sem;                    /* Event-semaphore                   */
+    SysSemaphore sem("alarm_startTimer : sem");                    /* Event-semaphore                   */
     int  msecInADay = 86400000;          /* number of milliseconds in a day   */
 
     /* set the state variables           */
@@ -115,7 +115,7 @@ RexxMethod2(int, alarm_startTimer,
         // use the semaphore to wait for an entire day.
         // if this returns true, then this was not a timeout, which
         // probably means this was cancelled.
-        if (sem.wait(msecInADay))
+        if (sem.wait("alarm_startTimer", 0, msecInADay))
         {
             /* Check if the alarm is canceled. */
             RexxObjectPtr cancelObj = context->GetObjectVariable("CANCELED");
@@ -133,7 +133,7 @@ RexxMethod2(int, alarm_startTimer,
     }
 
     // now we can just wait for the alarm time to expire
-    sem.wait(alarmtime);
+    sem.wait("alarm_startTimer", 0, alarmtime);
     return 0;
 }
 

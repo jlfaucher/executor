@@ -70,6 +70,7 @@ void SystemInterpreter::processShutdown()
     Interpreter::processStartup();
 }
 
+#define ORXAP_DEBUG
 void signalHandler(int sig)
 {
 

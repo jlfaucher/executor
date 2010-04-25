@@ -57,6 +57,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <time.h>
+#include <fcntl.h>
 
 #if defined( HAVE_SYS_FILIO_H )
 # include <sys/filio.h>
@@ -1183,5 +1184,17 @@ bool SysFile::hasData()
 
     // we might have something buffered, but also check the
     // actual stream.
-    return !atEof();
+    //return !atEof();
+    bool b = hasBufferedInput();
+    fprintf(stderr, "hasBufferedInput = %i\n", b);
+    fprintf(stderr, "fileeof = %i\n", fileeof);
+    if (!b && fileeof)
+    {
+        int64_t fileSize;
+        getSize(fileSize);
+        fprintf(stderr, "fileSize = %i\n", fileSize);
+        return false;
+    }
+    return true;
+    
 }

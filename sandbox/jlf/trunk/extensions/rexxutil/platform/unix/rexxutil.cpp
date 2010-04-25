@@ -192,8 +192,10 @@
 #include <netdb.h>
 #include <wordexp.h>
 #include <alloca.h>
+#if defined( HAVE_ATTR_XATTR_H) // JLF not supported by my PuppyLinux box...
 #ifndef AIX
 #include <attr/xattr.h>
+#endif
 #endif
 
 
@@ -4706,6 +4708,7 @@ RexxRoutine1(RexxObjectPtr,
     return (RexxObjectPtr)arr;
 }
 
+#if defined( HAVE_ATTR_XATTR_H) // JLF not supported by my PuppyLinux box...
 #ifndef AIX
 /**
  * Method:        SysSetxattr
@@ -4812,6 +4815,7 @@ RexxRoutine2(int,
 
     return removexattr(fname, name);
 }
+#endif
 #endif
 
 /*************************************************************************
@@ -6152,11 +6156,13 @@ RexxRoutineEntry rexxutil_routines[] =
     REXX_TYPED_ROUTINE(SysGetservbyname, SysGetservbyname),
     REXX_TYPED_ROUTINE(SysGetservbyport, SysGetservbyport),
     REXX_TYPED_ROUTINE(SysWordexp, SysWordexp),
+#if defined( HAVE_ATTR_XATTR_H) // JLF not supported by my PuppyLinux box...
 #ifndef AIX
     REXX_TYPED_ROUTINE(SysSetxattr, SysSetxattr),
     REXX_TYPED_ROUTINE(SysGetxattr, SysGetxattr),
     REXX_TYPED_ROUTINE(SysListxattr, SysListxattr),
     REXX_TYPED_ROUTINE(SysRemovexattr, SysRemovexattr),
+#endif
 #endif
     REXX_CLASSIC_ROUTINE(SysFork,                SysFork),
     REXX_CLASSIC_ROUTINE(SysWait,                SysWait),
