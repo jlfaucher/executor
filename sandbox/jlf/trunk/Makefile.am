@@ -602,6 +602,7 @@ instructions_sources  = $(build_instructions_dir)/AddressInstruction.cpp \
                         $(build_instructions_dir)/EndInstruction.cpp \
                         $(build_instructions_dir)/ExitInstruction.cpp \
                         $(build_instructions_dir)/ExposeInstruction.cpp \
+                        $(build_instructions_dir)/ExtensionDirective.cpp \
                         $(build_instructions_dir)/ForwardInstruction.cpp \
                         $(build_instructions_dir)/GuardInstruction.cpp \
                         $(build_instructions_dir)/IfInstruction.cpp \

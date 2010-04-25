@@ -4,7 +4,11 @@ Try to understand the internal locks.
 --> added some OutputDebugString (Windows only), now must analyze...
 
 Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
---> done by unlocking the define method : see samples/functional for an example of use.
+--> unlock the define method : see samples/functional for an example of use.
+    unlock the inherit method
+    added ::extension directive
+    >>-::EXTENSION--classname----+-------------------+-----------------><
+                                 +-INHERIT--iclasses-+
 
 Add the "in" keyword to the DO repetitor : Similar to "over" but calls the method "supplier" instead of "makearray".
 See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...
@@ -24,8 +28,39 @@ Investigate the Activation stack (reify ? closure ? continuation ?)
 
 
 ===============================================================================
+2010 april 25
+
+Add ::extension directive
+todo : Limit the extension to new methods, raise an error if redefining a predefined method
+(but keep ~define unlocked for investigation).
+
+todo : I don't manage dependencies on ExtensionDirective
+See RexxSource::resolveDependencies, there is maybe something to do there.
+Currently, if the same method is extended several times, then it's the "last" extension who wins...
+The definition of "last" depends on the order of resolution of ::requires
+See samples\extension\test_extension_order.rex
+
+Remember : 
+Unlike ::class, you can have several ::extension in the same source for the same class. 
+So the current check for duplicate method in an ExtensionDirective is not very useful. 
+The interpreter will complain for that :
+::extension object
+::method m
+::method m
+but not for that :
+::extension object
+::method m
+::extension object
+::method m
+
+
+===============================================================================
 2010 april 24
 
+Unlock ~define
+
+
+Creation of sandbox :
 cd D:\local\Rexx\ooRexx\svn\sandbox
 mkdir jlf
 svn add jlf

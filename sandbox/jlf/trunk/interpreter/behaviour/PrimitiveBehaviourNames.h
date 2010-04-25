@@ -163,6 +163,7 @@
 #define TheTraceInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_TraceInstruction])
 #define TheUseInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_UseInstruction])
 #define TheClassDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_ClassDirective])
+#define TheExtensionDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_ExtensionDirective])
 #define TheLibraryDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_LibraryDirective])
 #define TheRequiresDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RequiresDirective])
 #define TheCompoundElementBehaviour      (&RexxBehaviour::primitiveBehaviours[T_CompoundElement])

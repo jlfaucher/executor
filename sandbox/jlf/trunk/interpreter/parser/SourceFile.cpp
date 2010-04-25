@@ -81,6 +81,7 @@
 #include "PackageClass.hpp"
 #include "InterpreterInstance.hpp"
 #include "ClassDirective.hpp"
+#include "ExtensionDirective.hpp"
 #include "LibraryDirective.hpp"
 #include "RequiresDirective.hpp"
 #include "PackageManager.hpp"
@@ -621,12 +622,14 @@ void RexxSource::live(size_t liveMark)
   memory_mark(this->loadedPackages);
   memory_mark(this->package);
   memory_mark(this->classes);
+  memory_mark(this->extensions);
   memory_mark(this->installed_public_classes);
   memory_mark(this->installed_classes);
   memory_mark(this->merged_public_classes);
   memory_mark(this->merged_public_routines);
   memory_mark(this->methods);
   memory_mark(this->active_class);
+  memory_mark(this->active_extension);
   memory_mark(this->initCode);
 }
 
@@ -646,6 +649,7 @@ void RexxSource::liveGeneral(int reason)
     OrefSet(this, this->methods, OREF_NULL);
     OrefSet(this, this->requires, OREF_NULL);
     OrefSet(this, this->classes, OREF_NULL);
+    OrefSet(this, this->extensions, OREF_NULL);
     OrefSet(this, this->routines, OREF_NULL);
     OrefSet(this, this->libraries, OREF_NULL);
     OrefSet(this, this->installed_classes, OREF_NULL);
@@ -689,12 +693,14 @@ void RexxSource::liveGeneral(int reason)
   memory_mark_general(this->loadedPackages);
   memory_mark_general(this->package);
   memory_mark_general(this->classes);
+  memory_mark_general(this->extensions);
   memory_mark_general(this->installed_public_classes);
   memory_mark_general(this->installed_classes);
   memory_mark_general(this->merged_public_classes);
   memory_mark_general(this->merged_public_routines);
   memory_mark_general(this->methods);
   memory_mark_general(this->active_class);
+  memory_mark_general(this->active_extension);
   memory_mark_general(this->initCode);
 }
 
@@ -747,12 +753,14 @@ void RexxSource::flatten (RexxEnvelope *envelope)
     flatten_reference(newThis->loadedPackages, envelope);
     flatten_reference(newThis->package, envelope);
     flatten_reference(newThis->classes, envelope);
+    flatten_reference(newThis->extensions, envelope);
     flatten_reference(newThis->installed_public_classes, envelope);
     flatten_reference(newThis->installed_classes, envelope);
     flatten_reference(newThis->merged_public_classes, envelope);
     flatten_reference(newThis->merged_public_routines, envelope);
     flatten_reference(newThis->methods, envelope);
     flatten_reference(newThis->active_class, envelope);
+    flatten_reference(newThis->active_extension, envelope);
     flatten_reference(newThis->initCode, envelope);
 
   cleanUpFlatten
@@ -1299,6 +1307,7 @@ void RexxSource::cleanup()
   OrefSet(this, this->operators, OREF_NULL);
   OrefSet(this, this->class_dependencies, OREF_NULL);
   OrefSet(this, this->active_class, OREF_NULL);
+  OrefSet(this, this->active_extension, OREF_NULL);
                                        /* now method parsing areas          */
   OrefSet(this, this->calls, OREF_NULL);
   OrefSet(this, this->variables, OREF_NULL);
@@ -1698,6 +1707,17 @@ void RexxSource::processInstall(
             current_class->install(this, activation);
         }
     }
+
+    // process extensions
+    if (this->extensions != OREF_NULL)
+    {
+        for (size_t i = extensions->firstIndex(); i != LIST_END; i = extensions->nextIndex(i))
+        {
+            /* get the extension info                */
+            ExtensionDirective *current_extension = (ExtensionDirective *)this->extensions->getValue(i);
+            current_extension->install(this, activation);
+        }
+    }
 }
 
 RexxCode *RexxSource::translate(
@@ -1733,8 +1753,10 @@ RexxCode *RexxSource::translate(
         OrefSet(this, this->libraries, new_list());
         /* create the classes list           */
         OrefSet(this, this->classes, new_list());
+        OrefSet(this, this->extensions, new_list());
         /* no active class definition        */
         OrefSet(this, this->active_class, OREF_NULL);
+        OrefSet(this, this->active_extension, OREF_NULL);
                                            /* translation stopped by a directive*/
         if (this->flags&_interpret)        /* is this an interpret?             */
         {
@@ -1897,6 +1919,7 @@ void RexxSource::classDirective()
     /* create a dependencies list        */
     this->flags |= _install;         /* have information to install       */
 
+    OrefSet(this, this->active_extension, OREF_NULL);
     // create a class directive and add this to the dependency list
     OrefSet(this, this->active_class, new ClassDirective(name, public_name, this->clause));
     this->class_dependencies->put((RexxObject *)active_class, public_name);
@@ -2033,6 +2056,83 @@ void RexxSource::classDirective()
 
 
 /**
+ * Process a ::EXTENSION directive for a source file.
+ */
+void RexxSource::extensionDirective()
+{
+    RexxToken *token = nextReal();       /* get the next token                */
+    /* not a symbol or a string          */
+    if (!token->isSymbolOrLiteral())
+    {
+        /* report an error                   */
+        syntaxError(Error_Symbol_or_string_class);
+    }
+    RexxString *name = token->value;             /* get the class name              */
+                                     /* get the exposed name version      */
+    RexxString *public_name = this->commonString(name->upper());
+    /* create a dependencies list        */
+    this->flags |= _install;         /* have information to install       */
+
+    OrefSet(this, this->active_class, OREF_NULL);
+    // create an extension directive
+    OrefSet(this, this->active_extension, new ExtensionDirective(name, public_name, this->clause));
+    // add to the extensions list
+    this->extensions->append((RexxObject *)this->active_extension);
+
+    for (;;)
+    {                       /* now loop on the option keywords   */
+        token = nextReal();            /* get the next token                */
+                                       /* reached the end?                  */
+        if (token->isEndOfClause())
+        {
+            break;                       /* get out of here                   */
+        }
+                                         /* not a symbol token?               */
+        else if (!token->isSymbol())
+        {
+            /* report an error                   */
+            syntaxError(Error_Invalid_subkeyword_class, token);
+        }
+        else
+        {                         /* have some sort of option keyword  */
+                                  /* get the keyword type              */
+            int type = this->subDirective(token);
+            switch (type)
+            {              /* process each sub keyword          */
+                case SUBDIRECTIVE_INHERIT:
+                    token = nextReal();      /* get the next token                */
+                                             /* nothing after the keyword?        */
+                    if (token->isEndOfClause())
+                    {
+                        /* report an error                   */
+                        syntaxError(Error_Symbol_or_string_inherit, token);
+                    }
+                    while (!token->isEndOfClause())
+                    {
+                        /* not a symbol or a string          */
+                        if (!token->isSymbolOrLiteral())
+                        {
+                            /* report an error                   */
+                            syntaxError(Error_Symbol_or_string_inherit, token);
+                        }
+                        /* add to the inherit list           */
+                        this->active_extension->addInherits(token->value);
+                        token = nextReal();    /* step to the next token            */
+                    }
+                    previousToken();         /* step back a token                 */
+                    break;
+
+                default:                   /* invalid keyword                   */
+                    /* this is an error                  */
+                    syntaxError(Error_Invalid_subkeyword_class, token);
+                    break;
+            }
+        }
+    }
+}
+
+
+/**
  * check for a duplicate method.
  *
  * @param name   The name to check.
@@ -2043,8 +2143,8 @@ void RexxSource::classDirective()
  */
 void RexxSource::checkDuplicateMethod(RexxString *name, bool classMethod, int errorMsg)
 {
-    /* no previous ::CLASS directive?    */
-    if (this->active_class == OREF_NULL)
+    /* no previous ::CLASS or ::EXTENSION directive?    */
+    if (this->active_class == OREF_NULL && this->active_extension == OREF_NULL)
     {
         if (classMethod)             /* supposed to be a class method?    */
         {
@@ -2053,6 +2153,14 @@ void RexxSource::checkDuplicateMethod(RexxString *name, bool classMethod, int er
         }
         /* duplicate method name?            */
         if (this->methods->entry(name) != OREF_NULL)
+        {
+            /* this is an error                  */
+            syntaxError(errorMsg);
+        }
+    }
+    else if (this->active_extension != OREF_NULL)
+    {
+        if (active_extension->checkDuplicateMethod(name, classMethod))
         {
             /* this is an error                  */
             syntaxError(errorMsg);
@@ -2079,7 +2187,11 @@ void RexxSource::checkDuplicateMethod(RexxString *name, bool classMethod, int er
  */
 void RexxSource::addMethod(RexxString *name, RexxMethod *method, bool classMethod)
 {
-    if (this->active_class == OREF_NULL)
+    if (this->active_extension != OREF_NULL)
+    {
+        active_extension->addMethod(name, method, classMethod);
+    }
+    else if (this->active_class == OREF_NULL)
     {
         this->methods->setEntry(name, method);
     }
@@ -2996,9 +3108,13 @@ void RexxSource::createConstantGetterMethod(RexxString *name, RexxObject *value)
     // add this as an unguarded method
     RexxMethod *method = new RexxMethod(name, code);
     method->setUnguarded();
-    if (active_class == OREF_NULL)
+    if (active_class == OREF_NULL && active_extension == OREF_NULL)
     {
         addMethod(name, method, false);
+    }
+    else if (active_extension != OREF_NULL)
+    {
+        active_extension->addConstantMethod(name, method);
     }
     else
     {
@@ -3291,6 +3407,10 @@ void RexxSource::directive()
 
         case DIRECTIVE_CLASS:              /* ::CLASS directive                 */
             classDirective();
+            break;
+
+        case DIRECTIVE_EXTENSION:         /* ::EXTENSION directive              */
+            extensionDirective();
             break;
 
         case DIRECTIVE_METHOD:             /* ::METHOD directive                */

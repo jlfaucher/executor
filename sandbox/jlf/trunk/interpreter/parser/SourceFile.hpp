@@ -62,6 +62,7 @@ class RoutineClass;
 class RexxCode;
 class PackageClass;
 class ClassDirective;
+class ExtensionDirective;
 class RexxActivation;
 class RexxExpressionStack;
 class StackFrameClass;
@@ -210,6 +211,7 @@ class RexxSource : public RexxInternalObject {
     void        libraryDirective(RexxString *name, RexxToken *token);
     void        methodDirective();
     void        classDirective();
+    void        extensionDirective();
     void        attributeDirective();
     void        constantDirective();
     void        optionsDirective();
@@ -461,6 +463,7 @@ protected:
     RexxList      *libraries;            // packages requiring loading
     RexxList      *requires;             /* requires directives               */
     RexxList      *classes;              /* classes found on directives       */
+    RexxList      *extensions;           /* extensions found on directives    */
                                          /* all public installed classes      */
     RexxDirectory *installed_public_classes;
     RexxDirectory *installed_classes;    /* entire list of installed classes  */
@@ -491,6 +494,7 @@ protected:
     RexxQueue       *operators;          /* stack of expression terms         */
     RexxDirectory   *class_dependencies; /* dependencies between classes      */
     ClassDirective  *active_class;       /* currently active ::CLASS directive*/
+    ExtensionDirective *active_extension;/* currently active ::EXTENSION directive*/
 
                                          /* start of block parsing section    */
 

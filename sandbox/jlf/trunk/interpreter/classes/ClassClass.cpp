@@ -714,6 +714,7 @@ RexxObject *RexxClass::defineMethods(
 /**
  * special method to allow a class method to be added
  * to a primitive class during image build.
+ * New JLF : also used for ::EXTENSION
  *
  * @param method_name
  *                  The name of the new method.
@@ -726,10 +727,18 @@ RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *ne
     // validate the arguments
     method_name = stringArgument(method_name, ARG_ONE)->upper();
     requiredArgument(newMethod, ARG_TWO);
-    newMethod->setScope(this);        // change the scope to the class
+    newMethod->newScope(this);        // change the scope to the class // JLF newScope instead of setScope
     /* now add this to the behaviour     */
     this->behaviour->getMethodDictionary()->stringPut(newMethod, method_name);
     this->classMethodDictionary->stringAdd(newMethod, method_name);
+
+    // propagate to all subclasses (JLF : don't know why it was not done, maybe not needed during image build ?)
+    RexxArray *subclass_list = this->getSubClasses();
+    for (size_t i = 1; i < subclass_list->size(); i++)
+    {
+        ((RexxClass *)subclass_list->get(i))->defineClassMethod(method_name, newMethod);
+    }
+
     return OREF_NULL;                    /* returns nothing                   */
 }
 
@@ -1126,12 +1135,14 @@ RexxObject *RexxClass::inherit(
 /*            or the specified position (parameter two).                     */
 /*****************************************************************************/
 {
+#if 0
                                          /* make sure this isn't a rexx       */
     if (this->isRexxDefined())           /* defined class being changed       */
     {
         /* report as a nomethod condition    */
         reportNomethod(lastMessageName(), this);
     }
+#endif
     requiredArgument(mixin_class, ARG_ONE);      /* make sure it was passed in        */
 
                                          /* check the mixin class is really a */

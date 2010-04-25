@@ -173,6 +173,7 @@ RexxBehaviour RexxBehaviour::primitiveBehaviours[T_Last_Primitive_Class + 1] =
     RexxBehaviour(T_TraceInstruction, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_UseInstruction, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_ClassDirective, (PCPPM *)RexxObject::operatorMethods),
+    RexxBehaviour(T_ExtensionDirective, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_LibraryDirective, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_RequiresDirective, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_CompoundElement, (PCPPM *)RexxObject::operatorMethods),

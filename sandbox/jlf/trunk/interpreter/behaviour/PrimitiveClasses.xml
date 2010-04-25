@@ -130,6 +130,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="UseInstruction" class="RexxInstructionUseStrict" include="UseStrictInstruction.hpp"/>
 
 <Class id="ClassDirective" class="ClassDirective" include="ClassDirective.hpp"/>
+<Class id="ExtensionDirective" class="ExtensionDirective" include="ExtensionDirective.hpp"/>
 <Class id="LibraryDirective" class="LibraryDirective" include="LibraryDirective.hpp"/>
 <Class id="RequiresDirective" class="RequiresDirective" include="RequiresDirective.hpp"/>
 

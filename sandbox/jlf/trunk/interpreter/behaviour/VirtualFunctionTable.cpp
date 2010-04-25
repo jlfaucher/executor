@@ -134,6 +134,7 @@
 #include "TraceInstruction.hpp"
 #include "UseStrictInstruction.hpp"
 #include "ClassDirective.hpp"
+#include "ExtensionDirective.hpp"
 #include "LibraryDirective.hpp"
 #include "RequiresDirective.hpp"
 #include "RexxCompoundElement.hpp"
@@ -521,6 +522,9 @@ void RexxMemory::buildVirtualFunctionTable()
    
    objectPtr = new (objectLoc) ClassDirective(RESTOREIMAGE);
    virtualFunctionTable[T_ClassDirective] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) ExtensionDirective(RESTOREIMAGE);
+   virtualFunctionTable[T_ExtensionDirective] = getVftPointer(objectLoc);
    
    objectPtr = new (objectLoc) LibraryDirective(RESTOREIMAGE);
    virtualFunctionTable[T_LibraryDirective] = getVftPointer(objectLoc);
