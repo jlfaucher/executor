@@ -28,6 +28,15 @@ Investigate the Activation stack (reify ? closure ? continuation ?)
 
 
 ===============================================================================
+2010 april 28
+
+rgf_util2 wrappers to make the services of Rony available as methods on predefined classes.
+For proof of concept... For a real library of methods, rgf_util2 should be rewritten to use
+the variable "self" where appropriate, instead of passing the object as first parameter.
+
+
+
+===============================================================================
 2010 april 25
 
 Add ::extension directive
@@ -69,3 +78,4 @@ svn copy https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/trunk https://oo
 svn update jlf
 
 rev 5812
+merge 5812-5835 from main/trunk
