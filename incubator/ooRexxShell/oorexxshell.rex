@@ -134,6 +134,7 @@ return
 main: procedure
 
     REPL:
+        if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler
         .ooRexxShell~prompt = ""
         if .ooRexxShell~isInteractive then .ooRexxShell~prompt = prompt(address())
@@ -152,6 +153,10 @@ main: procedure
                 .ooRexxShell~trace(.true)
             when .ooRexxShell~inputrx~caselessEquals("traceoff") then
                 .ooRexxShell~trace(.false)
+            when .ooRexxShell~inputrx~caselessEquals("debugon") then
+                .ooRexxShell~debug = .true
+            when .ooRexxShell~inputrx~caselessEquals("debugoff") then
+                .ooRexxShell~debug = .false
             when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
                 -- Change the default interpreter
                 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx)
@@ -404,11 +409,15 @@ loadOptionalComponents:
         call loadPackage("winsystm.cls")
     end
     if loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
+    call loadPackage("mime.cls")
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
+    call loadPackage("rxregexp.cls")
+    call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
-    call loadPackage("bsf.cls")
-    call loadPackage("uno.cls")
+    call loadPackage("streamsocket.cls")
+    call loadPackage("BSF.CLS")
+    call loadPackage("UNO.CLS")
     call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     return
     
@@ -462,10 +471,12 @@ loadLibrary:
 ::attribute traceReadline class
 ::attribute traceDispatchCommand class
 
+::attribute debug class
 
 ::method init class
     self~traceReadline = .false
     self~traceDispatchCommand = .false
+    self~debug = .false
 
     
 ::method sayInterpreters class
@@ -627,7 +638,7 @@ LIBRARY gci ; INITINSTANCE
 ::attribute current class -- the current platform is a singleton
 
 
-::method initialize class -- init not supported (can't instatiate itself or subclass from init)
+::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     use strict arg -- none
     parse source sysrx .
     select
