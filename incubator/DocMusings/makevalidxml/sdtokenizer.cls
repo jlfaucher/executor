@@ -605,7 +605,7 @@ depending on the number of begining of statements, or in case of fragments.
 
 ::attribute l2rText get -- left to right
     expose l2rText
-    if var(l2rText) then return l2rText
+    if var('l2rText') then return l2rText
     l2rText = .MutableBuffer~new
     symbol = self
     do while symbol <> .nil
@@ -618,7 +618,7 @@ depending on the number of begining of statements, or in case of fragments.
     
 ::attribute r2lText get -- right to left
     expose r2lText
-    if var(r2lText) then return r2lText
+    if var('r2lText') then return r2lText
     r2lText = .MutableBuffer~new
     symbol = self
     do while symbol <> .nil
@@ -631,7 +631,7 @@ depending on the number of begining of statements, or in case of fragments.
 
 ::attribute b2tText get -- bottom to top
     expose b2tText
-    if var(b2tText) then return b2tText
+    if var('b2tText') then return b2tText
     b2tText = .MutableBuffer~new
     symbol = self
     do while symbol <> .nil
@@ -644,7 +644,7 @@ depending on the number of begining of statements, or in case of fragments.
 
 ::attribute t2bText get -- top to bottom
     expose t2bText
-    if var(t2bText) then return t2bText
+    if var('t2bText') then return t2bText
     t2bText = .MutableBuffer~new
     symbol = self
     do while symbol <> .nil
@@ -1261,7 +1261,7 @@ The main l2r path is 4A--4W.
     -- true if at least one L2R and no R2L paths are leaving from this token (except the main path)
     expose isl2rDispatcher
     if .t~istraced("isl2rDispatcher") then call trace .t~traceoption("isl2rDispatcher")
-    if var(isl2rDispatcher) then return isl2rDispatcher
+    if var('isl2rDispatcher') then return isl2rDispatcher
     parse value self~countHorizontalPathsAbove with r2lCountAbove l2rCountAbove
     parse value self~countHorizontalPathsBelow with r2lCountBelow l2rCountBelow
     l2rCount = l2rCountAbove + l2rCountBelow
@@ -1274,7 +1274,7 @@ The main l2r path is 4A--4W.
     -- true if at least one R2L and no L2R paths are leaving from this token (except the main path)
     expose isr2lDispatcher
     if .t~istraced("isr2lDispatcher") then call trace .t~traceoption("isr2lDispatcher")
-    if var(isr2lDispatcher) then return isr2lDispatcher
+    if var('isr2lDispatcher') then return isr2lDispatcher
     parse value self~countHorizontalPathsAbove with r2lCountAbove l2rCountAbove
     parse value self~countHorizontalPathsBelow with r2lCountBelow l2rCountBelow
     l2rCount = l2rCountAbove + l2rCountBelow

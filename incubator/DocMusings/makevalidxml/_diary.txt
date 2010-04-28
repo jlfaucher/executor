@@ -1,4 +1,27 @@
 ===============================================================================
+2010 april 28
+
+Fix a bug in the tokenizer, which improves the performances : some attributes
+can be calculated on demand, and keep the same value once calculated. They
+are implemented with a get method which tests if the attribute has been already
+calculated or not. The bug was a wrong expression passed to the var() BIF :
+    var(my_attribute)
+instead of
+    var ('my_attribute')
+Because of that, the attribute value was always re-calculated.
+The performance gain is about 30s on oodialog/dialogObject (3'55 instead of 4'30).
+
+
+===============================================================================
+2010 march 4
+
+Added option -reportlinks <linksFile>
+
+In case of error, touch the transformed file with a low date & time, to force 
+selection at next run.
+
+
+===============================================================================
 2009 december 20
 
 transformdir iterates over all the files, not just *.sgml

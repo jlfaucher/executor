@@ -42,14 +42,16 @@
 /**** 
 Usage :
     $sourcename 
-        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xslt] 
+        [-debug] [-dsssl] [-dump] [-help] [-syntdiag] [-xslt]
+        [-reportlinks <linksFile>]
         <inputFile> [<outputFile> [<logFile>]]
 Description :
     This script is intended to work on the XML files of the ooRexx doc.
     It reads the file <inputFile>, parses it and writes the transformed XML in
-    the file <outputFile>. 
+    the file <outputFile> (or stdout if no outputFile). 
     By default, there is no transformation and the layout of the output file
     is kept the most similar possible to the layout of the input.
+    
     Options :
     -debug    : Insert additional informations in the ouptut. A part is sent to
                 stderr, another part is inserted in the XML output (making it
@@ -59,6 +61,10 @@ Description :
                 keep the original layout.
                 When used with -syntdiag, the internal structures of the parser
                 are dumped in the sd_<file>.xml.
+    -reportlinks <linksFile> : 
+                Appends in the file <linksFile> the links having several words in
+                their child text. Such links are known to bring troubles when they
+                are at the boundary of two pages.
     -syntdiag : Replace textual syntax diagrams by a reference to an image (the
                 name of the image is derived from the enclosing DocBook section).
                 And generate an XML syntax diagram file that will be processed 
@@ -91,9 +97,9 @@ if arguments~xslt then parser~target = "xslt"
 
 if arguments~outputFile <> "" then do
     parser~output = .stream~new(arguments~outputFile)
-    if parser~output~command("open write replace") <> "READY:" then do
-        log~lineout("[error] Error opening "arguments~outputFile)
-        log~lineout("[error] "parser~output~description)
+    if parser~output~command("open write replace shared") <> "READY:" then do
+        parser~logErr("[error] Error opening "arguments~outputFile)
+        parser~logTxt("[error] "parser~output~description)
         return 1
     end
     parser~outputFile = arguments~outputFile
@@ -103,10 +109,10 @@ if arguments~syntdiag then do
     parser~syntdiag = .true 
     -- The name of the syntax diagram file is derived from the output file, if any
     -- Otherwise use the default name
-    if arguments~outputFile <> "" then do -- Don't use parser~outputFile here ! Its default value is "stdout", not ""
-        location = filespec("location", arguments~outputFile)
-        nameSuffix = filespec("name", arguments~outputFile)
-        suffix = filespec("extension", arguments~outputFile)
+    if parser~outputFile~caselessEquals("stdout") == .false then do
+        location = filespec("location", parser~outputFile)
+        nameSuffix = filespec("name", parser~outputFile)
+        suffix = filespec("extension", parser~outputFile)
         name = nameSuffix~left(nameSuffix~length - suffix~length - 1)
         parser~syntdiagBasename = "sd_" || name
         parser~syntdiagOutputFile = location || parser~syntdiagBasename || ".xml"
@@ -114,10 +120,21 @@ if arguments~syntdiag then do
     -- The file will be created later, when the first syntax diagram is created
 end
 
+if arguments~reportlinks then do
+    parser~links = .stream~new(arguments~reportlinksValue)
+    if parser~links~command("open write append shared nobuffer") <> "READY:" then do
+        parser~logErr("[error] Error opening "arguments~reportlinksValue)
+        parser~logTxt("[error] "parser~links~description)
+        return 1
+    end
+end
+
+parser~inputFile = arguments~inputFile
 signal on syntax -- The parser can abort by raising a syntax 4 (??? why only a "syntax" can be propagated automatically ???)
 errortxt = parser~parse_file(arguments~inputFile)
+if parser~output <> .stdout then parser~output~close -- must close explicitely, otherwise the touch in case of error will fail
 if errortxt <> "" then do
-    log~lineout("[error] The XML parser returned "errortxt)
+    parser~logErr("[error] The XML parser returned "errortxt)
     return 1
 end
 
@@ -126,14 +143,16 @@ if parser~syntdiagOutput <> .nil then do
     parser~syntdiagOutput~close
 end
 
-parser~check_stack_empty
+if parser~check_stack_empty == .false then return 1
 
 -- Convert the syntax diagrams to images
 if parser~syntdiagOutput <> .nil then call sd2image parser~syntdiagOutputFile
 
+if parser~errorCount <> 0 then return 1
 return 0
 
 syntax: -- In fact, it's an abort, not a syntax error...
+    if parser~output <> .stdout then parser~output~close -- must close explicitely, otherwise the touch in case of error will fail
     return 1
 
 ::requires 'arguments.cls'
@@ -152,6 +171,8 @@ syntax: -- In fact, it's an abort, not a syntax error...
 ::attribute documentNode
 ::attribute dump
 ::attribute elementsStack
+::attribute errorCount
+::attribute inputFile
 ::attribute log
 ::attribute output
 ::attribute outputFile
@@ -161,6 +182,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
 ::attribute syntdiagOutput
 ::attribute syntdiagOutputFile
 ::attribute target
+::attribute links
 
 
 ::method init
@@ -168,6 +190,8 @@ syntax: -- In fact, it's an abort, not a syntax error...
     self~documentNode = .Node~new(.nil) -- Toplevel title is ""
     self~dump = .false
     self~elementsStack = .Queue~new
+    self~errorCount = 0
+    self~links = .nil
     self~log = .stderr
     self~output = .stdout
     self~outputFile = "stdout"
@@ -232,15 +256,43 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if self~debug then self~output~charout('[text:'chunk~line':'chunk~col'[')
     self~output~charout(chunk~text)
     if self~debug then self~output~charout(']text]')
+    
+    if self~links <> .nil then do
+        if self~parent == .nil then return
+        parentChunk = self~parent~chunk
+        if parentChunk == .nil then return
+        if parentChunk~tag == "link" then do
+            chunkText = chunk~text~changeStr(d2c(10), " ")~changeStr(d2c(13), " ")
+            if chunkText~words <= 1 then return
+            self~links~charout(self~inputFile" ; "parentChunk~line" ; "parentChunk~col" ;")
+            do w = 1 to chunkText~words
+                self~links~charout(" "chunkText~word(w))
+            end
+            self~links~lineout("")
+        end
+    end
     return
 
+
+::method logTxt
+    use strict arg text
+    self~log~lineout(text)
+    return
+    
+    
+::method logErr
+    use strict arg text
+    self~logTxt(text)
+    self~errorCount += 1
+    return
+    
     
 ::method error
     use strict arg err
-    self~log~lineout("[error] "err~text)
+    self~logErr("[error] "err~text)
     return
 
-    
+
 ::method xlatetext private
     use strict arg text
     /*
@@ -256,7 +308,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     loop
         topNode = self~elementsStack~peek
         if topNode == .nil then do
-            self~log~lineout("[error] The elements stack is empty. Can't close "chunk~tag":"chunk~line':'chunk~col)
+            self~logErr("[error] The elements stack is empty. Can't close "chunk~tag":"chunk~line':'chunk~col)
             self~abort
         end
         if topNode~chunk~tag == chunk~tag then return 1
@@ -268,17 +320,17 @@ syntax: -- In fact, it's an abort, not a syntax error...
             self~elementsStack~pull -- Known problem, colspec not closed, remove it
             iterate
         end
-        self~log~lineout("[error] The closing tag does not match the last opened tag :")
-        self~log~lineout("[error]     opened tag  = "topNode~chunk~tag":"topNode~chunk~line':'topNode~chunk~col)
-        self~log~lineout("[error]     closing tag = "chunk~tag":"chunk~line':'chunk~col)
+        self~logErr("[error] The closing tag does not match the last opened tag :")
+        self~logTxt("[error]     opened tag  = "topNode~chunk~tag":"topNode~chunk~line':'topNode~chunk~col)
+        self~logTxt("[error]     closing tag = "chunk~tag":"chunk~line':'chunk~col)
         self~abort
     end
 
     
 ::method check_stack_empty
-    if self~elementsStack~isEmpty then return 1
-    self~log~lineout("[error] The elements stack is not empty.")
-    self~abort
+    if self~elementsStack~isEmpty then return .true
+    self~logErr("[error] The elements stack is not empty.")
+    return .false
 
     
 ::method transform_syntax_diagram
@@ -314,9 +366,9 @@ syntax: -- In fact, it's an abort, not a syntax error...
     -- From here, we know that this cdata contains a textual syntax diagram
     if self~syntdiagOutput == .nil then do
         self~syntdiagOutput = .stream~new(self~syntdiagOutputFile)
-        if self~syntdiagOutput~command("open write replace") <> "READY:" then do
-            self~log~lineout("[error] Error opening "self~syntdiagOutputFile)
-            self~log~lineout("[error] "self~syntdiagOutput~description)
+        if self~syntdiagOutput~command("open write replace shared") <> "READY:" then do
+            self~logErr("[error] Error opening "self~syntdiagOutputFile)
+            self~logTxt("[error] "self~syntdiagOutput~description)
             self~abort
         end
         self~syntdiagOutput = .IndentedStream~new(self~syntdiagOutput)
@@ -346,7 +398,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
         self~syntdiagOutput~lineout("]]>")
         self~syntdiagOutput~lineout("")
         
-        self~log~lineout("[error] Syntax diagram tokenization failed for "tokenizer~name)
+        self~logErr("[error] Syntax diagram tokenization failed for "tokenizer~name)
         -- not abort because we can continue by inserting the textual sd
     end
     return tokenizer
@@ -366,7 +418,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
         self~syntdiagOutput~lineout("]]>")
         self~syntdiagOutput~lineout("")
         
-        self~log~lineout("[error] Syntax diagram parsing failed for "tokenizer~name)
+        self~logErr("[error] Syntax diagram parsing failed for "tokenizer~name)
         -- not abort because we can continue by inserting the textual sd
     end
     return parser
@@ -391,7 +443,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     end
         
     if xmlizer~errorCount <> 0 then do
-        self~log~lineout("[error] Syntax diagram XML generation failed for "tokenizer~name)
+        self~logErr("[error] Syntax diagram XML generation failed for "tokenizer~name)
         -- not abort because we can continue by inserting the textual sd
     end
     return xmlizer
@@ -408,7 +460,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     self~syntdiagOutput~lineout("")
         
     if bnfizer~errorCount <> 0 then do
-        self~log~lineout("[error] Syntax diagram BNF generation failed for "tokenizer~name)
+        self~logErr("[error] Syntax diagram BNF generation failed for "tokenizer~name)
         -- not abort because we can continue by inserting the textual sd
     end
     return bnfizer
@@ -516,6 +568,13 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if self~elementsStack~hasIndex(2) then self~elementsStack~at(2)~title = chunk~text
 
     
+::method parent
+    use strict arg -- none
+    index = self~elementsStack~first
+    if index == .nil then return self~documentNode
+    return self~elementsStack~at(index)
+    
+    
 ::method parent_with_title
     use strict arg number
     index = self~elementsStack~first
@@ -531,7 +590,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     
     
 ::method abort
-    self~log~lineout("[error] Aborting !")
+    self~logErr("[error] Aborting !")
     -- Don't know what's the best here... I want to abort the program, but exit 1 does not work, raise user abort does not work, it seems that only raise syntax works...
     raise syntax 4 -- ABORT
 
@@ -551,64 +610,43 @@ syntax: -- In fact, it's an abort, not a syntax error...
 -------------------------------------------------------------------------------
 ::class Arguments subclass CommonArguments
 
-::method init
-    use strict arg callType, arguments -- always an array
-    self~init:super(callType, arguments)
-    -- Return now if help requested
-    if self~help then return
-    
+::method initEntries
+    self~initEntries:super
     self~inputFile = ""
     self~logFile = ""
     self~outputFile = ""
-    
-    -- Process the options
-    loop i=1 to self~args~items
-        option = self~args[i]
-        if option~left(1) <> "-" then leave
-        select
-            when self~parseOption(option) then nop
-            otherwise do
-                self~errors~append("[error] Unknown option" option)
-                return
-            end
-        end
-        -- Return now if help requested
-        if self~help then return
-    end
-    
-    self~verifyOptions
-    if \self~errors~isEmpty then return
-    
-    -- Process the arguments
+
+
+::method parseArguments
     -- inputFile is mandatory
-    if i > self~args~items then do
+    if self~argIndex > self~args~items then do
         self~errors~append("[error] <inputFile> is missing")
         return
     end
-    self~inputFile = self~args[i]~strip
-    i += 1
+    self~inputFile = self~args[self~argIndex]~strip
+    self~argIndex += 1
     
     -- outputFile is optional
-    if i > self~args~items then return
-    self~outputFile = self~args[i]~strip
+    if self~argIndex > self~args~items then return
+    self~outputFile = self~args[self~argIndex]~strip
     if self~outputFile~left(1) == "-" then do
         self~errors~append("[error] Options are before <inputFilename>")
         return
     end
-    i += 1
+    self~argIndex += 1
     
     -- logFile is optional
-    if i > self~args~items then return
-    self~logFile = self~args[i]~strip
+    if self~argIndex > self~args~items then return
+    self~logFile = self~args[self~argIndex]~strip
     if self~outputFile~left(1) == "-" then do
         self~errors~append("[error] Options are before <inputFilename>")
         return
     end
-    i += 1
+    self~argIndex += 1
     
     -- no more argument expected
-    if i > self~args~items then return
-    self~errors~append("[error] Unexpected arguments :" self~args~section(i)~toString("L", " "))
+    if self~argIndex > self~args~items then return
+    self~errors~append("[error] Unexpected arguments :" self~args~section(self~argIndex)~toString("L", " "))
     return
 
 

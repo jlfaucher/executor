@@ -3,6 +3,7 @@ Usage :
     $sourcename 
         [-debug] [-dsssl] [-doit] [-dump] [-help] [-syntdiag] [-xslt]
         [-startat <filename>]
+        [-reportlinks <linksFile>]
         <inputDirectory> <outputDirectory> [<logFile>]
         
 Description :
@@ -24,9 +25,15 @@ Description :
                 stderr, another part is inserted in the XML output (making it
                 non valid).
     -doit     : Perform the actions.
-    -dsssl    : Generate DocBook XML compatible with DSSSL.
+    -dsssl    : Generate DocBook XML compatible with DSSSL (default).
     -dump     : The elements and attributes are dumped without attempting to
                 keep the original layout.
+    -reportlinks <linksFile> : 
+                Create/reset the file <linksFile>, then write in it the links that 
+                have several words in their child text. Such links are known to
+                bring troubles when they are at the boundary of two pages.
+                Note : it's recommended to use a non-existent <outputDirectory>
+                to ensure that all the files are processed.
     -startat  : Lets start the iteration at <filename>. Useful when you have
                 to bypass errors in the XML files and restart the iteration.
     -syntdiag : Replace textual syntax diagrams by a reference to an image (the
@@ -124,13 +131,15 @@ if inputFiles.0 <> 0 then do
                 call transformfile arguments~debugOption,,
                                    arguments~dssslOption,,
                                    arguments~dumpOption,,
+                                   arguments~reportlinksOption, arguments~reportlinksValue,,
                                    arguments~syntdiagOption,,
                                    arguments~xsltOption,,
                                    inputFile,,
                                    outputFile,,
                                    arguments~logFile
                 if result <> 0 then do
-                    log~lineout("[error] Got an error while processing "inputFile)
+                    log~lineout("[info] Got an error while processing "inputFile)
+                    call SysSetFileDateTime outputFile, "2000-01-01", "00:00:00" -- touch with a low date & time, to force selection at next run
                     return 1
                 end
             end
@@ -155,81 +164,74 @@ return 0
 -------------------------------------------------------------------------------
 ::class Arguments subclass CommonArguments
 
-::method init
-    use strict arg callType, arguments -- always an array
-    self~init:super(callType, arguments)
-    -- Return now if help requested
-    if self~help then return
-    
+::method initEntries
+    self~initEntries:super
     self~inputDirectory = ""
     self~logFile = ""
     self~outputDirectory = ""
     self~doit = .false
     self~startat = .false
+
     
-    -- Process the options
-    loop i=1 to self~args~items
-        option = self~args[i]
-        if option~left(1) <> "-" then leave
-        select
-            when self~parseOption(option) then nop
-            when "-doit"~caseLessEquals(option) then do 
-                self~doit = .true
-                self~startatOption = option
-            end
-            when "-startat"~caseLessEquals(option) then do 
-                value = self~args[i+1]
-                if value == "" | value~left(1) == "-" then do
-                    self~errors~append("[error] Value expected for option "option)
-                end
-                self~startat = .true
-                self~startatOption = option
-                self~startatValue = value
-                i += 1
-            end
-            otherwise do
-                self~errors~append("[error] Unknown option" option)
-                return
-            end
-        end
-        -- Return now if help requested
-        if self~help then return
+::method parseOption
+    use strict arg option
+    if "-doit"~caseLessEquals(option) then do 
+        self~argIndex += 1
+        self~doit = .true
+        self~startatOption = option
+        return .true
     end
+    if "-startat"~caseLessEquals(option) then do 
+        self~argIndex += 1
+        self~startat = .true
+        self~startatOption = option
+        value = self~args[self~argIndex]
+        if value == .nil then value = ""
+        if value == "" | value~left(1) == "-" then do
+            self~errors~append("[error] Value expected for option "option)
+            return .false
+        end
+        else do
+            self~argIndex += 1
+            self~startatValue = value
+            return .true
+        end
+    end
+    return self~parseOption:super(option)
+
     
-    self~verifyOptions
-    if \self~errors~isEmpty then return
-    
-    -- Process the arguments
+::method parseArguments
     -- inputDirectory is mandatory
-    if i > self~args~items then do
+    if self~argIndex > self~args~items then do
         self~errors~append("[error] <inputDirectory> is missing")
         return
     end
-    self~inputDirectory = self~args[i]~strip
-    i += 1
+    self~inputDirectory = self~args[self~argIndex]~strip
+    self~argIndex += 1
 
     -- outputDirectory is mandatory
-    if i > self~args~items then do
+    if self~argIndex > self~args~items then do
         self~errors~append("[error] <outputDirectory> is missing")
         return
     end
-    self~outputDirectory = self~args[i]~strip
+    self~outputDirectory = self~args[self~argIndex]~strip
     if self~outputDirectory~left(1) == "-" then do
-        self~errors~append("[error] Options are before <inputFilename>")
+        self~errors~append("[error] Options are before <inputDirectory>")
         return
     end
-    i += 1
+    self~argIndex += 1
 
     -- logFile is optional
-    if i > self~args~items then return
-    self~logFile = self~args[i]~strip
+    if self~argIndex > self~args~items then return
+    self~logFile = self~args[self~argIndex]~strip
     if self~logFile~left(1) == "-" then do
-        self~errors~append("[error] Options are before <inputFilename>")
+        self~errors~append("[error] Options are before <inputDirectory>")
         return
     end
-    i += 1
+    self~argIndex += 1
 
     -- no more argument expected
-    if i > self~args~items then return
-    self~errors~append("[error] Unexpected arguments :" self~args~section(i)~toString("L", " "))
+    if self~argIndex > self~args~items then return
+    self~errors~append("[error] Unexpected arguments :" self~args~section(self~argIndex)~toString("L", " "))
     return
+
