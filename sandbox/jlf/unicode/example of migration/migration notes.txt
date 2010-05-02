@@ -1,0 +1,178 @@
+================================================
+Unicode
+================================================
+
+New project :
+    Release & debug : General/Character Set : not set (don't select Unicode)
+    Release & debug : C/C++/Command Line : Add $(TOOL_UNICODE_FLAGS) dans additional options
+    Release & debug : Options = WIN32, _WINDOWS, _WIN32_WINNT=0x0400
+    Release : Désactiver les optimisations
+        
+    
+Beware when calling the function AllocMem ! It takes a byte's number as argument
+so you must ALWAYS write : AllocMem(sizeof(_TCHAR) * (theSize))
+
+
+Beware when using sizeof ! The arguments passed to the string functions must be character's number,
+not byte's number ! So write a code similar to that, which uses the macro GTCHARCOUNT :
+_TCHAR buf[80];
+_tcsncpy(buf, string, GTCHARCOUNT(buf));
+
+
+Beware to printf and derived functions !
+The compiler does not generate warnings for the string arguments that are not declared with _T.
+Consequence : you don't get the expected result because the 'format specification string' is not
+interpreted correctly.
+
+
+The API conversion functions in types.h :
+extern GtBool TOOL_PUBLIC API_StringA2W(GtCStringA pszA, GtStringW *ppszW);
+extern GtBool TOOL_PUBLIC API_StringW2A(GtCStringW pszW, GtStringA *ppszA);
+
+
+The internal concersion functions :
+#include "util.h" // GTA2W, GTW2A
+    GtStringA stringA;
+    GtBool done = GTW2A(string, &stringA);
+    ...
+    FreeMem(stringA, 0);
+
+    GtStringW stringW;
+    GtBool done = GTA2W(string, &stringW);
+    ...
+    FreeMem(stringW, 0);
+
+
+----------------------------------------------------------------------
+Old             New             Ansi            Unicode
+----------------------------------------------------------------------
+char            gtchar          char            wchar_t
+LPCSTR          LPCTSTR         LPCSTR          LPCWSTR
+LPSTR           LPTSTR          PSTR (LPSTR)    PWSTR (LPWSTR)
+
+isalnum         _istalnum       isalnum         iswalnum
+isalpha         _istalpha       isalpha         iswalpha
+isascii         _istascii       isascii         iswascii
+iscntrl         _istcntrl       iscntrl         iswcntrl
+isdigit         _istdigit       isdigit         iswdigit
+isgraph         _istgraph       isgraph         iswgraph
+islower         _istlower       islower         iswlower
+isprint         _istprint       isprint         iswprint
+ispunct         _istpunct       ispunct         iswpunct
+isspace         _istspace       isspace         iswspace
+isupper         _istupper       isupper         iswupper
+isxdigit        _istxdigit      isxdigit        iswxdigit
+
+atof            _tstof          atof            _wtof
+atoi            _tstoi          atoi            _wtoi
+atol            _tstol          _atol           _wtol
+_itoa           _itot           _itoa           _itow
+
+_strdup         _tcsdup         _strdup         _wcsdup
+lstrcmp         <auto>
+lstrlen         <auto>
+strcat          _tcscat         strcat          wcscat
+strchr          _tcschr         strchr          wcschr
+strcmp          _tcscmp         strcmp          wcscmp
+strcmpi         _tcsicmp        _stricmp        _wcsicmp
+strcpy          _tcscpy         strcpy          wcscpy
+strcspn         _tcscspn        strcspn         wcscspn
+stricmp         _tcsicmp        _stricmp        _wcsicmp
+strlen          _tcslen         strlen          wcslen
+strlwr          _tcslwr         _strlwr         _wcslwr
+strncat         _tcsncat        strncat         wcsncat
+strncmp         _tcsncmp        strncmp         wcsncmp
+strncpy         _tcsncpy        strncpy         wcsncpy
+strnicmp        _tcsnicmp       _strnicmp       _wcsnicmp
+strpbrk      ** _tcspbrk **     strpbrk         wcspbrk     BEWARE ! Replaced by gtstrpbrk
+strrchr         _tcsrchr        strrchr         wcsrchr
+strspn          _tcsspn         strspn          wcsspn 
+strstr          _tcsstr         strstr          wcsstr 
+strtok          _tcstok         strtok          wcstok 
+strupr          _tcsupr         _strupr         _wcsupr
+
+fopen           _tfopen         fopen           _wfopen
+freopen         _tfreopen       freopen         _wfreopen
+
+_snprintf       _sntprintf      _snprintf       _snwprintf
+fprintf         _ftprintf       fprintf         fwprintf
+fputc           _fputtc         fputc           fputwc
+fputchar        _fputtchar      _fputchar       _fputwchar
+fputs           _fputts         fputs           fputws
+printf          _tprintf        printf          wprintf
+putc            _puttc          putc            putwc 
+putchar         _puttchar       putchar         putwchar 
+puts            _putts          puts            _putws
+sprintf         _stprintf       sprintf         swprintf        -->wsprintf
+vfprintf        _vftprintf      vfprintf        vfwprintf
+vsprintf        _vstprintf      vsprintf        vswprintf       -->wvsprintf
+wsprintf        <auto>
+wvsprintf       <auto>
+
+EOF             _TEOF           EOF             WEOF
+
+fgetc           _fgettc         fgetc           fgetwc
+fgets           _fgetts         fgets           fgetws
+getc            _gettc          getc            getwc
+gets            _getts          gets            _getws
+ungetc          _ungettc        ungetc          ungetwc 
+
+_access         _taccess        _access         _waccess
+_chdir          _tchdir         _chdir          _wchdir
+_chmod          _tchmod         _chmod          _wchmode
+_finddata_t     _tfinddata_t    _finddata_t     _wfinddata_t
+_findfirst      _tfindfirst     _findfirst      _wfindfirst
+_findnext       _tfindnext      _findnext       _wfindnext
+_fullpath       _tfullpath      _fullpath       _wfullpath
+_getcwd         _tgetcwd        _getcwd         _wgetcwd
+_makepath       _tmakepath      _makepath       _wmakepath
+_mkdir          _tmkdir         _mkdir          _wmkdir
+_splitpath      _tsplitpath     _splitpath      _wsplitpath
+_stat           _tstat          _stat           _wstat
+_tempname       _ttempnam       _tempname       _wtempnam
+_unlink         _tunlink        _unlink         _wunlink
+mktemp          _tmktemp        _mktemp         _wmktemp
+remove          _tremove        remove          _wremove
+rename          _trename        rename          _wrename
+
+getenv          _tgetenv        _tgetenv        _wgetenv
+setlocale       _tsetlocale     setlocale       _wsetlocale
+
+
+================================================
+Unicode : not supported
+================================================
+
+GetProcAddress : only ANSI...
+
+
+================================================
+Windows Types
+================================================
+
+Ansi strings
+CHAR                8-bit Windows (ANSI) character.
+UCHAR               Unsigned CHAR.
+PCHAR               Pointer to a CHAR.
+PUCHAR              Pointer to a UCHAR.
+PSTR, LPSTR         Pointer to a null-terminated string of 8-bit Windows (ANSI) characters.
+PCSTR, LPCSTR       Pointer to a constant null-terminated string of 8-bit Windows (ANSI) characters. 
+
+Unicode strings
+WCHAR               16-bit Unicode character.
+PWCHAR              Pointer to a WCHAR.
+PCWCH               Pointer to a constant WCHAR.
+PWSTR, LPWSTR       Pointer to a null-terminated string of 16-bit Unicode characters.
+PCWSTR, LPCWSTR     Pointer to a constant null-terminated string of 16-bit Unicode characters. 
+
+Ansi or Unicode     strings
+TCHAR, TBYTE        A WCHAR if UNICODE is defined, a CHAR otherwise.
+PTCHAR              Pointer to a TCHAR.
+PTSTR, LPTSTR       PWSTR (LPWSTR) if UNICODE is defined, a PSTR (LPSTR) otherwise.
+PCTSTR, LPCTSTR     A PCWSTR (LPCTSTR) if UNICODE is defined, a PCSTR (LPCTSTR) otherwise.
+
+Other
+VOID                Any type.
+PVOID               Pointer to any type.
+LPVOID              Pointer to any type.
+LPCVOID             Pointer to a constant of any type.

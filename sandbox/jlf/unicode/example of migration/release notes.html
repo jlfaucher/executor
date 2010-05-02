@@ -1,0 +1,359 @@
+<html>
+    <head>
+        <style>.Comment { COLOR: green }
+            BODY { FONT-FAMILY: 'Times New Roman' }
+            .CodeArea { FONT-SIZE: x-small; FONT-FAMILY: 'Courier New'; BACKGROUND-COLOR: silver }
+            .Highlight { BACKGROUND-COLOR: yellow }
+        </style>
+    </head>
+    <body BGCOLOR="#ffffff">
+        <p CLASS="Highlight">This is an example of migration to Unicode, using wide chars internally (UTF-16).</p>
+        <h3>Two versions of TOOL are available :</h3>
+        <h4>Version using byte characters&nbsp;internally (not Unicode) :
+        </h4>
+        <ul>
+            <li>
+            The A functions are used.
+            <li>
+            The&nbsp;user functions called by name (like demons, actions)&nbsp;receive byte 
+            char strings.
+            <li>
+                The function <font FACE="Courier New" SIZE="2">API_UseWideChar</font>
+            returns GtFalse.
+            <li>
+                The macro <font FACE="Courier New" SIZE="2">TOOL_UNICODE</font> is not defined.</li>
+        </ul>
+        <h4>Version using wide characters&nbsp;internally&nbsp;(Unicode UTF-16) :
+        </h4>
+        <ul>
+            <li>
+                At compile-time, the API of the Unicode version is available in two modes :
+                <ul>
+                    <li>
+                        Mode byte char (when the macro <font FACE="Courier New" SIZE="2">TOOL_WIDE_API</font>
+                    &nbsp;is not defined)&nbsp; : The A functions are used.
+                    <li>
+                        Mode wide char (when the macro&nbsp;<font FACE="Courier New" SIZE="2">TOOL_WIDE_API</font>
+                        is defined) : The W functions are used.</li>
+                </ul>
+            <li>
+                The&nbsp;user functions called by name (like demons, actions) &nbsp;receive :
+                <ul>
+                    <li>
+                    Byte char strings if their&nbsp;name ends with 'A'.
+                    <li>
+                    Wide char strings if their&nbsp;name ends with 'W'.
+                    <li>
+                        If their name doesn't end with 'A' or 'W' then&nbsp;the function <font FACE="Courier New" SIZE="2">
+                            API_UserFnIsWide</font> indicates which kind of string&nbsp;is passed : Byte 
+                        char&nbsp;if <font FACE="Courier New" SIZE="2">API_UserFnIsWide</font> returns 
+                        GtFalse, or wide char if <font FACE="Courier New" SIZE="2">API_UserFnIsWide</font>
+                    returns GtTrue.
+                    <li>
+                        By default, <font FACE="Courier New" SIZE="2">API_UserFnIsWide</font> returns&nbsp;:
+                        <ul>
+                            <li>
+                                GtFalse if TOOL has been initialized using <font FACE="Courier New" SIZE="2">API_InitA</font>
+                                or <font FACE="Courier New" SIZE="2">API_Init2A.</font>
+                            <li>
+                                GtTrue if TOOL has been initialized using <font FACE="Courier New" SIZE="2">API_InitW</font>
+                                or <font FACE="Courier New" SIZE="2">API_Init2W.</font></li>
+                        </ul>
+                    <li>
+                        You can change the value returned by <font FACE="Courier New" SIZE="2">API_UserFnIsWide</font>
+                        by calling <font FACE="Courier New" SIZE="2">API_UserFnSetWide</font>.
+                    <li>
+                        In&nbsp;all cases, when&nbsp;a&nbsp;user function called by name&nbsp;receives 
+                        a&nbsp;size value which indicates the maximum size of a string buffer, this 
+                        size is expressed in characters count, *NOT* in byte count.</li>
+                </ul>
+            <li>
+                The function <font FACE="Courier New" SIZE="2">API_UseWideChar</font>
+            returns GtTrue.
+            <li>
+                The macro <font FACE="Courier New" SIZE="2">TOOL_UNICODE</font> is defined.</li>
+        </ul>
+        <h3>New API types :<font FACE="Courier New" SIZE="2"></h3>
+        <table CLASS="CodeArea" ID="Table3" CELLSPACING="1" CELLPADDING="1" WIDTH="100%" BORDER="0">
+            <tr>
+                <td><p DIR="ltr" STYLE="MARGIN-RIGHT: 0px"><font FACE="Courier New" SIZE="2">typedef char <strong>
+                                gtcharA</strong>;
+                            <br>
+                            typedef wchar_t <strong>gtcharW</strong>;
+                            <br>
+                            #ifdef&nbsp;TOOL_WIDE_API
+                            <br>
+                            #define <strong>gtchar</strong> gtcharW
+                            <br>
+                            #else
+                            <br>
+                            #define <strong>gtchar</strong> gtcharA
+                            <br>
+                            #endif
+                            <br>
+                            <br>
+                            <span CLASS="Comment">// Can be either [multi-]byte (if&nbsp;TOOL_WIDE_API *NOT* 
+                                defined) or Unicode (if&nbsp;TOOL_WIDE_API defined)</span>
+                            <br>
+                            typedef gtchar * <strong>GtString</strong>;
+                            <br>
+                            typedef const gtchar * <strong>GtCString</strong>;
+                            <br>
+                            <br>
+                            <span CLASS="Comment">// Always [multi-]byte</span>
+                            <br>
+                            typedef gtcharA *<strong>GtStringA</strong>;
+                            <br>
+                            typedef const gtcharA *<strong>GtCStringA</strong>;
+                            <br>
+                            <br>
+                            <span CLASS="Comment">// Always Unicode</span>
+                            <br>
+                            typedef gtcharW *<strong>GtStringW</strong>;
+                            <br>
+                            typedef const gtcharW *<strong>GtCStringW</strong>; </font>
+                    </p>
+                </td>
+            </tr>
+        </table>
+        </FONT>
+        <h3>New API functions
+        </h3>
+        <table CLASS="CodeArea" ID="Table4" CELLSPACING="1" CELLPADDING="1" WIDTH="100%" BORDER="0">
+            <tr>
+                <td><ul>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtBool&nbsp;API_StringA2W(GtCStringA pszA, 
+                                GtStringW *ppszW);</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtBool&nbsp;API_StringW2A(GtCStringW pszW, 
+                                GtStringA *ppszA);</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtBool&nbsp;API_SetCodePage(gtuint16 codepage); </font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">gtuint16&nbsp;API_GetCodePage(); </font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtBool&nbsp;API_UseWideChar();&nbsp;<span CLASS="Comment">// 
+                                    Returns GtTrue if wide chars are used internally</span> </font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtBool&nbsp;API_UserFnIsWide();&nbsp;<span CLASS="Comment">// 
+                                    Returns GtTrue if the user functions called&nbsp;by name (like demons, 
+                                    actions)&nbsp;receive wide chars</span> </font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtBool&nbsp;API_UserFnSetWide(GtBool b);</font></li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+        <h3>New API macros :</h3>
+        <table CLASS="CodeArea" ID="Table5" CELLSPACING="1" CELLPADDING="1" WIDTH="100%" BORDER="0">
+            <tr>
+                <td>&nbsp;<font FACE="Courier New" SIZE="2">#define GTCHARCOUNT(X) (sizeof(X) / 
+                        sizeof(gtchar))</font></td>
+            </tr>
+        </table>
+        <h3>API changes :</h3>
+        <ul>
+            <li>
+                The <font FACE="Courier New" SIZE="2">API_xxx</font> functions that take char* 
+                arguments are now correctly declared with the const keyword when applicable. As 
+                a consequence, you may have&nbsp;'conversion loses qualifier'&nbsp;errors when 
+                compiling legacy code.</li>
+        </ul>
+        <h3>Conversion [multi-]byte &lt;--&gt;&nbsp;wide&nbsp;characters
+        </h3>
+        <p>Two conversion strategies are used in the implementation :
+            <ul>
+                <li>
+                    1st case : Conversion of strings passed&nbsp;through the&nbsp;byte char API.<br>
+                    The conversion is made using the TOOL functions&nbsp;<font FACE="Courier New" SIZE="2">API_StringA2W</font>
+                    and <font FACE="Courier New" SIZE="2">API_StringW2A</font>. These functions call 
+                    respectively&nbsp;the&nbsp;system functions <font FACE="Courier New" SIZE="2">MultiByteToWideChar</font>&nbsp;and
+                    <font FACE="Courier New" SIZE="2">WideCharToMultiByte</font>
+                which take a page code as argument.
+                <li>
+                    2nd case : Conversion of strings&nbsp;read/written&nbsp;in text files.
+                    <br>
+                    Quoted from&nbsp;MSDN : When a Unicode stream-I/O function operates in text 
+                    mode, the source or destination stream is assumed to be a sequence of multibyte 
+                    characters. Therefore, the Unicode stream-input functions convert multibyte 
+                    characters to wide characters (as if by a call to the <font FACE="Courier New" SIZE="2">
+                        mbtowc</font> function). For the same reason, the Unicode stream-output 
+                    functions convert wide characters to multibyte characters (as if by a call to 
+                    the <font FACE="Courier New" SIZE="2">wctomb</font> function). Conversions 
+                    between the two representations occur within the Standard C Library. The 
+                    conversion rules can, in principle, be altered by a call to <font FACE="Courier New" SIZE="2">
+                        setlocale</font> that alters the category <font FACE="Courier New" SIZE="2">LC_CTYPE</font>. 
+                    Each wide stream determines its conversion rules at the time it becomes wide 
+                    oriented, and retains these rules even if the category <font FACE="Courier New" SIZE="2">
+                        LC_CTYPE</font> subsequently changes.
+                </li>
+            </ul>
+        <p>In both cases,&nbsp;the <font FACE="Courier New" SIZE="2">API_SetCodePage</font> function 
+            lets select&nbsp;the page code used by these conversion functions.
+        </p>
+        <h3>Callback management&nbsp;:</h3>
+        <p>The following functions let register callbacks for various purposes. When linked 
+            with the wide version of TOOL, both the A and W version can be called. If 
+            you&nbsp;register both the byte and wide versions of a callback, then only 
+            the&nbsp;wide version&nbsp;will be&nbsp;called by TOOL</p>
+        <table CLASS="CodeArea" ID="Table6" CELLSPACING="1" CELLPADDING="1" WIDTH="100%" BORDER="0">
+            <tr>
+                <td><ul>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">API_SetHelpCallbackFn</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">API_SetTranslationFn</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">API_SetErrorFn</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtDocRegister</font>.&nbsp;&nbsp;<font FACE="Courier New" SIZE="2">&nbsp;</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtDocSetLaunchEditorCallback</font></li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+        <p>The following callbacks exported by gtdemons.dll are called by name.&nbsp;Only 
+            the wide version of TOOL will check for the W version of those callbacks. 
+            If both the A and W versions exist, then the W version is used. If neither the 
+            A nor W version&nbsp;is found, and the&nbsp;neutral name is found, then 
+            it's&nbsp;called as the A version.
+        </p>
+        <table CLASS="CodeArea" ID="Table7" CELLSPACING="1" CELLPADDING="1" WIDTH="100%" BORDER="0">
+            <tr>
+                <td><ul>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtdCpyWrtInfo</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtdDocInit</font>
+                        <li>
+                            <font FACE="Courier New" SIZE="2">GtdInit</font></li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+        <p>Note : The function <font FACE="Courier New" SIZE="2">API_UserFnSetWide</font> has 
+            no impact on the calling convention.
+        </p>
+        <h3>File formats</h3>
+        <p>The binary files saved with the wide version of TOOL 4.x contain UTF-16 
+            strings. A Byte Order Mark (BOM) is inserted at the begining of the file.
+        </p>
+        <p>The binary files saved with the version 3.x or with the byte version can be read 
+            by the wide version of TOOL.</p>
+        <table ID="Table2" CELLSPACING="0" CELLPADDING="2" BORDER="1">
+            <TBODY>
+                <tr>
+                    <td VALIGN="top" WIDTH="20%" ROWSPAN="1">&nbsp;</td>
+                    <td VALIGN="top" WIDTH="20%"><font SIZE="2"><b>Text File .gtd .gtb&nbsp;without multibyte 
+                                characters &nbsp;
+                                <br>
+                            </b>--&gt; opened in "r" or "w" mode</font>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><font SIZE="2"><b>Text file .gtd .gtb containing multibyte 
+                                characters
+                                <br>
+                            </b>--&gt; opened in "r" or "w" mode</font></td>
+                    <td VALIGN="top" WIDTH="20%"><font SIZE="2"><b>Binary file .gti .gte .gtm&nbsp;without BOM<br>
+                            </b>--&gt; opened in "rb" or "wb" mode</font></td>
+                    <td VALIGN="top" WIDTH="20%"><font SIZE="2"><b>Binary file .gti .gte .gtm&nbsp;with BOM<br>
+                            </b>--&gt; opened in "rb" or "wb" mode</font></td>
+                </tr>
+                <tr>
+                    <td VALIGN="top" WIDTH="20%"><b><font SIZE="2">Version 3.x<br>
+                                Does not support Unicode.</font> </b>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: ok</font>
+                            <li>
+                                <font SIZE="2">Writing&nbsp;: compatible with all versions.</font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: <span STYLE="FONT-WEIGHT: bold; COLOR: red">will raise 
+                                        syntax errors because the additional bytes will be handled as normal characters</span>.</font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: ok</font>
+                            <li>
+                                <font SIZE="2">Writing&nbsp;: compatible with all versions.</font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: not loaded, no error message</font> <font SIZE="2">.</font></li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td VALIGN="top" WIDTH="20%"><b><font SIZE="2">Version 4.x&nbsp;in&nbsp;byte char mode.<br>
+                                Does not support Unicode.</font> </b>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Like&nbsp;version 3.x</font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Like&nbsp;version 3.x</font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Like version 3.x</font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: not loaded, error message : "Unicode format not 
+                                    supported"</font> <font SIZE="2">.</font></li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td VALIGN="top" WIDTH="20%"><b><font SIZE="2">Version 4.x&nbsp;in wide char mode.<br>
+                                Supports Unicode.</font> </b>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Like version 3.x</font>
+                            </li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: ok</font>
+                            <li>
+                                <font SIZE="2">Writing&nbsp;: <font COLOR="#ff0000"><b>not compatible with version 3.x and 
+                                            version 4.x in byte mode.</b></font></font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: ok, <font COLOR="#ff0000">lets read the old files, 
+                                        without conversion</font>.</font>
+                            <li>
+                                <font SIZE="2">Writing&nbsp;: saved under UTF-16 format with BOM, even if it was 
+                                    read from a file&nbsp;under byte char format without BOM. </font><font COLOR="#ff0000" SIZE="2">
+                                    <b><b>Not compatible with version 3.x and version 4.x in byte mode.</b></b></font></li>
+                        </ul>
+                    </td>
+                    <td VALIGN="top" WIDTH="20%"><ul>
+                            <li>
+                                <font SIZE="2">Reading&nbsp;: ok</font>
+                            <li>
+                                <font SIZE="2">Writing&nbsp;:&nbsp; </font><font COLOR="#ff0000" SIZE="2"><b><b>not 
+                                            compatible with version 3.x and version 4.x in byte mode.</b></b></font></li>
+                        </ul>
+                    </td>
+                </tr>
+            </TBODY>
+        </table>
+    </body>
+</html>

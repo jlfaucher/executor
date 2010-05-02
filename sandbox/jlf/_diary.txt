@@ -26,6 +26,8 @@ Let the routine/method decide which parameters must be evaluated, ex : iif(cond,
 
 Investigate the Activation stack (reify ? closure ? continuation ?)
 
+Unicode ?
+
 
 ===============================================================================
 2010 april 28
