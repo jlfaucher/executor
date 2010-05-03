@@ -335,14 +335,13 @@ syntax: -- In fact, it's an abort, not a syntax error...
     
 ::method transform_syntax_diagram
     use strict arg chunk
-    text = chunk~cdata_text
-    if text == .nil then return .false
+    if chunk~cdata_text == .nil then return .false
     
-    tokenizer = self~tokenize_syntax_diagram(text)
+    tokenizer = self~tokenize_syntax_diagram(chunk~cdata_text, chunk~line)
     if tokenizer == .nil then return .false
     if tokenizer~errorCount <> 0 then return .false
     
-    parser = self~parse_syntax_diagram(tokenizer)
+    parser = self~parse_syntax_diagram(tokenizer, line)
     if parser~errorCount <> 0 then return .false
 
     xmlizer = self~xmlize_syntax_diagram(tokenizer, parser)
@@ -359,7 +358,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
 
     
 ::method tokenize_syntax_diagram
-    use strict arg text
+    use strict arg text, line
     tokenizer = .SyntaxDiagramTokenizer~tokenize(text, self~endofline)
     if tokenizer == .nil then return .nil
     
@@ -398,14 +397,14 @@ syntax: -- In fact, it's an abort, not a syntax error...
         self~syntdiagOutput~lineout("]]>")
         self~syntdiagOutput~lineout("")
         
-        self~logErr("[error] Syntax diagram tokenization failed for "tokenizer~name)
+        self~logErr("[error] Syntax diagram tokenization failed for "tokenizer~name" line "line)
         -- not abort because we can continue by inserting the textual sd
     end
     return tokenizer
         
     
 ::method parse_syntax_diagram
-    use strict arg tokenizer
+    use strict arg tokenizer, line
     parser = .SyntaxDiagramParser~parse(tokenizer, self)
     if parser~errorCount <> 0 then do
         self~syntdiagOutput~lineout("<![CDATA[")
@@ -418,7 +417,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
         self~syntdiagOutput~lineout("]]>")
         self~syntdiagOutput~lineout("")
         
-        self~logErr("[error] Syntax diagram parsing failed for "tokenizer~name)
+        self~logErr("[error] Syntax diagram parsing failed for "tokenizer~name" line "line)
         -- not abort because we can continue by inserting the textual sd
     end
     return parser
