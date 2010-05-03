@@ -126,7 +126,7 @@ if not exist %OR_OUTDIR%\ASM md %OR_OUTDIR%\ASM
 
 :build
 REM Call build program
-call %SRC_DRV%%SRC_DIR%\platform\windows\buildorx
+call %SRC_DRV%%SRC_DIR%\platform\windows\buildorx %2
 if ERRORLEVEL 1 goto error
 
 cd %OR_OUTDIR%

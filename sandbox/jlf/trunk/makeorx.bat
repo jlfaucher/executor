@@ -52,7 +52,7 @@ IF %1x == x GOTO HELP
 REM  If NO_BUILD_LOG is set, do not redirect to a log.
 if %NO_BUILD_LOG%x == x (set USELOGFILE=1) else (set USELOGFILE=0)
 
-REM  Check for the 'package' option
+REM  Check for the 'package' or component option
 goto PACKAGE_CHECK
 :PACKAGE_CHECK_DONE
 
@@ -117,7 +117,7 @@ SET MKDEBUG=0
 
 :STARTBUILD
 killer rxapi.exe
-CALL ORXDB %BLDRELEASE%
+CALL ORXDB %BLDRELEASE% %DOCOMPONENT%
 
 IF ERRORLEVEL 1 GOTO ENV_VARS_CLEANUP
 
@@ -450,11 +450,12 @@ REM  :PACKAGE_CHECK
 REM    Checks the second optional arg and sets the variables controlling whether
 REM    the interpreter package is created or not.
 REM
-REM    If the second arg is incorrect, displays syntax and quits.
+REM    If the second arg is not PACKAGE then assume it's a component.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :PACKAGE_CHECK
+SET DOPACKAGE=0
+SET DOCOMPONENT=
 if %2x == x (
-  SET DOPACKAGE=0
   GOTO PACKAGE_CHECK_DONE
 )
 
@@ -464,7 +465,8 @@ if %2 == PACKAGE (
   SET PACKAGE_DBG=0
   GOTO PACKAGE_CHECK_DONE
 ) ELSE (
-  GOTO HELP
+  SET DOCOMPONENT=%2
+  GOTO PACKAGE_CHECK_DONE
 )
 
 
@@ -590,10 +592,12 @@ if not exist %OR_OUTDIR% md %OR_OUTDIR%
 
 REM  First echo to the screen the help, no matter what. So that someone building
 REM  from the command line is sure to see the problem
-ECHO Syntax: makeorx BUILD_TYPE [PACKAGE] [DOC_LOCATION]
+ECHO Syntax: makeorx BUILD_TYPE [PACKAGE [DOC_LOCATION] ^| aComponent] 
 ECHO Where BUILD_TYPE is required and exactly one of DEBUG NODEBUG BOTH
 ECHO Where PACKAGE is optional.  If present and exactly PACKAGE the
 ECHO Windows ooRexx install package will be built.
+ECHO Where aComponent is optional. If present then only this component
+ECHO will be built.
 ECHO.
 ECHO If creating the install package, the ooRexx PDF documentation must be
 ECHO located in the doc subdirectory of the root build directory.  If it is

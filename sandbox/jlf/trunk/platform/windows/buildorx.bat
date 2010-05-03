@@ -51,6 +51,11 @@ REM Save LIB and INCLUDE
 REM
 set RXSAVE_LIB=%LIB%
 set RXSAVE_INCLUDE=%INCLUDE%
+
+set component=%1
+if defined component goto %component%
+
+:rxapi
 REM
 REM *** REXXAPI 1st to build
 REM
@@ -61,7 +66,9 @@ REM
 CD  %OR_REXXAPISRC%
 IF %USELOGFILE% equ 1 ( NMAKE /F REXXAPI.MAK >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F REXXAPI.MAK )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:interpreter
 REM
 REM *** Interpreter
 REM
@@ -69,6 +76,7 @@ REM
 CD  %OR_INTERPRETER_SRC%
 IF %USELOGFILE% equ 1 ( NMAKE /F INTERPRETER.MAK >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F INTERPRETER.MAK )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
 REM *** orexxole
 REM
@@ -77,84 +85,111 @@ REM
 CD  %OR_OLEOBJECTSRC%
 IF %USELOGFILE% equ 1 ( NMAKE /F OREXXOLE.MAK >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OREXXOLE.MAK )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
-
+:rexxutil
 REM
 REM *** Rexxutil. Note that RexxUtil needs to be built before rexx.img is created.
 REM
 @ECHO Building Rexxutil..
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_EXTENSIONS%\rexxutil\platform\windows\rexxutil.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_EXTENSIONS%\rexxutil\platform\windows\rexxutil.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rxftp
 REM
 REM *** rxftp
 REM
 @ECHO Building rxftp
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rxftp.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rxftp.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rexximage
 REM
 REM *** These are the commmand lanuchers, need the interpreter and rexxapi
 REM
 @ECHO Building rexximage command launcher
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rexximage.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rexximage.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rexx
 @ECHO Building rexx command launcher
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_UTILITIES%\rexx\platform\windows\rexx.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_UTILITIES%\rexx\platform\windows\rexx.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rexxhide
 @ECHO Building rexxhide command launcher
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_UTILITIES%\platform\windows\rexxhide\rexxhide.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_UTILITIES%\platform\windows\rexxhide\rexxhide.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rexxpaws
 @ECHO Building rexxpaws command launcher
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_UTILITIES%\platform\windows\rexxpaws\rexxpaws.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_UTILITIES%\platform\windows\rexxpaws\rexxpaws.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rexxc
 @ECHO Building rexxc command launcher
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_UTILITIES%\rexxc\platform\windows\rexxc.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_UTILITIES%\rexxc\platform\windows\rexxc.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rexx.img
 @ECHO Building REXX.IMG ...
 CD %OR_OUTDIR%
 IF %USELOGFILE% equ 1 ( REXXIMAGE >>%OR_ERRLOG% 2>&1 ) else ( REXXIMAGE )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rxsubcom
 @ECHO Building RXSUBCOM and RXQUEUE..
 CD  %OR_UTILITIES%\rxsubcom\platform\windows
 IF %USELOGFILE% equ 1 ( NMAKE /F rxsubcom.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F rxsubcom.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
+
+:rxqueue
 CD  %OR_UTILITIES%\rxqueue\platform\windows
 IF %USELOGFILE% equ 1 ( NMAKE /F rxqueue.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F rxqueue.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
-
+:rxwinsys
 @ECHO Building rxwinsys.dll
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_EXTENSIONS%\platform\windows\rxwinsys\rxwinsys.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_EXTENSIONS%\platform\windows\rxwinsys\rxwinsys.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rxsock
 REM *** rxsock
 REM
 @ECHO Building RxSock..
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rxsock.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rxsock.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
+:rxmath
 REM *** rxmath
 REM
 @ECHO Building RxMath..
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rxmath.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rxmath.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
-
+:rxregexp
 REM *** rxregexp
 REM
 @ECHO Building RXREGEXP...
 CD  %OR_REGEXPSRC%
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rxregexp.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rxregexp.mak )
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
-
+:oodialog
 REM *** oodialog
 REM
 @ECHO Building OODIALOG..
@@ -168,6 +203,8 @@ CD %OR_OUTDIR%
 IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX )
 if ERRORLEVEL 1 goto error
 
+if defined component goto arounderr
+
 
 CD %SRC_DIR%
 
@@ -176,7 +213,7 @@ REM CD  %OR_ORXSCRIPTSRC%
 REM IF %USELOGFILE% equ 1 ( NMAKE /F ORXSCRPT.MAK >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F ORXSCRPT.MAK )
 REM if ERRORLEVEL 1 goto error
 
-
+:apisamples
 REM *** API samples
 REM
 @ECHO Building API Samples..
