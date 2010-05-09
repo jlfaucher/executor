@@ -54,7 +54,7 @@
 #include "oodData.hpp"
 #include "oodControl.hpp"
 
-const char *controlType2winName(oodControl_t control)
+const rxcharT *controlType2winName(oodControl_t control)
 {
     switch ( control )
     {
@@ -75,7 +75,7 @@ const char *controlType2winName(oodControl_t control)
         case winMonthCalendar :        return MONTHCAL_CLASS;
         case winDateTimePicker :       return DATETIMEPICK_CLASS;
         case winUpDown :               return UPDOWN_CLASS;
-        default :                      return "";
+        default :                      return _T("");
     }
 }
 
@@ -106,22 +106,22 @@ const char *controlType2className(oodControl_t control)
 }
 
 
-oodControl_t winName2controlType(const char *className)
+oodControl_t winName2controlType(const rxcharT *className)
 {
-    if (      strcmp(className, WC_STATIC         ) == 0 ) return winStatic;
-    else if ( strcmp(className, WC_BUTTON         ) == 0 ) return winPushButton;
-    else if ( strcmp(className, WC_EDIT           ) == 0 ) return winEdit;
-    else if ( strcmp(className, WC_LISTBOX        ) == 0 ) return winListBox;
-    else if ( strcmp(className, WC_COMBOBOX       ) == 0 ) return winComboBox;
-    else if ( strcmp(className, WC_SCROLLBAR      ) == 0 ) return winScrollBar;
-    else if ( strcmp(className, WC_TREEVIEW       ) == 0 ) return winTreeView;
-    else if ( strcmp(className, WC_LISTVIEW       ) == 0 ) return winListView;
-    else if ( strcmp(className, WC_TABCONTROL     ) == 0 ) return winTab;
-    else if ( strcmp(className, PROGRESS_CLASS    ) == 0 ) return winProgressBar;
-    else if ( strcmp(className, TRACKBAR_CLASS    ) == 0 ) return winTrackBar;
-    else if ( strcmp(className, MONTHCAL_CLASS    ) == 0 ) return winMonthCalendar;
-    else if ( strcmp(className, DATETIMEPICK_CLASS) == 0 ) return winDateTimePicker;
-    else if ( strcmp(className, UPDOWN_CLASS      ) == 0 ) return winUpDown;
+    if (      _tcscmp(className, WC_STATIC         ) == 0 ) return winStatic;
+    else if ( _tcscmp(className, WC_BUTTON         ) == 0 ) return winPushButton;
+    else if ( _tcscmp(className, WC_EDIT           ) == 0 ) return winEdit;
+    else if ( _tcscmp(className, WC_LISTBOX        ) == 0 ) return winListBox;
+    else if ( _tcscmp(className, WC_COMBOBOX       ) == 0 ) return winComboBox;
+    else if ( _tcscmp(className, WC_SCROLLBAR      ) == 0 ) return winScrollBar;
+    else if ( _tcscmp(className, WC_TREEVIEW       ) == 0 ) return winTreeView;
+    else if ( _tcscmp(className, WC_LISTVIEW       ) == 0 ) return winListView;
+    else if ( _tcscmp(className, WC_TABCONTROL     ) == 0 ) return winTab;
+    else if ( _tcscmp(className, PROGRESS_CLASS    ) == 0 ) return winProgressBar;
+    else if ( _tcscmp(className, TRACKBAR_CLASS    ) == 0 ) return winTrackBar;
+    else if ( _tcscmp(className, MONTHCAL_CLASS    ) == 0 ) return winMonthCalendar;
+    else if ( _tcscmp(className, DATETIMEPICK_CLASS) == 0 ) return winDateTimePicker;
+    else if ( _tcscmp(className, UPDOWN_CLASS      ) == 0 ) return winUpDown;
     else
     {
         return winUnknown;
@@ -168,10 +168,10 @@ oodControl_t control2controlType(HWND hControl)
  */
 bool isControlMatch(HWND hControl, oodControl_t control)
 {
-    char buf[64];
-    const char *pClass = controlType2winName(control);
+    rxcharT buf[64];
+    const rxcharT *pClass = controlType2winName(control);
 
-    if ( ! RealGetWindowClass(hControl, buf, sizeof(buf)) || strcmp(buf, pClass) != 0 )
+    if ( ! RealGetWindowClass(hControl, buf, sizeof(buf)) || _tcscmp(buf, pClass) != 0 )
     {
         return false;
     }
@@ -226,24 +226,24 @@ bool isControlMatch(HWND hControl, oodControl_t control)
  */
 oodControl_t oodName2controlType(CSTRING name)
 {
-    if      ( StrCmpN(name, "CHECKBOX", 3      ) == 0 ) return winCheckBox;
-    else if ( StrCmpN(name, "COMBOBOX", 3      ) == 0 ) return winComboBox;
-    else if ( StrCmpN(name, "DATETIMEPICKER", 1) == 0 ) return winDateTimePicker;
-    else if ( StrCmpN(name, "EDIT", 1          ) == 0 ) return winEdit;
-    else if ( StrCmpN(name, "GROUPBOX", 1      ) == 0 ) return winGroupBox;
-    else if ( StrCmpN(name, "LISTBOX", 5       ) == 0 ) return winListBox;
-    else if ( StrCmpN(name, "LISTVIEW", 5      ) == 0 ) return winListView;
-    else if ( StrCmpN(name, "MONTHCALENDAR", 1 ) == 0 ) return winMonthCalendar;
-    else if ( StrCmpN(name, "PROGRESSBAR", 2   ) == 0 ) return winProgressBar;
-    else if ( StrCmpN(name, "PUSHBUTTON", 2    ) == 0 ) return winPushButton;
-    else if ( StrCmpN(name, "RADIOBUTTON", 1   ) == 0 ) return winRadioButton;
-    else if ( StrCmpN(name, "SCROLLBAR", 2     ) == 0 ) return winScrollBar;
-    else if ( StrCmpN(name, "SEPARATOR", 2     ) == 0 ) return winNotAControl;
-    else if ( StrCmpN(name, "STATIC", 2        ) == 0 ) return winStatic;
-    else if ( StrCmpN(name, "TAB", 3           ) == 0 ) return winTab;
-    else if ( StrCmpN(name, "TRACKBAR", 3      ) == 0 ) return winTrackBar;
-    else if ( StrCmpN(name, "TREEVIEW", 3      ) == 0 ) return winTreeView;
-    else if ( StrCmpN(name, "UPDOWN", 1        ) == 0 ) return winUpDown;
+    if      ( StrCmpNA(name, "CHECKBOX", 3      ) == 0 ) return winCheckBox;
+    else if ( StrCmpNA(name, "COMBOBOX", 3      ) == 0 ) return winComboBox;
+    else if ( StrCmpNA(name, "DATETIMEPICKER", 1) == 0 ) return winDateTimePicker;
+    else if ( StrCmpNA(name, "EDIT", 1          ) == 0 ) return winEdit;
+    else if ( StrCmpNA(name, "GROUPBOX", 1      ) == 0 ) return winGroupBox;
+    else if ( StrCmpNA(name, "LISTBOX", 5       ) == 0 ) return winListBox;
+    else if ( StrCmpNA(name, "LISTVIEW", 5      ) == 0 ) return winListView;
+    else if ( StrCmpNA(name, "MONTHCALENDAR", 1 ) == 0 ) return winMonthCalendar;
+    else if ( StrCmpNA(name, "PROGRESSBAR", 2   ) == 0 ) return winProgressBar;
+    else if ( StrCmpNA(name, "PUSHBUTTON", 2    ) == 0 ) return winPushButton;
+    else if ( StrCmpNA(name, "RADIOBUTTON", 1   ) == 0 ) return winRadioButton;
+    else if ( StrCmpNA(name, "SCROLLBAR", 2     ) == 0 ) return winScrollBar;
+    else if ( StrCmpNA(name, "SEPARATOR", 2     ) == 0 ) return winNotAControl;
+    else if ( StrCmpNA(name, "STATIC", 2        ) == 0 ) return winStatic;
+    else if ( StrCmpNA(name, "TAB", 3           ) == 0 ) return winTab;
+    else if ( StrCmpNA(name, "TRACKBAR", 3      ) == 0 ) return winTrackBar;
+    else if ( StrCmpNA(name, "TREEVIEW", 3      ) == 0 ) return winTreeView;
+    else if ( StrCmpNA(name, "UPDOWN", 1        ) == 0 ) return winUpDown;
     else return winUnknown;
 }
 
@@ -541,7 +541,7 @@ static BOOL removeKeyPressSubclass(SUBCLASSDATA *pData, HWND hDlg, INT id)
 }
 
 
-static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRING methodName, CSTRING keys, CSTRING filter,
+static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRINGT methodName, CSTRINGT keys, CSTRINGT filter,
                                              pCDialogControl pcdc)
 {
     keyPressErr_t result = nameErr;
@@ -745,7 +745,10 @@ RexxMethod1(RexxObjectPtr, dlgctrl_assignFocus, CSELF, pCSelf)
 RexxMethod4(int32_t, dlgctrl_connectKeyPress, CSTRING, methodName, CSTRING, keys, OPTIONAL_CSTRING, filter,
             CSELF, pCSelf)
 {
-    keyPressErr_t result = connectKeyPressSubclass(context, methodName, keys, filter, (pCDialogControl)pCSelf);
+    RXCA2T(methodName);
+    RXCA2T(keys);
+    RXCA2T(filter);
+    keyPressErr_t result = connectKeyPressSubclass(context, methodNameT, keysT, filterT, (pCDialogControl)pCSelf);
     if ( result == memoryErr )
     {
         outOfMemoryException(context->threadContext);
@@ -755,7 +758,8 @@ RexxMethod4(int32_t, dlgctrl_connectKeyPress, CSTRING, methodName, CSTRING, keys
 
 RexxMethod2(int32_t, dlgctrl_connectFKeyPress, CSTRING, methodName, CSELF, pCSelf)
 {
-    keyPressErr_t result = connectKeyPressSubclass(context, methodName, "FKEYS", NULL, (pCDialogControl)pCSelf);
+    RXCA2T(methodName);
+    keyPressErr_t result = connectKeyPressSubclass(context, methodNameT, _T("FKEYS"), NULL, (pCDialogControl)pCSelf);
     if ( result == memoryErr )
     {
         outOfMemoryException(context->threadContext);
@@ -765,7 +769,8 @@ RexxMethod2(int32_t, dlgctrl_connectFKeyPress, CSTRING, methodName, CSELF, pCSel
 
 RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    char *tmpName = NULL;
+    RXCA2T(methodName);
+    rxcharT *tmpName = NULL;
     keyPressErr_t result = winAPIErr;
 
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0) )
@@ -790,7 +795,7 @@ RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, C
         }
 
         // Have a method name, just remove that method from the mapping.
-        tmpName = strdupupr(methodName);
+        tmpName = strdupupr(methodNameT);
         if ( tmpName == NULL )
         {
             result = memoryErr;
@@ -831,6 +836,7 @@ done_out:
 
 RexxMethod2(logical_t, dlgctrl_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(methodName);
     if ( ComCtl32Version <  COMCTL32_6_0 )
     {
         return FALSE;
@@ -852,7 +858,7 @@ RexxMethod2(logical_t, dlgctrl_hasKeyPressConnection, OPTIONAL_CSTRING, methodNa
         return TRUE;
     }
 
-    char *tmpName = strdupupr(methodName);
+    rxcharT *tmpName = strdupupr(methodNameT);
     if ( tmpName == NULL )
     {
         outOfMemoryException(context->threadContext);
@@ -1015,7 +1021,8 @@ RexxMethod3(RexxObjectPtr, dlgctrl_textSize, CSTRING, text, RexxObjectPtr, _size
 
     HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
 
-    if ( GetTextExtentPoint32(hdc, text, (int)strlen(text), size) != 0 )
+    RXCA2T(text);
+    if ( GetTextExtentPoint32(hdc, textT, (int)_tcslen(textT), size) != 0 )
     {
         result = TheTrueObj;
     }
@@ -1079,7 +1086,9 @@ RexxMethod5(RexxObjectPtr, dlgctrl_getTextSizeDlg, CSTRING, text, OPTIONAL_CSTRI
     }
 
     SIZE textSize = {0};
-    if ( getTextSize(context, text, fontName, fontSize, hwndSrc, getDCownerDlg(pCSelf), &textSize) )
+    RXCA2T(text);
+    RXCA2T(fontName);
+    if ( getTextSize(context, textT, fontNameT, fontSize, hwndSrc, getDCownerDlg(pCSelf), &textSize) )
     {
         return rxNewSize(context, textSize.cx, textSize.cy);
     }
@@ -1156,9 +1165,10 @@ RexxMethod1(RexxObjectPtr, dlgctrl_data, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, dlgctrl_dataEquals, CSTRING, data, CSELF, pCSelf)
 {
+    RXCA2T(data);
     pCDialogControl pcdc = (pCDialogControl)pCSelf;
 
-    setControlData(context, dlgToCSelf(context, pcdc->oDlg), pcdc->id, data, pcdc->hDlg, pcdc->controlType);
+    setControlData(context, dlgToCSelf(context, pcdc->oDlg), pcdc->id, dataT, pcdc->hDlg, pcdc->controlType);
     return NULLOBJECT;
 }
 

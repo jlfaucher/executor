@@ -731,6 +731,8 @@
 ::routine msSleep public external "LIBRARY oodialog msSleep_rtn"
 ::routine findWindow public external "LIBRARY oodialog findWindow_rtn"
 ::routine play public external "LIBRARY oodialog playSound_rtn"
+::routine getCodePage public external "LIBRARY oodialog getCodePage_rtn"
+::routine setCodePage public external "LIBRARY oodialog setCodePage_rtn"
 
 ::routine messageDialog public external "LIBRARY oodialog messageDialog_rtn"
 ::routine infoDialog public

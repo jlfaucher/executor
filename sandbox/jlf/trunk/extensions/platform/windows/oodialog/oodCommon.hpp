@@ -45,7 +45,7 @@
 #include <string>
 #include <map>
 using namespace std;
-typedef map<string, int, less<string> > String2Int;
+typedef map<rxstringT, int, less<rxstringT> > String2Int;
 
 
 #define COMCTL_ERR_TITLE             "ooDialog - Windows Common Controls Error"
@@ -63,7 +63,7 @@ typedef map<string, int, less<string> > String2Int;
                                     "number of allocated icon table entries. The icon\n" \
                                     "resource will not be added."
 
-#define DEFAULT_FONTNAME            "MS Shell Dlg"
+#define DEFAULT_FONTNAME            _T("MS Shell Dlg")
 #define DEFAULT_FONTSIZE            8
 #define MAX_DEFAULT_FONTNAME        256
 
@@ -108,7 +108,7 @@ typedef CEventNotification *pCEventNotification;
 
 // Struct for the PlainBaseDialog class CSelf.
 typedef struct _pbdcCSelf {
-    char         fontName[MAX_DEFAULT_FONTNAME];
+    rxcharT      fontName[MAX_DEFAULT_FONTNAME];
     uint32_t     fontSize;
 
 } CPlainBaseDialogClass;
@@ -124,7 +124,7 @@ typedef CWindowExtensions *pCWindowExtensions;
 
 /* Struct for the PlainBaseDialog object CSelf. */
 typedef struct _pbdCSelf {
-    char                 fontName[MAX_DEFAULT_FONTNAME];
+    rxcharT              fontName[MAX_DEFAULT_FONTNAME];
     RexxInstance         *interpreter;
     RexxThreadContext    *dlgProcContext;
     pCWindowBase         wndBase;
@@ -193,10 +193,10 @@ extern void             pointer2string(char *, void *pointer);
 extern RexxStringObject pointer2string(RexxMethodContext *, void *);
 extern RexxStringObject pointer2string(RexxThreadContext *c, void *pointer);
 extern RexxStringObject dword2string(RexxMethodContext *, uint32_t);
-extern char *           strdupupr(const char *str);
-extern char *           strdupupr_nospace(const char *str);
-extern char *           strdup_nospace(const char *str);
-extern char *           strdup_2methodName(const char *str);
+extern rxcharT *        strdupupr(const rxcharT *str);
+extern rxcharT *        strdupupr_nospace(const rxcharT *str);
+extern rxcharT *        strdup_nospace(const rxcharT *str);
+extern rxcharT *        strdup_2methodName(const rxcharT *str);
 extern DIALOGADMIN *    getDlgAdm(RexxMethodContext *c, RexxObjectPtr dlg);
 
 extern void          ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
@@ -240,10 +240,10 @@ extern bool rxNumberFromDirectory(RexxMethodContext *, RexxDirectoryObject, CSTR
 extern bool rxIntFromDirectory(RexxMethodContext *, RexxDirectoryObject, CSTRING, int *, int, bool);
 
 extern RexxObjectPtr     setWindowStyle(RexxMethodContext *c, HWND hwnd, uint32_t style);
-extern int               putUnicodeText(LPWORD dest, const char *text);
+extern int               putUnicodeText(LPWORD dest, const rxcharT *text);
 extern RexxStringObject  unicode2String(RexxMethodContext *c, PWSTR wstr, int32_t len);
 extern char *            unicode2Ansi(PWSTR wstr, int32_t len);
-extern int               getKeywordValue(String2Int *cMap, const char * str);
+extern int               getKeywordValue(String2Int *cMap, const rxcharT * str);
 extern bool              goodMinMaxArgs(RexxMethodContext *c, RexxArrayObject args, size_t min, size_t max, size_t *arraySize);
 extern bool              getRectFromArglist(RexxMethodContext *, RexxArrayObject, PRECT, bool, int, int, size_t *, size_t *);
 extern bool              getPointFromArglist(RexxMethodContext *, RexxArrayObject, PPOINT, int, int, size_t *, size_t *);
@@ -488,7 +488,9 @@ inline HWND controlToHCtrl(RexxMethodContext *c, RexxObjectPtr ctrl)
  */
 inline void internalErrorMsgBox(CSTRING pszMsg, CSTRING pszTitle)
 {
-    MessageBox(0, pszMsg, pszTitle, MB_OK | MB_ICONHAND | MB_SETFOREGROUND | MB_TASKMODAL);
+    RXCA2T(pszMsg);
+    RXCA2T(pszTitle);
+    MessageBox(0, pszMsgT, pszTitleT, MB_OK | MB_ICONHAND | MB_SETFOREGROUND | MB_TASKMODAL);
 }
 
 

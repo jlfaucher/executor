@@ -816,7 +816,7 @@ bool _is32on64Bit(void)
         BOOL isWow64 = FALSE;
         typedef BOOL (WINAPI *PFNISWOW)(HANDLE, PBOOL);
 
-        PFNISWOW fnIsWow64Process = (PFNISWOW)GetProcAddress(GetModuleHandle("kernel32"), "IsWow64Process");
+        PFNISWOW fnIsWow64Process = (PFNISWOW)GetProcAddress(GetModuleHandle(_T("kernel32")), "IsWow64Process");
 
         if ( fnIsWow64Process != NULL)
         {

@@ -117,7 +117,7 @@ SET MKDEBUG=0
 
 :STARTBUILD
 killer rxapi.exe
-CALL ORXDB %BLDRELEASE% %DOCOMPONENT%
+CALL ORXDB %BLDRELEASE% %DOCOMPONENT% %DOCOMPONENT_ARGS%
 
 IF ERRORLEVEL 1 GOTO ENV_VARS_CLEANUP
 
@@ -455,6 +455,7 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :PACKAGE_CHECK
 SET DOPACKAGE=0
 SET DOCOMPONENT=
+SET DOCOMPONENT_ARGS=
 if %2x == x (
   GOTO PACKAGE_CHECK_DONE
 )
@@ -466,6 +467,7 @@ if %2 == PACKAGE (
   GOTO PACKAGE_CHECK_DONE
 ) ELSE (
   SET DOCOMPONENT=%2
+  SET DOCOMPONENT_ARGS=%3 %4 %5 %6 %7 %8 %9
   GOTO PACKAGE_CHECK_DONE
 )
 
@@ -592,12 +594,14 @@ if not exist %OR_OUTDIR% md %OR_OUTDIR%
 
 REM  First echo to the screen the help, no matter what. So that someone building
 REM  from the command line is sure to see the problem
-ECHO Syntax: makeorx BUILD_TYPE [PACKAGE [DOC_LOCATION] ^| aComponent] 
+ECHO Syntax: 
+ECHO makeorx BUILD_TYPE [PACKAGE [DOC_LOCATION] ^| aComponent [build_args]] 
 ECHO Where BUILD_TYPE is required and exactly one of DEBUG NODEBUG BOTH
 ECHO Where PACKAGE is optional.  If present and exactly PACKAGE the
 ECHO Windows ooRexx install package will be built.
 ECHO Where aComponent is optional. If present then only this component
-ECHO will be built.
+ECHO will be built. Some components support additional parameters for build.
+ECHO Ex : makeorx DEBUG oodialog clean
 ECHO.
 ECHO If creating the install package, the ooRexx PDF documentation must be
 ECHO located in the doc subdirectory of the root build directory.  If it is

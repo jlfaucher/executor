@@ -53,6 +53,9 @@ set RXSAVE_LIB=%LIB%
 set RXSAVE_INCLUDE=%INCLUDE%
 
 set component=%1
+set args=%2 %3 %4 %5 %6 %7 %8 %9
+echo component=%component%
+echo args=%args%
 if defined component goto %component%
 
 :rxapi
@@ -194,10 +197,11 @@ REM *** oodialog
 REM
 @ECHO Building OODIALOG..
 CD  %OR_OODIALOGSRC%
-IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK )
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK %args%)
 if ERRORLEVEL 1 goto error
+if defined component goto arounderr
 
-
+:oodialog_classes
 ECHO Building OODIALOG classes
 CD %OR_OUTDIR%
 IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX )

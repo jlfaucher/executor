@@ -55,8 +55,8 @@ extern uint32_t      parseShowOptions(CSTRING options);
 extern RexxObjectPtr oodGetClientRect(RexxMethodContext *, HWND hwnd, PRECT);
 extern RexxObjectPtr oodGetWindowRect(RexxMethodContext *, HWND hwnd);
 extern logical_t     oodColorTable(RexxMethodContext *, DIALOGADMIN *, uint32_t, int32_t, int32_t, bool);
-extern HFONT         oodGenericFont(const char *, uint32_t, const char *);
-extern logical_t     oodWriteToWindow(RexxMethodContext *, HWND, int32_t, int32_t, CSTRING, CSTRING, uint32_t, CSTRING, int32_t, int32_t);
+extern HFONT         oodGenericFont(const rxcharT *, uint32_t, const rxcharT *);
+extern logical_t     oodWriteToWindow(RexxMethodContext *, HWND, int32_t, int32_t, CSTRINGT, CSTRINGT, uint32_t, CSTRINGT, int32_t, int32_t);
 extern HBRUSH        oodCreateBrush(RexxMethodContext *, uint32_t, CSTRING);
 extern RexxObjectPtr clearRect(RexxMethodContext *, HWND, PRECT);
 extern RexxObjectPtr redrawRect(RexxMethodContext *, HWND, PRECT, bool, bool);
@@ -68,15 +68,15 @@ extern BOOL          drawBackgroundBmp(pCPlainBaseDialog, HWND);
 extern BOOL          drawBitmapButton(DIALOGADMIN *, pCPlainBaseDialog, LPARAM, bool);
 
 
-extern int   getWeight(CSTRING opts);
-extern bool  getTextSize(RexxMethodContext *, CSTRING, CSTRING, uint32_t, HWND, RexxObjectPtr, PSIZE);
-extern bool  textSizeIndirect(RexxMethodContext *, CSTRING, CSTRING, uint32_t, SIZE *, HWND);
-extern bool  textSizeFromWindow(RexxMethodContext *, CSTRING, SIZE *, HWND);
-extern bool  getTextExtent(HFONT, HDC, CSTRING, SIZE *);
+extern int   getWeight(CSTRINGT opts);
+extern bool  getTextSize(RexxMethodContext *, CSTRINGT, CSTRINGT, uint32_t, HWND, RexxObjectPtr, PSIZE);
+extern bool  textSizeIndirect(RexxMethodContext *, CSTRINGT, CSTRINGT, uint32_t, SIZE *, HWND);
+extern bool  textSizeFromWindow(RexxMethodContext *, CSTRINGT, SIZE *, HWND);
+extern bool  getTextExtent(HFONT, HDC, CSTRINGT, SIZE *);
 extern bool  screenToDlgUnit(HWND hwnd, POINT *point, size_t count);
 extern void  screenToDlgUnit(HDC hdc, POINT *point, size_t count);
-extern HFONT createFontFromName(int logicalPixelsY, CSTRING name, uint32_t size);
-extern HFONT createFontFromName(CSTRING name, uint32_t size);
+extern HFONT createFontFromName(int logicalPixelsY, CSTRINGT name, uint32_t size);
+extern HFONT createFontFromName(CSTRINGT name, uint32_t size);
 extern bool  mapPixelToDu(RexxMethodContext *c, RexxObjectPtr dlg, PPOINT p, size_t count);
 extern bool  mapDuToPixel(RexxMethodContext *c, RexxObjectPtr dlg, PRECT r);
 
@@ -92,7 +92,7 @@ inline void pixel2du(POINT *point, int baseUnitX, int baseUnitY)
     point->y = MulDiv(point->y, 8, baseUnitY);
 }
 
-inline HFONT createFontFromName(HDC hdc, CSTRING name, uint32_t size)
+inline HFONT createFontFromName(HDC hdc, CSTRINGT name, uint32_t size)
 {
     return createFontFromName(GetDeviceCaps(hdc, LOGPIXELSY), name, size);
 }

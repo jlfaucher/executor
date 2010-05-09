@@ -153,18 +153,18 @@ static RexxObjectPtr drawButton(HWND hDlg, HWND hCtrl, uint32_t id)
     return result;
 }
 
-static void drawFontToDC(HDC hDC, int32_t x, int32_t y, const char * text, uint32_t fontSize, const char * opts,
-                         const char * fontName, int32_t fgColor, int32_t bkColor)
+static void drawFontToDC(HDC hDC, int32_t x, int32_t y, const rxcharT * text, uint32_t fontSize, const rxcharT * opts,
+                         const rxcharT * fontName, int32_t fgColor, int32_t bkColor)
 {
    HFONT hFont = oodGenericFont(fontName, fontSize, opts);
    HFONT oldFont = (HFONT)SelectObject(hDC, hFont);
 
    int oldMode = 0;
-   if ( StrStrI(opts, "TRANSPARENT") != NULL )
+   if ( StrStrI(opts, _T("TRANSPARENT")) != NULL )
    {
        oldMode = SetBkMode(hDC, TRANSPARENT);
    }
-   else if ( StrStrI(opts, "OPAQUE") != NULL )
+   else if ( StrStrI(opts, _T("OPAQUE")) != NULL )
    {
        oldMode = SetBkMode(hDC, OPAQUE);
    }
@@ -179,7 +179,7 @@ static void drawFontToDC(HDC hDC, int32_t x, int32_t y, const char * text, uint3
        oldBk = SetBkColor(hDC, PALETTEINDEX(bkColor));
    }
 
-   TextOut(hDC, x, y, text, (int)strlen(text));
+   TextOut(hDC, x, y, text, (int)_tcslen(text));
 
    SelectObject(hDC, oldFont);
    DeleteObject(hFont);
@@ -344,11 +344,11 @@ uint32_t parseShowOptions(CSTRING options)
 
     if ( options != NULL )
     {
-       if ( StrStrI(options, "NOMOVE"    ) ) opts |= SWP_NOMOVE;
-       if ( StrStrI(options, "NOSIZE"    ) ) opts |= SWP_NOSIZE;
-       if ( StrStrI(options, "HIDEWINDOW") ) opts |= SWP_HIDEWINDOW;
-       if ( StrStrI(options, "SHOWWINDOW") ) opts |= SWP_SHOWWINDOW;
-       if ( StrStrI(options, "NOREDRAW"  ) ) opts |= SWP_NOREDRAW;
+       if ( StrStrIA(options, "NOMOVE"    ) ) opts |= SWP_NOMOVE;
+       if ( StrStrIA(options, "NOSIZE"    ) ) opts |= SWP_NOSIZE;
+       if ( StrStrIA(options, "HIDEWINDOW") ) opts |= SWP_HIDEWINDOW;
+       if ( StrStrIA(options, "SHOWWINDOW") ) opts |= SWP_SHOWWINDOW;
+       if ( StrStrIA(options, "NOREDRAW"  ) ) opts |= SWP_NOREDRAW;
     }
     return opts;
 }
@@ -364,20 +364,20 @@ uint32_t parseShowOptions(CSTRING options)
  * @return The font weight flag corresponding to the keyword found, or FW_NORMAL
  *         if there is no font weight flag.
  */
-int getWeight(CSTRING opts)
+int getWeight(CSTRINGT opts)
 {
     int weight = FW_NORMAL;
 
     if ( opts != NULL )
     {
-        if (      StrStrI(opts, "THIN")       != NULL ) weight = FW_THIN;
-        else if ( StrStrI(opts, "EXTRALIGHT") != NULL ) weight = FW_EXTRALIGHT;
-        else if ( StrStrI(opts, "LIGHT")      != NULL ) weight = FW_LIGHT;
-        else if ( StrStrI(opts, "MEDIUM")     != NULL ) weight = FW_MEDIUM;
-        else if ( StrStrI(opts, "SEMIBOLD")   != NULL ) weight = FW_SEMIBOLD;
-        else if ( StrStrI(opts, "EXTRABOLD")  != NULL ) weight = FW_EXTRABOLD;
-        else if ( StrStrI(opts, "BOLD")       != NULL ) weight = FW_BOLD;
-        else if ( StrStrI(opts, "HEAVY")      != NULL ) weight = FW_HEAVY;
+        if (      StrStrI(opts, _T("THIN"))       != NULL ) weight = FW_THIN;
+        else if ( StrStrI(opts, _T("EXTRALIGHT")) != NULL ) weight = FW_EXTRALIGHT;
+        else if ( StrStrI(opts, _T("LIGHT"))      != NULL ) weight = FW_LIGHT;
+        else if ( StrStrI(opts, _T("MEDIUM"))     != NULL ) weight = FW_MEDIUM;
+        else if ( StrStrI(opts, _T("SEMIBOLD"))   != NULL ) weight = FW_SEMIBOLD;
+        else if ( StrStrI(opts, _T("EXTRABOLD"))  != NULL ) weight = FW_EXTRABOLD;
+        else if ( StrStrI(opts, _T("BOLD"))       != NULL ) weight = FW_BOLD;
+        else if ( StrStrI(opts, _T("HEAVY"))      != NULL ) weight = FW_HEAVY;
     }
     return weight;
 }
@@ -474,38 +474,38 @@ logical_t oodColorTable(RexxMethodContext *c, DIALOGADMIN *dlgAdm, uint32_t id,
     }
     else
     {
-        MessageBox(NULL, "Dialog control elements have exceeded the maximum\n"
-                   "number of allocated color table entries. The color\n"
-                   "for the dialog control can not be added.",
-                   "Error", MB_OK | MB_ICONHAND);
+        MessageBox(NULL, _T("Dialog control elements have exceeded the maximum\n")
+                   _T("number of allocated color table entries. The color\n")
+                   _T("for the dialog control can not be added."),
+                   _T("Error"), MB_OK | MB_ICONHAND);
         return 1;
     }
     return 0;
 }
 
 
-HFONT oodGenericFont(const char *fontName, uint32_t fontSize, const char *opts)
+HFONT oodGenericFont(const rxcharT *fontName, uint32_t fontSize, const rxcharT *opts)
 {
     int weight = getWeight(opts);
     int height = getHeightFromFontSize(fontSize);
 
-    return CreateFont(height, 0, 0, 0, weight, StrStrI(opts, "ITALIC") != NULL, StrStrI(opts, "UNDERLINE") != NULL,
-                      StrStrI(opts, "STRIKEOUT") != NULL, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+    return CreateFont(height, 0, 0, 0, weight, StrStrI(opts, _T("ITALIC")) != NULL, StrStrI(opts, _T("UNDERLINE")) != NULL,
+                      StrStrI(opts, _T("STRIKEOUT")) != NULL, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
                       FF_DONTCARE, fontName);
 }
 
 
-logical_t oodWriteToWindow(RexxMethodContext *context, HWND hwnd, int32_t xPos, int32_t yPos, CSTRING text,
-                           CSTRING fontName, uint32_t fontSize, CSTRING fontStyle, int32_t fgColor, int32_t bkColor)
+logical_t oodWriteToWindow(RexxMethodContext *context, HWND hwnd, int32_t xPos, int32_t yPos, CSTRINGT text,
+                           CSTRINGT fontName, uint32_t fontSize, CSTRINGT fontStyle, int32_t fgColor, int32_t bkColor)
 {
-    fontName  = (argumentOmitted(5) ? "System" : fontName);
+    fontName  = (argumentOmitted(5) ? _T("System") : fontName);
     fontSize  = (argumentOmitted(6) ? 10       : fontSize);
-    fontStyle = (argumentOmitted(7) ? ""       : fontStyle);
+    fontStyle = (argumentOmitted(7) ? _T("")       : fontStyle);
     fgColor   = (argumentOmitted(8) ? -1       : fgColor);
     bkColor   = (argumentOmitted(9) ? -1       : bkColor);
 
     HDC hDC = NULL;
-    if ( StrStrI(fontStyle, "CLIENT") != NULL )
+    if ( StrStrI(fontStyle, _T("CLIENT")) != NULL )
     {
         hDC = GetDC(hwnd);
     }
@@ -711,7 +711,7 @@ err_out:
  */
 int getHeightFromFontSize(int fontSize)
 {
-    HDC hdc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    HDC hdc = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
     int height = -MulDiv(fontSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
     DeleteDC(hdc);
     return height;
@@ -739,7 +739,7 @@ int getHeightFromFontSize(int fontSize)
  */
 void maybeSetColorPalette(RexxMethodContext *c, HBITMAP hBmp, CSTRING opts, DIALOGADMIN *dlgAdm, RexxObjectPtr self)
 {
-    if ( hBmp != NULL && opts != NULL && StrStrI(opts, "USEPAL") != NULL )
+    if ( hBmp != NULL && opts != NULL && StrStrIA(opts, "USEPAL") != NULL )
     {
         if ( dlgAdm == NULL && self != NULLOBJECT )
         {
@@ -782,19 +782,19 @@ LPBITMAPINFO loadDIB(const char *szFile, uint32_t *lastError)
     fd = OpenFile(szFile, &os, OF_READ);
     if (fd < 1)
     {
-        char *msg;
+        rxcharT *msg;
         char *errBuff;
         uint32_t err = GetLastError();
 
-        msg = (char *)LocalAlloc(LPTR, 512);
+        msg = (rxcharT *)LocalAlloc(LPTR, 512);
         if ( msg )
         {
             FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&errBuff, 0, NULL);
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&errBuff, 0, NULL);
 
-            _snprintf(msg, 512, "Failed to open the bitmap file: %s.\n\nSystem error (%u):\n%s",
+            _sntprintf(msg, 512, _T("Failed to open the bitmap file: %s.\n\nSystem error (%u):\n%s"),
                       szFile, err, errBuff);
-            MessageBox(NULL, msg,  "ooDialog Error", MB_OK | MB_ICONASTERISK);
+            MessageBox(NULL, msg,  _T("ooDialog Error"), MB_OK | MB_ICONASTERISK);
 
             LocalFree(msg);
             LocalFree(errBuff);
@@ -1873,6 +1873,7 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
             CSTRING, bmpNormal, OPTIONAL_CSTRING, bmpFocused, OPTIONAL_CSTRING, bmpSelected, OPTIONAL_CSTRING, bmpDisabled,
             OPTIONAL_CSTRING, style, OSELF, self)
 {
+    RXCA2T(msgToRaise);
     pCPlainBaseDialog pcpbd;
     uint32_t id;
 
@@ -1890,7 +1891,7 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
        dlgAdm->BmpTab = (BITMAPTABLEENTRY *)LocalAlloc(LPTR, sizeof(BITMAPTABLEENTRY) * MAX_BT_ENTRIES);
        if ( dlgAdm->BmpTab == NULL )
        {
-          MessageBox(0,"No memory available","Error",MB_OK | MB_ICONHAND);
+          MessageBox(0,_T("No memory available"),_T("Error"),MB_OK | MB_ICONHAND);
           return TheOneObj;
        }
        dlgAdm->BT_size = 0;
@@ -1902,10 +1903,10 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
     bool usePalette = false;
     if ( argumentExists(7) )
     {
-        if ( StrStrI(style, "FRAME")    != NULL ) frame = true;
-        if ( StrStrI(style, "INMEMORY") != NULL ) inMemory = true;
-        if ( StrStrI(style, "STRETCH")  != NULL ) stretch = true;
-        if ( StrStrI(style, "USEPAL")   != NULL ) usePalette = true;
+        if ( StrStrIA(style, "FRAME")    != NULL ) frame = true;
+        if ( StrStrIA(style, "INMEMORY") != NULL ) inMemory = true;
+        if ( StrStrIA(style, "STRETCH")  != NULL ) stretch = true;
+        if ( StrStrIA(style, "USEPAL")   != NULL ) usePalette = true;
     }
 
     if (dlgAdm->BT_size < MAX_BT_ENTRIES)
@@ -1953,7 +1954,7 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
            dlgAdm->BT_size++;
            return TheZeroObj;
         }
-        else if ( addCommandMessage(pcpbd->enCSelf, id, 0x0000FFFF, 0, 0, msgToRaise, TAG_NOTHING) )
+        else if ( addCommandMessage(pcpbd->enCSelf, id, 0x0000FFFF, 0, 0, msgToRaiseT, TAG_NOTHING) )
         {
            dlgAdm->BT_size++;
            return TheZeroObj;
@@ -1961,10 +1962,10 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
     }
     else
     {
-       MessageBox(0, "Bitmap buttons have exceeded the maximum number of\n"
-                     "allocated table entries. No bitmap button can be\n"
-                     "added.",
-                  "Error",MB_OK | MB_ICONHAND);
+       MessageBox(0, _T("Bitmap buttons have exceeded the maximum number of\n")
+                     _T("allocated table entries. No bitmap button can be\n")
+                     _T("added."),
+                  _T("Error"),MB_OK | MB_ICONHAND);
     }
     return TheOneObj;
 }
@@ -2009,7 +2010,7 @@ RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, CSTRI
     uint32_t id;
     HWND hCtrl = NULL;
 
-    bool draw = (argumentExists(6) && StrStrI(style, "NODRAW") == NULL);
+    bool draw = (argumentExists(6) && StrStrIA(style, "NODRAW") == NULL);
 
     // Note that the dialog does not need to yet be created for this method,
     // unless we are going to draw the button.
@@ -2039,10 +2040,10 @@ RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, CSTRI
         bool usePalette = false;
         if ( argumentExists(6) )
         {
-            if ( StrStrI(style, "FRAME")    != NULL ) frame = true;
-            if ( StrStrI(style, "INMEMORY") != NULL ) inMemory = true;
-            if ( StrStrI(style, "STRETCH")  != NULL ) stretch = true;
-            if ( StrStrI(style, "USEPAL")   != NULL ) usePalette = true;
+            if ( StrStrIA(style, "FRAME")    != NULL ) frame = true;
+            if ( StrStrIA(style, "INMEMORY") != NULL ) inMemory = true;
+            if ( StrStrIA(style, "STRETCH")  != NULL ) stretch = true;
+            if ( StrStrIA(style, "USEPAL")   != NULL ) usePalette = true;
         }
 
         if ( (dlgAdm->BmpTab[i].loaded & 0x1011) == 1 )
@@ -2554,9 +2555,9 @@ RexxMethod2(RexxObjectPtr, dlgext_isMouseButtonDown, OPTIONAL_CSTRING, whichButt
     int mb = VK_LBUTTON;
     if ( argumentExists(1) )
     {
-        if ( StrStrI(whichButton, "LEFT"  ) ) mb = VK_LBUTTON;
-        else if ( StrStrI(whichButton, "RIGHT" ) ) mb = VK_RBUTTON;
-        else if ( StrStrI(whichButton, "MIDDLE") ) mb = VK_MBUTTON;
+        if ( StrStrIA(whichButton, "LEFT"  ) ) mb = VK_LBUTTON;
+        else if ( StrStrIA(whichButton, "RIGHT" ) ) mb = VK_RBUTTON;
+        else if ( StrStrIA(whichButton, "MIDDLE") ) mb = VK_MBUTTON;
         else
         {
             return wrongArgValueException(context->threadContext, 1, "LEFT, RIGHT, MIDDLE", whichButton);
@@ -2648,7 +2649,10 @@ RexxMethod9(logical_t, dlgext_writeToWindow, POINTERSTRING, hwnd, int32_t, xPos,
             OPTIONAL_CSTRING, fontName, OPTIONAL_uint32_t, fontSize, OPTIONAL_CSTRING, fontStyle,
             OPTIONAL_int32_t, fgColor, OPTIONAL_int32_t, bkColor)
 {
-    return oodWriteToWindow(context, (HWND)hwnd, xPos, yPos, text, fontName, fontSize, fontStyle, fgColor, bkColor);
+    RXCA2T(text);
+    RXCA2T(fontName);
+    RXCA2T(fontStyle);
+    return oodWriteToWindow(context, (HWND)hwnd, xPos, yPos, textT, fontNameT, fontSize, fontStyleT, fgColor, bkColor);
 }
 
 
@@ -2672,6 +2676,10 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
             OPTIONAL_uint32_t, fontSize, OPTIONAL_CSTRING, fontStyle, OPTIONAL_uint32_t, displaceY, OPTIONAL_int32_t, step,
             OPTIONAL_uint32_t, sleep, OPTIONAL_int32_t, color, OSELF, self)
 {
+    RXCA2T(text);
+    RXCA2T(fontName);
+    RXCA2T(fontStyle);
+
     pCPlainBaseDialog pcpbd = NULL;
     HWND hCtrl = NULL;
     RexxObjectPtr result = TheOneObj;
@@ -2724,7 +2732,7 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
     // The assumption was that all of the following succeed.  Really, the only
     // thing that might fail is creating the font.
 
-    HFONT hFont = oodGenericFont(fontName, fontSize, fontStyle);
+    HFONT hFont = oodGenericFont(fontNameT, fontSize, fontStyleT);
     if ( hFont == NULL )
     {
         oodSetSysErrCode(context->threadContext);
@@ -2751,8 +2759,8 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
     }
 
     SIZE s;
-    size_t textLength = strlen(text);
-    BOOL rc = GetTextExtentPoint32(hDC, text, (int)textLength, &s);
+    size_t textLength = _tcslen(textT);
+    BOOL rc = GetTextExtentPoint32(hDC, textT, (int)textLength, &s);
     if ( rc == FALSE )
     {
         oodSetSysErrCode(context->threadContext);
@@ -2764,7 +2772,7 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
     r.top    = displaceY;
     r.left   = 0;
 
-    CSTRING textPointer = text;
+    CSTRINGT textPointer = textT;
     size_t j = 0;
     int32_t displace = 0;
     SIZE s1;
@@ -2815,7 +2823,7 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
         {
             if ( RedrawScrollingButton == hCtrl )
             {
-                rc = TextOut(hDC, r.right - i, r.top, text, (int)textLength);
+                rc = TextOut(hDC, r.right - i, r.top, textT, (int)textLength);
             }
             else
             {
@@ -2911,7 +2919,7 @@ quick_out:
 }
 
 
-HFONT createFontFromName(CSTRING name, uint32_t size)
+HFONT createFontFromName(CSTRINGT name, uint32_t size)
 {
     HDC hdc = GetDC(NULL);
     HFONT font = createFontFromName(GetDeviceCaps(hdc, LOGPIXELSY), name, size);
@@ -2919,11 +2927,11 @@ HFONT createFontFromName(CSTRING name, uint32_t size)
     return font;
 }
 
-HFONT createFontFromName(int logicalPixelsY, CSTRING name, uint32_t size)
+HFONT createFontFromName(int logicalPixelsY, CSTRINGT name, uint32_t size)
 {
     LOGFONT lf={0};
 
-    strcpy(lf.lfFaceName, name);
+    _tcscpy(lf.lfFaceName, name);
     lf.lfHeight = -MulDiv(size, logicalPixelsY, 72);
     return CreateFontIndirect(&lf);
 }
@@ -3015,7 +3023,7 @@ void screenToDlgUnit(HDC hdc, POINT *point, size_t count)
     GetTextMetrics(hdc, &tm);
     int baseUnitY = tm.tmHeight;
 
-    GetTextExtentPoint32(hdc, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52, &size);
+    GetTextExtentPoint32(hdc, _T("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"), 52, &size);
     int baseUnitX = (size.cx / 26 + 1) / 2;
 
     for ( size_t i = 0; i < count; i++ )
@@ -3073,7 +3081,7 @@ void calcDlgBaseUnits(HWND hDlg, int *baseUnitX, int *baseUnitY)
  *
  *           calcDlgBaseUnits(HWND, baseUnitX, baseUnitY)
  */
-bool calcDlgBaseUnits(RexxMethodContext *c, CSTRING fontName, uint32_t fontSize, int *baseUnitX, int *baseUnitY)
+bool calcDlgBaseUnits(RexxMethodContext *c, CSTRINGT fontName, uint32_t fontSize, int *baseUnitX, int *baseUnitY)
 {
     HDC hdc = NULL;
     HFONT font = NULL;
@@ -3098,7 +3106,7 @@ bool calcDlgBaseUnits(RexxMethodContext *c, CSTRING fontName, uint32_t fontSize,
     TEXTMETRIC tm;
     SIZE size;
     GetTextMetrics(hdc, &tm);
-    GetTextExtentPoint32(hdc, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52, &size);
+    GetTextExtentPoint32(hdc, _T("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"), 52, &size);
 
     *baseUnitX = (size.cx / 26 + 1) / 2;
     *baseUnitY = tm.tmHeight;
@@ -3211,12 +3219,12 @@ bool mapDuToPixel(RexxMethodContext *c, RexxObjectPtr dlg, PRECT r)
  *         Therefore if this function fails, GetLastError() will return the
  *         correct error code for the failed GetTextExtentPoint32().
  */
-bool getTextExtent(HFONT font, HDC hdc, CSTRING text, SIZE *size)
+bool getTextExtent(HFONT font, HDC hdc, CSTRINGT text, SIZE *size)
 {
     bool success = true;
     HFONT hOldFont = (HFONT)SelectObject(hdc, font);
 
-    if ( GetTextExtentPoint32(hdc, text, (int)strlen(text), size) == 0 )
+    if ( GetTextExtentPoint32(hdc, text, (int)_tcslen(text), size) == 0 )
     {
         success = false;
     }
@@ -3224,7 +3232,7 @@ bool getTextExtent(HFONT font, HDC hdc, CSTRING text, SIZE *size)
     return success;
 }
 
-bool textSizeIndirect(RexxMethodContext *context, CSTRING text, CSTRING fontName, uint32_t fontSize,
+bool textSizeIndirect(RexxMethodContext *context, CSTRINGT text, CSTRINGT fontName, uint32_t fontSize,
                       SIZE *size, HWND hwnd)
 {
     bool success = true;
@@ -3258,7 +3266,7 @@ bool textSizeIndirect(RexxMethodContext *context, CSTRING text, CSTRING fontName
     return success;
 }
 
-bool textSizeFromWindow(RexxMethodContext *context, CSTRING text, SIZE *size, HWND hwnd)
+bool textSizeFromWindow(RexxMethodContext *context, CSTRINGT text, SIZE *size, HWND hwnd)
 {
     HDC hdc = GetDC(hwnd);
     if ( hdc == NULL )
@@ -3304,7 +3312,7 @@ bool textSizeFromWindow(RexxMethodContext *context, CSTRING text, SIZE *size, HW
  *
  * @return RexxObjectPtr
  */
-bool getTextSize(RexxMethodContext *context, CSTRING text, CSTRING fontName, uint32_t fontSize,
+bool getTextSize(RexxMethodContext *context, CSTRINGT text, CSTRINGT fontName, uint32_t fontSize,
                  HWND hwndFontSrc, RexxObjectPtr dlgObj, PSIZE textSize)
 {
     pCPlainBaseDialog pcpbd = dlgToCSelf(context, dlgObj);
@@ -3380,7 +3388,7 @@ bool getTextSize(RexxMethodContext *context, CSTRING text, CSTRING fontName, uin
     // here using the DC with the dialog font selected into it.
     if ( textSize->cx == 0 )
     {
-        GetTextExtentPoint32(hdc, text, (int)strlen(text), textSize);
+        GetTextExtentPoint32(hdc, text, (int)_tcslen(text), textSize);
     }
 
     // Now, convert the pixel size to dialog unit size, and clean up.
@@ -3436,7 +3444,9 @@ bool dumpAllAdmins(RexxMethodContext *c, RexxStemObject dStem)
             setNumStrStem(c, dStem, count, "TOPMOST", (dlgAdm->OnTheTop ? TheTrueObj : TheFalseObj));
             setNumStrStem(c, dStem, count, "CURRENTCHILD", pointer2string(c, dlgAdm->AktChild));
             setNumStrStem(c, dStem, count, "DLL", pointer2string(c, dlgAdm->TheInstance));
-            setNumStrStem(c, dStem, count, "QUEUE", c->String(dlgAdm->pMessageQueue));
+            PCHART messageQueue = dlgAdm->pMessageQueue;
+            RXCT2A(messageQueue);
+            setNumStrStem(c, dStem, count, "QUEUE", c->String(messageQueueT));
             setNumStrStem(c, dStem, count, "BMPBUTTONS", c->StringSize(dlgAdm->BT_size));
             setNumStrStem(c, dStem, count, "DATAITEMS", c->StringSize(dlgAdm->DT_size));
             setNumStrStem(c, dStem, count, "COLORITEMS", c->StringSize(dlgAdm->CT_size));
@@ -3463,7 +3473,9 @@ bool dumpAdmin(RexxMethodContext *c, RexxStemObject dStem, DIALOGADMIN *dlgAdm)
     c->SetStemElement(dStem, "TOPMOST", (dlgAdm->OnTheTop ? TheTrueObj : TheFalseObj));
     c->SetStemElement(dStem, "CURRENTCHILD", pointer2string(c, dlgAdm->AktChild));
     c->SetStemElement(dStem, "DLL", pointer2string(c, dlgAdm->TheInstance));
-    c->SetStemElement(dStem, "QUEUE", c->String(dlgAdm->pMessageQueue));
+    PCHART messageQueue = dlgAdm->pMessageQueue;
+    RXCT2A(messageQueue);
+    c->SetStemElement(dStem, "QUEUE", c->String(messageQueueT));
 
     size_t i;
     size_t numPart;

@@ -168,7 +168,7 @@ void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
     {
         HFONT oldFont = (HFONT)SelectObject(hdc, font);
 
-        char fontName[64];
+        rxcharT fontName[64];
         TEXTMETRIC tm;
 
         GetTextMetrics(hdc, &tm);
@@ -176,7 +176,7 @@ void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
 
         long fontSize = MulDiv((tm.tmHeight - tm.tmInternalLeading), 72, GetDeviceCaps(hdc, LOGPIXELSY));
 
-        strcpy(pcpbd->fontName, fontName);
+        _tcscpy(pcpbd->fontName, fontName);
         pcpbd->fontSize = fontSize;
 
         SelectObject(hdc, oldFont);
@@ -486,15 +486,17 @@ RexxMethod4(POINTERSTRING, winex_createFont, OPTIONAL_CSTRING, fontName, OPTIONA
 
     if ( argumentExists(3) )
     {
-        italic    = StrStrI(fontStyle, "ITALIC"   ) != NULL;
-        underline = StrStrI(fontStyle, "UNDERLINE") != NULL;
-        strikeout = StrStrI(fontStyle, "STRIKEOUT") != NULL;
-        weight = getWeight(fontStyle);
+        RXCA2T(fontStyle);
+        italic    = StrStrI(fontStyleT, _T("ITALIC"   )) != NULL;
+        underline = StrStrI(fontStyleT, _T("UNDERLINE")) != NULL;
+        strikeout = StrStrI(fontStyleT, _T("STRIKEOUT")) != NULL;
+        weight = getWeight(fontStyleT);
     }
 
+    RXCA2T(fontName);
     HFONT hFont = CreateFont(fontSize, fontWidth, 0, 0, weight, italic, underline, strikeout,
                              DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
-                             DEFAULT_QUALITY, FF_DONTCARE, fontName);
+                             DEFAULT_QUALITY, FF_DONTCARE, fontNameT);
     return hFont;
 }
 
@@ -605,14 +607,16 @@ RexxMethod4(POINTERSTRING, winex_createFontEx, CSTRING, fontName, OPTIONAL_int, 
         }
     }
 
+    {
+    RXCA2T(fontName);
     HFONT font = CreateFont(height, width, escapement, orientation, weight, italic, underline, strikeOut,
-                            charSet, outputPrecision, clipPrecision, quality, pitchAndFamily, fontName);
-
+                            charSet, outputPrecision, clipPrecision, quality, pitchAndFamily, fontNameT);
     if ( font == NULL )
     {
         oodSetSysErrCode(context->threadContext);
     }
     return font;
+    }
 
 error_out:
   return NULLOBJECT;
@@ -932,7 +936,8 @@ RexxMethod4(logical_t, winex_writeDirect, POINTERSTRING, hDC, int32_t, xPos, int
 {
     if ( hDC != NULL )
     {
-        TextOut((HDC)hDC, xPos, yPos, text, (int)strlen(text));
+        RXCA2T(text);
+        TextOut((HDC)hDC, xPos, yPos, textT, (int)_tcslen(textT));
         return 0;
     }
     return 1;
@@ -1315,7 +1320,11 @@ RexxMethod9(logical_t, winex_write, CSELF, pCSelf, int32_t, xPos, int32_t, yPos,
     {
         return 1;
     }
-    return oodWriteToWindow(context, (HWND)hwnd, xPos, yPos, text, fontName, fontSize, fontStyle, fgColor, bkColor);
+    RXCA2T(text);
+    RXCA2T(fontName);
+    RXCA2T(fontStyle);
+    logical_t result = oodWriteToWindow(context, (HWND)hwnd, xPos, yPos, textT, fontNameT, fontSize, fontStyleT, fgColor, bkColor);
+    return result;
 }
 
 
@@ -1811,7 +1820,7 @@ RexxMethod3(CSTRING, winex_getSetArcDirection, POINTERSTRING, _hDC, OPTIONAL_CST
     else
     {
         direction = AD_COUNTERCLOCKWISE;
-        if ( _direction != NULLOBJECT && StrStrI(_direction, "CLOCKWISE") != NULL )
+        if ( _direction != NULLOBJECT && StrStrIA(_direction, "CLOCKWISE") != NULL )
         {
             direction = AD_CLOCKWISE;
         }

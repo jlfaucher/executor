@@ -321,10 +321,10 @@ static CSTRING getIsChecked(HWND hwnd)
 
 BUTTONTYPE getButtonInfo(HWND hwnd, PBUTTONSUBTYPE sub, DWORD *style)
 {
-    TCHAR buf[64];
+    rxcharT buf[64];
     BUTTONTYPE type = notButton;
 
-    if ( ! RealGetWindowClass(hwnd, buf, sizeof(buf)) || strcmp(buf, WC_BUTTON) )
+    if ( ! RealGetWindowClass(hwnd, buf, sizeof(buf)) || _tcscmp(buf, WC_BUTTON) )
     {
         if ( sub != NULL )
         {
@@ -468,6 +468,7 @@ RexxMethod2(int, gb_setStyle, CSTRING, opts, CSELF, pCSelf)
 
 RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
 {
+    RXCA2T(opts);
     HWND hwnd = ((pCDialogControl)pCSelf)->hCtrl;
     HWND hDlg = ((pCDialogControl)pCSelf)->hDlg;
 
@@ -475,18 +476,18 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
     UINT msg = 0;
     WPARAM wp = 0;
 
-    char *token;
-    char *str = strdupupr(opts);
+    rxcharT *token;
+    rxcharT *str = strdupupr(optsT);
     if ( ! str )
     {
         outOfMemoryException(context->threadContext);
         return NULLOBJECT;
     }
 
-    token = strtok(str, " ");
+    token = _tcstok(str, _T(" "));
     while ( token != NULL )
     {
-        if ( strcmp(token, "CHECKED") == 0 )
+        if ( _tcscmp(token, _T("CHECKED")) == 0 )
         {
             if ( (type == check || type == radio) )
             {
@@ -494,7 +495,7 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
                 wp = (WPARAM)BST_CHECKED;
             }
         }
-        else if ( strcmp(token, "UNCHECKED") == 0 )
+        else if ( _tcscmp(token, _T("UNCHECKED")) == 0 )
         {
             if ( (type == check || type == radio) )
             {
@@ -502,7 +503,7 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
                 wp = (WPARAM)BST_UNCHECKED;
             }
         }
-        else if ( strcmp(token, "INDETERMINATE") == 0 )
+        else if ( _tcscmp(token, _T("INDETERMINATE")) == 0 )
         {
             if ( type == check )
             {
@@ -510,24 +511,25 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
                 wp = (WPARAM)BST_INDETERMINATE;
             }
         }
-        else if ( strcmp(token, "FOCUS") == 0 )
+        else if ( _tcscmp(token, _T("FOCUS")) == 0 )
         {
             msg = 0;
             SendMessage(hDlg, WM_NEXTDLGCTL, (WPARAM)hwnd, TRUE);
         }
-        else if ( strcmp(token, "PUSHED") == 0 )
+        else if ( _tcscmp(token, _T("PUSHED")) == 0 )
         {
             msg = BM_SETSTATE;
             wp = (WPARAM)TRUE;
         }
-        else if ( strcmp(token, "NOTPUSHED") == 0 )
+        else if ( _tcscmp(token, _T("NOTPUSHED")) == 0 )
         {
             msg = BM_SETSTATE;
             wp = (WPARAM)FALSE;
         }
         else
         {
-            wrongArgValueException(context->threadContext, 1, BC_SETSTATE_OPTS, token);
+            RXCT2A(token);
+            wrongArgValueException(context->threadContext, 1, BC_SETSTATE_OPTS, tokenT);
             free(str);
             return NULLOBJECT;
         }
@@ -537,7 +539,7 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
             SendMessage(hwnd, msg, wp, 0);
             msg = 0;
         }
-        token = strtok(NULL, " ");
+        token = _tcstok(NULL, _T(" "));
     }
 
     safeFree(str);
@@ -549,7 +551,7 @@ RexxMethod1(RexxStringObject, bc_getState, CSELF, pCSelf)
     HWND hwnd = getDChCtrl(pCSelf);
     BUTTONTYPE type = getButtonInfo(hwnd, NULL, NULL);
 
-    TCHAR buf[64] = {'\0'};
+    char buf[64] = {'\0'};
     LRESULT l;
 
     if ( type == radio || type == check )
@@ -585,6 +587,7 @@ RexxMethod1(RexxStringObject, bc_getState, CSELF, pCSelf)
 
 RexxMethod2(RexxObjectPtr, bc_setStyle, CSTRING, opts, CSELF, pCSelf)
 {
+    RXCA2T(opts);
     HWND hwnd = getDChCtrl(pCSelf);
 
     BUTTONSUBTYPE sub;
@@ -604,25 +607,25 @@ RexxMethod2(RexxObjectPtr, bc_setStyle, CSTRING, opts, CSELF, pCSelf)
     oldTypeStyle = ((DWORD)GetWindowLong(hwnd, GWL_STYLE) & BS_TYPEMASK);
     typeStyle = oldTypeStyle;
 
-    char *token;
-    char *str = strdupupr(opts);
+    rxcharT *token;
+    rxcharT *str = strdupupr(optsT);
     if ( ! str )
     {
         outOfMemoryException(context->threadContext);
         return NULLOBJECT;
     }
 
-    token = strtok(str, " ");
+    token = _tcstok(str, _T(" "));
     while ( token != NULL )
     {
-        if ( strcmp(token, "PUSHBOX") == 0 )
+        if ( _tcscmp(token, _T("PUSHBOX")) == 0 )
         {
             if ( type == push )
             {
                 typeStyle = BS_PUSHBOX;
             }
         }
-        else if ( strcmp(token, "DEFPUSHBUTTON") == 0 )
+        else if ( _tcscmp(token, _T("DEFPUSHBUTTON")) == 0 )
         {
             if ( type == push  && sub != def )
             {
@@ -630,142 +633,143 @@ RexxMethod2(RexxObjectPtr, bc_setStyle, CSTRING, opts, CSELF, pCSelf)
                 changeDefButton = true;
             }
         }
-        else if ( strcmp(token, "CHECKBOX") == 0 )
+        else if ( _tcscmp(token, _T("CHECKBOX")) == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_CHECKBOX;
             }
         }
-        else if ( strcmp(token, "AUTOCHECKBOX") == 0 )
+        else if ( _tcscmp(token, _T("AUTOCHECKBOX")) == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_AUTOCHECKBOX;
             }
         }
-        else if ( strcmp(token, "3STATE") == 0 )
+        else if ( _tcscmp(token, _T("3STATE")) == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_3STATE;
             }
         }
-        else if ( strcmp(token, "AUTO3STATE") == 0 )
+        else if ( _tcscmp(token, _T("AUTO3STATE")) == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_AUTO3STATE;
             }
         }
-        else if ( strcmp(token, "RADIO") == 0 )
+        else if ( _tcscmp(token, _T("RADIO")) == 0 )
         {
             if ( type == radio )
             {
                 typeStyle = BS_RADIOBUTTON;
             }
         }
-        else if ( strcmp(token, "AUTORADIO") == 0 )
+        else if ( _tcscmp(token, _T("AUTORADIO")) == 0 )
         {
             if ( type == radio )
             {
                 typeStyle = BS_AUTORADIOBUTTON;
             }
         }
-        else if ( strcmp(token, "GROUPBOX") == 0 || strcmp(token, "OWNERDRAW") == 0 )
+        else if ( _tcscmp(token, _T("GROUPBOX")) == 0 || _tcscmp(token, _T("OWNERDRAW")) == 0 )
         {
             ; // Ignored.
         }
-        else if ( strcmp(token, "LEFTTEXT") == 0 || strcmp(token, "RIGHTBUTTON") == 0 )
+        else if ( _tcscmp(token, _T("LEFTTEXT")) == 0 || _tcscmp(token, _T("RIGHTBUTTON")) == 0 )
         {
             style |= BS_LEFTTEXT;
         }
-        else if ( strcmp(token, "NOTLEFTTEXT") == 0 )
+        else if ( _tcscmp(token, _T("NOTLEFTTEXT")) == 0 )
         {
             style &= ~BS_LEFTTEXT;
         }
-        else if ( strcmp(token, "TEXT") == 0 )
+        else if ( _tcscmp(token, _T("TEXT")) == 0 )
         {
             style &= ~(BS_ICON | BS_BITMAP);
         }
-        else if ( strcmp(token, "ICON") == 0 )
+        else if ( _tcscmp(token, _T("ICON")) == 0 )
         {
             style = (style & ~BS_BITMAP) | BS_ICON;
         }
-        else if ( strcmp(token, "BITMAP") == 0 )
+        else if ( _tcscmp(token, _T("BITMAP")) == 0 )
         {
             style = (style & ~BS_ICON) | BS_BITMAP;
         }
-        else if ( strcmp(token, "LEFT") == 0 )
+        else if ( _tcscmp(token, _T("LEFT")) == 0 )
         {
             style = (style & ~BS_CENTER) | BS_LEFT;
         }
-        else if ( strcmp(token, "RIGHT") == 0 )
+        else if ( _tcscmp(token, _T("RIGHT")) == 0 )
         {
             style = (style & ~BS_CENTER) | BS_RIGHT;
         }
-        else if ( strcmp(token, "HCENTER") == 0 )
+        else if ( _tcscmp(token, _T("HCENTER")) == 0 )
         {
             style |= BS_CENTER;
         }
-        else if ( strcmp(token, "TOP") == 0 )
+        else if ( _tcscmp(token, _T("TOP")) == 0 )
         {
             style = (style & ~BS_VCENTER) | BS_TOP;
         }
-        else if ( strcmp(token, "BOTTOM") == 0 )
+        else if ( _tcscmp(token, _T("BOTTOM")) == 0 )
         {
             style = (style & ~BS_VCENTER) | BS_BOTTOM;
         }
-        else if ( strcmp(token, "VCENTER") == 0 )
+        else if ( _tcscmp(token, _T("VCENTER")) == 0 )
         {
             style |= BS_VCENTER;
         }
-        else if ( strcmp(token, "PUSHLIKE") == 0 )
+        else if ( _tcscmp(token, _T("PUSHLIKE")) == 0 )
         {
             if ( type == check || type == radio )
             {
                 style |= BS_PUSHLIKE;
             }
         }
-        else if ( strcmp(token, "MULTILINE") == 0 )
+        else if ( _tcscmp(token, _T("MULTILINE")) == 0 )
         {
             style |= BS_MULTILINE;
         }
-        else if ( strcmp(token, "NOTIFY") == 0 )
+        else if ( _tcscmp(token, _T("NOTIFY")) == 0 )
         {
             style |= BS_NOTIFY;
         }
-        else if ( strcmp(token, "FLAT") == 0 )
+        else if ( _tcscmp(token, _T("FLAT")) == 0 )
         {
             style |= BS_FLAT;
         }
-        else if ( strcmp(token, "NOTPUSHLIKE") == 0 )
+        else if ( _tcscmp(token, _T("NOTPUSHLIKE")) == 0 )
         {
             if ( type == check || type == radio )
             {
                 style &= ~BS_PUSHLIKE;
             }
         }
-        else if ( strcmp(token, "NOTMULTILINE") == 0 )
+        else if ( _tcscmp(token, _T("NOTMULTILINE")) == 0 )
         {
             style &= ~BS_MULTILINE;
         }
-        else if ( strcmp(token, "NOTNOTIFY") == 0 )
+        else if ( _tcscmp(token, _T("NOTNOTIFY")) == 0 )
         {
             style &= ~BS_NOTIFY;
         }
-        else if ( strcmp(token, "NOTFLAT") == 0 )
+        else if ( _tcscmp(token, _T("NOTFLAT")) == 0 )
         {
             style &= ~BS_FLAT;
         }
         else
         {
-            wrongArgValueException(context->threadContext, 1, BC_SETSTYLE_OPTS, token);
+            RXCT2A(token);
+            wrongArgValueException(context->threadContext, 1, BC_SETSTYLE_OPTS, tokenT);
             free(str);
             return NULLOBJECT;
         }
 
-        token = strtok(NULL, " ");
+        token = _tcstok(NULL, _T(" "));
     }
 
     style |= typeStyle;
@@ -1367,18 +1371,18 @@ uint32_t parseEditStyle(CSTRING keyWords)
 {
     uint32_t style = 0;
 
-    if ( StrStrI(keyWords, "UPPER"     ) ) style |= ES_UPPERCASE;
-    if ( StrStrI(keyWords, "LOWER"     ) ) style |= ES_LOWERCASE;
-    if ( StrStrI(keyWords, "NUMBER"    ) ) style |= ES_NUMBER;
-    if ( StrStrI(keyWords, "WANTRETURN") ) style |= ES_WANTRETURN;
-    if ( StrStrI(keyWords, "OEM"       ) ) style |= ES_OEMCONVERT;
+    if ( StrStrIA(keyWords, "UPPER"     ) ) style |= ES_UPPERCASE;
+    if ( StrStrIA(keyWords, "LOWER"     ) ) style |= ES_LOWERCASE;
+    if ( StrStrIA(keyWords, "NUMBER"    ) ) style |= ES_NUMBER;
+    if ( StrStrIA(keyWords, "WANTRETURN") ) style |= ES_WANTRETURN;
+    if ( StrStrIA(keyWords, "OEM"       ) ) style |= ES_OEMCONVERT;
 
     /* Although these styles can be changed by individual ooDialog methods, as
      * a convenience, allow the programmer to include them when changing
      * multiple styles at once.
      */
-    if ( StrStrI(keyWords, "TAB"  ) ) style |= WS_TABSTOP;
-    if ( StrStrI(keyWords, "GROUP") ) style |= WS_GROUP;
+    if ( StrStrIA(keyWords, "TAB"  ) ) style |= WS_TABSTOP;
+    if ( StrStrIA(keyWords, "GROUP") ) style |= WS_GROUP;
 
     return style;
 }
@@ -1793,6 +1797,9 @@ RexxMethod1(RexxObjectPtr, e_hideBallon, CSELF, pCSelf)
 
 RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL_CSTRING, icon, CSELF, pCSelf)
 {
+    RXCA2T(title);
+    RXCA2T(text);
+    RXCA2T(icon);
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0)  )
     {
         return TheOneObj;
@@ -1815,8 +1822,8 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
         return TheOneObj;
     }
 
-    putUnicodeText((LPWORD)wszTitle, title);
-    putUnicodeText((LPWORD)wszText, text);
+    putUnicodeText((LPWORD)wszTitle, titleT);
+    putUnicodeText((LPWORD)wszText, textT);
 
     tip.cbStruct = sizeof(tip);
     tip.pszText = wszText;
@@ -1825,15 +1832,15 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
 
     if ( argumentExists(3) )
     {
-        switch( toupper(*icon) )
+        switch( _totupper(*icon) )
         {
-            case 'E' :
+            case _T('E') :
                 tip.ttiIcon = TTI_ERROR;
                 break;
-            case 'N' :
+            case _T('N') :
                 tip.ttiIcon = TTI_NONE;
                 break;
-            case 'W' :
+            case _T('W') :
                 tip.ttiIcon = TTI_WARNING;
                 break;
         }
@@ -1848,6 +1855,7 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
 
 RexxMethod2(RexxObjectPtr, e_setCue, CSTRING, text, CSELF, pCSelf)
 {
+    RXCA2T(text);
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0)  )
     {
         return TheOneObj;
@@ -1861,7 +1869,7 @@ RexxMethod2(RexxObjectPtr, e_setCue, CSTRING, text, CSELF, pCSelf)
         return TheOneObj;
     }
 
-    putUnicodeText((LPWORD)wszCue, text);
+    putUnicodeText((LPWORD)wszCue, textT);
     return (Edit_SetCueBannerText(getDChCtrl(pCSelf), wszCue) ? TheZeroObj : TheOneObj);
 }
 
@@ -2108,19 +2116,19 @@ static int32_t cbLbFind(HWND hCtrl, CSTRING text, uint32_t startIndex, CSTRING e
 }
 
 
-static int32_t cbLbAddDirectory(HWND hCtrl, CSTRING drivePath, CSTRING fileAttributes, oodControl_t ctrl)
+static int32_t cbLbAddDirectory(HWND hCtrl, CSTRINGT drivePath, CSTRING fileAttributes, oodControl_t ctrl)
 {
     uint32_t attributes = DDL_READWRITE;
     if ( fileAttributes != NULL && *fileAttributes != '\0' )
     {
-        if ( StrStrI(fileAttributes, "READWRITE") != 0 ) attributes |= DDL_READWRITE;
-        if ( StrStrI(fileAttributes, "READONLY" ) != 0 ) attributes |= DDL_READONLY;
-        if ( StrStrI(fileAttributes, "HIDDEN"   ) != 0 ) attributes |= DDL_HIDDEN;
-        if ( StrStrI(fileAttributes, "SYSTEM"   ) != 0 ) attributes |= DDL_SYSTEM;
-        if ( StrStrI(fileAttributes, "DIRECTORY") != 0 ) attributes |= DDL_DIRECTORY;
-        if ( StrStrI(fileAttributes, "ARCHIVE"  ) != 0 ) attributes |= DDL_ARCHIVE;
-        if ( StrStrI(fileAttributes, "EXCLUSIVE") != 0 ) attributes |= DDL_EXCLUSIVE;
-        if ( StrStrI(fileAttributes, "DRIVES"   ) != 0 ) attributes |= DDL_DRIVES;
+        if ( StrStrIA(fileAttributes, "READWRITE") != 0 ) attributes |= DDL_READWRITE;
+        if ( StrStrIA(fileAttributes, "READONLY" ) != 0 ) attributes |= DDL_READONLY;
+        if ( StrStrIA(fileAttributes, "HIDDEN"   ) != 0 ) attributes |= DDL_HIDDEN;
+        if ( StrStrIA(fileAttributes, "SYSTEM"   ) != 0 ) attributes |= DDL_SYSTEM;
+        if ( StrStrIA(fileAttributes, "DIRECTORY") != 0 ) attributes |= DDL_DIRECTORY;
+        if ( StrStrIA(fileAttributes, "ARCHIVE"  ) != 0 ) attributes |= DDL_ARCHIVE;
+        if ( StrStrIA(fileAttributes, "EXCLUSIVE") != 0 ) attributes |= DDL_EXCLUSIVE;
+        if ( StrStrIA(fileAttributes, "DRIVES"   ) != 0 ) attributes |= DDL_DRIVES;
     }
     uint32_t msg = (ctrl == winComboBox ? CB_DIR : LB_DIR);
 
@@ -2434,7 +2442,8 @@ RexxMethod4(int32_t, lb_find, CSTRING, text, OPTIONAL_uint32_t, startIndex, OPTI
 
 RexxMethod3(int32_t, lb_addDirectory, CSTRING, drivePath, OPTIONAL_CSTRING, fileAttributes, CSELF, pCSelf)
 {
-    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePath, fileAttributes, winListBox);
+    RXCA2T(drivePath);
+    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePathT, fileAttributes, winListBox);
 }
 
 /**
@@ -2558,5 +2567,6 @@ RexxMethod4(int32_t, cb_find, CSTRING, text, OPTIONAL_uint32_t, startIndex, OPTI
 
 RexxMethod3(int32_t, cb_addDirectory, CSTRING, drivePath, OPTIONAL_CSTRING, fileAttributes, CSELF, pCSelf)
 {
-    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePath, fileAttributes, winComboBox);
+    RXCA2T(drivePath);
+    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePathT, fileAttributes, winComboBox);
 }

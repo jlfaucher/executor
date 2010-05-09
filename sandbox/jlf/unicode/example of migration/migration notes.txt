@@ -67,6 +67,7 @@ atof            _tstof          atof            _wtof
 atoi            _tstoi          atoi            _wtoi
 atol            _tstol          _atol           _wtol
 _itoa           _itot           _itoa           _itow
+ltoa            _ltot           _ltoa           _ltow
 
 _strdup         _tcsdup         _strdup         _wcsdup
 lstrcmp         <auto>
@@ -90,6 +91,8 @@ strspn          _tcsspn         strspn          wcsspn
 strstr          _tcsstr         strstr          wcsstr 
 strtok          _tcstok         strtok          wcstok 
 strupr          _tcsupr         _strupr         _wcsupr
+
+toupper         _totupper       toupper         towupper
 
 fopen           _tfopen         fopen           _wfopen
 freopen         _tfreopen       freopen         _wfreopen

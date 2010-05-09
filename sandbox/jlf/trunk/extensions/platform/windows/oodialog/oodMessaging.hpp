@@ -58,18 +58,18 @@ extern LRESULT       paletteMessage(DIALOGADMIN *, HWND, UINT, WPARAM, LPARAM);
 extern MsgReplyType  searchMessageTables(ULONG message, WPARAM param, LPARAM lparam, pCPlainBaseDialog);
 extern bool          initCommandMessagesTable(RexxMethodContext *c, pCEventNotification pcen);
 extern bool          initEventNotification(RexxMethodContext *, DIALOGADMIN *, RexxObjectPtr, pCEventNotification *);
-extern char         *getDlgMessage(DIALOGADMIN *dlgAdm, char *buffer, bool peek);
-extern BOOL          addDialogMessage(CHAR * msg, CHAR * Qptr);
-extern bool          addCommandMessage(pCEventNotification, WPARAM, ULONG_PTR, LPARAM, ULONG_PTR, CSTRING, uint32_t);
-extern bool          addNotifyMessage(pCEventNotification, WPARAM, ULONG_PTR, LPARAM, ULONG_PTR, CSTRING, uint32_t);
-extern bool          addMiscMessage(pCEventNotification, uint32_t, uint32_t, WPARAM, ULONG_PTR, LPARAM, ULONG_PTR, CSTRING, uint32_t);
+extern rxcharT       *getDlgMessage(DIALOGADMIN *dlgAdm, rxcharT *buffer, bool peek);
+extern BOOL          addDialogMessage(CHART * msg, CHART * Qptr);
+extern bool          addCommandMessage(pCEventNotification, WPARAM, ULONG_PTR, LPARAM, ULONG_PTR, CSTRINGT, uint32_t);
+extern bool          addNotifyMessage(pCEventNotification, WPARAM, ULONG_PTR, LPARAM, ULONG_PTR, CSTRINGT, uint32_t);
+extern bool          addMiscMessage(pCEventNotification, uint32_t, uint32_t, WPARAM, ULONG_PTR, LPARAM, ULONG_PTR, CSTRINGT, uint32_t);
 
 // Shared functions for keyboard hooks and key press subclassing.
 extern void          removeKBHook(DIALOGADMIN *dlgAdm);
-extern keyPressErr_t setKeyPressData(KEYPRESSDATA *, CSTRING, CSTRING, CSTRING);
-extern void          processKeyPress(KEYPRESSDATA *, WPARAM, LPARAM, PCHAR);
+extern keyPressErr_t setKeyPressData(KEYPRESSDATA *, CSTRINGT, CSTRINGT, CSTRINGT);
+extern void          processKeyPress(KEYPRESSDATA *, WPARAM, LPARAM, PCHART);
 extern void          freeKeyPressData(KEYPRESSDATA *);
-extern uint32_t      seekKeyPressMethod(KEYPRESSDATA *, CSTRING);
+extern uint32_t      seekKeyPressMethod(KEYPRESSDATA *, CSTRINGT);
 extern void          removeKeyPressMethod(KEYPRESSDATA *, uint32_t);
 
 

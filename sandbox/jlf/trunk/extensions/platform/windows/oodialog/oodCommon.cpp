@@ -71,7 +71,7 @@
  */
 void ooDialogInternalException(RexxMethodContext *c, char *function, int line, char *date, char *file)
 {
-    TCHAR buf[512];
+    char buf[512];
     _snprintf(buf, sizeof(buf), "Interpretation error: ooDialog's internal state is inconsistent  "
                                 "Function: %s line: %d compiled date: %s  File: %s", function, line, date, file);
 
@@ -96,7 +96,7 @@ void ooDialogInternalException(RexxMethodContext *c, char *function, int line, c
  */
 RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg)
 {
-    TCHAR buf[512];
+    char buf[512];
     _snprintf(buf, sizeof(buf), "The %s method can not be invoked on %s when the Windows dialog does not exist.",
               c->GetMessageName(), c->ObjectToStringValue(rxDlg));
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
@@ -120,7 +120,7 @@ RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg
  */
 RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj)
 {
-    TCHAR buf[512];
+    char buf[512];
     _snprintf(buf, sizeof(buf), "The %s method can not be invoked on %s when the window handle is not valid.",
               c->GetMessageName(), c->ObjectToStringValue(rxObj));
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
@@ -142,7 +142,7 @@ RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj)
  */
 RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int pageNum, int pos)
 {
-    TCHAR buf[256];
+    char buf[256];
     _snprintf(buf, sizeof(buf), "Argument %d is not a valid category page number; found %d", pos, pageNum);
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
@@ -169,7 +169,7 @@ RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int pageNum, in
  */
 RexxObjectPtr wrongClassReplyException(RexxThreadContext *c, const char *n)
 {
-    TCHAR buffer[256];
+    char buffer[256];
     _snprintf(buffer, sizeof(buffer), "The windows message reply must be of the %s class", n);
     executionErrorException(c, buffer);
 
@@ -178,7 +178,7 @@ RexxObjectPtr wrongClassReplyException(RexxThreadContext *c, const char *n)
 
 void controlFailedException(RexxThreadContext *c, const char *msg, const char *func, const char *control)
 {
-    TCHAR buffer[256];
+    char buffer[256];
     _snprintf(buffer, sizeof(buffer), msg, func, control);
     systemServiceException(c, buffer);
 }
@@ -360,7 +360,7 @@ uint32_t oodResolveSymbolicID(RexxMethodContext *context, RexxObjectPtr oodObj, 
         goto done_out;
     }
 
-    char *symbol = NULL;
+    rxcharT *symbol = NULL;
 
     if ( ! context->ObjectToUnsignedInt32(id, &result) )
     {
@@ -373,14 +373,17 @@ uint32_t oodResolveSymbolicID(RexxMethodContext *context, RexxObjectPtr oodObj, 
              * But, I guess we need to preserve that.
              */
 
-            symbol = strdupupr_nospace(context->ObjectToStringValue(id));
+            CSTRING value = context->ObjectToStringValue(id);
+            RXCA2T(value);
+            symbol = strdupupr_nospace(valueT);
             if ( symbol == NULL )
             {
                 outOfMemoryException(context->threadContext);
                 goto done_out;
             }
 
-            RexxObjectPtr item = context->DirectoryAt(constDir, symbol);
+            RXCT2A(symbol);
+            RexxObjectPtr item = context->DirectoryAt(constDir, symbolT);
             if ( item != NULLOBJECT )
             {
                  context->ObjectToUnsignedInt32(item, &result);
@@ -787,28 +790,28 @@ RexxStringObject dword2string(RexxMethodContext *c, uint32_t num)
  *
  * The caller is responsible for freeing the returned string.
  */
-char *strdupupr(const char *str)
+rxcharT *strdupupr(const rxcharT *str)
 {
-    char *retStr = NULL;
+    rxcharT *retStr = NULL;
     if ( str )
     {
-        size_t l = strlen(str);
-        retStr = (char *)malloc(l + 1);
+        size_t l = _tcslen(str);
+        retStr = (rxcharT *)malloc(l + 1);
         if ( retStr )
         {
-            char *p;
+            rxcharT *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( ('a' <= *str) && (*str <= 'z') )
+                if ( (_T('a') <= *str) && (*str <= _T('z')) )
                 {
-                    *p++ = *str - ('a' - 'A');
+                    *p++ = *str - (_T('a') - _T('A'));
                 }
                 else
                 {
                     *p++ = *str;
                 }
             }
-            *p = '\0';
+            *p = _T('\0');
         }
     }
     return retStr;
@@ -824,25 +827,25 @@ char *strdupupr(const char *str)
  *
  * @note        The caller is responsible for freeing the returned string.
  */
-char *strdup_nospace(const char *str)
+rxcharT *strdup_nospace(const rxcharT *str)
 {
-    char *retStr = NULL;
+    rxcharT *retStr = NULL;
     if ( str )
     {
-        size_t l = strlen(str);
-        retStr = (char *)malloc(l + 1);
+        size_t l = _tcslen(str);
+        retStr = (rxcharT *)malloc(l + 1);
         if ( retStr )
         {
-            char *p;
+            rxcharT *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( *str == ' ' || *str == '\t' )
+                if ( *str == _T(' ') || *str == _T('\t') )
                 {
                     continue;
                 }
                 *p++ = *str;
             }
-            *p = '\0';
+            *p = _T('\0');
         }
     }
     return retStr;
@@ -858,32 +861,32 @@ char *strdup_nospace(const char *str)
  *
  * @note        The caller is responsible for freeing the returned string.
  */
-char *strdupupr_nospace(const char *str)
+rxcharT *strdupupr_nospace(const rxcharT *str)
 {
-    char *retStr = NULL;
+    rxcharT *retStr = NULL;
     if ( str )
     {
-        size_t l = strlen(str);
-        retStr = (char *)malloc(l + 1);
+        size_t l = _tcslen(str);
+        retStr = (rxcharT *)malloc(l + 1);
         if ( retStr )
         {
-            char *p;
+            rxcharT *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( *str == ' ' )
+                if ( *str == _T(' ') )
                 {
                     continue;
                 }
-                if ( ('a' <= *str) && (*str <= 'z') )
+                if ( (_T('a') <= *str) && (*str <= _T('z')) )
                 {
-                    *p++ = *str - ('a' - 'A');
+                    *p++ = *str - (_T('a') - _T('A'));
                 }
                 else
                 {
                     *p++ = *str;
                 }
             }
-            *p = '\0';
+            *p = _T('\0');
         }
     }
     return retStr;
@@ -902,19 +905,19 @@ char *strdupupr_nospace(const char *str)
  *
  * @note        The caller is responsible for freeing the returned string.
  */
-char *strdup_2methodName(const char *str)
+rxcharT *strdup_2methodName(const rxcharT *str)
 {
-    char *retStr = NULL;
+    rxcharT *retStr = NULL;
     if ( str )
     {
-        size_t l = strlen(str);
-        retStr = (char *)malloc(l + 1);
+        size_t l = _tcslen(str);
+        retStr = (rxcharT *)malloc(l + 1);
         if ( retStr )
         {
-            char *p;
+            rxcharT *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( *str == ' '|| *str == '\t' || *str == '&' || *str == '+' || *str == ':' )
+                if ( *str == _T(' ') || *str == _T('\t') || *str == _T('&') || *str == _T('+') || *str == _T(':') )
                 {
                     continue;
                 }
@@ -923,7 +926,7 @@ char *strdup_2methodName(const char *str)
                     *p++ = *str;
                 }
             }
-            *(p - 3) == '.' ? *(p - 3) = '\0' : *p = '\0';
+            *(p - 3) == _T('.') ? *(p - 3) = _T('\0') : *p = _T('\0');
         }
     }
     return retStr;
@@ -1089,7 +1092,8 @@ bool rxGetWindowText(RexxMethodContext *c, HWND hwnd, RexxStringObject *pStringO
     count = GetWindowText(hwnd, pBuf, count);
     if ( count != 0 )
     {
-        *pStringObj = c->String(pBuf);
+        RXCT2A(pBuf);
+        *pStringObj = c->String(pBufT);
     }
     else
     {
@@ -1207,7 +1211,7 @@ bool rxIntFromDirectory(RexxMethodContext *context, RexxDirectoryObject d, CSTRI
  *
  * @return Return the value for the keyword, or -1 for not found.
  */
-int getKeywordValue(String2Int *cMap, const char * str)
+int getKeywordValue(String2Int *cMap, const rxcharT * str)
 {
     String2Int::iterator itr;
     itr = cMap->find(str);
@@ -1290,7 +1294,22 @@ RexxObjectPtr setWindowStyle(RexxMethodContext *c, HWND hwnd, uint32_t style)
  *         always be at least one, if an error occurs, the wide character null
  *         is copied to the destination and 1 is returned.
  */
-int putUnicodeText(LPWORD dest, const char *text)
+#ifdef UNICODE
+
+int putUnicodeText(LPWORD dest, const rxcharW *text)
+{
+    if ( text == NULL )
+    {
+        *dest = 0;
+        return 1;
+    }
+    wcscpy((LPWSTR)dest, text);
+    return wcslen(text) + 1;
+}
+
+#else
+
+int putUnicodeText(LPWORD dest, const rxcharA *text)
 {
     int count = 1;
     if ( text == NULL )
@@ -1312,6 +1331,8 @@ int putUnicodeText(LPWORD dest, const char *text)
     }
     return count;
 }
+
+#endif
 
 
 /**

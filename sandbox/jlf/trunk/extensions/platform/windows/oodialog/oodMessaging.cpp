@@ -414,31 +414,31 @@ static BOOL endDialogPremature(pCPlainBaseDialog pcpbd, HWND hDlg, DlgProcErrTyp
 }
 
 
-BOOL addDialogMessage(CHAR *msg, CHAR *Qptr)
+BOOL addDialogMessage(CHART *msg, CHART *Qptr)
 {
-    if ( strlen(Qptr) + strlen(msg) + 1 < MAXLENQUEUE )
+    if ( _tcslen(Qptr) + _tcslen(msg) + 1 < MAXLENQUEUE )
     {
-        strcat(Qptr, msg);
-        strcat(Qptr, ";");
+        _tcscat(Qptr, msg);
+        _tcscat(Qptr, _T(";"));
         return 1;
     }
     else
     {
-        printf("MESSAGE QUEUE OVERFLOW\n");
+        _tprintf(_T("MESSAGE QUEUE OVERFLOW\n"));
     }
     return 0;
 }
 
 
-char *getDlgMessage(DIALOGADMIN *dlgAdm, char *buffer, bool peek)
+rxcharT *getDlgMessage(DIALOGADMIN *dlgAdm, rxcharT *buffer, bool peek)
 {
    size_t i = 0, l;
    MSG msg;
 
    if ( dlgAdm->pMessageQueue )
    {
-       char * pMsgQ = dlgAdm->pMessageQueue;
-       l = strlen(pMsgQ);
+       rxcharT * pMsgQ = dlgAdm->pMessageQueue;
+       l = _tcslen(pMsgQ);
 
        // Don't sleep for just a peek.
        if ( !l &&  !PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) && !peek )
@@ -447,18 +447,18 @@ char *getDlgMessage(DIALOGADMIN *dlgAdm, char *buffer, bool peek)
        }
 
        // Copy up to the ';'
-       while ( i < l && pMsgQ[i] != ';' )
+       while ( i < l && pMsgQ[i] != _T(';') )
        {
            buffer[i] = pMsgQ[i];
            i++;
        }
-       buffer[i]='\0';
+       buffer[i]=_T('\0');
 
        if ( l &&  !peek )
        {
            if ( i >= l )
            {
-               pMsgQ[0] = '\0';
+               pMsgQ[0] = _T('\0');
            }
            else
            {
@@ -542,10 +542,11 @@ inline MsgReplyType genericNotifyInvoke(RexxThreadContext *c, pCPlainBaseDialog 
  * accelerators, it is always 0. So, converting to a pseudo pointer is always
  * the correct thing to do.
  */
-inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog pcpbd, CSTRING methodName,
+inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog pcpbd, CSTRINGT methodName,
                                          WPARAM wParam, LPARAM lParam)
 {
-    RexxObjectPtr rexxReply = c->SendMessage2(pcpbd->rexxSelf, methodName, c->Uintptr(wParam), pointer2string(c, (void *)lParam));
+    RXCT2A(methodName);
+    RexxObjectPtr rexxReply = c->SendMessage2(pcpbd->rexxSelf, methodNameT, c->Uintptr(wParam), pointer2string(c, (void *)lParam));
     checkForCondition(c);
     return ReplyFalse;
 }
@@ -578,39 +579,39 @@ inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog
  *           problematic as to whether wParam and lParam are getting converted
  *           properly.
  */
-MsgReplyType genericAddDialogMessage(char *pMessageQueue,  char *rexxMethod, WPARAM wParam, LPARAM lParam, char *np, HANDLE handle, int item)
+MsgReplyType genericAddDialogMessage(rxcharT *pMessageQueue,  rxcharT *rexxMethod, WPARAM wParam, LPARAM lParam, rxcharT *np, HANDLE handle, int item)
 {
-    char msgBuffer[512];
+    rxcharT msgBuffer[512];
 
     if ( wParam == NULL && lParam == 0 )
     {
-        _snprintf(msgBuffer, 511, "%s(0\3770)", rexxMethod);
+        _sntprintf(msgBuffer, 511, _T("%s(0\3770)"), rexxMethod);
     }
     else if ( np != NULL )
     {
         if ( handle != NULL )
         {
-            _snprintf(msgBuffer, 511, "%s(%Iu\3770x%p\377%s)", rexxMethod, wParam, handle, np);
+            _sntprintf(msgBuffer, 511, _T("%s(%Iu\3770x%p\377%s)"), rexxMethod, wParam, handle, np);
         }
         else
         {
-            _snprintf(msgBuffer, 511, "%s(%Iu\377%d\377%s)", rexxMethod, wParam, item, np);
+            _sntprintf(msgBuffer, 511, _T("%s(%Iu\377%d\377%s)"), rexxMethod, wParam, item, np);
         }
     }
     else if ( handle != NULL )
     {
         if ( item > OOD_INVALID_ITEM_ID )
         {
-            _snprintf(msgBuffer, 511, "%s(%d\3770x%p)", rexxMethod, item, handle);
+            _sntprintf(msgBuffer, 511, _T("%s(%d\3770x%p)"), rexxMethod, item, handle);
         }
         else
         {
-            _snprintf(msgBuffer, 511, "%s(%Iu\3770x%p)", rexxMethod, wParam, handle);
+            _sntprintf(msgBuffer, 511, _T("%s(%Iu\3770x%p)"), rexxMethod, wParam, handle);
         }
     }
     else
     {
-        _snprintf(msgBuffer, 511, "%s(%Iu\377%Iu)", rexxMethod, wParam, lParam);
+        _sntprintf(msgBuffer, 511, _T("%s(%Iu\377%Iu)"), rexxMethod, wParam, lParam);
     }
 
     addDialogMessage(msgBuffer, pMessageQueue);
@@ -696,8 +697,9 @@ MsgReplyType searchCommandTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog 
 }
 
 
-MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
+    RXCT2A(methodName);
     RexxObjectPtr rexxReply;
     RexxObjectPtr idFrom = idFrom2rexxArg(c, lParam);
     RexxObjectPtr hwndFrom = hwndFrom2rexxArg(c, lParam);
@@ -724,7 +726,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
             RexxArrayObject args = c->ArrayOfFour(dt, valid, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
             checkForCondition(c);
 
             return ReplyFalse;
@@ -737,16 +739,19 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
             RexxObjectPtr dt;
             sysTime2dt(c, &(pFormat->st), &dt, dtFull);
 
-            RexxArrayObject args = c->ArrayOfFour(c->String(pFormat->pszFormat), dt, idFrom, hwndFrom);
+            LPCTSTR format = pFormat->pszFormat;
+            RXCT2A(format);
+            RexxArrayObject args = c->ArrayOfFour(c->String(formatT), dt, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
 
             if ( ! checkForCondition(c) )
             {
                 CSTRING display = c->ObjectToStringValue(rexxReply);
-                if ( strlen(display) < 64 )
+                RXCA2T(display);
+                if ( _tcslen(displayT) < 64 )
                 {
-                    strcpy(pFormat->szDisplay, display);
+                    _tcscpy(pFormat->szDisplay, displayT);
                 }
                 else
                 {
@@ -764,9 +769,12 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
             RexxObjectPtr _size = rxNewSize(c, 0, 0);
 
-            RexxArrayObject args = c->ArrayOfFour(c->String(pQuery->pszFormat), _size, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            LPCTSTR format = pQuery->pszFormat;
+            RXCT2A(format);
+            RexxArrayObject args = c->ArrayOfFour(c->String(formatT), _size, idFrom, hwndFrom);
+
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
             checkForCondition(c);
 
             PSIZE size = (PSIZE)c->ObjectToCSelf(_size);
@@ -782,7 +790,9 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
             LPNMDATETIMESTRING pdts = (LPNMDATETIMESTRING)lParam;
 
             RexxDirectoryObject d = (RexxDirectoryObject)rxNewBuiltinObject(c, "DIRECTORY");
-            c->DirectoryPut(d, c->String(pdts->pszUserString), "USERSTRING");
+            LPCTSTR userString = pdts->pszUserString;
+            RXCT2A(userString);
+            c->DirectoryPut(d, c->String(userStringT), "USERSTRING");
             c->DirectoryPut(d, TheNilObj, "DATETIME");
             c->DirectoryPut(d, TheFalseObj, "VALID");
 
@@ -790,7 +800,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
             dt2sysTime(c, NULLOBJECT, &(pdts->st), dtNow);
             pdts->dwFlags = GDT_ERROR;
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, c->ArrayOfThree(d, idFrom, hwndFrom));
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, c->ArrayOfThree(d, idFrom, hwndFrom));
 
             if ( checkForCondition(c) )
             {
@@ -839,13 +849,15 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
             sysTime2dt(c, &(pQuery->st), &dt, dtFull);
 
             RexxArrayObject args = c->NewArray(5);
-            c->ArrayPut(args, c->String(pQuery->pszFormat), 1);
+            LPCTSTR format = pQuery->pszFormat;
+            RXCT2A(format);
+            c->ArrayPut(args, c->String(formatT), 1);
             c->ArrayPut(args, dt, 2);
             c->ArrayPut(args, c->Int32(pQuery->nVirtKey), 3);
             c->ArrayPut(args, idFrom, 4);
             c->ArrayPut(args, hwndFrom, 5);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
 
             if ( ! checkForCondition(c) )
             {
@@ -871,7 +883,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
         case NM_KILLFOCUS:
         case NM_SETFOCUS:
         {
-            return genericNotifyInvoke(c, pcpbd, methodName, idFrom, hwndFrom);
+            return genericNotifyInvoke(c, pcpbd, methodNameT, idFrom, hwndFrom);
         }
 
         default :
@@ -885,8 +897,9 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 }
 
 
-MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
+    RXCT2A(methodName);
     char          tmpBuffer[20];
     RexxObjectPtr rexxReply;
     RexxObjectPtr idFrom = idFrom2rexxArg(c, lParam);
@@ -915,7 +928,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
             RexxArrayObject args = c->ArrayOfFour(idFrom, c->Int32(pIA->iItem), c->Int32(pIA->iSubItem), c->String(tmpBuffer));
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
             checkForCondition(c);
 
             return ReplyFalse;
@@ -942,7 +955,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(p));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
                     checkForCondition(c);
 
                     return ReplyFalse;
@@ -977,7 +990,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(tmpBuffer));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
                     checkForCondition(c);
 
                     return ReplyFalse;
@@ -988,7 +1001,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(p));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
 
                     if ( checkForCondition(c) )
                     {
@@ -1003,7 +1016,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(p));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
 
                     if ( checkForCondition(c) )
                     {
@@ -1029,8 +1042,9 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
     return ReplyFalse;
 }
 
-MsgReplyType processMCN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processMCN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
+    RXCT2A(methodName);
     RexxObjectPtr rexxReply;
     RexxObjectPtr idFrom = idFrom2rexxArg(c, lParam);
     RexxObjectPtr hwndFrom = hwndFrom2rexxArg(c, lParam);
@@ -1046,7 +1060,7 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
             RexxArrayObject args = c->ArrayOfFour(dt, c->Int32(pDayState->cDayState), idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
 
             if ( checkForCondition(c) )
             {
@@ -1074,7 +1088,7 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
             RexxArrayObject args = c->ArrayOfFour(dtStart, dtEnd, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
             checkForCondition(c);
             return ReplyTrue;
         }
@@ -1088,14 +1102,14 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
 
             RexxArrayObject args = c->ArrayOfFour(newView, oldView, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
             checkForCondition(c);
             return ReplyTrue;
         }
 
         case NM_RELEASEDCAPTURE :
         {
-            return genericNotifyInvoke(c, pcpbd, methodName, idFrom, hwndFrom);
+            return genericNotifyInvoke(c, pcpbd, methodNameT, idFrom, hwndFrom);
         }
 
         default :
@@ -1122,14 +1136,15 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, 
  *
  * @return MsgReplyType
  */
-MsgReplyType processUDN(RexxThreadContext *c, CSTRING methodName, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processUDN(RexxThreadContext *c, CSTRINGT methodName, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
+    RXCT2A(methodName);
     LPNMUPDOWN    pUPD = (LPNMUPDOWN)lParam;
 
     RexxArrayObject args = c->ArrayOfFour(c->Int32(pUPD->iPos), c->Int32(pUPD->iDelta),
                                           idFrom2rexxArg(c, lParam), hwndFrom2rexxArg(c, lParam));
 
-    RexxObjectPtr msgReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+    RexxObjectPtr msgReply = c->SendMessage(pcpbd->rexxSelf, methodNameT, args);
 
     if ( ! checkForCondition(c) )
     {
@@ -1192,8 +1207,8 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
             DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
             RexxThreadContext *c = pcpbd->dlgProcContext;
 
-            char   tmpBuffer[20];
-            char  *np = NULL;
+            rxcharT   tmpBuffer[20];
+            rxcharT  *np = NULL;
             int    item = OOD_INVALID_ITEM_ID;
             HANDLE handle = NULL;
 
@@ -1242,8 +1257,8 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
             else if ( (code == TVN_ITEMEXPANDED) || (code == TVN_ITEMEXPANDING) )
             {
                 handle = ((NM_TREEVIEW *)lParam)->itemNew.hItem;
-                if ( ((NM_TREEVIEW *)lParam)->itemNew.state & TVIS_EXPANDED ) np = "EXPANDED";
-                else np = "COLLAPSED";
+                if ( ((NM_TREEVIEW *)lParam)->itemNew.state & TVIS_EXPANDED ) np = _T("EXPANDED");
+                else np = _T("COLLAPSED");
             }
             /* do we have a key_down? */
             else if ( (code == TVN_KEYDOWN) || (code == LVN_KEYDOWN) || (code == TCN_KEYDOWN) )
@@ -1255,7 +1270,7 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
             {
                 item = ((NM_LISTVIEW *)lParam)->iItem;
                 wParam = ((NMHDR *)lParam)->idFrom;
-                sprintf(tmpBuffer, "%d %d", ((NM_LISTVIEW *)lParam)->ptAction.x, ((NM_LISTVIEW *)lParam)->ptAction.y);
+                _stprintf(tmpBuffer, _T("%d %d"), ((NM_LISTVIEW *)lParam)->ptAction.x, ((NM_LISTVIEW *)lParam)->ptAction.y);
                 np = tmpBuffer;
             }
             /* do we have a tree drag and drop? */
@@ -1263,7 +1278,7 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
             {
                 handle = ((NM_TREEVIEW *)lParam)->itemNew.hItem;
                 wParam = ((NMHDR *)lParam)->idFrom;
-                sprintf(tmpBuffer, "%d %d", ((NM_TREEVIEW *)lParam)->ptDrag.x, ((NM_TREEVIEW *)lParam)->ptDrag.y);
+                _stprintf(tmpBuffer, _T("%d %d"), ((NM_TREEVIEW *)lParam)->ptDrag.x, ((NM_TREEVIEW *)lParam)->ptDrag.y);
                 np = tmpBuffer;
             }
             /* do we have a column click in a report? */
@@ -1326,8 +1341,8 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
             DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
             RexxThreadContext *c = pcpbd->dlgProcContext;
 
-            char   msgBuffer[512];
-            char  *np = NULL;
+            rxcharT   msgBuffer[512];
+            rxcharT  *np = NULL;
             int    item = OOD_INVALID_ITEM_ID;
             HANDLE handle = NULL;
 
@@ -1342,9 +1357,9 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                             {
                                 LPHELPINFO phi = (LPHELPINFO)lParam;
 
-                                np = (phi->iContextType == HELPINFO_WINDOW ? "WINDOW" : "MENU");
+                                np = (phi->iContextType == HELPINFO_WINDOW ? _T("WINDOW") : _T("MENU"));
 
-                                _snprintf(msgBuffer, 511, "%s(%u\377%s\377%d\377%d\377%d)", m[i].rexxMethod,
+                                _sntprintf(msgBuffer, 511, _T("%s(%u\377%s\377%d\377%d\377%d)"), m[i].rexxMethod,
                                           phi->iCtrlId, np, phi->MousePos.x, phi->MousePos.y, phi->dwContextId);
 
                                 addDialogMessage(msgBuffer, dlgAdm->pMessageQueue);
@@ -1359,10 +1374,10 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                                  * then the x and y coordinates are sent as -1
                                  * and -1. Args to ooRexx: hwnd, x, y
                                  */
-                                _snprintf(msgBuffer, 511, "%s(0x%p\377%d\377%d)", m[i].rexxMethod, wParam,
+                                _sntprintf(msgBuffer, 511, _T("%s(0x%p\377%d\377%d)"), m[i].rexxMethod, wParam,
                                           ((int)(short)LOWORD(lParam)), ((int)(short)HIWORD(lParam)));
 
-                                addDialogMessage((char *)msgBuffer, dlgAdm->pMessageQueue);
+                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
                                 return((m[i].tag & TAG_MSGHANDLED) ? ReplyTrue : ReplyFalse);
                             }
                             break;
@@ -1371,8 +1386,8 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                             {
                                 /* Args to ooRexx: index, hMenu
                                  */
-                                _snprintf(msgBuffer, 511, "%s(%d\3770x%p)", m[i].rexxMethod, wParam, lParam);
-                                addDialogMessage((char *)msgBuffer, dlgAdm->pMessageQueue);
+                                _sntprintf(msgBuffer, 511, _T("%s(%d\3770x%p)"), m[i].rexxMethod, wParam, lParam);
+                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
                                 return ReplyFalse;
                             }
                             break;
@@ -1399,8 +1414,8 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                                     y = ((int)(short)HIWORD(lParam));
                                 }
 
-                                _snprintf(msgBuffer, 511, "%s(%d\377%d\377%d\377%d)", m[i].rexxMethod, (wParam & 0xFFF0), x, y, (wParam & 0x000F));
-                                addDialogMessage((char *)msgBuffer, dlgAdm->pMessageQueue);
+                                _sntprintf(msgBuffer, 511, _T("%s(%d\377%d\377%d\377%d)"), m[i].rexxMethod, (wParam & 0xFFF0), x, y, (wParam & 0x000F));
+                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
 
                                 return((m[i].tag & TAG_MSGHANDLED) ? ReplyTrue : ReplyFalse);
                             }
@@ -1415,8 +1430,8 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
 
                                 // Args to ooRexx: hMenu as a pointer.
 
-                                _snprintf(msgBuffer, 511, "%s(0x%p)", m[i].rexxMethod, wParam);
-                                addDialogMessage((char *)msgBuffer, dlgAdm->pMessageQueue);
+                                _sntprintf(msgBuffer, 511, _T("%s(0x%p)"), m[i].rexxMethod, wParam);
+                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
 
                                 return((m[i].tag & TAG_MSGHANDLED) ? ReplyTrue : ReplyFalse);
                             } break;
@@ -1474,17 +1489,17 @@ MsgReplyType searchMessageTables(ULONG message, WPARAM param, LPARAM lparam, pCP
  *           winMsg, wParam, lParam are not all 0.  TODO need to recheck this.
  */
 bool addCommandMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilter, LPARAM lParam, ULONG_PTR lpFilter,
-                       CSTRING method, uint32_t tag)
+                       CSTRINGT method, uint32_t tag)
 {
     size_t index = pcen->cmSize;
     if ( index < MAX_COMMAND_MSGS )
     {
-        pcen->commandMsgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(method) + 1);
+        pcen->commandMsgs[index].rexxMethod = (rxcharT *)LocalAlloc(LMEM_FIXED, _tcslen(method) + 1);
         if ( pcen->commandMsgs[index].rexxMethod == NULL )
         {
             return false;
         }
-        strcpy(pcen->commandMsgs[index].rexxMethod, method);
+        _tcscpy(pcen->commandMsgs[index].rexxMethod, method);
 
         pcen->commandMsgs[index].msg = WM_COMMAND;
         pcen->commandMsgs[index].msgFilter = 0xFFFFFFFF;
@@ -1499,10 +1514,10 @@ bool addCommandMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilt
     }
     else
     {
-        MessageBox(0, "Command message connections have exceeded the maximum\n"
-                      "number of allocated table entries.  No more command\n"
-                      "message connections can be added.\n",
-                   "Error", MB_OK | MB_ICONHAND);
+        MessageBox(0, _T("Command message connections have exceeded the maximum\n")
+                      _T("number of allocated table entries.  No more command\n")
+                      _T("message connections can be added.\n"),
+                   _T("Error"), MB_OK | MB_ICONHAND);
     }
     return false;
 }
@@ -1527,7 +1542,7 @@ bool addCommandMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilt
  *           winMsg, wParam, lParam are not all 0.  TODO need to recheck this.
  */
 bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilter, LPARAM lParam, ULONG_PTR lpFilter,
-                      CSTRING method, uint32_t tag)
+                      CSTRINGT method, uint32_t tag)
 {
     if ( pcen->notifyMsgs == NULL )
     {
@@ -1535,7 +1550,7 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
         if ( pcen->notifyMsgs == NULL )
         {
             // TODO pass in context and raise a condition instead of this.
-            MessageBox(0, "No memory available", "Error", MB_OK | MB_ICONHAND);
+            MessageBox(0, _T("No memory available"), _T("Error"), MB_OK | MB_ICONHAND);
             return false;
         }
         pcen->nmSize = 0;
@@ -1545,12 +1560,12 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
 
     if ( index < MAX_NOTIFY_MSGS )
     {
-        pcen->notifyMsgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(method) + 1);
+        pcen->notifyMsgs[index].rexxMethod = (rxcharT *)LocalAlloc(LMEM_FIXED, _tcslen(method) + 1);
         if ( pcen->notifyMsgs[index].rexxMethod == NULL )
         {
             return false;
         }
-        strcpy(pcen->notifyMsgs[index].rexxMethod, method);
+        _tcscpy(pcen->notifyMsgs[index].rexxMethod, method);
 
         pcen->notifyMsgs[index].msg = WM_NOTIFY;
         pcen->notifyMsgs[index].msgFilter = 0xFFFFFFFF;
@@ -1565,10 +1580,10 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
     }
     else
     {
-        MessageBox(0, "Notify message connections have exceeded the maximum\n"
-                      "number of allocated table entries.  No more notify\n"
-                      "message connections can be added.\n",
-                   "Error", MB_OK | MB_ICONHAND);
+        MessageBox(0, _T("Notify message connections have exceeded the maximum\n")
+                      _T("number of allocated table entries.  No more notify\n")
+                      _T("message connections can be added.\n"),
+                   _T("Error"), MB_OK | MB_ICONHAND);
     }
     return false;
 }
@@ -1596,7 +1611,7 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
  */
 bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter,
                     WPARAM wParam, ULONG_PTR wpFilter, LPARAM lParam, ULONG_PTR lpFilter,
-                    CSTRING method, uint32_t tag)
+                    CSTRINGT method, uint32_t tag)
 {
     if ( pcen->miscMsgs == NULL )
     {
@@ -1604,7 +1619,7 @@ bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter
         if ( pcen->miscMsgs == NULL )
         {
             // TODO pass in context and raise a condition instead of this.
-            MessageBox(0, "No memory available", "Error", MB_OK | MB_ICONHAND);
+            MessageBox(0, _T("No memory available"), _T("Error"), MB_OK | MB_ICONHAND);
             return false;
         }
         pcen->mmSize = 0;
@@ -1614,12 +1629,12 @@ bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter
 
     if ( index < MAX_NOTIFY_MSGS )
     {
-        pcen->miscMsgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(method) + 1);
+        pcen->miscMsgs[index].rexxMethod = (rxcharT *)LocalAlloc(LMEM_FIXED, _tcslen(method) + 1);
         if ( pcen->miscMsgs[index].rexxMethod == NULL )
         {
             return false;
         }
-        strcpy(pcen->miscMsgs[index].rexxMethod, method);
+        _tcscpy(pcen->miscMsgs[index].rexxMethod, method);
 
         pcen->miscMsgs[index].msg = winMsg;
         pcen->miscMsgs[index].msgFilter = 0xFFFFFFFF;
@@ -1634,10 +1649,10 @@ bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter
     }
     else
     {
-        MessageBox(0, "Miscellaneous message connections have exceeded the\n"
-                      "maximum number of allocated table entries.  No more\n"
-                      "miscellaneous message connections can be added.\n",
-                   "Error", MB_OK | MB_ICONHAND);
+        MessageBox(0, _T("Miscellaneous message connections have exceeded the\n")
+                      _T("maximum number of allocated table entries.  No more\n")
+                      _T("miscellaneous message connections can be added.\n"),
+                   _T("Error"), MB_OK | MB_ICONHAND);
     }
     return false;
 }
@@ -1657,9 +1672,9 @@ bool initCommandMessagesTable(RexxMethodContext *c, pCEventNotification pcen)
     // table can not be full at this point, we are just starting out.  A memory
     // allocation failure, which is highly unlikely, will just be ignored.  If
     // this ooRexx process is out of memory, that will quickly show up.
-    addCommandMessage(pcen, IDOK,     UINTPTR_MAX, 0, 0, "OK",     TAG_NOTHING);
-    addCommandMessage(pcen, IDCANCEL, UINTPTR_MAX, 0, 0, "Cancel", TAG_NOTHING);
-    addCommandMessage(pcen, IDHELP,   UINTPTR_MAX, 0, 0, "Help",   TAG_NOTHING);
+    addCommandMessage(pcen, IDOK,     UINTPTR_MAX, 0, 0, _T("OK"),     TAG_NOTHING);
+    addCommandMessage(pcen, IDCANCEL, UINTPTR_MAX, 0, 0, _T("Cancel"), TAG_NOTHING);
+    addCommandMessage(pcen, IDHELP,   UINTPTR_MAX, 0, 0, _T("Help"),   TAG_NOTHING);
 
     return true;
 }
@@ -1722,18 +1737,19 @@ inline CSTRING mcn2name(uint32_t mcn)
  * We know the keyword arg position is 2.  The MonthCalendar control is post
  * ooRexx 4.0.1 so we raise an exception on error.
  */
-static bool keyword2mcn(RexxMethodContext *c, CSTRING keyword, uint32_t *flag)
+static bool keyword2mcn(RexxMethodContext *c, CSTRINGT keyword, uint32_t *flag)
 {
     uint32_t mcn;
 
-    if ( StrStrI(keyword,      "GETDAYSTATE") != NULL ) mcn = MCN_GETDAYSTATE;
-    else if ( StrStrI(keyword, "RELEASED")    != NULL ) mcn = NM_RELEASEDCAPTURE;
-    else if ( StrStrI(keyword, "SELCHANGE")   != NULL ) mcn = MCN_SELCHANGE;
-    else if ( StrStrI(keyword, "SELECT")      != NULL ) mcn = MCN_SELECT;
-    else if ( StrStrI(keyword, "VIEWCHANGE")  != NULL ) mcn = MCN_VIEWCHANGE;
+    if ( StrStrI(keyword,      _T("GETDAYSTATE")) != NULL ) mcn = MCN_GETDAYSTATE;
+    else if ( StrStrI(keyword, _T("RELEASED"))    != NULL ) mcn = NM_RELEASEDCAPTURE;
+    else if ( StrStrI(keyword, _T("SELCHANGE"))   != NULL ) mcn = MCN_SELCHANGE;
+    else if ( StrStrI(keyword, _T("SELECT"))      != NULL ) mcn = MCN_SELECT;
+    else if ( StrStrI(keyword, _T("VIEWCHANGE"))  != NULL ) mcn = MCN_VIEWCHANGE;
     else
     {
-        wrongArgValueException(c->threadContext, 2, MCN_KEYWORDS, keyword);
+        RXCT2A(keyword);
+        wrongArgValueException(c->threadContext, 2, MCN_KEYWORDS, keywordT);
         return false;
     }
     *flag = mcn;
@@ -1768,22 +1784,23 @@ inline CSTRING dtpn2name(uint32_t dtpn)
  * We know the keyword arg position is 2.  The DateTimePicker control is post
  * ooRexx 4.0.1 so we raise an exception on error.
  */
-static bool keyword2dtpn(RexxMethodContext *c, CSTRING keyword, uint32_t *flag)
+static bool keyword2dtpn(RexxMethodContext *c, CSTRINGT keyword, uint32_t *flag)
 {
     uint32_t dtpn;
 
-    if ( StrStrI(keyword,      "CLOSEUP")        != NULL ) dtpn = DTN_CLOSEUP;
-    else if ( StrStrI(keyword, "DATETIMECHANGE") != NULL ) dtpn = DTN_DATETIMECHANGE;
-    else if ( StrStrI(keyword, "DROPDOWN")       != NULL ) dtpn = DTN_DROPDOWN;
-    else if ( StrStrI(keyword, "FORMATQUERY")    != NULL ) dtpn = DTN_FORMATQUERY;
-    else if ( StrStrI(keyword, "FORMAT")         != NULL ) dtpn = DTN_FORMAT;
-    else if ( StrStrI(keyword, "KILLFOCUS")      != NULL ) dtpn = NM_KILLFOCUS;
-    else if ( StrStrI(keyword, "SETFOCUS")       != NULL ) dtpn = NM_SETFOCUS;
-    else if ( StrStrI(keyword, "USERSTRING")     != NULL ) dtpn = DTN_USERSTRING;
-    else if ( StrStrI(keyword, "WMKEYDOWN")      != NULL ) dtpn = DTN_WMKEYDOWN;
+    if ( StrStrI(keyword,      _T("CLOSEUP"))        != NULL ) dtpn = DTN_CLOSEUP;
+    else if ( StrStrI(keyword, _T("DATETIMECHANGE")) != NULL ) dtpn = DTN_DATETIMECHANGE;
+    else if ( StrStrI(keyword, _T("DROPDOWN"))       != NULL ) dtpn = DTN_DROPDOWN;
+    else if ( StrStrI(keyword, _T("FORMATQUERY"))    != NULL ) dtpn = DTN_FORMATQUERY;
+    else if ( StrStrI(keyword, _T("FORMAT"))         != NULL ) dtpn = DTN_FORMAT;
+    else if ( StrStrI(keyword, _T("KILLFOCUS"))      != NULL ) dtpn = NM_KILLFOCUS;
+    else if ( StrStrI(keyword, _T("SETFOCUS"))       != NULL ) dtpn = NM_SETFOCUS;
+    else if ( StrStrI(keyword, _T("USERSTRING"))     != NULL ) dtpn = DTN_USERSTRING;
+    else if ( StrStrI(keyword, _T("WMKEYDOWN"))      != NULL ) dtpn = DTN_WMKEYDOWN;
     else
     {
-        wrongArgValueException(c->threadContext, 2, DTPN_KEYWORDS, keyword);
+        RXCT2A(keyword);
+        wrongArgValueException(c->threadContext, 2, DTPN_KEYWORDS, keywordT);
         return false;
     }
     *flag = dtpn;
@@ -1868,7 +1885,7 @@ static keyPressErr_t setKBHook(DIALOGADMIN *dlgAdm, HWND hDlg)
  * the keyboard hook procedure.  Once everything is good the hook is set.
  *
  */
-static keyPressErr_t installKBHook(DIALOGADMIN *dlgAdm, HWND hDlg, CSTRING method, CSTRING keys, CSTRING filter)
+static keyPressErr_t installKBHook(DIALOGADMIN *dlgAdm, HWND hDlg, CSTRINGT method, CSTRINGT keys, CSTRINGT filter)
 {
     KEYPRESSDATA *pData;
     LONG        ret = 0;
@@ -1899,8 +1916,8 @@ static keyPressErr_t installKBHook(DIALOGADMIN *dlgAdm, HWND hDlg, CSTRING metho
 }
 
 
-static keyPressErr_t connectKeyPressHook(RexxMethodContext *c, pCEventNotification pcen, CSTRING methodName,
-                                   CSTRING keys, CSTRING filter)
+static keyPressErr_t connectKeyPressHook(RexxMethodContext *c, pCEventNotification pcen, CSTRINGT methodName,
+                                   CSTRINGT keys, CSTRINGT filter)
 {
     if ( *methodName == '\0' )
     {
@@ -1968,7 +1985,7 @@ void removeKBHook(DIALOGADMIN *dlgAdm)
  *             rShift, lShift, rControl lControl, rAlt, lAlt, numOn, numOff,
  *             capsOn, capsOff, scrollOn, scrollOf
  */
-void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHAR pMessageQueue)
+void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHART pMessageQueue)
 {
     /* Method name can not be longer than 197 chars.  This is checked for in
      * setKeyPressData()
@@ -1976,7 +1993,7 @@ void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHAR
     CHAR oodMsg[256];
     BOOL passed = TRUE;
     INT i = pKeyData->key[wParam];
-    PCHAR pMethod = pKeyData->pMethods[i];
+    PCHART pMethod = pKeyData->pMethods[i];
     KEYFILTER *pFilter = pKeyData->pFilters[i];
 
     BOOL bShift = (GetAsyncKeyState(VK_SHIFT) & ISDOWN) ? 1 : 0;
@@ -2045,7 +2062,7 @@ void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHAR
             strcat(info, " scrollOff");
 
         sprintf(oodMsg, "%s(%u,%u,%u,%u,%s)", pMethod, wParam, bShift, bControl, bAlt, info);
-        addDialogMessage((char *)oodMsg, pMessageQueue);
+        addDialogMessage((rxcharT *)oodMsg, pMessageQueue);
     }
 }
 
@@ -2115,7 +2132,7 @@ void freeKeyPressData(KEYPRESSDATA *pData)
  * is found, otherwise the index into the table for the method.
  *
  */
-uint32_t seekKeyPressMethod(KEYPRESSDATA *pData, CSTRING method)
+uint32_t seekKeyPressMethod(KEYPRESSDATA *pData, CSTRINGT method)
 {
     uint32_t i;
     uint32_t index = 0;
@@ -2124,7 +2141,7 @@ uint32_t seekKeyPressMethod(KEYPRESSDATA *pData, CSTRING method)
     {
         for ( i = 1; i <= MAX_KEYPRESS_METHODS; i++)
         {
-            if ( pData->pMethods[i] && strcmp(pData->pMethods[i], method) == 0 )
+            if ( pData->pMethods[i] && _tcscmp(pData->pMethods[i], method) == 0 )
             {
                 index = i;
                 break;
@@ -2145,51 +2162,51 @@ uint32_t seekKeyPressMethod(KEYPRESSDATA *pData, CSTRING method)
  *
  * On false: *pFirst and *pLast are undefined.
  */
-static BOOL parseKeyToken(PCHAR token, PUINT pFirst, PUINT pLast)
+static BOOL parseKeyToken(PCHART token, PUINT pFirst, PUINT pLast)
 {
-    PCHAR  p;
+    PCHART  p;
     BOOL   ret = TRUE;
 
     *pFirst = 0;
     *pLast = 0;
 
-    if ( !strcmp(token, "ALL") )
+    if ( !_tcscmp(token, _T("ALL")) )
     {
         *pFirst = VK_LBUTTON;
         *pLast =  VK_OEM_CLEAR;
     }
-    else if ( !strcmp(token, "FKEYS") )
+    else if ( !_tcscmp(token, _T("FKEYS")) )
     {
         *pFirst = VK_F2;    /* F1 is handled by connectHelp in ooDialog */
         *pLast =  VK_F24;
     }
-    else if ( !strcmp(token, "ALPHA") )
+    else if ( !_tcscmp(token, _T("ALPHA")) )
     {
         *pFirst = VK_A;
         *pLast =  VK_Z;
     }
-    else if ( !strcmp(token, "NUMERIC") )
+    else if ( !_tcscmp(token, _T("NUMERIC")) )
     {
         *pFirst = VK_0;
         *pLast =  VK_9;
     }
-    else if ( !strcmp(token, "ALPHANUMERIC") )
+    else if ( !_tcscmp(token, _T("ALPHANUMERIC")) )
     {
         *pFirst = VK_0;
         *pLast =  VK_Z;
     }
-    else if ( (p = strchr(token, '-')) != NULL )
+    else if ( (p = _tcschr(token, _T('-'))) != NULL )
     {
         *p++ = '\0';
-        *pFirst = atol(token);
-        *pLast = atol(p);
+        *pFirst = _tstol(token);
+        *pLast = _tstol(p);
         if ( (! *pFirst || ! *pLast) || (*pFirst > *pLast)       ||
              (*pFirst < VK_LBUTTON)  || (*pFirst > VK_OEM_CLEAR) ||
              (*pLast < VK_LBUTTON)   || (*pLast > VK_OEM_CLEAR)) ret = FALSE;
     }
     else
     {
-        *pFirst = atol(token);
+        *pFirst = _tstol(token);
         *pLast = 0;
         if ( ! *pFirst || (*pFirst < VK_LBUTTON)   || (*pFirst > VK_OEM_CLEAR) ) ret = FALSE;
     }
@@ -2210,7 +2227,7 @@ static BOOL parseKeyToken(PCHAR token, PUINT pFirst, PUINT pLast)
  *          key press event.)  Because of the arg string being sent to the
  *          method, this leaves less than that for the method name.
  */
-static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRING method, char **ppMethodName)
+static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRINGT method, rxcharT **ppMethodName)
 {
     // We need room, a copy of the method name, and an unique method name.
     if ( pData->usedMethods >= (MAX_KEYPRESS_METHODS) )
@@ -2218,20 +2235,20 @@ static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRING method, char **p
         return maxMethodsErr;
     }
 
-    size_t cch = strlen(method);
+    size_t cch = _tcslen(method);
     if ( cch++ > CCH_METHOD_NAME )
     {
         return nameErr;
     }
 
-    char *tmpName = (char *)LocalAlloc(LPTR, cch);
+    rxcharT *tmpName = (rxcharT *)LocalAlloc(LPTR, cch);
     if ( tmpName == NULL )
     {
         return memoryErr;
     }
 
-    strcpy(tmpName, method);
-    strupr(tmpName);
+    _tcscpy(tmpName, method);
+    _tcsupr(tmpName);
 
     if ( seekKeyPressMethod(pData, tmpName) )
     {
@@ -2244,7 +2261,7 @@ static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRING method, char **p
 }
 
 
-static keyPressErr_t kpCheckFilter(CSTRING filter, KEYFILTER **ppFilter)
+static keyPressErr_t kpCheckFilter(CSTRINGT filter, KEYFILTER **ppFilter)
 {
     if ( filter == NULL )
     {
@@ -2257,16 +2274,16 @@ static keyPressErr_t kpCheckFilter(CSTRING filter, KEYFILTER **ppFilter)
         return memoryErr;
     }
 
-    if ( StrStrI(filter, "NONE" ) )
+    if ( StrStrI(filter, _T("NONE") ) )
     {
         tmpFilter->none = TRUE;
     }
     else
     {
-        if ( strstr(filter, "AND"    ) ) tmpFilter->and = TRUE;
-        if ( strstr(filter, "SHIFT"  ) ) tmpFilter->shift = TRUE;
-        if ( strstr(filter, "CONTROL") ) tmpFilter->control = TRUE;
-        if ( strstr(filter, "ALT"    ) ) tmpFilter->alt = TRUE;
+        if ( StrStrI(filter, _T("AND")    ) ) tmpFilter->and = TRUE;
+        if ( StrStrI(filter, _T("SHIFT")  ) ) tmpFilter->shift = TRUE;
+        if ( StrStrI(filter, _T("CONTROL")) ) tmpFilter->control = TRUE;
+        if ( StrStrI(filter, _T("ALT")    ) ) tmpFilter->alt = TRUE;
     }
 
     // Some combinations are not filters, so they are ignored.
@@ -2282,18 +2299,18 @@ static keyPressErr_t kpCheckFilter(CSTRING filter, KEYFILTER **ppFilter)
     return noErr;
 }
 
-static bool kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
+static bool kpMapKeys(KEYPRESSDATA *pData, CSTRINGT keys, uint32_t index)
 {
     uint32_t firstKey, lastKey;
-    char *token = NULL;
-    char *str = NULL;
+    rxcharT *token = NULL;
+    rxcharT *str = NULL;
     bool success = false;
 
     str = strdupupr_nospace(keys);
     if ( str != NULL )
     {
         success = true;
-        token = strtok(str, ",");
+        token = _tcstok(str, _T(","));
         while( token != NULL )
         {
             if ( parseKeyToken(token, &firstKey, &lastKey) )
@@ -2315,7 +2332,7 @@ static bool kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
             {
                 success = false;
             }
-            token = strtok(NULL, ",");
+            token = _tcstok(NULL, _T(","));
         }
     }
 
@@ -2334,9 +2351,9 @@ static bool kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
  * method, it is protected by a critical section.
  *
  */
-keyPressErr_t setKeyPressData(KEYPRESSDATA *pData, CSTRING method, CSTRING keys, CSTRING filter)
+keyPressErr_t setKeyPressData(KEYPRESSDATA *pData, CSTRINGT method, CSTRINGT keys, CSTRINGT filter)
 {
-    char      *pMethod = NULL;
+    rxcharT      *pMethod = NULL;
     KEYFILTER *pFilter = NULL;
 
     keyPressErr_t  result = kpCheckMethod(pData, method, &pMethod);
@@ -2419,7 +2436,10 @@ RexxMethod1(logical_t, en_init_eventNotification, RexxObjectPtr, cSelf)
 
 RexxMethod4(int32_t, en_connectKeyPress, CSTRING, methodName, CSTRING, keys, OPTIONAL_CSTRING, filter, CSELF, pCSelf)
 {
-    keyPressErr_t result = connectKeyPressHook(context, (pCEventNotification)pCSelf, methodName, keys, filter);
+    RXCA2T(methodName);
+    RXCA2T(keys);
+    RXCA2T(filter);
+    keyPressErr_t result = connectKeyPressHook(context, (pCEventNotification)pCSelf, methodNameT, keysT, filterT);
     if ( result == memoryErr )
     {
         outOfMemoryException(context->threadContext);
@@ -2430,7 +2450,8 @@ RexxMethod4(int32_t, en_connectKeyPress, CSTRING, methodName, CSTRING, keys, OPT
 
 RexxMethod2(int32_t, en_connectFKeyPress, CSTRING, methodName, CSELF, pCSelf)
 {
-    keyPressErr_t result = connectKeyPressHook(context, (pCEventNotification)pCSelf, methodName, "FKEYS", NULL);
+    RXCA2T(methodName);
+    keyPressErr_t result = connectKeyPressHook(context, (pCEventNotification)pCSelf, methodNameT, _T("FKEYS"), NULL);
     if ( result == memoryErr )
     {
         outOfMemoryException(context->threadContext);
@@ -2441,9 +2462,10 @@ RexxMethod2(int32_t, en_connectFKeyPress, CSTRING, methodName, CSELF, pCSelf)
 
 RexxMethod2(int32_t, en_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
     keyPressErr_t result = nameErr;
-    char *tmpName = NULL;
+    rxcharT *tmpName = NULL;
 
     HWND hDlg = pcen->hDlg;
     if ( hDlg == NULL || ! IsWindow(hDlg) )
@@ -2464,7 +2486,7 @@ RexxMethod2(int32_t, en_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF,
         }
         else
         {
-            tmpName = strdupupr(methodName);
+            tmpName = strdupupr(methodNameT);
             if ( tmpName == NULL )
             {
                 result = memoryErr;
@@ -2503,6 +2525,7 @@ done_out:
 
 RexxMethod2(logical_t, en_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     DIALOGADMIN *dlgAdm = pcen->dlgAdm;
@@ -2516,7 +2539,7 @@ RexxMethod2(logical_t, en_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, C
         return TRUE;
     }
 
-    char *tmpName = strdupupr(methodName);
+    rxcharT *tmpName = strdupupr(methodNameT);
     if ( tmpName == NULL )
     {
         return FALSE;
@@ -2554,6 +2577,7 @@ RexxMethod2(logical_t, en_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, C
  */
 RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id;
@@ -2566,7 +2590,7 @@ RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, meth
         context->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
         return 1;
     }
-    return (addCommandMessage(pcen, id, 0x0000FFFF, 0, 0, methodName, 0) ? 0 : 1);
+    return (addCommandMessage(pcen, id, 0x0000FFFF, 0, 0, methodNameT, 0) ? 0 : 1);
 }
 
 
@@ -2610,6 +2634,8 @@ RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, meth
 RexxMethod4(RexxObjectPtr, en_connectUpDownEvent, RexxObjectPtr, rxID, CSTRING, event,
             OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(event);
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id = oodResolveSymbolicID(context, pcen->rexxSelf, rxID, -1, 1);
@@ -2620,7 +2646,7 @@ RexxMethod4(RexxObjectPtr, en_connectUpDownEvent, RexxObjectPtr, rxID, CSTRING, 
 
     uint32_t notificationCode;
 
-    if ( StrStrI(event, "DELTAPOS") != NULL )
+    if ( StrStrIA(event, "DELTAPOS") != NULL )
     {
         notificationCode = UDN_DELTAPOS;
     }
@@ -2635,7 +2661,7 @@ RexxMethod4(RexxObjectPtr, en_connectUpDownEvent, RexxObjectPtr, rxID, CSTRING, 
         methodName = "onDeltaPos";
     }
 
-    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodName, TAG_UPDOWN) )
+    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, TAG_UPDOWN) )
     {
         return TheTrueObj;
     }
@@ -2679,6 +2705,8 @@ err_out:
 RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, CSTRING, event,
             OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(event);
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id = oodResolveSymbolicID(context, pcen->rexxSelf, rxID, -1, 1);
@@ -2688,7 +2716,7 @@ RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, C
     }
 
     uint32_t notificationCode;
-    if ( ! keyword2dtpn(context, event, &notificationCode) )
+    if ( ! keyword2dtpn(context, eventT, &notificationCode) )
     {
         goto err_out;
     }
@@ -2700,7 +2728,7 @@ RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, C
 
     uint32_t tag = TAG_DATETIMEPICKER | TAG_REPLYFROMREXX;
 
-    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodName, tag) )
+    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, tag) )
     {
         return TheTrueObj;
     }
@@ -2739,6 +2767,8 @@ err_out:
 RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CSTRING, event,
             OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
+    RXCA2T(event);
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id = oodResolveSymbolicID(context, pcen->rexxSelf, rxID, -1, 1);
@@ -2748,7 +2778,7 @@ RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CS
     }
 
     uint32_t notificationCode;
-    if ( ! keyword2mcn(context, event, &notificationCode) )
+    if ( ! keyword2mcn(context, eventT, &notificationCode) )
     {
         goto err_out;
     }
@@ -2769,7 +2799,7 @@ RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CS
         tag |= (TAG_MSGHANDLED | TAG_REPLYFROMREXX);
     }
 
-    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodName, tag) )
+    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, tag) )
     {
         return TheTrueObj;
     }
@@ -2815,6 +2845,7 @@ RexxMethod9(uint32_t, en_addUserMessage, CSTRING, methodName, CSTRING, wm, OPTIO
             OPTIONAL_RexxObjectPtr, wp, OPTIONAL_CSTRING, _wpFilter, OPTIONAL_RexxObjectPtr, lp, OPTIONAL_CSTRING, _lpFilter,
             OPTIONAL_CSTRING, _tag, CSELF, pCSelf)
 {
+    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
     uint32_t result = 1;
 
@@ -2903,15 +2934,15 @@ RexxMethod9(uint32_t, en_addUserMessage, CSTRING, methodName, CSTRING, wm, OPTIO
         bool success;
         if ( (winMessage & wmFilter) == WM_COMMAND )
         {
-            success = addCommandMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodName, tag);
+            success = addCommandMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodNameT, tag);
         }
         else if ( (winMessage & wmFilter) == WM_NOTIFY )
         {
-            success = addNotifyMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodName, tag);
+            success = addNotifyMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodNameT, tag);
         }
         else
         {
-            success = addMiscMessage(pcen, winMessage, wmFilter, wParam, wpFilter, lParam, lpFilter, methodName, tag);
+            success = addMiscMessage(pcen, winMessage, wmFilter, wParam, wpFilter, lParam, lpFilter, methodNameT, tag);
         }
 
         result = (success ? 0 : 1);

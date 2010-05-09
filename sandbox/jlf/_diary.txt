@@ -27,6 +27,43 @@ Let the routine/method decide which parameters must be evaluated, ex : iif(cond,
 Investigate the Activation stack (reify ? closure ? continuation ?)
 
 Unicode ?
+--> added support for wide-chars in oodialog.
+
+
+===============================================================================
+2010 may 9
+
+Added support for wide-chars in oodialog.
+Currently, the "A" Windows API is called, and the conversion occurs there, inside Windows, based on the current locale.
+When compiling ooDialog with wide chars UTF-16, the "W" API is called directly, making the dialogs Unicode-enabled.
+GTK+ uses UTF-8 internally. Most of  the Unix-style operating systems use UTF-8 internally. 
+So it's natural to use multi-byte chars in ooRexx instead of wide chars, and to provide string services which supports UTF-8.
+But the case of ooDialog is different : 
+This is a Windows-only sub-system, and for better integration with Windows, it must use UTF-16 chars internally. 
+The conversion to UTF-16 is under the responsability of ooDialog, which lets support code pages that are different 
+from the system's default code page. Typically, we can pass UTF-8 string to ooDialog which convert them to UTF-16 strings 
+before calling the Windows "W" API.
+
+By default, the byte-char configuration is built when buildling the whole interpreter :
+makeorx DEBUG
+
+To build the byte-char configuration only, enter :
+makeorx DEBUG oodialog
+or
+makeorx DEBUG oodialog "WCHAR=0"
+
+
+To clean the byte-char configuration, enter :
+makeorx DEBUG oodialog clean
+or
+makeorx DEBUG oodialog clean "WCHAR=0"
+
+To build the wide-char configuration, enter :
+makeorx DEBUG oodialog "WCHAR=1"
+The output files are generated in the subdirectory win32dbg\wchar
+
+To clean the wide-char configuration, enter :
+makeorx DEBUG oodialog clean "WCHAR=1"
 
 
 ===============================================================================

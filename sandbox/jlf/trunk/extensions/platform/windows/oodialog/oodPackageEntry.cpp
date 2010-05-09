@@ -107,6 +107,8 @@ REXX_TYPED_ROUTINE_PROTOTYPE(msSleep_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(playSound_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(winTimer_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(routineTest_rtn);
+REXX_TYPED_ROUTINE_PROTOTYPE(getCodePage_rtn);
+REXX_TYPED_ROUTINE_PROTOTYPE(setCodePage_rtn);
 
 // now build the actual entry list
 RexxRoutineEntry oodialog_functions[] =
@@ -118,6 +120,8 @@ RexxRoutineEntry oodialog_functions[] =
     REXX_TYPED_ROUTINE(playSound_rtn,          playSound_rtn),
     REXX_TYPED_ROUTINE(winTimer_rtn,           winTimer_rtn),
     REXX_TYPED_ROUTINE(routineTest_rtn,        routineTest_rtn),
+    REXX_TYPED_ROUTINE(getCodePage_rtn,        getCodePage_rtn),
+    REXX_TYPED_ROUTINE(setCodePage_rtn,        setCodePage_rtn),
 
     REXX_LAST_ROUTINE()
 };

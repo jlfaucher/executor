@@ -140,7 +140,7 @@ static DIALOGADMIN * allocDlgAdmin(RexxMethodContext *c)
         goto err_out;
     }
 
-    adm->pMessageQueue = (char *)LocalAlloc(LPTR, MAXLENQUEUE);
+    adm->pMessageQueue = (rxcharT *)LocalAlloc(LPTR, MAXLENQUEUE);
     if ( adm->pMessageQueue == NULL )
     {
         goto err_out;
@@ -155,7 +155,7 @@ static DIALOGADMIN * allocDlgAdmin(RexxMethodContext *c)
 err_out:
     safeLocalFree(adm);
     adm = NULL;
-    MessageBox(0, "Out of system resources, memory allocation failed.", "ooDialog Error",
+    MessageBox(0, _T("Out of system resources, memory allocation failed."), _T("ooDialog Error"),
                MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
     outOfMemoryException(c->threadContext);
 
@@ -247,15 +247,16 @@ bool InstallNecessaryStuff(DIALOGADMIN* dlgAdm, CSTRING library)
 
     if ( library != NULL )
     {
-        dlgAdm->TheInstance = LoadLibrary(library);
+        RXCA2T(library);
+        dlgAdm->TheInstance = LoadLibrary(libraryT);
         if ( ! dlgAdm->TheInstance )
         {
-            CHAR msg[256];
-            sprintf(msg,
-                    "Failed to load Dynamic Link Library (resource DLL.)\n"
-                    "  File name:\t\t\t%s\n"
-                    "  Windows System Error Code:\t%d\n", library, GetLastError());
-            MessageBox(0, msg, "ooDialog DLL Load Error", MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
+            CHART msg[256];
+            _stprintf(msg,
+                    _T("Failed to load Dynamic Link Library (resource DLL.)\n")
+                    _T("  File name:\t\t\t%s\n")
+                    _T("  Windows System Error Code:\t%d\n"), library, GetLastError());
+            MessageBox(0, msg, _T("ooDialog DLL Load Error"), MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
             return false;
         }
     }
@@ -296,7 +297,7 @@ int32_t delDialog(pCPlainBaseDialog pcpbd)
 
     // Add this message, so PlainBaseDialog::handleMessages() knows that
     // PlainBaseDialog::finished() should be set.
-    addDialogMessage(MSG_TERMINATE, aDlg->pMessageQueue);
+    addDialogMessage(_T(MSG_TERMINATE), aDlg->pMessageQueue);
 
     if ( aDlg->LeaveDialog == 0 )
     {
@@ -1217,16 +1218,16 @@ RexxMethod2(uint32_t, wb_display, OPTIONAL_CSTRING, opts,  CSELF, pCSelf)
     bool doFast = false;
     HWND hwnd = getWBWindow(pCSelf);
 
-    if ( opts != NULL && StrStrI(opts, "FAST") != NULL )
+    if ( opts != NULL && StrStrIA(opts, "FAST") != NULL )
     {
         doFast = true;
     }
 
     if ( opts == NULL ) {type = 'N';}
-    else if ( StrStrI(opts, "NORMAL"  ) != NULL ) {type = 'N';}
-    else if ( StrStrI(opts, "DEFAULT" ) != NULL ) {type = 'N';}
-    else if ( StrStrI(opts, "HIDE"    ) != NULL ) {type = 'H';}
-    else if ( StrStrI(opts, "INACTIVE") != NULL )
+    else if ( StrStrIA(opts, "NORMAL"  ) != NULL ) {type = 'N';}
+    else if ( StrStrIA(opts, "DEFAULT" ) != NULL ) {type = 'N';}
+    else if ( StrStrIA(opts, "HIDE"    ) != NULL ) {type = 'H';}
+    else if ( StrStrIA(opts, "INACTIVE") != NULL )
     {
         if ( doFast )
         {
@@ -1376,7 +1377,8 @@ RexxMethod1(RexxStringObject, wb_getText, CSELF, pCSelf)
 RexxMethod2(wholenumber_t, wb_setText, CSTRING, text, CSELF, pCSelf)
 {
     oodResetSysErrCode(context->threadContext);
-    if ( SetWindowText(getWBWindow(pCSelf), text) == 0 )
+    RXCA2T(text);
+    if ( SetWindowText(getWBWindow(pCSelf), textT) == 0 )
     {
         oodSetSysErrCode(context->threadContext);
         return 1;
@@ -1396,6 +1398,7 @@ RexxMethod2(wholenumber_t, wb_setText, CSTRING, text, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, wb_getTextSizePx, CSTRING, text, CSELF, pCSelf)
 {
+    RXCA2T(text);
     SIZE size = {0};
 
     HWND hwnd = wbSetUp(context, pCSelf);
@@ -1404,7 +1407,7 @@ RexxMethod2(RexxObjectPtr, wb_getTextSizePx, CSTRING, text, CSELF, pCSelf)
         goto error_out;
     }
 
-    if ( ! textSizeFromWindow(context, text, &size, hwnd) )
+    if ( ! textSizeFromWindow(context, textT, &size, hwnd) )
     {
         goto error_out;
     }
@@ -1462,6 +1465,8 @@ error_out:
 RexxMethod5(RexxObjectPtr, wb_getTextSizeScreen, CSTRING, text, OPTIONAL_CSTRING, type,
             OPTIONAL_CSTRING, fontSrc, OPTIONAL_uint32_t, fontSize, CSELF, pCSelf)
 {
+    RXCA2T(text);
+    RXCA2T(fontSrc);
     SIZE size = {0};
 
     HWND hwnd = wbSetUp(context, pCSelf);
@@ -1472,7 +1477,7 @@ RexxMethod5(RexxObjectPtr, wb_getTextSizeScreen, CSTRING, text, OPTIONAL_CSTRING
 
     if ( rxArgCount(context) == 1 )
     {
-        if ( ! textSizeFromWindow(context, text, &size, hwnd) )
+        if ( ! textSizeFromWindow(context, textT, &size, hwnd) )
         {
             goto error_out;
         }
@@ -1497,7 +1502,7 @@ RexxMethod5(RexxObjectPtr, wb_getTextSizeScreen, CSTRING, text, OPTIONAL_CSTRING
             {
                 fontSize = DEFAULT_FONTSIZE;
             }
-            if ( ! textSizeIndirect(context, text, fontSrc, fontSize, &size, hwnd) )
+            if ( ! textSizeIndirect(context, textT, fontSrcT, fontSize, &size, hwnd) )
             {
                 goto error_out;
             }
@@ -1510,7 +1515,7 @@ RexxMethod5(RexxObjectPtr, wb_getTextSizeScreen, CSTRING, text, OPTIONAL_CSTRING
                 invalidTypeException(context->threadContext, 3, " handle to a device context");
                 goto error_out;
             }
-            GetTextExtentPoint32(hdc, text, (int)strlen(text), &size);
+            GetTextExtentPoint32(hdc, textT, (int)_tcslen(textT), &size);
         }
         else if ( m == 'F' )
         {
@@ -1529,7 +1534,7 @@ RexxMethod5(RexxObjectPtr, wb_getTextSizeScreen, CSTRING, text, OPTIONAL_CSTRING
             }
 
             bool success = true;
-            if ( ! getTextExtent(hFont, hdc, text, &size) )
+            if ( ! getTextExtent(hFont, hdc, textT, &size) )
             {
                 systemServiceExceptionCode(context->threadContext, API_FAILED_MSG, "GetTextExtentPoint32");
                 success = false;
@@ -2154,7 +2159,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_init_cls, OSELF, self)
         {
             pCPlainBaseDialogClass pcpbdc = (pCPlainBaseDialogClass)context->BufferData(buf);
 
-            strcpy(pcpbdc->fontName, DEFAULT_FONTNAME);
+            _tcscpy(pcpbdc->fontName, DEFAULT_FONTNAME);
             pcpbdc->fontSize = DEFAULT_FONTSIZE;
             context->SetObjectVariable("CSELF", buf);
         }
@@ -2172,7 +2177,8 @@ RexxMethod2(RexxObjectPtr, pbdlg_setDefaultFont_cls, CSTRING, fontName, uint32_t
     }
     else
     {
-        strcpy(pcpbdc->fontName, fontName);
+        RXCA2T(fontName);
+        _tcscpy(pcpbdc->fontName, fontNameT);
         pcpbdc->fontSize = fontSize;
     }
     return NULLOBJECT;
@@ -2181,7 +2187,9 @@ RexxMethod2(RexxObjectPtr, pbdlg_setDefaultFont_cls, CSTRING, fontName, uint32_t
 RexxMethod1(CSTRING, pbdlg_getFontName_cls, CSELF, pCSelf)
 {
     pCPlainBaseDialogClass pcpbdc = getPBDClass_CSelf(context);
-    return pcpbdc->fontName;
+    rxcharT *fontName = pcpbdc->fontName;
+    RXCT2A(fontName);
+    return fontNameT;
 }
 RexxMethod1(uint32_t, pbdlg_getFontSize_cls, CSELF, pCSelf)
 {
@@ -2215,12 +2223,12 @@ RexxMethod2(RexxObjectPtr, pbdlg_new_cls, ARGLIST, args, SUPER, superClass)
 
     if ( StoredDialogs >= MAXDIALOGS )
     {
-        char buf[128];
-        _snprintf(buf, sizeof(buf),
-                  "The number of active dialogs has\n"
-                  "reached the maximum (%d) allowed\n\n"
-                  "No more dialogs can be instantiated", MAXDIALOGS);
-        MessageBox(NULL, buf, "ooDialog Error", MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
+        rxcharT buf[128];
+        _sntprintf(buf, sizeof(buf),
+                  _T("The number of active dialogs has\n")
+                  _T("reached the maximum (%d) allowed\n\n")
+                  _T("No more dialogs can be instantiated"), MAXDIALOGS);
+        MessageBox(NULL, buf, _T("ooDialog Error"), MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
 
         RexxClassObject proxyClass = rxGetContextClass(context, "DIALOGPROXY");
         if ( proxyClass != NULLOBJECT )
@@ -2345,7 +2353,7 @@ RexxMethod5(RexxObjectPtr, pbdlg_init, RexxObjectPtr, library, RexxObjectPtr, re
 
     // Set our default font to the PlainBaseDialog class default font.
     pCPlainBaseDialogClass pcpbdc = getPBDClass_CSelf(context);
-    strcpy(pcpbd->fontName, pcpbdc->fontName);
+    _tcscpy(pcpbd->fontName, pcpbdc->fontName);
     pcpbd->fontSize = pcpbdc->fontSize;
 
     // TODO at this point calculate the true dialog base units and set them into CPlainBaseDialog.
@@ -2455,7 +2463,9 @@ RexxMethod2(RexxObjectPtr, pbdlg_getFontNameSize, NAME, method, CSELF, pCSelf)
     RexxObjectPtr result;
     if ( *(method + 4) == 'N' )
     {
-        result =  context->String(((pCPlainBaseDialog)pCSelf)->fontName);
+        CSTRINGT fontName = ((pCPlainBaseDialog)pCSelf)->fontName;
+        RXCT2A(fontName);
+        result =  context->String(fontNameT);
     }
     else
     {
@@ -2474,7 +2484,8 @@ RexxMethod2(RexxObjectPtr, pbdlg_setFontName_pvt, CSTRING, name, CSELF, pCSelf)
     }
     else
     {
-        strcpy(((pCPlainBaseDialog)pCSelf)->fontName, name);
+        RXCA2T(name);
+        _tcscpy(((pCPlainBaseDialog)pCSelf)->fontName, nameT);
     }
     return NULLOBJECT;
 }
@@ -2532,7 +2543,8 @@ RexxMethod3(RexxObjectPtr, pbdlg_setDlgFont, CSTRING, fontName, OPTIONAL_uint32_
         {
             fontSize = DEFAULT_FONTSIZE;
         }
-        strcpy(pcpbd->fontName, fontName);
+        RXCA2T(fontName);
+        _tcscpy(pcpbd->fontName, fontNameT);
         pcpbd->fontSize = fontSize;
 
         // TODO at this point calculate the true dialog base units from the font
@@ -2678,6 +2690,7 @@ RexxMethod1(RexxStringObject, pbdlg_getWindowText, POINTERSTRING, hwnd)
  */
 RexxMethod2(RexxObjectPtr, pbdlg_getTextSizeDu, CSTRING, text, CSELF, pCSelf)
 {
+    RXCA2T(text);
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
 
     HWND hDlg     = pcpbd->hDlg;
@@ -2719,7 +2732,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_getTextSizeDu, CSTRING, text, CSELF, pCSelf)
 
     HFONT hOldFont = (HFONT)SelectObject(hdc, dlgFont);
 
-    GetTextExtentPoint32(hdc, text, (int)strlen(text), &textSize);
+    GetTextExtentPoint32(hdc, textT, (int)strlen(text), &textSize);
     screenToDlgUnit(hdc, (POINT *)&textSize, 1);
 
     SelectObject(hdc, hOldFont);
@@ -2796,7 +2809,9 @@ RexxMethod5(RexxObjectPtr, pbdlg_getTextSizeDlg, CSTRING, text, OPTIONAL_CSTRING
     }
 
     SIZE textSize = {0};
-    if ( getTextSize(context, text, fontName, fontSize, hwndSrc, self, &textSize) )
+    RXCA2T(text);
+    RXCA2T(fontName);
+    if ( getTextSize(context, textT, fontNameT, fontSize, hwndSrc, self, &textSize) )
     {
         return rxNewSize(context, textSize.cx, textSize.cy);
     }
@@ -2860,7 +2875,7 @@ RexxMethod3(logical_t, pbdlg_show, OPTIONAL_CSTRING, options, NAME, method, CSEL
                 break;
 
             case 'M' :
-                flag = (StrCmpNI("MIN", options, 3) == 0 ? 'M' : 'X');
+                flag = (StrCmpNIA("MIN", options, 3) == 0 ? 'M' : 'X');
                 break;
 
             case 'H' :
@@ -3043,7 +3058,8 @@ RexxMethod3(RexxObjectPtr, pbdlg_center, OPTIONAL_CSTRING, options, OPTIONAL_log
 RexxMethod2(wholenumber_t, pbdlg_setWindowText, POINTERSTRING, hwnd, CSTRING, text)
 {
     oodResetSysErrCode(context->threadContext);
-    if ( SetWindowText((HWND)hwnd, text) == 0 )
+    RXCA2T(text);
+    if ( SetWindowText((HWND)hwnd, textT) == 0 )
     {
         oodSetSysErrCode(context->threadContext);
         return 1;
@@ -3468,7 +3484,8 @@ RexxMethod3(RexxObjectPtr, pbdlg_setControlText, RexxObjectPtr, rxID, CSTRING, t
     HWND hCtrl = getPBDControlWindow(context, (pCPlainBaseDialog)pCSelf, rxID);
     if ( hCtrl != NULL )
     {
-        if ( SetWindowText(hCtrl, text) == 0 )
+        RXCA2T(text);
+        if ( SetWindowText(hCtrl, textT) == 0 )
         {
             oodSetSysErrCode(context->threadContext);
         }
@@ -3714,7 +3731,7 @@ RexxMethod2(RexxStringObject, pbdlg_getDlgMsg, OPTIONAL_logical_t, doPeek, CSELF
 {
     DIALOGADMIN *dlgAdm = getPBDDlgAdm(pCSelf);
 
-    char msg[256];
+    rxcharT msg[256];
     RexxStringObject result;
     bool peek = doPeek != 0 ? true : false;
 
@@ -3726,7 +3743,8 @@ RexxMethod2(RexxStringObject, pbdlg_getDlgMsg, OPTIONAL_logical_t, doPeek, CSELF
     if ( dialogInAdminTable(dlgAdm) )
     {
         getDlgMessage(dlgAdm, msg, peek);
-        result = context->String(msg);
+        RXCT2A(msg);
+        result = context->String(msgT);
     }
     else
     {
@@ -3902,6 +3920,7 @@ RexxMethod3(RexxObjectPtr, pbdlg_getControlData, RexxObjectPtr, rxID, NAME, msgN
  */
 RexxMethod4(int32_t, pbdlg_setControlData, RexxObjectPtr, rxID, CSTRING, data, NAME, msgName, CSELF, pCSelf)
 {
+    RXCA2T(data);
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd->hDlg == NULL )
     {
@@ -3917,7 +3936,7 @@ RexxMethod4(int32_t, pbdlg_setControlData, RexxObjectPtr, rxID, CSTRING, data, N
 
     oodControl_t ctrlType = oodName2controlType(msgName + 3);
 
-    return setControlData(context, pcpbd, id, data, pcpbd->hDlg, ctrlType);
+    return setControlData(context, pcpbd, id, dataT, pcpbd->hDlg, ctrlType);
 }
 
 

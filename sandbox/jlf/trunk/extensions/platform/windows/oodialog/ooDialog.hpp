@@ -48,6 +48,7 @@
 
 #include <windows.h>
 #include "oorexxapi.h"
+#include "rxwchar.hpp"
 
 #define MAXLENQUEUE       2056
 #define NR_BUFFER           15
@@ -245,7 +246,7 @@ inline LONG_PTR getClassPtr(HWND hwnd, int index)
 
 /* structures to manage the dialogs */
 typedef struct {
-    PCHAR     rexxMethod;
+   PCHART     rexxMethod;
    WPARAM     wParam;
    ULONG_PTR  wpFilter;
    LPARAM     lParam;
@@ -283,7 +284,7 @@ typedef struct {
 
 typedef struct {
    ULONG iconID;
-   PCHAR fileName;
+   PCHART fileName;
 } ICONTABLEENTRY;
 
 typedef struct {
@@ -366,11 +367,11 @@ typedef struct {
 } KEYFILTER, *PKEYFILTER;
 
 typedef struct {
-    PCHAR      pMessageQueue;                       /* Message queue for method invocation      */
+    PCHART     pMessageQueue;                       /* Message queue for method invocation      */
     BYTE       key[COUNT_KEYPRESS_KEYS];            /* Value of key[x] is index to pMethods[]   */
     UINT       usedMethods;                         /* Count of used slots in  pMethods[]       */
     UINT       topOfQ;                              /* Top of next free queue, 0 if empty       */
-    PCHAR      pMethods[MAX_KEYPRESS_METHODS + 1];  /* Index 0 intentionally left empty         */
+    PCHART     pMethods[MAX_KEYPRESS_METHODS + 1];  /* Index 0 intentionally left empty         */
     KEYFILTER *pFilters[MAX_KEYPRESS_METHODS + 1];  /* If null, no filter                       */
     UINT       nextFreeQ[MAX_KEYPRESS_METHODS];     /* Used only if existing connection removed */
 } KEYPRESSDATA;
@@ -404,7 +405,7 @@ typedef struct
    KEYPRESSDATA      *pKeyPressData;
    DWORD              threadID;
    WPARAM             StopScroll;
-   CHAR              *pMessageQueue;
+   CHART             *pMessageQueue;
 } DIALOGADMIN;
 
 

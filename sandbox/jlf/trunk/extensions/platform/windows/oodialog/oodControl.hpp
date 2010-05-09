@@ -54,13 +54,13 @@ typedef NEWCONTROLPARAMS *PNEWCONTROLPARAMS;
 enum DateTimePart {dtFull, dtTime, dtDate, dtNow};
 
 // Defined in oodUser.cpp
-extern uint32_t      listViewStyle(CSTRING opts, uint32_t style);
-extern uint32_t      monthCalendarStyle(CSTRING opts, uint32_t style);
+extern uint32_t      listViewStyle(CSTRINGT opts, uint32_t style);
+extern uint32_t      monthCalendarStyle(CSTRINGT opts, uint32_t style);
 
 extern RexxClassObject oodClass4controlType(RexxMethodContext *c, oodControl_t controlType);
 extern oodControl_t    control2controlType(HWND hControl);
-extern oodControl_t    winName2controlType(const char *className);
-extern const char     *controlType2winName(oodControl_t control);
+extern oodControl_t    winName2controlType(const rxcharT *className);
+extern const rxcharT   *controlType2winName(oodControl_t control);
 extern oodControl_t    oodName2controlType(CSTRING name);
 extern bool            isControlMatch(HWND, oodControl_t);
 

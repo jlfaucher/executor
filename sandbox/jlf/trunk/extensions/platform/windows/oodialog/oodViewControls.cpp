@@ -411,12 +411,12 @@ static uint32_t calPart2flag(CSTRING part)
     // macros, the macros then return the error code.
     uint32_t flag = (uint32_t)-1;
 
-    if (      StrStrI(part, "BACKGROUND"  ) != NULL ) flag = MCSC_BACKGROUND;
-    else if ( StrStrI(part, "MONTHBK"     ) != NULL ) flag = MCSC_MONTHBK;
-    else if ( StrStrI(part, "TEXT"        ) != NULL ) flag = MCSC_TEXT;
-    else if ( StrStrI(part, "TITLEBK"     ) != NULL ) flag = MCSC_TITLEBK;
-    else if ( StrStrI(part, "TITLETEXT"   ) != NULL ) flag = MCSC_TITLETEXT;
-    else if ( StrStrI(part, "TRAILINGTEXT") != NULL ) flag = MCSC_TRAILINGTEXT;
+    if (      StrStrIA(part, "BACKGROUND"  ) != NULL ) flag = MCSC_BACKGROUND;
+    else if ( StrStrIA(part, "MONTHBK"     ) != NULL ) flag = MCSC_MONTHBK;
+    else if ( StrStrIA(part, "TEXT"        ) != NULL ) flag = MCSC_TEXT;
+    else if ( StrStrIA(part, "TITLEBK"     ) != NULL ) flag = MCSC_TITLEBK;
+    else if ( StrStrIA(part, "TITLETEXT"   ) != NULL ) flag = MCSC_TITLETEXT;
+    else if ( StrStrIA(part, "TRAILINGTEXT") != NULL ) flag = MCSC_TRAILINGTEXT;
     return flag;
 }
 
@@ -450,14 +450,14 @@ static uint32_t string2mcStyle(CSTRING style)
 {
     uint32_t flags = 0;
 
-    if ( StrStrI(style, "DAYSTATE"   ) != NULL ) flags |= MCS_DAYSTATE;
-    if ( StrStrI(style, "MULTI"      ) != NULL ) flags |= MCS_MULTISELECT;
-    if ( StrStrI(style, "NOTODAY"    ) != NULL ) flags |= MCS_NOTODAY;
-    if ( StrStrI(style, "NOCIRCLE"   ) != NULL ) flags |= MCS_NOTODAYCIRCLE;
-    if ( StrStrI(style, "WEEKNUMBERS") != NULL ) flags |= MCS_WEEKNUMBERS;
-    if ( StrStrI(style, "NOTRAILING" ) != NULL ) flags |= MCS_NOTRAILINGDATES;
-    if ( StrStrI(style, "SHORTDAYS"  ) != NULL ) flags |= MCS_SHORTDAYSOFWEEK;
-    if ( StrStrI(style, "NOSELCHANGE") != NULL ) flags |= MCS_NOSELCHANGEONNAV;
+    if ( StrStrIA(style, "DAYSTATE"   ) != NULL ) flags |= MCS_DAYSTATE;
+    if ( StrStrIA(style, "MULTI"      ) != NULL ) flags |= MCS_MULTISELECT;
+    if ( StrStrIA(style, "NOTODAY"    ) != NULL ) flags |= MCS_NOTODAY;
+    if ( StrStrIA(style, "NOCIRCLE"   ) != NULL ) flags |= MCS_NOTODAYCIRCLE;
+    if ( StrStrIA(style, "WEEKNUMBERS") != NULL ) flags |= MCS_WEEKNUMBERS;
+    if ( StrStrIA(style, "NOTRAILING" ) != NULL ) flags |= MCS_NOTRAILINGDATES;
+    if ( StrStrIA(style, "SHORTDAYS"  ) != NULL ) flags |= MCS_SHORTDAYSOFWEEK;
+    if ( StrStrIA(style, "NOSELCHANGE") != NULL ) flags |= MCS_NOSELCHANGEONNAV;
 
     return flags;
 }
@@ -934,13 +934,13 @@ inline CSTRING day2dayName(int32_t iDay)
 
 static int32_t dayName2day(CSTRING day)
 {
-    if (      StrStrI(day, "MONDAY"   ) != NULL ) return 0;
-    else if ( StrStrI(day, "TUESDAY"  ) != NULL ) return 1;
-    else if ( StrStrI(day, "WEDNESDAY") != NULL ) return 2;
-    else if ( StrStrI(day, "THURSDAY" ) != NULL ) return 3;
-    else if ( StrStrI(day, "FRIDAY"   ) != NULL ) return 4;
-    else if ( StrStrI(day, "SATURDAY" ) != NULL ) return 5;
-    else if ( StrStrI(day, "SUNDAY"   ) != NULL ) return 6;
+    if (      StrStrIA(day, "MONDAY"   ) != NULL ) return 0;
+    else if ( StrStrIA(day, "TUESDAY"  ) != NULL ) return 1;
+    else if ( StrStrIA(day, "WEDNESDAY") != NULL ) return 2;
+    else if ( StrStrIA(day, "THURSDAY" ) != NULL ) return 3;
+    else if ( StrStrIA(day, "FRIDAY"   ) != NULL ) return 4;
+    else if ( StrStrIA(day, "SATURDAY" ) != NULL ) return 5;
+    else if ( StrStrIA(day, "SUNDAY"   ) != NULL ) return 6;
     else return -1;
 }
 
@@ -961,6 +961,8 @@ static int32_t dayName2day(CSTRING day)
  */
 static uint32_t mcChangeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRING _style, CSTRING _additionalStyle, bool remove)
 {
+    RXCA2T(_style);
+    RXCA2T(_additionalStyle);
     oodResetSysErrCode(c->threadContext);
     SetLastError(0);
 
@@ -980,15 +982,15 @@ static uint32_t mcChangeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTR
 
     if ( remove )
     {
-        newStyle &= ~monthCalendarStyle(_style, 0);
+        newStyle &= ~monthCalendarStyle(_styleT, 0);
         if ( _additionalStyle != NULL )
         {
-            newStyle = monthCalendarStyle(_additionalStyle, newStyle);
+            newStyle = monthCalendarStyle(_additionalStyleT, newStyle);
         }
     }
     else
     {
-        newStyle = monthCalendarStyle(_style, oldStyle);
+        newStyle = monthCalendarStyle(_styleT, oldStyle);
     }
 
     if ( SetWindowLong(hMC, GWL_STYLE, newStyle) == 0 && GetLastError() != 0 )
@@ -1486,7 +1488,7 @@ RexxMethod2(RexxObjectPtr, mc_getGridInfo, RexxObjectPtr, _gridInfo, CSELF, pCSe
         goto err_out;
     }
 
-    if ( StrStrI(whatFlag,      "DATE") != NULL ) info.dwFlags |= MCGIF_DATE;
+    if ( StrStrIA(whatFlag,      "DATE") != NULL ) info.dwFlags |= MCGIF_DATE;
     else if ( stricmp(whatFlag, "RECT") != NULL ) info.dwFlags |= MCGIF_RECT;
     else if ( stricmp(whatFlag, "NAME") != NULL ) info.dwFlags |= MCGIF_NAME;
 
@@ -1831,19 +1833,19 @@ RexxMethod2(RexxObjectPtr, mc_setCALID, CSTRING, id, CSELF, pCSelf)
 
     uint32_t calID = CAL_GREGORIAN;
 
-    if (      StrStrI(id, "GREGORIAN"                 ) != NULL ) calID = CAL_GREGORIAN ;
-    else if ( StrStrI(id, "GREGORIAN_US"              ) != NULL ) calID = CAL_GREGORIAN_US;
-    else if ( StrStrI(id, "JAPAN"                     ) != NULL ) calID = CAL_JAPAN;
-    else if ( StrStrI(id, "TAIWAN"                    ) != NULL ) calID = CAL_TAIWAN;
-    else if ( StrStrI(id, "KOREA"                     ) != NULL ) calID = CAL_KOREA;
-    else if ( StrStrI(id, "HIJRI"                     ) != NULL ) calID = CAL_HIJRI;
-    else if ( StrStrI(id, "THAI"                      ) != NULL ) calID = CAL_THAI;
-    else if ( StrStrI(id, "HEBREW"                    ) != NULL ) calID = CAL_HEBREW;
-    else if ( StrStrI(id, "GREGORIAN_ME_FRENCH"       ) != NULL ) calID = CAL_GREGORIAN_ME_FRENCH;
-    else if ( StrStrI(id, "GREGORIAN_ARABIC"          ) != NULL ) calID = CAL_GREGORIAN_ARABIC;
-    else if ( StrStrI(id, "CAL_GREGORIAN_XLIT_ENGLISH") != NULL ) calID = CAL_GREGORIAN_XLIT_ENGLISH;
-    else if ( StrStrI(id, "CAL_GREGORIAN_XLIT_FRENCH" ) != NULL ) calID = CAL_GREGORIAN_XLIT_FRENCH;
-    else if ( StrStrI(id, "UMALQURA"                  ) != NULL ) calID = CAL_UMALQURA;
+    if (      StrStrIA(id, "GREGORIAN"                 ) != NULL ) calID = CAL_GREGORIAN ;
+    else if ( StrStrIA(id, "GREGORIAN_US"              ) != NULL ) calID = CAL_GREGORIAN_US;
+    else if ( StrStrIA(id, "JAPAN"                     ) != NULL ) calID = CAL_JAPAN;
+    else if ( StrStrIA(id, "TAIWAN"                    ) != NULL ) calID = CAL_TAIWAN;
+    else if ( StrStrIA(id, "KOREA"                     ) != NULL ) calID = CAL_KOREA;
+    else if ( StrStrIA(id, "HIJRI"                     ) != NULL ) calID = CAL_HIJRI;
+    else if ( StrStrIA(id, "THAI"                      ) != NULL ) calID = CAL_THAI;
+    else if ( StrStrIA(id, "HEBREW"                    ) != NULL ) calID = CAL_HEBREW;
+    else if ( StrStrIA(id, "GREGORIAN_ME_FRENCH"       ) != NULL ) calID = CAL_GREGORIAN_ME_FRENCH;
+    else if ( StrStrIA(id, "GREGORIAN_ARABIC"          ) != NULL ) calID = CAL_GREGORIAN_ARABIC;
+    else if ( StrStrIA(id, "CAL_GREGORIAN_XLIT_ENGLISH") != NULL ) calID = CAL_GREGORIAN_XLIT_ENGLISH;
+    else if ( StrStrIA(id, "CAL_GREGORIAN_XLIT_FRENCH" ) != NULL ) calID = CAL_GREGORIAN_XLIT_FRENCH;
+    else if ( StrStrIA(id, "UMALQURA"                  ) != NULL ) calID = CAL_UMALQURA;
 
     MonthCal_SetCALID(hMC, calID);
     return TheZeroObj;
@@ -1897,10 +1899,10 @@ RexxMethod2(RexxObjectPtr, mc_setCurrentView, CSTRING, view, CSELF, pCSelf)
 
     uint32_t mcmv = MCMV_MONTH;
 
-    if (      StrStrI(view, "MONTHLY") != NULL ) mcmv = MCMV_MONTH;
-    else if ( StrStrI(view, "ANNUAL")  != NULL ) mcmv = MCMV_YEAR;
-    else if ( StrStrI(view, "DECADE")  != NULL ) mcmv = MCMV_DECADE;
-    else if ( StrStrI(view, "CENTURY") != NULL ) mcmv = MCMV_CENTURY;
+    if (      StrStrIA(view, "MONTHLY") != NULL ) mcmv = MCMV_MONTH;
+    else if ( StrStrIA(view, "ANNUAL")  != NULL ) mcmv = MCMV_YEAR;
+    else if ( StrStrIA(view, "DECADE")  != NULL ) mcmv = MCMV_DECADE;
+    else if ( StrStrIA(view, "CENTURY") != NULL ) mcmv = MCMV_CENTURY;
 
     return (MonthCal_SetCurrentView(hMC, mcmv) ? TheTrueObj : TheFalseObj);
 }
@@ -2263,6 +2265,8 @@ static uint32_t parseExtendedStyle(const char * style)
  */
 static uint32_t changeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRING _style, CSTRING _additionalStyle, bool remove)
 {
+    RXCA2T(_style);
+    RXCA2T(_additionalStyle);
     oodResetSysErrCode(c->threadContext);
     SetLastError(0);
 
@@ -2277,15 +2281,15 @@ static uint32_t changeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRIN
     uint32_t newStyle = 0;
     if ( remove )
     {
-        newStyle &= ~listViewStyle(_style, 0);
+        newStyle &= ~listViewStyle(_styleT, 0);
         if ( _additionalStyle != NULL )
         {
-            newStyle = listViewStyle(_additionalStyle, newStyle);
+            newStyle = listViewStyle(_additionalStyleT, newStyle);
         }
     }
     else
     {
-        newStyle = listViewStyle(_style, oldStyle);
+        newStyle = listViewStyle(_styleT, oldStyle);
     }
 
     if ( SetWindowLong(hList, GWL_STYLE, newStyle) == 0 && GetLastError() != 0 )
@@ -2382,6 +2386,7 @@ static int getColumnWidthArg(RexxMethodContext *context, RexxObjectPtr _width, s
 RexxMethod5(int32_t, lv_insert, OPTIONAL_uint32_t, _itemIndex, OPTIONAL_uint32_t, subitemIndex, CSTRING, text,
             OPTIONAL_int32_t, imageIndex, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hList = getDChCtrl(pCSelf);
     int32_t newItem = -1;
     int32_t itemIndex = _itemIndex;
@@ -2406,7 +2411,7 @@ RexxMethod5(int32_t, lv_insert, OPTIONAL_uint32_t, _itemIndex, OPTIONAL_uint32_t
     lvi.mask = LVIF_TEXT;
     lvi.iItem = itemIndex;
     lvi.iSubItem = subitemIndex;
-    lvi.pszText = (LPSTR)text;
+    lvi.pszText = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non-const... Was like that before rxwcharization
 
     if ( imageIndex > -1 )
     {
@@ -2435,6 +2440,7 @@ done_out:
 RexxMethod5(RexxObjectPtr, lv_modify, OPTIONAL_uint32_t, itemIndex, OPTIONAL_uint32_t, subitemIndex, CSTRING, text,
             OPTIONAL_int32_t, imageIndex, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hList = getDChCtrl(pCSelf);
 
     if ( argumentOmitted(1) )
@@ -2457,7 +2463,7 @@ RexxMethod5(RexxObjectPtr, lv_modify, OPTIONAL_uint32_t, itemIndex, OPTIONAL_uin
     lvi.mask = LVIF_TEXT;
     lvi.iItem = itemIndex;
     lvi.iSubItem = subitemIndex;
-    lvi.pszText = (LPSTR)text;
+    lvi.pszText = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non-const... Was like that before rxwcharization
 
     if ( imageIndex > -1 )
     {
@@ -2489,7 +2495,9 @@ RexxMethod2(int32_t, lv_add, ARGLIST, args, CSELF, pCSelf)
             continue;
         }
 
-        lvi.pszText = (LPSTR)context->ObjectToStringValue(_text);
+        const rxcharA *_textValue = context->ObjectToStringValue(_text);
+        RXCA2T(_textValue);
+        lvi.pszText = (LPTSTR)_textValueT.target(); // rxwchar tocheck : I assume it's safe to cast to non-const... Was like that before rxwcharization
 
         if ( i < argCount )
         {
@@ -2547,6 +2555,7 @@ done_out:
 RexxMethod5(int32_t, lv_addRow, OPTIONAL_uint32_t, index, OPTIONAL_int32_t, imageIndex, OPTIONAL_CSTRING, text,
             ARGLIST, args, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hList = getDChCtrl(pCSelf);
 
     index      = (argumentOmitted(1) ? getDCinsertIndex(pCSelf) : index);
@@ -2557,7 +2566,7 @@ RexxMethod5(int32_t, lv_addRow, OPTIONAL_uint32_t, index, OPTIONAL_int32_t, imag
     lvi.mask = LVIF_TEXT;
     lvi.iItem = index;
     lvi.iSubItem = 0;
-    lvi.pszText = (LPSTR)text;
+    lvi.pszText = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non-const... Was like that before rxwcharization
 
     if ( imageIndex > -1 )
     {
@@ -2583,7 +2592,9 @@ RexxMethod5(int32_t, lv_addRow, OPTIONAL_uint32_t, index, OPTIONAL_int32_t, imag
             continue;
         }
 
-        ListView_SetItemText(hList, itemIndex, (int)(i - 3), (LPSTR)context->ObjectToStringValue(_columnText));
+        const rxcharA *_columTextValue = context->ObjectToStringValue(_columnText);
+        RXCA2T(_columTextValue);
+        ListView_SetItemText(hList, itemIndex, (int)(i - 3), (LPTSTR)_columTextValueT.target()); // rxwchar tocheck : I assume it's safe to cast to non-const
     }
 
 done_out:
@@ -2678,6 +2689,7 @@ RexxMethod2(int32_t, lv_getNextItemWithState, NAME, method, CSELF, pCSelf)
  */
 RexxMethod5(int32_t, lv_find, CSTRING, text, OPTIONAL_int32_t, startItem, OPTIONAL_logical_t, wrap, NAME, method, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hList = getDChCtrl(pCSelf);
 
     if ( argumentOmitted(2) )
@@ -2686,7 +2698,7 @@ RexxMethod5(int32_t, lv_find, CSTRING, text, OPTIONAL_int32_t, startItem, OPTION
     }
 
     LVFINDINFO finfo = {0};
-    finfo.psz = text;
+    finfo.psz = textT;
     finfo.flags = LVFI_STRING;
     if ( wrap )
     {
@@ -2752,10 +2764,10 @@ RexxMethod2(int32_t, lv_findNearestXY, ARGLIST, args, CSELF, pCSelf)
         RexxObjectPtr _direction = context->ArrayAt(args, argsUsed + 1);
         CSTRING direction = context->ObjectToStringValue(_direction);
 
-        if ( StrStrI(direction,      "UP")    != NULL ) finfo.vkDirection = VK_UP;
-        else if ( StrStrI(direction, "LEFT")  != NULL ) finfo.vkDirection  = VK_LEFT;
-        else if ( StrStrI(direction, "RIGHT") != NULL ) finfo.vkDirection  = VK_RIGHT;
-        else if ( StrStrI(direction, "DOWN")  != NULL ) finfo.vkDirection  = VK_DOWN;
+        if ( StrStrIA(direction,      "UP")    != NULL ) finfo.vkDirection = VK_UP;
+        else if ( StrStrIA(direction, "LEFT")  != NULL ) finfo.vkDirection  = VK_LEFT;
+        else if ( StrStrIA(direction, "RIGHT") != NULL ) finfo.vkDirection  = VK_RIGHT;
+        else if ( StrStrIA(direction, "DOWN")  != NULL ) finfo.vkDirection  = VK_DOWN;
         else
         {
             wrongArgValueException(context->threadContext, argsUsed + 1, "DOWN, UP, LEFT, or RIGHT", _direction);
@@ -2773,15 +2785,17 @@ err_out:
 
 RexxMethod4(RexxObjectPtr, lv_setItemText, uint32_t, index, OPTIONAL_uint32_t, subitem, CSTRING, text, CSELF, pCSelf)
 {
-    ListView_SetItemText(getDChCtrl(pCSelf), index, subitem, (LPSTR)text);
+    RXCA2T(text);
+    ListView_SetItemText(getDChCtrl(pCSelf), index, subitem, (LPTSTR)textT.target()); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
     return TheZeroObj;
 }
 
 RexxMethod3(RexxStringObject, lv_itemText, uint32_t, index, OPTIONAL_uint32_t, subitem, CSELF, pCSelf)
 {
-    char buf[256];
-    ListView_GetItemText(getDChCtrl(pCSelf), index, subitem, buf, sizeof(buf));
-    return context->String(buf);
+    rxcharT buf[256];
+    ListView_GetItemText(getDChCtrl(pCSelf), index, subitem, buf, RXTCHARCOUNT(sizeof(buf)));
+    RXCT2A(buf);
+    return context->String(bufT);
 }
 
 RexxMethod2(RexxStringObject, lv_itemState, uint32_t, index, CSELF, pCSelf)
@@ -2840,41 +2854,41 @@ RexxMethod3(RexxObjectPtr, lv_setItemState, uint32_t, index, CSTRING, _state, CS
     uint32_t state = 0;
     uint32_t mask = 0;
 
-    if ( StrStrI(_state, "NOTCUT") != NULL )
+    if ( StrStrIA(_state, "NOTCUT") != NULL )
     {
         mask |= LVIS_CUT;
     }
-    else if ( StrStrI(_state, "CUT") != NULL )
+    else if ( StrStrIA(_state, "CUT") != NULL )
     {
         mask |= LVIS_CUT;
         state |= LVIS_CUT;
     }
 
-    if ( StrStrI(_state, "NOTDROP") != NULL )
+    if ( StrStrIA(_state, "NOTDROP") != NULL )
     {
         mask |= LVIS_DROPHILITED;
     }
-    else if ( StrStrI(_state, "DROP") != NULL )
+    else if ( StrStrIA(_state, "DROP") != NULL )
     {
         mask |= LVIS_DROPHILITED;
         state |= LVIS_DROPHILITED;
     }
 
-    if ( StrStrI(_state, "NOTFOCUSED") != NULL )
+    if ( StrStrIA(_state, "NOTFOCUSED") != NULL )
     {
         mask |= LVIS_FOCUSED;
     }
-    else if ( StrStrI(_state, "FOCUSED") != NULL )
+    else if ( StrStrIA(_state, "FOCUSED") != NULL )
     {
         mask |= LVIS_FOCUSED;
         state |= LVIS_FOCUSED;
     }
 
-    if ( StrStrI(_state, "NOTSELECTED") != NULL )
+    if ( StrStrIA(_state, "NOTSELECTED") != NULL )
     {
         mask |= LVIS_SELECTED;
     }
-    else if ( StrStrI(_state, "SELECTED") != NULL )
+    else if ( StrStrIA(_state, "SELECTED") != NULL )
     {
         mask |= LVIS_SELECTED;
         state |= LVIS_SELECTED;
@@ -3123,7 +3137,7 @@ RexxMethod3(RexxObjectPtr, lv_getItemInfo, uint32_t, index, OPTIONAL_uint32_t, s
     HWND hList = getDChCtrl(pCSelf);
 
     LVITEM lvi;
-    char buf[256];
+    rxcharT buf[256];
 
     lvi.iItem = index;
     lvi.iSubItem = subItem;
@@ -3139,20 +3153,23 @@ RexxMethod3(RexxObjectPtr, lv_getItemInfo, uint32_t, index, OPTIONAL_uint32_t, s
 
     RexxStemObject stem = context->NewStem("InternalLVItemInfo");
 
-    context->SetStemElement(stem, "!TEXT", context->String(lvi.pszText));
+    const rxcharT *lvi_pszText = lvi.pszText;
+    RXCT2A(lvi_pszText);
+    context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextT));
     context->SetStemElement(stem, "!IMAGE", context->Int32(lvi.iImage));
 
-    *buf = '\0';
-    if ( lvi.state & LVIS_CUT)         strcat(buf, "CUT ");
-    if ( lvi.state & LVIS_DROPHILITED) strcat(buf, "DROP ");
-    if ( lvi.state & LVIS_FOCUSED)     strcat(buf, "FOCUSED ");
-    if ( lvi.state & LVIS_SELECTED)    strcat(buf, "SELECTED ");
+    *buf = _T('\0');
+    if ( lvi.state & LVIS_CUT)         _tcscat(buf, _T("CUT "));
+    if ( lvi.state & LVIS_DROPHILITED) _tcscat(buf, _T("DROP "));
+    if ( lvi.state & LVIS_FOCUSED)     _tcscat(buf, _T("FOCUSED "));
+    if ( lvi.state & LVIS_SELECTED)    _tcscat(buf, _T("SELECTED "));
 
-    if ( *buf != '\0' )
+    if ( *buf != _T('\0') )
     {
-        *(buf + strlen(buf) - 1) = '\0';
+        *(buf + _tcslen(buf) - 1) = _T('\0');
     }
-    context->SetStemElement(stem, "!STATE", context->String(buf));
+    RXCT2A(buf);
+    context->SetStemElement(stem, "!STATE", context->String(bufT));
 
     return stem;
 }
@@ -3167,7 +3184,7 @@ RexxMethod2(RexxObjectPtr, lv_getColumnInfo, uint32_t, index, CSELF, pCSelf)
     HWND hList = getDChCtrl(pCSelf);
 
     LVCOLUMN lvi;
-    char buf[256];
+    rxcharT buf[256];
 
     lvi.mask = LVCF_TEXT | LVCF_SUBITEM | LVCF_FMT | LVCF_WIDTH;
     lvi.pszText = buf;
@@ -3180,7 +3197,9 @@ RexxMethod2(RexxObjectPtr, lv_getColumnInfo, uint32_t, index, CSELF, pCSelf)
 
     RexxStemObject stem = context->NewStem("InternalLVColInfo");
 
-    context->SetStemElement(stem, "!TEXT", context->String(lvi.pszText));
+    const rxcharT *lvi_pszText;
+    RXCT2A(lvi_pszText);
+    context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextT));
     context->SetStemElement(stem, "!COLUMN", context->Int32(lvi.iSubItem));
     context->SetStemElement(stem, "!WIDTH", context->Int32(lvi.cx));
 
@@ -3213,13 +3232,14 @@ RexxMethod3(RexxObjectPtr, lv_setColumnWidthPx, uint32_t, index, OPTIONAL_RexxOb
 RexxMethod5(RexxObjectPtr, lv_modifyColumnPx, uint32_t, index, OPTIONAL_CSTRING, label, OPTIONAL_RexxObjectPtr, _width,
             OPTIONAL_CSTRING, align, CSELF, pCSelf)
 {
+    RXCA2T(label);
     HWND hList = getDChCtrl(pCSelf);
     LVCOLUMN lvi = {0};
 
     if ( argumentExists(2) && *label != '\0' )
     {
-        lvi.pszText = (LPSTR)label;
-        lvi.cchTextMax = (int)strlen(label);
+        lvi.pszText = (LPTSTR)labelT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
+        lvi.cchTextMax = (int)_tcslen(labelT);
         lvi.mask |= LVCF_TEXT;
     }
     if ( argumentExists(3) )
@@ -3233,9 +3253,9 @@ RexxMethod5(RexxObjectPtr, lv_modifyColumnPx, uint32_t, index, OPTIONAL_CSTRING,
     }
     if ( argumentExists(4) && *align != '\0' )
     {
-        if ( StrStrI(align, "CENTER")     != NULL ) lvi.fmt = LVCFMT_CENTER;
-        else if ( StrStrI(align, "RIGHT") != NULL ) lvi.fmt = LVCFMT_RIGHT;
-        else if ( StrStrI(align, "LEFT")  != NULL ) lvi.fmt = LVCFMT_LEFT;
+        if ( StrStrIA(align, "CENTER")     != NULL ) lvi.fmt = LVCFMT_CENTER;
+        else if ( StrStrIA(align, "RIGHT") != NULL ) lvi.fmt = LVCFMT_RIGHT;
+        else if ( StrStrIA(align, "LEFT")  != NULL ) lvi.fmt = LVCFMT_LEFT;
         else
         {
             wrongArgValueException(context->threadContext, 4, "LEFT, RIGHT, or CENTER", align);
@@ -3364,24 +3384,25 @@ done:
 RexxMethod5(int, lv_insertColumnPx, OPTIONAL_uint16_t, column, CSTRING, text, uint16_t, width,
             OPTIONAL_CSTRING, fmt, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hwnd = getDChCtrl(pCSelf);
 
     LVCOLUMN lvi = {0};
     int retVal = 0;
-    char szText[256];
+    rxcharT szText[256];
 
     lvi.mask = LVCF_TEXT | LVCF_SUBITEM | LVCF_FMT | LVCF_WIDTH;
 
     // If omitted, column is 0, which is also the default.
     lvi.iSubItem = column;
 
-    lvi.cchTextMax = (int)strlen(text);
-    if ( lvi.cchTextMax > (sizeof(szText) - 1) )
+    lvi.cchTextMax = (int)_tcslen(textT);
+    if ( lvi.cchTextMax > RXTCHARCOUNT(sizeof(szText) - 1) )
     {
         userDefinedMsgException(context->threadContext, 2, "the column title must be less than 256 characters");
         return 0;
     }
-    strcpy(szText, text);
+    _tcscpy(szText, textT);
     lvi.pszText = szText;
     lvi.cx = width;
 
@@ -3423,6 +3444,7 @@ RexxMethod2(int, lv_stringWidthPx, CSTRING, text, CSELF, pCSelf)
 RexxMethod5(int32_t, lv_addFullRow, CSTRING, text, OPTIONAL_int32_t, itemIndex, OPTIONAL_int32_t, imageIndex,
             OPTIONAL_RexxObjectPtr, subItems, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hwnd = getDChCtrl(pCSelf);
 
     if ( argumentOmitted(2) )
@@ -3439,7 +3461,7 @@ RexxMethod5(int32_t, lv_addFullRow, CSTRING, text, OPTIONAL_int32_t, itemIndex, 
 
     lvi.iItem = itemIndex;
     lvi.iSubItem = 0;
-    lvi.pszText = (LPSTR)text;
+    lvi.pszText = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
 
     if ( imageIndex > -1 )
     {
@@ -3489,7 +3511,9 @@ RexxMethod5(int32_t, lv_addFullRow, CSTRING, text, OPTIONAL_int32_t, itemIndex, 
 
         lvi.mask = LVIF_TEXT;
         lvi.iSubItem = (int)i;
-        lvi.pszText = (LPSTR)context->ObjectToStringValue(subItemText);
+        const rxcharA *subItemTextValue = context->ObjectToStringValue(subItemText);
+        RXCA2T(subItemTextValue);
+        lvi.pszText = (LPTSTR)subItemTextValueT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
 
         if ( imageIndex > -1 )
         {
@@ -3731,60 +3755,60 @@ static CSTRING tvGetAttributeName(uint8_t type)
 
 static void parseTvModifyOpts(CSTRING opts, TVITEMEX *tvi)
 {
-    if ( StrStrI(opts, "NOTBOLD") != NULL )
+    if ( StrStrIA(opts, "NOTBOLD") != NULL )
     {
         tvi->stateMask |= TVIS_BOLD;
     }
-    else if ( StrStrI(opts, "BOLD") != NULL )
+    else if ( StrStrIA(opts, "BOLD") != NULL )
     {
         tvi->state |= TVIS_BOLD;
         tvi->stateMask |= TVIS_BOLD;
     }
 
-    if ( StrStrI(opts, "NOTDROP") != NULL )
+    if ( StrStrIA(opts, "NOTDROP") != NULL )
     {
         tvi->stateMask |= TVIS_DROPHILITED;
     }
-    else if ( StrStrI(opts, "DROP") != NULL )
+    else if ( StrStrIA(opts, "DROP") != NULL )
     {
         tvi->state |= TVIS_DROPHILITED;
         tvi->stateMask |= TVIS_DROPHILITED;
     }
 
-    if ( StrStrI(opts, "NOTSELECTED") != NULL )
+    if ( StrStrIA(opts, "NOTSELECTED") != NULL )
     {
         tvi->stateMask |= TVIS_SELECTED;
     }
-    else if ( StrStrI(opts, "SELECTED") != NULL )
+    else if ( StrStrIA(opts, "SELECTED") != NULL )
     {
         tvi->state |= TVIS_SELECTED;
         tvi->stateMask |= TVIS_SELECTED;
     }
 
-    if ( StrStrI(opts, "NOTCUT") != NULL )
+    if ( StrStrIA(opts, "NOTCUT") != NULL )
     {
         tvi->stateMask |= TVIS_CUT;
     }
-    else if ( StrStrI(opts, "CUT") != NULL )
+    else if ( StrStrIA(opts, "CUT") != NULL )
     {
         tvi->state |= TVIS_CUT;
         tvi->stateMask |= TVIS_CUT;
     }
 
-    if ( StrStrI(opts, "NOTEXPANDEDONCE") != NULL )
+    if ( StrStrIA(opts, "NOTEXPANDEDONCE") != NULL )
     {
         tvi->stateMask |= TVIS_EXPANDEDONCE;
     }
-    else if ( StrStrI(opts, "EXPANDEDONCE") != NULL )
+    else if ( StrStrIA(opts, "EXPANDEDONCE") != NULL )
     {
         tvi->state |= TVIS_EXPANDEDONCE;
         tvi->stateMask |= TVIS_EXPANDEDONCE;
     }
-    else if ( StrStrI(opts, "NOTEXPANDED") != NULL )
+    else if ( StrStrIA(opts, "NOTEXPANDED") != NULL )
     {
         tvi->stateMask |= TVIS_EXPANDED;
     }
-    else if ( StrStrI(opts, "EXPANDED") != NULL )
+    else if ( StrStrIA(opts, "EXPANDED") != NULL )
     {
         tvi->state |= TVIS_EXPANDED;
         tvi->stateMask |= TVIS_EXPANDED;
@@ -3841,8 +3865,9 @@ RexxMethod8(RexxObjectPtr, tv_insert, OPTIONAL_CSTRING, _hItem, OPTIONAL_CSTRING
     selectedImage = (argumentOmitted(5) ? -1 : selectedImage);
 
     tvi->mask = TVIF_TEXT;
-    tvi->pszText = (LPSTR)label;
-    tvi->cchTextMax = (int)strlen(label);
+    RXCA2T(label);
+    tvi->pszText = (LPTSTR)labelT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
+    tvi->cchTextMax = (int)_tcslen(labelT);
 
     if ( imageIndex > -1 )
     {
@@ -3857,8 +3882,8 @@ RexxMethod8(RexxObjectPtr, tv_insert, OPTIONAL_CSTRING, _hItem, OPTIONAL_CSTRING
 
     if ( argumentExists(6) )
     {
-        if ( StrStrI(opts, "BOLD")     != NULL ) tvi->state |= TVIS_BOLD;
-        if ( StrStrI(opts, "EXPANDED") != NULL ) tvi->state |= TVIS_EXPANDED;
+        if ( StrStrIA(opts, "BOLD")     != NULL ) tvi->state |= TVIS_BOLD;
+        if ( StrStrIA(opts, "EXPANDED") != NULL ) tvi->state |= TVIS_EXPANDED;
 
         if ( tvi->state != 0 )
         {
@@ -3878,6 +3903,7 @@ RexxMethod8(RexxObjectPtr, tv_insert, OPTIONAL_CSTRING, _hItem, OPTIONAL_CSTRING
 RexxMethod7(int32_t, tv_modify, OPTIONAL_CSTRING, _hItem, OPTIONAL_CSTRING, label, OPTIONAL_int32_t, imageIndex,
             OPTIONAL_int32_t, selectedImage, OPTIONAL_CSTRING, opts, OPTIONAL_uint32_t, children, CSELF, pCSelf)
 {
+    RXCA2T(label);
     HWND hwnd  = getDChCtrl(pCSelf);
 
     TVITEMEX tvi = {0};
@@ -3899,8 +3925,8 @@ RexxMethod7(int32_t, tv_modify, OPTIONAL_CSTRING, _hItem, OPTIONAL_CSTRING, labe
 
     if ( argumentExists(2) )
     {
-        tvi.pszText = (LPSTR)label;
-        tvi.cchTextMax = (int)strlen(label);
+        tvi.pszText = (LPTSTR)labelT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
+        tvi.cchTextMax = (int)_tcslen(labelT);
         tvi.mask |= TVIF_TEXT;
     }
     if ( argumentExists(3) && imageIndex > -1 )
@@ -3932,7 +3958,7 @@ RexxMethod2(RexxObjectPtr, tv_itemInfo, CSTRING, _hItem, CSELF, pCSelf)
     HWND hwnd  = getDChCtrl(pCSelf);
 
     TVITEM tvi = {0};
-    char buf[256];
+    rxcharT buf[256];
 
     tvi.hItem = (HTREEITEM)string2pointer(_hItem);
     tvi.mask = TVIF_HANDLE | TVIF_TEXT | TVIF_STATE | TVIF_IMAGE | TVIF_CHILDREN | TVIF_SELECTEDIMAGE;
@@ -3947,23 +3973,26 @@ RexxMethod2(RexxObjectPtr, tv_itemInfo, CSTRING, _hItem, CSELF, pCSelf)
 
     RexxStemObject stem = context->NewStem("InternalTVItemInfo");
 
-    context->SetStemElement(stem, "!TEXT", context->String(tvi.pszText));
+    const rxcharT *tvi_pszText = tvi.pszText;
+    RXCT2A(tvi_pszText);
+    context->SetStemElement(stem, "!TEXT", context->String(tvi_pszTextT));
     context->SetStemElement(stem, "!CHILDREN", (tvi.cChildren > 0 ? TheTrueObj : TheFalseObj));
     context->SetStemElement(stem, "!IMAGE", context->Int32(tvi.iImage));
     context->SetStemElement(stem, "!SELECTEDIMAGE", context->Int32(tvi.iSelectedImage));
 
     *buf = '\0';
-    if ( tvi.state & TVIS_EXPANDED     ) strcat(buf, "EXPANDED ");
-    if ( tvi.state & TVIS_BOLD         ) strcat(buf, "BOLD ");
-    if ( tvi.state & TVIS_SELECTED     ) strcat(buf, "SELECTED ");
-    if ( tvi.state & TVIS_EXPANDEDONCE ) strcat(buf, "EXPANDEDONCE ");
-    if ( tvi.state & TVIS_DROPHILITED  ) strcat(buf, "INDROP ");
-    if ( tvi.state & TVIS_CUT          ) strcat(buf, "CUT ");
-    if ( *buf != '\0' )
+    if ( tvi.state & TVIS_EXPANDED     ) _tcscat(buf, _T("EXPANDED "));
+    if ( tvi.state & TVIS_BOLD         ) _tcscat(buf, _T("BOLD "));
+    if ( tvi.state & TVIS_SELECTED     ) _tcscat(buf, _T("SELECTED "));
+    if ( tvi.state & TVIS_EXPANDEDONCE ) _tcscat(buf, _T("EXPANDEDONCE "));
+    if ( tvi.state & TVIS_DROPHILITED  ) _tcscat(buf, _T("INDROP "));
+    if ( tvi.state & TVIS_CUT          ) _tcscat(buf, _T("CUT "));
+    if ( *buf != _T('\0') )
     {
-        *(buf + strlen(buf) - 1) = '\0';
+        *(buf + _tcslen(buf) - 1) = _T('\0');
     }
-    context->SetStemElement(stem, "!STATE", context->String(buf));
+    RXCT2A(buf);
+    context->SetStemElement(stem, "!STATE", context->String(bufT));
 
     return stem;
 }
@@ -4317,6 +4346,7 @@ RexxMethod2(RexxObjectPtr, tab_setPadding, ARGLIST, args, CSELF, pCSelf)
 RexxMethod5(int32_t, tab_insert, OPTIONAL_int32_t, index, OPTIONAL_CSTRING, label, OPTIONAL_int32_t, imageIndex,
             OPTIONAL_RexxObjectPtr, userData, CSELF, pCSelf)
 {
+    RXCA2T(label);
     HWND hwnd = getDChCtrl(pCSelf);
 
     if ( argumentOmitted(1) )
@@ -4328,7 +4358,7 @@ RexxMethod5(int32_t, tab_insert, OPTIONAL_int32_t, index, OPTIONAL_CSTRING, labe
     index++;
 
     ti.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
-    ti.pszText = (argumentOmitted(2) ? "" : label);
+    ti.pszText = (argumentOmitted(2) ? _T("") : labelT);
     ti.iImage  = (argumentOmitted(3) ? -1 : imageIndex);
     ti.lParam  = (LPARAM)(argumentOmitted(4) ? TheZeroObj : userData);
 
@@ -4344,6 +4374,7 @@ RexxMethod5(int32_t, tab_insert, OPTIONAL_int32_t, index, OPTIONAL_CSTRING, labe
 RexxMethod5(int32_t, tab_modify, int32_t, index, OPTIONAL_CSTRING, label, OPTIONAL_int32_t, imageIndex,
             OPTIONAL_RexxObjectPtr, userData, CSELF, pCSelf)
 {
+    RXCA2T(label);
     HWND hwnd = getDChCtrl(pCSelf);
 
     TCITEM ti = {0};
@@ -4351,7 +4382,7 @@ RexxMethod5(int32_t, tab_modify, int32_t, index, OPTIONAL_CSTRING, label, OPTION
     if ( argumentExists(2) )
     {
         ti.mask |= TCIF_TEXT;
-        ti.pszText = (LPSTR)label;
+        ti.pszText = (LPTSTR)labelT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
     }
     if ( argumentExists(3) )
     {
@@ -4394,7 +4425,9 @@ RexxMethod2(int32_t, tab_addSequence, ARGLIST, args, CSELF, pCSelf)
             goto done_out;
         }
 
-        ti.pszText = (LPSTR)context->ObjectToStringValue(arg);
+        const rxcharA *argValue = context->ObjectToStringValue(arg);
+        RXCA2T(argValue);
+        ti.pszText = (LPTSTR)argValueT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
 
         ret = TabCtrl_InsertItem(hwnd, index, &ti);
         if ( ret == -1 )
@@ -4431,7 +4464,9 @@ RexxMethod2(int32_t, tab_addFullSeq, ARGLIST, args, CSELF, pCSelf)
             goto done_out;
         }
 
-        ti.pszText = (LPSTR)context->ObjectToStringValue(label);
+        const rxcharA *labelValue = context->ObjectToStringValue(label);
+        RXCA2T(labelValue);
+        ti.pszText = (LPTSTR)labelValueT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
 
         RexxObjectPtr _imageIndex = context->ArrayAt(args, i + 1);
         RexxObjectPtr userData = context->ArrayAt(args, i + 2);
@@ -4472,7 +4507,7 @@ RexxMethod2(RexxObjectPtr, tab_itemInfo, int32_t, index, CSELF, pCSelf)
 {
     HWND hwnd = getDChCtrl(pCSelf);
 
-    char buff[256];
+    rxcharT buff[256];
     TCITEM ti;
 
     ti.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
@@ -4484,7 +4519,9 @@ RexxMethod2(RexxObjectPtr, tab_itemInfo, int32_t, index, CSELF, pCSelf)
     if ( TabCtrl_GetItem(hwnd, index, &ti) )
     {
         RexxStemObject stem = context->NewStem("ItemInfo");
-        context->SetStemElement(stem, "!TEXT", context->String(ti.pszText));
+        const rxcharT *ti_pszText = ti.pszText;
+        RXCT2A(ti_pszText);
+        context->SetStemElement(stem, "!TEXT", context->String(ti_pszTextT));
         context->SetStemElement(stem, "!IMAGE", context->Int32(ti.iImage));
         context->SetStemElement(stem, "!PARAM", (ti.lParam == 0 ? TheZeroObj : (RexxObjectPtr)ti.lParam));
         result = stem;
@@ -4497,7 +4534,7 @@ RexxMethod1(RexxObjectPtr, tab_selected, CSELF, pCSelf)
 {
     HWND hwnd = getDChCtrl(pCSelf);
 
-    char buff[256];
+    rxcharT buff[256];
     TCITEM ti = {0};
 
     ti.mask = TCIF_TEXT;
@@ -4508,16 +4545,18 @@ RexxMethod1(RexxObjectPtr, tab_selected, CSELF, pCSelf)
     {
         return TheZeroObj;
     }
-    return context->String(buff);
+    RXCT2A(buff);
+    return context->String(buffT);
 }
 
 
 RexxMethod2(int32_t, tab_select, CSTRING, text, CSELF, pCSelf)
 {
+    RXCA2T(text);
     HWND hwnd = getDChCtrl(pCSelf);
     int32_t result = -1;
 
-    char buff[256];
+    rxcharT buff[256];
     TCITEM ti = {0};
     size_t count;
 
@@ -4545,7 +4584,7 @@ RexxMethod2(int32_t, tab_select, CSTRING, text, CSELF, pCSelf)
             goto done_out;
         }
 
-        if ( ti.pszText != NULL && stricmp(ti.pszText, text) == 0 )
+        if ( ti.pszText != NULL && _tcsicmp(ti.pszText, textT) == 0 )
         {
             result = TabCtrl_SetCurSel(hwnd, i);
             break;

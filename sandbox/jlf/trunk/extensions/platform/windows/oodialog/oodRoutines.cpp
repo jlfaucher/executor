@@ -67,45 +67,45 @@ static String2Int *winCommonInitMap(void)
     String2Int *cMap = new String2Int;
 
     // MessagBox flags.  Buttons
-    cMap->insert(String2Int::value_type("ABORTRETRYIGNORE",  MB_ABORTRETRYIGNORE ));
-    cMap->insert(String2Int::value_type("CANCELTRYCONTINUE", MB_CANCELTRYCONTINUE));
-    cMap->insert(String2Int::value_type("HELP",              MB_HELP             ));
-    cMap->insert(String2Int::value_type("OK",                MB_OK               ));
-    cMap->insert(String2Int::value_type("OKCANCEL",          MB_OKCANCEL         ));
-    cMap->insert(String2Int::value_type("RETRYCANCEL",       MB_RETRYCANCEL      ));
-    cMap->insert(String2Int::value_type("YESNO",             MB_YESNO            ));
-    cMap->insert(String2Int::value_type("YESNOCANCEL",       MB_YESNOCANCEL      ));
+    cMap->insert(String2Int::value_type(_T("ABORTRETRYIGNORE"),  MB_ABORTRETRYIGNORE ));
+    cMap->insert(String2Int::value_type(_T("CANCELTRYCONTINUE"), MB_CANCELTRYCONTINUE));
+    cMap->insert(String2Int::value_type(_T("HELP"),              MB_HELP             ));
+    cMap->insert(String2Int::value_type(_T("OK"),                MB_OK               ));
+    cMap->insert(String2Int::value_type(_T("OKCANCEL"),          MB_OKCANCEL         ));
+    cMap->insert(String2Int::value_type(_T("RETRYCANCEL"),       MB_RETRYCANCEL      ));
+    cMap->insert(String2Int::value_type(_T("YESNO"),             MB_YESNO            ));
+    cMap->insert(String2Int::value_type(_T("YESNOCANCEL"),       MB_YESNOCANCEL      ));
 
     // MessageBox Icons
-    cMap->insert(String2Int::value_type("EXCLAMATION", MB_ICONEXCLAMATION));
-    cMap->insert(String2Int::value_type("WARNING",     MB_ICONWARNING    ));
-    cMap->insert(String2Int::value_type("INFORMATION", MB_ICONINFORMATION));
-    cMap->insert(String2Int::value_type("ASTERISK",    MB_ICONASTERISK   ));
-    cMap->insert(String2Int::value_type("QUESTION",    MB_ICONQUESTION   ));
-    cMap->insert(String2Int::value_type("STOP",        MB_ICONSTOP       ));
-    cMap->insert(String2Int::value_type("ERROR",       MB_ICONERROR      ));
-    cMap->insert(String2Int::value_type("HAND",        MB_ICONHAND       ));
-    cMap->insert(String2Int::value_type("QUERY",       MB_ICONQUESTION   ));
-    cMap->insert(String2Int::value_type("NONE",        0                 ));
+    cMap->insert(String2Int::value_type(_T("EXCLAMATION"), MB_ICONEXCLAMATION));
+    cMap->insert(String2Int::value_type(_T("WARNING"),     MB_ICONWARNING    ));
+    cMap->insert(String2Int::value_type(_T("INFORMATION"), MB_ICONINFORMATION));
+    cMap->insert(String2Int::value_type(_T("ASTERISK"),    MB_ICONASTERISK   ));
+    cMap->insert(String2Int::value_type(_T("QUESTION"),    MB_ICONQUESTION   ));
+    cMap->insert(String2Int::value_type(_T("STOP"),        MB_ICONSTOP       ));
+    cMap->insert(String2Int::value_type(_T("ERROR"),       MB_ICONERROR      ));
+    cMap->insert(String2Int::value_type(_T("HAND"),        MB_ICONHAND       ));
+    cMap->insert(String2Int::value_type(_T("QUERY"),       MB_ICONQUESTION   ));
+    cMap->insert(String2Int::value_type(_T("NONE"),        0                 ));
 
     // MessageBox default button
-    cMap->insert(String2Int::value_type("DEFBUTTON1",         MB_DEFBUTTON1));
-    cMap->insert(String2Int::value_type("DEFBUTTON2",         MB_DEFBUTTON2));
-    cMap->insert(String2Int::value_type("DEFBUTTON3",         MB_DEFBUTTON3));
-    cMap->insert(String2Int::value_type("DEFBUTTON4",         MB_DEFBUTTON4));
+    cMap->insert(String2Int::value_type(_T("DEFBUTTON1"),         MB_DEFBUTTON1));
+    cMap->insert(String2Int::value_type(_T("DEFBUTTON2"),         MB_DEFBUTTON2));
+    cMap->insert(String2Int::value_type(_T("DEFBUTTON3"),         MB_DEFBUTTON3));
+    cMap->insert(String2Int::value_type(_T("DEFBUTTON4"),         MB_DEFBUTTON4));
 
     // MessageBox modal
-    cMap->insert(String2Int::value_type("APPLMODAL",          MB_APPLMODAL  ));
-    cMap->insert(String2Int::value_type("SYSTEMMODAL",        MB_SYSTEMMODAL));
-    cMap->insert(String2Int::value_type("TASKMODAL",          MB_TASKMODAL  ));
+    cMap->insert(String2Int::value_type(_T("APPLMODAL"),          MB_APPLMODAL  ));
+    cMap->insert(String2Int::value_type(_T("SYSTEMMODAL"),        MB_SYSTEMMODAL));
+    cMap->insert(String2Int::value_type(_T("TASKMODAL"),          MB_TASKMODAL  ));
 
     // MessageBox miscellaneous
-    cMap->insert(String2Int::value_type("DEFAULTDESKTOP",      MB_DEFAULT_DESKTOP_ONLY));
-    cMap->insert(String2Int::value_type("RIGHT",               MB_RIGHT               ));
-    cMap->insert(String2Int::value_type("RTLREADING",          MB_RTLREADING          ));
-    cMap->insert(String2Int::value_type("SETFOREGROUND",       MB_SETFOREGROUND       ));
-    cMap->insert(String2Int::value_type("TOPMOST",             MB_TOPMOST             ));
-    cMap->insert(String2Int::value_type("SERVICENOTIFICATION", MB_SERVICE_NOTIFICATION));
+    cMap->insert(String2Int::value_type(_T("DEFAULTDESKTOP"),      MB_DEFAULT_DESKTOP_ONLY));
+    cMap->insert(String2Int::value_type(_T("RIGHT"),               MB_RIGHT               ));
+    cMap->insert(String2Int::value_type(_T("RTLREADING"),          MB_RTLREADING          ));
+    cMap->insert(String2Int::value_type(_T("SETFOREGROUND"),       MB_SETFOREGROUND       ));
+    cMap->insert(String2Int::value_type(_T("TOPMOST"),             MB_TOPMOST             ));
+    cMap->insert(String2Int::value_type(_T("SERVICENOTIFICATION"), MB_SERVICE_NOTIFICATION));
 
     //cMap->insert(String2Int::value_type("", ));
 
@@ -121,7 +121,7 @@ static String2Int *winCommonInitMap(void)
  * @return  The numeric value for symbol on success, (int)value == -1 on
  *          failure.
  */
-static uint32_t winKeyword2ID(CSTRING symbol, RexxThreadContext *c, int pos, CSTRING type)
+static uint32_t winKeyword2ID(CSTRINGT symbol, RexxThreadContext *c, int pos, CSTRINGT type)
 {
     static String2Int *winConstantsMap = NULL;
 
@@ -133,7 +133,8 @@ static uint32_t winKeyword2ID(CSTRING symbol, RexxThreadContext *c, int pos, CST
     int id = getKeywordValue(winConstantsMap, symbol);
     if ( id == -1 )
     {
-        invalidTypeException(c, pos, type);
+        RXCT2A(type);
+        invalidTypeException(c, pos, typeT);
     }
     return (uint32_t)getKeywordValue(winConstantsMap, symbol);
 }
@@ -143,11 +144,11 @@ static uint32_t winKeyword2ID(CSTRING symbol, RexxThreadContext *c, int pos, CST
  * Helper function for the MessageDialog() routine.  Parses the miscellaneous
  * message box style keywords.
  */
-static uint32_t getMiscMBStyle(char *mbStyle, RexxCallContext *c, int pos, CSTRING msg)
+static uint32_t getMiscMBStyle(rxcharT *mbStyle, RexxCallContext *c, int pos, CSTRINGT msg)
 {
     uint32_t flag, styles = 0;
 
-    char *token = strtok(mbStyle, " ");
+    rxcharT *token = _tcstok(mbStyle, _T(" "));
     while ( token != NULL )
     {
         flag = winKeyword2ID(token, c->threadContext, pos, msg);
@@ -156,7 +157,7 @@ static uint32_t getMiscMBStyle(char *mbStyle, RexxCallContext *c, int pos, CSTRI
             return flag;
         }
         styles |= flag;
-        token = strtok(NULL, " ");
+        token = _tcstok(NULL, _T(" "));
     }
 
     return styles;
@@ -165,11 +166,17 @@ static uint32_t getMiscMBStyle(char *mbStyle, RexxCallContext *c, int pos, CSTRI
 RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTIONAL_CSTRING, _title,
              OPTIONAL_CSTRING, button, OPTIONAL_CSTRING, icon, OPTIONAL_CSTRING, miscStyles)
 {
+    RXCA2T(text);
+    RXCA2T(hwnd);
+    RXCA2T(_title);
+    RXCA2T(button);
+    RXCA2T(icon);
+    RXCA2T(miscStyles);
     int result = -1;
 
-    char *uprButton = NULL;
-    char *uprIcon = NULL;
-    char *uprMiscStyles = NULL;
+    rxcharT *uprButton = NULL;
+    rxcharT *uprIcon = NULL;
+    rxcharT *uprMiscStyles = NULL;
 
     HWND hwndOwner = (HWND)string2pointer(hwnd);
     if ( hwndOwner == NULL )
@@ -180,10 +187,10 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
         }
     }
 
-    CSTRING title = "ooDialog Application Message";
+    CSTRINGT title = _T("ooDialog Application Message");
     if ( argumentExists(3) )
     {
-        title = _title;
+        title = _titleT;
     }
 
     // Defaults.  These values are all 0.
@@ -192,14 +199,14 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
     uint32_t flag;
     if ( argumentExists(4) )
     {
-        uprButton = strdupupr(button);
+        uprButton = strdupupr(buttonT);
         if ( uprButton == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
 
-        flag = winKeyword2ID(uprButton, context->threadContext, 4, "MessageDialog button keyword");
+        flag = winKeyword2ID(uprButton, context->threadContext, 4, _T("MessageDialog button keyword"));
         if ( flag == (int)-1 )
         {
             goto done_out;
@@ -210,14 +217,14 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
     // There is no default for the icon, if omitted there is no icon.
     if ( argumentExists(5) )
     {
-        uprIcon = strdupupr(icon);
+        uprIcon = strdupupr(iconT);
         if ( uprIcon == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
 
-        flag = winKeyword2ID(uprIcon, context->threadContext, 5, "MessageDialog icon keyword");
+        flag = winKeyword2ID(uprIcon, context->threadContext, 5, _T("MessageDialog icon keyword"));
         if ( flag == (int)-1 )
         {
             goto done_out;
@@ -227,14 +234,14 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
 
     if ( argumentExists(6) )
     {
-        uprMiscStyles = strdupupr(miscStyles);
+        uprMiscStyles = strdupupr(miscStylesT);
         if ( uprIcon == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
 
-        flag = getMiscMBStyle(uprMiscStyles, context, 6, "MessageDialog style keyword");
+        flag = getMiscMBStyle(uprMiscStyles, context, 6, _T("MessageDialog style keyword"));
         if ( flag == (int)-1 )
         {
             goto done_out;
@@ -242,7 +249,7 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
         flags |= flag;
     }
 
-    result = MessageBox(hwndOwner, text, title, flags);
+    result = MessageBox(hwndOwner, textT, title, flags);
 
 done_out:
     safeFree(uprButton);
@@ -276,13 +283,15 @@ done_out:
  */
 RexxRoutine2(RexxObjectPtr, findWindow_rtn, CSTRING, caption, OPTIONAL_CSTRING, className)
 {
+    RXCA2T(caption);
+    RXCA2T(className);
     oodResetSysErrCode(context->threadContext);
 
     if ( strlen(caption) == 0 )
     {
         caption = NULL;
     }
-    HWND hwnd = FindWindow(className, caption);
+    HWND hwnd = FindWindow(classNameT, captionT);
     if ( hwnd == NULL )
     {
         oodSetSysErrCode(context->threadContext);
@@ -413,6 +422,9 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
             OPTIONAL_CSTRING, loadOrSave,  OPTIONAL_CSTRING, _title,     OPTIONAL_CSTRING, _defExt,
             OPTIONAL_CSTRING, multi,       OPTIONAL_CSTRING, _sep)
 {
+    RXCA2T(preselected);
+    RXCA2T(_title);
+    RXCA2T(_defExt);
     // The bulk of the work here is setting up the open file name struct based
     // on the arguements passed by the user.
 
@@ -422,7 +434,7 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
                          OFN_EXPLORER | OFN_ENABLESIZING;
 
     // Allocate a large buffer for the returned file name(s).
-    char * pszFiles = (char *)LocalAlloc(GPTR, FILENAME_BUFFER_LEN);
+    rxcharT * pszFiles = (rxcharT *)LocalAlloc(GPTR, FILENAME_BUFFER_LEN);
     if ( pszFiles == NULL )
     {
         outOfMemoryException(context->threadContext);
@@ -436,11 +448,11 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     {
         if ( preselected[strlen(preselected) - 1] == '\\' )
         {
-            OpenFileName.lpstrInitialDir = preselected;
+            OpenFileName.lpstrInitialDir = preselectedT;
         }
         else
         {
-          StrNCpy(pszFiles, preselected, _MAX_PATH);
+          StrNCpy(pszFiles, preselectedT, _MAX_PATH);
         }
     }
 
@@ -457,15 +469,15 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     // strings has been documented, so we can expect embedded nulls in the
     // string.  Therefore we have to get the real length of the string data.
 
-    char *filterBuf = NULL;
-    OpenFileName.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+    rxcharT *filterBuf = NULL;
+    OpenFileName.lpstrFilter = _T("Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0");
 
     if ( argumentExists(3) )
     {
         size_t len = context->StringLength(fileFilter);
         if ( len > 0 )
         {
-            filterBuf = (char *)LocalAlloc(GMEM_FIXED, len + 2);
+            filterBuf = (rxcharT *)LocalAlloc(GMEM_FIXED, len + 2);
             if ( filterBuf == NULL )
             {
                 outOfMemoryException(context->threadContext);
@@ -505,15 +517,15 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     // Dialog title.
     if ( argumentExists(5) && *_title != '\0' )
     {
-        OpenFileName.lpstrTitle = _title;
+        OpenFileName.lpstrTitle = _titleT;
     }
     else
     {
-        OpenFileName.lpstrTitle = (open ? "Open a File" : "Save File As");
+        OpenFileName.lpstrTitle = (open ? _T("Open a File") : _T("Save File As"));
     }
 
     // Default file extension.
-    OpenFileName.lpstrDefExt = (argumentExists(6) && *_defExt != '\0') ? _defExt : "txt";
+    OpenFileName.lpstrDefExt = (argumentExists(6) && *(const rxcharT *)_defExtT != _T('\0')) ? _defExtT : _T("txt");
 
     // Hook procedure to bring dialog to the foreground.
     OpenFileName.lpfnHook = OFNSetForegroundHookProc;
@@ -542,9 +554,9 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
         {
             // If more than one name selected, names are separated with ASCII 0
             // instead of spaces.
-            char *p = pszFiles;
+            rxcharT *p = pszFiles;
 
-            while ( (*p != '\0') || (*(p+1) != '\0') )
+            while ( (*p != _T('\0')) || (*(p+1) != _T('\0')) )
             {
                 if ( *p == 0 )
                 {
@@ -565,7 +577,8 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     RexxObjectPtr result = TheZeroObj;
     if ( success )
     {
-        result = context->String(pszFiles);
+        RXCT2A(pszFiles);
+        result = context->String(pszFilesT);
     }
 
     LocalFree(pszFiles);
@@ -588,23 +601,23 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
 }
 
 
-static char *searchSoundPath(CSTRING file, RexxCallContext *c)
+static rxcharT *searchSoundPath(CSTRINGT file, RexxCallContext *c)
 {
     oodResetSysErrCode(c->threadContext);
 
     // We need a buffer for the path to search, a buffer for the returned full
     // file name, (if found,) and a pointer to char (an unused arg to
     // SearchPath().)
-    char *buf = NULL;
-    char *fullFileName = NULL;
-    char *pFileName;
+    rxcharT *buf = NULL;
+    rxcharT *fullFileName = NULL;
+    rxcharT *pFileName;
 
     // Calculate how much room we need for the search path buffer.
     uint32_t cchCWD = GetCurrentDirectory(0, NULL);
 
     // Many modern systems no longer have the SOUNDPATH set.
     SetLastError(0);
-    uint32_t cchSoundPath = GetEnvironmentVariable("SOUNDPATH", NULL, 0);
+    uint32_t cchSoundPath = GetEnvironmentVariable(_T("SOUNDPATH"), NULL, 0);
     uint32_t rc = GetLastError();
     if ( cchSoundPath == 0 && rc != ERROR_ENVVAR_NOT_FOUND )
     {
@@ -613,8 +626,8 @@ static char *searchSoundPath(CSTRING file, RexxCallContext *c)
     }
 
     // Allocate our needed buffers.
-    buf = (char *)malloc(cchCWD + cchSoundPath + 3);
-    fullFileName = (char *)malloc(_MAX_PATH);
+    buf = (rxcharT *)malloc(cchCWD + cchSoundPath + 3);
+    fullFileName = (rxcharT *)malloc(_MAX_PATH);
     if ( buf == NULL || fullFileName == NULL )
     {
         outOfMemoryException(c->threadContext);
@@ -632,7 +645,7 @@ static char *searchSoundPath(CSTRING file, RexxCallContext *c)
     if ( cchSoundPath != 0 )
     {
         buf[cchCWD++] = ';';
-        cchSoundPath = GetEnvironmentVariable("SOUNDPATH", buf + cchCWD, cchSoundPath + 1);
+        cchSoundPath = GetEnvironmentVariable(_T("SOUNDPATH"), buf + cchCWD, cchSoundPath + 1);
         if ( cchSoundPath == 0 )
         {
             oodSetSysErrCode(c->threadContext);
@@ -661,6 +674,7 @@ err_out:
 
 RexxRoutine3(RexxObjectPtr, playSound_rtn, OPTIONAL_CSTRING, fileName, OPTIONAL_CSTRING, modifier, NAME, routineName)
 {
+    RXCA2T(fileName);
     bool isStopRoutine = strcmp("STOPSOUNDFILE", routineName) == 0;
 
     if ( (! isStopRoutine && argumentOmitted(1)) || isStopRoutine )
@@ -668,7 +682,7 @@ RexxRoutine3(RexxObjectPtr, playSound_rtn, OPTIONAL_CSTRING, fileName, OPTIONAL_
         return (sndPlaySound(NULL, SND_SYNC | SND_NODEFAULT) ? TheZeroObj : TheOneObj);
     }
 
-    char *fullFileName = searchSoundPath(fileName, context);
+    rxcharT *fullFileName = searchSoundPath(fileNameT, context);
     if ( fullFileName == NULL )
     {
         return TheOneObj;
@@ -711,5 +725,17 @@ RexxRoutine3(RexxObjectPtr, playSound_rtn, OPTIONAL_CSTRING, fileName, OPTIONAL_
 RexxRoutine1(RexxObjectPtr, routineTest_rtn, RexxObjectPtr, obj)
 {
     return TheZeroObj;
+}
+
+RexxRoutine0(RexxObjectPtr, getCodePage_rtn)
+{
+    return context->Int32ToObject(rxgetCodePage());
+}
+
+RexxRoutine1(RexxObjectPtr, setCodePage_rtn, uint32_t, codePage)
+{
+    int current = rxgetCodePage();
+    rxsetCodePage(codePage);
+    return context->Int32ToObject(current);
 }
 
