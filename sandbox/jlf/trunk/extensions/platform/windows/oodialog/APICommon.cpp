@@ -75,7 +75,7 @@ void systemServiceException(RexxThreadContext *context, char *msg, const char *s
     if ( sub != NULL )
     {
         char buffer[128];
-        _snprintf(buffer, sizeof(buffer), msg, sub);
+        _snprintf(buffer, RXITEMCOUNT(buffer), msg, sub);
         systemServiceException(context, buffer);
     }
     else
@@ -87,7 +87,7 @@ void systemServiceException(RexxThreadContext *context, char *msg, const char *s
 void systemServiceExceptionCode(RexxThreadContext *context, const char *msg, const char *arg1, DWORD rc)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), msg, arg1, rc);
+    _snprintf(buffer, RXITEMCOUNT(buffer), msg, arg1, rc);
     systemServiceException(context, buffer);
 }
 
@@ -99,7 +99,7 @@ void systemServiceExceptionCode(RexxThreadContext *context, const char *msg, con
 void systemServiceExceptionComCode(RexxThreadContext *context, const char *msg, const char *arg1, HRESULT hr)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), msg, arg1, hr);
+    _snprintf(buffer, RXITEMCOUNT(buffer), msg, arg1, hr);
     systemServiceException(context, buffer);
 }
 
@@ -134,7 +134,7 @@ void userDefinedMsgException(RexxThreadContext *c, CSTRING msg)
 void userDefinedMsgException(RexxThreadContext *c, int pos, CSTRING msg)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d %s", pos, msg);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d %s", pos, msg);
     userDefinedMsgException(c, buffer);
 }
 
@@ -175,7 +175,7 @@ RexxObjectPtr wrongClassException(RexxThreadContext *c, int pos, const char *n)
 RexxObjectPtr invalidTypeException(RexxThreadContext *c, size_t pos, const char *type)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d is not a valid%s", pos, type);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d is not a valid%s", pos, type);
     userDefinedMsgException(c, buffer);
     return NULLOBJECT;
 }
@@ -183,7 +183,7 @@ RexxObjectPtr invalidTypeException(RexxThreadContext *c, size_t pos, const char 
 void invalidImageException(RexxThreadContext *c, int pos, CSTRING type, CSTRING actual)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d must be a %s image; found %s", pos, type, actual);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be a %s image; found %s", pos, type, actual);
     userDefinedMsgException(c, buffer);
 }
 
@@ -203,7 +203,7 @@ void invalidImageException(RexxThreadContext *c, int pos, CSTRING type, CSTRING 
 void stringTooLongException(RexxThreadContext *c, int pos, size_t len, size_t realLen)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d must be less than %d characters in length; length is %d",
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be less than %d characters in length; length is %d",
               pos, len, realLen);
     userDefinedMsgException(c, buffer);
 }
@@ -223,7 +223,7 @@ void stringTooLongException(RexxThreadContext *c, int pos, size_t len, size_t re
 void numberTooSmallException(RexxThreadContext *c, int pos, int min, RexxObjectPtr actual)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d must be a whole number greater than %d; actual %s",
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be a whole number greater than %d; actual %s",
               pos, min, c->ObjectToStringValue(actual));
     userDefinedMsgException(c, buffer);
 }
@@ -247,7 +247,7 @@ void numberTooSmallException(RexxThreadContext *c, int pos, int min, RexxObjectP
 RexxObjectPtr notBooleanException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d must be true or false; found \"%s\"",
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be true or false; found \"%s\"",
               pos, c->ObjectToStringValue(actual));
     userDefinedMsgException(c, buffer);
     return NULLOBJECT;
@@ -256,14 +256,14 @@ RexxObjectPtr notBooleanException(RexxThreadContext *c, size_t pos, RexxObjectPt
 void wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING obj)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d is an array and index %d is not a %s", argPos, index, obj);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d is an array and index %d is not a %s", argPos, index, obj);
     userDefinedMsgException(c, buffer);
 }
 
 void wrongObjInDirectoryException(RexxThreadContext *c, int argPos, CSTRING index, CSTRING needed, RexxObjectPtr actual)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer),
+    _snprintf(buffer, RXITEMCOUNT(buffer),
               "Index, %s, of argument %d, must be %s; found \"%s\"",
               index, argPos, needed, c->ObjectToStringValue(actual));
     userDefinedMsgException(c, buffer);
@@ -272,7 +272,7 @@ void wrongObjInDirectoryException(RexxThreadContext *c, int argPos, CSTRING inde
 void missingIndexInDirectoryException(RexxThreadContext *c, int argPos, CSTRING index)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer),
+    _snprintf(buffer, RXITEMCOUNT(buffer),
               "Index, %s, of argument %d, is required",
               index, argPos);
     userDefinedMsgException(c, buffer);
@@ -295,7 +295,7 @@ void missingIndexInDirectoryException(RexxThreadContext *c, int argPos, CSTRING 
 void wrongValueAtDirectoryIndexException(RexxThreadContext *c, size_t pos, CSTRING index, CSTRING list, RexxObjectPtr actual)
 {
     char buffer[512];
-    _snprintf(buffer, sizeof(buffer),
+    _snprintf(buffer, RXITEMCOUNT(buffer),
               "Index, %s, of argument %d, must be one of %s; found \"%s\"",
               index, pos, list, c->ObjectToStringValue(actual));
     userDefinedMsgException(c, buffer);
@@ -318,7 +318,7 @@ void wrongValueAtDirectoryIndexException(RexxThreadContext *c, size_t pos, CSTRI
 void directoryIndexException(RexxThreadContext *c, size_t pos, CSTRING index, CSTRING msg, RexxObjectPtr actual)
 {
     char buffer[512];
-    _snprintf(buffer, sizeof(buffer),
+    _snprintf(buffer, RXITEMCOUNT(buffer),
               "Index, %s, of argument %d, must be one of %s; found \"%s\"",
               index, pos, msg, c->ObjectToStringValue(actual));
     userDefinedMsgException(c, buffer);
@@ -327,14 +327,14 @@ void directoryIndexException(RexxThreadContext *c, size_t pos, CSTRING index, CS
 void emptyArrayException(RexxThreadContext *c, int argPos)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d must be a non-empty array", argPos);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be a non-empty array", argPos);
     userDefinedMsgException(c, buffer);
 }
 
 void sparseArrayException(RexxThreadContext *c, size_t argPos, size_t index)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Argument %d must be a non-sparse array, index %d is missing", argPos, index);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be a non-sparse array, index %d is missing", argPos, index);
     userDefinedMsgException(c, buffer);
 }
 
@@ -394,7 +394,7 @@ void failedToRetrieveException(RexxThreadContext *c, CSTRING item, RexxObjectPtr
     char buf[128];
 
     RexxObjectPtr name = c->SendMessage0(source, "OBJECTNAME");
-    _snprintf(buf, sizeof(buf), "Could not retrieve the %s information for %s",
+    _snprintf(buf, RXITEMCOUNT(buf), "Could not retrieve the %s information for %s",
               item, c->ObjectToStringValue(name));
 
     c->RaiseException1(Rexx_Error_Execution_user_defined, c->String(buf));
@@ -405,11 +405,11 @@ void nullObjectException(RexxThreadContext *c, CSTRING name, int pos)
     char buffer[256];
     if ( pos == 0 )
     {
-        _snprintf(buffer, sizeof(buffer), "The %s object must not be null", name);
+        _snprintf(buffer, RXITEMCOUNT(buffer), "The %s object must not be null", name);
     }
     else
     {
-        _snprintf(buffer, sizeof(buffer), "Argument %d, the %s object, must not be null", pos, name);
+        _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d, the %s object, must not be null", pos, name);
     }
     userDefinedMsgException(c, buffer);
 }
@@ -471,7 +471,7 @@ RexxObjectPtr wrongArgOptionException(RexxThreadContext *c, size_t pos, CSTRING 
 {
 
     char buffer[512];
-    _snprintf(buffer, sizeof(buffer), "Method argument %d, option must be one of %s; found \"%s\"", pos, list, actual);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Method argument %d, option must be one of %s; found \"%s\"", pos, list, actual);
     userDefinedMsgException(c, buffer);
     return NULLOBJECT;
 }

@@ -58,16 +58,22 @@ typedef rxcharT CHART;
 typedef rxcharT *PCHART;
 
 // The arguments passed to the string functions must be character's number, not byte's number
-#define RXTCHARCOUNT(N) ((N) / sizeof(rxcharT))
+#define RXTCHARCOUNT(byteCount) ((byteCount) / sizeof(rxcharT))
+#define RXITEMCOUNT(anArray) (sizeof(anArray) / sizeof(anArray[0]))
 
 // The arguments passed to the malloc functions must be byte's number, not character's number
-#define RXTBYTECOUNT(N) ((N) * sizeof(rxcharT))
+#define RXTBYTECOUNT(rxcharTCount) ((rxcharTCount) * sizeof(rxcharT))
+#define RXTMALLOC(rxcharTCount) (malloc((rxcharTCount) * sizeof(rxcharT)))
+#define RXTLOCALALLOC(flags, rxcharTCount) (LocalAlloc(flags, (rxcharTCount) * sizeof(rxcharT)))
 
-// Converter from const rxcharA to rxcharT
+// Converter from rxcharA to rxcharT
 #define RXCA2T(variable) rxConverter<rxcharA, rxcharT> variable##T(variable)
 
-// Converter from const rxcharT to rxcharA
+// Converter from rxcharT to rxcharA
 #define RXCT2A(variable) rxConverter<rxcharT, rxcharA> variable##T(variable)
+
+// Converter from rxcharW to rxcharA
+#define RXCW2A(variable) rxConverter<rxcharW, rxcharA> variable##T(variable)
 
 // Default code page. For the moment, use a global variable.
 extern bool rxsetCodePage(int codepage);
@@ -106,16 +112,16 @@ class rxConverter
 {
 public:
     rxConverter() : s(NULL), t(NULL), done(false) {};
-    rxConverter(const Source *string) : s((Source*)string), t(NULL), done(false) {}; // yes, force to non const
+    rxConverter(const Source *string) : s(string), t(NULL), done(false) {};
     ~rxConverter() { if (t != NULL) free(t); t=NULL; };
-    rxConverter<Source, Target>& operator=(const Source *string) { if (t != NULL) free(t); t = NULL; s = (Source*)string; done = false; return *this; }
+    rxConverter<Source, Target>& operator=(const Source *string) { if (t != NULL) free(t); t = NULL; s = string; done = false; return *this; }
     operator const Target *() { return target(); };
     const Source *source() { done = true; return s; };
     const Target *target();
     Source *sourceCopy();
     Target *targetCopy();
 protected:
-    Source *s; // yes, not const 
+    const Source *s;
     Target *t;
     bool done; // indicator of success/error for the last conversion
 };

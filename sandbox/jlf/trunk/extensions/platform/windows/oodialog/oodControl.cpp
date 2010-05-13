@@ -133,7 +133,7 @@ oodControl_t control2controlType(HWND hControl)
     oodControl_t type = winUnknown;
 
     TCHAR buf[64];
-    if ( RealGetWindowClass(hControl, buf, sizeof(buf)) )
+    if ( RealGetWindowClass(hControl, buf, RXITEMCOUNT(buf)) )
     {
         type = winName2controlType(buf);
         if ( type == winPushButton )
@@ -171,7 +171,7 @@ bool isControlMatch(HWND hControl, oodControl_t control)
     rxcharT buf[64];
     const rxcharT *pClass = controlType2winName(control);
 
-    if ( ! RealGetWindowClass(hControl, buf, sizeof(buf)) || _tcscmp(buf, pClass) != 0 )
+    if ( ! RealGetWindowClass(hControl, buf, RXITEMCOUNT(buf)) || _tcscmp(buf, pClass) != 0 )
     {
         return false;
     }
@@ -549,12 +549,12 @@ static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRINGT meth
     {
         goto done_out;
     }
-    if ( *methodName == '\0' )
+    if ( *methodName == _T('\0') )
     {
         c->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
         goto done_out;
     }
-    if ( *keys == '\0' )
+    if ( *keys == _T('\0') )
     {
         c->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
         goto done_out;

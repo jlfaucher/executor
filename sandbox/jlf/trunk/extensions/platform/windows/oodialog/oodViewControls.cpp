@@ -384,18 +384,18 @@ void sysTime2dt(RexxThreadContext *c, SYSTEMTIME *sysTime, RexxObjectPtr *dateTi
         switch ( part )
         {
             case dtDate :
-                _snprintf(buf, sizeof(buf), "%hu%02hu%02hu", sysTime->wYear, sysTime->wMonth, sysTime->wDay);
+                _snprintf(buf, RXITEMCOUNT(buf), "%hu%02hu%02hu", sysTime->wYear, sysTime->wMonth, sysTime->wDay);
                 *dateTime = c->SendMessage1(dtClass, "FROMSTANDARDDATE", c->String(buf));
                 break;
 
             case dtTime :
-                _snprintf(buf, sizeof(buf), "%02hu:%02hu:%02hu.%03hu000",
+                _snprintf(buf, RXITEMCOUNT(buf), "%02hu:%02hu:%02hu.%03hu000",
                           sysTime->wHour, sysTime->wMinute, sysTime->wSecond, sysTime->wMilliseconds);
                 *dateTime = c->SendMessage1(dtClass, "FROMLONGTIME", c->String(buf));
                 break;
 
             case dtFull :
-                _snprintf(buf, sizeof(buf), "%hu-%02hu-%02huT%02hu:%02hu:%02hu.%03hu000",
+                _snprintf(buf, RXITEMCOUNT(buf), "%hu-%02hu-%02huT%02hu:%02hu:%02hu.%03hu000",
                           sysTime->wYear, sysTime->wMonth, sysTime->wDay,
                           sysTime->wHour, sysTime->wMinute, sysTime->wSecond, sysTime->wMilliseconds);
                 *dateTime = c->SendMessage1(dtClass, "FROMISODATE", c->String(buf));
@@ -2555,12 +2555,12 @@ done_out:
 RexxMethod5(int32_t, lv_addRow, OPTIONAL_uint32_t, index, OPTIONAL_int32_t, imageIndex, OPTIONAL_CSTRING, text,
             ARGLIST, args, CSELF, pCSelf)
 {
-    RXCA2T(text);
     HWND hList = getDChCtrl(pCSelf);
 
     index      = (argumentOmitted(1) ? getDCinsertIndex(pCSelf) : index);
     imageIndex = (argumentOmitted(2) ? -1 : imageIndex);
     text       = (argumentOmitted(3) ? "" : text);
+    RXCA2T(text);
 
     LVITEM lvi = {0};
     lvi.mask = LVIF_TEXT;
@@ -2793,7 +2793,7 @@ RexxMethod4(RexxObjectPtr, lv_setItemText, uint32_t, index, OPTIONAL_uint32_t, s
 RexxMethod3(RexxStringObject, lv_itemText, uint32_t, index, OPTIONAL_uint32_t, subitem, CSELF, pCSelf)
 {
     rxcharT buf[256];
-    ListView_GetItemText(getDChCtrl(pCSelf), index, subitem, buf, RXTCHARCOUNT(sizeof(buf)));
+    ListView_GetItemText(getDChCtrl(pCSelf), index, subitem, buf, RXITEMCOUNT(buf));
     RXCT2A(buf);
     return context->String(bufT);
 }
@@ -3197,7 +3197,7 @@ RexxMethod2(RexxObjectPtr, lv_getColumnInfo, uint32_t, index, CSELF, pCSelf)
 
     RexxStemObject stem = context->NewStem("InternalLVColInfo");
 
-    const rxcharT *lvi_pszText;
+    const rxcharT *lvi_pszText = lvi.pszText;
     RXCT2A(lvi_pszText);
     context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextT));
     context->SetStemElement(stem, "!COLUMN", context->Int32(lvi.iSubItem));
@@ -3397,7 +3397,7 @@ RexxMethod5(int, lv_insertColumnPx, OPTIONAL_uint16_t, column, CSTRING, text, ui
     lvi.iSubItem = column;
 
     lvi.cchTextMax = (int)_tcslen(textT);
-    if ( lvi.cchTextMax > RXTCHARCOUNT(sizeof(szText) - 1) )
+    if ( lvi.cchTextMax > RXITEMCOUNT(szText) - 1 )
     {
         userDefinedMsgException(context->threadContext, 2, "the column title must be less than 256 characters");
         return 0;
@@ -3980,7 +3980,7 @@ RexxMethod2(RexxObjectPtr, tv_itemInfo, CSTRING, _hItem, CSELF, pCSelf)
     context->SetStemElement(stem, "!IMAGE", context->Int32(tvi.iImage));
     context->SetStemElement(stem, "!SELECTEDIMAGE", context->Int32(tvi.iSelectedImage));
 
-    *buf = '\0';
+    *buf = _T('\0');
     if ( tvi.state & TVIS_EXPANDED     ) _tcscat(buf, _T("EXPANDED "));
     if ( tvi.state & TVIS_BOLD         ) _tcscat(buf, _T("BOLD "));
     if ( tvi.state & TVIS_SELECTED     ) _tcscat(buf, _T("SELECTED "));
@@ -4358,7 +4358,7 @@ RexxMethod5(int32_t, tab_insert, OPTIONAL_int32_t, index, OPTIONAL_CSTRING, labe
     index++;
 
     ti.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_PARAM;
-    ti.pszText = (argumentOmitted(2) ? _T("") : labelT);
+    ti.pszText = (argumentOmitted(2) ? _T("") : labelT.target()); // no compilation error ? assign const to non const...
     ti.iImage  = (argumentOmitted(3) ? -1 : imageIndex);
     ti.lParam  = (LPARAM)(argumentOmitted(4) ? TheZeroObj : userData);
 

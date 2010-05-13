@@ -92,7 +92,7 @@ typedef enum
 typedef struct _mapItem
 {
     uint32_t  id;
-    rxcharT * methodName;
+    char * methodName;
 } MapItem;
 
 class CppMenu
@@ -131,7 +131,7 @@ public:
     bool finishTemplate();
     void deleteTemplate();
     logical_t addTemplateSepartor(RexxObjectPtr rxID, CSTRINGT opts);
-    logical_t addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, CSTRINGT method);
+    logical_t addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, CSTRING method);
     logical_t addTemplatePopup(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, RexxObjectPtr helpID);
     inline logical_t templateIsComplete() { return isFinal ? TRUE : FALSE; }
     inline void noTempHelpID() { helpID = (uint32_t)-1; }
@@ -145,17 +145,17 @@ public:
 
     RexxDirectoryObject autoConnectionStatus();
     void setAutoConnection(logical_t on, CSTRING methodName);
-    BOOL maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CSTRINGT methodName);
+    BOOL maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CSTRING methodName);
     logical_t attachToDlg(RexxObjectPtr dialog);
-    logical_t assignToDlg(RexxObjectPtr dialog, logical_t autoConnect, CSTRINGT methodName);
-    bool addToConnectionQ(uint32_t id, CSTRINGT methodName);
+    logical_t assignToDlg(RexxObjectPtr dialog, logical_t autoConnect, CSTRING methodName);
+    bool addToConnectionQ(uint32_t id, CSTRING methodName);
     BOOL checkPendingConnections();
     BOOL checkAutoConnect(pCEventNotification pcen);
     void releaseConnectionQ();
     BOOL detach(bool skipChecks);
     BOOL destroy();
 
-    logical_t connectAllCommandEvents(CSTRINGT msg, RexxObjectPtr dialog, logical_t handles);
+    logical_t connectAllCommandEvents(CSTRING msg, RexxObjectPtr dialog, logical_t handles);
     logical_t connectItem(RexxObjectPtr rxID, CSTRING methodName, RexxObjectPtr dialog, logical_t handles);
     logical_t connectSomeCommandEvents(RexxObjectPtr, CSTRING, logical_t, RexxObjectPtr, logical_t);
     logical_t connectMenuMessage(CSTRING, CSTRING, HWND, RexxObjectPtr, logical_t);
@@ -199,7 +199,7 @@ protected:
    size_t connectionQSize;
    size_t connectionQIndex;
 
-   CSTRINGT connectionMethod;
+   CSTRING connectionMethod; // Remember : Not CSTRINGT because 1) wide char not needed for method name and 2) wide char would create memory leak because of copy()
    bool autoConnect;
 };
 

@@ -393,13 +393,13 @@ static BOOL endDialogPremature(pCPlainBaseDialog pcpbd, HWND hDlg, DlgProcErrTyp
     switch ( t )
     {
         case NoPCPBDpased :
-            _snprintf(buf, sizeof(buf), NO_PCPBD_PASSED_MSG, pcpbd, hDlg);
+            _snprintf(buf, RXITEMCOUNT(buf), NO_PCPBD_PASSED_MSG, pcpbd, hDlg);
             break;
         case NoThreadAttach :
-            _snprintf(buf, sizeof(buf), NO_THREAD_ATTACH_MSG, pcpbd, hDlg);
+            _snprintf(buf, RXITEMCOUNT(buf), NO_THREAD_ATTACH_MSG, pcpbd, hDlg);
             break;
         case NoThreadContext :
-            _snprintf(buf, sizeof(buf), NO_THREAD_CONTEXT_MSG, pcpbd->dlgAdm, pcpbd->dlgProcContext, hDlg);
+            _snprintf(buf, RXITEMCOUNT(buf), NO_THREAD_CONTEXT_MSG, pcpbd->dlgAdm, pcpbd->dlgProcContext, hDlg);
             break;
     }
 
@@ -424,7 +424,7 @@ BOOL addDialogMessage(CHART *msg, CHART *Qptr)
     }
     else
     {
-        _tprintf(_T("MESSAGE QUEUE OVERFLOW\n"));
+        printf("MESSAGE QUEUE OVERFLOW\n");
     }
     return 0;
 }
@@ -571,7 +571,7 @@ inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog
  *           enclosed in quotes to prevent errors.  Now, the message string is
  *           used with sendWith(), no interpret is involved.  Since, some of the
  *           args are strings, that could include commas, the individual args
- *           are separated here with ASCII ÿ (255, 0xFF, octal 377) and in the
+ *           are separated here with ASCII ï¿½ (255, 0xFF, octal 377) and in the
  *           Rexx code, handleMessages() separates the args using 255~d2c.
  *
  *           This generic version of adding a message to the message queue is a
@@ -1185,7 +1185,7 @@ MsgReplyType processUDN(RexxThreadContext *c, CSTRINGT methodName, LPARAM lParam
  *           enclosed in quotes to prevent errors.  Now, the message string is
  *           used with sendWith(), no interpret is involved.  Since, some of the
  *           args are strings, that could include commas, the individual args
- *           are separated here with ASCII ÿ (255, 0xFF, octal 377) and in the
+ *           are separated here with ASCII ï¿½ (255, 0xFF, octal 377) and in the
  *           Rexx code, handleMessages() separates the args using 255~d2c.
  */
 MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog pcpbd)
@@ -1270,7 +1270,7 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
             {
                 item = ((NM_LISTVIEW *)lParam)->iItem;
                 wParam = ((NMHDR *)lParam)->idFrom;
-                _stprintf(tmpBuffer, _T("%d %d"), ((NM_LISTVIEW *)lParam)->ptAction.x, ((NM_LISTVIEW *)lParam)->ptAction.y);
+                _sntprintf(tmpBuffer,  RXITEMCOUNT(tmpBuffer), _T("%d %d"), ((NM_LISTVIEW *)lParam)->ptAction.x, ((NM_LISTVIEW *)lParam)->ptAction.y);
                 np = tmpBuffer;
             }
             /* do we have a tree drag and drop? */
@@ -1278,7 +1278,7 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
             {
                 handle = ((NM_TREEVIEW *)lParam)->itemNew.hItem;
                 wParam = ((NMHDR *)lParam)->idFrom;
-                _stprintf(tmpBuffer, _T("%d %d"), ((NM_TREEVIEW *)lParam)->ptDrag.x, ((NM_TREEVIEW *)lParam)->ptDrag.y);
+                _sntprintf(tmpBuffer, RXITEMCOUNT(tmpBuffer), _T("%d %d"), ((NM_TREEVIEW *)lParam)->ptDrag.x, ((NM_TREEVIEW *)lParam)->ptDrag.y);
                 np = tmpBuffer;
             }
             /* do we have a column click in a report? */
@@ -1320,7 +1320,7 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
  *           enclosed in quotes to prevent errors.  Now, the message string is
  *           used with sendWith(), no interpret is involved.  Since, some of the
  *           args are strings, that could include commas, the individual args
- *           are separated here with ASCII ÿ (255, 0xFF, octal 377) and in the
+ *           are separated here with ASCII ï¿½ (255, 0xFF, octal 377) and in the
  *           Rexx code, handleMessages() separates the args using 255~d2c.
  */
 MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlainBaseDialog pcpbd)
@@ -1494,7 +1494,7 @@ bool addCommandMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilt
     size_t index = pcen->cmSize;
     if ( index < MAX_COMMAND_MSGS )
     {
-        pcen->commandMsgs[index].rexxMethod = (rxcharT *)LocalAlloc(LMEM_FIXED, _tcslen(method) + 1);
+        pcen->commandMsgs[index].rexxMethod = (rxcharT *)RXTLOCALALLOC(LMEM_FIXED, _tcslen(method) + 1);
         if ( pcen->commandMsgs[index].rexxMethod == NULL )
         {
             return false;
@@ -1560,7 +1560,7 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
 
     if ( index < MAX_NOTIFY_MSGS )
     {
-        pcen->notifyMsgs[index].rexxMethod = (rxcharT *)LocalAlloc(LMEM_FIXED, _tcslen(method) + 1);
+        pcen->notifyMsgs[index].rexxMethod = (rxcharT *)RXTLOCALALLOC(LMEM_FIXED, _tcslen(method) + 1);
         if ( pcen->notifyMsgs[index].rexxMethod == NULL )
         {
             return false;
@@ -1629,7 +1629,7 @@ bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter
 
     if ( index < MAX_NOTIFY_MSGS )
     {
-        pcen->miscMsgs[index].rexxMethod = (rxcharT *)LocalAlloc(LMEM_FIXED, _tcslen(method) + 1);
+        pcen->miscMsgs[index].rexxMethod = (rxcharT *)RXTLOCALALLOC(LMEM_FIXED, _tcslen(method) + 1);
         if ( pcen->miscMsgs[index].rexxMethod == NULL )
         {
             return false;
@@ -1919,12 +1919,12 @@ static keyPressErr_t installKBHook(DIALOGADMIN *dlgAdm, HWND hDlg, CSTRINGT meth
 static keyPressErr_t connectKeyPressHook(RexxMethodContext *c, pCEventNotification pcen, CSTRINGT methodName,
                                    CSTRINGT keys, CSTRINGT filter)
 {
-    if ( *methodName == '\0' )
+    if ( *methodName == _T('\0') )
     {
         c->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
         return nameErr;
     }
-    if ( *keys == '\0' )
+    if ( *keys == _T('\0') )
     {
         c->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
         return nameErr;
@@ -2061,7 +2061,8 @@ void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHAR
         else
             strcat(info, " scrollOff");
 
-        sprintf(oodMsg, "%s(%u,%u,%u,%u,%s)", pMethod, wParam, bShift, bControl, bAlt, info);
+        RXCA2T(info);
+        sprintf(oodMsg, "%s(%u,%u,%u,%u,%s)", pMethod, wParam, bShift, bControl, bAlt, infoT.target());
         addDialogMessage((rxcharT *)oodMsg, pMessageQueue);
     }
 }
@@ -2197,7 +2198,7 @@ static BOOL parseKeyToken(PCHART token, PUINT pFirst, PUINT pLast)
     }
     else if ( (p = _tcschr(token, _T('-'))) != NULL )
     {
-        *p++ = '\0';
+        *p++ = _T('\0');
         *pFirst = _tstol(token);
         *pLast = _tstol(p);
         if ( (! *pFirst || ! *pLast) || (*pFirst > *pLast)       ||
@@ -2241,7 +2242,7 @@ static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRINGT method, rxcharT
         return nameErr;
     }
 
-    rxcharT *tmpName = (rxcharT *)LocalAlloc(LPTR, cch);
+    rxcharT *tmpName = (rxcharT *)RXTLOCALALLOC(LPTR, cch);
     if ( tmpName == NULL )
     {
         return memoryErr;
@@ -2659,6 +2660,7 @@ RexxMethod4(RexxObjectPtr, en_connectUpDownEvent, RexxObjectPtr, rxID, CSTRING, 
     if ( argumentOmitted(3) || *methodName == '\0' )
     {
         methodName = "onDeltaPos";
+        methodNameT = methodName;
     }
 
     if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, TAG_UPDOWN) )
@@ -2724,6 +2726,7 @@ RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, C
     if ( argumentOmitted(3) || *methodName == '\0' )
     {
         methodName = dtpn2name(notificationCode);
+        methodNameT = methodName;
     }
 
     uint32_t tag = TAG_DATETIMEPICKER | TAG_REPLYFROMREXX;
@@ -2791,6 +2794,7 @@ RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CS
     if ( argumentOmitted(3) || *methodName == '\0' )
     {
         methodName = mcn2name(notificationCode);
+        methodNameT = methodName;
     }
 
     uint32_t tag = TAG_MONTHCALENDAR;

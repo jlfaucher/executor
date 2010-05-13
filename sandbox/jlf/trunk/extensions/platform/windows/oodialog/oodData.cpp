@@ -429,7 +429,7 @@ static bool setTreeViewData(HWND hDlg, const rxcharT * ldat, uint32_t ctrlID)
    rxcharT data[DATA_BUFFER];
 
    HWND hCtrl = GetDlgItem(hDlg, ctrlID);
-   if ( hCtrl != NULL && *ldat != '\0' )
+   if ( hCtrl != NULL && *ldat != _T('\0') )
    {
        HTREEITEM hTreeItem, root = TreeView_GetRoot(hCtrl);
        tvi.hItem = root;
@@ -489,7 +489,7 @@ static bool getListViewData(HWND hW, rxcharT * ldat, INT item)
    HWND iW = GetDlgItem(hW, item);
    size_t len = 0;
 
-   ldat[0] = '\0';
+   ldat[0] = _T('\0');
    cnt  = ListView_GetSelectedCount(iW);
    if (!cnt) return TRUE;
 
@@ -907,7 +907,7 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
             continue;
         }
 
-        data[0] = '\0';
+        data[0] = _T('\0');
 
         hwnd =        dlgAdm->ChildDlg[dlgAdm->DataTab[j].category];
         itemID =      dlgAdm->DataTab[j].id;
@@ -926,68 +926,68 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
         {
             if ( ! getListBoxData(hwnd, itemID, data) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winComboBox )
         {
             if ( ! getComboBoxData(hwnd, itemID, data) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winTreeView )
         {
             if ( ! getTreeViewData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winListView )
         {
             if ( ! getListViewData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winTrackBar )
         {
             if ( ! getTrackBarData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winTab )
         {
             if ( ! getTabData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winDateTimePicker )
         {
             if ( ! getDateTimeData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winMonthCalendar )
         {
             if ( ! getMonthCalendarData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else if ( controlType == winUpDown )
         {
             if ( ! getUpDownData(hwnd, data, itemID) )
             {
-                data[0] = '\0';
+                data[0] = _T('\0');
             }
         }
         else
         {
-            data[0] = '\0';
+            data[0] = _T('\0');
         }
 
         RXCT2A(data);

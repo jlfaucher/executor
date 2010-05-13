@@ -126,7 +126,7 @@ static DIALOGADMIN * allocDlgAdmin(RexxMethodContext *c)
         // This condition should have been intercepted by PlainBaseDialog::new()
         // But if it hasn't, we'll try to end everything.
         char buf[128];
-        _snprintf(buf, sizeof(buf), "The number of active dialogs has reached the maximum (%d) allowed", MAXDIALOGS);
+        _snprintf(buf, RXITEMCOUNT(buf), "The number of active dialogs has reached the maximum (%d) allowed", MAXDIALOGS);
 
         userDefinedMsgException(c->threadContext, buf);
         goto too_many_out;
@@ -140,7 +140,7 @@ static DIALOGADMIN * allocDlgAdmin(RexxMethodContext *c)
         goto err_out;
     }
 
-    adm->pMessageQueue = (rxcharT *)LocalAlloc(LPTR, MAXLENQUEUE);
+    adm->pMessageQueue = (rxcharT *)RXTLOCALALLOC(LPTR, MAXLENQUEUE);
     if ( adm->pMessageQueue == NULL )
     {
         goto err_out;
@@ -252,10 +252,10 @@ bool InstallNecessaryStuff(DIALOGADMIN* dlgAdm, CSTRING library)
         if ( ! dlgAdm->TheInstance )
         {
             CHART msg[256];
-            _stprintf(msg,
+            _sntprintf(msg, RXITEMCOUNT(msg),
                     _T("Failed to load Dynamic Link Library (resource DLL.)\n")
                     _T("  File name:\t\t\t%s\n")
-                    _T("  Windows System Error Code:\t%d\n"), library, GetLastError());
+                    _T("  Windows System Error Code:\t%d\n"), libraryT.target(), GetLastError());
             MessageBox(0, msg, _T("ooDialog DLL Load Error"), MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
             return false;
         }
@@ -2224,7 +2224,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_new_cls, ARGLIST, args, SUPER, superClass)
     if ( StoredDialogs >= MAXDIALOGS )
     {
         rxcharT buf[128];
-        _sntprintf(buf, sizeof(buf),
+        _sntprintf(buf, RXITEMCOUNT(buf),
                   _T("The number of active dialogs has\n")
                   _T("reached the maximum (%d) allowed\n\n")
                   _T("No more dialogs can be instantiated"), MAXDIALOGS);
@@ -3735,7 +3735,7 @@ RexxMethod2(RexxStringObject, pbdlg_getDlgMsg, OPTIONAL_logical_t, doPeek, CSELF
     RexxStringObject result;
     bool peek = doPeek != 0 ? true : false;
 
-    *msg = '\0';
+    *msg = _T('\0');
 
     EnterCriticalSection(&crit_sec);
 
@@ -3920,7 +3920,6 @@ RexxMethod3(RexxObjectPtr, pbdlg_getControlData, RexxObjectPtr, rxID, NAME, msgN
  */
 RexxMethod4(int32_t, pbdlg_setControlData, RexxObjectPtr, rxID, CSTRING, data, NAME, msgName, CSELF, pCSelf)
 {
-    RXCA2T(data);
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd->hDlg == NULL )
     {
@@ -3936,6 +3935,7 @@ RexxMethod4(int32_t, pbdlg_setControlData, RexxObjectPtr, rxID, CSTRING, data, N
 
     oodControl_t ctrlType = oodName2controlType(msgName + 3);
 
+    RXCA2T(data);
     return setControlData(context, pcpbd, id, dataT, pcpbd->hDlg, ctrlType);
 }
 

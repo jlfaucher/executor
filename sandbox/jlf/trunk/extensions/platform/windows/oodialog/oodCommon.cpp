@@ -72,7 +72,7 @@
 void ooDialogInternalException(RexxMethodContext *c, char *function, int line, char *date, char *file)
 {
     char buf[512];
-    _snprintf(buf, sizeof(buf), "Interpretation error: ooDialog's internal state is inconsistent  "
+    _snprintf(buf, RXITEMCOUNT(buf), "Interpretation error: ooDialog's internal state is inconsistent  "
                                 "Function: %s line: %d compiled date: %s  File: %s", function, line, date, file);
 
     c->RaiseException1(Rexx_Error_Interpretation_user_defined, c->String(buf));
@@ -97,7 +97,7 @@ void ooDialogInternalException(RexxMethodContext *c, char *function, int line, c
 RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg)
 {
     char buf[512];
-    _snprintf(buf, sizeof(buf), "The %s method can not be invoked on %s when the Windows dialog does not exist.",
+    _snprintf(buf, RXITEMCOUNT(buf), "The %s method can not be invoked on %s when the Windows dialog does not exist.",
               c->GetMessageName(), c->ObjectToStringValue(rxDlg));
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
@@ -121,7 +121,7 @@ RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg
 RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj)
 {
     char buf[512];
-    _snprintf(buf, sizeof(buf), "The %s method can not be invoked on %s when the window handle is not valid.",
+    _snprintf(buf, RXITEMCOUNT(buf), "The %s method can not be invoked on %s when the window handle is not valid.",
               c->GetMessageName(), c->ObjectToStringValue(rxObj));
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
@@ -143,7 +143,7 @@ RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj)
 RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int pageNum, int pos)
 {
     char buf[256];
-    _snprintf(buf, sizeof(buf), "Argument %d is not a valid category page number; found %d", pos, pageNum);
+    _snprintf(buf, RXITEMCOUNT(buf), "Argument %d is not a valid category page number; found %d", pos, pageNum);
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
 }
@@ -170,7 +170,7 @@ RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int pageNum, in
 RexxObjectPtr wrongClassReplyException(RexxThreadContext *c, const char *n)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), "The windows message reply must be of the %s class", n);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "The windows message reply must be of the %s class", n);
     executionErrorException(c, buffer);
 
     return NULLOBJECT;
@@ -179,7 +179,7 @@ RexxObjectPtr wrongClassReplyException(RexxThreadContext *c, const char *n)
 void controlFailedException(RexxThreadContext *c, const char *msg, const char *func, const char *control)
 {
     char buffer[256];
-    _snprintf(buffer, sizeof(buffer), msg, func, control);
+    _snprintf(buffer, RXITEMCOUNT(buffer), msg, func, control);
     systemServiceException(c, buffer);
 }
 
@@ -187,14 +187,14 @@ void controlFailedException(RexxThreadContext *c, const char *msg, const char *f
 void wrongWindowStyleException(RexxMethodContext *c, const char *obj, const char *style)
 {
     char msg[128];
-    _snprintf(msg, sizeof(msg), "This %s does not have the %s style", obj, style);
+    _snprintf(msg, RXITEMCOUNT(msg), "This %s does not have the %s style", obj, style);
     userDefinedMsgException(c->threadContext, msg);
 }
 
 RexxObjectPtr wrongWindowsVersionException(RexxMethodContext *context, const char *methodName, const char *windows)
 {
     char msg[256];
-    _snprintf(msg, sizeof(msg), "The %s() method requires Windows %s or later", methodName, windows);
+    _snprintf(msg, RXITEMCOUNT(msg), "The %s() method requires Windows %s or later", methodName, windows);
     context->RaiseException1(Rexx_Error_Incorrect_method_user_defined, context->String(msg));
     return NULLOBJECT;
 }
@@ -218,7 +218,7 @@ bool requiredComCtl32Version(RexxMethodContext *context, const char *methodName,
     if ( ComCtl32Version < minimum )
     {
         char msg[256];
-        _snprintf(msg, sizeof(msg), "The %s() method requires %s or later", methodName, comctl32VersionName(minimum));
+        _snprintf(msg, RXITEMCOUNT(msg), "The %s() method requires %s or later", methodName, comctl32VersionName(minimum));
         context->RaiseException1(Rexx_Error_System_service_user_defined, context->String(msg));
         return false;
     }
@@ -570,7 +570,7 @@ done_out:
 int32_t idError(RexxMethodContext *c, RexxObjectPtr rxID)
 {
     char buf[256];
-    _snprintf(buf, sizeof(buf),
+    _snprintf(buf, RXITEMCOUNT(buf),
               "Error trying to add a dialog resource:\n\n%s is an undefined, non-numeric,\nidentification number.",
               c->ObjectToStringValue(rxID));
 
@@ -796,7 +796,7 @@ rxcharT *strdupupr(const rxcharT *str)
     if ( str )
     {
         size_t l = _tcslen(str);
-        retStr = (rxcharT *)malloc(l + 1);
+        retStr = (rxcharT *)RXTMALLOC(l + 1);
         if ( retStr )
         {
             rxcharT *p;
@@ -827,25 +827,25 @@ rxcharT *strdupupr(const rxcharT *str)
  *
  * @note        The caller is responsible for freeing the returned string.
  */
-rxcharT *strdup_nospace(const rxcharT *str)
+char *strdup_nospace(const char *str)
 {
-    rxcharT *retStr = NULL;
+    char *retStr = NULL;
     if ( str )
     {
-        size_t l = _tcslen(str);
-        retStr = (rxcharT *)malloc(l + 1);
+        size_t l = strlen(str);
+        retStr = (char *)malloc(l + 1);
         if ( retStr )
         {
-            rxcharT *p;
+            char *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( *str == _T(' ') || *str == _T('\t') )
+                if ( *str == ' ' || *str == '\t' )
                 {
                     continue;
                 }
                 *p++ = *str;
             }
-            *p = _T('\0');
+            *p = '\0';
         }
     }
     return retStr;
@@ -867,7 +867,7 @@ rxcharT *strdupupr_nospace(const rxcharT *str)
     if ( str )
     {
         size_t l = _tcslen(str);
-        retStr = (rxcharT *)malloc(l + 1);
+        retStr = (rxcharT *)RXTMALLOC(l + 1);
         if ( retStr )
         {
             rxcharT *p;
@@ -905,19 +905,19 @@ rxcharT *strdupupr_nospace(const rxcharT *str)
  *
  * @note        The caller is responsible for freeing the returned string.
  */
-rxcharT *strdup_2methodName(const rxcharT *str)
+char *strdup_2methodName(const char *str)
 {
-    rxcharT *retStr = NULL;
+    char *retStr = NULL;
     if ( str )
     {
-        size_t l = _tcslen(str);
-        retStr = (rxcharT *)malloc(l + 1);
+        size_t l = strlen(str);
+        retStr = (char *)malloc(l + 1);
         if ( retStr )
         {
-            rxcharT *p;
+            char *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( *str == _T(' ') || *str == _T('\t') || *str == _T('&') || *str == _T('+') || *str == _T(':') )
+                if ( *str == ' ' || *str == '\t' || *str == '&' || *str == '+' || *str == ':' )
                 {
                     continue;
                 }
@@ -926,10 +926,17 @@ rxcharT *strdup_2methodName(const rxcharT *str)
                     *p++ = *str;
                 }
             }
-            *(p - 3) == _T('.') ? *(p - 3) = _T('\0') : *p = _T('\0');
+            *(p - 3) == '.' ? *(p - 3) = '\0' : *p = '\0';
         }
     }
     return retStr;
+}
+
+
+char *strdup_2methodName(const rxcharW *str)
+{
+    RXCW2A(str);
+    return strdup_2methodName(strT);
 }
 
 
@@ -1082,7 +1089,7 @@ bool rxGetWindowText(RexxMethodContext *c, HWND hwnd, RexxStringObject *pStringO
     // should check the count and if bigger than a certain size, see if it could
     // be optimized by using a string buffer.
 
-    LPTSTR pBuf = (LPTSTR)malloc(++count);
+    LPTSTR pBuf = (LPTSTR)RXTMALLOC(++count);
     if ( pBuf == NULL )
     {
         outOfMemoryException(c->threadContext);
@@ -1320,7 +1327,7 @@ int putUnicodeText(LPWORD dest, const rxcharA *text)
     {
         int cchWideChar = (int)strlen(text) + 1;
 
-        count = MultiByteToWideChar(CP_ACP, 0, text, -1, (LPWSTR)dest, cchWideChar);
+        count = MultiByteToWideChar(rxgetCodePage(), 0, text, -1, (LPWSTR)dest, cchWideChar);
         if ( count == 0 )
         {
             // Unlikely that this failed, but if it did, treat it as an empty
@@ -1366,14 +1373,14 @@ char *unicode2Ansi(PWSTR wstr, int32_t len)
     }
 
     char *ansiStr = NULL;
-    int32_t neededLen = WideCharToMultiByte(CP_ACP, 0, wstr, len, NULL, 0, NULL, NULL);
+    int32_t neededLen = WideCharToMultiByte(rxgetCodePage(), 0, wstr, len, NULL, 0, NULL, NULL);
 
     if ( neededLen != 0 )
     {
         ansiStr = (char *)malloc(neededLen);
         if ( ansiStr != NULL )
         {
-            if ( WideCharToMultiByte(CP_ACP, 0, wstr, len, ansiStr, neededLen, NULL, NULL) == 0 )
+            if ( WideCharToMultiByte(rxgetCodePage(), 0, wstr, len, ansiStr, neededLen, NULL, NULL) == 0 )
             {
                 /* conversion failed */
                 free(ansiStr);

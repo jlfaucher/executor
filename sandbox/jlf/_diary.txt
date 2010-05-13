@@ -31,6 +31,34 @@ Unicode ?
 
 
 ===============================================================================
+2010 may 13
+
+More work on wide-chars in oodialog.
+
+New configuration names : oodialogA and oodialogW.
+No longer needed to pass "WCHAR=1" to build the wide-char configuration.
+makeorx DEBUG                   builds both configurations
+makeorx DEBUG oodialogA         builds the byte-char configuration
+makeorx DEBUG oodialogA clean   cleans the byte-char configuration
+makeorx DEBUG oodialogW         builds the wide-char configuration
+makeorx DEBUG oodialogW clean   cleans the wide-char configuration
+makeorx DEBUG oodialog          like oodialogA
+
+byte-char and wide-char configurations of oodialog are working, tested with oodialog examples.
+There are some problems, but I have the same problems in trunk, so I assume there are some work in progress there...
+
+Test of wide-char configuration :
+It's not enough to put win32dbg/wchar in fromt of %PATH%, you must also rename
+or remove win32dbg/oodialog.dll because it's this DLL which is loaded by default.
+See unicode/ooRexx/oodtree.png for a screenshot with french, german, hebrew, russian, greek, etc...
+
+Summary of the changes made to the oodtree example :
+oodtree.rex, added : call setCodePage 65001 -- UTF-8
+oodtree.rc, changed : FONT 8, "Arial Unicode MS"
+oodtree.inp, added UTF-8 strings for demo
+
+
+===============================================================================
 2010 may 9
 
 Added support for wide-chars in oodialog.

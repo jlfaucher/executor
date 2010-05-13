@@ -42,18 +42,7 @@
 #include "rxwchar.hpp"
 
 
-// See setlocale : the 'locale' argument can be something like ".1252"
-static const char *codePageToString(int i)
-{
-    const size_t size = 20;
-    static char buffer[size];
-    int count = _snprintf(buffer, size, ".%u", i);
-    buffer[size - 1] = '\0';
-    return (count < 0) ? NULL : buffer;
-}
-
-
-static int theCodePage = 0; // 0 means ANSI code page
+static int theCodePage = 0; // ANSI code page by default
 
 
 bool rxsetCodePage(int codepage)

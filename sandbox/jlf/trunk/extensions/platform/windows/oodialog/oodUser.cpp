@@ -922,7 +922,7 @@ int32_t connectCreatedControl(RexxMethodContext *c, pCPlainBaseDialog pcpbd, Rex
     char buf[64];
     if ( attributeName == NULL || *attributeName == '\0' )
     {
-        _snprintf(buf, sizeof(buf), "DATA%d", id);
+        _snprintf(buf, RXITEMCOUNT(buf), "DATA%d", id);
         attributeName = buf;
     }
 
@@ -1024,11 +1024,11 @@ RexxMethod9(logical_t, dyndlg_create, uint32_t, x, int32_t, y, int32_t, cx, uint
             OPTIONAL_RexxStringObject, _opts, OPTIONAL_CSTRING, dlgClass, ARGLIST, args, CSELF, pCSelf)
 {
     RXCA2T(title);
-    RXCA2T(dlgClass);
     RexxMethodContext *c = context;
 
     uint32_t style = DS_SETFONT | WS_CAPTION | WS_SYSMENU;
     dlgClass = NULL;        // The dialog class is always ignored, at this time.
+    RXCA2T(dlgClass);
 
     if ( argumentExists(6) )
     {
@@ -1278,8 +1278,6 @@ RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint
 RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, text, CSELF, pCSelf)
 {
-    RXCA2T(opts);
-    RXCA2T(text);
     if ( argumentOmitted(1) )
     {
         rxID = TheNegativeOneObj;
@@ -1292,6 +1290,9 @@ RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, 
     {
         text = "";
     }
+
+    RXCA2T(opts);
+    RXCA2T(text);
 
     if ( StrStrIA(opts, "TEXT") != NULL )
     {
@@ -1330,8 +1331,6 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
             int, x, int, y, OPTIONAL_uint32_t, cx, OPTIONAL_uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, text, CSELF, pCSelf)
 {
-    RXCA2T(opts);
-    RXCA2T(text);
     if ( argumentOmitted(1) )
     {
         rxID = TheNegativeOneObj;
@@ -1344,6 +1343,8 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
     {
         text = "";
     }
+    RXCA2T(opts);
+    RXCA2T(text);
     return createStaticText(context, rxID, x, y, cx, cy, optsT, textT, (pCDynamicDialog)pCSelf);
 }
 
@@ -1354,11 +1355,11 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
 RexxMethod7(int32_t, dyndlg_createStaticImage, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     if ( argumentOmitted(6) )
     {
         opts = "";
     }
+    RXCA2T(opts);
     return createStaticImage(context, rxID, x, y, cx, cy, optsT, (pCDynamicDialog)pCSelf);
 }
 
@@ -1369,8 +1370,6 @@ RexxMethod7(int32_t, dyndlg_createStaticImage, RexxObjectPtr, rxID, int, x, int,
 RexxMethod8(int32_t, dyndlg_createStaticFrame, OPTIONAL_RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, NAME, msgName, CSELF, pCSelf)
 {
-    RXCA2T(opts);
-    RXCA2T(msgName);
     if ( argumentOmitted(1) )
     {
         rxID = TheNegativeOneObj;
@@ -1379,6 +1378,8 @@ RexxMethod8(int32_t, dyndlg_createStaticFrame, OPTIONAL_RexxObjectPtr, rxID, int
     {
         opts = "";
     }
+    RXCA2T(opts);
+    RXCA2T(msgName);
     return createStaticFrame(context, rxID, x, y, cx, cy, optsT, msgNameT.target() + 6, 0, (pCDynamicDialog)pCSelf); // rxwchar tocheck : +6 ???
 }
 
@@ -1429,10 +1430,6 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
              OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, label, OPTIONAL_CSTRING, msgToRaise, OPTIONAL_CSTRING, loadOptions,
              CSELF, pCSelf)
 {
-    RXCA2T(opts);
-    RXCA2T(label);
-    RXCA2T(msgToRaise);
-    RXCA2T(loadOptions);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     if ( pcdd->active == NULL )
     {
@@ -1454,6 +1451,10 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
         label = "";
     }
 
+    RXCA2T(opts);
+    RXCA2T(label);
+    RXCA2T(loadOptions);
+
     uint32_t style = WS_CHILD;
     style |= ( StrStrIA(opts, "DEFAULT") != NULL ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON );
     style = getCommonButtonStyles(style, optsT, winPushButton);
@@ -1468,21 +1469,22 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
         return 0;
     }
 
-    CSTRINGT methName = NULL;
+    CSTRING methName = NULL;
     int32_t result   = 0;
 
     if ( needButtonConnect(loadOptionsT, winPushButton) )
     {
-        methName = strdup_2methodName(labelT);
+        methName = strdup_2methodName(label);
     }
     else if ( argumentExists(8) )
     {
-        methName = strdup_nospace(msgToRaiseT);
+        methName = strdup_nospace(msgToRaise);
     }
 
-    if ( methName != NULL && _tcslen(methName) != 0 )
+    if ( methName != NULL && strlen(methName) != 0 )
     {
-        result = addCommandMessage(pcdd->pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, methName, 0) ? 0 : 1;
+        RXCA2T(methName);
+        result = addCommandMessage(pcdd->pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, methNameT, 0) ? 0 : 1;
     }
 
     safeFree((void *)methName);
@@ -1500,9 +1502,6 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
              OPTIONAL_uint32_t, cx, OPTIONAL_uint32_t, cy, OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, label,
              OPTIONAL_CSTRING, attributeName, OPTIONAL_CSTRING, loadOptions, CSELF, pCSelf)
 {
-    RXCA2T(label);
-    RXCA2T(opts);
-    RXCA2T(loadOptions);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -1520,6 +1519,7 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
     {
         label = "";
     }
+    RXCA2T(label);
     if ( argumentOmitted(4) || argumentOmitted(5) )
     {
         SIZE textSize = {0};
@@ -1549,6 +1549,9 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
         attributeName = label;
     }
 
+    RXCA2T(opts);
+    RXCA2T(loadOptions);
+
     oodControl_t ctrl = winCheckBox;
     if ( strcmp("CREATERADIOBUTTON", context->GetMessageName()) == 0 )
     {
@@ -1575,23 +1578,24 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
 
     if ( needButtonConnect(loadOptionsT, ctrl) )
     {
-        CSTRINGT methName = strdup_2methodName(labelT);
+        CSTRING methName = strdup_2methodName(label);
         if ( methName == NULL )
         {
             outOfMemoryException(context->threadContext);
             return -2;
         }
 
-        rxcharT *finalName = (rxcharT *)malloc(_tcslen(methName) + 3);
+        char *finalName = (char *)malloc(strlen(methName) + 3);
         if ( finalName == NULL )
         {
             outOfMemoryException(context->threadContext);
             return -2;
         }
-        _tcscpy(finalName, _T("ID"));
-        _tcscat(finalName, methName);
+        strcpy(finalName, "ID");
+        strcat(finalName, methName);
 
-        result = addCommandMessage(pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, finalName, 0) ? 0 : 1;
+        RXCA2T(finalName);
+        result = addCommandMessage(pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, finalNameT, 0) ? 0 : 1;
         free((void *)methName);
         free((void *)finalName);
     }
@@ -1610,8 +1614,6 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
 RexxMethod8(int32_t, dyndlg_createGroupBox, OPTIONAL_RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, text, CSELF, pCSelf)
 {
-    RXCA2T(opts);
-    RXCA2T(text);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     if ( pcdd->active == NULL )
     {
@@ -1635,6 +1637,9 @@ RexxMethod8(int32_t, dyndlg_createGroupBox, OPTIONAL_RexxObjectPtr, rxID, int, x
     {
         text = "";
     }
+
+    RXCA2T(opts);
+    RXCA2T(text);
 
     // For a groupbox, we support right or left aligned text.  By default the
     // alignment is left so we only need to check for the RIGHT key word.
@@ -1660,7 +1665,6 @@ RexxMethod8(int32_t, dyndlg_createGroupBox, OPTIONAL_RexxObjectPtr, rxID, int, x
 RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, OPTIONAL_uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -1691,6 +1695,7 @@ RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uin
     {
         opts = "";
     }
+    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
     style |= getCommonWindowStyles(optsT, true, true);
@@ -1750,7 +1755,6 @@ RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uin
 RexxMethod7(int32_t, dyndlg_createScrollBar, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     if ( pcdd->active == NULL )
     {
@@ -1766,6 +1770,7 @@ RexxMethod7(int32_t, dyndlg_createScrollBar, RexxObjectPtr, rxID, int, x, int, y
     {
         opts = "";
     }
+    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
     style |= getCommonWindowStyles(optsT, false, false);
@@ -1788,7 +1793,6 @@ RexxMethod7(int32_t, dyndlg_createScrollBar, RexxObjectPtr, rxID, int, x, int, y
 RexxMethod8(int32_t, dyndlg_createListBox, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -1806,6 +1810,7 @@ RexxMethod8(int32_t, dyndlg_createListBox, RexxObjectPtr, rxID, int, x, int, y, 
     {
         opts = "";
     }
+    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
     style |= getCommonWindowStyles(optsT, true, true);
@@ -1844,7 +1849,6 @@ RexxMethod8(int32_t, dyndlg_createListBox, RexxObjectPtr, rxID, int, x, int, y, 
 RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -1862,6 +1866,7 @@ RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y,
     {
         opts = "";
     }
+    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
     style |= getCommonWindowStyles(optsT, true, true);
@@ -1896,7 +1901,6 @@ RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y,
 RexxMethod7(int32_t, dyndlg_createProgressBar, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -1914,6 +1918,7 @@ RexxMethod7(int32_t, dyndlg_createProgressBar, RexxObjectPtr, rxID, int, x, int,
     {
         opts = "";
     }
+    RXCA2T(opts);
 
     uint32_t style = getControlStyle(winProgressBar, optsT);
 
@@ -1931,7 +1936,6 @@ RexxMethod7(int32_t, dyndlg_createProgressBar, RexxObjectPtr, rxID, int, x, int,
 RexxMethod9(int32_t, dyndlg_createNamedControl, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, NAME, msgName, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -1949,6 +1953,7 @@ RexxMethod9(int32_t, dyndlg_createNamedControl, RexxObjectPtr, rxID, int, x, int
     {
         opts = "";
     }
+    RXCA2T(opts);
 
     oodControl_t ctrl = oodName2controlType(msgName + 6);
     CSTRINGT windowClass = controlType2winName(ctrl);
@@ -2177,7 +2182,7 @@ RexxMethod3(int32_t, dyndlg_addIconResource, RexxObjectPtr, rxID, CSTRING, fileN
     if ( iconID <= IDI_DLG_MAX_ID )
     {
         char szBuf[196];
-        sprintf(szBuf, "Icon resource ID: %d is not valid.  Resource\n"
+        _snprintf(szBuf, RXITEMCOUNT(szBuf), "Icon resource ID: %d is not valid.  Resource\n"
                 "IDs from 1 through %d are reserved for ooDialog\n"
                 "internal resources.  The icon resource will not\n"
                 "be added.", iconID, IDI_DLG_MAX_ID);
@@ -2207,7 +2212,7 @@ RexxMethod3(int32_t, dyndlg_addIconResource, RexxObjectPtr, rxID, CSTRING, fileN
                 break;
         }
 
-        rxcharT *buf = (rxcharT *)LocalAlloc(LPTR, RXTBYTECOUNT(strlen(fileName) + 1));
+        rxcharT *buf = (rxcharT *)RXTLOCALALLOC(LPTR, strlen(fileName) + 1);
         if ( buf == NULL )
         {
             outOfMemoryException(context->threadContext);

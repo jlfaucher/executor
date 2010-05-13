@@ -245,7 +245,7 @@ bool getComCtl32Version(RexxMethodContext *context, DWORD *pDllVersion, DWORD mi
     if ( *pDllVersion == 0 )
     {
         CHAR msg[256];
-        _snprintf(msg, sizeof(msg),
+        _snprintf(msg, RXITEMCOUNT(msg),
                   "The version of the Windows Common Controls library (%s)\n"
                   "could not be determined.  %s can not continue",
                   COMMON_CONTROL_DLL, packageName);
@@ -256,7 +256,7 @@ bool getComCtl32Version(RexxMethodContext *context, DWORD *pDllVersion, DWORD mi
     else if ( *pDllVersion < minVersion )
     {
         CHAR msg[256];
-        _snprintf(msg, sizeof(msg),
+        _snprintf(msg, RXITEMCOUNT(msg),
                   "%s can not continue with this version of the Windows\n"
                   "Common Controls library(%s.)  The minimum\n"
                   "version required is: %s.\n\n"
@@ -294,7 +294,7 @@ bool initCommonControls(RexxMethodContext *context, DWORD classes, CSTRING packa
         systemServiceExceptionCode(context->threadContext, NO_COMMCTRL_MSG, "Common Control Library");
 
         CHAR msg[128];
-        _snprintf(msg, sizeof(msg),
+        _snprintf(msg, RXITEMCOUNT(msg),
                   "Initializing the Windows Common Controls\n"
                   "library failed.  %s can not continue.\n\n"
                   "Windows System Error Code: %d\n", packageName, GetLastError());
@@ -434,11 +434,11 @@ RexxMethod1(RexxStringObject, dlgutil_version_cls, OPTIONAL_CSTRING, format)
 
     if ( argumentExists(1) && (*format == 'S' || *format == 's') )
     {
-        _snprintf(buf, sizeof(buf), "%u.%u.%u.%u", ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
+        _snprintf(buf, RXITEMCOUNT(buf), "%u.%u.%u.%u", ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
     }
     else
     {
-        _snprintf(buf, sizeof(buf), "ooDialog Version %u.%u.%u.%u (an ooRexx Windows Extension)", ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
+        _snprintf(buf, RXITEMCOUNT(buf), "ooDialog Version %u.%u.%u.%u (an ooRexx Windows Extension)", ORX_VER, ORX_REL, ORX_MOD, OOREXX_BLD);
     }
     return context->String(buf);
 }

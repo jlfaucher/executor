@@ -195,8 +195,9 @@ extern RexxStringObject pointer2string(RexxThreadContext *c, void *pointer);
 extern RexxStringObject dword2string(RexxMethodContext *, uint32_t);
 extern rxcharT *        strdupupr(const rxcharT *str);
 extern rxcharT *        strdupupr_nospace(const rxcharT *str);
-extern rxcharT *        strdup_nospace(const rxcharT *str);
-extern rxcharT *        strdup_2methodName(const rxcharT *str);
+extern char *           strdup_nospace(const char *str);
+extern char *           strdup_2methodName(const char *str);
+extern char *           strdup_2methodName(const rxcharW *str);
 extern DIALOGADMIN *    getDlgAdm(RexxMethodContext *c, RexxObjectPtr dlg);
 
 extern void          ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);

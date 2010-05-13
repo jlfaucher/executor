@@ -324,7 +324,7 @@ BUTTONTYPE getButtonInfo(HWND hwnd, PBUTTONSUBTYPE sub, DWORD *style)
     rxcharT buf[64];
     BUTTONTYPE type = notButton;
 
-    if ( ! RealGetWindowClass(hwnd, buf, sizeof(buf)) || _tcscmp(buf, WC_BUTTON) )
+    if ( ! RealGetWindowClass(hwnd, buf, RXITEMCOUNT(buf)) || _tcscmp(buf, WC_BUTTON) )
     {
         if ( sub != NULL )
         {
@@ -1549,11 +1549,12 @@ RexxMethod1(RexxObjectPtr, e_selection, CSELF, pCSelf)
  */
 RexxMethod3(RexxObjectPtr, e_replaceSelText, CSTRING, replacement, OPTIONAL_logical_t, canUndo, CSELF, pCSelf)
 {
+    RXCA2T(replacement);
     if ( argumentOmitted(2) )
     {
         canUndo = TRUE;
     }
-    SendMessage(((pCDialogControl)pCSelf)->hCtrl, EM_REPLACESEL, canUndo, (LPARAM)replacement);
+    SendMessage(((pCDialogControl)pCSelf)->hCtrl, EM_REPLACESEL, canUndo, (LPARAM)replacementT.target());
     return TheZeroObj;
 }
 
@@ -1565,7 +1566,7 @@ RexxMethod3(RexxObjectPtr, e_replaceSelText, CSTRING, replacement, OPTIONAL_logi
  *  character from the beginning of the edit control.
  *
  *  @param  lineNumber  The one-based index of the line whose character index is
- *                      desired.  A value of –1 specifies the current line
+ *                      desired.  A value of -1 specifies the current line
  *                      number (the line that contains the caret).
  *
  *  @return The character index. -1 is returned if the specified line index is
@@ -1619,7 +1620,7 @@ RexxMethod2(RexxObjectPtr, e_lineIndex, int32_t, lineNumber, CSELF, pCSelf)
  *  Retrieves the text of the specified line.
  *
  *  @param  lineNumber  The one-base index of the line whose text is desired.
- *                      A value of –1 specifies the current line number (the
+ *                      A value of -1 specifies the current line number (the
  *                      line that contains the caret).
  *  @param  ignored     Prior to 4.0.1, ooDialog required the user to specify
  *                      how long the line was (or how much text to retrieve) if
@@ -1634,7 +1635,7 @@ RexxMethod2(RexxObjectPtr, e_lineIndex, int32_t, lineNumber, CSELF, pCSelf)
 RexxMethod3(RexxStringObject, e_getLine, int32_t, lineNumber, OPTIONAL_RexxObjectPtr, ignored, CSELF, pCSelf)
 {
     HWND hwnd = getDChCtrl(pCSelf);
-    char *buf = NULL;
+    rxcharT *buf = NULL;
     RexxStringObject result = context->NullString();
 
     if ( lineNumber == 0 )
@@ -1669,7 +1670,7 @@ RexxMethod3(RexxStringObject, e_getLine, int32_t, lineNumber, OPTIONAL_RexxObjec
             goto done_out;
         }
 
-        buf = (char *)LocalAlloc(LPTR, ++count);
+        buf = (rxcharT *)RXTLOCALALLOC(LPTR, ++count);
         if ( buf == NULL )
         {
             outOfMemoryException(context->threadContext);
@@ -1679,7 +1680,8 @@ RexxMethod3(RexxStringObject, e_getLine, int32_t, lineNumber, OPTIONAL_RexxObjec
         (*(WORD *)buf) = count;
         if ( SendMessage(hwnd, EM_GETLINE, lineNumber, (LPARAM)buf) != 0 )
         {
-            result = context->String(buf);
+            RXCT2A(buf);
+            result = context->String(bufT);
         }
     }
 
@@ -1799,7 +1801,6 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
 {
     RXCA2T(title);
     RXCA2T(text);
-    RXCA2T(icon);
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0)  )
     {
         return TheOneObj;
@@ -1832,15 +1833,15 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
 
     if ( argumentExists(3) )
     {
-        switch( _totupper(*icon) )
+        switch( toupper(*icon) )
         {
-            case _T('E') :
+            case 'E' :
                 tip.ttiIcon = TTI_ERROR;
                 break;
-            case _T('N') :
+            case 'N' :
                 tip.ttiIcon = TTI_NONE;
                 break;
-            case _T('W') :
+            case 'W' :
                 tip.ttiIcon = TTI_WARNING;
                 break;
         }
@@ -2005,7 +2006,7 @@ RexxStringObject cbLbGetText(RexxMethodContext *c, HWND hCtrl, uint32_t index, o
         LRESULT l = SendMessage(hCtrl, msg, index, 0);
         if ( l > 0 )
         {
-            char *buf = (char *)malloc(l + 1);
+            rxcharT *buf = (rxcharT *)RXTMALLOC(l + 1);
             if ( buf == NULL )
             {
                 outOfMemoryException(c->threadContext);
@@ -2016,7 +2017,8 @@ RexxStringObject cbLbGetText(RexxMethodContext *c, HWND hCtrl, uint32_t index, o
             l = SendMessage(hCtrl, msg, index, (LPARAM)buf);
             if ( l > 0 )
             {
-                result = c->String(buf);
+                RXCT2A(buf);
+                result = c->String(bufT);
             }
             free(buf);
         }
@@ -2052,7 +2054,8 @@ static int32_t cbLbInsert(RexxMethodContext *context, HWND hCtrl, int32_t index,
 
     msg = (ctrl == winComboBox ? CB_INSERTSTRING : LB_INSERTSTRING);
 
-    int32_t ret = (int32_t)SendMessage(hCtrl, msg, (WPARAM)index, (LPARAM)text);
+    RXCA2T(text);
+    int32_t ret = (int32_t)SendMessage(hCtrl, msg, (WPARAM)index, (LPARAM)textT.target());
     if ( ret >= 0 )
     {
         ret++;
@@ -2064,7 +2067,8 @@ static int32_t cbLbSelect(HWND hCtrl, CSTRING text, oodControl_t ctrl)
 {
     uint32_t msg = (ctrl == winComboBox ? CB_FINDSTRING : LB_FINDSTRING);
 
-    int32_t index = (int32_t)SendMessage(hCtrl, msg, 0, (LPARAM)text);
+    RXCA2T(text);
+    int32_t index = (int32_t)SendMessage(hCtrl, msg, 0, (LPARAM)textT.target());
     if ( index < 0 )
     {
         return 0;
@@ -2110,13 +2114,14 @@ static int32_t cbLbFind(HWND hCtrl, CSTRING text, uint32_t startIndex, CSTRING e
         msg = (ctrl == winComboBox ? CB_FINDSTRING : LB_FINDSTRING);
     }
 
-    found = (int32_t)SendMessage(hCtrl, LB_FINDSTRING, startIndex, (LPARAM)text);
+    RXCA2T(text);
+    found = (int32_t)SendMessage(hCtrl, LB_FINDSTRING, startIndex, (LPARAM)textT.target());
 
     return (found > 0 ? 0 : --found);
 }
 
 
-static int32_t cbLbAddDirectory(HWND hCtrl, CSTRINGT drivePath, CSTRING fileAttributes, oodControl_t ctrl)
+static int32_t cbLbAddDirectory(HWND hCtrl, CSTRING drivePath, CSTRING fileAttributes, oodControl_t ctrl)
 {
     uint32_t attributes = DDL_READWRITE;
     if ( fileAttributes != NULL && *fileAttributes != '\0' )
@@ -2132,7 +2137,8 @@ static int32_t cbLbAddDirectory(HWND hCtrl, CSTRINGT drivePath, CSTRING fileAttr
     }
     uint32_t msg = (ctrl == winComboBox ? CB_DIR : LB_DIR);
 
-    return (int32_t)SendMessage(hCtrl, msg, attributes, (LPARAM)drivePath);
+    RXCA2T(drivePath);
+    return (int32_t)SendMessage(hCtrl, msg, attributes, (LPARAM)drivePathT.target());
 }
 
 
@@ -2167,7 +2173,8 @@ RexxMethod2(RexxObjectPtr, lb_getText, uint32_t, index, CSELF, pCSelf)
  */
 RexxMethod2(int32_t, lb_add, CSTRING, text, CSELF, pCSelf)
 {
-    int32_t ret = (int32_t)SendMessage(((pCDialogControl)pCSelf)->hCtrl, LB_ADDSTRING, 0, (LPARAM)text);
+    RXCA2T(text);
+    int32_t ret = (int32_t)SendMessage(((pCDialogControl)pCSelf)->hCtrl, LB_ADDSTRING, 0, (LPARAM)textT.target());
     if ( ret >= 0 )
     {
         ret++;
@@ -2231,7 +2238,8 @@ RexxMethod3(int32_t, lb_insert, OPTIONAL_int32_t, index, CSTRING, text, CSELF, p
         }
     }
 
-    int32_t ret = (int32_t)SendMessage(hwnd, LB_INSERTSTRING, (WPARAM)index, (LPARAM)text);
+    RXCA2T(text);
+    int32_t ret = (int32_t)SendMessage(hwnd, LB_INSERTSTRING, (WPARAM)index, (LPARAM)textT.target());
     if ( ret >= 0 )
     {
         ret++;
@@ -2442,8 +2450,7 @@ RexxMethod4(int32_t, lb_find, CSTRING, text, OPTIONAL_uint32_t, startIndex, OPTI
 
 RexxMethod3(int32_t, lb_addDirectory, CSTRING, drivePath, OPTIONAL_CSTRING, fileAttributes, CSELF, pCSelf)
 {
-    RXCA2T(drivePath);
-    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePathT, fileAttributes, winListBox);
+    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePath, fileAttributes, winListBox);
 }
 
 /**
@@ -2479,7 +2486,8 @@ RexxMethod2(RexxStringObject, cb_getText, uint32_t, index, CSELF, pCSelf)
  */
 RexxMethod2(int32_t, cb_add, CSTRING, text, CSELF, pCSelf)
 {
-    int32_t ret = (int32_t)SendMessage(((pCDialogControl)pCSelf)->hCtrl, CB_ADDSTRING, 0, (LPARAM)text);
+    RXCA2T(text);
+    int32_t ret = (int32_t)SendMessage(((pCDialogControl)pCSelf)->hCtrl, CB_ADDSTRING, 0, (LPARAM)textT.target());
     if ( ret >= 0 )
     {
         ret++;
@@ -2567,6 +2575,5 @@ RexxMethod4(int32_t, cb_find, CSTRING, text, OPTIONAL_uint32_t, startIndex, OPTI
 
 RexxMethod3(int32_t, cb_addDirectory, CSTRING, drivePath, OPTIONAL_CSTRING, fileAttributes, CSELF, pCSelf)
 {
-    RXCA2T(drivePath);
-    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePathT, fileAttributes, winComboBox);
+    return cbLbAddDirectory(((pCDialogControl)pCSelf)->hCtrl, drivePath, fileAttributes, winComboBox);
 }

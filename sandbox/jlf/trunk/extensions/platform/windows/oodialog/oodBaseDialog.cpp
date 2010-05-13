@@ -172,7 +172,7 @@ void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
         TEXTMETRIC tm;
 
         GetTextMetrics(hdc, &tm);
-        GetTextFace(hdc, sizeof(fontName), fontName);
+        GetTextFace(hdc, RXITEMCOUNT(fontName), fontName);
 
         long fontSize = MulDiv((tm.tmHeight - tm.tmInternalLeading), 72, GetDeviceCaps(hdc, LOGPIXELSY));
 
@@ -486,10 +486,10 @@ RexxMethod4(POINTERSTRING, winex_createFont, OPTIONAL_CSTRING, fontName, OPTIONA
 
     if ( argumentExists(3) )
     {
+        italic    = StrStrIA(fontStyle, "ITALIC"   ) != NULL;
+        underline = StrStrIA(fontStyle, "UNDERLINE") != NULL;
+        strikeout = StrStrIA(fontStyle, "STRIKEOUT") != NULL;
         RXCA2T(fontStyle);
-        italic    = StrStrI(fontStyleT, _T("ITALIC"   )) != NULL;
-        underline = StrStrI(fontStyleT, _T("UNDERLINE")) != NULL;
-        strikeout = StrStrI(fontStyleT, _T("STRIKEOUT")) != NULL;
         weight = getWeight(fontStyleT);
     }
 

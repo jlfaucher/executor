@@ -127,7 +127,7 @@ static UINT getSeparatorTypeOpts(const rxcharT *opts, UINT type);
 static UINT getTrackFlags(const rxcharT *);
 static uint32_t deleteSeparatorByID(HMENU, uint32_t);
 static uint32_t menuHelpID(HMENU hMenu, DWORD helpID, BOOL recurse, uint32_t *id);
-static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRINGT msg, bool isSysMenu, logical_t handles);
+static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRING msg, bool isSysMenu, logical_t handles);
 
 
 /**
@@ -149,24 +149,26 @@ static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRINGT
  *
  * @return 0 on success, ERROR_NOT_ENOUGH_MEMORY on failure.
  */
-inline uint32_t _connectItem(pCEventNotification pcen, uint32_t id, CSTRINGT msg)
+inline uint32_t _connectItem(pCEventNotification pcen, uint32_t id, CSTRING msg)
 {
     if ( id < 3 || id == 9 )
     {
         return 0;
     }
-    return addCommandMessage(pcen, id, 0x0000FFFF, 0, 0,  msg, TAG_NOTHING) ? 0 : ERROR_NOT_ENOUGH_MEMORY;
+    RXCA2T(msg);
+    return addCommandMessage(pcen, id, 0x0000FFFF, 0, 0,  msgT, TAG_NOTHING) ? 0 : ERROR_NOT_ENOUGH_MEMORY;
 }
 
 /* Same as above but connects a System Menu item */
-inline BOOL _connectSysItem(pCEventNotification pcen, uint32_t id, CSTRINGT msg, logical_t isHandled)
+inline BOOL _connectSysItem(pCEventNotification pcen, uint32_t id, CSTRING msg, logical_t isHandled)
 {
     uint32_t tag = TAG_DIALOG | TAG_SYSMENUCOMMAND;
     if ( isHandled )
     {
         tag |= TAG_MSGHANDLED;
     }
-    return addMiscMessage(pcen, WM_SYSCOMMAND, UINT32_MAX, id, 0x0000FFF0, 0, 0,  msg, tag) ? 0 : ERROR_NOT_ENOUGH_MEMORY;
+    RXCA2T(msg);
+    return addMiscMessage(pcen, WM_SYSCOMMAND, UINT32_MAX, id, 0x0000FFF0, 0, 0,  msgT, tag) ? 0 : ERROR_NOT_ENOUGH_MEMORY;
 }
 
 /**
@@ -271,7 +273,7 @@ done_out:
  *
  * @note text is required to be not null, the empty string is okay.
  */
-logical_t CppMenu::addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, CSTRINGT method)
+logical_t CppMenu::addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, CSTRING method)
 {
     logical_t success = FALSE;
     oodResetSysErrCode(c->threadContext);
@@ -689,8 +691,7 @@ RexxDirectoryObject CppMenu::autoConnectionStatus()
     c->DirectoryPut(result, autoConnect ? TheTrueObj : TheFalseObj, "AUTOCONNECT");
     if ( connectionMethod != NULL )
     {
-        RXCT2A(connectionMethod);
-        c->DirectoryPut(result, c->CString(connectionMethodT), "METHODNAME");
+        c->DirectoryPut(result, c->CString(connectionMethod), "METHODNAME");
     }
     return result;
 }
@@ -717,10 +718,10 @@ RexxDirectoryObject CppMenu::autoConnectionStatus()
  * @assumes id is a resource ID and not a by position ID.  This menu is a menu
  *          bar.
  */
-BOOL CppMenu::maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CSTRINGT methodName)
+BOOL CppMenu::maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CSTRING methodName)
 {
     BOOL success = TRUE;
-    rxcharT * _methodName = NULL;
+    char * _methodName = NULL;
     bool doAutoConnection = autoConnect && (dlg != TheNilObj);
 
     if ( ! connect && ! doAutoConnection )
@@ -782,7 +783,7 @@ BOOL CppMenu::maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CS
         // add it to the connection queue.
         if ( pcpbd != NULL )
         {
-            rc = _connectItem(pcpbd->enCSelf, id, _methodName);
+            rc = _connectItem(pcpbd->enCSelf, id, _methodName); // JLF : bug ? should _methodName be replaced by methodName ?
             if ( rc != 0 )
             {
                 oodSetSysErrCode(c->threadContext, rc);
@@ -791,7 +792,7 @@ BOOL CppMenu::maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CS
         }
         else
         {
-            if ( ! addToConnectionQ(id, _methodName) )
+            if ( ! addToConnectionQ(id, _methodName) ) // JLF : bug ? should _methodName be replaced by methodName ?
             {
                 // Couldn't allocate memory
                 goto done_out;
@@ -806,7 +807,7 @@ done_out:
 }
 
 
-bool CppMenu::addToConnectionQ(uint32_t id, CSTRINGT methodName)
+bool CppMenu::addToConnectionQ(uint32_t id, CSTRING methodName)
 {
     bool result = false;
 
@@ -848,7 +849,7 @@ bool CppMenu::addToConnectionQ(uint32_t id, CSTRINGT methodName)
     }
 
     m->id = id;
-    m->methodName = (rxcharT *)GlobalAlloc(GMEM_FIXED, _tcslen(methodName) + 1);
+    m->methodName = (char *)GlobalAlloc(GMEM_FIXED, strlen(methodName) + 1);
     if ( m->methodName == NULL )
     {
         GlobalFree(m);
@@ -856,7 +857,7 @@ bool CppMenu::addToConnectionQ(uint32_t id, CSTRINGT methodName)
         outOfMemoryException(c->threadContext);
         goto done_out;
     }
-    _tcscpy(m->methodName, methodName);
+    strcpy(m->methodName, methodName);
     connectionQ[connectionQIndex++] = m;
     result = true;
 
@@ -947,7 +948,7 @@ no_change:
 }
 
 
-logical_t CppMenu::assignToDlg(RexxObjectPtr dialog, logical_t _autoConnect, CSTRINGT methodName)
+logical_t CppMenu::assignToDlg(RexxObjectPtr dialog, logical_t _autoConnect, CSTRING methodName)
 {
     oodResetSysErrCode(c->threadContext);
     logical_t success = FALSE;
@@ -1236,7 +1237,6 @@ BOOL CppMenu::maybeRedraw(bool failOnNoDlg)
 
 logical_t CppMenu::connectItem(RexxObjectPtr rxID, CSTRING methodName, RexxObjectPtr dialog, logical_t handles)
 {
-    RXCA2T(methodName);
     logical_t success = FALSE;
 
     pCEventNotification pcen = basicConnectSetup(dialog);
@@ -1254,11 +1254,11 @@ logical_t CppMenu::connectItem(RexxObjectPtr rxID, CSTRING methodName, RexxObjec
     uint32_t rc;
     if ( isSystemMenu() )
     {
-        rc = _connectSysItem(pcen, id, methodNameT, handles);
+        rc = _connectSysItem(pcen, id, methodName, handles);
     }
     else
     {
-        rc = _connectItem(pcen, id, methodNameT);
+        rc = _connectItem(pcen, id, methodName);
     }
     if ( rc == 0 )
     {
@@ -1274,7 +1274,7 @@ done_out:
 }
 
 
-logical_t CppMenu::connectAllCommandEvents(CSTRINGT methodName, RexxObjectPtr dialog, logical_t handles)
+logical_t CppMenu::connectAllCommandEvents(CSTRING methodName, RexxObjectPtr dialog, logical_t handles)
 {
     logical_t success = FALSE;
 
@@ -1303,10 +1303,9 @@ done_out:
 logical_t CppMenu::connectSomeCommandEvents(RexxObjectPtr rxItemIds, CSTRING method, logical_t byPosition,
                                     RexxObjectPtr _dlg, logical_t handles)
 {
-    RXCA2T(method);
     logical_t success = FALSE;
     uint32_t *ids = NULL;
-    rxcharT *name = NULL;
+    char *name = NULL;
 
     pCEventNotification pcen = basicConnectSetup(_dlg);
     if ( pcen == NULL )
@@ -1339,7 +1338,7 @@ logical_t CppMenu::connectSomeCommandEvents(RexxObjectPtr rxItemIds, CSTRING met
         // so we go ahead and get the menu item text, even though we might not
         // use it.  That gives us access to a filled in mii to use to check the
         // type of the menu item.
-        if ( ! getItemText(id, byPosition, buf, sizeof(buf), &mii) )
+        if ( ! getItemText(id, byPosition, buf, RXITEMCOUNT(buf), &mii) )
         {
             goto done_out;
         }
@@ -1362,11 +1361,11 @@ logical_t CppMenu::connectSomeCommandEvents(RexxObjectPtr rxItemIds, CSTRING met
 
         if ( isSystemMenu() )
         {
-            rc = _connectSysItem(pcen, id, method == NULL ? name : methodT, handles);
+            rc = _connectSysItem(pcen, id, method == NULL ? name : method, handles);
         }
         else
         {
-            rc = _connectItem(pcen, id, method == NULL ? name : methodT);
+            rc = _connectItem(pcen, id, method == NULL ? name : method);
         }
 
         if ( rc != 0 )
@@ -1577,8 +1576,7 @@ void CppMenu::setAutoConnection(logical_t on, CSTRING methodName)
     if ( on )
     {
         autoConnect = true;
-        RXCA2T(methodName);
-        connectionMethod = methodNameT;
+        connectionMethod = methodName;
     }
     else
     {
@@ -2573,7 +2571,7 @@ bool menuData(RexxMethodContext *c, HMENU hMenu, RexxObjectPtr *data)
  *
  * @return 0 on success, the system error code on failure.
  */
-static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRINGT msg, bool isSysMenu, logical_t handles)
+static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRING msg, bool isSysMenu, logical_t handles)
 {
     uint32_t rc = 0;
     int count = GetMenuItemCount(hMenu);
@@ -2605,7 +2603,7 @@ static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRINGT
         {
             TCHAR buf[256];
             mii.fMask = MIIM_ID | MIIM_STRING | MIIM_FTYPE;
-            mii.cch = sizeof(buf);
+            mii.cch = RXITEMCOUNT(buf);
             mii.dwTypeData = buf;
 
             if ( GetMenuItemInfo(hMenu, i, TRUE, &mii) == 0 )
@@ -2614,7 +2612,7 @@ static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRINGT
 
             }
 
-            rxcharT *pMsg = (rxcharT *)msg;
+            char *pMsg = (char *)msg;
             if ( pMsg == NULL )
             {
                 // strdup_2methodName removes any '&' and the trailing ... if any.
@@ -2731,7 +2729,6 @@ static uint32_t deleteSeparatorByID(HMENU hMenu, uint32_t id)
 RexxMethod5(logical_t, menu_connectCommandEvent_cls, RexxObjectPtr, rxID, CSTRING, methodName,
             RexxObjectPtr, dlg, OPTIONAL_logical_t, isHandled, OSELF, self)
 {
-    RXCA2T(methodName);
     logical_t success = FALSE;
     bool isSystemMenu = isOfClassType(context, self, "SystemMenu");
 
@@ -2750,11 +2747,11 @@ RexxMethod5(logical_t, menu_connectCommandEvent_cls, RexxObjectPtr, rxID, CSTRIN
     uint32_t rc;
     if ( isSystemMenu )
     {
-        rc = _connectSysItem(pcen, id, methodNameT, isHandled);
+        rc = _connectSysItem(pcen, id, methodName, isHandled);
     }
     else
     {
-        rc = _connectItem(pcen, id, methodNameT);
+        rc = _connectItem(pcen, id, methodName);
     }
 
     (rc == 0) ? success = TRUE : oodSetSysErrCode(context->threadContext, rc);
@@ -3595,9 +3592,6 @@ RexxMethod9(logical_t, menu_insertItem, RexxObjectPtr, rxBefore, RexxObjectPtr, 
             OPTIONAL_logical_t, connect, OPTIONAL_CSTRING, methodName, CSELF, cMenuPtr)
 {
     RXCA2T(text);
-    RXCA2T(stateOpts);
-    RXCA2T(typeOpts);
-    RXCA2T(methodName);
     CppMenu *cMenu = (CppMenu *)cMenuPtr;
     cMenu->setContext(context, TheFalseObj);
 
@@ -3619,17 +3613,19 @@ RexxMethod9(logical_t, menu_insertItem, RexxObjectPtr, rxBefore, RexxObjectPtr, 
     mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_STRING | MIIM_ID;
     mii.fType = MFT_STRING;
-    mii.dwTypeData = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast that way... Was like that before rxwcharization
+    mii.dwTypeData = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
     mii.wID = id;
 
     if ( argumentExists(4) )
     {
+        RXCA2T(stateOpts);
         mii.fState = getItemStateOpts(stateOptsT, 0);
         mii.fMask |= MIIM_STATE;
     }
 
     if ( argumentExists(5) )
     {
+        RXCA2T(typeOpts);
         mii.fType |= getItemTypeOpts(typeOptsT, 0);
         mii.fMask |= MIIM_FTYPE;
     }
@@ -3647,7 +3643,7 @@ RexxMethod9(logical_t, menu_insertItem, RexxObjectPtr, rxBefore, RexxObjectPtr, 
 
     if ( cMenu->isMenuBar() && ! byPosition )
     {
-        success = cMenu->maybeConnectItem(id, textT, connect, methodNameT);
+        success = cMenu->maybeConnectItem(id, textT, connect, methodName);
     }
 
 done_out:
@@ -3717,8 +3713,6 @@ RexxMethod8(logical_t, menu_insertPopup, RexxObjectPtr, rxBefore, RexxObjectPtr,
             OPTIONAL_CSTRING, stateOpts, OPTIONAL_CSTRING, typeOpts, OPTIONAL_logical_t, byPosition, CSELF, cMenuPtr)
 {
     RXCA2T(text);
-    RXCA2T(stateOpts);
-    RXCA2T(typeOpts);
     CppMenu *cMenu = (CppMenu *)cMenuPtr;
     cMenu->setContext(context, TheFalseObj);
 
@@ -3751,17 +3745,19 @@ RexxMethod8(logical_t, menu_insertPopup, RexxObjectPtr, rxBefore, RexxObjectPtr,
     mii.fMask = MIIM_STRING | MIIM_SUBMENU | MIIM_ID;
     mii.fType = MFT_STRING;
     mii.hSubMenu = cPopMenu->getHMenu();
-    mii.dwTypeData = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast that way... Was like that before rxwcharization
+    mii.dwTypeData = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
     mii.wID = id;
 
     if ( argumentExists(5) )
     {
+        RXCA2T(stateOpts);
         mii.fState = getPopupStateOpts(stateOptsT, 0);
         mii.fMask |= MIIM_STATE;
     }
 
     if ( argumentExists(6) )
     {
+        RXCA2T(typeOpts);
         mii.fType |= getPopupTypeOpts(typeOptsT, 0);
         mii.fMask |= MIIM_FTYPE;
     }
@@ -4360,7 +4356,7 @@ RexxMethod4(logical_t, menu_setText, RexxObjectPtr, rxItemID, CSTRING, text, OPT
     ZeroMemory(&mii, sizeof(MENUITEMINFO));
     mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_STRING;
-    mii.dwTypeData = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast that way... Was like that before rxwcharization
+    mii.dwTypeData = (LPTSTR)textT.target(); // rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
     if ( SetMenuItemInfo(cMenu->getHMenu(), itemID, (BOOL)byPosition, &mii) == 0 )
     {
         oodSetSysErrCode(context->threadContext);
@@ -4396,7 +4392,7 @@ RexxMethod3(RexxStringObject, menu_getText, RexxObjectPtr, rxItemID, OPTIONAL_lo
     cMenu->setContext(context, TheFalseObj);
 
     rxcharT buf[256];
-    *buf = '\0';
+    *buf = _T('\0');
 
     MENUITEMINFO mii = {0};
     uint32_t itemID;
@@ -4415,7 +4411,7 @@ RexxMethod3(RexxStringObject, menu_getText, RexxObjectPtr, rxItemID, OPTIONAL_lo
     mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_STRING;
     mii.dwTypeData = (LPTSTR)buf;
-    mii.cch = sizeof(buf);
+    mii.cch = RXITEMCOUNT(buf);
     if ( GetMenuItemInfo(cMenu->getHMenu(), itemID, (BOOL)byPosition, &mii) == 0 )
     {
         oodSetSysErrCode(context->threadContext);
@@ -4485,13 +4481,11 @@ RexxMethod1(RexxObjectPtr, menu_getAutoConnectStatus, CSELF, cMenuPtr)
  */
 RexxMethod2(RexxStringObject, menu_itemTextToMethodName, CSTRING, text, OSELF, self)
 {
-    RXCA2T(text);
     RexxStringObject result = NULLOBJECT;
-    rxcharT *name = strdup_2methodName(textT);
+    char *name = strdup_2methodName(text);
     if ( name != NULL )
     {
-        RXCT2A(name);
-        result = context->String(nameT);
+        result = context->String(name);
         free(name);
     }
     else
@@ -4620,11 +4614,10 @@ RexxMethod4(logical_t, menu_connectCommandEvent, RexxObjectPtr, rxID, CSTRING, m
  */
 RexxMethod3(logical_t, menu_connectAllCommandEvents, OPTIONAL_CSTRING, msg, OPTIONAL_RexxObjectPtr, _dlg, CSELF, cMenuPtr)
 {
-    RXCA2T(msg);
     CppMenu *cMenu = (CppMenu *)cMenuPtr;
     cMenu->setContext(context, TheFalseObj);
 
-    return cMenu->connectAllCommandEvents(msgT, _dlg, FALSE);
+    return cMenu->connectAllCommandEvents(msg, _dlg, FALSE);
 }
 
 /** Menu::connectSomeCommandEvents()
@@ -4837,13 +4830,13 @@ RexxMethod1(logical_t, menuBar_isAttached, CSELF, cMenuPtr)
 RexxMethod5(logical_t, menuTemplate_addPopup, RexxObjectPtr, rxID, CSTRING, text,
             OPTIONAL_CSTRING, opts, OPTIONAL_RexxObjectPtr, rxHelpID, OSELF, self)
 {
-    RXCA2T(text);
-    RXCA2T(opts);
     RexxMethodContext *c = context;
 
     CppMenu *cMenu = menuToCSelf(context, self);
     cMenu->setContext(context, TheFalseObj);
 
+    RXCA2T(text);
+    RXCA2T(opts);
     return cMenu->addTemplatePopup(rxID, textT, optsT, rxHelpID);
 }
 
@@ -4889,13 +4882,12 @@ RexxMethod5(logical_t, menuTemplate_addPopup, RexxObjectPtr, rxID, CSTRING, text
 RexxMethod5(logical_t, menuTemplate_addItem, RexxObjectPtr, rxID, CSTRING, text,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, method, OSELF, self)
 {
-    RXCA2T(text);
-    RXCA2T(opts);
-    RXCA2T(method);
     CppMenu *cMenu = menuToCSelf(context, self);
     cMenu->setContext(context, TheFalseObj);
 
-    return cMenu->addTemplateItem(rxID, textT, optsT, methodT);
+    RXCA2T(text);
+    RXCA2T(opts);
+    return cMenu->addTemplateItem(rxID, textT, optsT, method);
 }
 
 
@@ -4934,10 +4926,10 @@ RexxMethod5(logical_t, menuTemplate_addItem, RexxObjectPtr, rxID, CSTRING, text,
  */
 RexxMethod3(logical_t, menuTemplate_addSeparator, RexxObjectPtr, rxID, OPTIONAL_CSTRING, opts, OSELF, self)
 {
-    RXCA2T(opts);
     CppMenu *cMenu = menuToCSelf(context, self);
     cMenu->setContext(context, TheFalseObj);
 
+    RXCA2T(opts);
     return cMenu->addTemplateSepartor(rxID, optsT);
 }
 
@@ -5338,11 +5330,10 @@ RexxMethod4(logical_t, sysMenu_connectCommandEvent, RexxObjectPtr, rxID, logical
  */
 RexxMethod3(logical_t, sysMenu_connectAllCommandEvents, logical_t, handles, OPTIONAL_CSTRING, msg, CSELF, cMenuPtr)
 {
-    RXCA2T(msg);
     CppMenu *cMenu = (CppMenu *)cMenuPtr;
     cMenu->setContext(context, TheFalseObj);
 
-    return cMenu->connectAllCommandEvents(msgT, NULLOBJECT, handles);
+    return cMenu->connectAllCommandEvents(msg, NULLOBJECT, handles);
 }
 
 /** SystemMenu::connectSomeCommandEvents()
@@ -5677,11 +5668,10 @@ RexxMethod1(logical_t, popMenu_isAssigned, CSELF, cMenuPtr)
 RexxMethod4(logical_t, popMenu_assignTo, RexxObjectPtr, dlg, OPTIONAL_logical_t, autoConnect,
             OPTIONAL_CSTRING, methodName, CSELF, cMenuPtr)
 {
-    RXCA2T(methodName);
     CppMenu *cMenu = (CppMenu *)cMenuPtr;
     cMenu->setContext(context, TheFalseObj);
 
-    return cMenu->assignToDlg(dlg, autoConnect, methodNameT);
+    return cMenu->assignToDlg(dlg, autoConnect, methodName);
 }
 
 

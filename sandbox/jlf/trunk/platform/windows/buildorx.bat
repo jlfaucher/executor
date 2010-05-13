@@ -193,11 +193,21 @@ if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
 :oodialog
+:oodialogA
 REM *** oodialog
 REM
-@ECHO Building OODIALOG..
+@ECHO Building byte-char OODIALOG..
 CD  %OR_OODIALOGSRC%
-IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK %args%)
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
+if ERRORLEVEL 1 goto error
+if defined component goto arounderr
+
+:oodialogW
+REM *** oodialog
+REM
+@ECHO Building wide-char OODIALOG..
+CD  %OR_OODIALOGSRC%
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args%)
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 

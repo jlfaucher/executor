@@ -167,8 +167,6 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
              OPTIONAL_CSTRING, button, OPTIONAL_CSTRING, icon, OPTIONAL_CSTRING, miscStyles)
 {
     RXCA2T(text);
-    RXCA2T(hwnd);
-    RXCA2T(_title);
     RXCA2T(button);
     RXCA2T(icon);
     RXCA2T(miscStyles);
@@ -187,11 +185,12 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
         }
     }
 
-    CSTRINGT title = _T("ooDialog Application Message");
+    CSTRING title = "ooDialog Application Message";
     if ( argumentExists(3) )
     {
-        title = _titleT;
+        title = _title;
     }
+    RXCA2T(title);
 
     // Defaults.  These values are all 0.
     uint32_t flags = MB_OK | MB_DEFBUTTON1 | MB_APPLMODAL;
@@ -249,7 +248,7 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
         flags |= flag;
     }
 
-    result = MessageBox(hwndOwner, textT, title, flags);
+    result = MessageBox(hwndOwner, textT, titleT, flags);
 
 done_out:
     safeFree(uprButton);
@@ -283,7 +282,6 @@ done_out:
  */
 RexxRoutine2(RexxObjectPtr, findWindow_rtn, CSTRING, caption, OPTIONAL_CSTRING, className)
 {
-    RXCA2T(caption);
     RXCA2T(className);
     oodResetSysErrCode(context->threadContext);
 
@@ -291,6 +289,7 @@ RexxRoutine2(RexxObjectPtr, findWindow_rtn, CSTRING, caption, OPTIONAL_CSTRING, 
     {
         caption = NULL;
     }
+    RXCA2T(caption);
     HWND hwnd = FindWindow(classNameT, captionT);
     if ( hwnd == NULL )
     {
@@ -434,7 +433,7 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
                          OFN_EXPLORER | OFN_ENABLESIZING;
 
     // Allocate a large buffer for the returned file name(s).
-    rxcharT * pszFiles = (rxcharT *)LocalAlloc(GPTR, FILENAME_BUFFER_LEN);
+    rxcharT * pszFiles = (rxcharT *)RXTLOCALALLOC(GPTR, FILENAME_BUFFER_LEN);
     if ( pszFiles == NULL )
     {
         outOfMemoryException(context->threadContext);
@@ -477,7 +476,7 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
         size_t len = context->StringLength(fileFilter);
         if ( len > 0 )
         {
-            filterBuf = (rxcharT *)LocalAlloc(GMEM_FIXED, len + 2);
+            filterBuf = (rxcharT *)RXTLOCALALLOC(GMEM_FIXED, len + 2);
             if ( filterBuf == NULL )
             {
                 outOfMemoryException(context->threadContext);
@@ -485,9 +484,11 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
                 return NULLOBJECT;
             }
 
-            memcpy(filterBuf, context->StringData(fileFilter), len);
-            filterBuf[len] = '\0';
-            filterBuf[len + 1] = '\0';
+            CSTRING fileFilterString = context->StringData(fileFilter);
+            RXCA2T(fileFilterString);
+            _tcsncmp(filterBuf, fileFilterStringT, len);
+            filterBuf[len] = _T('\0');
+            filterBuf[len + 1] = _T('\0');
 
             OpenFileName.lpstrFilter = filterBuf;
         }
@@ -525,17 +526,18 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     }
 
     // Default file extension.
-    OpenFileName.lpstrDefExt = (argumentExists(6) && *(const rxcharT *)_defExtT != _T('\0')) ? _defExtT : _T("txt");
+    OpenFileName.lpstrDefExt = (argumentExists(6) && *_defExtT.target() != _T('\0')) ? _defExtT : _T("txt");
 
     // Hook procedure to bring dialog to the foreground.
     OpenFileName.lpfnHook = OFNSetForegroundHookProc;
 
     // Default separator character, can be changed by the user to handle file
     // names with spaces.
-    char sepChar = ' ';
+    rxcharT sepChar = _T(' ');
     if ( argumentExists(8) && *_sep != '\0' )
     {
-        sepChar = *_sep;
+        RXCA2T(_sep);
+        sepChar = *_sepT.target();
     }
 
     // Okay, show the dialog.
@@ -626,8 +628,8 @@ static rxcharT *searchSoundPath(CSTRINGT file, RexxCallContext *c)
     }
 
     // Allocate our needed buffers.
-    buf = (rxcharT *)malloc(cchCWD + cchSoundPath + 3);
-    fullFileName = (rxcharT *)malloc(_MAX_PATH);
+    buf = (rxcharT *)RXTMALLOC(cchCWD + cchSoundPath + 3);
+    fullFileName = (rxcharT *)RXTMALLOC(_MAX_PATH);
     if ( buf == NULL || fullFileName == NULL )
     {
         outOfMemoryException(c->threadContext);

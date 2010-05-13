@@ -783,17 +783,18 @@ LPBITMAPINFO loadDIB(const char *szFile, uint32_t *lastError)
     if (fd < 1)
     {
         rxcharT *msg;
-        char *errBuff;
+        rxcharT *errBuff;
         uint32_t err = GetLastError();
 
-        msg = (rxcharT *)LocalAlloc(LPTR, 512);
+        msg = (rxcharT *)RXTLOCALALLOC(LPTR, 512);
         if ( msg )
         {
             FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, err,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&errBuff, 0, NULL);
 
+            RXCA2T(szFile);
             _sntprintf(msg, 512, _T("Failed to open the bitmap file: %s.\n\nSystem error (%u):\n%s"),
-                      szFile, err, errBuff);
+                      szFileT.target(), err, errBuff);
             MessageBox(NULL, msg,  _T("ooDialog Error"), MB_OK | MB_ICONASTERISK);
 
             LocalFree(msg);
@@ -2679,7 +2680,6 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
     RXCA2T(text);
     RXCA2T(fontName);
     RXCA2T(fontStyle);
-
     pCPlainBaseDialog pcpbd = NULL;
     HWND hCtrl = NULL;
     RexxObjectPtr result = TheOneObj;
@@ -2717,6 +2717,10 @@ RexxMethod10(RexxObjectPtr, dlgext_scrollText, RexxObjectPtr, rxObj, OPTIONAL_CS
     step      = (argumentOmitted(7) ? 4        : step);
     sleep     = (argumentOmitted(8) ? 10       : sleep);
     color     = (argumentOmitted(9) ? 0        : color);
+
+    textT = text;
+    fontNameT = fontName;
+    fontStyleT = fontStyle;
 
     HDC hDC = GetWindowDC(hCtrl);
     if ( hDC == NULL )
@@ -3413,14 +3417,14 @@ error_out:
 void setNumStrStem(RexxMethodContext *c, RexxStemObject stem, size_t numPart, CSTRING strPart, RexxObjectPtr value)
 {
     char tailName[64];
-    _snprintf(tailName, sizeof(tailName), "%d.%s", numPart, strPart);
+    _snprintf(tailName, RXITEMCOUNT(tailName), "%d.%s", numPart, strPart);
     c->SetStemElement(stem, tailName, value);
 }
 
 void setStrNumStrStem(RexxMethodContext *c, RexxStemObject stem, CSTRING prefix, size_t numPart, CSTRING strPart, RexxObjectPtr value)
 {
     char tailName[128];
-    _snprintf(tailName, sizeof(tailName), "%s.%d.%s", prefix, numPart, strPart);
+    _snprintf(tailName, RXITEMCOUNT(tailName), "%s.%d.%s", prefix, numPart, strPart);
     c->SetStemElement(stem, tailName, value);
 }
 
