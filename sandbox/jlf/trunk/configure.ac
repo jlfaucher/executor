@@ -59,6 +59,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_PROG_YACC
 
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
@@ -305,6 +306,7 @@ AC_CHECK_HEADERS([ \
                   sys/time.h \
                   sys/utsname.h \
                   sys/wait.h \
+                  sys/syscall.h \
                   time.h \
                   unistd.h \
                   usersec.h \

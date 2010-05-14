@@ -101,15 +101,6 @@ if defined component goto arounderr
 
 :rxftp
 REM
-REM *** rxftp
-REM
-@ECHO Building rxftp
-IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rxftp.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rxftp.mak )
-if ERRORLEVEL 1 goto error
-if defined component goto arounderr
-
-:rexximage
-REM
 REM *** These are the commmand lanuchers, need the interpreter and rexxapi
 REM
 @ECHO Building rexximage command launcher
@@ -192,6 +183,15 @@ IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rxregexp.mak >>%OR_ERRLOG% 2>
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
+REM *** hostemu
+REM
+:HOSTEMU
+@ECHO Building HOSTEMU..
+CD  %OR_HOSTEMUSRC%
+IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\hostemu.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\hostemu.mak )
+if ERRORLEVEL 1 goto error
+if defined component goto arounderr
+
 :oodialog
 :oodialogA
 REM *** oodialog
@@ -201,6 +201,19 @@ CD  %OR_OODIALOGSRC%
 IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
+
+:misc
+REM
+REM *** Miscellaneous extensions that consist of class files only.  The files
+REM     are copied to the build directory so that they are all in a central
+REM     location.
+REM
+REM     rxftp, cvsStream
+REM
+@ECHO Building miscellaneous extensions
+IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\misc.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\misc.mak )
+if ERRORLEVEL 1 goto error
+:oodialogW
 
 :oodialogW
 REM *** oodialog
@@ -216,7 +229,6 @@ ECHO Building OODIALOG classes
 CD %OR_OUTDIR%
 IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX )
 if ERRORLEVEL 1 goto error
-
 if defined component goto arounderr
 
 

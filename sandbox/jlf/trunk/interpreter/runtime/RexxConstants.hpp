@@ -56,8 +56,6 @@
 #endif
 
 #define CHARCONSTANT(name, value) CONSTCLASS char CHAR_##name[] INITIAL(value)
-//#undef CHAR_MAX                        /* undefine limits versions          */
-//#undef CHAR_MIN
 
 CHARCONSTANT(ACTIVITY, "ACTIVITY");
 CHARCONSTANT(ADD, "ADD");

@@ -167,6 +167,7 @@ Section "${LONGNAME} Core (required)" SecMain
   ${File} "${BINDIR}\" "rxwinsys.dll"
   ${File} "${BINDIR}\" "oodialog.dll"
   ${File} "${BINDIR}\" "orexxole.dll"
+  ${File} "${BINDIR}\" "hostemu.dll"
   ; CLASS files...
   ${File} "${BINDIR}\" "winsystm.cls"
   ${File} "${BINDIR}\" "socket.cls"
@@ -175,6 +176,7 @@ Section "${LONGNAME} Core (required)" SecMain
   ${File} "${BINDIR}\" "smtp.cls"
   ${File} "${BINDIR}\" "rxregexp.cls"
   ${File} "${BINDIR}\" "rxftp.cls"
+  ${File} "${BINDIR}\" "csvStream.cls"
   ${File} "${BINDIR}\" "orexxole.cls"
   ${File} "${BINDIR}\" "oodialog.cls"
   ${File} "${BINDIR}\" "oodwin32.cls"
