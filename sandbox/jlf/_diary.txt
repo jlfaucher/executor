@@ -31,6 +31,36 @@ Unicode ?
 
 
 ===============================================================================
+2010 may 14
+
+More work on wide-chars in oodialog.
+
+Fixed a crash in the conversion A2W and W2A : The length must be asked to the Windows service,
+and not calculated with bad assumptions as I did.
+
+
+Something not clear to me : 
+In oodMessaging.cpp, there is a message queue implemented as a string. 
+Each element is separated by a special character 0xFF.
+This message queue is declared rxcharT, so it's a wide-char string when building the wide-char configuration.
+Several methods have a rexxMethod parameter, and I declared it rxcharT.
+But normally, a method name is always a byte-char string, there is no need to convert it to wide-char...
+Problem : if I declare it as rxcharA, then what should I do with the pMessageQueue ?
+Can I declare it rxcharA ? in this case, I must encode wide-char to byte-char each time a message is added
+Or is it better to keep it rxcharW ? Currently addDialogMessage takes two wide-char arguments...
+It's a matter of conversion boundary...
+
+
+The japanese characters are not properly displayed by MessageBox (i.e. InfoDialog).
+It seems that under XP, one must install files for complex scripts.
+Not needed under Vista.
+--> go to the "Regional and Language Options" control panel, go to the "Languages" tab, 
+and select "Install filesfor complex script...".
+You need to reboot :-(
+--> good, after reboot it works...
+
+
+===============================================================================
 2010 may 13
 
 More work on wide-chars in oodialog.

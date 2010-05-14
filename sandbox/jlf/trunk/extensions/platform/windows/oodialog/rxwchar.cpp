@@ -68,15 +68,15 @@ bool rxA2W(const rxcharA *pszA, rxcharW **ppszW)
         return true; // NOERROR
     }
 
-    // Determine number of wide characters to be allocated for the
-    // Unicode string.
-    size_t cCharacters =  strlen(pszA)+1;
+    size_t lengthA = strlen(pszA) + 1;
+    // Determine number of wide characters to be allocated for the Unicode string.
+    size_t lengthW =  MultiByteToWideChar(rxgetCodePage(), 0, pszA, lengthA, NULL, 0);
 
-    *ppszW = (rxcharW *) malloc(cCharacters*2);
+    *ppszW = (rxcharW *) RXTMALLOC(lengthW + 1);
     if (NULL == *ppszW) return false; // E_OUTOFMEMORY;
 
     // Convert to Unicode.
-    if (0 == MultiByteToWideChar(rxgetCodePage(), 0, pszA, cCharacters, *ppszW, cCharacters))
+    if (0 == MultiByteToWideChar(rxgetCodePage(), 0, pszA, lengthA, *ppszW, lengthW))
     {
         DWORD dwError = GetLastError();
         free(*ppszW);
@@ -98,17 +98,15 @@ bool rxW2A(const rxcharW *pszW, rxcharA **ppszA)
         return true; // NOERROR
     }
 
-    size_t cCharacters = wcslen(pszW)+1;
-    // Determine number of bytes to be allocated for ANSI string. An
-    // ANSI string can have at most 2 bytes per character (for Double
-    // Byte Character Strings.)
-    size_t cbAnsi = cCharacters*2;
+    size_t lengthW = wcslen(pszW) + 1;
+    // Determine number of bytes to be allocated for ANSI string.
+    size_t lengthA = WideCharToMultiByte(rxgetCodePage(), 0, pszW, lengthW, NULL, 0, NULL, NULL);
 
-    *ppszA = (rxcharA *) malloc(cbAnsi);
+    *ppszA = (rxcharA *) malloc(lengthA + 1);
     if (NULL == *ppszA) return false; // E_OUTOFMEMORY;
 
     // Convert to ANSI.
-    if (0 == WideCharToMultiByte(rxgetCodePage(), 0, pszW, cCharacters, *ppszA, cbAnsi, NULL, NULL))
+    if (0 == WideCharToMultiByte(rxgetCodePage(), 0, pszW, lengthW, *ppszA, lengthA, NULL, NULL))
     {
         DWORD dwError = GetLastError();
         free(*ppszA);
