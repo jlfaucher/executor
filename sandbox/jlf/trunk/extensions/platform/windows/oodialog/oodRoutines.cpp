@@ -67,45 +67,45 @@ static String2Int *winCommonInitMap(void)
     String2Int *cMap = new String2Int;
 
     // MessagBox flags.  Buttons
-    cMap->insert(String2Int::value_type(_T("ABORTRETRYIGNORE"),  MB_ABORTRETRYIGNORE ));
-    cMap->insert(String2Int::value_type(_T("CANCELTRYCONTINUE"), MB_CANCELTRYCONTINUE));
-    cMap->insert(String2Int::value_type(_T("HELP"),              MB_HELP             ));
-    cMap->insert(String2Int::value_type(_T("OK"),                MB_OK               ));
-    cMap->insert(String2Int::value_type(_T("OKCANCEL"),          MB_OKCANCEL         ));
-    cMap->insert(String2Int::value_type(_T("RETRYCANCEL"),       MB_RETRYCANCEL      ));
-    cMap->insert(String2Int::value_type(_T("YESNO"),             MB_YESNO            ));
-    cMap->insert(String2Int::value_type(_T("YESNOCANCEL"),       MB_YESNOCANCEL      ));
+    cMap->insert(String2Int::value_type("ABORTRETRYIGNORE",  MB_ABORTRETRYIGNORE ));
+    cMap->insert(String2Int::value_type("CANCELTRYCONTINUE", MB_CANCELTRYCONTINUE));
+    cMap->insert(String2Int::value_type("HELP",              MB_HELP             ));
+    cMap->insert(String2Int::value_type("OK",                MB_OK               ));
+    cMap->insert(String2Int::value_type("OKCANCEL",          MB_OKCANCEL         ));
+    cMap->insert(String2Int::value_type("RETRYCANCEL",       MB_RETRYCANCEL      ));
+    cMap->insert(String2Int::value_type("YESNO",             MB_YESNO            ));
+    cMap->insert(String2Int::value_type("YESNOCANCEL",       MB_YESNOCANCEL      ));
 
     // MessageBox Icons
-    cMap->insert(String2Int::value_type(_T("EXCLAMATION"), MB_ICONEXCLAMATION));
-    cMap->insert(String2Int::value_type(_T("WARNING"),     MB_ICONWARNING    ));
-    cMap->insert(String2Int::value_type(_T("INFORMATION"), MB_ICONINFORMATION));
-    cMap->insert(String2Int::value_type(_T("ASTERISK"),    MB_ICONASTERISK   ));
-    cMap->insert(String2Int::value_type(_T("QUESTION"),    MB_ICONQUESTION   ));
-    cMap->insert(String2Int::value_type(_T("STOP"),        MB_ICONSTOP       ));
-    cMap->insert(String2Int::value_type(_T("ERROR"),       MB_ICONERROR      ));
-    cMap->insert(String2Int::value_type(_T("HAND"),        MB_ICONHAND       ));
-    cMap->insert(String2Int::value_type(_T("QUERY"),       MB_ICONQUESTION   ));
-    cMap->insert(String2Int::value_type(_T("NONE"),        0                 ));
+    cMap->insert(String2Int::value_type("EXCLAMATION", MB_ICONEXCLAMATION));
+    cMap->insert(String2Int::value_type("WARNING",     MB_ICONWARNING    ));
+    cMap->insert(String2Int::value_type("INFORMATION", MB_ICONINFORMATION));
+    cMap->insert(String2Int::value_type("ASTERISK",    MB_ICONASTERISK   ));
+    cMap->insert(String2Int::value_type("QUESTION",    MB_ICONQUESTION   ));
+    cMap->insert(String2Int::value_type("STOP",        MB_ICONSTOP       ));
+    cMap->insert(String2Int::value_type("ERROR",       MB_ICONERROR      ));
+    cMap->insert(String2Int::value_type("HAND",        MB_ICONHAND       ));
+    cMap->insert(String2Int::value_type("QUERY",       MB_ICONQUESTION   ));
+    cMap->insert(String2Int::value_type("NONE",        0                 ));
 
     // MessageBox default button
-    cMap->insert(String2Int::value_type(_T("DEFBUTTON1"),         MB_DEFBUTTON1));
-    cMap->insert(String2Int::value_type(_T("DEFBUTTON2"),         MB_DEFBUTTON2));
-    cMap->insert(String2Int::value_type(_T("DEFBUTTON3"),         MB_DEFBUTTON3));
-    cMap->insert(String2Int::value_type(_T("DEFBUTTON4"),         MB_DEFBUTTON4));
+    cMap->insert(String2Int::value_type("DEFBUTTON1",         MB_DEFBUTTON1));
+    cMap->insert(String2Int::value_type("DEFBUTTON2",         MB_DEFBUTTON2));
+    cMap->insert(String2Int::value_type("DEFBUTTON3",         MB_DEFBUTTON3));
+    cMap->insert(String2Int::value_type("DEFBUTTON4",         MB_DEFBUTTON4));
 
     // MessageBox modal
-    cMap->insert(String2Int::value_type(_T("APPLMODAL"),          MB_APPLMODAL  ));
-    cMap->insert(String2Int::value_type(_T("SYSTEMMODAL"),        MB_SYSTEMMODAL));
-    cMap->insert(String2Int::value_type(_T("TASKMODAL"),          MB_TASKMODAL  ));
+    cMap->insert(String2Int::value_type("APPLMODAL",          MB_APPLMODAL  ));
+    cMap->insert(String2Int::value_type("SYSTEMMODAL",        MB_SYSTEMMODAL));
+    cMap->insert(String2Int::value_type("TASKMODAL",          MB_TASKMODAL  ));
 
     // MessageBox miscellaneous
-    cMap->insert(String2Int::value_type(_T("DEFAULTDESKTOP"),      MB_DEFAULT_DESKTOP_ONLY));
-    cMap->insert(String2Int::value_type(_T("RIGHT"),               MB_RIGHT               ));
-    cMap->insert(String2Int::value_type(_T("RTLREADING"),          MB_RTLREADING          ));
-    cMap->insert(String2Int::value_type(_T("SETFOREGROUND"),       MB_SETFOREGROUND       ));
-    cMap->insert(String2Int::value_type(_T("TOPMOST"),             MB_TOPMOST             ));
-    cMap->insert(String2Int::value_type(_T("SERVICENOTIFICATION"), MB_SERVICE_NOTIFICATION));
+    cMap->insert(String2Int::value_type("DEFAULTDESKTOP",      MB_DEFAULT_DESKTOP_ONLY));
+    cMap->insert(String2Int::value_type("RIGHT",               MB_RIGHT               ));
+    cMap->insert(String2Int::value_type("RTLREADING",          MB_RTLREADING          ));
+    cMap->insert(String2Int::value_type("SETFOREGROUND",       MB_SETFOREGROUND       ));
+    cMap->insert(String2Int::value_type("TOPMOST",             MB_TOPMOST             ));
+    cMap->insert(String2Int::value_type("SERVICENOTIFICATION", MB_SERVICE_NOTIFICATION));
 
     //cMap->insert(String2Int::value_type("", ));
 
@@ -121,7 +121,7 @@ static String2Int *winCommonInitMap(void)
  * @return  The numeric value for symbol on success, (int)value == -1 on
  *          failure.
  */
-static uint32_t winKeyword2ID(CSTRINGT symbol, RexxThreadContext *c, int pos, CSTRINGT type)
+static uint32_t winKeyword2ID(CSTRING symbol, RexxThreadContext *c, int pos, CSTRING type)
 {
     static String2Int *winConstantsMap = NULL;
 
@@ -133,8 +133,7 @@ static uint32_t winKeyword2ID(CSTRINGT symbol, RexxThreadContext *c, int pos, CS
     int id = getKeywordValue(winConstantsMap, symbol);
     if ( id == -1 )
     {
-        RXCT2A(type);
-        invalidTypeException(c, pos, typeT);
+        invalidTypeException(c, pos, type);
     }
     return (uint32_t)getKeywordValue(winConstantsMap, symbol);
 }
@@ -144,11 +143,11 @@ static uint32_t winKeyword2ID(CSTRINGT symbol, RexxThreadContext *c, int pos, CS
  * Helper function for the MessageDialog() routine.  Parses the miscellaneous
  * message box style keywords.
  */
-static uint32_t getMiscMBStyle(rxcharT *mbStyle, RexxCallContext *c, int pos, CSTRINGT msg)
+static uint32_t getMiscMBStyle(char *mbStyle, RexxCallContext *c, int pos, CSTRING msg)
 {
     uint32_t flag, styles = 0;
 
-    rxcharT *token = _tcstok(mbStyle, _T(" "));
+    char *token = strtok(mbStyle, " ");
     while ( token != NULL )
     {
         flag = winKeyword2ID(token, c->threadContext, pos, msg);
@@ -157,7 +156,7 @@ static uint32_t getMiscMBStyle(rxcharT *mbStyle, RexxCallContext *c, int pos, CS
             return flag;
         }
         styles |= flag;
-        token = _tcstok(NULL, _T(" "));
+        token = strtok(NULL, " ");
     }
 
     return styles;
@@ -167,14 +166,11 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
              OPTIONAL_CSTRING, button, OPTIONAL_CSTRING, icon, OPTIONAL_CSTRING, miscStyles)
 {
     RXCA2T(text);
-    RXCA2T(button);
-    RXCA2T(icon);
-    RXCA2T(miscStyles);
     int result = -1;
 
-    rxcharT *uprButton = NULL;
-    rxcharT *uprIcon = NULL;
-    rxcharT *uprMiscStyles = NULL;
+    char *uprButton = NULL;
+    char *uprIcon = NULL;
+    char *uprMiscStyles = NULL;
 
     HWND hwndOwner = (HWND)string2pointer(hwnd);
     if ( hwndOwner == NULL )
@@ -198,14 +194,14 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
     uint32_t flag;
     if ( argumentExists(4) )
     {
-        uprButton = strdupupr(buttonT);
+        uprButton = strdupupr(button);
         if ( uprButton == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
 
-        flag = winKeyword2ID(uprButton, context->threadContext, 4, _T("MessageDialog button keyword"));
+        flag = winKeyword2ID(uprButton, context->threadContext, 4, "MessageDialog button keyword");
         if ( flag == (int)-1 )
         {
             goto done_out;
@@ -216,14 +212,14 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
     // There is no default for the icon, if omitted there is no icon.
     if ( argumentExists(5) )
     {
-        uprIcon = strdupupr(iconT);
+        uprIcon = strdupupr(icon);
         if ( uprIcon == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
 
-        flag = winKeyword2ID(uprIcon, context->threadContext, 5, _T("MessageDialog icon keyword"));
+        flag = winKeyword2ID(uprIcon, context->threadContext, 5, "MessageDialog icon keyword");
         if ( flag == (int)-1 )
         {
             goto done_out;
@@ -233,14 +229,14 @@ RexxRoutine6(int, messageDialog_rtn, CSTRING, text, OPTIONAL_CSTRING, hwnd, OPTI
 
     if ( argumentExists(6) )
     {
-        uprMiscStyles = strdupupr(miscStylesT);
+        uprMiscStyles = strdupupr(miscStyles);
         if ( uprIcon == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
 
-        flag = getMiscMBStyle(uprMiscStyles, context, 6, _T("MessageDialog style keyword"));
+        flag = getMiscMBStyle(uprMiscStyles, context, 6, "MessageDialog style keyword");
         if ( flag == (int)-1 )
         {
             goto done_out;
@@ -580,7 +576,7 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     if ( success )
     {
         RXCT2A(pszFiles);
-        result = context->String(pszFilesT);
+        result = context->String(pszFilesA);
     }
 
     LocalFree(pszFiles);

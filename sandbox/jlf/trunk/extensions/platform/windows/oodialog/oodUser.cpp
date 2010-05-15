@@ -481,162 +481,162 @@ inline pCPlainBaseDialog getDDpcpbd(void *pCSelf)
     return (((pCDynamicDialog)pCSelf)->pcpbd);
 }
 
-uint32_t getCommonWindowStyles(CSTRINGT opts, bool defaultBorder, bool defaultTab)
+uint32_t getCommonWindowStyles(CSTRING opts, bool defaultBorder, bool defaultTab)
 {
     uint32_t style = 0;
 
-    if ( StrStrI(opts, _T("HIDDEN")  ) == NULL ) style |= WS_VISIBLE;
-    if ( StrStrI(opts, _T("GROUP")   ) != NULL ) style |= WS_GROUP;
-    if ( StrStrI(opts, _T("DISABLED")) != NULL ) style |= WS_DISABLED;
+    if ( StrStrIA(opts, "HIDDEN"  ) == NULL ) style |= WS_VISIBLE;
+    if ( StrStrIA(opts, "GROUP"   ) != NULL ) style |= WS_GROUP;
+    if ( StrStrIA(opts, "DISABLED") != NULL ) style |= WS_DISABLED;
 
     if ( defaultBorder )
     {
-        if ( StrStrI(opts, _T("NOBORDER")) == NULL ) style |= WS_BORDER;
+        if ( StrStrIA(opts, "NOBORDER") == NULL ) style |= WS_BORDER;
     }
     else
     {
-        if ( StrStrI(opts, _T("BORDER")) != NULL && StrStrI(opts, _T("NOBORDER")) == NULL ) style |= WS_BORDER;
+        if ( StrStrIA(opts, "BORDER") != NULL && StrStrIA(opts, "NOBORDER") == NULL ) style |= WS_BORDER;
     }
 
     if ( defaultTab )
     {
-        if ( StrStrI(opts, _T("NOTAB")) == NULL ) style |= WS_TABSTOP;
+        if ( StrStrIA(opts, "NOTAB") == NULL ) style |= WS_TABSTOP;
     }
     else
     {
-        if ( StrStrI(opts, _T("TAB")) != NULL && StrStrI(opts, _T("NOTAB")) == NULL ) style |= WS_TABSTOP;
+        if ( StrStrIA(opts, "TAB") != NULL && StrStrIA(opts, "NOTAB") == NULL ) style |= WS_TABSTOP;
     }
     return style;
 }
 
 
-uint32_t getCommonButtonStyles(uint32_t style, CSTRINGT opts, oodControl_t button)
+uint32_t getCommonButtonStyles(uint32_t style, CSTRING opts, oodControl_t button)
 {
     style |= getCommonWindowStyles(opts, false, button != winRadioButton);
 
-    if ( StrStrI(opts, _T("OWNER"))     != NULL ) style |= BS_OWNERDRAW;
-    if ( StrStrI(opts, _T("BITMAP"))    != NULL ) style |= BS_BITMAP;
-    if ( StrStrI(opts, _T("ICON"))      != NULL ) style |= BS_ICON;
-    if ( StrStrI(opts, _T("HCENTER"))   != NULL ) style |= BS_CENTER;
-    if ( StrStrI(opts, _T("TOP"))       != NULL ) style |= BS_TOP;
-    if ( StrStrI(opts, _T("BOTTOM"))    != NULL ) style |= BS_BOTTOM;
-    if ( StrStrI(opts, _T("VCENTER"))   != NULL ) style |= BS_VCENTER;
-    if ( StrStrI(opts, _T("PUSHLIKE"))  != NULL ) style |= BS_PUSHLIKE;
-    if ( StrStrI(opts, _T("MULTILINE")) != NULL ) style |= BS_MULTILINE;
-    if ( StrStrI(opts, _T("NOTIFY"))    != NULL ) style |= BS_NOTIFY;
-    if ( StrStrI(opts, _T("FLAT"))      != NULL ) style |= BS_FLAT;
-    if ( StrStrI(opts, _T("LTEXT"))     != NULL ) style |= BS_LEFTTEXT;
-    if ( StrStrI(opts, _T("LEFT"))      != NULL ) style |= BS_LEFT;
-    if ( StrStrI(opts, _T("RBUTTON"))   != NULL ) style |= BS_RIGHTBUTTON;
-    if ( StrStrI(opts, _T("RIGHT"))     != NULL ) style |= BS_RIGHT;
+    if ( StrStrIA(opts, "OWNER")     != NULL ) style |= BS_OWNERDRAW;
+    if ( StrStrIA(opts, "BITMAP")    != NULL ) style |= BS_BITMAP;
+    if ( StrStrIA(opts, "ICON")      != NULL ) style |= BS_ICON;
+    if ( StrStrIA(opts, "HCENTER")   != NULL ) style |= BS_CENTER;
+    if ( StrStrIA(opts, "TOP")       != NULL ) style |= BS_TOP;
+    if ( StrStrIA(opts, "BOTTOM")    != NULL ) style |= BS_BOTTOM;
+    if ( StrStrIA(opts, "VCENTER")   != NULL ) style |= BS_VCENTER;
+    if ( StrStrIA(opts, "PUSHLIKE")  != NULL ) style |= BS_PUSHLIKE;
+    if ( StrStrIA(opts, "MULTILINE") != NULL ) style |= BS_MULTILINE;
+    if ( StrStrIA(opts, "NOTIFY")    != NULL ) style |= BS_NOTIFY;
+    if ( StrStrIA(opts, "FLAT")      != NULL ) style |= BS_FLAT;
+    if ( StrStrIA(opts, "LTEXT")     != NULL ) style |= BS_LEFTTEXT;
+    if ( StrStrIA(opts, "LEFT")      != NULL ) style |= BS_LEFT;
+    if ( StrStrIA(opts, "RBUTTON")   != NULL ) style |= BS_RIGHTBUTTON;
+    if ( StrStrIA(opts, "RIGHT")     != NULL ) style |= BS_RIGHT;
 
     return style;
 }
 
 
-uint32_t listViewStyle(CSTRINGT opts, uint32_t style)
+uint32_t listViewStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts, _T("VSCROLL")      ) != NULL ) style |= WS_VSCROLL;
-    if ( StrStrI(opts, _T("HSCROLL")      ) != NULL ) style |= WS_HSCROLL;
-    if ( StrStrI(opts, _T("EDIT")         ) != NULL ) style |= LVS_EDITLABELS;
-    if ( StrStrI(opts, _T("SHOWSELALWAYS")) != NULL ) style |= LVS_SHOWSELALWAYS;
-    if ( StrStrI(opts, _T("ALIGNLEFT")    ) != NULL ) style |= LVS_ALIGNLEFT;
-    if ( StrStrI(opts, _T("ALIGNTOP")     ) != NULL ) style |= LVS_ALIGNTOP;
-    if ( StrStrI(opts, _T("AUTOARRANGE")  ) != NULL ) style |= LVS_AUTOARRANGE;
-    if ( StrStrI(opts, _T("ICON")         ) != NULL ) style |= LVS_ICON;
-    if ( StrStrI(opts, _T("SMALLICON")    ) != NULL ) style |= LVS_SMALLICON;
-    if ( StrStrI(opts, _T("LIST")         ) != NULL ) style |= LVS_LIST;
-    if ( StrStrI(opts, _T("REPORT")       ) != NULL ) style |= LVS_REPORT;
-    if ( StrStrI(opts, _T("NOHEADER")     ) != NULL ) style |= LVS_NOCOLUMNHEADER;
-    if ( StrStrI(opts, _T("NOWRAP")       ) != NULL ) style |= LVS_NOLABELWRAP;
-    if ( StrStrI(opts, _T("NOSCROLL")     ) != NULL ) style |= LVS_NOSCROLL;
-    if ( StrStrI(opts, _T("NOSORTHEADER") ) != NULL ) style |= LVS_NOSORTHEADER;
-    if ( StrStrI(opts, _T("SHAREIMAGES")  ) != NULL ) style |= LVS_SHAREIMAGELISTS;
-    if ( StrStrI(opts, _T("SINGLESEL")    ) != NULL ) style |= LVS_SINGLESEL;
-    if ( StrStrI(opts, _T("ASCENDING")    ) != NULL ) style |= LVS_SORTASCENDING;
-    if ( StrStrI(opts, _T("DESCENDING")   ) != NULL ) style |= LVS_SORTDESCENDING;
+    if ( StrStrIA(opts, "VSCROLL"      ) != NULL ) style |= WS_VSCROLL;
+    if ( StrStrIA(opts, "HSCROLL"      ) != NULL ) style |= WS_HSCROLL;
+    if ( StrStrIA(opts, "EDIT"         ) != NULL ) style |= LVS_EDITLABELS;
+    if ( StrStrIA(opts, "SHOWSELALWAYS") != NULL ) style |= LVS_SHOWSELALWAYS;
+    if ( StrStrIA(opts, "ALIGNLEFT"    ) != NULL ) style |= LVS_ALIGNLEFT;
+    if ( StrStrIA(opts, "ALIGNTOP"     ) != NULL ) style |= LVS_ALIGNTOP;
+    if ( StrStrIA(opts, "AUTOARRANGE"  ) != NULL ) style |= LVS_AUTOARRANGE;
+    if ( StrStrIA(opts, "ICON"         ) != NULL ) style |= LVS_ICON;
+    if ( StrStrIA(opts, "SMALLICON"    ) != NULL ) style |= LVS_SMALLICON;
+    if ( StrStrIA(opts, "LIST"         ) != NULL ) style |= LVS_LIST;
+    if ( StrStrIA(opts, "REPORT"       ) != NULL ) style |= LVS_REPORT;
+    if ( StrStrIA(opts, "NOHEADER"     ) != NULL ) style |= LVS_NOCOLUMNHEADER;
+    if ( StrStrIA(opts, "NOWRAP"       ) != NULL ) style |= LVS_NOLABELWRAP;
+    if ( StrStrIA(opts, "NOSCROLL"     ) != NULL ) style |= LVS_NOSCROLL;
+    if ( StrStrIA(opts, "NOSORTHEADER" ) != NULL ) style |= LVS_NOSORTHEADER;
+    if ( StrStrIA(opts, "SHAREIMAGES"  ) != NULL ) style |= LVS_SHAREIMAGELISTS;
+    if ( StrStrIA(opts, "SINGLESEL"    ) != NULL ) style |= LVS_SINGLESEL;
+    if ( StrStrIA(opts, "ASCENDING"    ) != NULL ) style |= LVS_SORTASCENDING;
+    if ( StrStrIA(opts, "DESCENDING"   ) != NULL ) style |= LVS_SORTDESCENDING;
     return style;
 }
 
 
-uint32_t treeViewStyle(CSTRINGT opts, uint32_t style)
+uint32_t treeViewStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts,_T("ALL")) != NULL )
+    if ( StrStrIA(opts,"ALL") != NULL )
     {
         style |=  TVS_HASLINES | WS_VSCROLL | WS_HSCROLL | TVS_EDITLABELS | TVS_HASBUTTONS |
                   TVS_LINESATROOT | TVS_SHOWSELALWAYS;
         return style;
     }
 
-    if ( StrStrI(opts, _T("VSCROLL")      ) != NULL ) style |= WS_VSCROLL;
-    if ( StrStrI(opts, _T("HSCROLL")      ) != NULL ) style |= WS_HSCROLL;
-    if ( StrStrI(opts, _T("NODRAG")       ) != NULL ) style |= TVS_DISABLEDRAGDROP;
-    if ( StrStrI(opts, _T("EDIT")         ) != NULL ) style |= TVS_EDITLABELS;
-    if ( StrStrI(opts, _T("BUTTONS")      ) != NULL ) style |= TVS_HASBUTTONS;
-    if ( StrStrI(opts, _T("LINES")        ) != NULL ) style |= TVS_HASLINES;
-    if ( StrStrI(opts, _T("ATROOT")       ) != NULL ) style |= TVS_LINESATROOT;
-    if ( StrStrI(opts, _T("SHOWSELALWAYS")) != NULL ) style |= TVS_SHOWSELALWAYS;
+    if ( StrStrIA(opts, "VSCROLL"      ) != NULL ) style |= WS_VSCROLL;
+    if ( StrStrIA(opts, "HSCROLL"      ) != NULL ) style |= WS_HSCROLL;
+    if ( StrStrIA(opts, "NODRAG"       ) != NULL ) style |= TVS_DISABLEDRAGDROP;
+    if ( StrStrIA(opts, "EDIT"         ) != NULL ) style |= TVS_EDITLABELS;
+    if ( StrStrIA(opts, "BUTTONS"      ) != NULL ) style |= TVS_HASBUTTONS;
+    if ( StrStrIA(opts, "LINES"        ) != NULL ) style |= TVS_HASLINES;
+    if ( StrStrIA(opts, "ATROOT"       ) != NULL ) style |= TVS_LINESATROOT;
+    if ( StrStrIA(opts, "SHOWSELALWAYS") != NULL ) style |= TVS_SHOWSELALWAYS;
     return style;
 }
 
 
-uint32_t progressBarStyle(CSTRINGT opts, uint32_t style)
+uint32_t progressBarStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts, _T("VERTICAL")) != NULL ) style |= PBS_VERTICAL;
-    if ( StrStrI(opts, _T("SMOOTH")  ) != NULL ) style |= PBS_SMOOTH;
+    if ( StrStrIA(opts, "VERTICAL") != NULL ) style |= PBS_VERTICAL;
+    if ( StrStrIA(opts, "SMOOTH"  ) != NULL ) style |= PBS_SMOOTH;
 
-    if ( StrStrI(opts, _T("MARQUEE")) != NULL  && ComCtl32Version >= COMCTL32_6_0 ) style |= PBS_MARQUEE;
+    if ( StrStrIA(opts, "MARQUEE") != NULL  && ComCtl32Version >= COMCTL32_6_0 ) style |= PBS_MARQUEE;
     return style;
 }
 
 
-uint32_t trackBarStyle(CSTRINGT opts, uint32_t style)
+uint32_t trackBarStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts, _T("AUTOTICKS")     ) != NULL ) style |= TBS_AUTOTICKS;
-    if ( StrStrI(opts, _T("NOTICKS")       ) != NULL ) style |= TBS_NOTICKS;
-    if ( StrStrI(opts, _T("VERTICAL")      ) != NULL ) style |= TBS_VERT;
-    if ( StrStrI(opts, _T("HORIZONTAL")    ) != NULL ) style |= TBS_HORZ;
-    if ( StrStrI(opts, _T("TOP")           ) != NULL ) style |= TBS_TOP;
-    if ( StrStrI(opts, _T("BOTTOM")        ) != NULL ) style |= TBS_BOTTOM;
-    if ( StrStrI(opts, _T("LEFT")          ) != NULL ) style |= TBS_LEFT;
-    if ( StrStrI(opts, _T("RIGHT")         ) != NULL ) style |= TBS_RIGHT;
-    if ( StrStrI(opts, _T("BOTH")          ) != NULL ) style |= TBS_BOTH;
-    if ( StrStrI(opts, _T("ENABLESELRANGE")) != NULL ) style |= TBS_ENABLESELRANGE;
+    if ( StrStrIA(opts, "AUTOTICKS"     ) != NULL ) style |= TBS_AUTOTICKS;
+    if ( StrStrIA(opts, "NOTICKS"       ) != NULL ) style |= TBS_NOTICKS;
+    if ( StrStrIA(opts, "VERTICAL"      ) != NULL ) style |= TBS_VERT;
+    if ( StrStrIA(opts, "HORIZONTAL"    ) != NULL ) style |= TBS_HORZ;
+    if ( StrStrIA(opts, "TOP"           ) != NULL ) style |= TBS_TOP;
+    if ( StrStrIA(opts, "BOTTOM"        ) != NULL ) style |= TBS_BOTTOM;
+    if ( StrStrIA(opts, "LEFT"          ) != NULL ) style |= TBS_LEFT;
+    if ( StrStrIA(opts, "RIGHT"         ) != NULL ) style |= TBS_RIGHT;
+    if ( StrStrIA(opts, "BOTH"          ) != NULL ) style |= TBS_BOTH;
+    if ( StrStrIA(opts, "ENABLESELRANGE") != NULL ) style |= TBS_ENABLESELRANGE;
     return style;
 }
 
 
-uint32_t tabStyle(CSTRINGT opts, uint32_t style)
+uint32_t tabStyle(CSTRING opts, uint32_t style)
 {
-    style |= (StrStrI(opts, _T("BUTTONS"))   != NULL ? TCS_BUTTONS   : TCS_TABS);
-    style |= (StrStrI(opts, _T("MULTILINE")) != NULL ? TCS_MULTILINE : TCS_SINGLELINE);
+    style |= (StrStrIA(opts, "BUTTONS")   != NULL ? TCS_BUTTONS   : TCS_TABS);
+    style |= (StrStrIA(opts, "MULTILINE") != NULL ? TCS_MULTILINE : TCS_SINGLELINE);
 
-    if ( StrStrI(opts, _T("FIXED")       ) != NULL ) style |= TCS_FIXEDWIDTH;
-    if ( StrStrI(opts, _T("FOCUSNEVER")  ) != NULL ) style |= TCS_FOCUSNEVER;
-    if ( StrStrI(opts, _T("FOCUSONDOWN") ) != NULL ) style |= TCS_FOCUSONBUTTONDOWN;
-    if ( StrStrI(opts, _T("ICONLEFT")    ) != NULL ) style |= TCS_FORCEICONLEFT;
-    if ( StrStrI(opts, _T("LABELLEFT")   ) != NULL ) style |= TCS_FORCELABELLEFT;
-    if ( StrStrI(opts, _T("ALIGNRIGHT")  ) != NULL ) style |= TCS_RIGHTJUSTIFY;
-    if ( StrStrI(opts, _T("CLIPSIBLINGS")) != NULL ) style |= WS_CLIPSIBLINGS;
+    if ( StrStrIA(opts, "FIXED"       ) != NULL ) style |= TCS_FIXEDWIDTH;
+    if ( StrStrIA(opts, "FOCUSNEVER"  ) != NULL ) style |= TCS_FOCUSNEVER;
+    if ( StrStrIA(opts, "FOCUSONDOWN" ) != NULL ) style |= TCS_FOCUSONBUTTONDOWN;
+    if ( StrStrIA(opts, "ICONLEFT"    ) != NULL ) style |= TCS_FORCEICONLEFT;
+    if ( StrStrIA(opts, "LABELLEFT"   ) != NULL ) style |= TCS_FORCELABELLEFT;
+    if ( StrStrIA(opts, "ALIGNRIGHT"  ) != NULL ) style |= TCS_RIGHTJUSTIFY;
+    if ( StrStrIA(opts, "CLIPSIBLINGS") != NULL ) style |= WS_CLIPSIBLINGS;
     return style;
 }
 
 
-uint32_t dateTimePickerStyle(CSTRINGT opts, uint32_t style)
+uint32_t dateTimePickerStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts, _T("LONG")) != NULL )
+    if ( StrStrIA(opts, "LONG") != NULL )
     {
         style |= DTS_LONGDATEFORMAT;
     }
-    else if ( StrStrI(opts, _T("SHORT")) != NULL )
+    else if ( StrStrIA(opts, "SHORT") != NULL )
     {
         style |= DTS_SHORTDATEFORMAT;
     }
-    else if ( StrStrI(opts, _T("CENTURY")) != NULL  && ComCtl32Version >= COMCTL32_5_8 )
+    else if ( StrStrIA(opts, "CENTURY") != NULL  && ComCtl32Version >= COMCTL32_5_8 )
     {
         style |= DTS_SHORTDATECENTURYFORMAT;
     }
-    else if ( StrStrI(opts, _T("TIME")) != NULL )
+    else if ( StrStrIA(opts, "TIME") != NULL )
     {
         style |= DTS_TIMEFORMAT;
     }
@@ -645,50 +645,50 @@ uint32_t dateTimePickerStyle(CSTRINGT opts, uint32_t style)
         style |= DTS_TIMEFORMAT;
     }
 
-    if ( StrStrI(opts, _T("PARSE")   ) != NULL ) style |= DTS_APPCANPARSE;
-    if ( StrStrI(opts, _T("RIGHT")   ) != NULL ) style |= DTS_RIGHTALIGN;
-    if ( StrStrI(opts, _T("SHOWNONE")) != NULL ) style |= DTS_SHOWNONE;
-    if ( StrStrI(opts, _T("UPDOWN")  ) != NULL ) style |= DTS_UPDOWN;
+    if ( StrStrIA(opts, "PARSE"   ) != NULL ) style |= DTS_APPCANPARSE;
+    if ( StrStrIA(opts, "RIGHT"   ) != NULL ) style |= DTS_RIGHTALIGN;
+    if ( StrStrIA(opts, "SHOWNONE") != NULL ) style |= DTS_SHOWNONE;
+    if ( StrStrIA(opts, "UPDOWN"  ) != NULL ) style |= DTS_UPDOWN;
     return style;
 }
 
 
-uint32_t monthCalendarStyle(CSTRINGT opts, uint32_t style)
+uint32_t monthCalendarStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts, _T("DAYSTATE")   ) != NULL ) style |= MCS_DAYSTATE;
-    if ( StrStrI(opts, _T("MULTI")      ) != NULL ) style |= MCS_MULTISELECT;
-    if ( StrStrI(opts, _T("NOTODAY")    ) != NULL ) style |= MCS_NOTODAY;
-    if ( StrStrI(opts, _T("NOCIRCLE")   ) != NULL ) style |= MCS_NOTODAYCIRCLE;
-    if ( StrStrI(opts, _T("WEEKNUMBERS")) != NULL ) style |= MCS_WEEKNUMBERS;
+    if ( StrStrIA(opts, "DAYSTATE"   ) != NULL ) style |= MCS_DAYSTATE;
+    if ( StrStrIA(opts, "MULTI"      ) != NULL ) style |= MCS_MULTISELECT;
+    if ( StrStrIA(opts, "NOTODAY"    ) != NULL ) style |= MCS_NOTODAY;
+    if ( StrStrIA(opts, "NOCIRCLE"   ) != NULL ) style |= MCS_NOTODAYCIRCLE;
+    if ( StrStrIA(opts, "WEEKNUMBERS") != NULL ) style |= MCS_WEEKNUMBERS;
 
     if ( _isAtLeastVista() )
     {
-        if ( StrStrI(opts, _T("NOTRAILING") ) != NULL ) style |= MCS_NOTRAILINGDATES;
-        if ( StrStrI(opts, _T("SHORTDAYS")  ) != NULL ) style |= MCS_SHORTDAYSOFWEEK;
-        if ( StrStrI(opts, _T("NOSELCHANGE")) != NULL ) style |= MCS_NOSELCHANGEONNAV;
+        if ( StrStrIA(opts, "NOTRAILING" ) != NULL ) style |= MCS_NOTRAILINGDATES;
+        if ( StrStrIA(opts, "SHORTDAYS"  ) != NULL ) style |= MCS_SHORTDAYSOFWEEK;
+        if ( StrStrIA(opts, "NOSELCHANGE") != NULL ) style |= MCS_NOSELCHANGEONNAV;
     }
     return style;
 }
 
 
-uint32_t upDownStyle(CSTRINGT opts, uint32_t style)
+uint32_t upDownStyle(CSTRING opts, uint32_t style)
 {
-    if ( StrStrI(opts,      _T("LEFT") ) != NULL ) style |= UDS_ALIGNLEFT;
-    else if ( StrStrI(opts, _T("RIGHT")) != NULL ) style |= UDS_ALIGNRIGHT;
+    if ( StrStrIA(opts,      "LEFT" ) != NULL ) style |= UDS_ALIGNLEFT;
+    else if ( StrStrIA(opts, "RIGHT") != NULL ) style |= UDS_ALIGNRIGHT;
     else style |= UDS_ALIGNRIGHT;
 
-    if ( StrStrI(opts, _T("ARROWKEYS")  ) != NULL ) style |= UDS_ARROWKEYS;
-    if ( StrStrI(opts, _T("AUTOBUDDY")  ) != NULL ) style |= UDS_AUTOBUDDY;
-    if ( StrStrI(opts, _T("HORIZONTAL") ) != NULL ) style |= UDS_HORZ;
-    if ( StrStrI(opts, _T("HOTTRACK")   ) != NULL ) style |= UDS_HOTTRACK;
-    if ( StrStrI(opts, _T("NOTHOUSANDS")) != NULL ) style |= UDS_NOTHOUSANDS;
-    if ( StrStrI(opts, _T("BUDDYINT")   ) != NULL ) style |= UDS_SETBUDDYINT;
-    if ( StrStrI(opts, _T("WRAP")       ) != NULL ) style |= UDS_WRAP;
+    if ( StrStrIA(opts, "ARROWKEYS"  ) != NULL ) style |= UDS_ARROWKEYS;
+    if ( StrStrIA(opts, "AUTOBUDDY"  ) != NULL ) style |= UDS_AUTOBUDDY;
+    if ( StrStrIA(opts, "HORIZONTAL" ) != NULL ) style |= UDS_HORZ;
+    if ( StrStrIA(opts, "HOTTRACK"   ) != NULL ) style |= UDS_HOTTRACK;
+    if ( StrStrIA(opts, "NOTHOUSANDS") != NULL ) style |= UDS_NOTHOUSANDS;
+    if ( StrStrIA(opts, "BUDDYINT"   ) != NULL ) style |= UDS_SETBUDDYINT;
+    if ( StrStrIA(opts, "WRAP"       ) != NULL ) style |= UDS_WRAP;
     return style;
 }
 
 
-uint32_t getControlStyle(oodControl_t ctrl, CSTRINGT opts)
+uint32_t getControlStyle(oodControl_t ctrl, CSTRING opts)
 {
     uint32_t style = WS_CHILD;
 
@@ -744,7 +744,7 @@ uint32_t getControlStyle(oodControl_t ctrl, CSTRINGT opts)
 
 
 int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y, uint32_t cx, uint32_t cy,
-                         CSTRINGT opts, CSTRINGT text, pCDynamicDialog pcdd)
+                         CSTRING opts, CSTRINGT text, pCDynamicDialog pcdd)
 {
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
     int32_t id = IDC_STATIC;
@@ -784,23 +784,23 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
     uint32_t style = WS_CHILD | SS_LEFT;
     style |= getCommonWindowStyles(opts, false, false);
 
-    if ( *opts != _T('\0') )
+    if ( *opts != '\0' )
     {
-        if ( StrStrI(opts, _T("CENTER") ) != NULL ) style |= SS_CENTER;
-        else if ( StrStrI(opts, _T("RIGHT")     ) != NULL ) style |= SS_RIGHT;
-        else if ( StrStrI(opts, _T("SIMPLE")    ) != NULL ) style |= SS_SIMPLE;
-        else if ( StrStrI(opts, _T("LEFTNOWRAP")) != NULL ) style |= SS_LEFTNOWORDWRAP;
+        if ( StrStrIA(opts, "CENTER" ) != NULL ) style |= SS_CENTER;
+        else if ( StrStrIA(opts, "RIGHT"     ) != NULL ) style |= SS_RIGHT;
+        else if ( StrStrIA(opts, "SIMPLE"    ) != NULL ) style |= SS_SIMPLE;
+        else if ( StrStrIA(opts, "LEFTNOWRAP") != NULL ) style |= SS_LEFTNOWORDWRAP;
 
         // Used to center text vertically.
-        if ( StrStrI(opts, _T("CENTERIMAGE")) != NULL ) style |= SS_CENTERIMAGE;
+        if ( StrStrIA(opts, "CENTERIMAGE") != NULL ) style |= SS_CENTERIMAGE;
 
-        if ( StrStrI(opts, _T("NOTIFY")      ) != NULL ) style |= SS_NOTIFY;
-        if ( StrStrI(opts, _T("SUNKEN")      ) != NULL ) style |= SS_SUNKEN;
-        if ( StrStrI(opts, _T("EDITCONTROL") ) != NULL ) style |= SS_EDITCONTROL;
-        if ( StrStrI(opts, _T("ENDELLIPSIS") ) != NULL ) style |= SS_ENDELLIPSIS;
-        if ( StrStrI(opts, _T("NOPREFIX")    ) != NULL ) style |= SS_NOPREFIX;
-        if ( StrStrI(opts, _T("PATHELLIPSIS")) != NULL ) style |= SS_PATHELLIPSIS;
-        if ( StrStrI(opts, _T("WORDELLIPSIS")) != NULL ) style |= SS_WORDELLIPSIS;
+        if ( StrStrIA(opts, "NOTIFY"      ) != NULL ) style |= SS_NOTIFY;
+        if ( StrStrIA(opts, "SUNKEN"      ) != NULL ) style |= SS_SUNKEN;
+        if ( StrStrIA(opts, "EDITCONTROL" ) != NULL ) style |= SS_EDITCONTROL;
+        if ( StrStrIA(opts, "ENDELLIPSIS" ) != NULL ) style |= SS_ENDELLIPSIS;
+        if ( StrStrIA(opts, "NOPREFIX"    ) != NULL ) style |= SS_NOPREFIX;
+        if ( StrStrIA(opts, "PATHELLIPSIS") != NULL ) style |= SS_PATHELLIPSIS;
+        if ( StrStrIA(opts, "WORDELLIPSIS") != NULL ) style |= SS_WORDELLIPSIS;
     }
 
     if ( ! addToDialogTemplate(c, pcdd, StaticAtom, NULL, id, x, y, cx, cy, text, style) )
@@ -812,7 +812,7 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
 
 
 int32_t createStaticImage(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y, uint32_t cx, uint32_t cy,
-                         CSTRINGT opts, pCDynamicDialog pcdd)
+                         CSTRING opts, pCDynamicDialog pcdd)
 {
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
@@ -830,16 +830,16 @@ int32_t createStaticImage(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y
     uint32_t style = WS_CHILD;
     style |= getCommonWindowStyles(opts, false, false);
 
-    if ( StrStrI(opts, _T("METAFILE") ) != NULL ) style |= SS_ENHMETAFILE;
-    else if ( StrStrI(opts, _T("BITMAP") ) != NULL ) style |= SS_BITMAP;
+    if ( StrStrIA(opts, "METAFILE" ) != NULL ) style |= SS_ENHMETAFILE;
+    else if ( StrStrIA(opts, "BITMAP" ) != NULL ) style |= SS_BITMAP;
     else style |= SS_ICON;
 
-    if ( StrStrI(opts, _T("NOTIFY")      )  != NULL ) style |= SS_NOTIFY;
-    if ( StrStrI(opts, _T("SUNKEN")      )  != NULL ) style |= SS_SUNKEN;
-    if ( StrStrI(opts, _T("CENTERIMAGE") )  != NULL ) style |= SS_CENTERIMAGE;
-    if ( StrStrI(opts, _T("RIGHTJUST")    ) != NULL ) style |= SS_RIGHTJUST;
-    if ( StrStrI(opts, _T("SIZECONTROL") )  != NULL ) style |= SS_REALSIZECONTROL;
-    if ( StrStrI(opts, _T("SIZEIMGE")    )  != NULL ) style |= SS_REALSIZEIMAGE;
+    if ( StrStrIA(opts, "NOTIFY"      )  != NULL ) style |= SS_NOTIFY;
+    if ( StrStrIA(opts, "SUNKEN"      )  != NULL ) style |= SS_SUNKEN;
+    if ( StrStrIA(opts, "CENTERIMAGE" )  != NULL ) style |= SS_CENTERIMAGE;
+    if ( StrStrIA(opts, "RIGHTJUST"    ) != NULL ) style |= SS_RIGHTJUST;
+    if ( StrStrIA(opts, "SIZECONTROL" )  != NULL ) style |= SS_REALSIZECONTROL;
+    if ( StrStrIA(opts, "SIZEIMGE"    )  != NULL ) style |= SS_REALSIZEIMAGE;
 
     if ( ! addToDialogTemplate(c, pcdd, StaticAtom, NULL, id, x, y, cx, cy, NULL, style) )
     {
@@ -850,7 +850,7 @@ int32_t createStaticImage(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y
 
 
 int32_t createStaticFrame(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y, uint32_t cx, uint32_t cy,
-                         CSTRINGT opts, CSTRINGT type, uint32_t frameStyle, pCDynamicDialog pcdd)
+                         CSTRING opts, CSTRING type, uint32_t frameStyle, pCDynamicDialog pcdd)
 {
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
     int32_t id = IDC_STATIC;
@@ -875,31 +875,31 @@ int32_t createStaticFrame(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y
     }
     else
     {
-        if ( _tcscmp(type, _T("WHITERECT")) == 0 ) style |= SS_WHITERECT;
-        else if ( _tcscmp(type, _T("GRAYRECT")       ) == 0 ) style |= SS_GRAYRECT;
-        else if ( _tcscmp(type, _T("BLACKRECT")      ) == 0 ) style |= SS_BLACKRECT;
-        else if ( _tcscmp(type, _T("WHITEFRAME")     ) == 0 ) style |= SS_WHITEFRAME;
-        else if ( _tcscmp(type, _T("GRAYFRAME")      ) == 0 ) style |= SS_GRAYFRAME;
-        else if ( _tcscmp(type, _T("BLACKFRAME")     ) == 0 ) style |= SS_BLACKFRAME;
-        else if ( _tcscmp(type, _T("ETCHEDFRAME")    ) == 0 ) style |= SS_ETCHEDFRAME;
-        else if ( _tcscmp(type, _T("ETCHEDHORZONTAL")) == 0 ) style |= SS_ETCHEDHORZ;
-        else if ( _tcscmp(type, _T("ETCHEDVERTICAL") ) == 0 ) style |= SS_ETCHEDVERT;
-        else if ( _tcscmp(type,_T( "STATICFRAME" )   ) == 0 )
+        if ( strcmp(type, "WHITERECT") == 0 ) style |= SS_WHITERECT;
+        else if ( strcmp(type, "GRAYRECT"       ) == 0 ) style |= SS_GRAYRECT;
+        else if ( strcmp(type, "BLACKRECT"      ) == 0 ) style |= SS_BLACKRECT;
+        else if ( strcmp(type, "WHITEFRAME"     ) == 0 ) style |= SS_WHITEFRAME;
+        else if ( strcmp(type, "GRAYFRAME"      ) == 0 ) style |= SS_GRAYFRAME;
+        else if ( strcmp(type, "BLACKFRAME"     ) == 0 ) style |= SS_BLACKFRAME;
+        else if ( strcmp(type, "ETCHEDFRAME"    ) == 0 ) style |= SS_ETCHEDFRAME;
+        else if ( strcmp(type, "ETCHEDHORZONTAL") == 0 ) style |= SS_ETCHEDHORZ;
+        else if ( strcmp(type, "ETCHEDVERTICAL" ) == 0 ) style |= SS_ETCHEDVERT;
+        else if ( strcmp(type, "STATICFRAME"    ) == 0 )
         {
-            if ( StrStrI(opts, _T("WHITERECT")) != NULL ) style |= SS_WHITERECT;
-            else if ( StrStrI(opts, _T("GRAYRECT")  ) != NULL ) style |= SS_GRAYRECT;
-            else if ( StrStrI(opts, _T("BLACKRECT") ) != NULL ) style |= SS_BLACKRECT;
-            else if ( StrStrI(opts, _T("WHITEFRAME")) != NULL ) style |= SS_WHITEFRAME;
-            else if ( StrStrI(opts, _T("GRAYFRAME") ) != NULL ) style |= SS_GRAYFRAME;
-            else if ( StrStrI(opts, _T("BLACKFRAME")) != NULL ) style |= SS_BLACKFRAME;
-            else if ( StrStrI(opts, _T("ETCHED")    ) != NULL ) style |= SS_ETCHEDFRAME;
-            else if ( StrStrI(opts, _T("HORZ")      ) != NULL ) style |= SS_ETCHEDHORZ;
-            else if ( StrStrI(opts, _T("VERT")      ) != NULL ) style |= SS_ETCHEDVERT;
+            if ( StrStrIA(opts, "WHITERECT") != NULL ) style |= SS_WHITERECT;
+            else if ( StrStrIA(opts, "GRAYRECT"  ) != NULL ) style |= SS_GRAYRECT;
+            else if ( StrStrIA(opts, "BLACKRECT" ) != NULL ) style |= SS_BLACKRECT;
+            else if ( StrStrIA(opts, "WHITEFRAME") != NULL ) style |= SS_WHITEFRAME;
+            else if ( StrStrIA(opts, "GRAYFRAME" ) != NULL ) style |= SS_GRAYFRAME;
+            else if ( StrStrIA(opts, "BLACKFRAME") != NULL ) style |= SS_BLACKFRAME;
+            else if ( StrStrIA(opts, "ETCHED"    ) != NULL ) style |= SS_ETCHEDFRAME;
+            else if ( StrStrIA(opts, "HORZ"      ) != NULL ) style |= SS_ETCHEDHORZ;
+            else if ( StrStrIA(opts, "VERT"      ) != NULL ) style |= SS_ETCHEDVERT;
         }
     }
 
-    if ( StrStrI(opts, _T("NOTIFY")) != NULL ) style |= SS_NOTIFY;
-    if ( StrStrI(opts, _T("SUNKEN")) != NULL ) style |= SS_SUNKEN;
+    if ( StrStrIA(opts, "NOTIFY") != NULL ) style |= SS_NOTIFY;
+    if ( StrStrIA(opts, "SUNKEN") != NULL ) style |= SS_SUNKEN;
 
     if ( ! addToDialogTemplate(c, pcdd, StaticAtom, NULL, id, x, y, cx, cy, NULL, style) )
     {
@@ -1291,17 +1291,16 @@ RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, 
         text = "";
     }
 
-    RXCA2T(opts);
     RXCA2T(text);
 
     if ( StrStrIA(opts, "TEXT") != NULL )
     {
-        return createStaticText(context, rxID, x, y, cx, cy, optsT, textT, (pCDynamicDialog)pCSelf);
+        return createStaticText(context, rxID, x, y, cx, cy, opts, textT, (pCDynamicDialog)pCSelf);
     }
 
     if ( StrStrIA(opts, "BITMAP") != NULL || StrStrIA(opts, "METAFILE") != NULL || StrStrIA(opts, "ICON") != NULL )
     {
-        return createStaticImage(context, rxID, x, y, cx, cy, optsT, (pCDynamicDialog)pCSelf);
+        return createStaticImage(context, rxID, x, y, cx, cy, opts, (pCDynamicDialog)pCSelf);
     }
 
     uint32_t frameStyle = 0;
@@ -1317,10 +1316,10 @@ RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, 
 
     if ( frameStyle != 0 )
     {
-        return createStaticFrame(context, rxID, x, y, cx, cy, optsT, NULL, frameStyle, (pCDynamicDialog)pCSelf);
+        return createStaticFrame(context, rxID, x, y, cx, cy, opts, NULL, frameStyle, (pCDynamicDialog)pCSelf);
     }
 
-    return createStaticText(context, rxID, x, y, cx, cy, optsT, textT, (pCDynamicDialog)pCSelf);
+    return createStaticText(context, rxID, x, y, cx, cy, opts, textT, (pCDynamicDialog)pCSelf);
 }
 
 
@@ -1343,9 +1342,8 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
     {
         text = "";
     }
-    RXCA2T(opts);
     RXCA2T(text);
-    return createStaticText(context, rxID, x, y, cx, cy, optsT, textT, (pCDynamicDialog)pCSelf);
+    return createStaticText(context, rxID, x, y, cx, cy, opts, textT, (pCDynamicDialog)pCSelf);
 }
 
 
@@ -1359,8 +1357,7 @@ RexxMethod7(int32_t, dyndlg_createStaticImage, RexxObjectPtr, rxID, int, x, int,
     {
         opts = "";
     }
-    RXCA2T(opts);
-    return createStaticImage(context, rxID, x, y, cx, cy, optsT, (pCDynamicDialog)pCSelf);
+    return createStaticImage(context, rxID, x, y, cx, cy, opts, (pCDynamicDialog)pCSelf);
 }
 
 
@@ -1378,9 +1375,7 @@ RexxMethod8(int32_t, dyndlg_createStaticFrame, OPTIONAL_RexxObjectPtr, rxID, int
     {
         opts = "";
     }
-    RXCA2T(opts);
-    RXCA2T(msgName);
-    return createStaticFrame(context, rxID, x, y, cx, cy, optsT, msgNameT.target() + 6, 0, (pCDynamicDialog)pCSelf); // rxwchar tocheck : +6 ???
+    return createStaticFrame(context, rxID, x, y, cx, cy, opts, msgName + 6, 0, (pCDynamicDialog)pCSelf);
 }
 
 /**
@@ -1392,26 +1387,26 @@ RexxMethod8(int32_t, dyndlg_createStaticFrame, OPTIONAL_RexxObjectPtr, rxID, int
  *
  * @return bool
  */
-inline bool needButtonConnect(CSTRINGT opts, oodControl_t ctrl)
+inline bool needButtonConnect(CSTRING opts, oodControl_t ctrl)
 {
     if ( opts != NULL )
     {
         switch ( ctrl )
         {
             case winCheckBox :
-                if ( StrStrI(opts, _T("CONNECTCHECKS")) != NULL )
+                if ( StrStrIA(opts, "CONNECTCHECKS") != NULL )
                 {
                     return true;
                 }
                 break;
             case winRadioButton :
-                if ( StrStrI(opts, _T("CONNECTRADIOS")) != NULL )
+                if ( StrStrIA(opts, "CONNECTRADIOS") != NULL )
                 {
                     return true;
                 }
                 break;
             case winPushButton :
-                if ( StrStrI(opts, _T("CONNECTBUTTONS")) != NULL )
+                if ( StrStrIA(opts, "CONNECTBUTTONS") != NULL )
                 {
                     return true;
                 }
@@ -1451,13 +1446,11 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
         label = "";
     }
 
-    RXCA2T(opts);
     RXCA2T(label);
-    RXCA2T(loadOptions);
 
     uint32_t style = WS_CHILD;
     style |= ( StrStrIA(opts, "DEFAULT") != NULL ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON );
-    style = getCommonButtonStyles(style, optsT, winPushButton);
+    style = getCommonButtonStyles(style, opts, winPushButton);
 
     if ( ! addToDialogTemplate(context, pcdd, ButtonAtom, NULL, id, x, y, cx, cy, labelT, style) )
     {
@@ -1472,7 +1465,7 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
     CSTRING methName = NULL;
     int32_t result   = 0;
 
-    if ( needButtonConnect(loadOptionsT, winPushButton) )
+    if ( needButtonConnect(loadOptions, winPushButton) )
     {
         methName = strdup_2methodName(label);
     }
@@ -1549,9 +1542,6 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
         attributeName = label;
     }
 
-    RXCA2T(opts);
-    RXCA2T(loadOptions);
-
     oodControl_t ctrl = winCheckBox;
     if ( strcmp("CREATERADIOBUTTON", context->GetMessageName()) == 0 )
     {
@@ -1567,7 +1557,7 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
     {
         style |= ( StrStrIA(opts, "3STATE") != NULL ? BS_AUTO3STATE : BS_AUTOCHECKBOX );
     }
-    style = getCommonButtonStyles(style, optsT, ctrl);
+    style = getCommonButtonStyles(style, opts, ctrl);
 
     if ( ! addToDialogTemplate(context, pcdd, ButtonAtom, NULL, id, x, y, cx, cy, labelT, style) )
     {
@@ -1576,7 +1566,7 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
 
     int32_t result = 0;
 
-    if ( needButtonConnect(loadOptionsT, ctrl) )
+    if ( needButtonConnect(loadOptions, ctrl) )
     {
         CSTRING methName = strdup_2methodName(label);
         if ( methName == NULL )
@@ -1638,14 +1628,13 @@ RexxMethod8(int32_t, dyndlg_createGroupBox, OPTIONAL_RexxObjectPtr, rxID, int, x
         text = "";
     }
 
-    RXCA2T(opts);
     RXCA2T(text);
 
     // For a groupbox, we support right or left aligned text.  By default the
     // alignment is left so we only need to check for the RIGHT key word.
 
     uint32_t  style = WS_CHILD | BS_GROUPBOX;
-    style |= getCommonWindowStyles(optsT, false, false);
+    style |= getCommonWindowStyles(opts, false, false);
     if ( StrStrIA(opts, "RIGHT") != NULL )
     {
         style |= BS_RIGHT;
@@ -1695,10 +1684,9 @@ RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uin
     {
         opts = "";
     }
-    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
-    style |= getCommonWindowStyles(optsT, true, true);
+    style |= getCommonWindowStyles(opts, true, true);
 
     if ( StrStrIA(opts,"MULTILINE") )
     {
@@ -1770,10 +1758,9 @@ RexxMethod7(int32_t, dyndlg_createScrollBar, RexxObjectPtr, rxID, int, x, int, y
     {
         opts = "";
     }
-    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
-    style |= getCommonWindowStyles(optsT, false, false);
+    style |= getCommonWindowStyles(opts, false, false);
     style |= ( StrStrIA(opts, "HORIZONTAL") != NULL ? SBS_HORZ : SBS_VERT );
 
     if ( StrStrIA(opts, "TOPLEFT")    != NULL ) style |= SBS_TOPALIGN;
@@ -1810,10 +1797,9 @@ RexxMethod8(int32_t, dyndlg_createListBox, RexxObjectPtr, rxID, int, x, int, y, 
     {
         opts = "";
     }
-    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
-    style |= getCommonWindowStyles(optsT, true, true);
+    style |= getCommonWindowStyles(opts, true, true);
 
     if ( StrStrIA(opts, "COLUMNS" ) != NULL ) style |= LBS_USETABSTOPS;
     if ( StrStrIA(opts, "VSCROLL" ) != NULL ) style |= WS_VSCROLL;
@@ -1866,10 +1852,9 @@ RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y,
     {
         opts = "";
     }
-    RXCA2T(opts);
 
     uint32_t style = WS_CHILD;
-    style |= getCommonWindowStyles(optsT, true, true);
+    style |= getCommonWindowStyles(opts, true, true);
 
     if ( StrStrIA(opts,"SIMPLE") )    style |= CBS_SIMPLE;
     else if ( StrStrIA(opts,"LIST") ) style |= CBS_DROPDOWNLIST;
@@ -1918,9 +1903,8 @@ RexxMethod7(int32_t, dyndlg_createProgressBar, RexxObjectPtr, rxID, int, x, int,
     {
         opts = "";
     }
-    RXCA2T(opts);
 
-    uint32_t style = getControlStyle(winProgressBar, optsT);
+    uint32_t style = getControlStyle(winProgressBar, opts);
 
     if ( ! addToDialogTemplate(context, pcdd, 0, PROGRESS_CLASS, id, x, y, cx, cy, NULL, style) )
     {
@@ -1953,12 +1937,11 @@ RexxMethod9(int32_t, dyndlg_createNamedControl, RexxObjectPtr, rxID, int, x, int
     {
         opts = "";
     }
-    RXCA2T(opts);
 
     oodControl_t ctrl = oodName2controlType(msgName + 6);
     CSTRINGT windowClass = controlType2winName(ctrl);
 
-    uint32_t style = getControlStyle(ctrl, optsT);
+    uint32_t style = getControlStyle(ctrl, opts);
 
     if ( ! addToDialogTemplate(context, pcdd, 0, windowClass, id, x, y, cx, cy, NULL, style) )
     {
@@ -2534,7 +2517,6 @@ RexxMethod4(RexxObjectPtr, catdlg_getControlDataPage, RexxObjectPtr, rxID,  OPTI
 RexxMethod5(int32_t, catdlg_setControlDataPage, RexxObjectPtr, rxID, CSTRING, data,  OPTIONAL_uint32_t, pageID,
             NAME, msgName, CSELF, pCSelf)
 {
-    RXCA2T(data);
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd->hDlg == NULL )
     {
@@ -2556,7 +2538,7 @@ RexxMethod5(int32_t, catdlg_setControlDataPage, RexxObjectPtr, rxID, CSTRING, da
 
     oodControl_t ctrlType = oodName2controlType(msgName + 3);
 
-    return setControlData(context, pcpbd, id, dataT, hDlg, ctrlType);
+    return setControlData(context, pcpbd, id, data, hDlg, ctrlType);
 }
 
 

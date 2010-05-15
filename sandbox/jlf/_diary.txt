@@ -1,7 +1,7 @@
 Sandbox for experimental work, some ideas to investigate :
 
 Try to understand the internal locks.
---> added some OutputDebugString (Windows only), now must analyze...
+--> added some dbgprintf (Windows and Linux), now must analyze...
 
 Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
 --> unlock the define method : see samples/functional for an example of use.
@@ -33,6 +33,23 @@ Unicode ?
 ===============================================================================
 2010 may 15
 
+Fix build under Windows for dbgprintf (link error).
+
+Changed the build for "oodialog" target :
+Builds both oodialogA and oodialogW (and not just oodialogA as before)
+Ex :
+makeorx BOTH oodialog clean --> cleans the debug & release files of oodialogA and oodialogW
+makeorx BOTH oodialog       --> builds the debug & release files of oodialogA and oodialogW
+
+Made a review of the conversions and removed those unneeded.
+opts can remain byte-char.
+strdupupr and strdupupr_nospace can remain byte-char.
+setControlData can remain byte-char. The conversion is done internally.
+putUnicodeText converts to wide-char, so no need to convert byte-char to wide-char before calling it (but keep the wide-char signature)
+
+
+===============================================================================
+2010 may 15
 
 Added the function dbgprintf to write debug strings. 
 Under Windows, it calls OutputDebugString.

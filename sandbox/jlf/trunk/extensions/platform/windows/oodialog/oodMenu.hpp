@@ -130,9 +130,9 @@ public:
     BOOL addTemplateMenuItem(DWORD menuID, DWORD dwType, DWORD dwState, DWORD dwHelpID, WORD resInfo, CSTRINGT text);
     bool finishTemplate();
     void deleteTemplate();
-    logical_t addTemplateSepartor(RexxObjectPtr rxID, CSTRINGT opts);
-    logical_t addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, CSTRING method);
-    logical_t addTemplatePopup(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, RexxObjectPtr helpID);
+    logical_t addTemplateSepartor(RexxObjectPtr rxID, CSTRING opts);
+    logical_t addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRING opts, CSTRING method);
+    logical_t addTemplatePopup(RexxObjectPtr rxID, CSTRINGT text, CSTRING opts, RexxObjectPtr helpID);
     inline logical_t templateIsComplete() { return isFinal ? TRUE : FALSE; }
     inline void noTempHelpID() { helpID = (uint32_t)-1; }
 
@@ -145,7 +145,7 @@ public:
 
     RexxDirectoryObject autoConnectionStatus();
     void setAutoConnection(logical_t on, CSTRING methodName);
-    BOOL maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CSTRING methodName);
+    BOOL maybeConnectItem(uint32_t id, CSTRING text, logical_t connect, CSTRING methodName);
     logical_t attachToDlg(RexxObjectPtr dialog);
     logical_t assignToDlg(RexxObjectPtr dialog, logical_t autoConnect, CSTRING methodName);
     bool addToConnectionQ(uint32_t id, CSTRING methodName);

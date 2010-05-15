@@ -468,7 +468,6 @@ RexxMethod2(int, gb_setStyle, CSTRING, opts, CSELF, pCSelf)
 
 RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     HWND hwnd = ((pCDialogControl)pCSelf)->hCtrl;
     HWND hDlg = ((pCDialogControl)pCSelf)->hDlg;
 
@@ -476,18 +475,18 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
     UINT msg = 0;
     WPARAM wp = 0;
 
-    rxcharT *token;
-    rxcharT *str = strdupupr(optsT);
+    char *token;
+    char *str = strdupupr(opts);
     if ( ! str )
     {
         outOfMemoryException(context->threadContext);
         return NULLOBJECT;
     }
 
-    token = _tcstok(str, _T(" "));
+    token = strtok(str, " ");
     while ( token != NULL )
     {
-        if ( _tcscmp(token, _T("CHECKED")) == 0 )
+        if ( strcmp(token, "CHECKED") == 0 )
         {
             if ( (type == check || type == radio) )
             {
@@ -495,7 +494,7 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
                 wp = (WPARAM)BST_CHECKED;
             }
         }
-        else if ( _tcscmp(token, _T("UNCHECKED")) == 0 )
+        else if ( strcmp(token, "UNCHECKED") == 0 )
         {
             if ( (type == check || type == radio) )
             {
@@ -503,7 +502,7 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
                 wp = (WPARAM)BST_UNCHECKED;
             }
         }
-        else if ( _tcscmp(token, _T("INDETERMINATE")) == 0 )
+        else if ( strcmp(token, "INDETERMINATE") == 0 )
         {
             if ( type == check )
             {
@@ -511,25 +510,24 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
                 wp = (WPARAM)BST_INDETERMINATE;
             }
         }
-        else if ( _tcscmp(token, _T("FOCUS")) == 0 )
+        else if ( strcmp(token, "FOCUS") == 0 )
         {
             msg = 0;
             SendMessage(hDlg, WM_NEXTDLGCTL, (WPARAM)hwnd, TRUE);
         }
-        else if ( _tcscmp(token, _T("PUSHED")) == 0 )
+        else if ( strcmp(token, "PUSHED") == 0 )
         {
             msg = BM_SETSTATE;
             wp = (WPARAM)TRUE;
         }
-        else if ( _tcscmp(token, _T("NOTPUSHED")) == 0 )
+        else if ( strcmp(token, "NOTPUSHED") == 0 )
         {
             msg = BM_SETSTATE;
             wp = (WPARAM)FALSE;
         }
         else
         {
-            RXCT2A(token);
-            wrongArgValueException(context->threadContext, 1, BC_SETSTATE_OPTS, tokenT);
+            wrongArgValueException(context->threadContext, 1, BC_SETSTATE_OPTS, token);
             free(str);
             return NULLOBJECT;
         }
@@ -539,7 +537,7 @@ RexxMethod2(RexxObjectPtr, bc_setState, CSTRING, opts, CSELF, pCSelf)
             SendMessage(hwnd, msg, wp, 0);
             msg = 0;
         }
-        token = _tcstok(NULL, _T(" "));
+        token = strtok(NULL, " ");
     }
 
     safeFree(str);
@@ -587,7 +585,6 @@ RexxMethod1(RexxStringObject, bc_getState, CSELF, pCSelf)
 
 RexxMethod2(RexxObjectPtr, bc_setStyle, CSTRING, opts, CSELF, pCSelf)
 {
-    RXCA2T(opts);
     HWND hwnd = getDChCtrl(pCSelf);
 
     BUTTONSUBTYPE sub;
@@ -607,25 +604,25 @@ RexxMethod2(RexxObjectPtr, bc_setStyle, CSTRING, opts, CSELF, pCSelf)
     oldTypeStyle = ((DWORD)GetWindowLong(hwnd, GWL_STYLE) & BS_TYPEMASK);
     typeStyle = oldTypeStyle;
 
-    rxcharT *token;
-    rxcharT *str = strdupupr(optsT);
+    char *token;
+    char *str = strdupupr(opts);
     if ( ! str )
     {
         outOfMemoryException(context->threadContext);
         return NULLOBJECT;
     }
 
-    token = _tcstok(str, _T(" "));
+    token = strtok(str, " ");
     while ( token != NULL )
     {
-        if ( _tcscmp(token, _T("PUSHBOX")) == 0 )
+        if ( strcmp(token, "PUSHBOX") == 0 )
         {
             if ( type == push )
             {
                 typeStyle = BS_PUSHBOX;
             }
         }
-        else if ( _tcscmp(token, _T("DEFPUSHBUTTON")) == 0 )
+        else if ( strcmp(token, "DEFPUSHBUTTON") == 0 )
         {
             if ( type == push  && sub != def )
             {
@@ -633,143 +630,142 @@ RexxMethod2(RexxObjectPtr, bc_setStyle, CSTRING, opts, CSELF, pCSelf)
                 changeDefButton = true;
             }
         }
-        else if ( _tcscmp(token, _T("CHECKBOX")) == 0 )
+        else if ( strcmp(token, "CHECKBOX") == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_CHECKBOX;
             }
         }
-        else if ( _tcscmp(token, _T("AUTOCHECKBOX")) == 0 )
+        else if ( strcmp(token, "AUTOCHECKBOX") == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_AUTOCHECKBOX;
             }
         }
-        else if ( _tcscmp(token, _T("3STATE")) == 0 )
+        else if ( strcmp(token, "3STATE") == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_3STATE;
             }
         }
-        else if ( _tcscmp(token, _T("AUTO3STATE")) == 0 )
+        else if ( strcmp(token, "AUTO3STATE") == 0 )
         {
             if ( type == check )
             {
                 typeStyle = BS_AUTO3STATE;
             }
         }
-        else if ( _tcscmp(token, _T("RADIO")) == 0 )
+        else if ( strcmp(token, "RADIO") == 0 )
         {
             if ( type == radio )
             {
                 typeStyle = BS_RADIOBUTTON;
             }
         }
-        else if ( _tcscmp(token, _T("AUTORADIO")) == 0 )
+        else if ( strcmp(token, "AUTORADIO") == 0 )
         {
             if ( type == radio )
             {
                 typeStyle = BS_AUTORADIOBUTTON;
             }
         }
-        else if ( _tcscmp(token, _T("GROUPBOX")) == 0 || _tcscmp(token, _T("OWNERDRAW")) == 0 )
+        else if ( strcmp(token, "GROUPBOX") == 0 || strcmp(token, "OWNERDRAW") == 0 )
         {
             ; // Ignored.
         }
-        else if ( _tcscmp(token, _T("LEFTTEXT")) == 0 || _tcscmp(token, _T("RIGHTBUTTON")) == 0 )
+        else if ( strcmp(token, "LEFTTEXT") == 0 || strcmp(token, "RIGHTBUTTON") == 0 )
         {
             style |= BS_LEFTTEXT;
         }
-        else if ( _tcscmp(token, _T("NOTLEFTTEXT")) == 0 )
+        else if ( strcmp(token, "NOTLEFTTEXT") == 0 )
         {
             style &= ~BS_LEFTTEXT;
         }
-        else if ( _tcscmp(token, _T("TEXT")) == 0 )
+        else if ( strcmp(token, "TEXT") == 0 )
         {
             style &= ~(BS_ICON | BS_BITMAP);
         }
-        else if ( _tcscmp(token, _T("ICON")) == 0 )
+        else if ( strcmp(token, "ICON") == 0 )
         {
             style = (style & ~BS_BITMAP) | BS_ICON;
         }
-        else if ( _tcscmp(token, _T("BITMAP")) == 0 )
+        else if ( strcmp(token, "BITMAP") == 0 )
         {
             style = (style & ~BS_ICON) | BS_BITMAP;
         }
-        else if ( _tcscmp(token, _T("LEFT")) == 0 )
+        else if ( strcmp(token, "LEFT") == 0 )
         {
             style = (style & ~BS_CENTER) | BS_LEFT;
         }
-        else if ( _tcscmp(token, _T("RIGHT")) == 0 )
+        else if ( strcmp(token, "RIGHT") == 0 )
         {
             style = (style & ~BS_CENTER) | BS_RIGHT;
         }
-        else if ( _tcscmp(token, _T("HCENTER")) == 0 )
+        else if ( strcmp(token, "HCENTER") == 0 )
         {
             style |= BS_CENTER;
         }
-        else if ( _tcscmp(token, _T("TOP")) == 0 )
+        else if ( strcmp(token, "TOP") == 0 )
         {
             style = (style & ~BS_VCENTER) | BS_TOP;
         }
-        else if ( _tcscmp(token, _T("BOTTOM")) == 0 )
+        else if ( strcmp(token, "BOTTOM") == 0 )
         {
             style = (style & ~BS_VCENTER) | BS_BOTTOM;
         }
-        else if ( _tcscmp(token, _T("VCENTER")) == 0 )
+        else if ( strcmp(token, "VCENTER") == 0 )
         {
             style |= BS_VCENTER;
         }
-        else if ( _tcscmp(token, _T("PUSHLIKE")) == 0 )
+        else if ( strcmp(token, "PUSHLIKE") == 0 )
         {
             if ( type == check || type == radio )
             {
                 style |= BS_PUSHLIKE;
             }
         }
-        else if ( _tcscmp(token, _T("MULTILINE")) == 0 )
+        else if ( strcmp(token, "MULTILINE") == 0 )
         {
             style |= BS_MULTILINE;
         }
-        else if ( _tcscmp(token, _T("NOTIFY")) == 0 )
+        else if ( strcmp(token, "NOTIFY") == 0 )
         {
             style |= BS_NOTIFY;
         }
-        else if ( _tcscmp(token, _T("FLAT")) == 0 )
+        else if ( strcmp(token, "FLAT") == 0 )
         {
             style |= BS_FLAT;
         }
-        else if ( _tcscmp(token, _T("NOTPUSHLIKE")) == 0 )
+        else if ( strcmp(token, "NOTPUSHLIKE") == 0 )
         {
             if ( type == check || type == radio )
             {
                 style &= ~BS_PUSHLIKE;
             }
         }
-        else if ( _tcscmp(token, _T("NOTMULTILINE")) == 0 )
+        else if ( strcmp(token, "NOTMULTILINE") == 0 )
         {
             style &= ~BS_MULTILINE;
         }
-        else if ( _tcscmp(token, _T("NOTNOTIFY")) == 0 )
+        else if ( strcmp(token, "NOTNOTIFY") == 0 )
         {
             style &= ~BS_NOTIFY;
         }
-        else if ( _tcscmp(token, _T("NOTFLAT")) == 0 )
+        else if ( strcmp(token, "NOTFLAT") == 0 )
         {
             style &= ~BS_FLAT;
         }
         else
         {
-            RXCT2A(token);
-            wrongArgValueException(context->threadContext, 1, BC_SETSTYLE_OPTS, tokenT);
+            wrongArgValueException(context->threadContext, 1, BC_SETSTYLE_OPTS, token);
             free(str);
             return NULLOBJECT;
         }
 
-        token = _tcstok(NULL, _T(" "));
+        token = strtok(NULL, " ");
     }
 
     style |= typeStyle;
@@ -1681,7 +1677,7 @@ RexxMethod3(RexxStringObject, e_getLine, int32_t, lineNumber, OPTIONAL_RexxObjec
         if ( SendMessage(hwnd, EM_GETLINE, lineNumber, (LPARAM)buf) != 0 )
         {
             RXCT2A(buf);
-            result = context->String(bufT);
+            result = context->String(bufA);
         }
     }
 
@@ -1799,8 +1795,6 @@ RexxMethod1(RexxObjectPtr, e_hideBallon, CSELF, pCSelf)
 
 RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL_CSTRING, icon, CSELF, pCSelf)
 {
-    RXCA2T(title);
-    RXCA2T(text);
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0)  )
     {
         return TheOneObj;
@@ -1823,8 +1817,8 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
         return TheOneObj;
     }
 
-    putUnicodeText((LPWORD)wszTitle, titleT);
-    putUnicodeText((LPWORD)wszText, textT);
+    putUnicodeText((LPWORD)wszTitle, title);
+    putUnicodeText((LPWORD)wszText, text);
 
     tip.cbStruct = sizeof(tip);
     tip.pszText = wszText;
@@ -1856,7 +1850,6 @@ RexxMethod4(RexxObjectPtr, e_showBallon, CSTRING, title, CSTRING, text, OPTIONAL
 
 RexxMethod2(RexxObjectPtr, e_setCue, CSTRING, text, CSELF, pCSelf)
 {
-    RXCA2T(text);
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0)  )
     {
         return TheOneObj;
@@ -1870,7 +1863,7 @@ RexxMethod2(RexxObjectPtr, e_setCue, CSTRING, text, CSELF, pCSelf)
         return TheOneObj;
     }
 
-    putUnicodeText((LPWORD)wszCue, textT);
+    putUnicodeText((LPWORD)wszCue, text);
     return (Edit_SetCueBannerText(getDChCtrl(pCSelf), wszCue) ? TheZeroObj : TheOneObj);
 }
 
@@ -2018,7 +2011,7 @@ RexxStringObject cbLbGetText(RexxMethodContext *c, HWND hCtrl, uint32_t index, o
             if ( l > 0 )
             {
                 RXCT2A(buf);
-                result = c->String(bufT);
+                result = c->String(bufA);
             }
             free(buf);
         }

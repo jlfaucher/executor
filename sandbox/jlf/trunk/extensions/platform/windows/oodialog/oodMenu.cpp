@@ -119,12 +119,12 @@
 // Local function prototypes.
 static uint32_t resolveItemID(RexxMethodContext *, RexxObjectPtr, logical_t, RexxObjectPtr, size_t);
 static bool getMII(CppMenu *, RexxObjectPtr, BOOL, uint32_t, uint32_t *, UINT, MENUITEMINFO *);
-static UINT getPopupTypeOpts(const rxcharT *, UINT);
-static UINT getPopupStateOpts(const rxcharT *, UINT);
-static UINT getItemStateOpts(const rxcharT *, UINT);
-static UINT getItemTypeOpts(const rxcharT *, UINT);
-static UINT getSeparatorTypeOpts(const rxcharT *opts, UINT type);
-static UINT getTrackFlags(const rxcharT *);
+static UINT getPopupTypeOpts(const char *, UINT);
+static UINT getPopupStateOpts(const char *, UINT);
+static UINT getItemStateOpts(const char *, UINT);
+static UINT getItemTypeOpts(const char *, UINT);
+static UINT getSeparatorTypeOpts(const char *opts, UINT type);
+static UINT getTrackFlags(const char *);
 static uint32_t deleteSeparatorByID(HMENU, uint32_t);
 static uint32_t menuHelpID(HMENU hMenu, DWORD helpID, BOOL recurse, uint32_t *id);
 static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRING msg, bool isSysMenu, logical_t handles);
@@ -222,11 +222,11 @@ CSTRING CppMenu::name()
     return "ERROR unknown menu";
 }
 
-logical_t CppMenu::addTemplateSepartor(RexxObjectPtr rxID, CSTRINGT opts)
+logical_t CppMenu::addTemplateSepartor(RexxObjectPtr rxID, CSTRING opts)
 {
     logical_t success = FALSE;
     oodResetSysErrCode(c->threadContext);
-    rxcharT *upperOpts = NULL;
+    char *upperOpts = NULL;
 
     uint32_t id = oodResolveSymbolicID(c, self, rxID, -1, 1);
     if ( id == OOD_ID_EXCEPTION )
@@ -253,7 +253,7 @@ logical_t CppMenu::addTemplateSepartor(RexxObjectPtr rxID, CSTRINGT opts)
         }
 
         dwType = getSeparatorTypeOpts(upperOpts, dwType);
-        if ( _tcsstr(upperOpts, _T("END")) )
+        if ( strstr(upperOpts, "END") )
         {
             resInfo = MFR_END;
         }
@@ -278,11 +278,11 @@ done_out:
  *
  * @note text is required to be not null, the empty string is okay.
  */
-logical_t CppMenu::addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, CSTRING method)
+logical_t CppMenu::addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRING opts, CSTRING method)
 {
     logical_t success = FALSE;
     oodResetSysErrCode(c->threadContext);
-    rxcharT *upperOpts = NULL;
+    char *upperOpts = NULL;
 
     uint32_t id = oodResolveSymbolicID(c, self, rxID, -1, 1);
     if ( id == OOD_ID_EXCEPTION )
@@ -311,7 +311,7 @@ logical_t CppMenu::addTemplateItem(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT o
 
         dwState = getItemStateOpts(upperOpts, 0);
         dwType = getItemTypeOpts(upperOpts, MFT_STRING);
-        if ( _tcsstr(upperOpts, _T("END")) )
+        if ( strstr(upperOpts, "END") )
         {
             resInfo = MFR_END;
         }
@@ -347,11 +347,11 @@ done_out:
  *
  * @note Text is required to not be null, the empty string is okay.
  */
-logical_t CppMenu::addTemplatePopup(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT opts, RexxObjectPtr helpID)
+logical_t CppMenu::addTemplatePopup(RexxObjectPtr rxID, CSTRINGT text, CSTRING opts, RexxObjectPtr helpID)
 {
     logical_t success = FALSE;
     oodResetSysErrCode(c->threadContext);
-    rxcharT *upperOpts = NULL;
+    char *upperOpts = NULL;
 
     uint32_t id = oodResolveSymbolicID(c, self, rxID, -1, 1);
     if ( id == OOD_ID_EXCEPTION )
@@ -390,7 +390,7 @@ logical_t CppMenu::addTemplatePopup(RexxObjectPtr rxID, CSTRINGT text, CSTRINGT 
 
         DWORD dwState = getPopupStateOpts(upperOpts, 0);
         DWORD dwType = getPopupTypeOpts(upperOpts, MFT_STRING);
-        if ( _tcsstr(upperOpts, _T("END")) )
+        if ( strstr(upperOpts, "END") )
         {
             resInfo |= MFR_END;
         }
@@ -723,7 +723,7 @@ RexxDirectoryObject CppMenu::autoConnectionStatus()
  * @assumes id is a resource ID and not a by position ID.  This menu is a menu
  *          bar.
  */
-BOOL CppMenu::maybeConnectItem(uint32_t id, CSTRINGT text, logical_t connect, CSTRING methodName)
+BOOL CppMenu::maybeConnectItem(uint32_t id, CSTRING text, logical_t connect, CSTRING methodName)
 {
     BOOL success = TRUE;
     char * _methodName = NULL;
@@ -1356,7 +1356,8 @@ logical_t CppMenu::connectSomeCommandEvents(RexxObjectPtr rxItemIds, CSTRING met
 
         if ( method == NULL )
         {
-            name = strdup_2methodName(buf);
+            RXCT2A(buf);
+            name = strdup_2methodName(bufA);
             if ( name == NULL )
             {
                 oodSetSysErrCode(c->threadContext, ERROR_NOT_ENOUGH_MEMORY);
@@ -1618,7 +1619,6 @@ void CppMenu::setAutoConnection(logical_t on, CSTRING methodName)
 RexxObjectPtr CppMenu::trackPopup(RexxObjectPtr location, RexxObjectPtr _dlg, CSTRING opts,
                                   logical_t bothButtons, RexxObjectPtr excludeRect, bool doTrack)
 {
-    RXCA2T(opts);
     oodResetSysErrCode(c->threadContext);
     RexxObjectPtr result = TheNegativeOneObj;
 
@@ -1674,7 +1674,7 @@ RexxObjectPtr CppMenu::trackPopup(RexxObjectPtr location, RexxObjectPtr _dlg, CS
     UINT flags = 0;
     if ( opts != NULL )
     {
-        flags = getTrackFlags(optsT);
+        flags = getTrackFlags(opts);
         if ( flags == ERROR_OUTOFMEMORY )
         {
             outOfMemoryException(c->threadContext);
@@ -2621,7 +2621,9 @@ static uint32_t menuConnectItems(HMENU hMenu, pCEventNotification pcen, CSTRING 
             if ( pMsg == NULL )
             {
                 // strdup_2methodName removes any '&' and the trailing ... if any.
-                pMsg = strdup_2methodName(mii.dwTypeData);
+                rxcharT *mii_dwTypeData = mii.dwTypeData;
+                RXCT2A(mii_dwTypeData);
+                pMsg = strdup_2methodName(mii_dwTypeDataA);
                 if ( ! pMsg )
                 {
                     return ERROR_NOT_ENOUGH_MEMORY;
@@ -3623,15 +3625,13 @@ RexxMethod9(logical_t, menu_insertItem, RexxObjectPtr, rxBefore, RexxObjectPtr, 
 
     if ( argumentExists(4) )
     {
-        RXCA2T(stateOpts);
-        mii.fState = getItemStateOpts(stateOptsT, 0);
+        mii.fState = getItemStateOpts(stateOpts, 0);
         mii.fMask |= MIIM_STATE;
     }
 
     if ( argumentExists(5) )
     {
-        RXCA2T(typeOpts);
-        mii.fType |= getItemTypeOpts(typeOptsT, 0);
+        mii.fType |= getItemTypeOpts(typeOpts, 0);
         mii.fMask |= MIIM_FTYPE;
     }
 
@@ -3648,7 +3648,7 @@ RexxMethod9(logical_t, menu_insertItem, RexxObjectPtr, rxBefore, RexxObjectPtr, 
 
     if ( cMenu->isMenuBar() && ! byPosition )
     {
-        success = cMenu->maybeConnectItem(id, textT, connect, methodName);
+        success = cMenu->maybeConnectItem(id, text, connect, methodName);
     }
 
 done_out:
@@ -3755,15 +3755,13 @@ RexxMethod8(logical_t, menu_insertPopup, RexxObjectPtr, rxBefore, RexxObjectPtr,
 
     if ( argumentExists(5) )
     {
-        RXCA2T(stateOpts);
-        mii.fState = getPopupStateOpts(stateOptsT, 0);
+        mii.fState = getPopupStateOpts(stateOpts, 0);
         mii.fMask |= MIIM_STATE;
     }
 
     if ( argumentExists(6) )
     {
-        RXCA2T(typeOpts);
-        mii.fType |= getPopupTypeOpts(typeOptsT, 0);
+        mii.fType |= getPopupTypeOpts(typeOpts, 0);
         mii.fMask |= MIIM_FTYPE;
     }
 
@@ -4424,7 +4422,7 @@ RexxMethod3(RexxStringObject, menu_getText, RexxObjectPtr, rxItemID, OPTIONAL_lo
 
 done_out:
     RXCT2A(buf);
-    return context->CString(bufT);
+    return context->CString(bufA);
 }
 
 
@@ -4842,8 +4840,7 @@ RexxMethod5(logical_t, menuTemplate_addPopup, RexxObjectPtr, rxID, CSTRING, text
     cMenu->setContext(context, TheFalseObj);
 
     RXCA2T(text);
-    RXCA2T(opts);
-    return cMenu->addTemplatePopup(rxID, textT, optsT, rxHelpID);
+    return cMenu->addTemplatePopup(rxID, textT, opts, rxHelpID);
 }
 
 /** MenuTemplate::addItem()
@@ -4892,8 +4889,7 @@ RexxMethod5(logical_t, menuTemplate_addItem, RexxObjectPtr, rxID, CSTRING, text,
     cMenu->setContext(context, TheFalseObj);
 
     RXCA2T(text);
-    RXCA2T(opts);
-    return cMenu->addTemplateItem(rxID, textT, optsT, method);
+    return cMenu->addTemplateItem(rxID, textT, opts, method);
 }
 
 
@@ -4935,8 +4931,7 @@ RexxMethod3(logical_t, menuTemplate_addSeparator, RexxObjectPtr, rxID, OPTIONAL_
     CppMenu *cMenu = menuToCSelf(context, self);
     cMenu->setContext(context, TheFalseObj);
 
-    RXCA2T(opts);
-    return cMenu->addTemplateSepartor(rxID, optsT);
+    return cMenu->addTemplateSepartor(rxID, opts);
 }
 
 
@@ -6055,64 +6050,64 @@ void CppMenu::test(CppMenu *other)
 }
 
 
-static UINT checkCommonTypeOpts(const rxcharT *opts, UINT type)
+static UINT checkCommonTypeOpts(const char *opts, UINT type)
 {
-    if ( _tcsstr(opts, _T("NOTMENUBARBREAK")) != NULL )
+    if ( strstr(opts, "NOTMENUBARBREAK") != NULL )
     {
         type &= ~MFT_MENUBARBREAK;
     }
-    else if ( _tcsstr(opts, _T("MENUBARBREAK")) != NULL )
+    else if ( strstr(opts, "MENUBARBREAK") != NULL )
     {
         type |= MFT_MENUBARBREAK;
     }
 
-    if ( _tcsstr(opts, _T("NOTMENUBREAK")) != NULL )
+    if ( strstr(opts, "NOTMENUBREAK") != NULL )
     {
         type &= ~MFT_MENUBREAK;
     }
-    else if ( _tcsstr(opts, _T("MENUBREAK")) != NULL )
+    else if ( strstr(opts, "MENUBREAK") != NULL )
     {
         type |= MFT_MENUBREAK;
     }
 
-    if ( _tcsstr(opts, _T("NOTRIGHTJUSTIFY")) != NULL )
+    if ( strstr(opts, "NOTRIGHTJUSTIFY") != NULL )
     {
         type &= ~MFT_RIGHTJUSTIFY;
     }
-    else if ( _tcsstr(opts, _T("RIGHTJUSTIFY")) != NULL )
+    else if ( strstr(opts, "RIGHTJUSTIFY") != NULL )
     {
         type |= MFT_RIGHTJUSTIFY;
     }
     return type;
 }
 
-static UINT checkCommonStateOpts(const rxcharT *opts, UINT state)
+static UINT checkCommonStateOpts(const char *opts, UINT state)
 {
-    if ( _tcsstr(opts, _T("NOTDEFAULT")) != NULL )
+    if ( strstr(opts, "NOTDEFAULT") != NULL )
     {
         state &= ~MFS_DEFAULT;
     }
-    else if ( _tcsstr(opts, _T("DEFAULT")) != NULL )
+    else if ( strstr(opts, "DEFAULT") != NULL )
     {
         state |= MFS_DEFAULT;
     }
-    if ( _tcsstr(opts, _T("DISABLED")) != NULL )
+    if ( strstr(opts, "DISABLED") != NULL )
     {
         state |= MFS_DISABLED;
     }
-    if ( _tcsstr(opts, _T("GRAYED")) != NULL )
+    if ( strstr(opts, "GRAYED") != NULL )
     {
         state |= MFS_GRAYED;
     }
-    if ( _tcsstr(opts, _T("ENABLED")) != NULL )
+    if ( strstr(opts, "ENABLED") != NULL )
     {
         state &= ~MFS_DISABLED;
     }
-    if ( _tcsstr(opts, _T("UNHILITE")) != NULL )
+    if ( strstr(opts, "UNHILITE") != NULL )
     {
         state &= ~MFS_HILITE;
     }
-    else if ( _tcsstr(opts, _T("HILITE")) != NULL )
+    else if ( strstr(opts, "HILITE") != NULL )
     {
         state |= MFS_HILITE;
     }
@@ -6131,14 +6126,14 @@ static UINT checkCommonStateOpts(const rxcharT *opts, UINT state)
  *
  * @return The combined MFT_* flags for a popup menu.
  */
-static UINT getPopupTypeOpts(const rxcharT *opts, UINT type)
+static UINT getPopupTypeOpts(const char *opts, UINT type)
 {
     type = checkCommonTypeOpts(opts, type);
-    if ( _tcsstr(opts, _T("NOTRIGHTORDER")) != NULL )
+    if ( strstr(opts, "NOTRIGHTORDER") != NULL )
     {
         type &= ~MFT_RIGHTORDER;
     }
-    else if ( _tcsstr(opts, _T("RIGHTORDER")) != NULL )
+    else if ( strstr(opts, "RIGHTORDER") != NULL )
     {
         type |= MFT_RIGHTORDER;
     }
@@ -6156,7 +6151,7 @@ static UINT getPopupTypeOpts(const rxcharT *opts, UINT type)
  *
  * Note that with extended menus disabled and grared are the same thing.
  */
-static UINT getPopupStateOpts(const rxcharT *opts, UINT state)
+static UINT getPopupStateOpts(const char *opts, UINT state)
 {
     state = checkCommonStateOpts(opts, state);
     return state;
@@ -6177,14 +6172,14 @@ static UINT getPopupStateOpts(const rxcharT *opts, UINT state)
  * contain submenus, but menu items are perfectly valid in a menu bar.  If the
  * right justify flag is used in a submenu, it has no effect.
  */
-static UINT getItemTypeOpts(const rxcharT *opts, UINT type)
+static UINT getItemTypeOpts(const char *opts, UINT type)
 {
     type = checkCommonTypeOpts(opts, type);
-    if ( _tcsstr(opts, _T("NOTRADIO")) != NULL )
+    if ( strstr(opts, "NOTRADIO") != NULL )
     {
         type &= ~MFT_RADIOCHECK;
     }
-    else if ( _tcsstr(opts, _T("RADIO")) != NULL )
+    else if ( strstr(opts, "RADIO") != NULL )
     {
         type |= MFT_RADIOCHECK;
     }
@@ -6203,32 +6198,32 @@ static UINT getItemTypeOpts(const rxcharT *opts, UINT type)
  *
  * @return The combined MFT_* flags for a menu separtor.
  */
-static UINT getSeparatorTypeOpts(const rxcharT *opts, UINT type)
+static UINT getSeparatorTypeOpts(const char *opts, UINT type)
 {
-    if ( _tcsstr(opts, _T("NOTMENUBARBREAK")) != NULL )
+    if ( strstr(opts, "NOTMENUBARBREAK") != NULL )
     {
         type &= ~MFT_MENUBARBREAK;
     }
-    else if ( _tcsstr(opts, _T("MENUBARBREAK")) != NULL )
+    else if ( strstr(opts, "MENUBARBREAK") != NULL )
     {
         type |= MFT_MENUBARBREAK;
     }
 
-    if ( _tcsstr(opts, _T("NOTMENUBREAK")) != NULL )
+    if ( strstr(opts, "NOTMENUBREAK") != NULL )
     {
         type &= ~MFT_MENUBREAK;
     }
-    else if ( _tcsstr(opts, _T("MENUBREAK")) != NULL )
+    else if ( strstr(opts, "MENUBREAK") != NULL )
     {
         type |= MFT_MENUBREAK;
     }
 
     // TODO test if RIGHTORDER is valid for a separator, I don't think it is.
-    if ( _tcsstr(opts, _T("NOTRIGHTORDER")) != NULL )
+    if ( strstr(opts, "NOTRIGHTORDER") != NULL )
     {
         type &= ~MFT_RIGHTORDER;
     }
-    else if ( _tcsstr(opts, _T("RIGHTORDER")) != NULL )
+    else if ( strstr(opts, "RIGHTORDER") != NULL )
     {
         type |= MFT_RIGHTORDER;
     }
@@ -6249,15 +6244,15 @@ static UINT getSeparatorTypeOpts(const rxcharT *opts, UINT type)
  *
  * Note that with extended menus grayed and disabled are the same thing.
  */
-static UINT getItemStateOpts(const rxcharT *opts, UINT state)
+static UINT getItemStateOpts(const char *opts, UINT state)
 {
     state = checkCommonStateOpts(opts, state);
 
-    if ( _tcsstr(opts, _T("UNCHECKED")) != NULL )
+    if ( strstr(opts, "UNCHECKED") != NULL )
     {
         state &= ~MFS_CHECKED;
     }
-    else if ( _tcsstr(opts, _T("CHECKED")) != NULL )
+    else if ( strstr(opts, "CHECKED") != NULL )
     {
         state |= MFS_CHECKED;
     }
@@ -6265,21 +6260,21 @@ static UINT getItemStateOpts(const rxcharT *opts, UINT state)
 }
 
 
-static UINT getTrackFlags(const rxcharT *opt)
+static UINT getTrackFlags(const char *opt)
 {
     UINT flag = 0;
 
-    rxcharT *upperStr = strdupupr(opt);
+    char *upperStr = strdupupr(opt);
     if ( upperStr == NULL )
     {
         return ERROR_OUTOFMEMORY;
     }
 
-    if ( _tcsstr(upperStr, _T("LEFT")) != NULL )
+    if ( strstr(upperStr, "LEFT") != NULL )
     {
         flag = TPM_LEFTALIGN;
     }
-    else if ( _tcsstr(upperStr, _T("HCENTER")) != NULL )
+    else if ( strstr(upperStr, "HCENTER") != NULL )
     {
         flag = TPM_CENTERALIGN;
     }
@@ -6288,11 +6283,11 @@ static UINT getTrackFlags(const rxcharT *opt)
         flag = TPM_RIGHTALIGN;
     }
 
-    if ( _tcsstr(upperStr, _T("TOP")) != NULL )
+    if ( strstr(upperStr, "TOP") != NULL )
     {
         flag |= TPM_TOPALIGN;
     }
-    else if ( _tcsstr(upperStr, _T("VCENTER")) != NULL )
+    else if ( strstr(upperStr, "VCENTER") != NULL )
     {
         flag |= TPM_VCENTERALIGN;
     }
@@ -6301,41 +6296,41 @@ static UINT getTrackFlags(const rxcharT *opt)
         flag |= TPM_BOTTOMALIGN;
     }
 
-    if ( _tcsstr(upperStr, _T("HORNEGANIMATION")) != NULL )
+    if ( strstr(upperStr, "HORNEGANIMATION") != NULL )
     {
         flag |= TPM_HORNEGANIMATION;
     }
-    if ( _tcsstr(upperStr, _T("HORPOSANIMATION")) != NULL )
+    if ( strstr(upperStr, "HORPOSANIMATION") != NULL )
     {
         flag |= TPM_HORPOSANIMATION;
     }
-    if ( _tcsstr(upperStr, _T("NOANIMATION")) != NULL )
+    if ( strstr(upperStr, "NOANIMATION") != NULL )
     {
         flag |= TPM_NOANIMATION;
     }
-    if ( _tcsstr(upperStr, _T("VERNEGANIMATION")) != NULL )
+    if ( strstr(upperStr, "VERNEGANIMATION") != NULL )
     {
         flag |= TPM_VERNEGANIMATION;
     }
-    if ( _tcsstr(upperStr, _T("VERPOSANIMATION")) != NULL )
+    if ( strstr(upperStr, "VERPOSANIMATION") != NULL )
     {
         flag |= TPM_VERPOSANIMATION;
     }
-    if ( _tcsstr(upperStr, _T("HORIZONTAL")) != NULL )
+    if ( strstr(upperStr, "HORIZONTAL") != NULL )
     {
         flag |= TPM_HORIZONTAL;
     }
-    if ( _tcsstr(upperStr, _T("VERTICAL")) != NULL )
+    if ( strstr(upperStr, "VERTICAL") != NULL )
     {
         flag |= TPM_VERTICAL;
     }
-    if ( _tcsstr(upperStr, _T("RECURSE")) != NULL )
+    if ( strstr(upperStr, "RECURSE") != NULL )
     {
         flag |= TPM_RECURSE;
     }
     if ( ComCtl32Version >= COMCTL32_6_0 )
     {
-        if ( _tcsstr(upperStr, _T("LAYOUTRTL")) != NULL )
+        if ( strstr(upperStr, "LAYOUTRTL") != NULL )
         {
             flag |= TPM_LAYOUTRTL;
         }

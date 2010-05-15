@@ -70,10 +70,7 @@ typedef rxcharT *PCHART;
 #define RXCA2T(variable) rxConverter<rxcharA, rxcharT> variable##T(variable)
 
 // Converter from rxcharT to rxcharA
-#define RXCT2A(variable) rxConverter<rxcharT, rxcharA> variable##T(variable)
-
-// Converter from rxcharW to rxcharA
-#define RXCW2A(variable) rxConverter<rxcharW, rxcharA> variable##T(variable)
+#define RXCT2A(variable) rxConverter<rxcharT, rxcharA> variable##A(variable)
 
 // Default code page. For the moment, use a global variable.
 extern bool rxsetCodePage(int codepage);

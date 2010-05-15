@@ -717,7 +717,7 @@ RexxObjectPtr getControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint
     }
 
     RXCT2A(data);
-    return c->String(dataT);
+    return c->String(dataA);
 }
 
 /**
@@ -731,7 +731,7 @@ RexxObjectPtr getControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint
  *
  * @return uint32_t
  */
-int32_t setControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t id, CSTRINGT data,
+int32_t setControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t id, CSTRING data,
                        HWND hDlg, oodControl_t ctrlType)
 {
     if ( ctrlType == winUnknown )
@@ -743,33 +743,34 @@ int32_t setControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t i
         }
     }
 
+    RXCA2T(data);
     switch ( ctrlType )
     {
         case winEdit:
         case winStatic:
-            return (SetDlgItemText(hDlg, id, data) ? 0 : 1);
+            return (SetDlgItemText(hDlg, id, dataT) ? 0 : 1);
         case winCheckBox:
-            return (CheckDlgButton(hDlg, id, _tstoi(data)) ? 0 : 1);
+            return (CheckDlgButton(hDlg, id, atoi(data)) ? 0 : 1);
         case winRadioButton:
-            return (manualCheckRadioButton(pcpbd->dlgAdm, hDlg, id, _tstoi(data)) ? 0 : 1);
+            return (manualCheckRadioButton(pcpbd->dlgAdm, hDlg, id, atoi(data)) ? 0 : 1);
         case winListBox:
-            return (setListBoxData(hDlg, id, data) ? 0 : 1);
+            return (setListBoxData(hDlg, id, dataT) ? 0 : 1);
         case winComboBox:
-            return setComboBoxData(hDlg, id, data);
+            return setComboBoxData(hDlg, id, dataT);
         case winTreeView:
-            return (setTreeViewData(hDlg, data, id) ? 0 : 1);
+            return (setTreeViewData(hDlg, dataT, id) ? 0 : 1);
         case winListView:
-            return (setListViewData(hDlg, data, id) ? 0 : 1);
+            return (setListViewData(hDlg, dataT, id) ? 0 : 1);
         case winTrackBar:
-            return (setTrackBarData(hDlg, data, id) ? 0 : 1);
+            return (setTrackBarData(hDlg, dataT, id) ? 0 : 1);
         case winTab:
-            return (setTabData(hDlg, data, id) ? 0 : 1);
+            return (setTabData(hDlg, dataT, id) ? 0 : 1);
         case winDateTimePicker:
-            return (setDateTimeData(hDlg, data, id) ? 0 : 1);
+            return (setDateTimeData(hDlg, dataT, id) ? 0 : 1);
         case winMonthCalendar:
-            return (setMonthCalendarData(hDlg, data, id) ? 0 : 1);
+            return (setMonthCalendarData(hDlg, dataT, id) ? 0 : 1);
         case winUpDown:
-            return (setUpDownData(hDlg, data, id) ? 0 : 1);
+            return (setUpDownData(hDlg, dataT, id) ? 0 : 1);
         default:
             return 1;
     }
@@ -991,7 +992,7 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
         }
 
         RXCT2A(data);
-        c->SetStemArrayElement(internDlgData, itemID, c->String(dataT));
+        c->SetStemArrayElement(internDlgData, itemID, c->String(dataA));
     }
     return 0;
 }

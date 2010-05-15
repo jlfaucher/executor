@@ -1020,99 +1020,99 @@ static String2Int *imageInitMap(void)
 {
     String2Int *cMap = new String2Int;
 
-    cMap->insert(String2Int::value_type(_T("IDI_APPLICATION"), 32512));
-    cMap->insert(String2Int::value_type(_T("IDI_HAND"),        32513));
-    cMap->insert(String2Int::value_type(_T("IDI_QUESTION"),    32514));
-    cMap->insert(String2Int::value_type(_T("IDI_EXCLAMATION"), 32515));
-    cMap->insert(String2Int::value_type(_T("IDI_ASTERISK"),    32516));
-    cMap->insert(String2Int::value_type(_T("IDI_WINLOGO"),     32517));
+    cMap->insert(String2Int::value_type("IDI_APPLICATION", 32512));
+    cMap->insert(String2Int::value_type("IDI_HAND",        32513));
+    cMap->insert(String2Int::value_type("IDI_QUESTION",    32514));
+    cMap->insert(String2Int::value_type("IDI_EXCLAMATION", 32515));
+    cMap->insert(String2Int::value_type("IDI_ASTERISK",    32516));
+    cMap->insert(String2Int::value_type("IDI_WINLOGO",     32517));
 
-    cMap->insert(String2Int::value_type(_T("IMAGE_BITMAP"),      0));
-    cMap->insert(String2Int::value_type(_T("IMAGE_ICON"),        1));
-    cMap->insert(String2Int::value_type(_T("IMAGE_CURSOR"),      2));
-    cMap->insert(String2Int::value_type(_T("IMAGE_ENHMETAFILE"), 3));
+    cMap->insert(String2Int::value_type("IMAGE_BITMAP",      0));
+    cMap->insert(String2Int::value_type("IMAGE_ICON",        1));
+    cMap->insert(String2Int::value_type("IMAGE_CURSOR",      2));
+    cMap->insert(String2Int::value_type("IMAGE_ENHMETAFILE", 3));
 
-    cMap->insert(String2Int::value_type(_T("OCR_NORMAL"),      32512));
-    cMap->insert(String2Int::value_type(_T("OCR_IBEAM"),       32513));
-    cMap->insert(String2Int::value_type(_T("OCR_WAIT"),        32514));
-    cMap->insert(String2Int::value_type(_T("OCR_CROSS"),       32515));
-    cMap->insert(String2Int::value_type(_T("OCR_UP"),          32516));
-    cMap->insert(String2Int::value_type(_T("OCR_SIZENWSE"),    32642));
-    cMap->insert(String2Int::value_type(_T("OCR_SIZENESW"),    32643));
-    cMap->insert(String2Int::value_type(_T("OCR_SIZEWE"),      32644));
-    cMap->insert(String2Int::value_type(_T("OCR_SIZENS"),      32645));
-    cMap->insert(String2Int::value_type(_T("OCR_SIZEALL"),     32646));
-    cMap->insert(String2Int::value_type(_T("OCR_NO"),          32648));
-    cMap->insert(String2Int::value_type(_T("OCR_HAND"),        32649));
-    cMap->insert(String2Int::value_type(_T("OCR_APPSTARTING"), 32650));
+    cMap->insert(String2Int::value_type("OCR_NORMAL",      32512));
+    cMap->insert(String2Int::value_type("OCR_IBEAM",       32513));
+    cMap->insert(String2Int::value_type("OCR_WAIT",        32514));
+    cMap->insert(String2Int::value_type("OCR_CROSS",       32515));
+    cMap->insert(String2Int::value_type("OCR_UP",          32516));
+    cMap->insert(String2Int::value_type("OCR_SIZENWSE",    32642));
+    cMap->insert(String2Int::value_type("OCR_SIZENESW",    32643));
+    cMap->insert(String2Int::value_type("OCR_SIZEWE",      32644));
+    cMap->insert(String2Int::value_type("OCR_SIZENS",      32645));
+    cMap->insert(String2Int::value_type("OCR_SIZEALL",     32646));
+    cMap->insert(String2Int::value_type("OCR_NO",          32648));
+    cMap->insert(String2Int::value_type("OCR_HAND",        32649));
+    cMap->insert(String2Int::value_type("OCR_APPSTARTING", 32650));
 
-    cMap->insert(String2Int::value_type(_T("OBM_CLOSE"),      32754));
-    cMap->insert(String2Int::value_type(_T("OBM_UPARROW"),    32753));
-    cMap->insert(String2Int::value_type(_T("OBM_DNARROW"),    32752));
-    cMap->insert(String2Int::value_type(_T("OBM_RGARROW"),    32751));
-    cMap->insert(String2Int::value_type(_T("OBM_LFARROW"),    32750));
-    cMap->insert(String2Int::value_type(_T("OBM_REDUCE"),     32749));
-    cMap->insert(String2Int::value_type(_T("OBM_ZOOM"),       32748));
-    cMap->insert(String2Int::value_type(_T("OBM_RESTORE"),    32747));
-    cMap->insert(String2Int::value_type(_T("OBM_REDUCED"),    32746));
-    cMap->insert(String2Int::value_type(_T("OBM_ZOOMD"),      32745));
-    cMap->insert(String2Int::value_type(_T("OBM_RESTORED"),   32744));
-    cMap->insert(String2Int::value_type(_T("OBM_UPARROWD"),   32743));
-    cMap->insert(String2Int::value_type(_T("OBM_DNARROWD"),   32742));
-    cMap->insert(String2Int::value_type(_T("OBM_RGARROWD"),   32741));
-    cMap->insert(String2Int::value_type(_T("OBM_LFARROWD"),   32740));
-    cMap->insert(String2Int::value_type(_T("OBM_MNARROW"),    32739));
-    cMap->insert(String2Int::value_type(_T("OBM_COMBO"),      32738));
-    cMap->insert(String2Int::value_type(_T("OBM_UPARROWI"),   32737));
-    cMap->insert(String2Int::value_type(_T("OBM_DNARROWI"),   32736));
-    cMap->insert(String2Int::value_type(_T("OBM_RGARROWI"),   32735));
-    cMap->insert(String2Int::value_type(_T("OBM_LFARROWI"),   32734));
-    cMap->insert(String2Int::value_type(_T("OBM_SIZE"),       32766));
-    cMap->insert(String2Int::value_type(_T("OBM_BTSIZE"),     32761));
-    cMap->insert(String2Int::value_type(_T("OBM_CHECK"),      32760));
-    cMap->insert(String2Int::value_type(_T("OBM_CHECKBOXES"), 32759));
-    cMap->insert(String2Int::value_type(_T("OBM_BTNCORNERS"), 32758));
+    cMap->insert(String2Int::value_type("OBM_CLOSE",      32754));
+    cMap->insert(String2Int::value_type("OBM_UPARROW",    32753));
+    cMap->insert(String2Int::value_type("OBM_DNARROW",    32752));
+    cMap->insert(String2Int::value_type("OBM_RGARROW",    32751));
+    cMap->insert(String2Int::value_type("OBM_LFARROW",    32750));
+    cMap->insert(String2Int::value_type("OBM_REDUCE",     32749));
+    cMap->insert(String2Int::value_type("OBM_ZOOM",       32748));
+    cMap->insert(String2Int::value_type("OBM_RESTORE",    32747));
+    cMap->insert(String2Int::value_type("OBM_REDUCED",    32746));
+    cMap->insert(String2Int::value_type("OBM_ZOOMD",      32745));
+    cMap->insert(String2Int::value_type("OBM_RESTORED",   32744));
+    cMap->insert(String2Int::value_type("OBM_UPARROWD",   32743));
+    cMap->insert(String2Int::value_type("OBM_DNARROWD",   32742));
+    cMap->insert(String2Int::value_type("OBM_RGARROWD",   32741));
+    cMap->insert(String2Int::value_type("OBM_LFARROWD",   32740));
+    cMap->insert(String2Int::value_type("OBM_MNARROW",    32739));
+    cMap->insert(String2Int::value_type("OBM_COMBO",      32738));
+    cMap->insert(String2Int::value_type("OBM_UPARROWI",   32737));
+    cMap->insert(String2Int::value_type("OBM_DNARROWI",   32736));
+    cMap->insert(String2Int::value_type("OBM_RGARROWI",   32735));
+    cMap->insert(String2Int::value_type("OBM_LFARROWI",   32734));
+    cMap->insert(String2Int::value_type("OBM_SIZE",       32766));
+    cMap->insert(String2Int::value_type("OBM_BTSIZE",     32761));
+    cMap->insert(String2Int::value_type("OBM_CHECK",      32760));
+    cMap->insert(String2Int::value_type("OBM_CHECKBOXES", 32759));
+    cMap->insert(String2Int::value_type("OBM_BTNCORNERS", 32758));
 
-    cMap->insert(String2Int::value_type(_T("LR_DEFAULTCOLOR"),     0x0000));
-    cMap->insert(String2Int::value_type(_T("LR_MONOCHROME"),       0x0001));
-    cMap->insert(String2Int::value_type(_T("LR_COLOR"),            0x0002));
-    cMap->insert(String2Int::value_type(_T("LR_COPYRETURNORG"),    0x0004));
-    cMap->insert(String2Int::value_type(_T("LR_COPYDELETEORG"),    0x0008));
-    cMap->insert(String2Int::value_type(_T("LR_LOADFROMFILE"),     0x0010));
-    cMap->insert(String2Int::value_type(_T("LR_LOADTRANSPARENT"),  0x0020));
-    cMap->insert(String2Int::value_type(_T("LR_DEFAULTSIZE"),      0x0040));
-    cMap->insert(String2Int::value_type(_T("LR_VGACOLOR"),         0x0080));
-    cMap->insert(String2Int::value_type(_T("LR_LOADMAP3DCOLORS"),  0x1000));
-    cMap->insert(String2Int::value_type(_T("LR_CREATEDIBSECTION"), 0x2000));
-    cMap->insert(String2Int::value_type(_T("LR_COPYFROMRESOURCE"), 0x4000));
-    cMap->insert(String2Int::value_type(_T("LR_SHARED"),           0x8000));
+    cMap->insert(String2Int::value_type("LR_DEFAULTCOLOR",     0x0000));
+    cMap->insert(String2Int::value_type("LR_MONOCHROME",       0x0001));
+    cMap->insert(String2Int::value_type("LR_COLOR",            0x0002));
+    cMap->insert(String2Int::value_type("LR_COPYRETURNORG",    0x0004));
+    cMap->insert(String2Int::value_type("LR_COPYDELETEORG",    0x0008));
+    cMap->insert(String2Int::value_type("LR_LOADFROMFILE",     0x0010));
+    cMap->insert(String2Int::value_type("LR_LOADTRANSPARENT",  0x0020));
+    cMap->insert(String2Int::value_type("LR_DEFAULTSIZE",      0x0040));
+    cMap->insert(String2Int::value_type("LR_VGACOLOR",         0x0080));
+    cMap->insert(String2Int::value_type("LR_LOADMAP3DCOLORS",  0x1000));
+    cMap->insert(String2Int::value_type("LR_CREATEDIBSECTION", 0x2000));
+    cMap->insert(String2Int::value_type("LR_COPYFROMRESOURCE", 0x4000));
+    cMap->insert(String2Int::value_type("LR_SHARED",           0x8000));
 
     // ImageList_Create flags
-    cMap->insert(String2Int::value_type(_T("ILC_MASK"), 0x0001));
-    cMap->insert(String2Int::value_type(_T("ILC_COLOR"), 0x0000));
-    cMap->insert(String2Int::value_type(_T("ILC_COLORDDB"), 0x00FE));
-    cMap->insert(String2Int::value_type(_T("ILC_COLOR4"), 0x0004));
-    cMap->insert(String2Int::value_type(_T("ILC_COLOR8"), 0x0008));
-    cMap->insert(String2Int::value_type(_T("ILC_COLOR16"), 0x0010));
-    cMap->insert(String2Int::value_type(_T("ILC_COLOR24"), 0x0018));
-    cMap->insert(String2Int::value_type(_T("ILC_COLOR32"), 0x0020));
-    cMap->insert(String2Int::value_type(_T("ILC_PALETTE"), 0x0800));
-    cMap->insert(String2Int::value_type(_T("ILC_MIRROR"), 0x2000));
-    cMap->insert(String2Int::value_type(_T("ILC_PERITEMMIRROR"), 0x8000));
+    cMap->insert(String2Int::value_type("ILC_MASK", 0x0001));
+    cMap->insert(String2Int::value_type("ILC_COLOR", 0x0000));
+    cMap->insert(String2Int::value_type("ILC_COLORDDB", 0x00FE));
+    cMap->insert(String2Int::value_type("ILC_COLOR4", 0x0004));
+    cMap->insert(String2Int::value_type("ILC_COLOR8", 0x0008));
+    cMap->insert(String2Int::value_type("ILC_COLOR16", 0x0010));
+    cMap->insert(String2Int::value_type("ILC_COLOR24", 0x0018));
+    cMap->insert(String2Int::value_type("ILC_COLOR32", 0x0020));
+    cMap->insert(String2Int::value_type("ILC_PALETTE", 0x0800));
+    cMap->insert(String2Int::value_type("ILC_MIRROR", 0x2000));
+    cMap->insert(String2Int::value_type("ILC_PERITEMMIRROR", 0x8000));
 
     // Button image list alignment values
-    cMap->insert(String2Int::value_type(_T("BUTTON_IMAGELIST_ALIGN_LEFT"),   0));
-    cMap->insert(String2Int::value_type(_T("BUTTON_IMAGELIST_ALIGN_RIGHT"),  1));
-    cMap->insert(String2Int::value_type(_T("BUTTON_IMAGELIST_ALIGN_TOP"),    2));
-    cMap->insert(String2Int::value_type(_T("BUTTON_IMAGELIST_ALIGN_BOTTOM"), 3));
-    cMap->insert(String2Int::value_type(_T("BUTTON_IMAGELIST_ALIGN_CENTER"), 4));
+    cMap->insert(String2Int::value_type("BUTTON_IMAGELIST_ALIGN_LEFT",   0));
+    cMap->insert(String2Int::value_type("BUTTON_IMAGELIST_ALIGN_RIGHT",  1));
+    cMap->insert(String2Int::value_type("BUTTON_IMAGELIST_ALIGN_TOP",    2));
+    cMap->insert(String2Int::value_type("BUTTON_IMAGELIST_ALIGN_BOTTOM", 3));
+    cMap->insert(String2Int::value_type("BUTTON_IMAGELIST_ALIGN_CENTER", 4));
 
-    cMap->insert(String2Int::value_type(_T("LVSIL_NORMAL"), 0));
-    cMap->insert(String2Int::value_type(_T("LVSIL_SMALL"), 1));
-    cMap->insert(String2Int::value_type(_T("LVSIL_STATE"), 2));
+    cMap->insert(String2Int::value_type("LVSIL_NORMAL", 0));
+    cMap->insert(String2Int::value_type("LVSIL_SMALL", 1));
+    cMap->insert(String2Int::value_type("LVSIL_STATE", 2));
 
-    cMap->insert(String2Int::value_type(_T("TVSIL_NORMAL"), 0));
-    cMap->insert(String2Int::value_type(_T("TVSIL_STATE"), 2));
+    cMap->insert(String2Int::value_type("TVSIL_NORMAL", 0));
+    cMap->insert(String2Int::value_type("TVSIL_STATE", 2));
 
     //cMap->insert(String2Int::value_type("", ));
 
@@ -1127,8 +1127,7 @@ RexxMethod1(uint32_t, image_toID_cls, CSTRING, symbol)
     {
         imageConstantsMap = imageInitMap();
     }
-    RXCA2T(symbol);
-    int idValue = getKeywordValue(imageConstantsMap, symbolT);
+    int idValue = getKeywordValue(imageConstantsMap, symbol);
     if ( idValue == -1 )
     {
         wrongArgValueException(context->threadContext, 1, "the Image class symbol IDs", symbol);

@@ -961,8 +961,6 @@ static int32_t dayName2day(CSTRING day)
  */
 static uint32_t mcChangeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRING _style, CSTRING _additionalStyle, bool remove)
 {
-    RXCA2T(_style);
-    RXCA2T(_additionalStyle);
     oodResetSysErrCode(c->threadContext);
     SetLastError(0);
 
@@ -982,15 +980,15 @@ static uint32_t mcChangeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTR
 
     if ( remove )
     {
-        newStyle &= ~monthCalendarStyle(_styleT, 0);
+        newStyle &= ~monthCalendarStyle(_style, 0);
         if ( _additionalStyle != NULL )
         {
-            newStyle = monthCalendarStyle(_additionalStyleT, newStyle);
+            newStyle = monthCalendarStyle(_additionalStyle, newStyle);
         }
     }
     else
     {
-        newStyle = monthCalendarStyle(_styleT, oldStyle);
+        newStyle = monthCalendarStyle(_style, oldStyle);
     }
 
     if ( SetWindowLong(hMC, GWL_STYLE, newStyle) == 0 && GetLastError() != 0 )
@@ -2265,8 +2263,6 @@ static uint32_t parseExtendedStyle(const char * style)
  */
 static uint32_t changeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRING _style, CSTRING _additionalStyle, bool remove)
 {
-    RXCA2T(_style);
-    RXCA2T(_additionalStyle);
     oodResetSysErrCode(c->threadContext);
     SetLastError(0);
 
@@ -2281,15 +2277,15 @@ static uint32_t changeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRIN
     uint32_t newStyle = 0;
     if ( remove )
     {
-        newStyle &= ~listViewStyle(_styleT, 0);
+        newStyle &= ~listViewStyle(_style, 0);
         if ( _additionalStyle != NULL )
         {
-            newStyle = listViewStyle(_additionalStyleT, newStyle);
+            newStyle = listViewStyle(_additionalStyle, newStyle);
         }
     }
     else
     {
-        newStyle = listViewStyle(_styleT, oldStyle);
+        newStyle = listViewStyle(_style, oldStyle);
     }
 
     if ( SetWindowLong(hList, GWL_STYLE, newStyle) == 0 && GetLastError() != 0 )
@@ -2795,7 +2791,7 @@ RexxMethod3(RexxStringObject, lv_itemText, uint32_t, index, OPTIONAL_uint32_t, s
     rxcharT buf[256];
     ListView_GetItemText(getDChCtrl(pCSelf), index, subitem, buf, RXITEMCOUNT(buf));
     RXCT2A(buf);
-    return context->String(bufT);
+    return context->String(bufA);
 }
 
 RexxMethod2(RexxStringObject, lv_itemState, uint32_t, index, CSELF, pCSelf)
@@ -3155,7 +3151,7 @@ RexxMethod3(RexxObjectPtr, lv_getItemInfo, uint32_t, index, OPTIONAL_uint32_t, s
 
     const rxcharT *lvi_pszText = lvi.pszText;
     RXCT2A(lvi_pszText);
-    context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextT));
+    context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextA));
     context->SetStemElement(stem, "!IMAGE", context->Int32(lvi.iImage));
 
     *buf = _T('\0');
@@ -3169,7 +3165,7 @@ RexxMethod3(RexxObjectPtr, lv_getItemInfo, uint32_t, index, OPTIONAL_uint32_t, s
         *(buf + _tcslen(buf) - 1) = _T('\0');
     }
     RXCT2A(buf);
-    context->SetStemElement(stem, "!STATE", context->String(bufT));
+    context->SetStemElement(stem, "!STATE", context->String(bufA));
 
     return stem;
 }
@@ -3199,7 +3195,7 @@ RexxMethod2(RexxObjectPtr, lv_getColumnInfo, uint32_t, index, CSELF, pCSelf)
 
     const rxcharT *lvi_pszText = lvi.pszText;
     RXCT2A(lvi_pszText);
-    context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextT));
+    context->SetStemElement(stem, "!TEXT", context->String(lvi_pszTextA));
     context->SetStemElement(stem, "!COLUMN", context->Int32(lvi.iSubItem));
     context->SetStemElement(stem, "!WIDTH", context->Int32(lvi.cx));
 
@@ -3975,7 +3971,7 @@ RexxMethod2(RexxObjectPtr, tv_itemInfo, CSTRING, _hItem, CSELF, pCSelf)
 
     const rxcharT *tvi_pszText = tvi.pszText;
     RXCT2A(tvi_pszText);
-    context->SetStemElement(stem, "!TEXT", context->String(tvi_pszTextT));
+    context->SetStemElement(stem, "!TEXT", context->String(tvi_pszTextA));
     context->SetStemElement(stem, "!CHILDREN", (tvi.cChildren > 0 ? TheTrueObj : TheFalseObj));
     context->SetStemElement(stem, "!IMAGE", context->Int32(tvi.iImage));
     context->SetStemElement(stem, "!SELECTEDIMAGE", context->Int32(tvi.iSelectedImage));
@@ -3992,7 +3988,7 @@ RexxMethod2(RexxObjectPtr, tv_itemInfo, CSTRING, _hItem, CSELF, pCSelf)
         *(buf + _tcslen(buf) - 1) = _T('\0');
     }
     RXCT2A(buf);
-    context->SetStemElement(stem, "!STATE", context->String(bufT));
+    context->SetStemElement(stem, "!STATE", context->String(bufA));
 
     return stem;
 }
@@ -4521,7 +4517,7 @@ RexxMethod2(RexxObjectPtr, tab_itemInfo, int32_t, index, CSELF, pCSelf)
         RexxStemObject stem = context->NewStem("ItemInfo");
         const rxcharT *ti_pszText = ti.pszText;
         RXCT2A(ti_pszText);
-        context->SetStemElement(stem, "!TEXT", context->String(ti_pszTextT));
+        context->SetStemElement(stem, "!TEXT", context->String(ti_pszTextA));
         context->SetStemElement(stem, "!IMAGE", context->Int32(ti.iImage));
         context->SetStemElement(stem, "!PARAM", (ti.lParam == 0 ? TheZeroObj : (RexxObjectPtr)ti.lParam));
         result = stem;
@@ -4546,7 +4542,7 @@ RexxMethod1(RexxObjectPtr, tab_selected, CSELF, pCSelf)
         return TheZeroObj;
     }
     RXCT2A(buff);
-    return context->String(buffT);
+    return context->String(buffA);
 }
 
 

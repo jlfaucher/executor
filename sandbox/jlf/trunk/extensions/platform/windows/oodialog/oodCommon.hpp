@@ -45,7 +45,7 @@
 #include <string>
 #include <map>
 using namespace std;
-typedef map<rxstringT, int, less<rxstringT> > String2Int;
+typedef map<string, int, less<string> > String2Int;
 
 
 #define COMCTL_ERR_TITLE             "ooDialog - Windows Common Controls Error"
@@ -63,7 +63,7 @@ typedef map<rxstringT, int, less<rxstringT> > String2Int;
                                     "number of allocated icon table entries. The icon\n" \
                                     "resource will not be added."
 
-#define DEFAULT_FONTNAME            _T("MS Shell Dlg")
+#define DEFAULT_FONTNAME            "MS Shell Dlg"
 #define DEFAULT_FONTSIZE            8
 #define MAX_DEFAULT_FONTNAME        256
 
@@ -193,11 +193,10 @@ extern void             pointer2string(char *, void *pointer);
 extern RexxStringObject pointer2string(RexxMethodContext *, void *);
 extern RexxStringObject pointer2string(RexxThreadContext *c, void *pointer);
 extern RexxStringObject dword2string(RexxMethodContext *, uint32_t);
-extern rxcharT *        strdupupr(const rxcharT *str);
-extern rxcharT *        strdupupr_nospace(const rxcharT *str);
+extern char *           strdupupr(const char *str);
+extern char *           strdupupr_nospace(const char *str);
 extern char *           strdup_nospace(const char *str);
 extern char *           strdup_2methodName(const char *str);
-extern char *           strdup_2methodName(const rxcharW *str);
 extern DIALOGADMIN *    getDlgAdm(RexxMethodContext *c, RexxObjectPtr dlg);
 
 extern void          ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
@@ -241,10 +240,11 @@ extern bool rxNumberFromDirectory(RexxMethodContext *, RexxDirectoryObject, CSTR
 extern bool rxIntFromDirectory(RexxMethodContext *, RexxDirectoryObject, CSTRING, int *, int, bool);
 
 extern RexxObjectPtr     setWindowStyle(RexxMethodContext *c, HWND hwnd, uint32_t style);
-extern int               putUnicodeText(LPWORD dest, const rxcharT *text);
+extern int               putUnicodeText(LPWORD dest, const char *text);
+extern int               putUnicodeText(LPWORD dest, const rxcharW *text);
 extern RexxStringObject  unicode2String(RexxMethodContext *c, PWSTR wstr, int32_t len);
 extern char *            unicode2Ansi(PWSTR wstr, int32_t len);
-extern int               getKeywordValue(String2Int *cMap, const rxcharT * str);
+extern int               getKeywordValue(String2Int *cMap, const char * str);
 extern bool              goodMinMaxArgs(RexxMethodContext *c, RexxArrayObject args, size_t min, size_t max, size_t *arraySize);
 extern bool              getRectFromArglist(RexxMethodContext *, RexxArrayObject, PRECT, bool, int, int, size_t *, size_t *);
 extern bool              getPointFromArglist(RexxMethodContext *, RexxArrayObject, PPOINT, int, int, size_t *, size_t *);

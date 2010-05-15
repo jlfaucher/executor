@@ -3450,7 +3450,7 @@ bool dumpAllAdmins(RexxMethodContext *c, RexxStemObject dStem)
             setNumStrStem(c, dStem, count, "DLL", pointer2string(c, dlgAdm->TheInstance));
             PCHART messageQueue = dlgAdm->pMessageQueue;
             RXCT2A(messageQueue);
-            setNumStrStem(c, dStem, count, "QUEUE", c->String(messageQueueT));
+            setNumStrStem(c, dStem, count, "QUEUE", c->String(messageQueueA));
             setNumStrStem(c, dStem, count, "BMPBUTTONS", c->StringSize(dlgAdm->BT_size));
             setNumStrStem(c, dStem, count, "DATAITEMS", c->StringSize(dlgAdm->DT_size));
             setNumStrStem(c, dStem, count, "COLORITEMS", c->StringSize(dlgAdm->CT_size));
@@ -3479,7 +3479,7 @@ bool dumpAdmin(RexxMethodContext *c, RexxStemObject dStem, DIALOGADMIN *dlgAdm)
     c->SetStemElement(dStem, "DLL", pointer2string(c, dlgAdm->TheInstance));
     PCHART messageQueue = dlgAdm->pMessageQueue;
     RXCT2A(messageQueue);
-    c->SetStemElement(dStem, "QUEUE", c->String(messageQueueT));
+    c->SetStemElement(dStem, "QUEUE", c->String(messageQueueA));
 
     size_t i;
     size_t numPart;

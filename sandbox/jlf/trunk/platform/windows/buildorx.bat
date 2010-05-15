@@ -192,15 +192,6 @@ IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\hostemu.mak >>%OR_ERRLOG% 2>&
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
-:oodialog
-:oodialogA
-REM *** oodialog
-REM
-@ECHO Building byte-char OODIALOG..
-CD  %OR_OODIALOGSRC%
-IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
-if ERRORLEVEL 1 goto error
-if defined component goto arounderr
 
 :misc
 REM
@@ -213,7 +204,19 @@ REM
 @ECHO Building miscellaneous extensions
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\misc.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\misc.mak )
 if ERRORLEVEL 1 goto error
-:oodialogW
+if defined component goto arounderr
+
+
+:oodialog
+:oodialogA
+REM *** oodialog
+REM
+@ECHO Building byte-char OODIALOG..
+CD  %OR_OODIALOGSRC%
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
+if ERRORLEVEL 1 goto error
+if /i "%component%" == "oodialog" goto oodialogW
+if defined component goto arounderr
 
 :oodialogW
 REM *** oodialog

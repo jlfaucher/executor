@@ -360,7 +360,7 @@ uint32_t oodResolveSymbolicID(RexxMethodContext *context, RexxObjectPtr oodObj, 
         goto done_out;
     }
 
-    rxcharT *symbol = NULL;
+    char *symbol = NULL;
 
     if ( ! context->ObjectToUnsignedInt32(id, &result) )
     {
@@ -373,17 +373,14 @@ uint32_t oodResolveSymbolicID(RexxMethodContext *context, RexxObjectPtr oodObj, 
              * But, I guess we need to preserve that.
              */
 
-            CSTRING value = context->ObjectToStringValue(id);
-            RXCA2T(value);
-            symbol = strdupupr_nospace(valueT);
+            symbol = strdupupr_nospace(context->ObjectToStringValue(id));
             if ( symbol == NULL )
             {
                 outOfMemoryException(context->threadContext);
                 goto done_out;
             }
 
-            RXCT2A(symbol);
-            RexxObjectPtr item = context->DirectoryAt(constDir, symbolT);
+            RexxObjectPtr item = context->DirectoryAt(constDir, symbol);
             if ( item != NULLOBJECT )
             {
                  context->ObjectToUnsignedInt32(item, &result);
@@ -790,28 +787,28 @@ RexxStringObject dword2string(RexxMethodContext *c, uint32_t num)
  *
  * The caller is responsible for freeing the returned string.
  */
-rxcharT *strdupupr(const rxcharT *str)
+char *strdupupr(const char *str)
 {
-    rxcharT *retStr = NULL;
+    char *retStr = NULL;
     if ( str )
     {
-        size_t l = _tcslen(str);
-        retStr = (rxcharT *)RXTMALLOC(l + 1);
+        size_t l = strlen(str);
+        retStr = (char *)malloc(l + 1);
         if ( retStr )
         {
-            rxcharT *p;
+            char *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( (_T('a') <= *str) && (*str <= _T('z')) )
+                if ( ('a' <= *str) && (*str <= 'z') )
                 {
-                    *p++ = *str - (_T('a') - _T('A'));
+                    *p++ = *str - ('a' - 'A');
                 }
                 else
                 {
                     *p++ = *str;
                 }
             }
-            *p = _T('\0');
+            *p = '\0';
         }
     }
     return retStr;
@@ -861,32 +858,32 @@ char *strdup_nospace(const char *str)
  *
  * @note        The caller is responsible for freeing the returned string.
  */
-rxcharT *strdupupr_nospace(const rxcharT *str)
+char *strdupupr_nospace(const char *str)
 {
-    rxcharT *retStr = NULL;
+    char *retStr = NULL;
     if ( str )
     {
-        size_t l = _tcslen(str);
-        retStr = (rxcharT *)RXTMALLOC(l + 1);
+        size_t l = strlen(str);
+        retStr = (char *)malloc(l + 1);
         if ( retStr )
         {
-            rxcharT *p;
+            char *p;
             for ( p = retStr; *str; ++str )
             {
-                if ( *str == _T(' ') )
+                if ( *str == ' ' )
                 {
                     continue;
                 }
-                if ( (_T('a') <= *str) && (*str <= _T('z')) )
+                if ( ('a' <= *str) && (*str <= 'z') )
                 {
-                    *p++ = *str - (_T('a') - _T('A'));
+                    *p++ = *str - ('a' - 'A');
                 }
                 else
                 {
                     *p++ = *str;
                 }
             }
-            *p = _T('\0');
+            *p = '\0';
         }
     }
     return retStr;
@@ -930,13 +927,6 @@ char *strdup_2methodName(const char *str)
         }
     }
     return retStr;
-}
-
-
-char *strdup_2methodName(const rxcharW *str)
-{
-    RXCW2A(str);
-    return strdup_2methodName(strT);
 }
 
 
@@ -1100,7 +1090,7 @@ bool rxGetWindowText(RexxMethodContext *c, HWND hwnd, RexxStringObject *pStringO
     if ( count != 0 )
     {
         RXCT2A(pBuf);
-        *pStringObj = c->String(pBufT);
+        *pStringObj = c->String(pBufA);
     }
     else
     {
@@ -1218,7 +1208,7 @@ bool rxIntFromDirectory(RexxMethodContext *context, RexxDirectoryObject d, CSTRI
  *
  * @return Return the value for the keyword, or -1 for not found.
  */
-int getKeywordValue(String2Int *cMap, const rxcharT * str)
+int getKeywordValue(String2Int *cMap, const char * str)
 {
     String2Int::iterator itr;
     itr = cMap->find(str);
@@ -1301,22 +1291,7 @@ RexxObjectPtr setWindowStyle(RexxMethodContext *c, HWND hwnd, uint32_t style)
  *         always be at least one, if an error occurs, the wide character null
  *         is copied to the destination and 1 is returned.
  */
-#ifdef UNICODE
-
-int putUnicodeText(LPWORD dest, const rxcharW *text)
-{
-    if ( text == NULL )
-    {
-        *dest = 0;
-        return 1;
-    }
-    wcscpy((LPWSTR)dest, text);
-    return wcslen(text) + 1;
-}
-
-#else
-
-int putUnicodeText(LPWORD dest, const rxcharA *text)
+int putUnicodeText(LPWORD dest, const char *text)
 {
     int count = 1;
     if ( text == NULL )
@@ -1339,7 +1314,16 @@ int putUnicodeText(LPWORD dest, const rxcharA *text)
     return count;
 }
 
-#endif
+int putUnicodeText(LPWORD dest, const rxcharW *text)
+{
+    if ( text == NULL )
+    {
+        *dest = 0;
+        return 1;
+    }
+    wcscpy((LPWSTR)dest, text);
+    return wcslen(text) + 1;
+}
 
 
 /**

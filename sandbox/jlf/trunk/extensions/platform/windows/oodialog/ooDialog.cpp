@@ -2159,7 +2159,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_init_cls, OSELF, self)
         {
             pCPlainBaseDialogClass pcpbdc = (pCPlainBaseDialogClass)context->BufferData(buf);
 
-            _tcscpy(pcpbdc->fontName, DEFAULT_FONTNAME);
+            _tcscpy(pcpbdc->fontName, _T(DEFAULT_FONTNAME));
             pcpbdc->fontSize = DEFAULT_FONTSIZE;
             context->SetObjectVariable("CSELF", buf);
         }
@@ -2189,7 +2189,7 @@ RexxMethod1(CSTRING, pbdlg_getFontName_cls, CSELF, pCSelf)
     pCPlainBaseDialogClass pcpbdc = getPBDClass_CSelf(context);
     rxcharT *fontName = pcpbdc->fontName;
     RXCT2A(fontName);
-    return fontNameT;
+    return fontNameA;
 }
 RexxMethod1(uint32_t, pbdlg_getFontSize_cls, CSELF, pCSelf)
 {
@@ -2465,7 +2465,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_getFontNameSize, NAME, method, CSELF, pCSelf)
     {
         CSTRINGT fontName = ((pCPlainBaseDialog)pCSelf)->fontName;
         RXCT2A(fontName);
-        result =  context->String(fontNameT);
+        result =  context->String(fontNameA);
     }
     else
     {
@@ -3744,7 +3744,7 @@ RexxMethod2(RexxStringObject, pbdlg_getDlgMsg, OPTIONAL_logical_t, doPeek, CSELF
     {
         getDlgMessage(dlgAdm, msg, peek);
         RXCT2A(msg);
-        result = context->String(msgT);
+        result = context->String(msgA);
     }
     else
     {
@@ -3935,8 +3935,7 @@ RexxMethod4(int32_t, pbdlg_setControlData, RexxObjectPtr, rxID, CSTRING, data, N
 
     oodControl_t ctrlType = oodName2controlType(msgName + 3);
 
-    RXCA2T(data);
-    return setControlData(context, pcpbd, id, dataT, pcpbd->hDlg, ctrlType);
+    return setControlData(context, pcpbd, id, data, pcpbd->hDlg, ctrlType);
 }
 
 

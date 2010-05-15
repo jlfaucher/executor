@@ -66,10 +66,10 @@ extern bool          addMiscMessage(pCEventNotification, uint32_t, uint32_t, WPA
 
 // Shared functions for keyboard hooks and key press subclassing.
 extern void          removeKBHook(DIALOGADMIN *dlgAdm);
-extern keyPressErr_t setKeyPressData(KEYPRESSDATA *, CSTRINGT, CSTRINGT, CSTRINGT);
+extern keyPressErr_t setKeyPressData(KEYPRESSDATA *, CSTRING, CSTRING, CSTRING);
 extern void          processKeyPress(KEYPRESSDATA *, WPARAM, LPARAM, PCHART);
 extern void          freeKeyPressData(KEYPRESSDATA *);
-extern uint32_t      seekKeyPressMethod(KEYPRESSDATA *, CSTRINGT);
+extern uint32_t      seekKeyPressMethod(KEYPRESSDATA *, CSTRING);
 extern void          removeKeyPressMethod(KEYPRESSDATA *, uint32_t);
 
 

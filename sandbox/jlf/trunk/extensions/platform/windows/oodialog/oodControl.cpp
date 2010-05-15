@@ -541,7 +541,7 @@ static BOOL removeKeyPressSubclass(SUBCLASSDATA *pData, HWND hDlg, INT id)
 }
 
 
-static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRINGT methodName, CSTRINGT keys, CSTRINGT filter,
+static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRING methodName, CSTRING keys, CSTRING filter,
                                              pCDialogControl pcdc)
 {
     keyPressErr_t result = nameErr;
@@ -549,12 +549,12 @@ static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRINGT meth
     {
         goto done_out;
     }
-    if ( *methodName == _T('\0') )
+    if ( *methodName == '\0' )
     {
         c->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
         goto done_out;
     }
-    if ( *keys == _T('\0') )
+    if ( *keys == '\0' )
     {
         c->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
         goto done_out;
@@ -745,10 +745,7 @@ RexxMethod1(RexxObjectPtr, dlgctrl_assignFocus, CSELF, pCSelf)
 RexxMethod4(int32_t, dlgctrl_connectKeyPress, CSTRING, methodName, CSTRING, keys, OPTIONAL_CSTRING, filter,
             CSELF, pCSelf)
 {
-    RXCA2T(methodName);
-    RXCA2T(keys);
-    RXCA2T(filter);
-    keyPressErr_t result = connectKeyPressSubclass(context, methodNameT, keysT, filterT, (pCDialogControl)pCSelf);
+    keyPressErr_t result = connectKeyPressSubclass(context, methodName, keys, filter, (pCDialogControl)pCSelf);
     if ( result == memoryErr )
     {
         outOfMemoryException(context->threadContext);
@@ -758,8 +755,7 @@ RexxMethod4(int32_t, dlgctrl_connectKeyPress, CSTRING, methodName, CSTRING, keys
 
 RexxMethod2(int32_t, dlgctrl_connectFKeyPress, CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(methodName);
-    keyPressErr_t result = connectKeyPressSubclass(context, methodNameT, _T("FKEYS"), NULL, (pCDialogControl)pCSelf);
+    keyPressErr_t result = connectKeyPressSubclass(context, methodName, "FKEYS", NULL, (pCDialogControl)pCSelf);
     if ( result == memoryErr )
     {
         outOfMemoryException(context->threadContext);
@@ -769,8 +765,7 @@ RexxMethod2(int32_t, dlgctrl_connectFKeyPress, CSTRING, methodName, CSELF, pCSel
 
 RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(methodName);
-    rxcharT *tmpName = NULL;
+    char *tmpName = NULL;
     keyPressErr_t result = winAPIErr;
 
     if ( ! requiredComCtl32Version(context, context->GetMessageName(), COMCTL32_6_0) )
@@ -795,7 +790,7 @@ RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, C
         }
 
         // Have a method name, just remove that method from the mapping.
-        tmpName = strdupupr(methodNameT);
+        tmpName = strdupupr(methodName);
         if ( tmpName == NULL )
         {
             result = memoryErr;
@@ -836,7 +831,6 @@ done_out:
 
 RexxMethod2(logical_t, dlgctrl_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(methodName);
     if ( ComCtl32Version <  COMCTL32_6_0 )
     {
         return FALSE;
@@ -858,7 +852,7 @@ RexxMethod2(logical_t, dlgctrl_hasKeyPressConnection, OPTIONAL_CSTRING, methodNa
         return TRUE;
     }
 
-    rxcharT *tmpName = strdupupr(methodNameT);
+    char *tmpName = strdupupr(methodName);
     if ( tmpName == NULL )
     {
         outOfMemoryException(context->threadContext);
@@ -1165,10 +1159,9 @@ RexxMethod1(RexxObjectPtr, dlgctrl_data, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, dlgctrl_dataEquals, CSTRING, data, CSELF, pCSelf)
 {
-    RXCA2T(data);
     pCDialogControl pcdc = (pCDialogControl)pCSelf;
 
-    setControlData(context, dlgToCSelf(context, pcdc->oDlg), pcdc->id, dataT, pcdc->hDlg, pcdc->controlType);
+    setControlData(context, dlgToCSelf(context, pcdc->oDlg), pcdc->id, data, pcdc->hDlg, pcdc->controlType);
     return NULLOBJECT;
 }
 

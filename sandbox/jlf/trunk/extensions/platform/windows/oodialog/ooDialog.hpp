@@ -371,7 +371,7 @@ typedef struct {
     BYTE       key[COUNT_KEYPRESS_KEYS];            /* Value of key[x] is index to pMethods[]   */
     UINT       usedMethods;                         /* Count of used slots in  pMethods[]       */
     UINT       topOfQ;                              /* Top of next free queue, 0 if empty       */
-    PCHART     pMethods[MAX_KEYPRESS_METHODS + 1];  /* Index 0 intentionally left empty         */
+    PCHAR      pMethods[MAX_KEYPRESS_METHODS + 1];  /* Index 0 intentionally left empty         */
     KEYFILTER *pFilters[MAX_KEYPRESS_METHODS + 1];  /* If null, no filter                       */
     UINT       nextFreeQ[MAX_KEYPRESS_METHODS];     /* Used only if existing connection removed */
 } KEYPRESSDATA;
