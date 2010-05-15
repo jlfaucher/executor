@@ -168,6 +168,7 @@ classesXML = $(build_behaviour_dir)/PrimitiveClasses.xml
 # Common headers
 commonHeaders = $(build_common_dir)/SynchronizedBlock.hpp \
                 $(build_common_dir)/Utilities.hpp \
+                $(build_common_platform_dir)/SysDebug.hpp \
                 $(build_common_platform_dir)/SysFile.hpp \
                 $(build_common_platform_dir)/SysLibrary.hpp \
                 $(build_common_platform_dir)/SysSemaphore.hpp \
@@ -475,6 +476,7 @@ librexxapi_la_SOURCES = $(build_rexxapi_client_dir)/ClientMessage.cpp \
                         $(build_rexxapi_common_platform_dir)/SysCSStream.cpp \
                         $(build_rexxapi_common_platform_dir)/SysProcess.cpp \
                         $(build_common_dir)/Utilities.cpp \
+                        $(build_common_platform_dir)/SysDebug.cpp \
                         $(build_common_platform_dir)/SysSemaphore.cpp \
                         $(build_common_platform_dir)/SysLibrary.cpp \
                         $(build_common_platform_dir)/SysFile.cpp \
@@ -660,6 +662,7 @@ platform_sources = $(build_interpreter_platform_dir)/ErrorMessages.cpp \
                    $(build_interpreter_platform_dir)/UseridFunction.cpp \
                    $(build_interpreter_platform_dir)/ValueFunction.cpp
 common_sources = $(build_common_dir)/Utilities.cpp \
+                 $(build_common_platform_dir)/SysDebug.cpp \
                  $(build_common_platform_dir)/SysFile.cpp \
                  $(build_common_platform_dir)/SysLibrary.cpp \
                  $(build_common_platform_dir)/SysSemaphore.cpp \
@@ -737,6 +740,7 @@ rxapi_SOURCES = $(build_rexxapi_server_dir)/APIServer.cpp \
                 $(build_rexxapi_common_platform_dir)/SysCSStream.cpp \
                 $(build_rexxapi_common_platform_dir)/SysProcess.cpp \
                 $(build_common_dir)/Utilities.cpp \
+                $(build_common_dir)/platform/unix/SysDebug.cpp \
                 $(build_common_dir)/platform/unix/SysSemaphore.cpp \
                 $(build_common_dir)/platform/unix/SysThread.cpp
 #

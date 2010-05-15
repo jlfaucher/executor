@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "rexx.h"
+#include "SysDebug.hpp"
 
 class SysSemaphore {
 public:
@@ -82,30 +83,21 @@ public:
      void close();
      inline void request(const char *ds, int di) 
      {
-         char buffer[1024];         
-         sprintf(buffer, "(SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
-         OutputDebugString(buffer);         
+         dbgprintf("(SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
          pthread_mutex_lock(&mutexMutex); 
-         sprintf(buffer, "(SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
-         OutputDebugString(buffer);         
+         dbgprintf("(SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
      }
      inline void release(const char *ds, int di) 
      { 
-         char buffer[1024];
-         sprintf(buffer, "(SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
          pthread_mutex_unlock(&mutexMutex); 
-         sprintf(buffer, "(SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
-         OutputDebugString(buffer);         
+         dbgprintf("(SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
      }
      inline bool requestImmediate(const char *ds, int di) 
      { 
-         char buffer[1024];
-         sprintf(buffer, "(SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
          bool result = pthread_mutex_trylock(&mutexMutex) == 0;
-         sprintf(buffer, "(SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
          return result;
      }
 

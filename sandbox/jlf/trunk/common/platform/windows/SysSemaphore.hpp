@@ -46,6 +46,7 @@
 #define Included_SysSemaphore
 
 #include "rexx.h"
+#include "SysDebug.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -63,22 +64,16 @@ public:
      void post() { SetEvent(sem); };
      inline void wait(const char *ds, int di)
      {
-         char buffer[1024];
-         sprintf(buffer, "(SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, GetCurrentThreadId());
          waitHandle(sem);
-         sprintf(buffer, "(SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, GetCurrentThreadId());
      }
 
      inline bool wait(const char *ds, int di, uint32_t timeout)
      {
-         char buffer[1024];
-         sprintf(buffer, "(SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, GetCurrentThreadId());
          bool result = WaitForSingleObject(sem, timeout) != WAIT_TIMEOUT;
-         sprintf(buffer, "(SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, GetCurrentThreadId());
          return result;
      }
 
@@ -120,32 +115,23 @@ public:
      void close();
      inline void request(const char *ds, int di)
      {
-         char buffer[1024];
-         sprintf(buffer, "(SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
          waitHandle(mutexMutex);
-         sprintf(buffer, "(SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
      }
 
      inline void release(const char *ds, int di)
      {
-         char buffer[1024];
-         sprintf(buffer, "(SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
          ReleaseMutex(mutexMutex);
-         sprintf(buffer, "(SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
      }
 
      inline bool requestImmediate(const char *ds, int di)
      {
-         char buffer[1024];
-         sprintf(buffer, "(SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
          bool result = WaitForSingleObject(mutexMutex, 0) != WAIT_TIMEOUT;
-         sprintf(buffer, "(SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
-         OutputDebugString(buffer);
+         dbgprintf("(SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, GetCurrentThreadId());
          return result;
      }
 

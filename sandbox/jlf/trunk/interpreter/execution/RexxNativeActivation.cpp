@@ -69,7 +69,7 @@
 #include <math.h>
 #include <limits.h>
 
-
+#include "SysDebug.hpp"
 
 
 /**
@@ -1590,7 +1590,7 @@ void RexxNativeActivation::run(CallbackDispatcher &dispatcher)
         dispatcher.setContext(activity, this);
         activity->releaseAccess();           /* force this to "safe" mode         */
         dispatcher.run();
-        OutputDebugString("after dispatcher.run");
+        dbgprintf("after dispatcher.run\n");
         activity->requestAccess();           /* now in unsafe mode again          */
     }
     catch (ActivityException)

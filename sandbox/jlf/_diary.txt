@@ -31,6 +31,25 @@ Unicode ?
 
 
 ===============================================================================
+2010 may 15
+
+
+Added the function dbgprintf to write debug strings. 
+Under Windows, it calls OutputDebugString.
+Under Linux, it calls syslog.
+
+Remember, typical debug session under Linux:
+Open a console : 
+    syslogd -S -C
+    logread -f
+    The output of syslog is displayed by logread in this console (lock management, on client and server side).
+Open a console, launch rxapi. 
+    Has been compiled to stay as a foreground process. 
+    It sends debug strings to stderr, more easy to follow in this console (messages between client and server).
+Open a console, run the rexx command. The two other consoles are updated with debug infos.
+
+
+===============================================================================
 2010 may 14
 
 More work on wide-chars in oodialog.

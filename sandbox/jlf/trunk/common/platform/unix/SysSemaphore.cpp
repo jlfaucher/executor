@@ -62,6 +62,7 @@
 #include <errno.h>
 
 #include "SysSemaphore.hpp"
+#include "SysDebug.hpp"
 
 
 /* ********************************************************************** */
@@ -183,12 +184,9 @@ void SysSemaphore::wait(const char *ds, int di)
     
     if (this->postedCount == 0)                      // Has it been posted?
     {
-         char buffer[1024];    
-         sprintf(buffer, "(SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());    
-         OutputDebugString(buffer);    
-        rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
-         sprintf(buffer, "(SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());    
-         OutputDebugString(buffer);    
+         dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());    
+         rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
+         dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());    
     }
     
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
@@ -207,13 +205,10 @@ bool SysSemaphore::wait(const char *ds, int di, uint32_t t)           // takes a
     pthread_mutex_lock(&(this->semMutex));    // Lock access to semaphore
     if (!this->postedCount)                   // Has it been posted?
     {
-         char buffer[1024];
-         sprintf(buffer, "(SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());
-         OutputDebugString(buffer);
+         dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());
                                               // wait with timeout
-        result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
-         sprintf(buffer, "(SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());        
-         OutputDebugString(buffer);        
+         result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
+         dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds, (unsigned int)pthread_self());        
     }
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
     // a false return means this timed out
