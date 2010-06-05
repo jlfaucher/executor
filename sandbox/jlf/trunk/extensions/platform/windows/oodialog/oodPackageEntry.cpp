@@ -47,9 +47,9 @@
 #include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
 
 HINSTANCE            MyInstance = NULL;
-DIALOGADMIN         *DialogTab[MAXDIALOGS] = {NULL};
-DIALOGADMIN         *topDlg = {NULL};
-INT                  StoredDialogs = 0;
+pCPlainBaseDialog    DialogTable[MAXDIALOGS] = {NULL};
+pCPlainBaseDialog    TopDlg = NULL;
+size_t               CountDialogs = 0;
 CRITICAL_SECTION     crit_sec = {0};
 DWORD                ComCtl32Version = 0;
 
@@ -110,7 +110,6 @@ REXX_TYPED_ROUTINE_PROTOTYPE(routineTest_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(getCodePage_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(setCodePage_rtn);
 
-// now build the actual entry list
 RexxRoutineEntry oodialog_functions[] =
 {
     REXX_TYPED_ROUTINE(messageDialog_rtn,      messageDialog_rtn),
@@ -140,6 +139,7 @@ REXX_METHOD_PROTOTYPE(dlgutil_getSystemMetrics_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_screenSize_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_screenArea_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_handleToPointer_cls);
+REXX_METHOD_PROTOTYPE(dlgutil_threadID_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_test_cls);
 
 // OS
@@ -226,7 +226,6 @@ REXX_METHOD_PROTOTYPE(pbdlg_sendMessageToControl);
 REXX_METHOD_PROTOTYPE(pbdlg_sendMessageToWindow);
 REXX_METHOD_PROTOTYPE(pbdlg_get);
 REXX_METHOD_PROTOTYPE(pbdlg_getDlgHandle);
-REXX_METHOD_PROTOTYPE(pbdlg_getDlgMsg);
 REXX_METHOD_PROTOTYPE(pbdlg_isDialogActive);
 REXX_METHOD_PROTOTYPE(pbdlg_stopIt);
 REXX_METHOD_PROTOTYPE(pbdlg_show);
@@ -293,10 +292,10 @@ REXX_METHOD_PROTOTYPE(dlgext_createBrush);
 REXX_METHOD_PROTOTYPE(dlgext_mouseCapture);
 REXX_METHOD_PROTOTYPE(dlgext_captureMouse);
 REXX_METHOD_PROTOTYPE(dlgext_isMouseButtonDown);
-REXX_METHOD_PROTOTYPE(dlgext_dumpAdmin_pvt);
 
 // UserDialog
 REXX_METHOD_PROTOTYPE(userdlg_init);
+REXX_METHOD_PROTOTYPE(userdlg_test);
 
 // CategoryDialog
 REXX_METHOD_PROTOTYPE(catdlg_createCategoryDialog);
@@ -336,7 +335,6 @@ REXX_METHOD_PROTOTYPE(dyndlg_addEntryLine);
 REXX_METHOD_PROTOTYPE(dyndlg_addMethod);
 REXX_METHOD_PROTOTYPE(dyndlg_addIconResource);
 REXX_METHOD_PROTOTYPE(dyndlg_stop);
-REXX_METHOD_PROTOTYPE(dyndlg_stopDynamic_pvt);
 
 // ResourceDialog
 REXX_METHOD_PROTOTYPE(resdlg_getDataTableIDs_pvt);
@@ -423,6 +421,7 @@ REXX_METHOD_PROTOTYPE(dlgctrl_new_cls);
 REXX_METHOD_PROTOTYPE(dlgctrl_init_cls);
 REXX_METHOD_PROTOTYPE(dlgctrl_init);
 REXX_METHOD_PROTOTYPE(dlgctrl_unInit);
+REXX_METHOD_PROTOTYPE(dlgctrl_connectKeyEvent);
 REXX_METHOD_PROTOTYPE(dlgctrl_connectKeyPress);
 REXX_METHOD_PROTOTYPE(dlgctrl_connectFKeyPress);
 REXX_METHOD_PROTOTYPE(dlgctrl_disconnectKeyPress);
@@ -736,9 +735,6 @@ REXX_METHOD_PROTOTYPE(binMenu_init);
 
 REXX_METHOD_PROTOTYPE(sysMenu_init);
 REXX_METHOD_PROTOTYPE(sysMenu_revert);
-REXX_METHOD_PROTOTYPE(sysMenu_connectCommandEvent);
-REXX_METHOD_PROTOTYPE(sysMenu_connectAllCommandEvents);
-REXX_METHOD_PROTOTYPE(sysMenu_connectSomeCommandEvents);
 
 REXX_METHOD_PROTOTYPE(popMenu_connectContextMenu_cls);
 REXX_METHOD_PROTOTYPE(popMenu_init);
@@ -773,6 +769,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dlgutil_screenArea_cls,         dlgutil_screenArea_cls),
     REXX_METHOD(dlgutil_getSystemMetrics_cls,   dlgutil_getSystemMetrics_cls),
     REXX_METHOD(dlgutil_handleToPointer_cls,    dlgutil_handleToPointer_cls),
+    REXX_METHOD(dlgutil_threadID_cls,           dlgutil_threadID_cls),
     REXX_METHOD(dlgutil_test_cls,               dlgutil_test_cls),
 
     REXX_METHOD(os_is64bit,                     os_is64bit),
@@ -850,7 +847,6 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(pbdlg_sendMessageToWindow,      pbdlg_sendMessageToWindow),
     REXX_METHOD(pbdlg_get,                      pbdlg_get),
     REXX_METHOD(pbdlg_getDlgHandle,             pbdlg_getDlgHandle),
-    REXX_METHOD(pbdlg_getDlgMsg,                pbdlg_getDlgMsg),
     REXX_METHOD(pbdlg_isDialogActive,           pbdlg_isDialogActive),
     REXX_METHOD(pbdlg_show,                     pbdlg_show),
     REXX_METHOD(pbdlg_showWindow,               pbdlg_showWindow),
@@ -916,9 +912,9 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dlgext_writeToWindow,           dlgext_writeToWindow),
     REXX_METHOD(dlgext_scrollText,              dlgext_scrollText),
     REXX_METHOD(dlgext_createBrush,             dlgext_createBrush),
-    REXX_METHOD(dlgext_dumpAdmin_pvt,           dlgext_dumpAdmin_pvt),
 
     REXX_METHOD(userdlg_init,                   userdlg_init),
+    REXX_METHOD(userdlg_test,                   userdlg_test),
 
     REXX_METHOD(catdlg_createCategoryDialog,           catdlg_createCategoryDialog),
     REXX_METHOD(catdlg_getControlDataPage,             catdlg_getControlDataPage),
@@ -956,12 +952,12 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dyndlg_startParentDialog,       dyndlg_startParentDialog),
     REXX_METHOD(dyndlg_startChildDialog,        dyndlg_startChildDialog),
     REXX_METHOD(dyndlg_stop,                    dyndlg_stop),
-    REXX_METHOD(dyndlg_stopDynamic_pvt,         dyndlg_stopDynamic_pvt),
 
     REXX_METHOD(dlgctrl_new_cls,                dlgctrl_new_cls),
     REXX_METHOD(dlgctrl_init_cls,               dlgctrl_init_cls),
     REXX_METHOD(dlgctrl_init,                   dlgctrl_init),
     REXX_METHOD(dlgctrl_unInit,                 dlgctrl_unInit),
+    REXX_METHOD(dlgctrl_connectKeyEvent,        dlgctrl_connectKeyEvent),
     REXX_METHOD(dlgctrl_connectKeyPress,        dlgctrl_connectKeyPress),
     REXX_METHOD(dlgctrl_connectFKeyPress,       dlgctrl_connectFKeyPress),
     REXX_METHOD(dlgctrl_disconnectKeyPress,     dlgctrl_disconnectKeyPress),
@@ -1339,11 +1335,8 @@ RexxMethodEntry oodialog_methods[] = {
 
     REXX_METHOD(binMenu_init,                   binMenu_init),
 
-    REXX_METHOD(sysMenu_init,                     sysMenu_init),
-    REXX_METHOD(sysMenu_revert,                   sysMenu_revert),
-    REXX_METHOD(sysMenu_connectCommandEvent,      sysMenu_connectCommandEvent),
-    REXX_METHOD(sysMenu_connectSomeCommandEvents, sysMenu_connectSomeCommandEvents),
-    REXX_METHOD(sysMenu_connectAllCommandEvents,  sysMenu_connectAllCommandEvents),
+    REXX_METHOD(sysMenu_init,                   sysMenu_init),
+    REXX_METHOD(sysMenu_revert,                 sysMenu_revert),
 
     REXX_METHOD(popMenu_connectContextMenu_cls, popMenu_connectContextMenu_cls),
     REXX_METHOD(popMenu_init,                   popMenu_init),

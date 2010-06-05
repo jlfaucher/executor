@@ -67,18 +67,18 @@
 #include "oodControl.hpp"
 #include "oodData.hpp"
 
-static inline oodControl_t searchDataTable(DIALOGADMIN *dlgAdm, uint32_t id)
+static inline oodControl_t searchDataTable(pCPlainBaseDialog pcpbd, uint32_t id)
 {
-    if ( dlgAdm->DataTab != NULL )
+    if ( pcpbd->DataTab != NULL )
     {
         register size_t ndx = 0;
-        while ( ndx < dlgAdm->DT_size && dlgAdm->DataTab[ndx].id != id )
+        while ( ndx < pcpbd->DT_size && pcpbd->DataTab[ndx].id != id )
         {
             ndx++;
         }
-        if ( ndx < dlgAdm->DT_size )
+        if ( ndx < pcpbd->DT_size )
         {
-            return dlgAdm->DataTab[ndx].type;
+            return pcpbd->DataTab[ndx].type;
         }
     }
     return winUnknown;
@@ -117,22 +117,22 @@ inline bool isDataAttributeControl(oodControl_t control)
 }
 
 /* Does the item in the data table have the WS_GROUP style. */
-static inline bool hasGroupStyle(HWND hwnd, DIALOGADMIN *dlgAdm, size_t index)
+static inline bool hasGroupStyle(HWND hwnd, pCPlainBaseDialog pcpbd, size_t index)
 {
-    return ((GetWindowLong(GetDlgItem(hwnd, dlgAdm->DataTab[index].id), GWL_STYLE) & WS_GROUP) == WS_GROUP);
+    return ((GetWindowLong(GetDlgItem(hwnd, pcpbd->DataTab[index].id), GWL_STYLE) & WS_GROUP) == WS_GROUP);
 }
 
 /* Is control 1 in the same dialog as control 2. Needed for CategoryDialogs. */
-static inline bool isInSameDlg(DIALOGADMIN *dlgAdm, size_t control1, size_t control2)
+static inline bool isInSameDlg(pCPlainBaseDialog pcpbd, size_t control1, size_t control2)
 {
-    return (dlgAdm->DataTab[control1].category == dlgAdm->DataTab[control2].category);
+    return (pcpbd->DataTab[control1].category == pcpbd->DataTab[control2].category);
 }
 
 /*
  * The manualCheckRadioButton() function is used to check one radio button
  * within a WS_GROUP group and uncheck all the others.
  */
-static bool manualCheckRadioButton(DIALOGADMIN * dlgAdm, HWND hW, ULONG id, ULONG value)
+static bool manualCheckRadioButton(pCPlainBaseDialog pcpbd, HWND hW, ULONG id, ULONG value)
 {
    size_t beg, en, i;
    bool rc, ordered;
@@ -143,17 +143,17 @@ static bool manualCheckRadioButton(DIALOGADMIN * dlgAdm, HWND hW, ULONG id, ULON
        // This function only checks a radio button, not unchecks a radio button.
        return true;
    }
-   while ( (ndx < dlgAdm->DT_size) && (dlgAdm->DataTab[ndx].id != id) )
+   while ( (ndx < pcpbd->DT_size) && (pcpbd->DataTab[ndx].id != id) )
    {
        ndx++;
    }
 
-   if ( ndx >= dlgAdm->DT_size )
+   if ( ndx >= pcpbd->DT_size )
    {
        // Not found.
        return false;
    }
-   if ( dlgAdm->DataTab[ndx].type != winRadioButton )
+   if ( pcpbd->DataTab[ndx].type != winRadioButton )
    {
        // The one to check is not a radio button.
        return false;
@@ -162,17 +162,17 @@ static bool manualCheckRadioButton(DIALOGADMIN * dlgAdm, HWND hW, ULONG id, ULON
    // Search for first and last radio button in the same group, in the same
    // dialog. (There may be other dialog controls in the group.)
    beg = ndx;
-   while ( beg > 0 && isInSameDlg(dlgAdm, beg - 1, ndx) )
+   while ( beg > 0 && isInSameDlg(pcpbd, beg - 1, ndx) )
    {
        // Check must be before decrement (beg--)
-       if ( hasGroupStyle(hW, dlgAdm, beg) )
+       if ( hasGroupStyle(hW, pcpbd, beg) )
        {
            break;
        }
        beg--;
    }
    en = ndx;
-   while ( ((en + 1) < dlgAdm->DT_size) && isInSameDlg(dlgAdm, en + 1, ndx) && ! hasGroupStyle(hW, dlgAdm, en + 1) )
+   while ( ((en + 1) < pcpbd->DT_size) && isInSameDlg(pcpbd, en + 1, ndx) && ! hasGroupStyle(hW, pcpbd, en + 1) )
    {
        en++;
    }
@@ -181,7 +181,7 @@ static bool manualCheckRadioButton(DIALOGADMIN * dlgAdm, HWND hW, ULONG id, ULON
    ordered = true;
    for ( i = beg; i < en; i++ )
    {
-       if ( dlgAdm->DataTab[i].id >= dlgAdm->DataTab[i+1].id || dlgAdm->DataTab[i].type != winRadioButton )
+       if ( pcpbd->DataTab[i].id >= pcpbd->DataTab[i+1].id || pcpbd->DataTab[i].type != winRadioButton )
        {
            ordered = false;
            break;
@@ -191,24 +191,23 @@ static bool manualCheckRadioButton(DIALOGADMIN * dlgAdm, HWND hW, ULONG id, ULON
    // If the ids are ordered, use the Windows API, otherwise do it manually.
    if ( ordered )
    {
-       rc = CheckRadioButton(hW, dlgAdm->DataTab[beg].id, dlgAdm->DataTab[en].id, dlgAdm->DataTab[ndx].id) != 0;
+       rc = CheckRadioButton(hW, pcpbd->DataTab[beg].id, pcpbd->DataTab[en].id, pcpbd->DataTab[ndx].id) != 0;
    }
    else
    {
        // Uncheck all radio buttons ...
        for ( i = beg; i <= en; i++ )
        {
-           if ( dlgAdm->DataTab[i].type == winRadioButton )
+           if ( pcpbd->DataTab[i].type == winRadioButton )
            {
-               CheckDlgButton(hW, dlgAdm->DataTab[i].id, 0);
+               CheckDlgButton(hW, pcpbd->DataTab[i].id, 0);
            }
        }
        // ... and check the specified one.
-       rc = CheckDlgButton(hW, dlgAdm->DataTab[ndx].id, 1) != 0;
+       rc = CheckDlgButton(hW, pcpbd->DataTab[ndx].id, 1) != 0;
    }
    return rc;
 }
-
 
 static bool getMultiListBoxSelections(HWND hDlg, uint32_t id, rxcharT * data)
 {
@@ -621,11 +620,9 @@ static bool setTabData(HWND hW, const rxcharT * ldat, INT item)
 
 RexxObjectPtr getControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t id, HWND hDlg, oodControl_t ctrlType)
 {
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
-
     if ( ctrlType == winUnknown )
     {
-        ctrlType = searchDataTable(dlgAdm, id);
+        ctrlType = searchDataTable(pcpbd, id);
         if ( ctrlType == winUnknown )
         {
             ctrlType = winEdit;
@@ -736,7 +733,7 @@ int32_t setControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t i
 {
     if ( ctrlType == winUnknown )
     {
-        ctrlType = searchDataTable(pcpbd->dlgAdm, id);
+        ctrlType = searchDataTable(pcpbd, id);
         if ( ctrlType == winUnknown )
         {
             ctrlType = winEdit;
@@ -752,7 +749,7 @@ int32_t setControlData(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t i
         case winCheckBox:
             return (CheckDlgButton(hDlg, id, atoi(data)) ? 0 : 1);
         case winRadioButton:
-            return (manualCheckRadioButton(pcpbd->dlgAdm, hDlg, id, atoi(data)) ? 0 : 1);
+            return (manualCheckRadioButton(pcpbd, hDlg, id, atoi(data)) ? 0 : 1);
         case winListBox:
             return (setListBoxData(hDlg, id, dataT) ? 0 : 1);
         case winComboBox:
@@ -794,17 +791,15 @@ uint32_t setDlgDataFromStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxS
         return 1;
     }
 
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
-
     size_t j;
     HWND hwnd;
     uint32_t itemID;
     RexxObjectPtr dataObj;
     oodControl_t controlType;
 
-    for ( j = 0; j < dlgAdm->DT_size; j++ )
+    for ( j = 0; j < pcpbd->DT_size; j++ )
     {
-        if ( dlgAdm->DataTab[j].type == winNotAControl )
+        if ( pcpbd->DataTab[j].type == winNotAControl )
         {
             // See the connectSeparator() method and the manualCheckRadioButton
             // above. Used to separate two groups of radio buttons, there is no
@@ -812,9 +807,9 @@ uint32_t setDlgDataFromStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxS
             continue;
         }
 
-        hwnd        = dlgAdm->ChildDlg[dlgAdm->DataTab[j].category];
-        itemID      = dlgAdm->DataTab[j].id;
-        controlType = dlgAdm->DataTab[j].type;
+        hwnd        = pcpbd->childDlg[pcpbd->DataTab[j].category];
+        itemID      = pcpbd->DataTab[j].id;
+        controlType = pcpbd->DataTab[j].type;
 
         dataObj = c->GetStemArrayElement(internDlgData, itemID);
         if ( dataObj == NULLOBJECT )
@@ -828,7 +823,7 @@ uint32_t setDlgDataFromStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxS
         CSTRING value = c->ObjectToStringValue(dataObj);
         RXCA2T(value);
 
-        if ( controlType == winEdit || controlType == winStatic )
+        if ( controlType == winStatic || controlType == winEdit )
         {
             SetDlgItemText(hwnd, itemID, valueT);
         }
@@ -838,7 +833,7 @@ uint32_t setDlgDataFromStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxS
         }
         else if ( controlType == winRadioButton )
         {
-            manualCheckRadioButton(dlgAdm, hwnd, itemID, dlgDataToNumber(c, dataObj));
+            manualCheckRadioButton(pcpbd, hwnd, itemID, dlgDataToNumber(c, dataObj));
         }
         else if ( controlType == winListBox )
         {
@@ -890,17 +885,15 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
         return 1;
     }
 
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
-
     size_t j;
     rxcharT data[DATA_BUFFER];
     HWND hwnd;
     uint32_t itemID;
     oodControl_t controlType;
 
-    for ( j = 0; j < dlgAdm->DT_size; j++ )
+    for ( j = 0; j < pcpbd->DT_size; j++ )
     {
-        if ( dlgAdm->DataTab[j].type == winNotAControl )
+        if ( pcpbd->DataTab[j].type == winNotAControl )
         {
             // See the connectSeparator() method and the manualCheckRadioButton
             // above. Used to separate two groups of radio buttons, there is no
@@ -910,9 +903,9 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
 
         data[0] = _T('\0');
 
-        hwnd =        dlgAdm->ChildDlg[dlgAdm->DataTab[j].category];
-        itemID =      dlgAdm->DataTab[j].id;
-        controlType = dlgAdm->DataTab[j].type;
+        hwnd =        pcpbd->childDlg[pcpbd->DataTab[j].category];
+        itemID =      pcpbd->DataTab[j].id;
+        controlType = pcpbd->DataTab[j].type;
 
         if ( controlType == winEdit || controlType == winStatic )
         {
@@ -1005,10 +998,12 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
  * state of the control.
  *
  * The table entry is either made through the Rexx dialog's connectXXX()
- * methods, or by the data autodetection feature.  For data autodetection, when
- * the underlying dialog is first created, its child windows are enumerated and
- * an entry is made in the data table for each control found.  The connectXXX()
- * methods allow the Rexx programmer to manually connect the controls she wants.
+ * methods, or by the data autodetection feature.
+ *
+ * Data autodetection is only used for ResDialogs.  When the underlying dialog
+ * is first created, its child windows are enumerated and an entry is made in
+ * the data table for each control found. The connectXXX() methods allow the
+ * Rexx programmer to manually connect the controls she wants.
  *
  * In both scenarios, a Rexx dialog attribute that represents the 'data' of a
  * specific control is created and the data table entry allows the get / set
@@ -1023,49 +1018,57 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
  * field that never got implemented.
  *
  * The pre 4.1.0 code also had "get" and "set" data table functions beside the
- * "add" function.  The set function was not used anywhere in the code.  Set was
- * used to change the value of an existing data table entry.  Since there does
- * not seem to be any purpose to that, the function was dropped.
+ * "add" function.  The set function was not called anywhere in the code. The
+ * set function would change the value of an existing data table entry. Since
+ * there does not seem to be any purpose to that, the function was dropped.
  *
  * The get function returned the values of a single data table entry.  But it
  * was only used in one place, in a loop to get all entries.  And only the ID
  * value was used. So that function was replaced by getDataTableIDs() which
  * returns an array of all the resource IDs for every table entry.
  *
- * @param c
- * @param dlgAdm
+ * @param c       Method context we are operating in, or null.
+ * @param pcpbd
  * @param id      The resource ID of the control.
  * @param type
  * @param category
  *
  * @return 0 on succes, and 1 for error.
+ *
+ * @remarks  addToDataTable() can be called from the WindowLoopThread, where we
+ *           don't have a valid method context.  In this case, we don't do an
+ *           out of memory exception, just pass back the return code and let the
+ *           higher level deal with it.
  */
-uint32_t addToDataTable(RexxMethodContext *c, DIALOGADMIN *dlgAdm, int id, oodControl_t type, uint32_t category)
+uint32_t addToDataTable(RexxMethodContext *c, pCPlainBaseDialog pcpbd, int id, oodControl_t type, uint32_t category)
 {
-    if ( dlgAdm->DataTab == NULL )
+    if ( pcpbd->DataTab == NULL )
     {
-        dlgAdm->DataTab = (DATATABLEENTRY *)LocalAlloc(LPTR, sizeof(DATATABLEENTRY) * MAX_DT_ENTRIES);
-        if ( !dlgAdm->DataTab )
+        pcpbd->DataTab = (DATATABLEENTRY *)LocalAlloc(LPTR, sizeof(DATATABLEENTRY) * MAX_DT_ENTRIES);
+        if ( !pcpbd->DataTab )
         {
+            if ( c != NULL )
+            {
             outOfMemoryException(c->threadContext);
-            return 1;
         }
-        dlgAdm->DT_size = 0;
+            return OOD_MEMORY_ERR;
+    }
+        pcpbd->DT_size = 0;
     }
 
-    if ( dlgAdm->DT_size < MAX_DT_ENTRIES )
+    if ( pcpbd->DT_size < MAX_DT_ENTRIES )
     {
-        dlgAdm->DataTab[dlgAdm->DT_size].id = id;
-        dlgAdm->DataTab[dlgAdm->DT_size].type = type;
-        dlgAdm->DataTab[dlgAdm->DT_size].category = category;
-        dlgAdm->DT_size ++;
-        return 0;
+        pcpbd->DataTab[pcpbd->DT_size].id = id;
+        pcpbd->DataTab[pcpbd->DT_size].type = type;
+        pcpbd->DataTab[pcpbd->DT_size].category = category;
+        pcpbd->DT_size ++;
+        return OOD_NO_ERROR;
     }
 
     MessageBox(0, _T("Dialog data items have exceeded the maximum number of\n")
                _T("allocated table entries. No data item can be added."),
                _T("Error"), MB_OK | MB_ICONHAND);
-    return 1;
+    return OOD_DATATABLE_FULL;
 }
 
 /**
@@ -1079,17 +1082,12 @@ uint32_t addToDataTable(RexxMethodContext *c, DIALOGADMIN *dlgAdm, int id, oodCo
  */
 RexxArrayObject getDataTableIDs(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxObjectPtr self)
 {
-    if ( pcpbd == NULL || pcpbd->dlgAdm == NULL )
-    {
-        failedToRetrieveDlgAdmException(c->threadContext, self);
-        return NULLOBJECT;
-    }
-
-    size_t count = pcpbd->dlgAdm->DT_size;
+    size_t count = pcpbd->DT_size;
     RexxArrayObject result = c->NewArray(count);
+
     for ( size_t i = 0; i < count; i++ )
     {
-        c->ArrayPut(result, c->UnsignedInt32(pcpbd->dlgAdm->DataTab[i].id), i + 1);
+        c->ArrayPut(result, c->UnsignedInt32(pcpbd->DataTab[i].id), i + 1);
     }
     return result;
 }
@@ -1105,19 +1103,24 @@ RexxArrayObject getDataTableIDs(RexxMethodContext *c, pCPlainBaseDialog pcpbd, R
  * subclasses) the data table entry is done for each createXXX() method when the
  * dialog control is added to the in-memory template.
  *
- * @param c       RexxMethodContext pointer.  Only used for an out of memory
- *                exception when an item is added to the data table.
- * @param dlgAdm  Dialog Admin block for the dialog.
+ * @param pcpbd  Pointer to the CSelf struct of the ResDialog being created.
  *
- * @return True on success, false on failure.  The only failure here is an out
+ * @return A code indication success, or not.  The only failure here is an out
  *         of memory problem or the data table is full.
+ *
+ * @remarks  This function is only called from the WindowLoopThread, which is
+ *           creating a dialog from a resource DLL.  There is no valid method
+ *           context.  If there is a failure in addToDataTable() we just pass
+ *           the result code back and let the higher level handle it.
  */
-bool doDataAutoDetection(RexxMethodContext *c, DIALOGADMIN * dlgAdm)
+uint32_t doDataAutoDetection(pCPlainBaseDialog pcpbd)
 {
+    uint32_t result = OOD_NO_ERROR;
+
     HWND parent, current, next;
     oodControl_t itemToAdd;
 
-    parent = dlgAdm->TheDlg;
+    parent = pcpbd->hDlg;
     current = parent;
     next = GetTopWindow(current);
 
@@ -1137,12 +1140,13 @@ bool doDataAutoDetection(RexxMethodContext *c, DIALOGADMIN * dlgAdm)
 
        if ( itemToAdd != winNotAControl )
        {
-           if ( addToDataTable(c, dlgAdm, GetWindowLong(current, GWL_ID), itemToAdd, 0) == 1 )
+           result = addToDataTable(NULL, pcpbd, GetWindowLong(current, GWL_ID), itemToAdd, 0);
+           if ( result != OOD_NO_ERROR )
            {
-               return false;
+               break;
            }
        }
        next = GetNextWindow(current, GW_HWNDNEXT);
     }
-    return true;
+    return result;
 }

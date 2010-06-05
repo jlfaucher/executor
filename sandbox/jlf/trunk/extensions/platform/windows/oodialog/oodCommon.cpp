@@ -80,6 +80,37 @@ void ooDialogInternalException(RexxMethodContext *c, char *function, int line, c
 
 
 /**
+ *  Error 98.900
+ *
+ *  98 The language processor detected a specific error during execution. The
+ *  associated error gives the reason for the error.
+ *
+ *  900 User message.
+ *
+ *  The base class has not been initialized correctly
+ *
+ * @param c    The method context we are operating under.
+ *
+ * @remarks  This error should be used when the CSelf pointer is null.  It can
+ *           only happen (I believe) when the user inovkes a method on self in
+ *           init() before the super class init() has run.  For example:
+ *
+ *           ::method init
+ *             self~create(30, 30, 257, 123, "Simple Dialog", "CENTER")
+ *             forward class (super) continue
+ *
+ *           Unfortunately, I have sample ooDialog programs from users that do
+ *           just this sort of thing.  Prior to the conversion to the C++ APIs,
+ *           the programs probably did not work as the user thought they were
+ *           working, but it was not fatal.  However, now a null CSelf pointer
+ *           causes a crash if not checked for.
+ */
+void baseClassIntializationException(RexxMethodContext *c)
+{
+    executionErrorException(c->threadContext, "The base class has not been initialized correctly");
+}
+
+/**
  *  93.900
  *  Error 93 - Incorrect call to method
  *        The specified method, built-in function, or external routine exists,
@@ -197,19 +228,6 @@ RexxObjectPtr wrongWindowsVersionException(RexxMethodContext *context, const cha
     _snprintf(msg, RXITEMCOUNT(msg), "The %s() method requires Windows %s or later", methodName, windows);
     context->RaiseException1(Rexx_Error_Incorrect_method_user_defined, context->String(msg));
     return NULLOBJECT;
-}
-
-
-
-inline void failedToRetrieveDlgAdmException(RexxThreadContext *c, RexxObjectPtr source)
-{
-    failedToRetrieveException(c, "dialog administration block", source);
-}
-
-
-inline void failedToRetrieveDlgAdmException(RexxThreadContext *c)
-{
-    userDefinedMsgException(c, "Could not retrieve the dialog administration information block.");
 }
 
 
@@ -563,6 +581,83 @@ done_out:
     return success;
 }
 
+/**
+ * Converts a Rexx object to a pointer.  Anything other than a .Pointer or a
+ * pointer string will result in a null pointer.
+ *
+ * @param c    Rexx method context we are operating in.
+ * @param obj  The object to convert.
+ *
+ * @return  The object converted to a pointer
+ *
+ * @remarks  Nothing is considered an error here.
+ */
+void *oodObj2pointer(RexxMethodContext *c, RexxObjectPtr obj)
+{
+    void *p = NULL;
+
+    if ( obj != NULLOBJECT )
+    {
+        if ( c->IsPointer(obj) )
+        {
+            p = c->PointerValue((RexxPointerObject)obj);
+        }
+        else
+        {
+            p = string2pointer(c->ObjectToStringValue(obj));
+        }
+    }
+    return p;
+}
+
+/**
+ * Converts a Rexx object into a pointer, only if it is in a valid format for a
+ * handle (really a pointer.)  Raises an exception if the object is not in a
+ * valid format.
+ *
+ * For ooDialog, currently, a valid format is: a .Pointer object, a pointer
+ * string, or exactly 0.
+ *
+ * @param c       Rexx method context we are operating in.
+ * @param obj     The object to convert.
+ * @param result  The converted pointer is returned here.
+ * @param argPos  Argument postion.
+ *
+ * @return True on success, false if an exception has been raised.
+ *
+ * @remarks  Not implemented but, it could be that using -1 for argPos could
+ *           generate a different condition message.
+ */
+bool oodObj2handle(RexxMethodContext *c, RexxObjectPtr obj, void **result, size_t argPos)
+{
+    if ( obj == NULLOBJECT )
+    {
+        goto raise_condition;
+    }
+
+    if ( c->IsPointer(obj) )
+    {
+        *result = c->PointerValue((RexxPointerObject)obj);
+    }
+    else
+    {
+        CSTRING str = c->ObjectToStringValue(obj);
+        size_t len = strlen(str);
+
+        if ( (len == 0 || len == 2) || (len == 1 && *str != '0') || toupper(str[1]) != 'X' )
+        {
+            goto raise_condition;
+        }
+
+        *result = string2pointer(str);
+    }
+
+    return true;
+
+raise_condition:
+    userDefinedMsgException(c, argPos, "is not a handle");
+    return false;
+}
 
 int32_t idError(RexxMethodContext *c, RexxObjectPtr rxID)
 {
@@ -647,19 +742,6 @@ int32_t resolveIconID(RexxMethodContext *c, RexxObjectPtr rxIconID, RexxObjectPt
     }
 
     return (int)id;
-}
-
-bool dialogInAdminTable(DIALOGADMIN * Dlg)
-{
-    register int i;
-    for ( i = 0; i < StoredDialogs; i++ )
-    {
-        if ( DialogTab[i] == Dlg )
-        {
-           return true;
-        }
-    }
-    return false;
 }
 
 /**
@@ -931,7 +1013,61 @@ char *strdup_2methodName(const char *str)
 
 
 /**
- * Convenience function to retrieve the dialog admin block from a generic
+ * Helper function to check for a modal dialog creation.  Only called when a
+ * dialog is first created.  If the dialog is to be created as a modal dialog,
+ * then the 'previous' dialog, if there is one, is disabled.
+ *
+ * @param previous  CSelf pointer of the previously created dialog.  This could
+ *                  be null.
+ * @param modeless  Is the dialog to be modeless, or modal.
+ *
+ * @remarks.  In the original ooDialog, all dialogs were created modeless, and a
+ *            modal dialog was faked by disabling the previously created dialog.
+ *            And this is still done.
+ *
+ *            However, this involves a rather tenous chain of enabling and
+ *            disabling dialogs as they are created and destroyed (deleted.)  In
+ *            the process of refactoring ooDialog and updating it to the C++
+ *            APIs, it may be that this tenous chain is broken.
+ */
+void checkModal(pCPlainBaseDialog previous, BOOL modeless)
+{
+    if ( ! modeless && previous != NULL )
+    {
+        if ( IsWindowEnabled(previous->hDlg) )
+        {
+            EnableWindow(previous->hDlg, FALSE);
+        }
+    }
+
+}
+
+
+/**
+ *  Helper function to re-enable the previous dialog when dialog creation has
+ *  failed.
+ *
+ * @param previous  CSelf pointer of the previously created dialog.  This could
+ *                  be null.
+ *
+ * @remarks  See the remarks for checkModal().
+ */
+void enablePrevious(pCPlainBaseDialog previous)
+{
+    if ( previous )
+    {
+        previous->onTheTop = true;
+
+        if ( ! IsWindowEnabled(previous->hDlg) )
+        {
+            EnableWindow(previous->hDlg, TRUE);
+        }
+    }
+}
+
+
+/**
+ * Convenience function to retrieve the dialog CSelf struct from a generic
  * ooDialog Rexx object.
  *
  * This function is safe to call for any object, including NULLOBJECT.  It will
@@ -940,36 +1076,35 @@ char *strdup_2methodName(const char *str)
  * @param c      Method context we are operating in.
  * @param self   The Rexx object.
  *
- * @return A pointer to the dialog admin block on success, or NULL on failure.
+ * @return A pointer to the dialog CSelf on success, or NULL on failure.
  *
  * @note  An exception is raised on failure.
  */
-DIALOGADMIN *getDlgAdm(RexxMethodContext *c, RexxObjectPtr self)
+pCPlainBaseDialog getDlgCSelf(RexxMethodContext *c, RexxObjectPtr self)
 {
-    DIALOGADMIN *dlgAdm = NULL;
+    pCPlainBaseDialog pcpbd = NULL;
 
     if ( self != NULLOBJECT )
     {
         if ( c->IsOfType(self, "PLAINBASEDIALOG") )
         {
-            dlgAdm = dlgToDlgAdm(c, self);
+            pcpbd = dlgToCSelf(c, self);
         }
         else if ( c->IsOfType(self, "DIALOGCONTROL") )
         {
             pCDialogControl pcdc = controlToCSelf(c, self);
-            dlgAdm = dlgToDlgAdm(c, pcdc->oDlg);
+            if ( pcdc != NULLOBJECT )
+            {
+                pcpbd = dlgToCSelf(c, pcdc->oDlg);
+            }
         }
-        else
-        {
-            failedToRetrieveDlgAdmException(c->threadContext, self);
-        }
-    }
-    else
-    {
-        failedToRetrieveDlgAdmException(c->threadContext);
     }
 
-    return dlgAdm;
+    if ( pcpbd == NULLOBJECT )
+    {
+        baseClassIntializationException(c);
+    }
+    return pcpbd;
 }
 
 

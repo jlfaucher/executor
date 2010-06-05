@@ -45,6 +45,7 @@
 #include <dlgs.h>
 #include <commctrl.h>
 #include <shlwapi.h>
+#include <WindowsX.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
 #include "oodControl.hpp"
@@ -92,12 +93,14 @@ static BOOL endDialogPremature(pCPlainBaseDialog, HWND, DlgProcErrType);
  *           set the CPlainBaseDialog struct of the parent in the window words
  *           of the child dialog.  Prior to the conversion of ooDialog to the
  *           C++ API, when a message came in for a child dialog, a search was
- *           made through the DialogTab to try and find the dialog admin block
- *           of the parent.  This has been disposed of and the CPlainBaseDialog
- *           struct is just pulled out of the window words.
+ *           made through the DialogTable to try and find the parent dialog.
+ *           This has been disposed of and the CPlainBaseDialog struct is just
+ *           pulled out of the window words.
  */
 LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+    static int count = 0;
+    count++;
 
     if ( uMsg == WM_INITDIALOG )
     {
@@ -130,15 +133,25 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
         return FALSE;
     }
 
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
-    if ( dlgAdm == NULL || pcpbd->dlgProcContext == NULL )
+    if ( pcpbd->dlgProcContext == NULL )
     {
-        // Once again, theoretically impossible ...
         if ( ! pcpbd->isActive )
         {
             return FALSE;
         }
+
+        // Once again, theoretically impossible ...
         return endDialogPremature(pcpbd, hDlg, NoThreadContext);
+    }
+
+    if ( uMsg == WM_DESTROY )
+    {
+        // Under all normal circumstances, WM_DESTROY never gets here.  But if
+        // it does, it is because of some unexplained / unanticpated error.
+        // PostQuitMessage() will cause the window message loop to quit and
+        // things should then (hopefully) unwind cleanly.
+        PostQuitMessage(3);
+        return TRUE;
     }
 
     bool msgEnabled = IsWindowEnabled(hDlg) ? true : false;
@@ -168,7 +181,7 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
         case WM_DRAWITEM:
             if ( lParam != 0 )
             {
-                return drawBitmapButton(dlgAdm, pcpbd, lParam, msgEnabled);
+                return drawBitmapButton(pcpbd, lParam, msgEnabled);
             }
             break;
 
@@ -188,7 +201,7 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
         {
             HBRUSH hbrush = NULL;
 
-            if ( dlgAdm->CT_size > 0 )
+            if ( pcpbd->CT_size > 0 )
             {
                 // See of the user has set the dialog item with a different
                 // color.
@@ -196,31 +209,31 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
                 if ( id > 0 )
                 {
                     register size_t i = 0;
-                    while ( i < dlgAdm->CT_size && dlgAdm->ColorTab[i].itemID != id )
+                    while ( i < pcpbd->CT_size && pcpbd->ColorTab[i].itemID != id )
                     {
                         i++;
                     }
-                    if ( i < dlgAdm->CT_size )
+                    if ( i < pcpbd->CT_size )
                     {
-                        hbrush = dlgAdm->ColorTab[i].ColorBrush;
+                        hbrush = pcpbd->ColorTab[i].ColorBrush;
                     }
 
                     if ( hbrush )
                     {
-                        if ( dlgAdm->ColorTab[i].isSysBrush )
+                        if ( pcpbd->ColorTab[i].isSysBrush )
                         {
-                            SetBkColor((HDC)wParam, GetSysColor(dlgAdm->ColorTab[i].ColorBk));
-                            if ( dlgAdm->ColorTab[i].ColorFG != -1 )
+                            SetBkColor((HDC)wParam, GetSysColor(pcpbd->ColorTab[i].ColorBk));
+                            if ( pcpbd->ColorTab[i].ColorFG != -1 )
                             {
-                                SetTextColor((HDC)wParam, GetSysColor(dlgAdm->ColorTab[i].ColorFG));
+                                SetTextColor((HDC)wParam, GetSysColor(pcpbd->ColorTab[i].ColorFG));
                             }
                         }
                         else
                         {
-                            SetBkColor((HDC)wParam, PALETTEINDEX(dlgAdm->ColorTab[i].ColorBk));
-                            if ( dlgAdm->ColorTab[i].ColorFG != -1 )
+                            SetBkColor((HDC)wParam, PALETTEINDEX(pcpbd->ColorTab[i].ColorBk));
+                            if ( pcpbd->ColorTab[i].ColorFG != -1 )
                             {
-                                SetTextColor((HDC)wParam, PALETTEINDEX(dlgAdm->ColorTab[i].ColorFG));
+                                SetTextColor((HDC)wParam, PALETTEINDEX(pcpbd->ColorTab[i].ColorFG));
                             }
                         }
                     }
@@ -235,29 +248,29 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
         case WM_COMMAND:
             switch ( LOWORD(wParam) )
             {
-                // For both IDOK and IDCANCEL, the notification code
-                // (the high word value,) must be 0.
                 case IDOK:
-                    printf("Got IDOK, but how?\n");
-                    if ( HIWORD(wParam) == 0 )
-                    {
-                        dlgAdm->LeaveDialog = 1;
-                    }
-                    return TRUE;
-
                 case IDCANCEL:
-                    printf("Got IDCANCEL, but how?\n");
+
+                // For both IDOK and IDCANCEL, the notification code
+                    // (the high word value) must be 0.
                     if ( HIWORD(wParam) == 0 )
                     {
-                        dlgAdm->LeaveDialog = 2;
-                    }
+                        // We should never get here because both IDOK and
+                        // IDCANCEL should have be interecepted in
+                        // searchMessageTables().  But - sometimes we do, very
+                        // rarely.  It is on some abnormal error. See the
+                        // comments above for the WM_DESTROY message.
+                        pcpbd->abnormalHalt = true;
+                        DestroyWindow(hDlg);
+
                     return TRUE;
+            }
             }
             break;
 
         case WM_QUERYNEWPALETTE:
         case WM_PALETTECHANGED:
-            return paletteMessage(dlgAdm, hDlg, uMsg, wParam, lParam);
+            return paletteMessage(pcpbd, hDlg, uMsg, wParam, lParam);
 
         case WM_USER_CREATECHILD:
         {
@@ -268,7 +281,7 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
         }
 
         case WM_USER_INTERRUPTSCROLL:
-            dlgAdm->StopScroll = wParam;
+            pcpbd->stopScroll = wParam;
             return TRUE;
 
         case WM_USER_GETFOCUS:
@@ -301,13 +314,13 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
 
         case WM_USER_SUBCLASS:
         {
-            SUBCLASSDATA * pData = (SUBCLASSDATA *)lParam;
-            BOOL success = FALSE;
+            SUBCLASSDATA *pData = (SUBCLASSDATA *)lParam;
 
-            if ( pData )
-            {
-                success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->uID, (DWORD_PTR)pData);
-            }
+            pData->dlgProcContext = pcpbd->dlgProcContext;
+            pData->rexxDialog = pcpbd->rexxSelf;
+
+            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->uID, (DWORD_PTR)pData);
+
             ReplyMessage((LRESULT)success);
             return TRUE;
         }
@@ -317,8 +330,15 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
             return TRUE;
 
         case WM_USER_HOOK:
+        {
+            SUBCLASSDATA *pData = (SUBCLASSDATA *)lParam;
+
+            pData->dlgProcContext = pcpbd->dlgProcContext;
+            pData->rexxDialog = pcpbd->rexxSelf;
+
             ReplyMessage((LRESULT)SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)wParam, NULL, GetCurrentThreadId()));
             return TRUE;
+        }
 
         case WM_USER_CONTEXT_MENU:
         {
@@ -348,6 +368,40 @@ LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam
     return FALSE;
 }
 
+
+static RexxStringObject sc2string(RexxThreadContext *c, WPARAM wParam)
+{
+    CSTRING s;
+
+    switch ( wParam & 0xFFF0 )
+    {
+        case SC_SIZE         : s = "SIZE";
+        case SC_MOVE         : s = "MOVE";
+        case SC_MINIMIZE     : s = "MINIMIZE";
+        case SC_MAXIMIZE     : s = "MAXIMIZE";
+        case SC_NEXTWINDOW   : s = "NEXTWINDOW";
+        case SC_PREVWINDOW   : s = "PREVWINDOW";
+        case SC_CLOSE        : s = "CLOSE";
+        case SC_VSCROLL      : s = "VSCROLL";
+        case SC_HSCROLL      : s = "HSCROLL";
+        case SC_MOUSEMENU    : s = "MOUSEMENU ";
+        case SC_KEYMENU      : s = "KEYMENU";
+        case SC_ARRANGE      : s = "ARRANGE";
+        case SC_RESTORE      : s = "RESTORE";
+        case SC_TASKLIST     : s = "TASKLIST";
+        case SC_SCREENSAVE   : s = "SCREENSAVE";
+        case SC_HOTKEY       : s = "HOTKEY";
+        case SC_DEFAULT      : s = "DEFAULT";
+        case SC_MONITORPOWER : s = "MONITORPOWER";
+        case SC_CONTEXTHELP  : s = "CONTEXTHELP";
+        case SC_SEPARATOR    : s = "SEPARATOR";
+
+        // SCF_ISSECURE, only defined if WINVER >= 0x0600
+        case 0x00000001      : s = "ISSECURE";
+        default              : s = "UNKNOWN";
+    }
+    return c->String(s);
+}
 
 inline bool selectionDidChange(LPNMLISTVIEW p)
 {
@@ -386,9 +440,25 @@ inline bool matchFocus(uint32_t tag, LPNMLISTVIEW p)
     return ((tag & TAG_FOCUSCHANGED) && !(tag & TAG_SELECTCHANGED)) && (focusDidChange(p));
 }
 
+
+/**
+ * This function will (should) cleanly end the dialog and the Rexx dialog object
+ * when things needed to be terminated for unusual reason.  It can put up a
+ * message box to inform the user of the circumstances depending on the args.
+ *
+ * Right now this is only called from functions in this module and is static.
+ * It could maybe be used elsewhere and would need to be made extern.
+ *
+ * @param pcpbd
+ * @param hDlg
+ * @param t
+ *
+ * @return BOOL
+ */
 static BOOL endDialogPremature(pCPlainBaseDialog pcpbd, HWND hDlg, DlgProcErrType t)
 {
     char buf[256];
+    bool noMsg = false;
 
     switch ( t )
     {
@@ -399,74 +469,28 @@ static BOOL endDialogPremature(pCPlainBaseDialog pcpbd, HWND hDlg, DlgProcErrTyp
             _snprintf(buf, RXITEMCOUNT(buf), NO_THREAD_ATTACH_MSG, pcpbd, hDlg);
             break;
         case NoThreadContext :
-            _snprintf(buf, RXITEMCOUNT(buf), NO_THREAD_CONTEXT_MSG, pcpbd->dlgAdm, pcpbd->dlgProcContext, hDlg);
+            _snprintf(buf, RXITEMCOUNT(buf), NO_THREAD_CONTEXT_MSG, pcpbd->dlgProcContext, hDlg);
+            break;
+        case RexxConditionRaised :
+            noMsg = true;
+            break;
+        default :
+            noMsg = true;
             break;
     }
 
+    if ( ! noMsg )
+    {
     internalErrorMsgBox(buf, "ooDialog Dialog Procedure Error");
+    }
 
-    // DestroyWindow() will cause the message processing loop to end.  When it
-    // drops out of the loop, delDialog() is called and the admin block will be
-    // cleaned up.
+    // DestroyWindow() will either cause the message processing loop to end, or
+    // more likely a WC_DESTROY message will make it to RexxDlgProc().  This
+    // will then cause things to unwind and delDialog() will be called.
+    pcpbd->abnormalHalt = true;
     DestroyWindow(hDlg);
 
     return FALSE;
-}
-
-
-BOOL addDialogMessage(CHART *msg, CHART *Qptr)
-{
-    if ( _tcslen(Qptr) + _tcslen(msg) + 1 < MAXLENQUEUE )
-    {
-        _tcscat(Qptr, msg);
-        _tcscat(Qptr, _T(";"));
-        return 1;
-    }
-    else
-    {
-        printf("MESSAGE QUEUE OVERFLOW\n");
-    }
-    return 0;
-}
-
-
-rxcharT *getDlgMessage(DIALOGADMIN *dlgAdm, rxcharT *buffer, bool peek)
-{
-   size_t i = 0, l;
-   MSG msg;
-
-   if ( dlgAdm->pMessageQueue )
-   {
-       rxcharT * pMsgQ = dlgAdm->pMessageQueue;
-       l = _tcslen(pMsgQ);
-
-       // Don't sleep for just a peek.
-       if ( !l &&  !PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) && !peek )
-       {
-           Sleep(1);
-       }
-
-       // Copy up to the ';'
-       while ( i < l && pMsgQ[i] != _T(';') )
-       {
-           buffer[i] = pMsgQ[i];
-           i++;
-       }
-       buffer[i]=_T('\0');
-
-       if ( l &&  !peek )
-       {
-           if ( i >= l )
-           {
-               pMsgQ[0] = _T('\0');
-           }
-           else
-           {
-               memmove(&pMsgQ[0], &pMsgQ[i + 1], l - i);
-           }
-       }
-   }
-   return buffer;
 }
 
 
@@ -474,7 +498,7 @@ rxcharT *getDlgMessage(DIALOGADMIN *dlgAdm, rxcharT *buffer, bool peek)
  * Process WM_QUERYNEWPALETTE and WM_PALETTECHANGED messages, called from
  * RexxDlgProc().
  *
- * @param dlgAdm
+ * @param pcpbd
  * @param hDlg
  * @param msg
  * @param wParam
@@ -482,7 +506,7 @@ rxcharT *getDlgMessage(DIALOGADMIN *dlgAdm, rxcharT *buffer, bool peek)
  *
  * @return LRESULT
  */
-LRESULT paletteMessage(DIALOGADMIN * dlgAdm, HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT paletteMessage(pCPlainBaseDialog pcpbd, HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch ( msg )
     {
@@ -493,10 +517,10 @@ LRESULT paletteMessage(DIALOGADMIN * dlgAdm, HWND hDlg, UINT msg, WPARAM wParam,
                 return FALSE;
             }
         case WM_QUERYNEWPALETTE:
-            if ( dlgAdm->ColorPalette )
+            if ( pcpbd->colorPalette )
             {
                 HDC hDC = GetDC(hDlg);
-                SelectPalette(hDC, dlgAdm->ColorPalette, 0);
+                SelectPalette(hDC, pcpbd->colorPalette, 0);
 
                 unsigned int ret = RealizePalette(hDC);
                 ReleaseDC(hDlg, hDC);
@@ -517,18 +541,64 @@ LRESULT paletteMessage(DIALOGADMIN * dlgAdm, HWND hDlg, UINT msg, WPARAM wParam,
     return FALSE;
 }
 
-/* genericNotifyInvoke
+/**
+ * Invokes the Rexx dialog's event handling method for a Windows message.
  *
+ * The method invocation is done indirectly using startWith().  This allows us
+ * to return quickly to the window message processing loop.
+ *
+ * @param c       Thread context we are operating in.
+ * @param obj     The Rexx dialog whose method will be invoked.
+ * @param method  The name of the method being invoked
+ * @param args    The argument array for the method being invoked
+ *
+ * @return The reply type for the Windows dialog procedure, always true to
+ *         indicate the message was processed.
+ *
+ * @remarks  Earlier versions of ooDialog, on the C++ side, constructed a method
+ *           invocation string, placed it on a queue, and returned immediately
+ *           to the message processing loop.  On the Rexx side, the string was
+ *           pulled from the queue and the event hanler method invoked through
+ *           interpret.  This meant that the Rexx programmer could never block
+ *           the window loop, but also could never reply to any window message.
+ *
+ *           This function should be used when:
+ *
+ *           a.) The reply to the window message is ignored anyway.
+ *
+ *           b.) To maintain backward compatibility with event connections, so
+ *           that the Rexx programmer does not inadvertently block the message
+ *           loop.
+ */
+static MsgReplyType invokeDispatch(RexxThreadContext *c, RexxObjectPtr obj, RexxStringObject method, RexxArrayObject args)
+{
+    c->SendMessage2(obj, "STARTWITH", method, args);
+    return ReplyTrue;
+}
+
+/**
  * The simplest form of invoking the Rexx method connected to a WM_NOTIFY
  * message.  The Rexx method is invoked with two arguments, the resource ID of
  * the control and the HWND of the control.
+ *
+ * This function should be used where the return value from the specifiec
+ * WM_NOTIFY message is ignored.  In Rexx, the method invocation is done through
+ * startWith() and returns immediately.
+ *
+ * @param c
+ * @param pcpbd
+ * @param methodName
+ * @param idFrom
+ * @param hwndFrom
+ *
+ * @return MsgReplyType
  */
 inline MsgReplyType genericNotifyInvoke(RexxThreadContext *c, pCPlainBaseDialog pcpbd, CSTRING methodName,
                                         RexxObjectPtr idFrom, RexxObjectPtr hwndFrom)
 {
-    RexxObjectPtr rexxReply = c->SendMessage2(pcpbd->rexxSelf, methodName, idFrom, hwndFrom);
-    checkForCondition(c);
-    return ReplyTrue;
+    return invokeDispatch(c, pcpbd->rexxSelf,
+                          c->String(methodName),
+                          c->ArrayOfTwo(idFrom, hwndFrom));
 }
 
 /* genericCommandInvoke
@@ -542,20 +612,19 @@ inline MsgReplyType genericNotifyInvoke(RexxThreadContext *c, pCPlainBaseDialog 
  * accelerators, it is always 0. So, converting to a pseudo pointer is always
  * the correct thing to do.
  */
-inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog pcpbd, CSTRINGT methodName,
+inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog pcpbd, CSTRING methodName,
                                          WPARAM wParam, LPARAM lParam)
 {
-    RXCT2A(methodName);
-    RexxObjectPtr rexxReply = c->SendMessage2(pcpbd->rexxSelf, methodNameA, c->Uintptr(wParam), pointer2string(c, (void *)lParam));
-    checkForCondition(c);
-    return ReplyFalse;
+    return invokeDispatch(c, pcpbd->rexxSelf,
+                          c->String(methodName),
+                          c->ArrayOfTwo(c->Uintptr(wParam), pointer2string(c, (void *)lParam)));
 }
 
 /**
+ * Construct the argument array sent to the Rexx event handling method through
+ * dispatchWindowMessage().
  *
- *
- *
- * @param pMessageQueue
+ * @param pcpbd
  * @param rexxMethod
  * @param wParam
  * @param lParam
@@ -565,58 +634,58 @@ inline MsgReplyType genericCommandInvoke(RexxThreadContext *c, pCPlainBaseDialog
  *
  * @return MsgReplyType
  *
- * @remarks  Pre 4.0.1 the "message" put into the message queue, i.e., the
- *           method invocation string such as onEndTrack(101, 0x00CA23F0), was
- *           used in an interpret command.  Therefore, all string arguments were
- *           enclosed in quotes to prevent errors.  Now, the message string is
- *           used with sendWith(), no interpret is involved.  Since, some of the
- *           args are strings, that could include commas, the individual args
- *           are separated here with ASCII � (255, 0xFF, octal 377) and in the
- *           Rexx code, handleMessages() separates the args using 255~d2c.
+ * @remarks  Earlier versions of ooDialog constructed a method invocation string
+ *           that was put into a queue.  Rexx pulled the method invocation
+ *           string, such as onEndTrack(101, 0x00CA23F0), and invoked the method
+ *           through interpret.
  *
- *           This generic version of adding a message to the message queue is a
- *           hold over from the orignal ooDialog implementation. It is a little
- *           problematic as to whether wParam and lParam are getting converted
- *           properly.
+ *           For backwards compatibility, this function attempts to construct
+ *           the argument array so that the arguments match what the earlier
+ *           versions of ooDialog would have used.
+ *
+ *           It is a little problematic as to whether wParam and lParam are
+ *           getting converted properly.
  */
-MsgReplyType genericAddDialogMessage(rxcharT *pMessageQueue,  rxcharT *rexxMethod, WPARAM wParam, LPARAM lParam, rxcharT *np, HANDLE handle, int item)
+MsgReplyType genericInvokeDispatch(pCPlainBaseDialog pcpbd, char *rexxMethod, WPARAM wParam, LPARAM lParam,
+                                     const char *np, HANDLE handle, int item)
 {
-    rxcharT msgBuffer[512];
+    RexxThreadContext *c = pcpbd->dlgProcContext;
+    RexxStringObject method = c->String(rexxMethod);
+    RexxArrayObject args;
 
     if ( wParam == NULL && lParam == 0 )
     {
-        _sntprintf(msgBuffer, 511, _T("%s(0\3770)"), rexxMethod);
+        args = c->NewArray(0);
     }
     else if ( np != NULL )
     {
         if ( handle != NULL )
         {
-            _sntprintf(msgBuffer, 511, _T("%s(%Iu\3770x%p\377%s)"), rexxMethod, wParam, handle, np);
+            args = c->ArrayOfThree(c->Uintptr(wParam), pointer2string(c, (void *)handle), c->String(np));
         }
         else
         {
-            _sntprintf(msgBuffer, 511, _T("%s(%Iu\377%d\377%s)"), rexxMethod, wParam, item, np);
+            args = c->ArrayOfThree(c->Uintptr(wParam), c->Int32(item), c->String(np));
         }
     }
     else if ( handle != NULL )
     {
         if ( item > OOD_INVALID_ITEM_ID )
         {
-            _sntprintf(msgBuffer, 511, _T("%s(%d\3770x%p)"), rexxMethod, item, handle);
+            args = c->ArrayOfTwo(c->Int32(item), pointer2string(c, (void *)handle));
         }
         else
         {
-            _sntprintf(msgBuffer, 511, _T("%s(%Iu\3770x%p)"), rexxMethod, wParam, handle);
+            args = c->ArrayOfTwo(c->Uintptr(wParam), pointer2string(c, (void *)handle));
         }
     }
     else
     {
-        _sntprintf(msgBuffer, 511, _T("%s(%Iu\377%Iu)"), rexxMethod, wParam, lParam);
+        // lParam might not come out right ...
+        args = c->ArrayOfTwo(c->Uintptr(wParam), c->Intptr(lParam));
     }
 
-    addDialogMessage(msgBuffer, pMessageQueue);
-
-    return ReplyFalse;
+    return invokeDispatch(c, pcpbd->rexxSelf, method, args);
 }
 
 inline RexxStringObject mcnViewChange2rexxString(RexxThreadContext *c, uint32_t view)
@@ -662,10 +731,10 @@ inline RexxObjectPtr hwndFrom2rexxArg(RexxThreadContext *c, LPARAM lParam)
  *           message.  So, if we find a match in the command message table there
  *           is not much to do.
  *
- *           Note however, that for WM_COMMAND messages, lParam is always the
- *           window handle of the dialog control, if a control iniated the
- *           message. For menu items and accelerators, it is always 0. So,
- *           converting to a pseudo pointer is always the correct thing to do.
+ *           Note that for WM_COMMAND messages, lParam is always the window
+ *           handle of the dialog control, if a control iniated the message. For
+ *           menu items and accelerators, it is always 0. So, converting to a
+ *           pseudo pointer is always the correct thing to do.
  */
 MsgReplyType searchCommandTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
@@ -682,14 +751,6 @@ MsgReplyType searchCommandTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog 
     {
         if ( ((wParam & m[i].wpFilter) == m[i].wParam) && ((lParam & m[i].lpfilter) == (uint32_t)m[i].lParam) )
         {
-            /**
-             * lParam is either a handle, or 0.  So, we send lParam as the
-             * handle argument also.  If it is not null or 0, then
-             * genericAddDialogMessage() will convert it to a pointer string.
-             * If it is null or 0, then it will be sent as 0, which is exactly
-             * what we want.
-             */
-            //return genericAddDialogMessage(pcpbd->dlgAdm->pMessageQueue, m[i].rexxMethod, wParam, lParam, NULL, lParam, OOD_INVALID_ITEM_ID);
             return genericCommandInvoke(pcpbd->dlgProcContext, pcpbd, m[i].rexxMethod, wParam, lParam);
         }
     }
@@ -697,9 +758,8 @@ MsgReplyType searchCommandTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog 
 }
 
 
-MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processDTN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
-    RXCT2A(methodName);
     RexxObjectPtr rexxReply;
     RexxObjectPtr idFrom = idFrom2rexxArg(c, lParam);
     RexxObjectPtr hwndFrom = hwndFrom2rexxArg(c, lParam);
@@ -726,7 +786,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
             RexxArrayObject args = c->ArrayOfFour(dt, valid, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
             checkForCondition(c);
 
             return ReplyFalse;
@@ -743,7 +803,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
             RXCT2A(format);
             RexxArrayObject args = c->ArrayOfFour(c->String(formatA), dt, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
 
             if ( ! checkForCondition(c) )
             {
@@ -774,8 +834,16 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
             RXCT2A(format);
             RexxArrayObject args = c->ArrayOfFour(c->String(formatA), _size, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
-            checkForCondition(c);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
+
+            if ( checkForCondition(c) )
+            {
+                // TODO note this is a special case test of ending the dialog on
+                // a condition raised.  Need to always do the same thing, end
+                // the dialog or not end the dialog.
+                endDialogPremature(pcpbd, pcpbd->hDlg, RexxConditionRaised);
+                return ReplyTrue;
+            }
 
             PSIZE size = (PSIZE)c->ObjectToCSelf(_size);
 
@@ -800,7 +868,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
             dt2sysTime(c, NULLOBJECT, &(pdts->st), dtNow);
             pdts->dwFlags = GDT_ERROR;
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, c->ArrayOfThree(d, idFrom, hwndFrom));
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, c->ArrayOfThree(d, idFrom, hwndFrom));
 
             if ( checkForCondition(c) )
             {
@@ -857,7 +925,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
             c->ArrayPut(args, idFrom, 4);
             c->ArrayPut(args, hwndFrom, 5);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
 
             if ( ! checkForCondition(c) )
             {
@@ -883,7 +951,7 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
         case NM_KILLFOCUS:
         case NM_SETFOCUS:
         {
-            return genericNotifyInvoke(c, pcpbd, methodNameA, idFrom, hwndFrom);
+            return genericNotifyInvoke(c, pcpbd, methodName, idFrom, hwndFrom);
         }
 
         default :
@@ -897,9 +965,8 @@ MsgReplyType processDTN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 }
 
 
-MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processLVN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
-    RXCT2A(methodName);
     char          tmpBuffer[20];
     RexxObjectPtr rexxReply;
     RexxObjectPtr idFrom = idFrom2rexxArg(c, lParam);
@@ -928,7 +995,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
             RexxArrayObject args = c->ArrayOfFour(idFrom, c->Int32(pIA->iItem), c->Int32(pIA->iSubItem), c->String(tmpBuffer));
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
             checkForCondition(c);
 
             return ReplyFalse;
@@ -955,7 +1022,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(p));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
                     checkForCondition(c);
 
                     return ReplyFalse;
@@ -990,7 +1057,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(tmpBuffer));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
                     checkForCondition(c);
 
                     return ReplyFalse;
@@ -1001,7 +1068,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(p));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
 
                     if ( checkForCondition(c) )
                     {
@@ -1016,7 +1083,7 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
                     RexxArrayObject args = c->ArrayOfThree(idFrom, item, c->String(p));
 
-                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+                    rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
 
                     if ( checkForCondition(c) )
                     {
@@ -1042,9 +1109,8 @@ MsgReplyType processLVN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
     return ReplyFalse;
 }
 
-MsgReplyType processMCN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processMCN(RexxThreadContext *c, CSTRING methodName, uint32_t tag, uint32_t code, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
-    RXCT2A(methodName);
     RexxObjectPtr rexxReply;
     RexxObjectPtr idFrom = idFrom2rexxArg(c, lParam);
     RexxObjectPtr hwndFrom = hwndFrom2rexxArg(c, lParam);
@@ -1060,7 +1126,7 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
             RexxArrayObject args = c->ArrayOfFour(dt, c->Int32(pDayState->cDayState), idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
 
             if ( checkForCondition(c) )
             {
@@ -1088,7 +1154,7 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
             RexxArrayObject args = c->ArrayOfFour(dtStart, dtEnd, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
             checkForCondition(c);
             return ReplyTrue;
         }
@@ -1102,14 +1168,14 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
 
             RexxArrayObject args = c->ArrayOfFour(newView, oldView, idFrom, hwndFrom);
 
-            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+            rexxReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
             checkForCondition(c);
             return ReplyTrue;
         }
 
         case NM_RELEASEDCAPTURE :
         {
-            return genericNotifyInvoke(c, pcpbd, methodNameA, idFrom, hwndFrom);
+            return genericNotifyInvoke(c, pcpbd, methodName, idFrom, hwndFrom);
         }
 
         default :
@@ -1136,15 +1202,14 @@ MsgReplyType processMCN(RexxThreadContext *c, CSTRINGT methodName, uint32_t tag,
  *
  * @return MsgReplyType
  */
-MsgReplyType processUDN(RexxThreadContext *c, CSTRINGT methodName, LPARAM lParam, pCPlainBaseDialog pcpbd)
+MsgReplyType processUDN(RexxThreadContext *c, CSTRING methodName, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
-    RXCT2A(methodName);
     LPNMUPDOWN    pUPD = (LPNMUPDOWN)lParam;
 
     RexxArrayObject args = c->ArrayOfFour(c->Int32(pUPD->iPos), c->Int32(pUPD->iDelta),
                                           idFrom2rexxArg(c, lParam), hwndFrom2rexxArg(c, lParam));
 
-    RexxObjectPtr msgReply = c->SendMessage(pcpbd->rexxSelf, methodNameA, args);
+    RexxObjectPtr msgReply = c->SendMessage(pcpbd->rexxSelf, methodName, args);
 
     if ( ! checkForCondition(c) )
     {
@@ -1168,7 +1233,8 @@ MsgReplyType processUDN(RexxThreadContext *c, CSTRINGT methodName, LPARAM lParam
 
 /**
  * Searches through the notify (WM_NOTIFY) message table for a table entry that
- * matches the parameters of a WM_NOTIFY.
+ * matches the parameters of a WM_NOTIFY message.  If found the matching method
+ * in the Rexx dialog is invoked.
  *
  * @param wParam  The WPARAM parameter of the WM_NOTIFY message.
  * @param lParam  The LPARAM parameter of the WM_NOTIFY message.
@@ -1178,15 +1244,6 @@ MsgReplyType processUDN(RexxThreadContext *c, CSTRINGT methodName, LPARAM lParam
  * @return The result of the search.  Either no entry was found, an entry was
  *         found reply true in the dialog procedure, or an entry was found reply
  *         false in the dialog procedure.
- *
- * @remarks  Pre 4.0.1 the "message" put into the message queue, i.e., the
- *           method invocation string such as onEndTrack(101, 0x00CA23F0), was
- *           used in an interpret command.  Therefore, all string arguments were
- *           enclosed in quotes to prevent errors.  Now, the message string is
- *           used with sendWith(), no interpret is involved.  Since, some of the
- *           args are strings, that could include commas, the individual args
- *           are separated here with ASCII � (255, 0xFF, octal 377) and in the
- *           Rexx code, handleMessages() separates the args using 255~d2c.
  */
 MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
@@ -1204,7 +1261,6 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
     {
         if ( ((wParam & m[i].wpFilter) == m[i].wParam) && ((code & m[i].lpfilter) == (uint32_t)m[i].lParam) )
         {
-            DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
             RexxThreadContext *c = pcpbd->dlgProcContext;
 
             rxcharT   tmpBuffer[20];
@@ -1293,16 +1349,17 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
                 lParam = (((NMBCHOTITEM *)lParam)->dwFlags & HICF_ENTERING) ? 1 : 0;
             }
 
-            return genericAddDialogMessage(dlgAdm->pMessageQueue, m[i].rexxMethod, wParam, lParam, np, handle, item);
+            RXCT2A(np);
+            return genericInvokeDispatch(pcpbd, m[i].rexxMethod, wParam, lParam, npA, handle, item);
         }
     }
     return ContinueProcessing;
 }
 
-
 /**
  * Searches through the miscellaneous (anything not WM_COMMAND or WM_NOTIFY)
  * message table for a table entry that matches the message and its parameters.
+ * If a match is found, the Rexx dialog method is invoked.
  *
  * @param msg     The windows message.
  * @param wParam  The WPARAM parameter of the message.
@@ -1313,15 +1370,6 @@ MsgReplyType searchNotifyTable(WPARAM wParam, LPARAM lParam, pCPlainBaseDialog p
  * @return The result of the search.  Either no entry was found, an entry was
  *         found reply true in the dialog procedure, or an entry was found reply
  *         false in the dialog procedure.
- *
- * @remarks  Pre 4.0.1 the "message" put into the message queue, i.e., the
- *           method invocation string such as onEndTrack(101, 0x00CA23F0), was
- *           used in an interpret command.  Therefore, all string arguments were
- *           enclosed in quotes to prevent errors.  Now, the message string is
- *           used with sendWith(), no interpret is involved.  Since, some of the
- *           args are strings, that could include commas, the individual args
- *           are separated here with ASCII � (255, 0xFF, octal 377) and in the
- *           Rexx code, handleMessages() separates the args using 255~d2c.
  */
 MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlainBaseDialog pcpbd)
 {
@@ -1336,20 +1384,20 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
 
     for ( i = 0; i < tableSize; i++ )
     {
-        if ( (msg & m[i].msgFilter) == m[i].msg && (wParam & m[i].wpFilter) == m[i].wParam && (lParam & m[i].lpfilter) == (uint32_t)m[i].lParam )
+        if ( (msg & m[i].msgFilter) == m[i].msg && (wParam & m[i].wpFilter) == m[i].wParam && (lParam & m[i].lpfilter) == m[i].lParam )
         {
-            DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
             RexxThreadContext *c = pcpbd->dlgProcContext;
+            RexxArrayObject args;
 
-            rxcharT   msgBuffer[512];
-            rxcharT  *np = NULL;
+            char  *np = NULL;
             int    item = OOD_INVALID_ITEM_ID;
             HANDLE handle = NULL;
 
-            if ( m[i].tag )
-            {
                 switch ( m[i].tag & TAG_CTRLMASK )
                 {
+                case TAG_NOTHING :
+                    break;
+
                     case TAG_DIALOG :
                         switch ( m[i].tag & TAG_FLAGMASK )
                         {
@@ -1357,13 +1405,13 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                             {
                                 LPHELPINFO phi = (LPHELPINFO)lParam;
 
-                                np = (phi->iContextType == HELPINFO_WINDOW ? _T("WINDOW") : _T("MENU"));
+                                np = (phi->iContextType == HELPINFO_WINDOW ? "WINDOW" : "MENU");
 
-                                _sntprintf(msgBuffer, 511, _T("%s(%u\377%s\377%d\377%d\377%d)"), m[i].rexxMethod,
-                                          phi->iCtrlId, np, phi->MousePos.x, phi->MousePos.y, phi->dwContextId);
+                            args = c->ArrayOfFour(c->Int32(phi->iCtrlId), c->String(np),
+                                                  c->Int32(phi->MousePos.x), c->Int32(phi->MousePos.x));
+                            c->ArrayPut(args, c->Uintptr(phi->dwContextId), 5);
 
-                                addDialogMessage(msgBuffer, dlgAdm->pMessageQueue);
-                                return ReplyFalse;
+                            return invokeDispatch(c, pcpbd->rexxSelf, c->String(m[i].rexxMethod), args);
                             }
                             break;
 
@@ -1374,51 +1422,70 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                                  * then the x and y coordinates are sent as -1
                                  * and -1. Args to ooRexx: hwnd, x, y
                                  */
-                                _sntprintf(msgBuffer, 511, _T("%s(0x%p\377%d\377%d)"), m[i].rexxMethod, wParam,
-                                          ((int)(short)LOWORD(lParam)), ((int)(short)HIWORD(lParam)));
-
-                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
-                                return((m[i].tag & TAG_MSGHANDLED) ? ReplyTrue : ReplyFalse);
+                            args = c->ArrayOfThree(pointer2string(c, (void *)wParam), c->Int32(GET_X_LPARAM(lParam)),
+                                                   c->Int32(GET_Y_LPARAM(lParam)));
+                            invokeDispatch(c, pcpbd->rexxSelf, c->String(m[i].rexxMethod), args);
+                            return ReplyTrue;
                             }
                             break;
 
                             case TAG_MENUCOMMAND :
                             {
-                                /* Args to ooRexx: index, hMenu
+                            /* Args to ooRexx: index, hMenu.
+                             *
+                             * TODO we should send the Rexx Menu object rather
+                             * than the handle. This would invole constructing
+                             * the object, or grabbing it from the Menu user
+                             * words.
                                  */
-                                _sntprintf(msgBuffer, 511, _T("%s(%d\3770x%p)"), m[i].rexxMethod, wParam, lParam);
-                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
-                                return ReplyFalse;
+                            args = c->ArrayOfTwo(c->WholeNumber(wParam), c->NewPointer((POINTER)lParam));
+                            return invokeDispatch(c, pcpbd->rexxSelf, c->String(m[i].rexxMethod), args);
                             }
                             break;
 
                             case TAG_SYSMENUCOMMAND :
                             {
-                                /* Args to ooRexx: index, x, y, sysInfo
+                            /* Args to ooRexx: The SC_xx command name, x, y
                                  */
-                                int x, y;
+                            RexxStringObject sc_cmd = sc2string(c, wParam);
+                            RexxObjectPtr x, y;
 
-                                if ( lParam == -1 )
+
+                            if ( GET_Y_LPARAM(lParam) == -1 )
                                 {
-                                    x = -1;
-                                    y = -1;
+                                x = TheNegativeOneObj;
+                                y = TheNegativeOneObj;
                                 }
-                                else if ( lParam == 0 )
+                            else if ( GET_Y_LPARAM(lParam) == 0 )
                                 {
-                                    x = 0;
-                                    y = 0;
+                                x = TheZeroObj;
+                                y = TheZeroObj;
                                 }
                                 else
                                 {
-                                    x = ((int)(short)LOWORD(lParam));
-                                    y = ((int)(short)HIWORD(lParam));
+                                x = c->Int32(GET_X_LPARAM(lParam));
+                                y = c->Int32(GET_Y_LPARAM(lParam));
                                 }
 
-                                _sntprintf(msgBuffer, 511, _T("%s(%d\377%d\377%d\377%d)"), m[i].rexxMethod, (wParam & 0xFFF0), x, y, (wParam & 0x000F));
-                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
+                            MsgReplyType reply = ReplyFalse;
+                            RexxArrayObject args = c->ArrayOfThree(sc_cmd, x, y);
 
-                                return((m[i].tag & TAG_MSGHANDLED) ? ReplyTrue : ReplyFalse);
+                            RexxObjectPtr msgReply = c->SendMessage(pcpbd->rexxSelf, m[i].rexxMethod, args);
+
+                            if ( ! checkForCondition(c) )
+                            {
+                                if ( msgReply == TheTrueObj )
+                                {
+                                    setWindowPtr(pcpbd->hDlg, DWLP_MSGRESULT, 0);
+                                    reply = ReplyTrue;
                             }
+                                else
+                                {
+                                    setWindowPtr(pcpbd->hDlg, DWLP_MSGRESULT, 1);
+                                }
+                            }
+                            return reply;
+                        }
                             break;
 
                             case TAG_MENUMESSAGE :
@@ -1429,12 +1496,26 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                                 // way as far as what is sent to ooRexx.
 
                                 // Args to ooRexx: hMenu as a pointer.
+                            MsgReplyType reply = ReplyFalse;
+                            RexxPointerObject rxHMenu = c->NewPointer((POINTER)wParam);
 
-                                _sntprintf(msgBuffer, 511, _T("%s(0x%p)"), m[i].rexxMethod, wParam);
-                                addDialogMessage((rxcharT *)msgBuffer, dlgAdm->pMessageQueue);
+                            RexxObjectPtr msgReply = c->SendMessage1(pcpbd->rexxSelf, m[i].rexxMethod, rxHMenu);
 
-                                return((m[i].tag & TAG_MSGHANDLED) ? ReplyTrue : ReplyFalse);
-                            } break;
+                            if ( ! checkForCondition(c) )
+                            {
+                                if ( msgReply == TheTrueObj )
+                                {
+                                    setWindowPtr(pcpbd->hDlg, DWLP_MSGRESULT, 0);
+                                    reply = ReplyTrue;
+                                }
+                                else
+                                {
+                                    setWindowPtr(pcpbd->hDlg, DWLP_MSGRESULT, 1);
+                                }
+                            }
+                            return reply;
+                        }
+                        break;
 
                             default :
                                 break;
@@ -1444,13 +1525,13 @@ MsgReplyType searchMiscTable(uint32_t msg, WPARAM wParam, LPARAM lParam, pCPlain
                     default :
                         break;
                 }
-            }
-            else if ( msg == WM_HSCROLL || msg == WM_VSCROLL )
+
+            if ( msg == WM_HSCROLL || msg == WM_VSCROLL )
             {
                 handle = (HANDLE)lParam;
             }
 
-            return genericAddDialogMessage(dlgAdm->pMessageQueue, m[i].rexxMethod, wParam, lParam, np, handle, item);
+            return genericInvokeDispatch(pcpbd, m[i].rexxMethod, wParam, lParam, np, handle, item);
         }
     }
     return ContinueProcessing;
@@ -1489,17 +1570,17 @@ MsgReplyType searchMessageTables(ULONG message, WPARAM param, LPARAM lparam, pCP
  *           winMsg, wParam, lParam are not all 0.  TODO need to recheck this.
  */
 bool addCommandMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilter, LPARAM lParam, ULONG_PTR lpFilter,
-                       CSTRINGT method, uint32_t tag)
+                       CSTRING method, uint32_t tag)
 {
     size_t index = pcen->cmSize;
     if ( index < MAX_COMMAND_MSGS )
     {
-        pcen->commandMsgs[index].rexxMethod = (rxcharT *)RXTLOCALALLOC(LMEM_FIXED, _tcslen(method) + 1);
+        pcen->commandMsgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(method) + 1);
         if ( pcen->commandMsgs[index].rexxMethod == NULL )
         {
             return false;
         }
-        _tcscpy(pcen->commandMsgs[index].rexxMethod, method);
+        strcpy(pcen->commandMsgs[index].rexxMethod, method);
 
         pcen->commandMsgs[index].msg = WM_COMMAND;
         pcen->commandMsgs[index].msgFilter = 0xFFFFFFFF;
@@ -1542,7 +1623,7 @@ bool addCommandMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilt
  *           winMsg, wParam, lParam are not all 0.  TODO need to recheck this.
  */
 bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilter, LPARAM lParam, ULONG_PTR lpFilter,
-                      CSTRINGT method, uint32_t tag)
+                      CSTRING method, uint32_t tag)
 {
     if ( pcen->notifyMsgs == NULL )
     {
@@ -1560,12 +1641,12 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
 
     if ( index < MAX_NOTIFY_MSGS )
     {
-        pcen->notifyMsgs[index].rexxMethod = (rxcharT *)RXTLOCALALLOC(LMEM_FIXED, _tcslen(method) + 1);
+        pcen->notifyMsgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(method) + 1);
         if ( pcen->notifyMsgs[index].rexxMethod == NULL )
         {
             return false;
         }
-        _tcscpy(pcen->notifyMsgs[index].rexxMethod, method);
+        strcpy(pcen->notifyMsgs[index].rexxMethod, method);
 
         pcen->notifyMsgs[index].msg = WM_NOTIFY;
         pcen->notifyMsgs[index].msgFilter = 0xFFFFFFFF;
@@ -1611,7 +1692,7 @@ bool addNotifyMessage(pCEventNotification pcen, WPARAM wParam, ULONG_PTR wpFilte
  */
 bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter,
                     WPARAM wParam, ULONG_PTR wpFilter, LPARAM lParam, ULONG_PTR lpFilter,
-                    CSTRINGT method, uint32_t tag)
+                    CSTRING method, uint32_t tag)
 {
     if ( pcen->miscMsgs == NULL )
     {
@@ -1629,12 +1710,12 @@ bool addMiscMessage(pCEventNotification pcen, uint32_t winMsg, uint32_t wmFilter
 
     if ( index < MAX_NOTIFY_MSGS )
     {
-        pcen->miscMsgs[index].rexxMethod = (rxcharT *)RXTLOCALALLOC(LMEM_FIXED, _tcslen(method) + 1);
+        pcen->miscMsgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(method) + 1);
         if ( pcen->miscMsgs[index].rexxMethod == NULL )
         {
             return false;
         }
-        _tcscpy(pcen->miscMsgs[index].rexxMethod, method);
+        strcpy(pcen->miscMsgs[index].rexxMethod, method);
 
         pcen->miscMsgs[index].msg = winMsg;
         pcen->miscMsgs[index].msgFilter = 0xFFFFFFFF;
@@ -1672,14 +1753,14 @@ bool initCommandMessagesTable(RexxMethodContext *c, pCEventNotification pcen)
     // table can not be full at this point, we are just starting out.  A memory
     // allocation failure, which is highly unlikely, will just be ignored.  If
     // this ooRexx process is out of memory, that will quickly show up.
-    addCommandMessage(pcen, IDOK,     UINTPTR_MAX, 0, 0, _T("OK"),     TAG_NOTHING);
-    addCommandMessage(pcen, IDCANCEL, UINTPTR_MAX, 0, 0, _T("Cancel"), TAG_NOTHING);
-    addCommandMessage(pcen, IDHELP,   UINTPTR_MAX, 0, 0, _T("Help"),   TAG_NOTHING);
+    addCommandMessage(pcen, IDOK,     UINTPTR_MAX, 0, 0, "OK",     TAG_NOTHING);
+    addCommandMessage(pcen, IDCANCEL, UINTPTR_MAX, 0, 0, "Cancel", TAG_NOTHING);
+    addCommandMessage(pcen, IDHELP,   UINTPTR_MAX, 0, 0, "Help",   TAG_NOTHING);
 
     return true;
 }
 
-bool initEventNotification(RexxMethodContext *c, DIALOGADMIN *dlgAdm, RexxObjectPtr self, pCEventNotification *ppCEN)
+bool initEventNotification(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxObjectPtr self, pCEventNotification *ppCEN)
 {
     RexxBufferObject obj = c->NewBuffer(sizeof(CEventNotification));
     if ( obj == NULLOBJECT )
@@ -1690,7 +1771,6 @@ bool initEventNotification(RexxMethodContext *c, DIALOGADMIN *dlgAdm, RexxObject
     pCEventNotification pcen = (pCEventNotification)c->BufferData(obj);
     memset(pcen, 0, sizeof(pCEventNotification));
 
-    pcen->dlgAdm = dlgAdm;
     pcen->rexxSelf = self;
 
     if ( ! initCommandMessagesTable(c, pcen) )
@@ -1737,19 +1817,18 @@ inline CSTRING mcn2name(uint32_t mcn)
  * We know the keyword arg position is 2.  The MonthCalendar control is post
  * ooRexx 4.0.1 so we raise an exception on error.
  */
-static bool keyword2mcn(RexxMethodContext *c, CSTRINGT keyword, uint32_t *flag)
+static bool keyword2mcn(RexxMethodContext *c, CSTRING keyword, uint32_t *flag)
 {
     uint32_t mcn;
 
-    if ( StrStrI(keyword,      _T("GETDAYSTATE")) != NULL ) mcn = MCN_GETDAYSTATE;
-    else if ( StrStrI(keyword, _T("RELEASED"))    != NULL ) mcn = NM_RELEASEDCAPTURE;
-    else if ( StrStrI(keyword, _T("SELCHANGE"))   != NULL ) mcn = MCN_SELCHANGE;
-    else if ( StrStrI(keyword, _T("SELECT"))      != NULL ) mcn = MCN_SELECT;
-    else if ( StrStrI(keyword, _T("VIEWCHANGE"))  != NULL ) mcn = MCN_VIEWCHANGE;
+    if ( StrStrIA(keyword,      "GETDAYSTATE") != NULL ) mcn = MCN_GETDAYSTATE;
+    else if ( StrStrIA(keyword, "RELEASED")    != NULL ) mcn = NM_RELEASEDCAPTURE;
+    else if ( StrStrIA(keyword, "SELCHANGE")   != NULL ) mcn = MCN_SELCHANGE;
+    else if ( StrStrIA(keyword, "SELECT")      != NULL ) mcn = MCN_SELECT;
+    else if ( StrStrIA(keyword, "VIEWCHANGE")  != NULL ) mcn = MCN_VIEWCHANGE;
     else
     {
-        RXCT2A(keyword);
-        wrongArgValueException(c->threadContext, 2, MCN_KEYWORDS, keywordA);
+        wrongArgValueException(c->threadContext, 2, MCN_KEYWORDS, keyword);
         return false;
     }
     *flag = mcn;
@@ -1784,23 +1863,22 @@ inline CSTRING dtpn2name(uint32_t dtpn)
  * We know the keyword arg position is 2.  The DateTimePicker control is post
  * ooRexx 4.0.1 so we raise an exception on error.
  */
-static bool keyword2dtpn(RexxMethodContext *c, CSTRINGT keyword, uint32_t *flag)
+static bool keyword2dtpn(RexxMethodContext *c, CSTRING keyword, uint32_t *flag)
 {
     uint32_t dtpn;
 
-    if ( StrStrI(keyword,      _T("CLOSEUP"))        != NULL ) dtpn = DTN_CLOSEUP;
-    else if ( StrStrI(keyword, _T("DATETIMECHANGE")) != NULL ) dtpn = DTN_DATETIMECHANGE;
-    else if ( StrStrI(keyword, _T("DROPDOWN"))       != NULL ) dtpn = DTN_DROPDOWN;
-    else if ( StrStrI(keyword, _T("FORMATQUERY"))    != NULL ) dtpn = DTN_FORMATQUERY;
-    else if ( StrStrI(keyword, _T("FORMAT"))         != NULL ) dtpn = DTN_FORMAT;
-    else if ( StrStrI(keyword, _T("KILLFOCUS"))      != NULL ) dtpn = NM_KILLFOCUS;
-    else if ( StrStrI(keyword, _T("SETFOCUS"))       != NULL ) dtpn = NM_SETFOCUS;
-    else if ( StrStrI(keyword, _T("USERSTRING"))     != NULL ) dtpn = DTN_USERSTRING;
-    else if ( StrStrI(keyword, _T("WMKEYDOWN"))      != NULL ) dtpn = DTN_WMKEYDOWN;
+    if ( StrStrIA(keyword,      "CLOSEUP")        != NULL ) dtpn = DTN_CLOSEUP;
+    else if ( StrStrIA(keyword, "DATETIMECHANGE") != NULL ) dtpn = DTN_DATETIMECHANGE;
+    else if ( StrStrIA(keyword, "DROPDOWN")       != NULL ) dtpn = DTN_DROPDOWN;
+    else if ( StrStrIA(keyword, "FORMATQUERY")    != NULL ) dtpn = DTN_FORMATQUERY;
+    else if ( StrStrIA(keyword, "FORMAT")         != NULL ) dtpn = DTN_FORMAT;
+    else if ( StrStrIA(keyword, "KILLFOCUS")      != NULL ) dtpn = NM_KILLFOCUS;
+    else if ( StrStrIA(keyword, "SETFOCUS")       != NULL ) dtpn = NM_SETFOCUS;
+    else if ( StrStrIA(keyword, "USERSTRING")     != NULL ) dtpn = DTN_USERSTRING;
+    else if ( StrStrIA(keyword, "WMKEYDOWN")      != NULL ) dtpn = DTN_WMKEYDOWN;
     else
     {
-        RXCT2A(keyword);
-        wrongArgValueException(c->threadContext, 2, DTPN_KEYWORDS, keywordA);
+        wrongArgValueException(c->threadContext, 2, DTPN_KEYWORDS, keyword);
         return false;
     }
     *flag = dtpn;
@@ -1809,12 +1887,61 @@ static bool keyword2dtpn(RexxMethodContext *c, CSTRINGT keyword, uint32_t *flag)
 
 
 /**
+ * Creates a Rexx argument array for, presumably, the invocation of a Rexx
+ * method connected to some type of key board event.
+ *
+ * @param c       Thread context we are operating in.
+ * @param wParam  The WPARAM for the key event, which is presumed to be the
+ *                charater code for the key event.
+ *
+ * @return RexxArrayObject
+ *
+ * @remarks  This function is currently called for connectKeyPress() and
+ *           connectKeyEvent() processing and could probably be used for other
+ *           key event connections if any are added to ooDialog.
+ */
+RexxArrayObject getKeyEventRexxArgs(RexxThreadContext *c, WPARAM wParam)
+{
+    BOOL bShift = (GetAsyncKeyState(VK_SHIFT) & ISDOWN) ? 1 : 0;
+    BOOL bControl = (GetAsyncKeyState(VK_CONTROL) & ISDOWN) ? 1 : 0;
+    BOOL bAlt = (GetAsyncKeyState(VK_MENU) & ISDOWN) ? 1 : 0;
+
+    CHAR info[64] = {'\0'};
+
+    GetKeyState(VK_NUMLOCK) & KEY_TOGGLED ? strcpy(info, "numOn") : strcpy(info, "numOff");
+
+    GetKeyState(VK_CAPITAL) & KEY_TOGGLED ? strcat(info, " capsOn") : strcat(info, " capsOff");
+
+    if ( bShift )
+    {
+        GetAsyncKeyState(VK_RSHIFT) & ISDOWN ? strcat(info, " rShift") : strcat(info, " lShift");
+    }
+    if ( bControl )
+    {
+        GetAsyncKeyState(VK_RCONTROL) & ISDOWN ? strcat(info, " rControl") : strcat(info, " lControl");
+    }
+    if ( bAlt )
+    {
+        GetAsyncKeyState(VK_RMENU) & ISDOWN ? strcat(info, " rAlt") : strcat(info, " lAlt");
+    }
+
+    GetKeyState(VK_SCROLL) & KEY_TOGGLED ? strcat(info, " scrollOn") : strcat(info, " scrollOff");
+
+    RexxArrayObject args = c->ArrayOfFour(c->WholeNumber(wParam), c->Logical(bShift),
+                                          c->Logical(bControl), c->Logical(bAlt));
+    c->ArrayPut(args, c->String(info), 5);
+
+    return args;
+}
+
+
+/**
  * The keyboard hook procedure.
  *
  * This is a thread specific hook, not a global hook. This function executes in
- * the same thread as the dialog's window procedure.  The dialog admin structure
- * stores the key press data, the thread ID is used to locate the correct dialog
- * admin.
+ * the same thread as the dialog's window procedure.  The thread ID is used to
+ * locate the correct dialog CSelf struct, which in turn lets us get the CSelf
+ * struct for the event notification object.
  *
  * The key is examined to see if the user has set an ooDialog method for it and
  * if it is a key down event.  If so, the key data is sent on to
@@ -1824,16 +1951,15 @@ static bool keyword2dtpn(RexxMethodContext *c, CSTRINGT keyword, uint32_t *flag)
  */
 LRESULT CALLBACK keyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
 {
-    register int i;
+    register size_t i;
     DWORD id = GetCurrentThreadId();
-    DIALOGADMIN * dlgAdm;
 
-    /* No matter what, we need to find the dialog admin struct, it is the only
-     * way to get the hook handle.
+    /* No matter what, we need to find the event notification struct, it is the
+     * only way to get the hook handle.
      */
-    for ( i = 0; i < StoredDialogs; i++ )
+    for ( i = 0; i < CountDialogs; i++ )
     {
-        if ( DialogTab[i]->threadID == id )
+        if ( DialogTable[i]->threadID == id )
         {
             break;
         }
@@ -1842,21 +1968,22 @@ LRESULT CALLBACK keyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
     /* If we can't find it, there is nothing to do about it.  We can't call the
      * next hook, so just return 0.
      */
-    if ( i >= StoredDialogs )
+    if ( i >= CountDialogs )
     {
         return 0;
     }
 
-    dlgAdm = DialogTab[i];
+    pCEventNotification pcen = DialogTable[i]->enCSelf;
+    KEYPRESSDATA *pKeyPressData = (KEYPRESSDATA *)pcen->pHookData->pData;
 
-    if ( (code == HC_ACTION) && dlgAdm->pKeyPressData->key[wParam] )
+    if ( (code == HC_ACTION) && pKeyPressData->key[wParam] )
     {
-        if ( !(lParam & KEY_REALEASE) && !(lParam & KEY_WASDOWN) )
+        if ( !(lParam & KEY_RELEASE) && !(lParam & KEY_WASDOWN) )
         {
-            processKeyPress(dlgAdm->pKeyPressData, wParam, lParam, dlgAdm->pMessageQueue);
+            processKeyPress(pcen->pHookData, wParam, lParam);
         }
     }
-	return CallNextHookEx(dlgAdm->hHook, code, wParam, lParam);
+	return CallNextHookEx(pcen->hHook, code, wParam, lParam);
 }
 
 
@@ -1867,13 +1994,13 @@ LRESULT CALLBACK keyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
  *
  * If the hook is not set, all the memory allocation is cleaned up.
  */
-static keyPressErr_t setKBHook(DIALOGADMIN *dlgAdm, HWND hDlg)
+static keyPressErr_t setKBHook(pCEventNotification pcen)
 {
-    dlgAdm->hHook = (HHOOK)SendMessage(hDlg, WM_USER_HOOK, (WPARAM)&keyboardHookProc, (LPARAM)0);
-    if ( ! dlgAdm->hHook )
+    pcen->hHook = (HHOOK)SendMessage(pcen->hDlg, WM_USER_HOOK, (WPARAM)&keyboardHookProc, (LPARAM)pcen->pHookData);
+    if ( ! pcen->hHook )
     {
-        freeKeyPressData(dlgAdm->pKeyPressData);
-        dlgAdm->pKeyPressData = NULL;
+        freeKeyPressData(pcen->pHookData);
+        pcen->pHookData = NULL;
         return winAPIErr;
     }
     return noErr;
@@ -1884,38 +2011,55 @@ static keyPressErr_t setKBHook(DIALOGADMIN *dlgAdm, HWND hDlg)
  * Allocates memory for the key press structure and sets up all the data used by
  * the keyboard hook procedure.  Once everything is good the hook is set.
  *
+ * If anything fails, all memory is freed.
  */
-static keyPressErr_t installKBHook(DIALOGADMIN *dlgAdm, HWND hDlg, CSTRING method, CSTRING keys, CSTRING filter)
+static keyPressErr_t installKBHook(pCEventNotification pcen, CSTRING method, CSTRING keys, CSTRING filter)
 {
-    KEYPRESSDATA *pData;
-    LONG        ret = 0;
-
-    pData = (KEYPRESSDATA *)LocalAlloc(LPTR, sizeof(KEYPRESSDATA));
-    if ( pData == NULL )
+    SUBCLASSDATA *pSubclassData = (SUBCLASSDATA *)LocalAlloc(LPTR, sizeof(SUBCLASSDATA));
+    if ( pSubclassData == NULL )
     {
         return memoryErr;
     }
 
-    keyPressErr_t result = setKeyPressData(pData, method, keys, filter);
-    if ( result == noErr || result == badFilterErr || result == keyMapErr )
+    KEYPRESSDATA *pKeyData = (KEYPRESSDATA *)LocalAlloc(LPTR, sizeof(KEYPRESSDATA));
+    if ( pKeyData == NULL )
     {
-        dlgAdm->pKeyPressData = pData;
+        LocalFree(pSubclassData);
+        return memoryErr;
+    }
+
+    keyPressErr_t result = setKeyPressData(pKeyData, method, keys, filter);
+    if ( result == noErr )
+    {
+        pSubclassData->pData = pKeyData;
+        pcen->pHookData = pSubclassData;
+
+        // Note that setKBHook() frees all memeory if it fails;
+        result = setKBHook(pcen);
     }
     else
     {
-        LocalFree(pData);
-        return result;
+        freeKeyPressData(pSubclassData);
     }
 
-    // Try to retain an existing, non-fatal, error code.
-    if ( setKBHook(dlgAdm, hDlg) == winAPIErr )
-    {
-        result = winAPIErr;
-    }
     return result;
 }
 
 
+/**
+ * Connects a method in the Rexx dialog to a key press(es.)
+ *
+ * If the hook is not installed, it is installed.  Otherwise, the method is
+ * simply added to key press table.
+ *
+ * @param c
+ * @param pcen
+ * @param methodName
+ * @param keys
+ * @param filter
+ *
+ * @return keyPressErr_t
+ */
 static keyPressErr_t connectKeyPressHook(RexxMethodContext *c, pCEventNotification pcen, CSTRING methodName,
                                    CSTRING keys, CSTRING filter)
 {
@@ -1940,35 +2084,34 @@ static keyPressErr_t connectKeyPressHook(RexxMethodContext *c, pCEventNotificati
     /* If there is no existing hook, install one and connect the method
      * to it, otherwise connect the method to the existing hook.
      */
-    DIALOGADMIN *dlgAdm = pcen->dlgAdm;
-    if ( dlgAdm->hHook == NULL )
+    if ( pcen->hHook == NULL )
     {
-        return installKBHook(dlgAdm, hDlg, methodName, keys, filter);
+        return installKBHook(pcen, methodName, keys, filter);
     }
 
-    return setKeyPressData(dlgAdm->pKeyPressData, methodName, keys, filter);
+    return setKeyPressData((KEYPRESSDATA *)pcen->pHookData->pData, methodName, keys, filter);
 }
 
 
 /**
  * If the hook exists, unhook.  If the key press data exists, free it.
  */
-void removeKBHook(DIALOGADMIN *dlgAdm)
+void removeKBHook(pCEventNotification pcen)
 {
-    if ( dlgAdm->hHook )
+    if ( pcen->hHook )
     {
-        UnhookWindowsHookEx(dlgAdm->hHook);
+        UnhookWindowsHookEx(pcen->hHook);
     }
 
-    freeKeyPressData(dlgAdm->pKeyPressData);
-    dlgAdm->hHook = 0;
-    dlgAdm->pKeyPressData = NULL;
+    freeKeyPressData(pcen->pHookData);
+    pcen->hHook = 0;
+    pcen->pHookData = NULL;
 }
 
 
 /**
- * Takes a key event that has an ooDialog method connected to it, sets up the
- * method invocation message, and places it in the ooDialog message queue.
+ * Takes a key event that has an ooDialog method connected to it and invokes the
+ * method.
  *
  * It is possible for the key event to be filtered out and no ooDialog method is
  * then invoked.
@@ -1984,16 +2127,18 @@ void removeKBHook(DIALOGADMIN *dlgAdm)
  *
  *             rShift, lShift, rControl lControl, rAlt, lAlt, numOn, numOff,
  *             capsOn, capsOff, scrollOn, scrollOf
+ *
+ * @remarks  The method name (pMethod) can not be longer than 197 chars.  This
+ *           is checked for in setKeyPressData()
  */
-void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHART pMessageQueue)
+void processKeyPress(SUBCLASSDATA *pSubclassData, WPARAM wParam, LPARAM lParam)
 {
-    /* Method name can not be longer than 197 chars.  This is checked for in
-     * setKeyPressData()
-     */
-    CHAR oodMsg[256];
+    KEYPRESSDATA *pKeyData = (KEYPRESSDATA *)pSubclassData->pData;
+
     BOOL passed = TRUE;
-    INT i = pKeyData->key[wParam];
-    PCHAR pMethod = pKeyData->pMethods[i];
+
+    size_t i = pKeyData->key[wParam];
+    char *pMethod = pKeyData->pMethods[i];
     KEYFILTER *pFilter = pKeyData->pFilters[i];
 
     BOOL bShift = (GetAsyncKeyState(VK_SHIFT) & ISDOWN) ? 1 : 0;
@@ -2022,51 +2167,12 @@ void processKeyPress(KEYPRESSDATA *pKeyData, WPARAM wParam, LPARAM lParam, PCHAR
 
     if ( passed )
     {
-        CHAR info[64] = {'\0'};
+        RexxThreadContext *c = pSubclassData->dlgProcContext;
 
-        if ( GetKeyState(VK_NUMLOCK) & KEY_TOGGLED )
-            strcpy(info, "numOn");
-        else
-            strcpy(info, "numOff");
-
-        if ( GetKeyState(VK_CAPITAL) & KEY_TOGGLED )
-            strcat(info, " capsOn");
-        else
-            strcat(info, " capsOff");
-
-        if ( bShift )
-        {
-            if ( GetAsyncKeyState(VK_RSHIFT) & ISDOWN )
-                strcat(info, " rShift");
-            else
-                strcat(info, " lShift");
+        RexxArrayObject args = getKeyEventRexxArgs(c, wParam);
+        invokeDispatch(c, pSubclassData->rexxDialog, c->String(pMethod), args);
         }
-        if ( bControl )
-        {
-            if ( GetAsyncKeyState(VK_RCONTROL) & ISDOWN )
-                strcat(info, " rControl");
-            else
-                strcat(info, " lControl");
-        }
-        if ( bAlt )
-        {
-            if ( GetAsyncKeyState(VK_RMENU) & ISDOWN )
-                strcat(info, " rAlt");
-            else
-                strcat(info, " lAlt");
-        }
-
-        if ( GetKeyState(VK_SCROLL) & KEY_TOGGLED )
-            strcat(info, " scrollOn");
-        else
-            strcat(info, " scrollOff");
-
-        RXCA2T(info);
-        sprintf(oodMsg, "%s(%u,%u,%u,%u,%s)", pMethod, wParam, bShift, bControl, bAlt, infoT.target());
-        addDialogMessage((rxcharT *)oodMsg, pMessageQueue);
-    }
 }
-
 
 /**
  * Removes the method at index from the key press data structure.  Assumes that
@@ -2113,18 +2219,23 @@ void removeKeyPressMethod(KEYPRESSDATA *pData, uint32_t index)
 /**
  * Frees the key press data structure.  Note that methods can be removed leaving
  * holes in the array.
+ *
+ * @assumes Caller has passed in the correct pointer, i.e., that pSubclassData's
+ *          pData points to a KEYPRESSDATA struct.
  */
-void freeKeyPressData(KEYPRESSDATA *pData)
+void freeKeyPressData(SUBCLASSDATA *pSubclassData)
 {
     size_t i;
-    if ( pData )
+    if ( pSubclassData )
     {
+        KEYPRESSDATA *p = (KEYPRESSDATA *)pSubclassData->pData;
         for ( i = 1; i <= MAX_KEYPRESS_METHODS; i++ )
         {
-            safeLocalFree((void *)pData->pMethods[i]);
-            safeLocalFree((void *)pData->pFilters[i]);
+            safeLocalFree((void *)p->pMethods[i]);
+            safeLocalFree((void *)p->pFilters[i]);
         }
-        LocalFree((void *)pData);
+        LocalFree((void *)p);
+        LocalFree((void *)pSubclassData);
     }
 }
 
@@ -2222,11 +2333,6 @@ static BOOL parseKeyToken(PCHAR token, PUINT pFirst, PUINT pLast)
  * @param ppMethodName
  *
  * @return keyPressErr_t
- *
- * @remarks There has to be a limit on the length of a method name.  The size of
- *          the message being sent to addDialogMessage() is set at 256 (for the
- *          key press event.)  Because of the arg string being sent to the
- *          method, this leaves less than that for the method name.
  */
 static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRING method, char **ppMethodName)
 {
@@ -2236,13 +2342,7 @@ static keyPressErr_t kpCheckMethod(KEYPRESSDATA *pData, CSTRING method, char **p
         return maxMethodsErr;
     }
 
-    size_t cch = strlen(method);
-    if ( cch++ > CCH_METHOD_NAME )
-    {
-        return nameErr;
-    }
-
-    char *tmpName = (char *)LocalAlloc(LPTR, cch);
+    char *tmpName = (char *)LocalAlloc(LPTR, strlen(method) + 1);
     if ( tmpName == NULL )
     {
         return memoryErr;
@@ -2300,17 +2400,33 @@ static keyPressErr_t kpCheckFilter(CSTRING filter, KEYFILTER **ppFilter)
     return noErr;
 }
 
-static bool kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
+/**
+ *  Maps keyboard key(s) to a method.  Each key found in the keys string is set
+ *  to index.
+ *
+ * @param pData  Pointer to the key press data block.
+ * @param keys   A string containing the keys the user wants mapped to a single
+ *               method.
+ * @param index  The index in the method table of the method to be mapped to the
+ *               key(s).
+ *
+ * @return  No error, memory error, or key map error.
+ *
+ * @remarks  If a token in the keys string is invalid, it is basically ignored
+ *           and the rest of the tokens (if any) are parsed.  So, it is easily
+ *           possible that some keys are set and some are not.
+ */
+static keyPressErr_t kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
 {
     uint32_t firstKey, lastKey;
     char *token = NULL;
     char *str = NULL;
-    bool success = false;
+    keyPressErr_t reply = memoryErr;
 
     str = strdupupr_nospace(keys);
     if ( str != NULL )
     {
-        success = true;
+        reply = noErr;
         token = strtok(str, ",");
         while( token != NULL )
         {
@@ -2331,14 +2447,14 @@ static bool kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
             }
             else
             {
-                success = false;
+                reply = keyMapErr;
             }
             token = strtok(NULL, ",");
         }
     }
 
     safeFree(str);
-    return success;
+    return reply;
 }
 
 /**
@@ -2351,6 +2467,10 @@ static bool kpMapKeys(KEYPRESSDATA *pData, CSTRING keys, uint32_t index)
  * are being set up.  When a key slot is to be updated with the index of the new
  * method, it is protected by a critical section.
  *
+ * setKeyPressData() is called when the subclass or hook is first installed, and
+ * it can also be called to just update the data block after the subclass is
+ * installed. All errors are reported, but the caller is responsible for
+ * determining what to do on error.
  */
 keyPressErr_t setKeyPressData(KEYPRESSDATA *pData, CSTRING method, CSTRING keys, CSTRING filter)
 {
@@ -2363,6 +2483,8 @@ keyPressErr_t setKeyPressData(KEYPRESSDATA *pData, CSTRING method, CSTRING keys,
         goto err_out;
     }
 
+    // Only a memory error is fatal, if there is an error with the filter, the
+    // filter is simply not set.
     result = kpCheckFilter(filter, &pFilter);
     if ( result == memoryErr )
     {
@@ -2377,7 +2499,7 @@ keyPressErr_t setKeyPressData(KEYPRESSDATA *pData, CSTRING method, CSTRING keys,
 
     // Get the index of where to put the method.  If the next free queue is not
     // empty, pull the index from the queue, otherwise we are still adding
-    //methods sequentially.
+    // methods sequentially.
     uint32_t index;
     if ( pData->topOfQ )
     {
@@ -2397,11 +2519,14 @@ keyPressErr_t setKeyPressData(KEYPRESSDATA *pData, CSTRING method, CSTRING keys,
         pData->pFilters[index] = pFilter;
     }
 
-    if ( ! kpMapKeys(pData, keys, index) )
-    {
-        result = keyMapErr;
-    }
+    // If there is an error here, it is safe to just ignore it, we jump past
+    // err_out. So, pMethods[index] is not null, if the caller decides to abort,
+    // pMethod will be freed during clean up.  If the caller decides to not
+    // abort, pMethods[index] might not have any keys mapped to it, but that
+    // does no harm, the error is reported.  If things are not working for the
+    // user, he can check the return codes to find out why.
 
+    result = kpMapKeys(pData, keys, index);
     goto done_out;
 
 err_out:
@@ -2463,21 +2588,21 @@ RexxMethod2(int32_t, en_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF,
     keyPressErr_t result = nameErr;
     char *tmpName = NULL;
 
-    HWND hDlg = pcen->hDlg;
-    if ( hDlg == NULL || ! IsWindow(hDlg) )
+    if ( pcen->hDlg == NULL || ! IsWindow(pcen->hDlg) )
     {
         noWindowsDialogException(context, pcen->rexxSelf);
         goto done_out;
     }
 
-    DIALOGADMIN *dlgAdm = pcen->dlgAdm;
-    if ( dlgAdm->hHook )
+    if ( pcen->hHook && pcen->pHookData )
     {
+        KEYPRESSDATA *pKeyPressData = (KEYPRESSDATA *)pcen->pHookData->pData;
+
         // If there is no methodName argument, remove the entire hook, otherwise
         // disconnect the named method.
         if ( argumentOmitted(1) )
         {
-            removeKBHook(dlgAdm);
+            removeKBHook(pcen);
             result = noErr;
         }
         else
@@ -2488,8 +2613,7 @@ RexxMethod2(int32_t, en_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF,
                 result = memoryErr;
                 goto done_out;
             }
-
-            uint32_t index = seekKeyPressMethod(dlgAdm->pKeyPressData, tmpName);
+            uint32_t index = seekKeyPressMethod(pKeyPressData, tmpName);
             if ( index == 0 )
             {
                 result = nameErr;
@@ -2499,18 +2623,25 @@ RexxMethod2(int32_t, en_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF,
             // If there is only 1 method connected to the hook, remove the hook
             // completely.  Otherwise, unhook the hook, fix up the key press
             //data, and reset the hook.
-            if ( dlgAdm->pKeyPressData->usedMethods == 1 )
+            if ( pKeyPressData->usedMethods == 1 )
             {
-                removeKBHook(dlgAdm);
+                removeKBHook(pcen);
                 result = noErr;
             }
             else
             {
-                UnhookWindowsHookEx(dlgAdm->hHook);
-                removeKeyPressMethod(dlgAdm->pKeyPressData, index);
-                result = setKBHook(dlgAdm, hDlg);
+                UnhookWindowsHookEx(pcen->hHook);
+                removeKeyPressMethod(pKeyPressData, index);
+
+                // If setKBHook fails, it frees all memory.
+                result = setKBHook(pcen);
+
+                if ( result != noErr )
+                {
+                    pcen->pHookData = NULL;
             }
         }
+    }
     }
 
 done_out:
@@ -2523,8 +2654,7 @@ RexxMethod2(logical_t, en_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, C
 {
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
-    DIALOGADMIN *dlgAdm = pcen->dlgAdm;
-    if ( dlgAdm->hHook == NULL )
+    if ( pcen->hHook == NULL )
     {
         return FALSE;
     }
@@ -2540,7 +2670,7 @@ RexxMethod2(logical_t, en_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, C
         return FALSE;
     }
 
-    BOOL exists = (seekKeyPressMethod(dlgAdm->pKeyPressData, tmpName) > 0);
+    BOOL exists = (seekKeyPressMethod((KEYPRESSDATA *)pcen->pHookData->pData, tmpName) > 0);
     free(tmpName);
     return exists;
 }
@@ -2572,7 +2702,6 @@ RexxMethod2(logical_t, en_hasKeyPressConnection, OPTIONAL_CSTRING, methodName, C
  */
 RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id;
@@ -2585,7 +2714,7 @@ RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, meth
         context->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
         return 1;
     }
-    return (addCommandMessage(pcen, id, 0x0000FFFF, 0, 0, methodNameT, 0) ? 0 : 1);
+    return (addCommandMessage(pcen, id, 0x0000FFFF, 0, 0, methodName, 0) ? 0 : 1);
 }
 
 
@@ -2629,8 +2758,6 @@ RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, meth
 RexxMethod4(RexxObjectPtr, en_connectUpDownEvent, RexxObjectPtr, rxID, CSTRING, event,
             OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(event);
-    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id = oodResolveSymbolicID(context, pcen->rexxSelf, rxID, -1, 1);
@@ -2654,10 +2781,9 @@ RexxMethod4(RexxObjectPtr, en_connectUpDownEvent, RexxObjectPtr, rxID, CSTRING, 
     if ( argumentOmitted(3) || *methodName == '\0' )
     {
         methodName = "onDeltaPos";
-        methodNameT = methodName;
     }
 
-    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, TAG_UPDOWN) )
+    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodName, TAG_UPDOWN) )
     {
         return TheTrueObj;
     }
@@ -2701,8 +2827,6 @@ err_out:
 RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, CSTRING, event,
             OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(event);
-    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id = oodResolveSymbolicID(context, pcen->rexxSelf, rxID, -1, 1);
@@ -2712,7 +2836,7 @@ RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, C
     }
 
     uint32_t notificationCode;
-    if ( ! keyword2dtpn(context, eventT, &notificationCode) )
+    if ( ! keyword2dtpn(context, event, &notificationCode) )
     {
         goto err_out;
     }
@@ -2720,12 +2844,11 @@ RexxMethod4(RexxObjectPtr, en_connectDateTimePickerEvent, RexxObjectPtr, rxID, C
     if ( argumentOmitted(3) || *methodName == '\0' )
     {
         methodName = dtpn2name(notificationCode);
-        methodNameT = methodName;
     }
 
     uint32_t tag = TAG_DATETIMEPICKER | TAG_REPLYFROMREXX;
 
-    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, tag) )
+    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodName, tag) )
     {
         return TheTrueObj;
     }
@@ -2764,8 +2887,6 @@ err_out:
 RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CSTRING, event,
             OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    RXCA2T(event);
-    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
 
     uint32_t id = oodResolveSymbolicID(context, pcen->rexxSelf, rxID, -1, 1);
@@ -2775,7 +2896,7 @@ RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CS
     }
 
     uint32_t notificationCode;
-    if ( ! keyword2mcn(context, eventT, &notificationCode) )
+    if ( ! keyword2mcn(context, event, &notificationCode) )
     {
         goto err_out;
     }
@@ -2788,7 +2909,6 @@ RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CS
     if ( argumentOmitted(3) || *methodName == '\0' )
     {
         methodName = mcn2name(notificationCode);
-        methodNameT = methodName;
     }
 
     uint32_t tag = TAG_MONTHCALENDAR;
@@ -2797,7 +2917,7 @@ RexxMethod4(RexxObjectPtr, en_connectMonthCalendarEvent, RexxObjectPtr, rxID, CS
         tag |= (TAG_MSGHANDLED | TAG_REPLYFROMREXX);
     }
 
-    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodNameT, tag) )
+    if ( addNotifyMessage(pcen, id, 0xFFFFFFFF, notificationCode, 0xFFFFFFFF, methodName, tag) )
     {
         return TheTrueObj;
     }
@@ -2843,7 +2963,6 @@ RexxMethod9(uint32_t, en_addUserMessage, CSTRING, methodName, CSTRING, wm, OPTIO
             OPTIONAL_RexxObjectPtr, wp, OPTIONAL_CSTRING, _wpFilter, OPTIONAL_RexxObjectPtr, lp, OPTIONAL_CSTRING, _lpFilter,
             OPTIONAL_CSTRING, _tag, CSELF, pCSelf)
 {
-    RXCA2T(methodName);
     pCEventNotification pcen = (pCEventNotification)pCSelf;
     uint32_t result = 1;
 
@@ -2932,15 +3051,15 @@ RexxMethod9(uint32_t, en_addUserMessage, CSTRING, methodName, CSTRING, wm, OPTIO
         bool success;
         if ( (winMessage & wmFilter) == WM_COMMAND )
         {
-            success = addCommandMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodNameT, tag);
+            success = addCommandMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodName, tag);
         }
         else if ( (winMessage & wmFilter) == WM_NOTIFY )
         {
-            success = addNotifyMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodNameT, tag);
+            success = addNotifyMessage(pcen, wParam, wpFilter, lParam, lpFilter, methodName, tag);
         }
         else
         {
-            success = addMiscMessage(pcen, winMessage, wmFilter, wParam, wpFilter, lParam, lpFilter, methodNameT, tag);
+            success = addMiscMessage(pcen, winMessage, wmFilter, wParam, wpFilter, lParam, lpFilter, methodName, tag);
         }
 
         result = (success ? 0 : 1);

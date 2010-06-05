@@ -1235,18 +1235,14 @@ RexxMethod4(RexxObjectPtr, image_userIcon_cls, RexxObjectPtr, dlg, RexxObjectPtr
         goto out;
     }
 
-    DIALOGADMIN *dlgAdm = getDlgAdm(context, dlg);
-    if ( dlgAdm == NULL )
-    {
-        goto out;
-    }
+    pCPlainBaseDialog pcpbd = dlgToCSelf(context, dlg);
 
     const rxcharT *fileName = NULL;
-    for ( size_t i = 0; i < dlgAdm->IT_size; i++ )
+    for ( size_t i = 0; i < pcpbd->IT_size; i++ )
     {
-        if ( dlgAdm->IconTab[i].iconID == id )
+        if ( pcpbd->IconTab[i].iconID == id )
         {
-            fileName = dlgAdm->IconTab[i].fileName;
+            fileName = pcpbd->IconTab[i].fileName;
             break;
         }
     }
@@ -1562,8 +1558,8 @@ RexxMethod2(RexxObjectPtr, ri_init, CSTRING, file, OPTIONAL_RexxObjectPtr, dlg)
                 goto err_out;
             }
 
-            DIALOGADMIN *adm = dlgToDlgAdm(context, dlg);
-            ri->hMod = adm->TheInstance;
+            pCPlainBaseDialog pcpbd = dlgToCSelf(context, dlg);
+            ri->hMod = pcpbd->hInstance;
             ri->isValid = true;
         }
     }

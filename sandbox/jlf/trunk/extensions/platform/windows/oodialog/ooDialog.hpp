@@ -50,7 +50,6 @@
 #include "oorexxapi.h"
 #include "rxwchar.hpp"
 
-#define MAXLENQUEUE       2056
 #define NR_BUFFER           15
 #define DATA_BUFFER       8192
 #define MAX_BT_ENTRIES     300
@@ -60,6 +59,9 @@
 #define MAXCHILDDIALOGS     20
 #define MAXDIALOGS          20
 
+#define DEFAULT_FONTNAME            "MS Shell Dlg"
+#define DEFAULT_FONTSIZE            8
+#define MAX_DEFAULT_FONTNAME        256
 
 #define MAX_MT_ENTRIES     500
 #define MAX_NOTIFY_MSGS    200
@@ -176,12 +178,13 @@ typedef enum
 {
     NoPCPBDpased    = 0,    // pCPlainBaseDialog not passed in the WM_INITDIALOG message
     NoThreadAttach  = 1,    // Failed to attach the thread context.
-    NoThreadContext = 2,    // Thread context (or admin block) pointer is null.
+    NoThreadContext     = 2,    // The thread context pointer is null.
+    RexxConditionRaised = 3,    // The invocation of a Rexx event handler method raised a condition.
 } DlgProcErrType;
 
 #define NO_PCPBD_PASSED_MSG    "RexxDlgProc() ERROR in WM_INITDIALOG.  PlainBaseDialog\nCSELF is null.\n\n\tpcpdb=%p\n\thDlg=%p\n"
 #define NO_THREAD_ATTACH_MSG   "RexxDlgProc() ERROR in WM_INITDIALOG.  Failed to attach\nthread context.\n\n\tpcpdb=%p\n\thDlg=%p\n"
-#define NO_THREAD_CONTEXT_MSG  "RexxDlgProc() ERROR.  Admin block pointer\nor thread context is null.\n\n\tdlgAdm=%p\n\tdlgProcContext=%p\n\thDlg=%pn"
+#define NO_THREAD_CONTEXT_MSG  "RexxDlgProc() ERROR.  Thread context is null.\n\n\\tdlgProcContext=%p\n\thDlg=%pn"
 
 
 // Enum for the type of Windows dialog control.
@@ -246,7 +249,7 @@ inline LONG_PTR getClassPtr(HWND hwnd, int index)
 
 /* structures to manage the dialogs */
 typedef struct {
-   PCHART     rexxMethod;
+   PCHAR      rexxMethod;
    WPARAM     wParam;
    ULONG_PTR  wpFilter;
    LPARAM     lParam;
@@ -287,6 +290,7 @@ typedef struct {
    PCHART fileName;
 } ICONTABLEENTRY;
 
+// Structure used for context menus
 typedef struct {
     HMENU       hMenu;
     HWND        hWnd;
@@ -297,21 +301,50 @@ typedef struct {
 } TRACKPOP, *PTRACKPOP;
 
 // A generic structure used for subclassing controls with the Windows
-// subclassing helper functions.
+// subclassing helper functions and for the keyboard hook function.
 typedef struct {
-    UINT       uID;
-    HWND       hCtrl;
-    void      *pData;
+    RexxThreadContext *dlgProcContext;  /* Attached thread context of dialog.     */
+    RexxObjectPtr      rexxDialog;      /* Rexx dialog matching thread context.   */
+    void              *pData;           /* Pointer to subclass specific data.     */
+    UINT               uID;             /* Resource ID of subclassed control.     */
+    HWND               hCtrl;           /* Window handle of subclassed control.   */
 } SUBCLASSDATA;
 
 /* Stuff for key press subclassing and keyboard hooks */
+
 #define MAX_KEYPRESS_METHODS  63
 #define COUNT_KEYPRESS_KEYS   256
 #define CCH_METHOD_NAME       197
 
-#define KEY_REALEASE          0x80000000
+typedef struct {
+    BOOL none;          /* If none, neither of shift, control, or alt can be pressed */
+    BOOL shift;
+    BOOL alt;
+    BOOL control;
+    BOOL and;           /* If 'and' is false, filter is 'or' */
+} KEYFILTER, *PKEYFILTER;
+
+typedef struct {
+    BYTE               key[COUNT_KEYPRESS_KEYS];            /* Value of key[x] is index to pMethods[]   */
+    UINT               usedMethods;                         /* Count of used slots in  pMethods[]       */
+    UINT               topOfQ;                              /* Top of next free queue, 0 if empty       */
+    PCHAR              pMethods[MAX_KEYPRESS_METHODS + 1];  /* Index 0 intentionally left empty         */
+    KEYFILTER         *pFilters[MAX_KEYPRESS_METHODS + 1];  /* If null, no filter                       */
+    UINT               nextFreeQ[MAX_KEYPRESS_METHODS];     /* Used only if existing connection removed */
+} KEYPRESSDATA;
+
+// It is anticpated that the connectKeyEvent() method will be extended some time
+// soon, so we have a KEYEVENTDATA struct even though it is not technically
+// needed at this point.
+typedef struct {
+    char              *method;          /* Name of method to invoke. */
+} KEYEVENTDATA;
+
+#define KEY_RELEASE          0x80000000
 #define KEY_WASDOWN           0x40000000
+#define EXTENDED_KEY          0x01000000
 #define KEY_TOGGLED           0x00000001
+
 #define ISDOWN                    0x8000
 
 /* Microsoft does not define these, just has this note:
@@ -358,62 +391,133 @@ typedef struct {
 #define VK_Y   0x59
 #define VK_Z   0x5A
 
-typedef struct {
-    BOOL none;          /* If none, neither of shift, control, or alt can be pressed */
-    BOOL shift;
-    BOOL alt;
-    BOOL control;
-    BOOL and;           /* If 'and' is false, filter is 'or' */
-} KEYFILTER, *PKEYFILTER;
+/* Struct for the WindowBase object CSelf. */
+typedef struct _wbCSelf {
+    HWND              hwnd;
+    RexxObjectPtr     rexxHwnd;
+    RexxObjectPtr     rexxSelf;
+    wholenumber_t     initCode;
+    uint32_t          sizeX;
+    uint32_t          sizeY;
+    double            factorX;
+    double            factorY;
+} CWindowBase;
+typedef CWindowBase *pCWindowBase;
 
-typedef struct {
-    PCHART     pMessageQueue;                       /* Message queue for method invocation      */
-    BYTE       key[COUNT_KEYPRESS_KEYS];            /* Value of key[x] is index to pMethods[]   */
-    UINT       usedMethods;                         /* Count of used slots in  pMethods[]       */
-    UINT       topOfQ;                              /* Top of next free queue, 0 if empty       */
-    PCHAR      pMethods[MAX_KEYPRESS_METHODS + 1];  /* Index 0 intentionally left empty         */
-    KEYFILTER *pFilters[MAX_KEYPRESS_METHODS + 1];  /* If null, no filter                       */
-    UINT       nextFreeQ[MAX_KEYPRESS_METHODS];     /* Used only if existing connection removed */
-} KEYPRESSDATA;
+/* Struct for the EventNotification object CSelf. */
+typedef struct _enCSelf {
+    MESSAGETABLEENTRY  *notifyMsgs;
+    MESSAGETABLEENTRY  *commandMsgs;
+    MESSAGETABLEENTRY  *miscMsgs;
+    size_t              nmSize;
+    size_t              cmSize;
+    size_t              mmSize;
+    HWND                hDlg;
+    RexxObjectPtr       rexxSelf;
+    HHOOK               hHook;
+    SUBCLASSDATA       *pHookData;
+} CEventNotification;
+typedef CEventNotification *pCEventNotification;
 
-typedef struct
-{
-   void              *previous;
-   void              *pcpbd;  // maybe temp.
-   size_t             TableEntry;
+// Struct for the PlainBaseDialog class CSelf.
+typedef struct _pbdcCSelf {
+    rxcharT      fontName[MAX_DEFAULT_FONTNAME];
+    uint32_t     fontSize;
+
+} CPlainBaseDialogClass;
+typedef CPlainBaseDialogClass *pCPlainBaseDialogClass;
+
+/* Struct for the WindowExtensions object CSelf. */
+typedef struct _weCSelf {
+    pCWindowBase   wndBase;
+    HWND           hwnd;
+    RexxObjectPtr  rexxSelf;
+} CWindowExtensions;
+typedef CWindowExtensions *pCWindowExtensions;
+
+/* Struct for the PlainBaseDialog object CSelf.  The struct itself is
+ * allocated using interpreter memory and therefore garbage collected by the
+ * interpreter.  But, there are still things like the table allocated externally
+ * to the interpreter and require normal C/C++ memory management.  Also things
+ * like brushes, bitmaps, etc., still need to be released.
+ */
+typedef struct _pbdCSelf {
+    rxcharT              fontName[MAX_DEFAULT_FONTNAME];
+    void                *previous;      // Previous pCPlainBaseDialog used for stored dialogs
+    size_t               tableIndex;    // Index of this dialog in the stored dialog table
+    HWND                 activeChild;   // The active child dialog, used for CategoryDialogs
+    HWND                 childDlg[MAXCHILDDIALOGS+1];
+    HINSTANCE            hInstance;     // Handle to loaded DLL instance, ooDialog.dll or a resource DLL for a ResDialog
+    HANDLE               hDlgProcThread;
+    bool                 onTheTop;
+    RexxInstance        *interpreter;
+    RexxThreadContext   *dlgProcContext;
+    HICON                sysMenuIcon;
+    HICON                titleBarIcon;
+    DWORD                threadID;
+    pCWindowBase         wndBase;
+    pCEventNotification  enCSelf;
+    pCWindowExtensions   weCSelf;
+    RexxObjectPtr        rexxSelf;
+    HWND                 hDlg;
    DATATABLEENTRY    *DataTab;
+    ICONTABLEENTRY      *IconTab;
+    COLORTABLEENTRY     *ColorTab;
    BITMAPTABLEENTRY  *BmpTab;
-   COLORTABLEENTRY   *ColorTab;
-   ICONTABLEENTRY    *IconTab;
    size_t             DT_size;
+    size_t               IT_size;
+    size_t               CT_size;
    size_t             BT_size;
-   size_t             CT_size;
-   size_t             IT_size;
-   HWND               TheDlg;
-   HWND               ChildDlg[MAXCHILDDIALOGS+1];
-   HWND               AktChild;
-   HINSTANCE          TheInstance;
-   HANDLE             TheThread;
-   BOOL               OnTheTop;
-   ULONG              LeaveDialog;
-   HPALETTE           ColorPalette;
-   HICON              SysMenuIcon;
-   HICON              TitleBarIcon;
-   BOOL               SharedIcon;
-   BOOL               DidChangeIcon;
-   HHOOK              hHook;
-   KEYPRESSDATA      *pKeyPressData;
-   DWORD              threadID;
-   WPARAM             StopScroll;
-   CHART             *pMessageQueue;
-} DIALOGADMIN;
+    HBRUSH               bkgBrush;
+    HBITMAP              bkgBitmap;
+    WPARAM               stopScroll;
+    HPALETTE             colorPalette;
+    logical_t            autoDetect;
+    uint32_t             fontSize;
+    bool                 sharedIcon;
+    bool                 didChangeIcon;
+    bool                 isActive;
+    bool                 dlgAllocated;
+    bool                 abnormalHalt;
+    bool                 scrollNow;   // For scrolling text in windows.
+} CPlainBaseDialog;
+typedef CPlainBaseDialog *pCPlainBaseDialog;
+
+// Struct for the DialogControl object CSelf.
+//
+// Note that for a control in a category dialog page, the hDlg is the handle of
+// the actual dialog the control resides in.  This is differnent than the dialog
+// handle of the Rexx owner dialog.
+typedef struct _dcCSelf {
+    bool           isInCategoryDlg;
+    uint32_t       id;
+    oodControl_t   controlType;
+    int            lastItem;
+    pCWindowBase   wndBase;
+    RexxObjectPtr  rexxSelf; // The Rexx dialog control object
+    HWND           hCtrl;    // Handle of the dialog control
+    RexxObjectPtr  oDlg;     // The Rexx owner dialog object
+    HWND           hDlg;     // Handle of the dialog the control is in.
+} CDialogControl;
+typedef CDialogControl *pCDialogControl;
+
+/* Struct for the DynamicDialog object CSelf. */
+typedef struct _ddCSelf {
+    pCPlainBaseDialog  pcpbd;
+    RexxObjectPtr      rexxSelf;
+    DLGTEMPLATE       *base;          // Base pointer to dialog template (basePtr)
+    void              *active;        // Pointer to current location in dialog template (activePtr)
+    void              *endOfTemplate; // Pointer to end of allocated memory for the template
+    uint32_t           count;         // Dialog item count (dialogItemCount)
+} CDynamicDialog;
+typedef CDynamicDialog *pCDynamicDialog;
 
 
 // All global variables are defined in oodPackageEntry.cpp
 extern HINSTANCE           MyInstance;
-extern DIALOGADMIN        *DialogTab[];
-extern DIALOGADMIN        *topDlg;
-extern INT                 StoredDialogs;
+extern pCPlainBaseDialog   DialogTable[];
+extern pCPlainBaseDialog   TopDlg;
+extern size_t              CountDialogs;
 extern CRITICAL_SECTION    crit_sec;
 extern DWORD               ComCtl32Version;
 
@@ -432,7 +536,7 @@ extern RexxClassObject TheDynamicDialogClass;
 extern RexxClassObject TheDialogControlClass;
 extern RexxClassObject TheSizeClass;
 
-extern HBRUSH searchForBrush(DIALOGADMIN *dlgAdm, size_t *index, uint32_t id);
+extern HBRUSH searchForBrush(pCPlainBaseDialog pcpbd, size_t *index, uint32_t id);
 
 extern bool _isVersion(DWORD, DWORD, unsigned int, unsigned int, unsigned int);
 extern bool _is32on64Bit(void);

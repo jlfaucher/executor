@@ -64,7 +64,7 @@
 //#define USE_DS_CONTROL
 
 #ifndef USE_DS_CONTROL
-BOOL IsNestedDialogMessage(DIALOGADMIN * dlgAdm, LPMSG lpmsg);
+BOOL IsNestedDialogMessage(pCPlainBaseDialog pcpbd, LPMSG lpmsg);
 #endif
 
 
@@ -87,25 +87,29 @@ DWORD WINAPI WindowUsrLoopThread(LoopThreadArgs * args)
 {
     bool *release = args->release;
     pCPlainBaseDialog pcpbd = args->pcpbd;
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
 
-    dlgAdm->TheDlg = CreateDialogIndirectParam(MyInstance, args->dlgTemplate, NULL, (DLGPROC)RexxDlgProc, (LPARAM)pcpbd);
-    dlgAdm->ChildDlg[0] = dlgAdm->TheDlg;
+    pcpbd->hDlg = CreateDialogIndirectParam(MyInstance, args->dlgTemplate, NULL, (DLGPROC)RexxDlgProc, (LPARAM)pcpbd);
 
-    if ( dlgAdm->TheDlg )
+    if ( pcpbd->hDlg )
     {
+        pcpbd->childDlg[0] = pcpbd->hDlg;
+
         MSG msg;
+        BOOL result;
         pcpbd->isActive = true;
         *release = true;
 
-        while ( GetMessage(&msg,NULL, 0,0) && dialogInAdminTable(dlgAdm) && (!dlgAdm->LeaveDialog) )
+        while ( (result = GetMessage(&msg,NULL, 0,0)) != 0 && pcpbd->dlgAllocated )
         {
+            if ( result == -1 )
+            {
+                break;
+            }
 #ifdef USE_DS_CONTROL
-            if ( dlgAdm && !IsDialogMessage(dlgAdm->TheDlg, &msg)
-                 && !IsDialogMessage(dlgAdm->AktChild, &msg) )
+            if ( ! IsDialogMessage(pcpbd->hDlg, &msg) && ! IsDialogMessage(pcpbd->activeChild, &msg) )
             {
 #else
-            if ( dlgAdm && (!IsNestedDialogMessage(dlgAdm, &msg)) )
+            if ( ! IsNestedDialogMessage(pcpbd, &msg) )
             {
 #endif
                 DispatchMessage(&msg);
@@ -117,13 +121,13 @@ DWORD WINAPI WindowUsrLoopThread(LoopThreadArgs * args)
         *release = true;
     }
 
-    // Need to synchronize here, otherwise dlgAdm might still be in the table
-    // but delDialog is already running.
+    // Need to synchronize here, otherwise dlgAllocated might be true but
+    // delDialog() is already running.
     EnterCriticalSection(&crit_sec);
-    if ( dialogInAdminTable(dlgAdm) )
+    if ( pcpbd->dlgAllocated )
     {
-        delDialog(pcpbd);
-        dlgAdm->TheThread = NULL;
+        delDialog(pcpbd, pcpbd->dlgProcContext);
+        pcpbd->hDlgProcThread = NULL;
     }
     LeaveCriticalSection(&crit_sec);
 
@@ -226,7 +230,7 @@ static uint32_t getExpectedCount(RexxMethodContext *c, RexxArrayObject args)
 
 // Average size of a dialog control item in the dialog template.  This figure is
 // simply the figure the old ooDialog code used.  How accurate it is, who knows.
-#define DLGTMEPLATE_CONTROL_AVG_SIZE  256
+#define DLGTEMPLATE_CONTROL_AVG_SIZE  256
 
 // Number added to the dialog item count to give a little extra room.  Like the
 // average control size this is just an arbitrary number from the old ooDialog
@@ -237,7 +241,7 @@ static uint32_t getExpectedCount(RexxMethodContext *c, RexxArrayObject args)
 
 inline size_t calcTemplateSize(uint32_t count)
 {
-    return (count + DLGTEMPLATE_EXTRA_FACTOR) * DLGTEMPLATE_CONTROL_BASE_SIZE;
+    return (count + DLGTEMPLATE_EXTRA_FACTOR) * DLGTEMPLATE_CONTROL_AVG_SIZE;
 }
 
 /**
@@ -469,6 +473,17 @@ RexxMethod4(RexxObjectPtr, userdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPTION
     return result;
 }
 
+RexxMethod1(RexxObjectPtr, userdlg_test, CSELF, pCSelf)
+{
+    RexxMethodContext *c = context;
+    pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
+
+    RexxArrayObject msgName = c->ArrayOfTwo(c->String("ABNORMALHALT"), ThePlainBaseDialogClass);
+    RexxArrayObject args = c->NewArray(0);
+    c->SendMessage2(pcpbd->rexxSelf, "SENDWITH", msgName, args);
+
+    return TheZeroObj;
+}
 
 /**
  *  Methods for the .DynamicDialog class.
@@ -476,10 +491,18 @@ RexxMethod4(RexxObjectPtr, userdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPTION
 #define DYNAMICDIALOG_CLASS  "DynamicDialog"
 
 
-inline pCPlainBaseDialog getDDpcpbd(void *pCSelf)
+/**
+ * Validates that the CSelf pointer for a DynamicDialog object is not null.
+ */
+inline pCDynamicDialog validateDDCSelf(RexxMethodContext *c, void *pcdd)
 {
-    return (((pCDynamicDialog)pCSelf)->pcpbd);
+    if ( pcdd == NULL )
+    {
+        baseClassIntializationException(c);
+    }
+    return (pCDynamicDialog)pcdd;
 }
+
 
 uint32_t getCommonWindowStyles(CSTRING opts, bool defaultBorder, bool defaultTab)
 {
@@ -743,6 +766,26 @@ uint32_t getControlStyle(oodControl_t ctrl, CSTRING opts)
 }
 
 
+/**
+ * Check if the word 'CENTER', case insignificant, is in a string.  Note that
+ * CENTER either has to have a space after it, or it has to be the end of the
+ * string.
+ *
+ * @param opts  The string to check.
+ *
+ * @return True or false.
+ */
+static bool hasCenterFlag(CSTRING opts)
+{
+    char *p = StrStrIA(opts, "CENTER");
+    if ( p != NULL )
+    {
+        char c = *(p + 6);
+        return c == ' ' || c == '\0';
+    }
+    return false;
+}
+
 int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y, uint32_t cx, uint32_t cy,
                          CSTRING opts, CSTRINGT text, pCDynamicDialog pcdd)
 {
@@ -786,7 +829,9 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
 
     if ( *opts != '\0' )
     {
-        if ( StrStrIA(opts, "CENTER" ) != NULL ) style |= SS_CENTER;
+        // If a static text control has none of these styles, then by default it
+        // is SS_LEFT.  (SS_LEFT == 0)
+        if ( hasCenterFlag(opts) )                      style |= SS_CENTER;
         else if ( StrStrIA(opts, "RIGHT"     ) != NULL ) style |= SS_RIGHT;
         else if ( StrStrIA(opts, "SIMPLE"    ) != NULL ) style |= SS_SIMPLE;
         else if ( StrStrIA(opts, "LEFTNOWRAP") != NULL ) style |= SS_LEFTNOWORDWRAP;
@@ -809,7 +854,6 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
     }
     return 0;
 }
-
 
 int32_t createStaticImage(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y, uint32_t cx, uint32_t cy,
                          CSTRING opts, pCDynamicDialog pcdd)
@@ -912,13 +956,6 @@ int32_t createStaticFrame(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y
 int32_t connectCreatedControl(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxObjectPtr rxID, int32_t id,
                               CSTRING attributeName, oodControl_t ctrl)
 {
-    DIALOGADMIN * dlgAdm = pcpbd->dlgAdm;
-    if ( dlgAdm == NULL )
-    {
-        failedToRetrieveDlgAdmException(c->threadContext, pcpbd->rexxSelf);
-        return -2;
-    }
-
     char buf[64];
     if ( attributeName == NULL || *attributeName == '\0' )
     {
@@ -930,7 +967,12 @@ int32_t connectCreatedControl(RexxMethodContext *c, pCPlainBaseDialog pcpbd, Rex
 
     c->SendMessage2(pcpbd->rexxSelf, "ADDATTRIBUTE", rxID, c->String(attributeName));
 
-    return addToDataTable(c, dlgAdm, id, ctrl, category);
+    uint32_t result = addToDataTable(c, pcpbd, id, ctrl, category);
+    if ( result == OOD_MEMORY_ERR )
+    {
+        return -2;
+    }
+    return (int32_t)result;
 }
 
 
@@ -944,12 +986,20 @@ RexxMethod1(RexxObjectPtr, dyndlg_init_cls, OSELF, self)
  */
 RexxMethod1(RexxObjectPtr, dyndlg_getBasePtr, CSELF, pCSelf)
 {
-    RexxObjectPtr ptr = pointer2string(context, ((pCDynamicDialog)pCSelf)->base);
-    return ptr;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
+    {
+        return pointer2string(context, pcdd->base);
+    }
+    return NULLOBJECT;
 }
 RexxMethod2(RexxObjectPtr, dyndlg_setBasePtr, CSTRING, ptrStr, CSELF, pCSelf)
 {
-    ((pCDynamicDialog)pCSelf)->base = (DLGTEMPLATE *)string2pointer(ptrStr);
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
+    {
+        pcdd->base = (DLGTEMPLATE *)string2pointer(ptrStr);
+    }
     return NULLOBJECT;
 }
 
@@ -957,21 +1007,41 @@ RexxMethod2(RexxObjectPtr, dyndlg_setBasePtr, CSTRING, ptrStr, CSELF, pCSelf)
  */
 RexxMethod1(RexxObjectPtr, dyndlg_getActivePtr, CSELF, pCSelf)
 {
-    RexxObjectPtr ptr = pointer2string(context, ((pCDynamicDialog)pCSelf)->active);
-    return ptr;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
+    {
+        return pointer2string(context, pcdd->active);
+    }
+    return NULLOBJECT;
 }
 RexxMethod2(RexxObjectPtr, dyndlg_setActivePtr, CSTRING, ptrStr, CSELF, pCSelf)
 {
-    ((pCDynamicDialog)pCSelf)->active = string2pointer(ptrStr);
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
+    {
+        pcdd->active = string2pointer(ptrStr);
+    }
     return NULLOBJECT;
 }
 
 /** DynamicDialog::dialogItemCount  [attribute private]
  */
-RexxMethod1(uint32_t, dyndlg_getDialogItemCount, CSELF, pCSelf) { return ( ((pCDynamicDialog)pCSelf)->count ); }
+RexxMethod1(uint32_t, dyndlg_getDialogItemCount, CSELF, pCSelf)
+{
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
+    {
+        return pcdd->count;
+    }
+    return NULLOBJECT;
+}
 RexxMethod2(RexxObjectPtr, dyndlg_setDialogItemCount, uint32_t, count, CSELF, pCSelf)
 {
-    ((pCDynamicDialog)pCSelf)->count = count;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
+    {
+        pcdd->count = count;
+    }
     return NULLOBJECT;
 }
 
@@ -999,7 +1069,6 @@ done_out:
     return TheZeroObj;
 }
 
-
 /**
  *
  * @param  x          ( 1 required) X co-ordinate
@@ -1007,7 +1076,7 @@ done_out:
  * @param  cx         ( 3 required) width
  * @param  cy         ( 4 required) height
  * @param  title      ( 5 required) Title for the caption bar
- * @param  _opts      ( 6 optional) Style 0ptions for the dialog
+ * @param  opts       ( 6 optional) Style 0ptions for the dialog
  * @param  dlgClass   ( 7 optional) The dialog class.  Has never been used.
  * @param  fontName   ( 8 optional) Font name for the dialog
  * @param  fontSize   ( 9 optional) Font size
@@ -1021,10 +1090,14 @@ done_out:
  *           subclasses.
  */
 RexxMethod9(logical_t, dyndlg_create, uint32_t, x, int32_t, y, int32_t, cx, uint32_t, cy, CSTRING, title,
-            OPTIONAL_RexxStringObject, _opts, OPTIONAL_CSTRING, dlgClass, ARGLIST, args, CSELF, pCSelf)
+            OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, dlgClass, ARGLIST, args, CSELF, pCSelf)
 {
     RXCA2T(title);
-    RexxMethodContext *c = context;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return FALSE;
+    }
 
     uint32_t style = DS_SETFONT | WS_CAPTION | WS_SYSMENU;
     dlgClass = NULL;        // The dialog class is always ignored, at this time.
@@ -1032,22 +1105,19 @@ RexxMethod9(logical_t, dyndlg_create, uint32_t, x, int32_t, y, int32_t, cx, uint
 
     if ( argumentExists(6) )
     {
-        CSTRING opts = c->StringData(c->StringUpper(_opts));
-
-        if ( strstr(opts, "VISIBLE")     != 0 ) style |= WS_VISIBLE;
-        if ( strstr(opts, "NOMENU")      != 0 ) style &= ~WS_SYSMENU;
-        if ( strstr(opts, "NOTMODAL")    == 0 ) style |= DS_MODALFRAME;
-        if ( strstr(opts, "SYSTEMMODAL") != 0 ) style |= DS_SYSMODAL;
-        if ( strstr(opts, "CENTER")      != 0 ) style |= DS_CENTER;
-        if ( strstr(opts, "THICKFRAME")  != 0 ) style |= WS_THICKFRAME;
-        if ( strstr(opts, "MINIMIZEBOX") != 0 ) style |= WS_MINIMIZEBOX;
-        if ( strstr(opts, "MAXIMIZEBOX") != 0 ) style |= WS_MAXIMIZEBOX;
-        if ( strstr(opts, "VSCROLL")     != 0 ) style |= WS_VSCROLL;
-        if ( strstr(opts, "HSCROLL")     != 0 ) style |= WS_HSCROLL;
-        if ( strstr(opts, "OVERLAPPED")  != 0 ) style |= WS_OVERLAPPED;
+        if ( StrStrIA(opts, "VISIBLE")     != NULL ) style |= WS_VISIBLE;
+        if ( StrStrIA(opts, "NOMENU")      != NULL ) style &= ~WS_SYSMENU;
+        if ( StrStrIA(opts, "NOTMODAL")    == NULL ) style |= DS_MODALFRAME;
+        if ( StrStrIA(opts, "SYSTEMMODAL") != NULL ) style |= DS_SYSMODAL;
+        if ( StrStrIA(opts, "CENTER")      != NULL ) style |= DS_CENTER;
+        if ( StrStrIA(opts, "THICKFRAME")  != NULL ) style |= WS_THICKFRAME;
+        if ( StrStrIA(opts, "MINIMIZEBOX") != NULL ) style |= WS_MINIMIZEBOX;
+        if ( StrStrIA(opts, "MAXIMIZEBOX") != NULL ) style |= WS_MAXIMIZEBOX;
+        if ( StrStrIA(opts, "VSCROLL")     != NULL ) style |= WS_VSCROLL;
+        if ( StrStrIA(opts, "HSCROLL")     != NULL ) style |= WS_HSCROLL;
+        if ( StrStrIA(opts, "OVERLAPPED")  != NULL ) style |= WS_OVERLAPPED;
     }
 
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     if ( ! adjustDialogFont(context, args, pcpbd) )
@@ -1075,17 +1145,18 @@ RexxMethod9(logical_t, dyndlg_create, uint32_t, x, int32_t, y, int32_t, cx, uint
     pcpbd->wndBase->sizeX = cx;
     pcpbd->wndBase->sizeY = cy;
 
-    c->SendMessage0(pcdd->rexxSelf, "DEFINEDIALOG");
+    context->SendMessage0(pcdd->rexxSelf, "DEFINEDIALOG");
     return pcdd->active != NULL;
 
 err_out:
     // No underlying windows dialog is created, but we still need to clean up
-    // the admin block, which was allocated when the Rexx dialog object was
-    // instantiated.  This admin block is now in the DialogTab.
+    // the CSelf struct, which was allocated when the Rexx dialog object was
+    // instantiated.  This admin block is now in the DialogTable.
+    EnterCriticalSection(&crit_sec);
+    delDialog(pcpbd, context->threadContext);
+    LeaveCriticalSection(&crit_sec);
 
-    delDialog(pcpbd);
     return FALSE;
-
 }
 
 /** DyamicDialog::startParentDialog()
@@ -1099,15 +1170,13 @@ err_out:
  */
 RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, modeless, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
-    if ( dlgAdm == NULL )
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
     {
-        failedToRetrieveDlgAdmException(context->threadContext, pcpbd->rexxSelf);
         return FALSE;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     DLGTEMPLATE *p = pcdd->base;
     if ( p == NULL )
@@ -1123,18 +1192,18 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
 
     EnterCriticalSection(&crit_sec);
 
-    // InstallNecessaryStuff() can not fail for a UserDialog.
-    InstallNecessaryStuff(dlgAdm, NULL);
+    // installNecessaryStuff() can not fail for a UserDialog.
+    installNecessaryStuff(pcpbd, NULL);
 
     LoopThreadArgs threadArgs;
     threadArgs.dlgTemplate = p;
     threadArgs.pcpbd = pcpbd;
     threadArgs.release = &Release;
 
-    dlgAdm->TheThread = CreateThread(NULL, 2000, (LPTHREAD_START_ROUTINE)WindowUsrLoopThread, &threadArgs, 0, &thID);
+    pcpbd->hDlgProcThread = CreateThread(NULL, 2000, (LPTHREAD_START_ROUTINE)WindowUsrLoopThread, &threadArgs, 0, &thID);
 
-    // Wait for the dialog to start.
-    while ( ! Release && dlgAdm && (dlgAdm->TheThread) )
+    // Wait for the dialog to start, don't wait if the thread was not created.
+    while ( ! Release && pcpbd->hDlgProcThread )
     {
         Sleep(1);
     }
@@ -1143,56 +1212,43 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
     // Free the memory allocated for template.
     cleanUpDialogTemplate(p, pcdd);
 
-    if ( dlgAdm->TheDlg )
+    if ( pcpbd->hDlg )
     {
+        setDlgHandle(context, pcpbd);
+
         // Set the thread priority higher for faster drawing.
-        SetThreadPriority(dlgAdm->TheThread, THREAD_PRIORITY_ABOVE_NORMAL);
-        dlgAdm->OnTheTop = TRUE;
-        dlgAdm->threadID = thID;
+        SetThreadPriority(pcpbd->hDlgProcThread, THREAD_PRIORITY_ABOVE_NORMAL);
+        pcpbd->onTheTop = true;
+        pcpbd->threadID = thID;
 
         // Do we have a modal dialog?
-        if ( ! modeless )
-        {
-            if ( dlgAdm->previous && IsWindowEnabled(((DIALOGADMIN *)dlgAdm->previous)->TheDlg) )
-            {
-                EnableWindow(((DIALOGADMIN *)dlgAdm->previous)->TheDlg, FALSE);
-            }
-        }
+        checkModal((pCPlainBaseDialog)pcpbd->previous, (BOOL)modeless);
 
-        if ( GetWindowLong(dlgAdm->TheDlg, GWL_STYLE) & WS_SYSMENU )
+        if ( GetWindowLong(pcpbd->hDlg, GWL_STYLE) & WS_SYSMENU )
         {
             HICON hBig = NULL;
             HICON hSmall = NULL;
 
-            if ( GetDialogIcons(dlgAdm, iconID, ICON_FILE, (PHANDLE)&hBig, (PHANDLE)&hSmall) )
+            if ( getDialogIcons(pcpbd, iconID, ICON_FILE, (PHANDLE)&hBig, (PHANDLE)&hSmall) )
             {
-                dlgAdm->SysMenuIcon = (HICON)setClassPtr(dlgAdm->TheDlg, GCLP_HICON, (LONG_PTR)hBig);
-                dlgAdm->TitleBarIcon = (HICON)setClassPtr(dlgAdm->TheDlg, GCLP_HICONSM, (LONG_PTR)hSmall);
-                dlgAdm->DidChangeIcon = TRUE;
+                pcpbd->sysMenuIcon = (HICON)setClassPtr(pcpbd->hDlg, GCLP_HICON, (LONG_PTR)hBig);
+                pcpbd->titleBarIcon = (HICON)setClassPtr(pcpbd->hDlg, GCLP_HICONSM, (LONG_PTR)hSmall);
+                pcpbd->didChangeIcon = true;
 
-                SendMessage(dlgAdm->TheDlg, WM_SETICON, ICON_SMALL, (LPARAM)hSmall);
+                SendMessage(pcpbd->hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hSmall);
             }
         }
 
-        setDlgHandle(context, pcdd->pcpbd, dlgAdm->TheDlg);
         return TRUE;
     }
 
-    // The dialog creation failed, so do some final clean up.  Note that the
-    // dialog admin block can not be freed in delDialog() because of its use
-    // here.
+    // The dialog creation failed, so do some final clean up.
     //
     // When the dialog creation fails in the WindowUsrLoop thread a delDialog()
     // is immediately done, as it fails to enter the message processing loop.
-    dlgAdm->OnTheTop = FALSE;
-    if ( dlgAdm->previous )
-    {
-        ((DIALOGADMIN *)(dlgAdm->previous))->OnTheTop = TRUE;
-    }
-    if ( dlgAdm->previous && !IsWindowEnabled(((DIALOGADMIN *)dlgAdm->previous)->TheDlg) )
-    {
-        EnableWindow(((DIALOGADMIN *)dlgAdm->previous)->TheDlg, TRUE);
-    }
+
+    pcpbd->onTheTop = false;
+    enablePrevious((pCPlainBaseDialog)pcpbd);
 
     return FALSE;
 }
@@ -1236,15 +1292,13 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
  */
 RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint32_t, childIndex, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
-    DIALOGADMIN *dlgAdm = pcpbd->dlgAdm;
-    if ( dlgAdm == NULL )
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
     {
-        failedToRetrieveDlgAdmException(context->threadContext, pcpbd->rexxSelf);
-        return TheZeroObj;
+        return NULLOBJECT;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     DLGTEMPLATE *p = (DLGTEMPLATE *)basePtr;
     if ( p == NULL )
@@ -1267,7 +1321,7 @@ RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint
         return TheZeroObj;
     }
 
-    dlgAdm->ChildDlg[childIndex] = hChild;
+    pcpbd->childDlg[childIndex] = hChild;
     return pointer2string(context, hChild);
 }
 
@@ -1278,6 +1332,12 @@ RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint
 RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, text, CSELF, pCSelf)
 {
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
+
     if ( argumentOmitted(1) )
     {
         rxID = TheNegativeOneObj;
@@ -1295,7 +1355,7 @@ RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, 
 
     if ( StrStrIA(opts, "TEXT") != NULL )
     {
-        return createStaticText(context, rxID, x, y, cx, cy, opts, textT, (pCDynamicDialog)pCSelf);
+        return createStaticText(context, rxID, x, y, cx, cy, opts, textT, pcdd);
     }
 
     if ( StrStrIA(opts, "BITMAP") != NULL || StrStrIA(opts, "METAFILE") != NULL || StrStrIA(opts, "ICON") != NULL )
@@ -1316,10 +1376,10 @@ RexxMethod8(int32_t, dyndlg_createStatic, OPTIONAL_RexxObjectPtr, rxID, int, x, 
 
     if ( frameStyle != 0 )
     {
-        return createStaticFrame(context, rxID, x, y, cx, cy, opts, NULL, frameStyle, (pCDynamicDialog)pCSelf);
+        return createStaticFrame(context, rxID, x, y, cx, cy, opts, NULL, frameStyle, pcdd);
     }
 
-    return createStaticText(context, rxID, x, y, cx, cy, opts, textT, (pCDynamicDialog)pCSelf);
+    return createStaticText(context, rxID, x, y, cx, cy, opts, textT, pcdd);
 }
 
 
@@ -1330,6 +1390,12 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
             int, x, int, y, OPTIONAL_uint32_t, cx, OPTIONAL_uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, text, CSELF, pCSelf)
 {
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
+
     if ( argumentOmitted(1) )
     {
         rxID = TheNegativeOneObj;
@@ -1343,7 +1409,7 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
         text = "";
     }
     RXCA2T(text);
-    return createStaticText(context, rxID, x, y, cx, cy, opts, textT, (pCDynamicDialog)pCSelf);
+    return createStaticText(context, rxID, x, y, cx, cy, opts, textT, pcdd);
 }
 
 
@@ -1353,11 +1419,17 @@ RexxMethod8(int32_t, dyndlg_createStaticText, OPTIONAL_RexxObjectPtr, rxID,
 RexxMethod7(int32_t, dyndlg_createStaticImage, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, CSELF, pCSelf)
 {
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
+
     if ( argumentOmitted(6) )
     {
         opts = "";
     }
-    return createStaticImage(context, rxID, x, y, cx, cy, opts, (pCDynamicDialog)pCSelf);
+    return createStaticImage(context, rxID, x, y, cx, cy, opts, pcdd);
 }
 
 
@@ -1367,6 +1439,12 @@ RexxMethod7(int32_t, dyndlg_createStaticImage, RexxObjectPtr, rxID, int, x, int,
 RexxMethod8(int32_t, dyndlg_createStaticFrame, OPTIONAL_RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, NAME, msgName, CSELF, pCSelf)
 {
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
+
     if ( argumentOmitted(1) )
     {
         rxID = TheNegativeOneObj;
@@ -1375,7 +1453,7 @@ RexxMethod8(int32_t, dyndlg_createStaticFrame, OPTIONAL_RexxObjectPtr, rxID, int
     {
         opts = "";
     }
-    return createStaticFrame(context, rxID, x, y, cx, cy, opts, msgName + 6, 0, (pCDynamicDialog)pCSelf);
+    return createStaticFrame(context, rxID, x, y, cx, cy, opts, msgName + 6, 0, pcdd);
 }
 
 /**
@@ -1425,7 +1503,11 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
              OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, label, OPTIONAL_CSTRING, msgToRaise, OPTIONAL_CSTRING, loadOptions,
              CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
@@ -1476,8 +1558,7 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
 
     if ( methName != NULL && strlen(methName) != 0 )
     {
-        RXCA2T(methName);
-        result = addCommandMessage(pcdd->pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, methNameT, 0) ? 0 : 1;
+        result = addCommandMessage(pcdd->pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, methName, 0) ? 0 : 1;
     }
 
     safeFree((void *)methName);
@@ -1495,13 +1576,17 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
              OPTIONAL_uint32_t, cx, OPTIONAL_uint32_t, cy, OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, label,
              OPTIONAL_CSTRING, attributeName, OPTIONAL_CSTRING, loadOptions, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     int32_t id = checkID(context, rxID, pcpbd->rexxSelf);
     if ( id < 1 )
@@ -1584,8 +1669,7 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
         strcpy(finalName, "ID");
         strcat(finalName, methName);
 
-        RXCA2T(finalName);
-        result = addCommandMessage(pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, finalNameT, 0) ? 0 : 1;
+        result = addCommandMessage(pcpbd->enCSelf, id, UINTPTR_MAX, 0, 0, finalName, 0) ? 0 : 1;
         free((void *)methName);
         free((void *)finalName);
     }
@@ -1604,7 +1688,11 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
 RexxMethod8(int32_t, dyndlg_createGroupBox, OPTIONAL_RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, text, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
@@ -1654,13 +1742,17 @@ RexxMethod8(int32_t, dyndlg_createGroupBox, OPTIONAL_RexxObjectPtr, rxID, int, x
 RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, OPTIONAL_uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     int32_t id = checkID(context, rxID, pcpbd->rexxSelf);
     if ( id < 1 )
@@ -1743,7 +1835,11 @@ RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uin
 RexxMethod7(int32_t, dyndlg_createScrollBar, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
@@ -1780,13 +1876,17 @@ RexxMethod7(int32_t, dyndlg_createScrollBar, RexxObjectPtr, rxID, int, x, int, y
 RexxMethod8(int32_t, dyndlg_createListBox, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     int32_t id = checkID(context, rxID, pcpbd->rexxSelf);
     if ( id < 1 )
@@ -1835,13 +1935,17 @@ RexxMethod8(int32_t, dyndlg_createListBox, RexxObjectPtr, rxID, int, x, int, y, 
 RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     int32_t id = checkID(context, rxID, pcpbd->rexxSelf);
     if ( id < 1 )
@@ -1886,13 +1990,18 @@ RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y,
 RexxMethod7(int32_t, dyndlg_createProgressBar, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
 
     if ( pcdd->active == NULL )
     {
         return -2;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     int32_t id = checkID(context, rxID, pcpbd->rexxSelf);
     if ( id < 1 )
@@ -1920,13 +2029,17 @@ RexxMethod7(int32_t, dyndlg_createProgressBar, RexxObjectPtr, rxID, int, x, int,
 RexxMethod9(int32_t, dyndlg_createNamedControl, RexxObjectPtr, rxID, int, x, int, y, uint32_t, cx, uint32_t, cy,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, attributeName, NAME, msgName, CSELF, pCSelf)
 {
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
-
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
+    {
+        return 0;
+    }
     if ( pcdd->active == NULL )
     {
         return -2;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
     int32_t id = checkID(context, rxID, pcpbd->rexxSelf);
     if ( id < 1 )
@@ -2146,15 +2259,14 @@ RexxMethod9(RexxObjectPtr, dyndlg_addMethod, RexxObjectPtr, rxID, OPTIONAL_CSTRI
 RexxMethod3(int32_t, dyndlg_addIconResource, RexxObjectPtr, rxID, CSTRING, fileName, CSELF, pCSelf)
 {
     RXCA2T(fileName);
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-
-    int32_t rc = -1;
-    DIALOGADMIN * dlgAdm = pcdd->pcpbd->dlgAdm;
-    if ( dlgAdm == NULL )
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd == NULL )
     {
-        failedToRetrieveDlgAdmException(context->threadContext, pcdd->rexxSelf);
-        goto done_out;
+        return 0;
     }
+
+    pCPlainBaseDialog pcpbd = pcdd->pcpbd;
+    int32_t rc = -1;
 
     int32_t iconID = checkID(context, rxID, pcdd->rexxSelf);
     if ( iconID < 0 )
@@ -2173,25 +2285,25 @@ RexxMethod3(int32_t, dyndlg_addIconResource, RexxObjectPtr, rxID, CSTRING, fileN
         goto done_out;
     }
 
-    if ( dlgAdm->IconTab == NULL )
+    if ( pcpbd->IconTab == NULL )
     {
-        dlgAdm->IconTab = (ICONTABLEENTRY *)LocalAlloc(LPTR, sizeof(ICONTABLEENTRY) * MAX_IT_ENTRIES);
-        if ( dlgAdm->IconTab == NULL )
+        pcpbd->IconTab = (ICONTABLEENTRY *)LocalAlloc(LPTR, sizeof(ICONTABLEENTRY) * MAX_IT_ENTRIES);
+        if ( pcpbd->IconTab == NULL )
         {
             outOfMemoryException(context->threadContext);
             goto done_out;
         }
-        dlgAdm->IT_size = 0;
+        pcpbd->IT_size = 0;
     }
 
-    if ( dlgAdm->IT_size < MAX_IT_ENTRIES )
+    if ( pcpbd->IT_size < MAX_IT_ENTRIES )
     {
         size_t i;
 
         // If there is already a resource with this ID, it is replaced.
-        for ( i = 0; i < dlgAdm->IT_size; i++ )
+        for ( i = 0; i < pcpbd->IT_size; i++ )
         {
-            if ( dlgAdm->IconTab[i].iconID == iconID )
+            if ( pcpbd->IconTab[i].iconID == iconID )
                 break;
         }
 
@@ -2204,11 +2316,11 @@ RexxMethod3(int32_t, dyndlg_addIconResource, RexxObjectPtr, rxID, CSTRING, fileN
         _tcscpy(buf, fileNameT);
         StrTrim(buf, _T(" \"'"));
 
-        dlgAdm->IconTab[i].fileName = buf;
-        dlgAdm->IconTab[i].iconID = iconID;
-        if ( i == dlgAdm->IT_size )
+        pcpbd->IconTab[i].fileName = buf;
+        pcpbd->IconTab[i].iconID = iconID;
+        if ( i == pcpbd->IT_size )
         {
-            dlgAdm->IT_size++;
+            pcpbd->IT_size++;
         }
         rc = 0;
     }
@@ -2223,38 +2335,20 @@ done_out:
 
 
 /** DynamicDialog::stop()  [private]
+ *
+ *  Called when a dialog is being constructred from a resource script file and
+ *  there is an error from loadFrame().  In this case the underlying dialog can
+ *  not be created, yet the CSelf struct still needs to be cleaned up.
  */
 RexxMethod1(RexxObjectPtr, dyndlg_stop, CSELF, pCSelf)
 {
-    stopDialog(getDDpcpbd(pCSelf));
-    return NULLOBJECT;
-}
-
-
-/** DynamicDialog::stopDynamic()   [private]
- *
- *  Sets the dialog template pointers back to null and the dialog item count to
- *  0.
- *
- *  This method is probably no longer needed.  Before the conversion to the C++
- *  APIs, I believe it was used as a sort of fail-safe method to ensure the base
- *  pointer attribute was not used after it was freed.  This attribute is now
- *  set to null when it is freed, making this method redundent.
- */
-RexxMethod2(RexxObjectPtr, dyndlg_stopDynamic_pvt, OPTIONAL_RexxObjectPtr, ignored, CSELF, pCSelf)
-{
-    pCDynamicDialog pcdd = (pCDynamicDialog)pCSelf;
-
-    if ( pcdd->base != NULL )
+    pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
+    if ( pcdd != NULL )
     {
-        LocalFree(pcdd->base);
+        stopDialog(pcdd->pcpbd, context->threadContext);
     }
 
-    pcdd->base = NULL;
-    pcdd->active = NULL;
-    pcdd->count = 0;
-
-    return TheZeroObj;
+    return NULLOBJECT;
 }
 
 
@@ -2586,92 +2680,134 @@ RexxMethod6(RexxObjectPtr, catdlg_sendMessageToCategoryControl, RexxObjectPtr, r
 
 extern BOOL SHIFTkey = FALSE;
 
-BOOL IsNestedDialogMessage(
-    DIALOGADMIN * dlgAdm,
-    PMSG  lpmsg    // address of structure with message
-   )
+/**
+ * Although not examined throughly, this appears to be a custom implementation
+ * of the Windows dialog manager to deal with ooDialog's CategoryDialog.
+ *
+ * @param pcpbd  Pointer to the dialog CSelf struct.
+ * @param lpmsg
+ *
+ * @return BOOL
+ */
+BOOL IsNestedDialogMessage(pCPlainBaseDialog pcpbd, PMSG  lpmsg)
 {
    HWND hW, hParent, hW2;
-   BOOL prev = FALSE;
+    bool prev = false;
 
-   if ((!dlgAdm->ChildDlg) || (!dlgAdm->AktChild))
-      return IsDialogMessage(dlgAdm->TheDlg, lpmsg);
+    if ( ! pcpbd->childDlg || ! pcpbd->activeChild )   // childDlg[] Is this expression correct?  TODO
+    {
+        return IsDialogMessage(pcpbd->hDlg, lpmsg);
+    }
 
-   switch (lpmsg->message)
+    switch ( lpmsg->message )
    {
       case WM_KEYDOWN:
-         switch (lpmsg->wParam)
+            switch ( lpmsg->wParam )
             {
-            case VK_SHIFT: SHIFTkey = TRUE;
+                case VK_SHIFT:
+                    SHIFTkey = TRUE;
                break;
 
             case VK_TAB:
 
-               if (IsChild(dlgAdm->AktChild, lpmsg->hwnd)) hParent = dlgAdm->AktChild; else hParent = dlgAdm->TheDlg;
+                    if ( IsChild(pcpbd->activeChild, lpmsg->hwnd) )
+                    {
+                        hParent = pcpbd->activeChild;
+                    }
+                    else
+                    {
+                        hParent = pcpbd->hDlg;
+                    }
 
                hW = GetNextDlgTabItem(hParent, lpmsg->hwnd, SHIFTkey);
                hW2 = GetNextDlgTabItem(hParent, NULL, SHIFTkey);
 
                /* see if we have to switch to the other dialog */
-               if (hW == hW2)
+                    if ( hW == hW2 )
                {
-                  if (hParent == dlgAdm->TheDlg)
-                     hParent = dlgAdm->AktChild;
-                  else
-                     hParent = dlgAdm->TheDlg;
+                        if ( hParent == pcpbd->hDlg )
+                        {
+                            hParent = pcpbd->activeChild;
+                        }
 
                   hW = GetNextDlgTabItem(hParent, NULL, SHIFTkey);
                   return SendMessage(hParent, WM_NEXTDLGCTL, (WPARAM)hW, (LPARAM)TRUE) != 0;
-
-               } else return SendMessage(hParent, WM_NEXTDLGCTL, (WPARAM)hW, (LPARAM)TRUE) != 0;
-
+                    }
+                    else
+                    {
+                        return SendMessage(hParent, WM_NEXTDLGCTL, (WPARAM)hW, (LPARAM)TRUE) != 0;
+                    }
                 return TRUE;
 
             case VK_LEFT:
             case VK_UP:
-               prev = TRUE;
+                    prev = true;
+
             case VK_RIGHT:
             case VK_DOWN:
-
-               if (IsChild(dlgAdm->AktChild, lpmsg->hwnd)) hParent = dlgAdm->AktChild; else hParent = dlgAdm->TheDlg;
+                    if ( IsChild(pcpbd->activeChild, lpmsg->hwnd) )
+                    {
+                        hParent = pcpbd->activeChild;
+                    }
+                    else
+                    {
+                        hParent = pcpbd->hDlg;
+                    }
 
                hW = GetNextDlgGroupItem(hParent, lpmsg->hwnd, prev);
                hW2 = GetNextDlgGroupItem(hParent, NULL, prev);
 
                /* see if we have to switch to the other dialog */
-               if (hW == hW2)
+                    if ( hW == hW2 )
                {
-                  if (hParent == dlgAdm->TheDlg)
-                     hParent = dlgAdm->AktChild;
+                        if ( hParent == pcpbd->hDlg )
+                        {
+                            hParent = pcpbd->activeChild;
+                        }
                   else
-                     hParent = dlgAdm->TheDlg;
-
+                        {
+                            hParent = pcpbd->hDlg;
+                        }
                    return IsDialogMessage(hParent, lpmsg);
-
-               } else
+                    }
+                    else
+                    {
                 return IsDialogMessage(hParent, lpmsg);
-
+                    }
                 return TRUE;
 
             case VK_CANCEL:
             case VK_RETURN:
-               return IsDialogMessage(dlgAdm->TheDlg, lpmsg);
+                    return IsDialogMessage(pcpbd->hDlg, lpmsg);
 
             default:
                hParent = (HWND)getWindowPtr(lpmsg->hwnd, GWLP_HWNDPARENT);
-               if (!hParent) return FALSE;
+                    if ( ! hParent )
+                    {
+                        return FALSE;
+                    }
                return IsDialogMessage(hParent, lpmsg);
            }
          break;
 
       case WM_KEYUP:
-         if (lpmsg->wParam == VK_SHIFT) SHIFTkey = FALSE;
+            if ( lpmsg->wParam == VK_SHIFT )
+            {
+                SHIFTkey = FALSE;
+            }
          break;
    }
+
    hParent = (HWND)getWindowPtr(lpmsg->hwnd, GWLP_HWNDPARENT);
-   if (hParent)
+
+    if ( hParent )
+    {
       return IsDialogMessage(hParent, lpmsg);
-   else return IsDialogMessage(dlgAdm->TheDlg, lpmsg);
+    }
+    else
+    {
+        return IsDialogMessage(pcpbd->hDlg, lpmsg);
+    }
 }
 #endif
 
