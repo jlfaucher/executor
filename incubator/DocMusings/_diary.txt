@@ -1,4 +1,95 @@
 ===============================================================================
+2010 June 19
+
+Again, pool size error with oodialog :
+! TeX capacity exceeded, sorry [pool size=1286550].
+--> Replace 1500000 by 2000000 in texm.cnf :
+pool_size = 2000000
+
+
+Since several weeks (months ?), I get ?? in toc and index.
+oodialog : no number at all, only ?? everywhere 
+--> This is because the first run of pdfjadetex returns an error and docbook2pdf stops after this first run.
+    If I run pdfjadetex one more time by hand, then it's ok.
+    Can't find where is the error... Or is it this message ?
+        ! Undefined control sequence.
+        \HeadingText ->2.3.4. \define 
+                                      Statement
+        l.46890 \endHeadPar{}
+                             \endSeq{}\Node%
+        The control sequence at the end of the top line
+        of your error message was never \def'ed.
+    --> If I remove the # or replace it in <title>#define Statement</title> by &num;
+        then the error goes away...
+        Impact on generated TeX :
+        Line 46888
+            #define :       {title-sosofo-mode}}\#define Statement\endNode{}\def\HeadingText{%
+            &num;define :   {title-sosofo-mode}}\Entity{num}define Statement\endNode{}\def\HeadingText{%
+            define  :       {title-sosofo-mode}}define Statement\endNode{}\def\HeadingText{%
+        Line 46889
+            #define :       2.3.4. \define Statement}%          <-- I think that \define brings the problem...
+            &num;define :   2.3.4. define Statement}%
+            define  :       2.3.4. define Statement}%
+        
+
+Remember, the PDF backend of docbook2pdf is here :
+D:\Cygwin\usr\share\sgml\docbook\utils-0.6.14\backends\pdf
+and was modified to not remove the .tmp and .tex file
+
+
+===============================================================================
+2010 May 16
+
+The build of the ooRexx doc no longer work...
+I get these errore :
+jade -t xml -d ../shared/oorexx.html.dsl -V html-index oodialog.xml
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:1001:43:Q: grand total of content tokens exceeds GRPGTCNT (96)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:1395:39:Q: grand total of content tokens exceeds GRPGTCNT (96)
+...
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:2985:0:Q: number of attribute names and name tokens (63) exceeds ATTCNT (40)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:3006:0:Q: number of attribute names and name tokens (63) exceeds ATTCNT (40)
+...
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/calstblx.dtd:181:38:Q: grand total of content tokens exceeds GRPGTCNT (96)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:3584:96:Q: grand total of content tokens exceeds GRPGTCNT (96)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:5287:0:Q: number of attribute names and name tokens (42) exceeds ATTCNT (40)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:5410:0:Q: number of attribute names and name tokens (46) exceeds ATTCNT (40)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:5643:44:Q: grand total of content tokens exceeds GRPGTCNT (96)
+jade:/usr/share/sgml/docbook/xml-dtd-4.2/dbpoolx.mod:6008:44:Q: grand total of content tokens exceeds GRPGTCNT (96)
+..
+make[1]: *** [genindex.xml] Error 1
+make[1]: Leaving directory `/cygdrive/d/local/Rexx/ooRexx/svn/docs/trunk.sd/oodialog'
+
+
+After investigation, I see that an update of OpenJade has been installed on march 2010 (Cygwin setup, see /var/log/setup.log)
+    build-docbook-catalog/build-docbook-catalog-1.5-1.tar.bz2
+    DocBook/docbook-xml42/docbook-xml42-4.2-4.tar.bz2
+    DocBook/docbook-xml43/docbook-xml43-4.3-2.tar.bz2
+    DocBook/docbook-xml44/docbook-xml44-4.4-2.tar.bz2
+    DocBook/docbook-xsl/docbook-xsl-1.75.2-1.tar.bz2
+    DocBook/OpenSP/libosp5/libosp5-1.5.2-2.tar.bz2
+    DocBook/openjade/libostyle1/libostyle1-1.4devel1-2.tar.bz2
+    DocBook/openjade/openjade-1.4devel1-2.tar.bz2
+    DocBook/OpenSP/OpenSP-1.5.2-2.tar.bz2
+    DocBook/sgml-common/sgml-common-0.6.3-3.tar.bz2
+and the file /etc/sgml/catalog has been impacted.
+New entries have been added, in relation with DocBook.
+After removal of these new entries, the error is gone...
+
+
+Another error (or warning ?)
+jade:/usr/share/sgml/docbook/dsssl-stylesheets/print/dbttlpg.dsl:2722:6:E: flow object not accepted by port; only display flow objects accepted
+I think that this error was not raised by the previous version of OpenJade/OpenSP
+Don't seem to forbid the generation of the doc...
+
+
+Another error with oodialog :
+! TeX capacity exceeded, sorry [pool size=1036550].
+--> Add that to texm.cnf :
+% pool_size = 1250000
+pool_size = 1500000
+
+
+===============================================================================
 2009 august 01
 
 I want to generate the PDF from WinXP using the Makefiles available in
@@ -34,7 +125,7 @@ Ensure you have these files :
 /usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl
 /usr/share/sgml/docbook/dsssl-stylesheets/html/docbook.dsl
 
-Now following the instructions in docbook-dsssl-1.79\doc\install.html
+Now following the instructions in \usr\share\sgml\docbook\dsssl-stylesheets\doc
 Try :
 jade -t rtf -d jtest.dsl jtest.sgm
 Does not work...
@@ -76,7 +167,7 @@ Retry :
 jade -t rtf -d jtest.dsl jtest.sgm
 Good, it works...
 
-Continue to follow the instructions in docbook-dsssl-1.79\doc\install.html
+Continue to follow the instructions in \usr\share\sgml\docbook\dsssl-stylesheets\doc
 Try :
 onsgmls -sv test.sgm (must replace nsgmls by onsgmls)
 Does not work... This declaration in test.sgm seems deprecated :
@@ -100,7 +191,7 @@ Retry :
 onsgmls -sv test.sgm (must replace nsgmls by onsgmls)
 Good, it works...
 
-Continue to follow the instructions in docbook-dsssl-1.79\doc\install.html
+Continue to follow the instructions in \usr\share\sgml\docbook\dsssl-stylesheets\doc
 I have already installed the Modular DocBook Stylesheets in
 /usr/share/sgml/docbook/dsssl-stylesheets (version 1.79)
 Add this line to /etc/sgml/catalog :
