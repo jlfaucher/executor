@@ -1652,8 +1652,10 @@ RexxMethod3(RexxStringObject, e_getLine, int32_t, lineNumber, OPTIONAL_RexxObjec
         }
 
         (*(WORD *)buf) = count;
-        if ( SendMessage(hwnd, EM_GETLINE, lineNumber, (LPARAM)buf) != 0 )
+        count = SendMessage(hwnd, EM_GETLINE, lineNumber, (LPARAM)buf);
+        if (count != 0)
         {
+            buf[count] = 0;
             RXCT2A(buf);
             result = context->String(bufA);
         }

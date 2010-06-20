@@ -99,6 +99,9 @@ OODMESSAGING_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodControl.
 # All Source files that include oodResources.hpp
 OODRESOURCES_SOURCEF = $(OOD_OUTDIR)\oodBasicControls.obj $(OOD_OUTDIR)\oodResources.obj $(OOD_OUTDIR)\oodViewControls.obj
 
+# All Source files that include rxwchar.hpp
+RXWCHAR_SOURCEF = $(OOD_OUTDIR)\rxwchar.cpp oodialog.hpp
+
 .c{$(OOD_OUTDIR)}.obj:
     $(C) $(OPTIONS) $(WCHAR_OPTIONS) /DINCL_32  -c $(@B).c /Fo$(OOD_OUTDIR)\$(@B).obj
 
@@ -147,6 +150,7 @@ $(OODCONTROL_SOURCEF) : oodControl.hpp
 $(OODMESSAGING_SOURCEF) : oodMessaging.hpp
 $(OODRESOURCES_SOURCEF) : oodResources.hpp
 $(OOD_OUTDIR)\oodMenu.obj : oodMenu.hpp
+$(RXWCHAR_SOURCEF) : rxwchar.hpp
 
 $(OOD_OUTDIR):
     mkdir $(OOD_OUTDIR)
