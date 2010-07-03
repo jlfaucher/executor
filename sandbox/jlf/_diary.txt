@@ -33,6 +33,15 @@ Unicode ?
 ===============================================================================
 2010 july 3
 
+Continue Unicode review : added notes about Falcon.
+
+Adapted ooRexxTry to use utf8 encoding and Arial Unicode MS.
+Preloads all the main components (math, ftp, socket, bsf, hostemu, ...).
+
+
+===============================================================================
+2010 july 3
+
 Debug crash in gc
 RexxMemory::markObjectsMain
     markObject->live(liveMark);
