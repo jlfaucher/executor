@@ -31,6 +31,135 @@ Unicode ?
 
 
 ===============================================================================
+2010 july 3
+
+Debug crash in gc
+RexxMemory::markObjectsMain
+    markObject->live(liveMark);
+
+0x003d2b8c                                          --> this is 0x7eee1ac0->behaviour
+Access violation reading location 0x44414550        --> this is the vfptr of the behaviour of a string
+
+((*(RexxVirtualBase*)(&(*(RexxInternalObject*)(&*markObject))))).__vfptr
+
+
+RexxMemory::mark(RexxObject *markObject)
+    pushLiveStack((RexxObject *)markObject->behaviour);
+markObject = 0x7eee1ac0                             --> see below, this is the 30th element of string array
+    [RexxString]
+               if tmp<2 then         -- start at first char
+           
+called by RexxArray::live(size_t liveMark)      ArrayClass.cpp
+where this = 0x7f30ed70
+this->objects = 7f30ed98
+arrayPtr=7f30ee0c
+0x7f30ee0c - 0x7f30ed98 = 116 = 29 * 4 --> this is the 30th element
+
+element 1 to 13 : not a string... but doesn't be a problem
++		(*(RexxString*)this->get(14)).stringData	0x7eee36a4 "  len1=length(arg1string)        -- get length of string"	char [4]
++		(*(RexxString*)this->get(15)).stringData	0x7eee3704 "  newArr=.array~new        -- create new array for the arguments"	char [4]
++		(*(RexxString*)this->get(16)).stringData	0x7eee376c "  newArr[1]=new1string     -- "new"-string"	char [4]
++		(*(RexxString*)this->get(18)).stringData	0x7eee37e4 "  prepend=""               -- optional prepend string (if positioning before start!)"	char [4]
++		(*(RexxString*)this->get(20)).stringData	0x7eee388c "  arg2startori=arg2start         -- save passed-in value, if any"	char [4]
++		(*(RexxString*)this->get(21)).stringData	0x7eee38f4 "  if arg4pad=="" then arg4pad=" "-- define blank as the default pad char"	char [4]
++		(*(RexxString*)this->get(23)).stringData	0x7eee398c "  if arg(3,"Exists") then  -- start in "target"-string"	char [4]
++		(*(RexxString*)this->get(24)).stringData	0x7eee2dfc "  do"	char [4]
++		(*(RexxString*)this->get(25)).stringData	0x7eee2e2c "     if datatype(arg2start,"W") then"	char [4]
++		(*(RexxString*)this->get(26)).stringData	0x7eee2e7c "     do"	char [4]
++		(*(RexxString*)this->get(27)).stringData	0x7eee2eac "        if arg2start<0 then      -- negative, start from right"	char [4]
++		(*(RexxString*)this->get(28)).stringData	0x7eee2f14 "        do"	char [4]
++		(*(RexxString*)this->get(29)).stringData	0x7eee2f44 "           tmp=len1+arg2start+1  -- get starting position"	char [4]
++		(*(RexxString*)this->get(30)).stringData	0x7eee1ae4 "           if tmp<2 then         -- start at first char"	char [4]
++		(*(RexxString*)this->get(31)).stringData	0x7eee1b44 "           do"	char [4]
++		(*(RexxString*)this->get(32)).stringData	0x7eee1b7c "              if tmp<0 then"	char [4]
+
+The behaviour of the 30th element is broken :
++		((*(RexxVirtualBase*)(&(*(RexxInternalObject*)(&*(((*(RexxInternalObject*)(&*(this->get(28))))).behaviour)))))).__vfptr	0x003aa62c const RexxBehaviour::`vftable'	*
++		((*(RexxVirtualBase*)(&(*(RexxInternalObject*)(&*(((*(RexxInternalObject*)(&*(this->get(29))))).behaviour)))))).__vfptr	0x003aa62c const RexxBehaviour::`vftable'	*
++		((*(RexxVirtualBase*)(&(*(RexxInternalObject*)(&*(((*(RexxInternalObject*)(&*(this->get(30))))).behaviour)))))).__vfptr	0x44414548	*
++		((*(RexxVirtualBase*)(&(*(RexxInternalObject*)(&*(((*(RexxInternalObject*)(&*(this->get(31))))).behaviour)))))).__vfptr	0x003aa62c const RexxBehaviour::`vftable'	*
++		((*(RexxVirtualBase*)(&(*(RexxInternalObject*)(&*(((*(RexxInternalObject*)(&*(this->get(32))))).behaviour)))))).__vfptr	0x003aa62c const RexxBehaviour::`vftable'	*
+
+the behaviour of 30th element is stored at 0x7eee1acc
+
+
+called by RexxMemory::markObjectsMain(RexxObject *rootObject)
+where rootObject = 
++		rootObject	0x003d2a90 class RexxMemory memoryObject {markWord=1 markReason=1 variableCache=0x7f5b55a8 ...}	RexxObject *
+
+called by RexxMemory::markObjects()
+
+called by RexxMemory::collect()
+
+objectclass.hpp
+inline void   setBehaviour(RexxBehaviour *b) { behaviour = b; }         <-- this method is called to assign the behavior of type 22 (T_String)
+>	rexx.dll!RexxInternalObject::setBehaviour(RexxBehaviour * b)  Line 265 + 0x10 bytes	C++
+ 	rexx.dll!RexxObject::initializeNewObject(unsigned int mark, void * vft, RexxBehaviour * b)  Line 362	C++
+ 	rexx.dll!RexxMemory::newObject(unsigned int requestLength, unsigned int type)  Line 1134	C++
+ 	rexx.dll!new_object(unsigned int s, unsigned int t)  Line 422 + 0x1e bytes	C++
+ 	rexx.dll!RexxString::newString(const char * string, unsigned int length)  Line 1894 + 0xd bytes	C++
+ 	rexx.dll!new_string(const char * s, unsigned int l)  Line 521	C++
+ 	rexx.dll!RexxSource::get(unsigned int _position)  Line 838 + 0x1d bytes	C++
+ 	rexx.dll!RexxSource::extractSource(SourceLocation & location)  Line 1119 + 0x10 bytes	C++                 <-- counter = 735
+ 	rexx.dll!RexxCode::getSource()  Line 199	C++
+ 	rexx.dll!BaseExecutable::source()  Line 149	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 144 + 0x6 bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 139	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 123 + 0x23 bytes	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 122 + 0x1d bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 92	C++
+ 	rexx.dll!RoutineClass::call(RexxActivity * activity, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 234	C++
+ 	rexx.dll!InterpreterInstance::runRequires(RexxActivity * activity, RexxString * name, RoutineClass * code)  Line 877	C++
+ 	rexx.dll!InterpreterInstance::loadRequires(RexxActivity * activity, RexxString * shortName, RexxString * fullName)  Line 932	C++
+ 	rexx.dll!RexxSource::loadRequires(RexxActivity * activity, RexxString * target)  Line 6082 + 0x14 bytes	C++
+ 	rexx.dll!PackageClass::loadPackage(RexxString * name, RexxArray * s)  Line 366 + 0x16 bytes	C++             <-- rgf_util2.rex
+
+
+The previous behaviour is overwritten by
+inline void insertAfter(DeadObject *newDead)            DeadObject.hpp
+where newDead = 7eee1ac0
+ 	rexx.dll!DeadObject::insertAfter(DeadObject * newDead)  Line 89	C++
+ 	rexx.dll!DeadObjectPool::add(DeadObject * obj)  Line 165	C++
+>	rexx.dll!NormalSegmentSet::addDeadObject(char * object, unsigned int length)  Line 461	C++
+ 	rexx.dll!MemorySegmentSet::sweep()  Line 1170	C++
+ 	rexx.dll!RexxMemory::collect()  Line 1038	C++
+ 	rexx.dll!NormalSegmentSet::handleAllocationFailure(unsigned int allocationLength)  Line 1272	C++
+ 	rexx.dll!RexxMemory::newObject(unsigned int requestLength, unsigned int type)  Line 1117 + 0x12 bytes	C++ <-- length = 48, we are in "small object" part (lesser than LargeBlockThreshold 4096)
+ 	rexx.dll!new_object(unsigned int s, unsigned int t)  Line 422 + 0x1e bytes	C++
+ 	rexx.dll!RexxString::newString(const char * string, unsigned int length)  Line 1894 + 0xd bytes	C++
+ 	rexx.dll!new_string(const char * s, unsigned int l)  Line 521	C++
+ 	rexx.dll!new_string(const char * s, unsigned int l)  Line 521	C++
+ 	rexx.dll!RexxSource::get(unsigned int _position)  Line 838 + 0x1d bytes	C++
+ 	rexx.dll!RexxSource::extractSource(SourceLocation & location)  Line 1119 + 0x10 bytes	C++                 <-- counter = 754
+ 	rexx.dll!RexxCode::getSource()  Line 199	C++
+ 	rexx.dll!BaseExecutable::source()  Line 149	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 144 + 0x6 bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 139	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 123 + 0x23 bytes	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 122 + 0x1d bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 92	C++
+ 	rexx.dll!RoutineClass::call(RexxActivity * activity, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 234	C++
+ 	rexx.dll!InterpreterInstance::runRequires(RexxActivity * activity, RexxString * name, RoutineClass * code)  Line 877	C++
+ 	rexx.dll!InterpreterInstance::loadRequires(RexxActivity * activity, RexxString * shortName, RexxString * fullName)  Line 932	C++
+ 	rexx.dll!RexxSource::loadRequires(RexxActivity * activity, RexxString * target)  Line 6082 + 0x14 bytes	C++
+ 	rexx.dll!PackageClass::loadPackage(RexxString * name, RexxArray * s)  Line 366 + 0x16 bytes	C++             <-- rgf_util2.rex
+    while loading rgf_util2.rex
+    
+Why is 0x7eee1ac0 a dead object ? 
+In RexxSource::extractSource, the array "source" is created, but is not a ProtectedObject.
+
+
+===============================================================================
 2010 may 15
 
 Fix build under Windows for dbgprintf (link error).

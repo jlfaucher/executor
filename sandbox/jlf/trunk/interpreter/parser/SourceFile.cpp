@@ -1087,6 +1087,7 @@ RexxArray *RexxSource::extractSource(
         }
         /* get the result array              */
         RexxArray *source = new_array(location.getEndLine() - location.getLineNumber() + 1);
+        ProtectedObject p(source);
         /* all on one line?                  */
         if (location.getLineNumber() == location.getEndLine())
         {
