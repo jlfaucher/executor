@@ -67,6 +67,47 @@ public:
 };
 
 
+/**
+ * Checks that a ControlDialog has a proper, active, running, owner dialog.
+ *
+ *
+ * @param c      Method context we are operating under.
+ * @param pcpbd  Pointer to the CSelf struct of the ControlDialog
+ *
+ * @return True if all okay, otherwise false.
+ *
+ * @note  An exception has been raised if false is returned.
+ */
+bool validControlDlg(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
+{
+    if ( pcpbd->rexxOwner == NULL )
+    {
+        noOwnerRexxDialogException(c, pcpbd->rexxSelf);
+        goto err_out;
+    }
+
+    pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(c, pcpbd->rexxOwner, oodPlainBaseDialog, 0);
+    if ( ownerPcpbd == NULL )
+    {
+        goto err_out;
+    }
+
+    if ( ownerPcpbd->hDlg == NULL || ! ownerPcpbd->isActive )
+    {
+        noParentWindowsDialogException(c, pcpbd->rexxSelf);
+        goto err_out;
+    }
+    pcpbd->hOwnerDlg = ownerPcpbd->hDlg;
+
+    // If AttachThread() failed for the parent dialog, that dialog is ended
+    // prematurely and we couldn't be here.
+    pcpbd->dlgProcContext = ownerPcpbd->dlgProcContext;
+
+    return true;
+
+err_out:
+    return false;
+}
 
 /**
  *  Methods for the .ResDialog class.
@@ -128,10 +169,11 @@ DWORD WINAPI WindowLoopThread(void *arg)
                 break;
             }
             if ( ! IsDialogMessage(pcpbd->hDlg, &msg) )
-                {
-                    DispatchMessage(&msg);
-                }
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
             }
+        }
     }
     else
     {
@@ -191,6 +233,44 @@ void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
 }
 
 
+RexxMethod7(RexxObjectPtr, resdlg_init, RexxObjectPtr, library, RexxObjectPtr, resourceID, OPTIONAL_RexxObjectPtr, dlgData,
+            OPTIONAL_RexxObjectPtr, includeFile, OPTIONAL_RexxObjectPtr, owner,
+            SUPER, super, OSELF, self)
+{
+    RexxArrayObject newArgs = context->NewArray(4);
+
+    context->ArrayPut(newArgs, library, 1);
+    context->ArrayPut(newArgs, resourceID, 2);
+    if ( argumentExists(3) )
+    {
+        context->ArrayPut(newArgs, dlgData, 3);
+    }
+    if ( argumentExists(4) )
+    {
+        context->ArrayPut(newArgs, includeFile, 4);
+    }
+    RexxObjectPtr result = context->ForwardMessage(NULL, NULL, super, newArgs);
+
+    if ( isInt(0, result, context) )
+    {
+        pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)context->GetCSelf();
+
+        if ( argumentExists(5) )
+        {
+            pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(context, owner, oodPlainBaseDialog, 5);
+            if ( ownerPcpbd == NULL )
+            {
+                return TheOneObj;
+            }
+
+            pcpbd->rexxOwner = owner;
+            pcpbd->hOwnerDlg = ownerPcpbd->hDlg;
+        }
+    }
+
+    return result;
+}
+
 /**
  * Creates the underlying Windows dialog using a dialog resource stored in a
  * DLL.  Currently this is only used for ResDialog dialogs.  All other ooDialog
@@ -204,10 +284,16 @@ void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
  *
  * @return True on succes, otherwise false.
  */
-RexxMethod5(logical_t, resdlg_startDialog_pvt, CSTRING, library, uint32_t, dlgID, uint32_t, iconID,
+RexxMethod5(logical_t, resdlg_startDialog_pvt, CSTRING, library, RexxObjectPtr, _dlgID, uint32_t, iconID,
             logical_t, modeless, CSELF, pCSelf)
 {
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
+
+    uint32_t dlgID = oodResolveSymbolicID(context, pcpbd->rexxSelf, _dlgID, -1, 2);
+    if ( dlgID == OOD_ID_EXCEPTION )
+    {
+        return FALSE;
+    }
 
     ULONG thID;
     bool Release = false;
@@ -306,6 +392,117 @@ RexxMethod2(RexxArrayObject, resdlg_getDataTableIDs_pvt, CSELF, pCSelf, OSELF, s
 
 
 /**
+ *  Methods for the .ControlDialog class.
+ */
+#define CONTROLDIALOG_CLASS        "ControlDialog"
+
+
+/** ControlDialog::parentDlg  [attribute get]
+ *
+ *  Raises base class initialization exception if we can't get the CSelf
+ *  pointer.
+ */
+RexxMethod1(RexxObjectPtr, chld_getOwnerDialog, OSELF, self)
+{
+    pCPlainBaseDialog pcpbd = requiredDlgCSelf(context, self, oodPlainBaseDialog, 0);
+    if ( pcpbd != NULL )
+    {
+        return pcpbd->rexxOwner == NULLOBJECT ? TheNilObj : pcpbd->rexxOwner;
+    }
+
+    return NULLOBJECT;
+}
+/** ControlDialog::parentDlg  [attribute set]
+ *
+ *  Raises base class initialization exception if we can't get the CSelf
+ *  pointer.  Raises wrong class exception if parent is not a PlainBaseDialog.
+ *
+ *  @note Although hOwnerDlg gets set, it very well could still be null.
+ */
+RexxMethod2(RexxObjectPtr, chld_setOwnerDialog, RexxObjectPtr, owner, OSELF, self)
+{
+    pCPlainBaseDialog pcpbd = requiredDlgCSelf(context, self, oodPlainBaseDialog, 0);
+    if ( pcpbd != NULL )
+    {
+        pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(context, owner, oodPlainBaseDialog, 1);
+        if ( ownerPcpbd != NULL )
+        {
+            pcpbd->rexxOwner = owner;
+            pcpbd->hOwnerDlg = ownerPcpbd->hDlg;
+        }
+    }
+
+    return NULLOBJECT;
+}
+
+
+/**
+ *  Methods for the .ResControlDialog class.
+ */
+#define RESControlDialog_CLASS        "ResControlDialog"
+
+/** ResControlDialog::startDialog()
+ *
+ *  This method over-rides the superclass (ResDialog) startDialog().  It will be
+ *  invoked from the superclass: self~startDialog(library, id, icon, modeless)
+ *
+ *  We only need library and id, the owner dialog we pull from the CSelf
+ *  struct.  So, we just take the first 2 args and ignore the rest.
+ */
+RexxMethod4(RexxObjectPtr, resCtrlDlg_startDialog_pvt, CSTRING, library, RexxObjectPtr, _dlgID, ARGLIST, args, CSELF, pCSelf)
+{
+    pCPlainBaseDialog pcpbd = getPBDCSelf(context, pCSelf);
+    if ( pcpbd == NULL )
+    {
+        goto err_out;
+    }
+
+    if ( ! validControlDlg(context, pcpbd) )
+    {
+        goto err_out;
+    }
+
+    uint32_t dlgID = oodResolveSymbolicID(context, pcpbd->rexxSelf, _dlgID, -1, 2);
+    if ( dlgID == OOD_ID_EXCEPTION )
+    {
+        goto err_out;
+    }
+    if ( dlgID == 0 )
+    {
+        wrongArgValueException(context->threadContext, 2, "a valid numeric resource ID or a valid symbolic ID", _dlgID);
+        goto err_out;
+    }
+
+    if ( !loadResourceDLL(pcpbd, library) )
+    {
+        goto err_out;
+    }
+
+    HWND hChild = (HWND)SendMessage(pcpbd->hOwnerDlg, WM_USER_CREATECONTROL_RESDLG, (WPARAM)pcpbd, (LPARAM)dlgID);
+    if ( hChild )
+    {
+        pcpbd->hDlg = hChild;
+        pcpbd->isActive = true;
+        pcpbd->childDlg[0] = hChild;
+
+        setDlgHandle(context, pcpbd);
+        setFontAttrib(context, pcpbd);
+
+        if ( pcpbd->autoDetect )
+        {
+            // TODO should we check result?
+            uint32_t result = doDataAutoDetection(pcpbd);
+        }
+        return TheTrueObj;
+    }
+
+err_out:
+    return TheFalseObj;
+}
+
+
+
+/**
  *  Methods for the .WindowExtensions class.
  */
 #define WINDOWEXTENSIONS_CLASS        "WindowExtensions"
@@ -320,8 +517,7 @@ static HWND winExtSetup(RexxMethodContext *c, void *pCSelf)
 {
     if ( pCSelf == NULL )
     {
-        baseClassIntializationException(c);
-        return NULL;
+        return (HWND)baseClassIntializationException(c);
     }
 
     oodResetSysErrCode(c->threadContext);
@@ -1100,7 +1296,7 @@ RexxMethod3(RexxStringObject, winex_loadBitmap, CSTRING, bitmapFile, OPTIONAL_CS
     }
     else
     {
-        pCPlainBaseDialog pcpbd = getDlgCSelf(context, self);
+        pCPlainBaseDialog pcpbd = requiredDlgCSelf(context, self, oodUnknown, 0);
         if ( pcpbd == NULL )
         {
             return NULLOBJECT;
@@ -1226,14 +1422,14 @@ RexxMethod3(POINTERSTRING, winex_createPen, OPTIONAL_uint32_t, width, OPTIONAL_C
 
 /** WindowExtensions::createBrush()
  *
- *  Retrieves a handle to a graphics brush.  The type of brush is dependent on
- *  the supplied arguments.
+ * Retrieves a handle to a graphics brush.  The type of brush is dependent on
+ * the supplied arguments.
  *
  * If both args were omitted,then a stock hollow brush is returned.  When only
  * the color arg is specified, then a solid color brush of the color specified
  * is returned.
  *
- * The second arggument can either be a keyword to specify a brush pattern, or
+ * The second argument can either be a keyword to specify a brush pattern, or
  * the file name of a bitmap to use as the brush.
  *
  * @param color           [OPTIONAL]  The color of the brush.  If omitted, the
@@ -1594,7 +1790,8 @@ err_out:
  *
  *  drawArc() method:
  *
- *    Draws an elliptical arc.
+ *    Draws an elliptical arc.  The elliptical arc is defined the same way the
+ *    pie is, but only the arc is drawn, the radials are not drawn.
  *
  *  drawPie() method:
  *
@@ -1856,6 +2053,8 @@ err_out:
  *  @note  Sets .SystemErrorCode.  If hDC is null, the error code is set to 1
  *         ERROR_INVALID_FUNCTION "Incorrect function."  Other error codes may
  *         be set by the system.
+ *
+ *  @remarks  The default arc direction in Windows is counterclockwise.
  */
 RexxMethod3(CSTRING, winex_getSetArcDirection, POINTERSTRING, _hDC, OPTIONAL_CSTRING, _direction, NAME, method)
 {
@@ -1876,7 +2075,7 @@ RexxMethod3(CSTRING, winex_getSetArcDirection, POINTERSTRING, _hDC, OPTIONAL_CST
     else
     {
         direction = AD_COUNTERCLOCKWISE;
-        if ( _direction != NULLOBJECT && StrStrIA(_direction, "CLOCKWISE") != NULL )
+        if ( _direction != NULLOBJECT && StrStrIA(_direction, "COUNTER") == NULL )
         {
             direction = AD_CLOCKWISE;
         }

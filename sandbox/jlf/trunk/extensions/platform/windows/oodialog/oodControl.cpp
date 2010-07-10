@@ -216,9 +216,8 @@ bool isControlMatch(HWND hControl, oodControl_t control)
  *
  * @param name   The name to resolve.
  *
- * @return The windows control type.  winUnknown is returned for no match and
- *         the name "separator" is special cased to winNotAControl.  (Separator
- *         is used along with the data table stuff.)
+ * @return The windows control type.  winUnknown is returned if there is no
+ *         match.
  *
  * @remarks  There are some generic message names such as getControlDataPage
  *           that need to match to winUnknown.  CO is not sufficient to
@@ -238,7 +237,6 @@ oodControl_t oodName2controlType(CSTRING name)
     else if ( StrCmpNA(name, "PUSHBUTTON", 2    ) == 0 ) return winPushButton;
     else if ( StrCmpNA(name, "RADIOBUTTON", 1   ) == 0 ) return winRadioButton;
     else if ( StrCmpNA(name, "SCROLLBAR", 2     ) == 0 ) return winScrollBar;
-    else if ( StrCmpNA(name, "SEPARATOR", 2     ) == 0 ) return winNotAControl;
     else if ( StrCmpNA(name, "STATIC", 2        ) == 0 ) return winStatic;
     else if ( StrCmpNA(name, "TAB", 3           ) == 0 ) return winTab;
     else if ( StrCmpNA(name, "TRACKBAR", 3      ) == 0 ) return winTrackBar;

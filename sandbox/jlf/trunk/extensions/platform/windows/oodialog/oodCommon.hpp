@@ -75,7 +75,8 @@ typedef map<string, int, less<string> > String2Int;
 // Enum for the type of an ooDialog class.  Types to be added as needed.
 typedef enum
 {
-    oodPlainBaseDialog, oodCategoryDialog, oodStaticControl, oodButtonControl, oodEditControl,
+    oodPlainBaseDialog, oodCategoryDialog, oodUserDialog,    oodRcDialog,      oodResDialog,
+    oodControlDialog,   oodDialogControl,  oodStaticControl, oodButtonControl, oodEditControl,
     oodListBox,         oodProgressBar,    oodUnknown
 } oodClass_t;
 
@@ -103,10 +104,10 @@ extern char *           strdupupr(const char *str);
 extern char *           strdupupr_nospace(const char *str);
 extern char *           strdup_nospace(const char *str);
 extern char *           strdup_2methodName(const char *str);
-extern void              checkModal(pCPlainBaseDialog previous, BOOL modeless);
+extern void              checkModal(pCPlainBaseDialog previous, logical_t modeless);
 extern void              enablePrevious(pCPlainBaseDialog previous);
 
-extern pCPlainBaseDialog getDlgCSelf(RexxMethodContext *c, RexxObjectPtr self);
+extern pCPlainBaseDialog requiredDlgCSelf(RexxMethodContext *c, RexxObjectPtr self, oodClass_t type, size_t argPos);
 
 extern oodClass_t    oodClass(RexxMethodContext *, RexxObjectPtr, oodClass_t *, size_t);
 extern uint32_t      oodResolveSymbolicID(RexxMethodContext *, RexxObjectPtr, RexxObjectPtr, int, size_t);
@@ -165,9 +166,11 @@ extern void          setDlgHandle(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
 extern RexxObjectPtr oodSetForegroundWindow(RexxMethodContext *c, HWND hwnd);
 extern RexxObjectPtr oodGetFocus(RexxMethodContext *c, HWND hDlg);
 extern RexxObjectPtr sendWinMsgGeneric(RexxMethodContext *, HWND, CSTRING, RexxObjectPtr, RexxObjectPtr, size_t, bool);
+extern bool          loadResourceDLL(pCPlainBaseDialog pcpbd, CSTRING library);
 
 // These functions are defined in oodBaseDialog.cpp
 extern bool initWindowExtensions(RexxMethodContext *, RexxObjectPtr, HWND, pCWindowBase, pCPlainBaseDialog);
+extern bool validControlDlg(RexxMethodContext *c, pCPlainBaseDialog pcpbd);
 
 // Shared button stuff.
 typedef enum {push, check, radio, group, owner, notButton} BUTTONTYPE, *PBUTTONTYPE;
@@ -249,6 +252,11 @@ inline bool isYes(const char * s)
    return ( c == 'J' || c =='Y' || c == '1' );
 }
 
+inline bool isEmptyString(const char * s)
+{
+    return s != NULL && *s == '\0';
+}
+
 inline const char *comctl32VersionName(DWORD id)
 {
     return comctl32VersionPart(id, COMCTL32_FULL_PART);
@@ -263,15 +271,121 @@ inline bool hasStyle(HWND hwnd, LONG style)
     return false;
 }
 
-extern void          ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
-extern void          baseClassIntializationException(RexxMethodContext *c);
-extern RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg);
-extern RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj);
-extern RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int, int);
-extern RexxObjectPtr wrongClassReplyException(RexxThreadContext *c, const char *n);
-extern void          controlFailedException(RexxThreadContext *, CSTRING, CSTRING, CSTRING);
-extern void          wrongWindowStyleException(RexxMethodContext *c, CSTRING, CSTRING);
-extern RexxObjectPtr wrongWindowsVersionException(RexxMethodContext *, const char *, const char *);
+
+extern void           ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
+extern void          *baseClassIntializationException(RexxMethodContext *c);
+extern RexxObjectPtr  invalidCategoryPageException(RexxMethodContext *c, int, int);
+extern void          *wrongClassReplyException(RexxThreadContext *c, const char *n);
+extern void           controlFailedException(RexxThreadContext *, CSTRING, CSTRING, CSTRING);
+extern void           wrongWindowStyleException(RexxMethodContext *c, CSTRING, CSTRING);
+extern RexxObjectPtr  wrongWindowsVersionException(RexxMethodContext *, const char *, const char *);
+extern RexxObjectPtr  methodCanNotBeInvokedException(RexxMethodContext *c, RexxObjectPtr rxDlg, CSTRING msg);
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The "methName" method can not be invoked on "objectName" when the Windows
+ *  dialog does not exist.
+ *
+ *  The connectEdit method can not be invoked on a StyleDlg when the Windows
+ *  dialog does not exist.
+ *
+ * @param c
+ * @param rxDlg
+ */
+inline RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg)
+{
+    return methodCanNotBeInvokedException(c, rxDlg, "Windows dialog does not exist");
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The "methName" method can not be invoked on "objectName" when the parent
+ *  Windows dialog does not exist.
+ *
+ *  The STARTDIALOG method can not be invoked on an AddressDlg when the parent
+ *  Windows dialog does not exist.
+ *
+ * @param c
+ * @param rxDlg
+ */
+inline RexxObjectPtr noParentWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg)
+{
+    return methodCanNotBeInvokedException(c, rxDlg, "parent Windows dialog does not exist");
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The "methName" method can not be invoked on "objectName" when the parent
+ *  Rexx dialog has not been assigned.
+ *
+ *  The connectEdit method can not be invoked on a StyleDlg when the parent
+ *  Windows dialog does not exist.
+ *
+ * @param c
+ * @param rxDlg
+ */
+inline RexxObjectPtr noOwnerRexxDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg)
+{
+    return methodCanNotBeInvokedException(c, rxDlg, "parent Rexx dialog has not been assigned");
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The "methName" method can not be invoked on "objectName" when the window
+ *  handle is not valid.
+ *
+ *  The getMaxSelection method can not be invoked on a MontnCalendar when the
+ *  window handle is not valid.
+ *
+ * @param c
+ * @param rxObj
+ */
+inline RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj)
+{
+    return methodCanNotBeInvokedException(c, rxObj, "window handle is not valid");
+}
+
+/**
+ * Ensures that a dialog CSelf pointer is not null.  This can happen if the user
+ * invokes a method in a dialog subclass before invoking the superclass init()
+ * method.
+ *
+ * Unfortunately users do this. ;-(  Before the conversion to the C++ API,
+ * things were not working as the user expected, but no "real bad" things
+ * happened.  Now, this causes a null point derefernce unless we check first.
+ *
+ * @param c       Method context we are operating.
+ * @param pCSelf  CSelf pointer for the dialog object.
+ *
+ * @return The CSelf pointer cast to a pCPlainBaseDialog, or null if pCSelf is
+ *         null.
+ *
+ * @note  The whole point of this is to raise the exception if pCSelf is null.
+ */
+static inline pCPlainBaseDialog getPBDCSelf(RexxMethodContext *c, void * pCSelf)
+{
+    if ( pCSelf == NULL )
+    {
+        baseClassIntializationException(c);
+    }
+    return (pCPlainBaseDialog)pCSelf;
+}
 
 /**
  * Retrieves the PlainBaseDialog class CSelf pointer.
@@ -280,7 +394,7 @@ extern RexxObjectPtr wrongWindowsVersionException(RexxMethodContext *, const cha
  *
  * @return The pointer to the CPlainBaseDialogClass struct.
  */
-inline pCPlainBaseDialogClass getPBDClass_CSelf(RexxMethodContext *c)
+inline pCPlainBaseDialogClass dlgToClassCSelf(RexxMethodContext *c)
 {
     return (pCPlainBaseDialogClass)c->ObjectToCSelf(ThePlainBaseDialogClass);
 }

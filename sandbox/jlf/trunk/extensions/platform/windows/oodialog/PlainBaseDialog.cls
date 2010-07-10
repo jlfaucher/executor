@@ -123,6 +123,9 @@
 ::method setRect unguarded external "LIBRARY oodialog wb_setRect"
 ::method resizeTo unguarded external "LIBRARY oodialog wb_resizeMove"
 ::method moveTo unguarded external "LIBRARY oodialog wb_resizeMove"
+::method setWindowPos unguarded external "LIBRARY oodialog wb_setWindowPos"
+::method moveWindow unguarded external "LIBRARY oodialog wb_moveSizeWindow"
+::method sizeWindow unguarded external "LIBRARY oodialog wb_moveSizeWindow"
 ::method getRealSize unguarded external "LIBRARY oodialog wb_getSizePos"
 ::method getRealPos unguarded external "LIBRARY oodialog wb_getSizePos"
 ::method windowRect unguarded external "LIBRARY oodialog wb_windowRect"
@@ -133,13 +136,15 @@
    use strict arg width, height, showOptions = ""
    p = .Point~new(0, 0)
    s = .Size~new(trunc(width * self~factorX), trunc(height * self~factorY))
-   return self~setRect(p, s, "NOMOVE " || showOptions);
+   if self~setRect(p, s, "NOMOVE " || showOptions) then return 0
+   else return 1
 
 ::method move unguarded             -- old method, this is not accurate.
    use strict arg xPos, yPos, showOptions = ""
    p = .Point~new(trunc(xPos * self~factorX), trunc(yPos * self~factorY))
    s = .Size~new(0, 0)
-   return self~setRect(p, s, "NOSIZE " || showOptions);
+   if self~setRect(p, s, "NOSIZE " || showOptions) then return 0
+   else return 1
 
 ::method getSize unguarded          -- old method, this is not accurate.
    forward message "getRealSize" continue
@@ -329,11 +334,12 @@
 ::method getFontSize class external "LIBRARY oodialog pbdlg_getFontSize_cls"
 ::method new class external "LIBRARY oodialog pbdlg_new_cls"
 
+::attribute library get unguarded private external "LIBRARY oodialog pbdlg_getLibrary"          -- Internal use do not document
+::attribute resourceID get unguarded private external "LIBRARY oodialog pbdlg_getResourceID"    -- Internal use do not document
+
 -- Automatic data field detection on/off
 ::attribute autoDetect get external "LIBRARY oodialog pbdlg_getAutoDetect"
 ::attribute autoDetect set external "LIBRARY oodialog pbdlg_setAutoDetect"
-
-::attribute scrollNow               -- Indicator whether or not scrolling is active
 
 ::attribute dataConnection private  -- store connections between ids and class attributes
 ::attribute useStem private         -- flag whether to use a stem to set/get data or not
@@ -362,16 +368,7 @@
  * set up of the dialog management block, for all dialogs.
  */
 ::method init external "LIBRARY oodialog pbdlg_init"
-::method unInit external "LIBRARY oodialog pbdlg_unInit"
 ::method setDlgFont external "LIBRARY oodialog pbdlg_setDlgFont"
-
-::method initDialog unguarded private
-   return 0
-
--- Needs a comment?  Was documented.
-::method run unguarded private
-   expose finished
-   guard on when finished
 
 -- Creates the dialog, shows it, and destroys it.  Dialog "data" is set and received.
 -- The sleepTime arg is ignored.  This arg was never documented, but people might have
@@ -393,7 +390,7 @@
          o~start(m)
       end
 
-      self~run
+      self~waitForDialog
 
       if self~initCode = 1 then do
          if self~useStem then self~getDataStem(dlgData.)
@@ -408,17 +405,69 @@
       return 0
    end
 
--- Not to be doumented.
-::method ensureFinished unguarded
+::method isDialogActive unguarded external "LIBRARY oodialog pbdlg_isDialogActive"
+
+
+ /*
+  * The following methods are the default implementations for methods that are
+  * intended to be over-ridden by the programmer if the default behavior needs
+  * to be altered.
+  */
+
+::method initDialog unguarded private
+   return 0
+
+ /** ok()
+  * This method first invokes the validate() method.  If validate returns
+  * true, self~initCode is set to 1 and self~finished is set to true,
+  * terminating the dialog.
+  *
+  * If validate returns false, the dialog continues to run.
+  */
+::method ok unguarded
+   okayToClose = self~validate
+
+   if okayToClose then do
+     self~initCode = 1
+     self~finished = .true
+   end
+
+   return self~finished
+
+::method cancel unguarded
+   self~initCode = 2
+   self~finished = .true
+   return self~finished
+
+::method help unguarded
+   return 0
+
+::method leaving
+   return
+
+/** validate()
+ * This method is an abstract method that will be called to determin whether the
+ * dialog can be closed or not. This function will be called by method OK.  If
+ * the return value is true the dialog can be closed, if it is false the dialog
+ * should not be closed.
+ */
+::method validate unguarded
+   return .true
+
+
+
+-- waitForDialog() replaces the run() method.  run() now just spins doing nothing.
+::method waitForDialog unguarded private                   -- Not to be doumented.
+   expose finished
+   guard on when finished
+
+::method ensureFinished unguarded                          -- Not to be doumented.
   expose finished
   self~initCode = 3
   finished = .true
 
-::method isDialogActive unguarded external "LIBRARY oodialog pbdlg_isDialogActive"
-
--- Documented "internal use only" in 3.2.0 - Do not document.
-::method stopIt external "LIBRARY oodialog pbdlg_stopIt"
-::method finalStopIt private
+::method stopIt external "LIBRARY oodialog pbdlg_stopIt"   -- Not to be doumented. Documented "internal use only" in 3.2.0
+::method finalStopIt private                               -- Not to be doumented.
    use arg caller
 
    -- If we ourselves are a child dialog and not called by the parent's stopIt(), then
@@ -439,7 +488,7 @@
 
 
 -- Remove a child dialog from the chain of child dialogs.
-::method childDied
+::method childDied                                         -- Not to be doumented.
    use arg child
    if self~childDialogs \= .nil then do
        ndx = self~childDialogs~first
@@ -451,6 +500,9 @@
           else ndx = self~childDialogs~next(ndx)
        end
    end
+
+::method unInit external "LIBRARY oodialog pbdlg_unInit"   -- Not to be doumented.
+
 
 ::method sendMessageToWindow unguarded external "LIBRARY oodialog pbdlg_sendMessageToWindow"
 ::method sendMessageToWindowH unguarded external "LIBRARY oodialog pbdlg_sendMessageToWindow"
@@ -484,6 +536,17 @@
    return self~sendWinIntMsg(self~DM_REPOSITION, 0, 0)
 
 
+-- initAutoDetection() is invoked by init() to set the default for automatic data field detection.
+-- Therefore, subclasses can over-ride this method to change the default, which is enabled.
+::method initAutoDetection private                                                               -- First data attribute method
+   self~autoDetection            -- autodetection is enabled by default
+
+::method noAutoDetection
+   self~autoDetect = .false      -- disable autodetection
+
+::method autoDetection
+   self~autoDetect = .true       -- enable autodetection
+
 /* The following methods 'connect' a Windows dialog control with a 'data' attribute of the Rexx
  * dialog object.  For each dialog control an attribute of the dialog object is created and an
  * entry is added to the data table to 'connect' the control and the attribute.  When auto detection
@@ -503,46 +566,7 @@
 ::method connectTab unguarded external "LIBRARY oodialog pbdlg_connect_ControName"
 ::method connectDateTimePicker unguarded external "LIBRARY oodialog pbdlg_connect_ControName"
 ::method connectMonthCalendar unguarded external "LIBRARY oodialog pbdlg_connect_ControName"
-::method connectSeparator unguarded external "LIBRARY oodialog pbdlg_connect_ControName"
-
--- Documented "internal use only" in 3.2.0 - Do not document.
-::method addAttribute private
-   use strict arg id, attributeName = ("DATA"id~space(0))
-
-   if \ id~dataType("W") then do
-       if self~processingLoad = 1 then attributeName = id
-       id = self~resolveSymbolicId(id)
-   end
-   if id < 1 then return -1
-
-   -- Remove any possible spaces, &, and :, then check for a valid name
-   attributeName = attributeName~space(0)~changestr('&','')~changestr(':','')
-   if attributeName == "" | self~HasMethod(attributeName) | \ attributeName~datatype('V') then
-       attributeName = "DATA"id~space(0)
-
-   self~dataConnection[id] = attributeName
-   self~setmethod(attributeName, "expose "attributeName"; return "attributeName)
-   self~setmethod(attributeName || "=", "expose "attributeName"; use arg "attributeName)
-   self~sendWith(attributeName || '=', .array~of(""))  /* initial value = "" */
-   return id
-
-
--- Internal use only. - Do not document.
-::method setDlgDataFromStem private unguarded external "LIBRARY oodialog pbdlg_setDlgDataFromStem_pvt"
-::method putDlgDataInStem private unguarded external "LIBRARY oodialog pbdlg_putDlgDataInStem_pvt"
-
--- This method sets the 'data' of all the connected dialog controls using the value of the associated attribute.
--- The Windows dialog controls are associated with with a data attribute of the Rexx dialog object through the
--- connectXXX methods.  connectListBox(), connectComboBox(), etc..
-::method setData unguarded
-   id = self~dataConnection~first
-   do while (id \= .nil)
-      data = self~send(self~dataConnection[id])
-      InternDlgData.id = data
-      id = self~dataConnection~next(id)
-   end
-   return self~setDlgDataFromStem(InternDlgData.)
-
+::method connectUpDown unguarded external "LIBRARY oodialog pbdlg_connect_ControName"
 
 -- This method gets the 'data' of all the connected dialog controls and uses that data to set the value of the
 -- associated attribute.  See comment above for setData()
@@ -556,32 +580,15 @@
    end
 
 
--- The method returns an array that contains the value of each of the attributes associated with a dialog
--- control.  MM What good is this, you don't know which control is associated with each of the 'data' pieces?
-::method makeArray unguarded
-
-   a = .array~new(self~dataConnection~items)
+-- This method sets the 'data' of all the connected dialog controls using the value of the associated attribute.
+-- The Windows dialog controls are associated with with a data attribute of the Rexx dialog object through the
+-- connectXXX methods.  connectListBox(), connectComboBox(), etc..
+::method setData unguarded
    id = self~dataConnection~first
-   do j = 1 while (id \= .nil)
-      attributeName = self~dataConnection~at(id)
-      data = self~send(attributeName)
-      a[j] = data
+   do while (id \= .nil)
+      data = self~send(self~dataConnection[id])
+      InternDlgData.id = data
       id = self~dataConnection~next(id)
-   end
-   return a
-
-
--- This method sets the 'data' of each of the connected dialog controls using the values of the specified stem.
--- Each index of the stem should be the resource ID of a connected dialog control and the value at that index is
--- the 'data' to set the control with.
-::method setDataStem unguarded
-   use arg dataStem.
-   if dataStem.~items == 0 then return 1
-   do k over dataStem.
-      if k~dataType('W') then numericID = k
-      else numericID = self~ResolveSymbolicID(k)
-      InternDlgData.numericID = dataStem.k
-      if InternDlgData.numericID = "INTERNDLGDATA."numericID then InternDlgData.numericID = ""
    end
    return self~setDlgDataFromStem(InternDlgData.)
 
@@ -598,6 +605,21 @@
       symbolicID = self~resolveNumericID(k)
       if symbolicID \== -1 then dataStem.symbolicID = InternDlgData.k
    end
+
+
+-- This method sets the 'data' of each of the connected dialog controls using the values of the specified stem.
+-- Each index of the stem should be the resource ID of a connected dialog control and the value at that index is
+-- the 'data' to set the control with.
+::method setDataStem unguarded
+   use arg dataStem.
+   if dataStem.~items == 0 then return 1
+   do k over dataStem.
+      if k~dataType('W') then numericID = k
+      else numericID = self~ResolveSymbolicID(k)
+      InternDlgData.numericID = dataStem.k
+      if InternDlgData.numericID = "INTERNDLGDATA."numericID then InternDlgData.numericID = ""
+   end
+   return self~setDlgDataFromStem(InternDlgData.)
 
 
 -- The following methods are used to get the 'data' from a single dialog control
@@ -652,6 +674,48 @@
       end
       id = self~dataConnection~next(id)
    end
+
+-- Documented "internal use only" in 3.2.0 - Do not document.
+::method addAttribute private                                                                           -- Not to be doumented.
+   use strict arg id, attributeName = ("DATA"id~space(0))
+
+   if \ id~dataType("W") then do
+       if self~processingLoad = 1 then attributeName = id
+       id = self~resolveSymbolicId(id)
+   end
+   if id < 1 then return -1
+
+   -- Remove any possible spaces, &, and :, then check for a valid name
+   attributeName = attributeName~space(0)~changestr('&','')~changestr(':','')
+   if attributeName == "" | self~HasMethod(attributeName) | \ attributeName~datatype('V') then
+       attributeName = "DATA"id~space(0)
+
+   self~dataConnection[id] = attributeName
+   self~setmethod(attributeName, "expose "attributeName"; return "attributeName)
+   self~setmethod(attributeName || "=", "expose "attributeName"; use arg "attributeName)
+   self~sendWith(attributeName || '=', .array~of(""))  /* initial value = "" */
+   return id
+
+
+-- Internal use only. - Do not document.
+::method setDlgDataFromStem private unguarded external "LIBRARY oodialog pbdlg_setDlgDataFromStem_pvt"  -- Not to be doumented.
+::method putDlgDataInStem private unguarded external "LIBRARY oodialog pbdlg_putDlgDataInStem_pvt"      -- Not to be doumented.
+
+-- The method returns an array that contains the value of each of the attributes associated with a dialog
+-- control.  MM What good is this, you don't know which control is associated with each of the 'data' pieces?
+::method makeArray unguarded  -- Never documented, do not intend to document now                 -- Last data attribute method.
+
+   a = .array~new(self~dataConnection~items)
+   id = self~dataConnection~first
+   do j = 1 while (id \= .nil)
+      attributeName = self~dataConnection~at(id)
+      data = self~send(attributeName)
+      a[j] = data
+      id = self~dataConnection~next(id)
+   end
+   return a
+
+
 
 
 -- Methods to manipulate a ComboBox
@@ -818,70 +882,11 @@
 ::method setGroup unguarded external "LIBRARY oodialog pbdlg_setTabGroup"
 ::method center unguarded external "LIBRARY oodialog pbdlg_center"
 
--- initAutoDetection() is invoked by init() to set the default for automatic data field detection.
--- Therefore, subclasses can over-ride this method to change the default, which is enabled.
-::method initAutoDetection private
-   self~autoDetection            -- autodetection is enabled by default
-
-::method noAutoDetection
-   self~autoDetect = .false      -- disable autodetection
-
-::method autoDetection
-   self~autoDetect = .true       -- enable autodetection
-
 ::method getMenuBar
   return self~menuBar
 
 ::method hasMenuBar
   return self~menuBar \== .nil & self~isLinked
-
- /*
-  * The following methods are the default implementations of event handlers
-  * for the IDOK (resource ID 1,) IDCANCEL (resource ID 2,) and IDHELP
-  * (resource ID 9) push buttons.  The methods are intended to be over-ridden
-  * if the programmer needs to alter the behavior.
-  *
-  * Note that as soon as self~finished is set to true, the dialog is
-  * terminated.  As long as self~finished is false, the dialog continues
-  * to run.
-  */
-
- /** ok()
-  * This method first invokes the validate() method.  If validate returns
-  * true, self~initCode is set to 1 and self~finished is set to true,
-  * terminating the dialog.
-  *
-  * If validate returns false, the dialog continues to run.
-  */
-::method ok unguarded
-   okayToClose = self~validate
-
-   if okayToClose then do
-     self~initCode = 1
-     self~finished = .true
-   end
-
-   return self~finished
-
-::method cancel unguarded
-   self~initCode = 2
-   self~finished = .true
-   return self~finished
-
-::method help unguarded
-   return 0
-
-::method leaving
-   return
-
-/** validate()
- * This method is an abstract method that will be called to determin whether the
- * dialog can be closed or not. This function will be called by method OK.  If
- * the return value is true the dialog can be closed, if it is false the dialog
- * should not be closed.
- */
-::method validate unguarded
-   return .true
 
 ::method newStatic unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newPushButton unguarded external "LIBRARY oodialog pbdlg_newControl"
@@ -904,15 +909,26 @@
 
 
 -- DEPRECATED  (to end of file)
-::method clearMessages unguarded
 
 ::method deInstall
   return 0
 
--- There is no longer a message queue.  TODO this was documented, do we need to
--- keep a sleep here?
+-- There is no longer a message queue.
+::method run unguarded private
+   do while \ self~finished
+      self~handleMessages
+   end
+
 ::method handleMessages unguarded
    j = SysSleep(.010)
+
+::method clearMessages unguarded
+::method peekDialogMessage unguarded
+   return ""
+
+-- There is no longer a DIALOGADMIN block.
+::method dump
+    say "dump() deprecated."
 
 -- adm was never documented and should just be removed, but it would have been
 -- needed in the dump() method which was documented. (Even though the

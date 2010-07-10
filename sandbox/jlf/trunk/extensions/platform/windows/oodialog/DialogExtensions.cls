@@ -71,7 +71,7 @@
 -- Used to wait for a dialog started through executeAsync() to end.
 ::method endAsyncExecution unguarded
 
-   self~run
+   self~waitForDialog
 
    if self~initCode = 1 then do
       if self~useStem then self~getDataStem(self~dlgData)
@@ -83,7 +83,7 @@
 -- Run a modeless dialog
 ::method popup
    use strict arg sh = "NORMAL", sleepTime = 1, icon = 0
-   self~start("execute", sh, icon, sleeptime, .true)
+   return self~start("execute", sh, icon, sleeptime, .true)
 
 -- Run a modeless dialog that will be automatically closed when its parent closes.
 ::method popupAsChild
@@ -97,7 +97,7 @@
    parent~childDialogs~insert(self)  /* add to the parents child list (last item) */
    self~parentDlg = parent
 
-   self~start("execute", sh, icon, sleeptime, .true)
+   return self~start("execute", sh, icon, sleeptime, .true)
 
 ::method setSBRange unguarded
    use strict arg id, min, max, redraw = .true
@@ -217,10 +217,6 @@
    return .Window~new(hwnd)~redraw
 
 -- DEPRECATED START
-::method peekDialogMessage unguarded
-   return ""
-::method dump
-    say "dump() deprecated."
 ::method clearButtonRect unguarded
    forward message 'CLEARCONTROLRECT'
 ::method redrawButton unguarded

@@ -799,14 +799,6 @@ uint32_t setDlgDataFromStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxS
 
     for ( j = 0; j < pcpbd->DT_size; j++ )
     {
-        if ( pcpbd->DataTab[j].type == winNotAControl )
-        {
-            // See the connectSeparator() method and the manualCheckRadioButton
-            // above. Used to separate two groups of radio buttons, there is no
-            // real control involved.
-            continue;
-        }
-
         hwnd        = pcpbd->childDlg[pcpbd->DataTab[j].category];
         itemID      = pcpbd->DataTab[j].id;
         controlType = pcpbd->DataTab[j].type;
@@ -893,14 +885,6 @@ uint32_t putDlgDataInStem(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxSte
 
     for ( j = 0; j < pcpbd->DT_size; j++ )
     {
-        if ( pcpbd->DataTab[j].type == winNotAControl )
-        {
-            // See the connectSeparator() method and the manualCheckRadioButton
-            // above. Used to separate two groups of radio buttons, there is no
-            // real control involved.
-            continue;
-        }
-
         data[0] = _T('\0');
 
         hwnd =        pcpbd->childDlg[pcpbd->DataTab[j].category];

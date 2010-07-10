@@ -495,6 +495,23 @@ HFONT oodGenericFont(const rxcharT *fontName, uint32_t fontSize, const rxcharT *
 }
 
 
+/**
+ * TODO we could be setting .SystemErrorCode on error.
+ *
+ *
+ * @param context
+ * @param hwnd
+ * @param xPos
+ * @param yPos
+ * @param text
+ * @param fontName
+ * @param fontSize
+ * @param fontStyle
+ * @param fgColor
+ * @param bkColor
+ *
+ * @return logical_t
+ */
 logical_t oodWriteToWindow(RexxMethodContext *context, HWND hwnd, int32_t xPos, int32_t yPos, CSTRINGT text,
                            CSTRINGT fontName, uint32_t fontSize, CSTRINGT fontStyle, int32_t fgColor, int32_t bkColor)
 {
@@ -1338,11 +1355,10 @@ pCPlainBaseDialog dlgExtSetup(RexxMethodContext *c, RexxObjectPtr dlg)
 {
     oodResetSysErrCode(c->threadContext);
 
-    pCPlainBaseDialog pcpbd = dlgToCSelf(c, dlg);
+    pCPlainBaseDialog pcpbd = requiredDlgCSelf(c, dlg, oodPlainBaseDialog, 0);
     if ( pcpbd == NULL )
     {
-        baseClassIntializationException(c);
-        return NULL;
+        return (pCPlainBaseDialog)baseClassIntializationException(c);
     }
 
     if ( pcpbd->hDlg == NULL )
@@ -1938,7 +1954,7 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
 
         assignBitmap(pcpbd, index, bmpNormal, PBSS_NORMAL, inMemory);
 
-        if ( argumentExists(4) )
+        if ( argumentExists(4) && ! isEmptyString(bmpFocused) )
         {
             if ( isIntResource(bmpFocused) && noUnderlyingDlg )
             {
@@ -1947,7 +1963,7 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
         }
             assignBitmap(pcpbd, index, bmpFocused, PBSS_DEFAULTED, inMemory);
         }
-        if ( argumentExists(5) )
+        if ( argumentExists(5) && ! isEmptyString(bmpSelected) )
         {
             if ( isIntResource(bmpSelected) && noUnderlyingDlg )
             {
@@ -1956,7 +1972,7 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
         }
             assignBitmap(pcpbd, index, bmpSelected, PBSS_PRESSED, inMemory);
         }
-        if ( argumentExists(6) )
+        if ( argumentExists(6) && ! isEmptyString(bmpDisabled) )
         {
             if ( isIntResource(bmpDisabled) && noUnderlyingDlg )
             {
@@ -2438,6 +2454,9 @@ RexxMethod2(logical_t, dlgext_freeWindowDC, POINTERSTRING, hwnd, POINTERSTRING, 
  * @return The handle to the brush on success, or a null handle on failure.
  *
  * @note  Sets the .SystemErrorCode on failure.
+ *
+ * @remarks  In essence, this createBrush() method overrides the
+ *           WindowExtensions::createBrush in a dialog object.
  */
 RexxMethod3(POINTERSTRING, dlgext_createBrush, OPTIONAL_uint32_t, color, OPTIONAL_RexxObjectPtr, specifier, OSELF, self)
 {

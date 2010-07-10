@@ -39,6 +39,8 @@
 # NOTE:  /OPT:REF in linker flags eliminates unreferenced functions and data.
 #        Need to use /Gy when compiling to use /OPT:REF.
 
+# NMAKE-compatible MAKE file for ooDialog
+
 !include "$(OR_LIBSRC)\ORXWIN32.MAK"
 C=cl
 OPTIONS= $(cflags_common) $(cflags_dll) $(OR_ORYXINCL)
@@ -56,7 +58,6 @@ WCHAR_OPTIONS=/DUNICODE /D_UNICODE
 OOD_OUTDIR=$(OR_OUTDIR)\wchar
 !ENDIF
 
-# NMAKE-compatible MAKE file for ooDialog
 all:  $(OOD_OUTDIR) $(OOD_OUTDIR)\oodialog.dll
 
 # All Source Files
@@ -81,11 +82,13 @@ COMMON_SOURCEF = $(OOD_OUTDIR)\oodBarControls.obj $(OOD_OUTDIR)\oodBaseDialog.ob
 
 # All Source files that include oodDeviceGraphics.hpp
 OODEVICECONTEXT_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodControl.cpp $(OOD_OUTDIR)\ooDeviceGraphics.cpp \
-                          $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodRoutines.obj$(OOD_OUTDIR)\oodMessaging.obj  $(OOD_OUTDIR)\oodUser.obj \
-                          $(OOD_OUTDIR)\oodUtilities.obj
+                          $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodRoutines.obj $(OOD_OUTDIR)\oodMessaging.obj         \
+                          $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj
 
 # All Source files that include oodData.hpp
-OODDATA_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\oodUser.obj
+OODDATA_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\oodMessaging.obj \
+                  $(OOD_OUTDIR)\oodUser.obj
+
 
 # All Source files that include oodControl.hpp
 OODCONTROL_SOURCEF = $(OOD_OUTDIR)\oodBarControls.obj $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodBasicControls.obj \

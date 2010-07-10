@@ -62,6 +62,7 @@
 #define DEFAULT_FONTNAME            "MS Shell Dlg"
 #define DEFAULT_FONTSIZE            8
 #define MAX_DEFAULT_FONTNAME        256
+#define MAX_LIBRARYNAME             256
 
 #define MAX_MT_ENTRIES     500
 #define MAX_NOTIFY_MSGS    200
@@ -69,15 +70,17 @@
 #define MAX_MISC_MSGS      100
 
 /* User defined window messages used for RexxDlgProc() */
-#define WM_USER_CREATECHILD         WM_USER + 0x0601
-#define WM_USER_INTERRUPTSCROLL     WM_USER + 0x0602
-#define WM_USER_GETFOCUS            WM_USER + 0x0603
-#define WM_USER_GETSETCAPTURE       WM_USER + 0x0604
-#define WM_USER_GETKEYSTATE         WM_USER + 0x0605
-#define WM_USER_SUBCLASS            WM_USER + 0x0606
-#define WM_USER_SUBCLASS_REMOVE     WM_USER + 0x0607
-#define WM_USER_HOOK                WM_USER + 0x0608
-#define WM_USER_CONTEXT_MENU        WM_USER + 0x0609
+#define WM_USER_CREATECHILD            WM_USER + 0x0601
+#define WM_USER_INTERRUPTSCROLL        WM_USER + 0x0602
+#define WM_USER_GETFOCUS               WM_USER + 0x0603
+#define WM_USER_GETSETCAPTURE          WM_USER + 0x0604
+#define WM_USER_GETKEYSTATE            WM_USER + 0x0605
+#define WM_USER_SUBCLASS               WM_USER + 0x0606
+#define WM_USER_SUBCLASS_REMOVE        WM_USER + 0x0607
+#define WM_USER_HOOK                   WM_USER + 0x0608
+#define WM_USER_CONTEXT_MENU           WM_USER + 0x0609
+#define WM_USER_CREATECONTROL_DLG        WM_USER + 0x060A
+#define WM_USER_CREATECONTROL_RESDLG     WM_USER + 0x060B
 
 #define OODDLL                      "oodialog.dll"
 #define DLLVER                      2130
@@ -443,24 +446,26 @@ typedef CWindowExtensions *pCWindowExtensions;
  */
 typedef struct _pbdCSelf {
     rxcharT              fontName[MAX_DEFAULT_FONTNAME];
+    char                 library[MAX_LIBRARYNAME];
     void                *previous;      // Previous pCPlainBaseDialog used for stored dialogs
     size_t               tableIndex;    // Index of this dialog in the stored dialog table
     HWND                 activeChild;   // The active child dialog, used for CategoryDialogs
     HWND                 childDlg[MAXCHILDDIALOGS+1];
     HINSTANCE            hInstance;     // Handle to loaded DLL instance, ooDialog.dll or a resource DLL for a ResDialog
     HANDLE               hDlgProcThread;
-    bool                 onTheTop;
     RexxInstance        *interpreter;
     RexxThreadContext   *dlgProcContext;
+    RexxObjectPtr        resourceID;
     HICON                sysMenuIcon;
     HICON                titleBarIcon;
-    DWORD                threadID;
     pCWindowBase         wndBase;
     pCEventNotification  enCSelf;
     pCWindowExtensions   weCSelf;
     RexxObjectPtr        rexxSelf;
     HWND                 hDlg;
-   DATATABLEENTRY    *DataTab;
+    RexxObjectPtr        rexxOwner;
+    HWND                 hOwnerDlg;
+    DATATABLEENTRY      *DataTab;
     ICONTABLEENTRY      *IconTab;
     COLORTABLEENTRY     *ColorTab;
    BITMAPTABLEENTRY  *BmpTab;
@@ -473,13 +478,17 @@ typedef struct _pbdCSelf {
     WPARAM               stopScroll;
     HPALETTE             colorPalette;
     logical_t            autoDetect;
+    DWORD                threadID;
     uint32_t             fontSize;
+    bool                 onTheTop;
+    bool                 isCategoryDlg;  // Need to use IsNestedDialogMessage()
+    bool                 isControlDlg;   // Dialog was created as DS_CONTROL | WS_CHILD
     bool                 sharedIcon;
     bool                 didChangeIcon;
     bool                 isActive;
     bool                 dlgAllocated;
     bool                 abnormalHalt;
-    bool                 scrollNow;   // For scrolling text in windows.
+    bool                 scrollNow;      // For scrolling text in windows.
 } CPlainBaseDialog;
 typedef CPlainBaseDialog *pCPlainBaseDialog;
 
