@@ -50,6 +50,7 @@
 #include "MutableBufferClass.hpp"
 #include "ProtectedObject.hpp"
 #include "StringUtil.hpp"
+#include "m17n_charset.h"
 
 
 // singleton class instance
@@ -103,15 +104,18 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
 
                                           /* input string longer than demanded */
                                           /* minimum size? expand accordingly  */
-    if (string->getLength() > bufferLength)
+    if (string->getBLength() > bufferLength)
     {
-        bufferLength = string->getLength();
+        bufferLength = string->getBLength();
     }
     /* allocate the new object           */
     newBuffer = new ((RexxClass *)this) RexxMutableBuffer(bufferLength, defaultSize);
-    newBuffer->dataLength = string->getLength();
+    newBuffer->setBLength(string->getBLength());
+    newBuffer->setCLength(string->getCLength());
+    newBuffer->setCharset(string->getCharset());
+    newBuffer->setEncoding(string->getEncoding());
     /* copy the content                  */
-    newBuffer->data->copyData(0, string->getStringData(), string->getLength());
+    newBuffer->data->copyData(0, string->getStringData(), string->getBLength());
 
     ProtectedObject p(newBuffer);
     newBuffer->sendMessage(OREF_INIT, args, argc > 2 ? argc - 2 : 0);
@@ -122,7 +126,7 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
 /**
  * Default constructor.
  */
-RexxMutableBuffer::RexxMutableBuffer()
+RexxMutableBuffer::RexxMutableBuffer(const char *charsetName)
 {
     bufferLength = DEFAULT_BUFFER_LENGTH;   /* save the length of the buffer    */
     defaultSize  = bufferLength;            /* store the default buffer size    */
@@ -131,7 +135,37 @@ RexxMutableBuffer::RexxMutableBuffer()
     // reference.
     data = OREF_NULL;
     data = new_buffer(bufferLength);
+    data->setDataLength(0); // strange to have dataLength equal to bufferSize by default... I assign 0 instead.
+    dataBLength = 0;
+    dataCLength = 0;
 
+    CHARSET *charset = NULL;
+    if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
+    if (charset == NULL) charset = m17n_default_charset();
+    ENCODING *encoding = charset->preferred_encoding;
+    this->setCharset(charset);
+    this->setEncoding(encoding);
+}
+
+
+/**
+ * Constructor with explicitly set charset and encoding.
+ */
+RexxMutableBuffer::RexxMutableBuffer(CHARSET *charset, ENCODING *encoding)
+{
+    bufferLength = DEFAULT_BUFFER_LENGTH;   /* save the length of the buffer    */
+    defaultSize  = bufferLength;            /* store the default buffer size    */
+    // NB:  we clear this before we allocate the new buffer because allocating the
+    // new buffer might trigger a garbage collection, causing us to mark bogus
+    // reference.
+    data = OREF_NULL;
+    data = new_buffer(bufferLength);
+    data->setDataLength(0); // strange to have dataLength equal to bufferSize by default... I assign 0 instead.
+    dataBLength = 0;
+    dataCLength = 0;
+
+    this->setCharset(charset ? charset : m17n_default_charset());
+    this->setEncoding(encoding ? encoding : charset->preferred_encoding);
 }
 
 
@@ -141,7 +175,7 @@ RexxMutableBuffer::RexxMutableBuffer()
  * @param l      Initial length.
  * @param d      The explicit default size.
  */
-RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d)
+RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, const char *charsetName)
 {
     bufferLength = l;               /* save the length of the buffer    */
     defaultSize  = d;               /* store the default buffer size    */
@@ -149,6 +183,39 @@ RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d)
     // new buffer in case garbage collection is triggered.
     data = OREF_NULL;
     data = new_buffer(bufferLength);
+    data->setDataLength(0); // strange to have dataLength equal to bufferSize by default... I assign 0 instead.
+    dataBLength = 0;
+    dataCLength = 0;
+    
+    CHARSET *charset = NULL;
+    if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
+    if (charset == NULL) charset = m17n_default_charset();
+    ENCODING *encoding = charset->preferred_encoding;
+    this->setCharset(charset);
+    this->setEncoding(encoding);
+}
+
+
+/**
+ * Constructor with explicitly set size and default, and explicitly set charset and encoding.
+ *
+ * @param l      Initial length.
+ * @param d      The explicit default size.
+ */
+RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, CHARSET *charset, ENCODING *encoding)
+{
+    bufferLength = l;               /* save the length of the buffer    */
+    defaultSize  = d;               /* store the default buffer size    */
+    // NB: As in the default constructor, we clear this before we allocate the
+    // new buffer in case garbage collection is triggered.
+    data = OREF_NULL;
+    data = new_buffer(bufferLength);
+    data->setDataLength(0); // strange to have dataLength equal to bufferSize by default... I assign 0 instead.
+    dataBLength = 0;
+    dataCLength = 0;
+    
+    this->setCharset(charset ? charset : m17n_default_charset());
+    this->setEncoding(encoding ? encoding : charset->preferred_encoding);
 }
 
 
@@ -225,7 +292,8 @@ RexxObject *RexxMutableBuffer::copy()
 
                                            /* see the comments in ::newRexx()!! */
     newObj->data = new_buffer(bufferLength);
-    newObj->dataLength = this->dataLength;
+    newObj->dataBLength = this->dataBLength;
+    newObj->dataCLength = this->dataCLength;
     newObj->data->copyData(0, data->getData(), bufferLength);
 
     newObj->defaultSize = this->defaultSize;
@@ -238,7 +306,7 @@ void RexxMutableBuffer::ensureCapacity(size_t addedLength)
 /* Function:  append to the mutable buffer                                    */
 /******************************************************************************/
 {
-    size_t resultLength = this->dataLength + addedLength;
+    size_t resultLength = this->dataBLength + addedLength;
 
     if (resultLength > bufferLength)
     {   /* need to enlarge?                  */
@@ -250,7 +318,7 @@ void RexxMutableBuffer::ensureCapacity(size_t addedLength)
 
         RexxBuffer *newBuffer = new_buffer(bufferLength);
         // copy the data into the new buffer
-        newBuffer->copyData(0, data->getData(), dataLength);
+        newBuffer->copyData(0, data->getData(), dataBLength);
         // replace the old data buffer
         OrefSet(this, this->data, newBuffer);
     }
@@ -264,7 +332,7 @@ void RexxMutableBuffer::ensureCapacity(size_t addedLength)
  */
 RexxObject *RexxMutableBuffer::lengthRexx()
 {
-    return new_integer(dataLength);
+    return new_integer(getLength());
 }
 
 
@@ -276,10 +344,26 @@ RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
     RexxString *string = stringArgument(obj, ARG_ONE);
     ProtectedObject p(string);
     // make sure we have enough room
-    ensureCapacity(string->getLength());
+    ensureCapacity(string->getBLength());
 
-    data->copyData(dataLength, string->getStringData(), string->getLength());
-    this->dataLength += string->getLength();
+    data->copyData(dataBLength, string->getStringData(), string->getBLength());
+    this->dataBLength += string->getBLength();
+    this->dataCLength += string->getCLength();
+    return this;
+}
+
+
+RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *data, size_t blength)
+/******************************************************************************/
+/* Function:  append to the mutable buffer                                    */
+/******************************************************************************/
+{
+    // make sure we have enough room
+    ensureCapacity(blength);
+
+    this->data->copyData(dataBLength, data, blength);
+    this->dataBLength += blength;
+    this->dataCLength += this->getEncoding()->codepoints(data, blength);
     return this;
 }
 
@@ -304,7 +388,7 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
 
     // if inserting within the current bounds, we only need to add the length
     // if inserting beyond the end, we need to make sure we add space for the gap too
-    if (begin < dataLength)
+    if (begin < dataBLength)
     {
         // if inserting a zero length string, this is simple!
         if (insertLength == 0)
@@ -315,19 +399,19 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
     }
     else
     {
-        ensureCapacity(insertLength + (begin - dataLength));
+        ensureCapacity(insertLength + (begin - dataBLength));
     }
 
 
     /* create space in the buffer   */
-    if (begin < dataLength)
+    if (begin < dataBLength)
     {
-        data->openGap(begin, insertLength, dataLength - begin);
+        data->openGap(begin, insertLength, dataBLength - begin);
     }
-    else if (begin > this->dataLength)
+    else if (begin > this->dataBLength)
     {
         /* pad before insertion         */
-        data->setData(dataLength, padChar, begin - dataLength);
+        data->setData(dataBLength, padChar, begin - dataBLength);
     }
     /* insert string contents       */
     data->copyData(begin, string->getStringData(), copyLength);
@@ -337,14 +421,14 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
         data->setData(begin + string->getLength(), padChar, padLength);
     }
     // inserting after the end? the resulting length is measured from the insertion point
-    if (begin > this->dataLength)
+    if (begin > this->dataBLength)
     {
-        this->dataLength = begin + insertLength;
+        this->dataBLength = begin + insertLength;
     }
     else
     {
         // just add in the inserted length
-        this->dataLength += insertLength;
+        this->dataBLength += insertLength;
     }
     return this;
 }
@@ -365,10 +449,10 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
     ensureCapacity(begin + replaceLength);
 
     // is our start position beyond the current data end?
-    if (begin > dataLength)
+    if (begin > dataBLength)
     {
         // add padding to the gap
-        data->setData(dataLength, padChar, begin - dataLength);
+        data->setData(dataBLength, padChar, begin - dataBLength);
     }
 
     // now overlay the string data
@@ -381,10 +465,10 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
     }
 
     // did this add to the size?
-    if (begin + replaceLength > dataLength)
+    if (begin + replaceLength > dataBLength)
     {
         //adjust upward
-        dataLength = begin + replaceLength;
+        dataBLength = begin + replaceLength;
     }
     return this;
 }
@@ -420,7 +504,7 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
 
     // will this extend beyond the end of the string, we require
     // space for the position + the replacement string length
-    if (begin + newLength > dataLength)
+    if (begin + newLength > dataBLength)
     {
         finalLength = begin + newLength;
     }
@@ -428,7 +512,7 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     {
         // we need to add the delta between the excised string and the inserted
         // replacement string
-        finalLength = dataLength - replaceLength + newLength;
+        finalLength = dataBLength - replaceLength + newLength;
     }
 
     // make sure we have room for this
@@ -437,10 +521,10 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     // is our start position beyond the current data end?
     // NB: Even though we've adjusted the buffer size, the dataLength is still
     // the original entry length.
-    if (begin > dataLength)
+    if (begin > dataBLength)
     {
         // add padding to the gap
-        data->setData(dataLength, padChar, begin - dataLength);
+        data->setData(dataBLength, padChar, begin - dataBLength);
         // now overlay the string data
         data->copyData(begin, string->getStringData(), newLength);
     }
@@ -458,7 +542,7 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     }
 
     // and finally adjust the length
-    dataLength = finalLength;
+    dataBLength = finalLength;
     // our return value is always the target mutable buffer
     return this;
 }
@@ -473,31 +557,30 @@ RexxMutableBuffer *RexxMutableBuffer::mydelete(RexxObject *_start, RexxObject *l
     size_t range = optionalLengthArgument(len, this->data->getDataLength() - begin, ARG_TWO);
 
     // is the begin point actually within the string?
-    if (begin < dataLength)
+    if (begin < dataBLength)
     {           /* got some work to do?         */
         // deleting from the middle?
-        if (begin + range < dataLength)
+        if (begin + range < dataBLength)
         {
             // shift everything over
-            data->closeGap(begin, range, dataLength - (begin + range));
-            dataLength -= range;
+            data->closeGap(begin, range, dataBLength - (begin + range));
+            dataBLength -= range;
         }
         else
         {
             // we're just truncating
-            dataLength = begin;
+            dataBLength = begin;
         }
     }
     return this;
 }
 
 
-RexxObject *RexxMutableBuffer::setBufferSize(RexxInteger *size)
+RexxObject *RexxMutableBuffer::setBufferLength(size_t newsize)
 /******************************************************************************/
 /* Function:  set the size of the buffer                                      */
 /******************************************************************************/
 {
-    size_t newsize = lengthArgument(size, ARG_ONE);
     // has a reset to zero been requested?
     if (newsize == 0)
     {
@@ -509,7 +592,8 @@ RexxObject *RexxMutableBuffer::setBufferSize(RexxInteger *size)
             // reset the size to the default
             bufferLength = defaultSize;
         }
-        dataLength = 0;
+        dataBLength = 0;
+        dataCLength = 0;
     }
     // an actual resize?
     else if (newsize != bufferLength)
@@ -517,8 +601,9 @@ RexxObject *RexxMutableBuffer::setBufferSize(RexxInteger *size)
         // reallocate the buffer
         RexxBuffer *newBuffer = new_buffer(newsize);
         // if we're shrinking this, it truncates.
-        dataLength = Numerics::minVal(dataLength, newsize);
-        newBuffer->copyData(0, data->getData(), dataLength);
+        dataBLength = Numerics::minVal(dataBLength, newsize);
+        // todo : dataCLength
+        newBuffer->copyData(0, data->getData(), dataBLength);
         // replace the old buffer
         OrefSet(this, this->data, newBuffer);
         // and update the size....
@@ -528,12 +613,22 @@ RexxObject *RexxMutableBuffer::setBufferSize(RexxInteger *size)
 }
 
 
+RexxObject *RexxMutableBuffer::setBufferSize(RexxInteger *size)
+/******************************************************************************/
+/* Function:  set the size of the buffer                                      */
+/******************************************************************************/
+{
+    size_t newsize = lengthArgument(size, ARG_ONE);
+    return this->setBufferLength(newsize);
+}
+
+
 RexxString *RexxMutableBuffer::makeString()
 /******************************************************************************/
 /* Function:  Handle a REQUEST('STRING') request for a mutablebuffer object   */
 /******************************************************************************/
 {
-    return new_string(data->getData(), dataLength);
+    return new_string(this->data->getData(), this->dataBLength, this->dataCLength, this->getCharset(), this->getEncoding());
 }
 
 
@@ -811,7 +906,8 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
         }
     }
     // update the result length, and return
-    dataLength = resultLength;
+    dataBLength = resultLength;
+    // todo : dataCLength
     return this;
 }
 
@@ -949,7 +1045,8 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
         }
     }
     // update the result length, and return
-    dataLength = resultLength;
+    dataBLength = resultLength;
+    // todo : dataCLength
     return this;
 }
 
@@ -1483,10 +1580,11 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
         StringUtil::skipBlanks(&nextSite, &length);/* skip over trailing blanks         */
     }
 
-    size_t gapSize = dataLength - (deletePosition + length);
+    size_t gapSize = dataBLength - (deletePosition + length);
     // close up the delete part
     closeGap(deletePosition, gapSize, length);
     // adjust for the deleted data
-    dataLength -= gapSize;
+    dataBLength -= gapSize;
+    // todo : dataCLength
     return this;
 }

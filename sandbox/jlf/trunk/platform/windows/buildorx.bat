@@ -76,8 +76,10 @@ REM
 REM *** Interpreter
 REM
 @ECHO Building Interpreter....
+set ICU_OPTION=
+if defined HAVE_ICU set ICU_OPTION="HAVE_ICU=%HAVE_ICU%"
 CD  %OR_INTERPRETER_SRC%
-IF %USELOGFILE% equ 1 ( NMAKE /F INTERPRETER.MAK >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F INTERPRETER.MAK )
+IF %USELOGFILE% equ 1 ( NMAKE /F INTERPRETER.MAK %ICU_OPTION% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F INTERPRETER.MAK %ICU_OPTION% )
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
@@ -99,9 +101,9 @@ IF %USELOGFILE% equ 1 ( NMAKE /F %OR_EXTENSIONS%\rexxutil\platform\windows\rexxu
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
-:rxftp
+:rexximage
 REM
-REM *** These are the commmand lanuchers, need the interpreter and rexxapi
+REM *** These are the commmand launchers, need the interpreter and rexxapi
 REM
 @ECHO Building rexximage command launcher
 IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\rexximage.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F %OR_WINKERNELSRC%\rexximage.mak )

@@ -1,12 +1,13 @@
+/*
+Copyright (C) 2010, Parrot Foundation.
+$Id: ucs4.h 46998 2010-05-25 22:43:21Z darbelo $
+*/
+
 /*----------------------------------------------------------------------------*/
-/*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
-/*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.ibm.com/developerworks/oss/CPLv1.0.htm                          */
+/* http://www.oorexx.org/license.html                          */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -36,21 +37,31 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include "SysDebug.hpp"
-#include <stdio.h>
-#include <stdarg.h>
-#include <windows.h>
+#ifndef M17N_ENCODING_UCS4_H_GUARD
+#define M17N_ENCODING_UCS4_H_GUARD
 
-void dbgprintf(const char *format, ...)
-{
-    char buf[4096];
-    char *p = buf;
-    va_list args;
-    int n;
+#include "m17n_encoding.h"
 
-    va_start(args, format);
-    n = _vsnprintf(p, sizeof buf - 1, format, args);
-    va_end(args);
+class ENCODING_UCS4 : public ENCODING {
+public:
+    RexxMutableBuffer * encode(IRexxString *src);
+    wholenumber_t get_codepoint(IRexxString *src, wholenumber_t offset);
+    wholenumber_t get_byte(IRexxString *src, wholenumber_t offset);
+    void set_byte(IRexxString *src, wholenumber_t offset, wholenumber_t count);
+    RexxString * get_codepoints(RexxString *src, wholenumber_t offset, wholenumber_t count);
+    RexxString * get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t count);
+    wholenumber_t codepoints(IRexxString *src);
+    wholenumber_t codepoints(const char *src, wholenumber_t blength);
+    wholenumber_t bytes(IRexxString *src);
+    wholenumber_t find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, wholenumber_t offset, wholenumber_t count);
 
-    OutputDebugString(buf);
-}
+    wholenumber_t iter_get(IRexxString *str, String_iter *i, wholenumber_t offset);
+    void iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip);
+    wholenumber_t iter_get_and_advance(IRexxString *str, String_iter *i);
+    void iter_set_and_advance(IRexxString *str, String_iter *i, wholenumber_t c);
+    void iter_set_position(IRexxString *str, String_iter *i, wholenumber_t pos);
+};
+
+void m17n_encoding_ucs4_init();
+
+#endif /* M17N_ENCODING_UCS4_H_GUARD */

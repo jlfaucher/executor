@@ -1,12 +1,20 @@
+/* string_funcs.h
+ *  Copyright (C) 2001-2010, Parrot Foundation.
+ *  SVN Info
+ *     $Id: string_funcs.h 48565 2010-08-19 05:53:12Z chromatic $
+ *  Overview:
+ *     This is the api header for the string subsystem
+ *  Data Structure and Algorithms:
+ *  History:
+ *  Notes:
+ *  References:
+ */
+
 /*----------------------------------------------------------------------------*/
-/*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
-/*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.ibm.com/developerworks/oss/CPLv1.0.htm                          */
+/* http://www.oorexx.org/license.html                          */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -36,21 +44,15 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include "SysDebug.hpp"
-#include <stdio.h>
-#include <stdarg.h>
-#include <windows.h>
+#ifndef M17N_STRING_FUNCS_H_GUARD
+#define M17N_STRING_FUNCS_H_GUARD
 
-void dbgprintf(const char *format, ...)
-{
-    char buf[4096];
-    char *p = buf;
-    va_list args;
-    int n;
 
-    va_start(args, format);
-    n = _vsnprintf(p, sizeof buf - 1, format, args);
-    va_end(args);
+wholenumber_t str_iter_index(
+    IRexxString *src,
+    String_iter *start,
+    String_iter *end,
+    IRexxString *search);
 
-    OutputDebugString(buf);
-}
+
+#endif /* M17N_STRING_FUNCS_H_GUARD */

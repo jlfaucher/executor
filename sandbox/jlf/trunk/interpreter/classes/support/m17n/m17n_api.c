@@ -1,12 +1,33 @@
+/*
+Copyright (C) 2001-2010, Parrot Foundation.
+$Id: api.c 48584 2010-08-20 13:50:18Z NotFound $
+
+=head1 NAME
+
+src/string/api.c - Parrot Strings
+
+=head1 DESCRIPTION
+
+This file implements the non-ICU parts of the Parrot string subsystem.
+
+Note that C<bufstart> and C<buflen> are used by the memory subsystem. The
+string functions may only use C<buflen> to determine if there is some space
+left beyond C<bufused>. This is the I<only> valid usage of these two data
+members, beside setting C<bufstart>/C<buflen> for external strings.
+
+=head2 Functions
+
+=over 4
+
+=cut
+
+*/
+
 /*----------------------------------------------------------------------------*/
-/*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
-/*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.ibm.com/developerworks/oss/CPLv1.0.htm                          */
+/* http://www.oorexx.org/license.html                          */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -36,21 +57,66 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include "SysDebug.hpp"
-#include <stdio.h>
-#include <stdarg.h>
-#include <windows.h>
+#include "RexxCore.h"
+#include "StringClass.hpp"
 
-void dbgprintf(const char *format, ...)
+#include "m17n_encoding.h"
+
+/*
+=item C<wholenumber_t str_iter_index(RexxString *src,
+String_iter *start, String_iter *end, RexxString *search)>
+
+Find the next occurence of RexxString C<search> in RexxString C<src> starting at
+String_iter C<start>. If C<search> is found C<start> is modified to mark the
+beginning of C<search> and String_iter C<end> is set to the character after
+C<search> in C<src>.  Returns the character position where C<search> was found
+or -1 if it wasn't found.
+
+=cut
+
+*/
+
+wholenumber_t
+str_iter_index(
+    IRexxString *src,
+    String_iter *start, String_iter *end,
+    IRexxString *search)
 {
-    char buf[4096];
-    char *p = buf;
-    va_list args;
-    int n;
+    String_iter search_iter, search_start, next_start;
+    wholenumber_t len = search->getCLength();
+    wholenumber_t c0;
 
-    va_start(args, format);
-    n = _vsnprintf(p, sizeof buf - 1, format, args);
-    va_end(args);
+    if (len == 0) {
+        *end = *start;
+        return start->charpos;
+    }
 
-    OutputDebugString(buf);
+    STRING_ITER_INIT(&search_iter);
+    c0 = STRING_ITER_GET_AND_ADVANCE(search, &search_iter);
+    search_start = search_iter;
+    next_start = *start;
+
+    while (start->charpos + len <= (wholenumber_t) src->getCLength()) {
+        wholenumber_t c1 = STRING_ITER_GET_AND_ADVANCE(src, &next_start);
+
+        if (c1 == c0) {
+            wholenumber_t c2;
+            *end = next_start;
+
+            do {
+                if (search_iter.charpos >= len)
+                    return start->charpos;
+                c1 = STRING_ITER_GET_AND_ADVANCE(src, end);
+                c2 = STRING_ITER_GET_AND_ADVANCE(search, &search_iter);
+            } while (c1 == c2);
+
+            search_iter = search_start;
+        }
+
+        *start = next_start;
+    }
+
+    return -1;
 }
+
+

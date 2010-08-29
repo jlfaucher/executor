@@ -48,6 +48,9 @@
 #include "IntegerClass.hpp"
 #include "BufferClass.hpp"
 
+class ENCODING;
+class CHARSET;
+
 class RexxMutableBuffer;
 class RexxClass;
 
@@ -64,8 +67,10 @@ class RexxMutableBufferClass : public RexxClass {
    inline void       *operator new(size_t size, void *ptr){return ptr;};
           void       *operator new(size_t size, RexxClass *bufferClass);
           void       *operator new(size_t size);
-                      RexxMutableBuffer();
-                      RexxMutableBuffer(size_t, size_t);
+                      RexxMutableBuffer(const char *charsetName=NULL);
+                      RexxMutableBuffer(CHARSET *charset, ENCODING *encoding);
+                      RexxMutableBuffer(size_t, size_t, const char *charsetName=NULL);
+                      RexxMutableBuffer(size_t, size_t, CHARSET *charset, ENCODING *encoding);
    inline             RexxMutableBuffer(RESTORETYPE restoreType) { ; };
 
    void               live(size_t);
@@ -78,6 +83,7 @@ class RexxMutableBufferClass : public RexxClass {
    RexxObject        *lengthRexx();
 
    RexxMutableBuffer *append(RexxObject*);
+   RexxMutableBuffer *appendCstring(const char*, size_t blength); // Must not overload append : would generate error cannot convert from 'overloaded-function' to 'PCPPM' in memory/setup.cpp
    RexxMutableBuffer *insert(RexxObject*, RexxObject*, RexxObject*, RexxObject*);
    RexxMutableBuffer *overlay(RexxObject*, RexxObject*, RexxObject*, RexxObject*);
    RexxMutableBuffer *replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad);
@@ -116,8 +122,19 @@ class RexxMutableBufferClass : public RexxClass {
    RexxInteger *caselessWordPos(RexxString *, RexxInteger *);
    RexxMutableBuffer *delWord(RexxInteger *position, RexxInteger *plength);
 
+   inline CHARSET *getCharset() { return m17n_get_charset(this->charset); }
+   inline void setCharset(CHARSET *c) { this->charset = c ? (int8_t) c->number : -1; }
+   inline ENCODING *getEncoding() { return m17n_get_encoding(this->encoding); }
+   inline void setEncoding(ENCODING *e) { this->encoding = e ? (int8_t) e->number : -1; }
    inline const char *getStringData() { return data->getData(); }
-   inline size_t      getLength()     { return dataLength; }
+   inline size_t      getLength()     { return dataBLength; } // which length to return ? the number of bytes seems safer for legacy applications. See also RexxString::getLength
+   inline size_t      getBLength()    { return dataBLength; }
+   inline size_t      getCLength()    { return dataCLength; }
+   inline void        setLength(size_t l) { dataBLength = l; }; // see getLength
+   inline void        setBLength(size_t l) { dataBLength = l; };
+   inline void        setCLength(size_t l) { dataCLength = l; };
+   inline size_t      getBufferLength() { return bufferLength; }
+   RexxObject        *setBufferLength(size_t);
    inline char *      getData()       { return data->getData(); }
    inline void copyData(size_t offset, const char *string, size_t l) { data->copyData(offset, string, l); }
    inline void openGap(size_t offset, size_t _size, size_t tailSize) { data->openGap(offset, _size, tailSize); }
@@ -132,9 +149,35 @@ class RexxMutableBufferClass : public RexxClass {
  protected:
 
 
-   size_t             bufferLength;    /* buffer length                   */
+   int8_t             encoding;        // string encoding (how the codepoints are serialized in stringData)
+   int8_t             charset;         // string charset (what is the semantic of the codepoints)
+   size_t             bufferLength;    /* buffer length in bytes          */
    size_t             defaultSize;     /* default size when emptied       */
-   size_t             dataLength;      // current length of data
+   size_t             dataBLength;     // current length of data in bytes
+   size_t             dataCLength;     // current length of data in characters
    RexxBuffer        *data;            /* buffer used for the data        */
  };
+ 
+ // For the needs of m17n, must have a common interface for RexxString and RexxMutableBuffer.
+ // Can't use multiple inheritance, so I use delegation...
+ class RexxMutableBufferWrapper : public IRexxString {
+  public:
+   RexxMutableBufferWrapper(RexxMutableBuffer *s) : str(s) {}
+   inline RexxString *makeString() { return str->makeString(); }
+   inline RexxMutableBuffer *makeMutableBuffer() { return str; }
+   inline CHARSET *getCharset() { return str->getCharset(); }
+   inline void setCharset(CHARSET *c) { return str->setCharset(c); }
+   inline ENCODING *getEncoding() { return str->getEncoding(); }
+   inline void setEncoding(ENCODING *e) { str->setEncoding(e); }
+   inline size_t getBLength() { return str->getBLength(); };
+   inline size_t getCLength() { return str->getCLength(); };
+   inline void setLength(size_t l) { str->setBLength(l); };
+   inline void setBLength(size_t l) { str->setBLength(l); };
+   inline void setCLength(size_t l) { str->setCLength(l); };
+   inline const char *getStringData() { return str->getStringData(); }
+   inline char *getWritableData() { return str->getData(); }
+  private:
+   RexxMutableBuffer *str;
+ };
+ 
 #endif

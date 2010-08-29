@@ -40,6 +40,19 @@
 #------------------------
 
 
+!IFNDEF HAVE_ICU
+HAVE_ICU=0
+!ENDIF
+
+!IF "$(HAVE_ICU)" == "0"
+ICU_OPTIONS=
+ICU_LIBS=
+!ELSE
+ICU_OPTIONS=/DHAVE_ICU /DU_HAVE_INT8_T
+ICU_LIBS=icudt.lib icuuc.lib
+!ENDIF
+
+
 # -------------------------------------------------------------------------
 # Main (default) target:
 # -------------------------------------------------------------------------
@@ -153,7 +166,7 @@ SYSOBJ1=$(OR_OUTDIR)\TimeSupport.$(OBJ)  \
 SYSOBJ2=$(OR_OUTDIR)\ExternalFunctions.$(OBJ) $(OR_OUTDIR)\SystemCommands.$(OBJ)   \
         $(OR_OUTDIR)\StreamNative.$(OBJ)   $(OR_OUTDIR)\StreamCommandParser.$(OBJ)    $(OR_OUTDIR)\ProgramMetaData.$(OBJ) \
 	$(OR_OUTDIR)\SysFile.$(OBJ) $(OR_OUTDIR)\SysFileSystem.$(OBJ) $(OR_OUTDIR)\SysLibrary.$(OBJ) $(OR_OUTDIR)\SysActivity.$(OBJ) \
-        $(OR_OUTDIR)\SysSemaphore.$(OBJ) $(OR_OUTDIR)\FileNative.$(OBJ) $(OR_OUTDIR)\SysDebug.$(OBJ)
+        $(OR_OUTDIR)\SysSemaphore.$(OBJ) $(OR_OUTDIR)\FileNative.$(OBJ) $(OR_OUTDIR)\SysDebug.$(OBJ) $(OR_OUTDIR)\SysUtilities.$(OBJ)
 
 SYSOBJ3=$(OR_OUTDIR)\MemorySupport.$(OBJ)   $(OR_OUTDIR)\MiscSystem.$(OBJ)  $(OR_OUTDIR)\SystemInitialization.$(OBJ)
 
@@ -166,7 +179,12 @@ OEPOBJS=$(OR_OUTDIR)\NumberStringMath.$(OBJ)   $(OR_OUTDIR)\NumberStringMath2.$(
 #part of rexx
 OKSOBJS=$(OR_OUTDIR)\StringClass.$(OBJ) $(OR_OUTDIR)\StringClassUtil.$(OBJ) $(OR_OUTDIR)\StringClassSub.$(OBJ)   \
         $(OR_OUTDIR)\StringClassWord.$(OBJ) $(OR_OUTDIR)\StringClassMisc.$(OBJ) $(OR_OUTDIR)\StringClassBit.$(OBJ)    \
-        $(OR_OUTDIR)\StringClassConversion.$(OBJ) $(OR_OUTDIR)\MutableBufferClass.$(OBJ) $(OR_OUTDIR)\StringUtil.$(OBJ)
+        $(OR_OUTDIR)\StringClassConversion.$(OBJ) $(OR_OUTDIR)\MutableBufferClass.$(OBJ) $(OR_OUTDIR)\StringUtil.$(OBJ) \
+        $(OR_OUTDIR)\m17n_api.$(OBJ) $(OR_OUTDIR)\m17n_charset.$(OBJ) $(OR_OUTDIR)\m17n_encoding.$(OBJ) \
+        $(OR_OUTDIR)\m17n_charset_ascii.$(OBJ) $(OR_OUTDIR)\m17n_charset_binary.$(OBJ) $(OR_OUTDIR)\m17n_charset_iso-8859-1.$(OBJ) \
+        $(OR_OUTDIR)\m17n_charset_tables.$(OBJ) $(OR_OUTDIR)\m17n_charset_unicode.$(OBJ) \
+        $(OR_OUTDIR)\m17n_encoding_fixed_8.$(OBJ) $(OR_OUTDIR)\m17n_encoding_ucs2.$(OBJ) $(OR_OUTDIR)\m17n_encoding_ucs4.$(OBJ) \
+        $(OR_OUTDIR)\m17n_encoding_utf8.$(OBJ) $(OR_OUTDIR)\m17n_encoding_utf16.$(OBJ)
 
 SYSERR= $(OR_OUTDIR)\ErrorMessages.$(OBJ)
 
@@ -232,7 +250,7 @@ $(OR_OUTDIR)\rexx.dll : $(ORXHEADERS) $(ORYXKOBJ) $(ORYXLOBJ) \
              @$(OR_OUTDIR)\oryxk.lst \
              $(OR_OUTDIR)\winmsgtb.res \
              $(OR_OUTDIR)\$(@B).exp  \
-             $(OR_OUTDIR)\rexxapi.lib
+             $(OR_OUTDIR)\rexxapi.lib $(ICU_LIBS)
 
 #
 # *** rxcmd32.LIB  : Creates .lib import library
@@ -491,8 +509,8 @@ ORXHEADERS: $(ORXHEADERS)
 #
 {$(INTERPRETER_CLASSES)}.cpp{$(OR_OUTDIR)}.obj:
     @ECHO .
-    @ECHO Compiling $(**)
-    $(OR_CC)  $(cflags_common) $(cflags_dll) /Fo$(@) $(Tp)$(**) $(OR_ORYXINCL)
+    @ECHO Compiling $(<)
+    $(OR_CC)  $(cflags_common) $(cflags_dll) /Fo$(@) $(Tp)$(<) $(OR_ORYXINCL)
 
 #
 # *** Inference Rule for CPP->OBJ
@@ -502,6 +520,33 @@ ORXHEADERS: $(ORXHEADERS)
     @ECHO .
     @ECHO Compiling $(**)
     $(OR_CC)  $(cflags_common) $(cflags_dll) /Fo$(@) $(Tp)$(**) $(OR_ORYXINCL)
+
+#
+# *** Inference Rule for C->OBJ
+# *** For .C files in CLASSES_SUPPORT_M17N directory
+#
+{$(CLASSES_SUPPORT_M17N)}.c{$(OR_OUTDIR)}.obj:
+    @ECHO .
+    @ECHO Compiling $(<)
+    $(OR_CC)  $(cflags_common) $(cflags_dll) $(ICU_OPTIONS) /Fo$(@) $(Tp)$(<) $(OR_ORYXINCL)
+
+#
+# *** Inference Rule for C->OBJ
+# *** For .C files in CLASSES_SUPPORT_M17N_CHARSET directory
+#
+{$(CLASSES_SUPPORT_M17N_CHARSET)}.c{$(OR_OUTDIR)}.obj:
+    @ECHO .
+    @ECHO Compiling $(<)
+    $(OR_CC)  $(cflags_common) $(cflags_dll) $(ICU_OPTIONS) /Fo$(@) $(Tp)$(<) $(OR_ORYXINCL)
+
+#
+# *** Inference Rule for C->OBJ
+# *** For .C files in CLASSES_SUPPORT_M17N_ENCODING directory
+#
+{$(CLASSES_SUPPORT_M17N_ENCODING)}.c{$(OR_OUTDIR)}.obj:
+    @ECHO .
+    @ECHO Compiling $(<)
+    $(OR_CC)  $(cflags_common) $(cflags_dll) $(ICU_OPTIONS) /Fo$(@) $(Tp)$(<) $(OR_ORYXINCL)
 
 #
 # *** Inference Rule for CPP->OBJ
@@ -567,3 +612,246 @@ $(OR_OUTDIR_API)\rexxplatformapis.h : $(OR_APIWINSRC)\rexxplatformapis.h
 
 $(OR_OUTDIR_API)\rexxplatformdefs.h : $(OR_APIWINSRC)\rexxplatformdefs.h
     @copy $? $(OR_OUTDIR_API) 1>nul 2>&1
+
+
+# [Optional] Additional dependencies for more accurate recompilation.
+# Should probably use the option /showIncludes and parse it
+# See http://www.conifersystems.com/2008/10/09/dependencies-from-showincludes/
+# For the moment, this section is updated by hand... tedious and error-prone.
+
+$(OR_OUTDIR)\StringClass.$(OBJ) : \
+    $(INTERPRETER_CLASSES)\StringClass.cpp \
+    RexxCore_h \
+    StringClass_hpp \
+    DirectoryClass_hpp \
+    RexxActivation_hpp \
+    RexxActivity_hpp \
+    ProtectedObject_hpp \
+    StringUtil_hpp \
+    RexxCompoundTail_hpp \
+    SystemInterpreter_hpp
+
+$(OR_OUTDIR)\MutableBufferClass.$(OBJ) : \
+    $(INTERPRETER_CLASSES)\MutableBufferClass.cpp \
+    MutableBufferClass_hpp \
+    m17n_charset_h
+
+$(OR_OUTDIR)\m17n_api.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N)\m17n_api.c \
+    RexxCore_h \
+    StringClass_hpp \
+    m17n_encoding_h
+
+$(OR_OUTDIR)\m17n_charset.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N)\m17n_charset.c \
+    RexxCore_h \
+    StringClass_hpp \
+    m17n_charset_h \
+    m17n_string_h \
+    m17n_encoding_fixed_8_h \
+    m17n_encoding_utf8_h \
+    m17n_encoding_utf16_h \
+    m17n_encoding_ucs2_h \
+    m17n_encoding_ucs4_h \
+    m17n_charset_ascii_h \
+    m17n_charset_binary_h \
+    m17n_charset_iso-8859-1_h \
+    m17n_charset_unicode_h
+
+$(OR_OUTDIR)\m17n_encoding.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N)\m17n_encoding.c \
+    RexxCore_h \
+    StringClass_hpp \
+    m17n_encoding_h \
+    m17n_string_h
+
+$(OR_OUTDIR)\m17n_charset_ascii.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_ascii.c \
+    RexxCore_h \
+    StringClass_hpp \
+    m17n_string_h \
+    m17n_string_funcs_h \
+    m17n_encoding_h \
+    m17n_charset_ascii_h \
+    m17n_charset_tables_h
+
+$(OR_OUTDIR)\m17n_charset_binary.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_binary.c \
+    RexxCore_h \
+    StringClass_hpp \
+    m17n_string_h \
+    m17n_charset_binary_h
+
+$(OR_OUTDIR)\m17n_charset_iso-8859-1.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_iso-8859-1.c \
+    RexxCore_h \
+    StringClass_hpp \
+    MutableBufferClass_hpp \
+    ProtectedObject_hpp \
+    m17n_string_h \
+    m17n_encoding_h \
+    m17n_charset_iso-8859-1_h \
+    m17n_charset_tables_h
+
+$(OR_OUTDIR)\m17n_charset_tables.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_tables.c \
+    m17n_charset_tables_h
+
+$(OR_OUTDIR)\m17n_charset_unicode.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_unicode.c \
+    RexxCore_h \
+    StringClass_hpp \
+    MutableBufferClass_hpp \
+    ProtectedObject_hpp \
+    m17n_charset_unicode_h \
+    m17n_charset_ascii_h \
+    m17n_charset_tables_h
+
+$(OR_OUTDIR)\m17n_encoding_fixed_8.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_fixed_8.c \
+    RexxCore_h \
+    StringClass_hpp \
+    m17n_encoding_fixed_8_h
+
+$(OR_OUTDIR)\m17n_encoding_ucs2.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_ucs2.c \
+    RexxCore_h \
+    StringClass_hpp \
+    MutableBufferClass_hpp \
+    m17n_unicode_h \
+    m17n_encoding_ucs2_h
+
+$(OR_OUTDIR)\m17n_encoding_ucs4.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_ucs4.c \
+    RexxCore_h \
+    StringClass_hpp \
+    MutableBufferClass_hpp \
+    m17n_unicode_h \
+    m17n_encoding_ucs4_h
+
+$(OR_OUTDIR)\m17n_encoding_utf8.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_utf8.c \
+    RexxCore_h \
+    StringClass_hpp \
+    MutableBufferClass_hpp \
+    ProtectedObject_hpp \
+    m17n_unicode_h \
+    m17n_encoding_utf8_h
+
+$(OR_OUTDIR)\m17n_encoding_utf16.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_utf16.c \
+    RexxCore_h \
+    StringClass_hpp \
+    MutableBufferClass_hpp \
+    ProtectedObject_hpp \
+    m17n_unicode_h \
+    m17n_encoding_utf16_h
+
+
+# Include depencies
+
+DirectoryClass_hpp : \
+    $(INTERPRETER_CLASSES)\DirectoryClass.hpp
+
+IntegerClass_hpp : \
+    $(INTERPRETER_CLASSES)\IntegerClass.hpp
+
+MutableBufferClass_hpp : \
+    $(INTERPRETER_CLASSES)\MutableBufferClass.hpp
+
+NumberStringClass_hpp : \
+    $(INTERPRETER_CLASSES)\NumberStringClass.hpp
+
+ProtectedObject_hpp : \
+    $(MEMORY)\ProtectedObject.hpp
+
+RexxActivation_hpp : \
+    $(EXECUTION)\RexxActivation.hpp
+
+RexxActivity_hpp : \
+    $(CONCURRENCY)\RexxActivity.hpp
+
+RexxCompoundTail_hpp : \
+    $(CLASSES_SUPPORT)\RexxCompoundTail.hpp
+
+RexxCore_h : \
+    $(INTERPRETER_RUNTIME)\RexxCore.h
+
+StringClass_hpp : \
+    $(INTERPRETER_CLASSES)\StringClass.hpp \
+    NumberStringClass_hpp \
+    IntegerClass_hpp \
+    StringUtil_hpp \
+    Utilities_hpp \
+    m17n_charset_h
+
+StringUtil_hpp : \
+    $(CLASSES_SUPPORT)\StringUtil.hpp
+
+SystemInterpreter_hpp : \
+    $(INT_PLATFORM)\SystemInterpreter.hpp    
+
+Utilities_hpp : \
+    $(OR_COMMONSRC)\Utilities.hpp
+
+m17n_cclass_h : \
+    $(CLASSES_SUPPORT_M17N)\m17n_cclass.h
+
+m17n_charset_h : \
+    $(CLASSES_SUPPORT_M17N)\m17n_charset.h \
+    m17n_encoding_h \
+    m17n_cclass_h
+
+m17n_encoding_h : \
+    $(CLASSES_SUPPORT_M17N)\m17n_encoding.h \
+    m17n_string_h
+
+m17n_string_h : \
+    $(CLASSES_SUPPORT_M17N)\m17n_string.h
+
+m17n_string_funcs_h : \
+    $(CLASSES_SUPPORT_M17N)\m17n_string_funcs.h
+
+m17n_unicode_h : \
+    $(CLASSES_SUPPORT_M17N)\m17n_unicode.h
+
+m17n_charset_ascii_h : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_ascii.h \
+    m17n_charset_h
+
+m17n_charset_binary_h : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_binary.h \
+    m17n_charset_ascii_h
+
+m17n_charset_iso-8859-1_h : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_iso-8859-1.h \
+    m17n_charset_ascii_h
+
+m17n_charset_tables_h : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_tables.h \
+    RexxCore_h \
+    m17n_cclass_h
+
+m17n_charset_unicode_h : \
+    $(CLASSES_SUPPORT_M17N_CHARSET)\m17n_charset_unicode.h \
+    m17n_charset_h
+
+m17n_encoding_fixed_8_h : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_fixed_8.h \
+    m17n_encoding_h
+
+m17n_encoding_ucs2_h : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_ucs2.h \
+    m17n_encoding_h
+
+m17n_encoding_ucs4_h : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_ucs4.h \
+    m17n_encoding_h
+
+m17n_encoding_utf8_h : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_utf8.h \
+    m17n_encoding_h
+
+m17n_encoding_utf16_h : \
+    $(CLASSES_SUPPORT_M17N_ENCODING)\m17n_encoding_utf16.h
+

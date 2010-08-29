@@ -55,6 +55,7 @@
 #include "ProtectedObject.hpp"
 #include "RexxInternalApis.h"
 #include "PackageManager.hpp"
+#include "m17n_charset.h"
 
 
 // global resource lock
@@ -129,6 +130,7 @@ void Interpreter::startInterpreter(InterpreterStartupMode mode)
     if (!isActive())
     {
         SystemInterpreter::startInterpreter();   // perform system specific initialization
+        m17n_init();
         // initialize the memory manager , and restore the
         // memory image
         memoryObject.initialize(mode == RUN_MODE);
@@ -219,6 +221,9 @@ bool Interpreter::terminateInterpreter()
                 // we're shutting down, so ignore any failures while processing this
             }
         }
+
+        m17n_deinit();
+        
         // perform system-specific cleanup
         SystemInterpreter::terminateInterpreter();
 

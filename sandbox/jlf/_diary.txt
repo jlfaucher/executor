@@ -20,6 +20,11 @@ See if that can be used to write macros (i.e. transform expression tree), user d
 Named parameters (by opposition to positional parameters). 
 In C#, they say it's useful for calling COM services. 
 I have some Excel macros that would be simpler to call with that.
+--> I started to think about that, but it appears that the ooRexx arguments are not easy to manage by name.
+It's because the arguments are not declared in a single place at the begining of a procedure/routine/method.
+They can be declared several times, and complex expressions can be used (stem, instance's attribute, ...).
+Moreover, named arguments can be passed in any order, and that's a problem with current management by array.
+So, I give up...
 
 Deferred evaluation of parameters. 
 Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, ifalse)
@@ -28,6 +33,62 @@ Investigate the Activation stack (reify ? closure ? continuation ?)
 
 Unicode ?
 --> added support for wide-chars in oodialog.
+--> in progress : m17n
+
+
+===============================================================================
+2010 aug 28
+
+Added encoding to RexxString (m17n) : I borrowed the Parrot's implementation
+(the overall design is kept, but a lot of things has been adapted to ooRexx).
+
+For the moment, I have three sources of inspiration : Parrot, Ruby, Falcon
+I choosed Parrot to start, because it uses ICU if available at compile-time. 
+It's a minimal use, but at least I can put my hands on ICU through a concrete work.
+One pointer for charset and one pointer for encoding is probably too much, but this is
+how Parrot is implemented... And a third pointer is coming, for NFG.
+[2010 aug 25] New, there is an RFC to merge charsets and encodings :
+http://lists.parrot.org/pipermail/parrot-dev/2010-August/004633.html
+
+Ruby's m17n is more complete than Parrot's, but seems more difficult to apprehend.
+The encoding is stored as a 16 bits index.
+
+Falcon is not like Parrot or Ruby, its internal charset is Unicode only. 
+I'm interested by its "string polymorphism".
+The string manager (ako encoding) is stored as a pointer.
+
+See unicode/_readme.odt for more details.
+
+
+To build with ICU under Windows :
+    set HAVE_ICU=1      <-- assign 0 or put this line in comment if you don't want to build with ICU
+    set icu_dir=D:\local\Unicode\ICU\icu4c-4_4_1-Win32-msvc9
+    set PATH=%icu_dir%\bin;%PATH%
+    set INCLUDE=%icu_dir%\include;%INCLUDE%
+    set LIB=%icu_dir%\lib;%LIB%
+
+The environment variable HAVE_ICU is tested in buildorx.bat :
+    set ICU_OPTION=
+    if defined HAVE_ICU set ICU_OPTION="HAVE_ICU=%HAVE_ICU%"
+    NMAKE /F INTERPRETER.MAK %ICU_OPTION%
+    
+interpreter.mak :
+    !IFNDEF HAVE_ICU
+    HAVE_ICU=0
+    !ENDIF
+
+    !IF "$(HAVE_ICU)" == "0"
+    ICU_OPTIONS=
+    !ELSE
+    ICU_OPTIONS=/DHAVE_ICU
+    !ENDIF
+
+
+Careful if building from Visual Studio (no problem when building from Cmd shell) :
+The INCLUDE environment variable is redefined by Visual Studio, and because of that,
+the ICU headers are not found. You must launch Visual Studio like that :
+    vcexpress /useenv
+See makeorx_verbose.bat for more details to build from Visual Studio.
 
 
 ===============================================================================

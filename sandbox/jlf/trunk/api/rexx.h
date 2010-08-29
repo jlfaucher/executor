@@ -222,6 +222,7 @@ typedef char *PEXIT;                  /* ptr to exit parameter block */
 #include "rexxplatformdefs.h"          // Platform specific stuff
 
 typedef size_t  stringsize_t;          // a Rexx string size
+typedef ssize_t sstringsize_t;         // a Rexx signed string size, which allows to pass -1 as default value
 typedef ssize_t wholenumber_t;         // a Rexx whole number
 typedef size_t  logical_t;             // a Rexx logical (1 or 0) value
 

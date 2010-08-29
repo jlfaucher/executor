@@ -51,6 +51,8 @@ public:
     static void strlower(char *str);
     static const char *strnchr(const char *, size_t n, char ch);
     static const char *locateCharacter(const char *s, const char *set, size_t l);
+    static int vsnprintf(char *buffer, size_t count, const char *format, va_list args);
+    static int snprintf(char *buffer, size_t count, const char *format, ...);
 };
 
 #endif

@@ -1,12 +1,20 @@
+/* unicode.h
+ *  Copyright (C) 2005-2007, Parrot Foundation.
+ *  SVN Info
+ *     $Id: unicode.h 45852 2010-04-21 10:06:00Z bacek $
+ *  Overview:
+ *     This is the header for the unicode charset functions
+ *  Data Structure and Algorithms:
+ *  History:
+ *  Notes:
+ *  References:
+ */
+
 /*----------------------------------------------------------------------------*/
-/*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
-/*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.ibm.com/developerworks/oss/CPLv1.0.htm                          */
+/* http://www.oorexx.org/license.html                          */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -36,21 +44,39 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include "SysDebug.hpp"
-#include <stdio.h>
-#include <stdarg.h>
-#include <windows.h>
+#ifndef M17N_CHARSET_UNICODE_H_GUARD
+#define M17N_CHARSET_UNICODE_H_GUARD
 
-void dbgprintf(const char *format, ...)
-{
-    char buf[4096];
-    char *p = buf;
-    va_list args;
-    int n;
+#include "m17n_charset.h"
 
-    va_start(args, format);
-    n = _vsnprintf(p, sizeof buf - 1, format, args);
-    va_end(args);
+class CHARSET_UNICODE : public CHARSET {
+public:
+    RexxString * get_graphemes(RexxString *src, wholenumber_t offset, wholenumber_t count);
+    RexxString * convert(RexxString *src);
+    RexxString * compose(RexxString *src);
+    RexxString * decompose(RexxString *src);
+    RexxString * upcase(RexxString *src);
+    RexxString * downcase(RexxString *src);
+    RexxString * titlecase(RexxString *src);
+    RexxString * upcase_first(RexxString *src);
+    RexxString * downcase_first(RexxString *src);
+    RexxString * titlecase_first(RexxString *src);
+    wholenumber_t compare(IRexxString *lhs, IRexxString *rhs);
+    wholenumber_t index(IRexxString *src, IRexxString *search_string, wholenumber_t offset);
+    wholenumber_t rindex(IRexxString *src, IRexxString *search_string, wholenumber_t offset);
+    wholenumber_t validate(IRexxString *src);
+    wholenumber_t is_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset);
+    wholenumber_t find_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset, wholenumber_t count);
+    wholenumber_t find_not_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset, wholenumber_t count);
+    RexxString * string_from_codepoint(wholenumber_t codepoint);
+};
 
-    OutputDebugString(buf);
-}
+/*
+ * init function
+ */
+
+
+void m17n_charset_unicode_init();
+
+
+#endif /* M17N_CHARSET_UNICODE_H_GUARD */
