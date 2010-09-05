@@ -68,7 +68,17 @@ public:
 
     inline void adjustGap(size_t offset, size_t _size, size_t _newSize)
     {
-        memmove(getData() + offset + _newSize, getData() + offset + _size, getDataLength() - (offset + _size));
+        // We have _size bytes to replace by _newSize bytes
+        // 0 1 2 3 4 5 6 7 8 9      offset = 3, XX to be replaced by YYY
+        // a b c X X f g            _size = 2
+        // a b c Y Y Y f g          _newSize = 3
+        size_t offset_from = offset + _size; // offset of the 1st byte to move
+        if (offset_from < getDataLength())
+        {
+            size_t offset_to = offset + _newSize; // destination offset of the 1st byte to move
+            size_t tailSize = getDataLength() - offset_from;
+            memmove(getData() + offset_to, getData() + offset_from, tailSize);
+        }
     }
     inline void setData(size_t offset, char character, size_t l)
     {

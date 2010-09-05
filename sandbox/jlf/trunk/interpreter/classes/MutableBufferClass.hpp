@@ -131,7 +131,7 @@ class RexxMutableBufferClass : public RexxClass {
    inline size_t      getBLength()    { return dataBLength; }
    inline size_t      getCLength()    { return dataCLength; }
    inline void        setLength(size_t l) { dataBLength = l; }; // see getLength
-   inline void        setBLength(size_t l) { dataBLength = l; };
+   inline void        setBLength(size_t l) { dataBLength = l; data->setDataLength(l);};
    inline void        setCLength(size_t l) { dataCLength = l; };
    inline size_t      getBufferLength() { return bufferLength; }
    RexxObject        *setBufferLength(size_t);

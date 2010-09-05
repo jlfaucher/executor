@@ -37,6 +37,19 @@ Unicode ?
 
 
 ===============================================================================
+2010 sep 05
+
+Found a bug, fixed in sandbox, to fix in trunk.
+.mutablebuffer~new('abcdef')~replaceat('XXX', 1, 16)
+makes the interpreter crash.
+
+
+Parrot charset/encoding merge :
+http://lists.parrot.org/pipermail/parrot-dev/2010-September/004678.html
+I will wait for the move in Parrot's trunk before analysing that.
+
+
+===============================================================================
 2010 aug 28
 
 Added encoding to RexxString (m17n) : I borrowed the Parrot's implementation

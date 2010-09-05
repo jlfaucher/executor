@@ -145,7 +145,7 @@ m17n_find_charset(const char *charsetname, bool raiseException)
 
     if (raiseException) 
     {
-        RexxString *msg = raw_string(200, 200);
+        RexxString *msg = raw_string(200);
         rsnprintf(msg, "Can't make %s charset strings", charsetname);
         reportException(Rexx_Error_Execution_user_defined, msg);
     }
