@@ -1,3 +1,5 @@
+[JLF sept 15, 2010] Fixed in trunk revision 6147
+
 Current implementation of MutableBuffer~replaceAt calls adjustGap when needed.
 This script illustrates the performance problem of adjustGap, which occurs because
 the encapsulated buffer's dataLength is equal to its bufferSize.

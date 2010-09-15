@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -42,12 +42,11 @@
  * Contains convenience / helper functions used throughout the ooDialog modules.
  */
 
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
 #include <stdio.h>
 #include <dlgs.h>
 #include <malloc.h>
-#include <CommCtrl.h>
 #include <shlwapi.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
@@ -123,6 +122,31 @@ void *baseClassIntializationException(RexxMethodContext *c)
  *        The specified method, built-in function, or external routine exists,
  *        but you used it incorrectly.
  *
+ *  The "methName" method can not be invoked on "objectName" "msg"
+ *
+ *  The execute method can not be invoked on a PropertyPage using an owner
+ *  dialog whose Windows dialog does not exist.
+ *
+ * @param c           The method context we are operationg in.
+ * @param methodName  Method name, used to over-ride the other
+ *                    methodCanNotBeInvokedException()
+ * @param rxDlg
+ * @param msg
+ */
+RexxObjectPtr methodCanNotBeInvokedException(RexxMethodContext *c, CSTRING methodName, RexxObjectPtr rxDlg, CSTRING msg)
+{
+    char buf[512];
+    _snprintf(buf, RXITEMCOUNT(buf), "The %s method can not be invoked on %s %s.", methodName, c->ObjectToStringValue(rxDlg), msg);
+    c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
+    return NULLOBJECT;
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
  *  The "methName" method can not be invoked on "objectName" when the "msg"
  *
  *  The connectEdit method can not be invoked on a StyleDlg when the Windows
@@ -147,6 +171,29 @@ RexxObjectPtr methodCanNotBeInvokedException(RexxMethodContext *c, RexxObjectPtr
  *        The specified method, built-in function, or external routine exists,
  *        but you used it incorrectly.
  *
+ *  The "" attribute is not valid for ""
+ *
+ *  The HEADER attribute is not valid for a ModalPropertySheet
+ *
+ * @param c
+ * @param rxDlg
+ * @param msg
+ */
+RexxObjectPtr invalidAttributeException(RexxMethodContext *c, RexxObjectPtr rxDlg)
+{
+    char buf[512];
+    _snprintf(buf, RXITEMCOUNT(buf), "The %s attribute is not valid for %s",
+              c->GetMessageName(), c->ObjectToStringValue(rxDlg));
+    c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
+    return NULLOBJECT;
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
  *  Argument "position" is not a valid category page number; found "num"
  *
  *  Arguemnt 2 is not a valid category page number; found 0
@@ -160,6 +207,75 @@ RexxObjectPtr invalidCategoryPageException(RexxMethodContext *c, int pageNum, in
     _snprintf(buf, RXITEMCOUNT(buf), "Argument %d is not a valid category page number; found %d", pos, pageNum);
     c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
     return NULLOBJECT;
+}
+
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  Argument position (object) is not a page in this property sheet
+ *
+ *  Arguemnt 2 (an Array) is not a page in this property sheet
+ *
+ * @param c
+ * @param page
+ * @param pos
+ */
+RexxObjectPtr noSuchPageException(RexxMethodContext *c, RexxObjectPtr page, size_t pos)
+{
+    char buf[256];
+    _snprintf(buf, RXITEMCOUNT(buf), "Argument %d (%s) is not a page in this property sheet", pos, c->ObjectToStringValue(page));
+    c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
+    return NULLOBJECT;
+}
+
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The Windows property sheet page, (argument position, page number,) has not
+ *  been created
+ *
+ *  The Windows property sheet page, (argument 1, page 5,) has not been created
+ *
+ * @param c
+ * @param pageID
+ * @param pos
+ */
+RexxObjectPtr noWindowsPageException(RexxMethodContext *c, size_t pageID, size_t pos)
+{
+    char buf[256];
+    _snprintf(buf, RXITEMCOUNT(buf), "The Windows property sheet page, (argument %d, page %d,) has not been created", pos, pageID);
+    c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buf));
+    return NULLOBJECT;
+}
+
+
+/**
+ * Error 98.900
+ *
+ * 98 The language processor detected a specific error during execution.
+ *
+ *  The dialog template for the Windows property sheet page (page number) could
+ *  not be created
+ *
+ *  The dialog template for the Windows property sheet page (page 3) could not
+ *  be created
+ *
+ * @param c
+ * @param pageID
+ */
+void *noWindowsPageDlgException(RexxMethodContext *c, size_t pageID)
+{
+    char buf[256];
+    _snprintf(buf, RXITEMCOUNT(buf), "The dialog template for the Windows property sheet page (page %d) could not be created", pageID);
+    return executionErrorException(c->threadContext, buf);
 }
 
 
@@ -203,6 +319,7 @@ void wrongWindowStyleException(RexxMethodContext *c, const char *obj, const char
     userDefinedMsgException(c->threadContext, msg);
 }
 
+// TODO replace all usage of this function with requiredOS(0
 RexxObjectPtr wrongWindowsVersionException(RexxMethodContext *context, const char *methodName, const char *windows)
 {
     char msg[256];
@@ -212,13 +329,152 @@ RexxObjectPtr wrongWindowsVersionException(RexxMethodContext *context, const cha
 }
 
 
+/**
+ * Checks that the current Os meets the minimum OS requirements for a method.
+ * Raises an exception if the minimum is not meet.
+ *
+ * @param context
+ * @param method
+ * @param os name
+ * @param os type
+ *
+ * @return True if the requirement is meet, otherwise false.
+ *
+ * @remarks Note the switch of the odering of the arguments for this
+ *          requiredComCtl32Version() and the one directly above.
+ */
+bool requiredOS(RexxMethodContext *context, const char *method, const char *osName, os_name_t os)
+{
+    bool ok = false;
+    switch ( os )
+    {
+        case XP_OS :
+            ok = _isAtLeastXP();
+            break;
+
+        case Vista_OS :
+            ok = _isAtLeastVista();
+            break;
+
+        case Windows7_OS :
+            ok = _isAtLeastWindows7();
+            break;
+
+        default :
+            break;
+
+    }
+    if ( ! ok )
+    {
+        char buf[256];
+
+        _snprintf(buf, RXITEMCOUNT(buf), "The %s() method requires Windows %s or later", method, osName);
+        context->RaiseException1(Rexx_Error_Incorrect_method_user_defined, context->String(buf));
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * Checks that the current Os meets the minimum OS requirements for some
+ * situation. Raises an exception if the minimum is not meet.
+ *
+ * @param context
+ * @param msg
+ * @param os
+ *
+ * @return True if the requirement is meet, otherwise false.
+ *
+ * @remarks Note the switch of the odering of the arguments for this
+ *          requiredComCtl32Version() and the one directly above.
+ */
+bool requiredOS(RexxMethodContext *context, os_name_t os, const char *msg, const char *osName)
+{
+    bool ok = false;
+    switch ( os )
+    {
+        case XP_OS :
+            ok = _isAtLeastXP();
+            break;
+
+        case Vista_OS :
+            ok = _isAtLeastVista();
+            break;
+
+        case Windows7_OS :
+            ok = _isAtLeastWindows7();
+            break;
+
+        default :
+            break;
+
+    }
+    if ( ! ok )
+    {
+        char buf[256];
+
+        _snprintf(buf, RXITEMCOUNT(buf), "%s requires %s or later", msg, osName);
+
+        context->RaiseException1(Rexx_Error_System_service_user_defined, context->String(buf));
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * Checks that a method being invoked meets the minimum comctl32 requirements.
+ * Raises an exception if the minimum is not meet.
+ *
+ * @param context
+ * @param methodName
+ * @param minimum
+ *
+ * @return True if the requirement is meet, otherwise false.
+ *
+ * @remarks Note the switch of the odering of the arguments for this
+ *          requiredComCtl32Version() and the one directly below.
+ */
 bool requiredComCtl32Version(RexxMethodContext *context, const char *methodName, DWORD minimum)
 {
     if ( ComCtl32Version < minimum )
     {
         char msg[256];
+
         _snprintf(msg, RXITEMCOUNT(msg), "The %s() method requires %s or later", methodName, comctl32VersionName(minimum));
+
         context->RaiseException1(Rexx_Error_System_service_user_defined, context->String(msg));
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * Checks that the current comctl32 version meets the minimum comctl32
+ * requirements for some situation. Raises an exception if the minimum is not
+ * meet.
+ *
+ * @param context
+ * @param msg
+ * @param minimum
+ *
+ * @return True if the requirement is meet, otherwise false.
+ *
+ * @remarks Note the switch of the odering of the arguments for this
+ *          requiredComCtl32Version() and the one directly above.
+ */
+bool requiredComCtl32Version(RexxMethodContext *context, DWORD minimum, const char *msg)
+{
+    if ( ComCtl32Version < minimum )
+    {
+        char buf[256];
+
+        _snprintf(buf, RXITEMCOUNT(buf), "%s requires %s or later; actual %s", msg,
+                  comctl32VersionName(minimum), ComCtl32VersionStr);
+
+        context->RaiseException1(Rexx_Error_System_service_user_defined, context->String(buf));
         return false;
     }
     return true;
@@ -764,6 +1020,28 @@ void *string2pointer(RexxMethodContext *c, RexxStringObject string)
 }
 
 /**
+ * A sort of special case used in dialog procedure functions.  We don't really
+ * know what the user returned.  It is supposedly a pointer (some type of
+ * handle, a HWND, or ...).
+ *
+ * There is no error, if it is not a handle, then null is returned.  The caller
+ * would need to implement any type checking.
+ *
+ * @param c
+ * @param ptr
+ *
+ * @return A handle, which may be null
+ */
+void *string2pointer(RexxThreadContext *c, RexxObjectPtr ptr)
+{
+    if ( ptr == NULLOBJECT )
+    {
+        return NULL;
+    }
+    return string2pointer(c->ObjectToStringValue(ptr));
+}
+
+/**
  * Converts a pointer-sized type to a pointer-string, or 0 if the pointer is
  * null.
  *
@@ -1020,30 +1298,6 @@ void checkModal(pCPlainBaseDialog previous, logical_t modeless)
             EnableWindow(previous->hDlg, FALSE);
         }
     }
-
-}
-
-
-/**
- *  Helper function to re-enable the previous dialog when dialog creation has
- *  failed.
- *
- * @param previous  CSelf pointer of the previously created dialog.  This could
- *                  be null.
- *
- * @remarks  See the remarks for checkModal().
- */
-void enablePrevious(pCPlainBaseDialog previous)
-{
-    if ( previous )
-    {
-        previous->onTheTop = true;
-
-        if ( ! IsWindowEnabled(previous->hDlg) )
-        {
-            EnableWindow(previous->hDlg, TRUE);
-        }
-    }
 }
 
 
@@ -1134,7 +1388,7 @@ pCPlainBaseDialog requiredDlgCSelf(RexxMethodContext *c, RexxObjectPtr self, ood
 }
 
 
-PPOINT rxGetPoint(RexxMethodContext *context, RexxObjectPtr p, int argPos)
+PPOINT rxGetPoint(RexxMethodContext *context, RexxObjectPtr p, size_t argPos)
 {
     if ( requiredClass(context->threadContext, p, "Point", argPos) )
     {
@@ -1156,7 +1410,7 @@ RexxObjectPtr rxNewPoint(RexxMethodContext *c, long x, long y)
 }
 
 
-PRECT rxGetRect(RexxMethodContext *context, RexxObjectPtr r, int argPos)
+PRECT rxGetRect(RexxMethodContext *context, RexxObjectPtr r, size_t argPos)
 {
     if ( requiredClass(context->threadContext, r, "Rect", argPos) )
     {
@@ -1204,7 +1458,7 @@ RexxObjectPtr rxNewRect(RexxMethodContext *context, PRECT r)
 }
 
 
-PSIZE rxGetSize(RexxMethodContext *context, RexxObjectPtr s, int argPos)
+PSIZE rxGetSize(RexxMethodContext *context, RexxObjectPtr s, size_t argPos)
 {
     if ( requiredClass(context->threadContext, s, "Size", argPos) )
     {
@@ -1275,7 +1529,7 @@ bool rxDirectoryFromArray(RexxMethodContext *c, RexxArrayObject a, size_t index,
     }
     if ( ! c->IsOfType(_d, "DIRECTORY") )
     {
-        wrongObjInArrayException(c->threadContext, argPos, index, "Directory");
+        wrongObjInArrayException(c->threadContext, argPos, index, "a Directory", _d);
         goto err_out;
     }
 
@@ -1432,8 +1686,8 @@ RexxObjectPtr setWindowStyle(RexxMethodContext *c, HWND hwnd, uint32_t style)
 
 
 /**
- *  Converts an ANSI character string to a wide (Unicode) character string and
- *  puts it in the specified buffer.
+ *  Pust an ANSI character string converted to a wide (Unicode) character string
+ *  in the specified buffer.
  *
  *  This is a convenience function that assumes the caller has passed a buffer
  *  known to be big enough.
@@ -1461,9 +1715,9 @@ int putUnicodeText(LPWORD dest, const char *text)
     }
     else
     {
-        int cchWideChar = (int)strlen(text) + 1;
+        int countWideChars = (int)strlen(text) + 1;
 
-        count = MultiByteToWideChar(rxgetCodePage(), 0, text, -1, (LPWSTR)dest, cchWideChar);
+        count = MultiByteToWideChar(rxgetCodePage(), 0, text, -1, (LPWSTR)dest, countWideChars);
         if ( count == 0 )
         {
             // Unlikely that this failed, but if it did, treat it as an empty
@@ -1488,10 +1742,74 @@ int putUnicodeText(LPWORD dest, const rxcharW *text)
 
 
 /**
+ * Alocates a buffer and converts an ANSI string into a wide (Unicode) character
+ * string.
  *
+ * @param str     The ANSI string to convert, can not be null, must be null
+ *                terminated.
  *
+ * @return The converted string, or null on failure.
  *
- * @param wstr
+ * @note  The caller is responsible for freeing the returned string.  Memory is
+ *        allocated using LocalAlloc.
+ */
+LPWSTR ansi2unicode(LPCSTR str)
+{
+    if ( str == NULL )
+{
+        return NULL;
+    }
+
+    LPWSTR wstr = NULL;
+
+    size_t len = MultiByteToWideChar(rxgetCodePage(), 0, str, -1, NULL, 0);
+
+    if ( len != 0 )
+    {
+        wstr = (LPWSTR)LocalAlloc(LPTR, len * 2);
+        if ( wstr != NULL )
+        {
+            if ( MultiByteToWideChar(rxgetCodePage(), 0, str, -1, wstr, (int)len ) == 0)
+            {
+                // Conversion failed.
+                LocalFree(wstr);
+                wstr = NULL;
+            }
+        }
+    }
+
+    return wstr;
+}
+
+// Already a Unicode string, returns a copy
+LPWSTR ansi2unicode(LPCWSTR str)
+{
+    if ( str == NULL )
+{
+        return NULL;
+    }
+
+    LPWSTR wstr = NULL;
+    size_t len = wcslen(str);
+
+    if ( len != 0 ) // ??? an empty string is not like a NULL pointer, but...
+    {
+        wstr = (LPWSTR)LocalAlloc(LPTR, (len + 1) * sizeof(rxcharW));
+        if ( wstr != NULL )
+        {
+            wmemcpy(wstr, str, len);
+        }
+    }
+
+    return wstr;
+}
+
+
+/**
+ * Allocates a buffer and converts a wide character (Unicode) string to an Ansi
+ * string.
+ *
+ * @param wstr    The string to convert.
  * @param len     The length, including the terminating null, of the wide string
  *                to convert.  If this length does not include the terminating
  *                null, the returned string will not include a terminating
@@ -1505,27 +1823,22 @@ int putUnicodeText(LPWORD dest, const rxcharW *text)
  * @note  The caller is responsible for freeing the returned string.  Memory is
  *        allocated using malloc.
  */
-char *unicode2Ansi(PWSTR wstr, int32_t len)
+char *unicode2ansi(LPWSTR wstr)
 {
     if (wstr == NULL)
     {
         return NULL;
     }
 
-    if ( len == -1 )
-    {
-        len = (int)wcslen(wstr) + 1;
-    }
-
     char *ansiStr = NULL;
-    int32_t neededLen = WideCharToMultiByte(rxgetCodePage(), 0, wstr, len, NULL, 0, NULL, NULL);
+    int32_t neededLen = WideCharToMultiByte(rxgetCodePage(), 0, wstr, -1, NULL, 0, NULL, NULL);
 
     if ( neededLen != 0 )
     {
         ansiStr = (char *)malloc(neededLen);
         if ( ansiStr != NULL )
         {
-            if ( WideCharToMultiByte(rxgetCodePage(), 0, wstr, len, ansiStr, neededLen, NULL, NULL) == 0 )
+            if ( WideCharToMultiByte(rxgetCodePage(), 0, wstr, -1, ansiStr, neededLen, NULL, NULL) == 0 )
             {
                 /* conversion failed */
                 free(ansiStr);
@@ -1540,17 +1853,16 @@ char *unicode2Ansi(PWSTR wstr, int32_t len)
 /**
  * Converts a wide character (Unicode) string to a Rexx string object.
  *
+ * @param c    Method context we are operating in.
+ * @param wstr Wide character string to convert.
  *
- * @param c
- * @param wstr
- * @param len
+ * @return The conveted string as a new Rexx string object on success.
  *
- * @return RexxStringObject
- *
- * @remarks  TODO  should an out of memeory exception be raised for a null
- *           return from unicode2Ansi?
+ * @remarks  The Rexx null string is returned if an error occurs.  A second
+ *           function could be added if it is necessary to distinguish types of
+ *           errors.
  */
-RexxStringObject unicode2String(RexxMethodContext *c, PWSTR wstr, int32_t len)
+RexxStringObject unicode2string(RexxMethodContext *c, LPWSTR wstr)
 {
     RexxStringObject result = c->NullString();
     if ( wstr == NULL )
@@ -1558,7 +1870,7 @@ RexxStringObject unicode2String(RexxMethodContext *c, PWSTR wstr, int32_t len)
         goto done_out;
     }
 
-    char *str = unicode2Ansi(wstr, len);
+    char *str = unicode2ansi(wstr);
     if ( str == NULL )
     {
         goto done_out;
@@ -1763,6 +2075,36 @@ err_out:
     return false;
 }
 
+
+/**
+ * Fills in a POINT structure using an argument array passed to a Rexx object
+ * method.
+ *
+ * The purpose is to give the Rexx programmer some flexibility in how they pass
+ * in "point-like" coordinates to a method.
+ *
+ * The coordinates can be expressed as a .Point, a .Size, or as 2 individual
+ * intergers.
+ *
+ * Since a point and a size are binary compatible, no effort is made to enforce
+ * that only a point is used.  This makes things more flexible.
+ *
+ * @param c            Method context we are operating in.
+ * @param args         The arg list array (ARGLIST) passed to the native API
+ * @param point        [IN/OUT] Pointer to a point struct, this is filled in on
+ *                     success.
+ * @param startArg     The argument number in the arg array where the rectangle
+ *                     specifications start.
+ * @param maxArgs      The maximum number of args allowed.
+ * @param arraySize    [IN/OUT] The size of the argument array, returned.
+ * @param usedArgs     [IN/OUT] The number of arguments used in specifying the
+ *                     point. I.e., if startArg is a .point, then usedArgs
+ *                     will be 1 on return.  If at startArg we have x, y, (or
+ *                     cx, cy) then useArgs will be 2 on return.
+ *
+ * @return True on success, false otherwise.  If the return is false, an
+ *         exception has been raised.
+ */
 bool getPointFromArglist(RexxMethodContext *c, RexxArrayObject args, PPOINT point, int startArg, int maxArgs,
                          size_t *arraySize, size_t *usedArgs)
 {

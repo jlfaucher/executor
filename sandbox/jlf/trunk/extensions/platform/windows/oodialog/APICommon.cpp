@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -43,7 +43,7 @@
  * any code that uses the native API.  Include APICommon.hpp to use them.
  */
 
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
 #include <stdio.h>
 #include <errno.h>
@@ -109,6 +109,24 @@ void outOfMemoryException(RexxThreadContext *c)
 }
 
 /**
+ * Error 98.900
+ *
+ * 98 The language processor detected a specific error during execution.
+ *
+ * 900 User message.
+ *
+ * The number of active dialogs has reached the maximum (20) allowed
+ *
+ * @param c
+ * @param msg
+ */
+void *executionErrorException(RexxThreadContext *c, CSTRING msg)
+{
+    c->RaiseException1(Rexx_Error_Execution_user_defined, c->CString(msg));
+    return NULL;
+}
+
+/**
  * Message
  *
  * The number of active dialogs has reached the maximum (20) allowed
@@ -121,6 +139,25 @@ void outOfMemoryException(RexxThreadContext *c)
 void userDefinedMsgException(RexxThreadContext *c, CSTRING msg)
 {
     c->RaiseException1(Rexx_Error_Invalid_argument_user_defined, c->String(msg));
+}
+
+/**
+ * Some kind of %d message
+ *
+ * The number of property sheet dialogs being concurrently created has reached
+ * the maximum (5) allowed.
+ *
+ * Raises 88.900
+ *
+ * @param *c          Thread context we are executing in.
+ * @param formatStr   Format string with 1 %d contained in it.
+ * @param number      Replacement arg.
+ */
+void userDefinedMsgException(RexxThreadContext *c, CSTRING formatStr, int number)
+{
+    char buffer[256];
+    _snprintf(buffer, RXITEMCOUNT(buffer), formatStr, number);
+    userDefinedMsgException(c, buffer);
 }
 
 /**
@@ -168,8 +205,8 @@ void userDefinedMsgException(RexxMethodContext *c, CSTRING msg)
  */
 void userDefinedMsgException(RexxMethodContext *c, size_t pos, CSTRING msg)
 {
-    rxcharA buffer[256];
-    _snprintf(buffer, sizeof(buffer), "Method argument %d %s", pos, msg);
+    char buffer[256];
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Method argument %d %s", pos, msg);
     userDefinedMsgException(c, buffer);
 }
 
@@ -215,7 +252,7 @@ RexxObjectPtr invalidTypeException(RexxThreadContext *c, size_t pos, const char 
     return NULLOBJECT;
 }
 
-void invalidImageException(RexxThreadContext *c, int pos, CSTRING type, CSTRING actual)
+void invalidImageException(RexxThreadContext *c, size_t pos, CSTRING type, CSTRING actual)
 {
     char buffer[256];
     _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d must be a %s image; found %s", pos, type, actual);
@@ -288,10 +325,18 @@ RexxObjectPtr notBooleanException(RexxThreadContext *c, size_t pos, RexxObjectPt
     return NULLOBJECT;
 }
 
+void wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING obj, RexxObjectPtr actual)
+{
+    char buffer[256];
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Index %d of the array, argument %d, must be %s; found \"%s\"",
+              index, argPos, obj, c->ObjectToStringValue(actual));
+    userDefinedMsgException(c, buffer);
+}
+
 void wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING obj)
 {
     char buffer[256];
-    _snprintf(buffer, RXITEMCOUNT(buffer), "Argument %d is an array and index %d is not a %s", argPos, index, obj);
+    _snprintf(buffer, RXITEMCOUNT(buffer), "Index %d of the array, argument %d, must be %s", index, argPos, obj);
     userDefinedMsgException(c, buffer);
 }
 
@@ -374,27 +419,9 @@ void sparseArrayException(RexxThreadContext *c, size_t argPos, size_t index)
 }
 
 /**
- * Error 98.900
- *
- * 98 The language processor detected a specific error during execution. The
- * associated error gives the reason for the error.
- *
- * 900 User message.
- *
- * @param c
- * @param msg
- */
-void *executionErrorException(RexxThreadContext *c, CSTRING msg)
-{
-    c->RaiseException1(Rexx_Error_Execution_user_defined, c->CString(msg));
-    return NULL;
-}
-
-/**
  * Error 98.913
  *
- * 98 The language processor detected a specific error during execution. The
- * associated error gives the reason for the error.
+ * 98 The language processor detected a specific error during execution.
  *
  * 913: Unable to convert object "a MyThings" to a single-dimensional array
  * value
@@ -436,7 +463,7 @@ void failedToRetrieveException(RexxThreadContext *c, CSTRING item, RexxObjectPtr
     c->RaiseException1(Rexx_Error_Execution_user_defined, c->String(buf));
 }
 
-void nullObjectException(RexxThreadContext *c, CSTRING name, int pos)
+void nullObjectException(RexxThreadContext *c, CSTRING name, size_t pos)
 {
     char buffer[256];
     if ( pos == 0 )
@@ -581,7 +608,7 @@ bool rxGetUInt32Attribute(RexxMethodContext *context, RexxObjectPtr obj, CSTRING
     return result;
 }
 
-bool requiredClass(RexxThreadContext *c, RexxObjectPtr obj, const char *name, int pos)
+bool requiredClass(RexxThreadContext *c, RexxObjectPtr obj, const char *name, size_t pos)
 {
     if ( obj == NULLOBJECT || ! c->IsOfType(obj, name) )
     {
@@ -814,7 +841,7 @@ void standardConditionMsg(RexxThreadContext *c, RexxDirectoryObject condObj, Rex
  * @remarks.  This function could maybe take a second argument, true / false,
  *            whether to clear or not clear the condition.
  */
-bool checkForCondition(RexxThreadContext *c)
+bool checkForCondition(RexxThreadContext *c, bool clear)
 {
     if ( c->CheckCondition() )
     {
@@ -825,6 +852,11 @@ bool checkForCondition(RexxThreadContext *c)
         {
             c->DecodeConditionInfo(condObj, &condition);
             standardConditionMsg(c, condObj, &condition);
+
+            if ( clear )
+            {
+                c->ClearCondition();
+            }
             return true;
         }
     }
@@ -837,11 +869,11 @@ bool checkForCondition(RexxThreadContext *c)
  *
  * @param testFor  The int value being tested for.
  * @param val      The generic Rexx object, which could be null.
- * @param c        The method context we are executing under.
+ * @param c        The thread context we are executing under.
  *
  * @return True if val is the int number we are testing for, otherwise false.
  */
-bool isInt(int testFor, RexxObjectPtr val, RexxMethodContext *c)
+bool isInt(int testFor, RexxObjectPtr val, RexxThreadContext *c)
 {
     if ( val != NULLOBJECT )
     {

@@ -1,7 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -34,42 +33,53 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
 /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
 /*                                                                            */
+/* Authors;                                                                   */
+/*       W. David Ashley <dashley@us.ibm.com>                                 */
+/*                                                                            */
 /*----------------------------------------------------------------------------*/
-/* ooDialog\Samples\rc\movies.rc       Let's go to the movies         */
-/*--------------------------------------------------------------------*/
 
-#include <windows.h>
 
-#define IDD_FONT_PICKER                         101
-#define IDC_COMBO_SIZE                          1004
-#define IDC_COMBO_NAME                          1005
+#ifndef ORXUNIXAPI_H
+#define ORXUNIXAPI_H
 
-30 DIALOG 4, 12, 196, 143
-STYLE WS_CHILD | WS_VISIBLE | WS_BORDER
-FONT 8, "System"
-{
- CONTROL "MovieList", 31, "LISTBOX", LBS_NOTIFY | WS_BORDER | LBS_MULTIPLESEL | WS_BORDER | WS_VSCROLL | WS_GROUP | WS_TABSTOP, 6, 20, 93, 105
- CONTROL "Produced", 32, "EDIT", WS_BORDER | WS_GROUP | WS_TABSTOP, 109, 23, 84, 12
- CONTROL "Star", 33, "EDIT", WS_BORDER | WS_GROUP | WS_TABSTOP, 109, 53, 84, 12
- CONTROL "Director", 34, "EDIT", WS_BORDER | WS_GROUP | WS_TABSTOP, 109, 83, 84, 12
- CONTROL "with", 35, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_GROUP | WS_TABSTOP, 109, 113, 84, 33
- GROUPBOX "The upcoming movies", -1, 3, 9, 99, 118, BS_GROUPBOX
- LTEXT "Produced by:", -1, 109, 10, 60, 8
- LTEXT "Starring:", -1, 109, 40, 60, 8
- LTEXT "Director:", -1, 109, 70, 83, 8
- LTEXT "with:", -1, 109, 100, 60, 8
-}
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
-IDD_FONT_PICKER DIALOG 0, 0, 208, 95
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_VISIBLE | WS_BORDER | WS_CAPTION | WS_DLGFRAME | WS_POPUP | WS_SYSMENU
-CAPTION "Font Selection"
-FONT 8, "Ms Shell Dlg 2"
-BEGIN
-    GROUPBOX        "Select a font for the upcoming example program", IDC_STATIC, 7, 7, 194, 62
-    CTEXT           "Font Name:", IDC_STATIC, 13, 20, 80, 8
-    CTEXT           "Font Size:", IDC_STATIC, 116, 20, 80, 8
-    COMBOBOX        IDC_COMBO_NAME, 13, 33, 80, 40, WS_TABSTOP | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS | CBS_SORT
-    COMBOBOX        IDC_COMBO_SIZE, 116, 33, 80, 40, WS_TABSTOP | WS_TABSTOP | CBS_DROPDOWNLIST | CBS_HASSTRINGS
-    DEFPUSHBUTTON   "OK", IDOK, 96, 74, 50, 14
-    PUSHBUTTON      "Cancel", IDCANCEL, 151, 74, 50, 14
-END
+#include <oorexxapi.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/utsname.h>
+#include <signal.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
+#include <netdb.h>
+#include <wordexp.h>
+#include <alloca.h>
+#include <pthread.h>
+#include <errno.h>
+#include <dirent.h>
+
+// These are the special OS specific cases
+#ifdef HAVE_XATTR_H
+#include <attr/xattr.h>
+#endif
+
+
+/*----------------------------------------------------------------------------*/
+/* Definitions                                                                */
+/*----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------*/
+/* Global variables                                                           */
+/*----------------------------------------------------------------------------*/
+
+ 
+#endif /* ORXUNIXAPI_H */
+ 

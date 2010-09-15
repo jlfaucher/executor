@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -53,7 +53,7 @@
 
 -- A directory that contains internal data.  This should be private, but I'm not sure of the
 -- consequences to existing programs if it is changed.  MM
-::attribute catalog protected
+::attribute catalog unguarded protected
 
 ::attribute staticID private
 ::attribute catX private
@@ -270,21 +270,19 @@
    if lbtext~pos(" ") > 0 then lbtext = '"' || lbtext || '"'
    if rbtext~pos(" ") > 0 then rbtext = '"' || rbtext || '"'
 
-   x = 5
-   y = self~sizeY - 15
-   cx = self~catalog['page']['btnwidth']
-
    wizardTextIdMsg = lbtext" 11 PreviousPage" rbtext" 12 NextPage"
+   y = self~sizeY - 15
 
    if (self~catalog['page']['btnwidth'] > 0) then do
+      cx = self~catalog['page']['btnwidth']
       x = trunc(self~sizeX - self~catalog['page']['btnwidth'] * 2 - 15)
 
       self~createPushButtonGroup(x, y, cx, , "&Ok 1 OK &Cancel 2 CANCEL", 1, "DEFAULT")
-      if self~wizard then self~createPushButtonGroup(x, y, cx,  , wizardTextIdMsg, 1, "")
+      if self~wizard then self~createPushButtonGroup(5, y, cx,  , wizardTextIdMsg, 1, "")
    end
    else do
       self~createOkCancelRightBottom
-      if self~wizard then self~createPushButtonGroup(x, y, , , wizardTextIdMsg, 1, "")
+      if self~wizard then self~createPushButtonGroup(5, y, , , wizardTextIdMsg, 1, "")
    end
 
    self~createBlackFrame(-1, 0, self~sizeY - 20, self~sizeX, 1)

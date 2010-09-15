@@ -430,7 +430,7 @@ bin_PROGRAMS = rxapi rexximage rexx rexxc rxqueue rxsubcom
 #
 # Shared library targets
 #
-pkglib_LTLIBRARIES = librexxapi.la librexx.la librexxutil.la librxmath.la librxregexp.la librxsock.la libhostemu.la
+pkglib_LTLIBRARIES = librexxapi.la librexx.la librexxutil.la librxmath.la librxregexp.la librxsock.la libhostemu.la librxunixsys.la
 
 #
 # Scripts to install
@@ -954,6 +954,25 @@ libhostemu_la_CXXFLAGS = $(COMMON_CPPFLAGS) \
 libhostemu_la_LIBADD  = @ORX_LIBADD_LIBRARY@
 libhostemu_la_LDFLAGS = $(VERSION_INFO) @ORX_LDFLAGS_LIBRARY@
 
+#################### librxunixsys.so ################
+#
+# Sources for librxunixsys.so
+#
+librxunixsys_la_SOURCES = $(extensions_unix_dir)/rxunixsys/rxunixsys.cpp \
+                          $(extensions_unix_dir)/rxunixsys/rxunixsys.h
+#
+# Preprocessor flags for librxunixsys.so
+#
+librxunixsys_la_CXXFLAGS = $(COMMON_CPPFLAGS) \
+                           -I$(build_api_dir) \
+                           -I$(build_api_platform_dir) \
+                           -I$(extensions_unix_dir)/rxunixsys
+#
+# Extra libraries for librxunixsys.so (maybe)
+#
+librxunixsys_la_LIBADD  = @ORX_LIBADD_LIBRARY@
+librxunixsys_la_LDFLAGS = $(VERSION_INFO) @ORX_LDFLAGS_LIBRARY@
+
 #
 # explicit targets:
 #
@@ -1067,9 +1086,24 @@ install-exec-local:
 	if test "$(ORX_SYS_STR)" != "AIX" -a "$(ORX_SYS_STR)" != "MACOSX"; then \
 		$(install_sh_SCRIPT) $(rexxapi_server_unix_dir)/rxapid $(DESTDIR)$(prefix)/bin/rxapid; \
 	fi
+
 	if test "$(ORX_SYS_STR)" = "MACOSX"; then \
-		$(install_sh_SCRIPT) $(platform_unix_dir)/macosx/org.rexxla.oorexx.rxapid.plist $(DESTDIR)$(prefix)/bin/org.rexxla.oorexx.rxapid.plist; \
+		$(install_sh_SCRIPT) $(platform_unix_dir)/macosx/org.rexxla.oorexx.rxapid.plist \
+			$(DESTDIR)$(prefix)/bin/org.rexxla.oorexx.rxapid.plist; \
+		mkdir $(platform_unix_dir)/macosx/scripts; \
+		sed -e "s/^VER=/VER=$(ORX_MAJOR)/" -e "s/^REL=/REL=$(ORX_AGE)/" -e "s/^MOD=/MOD=$(ORX_REVISION)/" \
+		    -e "s-^PREFIX=-PREFIX=$(prefix)-" $(platform_unix_dir)/macosx/postflight.in \
+		    >$(platform_unix_dir)/macosx/scripts/postflight; \
+		sed -e "s-^PREFIX=-PREFIX=$(prefix)-" $(platform_unix_dir)/macosx/preflight.in \
+		    >$(platform_unix_dir)/macosx/scripts/preflight; \
+		sed -e "s/^VER=/VER=$(ORX_MAJOR)/" -e "s/^REL=/REL=$(ORX_MINOR)/" -e "s/^MOD=/MOD=$(ORX_MOD_LVL)/" \
+		    -e "s-^PREFIX=-PREFIX=$(prefix)-" -e "s-^BLD_DIR=-BLD_DIR=$(top_srcdir)-" \
+		    $(platform_unix_dir)/macosx/MakeRexxPackage.in >$(platform_unix_dir)/macosx/MakeRexxPackage; \
+		sed -e "s-#PREF#-$(prefix)-" $(platform_unix_dir)/macosx/PackageInfo.in >$(platform_unix_dir)/macosx/PackageInfo; \
+		chmod 755 $(platform_unix_dir)/macosx/scripts/preflight $(platform_unix_dir)/macosx/scripts/postflight \
+		      $(platform_unix_dir)/macosx/MakeRexxPackage; \
 	fi
+
 	for a in $(build_samples_dir)/*.rex; do \
 		bn=`basename $$a`; \
 		$(install_sh_SCRIPT) $$a $(DESTDIR)$(prefix)/share/ooRexx/$$bn; \

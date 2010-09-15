@@ -232,7 +232,7 @@ if defined component goto arounderr
 :oodialog_classes
 ECHO Building OODIALOG classes
 CD %OR_OUTDIR%
-IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\M_OODCLS.REX )
+IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex )
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 

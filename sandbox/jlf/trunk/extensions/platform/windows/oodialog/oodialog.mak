@@ -1,7 +1,7 @@
 #/*----------------------------------------------------------------------------*/
 #/*                                                                            */
 #/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-#/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+#/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 #/*                                                                            */
 #/* This program and the accompanying materials are made available under       */
 #/* the terms of the Common Public License v1.0 which accompanies this         */
@@ -64,46 +64,52 @@ all:  $(OOD_OUTDIR) $(OOD_OUTDIR)\oodialog.dll
 SOURCEF= $(OOD_OUTDIR)\APICommon.obj $(OOD_OUTDIR)\oodBarControls.obj $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodBasicControls.obj \
          $(OOD_OUTDIR)\oodCommon.obj $(OOD_OUTDIR)\oodControl.obj $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\oodDeviceGraphics.obj \
          $(OOD_OUTDIR)\ooDialog.obj $(OOD_OUTDIR)\oodMenu.obj $(OOD_OUTDIR)\oodMessaging.obj $(OOD_OUTDIR)\oodPackageEntry.obj \
-         $(OOD_OUTDIR)\oodResources.obj $(OOD_OUTDIR)\oodRoutines.obj $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj \
-         $(OOD_OUTDIR)\oodViewControls.obj $(OOD_OUTDIR)\rxwchar.obj $(OOD_OUTDIR)\oodialog.res
+         $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodResources.obj $(OOD_OUTDIR)\oodRoutines.obj $(OOD_OUTDIR)\oodUser.obj \
+         $(OOD_OUTDIR)\oodUtilities.obj $(OOD_OUTDIR)\oodViewControls.obj $(OOD_OUTDIR)\oodialog.res \
+         $(OOD_OUTDIR)\rxwchar.obj
 
 # All Source files that include APICommon.hpp
 APICOMMON_SOURCEF = $(OOD_OUTDIR)\APICommon.obj $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodBasicControls.obj \
                     $(OOD_OUTDIR)\oodCommon.obj $(OOD_OUTDIR)\oodControl.obj $(OOD_OUTDIR)\oodData.obj \
                     $(OOD_OUTDIR)\oodDeviceGraphics.obj $(OOD_OUTDIR)\ooDialog.obj $(OOD_OUTDIR)\oodMenu.obj \
-                    $(OOD_OUTDIR)\oodMessaging.obj $(OOD_OUTDIR)\oodRoutines.obj $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj \
-                    $(OOD_OUTDIR)\oodViewControls.obj
+                    $(OOD_OUTDIR)\oodMessaging.obj $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodRoutines.obj \
+                    $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj $(OOD_OUTDIR)\oodViewControls.obj
 
 # All Source files that include oodCommon.hpp
 COMMON_SOURCEF = $(OOD_OUTDIR)\oodBarControls.obj $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodBasicControls.obj \
                  $(OOD_OUTDIR)\oodCommon.obj $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\oodDeviceGraphics.obj $(OOD_OUTDIR)\oodMenu.obj \
-                 $(OOD_OUTDIR)\oodMessaging.obj $(OOD_OUTDIR)\oodRoutines.obj $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj \
-                 $(OOD_OUTDIR)\oodViewControls.obj
+                 $(OOD_OUTDIR)\oodMessaging.obj $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodRoutines.obj \
+                 $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj $(OOD_OUTDIR)\oodViewControls.obj
 
 # All Source files that include oodDeviceGraphics.hpp
 OODEVICECONTEXT_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodControl.cpp $(OOD_OUTDIR)\ooDeviceGraphics.cpp \
                           $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodRoutines.obj $(OOD_OUTDIR)\oodMessaging.obj         \
-                          $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj
+                          $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodUtilities.obj
 
 # All Source files that include oodData.hpp
 OODDATA_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\oodMessaging.obj \
-                  $(OOD_OUTDIR)\oodUser.obj
+                  $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodUser.obj
 
 
 # All Source files that include oodControl.hpp
 OODCONTROL_SOURCEF = $(OOD_OUTDIR)\oodBarControls.obj $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodBasicControls.obj \
-                     $(OOD_OUTDIR)\oodControl.obj $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\ooDialog.cpp $(OOD_OUTDIR)\oodUser.obj \
-                     $(OOD_OUTDIR)\oodViewControls.obj
+                     $(OOD_OUTDIR)\oodControl.obj $(OOD_OUTDIR)\oodData.obj $(OOD_OUTDIR)\ooDialog.cpp \
+                     $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodUser.obj $(OOD_OUTDIR)\oodViewControls.obj
 
 # All Source files that include oodMessaging.hpp
 OODMESSAGING_SOURCEF = $(OOD_OUTDIR)\oodBaseDialog.obj $(OOD_OUTDIR)\oodControl.obj $(OOD_OUTDIR)\oodDeviceGraphics.obj \
-                       $(OOD_OUTDIR)\ooDialog.obj $(OOD_OUTDIR)\oodMenu.obj $(OOD_OUTDIR)\oodMessaging.obj $(OOD_OUTDIR)\oodUser.obj
+                       $(OOD_OUTDIR)\ooDialog.obj $(OOD_OUTDIR)\oodMenu.obj $(OOD_OUTDIR)\oodMessaging.obj \
+                       $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodUser.obj
 
 # All Source files that include oodResources.hpp
-OODRESOURCES_SOURCEF = $(OOD_OUTDIR)\oodBasicControls.obj $(OOD_OUTDIR)\oodResources.obj $(OOD_OUTDIR)\oodViewControls.obj
+OODRESOURCES_SOURCEF = $(OOD_OUTDIR)\oodBasicControls.obj $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodResources.obj \
+                       $(OOD_OUTDIR)\oodViewControls.obj
 
 # All Source files that include rxwchar.hpp
 RXWCHAR_SOURCEF = $(OOD_OUTDIR)\rxwchar.cpp oodialog.hpp
+
+# All Source files that include oodUser.hpp
+OODUSER_SOURCEF = $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodUser.obj
 
 .c{$(OOD_OUTDIR)}.obj:
     $(C) $(OPTIONS) $(WCHAR_OPTIONS) /DINCL_32  -c $(@B).c /Fo$(OOD_OUTDIR)\$(@B).obj
@@ -143,6 +149,9 @@ $(OOD_OUTDIR)\oodialog.res: $(OR_OODIALOGSRC)\oodialog.rc
     @ECHO ResourceCompiling $(@B).res
         $(rc) $(rcflags_common) /i $(OR_OODIALOGSRC) /i $(OR_WINKERNELSRC) -r -fo$(OOD_OUTDIR)\$(@B).res $(OR_OODIALOGSRC)\$(@B).rc
 
+# Recompile everything if the make file changes.
+$(SOURCEF) : oodialog.mak
+
 # Source .obj files that should be recompiled when header file(s) change.
 $(SOURCEF) : ooDialog.hpp
 $(COMMON_SOURCEF) : oodCommon.hpp
@@ -152,6 +161,7 @@ $(OODDATA_SOURCEF) : oodData.hpp
 $(OODCONTROL_SOURCEF) : oodControl.hpp
 $(OODMESSAGING_SOURCEF) : oodMessaging.hpp
 $(OODRESOURCES_SOURCEF) : oodResources.hpp
+$(OODUSER_SOURCEF) : oodUser.hpp
 $(OOD_OUTDIR)\oodMenu.obj : oodMenu.hpp
 $(RXWCHAR_SOURCEF) : rxwchar.hpp
 
@@ -159,10 +169,10 @@ $(OOD_OUTDIR):
     mkdir $(OOD_OUTDIR)
     
 clean:
-    del $(SOURCEF)
-    del $(OOD_OUTDIR)\oodialog.lib
-    del $(OOD_OUTDIR)\oodialog.exp
-    del $(OOD_OUTDIR)\oodialog.map
-    del $(OOD_OUTDIR)\oodialog.pdb
-    del $(OOD_OUTDIR)\oodialog.dll
+    -del $(SOURCEF)
+    -del $(OOD_OUTDIR)\oodialog.lib
+    -del $(OOD_OUTDIR)\oodialog.exp
+    -del $(OOD_OUTDIR)\oodialog.map
+    -del $(OOD_OUTDIR)\oodialog.pdb
+    -del $(OOD_OUTDIR)\oodialog.dll
 

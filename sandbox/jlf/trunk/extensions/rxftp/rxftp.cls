@@ -95,7 +95,7 @@
 ::method tracelog   attribute private -- trace log file stream
 ::method user       attribute private -- remote FTP host user name
 ::method version    attribute private -- version of this class
-::method thrdstatus attribute private -- finish status of a thread
+::method thrdstatus attribute private unguarded -- finish status of a thread
 
 
 /*----------------------------------------------------------------------------*/
@@ -894,7 +894,7 @@ self~srvr_os = ''                -- remote host operating system
 self~traceflg = 0                -- .true = display ftp commands
 self~tracelog = .nil             -- trace log stream
 self~user = ''                   -- user account on the ftp server
-self~version = '4.1.0'           -- current version of this class
+self~version = '4.2.0'           -- current version of this class
 self~bufsize = 4096              -- default buffer size for send/receive
 self~thrdstatus = ''
 return

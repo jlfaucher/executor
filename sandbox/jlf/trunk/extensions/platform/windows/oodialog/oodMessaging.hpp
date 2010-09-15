@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/;
 /*                                                                            */;
-/* Copyright (c) 2009-2009 Rexx Language Association. All rights reserved.    */;
+/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */;
 /*                                                                            */;
 /* This program and the accompanying materials are made available under       */;
 /* the terms of the Common Public License v1.0 which accompanies this         */;
@@ -52,7 +52,9 @@ typedef enum
     keyMapErr     = 9   // Some or all of the keys did not get mapped.
 } keyPressErr_t;
 
-extern LRESULT CALLBACK RexxDlgProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam );
+extern BOOL    APIENTRY RexxSetProcessMessages(BOOL onoff);
+extern LRESULT CALLBACK RexxDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern BOOL             endDialogPremature(pCPlainBaseDialog, HWND, DlgProcErrType);
 
 extern LRESULT       paletteMessage(pCPlainBaseDialog, HWND, UINT, WPARAM, LPARAM);
 extern MsgReplyType  searchMessageTables(ULONG message, WPARAM param, LPARAM lparam, pCPlainBaseDialog);

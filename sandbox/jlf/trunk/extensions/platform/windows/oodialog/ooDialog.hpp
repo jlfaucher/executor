@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -41,12 +41,14 @@
 
 #define NTDDI_VERSION   NTDDI_LONGHORN
 #define _WIN32_WINNT    0x0600
+#define _WIN32_IE       0x0600
 #define WINVER          0x0501
 
 #define STRICT
 #define OEMRESOURCE
 
 #include <windows.h>
+#include <CommCtrl.h>
 #include "oorexxapi.h"
 #include "rxwchar.hpp"
 
@@ -64,7 +66,6 @@
 #define MAX_DEFAULT_FONTNAME        256
 #define MAX_LIBRARYNAME             256
 
-#define MAX_MT_ENTRIES     500
 #define MAX_NOTIFY_MSGS    200
 #define MAX_COMMAND_MSGS   200
 #define MAX_MISC_MSGS      100
@@ -79,13 +80,13 @@
 #define WM_USER_SUBCLASS_REMOVE        WM_USER + 0x0607
 #define WM_USER_HOOK                   WM_USER + 0x0608
 #define WM_USER_CONTEXT_MENU           WM_USER + 0x0609
-#define WM_USER_CREATECONTROL_DLG        WM_USER + 0x060A
-#define WM_USER_CREATECONTROL_RESDLG     WM_USER + 0x060B
+#define WM_USER_CREATECONTROL_DLG      WM_USER + 0x060A
+#define WM_USER_CREATECONTROL_RESDLG   WM_USER + 0x060B
+
+#define WM_USER_CREATEPROPSHEET_DLG   WM_USER + 0x060C
 
 #define OODDLL                      "oodialog.dll"
 #define DLLVER                      2130
-
-#define MSG_TERMINATE               "1DLGDELETED1"
 
 /* Flags for the get icon functions.  Indicates the source of the icon. */
 #define ICON_FILE                 0x00000001
@@ -105,9 +106,9 @@
 #define COMCTL32_5_8         327688
 #define COMCTL32_5_81        327761
 #define COMCTL32_6_0         393216
+#define COMCTL32_6_10        393226    // Probably should use this as the latest version
+#define COMCTL32_6_16        393232    // Latest version I've seen on an updated Windows 7
 
-/* The version of comctl32.dll in use when oodialog.dll is loaded. */
-extern DWORD ComCtl32Version;
 
 /**
  *  A 'tag' is used in processing the mapping of Windows messages to user
@@ -179,13 +180,15 @@ typedef enum
 // Used in endDialogPremature() to determine what message to display.
 typedef enum
 {
-    NoPCPBDpased    = 0,    // pCPlainBaseDialog not passed in the WM_INITDIALOG message
-    NoThreadAttach  = 1,    // Failed to attach the thread context.
-    NoThreadContext     = 2,    // The thread context pointer is null.
-    RexxConditionRaised = 3,    // The invocation of a Rexx event handler method raised a condition.
+    NoPCPBDpased        = 0,    // pCPlainBaseDialog not passed in the WM_INITDIALOG message
+    NoPCPSPpased        = 1,    // pCPropertySheet not passed in the WM_INITDIALOG message
+    NoThreadAttach      = 2,    // Failed to attach the thread context.
+    NoThreadContext     = 3,    // The thread context pointer is null.
+    RexxConditionRaised = 4,    // The invocation of a Rexx event handler method raised a condition.
 } DlgProcErrType;
 
 #define NO_PCPBD_PASSED_MSG    "RexxDlgProc() ERROR in WM_INITDIALOG.  PlainBaseDialog\nCSELF is null.\n\n\tpcpdb=%p\n\thDlg=%p\n"
+#define NO_PCPSP_PASSED_MSG    "RexxDlgProc() ERROR in WM_INITDIALOG.  PropertySheetPage\nCSELF is null.\n\n\tpcpsp=%p\n\thDlg=%p\n"
 #define NO_THREAD_ATTACH_MSG   "RexxDlgProc() ERROR in WM_INITDIALOG.  Failed to attach\nthread context.\n\n\tpcpdb=%p\n\thDlg=%p\n"
 #define NO_THREAD_CONTEXT_MSG  "RexxDlgProc() ERROR.  Thread context is null.\n\n\\tdlgProcContext=%p\n\thDlg=%pn"
 
@@ -216,6 +219,16 @@ typedef enum
 
     winUnknown             = 55
 } oodControl_t;
+
+
+// Enum for the type of an ooDialog class.  Types to be added as needed.
+typedef enum
+{
+    oodPlainBaseDialog, oodCategoryDialog, oodUserDialog,    oodRcDialog,      oodResDialog,
+    oodControlDialog,   oodUserPSPDialog,  oodRcPSPDialog,   oodResPSPDialog,  oodDialogControl,
+    oodStaticControl,   oodButtonControl,  oodEditControl,   oodListBox,       oodProgressBar,
+    oodUnknown
+} oodClass_t;
 
 
 inline LONG_PTR setWindowPtr(HWND hwnd, int index, LONG_PTR newPtr)
@@ -343,12 +356,15 @@ typedef struct {
     char              *method;          /* Name of method to invoke. */
 } KEYEVENTDATA;
 
-#define KEY_RELEASE          0x80000000
-#define KEY_WASDOWN           0x40000000
-#define EXTENDED_KEY          0x01000000
-#define KEY_TOGGLED           0x00000001
+// Masks for lParam of key messages.  WM_KEYDOWN, WM_CHAR, etc..
+#define KEY_RELEASED          0x80000000  // Transition state: 1 key is being released / 0 key is being pressed.
+#define KEY_WASDOWN           0x40000000  // Previous state: 1 key was down / 0 key was up.
+#define KEY_ALTHELD           0x20000000  // Context code: 1 ALT key was held when key pressed / 0 otherwise.
+#define KEY_ISEXTENDED        0x01000000  // Key is an extended key: 1 if an extended key / 0 otherwise
 
-#define ISDOWN                    0x8000
+// Masks for GetAsyncKeyState() and GetKeyState() returns.
+#define TOGGLED               0x00000001  // GetKeyState()
+#define ISDOWN                    0x8000  // GetAsyncKeyState()
 
 /* Microsoft does not define these, just has this note:
  *
@@ -394,6 +410,46 @@ typedef struct {
 #define VK_Y   0x59
 #define VK_Z   0x5A
 
+/* The extended dialog template struct.  Microsoft does not supply this in any
+ * header, just provided the definition in the MSDN docs.
+ */
+typedef struct {
+    WORD dlgVer;
+    WORD signature;
+    DWORD helpID;
+    DWORD exStyle;
+    DWORD style;
+    WORD cDlgItems;
+    short x;
+    short y;
+    short cx;
+    short cy;
+    WCHAR menu;         // Actually variable length array of 16-bit values
+    WCHAR windowClass;  // Actually variable length array of 16-bit values
+    WCHAR title;        // Actually variable length array of 16-bit values
+    WORD pointsize;
+    WORD weight;
+    BYTE italic;
+    BYTE charset;
+    WCHAR typeface;     // Actually variable length array of 16-bit values
+} DLGTEMPLATEEX;
+
+typedef struct {
+    DWORD helpID;
+    DWORD exStyle;
+    DWORD style;
+    short x;
+    short y;
+    short cx;
+    short cy;
+    DWORD id;
+    WORD  windowClass;
+    WORD  title;
+    WORD extraCount;
+} DLGITEMTEMPLATEEX;
+
+
+
 /* Struct for the WindowBase object CSelf. */
 typedef struct _wbCSelf {
     HWND              hwnd;
@@ -424,7 +480,7 @@ typedef CEventNotification *pCEventNotification;
 
 // Struct for the PlainBaseDialog class CSelf.
 typedef struct _pbdcCSelf {
-    rxcharT      fontName[MAX_DEFAULT_FONTNAME];
+    char         fontName[MAX_DEFAULT_FONTNAME]; // JLF : keep char, otherwise problems in pbdlg_getFontName_cls (returns a deleted string)
     uint32_t     fontSize;
 
 } CPlainBaseDialogClass;
@@ -445,7 +501,7 @@ typedef CWindowExtensions *pCWindowExtensions;
  * like brushes, bitmaps, etc., still need to be released.
  */
 typedef struct _pbdCSelf {
-    rxcharT              fontName[MAX_DEFAULT_FONTNAME];
+    char                 fontName[MAX_DEFAULT_FONTNAME];
     char                 library[MAX_LIBRARYNAME];
     void                *previous;      // Previous pCPlainBaseDialog used for stored dialogs
     size_t               tableIndex;    // Index of this dialog in the stored dialog table
@@ -465,6 +521,7 @@ typedef struct _pbdCSelf {
     HWND                 hDlg;
     RexxObjectPtr        rexxOwner;
     HWND                 hOwnerDlg;
+    void                *dlgPrivate;    // Subclasses can store data unique to the subclass
     DATATABLEENTRY      *DataTab;
     ICONTABLEENTRY      *IconTab;
     COLORTABLEENTRY     *ColorTab;
@@ -483,6 +540,8 @@ typedef struct _pbdCSelf {
     bool                 onTheTop;
     bool                 isCategoryDlg;  // Need to use IsNestedDialogMessage()
     bool                 isControlDlg;   // Dialog was created as DS_CONTROL | WS_CHILD
+    bool                 isPageDlg;      // Dialog is a property sheet page dialog
+    bool                 isPropSheetDlg; // Dialog is a property sheet dialog
     bool                 sharedIcon;
     bool                 didChangeIcon;
     bool                 isActive;
@@ -514,13 +573,80 @@ typedef CDialogControl *pCDialogControl;
 typedef struct _ddCSelf {
     pCPlainBaseDialog  pcpbd;
     RexxObjectPtr      rexxSelf;
-    DLGTEMPLATE       *base;          // Base pointer to dialog template (basePtr)
+    DLGTEMPLATEEX       *base;        // Base pointer to dialog template (basePtr)
     void              *active;        // Pointer to current location in dialog template (activePtr)
     void              *endOfTemplate; // Pointer to end of allocated memory for the template
+    uint32_t           expected;      // Expected dialog item count
     uint32_t           count;         // Dialog item count (dialogItemCount)
 } CDynamicDialog;
 typedef CDynamicDialog *pCDynamicDialog;
 
+/* Struct for the PropertySheetPage object CSelf. */
+typedef struct _pspCSelf {
+    RexxInstance           *interpreter;
+    RexxThreadContext      *dlgProcContext;
+    pCPlainBaseDialog       pcpbd;
+    pCDynamicDialog         pcdd;             // DynmicDialog CSelf, may be null.
+    RexxObjectPtr           rexxSelf;
+    HPROPSHEETPAGE          hPropSheetPage;   // If added to existing property sheet.
+    PROPSHEETPAGE          *psp;              // Allocated prop sheet page struct, needs to be freed.
+    HWND                    hPage;            // Dialog handle of page.
+    void                   *cppPropSheet;     // PropertySheetDialog CSelf.
+    RexxObjectPtr           rexxPropSheet;    // Rexx PropertySheetDialog object.
+    HINSTANCE               hInstance;        // resources attribute, C++ part of .ResourceImage
+    RexxStringObject        extraOpts;        // Storage for extra options, used by RcPSPDialog, available for other uses.
+    HICON                   hIcon;            // tabIcon attribute, C++ part if using .Image
+    uint32_t                iconID;           // tabIcon attribute, C++ part if using resource ID
+    INT_PTR                 pageID;           // Identifies the page to the Windows property sheet, resource ID or pointer
+    rxcharT                *pageTitle;
+    rxcharT                *headerTitle;
+    rxcharT                *headerSubTitle;
+    oodClass_t              pageType;
+    uint32_t                cx;               // Width and height of the dialog.
+    uint32_t                cy;
+    uint32_t                pageFlags;
+    uint32_t                resID;            // Resource ID of dlg template for a ResPSPDialog (converted from symbolic if needed.)
+    uint32_t                pageNumber;       // Page number, zero-based index
+    bool                    activated;        // Was the page visited by the user
+    bool                    abort;            // Used to force a modal property sheet to close
+    bool                    wantAccelerators; // User wants PSN_TRANSLATEACCELERATOR notifications
+    bool                    wantGetObject;    // User wants PSN_GETOBJECT notifications
+    bool                    isWizardPage;
+    bool                    inRemovePage;     // Signals running in PropertySheetDialg::removePage()
+} CPropertySheetPage;
+typedef CPropertySheetPage *pCPropertySheetPage;
+
+/* Struct for the PropertySheetDialog object CSelf. */
+typedef struct _psdCSelf {
+    RexxThreadContext   *dlgProcContext;
+    RexxObjectPtr        rexxSelf;
+    HWND                 hDlg;
+    RexxObjectPtr       *rexxPages;
+    pCPropertySheetPage *cppPages;
+    pCPlainBaseDialog    pcpbd;
+    HINSTANCE            hInstance;        // resources attribute, C++ part of .ResourceImage
+    HICON                hIcon;            // icon attribute, C++ part if using .Image
+    uint32_t             iconID;           // icon attribute, C++ part if using resource ID
+    HBITMAP              hWatermark;       // waterMark attribute, C++ part if using .Image
+    uint32_t             watermarkID;      // watermark attribute, C++ part if useing resource ID
+    HBITMAP              hHeaderBitmap;    // headerBitmap attribute, C++ part if using .Image
+    uint32_t             headerBitmapID;   // headerBitmap attribute, C++ part if useing resource ID
+    HPALETTE             hplWatermark;     // Palette to use when drawing watermark and / or header bitmap
+    HIMAGELIST           imageList;        // imageList attribute, C++ part of .ImageList
+    uint32_t             startPage;        // Index of start page, 1-based.  If 0 not set;
+    rxcharT             *caption;
+    uint32_t             pageCount;
+    uint32_t             propSheetFlags;
+    int                  getResultValue;   // Storage for the return from PSM_GETRESULT
+    bool                 modeless;
+    bool                 isNotWizard;
+    bool                 isWiz97;
+    bool                 isWizLite;
+    bool                 isAeroWiz;
+} CPropertySheetDialog;
+typedef CPropertySheetDialog *pCPropertySheetDialog;
+
+#define COMCTL32_VERSION_STRING_LEN  31
 
 // All global variables are defined in oodPackageEntry.cpp
 extern HINSTANCE           MyInstance;
@@ -528,7 +654,9 @@ extern pCPlainBaseDialog   DialogTable[];
 extern pCPlainBaseDialog   TopDlg;
 extern size_t              CountDialogs;
 extern CRITICAL_SECTION    crit_sec;
+extern CRITICAL_SECTION    ps_crit_sec;
 extern DWORD               ComCtl32Version;
+extern char                ComCtl32VersionStr[];
 
 extern RexxObjectPtr       TheTrueObj;
 extern RexxObjectPtr       TheFalseObj;
@@ -543,12 +671,19 @@ extern RexxPointerObject   TheNullPtrObj;
 extern RexxClassObject ThePlainBaseDialogClass;
 extern RexxClassObject TheDynamicDialogClass;
 extern RexxClassObject TheDialogControlClass;
+extern RexxClassObject ThePropertySheetPageClass;
 extern RexxClassObject TheSizeClass;
 
 extern HBRUSH searchForBrush(pCPlainBaseDialog pcpbd, size_t *index, uint32_t id);
 
 extern bool _isVersion(DWORD, DWORD, unsigned int, unsigned int, unsigned int);
 extern bool _is32on64Bit(void);
+
+// Enum for a Windows OS, don't need many right now.
+typedef enum
+{
+    XP_OS, Vista_OS, Windows7_OS
+} os_name_t;
 
 inline bool _is64Bit(void)
 {

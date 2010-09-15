@@ -147,8 +147,6 @@ class RexxMutableBufferClass : public RexxClass {
    static RexxClass *classInstance;
 
  protected:
-
-
    int8_t             encoding;        // string encoding (how the codepoints are serialized in stringData)
    int8_t             charset;         // string charset (what is the semantic of the codepoints)
    size_t             bufferLength;    /* buffer length in bytes          */

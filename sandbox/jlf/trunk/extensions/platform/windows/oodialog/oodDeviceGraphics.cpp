@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -46,11 +46,10 @@
  * classes present in this module, like the DialogExtensions class, generally
  * are only partially concerned with GDI.
  */
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
 #include <stdio.h>
 #include <dlgs.h>
-#include <commctrl.h>
 #include <shlwapi.h>
 
 /** Note:
@@ -355,33 +354,90 @@ uint32_t parseShowOptions(CSTRING options)
 
 
 /**
- * Parses an options string used to set the style of a font, looking for the
- * option that sets the weight of a font.
+ * Parses a common font style keyword argument.  The common font styles are set
+ * to their defaults with the keywords over-riding the defaults, if found.
  *
- * @param opts  The keyword string.  This is a case-insensitive check. More than
- *              one keyword, or no keyword, is acceptable.
+ * Note that the fontStyle string can be null.
  *
- * @return The font weight flag corresponding to the keyword found, or FW_NORMAL
- *         if there is no font weight flag.
+ * @param fontStyle  The string to parse.
+ * @param weight     [IN/OUT]  Font weight, returned.
+ * @param italic     [IN/OUT]  Use italics, returned.
+ * @param underline  [IN/OUT]  Use underline, returned.
+ * @param strikeout  [IN/OUT]  Use strike out, returned.
+ *
+ * @return True if the fontStyle string contains at least one of the keywords.
+ *         Return false if the string does not contain any of the keywords.
  */
-int getWeight(CSTRINGT opts)
+bool parseFontStyleArg(CSTRINGT fontStyle, int *weight, BOOL *italic, BOOL *underline, BOOL *strikeout)
 {
-    int weight = FW_NORMAL;
+    bool found = false;
 
-    if ( opts != NULL )
+    *weight = FW_NORMAL;
+    *italic = FALSE;
+    *underline = FALSE;
+    *strikeout = FALSE;
+
+    if ( fontStyle != NULL )
     {
-        if (      StrStrI(opts, _T("THIN"))       != NULL ) weight = FW_THIN;
-        else if ( StrStrI(opts, _T("EXTRALIGHT")) != NULL ) weight = FW_EXTRALIGHT;
-        else if ( StrStrI(opts, _T("LIGHT"))      != NULL ) weight = FW_LIGHT;
-        else if ( StrStrI(opts, _T("MEDIUM"))     != NULL ) weight = FW_MEDIUM;
-        else if ( StrStrI(opts, _T("SEMIBOLD"))   != NULL ) weight = FW_SEMIBOLD;
-        else if ( StrStrI(opts, _T("EXTRABOLD"))  != NULL ) weight = FW_EXTRABOLD;
-        else if ( StrStrI(opts, _T("BOLD"))       != NULL ) weight = FW_BOLD;
-        else if ( StrStrI(opts, _T("HEAVY"))      != NULL ) weight = FW_HEAVY;
-    }
-    return weight;
-}
+        if ( StrStrI(fontStyle, _T("ITALIC")   ) != NULL )
+        {
+            *italic = TRUE;
+            found = true;
+        }
+        if ( StrStrI(fontStyle, _T("UNDERLINE")) != NULL )
+        {
+            *underline = TRUE;
+            found = true;
+        }
+        if ( StrStrI(fontStyle, _T("STRIKEOUT")) != NULL )
+        {
+            *strikeout = TRUE;
+            found = true;
+        }
 
+        if ( StrStrI(fontStyle, _T("THIN")) != NULL )
+        {
+            *weight = FW_THIN;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("EXTRALIGHT")) != NULL )
+        {
+            *weight = FW_EXTRALIGHT;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("LIGHT")) != NULL )
+        {
+            *weight = FW_LIGHT;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("MEDIUM")) != NULL )
+        {
+            *weight = FW_MEDIUM;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("SEMIBOLD")) != NULL )
+        {
+            *weight = FW_SEMIBOLD;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("EXTRABOLD")) != NULL )
+        {
+            *weight = FW_EXTRABOLD;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("BOLD")) != NULL )
+        {
+            *weight = FW_BOLD;
+            found = true;
+        }
+        else if ( StrStrI(fontStyle, _T("HEAVY")) != NULL )
+        {
+            *weight = FW_HEAVY;
+            found = true;
+        }
+    }
+    return found;
+}
 
 RexxObjectPtr oodGetClientRect(RexxMethodContext *c, HWND hwnd, PRECT rect)
 {
@@ -486,12 +542,16 @@ logical_t oodColorTable(RexxMethodContext *c, pCPlainBaseDialog pcpbd, uint32_t 
 
 HFONT oodGenericFont(const rxcharT *fontName, uint32_t fontSize, const rxcharT *opts)
 {
-    int weight = getWeight(opts);
+    int weight;
+    BOOL italic;
+    BOOL underline;
+    BOOL strikeout;
+    parseFontStyleArg(opts, &weight, &italic, &underline, &strikeout);
+
     int height = getHeightFromFontSize(fontSize);
 
-    return CreateFont(height, 0, 0, 0, weight, StrStrI(opts, _T("ITALIC")) != NULL, StrStrI(opts, _T("UNDERLINE")) != NULL,
-                      StrStrI(opts, _T("STRIKEOUT")) != NULL, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-                      FF_DONTCARE, fontName);
+    return CreateFont(height, 0, 0, 0, weight, italic, underline, strikeout, DEFAULT_CHARSET,
+                      OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, fontName);
 }
 
 
@@ -3134,8 +3194,9 @@ void calcDlgBaseUnits(HWND hDlg, int *baseUnitX, int *baseUnitY)
  *
  *           calcDlgBaseUnits(HWND, baseUnitX, baseUnitY)
  */
-bool calcDlgBaseUnits(RexxMethodContext *c, CSTRINGT fontName, uint32_t fontSize, int *baseUnitX, int *baseUnitY)
+bool calcDlgBaseUnits(RexxMethodContext *c, CSTRING fontName, uint32_t fontSize, int *baseUnitX, int *baseUnitY)
 {
+    RXCA2T(fontName);
     HDC hdc = NULL;
     HFONT font = NULL;
     bool result = false;
@@ -3147,7 +3208,7 @@ bool calcDlgBaseUnits(RexxMethodContext *c, CSTRINGT fontName, uint32_t fontSize
         goto done_out;
     }
 
-    font = createFontFromName(hdc, fontName, fontSize);
+    font = createFontFromName(hdc, fontNameT, fontSize);
     if ( font == NULL )
     {
         systemServiceExceptionCode(c->threadContext, API_FAILED_MSG, "CreateFontIndirect");
@@ -3410,7 +3471,9 @@ bool getTextSize(RexxMethodContext *context, CSTRINGT text, CSTRINGT fontName, u
 
     if ( hwndDlg == NULL )
     {
-        dlgFont = createFontFromName(hdc, pcpbd->fontName, pcpbd->fontSize);
+        char *pcpbd_fontName = pcpbd->fontName;
+        RXCA2T(pcpbd_fontName);
+        dlgFont = createFontFromName(hdc, pcpbd_fontNameT, pcpbd->fontSize);
         if ( dlgFont != NULL )
         {
             createdFont = true;

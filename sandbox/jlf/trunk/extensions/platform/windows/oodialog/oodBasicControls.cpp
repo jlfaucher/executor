@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -43,9 +43,8 @@
  * Windows Controls.  These are: static, button, edit, list box, and combo box
  * controls.
  */
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
-#include <commctrl.h>
 #include <shlwapi.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
@@ -1739,12 +1738,12 @@ RexxMethod2(logical_t, e_setTabStops, RexxArrayObject, tabStops, CSELF, pCSelf)
         item = c->ArrayAt(tabStops, i);
         if ( item == NULLOBJECT )
         {
-            wrongObjInArrayException(c->threadContext, 1, i, "a positive number");
+            sparseArrayException(context->threadContext, 1, i);
             goto done_out;
         }
         if ( ! c->UnsignedInt32(item, &tabStop) )
         {
-            wrongObjInArrayException(c->threadContext, 1, i, "a positive number");
+            wrongObjInArrayException(c->threadContext, 1, i, "a positive number", item);
             goto done_out;
         }
         buf[i - 1] = tabStop;

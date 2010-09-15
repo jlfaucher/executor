@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -44,15 +44,12 @@
  * "User defined dialogs."
  */
 
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
 #include <stdio.h>
 #include <dlgs.h>
-#include <commctrl.h>
 #include <shlwapi.h>
-#ifdef __CTL3D
-#include <ctl3d.h>
-#endif
+#include <prsht.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
 #include "oodData.hpp"
@@ -60,6 +57,7 @@
 #include "oodControl.hpp"
 #include "oodMessaging.hpp"
 #include "oodResourceIDs.hpp"
+#include "oodUser.hpp"
 
 BOOL IsNestedDialogMessage(pCPlainBaseDialog pcpbd, LPMSG lpmsg);
 
@@ -67,7 +65,7 @@ BOOL IsNestedDialogMessage(pCPlainBaseDialog pcpbd, LPMSG lpmsg);
 class LoopThreadArgs
 {
 public:
-    DLGTEMPLATE       *dlgTemplate;
+    DLGTEMPLATEEX     *dlgTemplate;
     pCPlainBaseDialog  pcpbd;
     bool              *release;
 };
@@ -84,7 +82,7 @@ DWORD WINAPI WindowUsrLoopThread(LoopThreadArgs * args)
     bool *release = args->release;
     pCPlainBaseDialog pcpbd = args->pcpbd;
 
-    pcpbd->hDlg = CreateDialogIndirectParam(MyInstance, args->dlgTemplate, NULL, (DLGPROC)RexxDlgProc, (LPARAM)pcpbd);
+    pcpbd->hDlg = CreateDialogIndirectParam(MyInstance, (LPCDLGTEMPLATE)args->dlgTemplate, NULL, (DLGPROC)RexxDlgProc, (LPARAM)pcpbd);
 
     if ( pcpbd->hDlg )
     {
@@ -152,7 +150,6 @@ DWORD WINAPI WindowUsrLoopThread(LoopThreadArgs * args)
 }
 
 
-#define DEFAULT_EXPECTED_DIALOG_ITEMS   200
 #define FONT_NAME_ARG_POS                 8
 #define FONT_SIZE_ARG_POS                 9
 #define EXPECTED_ITEM_COUNT_ARG_POS      10
@@ -170,9 +167,9 @@ static inline logical_t illegalBuffer(void)
  * args for DynamicDialog::create().
  *
  * The font name and font size args to create() are optional.  If the user
- * omitted them, we use the default font for the dialog.  If the user specified
- * the font, the default font for the dialog is replaced by what the user has
- * specified.
+ * omitted them, or used the empty string and 0, we use the default font for the
+ * dialog. If the user specified the font, the default font for the dialog is
+ * replaced by what the user has specified.
  *
  * @param c           Method context we are operating in.
  * @param args        Argument array for the method.
@@ -192,13 +189,17 @@ static bool adjustDialogFont(RexxMethodContext *c, RexxArrayObject args, pCPlain
         }
 
         CSTRING fontName = c->ObjectToStringValue(name);
-        if ( strlen(fontName) > (MAX_DEFAULT_FONTNAME - 1) )
+        size_t len = strlen(fontName);
+
+        if ( len > (MAX_DEFAULT_FONTNAME - 1) )
         {
-            stringTooLongException(c->threadContext, 1, MAX_DEFAULT_FONTNAME, strlen(fontName));
+            stringTooLongException(c->threadContext, FONT_NAME_ARG_POS, MAX_DEFAULT_FONTNAME, strlen(fontName));
             return false;
         }
-        RXCA2T(fontName);
-        _tcscpy(pcpbd->fontName, fontNameT);
+        if (len > 0 )
+        {
+            strcpy(pcpbd->fontName, fontName);
+        }
     }
 
     RexxObjectPtr size = c->ArrayAt(args, FONT_SIZE_ARG_POS);
@@ -210,7 +211,10 @@ static bool adjustDialogFont(RexxMethodContext *c, RexxArrayObject args, pCPlain
             c->RaiseException2(Rexx_Error_Invalid_argument_positive, c->WholeNumber(FONT_SIZE_ARG_POS), size);
             return false;
         }
-        pcpbd->fontSize = fontSize;
+        if ( fontSize != 0 )
+        {
+            pcpbd->fontSize = fontSize;
+        }
     }
     return true;
 }
@@ -303,14 +307,14 @@ void cleanUpDialogTemplate(void *pDlgTemplate, pCDynamicDialog pcdd)
     pcdd->count = 0;
 }
 
+
 /**
- * Starts the in-memory dialog template.  This uses the older DLGTEMPLTE
- * structure not the extended (DLGTEMPLATEEX) structure.
+ * Starts the in-memory extended dialog template using the DLGTEMPLATEEX
+ * structure.
  *
  * @param c
  * @param ppBase
  * @param pcdd
- * @param count
  * @param x
  * @param y
  * @param cx
@@ -326,12 +330,40 @@ void cleanUpDialogTemplate(void *pDlgTemplate, pCDynamicDialog pcdd)
  * @note  putUnicodeText() is designed to handle, and do the 'right' thing, for
  *        both a null pointer and an empty string.  That is why no check for
  *        null is needed for title, dlgClass, or fontname.
+ *
+ * @remarks  The first part of the DLGTEMPLATEEX struct is fixed in length,
+ *           followed by fields that are unicode strings and are variable
+ *           length.  We start by filling in what we can of the struct, then
+ *           when we get to the variable length stuff, we switch to using a
+ *           pointer to keep track of where we are. The memory is zeroed on
+ *           allocation, so we could just skip setting things to 0, but it's
+ *           nice to see what fields are available.
+ *
+ *           We use 0 for exStyle because  MSDN say exStyle is ignored for
+ *           dialog boxes.  We set cDlgItems to the expected count.  We know it
+ *           is not correct, but the field is updated right before the template
+ *           is actually used.
+ *
+ *           Both the menu and the windowClass fields can be variable length
+ *           strings, but since we are using 0 we treat them as fixed length.
+ *           For a menu, the field specifies the resource ID or resource name of
+ *           a menu in an executable file.  To use it the menu would have to be
+ *           bound to oodialog.dll.  For windowClass, 0 specifies to use the
+ *           default dialog class.
+ *
+ *           After the dialog title, the rest is for the dialog font.  The
+ *           dialog style must include DS_SETFONT or DS_SHELLFONT.  We don't
+ *           check for that  because at this time we always set one or the
+ *           other.  For weight, MSDN says you can use any FW_* value, but the
+ *           value is always changed to FW_NORMAL. After weight are two fields,
+ *           italic and character set.  For italic, true sets the font as
+ *           italic.  Both italic and character set are byte sized.
  */
-bool startDialogTemplate(RexxMethodContext *c, DLGTEMPLATE **ppBase, pCDynamicDialog pcdd, uint32_t count,
-                         int x, int y, int cx, int cy, const rxcharT * dlgClass, const rxcharT * title,
-                         const rxcharT * fontName, int fontSize, uint32_t style)
+bool startDialogTemplate(RexxMethodContext *c, DLGTEMPLATEEX **ppBase, pCDynamicDialog pcdd,
+                           int x, int y, int cx, int cy, const rxcharT *dlgClass, const rxcharT *title,
+                           const rxcharT *fontName, int fontSize, uint32_t style)
 {
-    size_t s = calcTemplateSize(count);
+    size_t s = calcTemplateSize(pcdd->expected);
 
     WORD *p = (PWORD)LocalAlloc(LPTR, s);
     if ( p == NULL )
@@ -347,37 +379,38 @@ bool startDialogTemplate(RexxMethodContext *c, DLGTEMPLATE **ppBase, pCDynamicDi
         return false;
     }
 
-    *ppBase = (DLGTEMPLATE *)p;
+    *ppBase = (DLGTEMPLATEEX *)p;
 
-    pcdd->base = (DLGTEMPLATE *)p;
+    pcdd->base = (DLGTEMPLATEEX *)p;
     pcdd->endOfTemplate = (BYTE *)p + s;
 
-    // Start to fill in the dlgtemplate information.  Addressing is by WORDs.
-    *p++ = LOWORD(style);           // Style (DWORD in size.)
-    *p++ = HIWORD(style);
-    *p++ = 0;                       // Extended Style (DWORD in size.)
-    *p++ = 0;
-    *p++ = count;                   // Number of dialog controls
-    *p++ = x;                       // x
-    *p++ = y;                       // y
-    *p++ = cx;                      // cx
-    *p++ = cy;                      // cy
-    *p++ = 0;                       // Menu
 
-    // Copy the class of the dialog.  Really there should be a check that style
-    // does not contain WS_CHILD, but currently dlgClass is always null so this
-    // works.
-    p += putUnicodeText(p, dlgClass);
+    DLGTEMPLATEEX *pDlg = (DLGTEMPLATEEX *)p;
 
-    // Copy the title of the dialog.
-    p += putUnicodeText(p, title);
+    pDlg->dlgVer      = 0x1;            // Dialog version, must be 1.
+    pDlg->signature   = 0xFFFF;         // Extended dialog template signature.
+    pDlg->helpID      = 0;              // Help ID.  Not used yet
+    pDlg->exStyle     = 0;              // Extended style.
+    pDlg->style       = style;
+    pDlg->cDlgItems   = pcdd->expected;
+    pDlg->x           = x;
+    pDlg->y           = y;
+    pDlg->cx          = cx;
+    pDlg->cy          = cy;
+    pDlg->menu        = 0;              // 0 for no menu.
+    pDlg->windowClass = 0;              // 0 to use default dialog class.
 
-    // Add in the wPointSize and szFontName here.  Really this should only be if
-    // the DS_SETFONT bit on. But currently it is always set.
-    *p++ = fontSize;
-    p += putUnicodeText(p, fontName);
+    // Now point to the title, which is variable length.
+    p = (WORD *)&(pDlg->title);
 
-    // make sure the first item starts on a DWORD boundary
+    p += putUnicodeText(p, title);      // The title of the dialog.
+
+    *p++ = fontSize;                           // Point size.
+    *p++ = FW_NORMAL;                          // Weight.
+    *p++ = MAKEWORD(FALSE, DEFAULT_CHARSET);   // Italic / character set.
+    p += putUnicodeText(p, fontName);          // Type face name.
+
+    // Be sure first dialog item is double word aligned.
     p = lpwAlign(p);
 
     // Update the active pointer to reflect where we are in the template.
@@ -386,8 +419,8 @@ bool startDialogTemplate(RexxMethodContext *c, DLGTEMPLATE **ppBase, pCDynamicDi
 }
 
 /**
- *  Adds a dialog control item to the in-memory dialog template.  We are using
- *  the DLGITEMTEMPLATE structure here, not the extended structure.
+ *  Adds a dialog control item to the in-memory dialog template using
+ *  the DLGITEMTEMPLATEEX structure.
  *
  * @param pcdd
  * @param kind
@@ -407,7 +440,7 @@ bool startDialogTemplate(RexxMethodContext *c, DLGTEMPLATE **ppBase, pCDynamicDi
  *        by the control atom or by the class name.
  */
 bool addToDialogTemplate(RexxMethodContext *c, pCDynamicDialog pcdd, SHORT kind, const rxcharT *className, int id,
-                         int x, int y, int cx, int cy, const rxcharT * txt, uint32_t style)
+                           int x, int y, int cx, int cy, const rxcharT * txt, uint32_t style)
 {
    WORD *p = (WORD *)pcdd->active;
 
@@ -418,15 +451,20 @@ bool addToDialogTemplate(RexxMethodContext *c, pCDynamicDialog pcdd, SHORT kind,
        return false;
    }
 
-   *p++ = LOWORD(style);
-   *p++ = HIWORD(style);
-   *p++ = 0;          // LOWORD (lExtendedStyle)
-   *p++ = 0;          // HIWORD (lExtendedStyle)
-   *p++ = x;          // x
-   *p++ = y;          // y
-   *p++ = cx;         // cx
-   *p++ = cy;         // cy
-   *p++ = id;         // ID
+   // Use the DLGITEMTEMPLATEEX struct to start off.
+   DLGITEMTEMPLATEEX *pItem = (DLGITEMTEMPLATEEX *)p;
+
+   pItem->helpID  = 0;
+   pItem->exStyle = 0;
+   pItem->style   = style;
+   pItem->x       = x;
+   pItem->y       = y;
+   pItem->cx      = cx;
+   pItem->cy      = cy;
+   pItem->id      = (uint32_t)id;
+
+   // Beginning at windowClass the fields are variable length.
+   p = &(pItem->windowClass);
 
    if ( className == NULL )
    {
@@ -440,7 +478,7 @@ bool addToDialogTemplate(RexxMethodContext *c, pCDynamicDialog pcdd, SHORT kind,
 
    p += putUnicodeText(p, txt);
 
-   *p++ = 0;  // advance pointer over nExtraStuff WORD
+   *p++ = 0;  // extraCount, set to 0.
 
    // make sure the next item starts on a DWORD boundary
    p = lpwAlign(p);
@@ -476,7 +514,7 @@ RexxMethod7(RexxObjectPtr, userdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPTION
     }
     RexxObjectPtr result = context->ForwardMessage(NULL, NULL, super, newArgs);
 
-    if ( isInt(0, result, context) )
+    if ( isInt(0, result, context->threadContext) )
     {
         pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)context->GetCSelf();
 
@@ -833,7 +871,9 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
         SIZE textSize = {0};
         rxcharT *tempText = ( *text == _T('\0') ? _T("Tg") : text );
 
-        if ( ! getTextSize(c, text, pcpbd->fontName, pcpbd->fontSize, NULL, pcpbd->rexxSelf, &textSize) )
+        char *pcpbd_fontName = pcpbd->fontName;
+        RXCA2T(pcpbd_fontName);
+        if ( ! getTextSize(c, text, pcpbd_fontNameT, pcpbd->fontSize, NULL, pcpbd->rexxSelf, &textSize) )
         {
             // An exception is raised.
             return -2;
@@ -1023,7 +1063,7 @@ RexxMethod2(RexxObjectPtr, dyndlg_setBasePtr, CSTRING, ptrStr, CSELF, pCSelf)
     pCDynamicDialog pcdd = validateDDCSelf(context, pCSelf);
     if ( pcdd != NULL )
     {
-        pcdd->base = (DLGTEMPLATE *)string2pointer(ptrStr);
+        pcdd->base = (DLGTEMPLATEEX *)string2pointer(ptrStr);
     }
     return NULLOBJECT;
 }
@@ -1168,8 +1208,8 @@ RexxMethod9(logical_t, dyndlg_create, uint32_t, x, int32_t, y, int32_t, cx, uint
         goto err_out;
     }
 
-    uint32_t expected = getExpectedCount(context, args);
-    if ( expected == 0 )
+    pcdd->expected = getExpectedCount(context, args);
+    if ( pcdd->expected == 0 )
     {
         goto err_out;
     }
@@ -1177,12 +1217,16 @@ RexxMethod9(logical_t, dyndlg_create, uint32_t, x, int32_t, y, int32_t, cx, uint
     // We need to pass in and set the base address separately because the
     // category diaogs also use startDialogTemplate() and they need to keep
     // track of the different child dialog base addresses.
-    DLGTEMPLATE *pBase;
+    DLGTEMPLATEEX *pBase;
 
-    if ( ! startDialogTemplate(context, &pBase, pcdd, expected, x, y, cx, cy, dlgClassT, titleT,
-                               pcpbd->fontName, pcpbd->fontSize, style) )
     {
-       goto err_out;
+        char *pcpbd_fontName = pcpbd->fontName;
+        RXCA2T(pcpbd_fontName);
+        if ( ! startDialogTemplate(context, &pBase, pcdd, x, y, cx, cy, dlgClassT, titleT,
+                                   pcpbd_fontNameT, pcpbd->fontSize, style) )
+        {
+           goto err_out;
+        }
     }
 
     pcpbd->wndBase->sizeX = cx;
@@ -1232,7 +1276,7 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
 
     pCPlainBaseDialog pcpbd = pcdd->pcpbd;
 
-    DLGTEMPLATE *p = pcdd->base;
+    DLGTEMPLATEEX *p = pcdd->base;
     if ( p == NULL )
     {
         return illegalBuffer();
@@ -1242,7 +1286,7 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
     bool Release = false;
 
     // Set the number of dialog items field in the dialog template.
-    p->cdit = (WORD)pcdd->count;
+    p->cDlgItems = (WORD)pcdd->count;
 
     EnterCriticalSection(&crit_sec);
 
@@ -1268,7 +1312,7 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
 
     if ( pcpbd->hDlg )
     {
-        setDlgHandle(context, pcpbd);
+        setDlgHandle(context->threadContext, pcpbd);
 
         // Set the thread priority higher for faster drawing.
         SetThreadPriority(pcpbd->hDlgProcThread, THREAD_PRIORITY_ABOVE_NORMAL);
@@ -1296,14 +1340,9 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
         return TRUE;
     }
 
-    // The dialog creation failed, so do some final clean up.
-    //
-    // When the dialog creation fails in the WindowUsrLoop thread a delDialog()
-    // is immediately done, as it fails to enter the message processing loop.
-
-    pcpbd->onTheTop = false;
-    enablePrevious((pCPlainBaseDialog)pcpbd);
-
+    // The dialog creation failed, return falls.  When the dialog creation fails
+    // in the WindowUsrLoop thread a delDialog() is immediately done, as it
+    // fails to enter the message processing loop.
     return FALSE;
 }
 
@@ -1348,7 +1387,7 @@ RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint
 {
     RexxObjectPtr result = TheZeroObj;
 
-    DLGTEMPLATE *p = (DLGTEMPLATE *)basePtr;
+    DLGTEMPLATEEX *p = (DLGTEMPLATEEX *)basePtr;
     if ( p == NULL )
     {
         illegalBuffer();
@@ -1369,7 +1408,7 @@ RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint
     }
 
     // Set the field for the number of dialog controls in the dialog template.
-    p->cdit = (WORD)pcdd->count;
+    p->cDlgItems = (WORD)pcdd->count;
 
     HWND hChild;
     if ( pcpbd->isControlDlg )
@@ -1379,7 +1418,7 @@ RexxMethod3(RexxObjectPtr, dyndlg_startChildDialog, POINTERSTRING, basePtr, uint
         {
             pcpbd->hDlg = hChild;
             pcpbd->isActive = true;
-            setDlgHandle(context, pcpbd);
+            setDlgHandle(context->threadContext, pcpbd);
         }
     }
     else
@@ -1681,7 +1720,9 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
         SIZE textSize = {0};
         char *tempText = ( *label == '\0' ? "Tig" : label );
 
-        if ( ! getTextSize(context, labelT, pcpbd->fontName, pcpbd->fontSize, NULL, pcpbd->rexxSelf, &textSize) )
+        char *pcpbd_fontName = pcpbd->fontName;
+        RXCA2T(pcpbd_fontName);
+        if ( ! getTextSize(context, labelT, pcpbd_fontNameT, pcpbd->fontSize, NULL, pcpbd->rexxSelf, &textSize) )
         {
             // An exception is raised.
             return -2;
@@ -1843,7 +1884,9 @@ RexxMethod8(int32_t, dyndlg_createEdit, RexxObjectPtr, rxID, int, x, int, y, uin
     if ( argumentOmitted(5) )
     {
         SIZE textSize = {0};
-        if ( ! getTextSize(context, _T("Tg"), pcpbd->fontName, pcpbd->fontSize, NULL, pcpbd->rexxSelf, &textSize) )
+        char *pcpbd_fontName = pcpbd->fontName;
+        RXCA2T(pcpbd_fontName);
+        if ( ! getTextSize(context, _T("Tg"), pcpbd_fontNameT, pcpbd->fontSize, NULL, pcpbd->rexxSelf, &textSize) )
         {
             // An exception is raised.
             return -2;
@@ -2037,6 +2080,8 @@ RexxMethod8(int32_t, dyndlg_createComboBox, RexxObjectPtr, rxID, int, x, int, y,
 
     uint32_t style = WS_CHILD;
     style |= getCommonWindowStyles(opts, true, true);
+
+    // TODO combo boxes have styles not listed here, please add them.
 
     if ( StrStrIA(opts,"SIMPLE") )    style |= CBS_SIMPLE;
     else if ( StrStrIA(opts,"LIST") ) style |= CBS_DROPDOWNLIST;
@@ -2577,7 +2622,6 @@ uint32_t getCategoryNumber(RexxMethodContext *c, RexxObjectPtr oodDlg)
 RexxMethod8(logical_t, catdlg_createCategoryDialog, int32_t, x, int32_t, y, uint32_t, cx, uint32_t, cy,
             CSTRING, fontName, uint32_t, fontSize, uint32_t, expected, CSELF, pCSelf)
 {
-    RXCA2T(fontName); 
     RexxMethodContext *c = context;
 
     uint32_t style = DS_SETFONT | WS_CHILD;
@@ -2585,18 +2629,19 @@ RexxMethod8(logical_t, catdlg_createCategoryDialog, int32_t, x, int32_t, y, uint
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     pCDynamicDialog pcdd = (pCDynamicDialog)c->ObjectToCSelf(pcpbd->rexxSelf, TheDynamicDialogClass);
 
-    const rxcharT *defaultFontName = fontNameT;
     if ( strlen(fontName) == 0 )
     {
-        defaultFontName = pcpbd->fontName;
+        fontName = pcpbd->fontName;
     }
     if ( fontSize == 0 )
     {
         fontSize = pcpbd->fontSize;
     }
+    pcdd->expected = expected;
 
-    DLGTEMPLATE *pBase;
-    if ( ! startDialogTemplate(context, &pBase, pcdd, expected, x, y, cx, cy, NULL, NULL, defaultFontName, fontSize, style) )
+    DLGTEMPLATEEX *pBase;
+    RXCA2T(fontName); 
+    if ( ! startDialogTemplate(context, &pBase, pcdd, x, y, cx, cy, NULL, NULL, fontNameT, fontSize, style) )
     {
         return FALSE;
     }

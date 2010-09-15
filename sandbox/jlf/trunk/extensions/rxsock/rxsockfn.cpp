@@ -131,9 +131,16 @@ RexxRoutine1(CSTRING, SockPSock_Errno, OPTIONAL_CSTRING, type)
 /*-/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\-*/
 /*-\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/-*/
 
-/*------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * accept()
- *------------------------------------------------------------------*/
+ *
+ * @remarks  The sockAddrToStem() function calls both htons() and inet_ntoa().
+ *           On Windows, one or both, of those functions sets errno back to 0.
+ *           This prevents the Rexx programmer from ever seeing the errno if
+ *           accept fails.  Because of this, we call cleanup() immediately after
+ *           the accept call in the belief that the Rexx programmer is more
+ *           interested in the result of accept().
+* ----------------------------------------------------------------------------*/
 RexxRoutine2(int, SockAccept, int, sock, OPTIONAL_RexxObjectPtr, stemSource)
 {
     sockaddr_in  addr;
@@ -141,6 +148,9 @@ RexxRoutine2(int, SockAccept, int, sock, OPTIONAL_RexxObjectPtr, stemSource)
 
     nameLen = sizeof(addr);
     int rc = accept(sock, (struct sockaddr *)&addr, &nameLen);
+
+    // set the errno variables
+    cleanup(context);
 
     /*---------------------------------------------------------------
      * set addr, if asked for
@@ -156,8 +166,6 @@ RexxRoutine2(int, SockAccept, int, sock, OPTIONAL_RexxObjectPtr, stemSource)
         sockAddrToStem(context, &addr, stem);
     }
 
-    // set the errno variables
-    cleanup(context);
     return rc;
 }
 
@@ -394,17 +402,18 @@ RexxRoutine0(RexxStringObject, SockGetHostId)
  *------------------------------------------------------------------*/
 RexxRoutine0(RexxStringObject, SockGetHostName)
 {
-    char     pszBuff[64];                    /* buffer for name */
+    char pszBuff[256];             /* host names are limited to 255 bytes */
+    *pszBuff = '\0';
+
     /*
      *   Assuming the hosts file in
      *   in %systemroot%/system/drivers/etc/hosts contains my computer name.
-     */                                      //get our name
-    if (gethostname(pszBuff, sizeof(pszBuff)))
-    {
-        // set the errno information
-        cleanup(context);
-        return context->String("");
-    }
+     */
+    int rc = gethostname(pszBuff, sizeof(pszBuff));
+
+    // set the errno information
+    cleanup(context);
+
     return context->String(pszBuff);
 }
 

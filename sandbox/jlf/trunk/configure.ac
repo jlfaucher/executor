@@ -34,7 +34,7 @@ dnl SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
 dnl Process this file with autoconf to produce a configure script
-AC_INIT(oorexx, 4.1.0)
+AC_INIT(oorexx, 4.2.0)
 AC_PREFIX_DEFAULT(/opt/ooRexx)
 
 dnl This is to fix a problem with distribution prior to Fedora 7. Fedora 7
@@ -45,7 +45,7 @@ dnl older distributions are happy.
 mandir="\$(prefix)/share/man"
 
 PACKAGE=ooRexx
-VERSION=4.1.0
+VERSION=4.2.0
 
 AC_CANONICAL_SYSTEM
 
@@ -242,6 +242,7 @@ dnl         AC_MSG_ERROR("Compiler $CXX is not supported on this platform")
    *apple-darwin*)
       ORX_SYS_STR="MACOSX"
       ORX_SHARED_LIBRARY_EXT=".dylib"
+      ORX_LDFLAGS_PACKAGE=""
       ;;
    *hp-hpux*)
       ORX_SHARED_LIBRARY_EXT=".sl"

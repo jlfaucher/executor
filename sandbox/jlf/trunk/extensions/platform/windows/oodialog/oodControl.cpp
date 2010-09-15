@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -42,9 +42,8 @@
  * Contains the base classes used for an object that represents a Windows
  * Control.
  */
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
-#include <commctrl.h>
 #include <shlwapi.h>
 #include <OleAcc.h>
 #include "APICommon.hpp"
@@ -388,6 +387,52 @@ out:
 
 
 /**
+ * Creates a Rexx dialog control from within a dialog method, using the window
+ * handle of the control.
+ *
+ * In the Windows API it is easy to get the window handle of a control within a
+ * dialog.  Normally we create Rexx dialog control objects from within Rexx
+ * code, but it is convenient to be able to create the Rexx dialog control from
+ * within native code.
+ *
+ * For instance, the Windows PropertySheet API gives you access to the window
+ * handle of the tab control within the property sheet. From that handle we want
+ * to be able to create a Rexx dialog control object to pass back into the Rexx
+ * code.  Actually, this is the only case so far, but the code is made generic
+ * in the assumption that other uses will come up.
+ *
+ * @param c      The method context we are operating in.
+ * @param pcpbd  The CSelf struct of the dialog the control resides in.
+ * @param hCtrl  The window handle of the companion control.  This can be null,
+ *               in which case .nil is returned.
+ * @param type   The type of the dialog control.
+ *
+ * @return A Rexx dialog control object that represents the dialo control, or
+ *         .nil if the object is not instantiated.
+ *
+ * @remarks  The second from the last argument to createRexxControl() is true if
+ *           the parent dialog is a CategoryDialog, otherwise false.  Since the
+ *           CategoryDialog is now deprecated, we just pass false.
+ */
+RexxObjectPtr createControlFromHwnd(RexxMethodContext *c, pCPlainBaseDialog pcpbd, HWND hCtrl, oodControl_t type)
+{
+    RexxObjectPtr result = TheNilObj;
+
+    if ( hCtrl == NULL )
+    {
+        goto done_out;
+    }
+
+    uint32_t id = (uint32_t)GetDlgCtrlID(hCtrl);
+
+    result = createRexxControl(c, hCtrl, pcpbd->hDlg, id, type, pcpbd->rexxSelf, false, true);
+
+done_out:
+    return result;
+}
+
+
+/**
  * Creates a Rexx dialog control from within a dialog control method, using a
  * window handle of another control.
  *
@@ -402,12 +447,12 @@ out:
  *
  * @param c      The method context we are operating in.
  * @param pcdc   The CSelf struct of the originating control.
- * @param hCtrl  The window handle of the companion control.  This can be null,
- *               in which case .nil is returned.
- * @param type   The type of the companion control.
+ * @param hCtrl  The window handle of the dialog control.  This can be null, in
+ *               which case .nil is returned.
+ * @param type   The type of the dialog control.
  *
- * @return A Rexx dialog control object that represents the companion control,
- *         or .nil if the object is not instantiated.
+ * @return A Rexx dialog control object that represents the underlying Windows
+ *         dialog control, or .nil if the object is not instantiated.
  */
 RexxObjectPtr createControlFromHwnd(RexxMethodContext *c, pCDialogControl pcdc, HWND hCtrl, oodControl_t type)
 {
@@ -418,7 +463,7 @@ RexxObjectPtr createControlFromHwnd(RexxMethodContext *c, pCDialogControl pcdc, 
         goto done_out;
     }
 
-    bool     isCategoryDlg = (c->IsOfType(pcdc->rexxSelf, "CATEGORYDIALOG") ? true : false);
+    bool     isCategoryDlg = (c->IsOfType(pcdc->oDlg, "CATEGORYDIALOG") ? true : false);
     uint32_t id = (uint32_t)GetDlgCtrlID(hCtrl);
 
     result = createRexxControl(c, hCtrl, pcdc->hDlg, id, type, pcdc->oDlg, isCategoryDlg, false);
@@ -504,14 +549,14 @@ LRESULT CALLBACK KeyPressSubclassProc(HWND hwnd, UINT msg, WPARAM wParam,
             /* Sent when the alt key is down.  We need both WM_SYSKEYDOWN and
              * WM_KEYDOWN to catch everything that a keyboard hook catches.
              */
-            if (  pKeyData->key[wParam] && !(lParam & KEY_RELEASE) && !(lParam & KEY_WASDOWN) )
+            if (  pKeyData->key[wParam] && !(lParam & KEY_RELEASED) && !(lParam & KEY_WASDOWN) )
             {
                 processKeyPress(pSubclassData, wParam, lParam);
             }
             break;
 
         case WM_KEYDOWN:
-            /* WM_KEYDOWN will never have KEY_RELEASE set. */
+            /* WM_KEYDOWN will never have KEY_RELEASED set. */
             if (  pKeyData->key[wParam] && !(lParam & KEY_WASDOWN) )
             {
                 processKeyPress(pSubclassData, wParam, lParam);
@@ -666,9 +711,8 @@ static inline bool isExtendedKeyEvent(WPARAM wParam)
  * other than false is treated as true.
  *
  * @remarks  We know, or think we know, that this function is running in the
- *           thread of the dialog message loop.  We are doing an attach thread
- *           and caching the result, but really, couldn't we just grab it from
- *           the pCPlainBaseDialg?
+ *           thread of the dialog message loop.  So, for a thread context, we
+ *           just grab it from the pCPlainBaseDialg.
  */
 LRESULT CALLBACK KeyEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR dwData)
 {
@@ -682,14 +726,14 @@ LRESULT CALLBACK KeyEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
     switch ( msg )
     {
         case WM_KEYDOWN:
-            if (  lParam & EXTENDED_KEY && isExtendedKeyEvent(wParam) )
+            if (  lParam & KEY_ISEXTENDED && isExtendedKeyEvent(wParam) )
             {
                 RexxThreadContext *c = pSubclassData->dlgProcContext;
                 RexxArrayObject args = getKeyEventRexxArgs(c, wParam);
 
                 RexxObjectPtr reply = c->SendMessage(pSubclassData->rexxDialog, pKeyEvent->method, args);
 
-                if ( ! checkForCondition(c) && reply == TheFalseObj )
+                if ( ! checkForCondition(c, false) && reply == TheFalseObj )
                 {
                     return TRUE;
                 }
@@ -703,7 +747,7 @@ LRESULT CALLBACK KeyEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
 
             RexxObjectPtr reply = c->SendMessage(pSubclassData->rexxDialog, pKeyEvent->method, args);
 
-            if ( ! checkForCondition(c) && reply != NULLOBJECT )
+            if ( ! checkForCondition(c, false) && reply != NULLOBJECT )
             {
                 if ( reply == TheFalseObj )
                 {

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -43,11 +43,10 @@
  * Contains the method implmentations for the ResDialog and WindowExtensions
  * classes.
  */
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
 #include <stdio.h>
 #include <dlgs.h>
-#include <commctrl.h>
 #include <shlwapi.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
@@ -125,6 +124,11 @@ err_out:
  *             dialog
  *
  * @return The exit code for the thread.
+ *
+ * @remarks  If auto detect is on, we call doDataAutoDetction().  This only
+ *           fails on a malloc error, or if the data table fills up.  If the
+ *           data table is full, that's okay we can continue.  If there is a
+ *           malloc error,
  */
 DWORD WINAPI WindowLoopThread(void *arg)
 {
@@ -138,49 +142,48 @@ DWORD WINAPI WindowLoopThread(void *arg)
     pcpbd->hDlg = CreateDialogParam(pcpbd->hInstance, MAKEINTRESOURCE(args->resourceId), 0,
                                        (DLGPROC)RexxDlgProc, (LPARAM)pcpbd);
 
+    if ( pcpbd->hDlg == NULL )
+    {
+        *release = true;
+        goto done_out;
+    }
+
     pcpbd->childDlg[0] = pcpbd->hDlg;
 
-    if ( pcpbd->hDlg )
+    if ( pcpbd->autoDetect )
     {
-        if ( pcpbd->autoDetect )
+        args->autoDetectResult = doDataAutoDetection(pcpbd);
+        if ( args->autoDetectResult == OOD_MEMORY_ERR )
         {
-            uint32_t result = doDataAutoDetection(pcpbd);
-            if ( result != OOD_NO_ERROR )
-            {
-                args->autoDetectResult = result;
-                pcpbd->hDlgProcThread = NULL;
-
-                *release = true;
-                return 0;
-            }
-        }
-
-        // Release wait in startDialog() and mark the dialog as active.
-        *release = true;
-        pcpbd->isActive = true;
-
-        MSG msg;
-        BOOL result;
-
-        while ( (result = GetMessage(&msg, NULL, 0, 0)) != 0 && pcpbd->dlgAllocated )
-        {
-            if ( result == -1 )
-            {
-                break;
-            }
-            if ( ! IsDialogMessage(pcpbd->hDlg, &msg) )
-            {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
+            pcpbd->hDlgProcThread = NULL;
+            *release = true;
+            goto done_out;
         }
     }
-    else
+
+    // Release wait in startDialog() and mark the dialog as active.
+    *release = true;
+    pcpbd->isActive = true;
+
+    MSG msg;
+    BOOL result;
+
+    while ( (result = GetMessage(&msg, NULL, 0, 0)) != 0 && pcpbd->dlgAllocated )
     {
-        *release = true;
+        if ( result == -1 )
+        {
+            break;
+        }
+        if ( ! IsDialogMessage(pcpbd->hDlg, &msg) )
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
     }
 
-    // Need to synchronize here, otherwise dlgAllocate may still be true, but
+done_out:
+
+    // Need to synchronize here, otherwise dlgAllocated may still be true, but
     // delDialog() is already running.
     EnterCriticalSection(&crit_sec);
     if ( pcpbd->dlgAllocated )
@@ -202,7 +205,7 @@ DWORD WINAPI WindowLoopThread(void *arg)
 /**
  *  Used to set the fontName and fontSize attributes of the resource dialog.
  */
-void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
+void setFontAttrib(RexxThreadContext *c, pCPlainBaseDialog pcpbd)
 {
     HFONT font = (HFONT)SendMessage(pcpbd->hDlg, WM_GETFONT, 0, 0);
     if ( font == NULL )
@@ -223,7 +226,8 @@ void setFontAttrib(RexxMethodContext *c, pCPlainBaseDialog pcpbd)
 
         long fontSize = MulDiv((tm.tmHeight - tm.tmInternalLeading), 72, GetDeviceCaps(hdc, LOGPIXELSY));
 
-        _tcscpy(pcpbd->fontName, fontName);
+        RXCT2A(fontName);
+        strcpy(pcpbd->fontName, fontNameA);
         pcpbd->fontSize = fontSize;
 
         SelectObject(hdc, oldFont);
@@ -251,7 +255,7 @@ RexxMethod7(RexxObjectPtr, resdlg_init, RexxObjectPtr, library, RexxObjectPtr, r
     }
     RexxObjectPtr result = context->ForwardMessage(NULL, NULL, super, newArgs);
 
-    if ( isInt(0, result, context) )
+    if ( isInt(0, result, context->threadContext) )
     {
         pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)context->GetCSelf();
 
@@ -322,22 +326,19 @@ RexxMethod5(logical_t, resdlg_startDialog_pvt, CSTRING, library, RexxObjectPtr, 
     }
     LeaveCriticalSection(&crit_sec);
 
-    // If auto detection was on, but failed, we have a dialog created, but we
-    // are just to going to end everything.
-    if ( threadArgs.autoDetectResult != OOD_NO_ERROR )
+    // If auto detection was on, but failed on a memory allocation, a dialog was
+    // created.  delDialog() will be invoked in the window loop thread, to end
+    // that dialog.  Here we just need to raise the out of memory exception and
+    // return false.
+    if ( threadArgs.autoDetectResult == OOD_MEMORY_ERR )
     {
-        if ( threadArgs.autoDetectResult == OOD_MEMORY_ERR )
-        {
-            outOfMemoryException(context->threadContext);
-        }
-
-        delDialog(pcpbd, context->threadContext);
+        outOfMemoryException(context->threadContext);
         return FALSE;
     }
 
     if ( pcpbd->hDlg )
     {
-        setDlgHandle(context, pcpbd);
+        setDlgHandle(context->threadContext, pcpbd);
 
         // Set the thread priority higher for faster drawing.
         SetThreadPriority(pcpbd->hDlgProcThread, THREAD_PRIORITY_ABOVE_NORMAL);
@@ -358,28 +359,13 @@ RexxMethod5(logical_t, resdlg_startDialog_pvt, CSTRING, library, RexxObjectPtr, 
             SendMessage(pcpbd->hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hSmall);
         }
 
-        setFontAttrib(context, pcpbd);
+        setFontAttrib(context->threadContext, pcpbd);
         return TRUE;
     }
 
-    // The dialog creation failed, do some final clean up.
-    //
-    // When the dialog creation fails in the WindowLoop thread, delDialog()
-    // is done immediately, as it skips entering the message processing
-    // loop.        TODO need to check this, isn't this done in delDialog() ???
-
-    pcpbd->onTheTop = false;
-    enablePrevious((pCPlainBaseDialog)pcpbd);
-
-    if ( pcpbd->previous )
-    {
-        ((pCPlainBaseDialog )pcpbd->previous)->onTheTop = true;
-
-        if ( ! IsWindowEnabled(((pCPlainBaseDialog )pcpbd->previous)->hDlg) )
-    {
-            EnableWindow(((pCPlainBaseDialog)pcpbd->previous)->hDlg, TRUE);
-    }
-    }
+    // The dialog creation failed, return false.  When the dialog creation fails
+    // in the WindowLoop thread, delDialog() is done immediately, as it skips
+    // entering the message processing loop.
 
     return FALSE;
 }
@@ -485,8 +471,8 @@ RexxMethod4(RexxObjectPtr, resCtrlDlg_startDialog_pvt, CSTRING, library, RexxObj
         pcpbd->isActive = true;
         pcpbd->childDlg[0] = hChild;
 
-        setDlgHandle(context, pcpbd);
-        setFontAttrib(context, pcpbd);
+        setDlgHandle(context->threadContext, pcpbd);
+        setFontAttrib(context->threadContext, pcpbd);
 
         if ( pcpbd->autoDetect )
         {
@@ -505,8 +491,10 @@ err_out:
 /**
  *  Methods for the .WindowExtensions class.
  */
-#define WINDOWEXTENSIONS_CLASS        "WindowExtensions"
+#define WINDOWEXTENSIONS_CLASS    "WindowExtensions"
 
+
+#define CREATE_FONT_EX_ARG_LIST   "a Directory object or a keyword string containing at lease one of the font style keywords"
 
 static inline HWND getWEWindow(void *pCSelf)
 {
@@ -1099,15 +1087,8 @@ RexxMethod4(POINTERSTRING, winex_createFont, OPTIONAL_CSTRING, fontName, OPTIONA
     BOOL italic = FALSE;
     BOOL underline = FALSE;
     BOOL strikeout = FALSE;
-
-    if ( argumentExists(3) )
-    {
-        italic    = StrStrIA(fontStyle, "ITALIC"   ) != NULL;
-        underline = StrStrIA(fontStyle, "UNDERLINE") != NULL;
-        strikeout = StrStrIA(fontStyle, "STRIKEOUT") != NULL;
-        RXCA2T(fontStyle);
-        weight = getWeight(fontStyleT);
-    }
+    RXCA2T(fontStyle);
+    parseFontStyleArg(fontStyleT, &weight, &italic, &underline, &strikeout);
 
     RXCA2T(fontName);
     HFONT hFont = CreateFont(fontSize, fontWidth, 0, 0, weight, italic, underline, strikeout,
@@ -1115,6 +1096,7 @@ RexxMethod4(POINTERSTRING, winex_createFont, OPTIONAL_CSTRING, fontName, OPTIONA
                              DEFAULT_QUALITY, FF_DONTCARE, fontNameT);
     return hFont;
 }
+
 
 /** WindowExtensions::createFontEx()
  *
@@ -1174,60 +1156,68 @@ RexxMethod4(POINTERSTRING, winex_createFontEx, CSTRING, fontName, OPTIONAL_int, 
 
     if ( argumentExists(3) )
     {
-        if ( ! context->IsDirectory(args) )
+        if ( context->IsDirectory(args) )
         {
-            wrongClassException(context->threadContext, 3, "Directory");
-            goto error_out;
-        }
-        RexxDirectoryObject d = (RexxDirectoryObject)args;
+            RexxDirectoryObject d = (RexxDirectoryObject)args;
 
-        if ( ! rxNumberFromDirectory(context, d, "WIDTH", (uint32_t *)&width, 3, false) )
-        {
-            goto error_out;
+            if ( ! rxNumberFromDirectory(context, d, "WIDTH", (uint32_t *)&width, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "ESCAPEMENT", (uint32_t *)&escapement, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "ORIENTATION", (uint32_t *)&orientation, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "WEIGHT", (uint32_t *)&weight, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxLogicalFromDirectory(context, d, "ITALIC", &italic, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxLogicalFromDirectory(context, d, "UNDERLINE", &underline, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxLogicalFromDirectory(context, d, "STRIKEOUT", &strikeOut, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "CHARSET", &charSet, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "OUTPUTPRECISION", &outputPrecision, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "CLIPPRECISION", &clipPrecision, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "QUALITY", &quality, 3, false) )
+            {
+                goto error_out;
+            }
+            if ( ! rxNumberFromDirectory(context, d, "PITCHANDFAMILY", &pitchAndFamily, 3, false) )
+            {
+                goto error_out;
+            }
         }
-        if ( ! rxNumberFromDirectory(context, d, "ESCAPEMENT", (uint32_t *)&escapement, 3, false) )
+        else
         {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "ORIENTATION", (uint32_t *)&orientation, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "WEIGHT", (uint32_t *)&weight, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxLogicalFromDirectory(context, d, "ITALIC", &italic, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxLogicalFromDirectory(context, d, "UNDERLINE", &underline, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxLogicalFromDirectory(context, d, "STRIKEOUT", &strikeOut, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "CHARSET", &charSet, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "OUTPUTPRECISION", &outputPrecision, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "CLIPPRECISION", &clipPrecision, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "QUALITY", &quality, 3, false) )
-        {
-            goto error_out;
-        }
-        if ( ! rxNumberFromDirectory(context, d, "PITCHANDFAMILY", &pitchAndFamily, 3, false) )
-        {
-            goto error_out;
+            CSTRING fontStyle = context->ObjectToStringValue(args);
+            RXCA2T(fontStyle);
+            if ( ! parseFontStyleArg(fontStyleT, &weight, &italic, &underline, &strikeOut) )
+            {
+                wrongArgValueException(context->threadContext, 3, CREATE_FONT_EX_ARG_LIST, args);
+                goto error_out;
+            }
         }
     }
 
@@ -1241,7 +1231,7 @@ RexxMethod4(POINTERSTRING, winex_createFontEx, CSTRING, fontName, OPTIONAL_int, 
     return font;
 
 error_out:
-  return NULLOBJECT;
+    return NULLOBJECT;
 }
 
 /** WindowExtensions::writeDirect()

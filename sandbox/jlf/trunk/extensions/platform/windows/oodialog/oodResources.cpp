@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -42,9 +42,8 @@
  * Contains the classes used for objects representing Windows resources and
  * "resource-like" things.  .Image, .ResourceImage, .ImageList, etc..
  */
-#include "ooDialog.hpp"     // Must be first, includes windows.h and oorexxapi.h
+#include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 
-#include <commctrl.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
 #include "oodControl.hpp"
@@ -59,7 +58,6 @@
 
 
 // ImageList helper functions.
-HIMAGELIST rxGetImageList(RexxMethodContext *, RexxObjectPtr, int);
 RexxObjectPtr rxNewImageList(RexxMethodContext *, HIMAGELIST);
 
 #define IL_DEFAULT_FLAGS           ILC_COLOR32 | ILC_MASK
@@ -80,7 +78,7 @@ RexxObjectPtr rxNewImageFromControl(RexxMethodContext *, HWND, HANDLE, uint8_t, 
 RexxObjectPtr rxNewEmptyImage(RexxMethodContext *, DWORD);
 RexxObjectPtr rxNewValidImage(RexxMethodContext *, HANDLE, uint8_t, PSIZE, uint32_t, bool);
 
-POODIMAGE rxGetImageBitmap(RexxMethodContext *, RexxObjectPtr, int);
+POODIMAGE rxGetImageBitmap(RexxMethodContext *, RexxObjectPtr, size_t);
 
 RexxObjectPtr oodILFromBMP(RexxMethodContext *, HIMAGELIST *, RexxObjectPtr, int, int, HWND);
 
@@ -89,15 +87,6 @@ RexxObjectPtr oodILFromBMP(RexxMethodContext *, HIMAGELIST *, RexxObjectPtr, int
  * Defines and structs for the .ResourceImage class.
  */
 #define RESOURCEIMAGECLASS  ".ResourceImage"
-
-typedef struct _RESOURCEIMAGE
-{
-    HMODULE  hMod;
-    DWORD    lastError;
-    bool     canRelease;
-    bool     isValid;
-} RESOURCEIMAGE, *PRESOURCEIMAGE;
-
 
 RexxObjectPtr oodSetImageAttribute(RexxMethodContext *c, CSTRING varName, RexxObjectPtr image, HWND hwnd,
                                    HANDLE hOldImage, uint8_t type, oodControl_t ctrl)
@@ -152,7 +141,7 @@ RexxObjectPtr oodGetImageAttribute(RexxMethodContext *c, RexxObjectPtr self, CST
 #define IMAGELIST_CLASS "ImageList"
 
 
-HIMAGELIST rxGetImageList(RexxMethodContext *context, RexxObjectPtr il, int argPos)
+HIMAGELIST rxGetImageList(RexxMethodContext *context, RexxObjectPtr il, size_t argPos)
 {
     HIMAGELIST himl = NULL;
     if ( requiredClass(context->threadContext, il, "ImageList", argPos) )
@@ -506,13 +495,13 @@ RexxMethod3(int, il_addImages, RexxArrayObject, images, OPTIONAL_uint32_t, cRef,
         RexxObjectPtr image = c->ArrayAt(images, i);
         if ( image == NULLOBJECT || ! c->IsOfType(image, "Image") )
         {
-            wrongObjInArrayException(c->threadContext, 1, i, "Image");
+            wrongObjInArrayException(c->threadContext, 1, i, "an Image object");
             goto out;
         }
         POODIMAGE oi = (POODIMAGE)context->ObjectToCSelf(image);
         if ( oi->hImage == NULL )
         {
-            wrongObjInArrayException(c->threadContext, 1, i, "non-null Image");
+            wrongObjInArrayException(c->threadContext, 1, i, "a non-null Image object");
             goto out;
         }
 
@@ -531,7 +520,7 @@ RexxMethod3(int, il_addImages, RexxArrayObject, images, OPTIONAL_uint32_t, cRef,
 
             if ( imageType == -1 )
             {
-                wrongObjInArrayException(c->threadContext, 1, i, "bitmap, icon, or cursor Image");
+                wrongObjInArrayException(c->threadContext, 1, i, "a bitmap, icon, or cursor Image");
                 goto out;
             }
         }
@@ -542,7 +531,7 @@ RexxMethod3(int, il_addImages, RexxArrayObject, images, OPTIONAL_uint32_t, cRef,
             case IMAGE_CURSOR :
                 if ( imageType != IMAGE_ICON )
                 {
-                    wrongObjInArrayException(c->threadContext, 1, i, "cursor or icon Image");
+                    wrongObjInArrayException(c->threadContext, 1, i, "a cursor or icon Image");
                     goto out;
                 }
                 tmpResult = ImageList_AddIcon(himl, (HICON)oi->hImage);
@@ -551,7 +540,7 @@ RexxMethod3(int, il_addImages, RexxArrayObject, images, OPTIONAL_uint32_t, cRef,
             case IMAGE_BITMAP :
                 if ( imageType != IMAGE_BITMAP )
                 {
-                    wrongObjInArrayException(c->threadContext, 1, i, "bitmap Image");
+                    wrongObjInArrayException(c->threadContext, 1, i, "a bitmap Image");
                     goto out;
                 }
                 if ( doMasked )
@@ -565,7 +554,7 @@ RexxMethod3(int, il_addImages, RexxArrayObject, images, OPTIONAL_uint32_t, cRef,
                 break;
 
             default :
-                wrongObjInArrayException(c->threadContext, 1, i, "bitmap, icon, or cursor Image");
+                wrongObjInArrayException(c->threadContext, 1, i, "a bitmap, icon, or cursor Image");
                 goto out;
 
         }
@@ -699,7 +688,7 @@ CSTRING getImageTypeName(uint8_t type)
     }
 }
 
-POODIMAGE rxGetOodImage(RexxMethodContext *context, RexxObjectPtr o, int argPos)
+POODIMAGE rxGetOodImage(RexxMethodContext *context, RexxObjectPtr o, size_t argPos)
 {
     if ( requiredClass(context->threadContext, o, "Image", argPos) )
     {
@@ -724,7 +713,7 @@ POODIMAGE rxGetOodImage(RexxMethodContext *context, RexxObjectPtr o, int argPos)
  *
  * @return A pointer to an OODIMAGE struct on success, othewise NULL.
  */
-POODIMAGE rxGetImageIcon(RexxMethodContext *c, RexxObjectPtr o, int pos)
+POODIMAGE rxGetImageIcon(RexxMethodContext *c, RexxObjectPtr o, size_t pos)
 {
     POODIMAGE oi = rxGetOodImage(c, o, pos);
     if ( oi != NULL )
@@ -738,7 +727,7 @@ POODIMAGE rxGetImageIcon(RexxMethodContext *c, RexxObjectPtr o, int pos)
     return NULL;
 }
 
-POODIMAGE rxGetImageBitmap(RexxMethodContext *c, RexxObjectPtr o, int pos)
+POODIMAGE rxGetImageBitmap(RexxMethodContext *c, RexxObjectPtr o, size_t pos)
 {
     POODIMAGE oi = rxGetOodImage(c, o, pos);
     if ( oi != NULL )
@@ -1508,6 +1497,16 @@ RexxMethod1(uint32_t, image_systemErrorCode, CSELF, oi) { return ((POODIMAGE)oi)
  * Methods for the ooDialog .ResourceImage class.
  */
 #define RESOURCE_IMAGE_CLASS  "ResourceImage"
+
+
+PRESOURCEIMAGE rxGetResourceImage(RexxMethodContext *context, RexxObjectPtr r, size_t argPos)
+{
+    if ( requiredClass(context->threadContext, r, "ResourceImage", argPos) )
+    {
+        return (PRESOURCEIMAGE)context->ObjectToCSelf(r);
+    }
+    return NULL;
+}
 
 
 /** ResouceImage::init()
