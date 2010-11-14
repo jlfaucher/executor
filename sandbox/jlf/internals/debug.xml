@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Debug</title>
+
+  <section>
+    <title>Trace</title>
+
+    <para>Reference : <ulink
+    url="http://newsgroups.derkeiler.com/Archive/Comp/comp.lang.rexx/2008-07/msg00079.html">comp.lang.rexx</ulink></para>
+
+    <para>You can turn rexx tracing on by setting the RXTRACE environment
+    variable to ON. This can be handy if you use external subroutines, or
+    <code>::include</code> libraries. If you find yourself about to call such an
+    external routine (while tracing your own code) then you can enter:</para>
+
+    <programlisting><![CDATA[Call Value 'RXTRACE','ON','ENVIRONMENT']]></programlisting>
+
+    <para>and see what the external routine does.</para>
+  </section>
+
+  <section>
+    <title>Debugging from command line</title>
+
+    <para>Assuming you have visual studio and you have a Rexx command that
+    creates the problem, just type</para>
+
+    <programlisting><![CDATA[devenv /debugexe rexx <your parameter>]]></programlisting>
+
+    <para>Hit F5 to run, and it should stop at the location of the trap.</para>
+  </section>
+
+  <section>
+    <title>A particularly useful breakpoint...</title>
+
+    <para>Reference : <ulink
+    url="http://sourceforge.net/mailarchive/forum.php?thread_name=33bd05330704090326k1b5c62a8k1e5ac52a0674ad3b%40mail.gmail.com&amp;forum_name=oorexx-devel">oorexx-devel</ulink></para>
+
+    <para>If you're ever working on something and you get a Rexx error message,
+    you can find out exactly where the failure is coming from by setting a
+    breakpoint on <code>RexxActivity::raiseException()</code>in file
+    <filename>interpreter\concurrency\RexxActivity.cpp</filename>. All Rexx
+    error messages end up here, so once you are here, you can display the stack
+    trace to find out exactly where the error is getting raised from.</para>
+  </section>
+
+  <section>
+    <title>How to determine the source location</title>
+
+    <para>Reference : <ulink
+    url="http://sourceforge.net/mailarchive/forum.php?thread_name=4B83023E.5090507%40safedatausa.com&amp;forum_name=oorexx-devel">oorexx-devel</ulink></para>
+
+    <para>If your program crashes, you can determine which line in which file
+    was executed.</para>
+
+    <para>Go back down the stack, until you reach the
+    <code>RexxActivation::run()</code> call. Expand the <code>this</code>
+    variable. You are looking for the value
+    <code>this-&gt;sourceObject-&gt;programName-&gt;stringData</code>, which
+    should be the name of the program that is currently running.</para>
+
+    <para>Move up to the next frame in the stack. It should be a
+    RexxInstructionXXX. Expand the <code>this</code> variable until you find the
+    <code>instructionLocation</code> variable. The <code>startLine</code> field
+    contains the line number currently executed.</para>
+  </section>
+
+  <section>
+    <title>Advanced debugging</title>
+
+    <para>Reference : <ulink
+    url="http://sourceforge.net/mailarchive/forum.php?forum_name=oorexx-devel&amp;max_rows=25&amp;style=nested&amp;viewmonth=200906&amp;viewday=2">oorexx-devel</ulink></para>
+
+    <para>Sometimes, you need to put a breakpoint in a DLL which is not yet
+    loaded. The case described here is a DLL loaded by Java.</para>
+
+    <section>
+      <title>Without modification of source</title>
+
+      <para>Start <productname>Java</productname> in the debugger. You'll need
+      to specify the actual java executable, not whatever is in
+      <filename>C:\Windows\System32\java</filename>. You do this with the
+      command:</para>
+
+      <programlisting><![CDATA[devenv /debugexe "C:\Program Files\...\java.exe" MyClass]]></programlisting>
+
+      <para>Once in the debugger, set a breakpoint in your dll module using the
+      breakpoint menu and a fully qualified breakpoint location. For example, to
+      set a breakpoint on the AttachThread() API routine in oorexx, specify the
+      breakpoing as:</para>
+
+      <programlisting><![CDATA[{,InterpreterInstanceStubs.cpp,rexx.dll} @63
+]]></programlisting>
+
+      <para>The @63 is the source file line number. Since you qualified this
+      using the rexx.dll, it will handle the breakpoint even though rexx.dll is
+      dynamically loaded. Once this is loaded, then all of the symbols are
+      available and normal means can be used to set break points. </para>
+    </section>
+
+    <section>
+      <title>With modification of source</title>
+
+      <para>This procedure is taken from <ulink
+      url="&lt;http://ccollomb.free.fr/blog/?p=30&gt;">&lt;http://ccollomb.free.fr/blog/?p=30&gt;</ulink>,
+      which explains different ways of how to insert statements in one's code to
+      trigger the debugger.</para>
+
+      <para>Define this macro:</para>
+
+      <programlisting><![CDATA[#define BREAK_HERE_SINGLESTEP() __asm __emit 0xF1]]></programlisting>
+
+      <para>and later in the code use it wherever you want to start to debug in
+      single step mode, enter:</para>
+
+      <programlisting><![CDATA[BREAK_HERE_SINGLESTEP();]]></programlisting>
+
+      <para>This macro has the stated benefit, that it goes right into single
+      stepping mode, without firing up the exception dialog. If, for some
+      reasons, the breakpoint is not activated, then you can modify the macro to
+      use one of these other ways to set a breakpoint:</para>
+
+      <programlisting><![CDATA[__debugbreak();
+DebugBreak();
+_CrtDbgBreak();
+__asm int 3;
+__asm __emit 0xCC;
+__asm __emit 0xCD; __asm __emit 0×03;]]></programlisting>
+    </section>
+  </section>
+</chapter>
