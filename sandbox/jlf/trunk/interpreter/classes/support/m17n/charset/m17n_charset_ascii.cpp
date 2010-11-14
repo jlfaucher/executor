@@ -67,8 +67,8 @@ charset functionality for similar charsets like iso-8859-1.
 
 /*
 
-=item C<RexxString * ascii_get_graphemes(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<RexxString * ascii_get_graphemes(RexxString *src, sizeC_t
+offset, sizeC_t count)>
 
 Retrieves the graphemes for the RexxString C<src>, starting at
 C<offset> and ending at C<offset + count>.
@@ -78,9 +78,9 @@ C<offset> and ending at C<offset + count>.
 */
 
 RexxString *
-CHARSET_ASCII::get_graphemes(RexxString *src, wholenumber_t offset, wholenumber_t count)
+CHARSET_ASCII::get_graphemes(RexxString *src, sizeC_t offset, sizeC_t count)
 {
-    return ENCODING_GET_BYTES(src, offset, count);
+    return ENCODING_GET_BYTES(src, size_v(offset), size_v(count)); // ascii : char pos and byte pos are identical
 }
 
 /*
@@ -98,14 +98,15 @@ static RexxString *
 to_ascii(RexxString *src)
 {
     String_iter iter;
-    wholenumber_t len = src->getCLength();
+    sizeC_t lenC = src->getCLength();
+    sizeB_t lenB = src->getBLength();
 
-    RexxString *dest = raw_string(len, len, m17n_ascii_charset_ptr, m17n_ascii_charset_ptr->preferred_encoding);
+    RexxString *dest = raw_string(lenB, lenC, m17n_ascii_charset_ptr, m17n_ascii_charset_ptr->preferred_encoding);
 
     char *p = dest->getWritableData();
     STRING_ITER_INIT(&iter);
-    while (iter.charpos < len) {
-        const wholenumber_t c = STRING_ITER_GET_AND_ADVANCE(RexxStringWrapper(src), &iter);
+    while (iter.charpos < lenC) {
+        const codepoint_t c = STRING_ITER_GET_AND_ADVANCE(RexxStringWrapper(src), &iter);
         if (c >= 128)
             reportException(Rexx_Error_Execution_user_defined,
                     "can't convert unicode string to ascii"); // todojlf : "unicode" is hardcoded but can be other than unicode, no ?
@@ -187,17 +188,17 @@ Converts the RexxString C<src> to all uppercase.
 */
 
 RexxString*
-CHARSET_ASCII::upcase(RexxString *src)
+CHARSET_ASCII::upcase(RexxString *src, ssizeC_t start, ssizeC_t length) // todo : implement start, length
 {
     RexxString * const result = (RexxString *) src->clone();
-    const wholenumber_t n = src->getBLength();
+    const sizeB_t n = src->getBLength();
 
-    if (n) {
+    if (n != 0) {
         char * const buffer = result->getWritableData();
-        wholenumber_t offset;
+        sizeB_t offset;
 
         for (offset = 0; offset < n; ++offset) {
-            buffer[offset] = (char)toupper((unsigned char)buffer[offset]);
+            buffer[size_v(offset)] = (char)toupper((unsigned char)buffer[size_v(offset)]);
         }
     }
 
@@ -215,17 +216,17 @@ Converts the RexxString C<src> to all lower-case.
 */
 
 RexxString*
-CHARSET_ASCII::downcase(RexxString *src)
+CHARSET_ASCII::downcase(RexxString *src, ssizeC_t start, ssizeC_t length) // todo : implement start, length
 {
     RexxString       *result = (RexxString *) src->clone();
-    const wholenumber_t n      = src->getBLength();
+    const sizeB_t n      = src->getBLength();
 
-    if (n) {
+    if (n != 0) {
         char * const buffer = result->getWritableData();
-        wholenumber_t offset;
+        sizeB_t offset;
 
         for (offset = 0; offset < n; ++offset) {
-            buffer[offset] = (char)tolower((unsigned char)buffer[offset]);
+            buffer[size_v(offset)] = (char)tolower((unsigned char)buffer[size_v(offset)]);
         }
     }
 
@@ -248,15 +249,15 @@ RexxString*
 CHARSET_ASCII::titlecase(RexxString *src)
 {
     RexxString       *result = (RexxString *) src->clone();
-    const wholenumber_t n      = src->getBLength();
+    const sizeB_t n      = src->getBLength();
 
-    if (n) {
+    if (n != 0) {
         char * const buffer = result->getWritableData();
-        wholenumber_t offset;
+        sizeB_t offset;
 
         buffer[0] = (char)toupper((unsigned char)buffer[0]);
         for (offset = 1; offset < n; ++offset) {
-            buffer[offset] = (char)tolower((unsigned char)buffer[offset]);
+            buffer[size_v(offset)] = (char)tolower((unsigned char)buffer[size_v(offset)]);
         }
     }
 
@@ -350,9 +351,9 @@ Compares two strings as ASCII strings. If IRexxString C<lhs> > C<rhs>, returns
 wholenumber_t
 CHARSET_ASCII::compare(IRexxString *lhs, IRexxString *rhs)
 {
-    const wholenumber_t l_len = lhs->getCLength();
-    const wholenumber_t r_len = rhs->getCLength();
-    const wholenumber_t min_len = l_len > r_len ? r_len : l_len;
+    const sizeB_t l_len = lhs->getBLength();
+    const sizeB_t r_len = rhs->getBLength();
+    const sizeB_t min_len = l_len > r_len ? r_len : l_len;
     String_iter iter;
 
     if (lhs->getEncoding() == rhs->getEncoding()) {
@@ -362,9 +363,9 @@ CHARSET_ASCII::compare(IRexxString *lhs, IRexxString *rhs)
     }
     else {
         STRING_ITER_INIT(&iter);
-        while (iter.charpos < min_len) {
-            const wholenumber_t cl = ENCODING_GET_BYTE(lhs, iter.charpos);
-            const wholenumber_t cr = STRING_ITER_GET_AND_ADVANCE(rhs, &iter);
+        while (iter.bytepos < min_len) {
+            const wholenumber_t cl = ENCODING_GET_BYTE(lhs, iter.bytepos);
+            const codepoint_t cr = STRING_ITER_GET_AND_ADVANCE(rhs, &iter);
             if (cl != cr)
                 return cl < cr ? -1 : 1;
         }
@@ -380,8 +381,8 @@ CHARSET_ASCII::compare(IRexxString *lhs, IRexxString *rhs)
 
 /*
 
-=item C<wholenumber_t mixed_cs_index(IRexxString *src, IRexxString
-*search, wholenumber_t offs)>
+=item C<sizeC_t mixed_cs_index(IRexxString *src, IRexxString
+*search, sizeC_t offs)>
 
 Searches for the first instance of IRexxString C<search> in IRexxString C<src>.
 returns the position where the substring is found if it is indeed found.
@@ -392,9 +393,9 @@ ASCII.
 
 */
 
-wholenumber_t
+sizeC_t
 mixed_cs_index(IRexxString *src, IRexxString *search,
-    wholenumber_t offs)
+    sizeC_t offs)
 {
     String_iter start, end;
 
@@ -406,8 +407,8 @@ mixed_cs_index(IRexxString *src, IRexxString *search,
 
 /*
 
-=item C<wholenumber_t m17n_byte_index(IRexxString *base, IRexxString
-*search, wholenumber_t start_offset)>
+=item C<sizeC_t m17n_byte_index(IRexxString *base, IRexxString
+*search, sizeB_t start_offset)>
 
 Looks for the location of a substring within a longer string.  Takes
 pointers to the strings and the offset within the string at which
@@ -419,26 +420,26 @@ Returns an offset value if it is found, or -1 if no match.
 
 */
 
-wholenumber_t
+sizeC_t
 m17n_byte_index(IRexxString *base,
-        IRexxString *search, wholenumber_t start_offset)
+        IRexxString *search, sizeB_t start_offset)
 {
     const char * const str_start  = base->getStringData();
-    const wholenumber_t       str_len    = base->getBLength();
+    const sizeB_t       str_len    = base->getBLength();
     const char * const search_str = search->getStringData();
-    const wholenumber_t       search_len = search->getBLength();
-    const char        *str_pos    = str_start + start_offset;
-    wholenumber_t             len_remain = str_len   - start_offset;
+    const sizeB_t       search_len = search->getBLength();
+    const char        *str_pos    = str_start + size_v(start_offset);
+    sizeB_t             len_remain = str_len   - size_v(start_offset);
     const char        *search_pos;
 
     /* find the next position of the first character in the search string
      * ooRexx strings can have NULLs, so strchr() won't work here */
     while ((search_pos = (const char *)memchr(str_pos, *search_str, len_remain))) {
-        const wholenumber_t offset = search_pos - str_start;
+        const sizeB_t offset = search_pos - str_start;
 
         /* now look for the entire string */
         if (memcmp(search_pos, search_str, search_len) == 0)
-            return offset;
+            return size_v(offset);
 
         /* otherwise loop and memchr() with the rest of the string */
         len_remain = str_len    - offset;
@@ -453,8 +454,8 @@ m17n_byte_index(IRexxString *base,
 
 /*
 
-=item C<wholenumber_t ascii_cs_index(IRexxString *src, IRexxString
-*search_string, wholenumber_t offset)>
+=item C<sizeC_t ascii_cs_index(IRexxString *src, IRexxString
+*search_string, sizeC_t offset)>
 
 Searches for the first instance of IRexxString C<search> in IRexxString C<src>.
 returns the position where the substring is found if it is indeed found.
@@ -464,25 +465,25 @@ Returns -1 otherwise.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_ASCII::index(IRexxString *src,
-        IRexxString *search_string, wholenumber_t offset)
+        IRexxString *search_string, sizeC_t offset)
 {
-    wholenumber_t retval;
+    sizeC_t retval;
     if (src->getCharset() != search_string->getCharset()) {
         return mixed_cs_index(src, search_string, offset);
     }
 
     // PARROT_ASSERT(src->encoding == m17n_fixed_8_encoding_ptr);
     retval = m17n_byte_index(src,
-            search_string, offset);
+            search_string, size_v(offset));
     return retval;
 }
 
 /*
 
-=item C<wholenumber_t m17n_byte_rindex(IRexxString *base,
-IRexxString *search, wholenumber_t start_offset)>
+=item C<sizeC_t m17n_byte_rindex(IRexxString *base,
+IRexxString *search, sizeB_t start_offset)>
 
 Substring search (like m17n_byte_index), but works backwards,
 from the rightmost end of the string.
@@ -493,23 +494,23 @@ Returns offset value or -1 (if no match).
 
 */
 
-wholenumber_t
+sizeC_t
 m17n_byte_rindex(IRexxString *base,
-        IRexxString *search, wholenumber_t start_offset)
+        IRexxString *search, sizeB_t start_offset)
 {
-    const wholenumber_t searchlen          = search->getBLength();
+    const sizeB_t searchlen          = search->getBLength();
     const char * const search_start = search->getStringData();
-    wholenumber_t max_possible_offset     = (base->getBLength() - search->getBLength());
-    wholenumber_t current_offset;
+    sizeB_t max_possible_offset     = (base->getBLength() - search->getBLength());
+    sizeB_t current_offset;
 
-    if (start_offset && start_offset < max_possible_offset)
+    if (start_offset != 0 && start_offset < max_possible_offset)
         max_possible_offset = start_offset;
 
     for (current_offset = max_possible_offset; current_offset >= 0;
             current_offset--) {
         const char * const base_start = base->getStringData() + current_offset;
         if (memcmp(base_start, search_start, searchlen) == 0) {
-            return current_offset;
+            return size_v(current_offset);
         }
     }
 
@@ -518,8 +519,8 @@ m17n_byte_rindex(IRexxString *base,
 
 /*
 
-=item C<wholenumber_t ascii_cs_rindex(IRexxString *src, IRexxString
-*search_string, wholenumber_t offset)>
+=item C<sizeC_t ascii_cs_rindex(IRexxString *src, IRexxString
+*search_string, sizeC_t offset)>
 
 Searches for the last instance of IRexxString C<search_string> in IRexxString
 C<src>. Starts searching at C<offset>.
@@ -528,11 +529,11 @@ C<src>. Starts searching at C<offset>.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_ASCII::rindex(IRexxString *src,
-        IRexxString *search_string, wholenumber_t offset)
+        IRexxString *search_string, sizeC_t offset)
 {
-    wholenumber_t retval;
+    sizeC_t retval;
 
     if (src->getCharset() != search_string->getCharset())
         reportException(Rexx_Error_Execution_user_defined,
@@ -540,7 +541,7 @@ CHARSET_ASCII::rindex(IRexxString *src,
 
     // PARROT_ASSERT(src->encoding == m17n_fixed_8_encoding_ptr);
     retval = m17n_byte_rindex(src,
-            search_string, offset);
+            search_string, size_v(offset));
     return retval;
 }
 
@@ -559,11 +560,11 @@ wholenumber_t
 CHARSET_ASCII::validate(IRexxString *src)
 {
     String_iter iter;
-    const wholenumber_t length = src->getCLength();
+    const sizeC_t length = src->getCLength();
 
     STRING_ITER_INIT(&iter);
     while (iter.charpos < length) {
-        const wholenumber_t codepoint = STRING_ITER_GET_AND_ADVANCE(src, &iter);
+        const codepoint_t codepoint = STRING_ITER_GET_AND_ADVANCE(src, &iter);
         if (codepoint >= 0x80)
             return 0;
     }
@@ -572,7 +573,7 @@ CHARSET_ASCII::validate(IRexxString *src)
 
 /*
 
-=item C<static RexxString * string_from_codepoint(wholenumber_t codepoint)>
+=item C<static RexxString * string_from_codepoint(sizeC_t codepoint)>
 
 Creates a new RexxString object from a single codepoint C<codepoint>. Returns
 the new RexxString.
@@ -582,7 +583,7 @@ the new RexxString.
 */
 
 RexxString *
-CHARSET_ASCII::string_from_codepoint(wholenumber_t codepoint)
+CHARSET_ASCII::string_from_codepoint(codepoint_t codepoint)
 {
     char real_codepoint = (char)codepoint;
     RexxString * const return_string = new_string(&real_codepoint, 1, 1, m17n_ascii_charset_ptr, m17n_ascii_charset_ptr->preferred_encoding);
@@ -592,7 +593,7 @@ CHARSET_ASCII::string_from_codepoint(wholenumber_t codepoint)
 /*
 
 =item C<static wholenumber_t is_cclass(wholenumber_t flags, IRexxString *src,
-wholenumber_t offset)>
+sizeC_t offset)>
 
 Returns Boolean.
 
@@ -601,11 +602,11 @@ Returns Boolean.
 */
 
 wholenumber_t
-CHARSET_ASCII::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset)
+CHARSET_ASCII::is_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset)
 {
-    wholenumber_t codepoint;
+    codepoint_t codepoint;
 
-    if (offset >= (wholenumber_t) src->getCLength())
+    if (offset >= src->getCLength())
         return 0;
     codepoint = ENCODING_GET_CODEPOINT(src, offset);
 
@@ -617,8 +618,8 @@ CHARSET_ASCII::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t of
 
 /*
 
-=item C<static wholenumber_t find_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+=item C<static sizeC_t find_cclass(wholenumber_t flags, IRexxString
+*src, sizeC_t offset, sizeC_t count)>
 
 Find a character in the given character class.  Delegates to the find_cclass
 method of the encoding plugin.
@@ -627,36 +628,36 @@ method of the encoding plugin.
 
 */
 
-wholenumber_t
-CHARSET_ASCII::find_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset, wholenumber_t count)
+sizeC_t
+CHARSET_ASCII::find_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset, sizeC_t count)
 {
-    wholenumber_t pos = offset;
-    wholenumber_t end = offset + count;
+    sizeC_t pos = offset;
+    sizeC_t end = offset + count;
 
-    end = ((wholenumber_t) src->getCLength()) < end ? src->getCLength() : end;
+    end = src->getCLength() < end ? src->getCLength() : end;
     return ENCODING_FIND_CCLASS(src, m17n_ascii_typetable, flags, pos, end);
 }
 
 /*
 
-=item C<static wholenumber_t find_not_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+=item C<static sizeC_t find_not_cclass(wholenumber_t flags, IRexxString
+*src, sizeC_t offset, sizeC_t count)>
 
-Returns C<wholenumber_t>.
+Returns C<sizeC_t>.
 
 =cut
 
 */
 
-wholenumber_t
-CHARSET_ASCII::find_not_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset, wholenumber_t count)
+sizeC_t
+CHARSET_ASCII::find_not_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset, sizeC_t count)
 {
-    wholenumber_t pos = offset;
-    wholenumber_t end = offset + count;
+    sizeC_t pos = offset;
+    sizeC_t end = offset + count;
 
-    end = ((wholenumber_t) src->getCLength()) < end ? src->getCLength() : end;
+    end = src->getCLength() < end ? src->getCLength() : end;
     for (; pos < end; ++pos) {
-        const wholenumber_t codepoint = ENCODING_GET_CODEPOINT(src, pos);
+        const codepoint_t codepoint = ENCODING_GET_CODEPOINT(src, pos);
         if ((m17n_ascii_typetable[codepoint] & flags) == 0) {
             return pos;
         }
@@ -700,9 +701,9 @@ RexxString *
 charset_cvt_ascii_to_binary(RexxString *src)
 {
     RexxString * const dest = (RexxString *) src->clone();
-    wholenumber_t offs;
+    sizeB_t offs;
 
-    for (offs = 0; offs < (wholenumber_t) src->getBLength(); ++offs) {
+    for (offs = 0; offs < src->getBLength(); ++offs) {
         const wholenumber_t c = ENCODING_GET_BYTE(RexxStringWrapper(src), offs);
         ENCODING_SET_BYTE(RexxStringWrapper(dest), offs, c);
     }
@@ -726,9 +727,9 @@ RexxString *
 charset_cvt_ascii_to_iso_8859_1(RexxString *src)
 {
     RexxString * const dest = (RexxString *) src->clone();
-    wholenumber_t offs;
+    sizeB_t offs;
 
-    for (offs = 0; offs < (wholenumber_t) src->getBLength(); ++offs) {
+    for (offs = 0; offs < src->getBLength(); ++offs) {
         const wholenumber_t c = ENCODING_GET_BYTE(RexxStringWrapper(src), offs);
         ENCODING_SET_BYTE(RexxStringWrapper(dest), offs, c);
     }

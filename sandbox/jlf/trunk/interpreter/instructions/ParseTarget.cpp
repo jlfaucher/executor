@@ -124,7 +124,7 @@ void RexxTarget::next(
     this->pattern_end = 0;               /* no pattern done yet               */
     this->pattern_start = 0;             /* save the pattern start            */
                                          /* save the over all length          */
-    this->string_length = this->string->getLength();
+    this->string_length = this->string->getCLength();
     this->subcurrent = 0;                /* no sub piece to process yet       */
 }
 
@@ -291,7 +291,7 @@ void RexxTarget::search(
         this->end--;                       /* convert to origin zero            */
         this->pattern_start = this->end;   /* this is the starting point        */
                                            /* end is start + trigger length     */
-        this->pattern_end = this->pattern_start + needle->getLength();
+        this->pattern_end = this->pattern_start + needle->getCLength();
     }
     this->subcurrent = this->start;      /* set the subpiece pointer          */
 }
@@ -319,7 +319,7 @@ void RexxTarget::caselessSearch(
         this->end--;                       /* convert to origin zero            */
         this->pattern_start = this->end;   /* this is the starting point        */
                                            /* end is start + trigger length     */
-        this->pattern_end = this->pattern_start + needle->getLength();
+        this->pattern_end = this->pattern_start + needle->getCLength();
     }
     this->subcurrent = this->start;      /* set the subpiece pointer          */
 }
@@ -330,7 +330,7 @@ RexxString *RexxTarget::getWord()
 /******************************************************************************/
 {
     RexxString *word;                    /* extracted word                    */
-    size_t  length;                      /* word length                       */
+    sizeC_t  length;                      /* word length                       */
     const char *scan;                    /* scan pointer                      */
     const char *endScan;                 /* end of string location            */
 
@@ -341,9 +341,9 @@ RexxString *RexxTarget::getWord()
     else                               /* need to scan off a word           */
     {
         /* point to the current position     */
-        scan = this->string->getStringData() + this->subcurrent;
+        scan = this->string->getStringData() + size_v(this->subcurrent); // todo m17n
         /* and the scan end point            */
-        endScan = this->string->getStringData() + this->end;
+        endScan = this->string->getStringData() + size_v(this->end); // todo m17n
         /* NOTE:  All string objects have a terminating NULL, so the */
         /* scan for nonblanks is guaranteed to stop before getting into */
         /* trouble, which eliminates the need to check against the */
@@ -363,7 +363,7 @@ RexxString *RexxTarget::getWord()
             /* look for the next blank           */
             endScan = NULL;
             const char *scanner = scan;
-            const char *endPosition = string->getStringData() + this->end;
+            const char *endPosition = string->getStringData() + size_v(this->end); // todo m17n
             while (scanner < endPosition)
             {
                 if (*scanner == ' ' || *scanner == '\t')
@@ -398,7 +398,7 @@ RexxString *RexxTarget::getWord()
             else
             {
                 /* extract the subpiece              */
-                word = new_string(scan, length);
+                word = new_string(scan, size_v(length)); // todo m17n
             }
         }
     }
@@ -416,9 +416,9 @@ void RexxTarget::skipWord()
     if (this->subcurrent < this->end)  /* something left?                   */
     {
         /* point to the current position     */
-        scan = this->string->getStringData() + this->subcurrent;
+        scan = this->string->getStringData() + size_v(this->subcurrent); // todo m17n
         /* and the scan end point            */
-        endScan = this->string->getStringData() + this->end;
+        endScan = this->string->getStringData() + size_v(this->end); // todo m17n
         /* NOTE:  All string objects have a terminating NULL, so the */
         /* scan for nonblanks is guaranteed to stop before getting into */
         /* trouble, which eliminates the need to check against the */
@@ -434,7 +434,7 @@ void RexxTarget::skipWord()
             /* look for the next blank           */
             endScan = NULL;
             const char *scanner = scan;
-            const char *endPosition = string->getStringData() + this->end;
+            const char *endPosition = string->getStringData() + size_v(this->end); // todo m17n
             while (scanner < endPosition)
             {
                 if (*scanner == ' ' || *scanner == '\t')
@@ -468,7 +468,7 @@ RexxString *RexxTarget::remainder()
 /******************************************************************************/
 {
     RexxString *word;                    /* extracted word                    */
-    size_t  length;                      /* length to extract                 */
+    sizeC_t  length;                      /* length to extract                 */
 
     if (this->subcurrent >= this->end)   /* already used up?                  */
     {
@@ -484,7 +484,7 @@ RexxString *RexxTarget::remainder()
         }
         else                               /* need to extract a piece           */
         {
-            word = this->string->extract(this->subcurrent, length);
+            word = this->string->extractC(this->subcurrent, length);
         }
         this->subcurrent = this->end;      /* eat the remainder piece           */
     }

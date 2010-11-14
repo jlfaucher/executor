@@ -48,7 +48,7 @@
 #define M17N_STRING_FUNCS_H_GUARD
 
 
-wholenumber_t str_iter_index(
+sizeC_t str_iter_index(
     IRexxString *src,
     String_iter *start,
     String_iter *end,

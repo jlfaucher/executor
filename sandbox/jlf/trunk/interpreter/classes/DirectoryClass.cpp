@@ -465,9 +465,9 @@ RexxObject *RexxDirectory::unknown(
     RexxString *message_value = stringArgument(msgname, ARG_ONE);
     requiredArgument(arguments, ARG_TWO);        /* need an argument array            */
                                          /* get the length                    */
-    stringsize_t message_length = message_value->getLength();
+    stringsizeC_t message_length = message_value->getCLength();
     /* assignment form of access?        */
-    if (message_length > 0 && message_value->getChar(message_length - 1) == '=')
+    if (message_length > 0 && message_value->getCharC(message_length - 1) == '=')
     {
         /* get this as an array              */
         arguments = (RexxArray  *)REQUEST_ARRAY(arguments);
@@ -480,7 +480,7 @@ RexxObject *RexxDirectory::unknown(
             reportException(Error_Incorrect_method_noarray, IntegerTwo);
         }
         /* extract the name part of the msg  */
-        message_value = (RexxString *)message_value->extract(0, message_length - 1);
+        message_value = (RexxString *)message_value->extractC(0, message_length - 1);
         /* do this as an assignment          */
         return this->setEntry(message_value, arguments->get(1));
     }

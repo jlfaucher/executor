@@ -307,8 +307,6 @@ register_charset(CHARSET *charset)
 
 /*
 
-/*
-
 =item C<static void register_static_converters()>
 
 Registers several standard converters between common charsets, including:

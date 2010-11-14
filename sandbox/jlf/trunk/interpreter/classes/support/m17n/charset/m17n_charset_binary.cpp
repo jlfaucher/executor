@@ -130,7 +130,7 @@ upper case.
 */
 
 RexxString*
-CHARSET_BINARY::upcase(RexxString *src)
+CHARSET_BINARY::upcase(RexxString *src, ssizeC_t start, ssizeC_t length)
 {
     reportException(Rexx_Error_Execution_user_defined, "Can't upcase binary data");
     return (RexxString *)TheNilObject;
@@ -148,7 +148,7 @@ lower-case.
 */
 
 RexxString*
-CHARSET_BINARY::downcase(RexxString *src)
+CHARSET_BINARY::downcase(RexxString *src, ssizeC_t start, ssizeC_t length)
 {
     reportException(Rexx_Error_Execution_user_defined, "Can't downcase binary data");
     return (RexxString *)TheNilObject;
@@ -240,10 +240,10 @@ Compare the two buffers, first by size, then with memcmp.
 wholenumber_t
 CHARSET_BINARY::compare(IRexxString *lhs, IRexxString *rhs)
 {
-    const wholenumber_t l_len = lhs->getBLength();
-    const wholenumber_t r_len = rhs->getBLength();
+    const sizeB_t l_len = lhs->getBLength();
+    const sizeB_t r_len = rhs->getBLength();
     if (l_len != r_len)
-        return l_len - r_len;
+        return l_len < r_len ? -1 : 1;
 
     return memcmp(lhs->getStringData(), rhs->getStringData(), l_len);
 }
@@ -268,7 +268,7 @@ CHARSET_BINARY::validate(IRexxString *src)
 /*
 
 =item C<static wholenumber_t is_cclass(wholenumber_t flags, IRexxString *src,
-wholenumber_t offset)>
+sizeC_t offset)>
 
 Returns Boolean.
 
@@ -277,15 +277,15 @@ Returns Boolean.
 */
 
 wholenumber_t
-CHARSET_BINARY::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset)
+CHARSET_BINARY::is_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset)
 {
     return 0;
 }
 
 /*
 
-=item C<static wholenumber_t find_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+=item C<static sizeC_t find_cclass(wholenumber_t flags, IRexxString
+*src, sizeC_t offset, sizeC_t count)>
 
 Find a character in the given character class.
 
@@ -293,9 +293,9 @@ Find a character in the given character class.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_BINARY::find_cclass(wholenumber_t flags,
-            IRexxString *src, wholenumber_t offset, wholenumber_t count)
+            IRexxString *src, sizeC_t offset, sizeC_t count)
 {
     return offset + count;
 }
@@ -303,7 +303,7 @@ CHARSET_BINARY::find_cclass(wholenumber_t flags,
 /*
 
 =item C<static wholenumber_t find_not_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+*src, sizeC_t offset, sizeC_t count)>
 
 Returns C<wholenumber_t>.
 
@@ -311,16 +311,16 @@ Returns C<wholenumber_t>.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_BINARY::find_not_cclass(wholenumber_t flags,
-               IRexxString *src, wholenumber_t offset, wholenumber_t count)
+               IRexxString *src, sizeC_t offset, sizeC_t count)
 {
     return offset + count;
 }
 
 /*
 
-=item C<static RexxString * string_from_codepoint(wholenumber_t codepoint)>
+=item C<static RexxString * string_from_codepoint(codepoint_t codepoint)>
 
 Creates a new RexxString object from a single codepoint C<codepoint>. Returns
 the new RexxString.
@@ -330,7 +330,7 @@ the new RexxString.
 */
 
 RexxString *
-CHARSET_BINARY::string_from_codepoint(wholenumber_t codepoint)
+CHARSET_BINARY::string_from_codepoint(codepoint_t codepoint)
 {
     RexxString *return_string;
     char real_codepoint = (char)codepoint;

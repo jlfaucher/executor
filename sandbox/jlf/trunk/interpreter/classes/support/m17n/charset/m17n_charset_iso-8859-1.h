@@ -54,17 +54,17 @@ public:
     RexxString * convert(RexxString *src);
     RexxString * compose(RexxString *src);
     RexxString * decompose(RexxString *src);
-    RexxString * upcase(RexxString *src);
-    RexxString * downcase(RexxString *src);
+    RexxString * upcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1);
+    RexxString * downcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1);
     RexxString * titlecase(RexxString *src);
     RexxString * upcase_first(RexxString *src);
     RexxString * downcase_first(RexxString *src);
     RexxString * titlecase_first(RexxString *src);
     wholenumber_t validate(IRexxString *src);
-    wholenumber_t is_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset);
-    wholenumber_t find_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset, wholenumber_t count);
-    wholenumber_t find_not_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset, wholenumber_t count);
-    RexxString * string_from_codepoint(wholenumber_t codepoint);
+    wholenumber_t is_cclass(wholenumber_t, IRexxString *src, sizeC_t offset);
+    sizeC_t find_cclass(wholenumber_t, IRexxString *src, sizeC_t offset, sizeC_t count);
+    sizeC_t find_not_cclass(wholenumber_t, IRexxString *src, sizeC_t offset, sizeC_t count);
+    RexxString * string_from_codepoint(codepoint_t codepoint);
 };
 
 RexxString * charset_cvt_iso_8859_1_to_ascii(RexxString *src);

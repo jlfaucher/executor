@@ -57,13 +57,12 @@ members, beside setting C<bufstart>/C<buflen> for external strings.
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
+#include "m17n_encoding.h"
 #include "RexxCore.h"
 #include "StringClass.hpp"
 
-#include "m17n_encoding.h"
-
 /*
-=item C<wholenumber_t str_iter_index(RexxString *src,
+=item C<sizeC_t str_iter_index(RexxString *src,
 String_iter *start, String_iter *end, RexxString *search)>
 
 Find the next occurence of RexxString C<search> in RexxString C<src> starting at
@@ -76,15 +75,15 @@ or -1 if it wasn't found.
 
 */
 
-wholenumber_t
+sizeC_t
 str_iter_index(
     IRexxString *src,
     String_iter *start, String_iter *end,
     IRexxString *search)
 {
     String_iter search_iter, search_start, next_start;
-    wholenumber_t len = search->getCLength();
-    wholenumber_t c0;
+    sizeC_t len = search->getCLength();
+    codepoint_t c0;
 
     if (len == 0) {
         *end = *start;
@@ -96,11 +95,11 @@ str_iter_index(
     search_start = search_iter;
     next_start = *start;
 
-    while (start->charpos + len <= (wholenumber_t) src->getCLength()) {
-        wholenumber_t c1 = STRING_ITER_GET_AND_ADVANCE(src, &next_start);
+    while (start->charpos + len <= src->getCLength()) {
+        codepoint_t c1 = STRING_ITER_GET_AND_ADVANCE(src, &next_start);
 
         if (c1 == c0) {
-            wholenumber_t c2;
+            codepoint_t c2;
             *end = next_start;
 
             do {

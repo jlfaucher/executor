@@ -608,9 +608,9 @@ RexxVariableBase  *RexxVariableDictionary::getVariableRetriever(
             // Dot variables retrieve from the environment
         case STRING_LITERAL:
             // this is only a dot variable if it begins with a period
-            if (variable->getChar(0) == '.')
+            if (variable->getCharC(0) == '.')
             {
-                return (RexxVariableBase *)new RexxDotVariable(variable->extract(1, variable->getLength() - 1));
+                return (RexxVariableBase *)new RexxDotVariable(variable->extractC(1, variable->getCLength() - 1));
             }
             // this is a literal symbol not beginning with a period
             return (RexxVariableBase *)variable;
@@ -641,26 +641,26 @@ RexxVariableBase  *RexxVariableDictionary::getDirectVariableRetriever(
 /*            no substitution in compound variable tails)                     */
 /******************************************************************************/
 {
-    size_t length = variable->getLength();      /* get the name length               */
+    sizeC_t length = variable->getCLength();      /* get the name length               */
     /* get the first character           */
-    char character = variable->getChar(0);
+    codepoint_t character = variable->getCharC(0);
     bool        literal = false;         /* literal indicator                 */
                                          /* constant symbol?                  */
-    if (character == '.' || (character >= '0' && character <= '9'))
+    if (character == '.' || (character >= '0' && character <= '9'))	// m17n DecimalDigit
     {
         literal = true;                    /* this is a literal value           */
     }
                                            /* have a valid length?              */
     if (length <= (size_t)MAX_SYMBOL_LENGTH && length > 0)
     {
-        size_t compound = 0;                      /* no periods yet                    */
-        size_t scan = 0;                          /* start at string beginning         */
-        size_t nonnumeric = 0;                    /* count of non-numeric characters   */
-        char last = 0;                            /* no last character                 */
+        sizeC_t compound = 0;                      /* no periods yet                    */
+        sizeC_t scan = 0;                          /* start at string beginning         */
+        sizeC_t nonnumeric = 0;                    /* count of non-numeric characters   */
+        codepoint_t last = 0;                            /* no last character                 */
         while (scan < length)
         {
             /* get the next character            */
-            character = variable->getChar(scan);
+            character = variable->getCharC(scan);
             /* have a period?                    */
             if (character == '.')
             {
@@ -694,9 +694,9 @@ RexxVariableBase  *RexxVariableDictionary::getDirectVariableRetriever(
                     while (scan < length)
                     {
                         /* get the next character            */
-                        character = variable->getChar(scan);
+                        character = variable->getCharC(scan);
                         /* outside numeric range?            */
-                        if (character < '0' || character > '9')
+                        if (character < '0' || character > '9')	// m17n DecimalDigit
                         {
                             return OREF_NULL;        /* not valid either                  */
                         }
@@ -711,7 +711,7 @@ RexxVariableBase  *RexxVariableDictionary::getDirectVariableRetriever(
                 }
             }
             /* non-numeric character?            */
-            else if (character < '0' || character > '9')
+            else if (character < '0' || character > '9')	// m17n DecimalDigit
             {
                 nonnumeric++;                  /* count the non-numeric             */
             }
@@ -744,16 +744,16 @@ RexxObject *RexxVariableDictionary::buildCompoundVariable(
 /* Function:  Build a dynamically created compound variable                   */
 /******************************************************************************/
 {
-    size_t length = variable_name->getLength();      /* get the string length             */
-    size_t position = 0;                        /* start scanning at first character */
+    sizeC_t length = variable_name->getCLength();      /* get the string length             */
+    sizeC_t position = 0;                        /* start scanning at first character */
     /* scan to the first period          */
-    while (variable_name->getChar(position) != '.')
+    while (variable_name->getCharC(position) != '.')
     {
-        position++;                        /* step to the next character        */
+        position++;                        /* step to the next character        */	// todo m17n : iterator
         length--;                          /* reduce the length also            */
     }
     /* extract the stem part             */
-    RexxString *stem = variable_name->extract(0, position + 1);
+    RexxString *stem = variable_name->extractC(0, position + 1);
     ProtectedObject p(stem);
     /* processing to decompose the name  */
     /* into its component parts          */
@@ -766,29 +766,29 @@ RexxObject *RexxVariableDictionary::buildCompoundVariable(
     if (direct == true)
     {
         /* extract the tail part             */
-        RexxString *tail = variable_name->extract(position, length);
+        RexxString *tail = variable_name->extractC(position, length);
         tails->push(tail);                 /* add to the tail piece list        */
     }
     else
     {
-        size_t endPosition = position + length;
+        sizeC_t endPosition = position + length;
 
         while (position < endPosition)     /* process rest of the variable      */
         {
-            size_t start = position;                /* save the start position           */
+            sizeC_t start = position;                /* save the start position           */
                                              /* scan for the next period          */
-            while (position < endPosition && variable_name->getChar(position) != '.')
+            while (position < endPosition && variable_name->getCharC(position) != '.')
             {
                 position++;                    /* step to the next character        */
             }
             /* extract the tail part             */
-            RexxString *tail = variable_name->extract(start, position - start);
+            RexxString *tail = variable_name->extractC(start, position - start);
             /* have a null tail piece or         */
             /* section begin with a digit?       */
             /* ASCII '0' to '9' to recognize a digit                              */
 
             RexxObject *tailPart;
-            if (tail->getLength() == 0 || (tail->getChar(0) >= '0' && tail->getChar(0) <= '9'))
+            if (tail->getBLength() == 0 || (tail->getCharC(0) >= '0' && tail->getCharC(0) <= '9')) // m17n DecimalDigit
             {
                 tailPart = (RexxObject *)tail; /* this is a literal piece           */
             }
@@ -801,7 +801,7 @@ RexxObject *RexxVariableDictionary::buildCompoundVariable(
             position++;                      /* step past previous period         */
         }
         /* have a trailing period?           */
-        if (variable_name->getChar(position - 1) == '.')
+        if (variable_name->getCharC(position - 1) == '.')
         {
             tails->push(OREF_NULLSTRING);    /* add to the tail piece list        */
         }

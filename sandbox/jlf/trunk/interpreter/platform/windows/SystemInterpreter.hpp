@@ -85,7 +85,7 @@ public:
     static RexxString *getInternalSystemName();
     static RexxString *getSourceString(RexxString *callType, RexxString * programName);
     static void releaseResultMemory(void *);
-    static void *allocateResultMemory(size_t);
+    static void *allocateResultMemory(sizeB_t);
     static RexxString *getMessageHeader(wholenumber_t code);
     static RexxString *getMessageText(wholenumber_t code);
     static RexxString *getUserid();

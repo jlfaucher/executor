@@ -61,7 +61,7 @@ void RexxBuffer::createInstance()
 
 
 RexxBuffer *RexxBuffer::expand(
-    size_t l)                            /* minimum space needed              */
+    sizeB_t l)                            /* minimum space needed              */
 /******************************************************************************/
 /* Function:  Create a larger buffer and copy existing data into it           */
 /******************************************************************************/
@@ -97,6 +97,16 @@ void *RexxBuffer::operator new(size_t size, size_t _length)
                                          /* Get new object                    */
     RexxBuffer *newBuffer = (RexxBuffer *) new_object(size + _length, T_Buffer);
     /* Initialize this new buffer        */
+	// JLF remember : this is problematic !!!!
+	// This operator is called by :
+	//     inline RexxBuffer *new_buffer(sizeB_t s) { return new (size_v(s)) RexxBuffer; }
+	// The attributes are initialized BEFORE the constructor is called (is it a good practice ??? for me, no !).
+	// When I use a strong type for sizeB_t, then then constructors of bufferSize and dataLength are called
+	// by the default constructor RexxBuffer() which itself calls RexxBufferBase().
+	// Consequence : the assignments below are overwritten by the default constructor of sizeB_t which stores 0.
+	// The good practice is to initialize the attributes from the constructor, not from the new operator.
+	// I keep the following lines, but I also add a new constructor RexxBuffer(sizeB_t _length) and RexxBufferBase(sizeB_t _length)
+	// [JLF] I had the same problem in the parser, but more difficult to fix... So I decided to no longer assign 0. And I removed the new constructors described above.
     newBuffer->bufferSize = _length;     /* set the length of the buffer      */
     newBuffer->dataLength = _length;     // by default, the data length and size are the same
     newBuffer->setHasNoReferences();     /* this has no references            */

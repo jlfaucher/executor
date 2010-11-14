@@ -52,21 +52,21 @@
 class ENCODING_UTF8 : public ENCODING {
 public:
     RexxMutableBuffer * encode(IRexxString *src);
-    wholenumber_t get_codepoint(IRexxString *src, wholenumber_t offset);
-    wholenumber_t get_byte(IRexxString *src, wholenumber_t offset);
-    void set_byte(IRexxString *src, wholenumber_t offset, wholenumber_t count);
-    RexxString * get_codepoints(RexxString *src, wholenumber_t offset, wholenumber_t count);
-    RexxString * get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t count);
-    wholenumber_t codepoints(IRexxString *src);
-    wholenumber_t codepoints(const char *src, wholenumber_t blength);
-    wholenumber_t bytes(IRexxString *src);
-    wholenumber_t find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, wholenumber_t offset, wholenumber_t count);
+    codepoint_t get_codepoint(IRexxString *src, sizeC_t offset);
+    wholenumber_t get_byte(IRexxString *src, sizeB_t offset);
+    void set_byte(IRexxString *src, sizeB_t offset, wholenumber_t byte);
+    RexxString * get_codepoints(RexxString *src, sizeC_t offset, sizeC_t count);
+    RexxString * get_bytes(RexxString *src, sizeB_t offset, sizeB_t count);
+    sizeC_t codepoints(IRexxString *src);
+    sizeC_t codepoints(const char *src, sizeB_t blength);
+    sizeB_t bytes(IRexxString *src);
+    sizeC_t find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, sizeC_t offset, sizeC_t count);
 
-    wholenumber_t iter_get(IRexxString *str, String_iter *i, wholenumber_t offset);
-    void iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip);
-    wholenumber_t iter_get_and_advance(IRexxString *str, String_iter *i);
-    void iter_set_and_advance(IRexxString *str, String_iter *i, wholenumber_t c);
-    void iter_set_position(IRexxString *str, String_iter *i, wholenumber_t pos);
+    codepoint_t iter_get(IRexxString *str, String_iter *i, sizeC_t offset);
+    void iter_skip(IRexxString *str, String_iter *i, sizeC_t skip);
+    codepoint_t iter_get_and_advance(IRexxString *str, String_iter *i);
+    void iter_set_and_advance(IRexxString *str, String_iter *i, codepoint_t c);
+    void iter_set_position(IRexxString *str, String_iter *i, sizeC_t pos);
 };
 
 void m17n_encoding_utf8_init();

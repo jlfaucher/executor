@@ -539,7 +539,7 @@ RexxObject *RexxMessage::newRexx(
             /* Convert it into a string.         */
             optionString = stringArgument(optionString, ARG_THREE);
             /*  char and make it lower case      */
-            char option = tolower(optionString->getChar(0));
+            char option = tolower(optionString->getCharC(0));
             if (option == 'a')               /* args passed as an array?          */
             {
                 /* are there less than 4 required    */

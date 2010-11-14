@@ -49,14 +49,14 @@ class SourceLocation                   /* token/clause location information */
 {
 public:
     inline size_t getLineNumber() { return startLine; }
-    inline size_t getOffset()     { return startOffset; }
+    inline sizeB_t getOffset()     { return startOffset; }
     inline size_t getEndLine()    { return endLine; }
-    inline size_t getEndOffset()  { return endOffset; }
+    inline sizeB_t getEndOffset()  { return endOffset; }
 
     inline void setLineNumber(size_t l) { startLine = l; }
-    inline void setOffset(size_t l)     { startOffset = l; }
+    inline void setOffset(sizeB_t l)     { startOffset = l; }
     inline void setEndLine(size_t l)    { endLine = l; }
-    inline void setEndOffset(size_t l)  { endOffset = l; }
+    inline void setEndOffset(sizeB_t l)  { endOffset = l; }
 
     inline void setStart(SourceLocation &l)
     {
@@ -69,13 +69,13 @@ public:
         setEnd(l.getEndLine(), l.getEndOffset());
     }
 
-    inline void   setStart(size_t line, size_t offset)
+    inline void   setStart(size_t line, sizeB_t offset)
     {
         startLine = line;
         startOffset = offset;
     }
 
-    inline void   setEnd(size_t line, size_t offset)
+    inline void   setEnd(size_t line, sizeB_t offset)
     {
         // only set if this makes sense
         if (line > startLine || (line == startLine && offset > startOffset))
@@ -86,7 +86,7 @@ public:
 
     }
 
-    inline void setLocation(size_t line, size_t offset, size_t end, size_t end_offset)
+    inline void setLocation(size_t line, sizeB_t offset, size_t end, sizeB_t end_offset)
     {
         startLine = line;
         startOffset = offset;
@@ -113,9 +113,9 @@ public:
 
 protected:
     size_t startLine;                    // file line start location
-    size_t startOffset;                  // offset within the file line
+    sizeB_t startOffset;                  // offset within the file line
     size_t endLine;                      // file line end location
-    size_t endOffset;                    // file end offset
+    sizeB_t endOffset;                    // file end offset
 };
 
 

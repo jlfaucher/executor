@@ -69,6 +69,7 @@ void RexxMutableBuffer::createInstance()
 
 #define DEFAULT_BUFFER_LENGTH 256
 
+// in behaviour
 RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t argc)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
@@ -76,8 +77,8 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
 {
     RexxString        *string;
     RexxMutableBuffer *newBuffer;         /* new mutable buffer object         */
-    size_t            bufferLength = DEFAULT_BUFFER_LENGTH;
-    size_t            defaultSize;
+    sizeB_t            bufferLength = DEFAULT_BUFFER_LENGTH;
+    sizeB_t            defaultSize;
     if (argc >= 1)
     {
         if (args[0] != NULL)
@@ -139,19 +140,19 @@ RexxMutableBuffer::RexxMutableBuffer(const char *charsetName)
     dataBLength = 0;
     dataCLength = 0;
 
-    CHARSET *charset = NULL;
-    if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (charset == NULL) charset = m17n_default_charset();
-    ENCODING *encoding = charset->preferred_encoding;
-    this->setCharset(charset);
-    this->setEncoding(encoding);
+    CHARSET *_charset = NULL;
+    if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
+    if (_charset == NULL) _charset = m17n_default_charset();
+    ENCODING *_encoding = _charset->preferred_encoding;
+    this->setCharset(_charset);
+    this->setEncoding(_encoding);
 }
 
 
 /**
  * Constructor with explicitly set charset and encoding.
  */
-RexxMutableBuffer::RexxMutableBuffer(CHARSET *charset, ENCODING *encoding)
+RexxMutableBuffer::RexxMutableBuffer(CHARSET *_charset, ENCODING *_encoding)
 {
     bufferLength = DEFAULT_BUFFER_LENGTH;   /* save the length of the buffer    */
     defaultSize  = bufferLength;            /* store the default buffer size    */
@@ -163,8 +164,8 @@ RexxMutableBuffer::RexxMutableBuffer(CHARSET *charset, ENCODING *encoding)
     this->setBLength(0);
     this->setCLength(0);
 
-    this->setCharset(charset ? charset : m17n_default_charset());
-    this->setEncoding(encoding ? encoding : charset->preferred_encoding);
+    this->setCharset(_charset ? _charset : m17n_default_charset());
+    this->setEncoding(_encoding ? _encoding : _charset->preferred_encoding);
 }
 
 
@@ -174,7 +175,7 @@ RexxMutableBuffer::RexxMutableBuffer(CHARSET *charset, ENCODING *encoding)
  * @param l      Initial length.
  * @param d      The explicit default size.
  */
-RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, const char *charsetName)
+RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, const char *charsetName)
 {
     bufferLength = l;               /* save the length of the buffer    */
     defaultSize  = d;               /* store the default buffer size    */
@@ -185,12 +186,12 @@ RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, const char *charsetName
     this->setBLength(0);
     this->setCLength(0);
     
-    CHARSET *charset = NULL;
-    if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (charset == NULL) charset = m17n_default_charset();
-    ENCODING *encoding = charset->preferred_encoding;
-    this->setCharset(charset);
-    this->setEncoding(encoding);
+    CHARSET *_charset = NULL;
+    if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
+    if (_charset == NULL) _charset = m17n_default_charset();
+    ENCODING *_encoding = _charset->preferred_encoding;
+    this->setCharset(_charset);
+    this->setEncoding(_encoding);
 }
 
 
@@ -200,7 +201,7 @@ RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, const char *charsetName
  * @param l      Initial length.
  * @param d      The explicit default size.
  */
-RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, CHARSET *charset, ENCODING *encoding)
+RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, CHARSET *_charset, ENCODING *_encoding)
 {
     bufferLength = l;               /* save the length of the buffer    */
     defaultSize  = d;               /* store the default buffer size    */
@@ -211,8 +212,8 @@ RexxMutableBuffer::RexxMutableBuffer(size_t l, size_t d, CHARSET *charset, ENCOD
     this->setBLength(0);
     this->setCLength(0);
     
-    this->setCharset(charset ? charset : m17n_default_charset());
-    this->setEncoding(encoding ? encoding : charset->preferred_encoding);
+    this->setCharset(_charset ? _charset : m17n_default_charset());
+    this->setEncoding(_encoding ? _encoding : _charset->preferred_encoding);
 }
 
 
@@ -299,12 +300,12 @@ RexxObject *RexxMutableBuffer::copy()
     return newObj;
 }
 
-void RexxMutableBuffer::ensureCapacity(size_t addedLength)
+void RexxMutableBuffer::ensureCapacity(sizeB_t addedLength)
 /******************************************************************************/
 /* Function:  append to the mutable buffer                                    */
 /******************************************************************************/
 {
-    size_t resultLength = this->dataBLength + addedLength;
+    sizeB_t resultLength = this->dataBLength + addedLength;
 
     if (resultLength > bufferLength)
     {   /* need to enlarge?                  */
@@ -324,17 +325,26 @@ void RexxMutableBuffer::ensureCapacity(size_t addedLength)
 }
 
 
+void RexxMutableBuffer::ensureCapacity(sizeC_t addedLength)
+{
+    sizeB_t resultLength = this->dataBLength + (size_v(addedLength) * this->getEncoding()->max_bytes_per_codepoint);
+	this->ensureCapacity(resultLength);
+}
+
+
 /**
  * Return the length of the data in the buffer currently.
  *
  * @return The current length, as an Integer object.
  */
+// in behaviour
 RexxObject *RexxMutableBuffer::lengthRexx()
 {
-    return new_integer(getLength());
+    return new_integer(getCLength());
 }
 
 
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
 /******************************************************************************/
 /* Function:  append to the mutable buffer                                    */
@@ -352,7 +362,7 @@ RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
 }
 
 
-RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *data, size_t blength)
+RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *_data, sizeB_t blength)
 /******************************************************************************/
 /* Function:  append to the mutable buffer                                    */
 /******************************************************************************/
@@ -360,13 +370,14 @@ RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *data, size_t ble
     // make sure we have enough room
     ensureCapacity(blength);
 
-    this->data->copyData(dataBLength, data, blength);
+    this->data->copyData(dataBLength, _data, blength);
     this->setBLength(this->dataBLength + blength);
-    this->setCLength(this->dataCLength + this->getEncoding()->codepoints(data, blength));
+    this->setCLength(this->dataCLength + this->getEncoding()->codepoints(_data, blength));
     return this;
 }
 
 
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
 /******************************************************************************/
 /* Function:  insert string at given position                                 */
@@ -376,18 +387,18 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
     RexxString * string = stringArgument(str, ARG_ONE);
 
     // we're using optional length because 0 is valid for insert.
-    size_t begin = optionalNonNegative(pos, 0, ARG_TWO);
-    size_t insertLength = optionalLengthArgument(len, string->getLength(), ARG_THREE);
+    sizeC_t begin = optionalNonNegative(pos, 0, ARG_TWO);
+    sizeC_t insertLength = optionalLengthArgument(len, string->getCLength(), ARG_THREE);
 
-    char padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+    codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
 
-    size_t copyLength = Numerics::minVal(insertLength, string->getLength());
-    size_t padLength = insertLength - copyLength;
+    sizeC_t copyLength = Numerics::minVal(insertLength, string->getCLength());
+    sizeC_t padLength = insertLength - copyLength;
 
 
     // if inserting within the current bounds, we only need to add the length
     // if inserting beyond the end, we need to make sure we add space for the gap too
-    if (begin < dataBLength)
+    if (begin < dataCLength)
     {
         // if inserting a zero length string, this is simple!
         if (insertLength == 0)
@@ -398,76 +409,80 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
     }
     else
     {
-        ensureCapacity(insertLength + (begin - dataBLength));
+        ensureCapacity(insertLength + (begin - dataCLength));
     }
 
 
     /* create space in the buffer   */
-    if (begin < dataBLength)
+    if (begin < dataCLength)
     {
-        openGap(begin, insertLength, dataBLength - begin);
+        openGap(size_v(begin), size_v(insertLength), size_v(dataCLength - begin)); // todo m17n
     }
-    else if (begin > this->dataBLength)
+    else if (begin > this->dataCLength)
     {
         /* pad before insertion         */
-        setData(dataBLength, padChar, begin - dataBLength);
+        setData(size_v(dataCLength), padChar, size_v(begin - dataCLength)); // todo m17n
     }
     /* insert string contents       */
-    copyData(begin, string->getStringData(), copyLength);
+    copyData(size_v(begin), string->getStringData(), size_v(copyLength)); // todo m17n
     // do we need data padding?
     if (padLength > 0)
     {
-        setData(begin + string->getLength(), padChar, padLength);
+        setData(size_v(begin + string->getCLength()), padChar, size_v(padLength)); // todo m17n
     }
     // inserting after the end? the resulting length is measured from the insertion point
-    if (begin > this->dataBLength)
+    if (begin > this->dataCLength)
     {
-        this->setBLength(begin + insertLength);
+        this->setBLength(size_v(begin + insertLength)); // todo m17n
+        this->setCLength(begin + insertLength);
     }
     else
     {
         // just add in the inserted length
-        this->setBLength(this->dataBLength + insertLength);
+        this->setBLength(size_v(this->dataCLength + insertLength)); // todo m17n
+        this->setCLength(this->dataCLength + insertLength);
     }
     return this;
 }
 
 
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
 /******************************************************************************/
 /* Function:  replace characters in buffer contents                           */
 /******************************************************************************/
 {
     RexxString *string = stringArgument(str, ARG_ONE);
-    size_t begin = optionalPositionArgument(pos, 1, ARG_TWO) - 1;
-    size_t replaceLength = optionalLengthArgument(len, string->getLength(), ARG_THREE);
+    sizeC_t begin = optionalPositionArgument(pos, 1, ARG_TWO) - 1;
+    sizeC_t replaceLength = optionalLengthArgument(len, string->getCLength(), ARG_THREE);
 
-    char padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+    codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
 
     // make sure we have room for this
     ensureCapacity(begin + replaceLength);
 
     // is our start position beyond the current data end?
-    if (begin > dataBLength)
+    if (begin > dataCLength)
     {
         // add padding to the gap
-        setData(dataBLength, padChar, begin - dataBLength);
+        setData(size_v(dataCLength), padChar, size_v(begin - dataCLength));
     }
 
     // now overlay the string data
-    copyData(begin, string->getStringData(), Numerics::minVal(replaceLength, string->getLength()));
+    copyData(size_v(begin), string->getStringData(), size_v(Numerics::minVal(replaceLength, string->getCLength()))); // todo m17n
     // do we need additional padding?
-    if (replaceLength > string->getLength())
+    if (replaceLength > string->getCLength())
     {
         // pad the section after the overlay
-        setData(begin + string->getLength(), padChar, replaceLength - string->getLength());
+        setData(size_v(begin + string->getCLength()), padChar, size_v(replaceLength - string->getCLength())); // todo m17n
     }
 
     // did this add to the size?
-    if (begin + replaceLength > dataBLength)
+    if (begin + replaceLength > dataCLength)
     {
         //adjust upward
-        this->setBLength(begin + replaceLength);
+        this->setBLength(size_v(begin + replaceLength)); // todo m17n
+        this->setCLength(begin + replaceLength);
     }
     return this;
 }
@@ -491,26 +506,27 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
  *
  * @return The target mutablebuffer object.
  */
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
 {
     RexxString *string = stringArgument(str, ARG_ONE);
-    size_t begin = positionArgument(pos, ARG_TWO) - 1;
-    size_t newLength = string->getLength();
-    size_t replaceLength = optionalLengthArgument(len, newLength, ARG_THREE);
+    sizeC_t begin = positionArgument(pos, ARG_TWO) - 1;
+    sizeC_t newLength = string->getCLength();
+    sizeC_t replaceLength = optionalLengthArgument(len, newLength, ARG_THREE);
 
-    char padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
-    size_t finalLength;
+    codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+    sizeC_t finalLength;
 
     // will this extend beyond the end of the string, we require
     // space for the position + the replacement string length
-    if (begin + newLength > dataBLength)
+    if (begin + newLength > dataCLength)
     {
         finalLength = begin + newLength;
     }
     // we could be replacing a substring that runs over the
     // end of the start...in that case, the result with be
     // the same as above
-    else if (begin + replaceLength > dataBLength)
+    else if (begin + replaceLength > dataCLength)
     {
         finalLength = begin + newLength;
     }
@@ -518,7 +534,7 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     {
         // we need to add the delta between the excised string and the inserted
         // replacement string
-        finalLength = dataBLength - replaceLength + newLength;
+        finalLength = dataCLength - replaceLength + newLength;
     }
 
     // make sure we have room for this
@@ -527,62 +543,66 @@ RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos
     // is our start position beyond the current data end?
     // NB: Even though we've adjusted the buffer size, the dataLength is still
     // the original entry length.
-    if (begin > dataBLength)
+    if (begin > dataCLength)
     {
         // add padding to the gap
-        setData(dataBLength, padChar, begin - dataBLength);
+        setData(dataBLength, padChar, size_v(begin - dataCLength)); // todo m17n
         // now overlay the string data
-        copyData(begin, string->getStringData(), newLength);
+        copyData(size_v(begin), string->getStringData(), size_v(newLength)); // todo m17n
     }
     else
     {
         // if the strings are of different lengths, we need to adjust the size
         // of the gap we're copying into.  Only adjust if there is a real gap
-        if (replaceLength != newLength && begin + replaceLength < dataBLength)
+        if (replaceLength != newLength && begin + replaceLength < dataCLength)
         {
             // snip out the original string
-            adjustGap(begin, replaceLength, newLength);
+            adjustGap(size_v(begin), size_v(replaceLength), size_v(newLength)); // todo m17n
         }
         // now overlay the string data
-        copyData(begin, string->getStringData(), newLength);
+        copyData(size_v(begin), string->getStringData(), size_v(newLength)); // todo m17n
     }
 
     // and finally adjust the length
-    this->setBLength(finalLength);
+    this->setBLength(size_v(finalLength)); // todo m17n
+    this->setCLength(finalLength);
     // our return value is always the target mutable buffer
     return this;
 }
 
 
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::mydelete(RexxObject *_start, RexxObject *len)
 /******************************************************************************/
 /* Function:  delete character range in buffer                                */
 /******************************************************************************/
 {
-    size_t begin = positionArgument(_start, ARG_ONE) - 1;
-    size_t range = optionalLengthArgument(len, this->data->getDataLength() - begin, ARG_TWO);
+    sizeC_t begin = positionArgument(_start, ARG_ONE) - 1;
+    sizeC_t range = optionalLengthArgument(len, /*this->data->getDataLength()*/ this->dataCLength - begin, ARG_TWO);
 
     // is the begin point actually within the string?
-    if (begin < dataBLength)
+    if (begin < dataCLength)
     {           /* got some work to do?         */
         // deleting from the middle?
-        if (begin + range < dataBLength)
+        if (begin + range < dataCLength)
         {
             // shift everything over
-            closeGap(begin, range, dataBLength - (begin + range));
-            this->setBLength(dataBLength - range);
+            closeGap(size_v(begin), size_v(range), size_v(dataCLength - (begin + range))); // todo m17n
+            this->setBLength(size_v(dataCLength - range));
+            this->setCLength(dataCLength - range);
         }
         else
         {
             // we're just truncating
-            this->setBLength(begin);
+            this->setBLength(size_v(begin)); // todo m17n
+            this->setCLength(begin);
         }
     }
     return this;
 }
 
 
-RexxObject *RexxMutableBuffer::setBufferLength(size_t newsize)
+RexxObject *RexxMutableBuffer::setBufferLength(sizeB_t newsize)
 /******************************************************************************/
 /* Function:  set the size of the buffer                                      */
 /******************************************************************************/
@@ -608,7 +628,7 @@ RexxObject *RexxMutableBuffer::setBufferLength(size_t newsize)
         RexxBuffer *newBuffer = new_buffer(newsize);
         // if we're shrinking this, it truncates.
         this->setBLength(Numerics::minVal(dataBLength, newsize));
-        // todo : dataCLength
+        // todo m17n : dataCLength
         newBuffer->copyData(0, data->getData(), dataBLength);
         // replace the old buffer
         OrefSet(this, this->data, newBuffer);
@@ -619,6 +639,7 @@ RexxObject *RexxMutableBuffer::setBufferLength(size_t newsize)
 }
 
 
+// in behaviour
 RexxObject *RexxMutableBuffer::setBufferSize(RexxInteger *size)
 /******************************************************************************/
 /* Function:  set the size of the buffer                                      */
@@ -645,11 +666,12 @@ RexxString *RexxMutableBuffer::makeString()
 /*                                                                            */
 /*  Returned:  string, sub string of original.                                */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxMutableBuffer::substr(RexxInteger *argposition,
                                       RexxInteger *arglength,
                                       RexxString  *pad)
 {
-    return StringUtil::substr(getStringData(), getLength(), argposition, arglength, pad);
+    return StringUtil::substr(getStringData(), getBLength(), argposition, arglength, pad);
 }
 
 
@@ -662,9 +684,10 @@ RexxString *RexxMutableBuffer::substr(RexxInteger *argposition,
  * @return The index of the located string.  Returns 0 if no matches
  *         are found.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::posRexx(RexxString  *needle, RexxInteger *pstart, RexxInteger *range)
 {
-    return StringUtil::posRexx(getStringData(), getLength(), needle, pstart, range);
+    return StringUtil::posRexx(getStringData(), getBLength(), needle, pstart, range);
 }
 
 
@@ -678,9 +701,10 @@ RexxInteger *RexxMutableBuffer::posRexx(RexxString  *needle, RexxInteger *pstart
  * @return The index of the located string.  Returns 0 if no matches
  *         are found.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::lastPos(RexxString  *needle, RexxInteger *_start, RexxInteger *_range)
 {
-    return StringUtil::lastPosRexx(getStringData(), getLength(), needle, _start, _range);
+    return StringUtil::lastPosRexx(getStringData(), getBLength(), needle, _start, _range);
 }
 
 
@@ -693,16 +717,18 @@ RexxInteger *RexxMutableBuffer::lastPos(RexxString  *needle, RexxInteger *_start
  * @return The index of the located string.  Returns 0 if no matches
  *         are found.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::caselessPos(RexxString  *needle, RexxInteger *pstart, RexxInteger *range)
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
     /* get the starting position         */
-    size_t _start = optionalPositionArgument(pstart, 1, ARG_TWO);
-    size_t _range = optionalLengthArgument(range, getLength() - _start + 1, ARG_THREE);
+    sizeC_t _start = optionalPositionArgument(pstart, 1, ARG_TWO);
+    sizeC_t _range = optionalLengthArgument(range, getCLength() - _start + 1, ARG_THREE);
     /* pass on to the primitive function */
     /* and return as an integer object   */
-    return new_integer(StringUtil::caselessPos(getStringData(), getLength(), needle , _start - 1, _range));
+    sizeB_t result = StringUtil::caselessPos(getStringData(), getBLength(), needle , size_v(_start - 1), size_v(_range)); // todo m17n
+	return new_integer(result);
 }
 
 
@@ -716,16 +742,18 @@ RexxInteger *RexxMutableBuffer::caselessPos(RexxString  *needle, RexxInteger *ps
  * @return The index of the located string.  Returns 0 if no matches
  *         are found.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::caselessLastPos(RexxString  *needle, RexxInteger *pstart, RexxInteger *range)
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
     /* get the starting position         */
-    size_t _start = optionalPositionArgument(pstart, getLength(), ARG_TWO);
-    size_t _range = optionalLengthArgument(range, getLength(), ARG_THREE);
+    sizeC_t _start = optionalPositionArgument(pstart, getCLength(), ARG_TWO);
+    sizeC_t _range = optionalLengthArgument(range, getCLength(), ARG_THREE);
     /* pass on to the primitive function */
     /* and return as an integer object   */
-    return new_integer(StringUtil::caselessLastPos(getStringData(), getLength(), needle , _start, _range));
+    sizeB_t result = StringUtil::caselessLastPos(getStringData(), getBLength(), needle , size_v(_start), size_v(_range)); // todo m17n
+	return new_integer(result);
 }
 
 
@@ -742,21 +770,24 @@ RexxInteger *RexxMutableBuffer::caselessLastPos(RexxString  *needle, RexxInteger
  *         Returns a null string if the position is beyond the end
  *         of the string.
  */
+// in behaviour
 RexxString *RexxMutableBuffer::subchar(RexxInteger *positionArg)
 {
-    return StringUtil::subchar(getStringData(), getLength(), positionArg);
+    return StringUtil::subchar(getStringData(), getBLength(), positionArg);
 }
 
 
+// in behaviour
 RexxArray *RexxMutableBuffer::makearray(RexxString *div)
 /******************************************************************************/
 /* Function:  Split string into an array                                      */
 /******************************************************************************/
 {
-    return StringUtil::makearray(getStringData(), getLength(), div);
+    return StringUtil::makearray(getStringData(), getBLength(), div);
 }
 
 
+// in behaviour
 RexxInteger *RexxMutableBuffer::countStrRexx(RexxString *needle)
 /******************************************************************************/
 /* Function:  Count occurrences of one string in another.                     */
@@ -765,9 +796,10 @@ RexxInteger *RexxMutableBuffer::countStrRexx(RexxString *needle)
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
     // delegate the counting to the string util
-    return new_integer(StringUtil::countStr(getStringData(), getLength(), needle));
+    return new_integer(StringUtil::countStr(getStringData(), getBLength(), needle));
 }
 
+// in behaviour
 RexxInteger *RexxMutableBuffer::caselessCountStrRexx(RexxString *needle)
 /******************************************************************************/
 /* Function:  Count occurrences of one string in another.                     */
@@ -776,7 +808,7 @@ RexxInteger *RexxMutableBuffer::caselessCountStrRexx(RexxString *needle)
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
     // delegate the counting to the string util
-    return new_integer(StringUtil::caselessCountStr(getStringData(), getLength(), needle));
+    return new_integer(StringUtil::caselessCountStr(getStringData(), getBLength(), needle));
 }
 
 /**
@@ -788,6 +820,7 @@ RexxInteger *RexxMutableBuffer::caselessCountStrRexx(RexxString *needle)
  *
  * @return The target MutableBuffer
  */
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg)
 {
     /* force needle to a string          */
@@ -798,7 +831,7 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, ARG_THREE);
     // find the number of matches in the string
-    size_t matches = StringUtil::countStr(getStringData(), getLength(), needle);
+    size_t matches = StringUtil::countStr(getStringData(), getBLength(), needle);
     if (matches > count)                 // the matches are bounded by the count
     {
         matches = count;
@@ -808,10 +841,10 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     {
         return this;
     }
-    size_t needleLength = needle->getLength();  /* get the length of the needle      */
-    size_t newLength = newNeedle->getLength();  /* and the replacement length        */
+    sizeB_t needleLength = needle->getBLength();  /* get the length of the needle      */
+    sizeB_t newLength = newNeedle->getBLength();  /* and the replacement length        */
     // calculate the final length and make sure we have enough space
-    size_t resultLength = this->getLength() - (matches * needleLength) + (matches * newLength);
+    sizeB_t resultLength = this->getBLength() - (matches * needleLength) + (matches * newLength);
     ensureCapacity(resultLength);
 
     // an inplace update has complications, depending on whether the new string is shorter,
@@ -821,13 +854,13 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     if (needleLength == newLength)
     {
         const char *source = getStringData();
-        size_t sourceLength = getLength();
-        size_t _start = 0;                          /* set a zero starting point         */
+        sizeB_t sourceLength = getBLength();
+        sizeB_t _start = 0;                          /* set a zero starting point         */
         for (size_t i = 0; i < matches; i++)
         {
             // search for the next occurrence...which should be there because we
             // already know the count
-            size_t matchPos = StringUtil::pos(source, sourceLength, needle, _start, sourceLength);
+            sizeB_t matchPos = StringUtil::pos(source, sourceLength, needle, _start, sourceLength);
             copyData(matchPos - 1, newNeedle->getStringData(), newLength);
             // step to the next search position
             _start = matchPos + newLength - 1;
@@ -837,18 +870,18 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     else if (needleLength > newLength)
     {
         // we start building from the beginning
-        size_t copyOffset = 0;
-        size_t _start = 0;
+        sizeB_t copyOffset = 0;
+        sizeB_t _start = 0;
         // get our string bounds
         const char *source = getStringData();
-        size_t sourceLength = getLength();
+        sizeB_t sourceLength = getBLength();
         const char *newPtr = newNeedle->getStringData();
         // this is our scan offset
         for (size_t i = 0; i < matches; i++)
         {
             // look for each instance and replace
-            size_t matchPos = StringUtil::pos(source, sourceLength, needle, _start, sourceLength);
-            size_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
+            sizeB_t matchPos = StringUtil::pos(source, sourceLength, needle, _start, sourceLength);
+            sizeB_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
             // if this skipped over characters, we need to copy those
             if (copyLength != 0)
             {
@@ -873,14 +906,14 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     // to the end and then pull the pieces back in as we go
     else
     {
-        size_t growth = (newLength - needleLength) * matches;
+        sizeB_t growth = (newLength - needleLength) * matches;
 
         // we start building from the beginning
-        size_t copyOffset = 0;
-        size_t _start = 0;
+        sizeB_t copyOffset = 0;
+        sizeB_t _start = 0;
         // get our string bounds
         const char *source = getStringData() + growth;
-        size_t sourceLength = getLength();
+        sizeB_t sourceLength = getBLength();
         // this shifts everything to the end of the buffer.  From there,
         // we pull pieces back into place.
         openGap(0, growth, sourceLength);
@@ -889,8 +922,8 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
         for (size_t i = 0; i < matches; i++)
         {
             // look for each instance and replace
-            size_t matchPos = StringUtil::pos(source, sourceLength, needle, _start, sourceLength);
-            size_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
+            sizeB_t matchPos = StringUtil::pos(source, sourceLength, needle, _start, sourceLength);
+            sizeB_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
             // if this skipped over characters, we need to copy those
             if (copyLength != 0)
             {
@@ -913,7 +946,7 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     }
     // update the result length, and return
     this->setBLength(resultLength);
-    // todo : dataCLength
+    // todo m17n : dataCLength
     return this;
 }
 
@@ -927,6 +960,7 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
  *
  * @return The target MutableBuffer
  */
+// in beahviour
 RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg)
 {
     /* force needle to a string          */
@@ -937,7 +971,7 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, ARG_THREE);
     // find the number of matches in the string
-    size_t matches = StringUtil::caselessCountStr(getStringData(), getLength(), needle);
+    size_t matches = StringUtil::caselessCountStr(getStringData(), getBLength(), needle);
     if (matches > count)                 // the matches are bounded by the count
     {
         matches = count;
@@ -947,10 +981,10 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     {
         return this;
     }
-    size_t needleLength = needle->getLength();  /* get the length of the needle      */
-    size_t newLength = newNeedle->getLength();  /* and the replacement length        */
+    sizeB_t needleLength = needle->getBLength();  /* get the length of the needle      */
+    sizeB_t newLength = newNeedle->getBLength();  /* and the replacement length        */
     // calculate the final length and make sure we have enough space
-    size_t resultLength = this->getLength() - (matches * needleLength) + (matches * newLength);
+    sizeB_t resultLength = this->getBLength() - (matches * needleLength) + (matches * newLength);
     ensureCapacity(resultLength);
 
     // an inplace update has complications, depending on whether the new string is shorter,
@@ -960,13 +994,13 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     if (needleLength == newLength)
     {
         const char *source = getStringData();
-        size_t sourceLength = getLength();
-        size_t _start = 0;                          /* set a zero starting point         */
+        sizeB_t sourceLength = getBLength();
+        sizeB_t _start = 0;                          /* set a zero starting point         */
         for (size_t i = 0; i < matches; i++)
         {
             // search for the next occurrence...which should be there because we
             // already know the count
-            size_t matchPos = StringUtil::caselessPos(source, sourceLength, needle, _start, sourceLength);
+            sizeB_t matchPos = StringUtil::caselessPos(source, sourceLength, needle, _start, sourceLength);
             copyData(matchPos - 1, newNeedle->getStringData(), newLength);
             // step to the next search position
             _start = matchPos + newLength - 1;
@@ -976,18 +1010,18 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     else if (needleLength > newLength)
     {
         // we start building from the beginning
-        size_t copyOffset = 0;
-        size_t _start = 0;
+        sizeB_t copyOffset = 0;
+        sizeB_t _start = 0;
         // get our string bounds
         const char *source = getStringData();
-        size_t sourceLength = getLength();
+        sizeB_t sourceLength = getBLength();
         const char *newPtr = newNeedle->getStringData();
         // this is our scan offset
         for (size_t i = 0; i < matches; i++)
         {
             // look for each instance and replace
-            size_t matchPos = StringUtil::caselessPos(source, sourceLength, needle, _start, sourceLength);
-            size_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
+            sizeB_t matchPos = StringUtil::caselessPos(source, sourceLength, needle, _start, sourceLength);
+            sizeB_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
             // if this skipped over characters, we need to copy those
             if (copyLength != 0)
             {
@@ -1012,14 +1046,14 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     // to the end and then pull the pieces back in as we go
     else
     {
-        size_t growth = (newLength - needleLength) * matches;
+        sizeB_t growth = (newLength - needleLength) * matches;
 
         // we start building from the beginning
-        size_t copyOffset = 0;
-        size_t _start = 0;
+        sizeB_t copyOffset = 0;
+        sizeB_t _start = 0;
         // get our string bounds
         const char *source = getStringData() + growth;
-        size_t sourceLength = getLength();
+        sizeB_t sourceLength = getBLength();
         // this shifts everything to the end of the buffer.  From there,
         // we pull pieces back into place.
         openGap(0, growth, sourceLength);
@@ -1028,8 +1062,8 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
         for (size_t i = 0; i < matches; i++)
         {
             // look for each instance and replace
-            size_t matchPos = StringUtil::caselessPos(source, sourceLength, needle, _start, sourceLength);
-            size_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
+            sizeB_t matchPos = StringUtil::caselessPos(source, sourceLength, needle, _start, sourceLength);
+            sizeB_t copyLength = (matchPos - 1) - _start;  /* get the next length to copy       */
             // if this skipped over characters, we need to copy those
             if (copyLength != 0)
             {
@@ -1052,7 +1086,7 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     }
     // update the result length, and return
     this->setBLength(resultLength);
-    // todo : dataCLength
+    // todo m17n : dataCLength
     return this;
 }
 
@@ -1067,18 +1101,19 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
  *
  * @return A new string object with the case conversion applied.
  */
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::lower(RexxInteger *_start, RexxInteger *_length)
 {
-    size_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
-    size_t rangeLength = optionalLengthArgument(_length, getLength(), ARG_TWO);
+    sizeC_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
+    sizeC_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
 
     // if we're starting beyond the end bounds, return unchanged
-    if (startPos >= getLength())
+    if (startPos >= getCLength())
     {
         return this;
     }
 
-    rangeLength = Numerics::minVal(rangeLength, getLength() - startPos);
+    rangeLength = Numerics::minVal(rangeLength, getCLength() - startPos);
 
     // a zero length value is also a non-change.
     if (rangeLength == 0)
@@ -1086,7 +1121,7 @@ RexxMutableBuffer *RexxMutableBuffer::lower(RexxInteger *_start, RexxInteger *_l
         return this;
     }
 
-    char *bufferData = getData() + startPos;
+    char *bufferData = getData() + size_v(startPos); // todo m17n : startPos is a char pos
     // now uppercase in place
     for (size_t i = 0; i < rangeLength; i++)
     {
@@ -1107,18 +1142,19 @@ RexxMutableBuffer *RexxMutableBuffer::lower(RexxInteger *_start, RexxInteger *_l
  *
  * @return A new string object with the case conversion applied.
  */
+// in beahviour
 RexxMutableBuffer *RexxMutableBuffer::upper(RexxInteger *_start, RexxInteger *_length)
 {
-    size_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
-    size_t rangeLength = optionalLengthArgument(_length, getLength(), ARG_TWO);
+    sizeC_t startPos = optionalPositionArgument(_start, 1, ARG_ONE) - 1;
+    sizeC_t rangeLength = optionalLengthArgument(_length, getCLength(), ARG_TWO);
 
     // if we're starting beyond the end bounds, return unchanged
-    if (startPos >= getLength())
+    if (startPos >= getCLength())
     {
         return this;
     }
 
-    rangeLength = Numerics::minVal(rangeLength, getLength() - startPos);
+    rangeLength = Numerics::minVal(rangeLength, getCLength() - startPos);
 
     // a zero length value is also a non-change.
     if (rangeLength == 0)
@@ -1126,7 +1162,7 @@ RexxMutableBuffer *RexxMutableBuffer::upper(RexxInteger *_start, RexxInteger *_l
         return this;
     }
 
-    char *bufferData = getData() + startPos;
+    char *bufferData = getData() + size_v(startPos); // todo m17n : startPos is a char pos
     // now uppercase in place
     for (size_t i = 0; i < rangeLength; i++)
     {
@@ -1148,6 +1184,7 @@ RexxMutableBuffer *RexxMutableBuffer::upper(RexxInteger *_start, RexxInteger *_l
  *
  * @return The target mutable buffer.
  */
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *tablei, RexxString *pad, RexxInteger *_start, RexxInteger *_range)
 {
     // just a simple uppercase?
@@ -1157,28 +1194,28 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
     }
                                             /* validate the tables               */
     tableo = optionalStringArgument(tableo, OREF_NULLSTRING, ARG_ONE);
-    size_t outTableLength = tableo->getLength();      /* get the table length              */
+    sizeB_t outTableLength = tableo->getBLength();      /* get the table length              */
     /* input table too                   */
     tablei = optionalStringArgument(tablei, OREF_NULLSTRING, ARG_TWO);
-    size_t inTableLength = tablei->getLength();       /* get the table length              */
+    sizeB_t inTableLength = tablei->getBLength();       /* get the table length              */
     const char *inTable = tablei->getStringData();    /* point at the input table          */
     const char *outTable = tableo->getStringData();   /* and the output table              */
                                           /* get the pad character             */
-    char padChar = optionalPadArgument(pad, ' ', ARG_THREE);
-    size_t startPos = optionalPositionArgument(_start, 1, ARG_FOUR);
-    size_t range = optionalLengthArgument(_range, getLength() - startPos + 1, ARG_FOUR);
+    codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_THREE);
+    sizeC_t startPos = optionalPositionArgument(_start, 1, ARG_FOUR);
+    sizeC_t range = optionalLengthArgument(_range, getCLength() - startPos + 1, ARG_FOUR);
 
     // if nothing to translate, we can return now
-    if (startPos > getLength() || range == 0)
+    if (startPos > getCLength() || range == 0)
     {
         return this;
     }
     // cape the real range
-    range = Numerics::minVal(range, getLength() - startPos + 1);
-    char *scanPtr = getData() + startPos - 1;   /* point to data                     */
-    size_t scanLength = range;                  /* get the length too                */
+    range = Numerics::minVal(range, getCLength() - startPos + 1);
+    char *scanPtr = getData() + size_v(startPos) - 1;   /* point to data                     */ // todo m17n : startPos is a char pos
+    sizeC_t scanLength = range;                  /* get the length too                */
 
-    while (scanLength--)
+    while (scanLength-- != 0)
     {                /* spin thru input                   */
         char ch = *scanPtr;                      /* get a character                   */
         size_t position;
@@ -1225,31 +1262,32 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
  *
  * @return True if the two regions match, false for any mismatch.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::match(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_)
 {
-    stringsize_t _start = positionArgument(start_, ARG_ONE);
+    stringsizeC_t _start = positionArgument(start_, ARG_ONE);
     // the start position must be within the string bounds
-    if (_start > getLength())
+    if (_start > getCLength())
     {
         reportException(Error_Incorrect_method_position, start_);
     }
     other = stringArgument(other, ARG_TWO);
 
-    stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
+    stringsizeC_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
-    if (offset > other->getLength())
+    if (offset > other->getCLength())
     {
-        reportException(Error_Incorrect_method_position, offset);
+        reportException(Error_Incorrect_method_position, size_v(offset));
     }
 
-    stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
+    stringsizeC_t len = optionalLengthArgument(len_, other->getCLength() - offset + 1, ARG_FOUR);
 
-    if ((offset + len - 1) > other->getLength())
+    if ((offset + len - 1) > other->getCLength())
     {
-        reportException(Error_Incorrect_method_length, len);
+        reportException(Error_Incorrect_method_length, size_v(len));
     }
 
-    return primitiveMatch(_start, other, offset, len) ? TheTrueObject : TheFalseObject;
+    return primitiveMatch(size_v(_start), other, size_v(offset), size_v(len)) ? TheTrueObject : TheFalseObject; // todo m17n
 }
 
 
@@ -1268,31 +1306,32 @@ RexxInteger *RexxMutableBuffer::match(RexxInteger *start_, RexxString *other, Re
  *
  * @return True if the two regions match, false for any mismatch.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::caselessMatch(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_)
 {
-    stringsize_t _start = positionArgument(start_, ARG_ONE);
+    stringsizeC_t _start = positionArgument(start_, ARG_ONE);
     // the start position must be within the string bounds
-    if (_start > getLength())
+    if (_start > getCLength())
     {
         reportException(Error_Incorrect_method_position, start_);
     }
     other = stringArgument(other, ARG_TWO);
 
-    stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
+    stringsizeC_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
-    if (offset > other->getLength())
+    if (offset > other->getCLength())
     {
-        reportException(Error_Incorrect_method_position, offset);
+        reportException(Error_Incorrect_method_position, size_v(offset));
     }
 
-    stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
+    stringsizeC_t len = optionalLengthArgument(len_, other->getCLength() - offset + 1, ARG_FOUR);
 
-    if ((offset + len - 1) > other->getLength())
+    if ((offset + len - 1) > other->getCLength())
     {
-        reportException(Error_Incorrect_method_length, len);
+        reportException(Error_Incorrect_method_length, size_v(len));
     }
 
-    return primitiveCaselessMatch(_start, other, offset, len) ? TheTrueObject : TheFalseObject;
+    return primitiveCaselessMatch(size_v(_start), other, size_v(offset), size_v(len)) ? TheTrueObject : TheFalseObject;
 }
 
 
@@ -1307,13 +1346,13 @@ RexxInteger *RexxMutableBuffer::caselessMatch(RexxInteger *start_, RexxString *o
  *
  * @return True if the regions match, false otherwise.
  */
-bool RexxMutableBuffer::primitiveMatch(stringsize_t _start, RexxString *other, stringsize_t offset, stringsize_t len)
+bool RexxMutableBuffer::primitiveMatch(stringsizeB_t _start, RexxString *other, stringsizeB_t offset, stringsizeB_t len)
 {
     _start--;      // make the starting point origin zero
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getLength())
+    if ((_start + len) > getBLength())
     {
         return false;
     }
@@ -1334,13 +1373,13 @@ bool RexxMutableBuffer::primitiveMatch(stringsize_t _start, RexxString *other, s
  *
  * @return True if the regions match, false otherwise.
  */
-bool RexxMutableBuffer::primitiveCaselessMatch(stringsize_t _start, RexxString *other, stringsize_t offset, stringsize_t len)
+bool RexxMutableBuffer::primitiveCaselessMatch(stringsizeB_t _start, RexxString *other, stringsizeB_t offset, stringsizeB_t len)
 {
     _start--;      // make the starting point origin zero
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getLength())
+    if ((_start + len) > getBLength())
     {
         return false;
     }
@@ -1360,23 +1399,24 @@ bool RexxMutableBuffer::primitiveCaselessMatch(stringsize_t _start, RexxString *
  * @return true if the character at the give position is any of the characters,
  *         false if none of them match.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::matchChar(RexxInteger *position_, RexxString *matchSet)
 {
-    stringsize_t position = positionArgument(position_, ARG_ONE);
+    stringsizeC_t position = positionArgument(position_, ARG_ONE);
     // the start position must be within the string bounds
-    if (position > getLength())
+    if (position > getCLength())
     {
-        reportException(Error_Incorrect_method_position, position);
+        reportException(Error_Incorrect_method_position, size_v(position));
     }
     matchSet = stringArgument(matchSet, ARG_TWO);
 
-    stringsize_t _setLength = matchSet->getLength();
-    char         _matchChar = getChar(position - 1);
+    stringsizeC_t _setLength = matchSet->getCLength();
+    codepoint_t         _matchChar = getCharC(position - 1);
 
     // iterate through the match set looking for a match
-    for (stringsize_t i = 0; i < _setLength; i++)
+    for (stringsizeC_t i = 0; i < _setLength; i++) // todo m17n : char iterator
     {
-        if (_matchChar == matchSet->getChar(i))
+        if (_matchChar == matchSet->getCharC(i))
         {
             return TheTrueObject;
         }
@@ -1396,25 +1436,26 @@ RexxInteger *RexxMutableBuffer::matchChar(RexxInteger *position_, RexxString *ma
  * @return true if the character at the give position is any of the characters,
  *         false if none of them match.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::caselessMatchChar(RexxInteger *position_, RexxString *matchSet)
 {
-    stringsize_t position = positionArgument(position_, ARG_ONE);
+    stringsizeC_t position = positionArgument(position_, ARG_ONE);
     // the start position must be within the string bounds
-    if (position > getLength())
+    if (position > getCLength())
     {
-        reportException(Error_Incorrect_method_position, position);
+        reportException(Error_Incorrect_method_position, size_v(position));
     }
     matchSet = stringArgument(matchSet, ARG_TWO);
 
-    stringsize_t _setLength = matchSet->getLength();
-    char         _matchChar = getChar(position - 1);
-    _matchChar = toupper(_matchChar);
+    stringsizeC_t _setLength = matchSet->getCLength();
+    codepoint_t         _matchChar = getCharC(position - 1);
+    _matchChar = toupper(_matchChar); // todo m17n
 
     // iterate through the match set looking for a match, using a
     // caseless compare
-    for (stringsize_t i = 0; i < _setLength; i++)
+    for (stringsizeC_t i = 0; i < _setLength; i++) // todo m17n : char iterator
     {
-        if (_matchChar == toupper(matchSet->getChar(i)))
+        if (_matchChar == toupper(matchSet->getCharC(i))) // todo m17n : toupper
         {
             return TheTrueObject;
         }
@@ -1433,9 +1474,10 @@ RexxInteger *RexxMutableBuffer::caselessMatchChar(RexxInteger *position_, RexxSt
  *
  * @return The offset of the first match/mismatch within the buffer.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::verify(RexxString *ref, RexxString *option, RexxInteger *_start, RexxInteger *range)
 {
-    return StringUtil::verify(getStringData(), getLength(), ref, option, _start, range);
+    return StringUtil::verify(getStringData(), getBLength(), ref, option, _start, range);
 }
 
 
@@ -1447,9 +1489,10 @@ RexxInteger *RexxMutableBuffer::verify(RexxString *ref, RexxString *option, Rexx
  *
  * @return The substring containing the extacted words.
  */
+// in behaviour
 RexxString *RexxMutableBuffer::subWord(RexxInteger *position, RexxInteger *plength)
 {
-    return StringUtil::subWord(getStringData(), getLength(), position, plength);
+    return StringUtil::subWord(getStringData(), getBLength(), position, plength);
 }
 
 
@@ -1460,9 +1503,10 @@ RexxString *RexxMutableBuffer::subWord(RexxInteger *position, RexxInteger *pleng
  *
  * @return The extracted word, as a string.
  */
+// in behaviour
 RexxString *RexxMutableBuffer::word(RexxInteger *position)
 {
-    return StringUtil::word(getStringData(), getLength(), position);
+    return StringUtil::word(getStringData(), getBLength(), position);
 }
 
 
@@ -1474,9 +1518,10 @@ RexxString *RexxMutableBuffer::word(RexxInteger *position)
  *
  * @return The position of the target word.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::wordIndex(RexxInteger *position)
 {
-    return StringUtil::wordIndex(getStringData(), getLength(), position);
+    return StringUtil::wordIndex(getStringData(), getBLength(), position);
 }
 
 
@@ -1489,9 +1534,10 @@ RexxInteger *RexxMutableBuffer::wordIndex(RexxInteger *position)
  *
  * @return The length of the target word.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::wordLength(RexxInteger *position)
 {
-    return StringUtil::wordLength(getStringData(), getLength(), position);
+    return StringUtil::wordLength(getStringData(), getBLength(), position);
 }
 
 /**
@@ -1499,9 +1545,10 @@ RexxInteger *RexxMutableBuffer::wordLength(RexxInteger *position)
  *
  * @return The buffer word count.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::words()
 {
-    size_t tempCount = StringUtil::wordCount(this->getStringData(), this->getLength());
+    size_t tempCount = StringUtil::wordCount(this->getStringData(), this->getBLength());
     return new_integer(tempCount);
 }
 
@@ -1514,9 +1561,10 @@ RexxInteger *RexxMutableBuffer::words()
  *
  * @return The index of the match location.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::wordPos(RexxString  *phrase, RexxInteger *pstart)
 {
-    return StringUtil::wordPos(getStringData(), getLength(), phrase, pstart);
+    return StringUtil::wordPos(getStringData(), getBLength(), phrase, pstart);
 }
 
 
@@ -1528,9 +1576,10 @@ RexxInteger *RexxMutableBuffer::wordPos(RexxString  *phrase, RexxInteger *pstart
  *
  * @return The index of the match location.
  */
+// in behaviour
 RexxInteger *RexxMutableBuffer::caselessWordPos(RexxString  *phrase, RexxInteger *pstart)
 {
-    return StringUtil::caselessWordPos(getStringData(), getLength(), phrase, pstart);
+    return StringUtil::caselessWordPos(getStringData(), getBLength(), phrase, pstart);
 }
 
 
@@ -1542,15 +1591,16 @@ RexxInteger *RexxMutableBuffer::caselessWordPos(RexxString  *phrase, RexxInteger
  *
  * @return Always returns the target mutable buffer.
  */
+// in behaviour
 RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger *plength)
 {
                                          /* convert position to binary        */
-    size_t _wordPos = positionArgument(position, ARG_ONE);
+    sizeC_t _wordPos = positionArgument(position, ARG_ONE);
     /* get num of words to delete, the   */
     /* default is "a very large number"  */
     size_t count = optionalLengthArgument(plength, Numerics::MAX_WHOLENUMBER, ARG_TWO);
 
-    size_t length = getLength();         /* get string length                 */
+    sizeB_t length = getBLength();         /* get string length                 */
     if (length == 0)                     /* null string?                      */
     {
         return this;                     /* nothing to delete                 */
@@ -1562,7 +1612,7 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
     const char *_word = getStringData();  /* point to the string               */
     const char *nextSite = NULL;
                                        /* get the first word                */
-    size_t _wordLength = StringUtil::nextWord(&_word, &length, &nextSite);
+    sizeB_t _wordLength = StringUtil::nextWord(&_word, &length, &nextSite);
     while (--_wordPos > 0 && _wordLength != 0)
     {  /* loop until we reach tArget        */
         _word = nextSite;                /* copy the start pointer            */
@@ -1574,7 +1624,7 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
         return this;                     /* return the buffer unaltered       */
     }
     // get the deletion point as an offset
-    size_t deletePosition = _word - this->getStringData();
+    sizeB_t deletePosition = _word - this->getStringData();
     while (--count > 0 && _wordLength != 0)
     {  /* loop until we reach tArget        */
         _word = nextSite;              /* copy the start pointer            */
@@ -1586,11 +1636,11 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
         StringUtil::skipBlanks(&nextSite, &length);/* skip over trailing blanks         */
     }
 
-    size_t gapSize = dataBLength - (deletePosition + length);
+    sizeB_t gapSize = dataBLength - (deletePosition + length);
     // close up the delete part
     closeGap(deletePosition, gapSize, length);
     // adjust for the deleted data
     this->setBLength(dataBLength - gapSize);
-    // todo : dataCLength
+    // todo m17n : dataCLength
     return this;
 }

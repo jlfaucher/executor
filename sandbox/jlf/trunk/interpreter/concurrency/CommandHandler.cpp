@@ -123,7 +123,7 @@ CommandHandlerDispatcher::CommandHandlerDispatcher(REXXPFN e, RexxString *comman
     // set up a return code buffer
     MAKERXSTRING(retstr, default_return_buffer, DEFRXSTRING);
     // set up the command RXSTRING
-    MAKERXSTRING(rxstrcmd, command->getStringData(), command->getLength());
+    MAKERXSTRING(rxstrcmd, command->getStringData(), size_v(command->getBLength()));
 }
 
 

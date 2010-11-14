@@ -381,7 +381,7 @@ void RoutineClass::save(const char *filename)
     ProtectedObject p2(buffer);
 
     // create an image header
-    ProgramMetaData metaData(buffer->getDataLength());
+    ProgramMetaData metaData(size_v(buffer->getDataLength()));
     {
         UnsafeBlock releaser;
 
@@ -877,7 +877,7 @@ RoutineClass *RoutineClass::loadExternalRoutine(RexxString *name, RexxString *de
     name = stringArgument(name, "name");
     descriptor = stringArgument(descriptor, "descriptor");
     /* convert external into words       */
-    RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getLength());
+    RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());
     ProtectedObject p(_words);
     // "LIBRARY libbar [foo]"
     if (((RexxString *)(_words->get(1)))->strCompare(CHAR_LIBRARY))

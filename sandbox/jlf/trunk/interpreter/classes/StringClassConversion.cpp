@@ -60,6 +60,7 @@
  *
  * @return The string reformatted into a Base64 encoding.
  */
+// in behaviour
 RexxString *RexxString::encodeBase64()
 {
     size_t inc[3];
@@ -68,13 +69,13 @@ RexxString *RexxString::encodeBase64()
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-    size_t inputLength = this->getLength();     /* get length of string              */
+    sizeB_t inputLength = this->getBLength();     /* get length of string              */
     if (inputLength == 0)               /* null string?                      */
     {
         return OREF_NULLSTRING;
     }
     /* figure out the output string length */
-    size_t outputLength = (inputLength / 3) * 4;
+    sizeB_t outputLength = (inputLength / 3) * 4;
     if (inputLength % 3 > 0)
     {
         outputLength += 4;
@@ -89,7 +90,7 @@ RexxString *RexxString::encodeBase64()
         int buflen = 0;
         for (i = 0; i < 3; i++)
         {        /* get the next 3 characters         */
-            if (inputLength)
+            if (inputLength != 0)
             {             /*    from the input string          */
                 inc[i] = *source & 0xff;
                 inputLength--;
@@ -123,6 +124,7 @@ RexxString *RexxString::encodeBase64()
  *
  * @return The converted character string.
  */
+// in behaviour
 RexxString *RexxString::decodeBase64()
 {
     unsigned int i, j;
@@ -130,7 +132,7 @@ RexxString *RexxString::decodeBase64()
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 
-    size_t inputLength = this->getLength();     /* get length of string              */
+    sizeB_t inputLength = this->getBLength();     /* get length of string              */
     if (inputLength == 0)                    /* null string?                      */
     {
         return OREF_NULLSTRING;          // this encodes as a null string
@@ -141,7 +143,7 @@ RexxString *RexxString::decodeBase64()
     }
     const char *source = this->getStringData();
     /* figure out the output string length */
-    size_t outputLength = (inputLength / 4) * 3;
+    sizeB_t outputLength = (inputLength / 4) * 3;
     if (*(source + inputLength - 1) == '=')
     {
         outputLength--;
@@ -154,7 +156,7 @@ RexxString *RexxString::decodeBase64()
     RexxString *retval = raw_string(outputLength);
     /* point to output area              */
     char *destination = retval->getWritableData();
-    while (inputLength)
+    while (inputLength != 0)
     {              /* while more string                 */
         for (i = 0; i < 4; i++)
         {
@@ -207,19 +209,20 @@ RexxString *RexxString::decodeBase64()
     return retval;                       /* return converted string           */
 }
 
+// in behaviour
 RexxString *RexxString::c2x()
 /******************************************************************************/
 /* Function:  Process the string C2X method/function                          */
 /******************************************************************************/
 {
-    size_t      InputLength;             /* length of converted string        */
+    sizeB_t      InputLength;             /* length of converted string        */
     RexxString *Retval;                  /* return value                      */
     const char *Source;                  /* input string pointer              */
     char *      Destination;             /* output string pointer             */
     char        ch;                      /* current character                 */
 
-    InputLength = this->getLength();          /* get length of string              */
-    if (!InputLength)                    /* null string?                      */
+    InputLength = this->getBLength();          /* get length of string              */
+    if (InputLength == 0)                    /* null string?                      */
     {
         Retval = OREF_NULLSTRING;          /* converts to a null string         */
     }
@@ -230,7 +233,7 @@ RexxString *RexxString::c2x()
         Source = this->getStringData();    /* point to converted string         */
                                            /* point to output area              */
         Destination = Retval->getWritableData();
-        while (InputLength--)
+        while (InputLength-- != 0)
         {            /* while more string                 */
             ch = *Source++;                  /* get next character                */
             /***********************************************************/
@@ -249,6 +252,7 @@ RexxString *RexxString::c2x()
     return Retval;                       /* return converted string           */
 }
 
+// in behaviour
 RexxString *RexxString::d2c(RexxInteger *_length)
 /******************************************************************************/
 /* Function:  Process the string D2C method/function                          */
@@ -265,6 +269,7 @@ RexxString *RexxString::d2c(RexxInteger *_length)
     return numberstring->d2xD2c(_length, true);
 }
 
+// in behaviour
 RexxString *RexxString::d2x(RexxInteger *_length)
 /******************************************************************************/
 /* Function:  Process the string D2X method/function                          */
@@ -281,12 +286,13 @@ RexxString *RexxString::d2x(RexxInteger *_length)
     return numberstring->d2xD2c(_length, false);
 }
 
+// in behaviour
 RexxString *RexxString::x2c()
 /******************************************************************************/
 /* Function:  Process the string X2C method/function                          */
 /******************************************************************************/
 {
-    size_t InputLength = this->getLength();          /* get length of string       */
+    sizeB_t InputLength = this->getBLength();          /* get length of string       */
     if (InputLength== 0)                    /* null string?               */
     {
         return OREF_NULLSTRING;          /* converts to a null string         */
@@ -298,6 +304,7 @@ RexxString *RexxString::x2c()
     }
 }
 
+// in behaviour
 RexxString *RexxString::x2d(RexxInteger *_length)
 /******************************************************************************/
 /* Function:  Process the string X2D method/function                          */
@@ -314,18 +321,18 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
 /* Function:  Common X2D/X2C processing routine                               */
 /******************************************************************************/
 {
-    size_t     ResultSize;               /* size of result string             */
-    size_t     TempSize;                 /* temporary size value              */
+    sizeB_t     ResultSize;               /* size of result string             */
+    sizeB_t     TempSize;                 /* temporary size value              */
     int        ch;                       /* addition character                */
-    size_t     StringLength;             /* input string length               */
+    sizeB_t     StringLength;             /* input string length               */
     char       *Scan;                    /* scan pointer                      */
     char       *HighDigit;               /* high digit position               */
     char *     Accumulator;              /* accumulator pointer               */
     bool       Negative;                 /* have a negative number            */
     RexxString *String;                  /* converted string                  */
     char       *StringPtr;               /* string value pointer              */
-    size_t     BytePosition;             /* position of high byte             */
-    size_t     NibblePosition;           /* position of high nibble           */
+    sizeB_t     BytePosition;             /* position of high byte             */
+    sizeB_t     NibblePosition;           /* position of high nibble           */
     size_t     DecLength;                /* length of accumulator             */
     size_t     TempLength;               /* length of accumulator             */
     RexxString *Retval;                  /* function return value             */
@@ -333,10 +340,10 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
     size_t     CurrentDigits;            /* current digits setting            */
 
     CurrentDigits = number_digits();     /* get the current digits setting    */
-    StringLength = this->getLength();         /* get Argument string length        */
+    StringLength = this->getBLength();         /* get Argument string length        */
     /* get the target length             */
     ResultSize = optionalLengthArgument(_length, -1, ARG_ONE);
-    if (!ResultSize)                     /* zero requested                    */
+    if (ResultSize == 0)                     /* zero requested                    */
     {
         return(RexxString *)IntegerZero;  /* always returns zero               */
     }
@@ -370,7 +377,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
                                                  /* copy the string                   */
                     String = (RexxString *)this->copy();
                     /* point to the string               */
-                    StringPtr = String->getWritableData() + this->getLength() - ResultSize;
+                    StringPtr = String->getWritableData() + this->getBLength() - ResultSize;
                 }
                 else                           /* still a positive number           */
                 {
@@ -384,7 +391,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
                                     /* pack the string                   */
         String = (RexxString *)StringUtil::packHex(StringPtr, StringLength);
         /* get the packed length             */
-        StringLength = String->getLength();
+        StringLength = String->getBLength();
         /* point to the packed data          */
         StringPtr = String->getWritableData();
         if (_length == OREF_NULL)
@@ -411,10 +418,10 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
                 StringPtr += StringLength - ResultSize;
                 StringLength = ResultSize;     /* adjust the size down              */
 
-                if ((NibblePosition &&         /* odd number of nibbles             */
+                if ((NibblePosition != 0 &&         /* odd number of nibbles             */
                      /* and low nibble negative?          */
                      *StringPtr & 0x08) ||
-                    (!NibblePosition &&        /* or even number of nibbles         */
+                    (NibblePosition == 0 &&        /* or even number of nibbles         */
                      *StringPtr & 0x80))        /* and high nibble negative?         */
                 {
                     Negative = true;             /* this is a negative number         */
@@ -432,7 +439,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
         Scan = StringPtr;                  /* copy the pointer                  */
         TempSize = StringLength;           /* copy the size                     */
 
-        while (TempSize--)
+        while (TempSize-- != 0)
         {               /* reverse each byte                 */
                         /* exclusive or with foxes           */
             *Scan = *Scan ^ 0xff;
@@ -441,7 +448,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
         /* point to the first byte           */
         Scan = StringPtr + StringLength - 1;
         TempSize = StringLength;           /* copy the size                     */
-        while (TempSize--)
+        while (TempSize-- != 0)
         {               /* now add one to the number         */
             ch = (*Scan & 0xff);             /* get the character                 */
             ch++;                            /* increment                         */
@@ -457,7 +464,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
             }
         }
     }
-    if (NibblePosition)                  /* Odd number of nibbles?            */
+    if (NibblePosition != 0)                  /* Odd number of nibbles?            */
     {
         *StringPtr &= 0x0f;                /* zero out the highest nibble       */
     }
@@ -471,7 +478,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
     memset(Buffer->getData(), '\0', CurrentDigits + OVERFLOWSPACE + 1);
     HighDigit = Accumulator - 1;         /* set initial high point            */
 
-    while (StringLength--)
+    while (StringLength-- != 0)
     {             /* while more digits                 */
         ch = *Scan++;                      /* get the character                 */
                                            /* add high order nibble             */
@@ -539,6 +546,7 @@ RexxString *RexxString::x2dC2d(RexxInteger *_length,
     return Retval;                       /* return converted string           */
 }
 
+// in behaviour
 RexxString *RexxString::b2x()
 /******************************************************************************/
 /* Function:  Common B2X processing routine                                   */
@@ -550,23 +558,23 @@ RexxString *RexxString::b2x()
     char    *Destination;                /* destination pointer               */
     size_t   Excess;                     /* section boundary                  */
     char     Nibble[4];                  /* current nibble string             */
-    size_t   Jump;                       /* string movement offset            */
-    size_t   Length;                     /* total string length               */
+    sizeB_t   Jump;                       /* string movement offset            */
+    sizeB_t   Length;                     /* total string length               */
 
-    if (this->getLength() == 0)               /* null input, i.e. zerolength       */
+    if (this->getBLength() == 0)               /* null input, i.e. zerolength       */
     {
         Retval = OREF_NULLSTRING;          /* return null                       */
     }
     else
     {                               /* need to do conversion             */
                                     /* validate the string               */
-        Bits = StringUtil::validateSet(this->getStringData(), this->getLength(), "01", 4, false);
+        Bits = StringUtil::validateSet(this->getStringData(), this->getBLength(), "01", 4, false);
         /* allocate space for result         */
         Retval = raw_string((Bits + 3) / 4);
         /* point to the data                 */
         Destination = Retval->getWritableData();
         Source = this->getStringData();    /* point to the source               */
-        Length = this->getLength();        /* get the string length             */
+        Length = this->getBLength();        /* get the string length             */
 
         while (Bits > 0)
         {                 /* process the string                */
@@ -590,6 +598,7 @@ RexxString *RexxString::b2x()
     return Retval;                       /* return packed string              */
 }
 
+// in behaviour
 RexxString *RexxString::c2d(RexxInteger *_length)
 /******************************************************************************/
 /* Function:  Common C2D processing routine                                   */
@@ -599,6 +608,7 @@ RexxString *RexxString::c2d(RexxInteger *_length)
     return this->x2dC2d(_length, true);
 }
 
+// in behaviour
 RexxString *RexxString::x2b()
 /******************************************************************************/
 /* Function:  Common X2B processing routine                                   */
@@ -612,14 +622,14 @@ RexxString *RexxString::x2b()
     char     ch;                         /* current string character          */
     int      Val;                        /* converted nible                   */
 
-    if (this->getLength() == 0)               /* null input, i.e. zerolength       */
+    if (this->getBLength() == 0)               /* null input, i.e. zerolength       */
     {
         /* string                            */
         Retval = OREF_NULLSTRING;          /* return null                       */
     }
     else
     {                               /* have real data to pack            */
-        Nibbles = StringUtil::validateSet(this->getStringData(), this->getLength(), "0123456789ABCDEFabcdef", 2, true);
+        Nibbles = StringUtil::validateSet(this->getStringData(), this->getBLength(), "0123456789ABCDEFabcdef", 2, true);
         Retval = raw_string(Nibbles * 4);  /* allocate result string            */
                                            /* point to the data                 */
         Destination = Retval->getWritableData();

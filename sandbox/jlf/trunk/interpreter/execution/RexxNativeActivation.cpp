@@ -2496,7 +2496,7 @@ RexxObject *RexxNativeActivation::getContextStem(RexxString *name)
 /******************************************************************************/
 {
     // if this is not a stem name, add it now
-    if (name->getChar(name->getLength() - 1) != '.')
+    if (name->getCharC(name->getCLength() - 1) != '.')
     {
         name = name->concatWithCstring(".");
     }
@@ -3139,22 +3139,22 @@ RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, CONSTRXSTRING
 RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, RXSTRING *rxstring, size_t *length)
 {
     RexxString * stringVal;             /* converted object value            */
-    stringsize_t string_length;         /* length of the string              */
+    stringsizeB_t string_length;         /* length of the string              */
     uint32_t     rc;                    /* return code                       */
 
     rc = 0;                             /* default to success                */
                                         /* get the string value              */
     stringVal = value->stringValue();
-    string_length = stringVal->getLength();/* get the string length             */
+    string_length = stringVal->getBLength();/* get the string length             */
     // caller allowing use to allocate this?
     if (rxstring->strptr == NULL)
     {
-        rxstring->strptr = (char *)SystemInterpreter::allocateResultMemory(string_length + 1);
+        rxstring->strptr = (char *)SystemInterpreter::allocateResultMemory(size_v(string_length) + 1);
         if (rxstring->strptr == NULL)
         {
             return RXSHV_MEMFL;                  /* couldn't allocate, return flag */
         }
-        rxstring->strlength = string_length + 1;
+        rxstring->strlength = size_v(string_length) + 1;
     }
     /* buffer too short?              */
     if (string_length > rxstring->strlength)
@@ -3171,11 +3171,11 @@ RexxReturnCode RexxNativeActivation::copyValue(RexxObject * value, RXSTRING *rxs
         if (rxstring->strlength > string_length)
         {
             /* yes, add one                   */
-            rxstring->strptr[string_length] = '\0';
+            rxstring->strptr[size_v(string_length)] = '\0'; // todo m17n : \0\0 if utf16
         }
-        rxstring->strlength = string_length;   /* string length doesn't include terminating 0 */
+        rxstring->strlength = size_v(string_length);   /* string length doesn't include terminating 0 */
     }
-    *length = string_length;                 /* return actual string length    */
+    *length = size_v(string_length);                 /* return actual string length    */
     return rc;                               /* give back the return code      */
 }
 
@@ -3185,8 +3185,8 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
 /*             this returns zero, otherwise an appropriate error value.       */
 /******************************************************************************/
 {
-    size_t  position;                    /* scan position within compound name */
-    size_t  length;                      /* length of tail section            */
+    sizeC_t  position;                    /* scan position within compound name */
+    sizeC_t  length;                      /* length of tail section            */
 
                                          /* if access is enabled              */
     // NB:  The braces here are to ensure the ProtectedObjects get released before the
@@ -3210,17 +3210,17 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
 
         if (isOfClass(CompoundVariableTerm, retriever))
         {
-            length = variable->getLength();      /* get the string length             */
+            length = variable->getCLength();      /* get the string length             */
             position = 0;                        /* start scanning at first character */
             /* scan to the first period          */
-            while (variable->getChar(position) != '.')
+            while (variable->getCharC(position) != '.')
             {
-                position++;                        /* step to the next character        */
+                position++;                        /* step to the next character        */	// todo m17n
                 length--;                          /* reduce the length also            */
             }
             position++;                          /* step past previous period         */
             length--;                            /* adjust the length                 */
-            tail = variable->extract(position, length);
+            tail = variable->extractC(position, length);
             tail = tail->upper();
         }
 

@@ -114,8 +114,12 @@ public:
     static inline wholenumber_t abs(wholenumber_t n) { return n < 0 ? -n : n; }
     static inline wholenumber_t minVal(wholenumber_t n1, wholenumber_t n2) { return n2 > n1 ? n1 : n2; }
     static inline stringsize_t minVal(stringsize_t n1, stringsize_t n2) { return n2 > n1 ? n1 : n2; }
+    static inline stringsizeB_t minVal(stringsizeB_t n1, stringsizeB_t n2) { return n2 > n1 ? n1 : n2; }
+    static inline stringsizeC_t minVal(stringsizeC_t n1, stringsizeC_t n2) { return n2 > n1 ? n1 : n2; }
     static inline wholenumber_t maxVal(wholenumber_t n1, wholenumber_t n2) { return n2 > n1 ? n2 : n1; }
     static inline stringsize_t maxVal(stringsize_t n1, stringsize_t n2) { return n2 > n1 ? n2 : n1; }
+    static inline stringsizeB_t maxVal(stringsizeB_t n1, stringsizeB_t n2) { return n2 > n1 ? n2 : n1; }
+    static inline stringsizeC_t maxVal(stringsizeC_t n1, stringsizeC_t n2) { return n2 > n1 ? n2 : n1; }
     static inline wholenumber_t maxValueForDigits(size_t d)
     {
         if (d > DEFAULT_DIGITS)

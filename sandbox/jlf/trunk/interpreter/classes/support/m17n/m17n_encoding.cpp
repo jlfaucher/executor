@@ -50,7 +50,6 @@ These are m17n generic encoding handling functions
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-//#define M17N_NO_EXTERN_ENCODING_PTRS
 #include "RexxCore.h"
 #include "StringClass.hpp"
 

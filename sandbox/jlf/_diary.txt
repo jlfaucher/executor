@@ -33,7 +33,66 @@ Investigate the Activation stack (reify ? closure ? continuation ?)
 
 Unicode ?
 --> added support for wide-chars in oodialog.
---> in progress : m17n
+--> in progress : m17n (but this is not the way proposed by Rick)
+
+Extension of the message term : keyword and multiple dispatch.
+http://atomo-lang.org/
+http://slatelanguage.org/
+
+
+===============================================================================
+2010 nov 14
+
+I have reached a state where the interpreter is no longer broken by m17n.
+The most difficult bugs were because of the default constructor of rxStringSize.
+By assigning 0 (a good practice for me), I had nasty bugs in the parser.
+Solved by leaving the attribute uninitialized...
+Remember :
+
+RexxSource::sayNew
+    RexxObject *_expression = this->expression(TERM_EOC);
+    RexxInstruction *newObject = new_instruction(SAY, Say);     <-- location is copied from this->clause by RexxSource::sourceNewObject
+    new ((void *)newObject) RexxInstructionSay(_expression);    <-- boom ! location is overwritten by default constructor of rxStringSize
+
+inline RexxBuffer *new_buffer(sizeB_t s) { return new (size_v(s)) RexxBuffer; }     <-- bufferSize and dataLength were always 0 !
+void *RexxBuffer::operator new(size_t size, size_t _length)
+    newBuffer->bufferSize = _length;    <-- initialized here, *before* the execution of default constructor
+    newBuffer->dataLength = _length;    <-- same problem
+
+    
+Now, the next step is probably to change the signature of the methods in StringUtil,
+to pass a IRexxString parameter, instead of a couple (char*, size_t) which are the 
+internal attributes stringData and length.
+
+
+===============================================================================
+2010 oct 10
+
+rexx.h
+Defined strong types to detect misuse between 'size in bytes' and 'size in chars'.
+When changing the sources for m17n, I activate the strong types.
+Otherwise I use the weak types.
+See rxStringSize.
+
+
+===============================================================================
+2010 sept 24
+
+Started a review of the NetRexx specification, in unicode/_readme.odt.
+The goal is to see how the issues reported by Rick are covered by NetRexx.
+
+
+===============================================================================
+2010 sept 20
+
+Fixed the build of m17n under Linux.
+Had to rename all the *.c files to *.cpp, because .c source files are not correctly
+built by Makefile.am.
+
+
+Note about Parrot :
+The charset/encoding merge has been moved in Parrot's trunk.
+I will probably apply this merge.
 
 
 ===============================================================================

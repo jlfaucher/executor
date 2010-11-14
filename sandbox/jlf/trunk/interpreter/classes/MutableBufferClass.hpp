@@ -48,9 +48,6 @@
 #include "IntegerClass.hpp"
 #include "BufferClass.hpp"
 
-class ENCODING;
-class CHARSET;
-
 class RexxMutableBuffer;
 class RexxClass;
 
@@ -58,7 +55,7 @@ class RexxMutableBufferClass : public RexxClass {
  public:
    RexxMutableBufferClass(RESTORETYPE restoreType) { ; };
    void *operator new(size_t size, void *ptr) { return ptr; };
-   RexxMutableBuffer *newRexx(RexxObject**, size_t);
+   RexxMutableBuffer *newRexx(RexxObject**, size_t); // in behaviour
 };
 
  class RexxMutableBuffer : public RexxObject {
@@ -69,8 +66,8 @@ class RexxMutableBufferClass : public RexxClass {
           void       *operator new(size_t size);
                       RexxMutableBuffer(const char *charsetName=NULL);
                       RexxMutableBuffer(CHARSET *charset, ENCODING *encoding);
-                      RexxMutableBuffer(size_t, size_t, const char *charsetName=NULL);
-                      RexxMutableBuffer(size_t, size_t, CHARSET *charset, ENCODING *encoding);
+                      RexxMutableBuffer(sizeB_t, sizeB_t, const char *charsetName=NULL);
+                      RexxMutableBuffer(sizeB_t, sizeB_t, CHARSET *charset, ENCODING *encoding);
    inline             RexxMutableBuffer(RESTORETYPE restoreType) { ; };
 
    void               live(size_t);
@@ -78,70 +75,72 @@ class RexxMutableBufferClass : public RexxClass {
    void               flatten(RexxEnvelope *envelope);
 
    RexxObject        *copy();
-   void               ensureCapacity(size_t addedLength);
+   void               ensureCapacity(sizeB_t addedLength);
+   void               ensureCapacity(sizeC_t addedLength);
 
-   RexxObject        *lengthRexx();
+   RexxObject        *lengthRexx(); // in behaviour
 
-   RexxMutableBuffer *append(RexxObject*);
-   RexxMutableBuffer *appendCstring(const char*, size_t blength); // Must not overload append : would generate error cannot convert from 'overloaded-function' to 'PCPPM' in memory/setup.cpp
-   RexxMutableBuffer *insert(RexxObject*, RexxObject*, RexxObject*, RexxObject*);
-   RexxMutableBuffer *overlay(RexxObject*, RexxObject*, RexxObject*, RexxObject*);
-   RexxMutableBuffer *replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad);
-   RexxMutableBuffer *mydelete(RexxObject*, RexxObject*);
-   RexxString        *substr(RexxInteger *startPosition, RexxInteger *len, RexxString *pad);
-   RexxInteger       *lastPos(RexxString *needle, RexxInteger *_start, RexxInteger *_range);
-   RexxInteger       *posRexx(RexxString *needle, RexxInteger *_start, RexxInteger *_range);
-   RexxInteger       *caselessLastPos(RexxString *needle, RexxInteger *_start, RexxInteger *_range);
-   RexxInteger       *caselessPos(RexxString *needle, RexxInteger *_start, RexxInteger *_range);
-   RexxString        *subchar(RexxInteger *startPosition);
+   RexxMutableBuffer *append(RexxObject*); // in behaviour
+   RexxMutableBuffer *appendCstring(const char*, sizeB_t blength); // Must not overload append : would generate error cannot convert from 'overloaded-function' to 'PCPPM' in memory/setup.cpp
+   RexxMutableBuffer *insert(RexxObject*, RexxObject*, RexxObject*, RexxObject*); // in behaviour
+   RexxMutableBuffer *overlay(RexxObject*, RexxObject*, RexxObject*, RexxObject*); // in behaviour
+   RexxMutableBuffer *replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad); // in behaviour
+   RexxMutableBuffer *mydelete(RexxObject*, RexxObject*); // in behaviour
+   RexxString        *substr(RexxInteger *startPosition, RexxInteger *len, RexxString *pad); // in behaviour
+   RexxInteger       *lastPos(RexxString *needle, RexxInteger *_start, RexxInteger *_range); // in behaviour
+   RexxInteger       *posRexx(RexxString *needle, RexxInteger *_start, RexxInteger *_range); // in behaviour
+   RexxInteger       *caselessLastPos(RexxString *needle, RexxInteger *_start, RexxInteger *_range); // in behaviour
+   RexxInteger       *caselessPos(RexxString *needle, RexxInteger *_start, RexxInteger *_range); // in behaviour
+   RexxString        *subchar(RexxInteger *startPosition); // in behaviour
 
-   RexxInteger       *getBufferSize() { return new_integer(bufferLength); }
-   RexxObject        *setBufferSize(RexxInteger*);
-   RexxArray         *makearray(RexxString *div);
+   RexxInteger       *getBufferSize() { return new_integer(bufferLength); } // in behaviour
+   RexxObject        *setBufferSize(RexxInteger*); // in behaviour
+   RexxArray         *makearray(RexxString *div); // in behaviour
    RexxString        *makeString();
-   RexxInteger       *countStrRexx(RexxString *needle);
-   RexxInteger       *caselessCountStrRexx(RexxString *needle);
-   RexxMutableBuffer *changeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg);
-   RexxMutableBuffer *caselessChangeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg);
-   RexxMutableBuffer *upper(RexxInteger *_start, RexxInteger *_length);
-   RexxMutableBuffer *lower(RexxInteger *_start, RexxInteger *_length);
-   RexxMutableBuffer *translate(RexxString *tableo, RexxString *tablei, RexxString *pad, RexxInteger *, RexxInteger *);
-   RexxInteger *match(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_);
-   RexxInteger *caselessMatch(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_);
-   bool primitiveMatch(stringsize_t start, RexxString *other, stringsize_t offset, stringsize_t len);
-   bool primitiveCaselessMatch(stringsize_t start, RexxString *other, stringsize_t offset, stringsize_t len);
-   RexxInteger *matchChar(RexxInteger *position_, RexxString *matchSet);
-   RexxInteger *caselessMatchChar(RexxInteger *position_, RexxString *matchSet);
-   RexxInteger *verify(RexxString *, RexxString *, RexxInteger *, RexxInteger *);
-   RexxString  *subWord(RexxInteger *, RexxInteger *);
-   RexxString  *word(RexxInteger *);
-   RexxInteger *wordIndex(RexxInteger *);
-   RexxInteger *wordLength(RexxInteger *);
-   RexxInteger *words();
-   RexxInteger *wordPos(RexxString *, RexxInteger *);
-   RexxInteger *caselessWordPos(RexxString *, RexxInteger *);
-   RexxMutableBuffer *delWord(RexxInteger *position, RexxInteger *plength);
+   RexxInteger       *countStrRexx(RexxString *needle); // in behaviour
+   RexxInteger       *caselessCountStrRexx(RexxString *needle); // in behaviour
+   RexxMutableBuffer *changeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg); // in behaviour
+   RexxMutableBuffer *caselessChangeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg); // in behaviour
+   RexxMutableBuffer *upper(RexxInteger *_start, RexxInteger *_length); // in behaviour
+   RexxMutableBuffer *lower(RexxInteger *_start, RexxInteger *_length); // in behaviour
+   RexxMutableBuffer *translate(RexxString *tableo, RexxString *tablei, RexxString *pad, RexxInteger *, RexxInteger *); // in behaviour
+   RexxInteger *match(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_); // in behaviour
+   RexxInteger *caselessMatch(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_); // in behaviour
+   bool primitiveMatch(stringsizeB_t start, RexxString *other, stringsizeB_t offset, stringsizeB_t len);
+   bool primitiveCaselessMatch(stringsizeB_t start, RexxString *other, stringsizeB_t offset, stringsizeB_t len);
+   RexxInteger *matchChar(RexxInteger *position_, RexxString *matchSet); // in behaviour
+   RexxInteger *caselessMatchChar(RexxInteger *position_, RexxString *matchSet); // in behaviour
+   RexxInteger *verify(RexxString *, RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   RexxString  *subWord(RexxInteger *, RexxInteger *); // in behaviour
+   RexxString  *word(RexxInteger *); // in behaviour
+   RexxInteger *wordIndex(RexxInteger *); // in behaviour
+   RexxInteger *wordLength(RexxInteger *); // in behaviour
+   RexxInteger *words(); // in behaviour
+   RexxInteger *wordPos(RexxString *, RexxInteger *); // in behaviour
+   RexxInteger *caselessWordPos(RexxString *, RexxInteger *); // in behaviour
+   RexxMutableBuffer *delWord(RexxInteger *position, RexxInteger *plength); // in behaviour
 
    inline CHARSET *getCharset() { return m17n_get_charset(this->charset); }
    inline void setCharset(CHARSET *c) { this->charset = c ? (int8_t) c->number : -1; }
    inline ENCODING *getEncoding() { return m17n_get_encoding(this->encoding); }
    inline void setEncoding(ENCODING *e) { this->encoding = e ? (int8_t) e->number : -1; }
    inline const char *getStringData() { return data->getData(); }
-   inline size_t      getLength()     { return dataBLength; } // which length to return ? the number of bytes seems safer for legacy applications. See also RexxString::getLength
-   inline size_t      getBLength()    { return dataBLength; }
-   inline size_t      getCLength()    { return dataCLength; }
-   inline void        setLength(size_t l) { dataBLength = l; }; // see getLength
-   inline void        setBLength(size_t l) { dataBLength = l; data->setDataLength(l);};
-   inline void        setCLength(size_t l) { dataCLength = l; };
-   inline size_t      getBufferLength() { return bufferLength; }
-   RexxObject        *setBufferLength(size_t);
+   // inline size_t      getLength()     { return dataCLength; }
+   inline sizeB_t     getBLength()    { return dataBLength; }
+   inline sizeC_t     getCLength()    { return dataCLength; }
+   // inline void        setLength(size_t l) { dataCLength = l; };
+   inline void        setBLength(sizeB_t l) { dataBLength = l; data->setDataLength(size_v(l));};
+   inline void        setCLength(sizeC_t l) { dataCLength = l; };
+   inline sizeB_t     getBufferLength() { return bufferLength; }
+   RexxObject        *setBufferLength(sizeB_t);
    inline char *      getData()       { return data->getData(); }
-   inline void copyData(size_t offset, const char *string, size_t l) { data->copyData(offset, string, l); }
-   inline void openGap(size_t offset, size_t _size, size_t tailSize) { data->openGap(offset, _size, tailSize); }
-   inline void closeGap(size_t offset, size_t _size, size_t tailSize) { data->closeGap(offset, _size, tailSize); }
-   inline void adjustGap(size_t offset, size_t _size, size_t _newSize) { data->adjustGap(offset, _size, _newSize); }
-   inline void setData(size_t offset, char character, size_t l) { data->setData(offset, character, l); }
-   inline char getChar(size_t offset) { return getData()[offset]; }
+   inline void copyData(sizeB_t offset, const char *string, sizeB_t l) { data->copyData(offset, string, l); }
+   inline void openGap(sizeB_t offset, sizeB_t _size, sizeB_t tailSize) { data->openGap(offset, _size, tailSize); }
+   inline void closeGap(sizeB_t offset, sizeB_t _size, sizeB_t tailSize) { data->closeGap(offset, _size, tailSize); }
+   inline void adjustGap(sizeB_t offset, sizeB_t _size, sizeB_t _newSize) { data->adjustGap(offset, _size, _newSize); }
+   inline void setData(sizeB_t offset, char character, sizeB_t l) { data->setData(offset, character, l); }
+   inline char getCharB(sizeB_t offset) { return getData()[size_v(offset)]; }
+   inline codepoint_t getCharC(sizeC_t offset) { return getData()[size_v(offset)]; } // todo m17n : convert charpos to bytepos and return a codepoint, not a byte
 
    static void createInstance();
    static RexxClass *classInstance;
@@ -149,10 +148,10 @@ class RexxMutableBufferClass : public RexxClass {
  protected:
    int8_t             encoding;        // string encoding (how the codepoints are serialized in stringData)
    int8_t             charset;         // string charset (what is the semantic of the codepoints)
-   size_t             bufferLength;    /* buffer length in bytes          */
-   size_t             defaultSize;     /* default size when emptied       */
-   size_t             dataBLength;     // current length of data in bytes
-   size_t             dataCLength;     // current length of data in characters
+   sizeB_t            bufferLength;    /* buffer length in bytes          */
+   sizeB_t            defaultSize;     /* default size when emptied       */
+   sizeB_t            dataBLength;     // current length of data in bytes
+   sizeC_t            dataCLength;     // current length of data in characters
    RexxBuffer        *data;            /* buffer used for the data        */
  };
  
@@ -167,11 +166,11 @@ class RexxMutableBufferClass : public RexxClass {
    inline void setCharset(CHARSET *c) { return str->setCharset(c); }
    inline ENCODING *getEncoding() { return str->getEncoding(); }
    inline void setEncoding(ENCODING *e) { str->setEncoding(e); }
-   inline size_t getBLength() { return str->getBLength(); };
-   inline size_t getCLength() { return str->getCLength(); };
-   inline void setLength(size_t l) { str->setBLength(l); };
-   inline void setBLength(size_t l) { str->setBLength(l); };
-   inline void setCLength(size_t l) { str->setCLength(l); };
+   inline sizeB_t getBLength() { return str->getBLength(); };
+   inline sizeC_t getCLength() { return str->getCLength(); };
+   // inline void setLength(size_t l) { str->setLength(l); };
+   inline void setBLength(sizeB_t l) { str->setBLength(l); };
+   inline void setCLength(sizeC_t l) { str->setCLength(l); };
    inline const char *getStringData() { return str->getStringData(); }
    inline char *getWritableData() { return str->getData(); }
   private:

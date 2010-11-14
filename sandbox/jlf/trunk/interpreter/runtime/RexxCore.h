@@ -339,6 +339,16 @@ inline size_t optionalLengthArgument(RexxObject *o, size_t d, size_t p)
     return (o == OREF_NULL ? d : lengthArgument(o, p));
 }
 
+inline sizeB_t optionalLengthArgument(RexxObject *o, sizeB_t d, sizeB_t p)
+{
+    return sizeB_v(optionalLengthArgument(o, size_v(d), size_v(p)));
+}
+
+inline sizeC_t optionalLengthArgument(RexxObject *o, sizeC_t d, sizeC_t p)
+{
+    return sizeC_v(optionalLengthArgument(o, size_v(d), size_v(p)));
+}
+
 // resides in the string class util
 size_t positionArgument(RexxObject *o, size_t p);
 
@@ -347,9 +357,19 @@ inline size_t optionalPositionArgument(RexxObject *o, size_t d, size_t p)
     return (o == OREF_NULL ? d : positionArgument(o, p));
 }
 
-char padArgument(RexxObject *o, size_t p);
+inline sizeB_t optionalPositionArgument(RexxObject *o, sizeB_t d, sizeB_t p)
+{
+    return sizeB_v(optionalPositionArgument(o, size_v(d), size_v(p)));
+}
 
-inline char optionalPadArgument(RexxObject *o, char d, size_t p)
+inline sizeC_t optionalPositionArgument(RexxObject *o, sizeC_t d, sizeC_t p)
+{
+    return sizeC_v(optionalPositionArgument(o, size_v(d), size_v(p)));
+}
+
+codepoint_t padArgument(RexxObject *o, size_t p);
+
+inline codepoint_t optionalPadArgument(RexxObject *o, codepoint_t d, size_t p)
 {
     return (o == OREF_NULL ? d : padArgument(o, p));
 }

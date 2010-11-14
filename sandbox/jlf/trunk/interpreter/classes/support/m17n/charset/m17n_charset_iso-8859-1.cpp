@@ -74,7 +74,7 @@ Converts RexxString C<src> to iso-8859-1 in RexxString C<dest>.
 static RexxString *
 to_iso_8859_1(RexxString *src)
 {
-    wholenumber_t src_len;
+    sizeC_t src_len;
     String_iter iter;
     /* iso-8859-1 is never bigger then source */
     RexxString * dest = (RexxString *) src->clone();
@@ -82,47 +82,16 @@ to_iso_8859_1(RexxString *src)
     STRING_ITER_INIT(&iter);
     src_len = src->getCLength();
     while (iter.charpos < src_len) {
-        const wholenumber_t c = STRING_ITER_GET_AND_ADVANCE(RexxStringWrapper(src), &iter);
+        const codepoint_t c = STRING_ITER_GET_AND_ADVANCE(RexxStringWrapper(src), &iter);
         if (c >= 0x100)
             reportException(Rexx_Error_Execution_user_defined,
                 "lossy conversion to iso-8559-1");
 
-        m17n_fixed_8_encoding_ptr->set_byte(RexxStringWrapper(dest), iter.charpos - 1, c);
+        m17n_fixed_8_encoding_ptr->set_byte(RexxStringWrapper(dest), iter.bytepos - 1, c);
     }
     dest->setCharset(m17n_iso_8859_1_charset_ptr);
     dest->setEncoding(m17n_fixed_8_encoding_ptr);
     return dest;
-}
-
-/*
-
-=item C<static RexxString * to_unicode(RexxString *src)>
-
-Converts RexxString C<src> to unicode RexxString C<dest>.
-
-=cut
-
-*/
-
-// Note JLF : seems to be an old method, no longer used because, in charset.h, CHARSET_TO_UNICODE believes it's a method of ENCODING,
-// which is not the case.
-static RexxString *
-to_unicode(RexxString *src)
-{
-    RexxMutableBuffer *dest= new RexxMutableBuffer(src->getBLength(), src->getBLength(), m17n_unicode_charset_ptr, m17n_unicode_charset_ptr->preferred_encoding);
-    ProtectedObject p(dest);
-
-    String_iter iter;
-    STRING_ITER_INIT(&iter);
-    while (iter.charpos < (wholenumber_t) src->getCLength()) {
-        const wholenumber_t c = ENCODING_GET_BYTE(RexxStringWrapper(src), iter.charpos);
-
-        dest->ensureCapacity(dest->getEncoding()->max_bytes_per_codepoint);
-        STRING_ITER_SET_AND_ADVANCE(RexxMutableBufferWrapper(dest), &iter, c);
-    }
-    dest->setBLength(iter.bytepos);
-    dest->setCLength(iter.charpos);
-    return dest->makeString();
 }
 
 /*
@@ -197,23 +166,23 @@ graphemes that support cases.
 */
 
 RexxString*
-CHARSET_ISO_8859::upcase(RexxString *src)
+CHARSET_ISO_8859::upcase(RexxString *src, ssizeC_t start, ssizeC_t length)
 {
     unsigned char *buffer;
-    wholenumber_t        offset = 0;
+    sizeB_t        offset = 0;
     RexxString        *result = (RexxString *) src->clone();
 
-    if (!result->getBLength())
+    if (result->getBLength() == 0)
         return result;
 
     buffer = (unsigned char *)result->getWritableData();
-    for (offset = 0; offset < (wholenumber_t) result->getBLength(); ++offset) {
-        unsigned int c = buffer[offset]; /* XXX use encoding ? */
+    for (offset = 0; offset < result->getBLength(); ++offset) {
+        unsigned int c = buffer[size_v(offset)]; /* XXX use encoding ? */
         if (c >= 0xe0 && c != 0xf7)
             c &= ~0x20;
         else
             c = toupper((unsigned char)c);
-        buffer[offset] = (unsigned char)c;
+        buffer[size_v(offset)] = (unsigned char)c;
     }
 
     return result;
@@ -231,23 +200,23 @@ that support cases.
 */
 
 RexxString*
-CHARSET_ISO_8859::downcase(RexxString *src)
+CHARSET_ISO_8859::downcase(RexxString *src, ssizeC_t start, ssizeC_t length)
 {
     unsigned char *buffer;
-    wholenumber_t        offset = 0;
+    sizeB_t        offset = 0;
     RexxString        *result = (RexxString *) src->clone();
 
-    if (!result->getBLength())
+    if (result->getBLength() == 0)
         return result;
 
     buffer = (unsigned char *)result->getWritableData();
-    for (offset = 0; offset < (wholenumber_t) result->getBLength(); ++offset) {
-        unsigned int c = buffer[offset];
+    for (offset = 0; offset < result->getBLength(); ++offset) {
+        unsigned int c = buffer[size_v(offset)];
         if (c >= 0xc0 && c != 0xd7 && c <= 0xde)
             c |= 0x20;
         else
             c = tolower((unsigned char)c);
-        buffer[offset] = (unsigned char)c;
+        buffer[size_v(offset)] = (unsigned char)c;
     }
 
     return result;
@@ -269,10 +238,10 @@ CHARSET_ISO_8859::titlecase(RexxString *src)
 {
     unsigned char *buffer;
     unsigned int   c;
-    wholenumber_t        offset;
+    sizeB_t        offset;
     RexxString        *result = (RexxString *)src->clone();
 
-    if (!result->getBLength())
+    if (result->getBLength() == 0)
         return result;
 
     buffer = (unsigned char *)result->getWritableData();
@@ -283,13 +252,13 @@ CHARSET_ISO_8859::titlecase(RexxString *src)
         c = toupper((unsigned char)c);
     buffer[0] = (unsigned char)c;
 
-    for (offset = 1; offset < (wholenumber_t) result->getBLength(); ++offset) {
-        c = buffer[offset];
+    for (offset = 1; offset < result->getBLength(); ++offset) {
+        c = buffer[size_v(offset)];
         if (c >= 0xc0 && c != 0xd7 && c <= 0xde)
             c |= 0x20;
         else
             c = tolower((unsigned char)c);
-        buffer[offset] = (unsigned char)c;
+        buffer[size_v(offset)] = (unsigned char)c;
     }
 
     return result;
@@ -313,7 +282,7 @@ CHARSET_ISO_8859::upcase_first(RexxString *src)
     unsigned int   c;
     RexxString        *result = (RexxString *) src->clone();
 
-    if (!result->getBLength())
+    if (result->getBLength() == 0)
         return result;
 
     buffer = (unsigned char *)result->getWritableData();
@@ -345,7 +314,7 @@ CHARSET_ISO_8859::downcase_first(RexxString *src)
     unsigned int   c;
     RexxString        *result = (RexxString *) src->clone();
 
-    if (!result->getBLength())
+    if (result->getBLength() == 0)
         return result;
 
     buffer = (unsigned char *)result->getWritableData();
@@ -390,11 +359,11 @@ Returns 1 if the IRexxString C<src> is a valid ISO-8859-1 IRexxString. Returns 0
 wholenumber_t
 CHARSET_ISO_8859::validate(IRexxString *src)
 {
-    wholenumber_t offset;
-    const wholenumber_t length =  src->getCLength(); // iterate over the characters
+    sizeC_t offset;
+    const sizeC_t length =  src->getCLength(); // iterate over the characters
 
     for (offset = 0; offset < length; ++offset) {
-        const wholenumber_t codepoint = ENCODING_GET_CODEPOINT(src, offset); // todo : this is NOT optimized ! well, it's ok if the encoding is fixed_8 (should be...) but it's catastrophic if utf-8 !
+        const codepoint_t codepoint = ENCODING_GET_CODEPOINT(src, offset); // todo : this is NOT optimized ! well, it's ok if the encoding is fixed_8 (should be...) but it's catastrophic if utf-8 !
         if (codepoint >= 0x100)
             return 0;
     }
@@ -404,7 +373,7 @@ CHARSET_ISO_8859::validate(IRexxString *src)
 /*
 
 =item C<static wholenumber_t is_cclass(wholenumber_t flags, IRexxString *src,
-wholenumber_t offset)>
+sizeC_t offset)>
 
 Returns Boolean.
 
@@ -413,15 +382,15 @@ Returns Boolean.
 */
 
 wholenumber_t
-CHARSET_ISO_8859::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset)
+CHARSET_ISO_8859::is_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset)
 {
-    wholenumber_t codepoint;
+    codepoint_t codepoint;
 
-    if (offset >= (wholenumber_t) src->getCLength()) return 0;
+    if (offset >= src->getCLength()) return 0;
     codepoint = ENCODING_GET_CODEPOINT(src, offset);
 
-    if (codepoint >= sizeof (m17n_ascii_typetable) /
-                     sizeof (m17n_ascii_typetable[0])) {
+    if ((size_t)codepoint >= sizeof (m17n_iso_8859_1_typetable) /
+                     sizeof (m17n_iso_8859_1_typetable[0])) {
         return 0;
     }
     return (m17n_iso_8859_1_typetable[codepoint] & flags) ? 1 : 0;
@@ -429,8 +398,8 @@ CHARSET_ISO_8859::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t
 
 /*
 
-=item C<static wholenumber_t find_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+=item C<static sizeC_t find_cclass(wholenumber_t flags, IRexxString
+*src, sizeC_t offset, sizeC_t count)>
 
 Find a character in the given character class.  Delegates to the find_cclass
 method of the encoding plugin.
@@ -439,14 +408,14 @@ method of the encoding plugin.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_ISO_8859::find_cclass(wholenumber_t flags,
-                IRexxString *src, wholenumber_t offset, wholenumber_t count)
+                IRexxString *src, sizeC_t offset, sizeC_t count)
 {
-    const wholenumber_t pos = offset;
-    wholenumber_t end = offset + count;
+    const sizeC_t pos = offset;
+    sizeC_t end = offset + count;
 
-    end = (wholenumber_t) src->getCLength() < end ? src->getCLength() : end;
+    end = src->getCLength() < end ? src->getCLength() : end;
     return ENCODING_FIND_CCLASS(src,
             m17n_iso_8859_1_typetable, flags, pos, end);
 }
@@ -454,7 +423,7 @@ CHARSET_ISO_8859::find_cclass(wholenumber_t flags,
 /*
 
 =item C<static wholenumber_t find_not_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+*src, sizeC_t offset, sizeC_t count)>
 
 Returns C<wholenumber_t>.
 
@@ -462,16 +431,16 @@ Returns C<wholenumber_t>.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_ISO_8859::find_not_cclass(wholenumber_t flags,
-                IRexxString *src, wholenumber_t offset, wholenumber_t count)
+                IRexxString *src, sizeC_t offset, sizeC_t count)
 {
-    wholenumber_t pos = offset;
-    wholenumber_t end = offset + count;
+    sizeC_t pos = offset;
+    sizeC_t end = offset + count;
 
-    end = (wholenumber_t) src->getCLength() < end ? src->getCLength() : end;
+    end = src->getCLength() < end ? src->getCLength() : end;
     for (; pos < end; ++pos) {
-        const wholenumber_t codepoint = ENCODING_GET_CODEPOINT(src, pos);
+        const codepoint_t codepoint = ENCODING_GET_CODEPOINT(src, pos);
         if ((m17n_iso_8859_1_typetable[codepoint] & flags) == 0) {
             return pos;
         }
@@ -482,7 +451,7 @@ CHARSET_ISO_8859::find_not_cclass(wholenumber_t flags,
 
 /*
 
-=item C<static RexxString * string_from_codepoint(wholenumber_t codepoint)>
+=item C<static RexxString * string_from_codepoint(codepoint_t codepoint)>
 
 Creates a new RexxString from the single codepoint C<codepoint>.
 
@@ -491,7 +460,7 @@ Creates a new RexxString from the single codepoint C<codepoint>.
 */
 
 RexxString *
-CHARSET_ISO_8859::string_from_codepoint(wholenumber_t codepoint)
+CHARSET_ISO_8859::string_from_codepoint(codepoint_t codepoint)
 {
     char real_codepoint = (char)codepoint;
     RexxString * return_string = new_string(&real_codepoint, 1, 1, m17n_iso_8859_1_charset_ptr, m17n_iso_8859_1_charset_ptr->preferred_encoding);
@@ -531,11 +500,11 @@ Converts RexxString C<src> in ISO-8859-1 to ASCII RexxString C<dest>.
 RexxString *
 charset_cvt_iso_8859_1_to_ascii(RexxString *src)
 {
-    wholenumber_t offs;
+    sizeB_t offs;
     RexxString *dest = (RexxString *) src->clone();
 
-    for (offs = 0; offs < (wholenumber_t) src->getBLength(); ++offs) { // iterate over bytes
-        wholenumber_t c = ENCODING_GET_BYTE(RexxStringWrapper(src), offs);
+    for (offs = 0; offs < src->getBLength(); ++offs) { // iterate over bytes
+        codepoint_t c = ENCODING_GET_BYTE(RexxStringWrapper(src), offs);
         if (c >= 0x80)
             reportException(Rexx_Error_Execution_user_defined, "lossy conversion to ascii");
 

@@ -409,11 +409,11 @@ KeywordEntry RexxSource::subDirectives[] = {           /* language directive sub
 int RexxSource::resolveKeyword(RexxString *token, KeywordEntry *Table, int Table_Size)
 {
     const char *Name = token->getStringData();
-    stringsize_t Length = token->getLength();
+    stringsizeB_t Length = token->getBLength();
 
     int Lower = 0;                           /* set initial lower bound    */
     int Upper = Table_Size - 1;              /* set the upper bound        */
-    char FirstChar = *Name;                   /* get the first character    */
+    char FirstChar = *Name;                   /* get the first character    */ // todo m17n
 
     while (Lower <= Upper)
     {             /* while still a range        */
@@ -422,7 +422,7 @@ int RexxSource::resolveKeyword(RexxString *token, KeywordEntry *Table, int Table
         /* if first character matches */
         if (*Table[Middle].name == FirstChar)
         {
-            int rc = memcmp(Name, Table[Middle].name, Numerics::minVal(Length, Table[Middle].length));
+            int rc = memcmp(Name, Table[Middle].name, Numerics::minVal(Length, Table[Middle].length)); // todo m17n
             if (!rc)
             {                       /* compared equal             */
                                     /* lengths equal?             */

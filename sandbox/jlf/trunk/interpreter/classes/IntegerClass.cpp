@@ -193,7 +193,7 @@ void RexxInteger::copyIntoTail(RexxCompoundTail *tail)
     {
         /* copying directly from an existing string rep is faster */
         /* than formatting a new value and copying. */
-        tail->append(stringrep->getStringData(), stringrep->getLength());
+        tail->append(stringrep->getStringData(), size_v(stringrep->getBLength()));
         return;
     }
     char        stringBuffer[32];        /* integer formatting buffer         */

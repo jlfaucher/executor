@@ -847,7 +847,7 @@ RexxMethod *RexxMethod::loadExternalMethod(RexxString *name, RexxString *descrip
     name = stringArgument(name, "name");
     descriptor = stringArgument(descriptor, "descriptor");
     /* convert external into words       */
-    RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getLength());
+    RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());
     ProtectedObject p(_words);
     // "LIBRARY libbar [foo]"
     if (((RexxString *)(_words->get(1)))->strCompare(CHAR_LIBRARY))

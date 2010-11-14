@@ -47,14 +47,16 @@
 #ifndef M17N_STRING_H_GUARD
 #define M17N_STRING_H_GUARD
 
+#include "rexx.h"
+
 /* String iterator */
 struct String_iter {
-    wholenumber_t bytepos;
-    wholenumber_t charpos;
+    sizeB_t bytepos;
+    sizeC_t charpos;
 };
 
 #define STRING_ITER_INIT(iter) \
-    (iter)->charpos = (iter)->bytepos = 0
+    (iter)->charpos = 0; (iter)->bytepos = 0
 #define STRING_ITER_GET(str, iter, offset) \
     ((str)->getEncoding())->iter_get((str), (iter), (offset))
 #define STRING_ITER_SKIP(str, iter, skip) \

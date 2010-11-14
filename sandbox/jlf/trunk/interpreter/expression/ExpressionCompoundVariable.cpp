@@ -86,20 +86,20 @@ RexxObject * build(
     RexxString *   tail;                 /* tail section string value         */
     RexxQueue  *   tails;                /* tail elements                     */
     RexxObject *   tailPart;             /* tail element retriever            */
-    size_t  position;                    /* scan position within compound name*/
-    size_t  start;                       /* starting scan position            */
-    size_t  length;                      /* length of tail section            */
+    sizeB_t  position;                    /* scan position within compound name*/
+    sizeB_t  start;                       /* starting scan position            */
+    sizeB_t  length;                      /* length of tail section            */
 
-    length = variable_name->getLength(); /* get the string length             */
+    length = variable_name->getBLength(); /* get the string length             */
     position = 0;                        /* start scanning at first character */
                                          /* scan to the first period          */
-    while (variable_name->getChar(position) != '.')
+    while (variable_name->getCharB(position) != '.')
     {
         position++;                        /* step to the next character        */
         length--;                          /* reduce the length also            */
     }
     /* extract the stem part             */
-    stem = variable_name->extract(0, position + 1);
+    stem = variable_name->extractB(0, position + 1);
     ProtectedObject p1(stem);
     /* processing to decompose the name  */
     /* into its component parts          */
@@ -111,7 +111,7 @@ RexxObject * build(
     if (direct == true)                /* direct access?                    */
     {
         /* extract the tail part             */
-        tail = variable_name->extract(position, length);
+        tail = variable_name->extractB(position, length);
         tails->push(tail);                 /* add to the tail piece list        */
     }
     else
@@ -120,18 +120,18 @@ RexxObject * build(
         {
             start = position;                /* save the start position           */
                                              /* scan for the next period          */
-            while (length > 0 && variable_name->getChar(position) != '.')
+            while (length > 0 && variable_name->getCharB(position) != '.')
             {
                 position++;                    /* step to the next character        */
                 length--;                      /* reduce the length also            */
             }
             /* extract the tail part             */
-            tail = variable_name->extract(start, position - start);
+            tail = variable_name->extractB(start, position - start);
             /* have a null tail piece or         */
             /* section begin with a digit?       */
             /* CHM - defect 87: change index start to 0 and compare for range     */
             /* ASCII '0' to '9' to recognize a digit                              */
-            if (tail->getLength() == 0 || (tail->getChar(0) >= '0' && tail->getChar(0) <= '9'))
+            if (tail->getBLength() == 0 || (tail->getCharB(0) >= '0' && tail->getCharB(0) <= '9'))
             {
                 tailPart = (RexxObject *)tail; /* this is a literal piece           */
             }
@@ -145,7 +145,7 @@ RexxObject * build(
             length--;                        /* adjust the length                 */
         }
         /* have a trailing period?           */
-        if (variable_name->getChar(position - 1) == '.')
+        if (variable_name->getCharB(position - 1) == '.')
         {
             tails->push(OREF_NULLSTRING);    /* add to the tail piece list        */
         }

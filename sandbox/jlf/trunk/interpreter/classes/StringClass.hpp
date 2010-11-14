@@ -49,6 +49,7 @@
 #include "StringUtil.hpp"
 #include "Utilities.hpp"
 #include "m17n_charset.h"
+#include "m17n_encoding.h"
 
                                        /* return values from the is_symbol  */
                                        /* validation method                 */
@@ -135,16 +136,16 @@ inline char IntToHexDigit(int n)
    {
        if (hashValue == 0)                // if we've never generated this, the code is zero
        {
-           stringsize_t len = this->getBLength();
+           stringsizeB_t len = this->getBLength();
 
            HashCode h = 0;
            // the hash code is generated from all of the string characters.
            // we do this in a lazy fashion, since most string objects never need to
            // calculate a hash code, particularly the long ones.
            // This hashing algorithm is very similar to that used for Java strings.
-           for (stringsize_t i = 0; i < len; i++)
+           for (stringsizeB_t i = 0; i < len; i++)
            {
-               h = 31 * h + this->stringData[i];
+               h = 31 * h + this->stringData[stringsize_v(i)];
            }
            this->hashValue = h;
        }
@@ -154,11 +155,11 @@ inline char IntToHexDigit(int n)
 
    bool         numberValue(wholenumber_t &result, size_t precision);
    bool         numberValue(wholenumber_t &result);
-   bool         unsignedNumberValue(stringsize_t &result, size_t precision);
-   bool         unsignedNumberValue(stringsize_t &result);
+   bool         unsignedNumberValue(uwholenumber_t &result, size_t precision);
+   bool         unsignedNumberValue(uwholenumber_t &result);
    bool         doubleValue(double &result);
    RexxNumberString *numberString();
-   RexxInteger *integerValue(size_t);
+   RexxInteger *integerValue(size_t precision);
    RexxString  *makeString();
    RexxString  *primitiveMakeString();
    void         copyIntoTail(RexxCompoundTail *buffer);
@@ -166,76 +167,72 @@ inline char IntToHexDigit(int n)
    bool         truthValue(int);
    virtual bool logicalValue(logical_t &);
 
-   bool        isEqual(RexxObject *);
+   bool        isEqual(RexxObject *); // in behaviour
    bool        primitiveIsEqual(RexxObject *);
    bool        primitiveCaselessIsEqual(RexxObject *);
    wholenumber_t strictComp(RexxObject *);
    wholenumber_t comp(RexxObject *);
    wholenumber_t compareTo(RexxObject *);
    RexxInteger *equal(RexxObject *);
-   RexxInteger *strictEqual(RexxObject *);
-   RexxInteger *notEqual(RexxObject *);
-   RexxInteger *strictNotEqual(RexxObject *);
-   RexxInteger *isGreaterThan(RexxObject *);
-   RexxInteger *isLessThan(RexxObject *);
-   RexxInteger *isGreaterOrEqual(RexxObject *);
-   RexxInteger *isLessOrEqual(RexxObject *);
-   RexxInteger *strictGreaterThan(RexxObject *);
-   RexxInteger *strictLessThan(RexxObject *);
-   RexxInteger *strictGreaterOrEqual(RexxObject *);
-   RexxInteger *strictLessOrEqual(RexxObject *);
+   RexxInteger *strictEqual(RexxObject *); // in behaviour
+   RexxInteger *notEqual(RexxObject *); // in behaviour
+   RexxInteger *strictNotEqual(RexxObject *); // in behaviour
+   RexxInteger *isGreaterThan(RexxObject *); // in behaviour
+   RexxInteger *isLessThan(RexxObject *); // in behaviour
+   RexxInteger *isGreaterOrEqual(RexxObject *); // in behaviour
+   RexxInteger *isLessOrEqual(RexxObject *); // in behaviour
+   RexxInteger *strictGreaterThan(RexxObject *); // in behaviour
+   RexxInteger *strictLessThan(RexxObject *); // in behaviour
+   RexxInteger *strictGreaterOrEqual(RexxObject *); // in behaviour
+   RexxInteger *strictLessOrEqual(RexxObject *); // in behaviour
 
-   size_t      copyData(size_t, char *, size_t);
-   RexxObject *lengthRexx();
-   RexxString *concatRexx(RexxObject *);
+   sizeB_t      copyData(sizeB_t, char *, sizeB_t);
+   RexxObject *lengthRexx(); // in behaviour
+   RexxString *concatRexx(RexxObject *); // in behaviour
    RexxString *concat(RexxString *);
    RexxString *concatToCstring(const char *, const char *charsetName=NULL);
    RexxString *concatToCstring(const char *, CHARSET *charset, ENCODING *encoding);
    RexxString *concatWithCstring(const char *, const char *charsetName=NULL);
    RexxString *concatWithCstring(const char *, CHARSET *charset, ENCODING *encoding);
-   RexxString *concatBlank(RexxObject *);
+   RexxString *concatBlank(RexxObject *); // in behaviour
    bool        checkLower();
    RexxString *upper();
-   RexxString *upper(size_t, size_t);
-   RexxString *upperRexx(RexxInteger *, RexxInteger *);
+   RexxString *upper(sizeC_t, sizeC_t);
+   RexxString *upperRexx(RexxInteger *, RexxInteger *); // in behaviour
    RexxString *lower();
-   RexxString *lower(size_t, size_t);
-   RexxString *lowerRexx(RexxInteger *, RexxInteger *);
+   RexxString *lower(sizeC_t, sizeC_t);
+   RexxString *lowerRexx(RexxInteger *, RexxInteger *); // in behaviour
    RexxString *stringTrace();
    void        setNumberString(RexxObject *);
    RexxString *concatWith(RexxString *, char);
 
-   RexxObject *plus(RexxObject *right);
-   RexxObject *minus(RexxObject *right);
-   RexxObject *multiply(RexxObject *right);
-   RexxObject *divide(RexxObject *right);
-   RexxObject *integerDivide(RexxObject *right);
-   RexxObject *remainder(RexxObject *right);
-   RexxObject *power(RexxObject *right);
-   RexxObject *abs();
-   RexxObject *sign();
-   RexxObject *notOp();
+   RexxObject *plus(RexxObject *right); // in behaviour
+   RexxObject *minus(RexxObject *right); // in behaviour
+   RexxObject *multiply(RexxObject *right); // in behaviour
+   RexxObject *divide(RexxObject *right); // in behaviour
+   RexxObject *integerDivide(RexxObject *right); // in behaviour
+   RexxObject *remainder(RexxObject *right); // in behaviour
+   RexxObject *power(RexxObject *right); // in beahviour
+   RexxObject *abs(); // in behaviour
+   RexxObject *sign(); // in behaviour
+   RexxObject *notOp(); // in beahviour
    RexxObject *operatorNot(RexxObject *);
-   RexxObject *andOp(RexxObject *);
-   RexxObject *orOp(RexxObject *);
-   RexxObject *xorOp(RexxObject *);
-   RexxObject *Max(RexxObject **args, size_t argCount);
-   RexxObject *Min(RexxObject **args, size_t argCount);
-   RexxObject *trunc(RexxInteger *decimals);
-   RexxObject *format(RexxObject *Integers, RexxObject *Decimals, RexxObject *MathExp, RexxObject *ExpTrigger);
+   RexxObject *andOp(RexxObject *); // in behaviour
+   RexxObject *orOp(RexxObject *); // in behaviour
+   RexxObject *xorOp(RexxObject *); // in behaviour
+   RexxObject *Max(RexxObject **args, size_t argCount); // in behaviour
+   RexxObject *Min(RexxObject **args, size_t argCount); // in behaviour
+   RexxObject *trunc(RexxInteger *decimals); // in behaviour
+   RexxObject *format(RexxObject *Integers, RexxObject *Decimals, RexxObject *MathExp, RexxObject *ExpTrigger); // in behaviour
    RexxObject *isInteger();
    RexxObject *logicalOperation(RexxObject *, RexxObject *, unsigned int);
-   RexxString *extractb(size_t offset, size_t sublength) // Extract bytes 
+   RexxString *extractB(sizeB_t offset, sizeB_t sublength) // Extract bytes 
    {
        return this->getEncoding()->get_bytes(this, offset, sublength);
    }
-   RexxString *extractc(size_t offset, size_t sublength) // Extract characters
+   RexxString *extractC(sizeC_t offset, sizeC_t sublength) // Extract characters
    {
        return this->getEncoding()->get_codepoints(this, offset, sublength);
-   }
-   RexxString *extract(size_t offset, size_t sublength) // Which kind of extract ? bytes or characters ? bytes seems more appropriate since getLength returns bytes count.
-   {
-       return this->extractb(offset, sublength);
    }
    RexxObject *evaluate(RexxActivation *, RexxExpressionStack *);
    RexxObject *getValue(RexxActivation *);
@@ -244,88 +241,88 @@ inline char IntToHexDigit(int n)
    RexxObject *getRealValue(RexxVariableDictionary *);
                                        /* the following methods are in    */
                                        /* OKBSUBS                         */
-   RexxString  *center(RexxInteger *, RexxString *);
-   RexxString  *delstr(RexxInteger *, RexxInteger *);
-   RexxString  *insert(RexxString *, RexxInteger *, RexxInteger *, RexxString *);
-   RexxString  *left(RexxInteger *, RexxString *);
-   RexxString  *overlay(RexxString *, RexxInteger *, RexxInteger *, RexxString *);
-   RexxString  *replaceAt(RexxString *, RexxInteger *, RexxInteger *, RexxString *);
-   RexxString  *reverse();
-   RexxString  *right(RexxInteger *, RexxString *);
-   RexxString  *strip(RexxString *, RexxString *);
-   RexxString  *substr(RexxInteger *, RexxInteger *, RexxString *);
-   RexxString  *subchar(RexxInteger *);
-   RexxString  *delWord(RexxInteger *, RexxInteger *);
-   RexxString  *space(RexxInteger *, RexxString *);
-   RexxString  *subWord(RexxInteger *, RexxInteger *);
-   RexxString  *word(RexxInteger *);
-   RexxInteger *wordIndex(RexxInteger *);
-   RexxInteger *wordLength(RexxInteger *);
-   RexxInteger *wordPos(RexxString *, RexxInteger *);
-   RexxInteger *caselessWordPos(RexxString *, RexxInteger *);
-   RexxInteger *words();
+   RexxString  *center(RexxInteger *, RexxString *); // in behaviour
+   RexxString  *delstr(RexxInteger *, RexxInteger *); // in behaviour
+   RexxString  *insert(RexxString *, RexxInteger *, RexxInteger *, RexxString *); // in behaviour
+   RexxString  *left(RexxInteger *, RexxString *); // in behaviour
+   RexxString  *overlay(RexxString *, RexxInteger *, RexxInteger *, RexxString *); // in behaviour
+   RexxString  *replaceAt(RexxString *, RexxInteger *, RexxInteger *, RexxString *); // in behaviour
+   RexxString  *reverse(); // in behaviour
+   RexxString  *right(RexxInteger *, RexxString *); // in behaviour
+   RexxString  *strip(RexxString *, RexxString *); // in behaviour
+   RexxString  *substr(RexxInteger *, RexxInteger *, RexxString *); // in behaviour
+   RexxString  *subchar(RexxInteger *); // in behaviour
+   RexxString  *delWord(RexxInteger *, RexxInteger *); // in behaviour
+   RexxString  *space(RexxInteger *, RexxString *); // in behaviour
+   RexxString  *subWord(RexxInteger *, RexxInteger *); // in behaviour
+   RexxString  *word(RexxInteger *); // in behaviour
+   RexxInteger *wordIndex(RexxInteger *); // in behaviour
+   RexxInteger *wordLength(RexxInteger *); // in behaviour
+   RexxInteger *wordPos(RexxString *, RexxInteger *); // in behaviour
+   RexxInteger *caselessWordPos(RexxString *, RexxInteger *); // in behaviour
+   RexxInteger *words(); // in behaviour
                                        /* the following methods are in    */
                                        /* OKBMISC                         */
-   RexxString  *changeStr(RexxString *, RexxString *, RexxInteger *);
-   RexxString  *caselessChangeStr(RexxString *, RexxString *, RexxInteger *);
-   RexxInteger *abbrev(RexxString *, RexxInteger *);
-   RexxInteger *caselessAbbrev(RexxString *, RexxInteger *);
-   RexxInteger *compare(RexxString *, RexxString *);
-   RexxInteger *caselessCompare(RexxString *, RexxString *);
-   RexxString  *copies(RexxInteger *);
-   RexxObject  *dataType(RexxString *);
+   RexxString  *changeStr(RexxString *, RexxString *, RexxInteger *); // in behaviour
+   RexxString  *caselessChangeStr(RexxString *, RexxString *, RexxInteger *); // in behaviour
+   RexxInteger *abbrev(RexxString *, RexxInteger *); // in behaviour
+   RexxInteger *caselessAbbrev(RexxString *, RexxInteger *); // in behaviour
+   RexxInteger *compare(RexxString *, RexxString *); // in behaviour
+   RexxInteger *caselessCompare(RexxString *, RexxString *); // in behaviour
+   RexxString  *copies(RexxInteger *); // in behaviour
+   RexxObject  *dataType(RexxString *); // in behaviour
 
-   RexxInteger *lastPosRexx(RexxString *, RexxInteger *, RexxInteger *);
-   RexxInteger *caselessLastPosRexx(RexxString *, RexxInteger *, RexxInteger *);
-   size_t       lastPos(RexxString  *needle, size_t start);
-   size_t       caselessLastPos(RexxString  *needle, size_t start);
-   const char * caselessLastPos(const char *needle, size_t needleLen, const char *haystack, size_t haystackLen);
+   RexxInteger *lastPosRexx(RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   RexxInteger *caselessLastPosRexx(RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   sizeC_t       lastPos(RexxString  *needle, sizeC_t start);
+   sizeC_t       caselessLastPos(RexxString  *needle, sizeC_t start);
+   const char * caselessLastPos(const char *needle, sizeB_t needleLen, const char *haystack, sizeB_t haystackLen);
 
-   RexxInteger *posRexx(RexxString *, RexxInteger *, RexxInteger *);
-   RexxInteger *caselessPosRexx(RexxString *, RexxInteger *, RexxInteger *);
-   size_t       pos(RexxString *, size_t);
-   size_t       caselessPos(RexxString *, size_t);
+   RexxInteger *posRexx(RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   RexxInteger *caselessPosRexx(RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   sizeC_t       pos(RexxString *, sizeC_t);
+   sizeC_t       caselessPos(RexxString *, sizeC_t);
 
-   RexxString  *translate(RexxString *, RexxString *, RexxString *, RexxInteger *, RexxInteger *);
-   RexxInteger *verify(RexxString *, RexxString *, RexxInteger *, RexxInteger *);
-   RexxInteger *countStrRexx(RexxString *);
-   RexxInteger *caselessCountStrRexx(RexxString *);
+   RexxString  *translate(RexxString *, RexxString *, RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   RexxInteger *verify(RexxString *, RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   RexxInteger *countStrRexx(RexxString *); // in behaviour
+   RexxInteger *caselessCountStrRexx(RexxString *); // in behaviour
    size_t       caselessCountStr(RexxString *);
                                        /* the following methods are in    */
                                        /* OKBBITS                         */
-   RexxString  *bitAnd(RexxString *, RexxString *);
-   RexxString  *bitOr(RexxString *, RexxString *);
-   RexxString  *bitXor(RexxString *, RexxString *);
+   RexxString  *bitAnd(RexxString *, RexxString *); // in behaviour
+   RexxString  *bitOr(RexxString *, RexxString *); // in behaviour
+   RexxString  *bitXor(RexxString *, RexxString *); // in behaviour
                                        /* the following methods are in    */
                                        /* OKBCONV                         */
-   RexxString  *b2x();
-   RexxString  *c2d(RexxInteger *);
-   RexxString  *c2x();
-   RexxString  *encodeBase64();
-   RexxString  *decodeBase64();
-   RexxString  *d2c(RexxInteger *);
-   RexxString  *d2x(RexxInteger *);
-   RexxString  *x2b();
-   RexxString  *x2c();
-   RexxString  *x2d(RexxInteger *);
+   RexxString  *b2x(); // in behaviour
+   RexxString  *c2d(RexxInteger *); // in behaviour
+   RexxString  *c2x(); // in behaviour
+   RexxString  *encodeBase64(); // in behaviour
+   RexxString  *decodeBase64(); // in behaviour
+   RexxString  *d2c(RexxInteger *); // in behaviour
+   RexxString  *d2x(RexxInteger *); // in behaviour
+   RexxString  *x2b(); // in behaviour
+   RexxString  *x2c(); // in behaviour
+   RexxString  *x2d(RexxInteger *); // in behaviour
    RexxString  *x2dC2d(RexxInteger *, bool);
 
-   RexxInteger *match(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_);
-   RexxInteger *caselessMatch(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_);
-   bool primitiveMatch(stringsize_t start, RexxString *other, stringsize_t offset, stringsize_t len);
-   bool primitiveCaselessMatch(stringsize_t start, RexxString *other, stringsize_t offset, stringsize_t len);
-   RexxInteger *matchChar(RexxInteger *position_, RexxString *matchSet);
-   RexxInteger *caselessMatchChar(RexxInteger *position_, RexxString *matchSet);
+   RexxInteger *match(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_); // in behaviour
+   RexxInteger *caselessMatch(RexxInteger *start_, RexxString *other, RexxInteger *offset_, RexxInteger *len_); // in behaviour
+   bool primitiveMatch(stringsizeC_t start, RexxString *other, stringsizeC_t offset, stringsizeC_t len);
+   bool primitiveCaselessMatch(stringsizeC_t start, RexxString *other, stringsizeC_t offset, stringsizeC_t len);
+   RexxInteger *matchChar(RexxInteger *position_, RexxString *matchSet); // in behaviour
+   RexxInteger *caselessMatchChar(RexxInteger *position_, RexxString *matchSet); // in behaviour
 
-   RexxInteger *compareToRexx(RexxString *other, RexxInteger *start_, RexxInteger *len_);
-   RexxInteger *caselessCompareToRexx(RexxString *other, RexxInteger *start_, RexxInteger *len_);
-   RexxInteger *primitiveCompareTo(RexxString *other, stringsize_t start, stringsize_t len);
-   RexxInteger *primitiveCaselessCompareTo(RexxString *other, stringsize_t start, stringsize_t len);
+   RexxInteger *compareToRexx(RexxString *other, RexxInteger *start_, RexxInteger *len_); // in behaviour
+   RexxInteger *caselessCompareToRexx(RexxString *other, RexxInteger *start_, RexxInteger *len_); // in behaviour
+   RexxInteger *primitiveCompareTo(RexxString *other, stringsizeC_t start, stringsizeC_t len);
+   RexxInteger *primitiveCaselessCompareTo(RexxString *other, stringsizeC_t start, stringsizeC_t len);
 
-   RexxInteger *equals(RexxString *other);
-   RexxInteger *caselessEquals(RexxString *other);
+   RexxInteger *equals(RexxString *other); // in behaviour
+   RexxInteger *caselessEquals(RexxString *other); // in behaviour
 
-   RexxArray   *makeArray(RexxString *);
+   RexxArray   *makeArray(RexxString *); // in behaviour
 
 /****************************************************************************/
 /*                                                                          */
@@ -340,27 +337,28 @@ inline char IntToHexDigit(int n)
    inline void setCharset(CHARSET *c) { this->charset = c ? (int8_t) c->number : -1; }
    inline ENCODING *getEncoding() { return m17n_get_encoding(this->encoding); }
    inline void setEncoding(ENCODING *e) { this->encoding = e ? (int8_t) e->number : -1; }
-   inline size_t  getLength() { return this->blength; }; // which length to return ? the number of bytes seems safer for legacy applications. See also RexxMutableBuffer::getLength
-   inline size_t  getBLength() { return this->blength; };
-   inline size_t  getCLength() { return this->clength; };
-   inline void    setLength(size_t l) { this->blength = l; }; // see getLength
-   inline void    setBLength(size_t l) { this->blength = l; };
-   inline void    setCLength(size_t l) { this->clength = l; };
-   inline void finish(stringsize_t bl, ssize_t cl=-1) 
+   inline sizeB_t  getBLength() { return this->blength; };
+   inline sizeC_t  getCLength() { return this->clength; };
+   inline void    setBLength(sizeB_t l) { this->blength = l; };
+   inline void    setCLength(sizeC_t l) { this->clength = l; };
+   inline void finish(stringsizeB_t bl, ssizeC_t cl=-1) 
    { 
-       this->blength = bl; 
-       this->clength == -1 ?
-           this->getEncoding()->codepoints(this->getStringData(), bl)
-           : 
-           cl;
+       this->blength = bl;
+       this->clength =
+           cl == -1 ?
+               this->getEncoding()->codepoints(this->getStringData(), bl)
+               : 
+               cl;
    }
    inline const char *getStringData() { return this->stringData; };
    inline char *getWritableData() { return &this->stringData[0]; };
-   inline void put(size_t s, const void *b, size_t l) { memcpy(getWritableData() + s, b, l); };
-   inline void put(size_t s, RexxString *o) { put(s, o->getStringData(), o->getLength()); };
-   inline void set(size_t s,int c, size_t l) { memset((this->stringData+s), c, l); };
-   inline char getChar(size_t p) { return *(this->stringData+p); };
-   inline char putChar(size_t p,char c) { return *(this->stringData+p) = c; };
+   inline void put(sizeB_t s, const void *b, sizeB_t l) { memcpy(getWritableData() + s, b, l); };
+   inline void put(sizeB_t s, RexxString *o) { put(s, o->getStringData(), o->getBLength()); }; // todo m17n ? for the moment I use sizeB_t, like previous put method. 
+   inline void set(sizeB_t s,int c, sizeB_t l) { memset((this->stringData + s), c, l); };
+   inline char getCharB(sizeB_t p) { return *(this->stringData+p); }; // m17n : returns a byte, not a codepoint
+   inline codepoint_t getCharC(sizeC_t p) { return *(this->stringData+size_v(p)); }; // todo call m17n : convert charpos to bytepos and return a codepoint, not a byte
+   inline char putCharB(sizeB_t p,char c) { return *(this->stringData+p) = c; }; // m17n : stores a byte, not a codepoint
+   //inline char putCharC(sizeC_t p,codepoint_t c) { return *(this->stringData+p) = c; }; // todo call m17n : stores a codepoint (ako replaceChar ? i.e. string can grow or shrink when utf-8 ? or is it limited to pure ascii chars <= 0x7F ?)
    inline bool upperOnly() {return (this->Attributes&STRING_NOLOWER) != 0;};
    inline bool hasLower() {return (this->Attributes&STRING_HASLOWER) != 0;};
    inline void  setUpperOnly() { this->Attributes |= STRING_NOLOWER;};
@@ -368,12 +366,18 @@ inline char IntToHexDigit(int n)
    inline bool  nonNumeric() {return (this->Attributes&STRING_NONNUMERIC) != 0;};
    inline void  setNonNumeric() { this->Attributes |= STRING_NONNUMERIC;};
    inline bool  strCompare(const char * s) {return this->memCompare((s), strlen(s));};
-   inline bool  strCaselessCompare(const char * s) { return (size_t)this->blength == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
-   inline bool  memCompare(const char * s, size_t l) { return l == this->blength && memcmp(s, this->stringData, l) == 0; }
-   inline bool  memCompare(RexxString *other) { return other->blength == this->blength && memcmp(other->stringData, this->stringData, blength) == 0; }
+   inline bool  strCaselessCompare(const char * s) { return this->blength == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
+   inline bool  memCompare(const char * s, sizeB_t l) { return l == this->blength && memcmp(s, this->stringData, l) == 0; }
+   inline bool  memCompare(RexxString *other) 
+   { 
+       return other->charset == this->charset &&
+              other->encoding == this->encoding &&
+              other->blength == this->blength &&
+              memcmp(other->stringData, this->stringData, blength) == 0; 
+   }
    inline void  memCopy(char * s) { memcpy(s, stringData, blength); }
-   inline void  toRxstring(CONSTRXSTRING &r) { r.strptr = getStringData(); r.strlength = getLength(); }
-   inline void  toRxstring(RXSTRING &r) { r.strptr = getWritableData(); r.strlength = getLength(); }
+   inline void  toRxstring(CONSTRXSTRING &r) { r.strptr = getStringData(); r.strlength = size_v(getBLength()); } // no encoding support, so better to use blength
+   inline void  toRxstring(RXSTRING &r) { r.strptr = getWritableData(); r.strlength = size_v(getBLength()); }
           void  copyToRxstring(RXSTRING &r);
 
    RexxNumberString *createNumberString();
@@ -389,7 +393,7 @@ inline char IntToHexDigit(int n)
    }
 
    inline int sortCompare(RexxString *other) {
-       size_t compareLength = blength;
+       sizeB_t compareLength = blength;
        if (compareLength > other->blength) {
            compareLength = other->blength;
        }
@@ -406,7 +410,7 @@ inline char IntToHexDigit(int n)
    }
 
    inline int sortCaselessCompare(RexxString *other) {
-       size_t compareLength = blength;
+       sizeB_t compareLength = blength;
        if (compareLength > other->blength) {
            compareLength = other->blength;
        }
@@ -422,86 +426,86 @@ inline char IntToHexDigit(int n)
        return result;
    }
 
-   inline int sortCompare(RexxString *other, size_t startCol, size_t colLength) {
+   inline int sortCompare(RexxString *other, sizeC_t startCol, sizeC_t colLength) {
        int result = 0;
-       if ((startCol < blength ) && (startCol < other->blength)) {
-           size_t stringLength = blength;
-           if (stringLength > other->blength) {
-               stringLength = other->blength;
+       if ((startCol < clength ) && (startCol < other->clength)) {
+           sizeC_t stringLength = clength;
+           if (stringLength > other->clength) {
+               stringLength = other->clength;
            }
            stringLength = stringLength - startCol + 1;
-           size_t compareLength = colLength;
+           sizeC_t compareLength = colLength;
            if (compareLength > stringLength) {
                compareLength = stringLength;
            }
 
-           result = memcmp(stringData + startCol, other->stringData + startCol, compareLength);
+           result = memcmp(stringData + size_v(startCol), other->stringData + size_v(startCol), size_v(compareLength)); // todo m17n
            if (result == 0 && stringLength < colLength) {
-               if (blength > other->blength) {
+               if (clength > other->clength) {
                    result = 1;
                }
-               else if (blength < other->blength) {
+               else if (clength < other->clength) {
                    result = -1;
                }
            }
        }
        else {
-           if (blength == other->blength) {
+           if (clength == other->clength) {
                result = 0;
            }
            else {
-               result = blength < other->blength ? -1 : 1;
+               result = clength < other->clength ? -1 : 1;
            }
        }
        return result;
    }
 
-   inline int sortCaselessCompare(RexxString *other, size_t startCol, size_t colLength) {
+   inline int sortCaselessCompare(RexxString *other, sizeC_t startCol, sizeC_t colLength) {
        int result = 0;
-       if ((startCol < blength ) && (startCol < other->blength)) {
-           size_t stringLength = blength;
-           if (stringLength > other->blength) {
-               stringLength = other->blength;
+       if ((startCol < clength ) && (startCol < other->clength)) {
+           sizeC_t stringLength = clength;
+           if (stringLength > other->clength) {
+               stringLength = other->clength;
            }
            stringLength = stringLength - startCol + 1;
-           size_t compareLength = colLength;
+           sizeC_t compareLength = colLength;
            if (compareLength > stringLength) {
                compareLength = stringLength;
            }
 
-           result = StringUtil::caselessCompare(stringData + startCol, other->stringData + startCol, compareLength);
+           result = StringUtil::caselessCompare(stringData + size_v(startCol), other->stringData + size_v(startCol), size_v(compareLength)); // todo m17n
            if (result == 0 && stringLength < colLength) {
-               if (blength > other->blength) {
+               if (clength > other->clength) {
                    result = 1;
                }
-               else if (blength < other->blength) {
+               else if (clength < other->clength) {
                    result = -1;
                }
            }
        }
        else {
-           if (blength == other->blength) {
+           if (clength == other->clength) {
                result = 0;
            }
            else {
-               result = blength < other->blength ? -1 : 1;
+               result = clength < other->clength ? -1 : 1;
            }
        }
        return result;
    }
 
 
-   static RexxString *newString(const char *, size_t bl, ssize_t cl=-1, const char *charsetName=NULL);
-   static RexxString *newString(const char *, size_t bl, ssize_t cl, CHARSET *charset, ENCODING *encoding);
-   static RexxString *rawString(size_t bl, ssize_t cl=-1, const char *charsetName=NULL);
-   static RexxString *rawString(size_t bl, ssize_t cl, CHARSET *charset, ENCODING *encoding);
-   static RexxString *newUpperString(const char *, stringsize_t bl, sstringsize_t cl=-1, const char *charsetName=NULL);
-   static RexxString *newUpperString(const char *, stringsize_t bl, sstringsize_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *newString(const char *, sizeB_t bl, ssizeC_t cl=-1, const char *charsetName=NULL);
+   static RexxString *newString(const char *, sizeB_t bl, ssizeC_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *rawString(sizeB_t bl, ssizeC_t cl=-1, const char *charsetName=NULL);
+   static RexxString *rawString(sizeB_t bl, ssizeC_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *newUpperString(const char *, stringsizeB_t bl, sstringsizeC_t cl=-1, const char *charsetName=NULL);
+   static RexxString *newUpperString(const char *, stringsizeB_t bl, sstringsizeC_t cl, CHARSET *charset, ENCODING *encoding);
    static RexxString *newString(double d);
    static RexxString *newString(double d, size_t precision);
    static RexxString *newProxy(const char *);
    // NB:  newRexx() cannot be static and exported as an ooRexx method.
-          RexxString *newRexx(RexxObject **, size_t);
+          RexxString *newRexx(RexxObject **, size_t); // in behaviour
    static PCPPM operatorMethods[];
 
    static void createInstance();
@@ -512,8 +516,8 @@ inline char IntToHexDigit(int n)
    int8_t encoding;                    // string encoding (how the codepoints are serialized in stringData)
    int8_t charset;                     // string charset (what is the semantic of the codepoints)
    HashCode hashValue;                 // stored has value
-   size_t clength;                     /* string length in characters     */
-   size_t blength;                     /* string length in bytes          */
+   sizeC_t clength;                    /* string length in characters     */
+   sizeB_t blength;                    /* string length in bytes          */
    RexxNumberString *NumberString;     /* lookaside information           */
    size_t Attributes;                  /* string attributes               */
    char stringData[4];                 /* Start of the string data part   */
@@ -522,12 +526,12 @@ inline char IntToHexDigit(int n)
 
 // some handy functions for doing cstring/RexxString manipulations
 
- inline void * rmemcpy(void *t, RexxString *s, size_t blen)
+ inline void * rmemcpy(void *t, RexxString *s, sizeB_t blen) // todo m17n : blen or clen ?
  {
      return memcpy(t, s->getStringData(), blen);
  }
 
- inline int rmemcmp(const void *t, RexxString *s, size_t blen)
+ inline int rmemcmp(const void *t, RexxString *s, sizeB_t blen) // todo m17n : blen or clen ?
  {
      return memcmp(t, s->getStringData(), blen);
  }
@@ -551,7 +555,7 @@ inline char IntToHexDigit(int n)
  {
      va_list args;
      va_start(args, format);
-     int n = Utilities::vsnprintf(s->getWritableData(), s->getBLength(), format, args);
+     int n = Utilities::vsnprintf(s->getWritableData(), size_v(s->getBLength()), format, args);
      va_end(args);
      s->finish(n >= 0 ? n : 0);
      return n;
@@ -559,22 +563,22 @@ inline char IntToHexDigit(int n)
 
 // String creation inline functions
 
-inline RexxString *new_string(const char *s, stringsize_t bl, ssize_t cl=-1, const char *charsetName=NULL)
+inline RexxString *new_string(const char *s, stringsizeB_t bl, ssizeC_t cl=-1, const char *charsetName=NULL)
 {
     return RexxString::newString(s, bl, cl, charsetName);
 }
 
-inline RexxString *new_string(const char *s, stringsize_t bl, ssize_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_string(const char *s, stringsizeB_t bl, ssizeC_t cl, CHARSET *charset, ENCODING *encoding)
 {
     return RexxString::newString(s, bl, cl, charset, encoding);
 }
 
-inline RexxString *raw_string(stringsize_t bl, sstringsize_t cl=-1, const char *charsetName=NULL)
+inline RexxString *raw_string(stringsizeB_t bl, sstringsizeC_t cl=-1, const char *charsetName=NULL)
 {
     return RexxString::rawString(bl, cl, charsetName);
 }
 
-inline RexxString *raw_string(stringsize_t bl, stringsize_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *raw_string(stringsizeB_t bl, stringsizeC_t cl, CHARSET *charset, ENCODING *encoding)
 {
     return RexxString::rawString(bl, cl, charset, encoding);
 }
@@ -635,12 +639,12 @@ inline RexxString *new_proxy(const char *name)
     return RexxString::newProxy(name);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsize_t bl, sstringsize_t cl=-1, const char *charsetName=NULL)
+inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, sstringsizeC_t cl=-1, const char *charsetName=NULL)
 {
     return RexxString::newUpperString(s, bl, cl, charsetName);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsize_t bl, sstringsize_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, sstringsizeC_t cl, CHARSET *charset, ENCODING *encoding)
 {
     return RexxString::newUpperString(s, bl, cl, charset, encoding);
 }
@@ -667,11 +671,10 @@ class IRexxString {
     virtual void setCharset(CHARSET *c) = 0;
     virtual ENCODING *getEncoding() = 0;
     virtual void setEncoding(ENCODING *e) = 0;
-    virtual size_t getBLength() = 0;
-    virtual size_t getCLength() = 0;
-    virtual void setLength(size_t l) = 0;
-    virtual void setBLength(size_t l) = 0; 
-    virtual void setCLength(size_t l) = 0;
+    virtual sizeB_t getBLength() = 0;
+    virtual sizeC_t getCLength() = 0;
+    virtual void setBLength(sizeB_t l) = 0; 
+    virtual void setCLength(sizeC_t l) = 0;
     virtual const char *getStringData() = 0;
     virtual char *getWritableData() = 0;
 };
@@ -686,11 +689,10 @@ class RexxStringWrapper : public IRexxString {
     inline void setCharset(CHARSET *c) { return str->setCharset(c); }
     inline ENCODING *getEncoding() { return str->getEncoding(); }
     inline void setEncoding(ENCODING *e) { str->setEncoding(e); }
-    inline size_t getBLength() { return str->getBLength(); }
-    inline size_t getCLength() { return str->getCLength(); }
-    inline void setLength(size_t l) { str->setBLength(l); }
-    inline void setBLength(size_t l) { str->setBLength(l); }
-    inline void setCLength(size_t l) { str->setCLength(l); }
+    inline sizeB_t getBLength() { return str->getBLength(); }
+    inline sizeC_t getCLength() { return str->getCLength(); }
+    inline void setBLength(sizeB_t l) { str->setBLength(l); }
+    inline void setCLength(sizeC_t l) { str->setCLength(l); }
     inline const char *getStringData() { return str->getStringData(); }
     inline char *getWritableData() { return str->getWritableData(); }
   private:

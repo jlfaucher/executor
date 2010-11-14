@@ -56,25 +56,25 @@ class RexxMutableBuffer;
 class ENCODING {
 public:
     virtual RexxMutableBuffer * encode(IRexxString *src) = 0; // JLF : previous name was to_encoding (not appropriate)
-    virtual wholenumber_t get_codepoint(IRexxString *src, wholenumber_t offset) = 0;
-    virtual wholenumber_t get_byte(IRexxString *src, wholenumber_t offset) = 0;
-    virtual void set_byte(IRexxString *src, wholenumber_t offset, wholenumber_t count) = 0;
-    virtual RexxString * get_codepoints(RexxString *src, wholenumber_t offset, wholenumber_t count) = 0;
-    virtual RexxString * get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t count) = 0;
-    virtual wholenumber_t codepoints(IRexxString *src) = 0;
-    virtual wholenumber_t codepoints(const char *src, wholenumber_t blength) = 0;
-    virtual wholenumber_t bytes(IRexxString *src) = 0;
-    virtual wholenumber_t find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, wholenumber_t offset, wholenumber_t count) = 0;
+    virtual codepoint_t get_codepoint(IRexxString *src, sizeC_t offset) = 0;
+    virtual wholenumber_t get_byte(IRexxString *src, sizeB_t offset) = 0;
+    virtual void set_byte(IRexxString *src, sizeB_t offset, wholenumber_t byte) = 0;
+    virtual RexxString * get_codepoints(RexxString *src, sizeC_t offset, sizeC_t count) = 0;
+    virtual RexxString * get_bytes(RexxString *src, sizeB_t offset, sizeB_t count) = 0;
+    virtual sizeC_t codepoints(IRexxString *src) = 0;
+    virtual sizeC_t codepoints(const char *src, sizeB_t blength) = 0;
+    virtual sizeB_t bytes(IRexxString *src) = 0;
+    virtual sizeC_t find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, sizeC_t offset, sizeC_t count) = 0;
 
-    virtual wholenumber_t iter_get(IRexxString *str, String_iter *i, wholenumber_t offset) = 0;
-    virtual void iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip) = 0;
-    virtual wholenumber_t iter_get_and_advance(IRexxString *str, String_iter *i) = 0;
-    virtual void iter_set_and_advance(IRexxString *str, String_iter *i, wholenumber_t c) = 0;
-    virtual void iter_set_position(IRexxString *str, String_iter *i, wholenumber_t pos) = 0;
+    virtual codepoint_t iter_get(IRexxString *str, String_iter *i, sizeC_t offset) = 0;
+    virtual void iter_skip(IRexxString *str, String_iter *i, sizeC_t skip) = 0;
+    virtual codepoint_t iter_get_and_advance(IRexxString *str, String_iter *i) = 0;
+    virtual void iter_set_and_advance(IRexxString *str, String_iter *i, codepoint_t c) = 0;
+    virtual void iter_set_position(IRexxString *str, String_iter *i, sizeC_t pos) = 0;
 
     wholenumber_t number;
     const char *name;
-    wholenumber_t max_bytes_per_codepoint;
+    uint8_t max_bytes_per_codepoint;
 };
 
 
@@ -122,8 +122,6 @@ wholenumber_t m17n_register_encoding(ENCODING *encoding);
 void m17n_deinit_encodings();
 
 
-#define ENCODING_MAX_BYTES_PER_CODEPOINT(src) \
-    ((src)->getEncoding())->max_bytes_per_codepoint
 #define ENCODING_GET_CODEPOINT(src, offset) \
     ((src)->getEncoding())->get_codepoint((src), (offset))
 #define ENCODING_GET_BYTE(src, offset) \
@@ -134,10 +132,6 @@ void m17n_deinit_encodings();
     ((src)->getEncoding())->get_codepoints((src), (offset), (count))
 #define ENCODING_GET_BYTES(src, offset, count) \
     ((src)->getEncoding())->get_bytes((src), (offset), (count))
-#define ENCODING_CODEPOINTS(src) \
-    ((src)->getEncoding())->codepoints((src))
-#define ENCODING_BYTES(src) \
-    ((src)->getEncoding())->bytes((src))
 #define ENCODING_FIND_CCLASS(src, typetable, flags, pos, end) \
     ((src)->getEncoding())->find_cclass((src), (typetable), (flags), (pos), (end))
 

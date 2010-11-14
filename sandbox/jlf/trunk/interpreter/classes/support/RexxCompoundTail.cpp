@@ -107,7 +107,7 @@ void RexxCompoundTail::buildTail(
               /* point directly to the value       */
               /* and the length */
               this->tail = rep->getWritableData();
-              length = rep->getLength();
+              length = size_v(rep->getBLength());
               remainder = 0;                       /* belt and braces...this will force a reallocation if we append */
               value = rep;                         /* save this reference in case we're asked for it later */
               return;
@@ -119,7 +119,7 @@ void RexxCompoundTail::buildTail(
           /* point directly to the value       */
           /* and the length */
           this->tail = ((RexxString *)_tail)->getWritableData();
-          length = ((RexxString *)_tail)->getLength();
+          length = size_v(((RexxString *)_tail)->getBLength());
           remainder = 0;                       /* belt and braces...this will force a reallocation if we append */
           value = (RexxString *)_tail;         /* save this reference in case we're asked for it later */
           return;
@@ -164,7 +164,7 @@ void RexxCompoundTail::buildTail(
                 /* point directly to the value       */
                 /* and the length */
                 this->tail = rep->getWritableData();
-                length = rep->getLength();
+                length = size_v(rep->getBLength());
                 remainder = 0;                       /* belt and braces...this will force a reallocation if we append */
                 value = rep;                         /* save this reference in case we're asked for it later */
                 return;
@@ -176,7 +176,7 @@ void RexxCompoundTail::buildTail(
             /* point directly to the value       */
             /* and the length */
             this->tail = ((RexxString *)_tail)->getWritableData();
-            length = ((RexxString *)_tail)->getLength();
+            length = size_v(((RexxString *)_tail)->getBLength());
             remainder = 0;                       /* belt and braces...this will force a reallocation if we append */
             value = (RexxString *)_tail;         /* save this reference in case we're asked for it later */
             return;
@@ -237,7 +237,7 @@ void RexxCompoundTail::buildTail(
 {
   /* point directly to the value       */
   this->tail = _tail->getWritableData();
-  length = _tail->getLength();          /* and the length */
+  length = size_v(_tail->getBLength());          /* and the length */
   remainder = 0;                        /* belt and braces...this will force a reallocation if we append */
   value = _tail;                        /* save this reference in case we're asked for it later */
 }
@@ -267,7 +267,7 @@ void RexxCompoundTail::buildTail(
     {
         _tail->copyIntoTail(this);        /* add this to our tail              */
     }
-    length = length + _tail->getLength();
+    length = length + size_v(_tail->getBLength());
     length = length + Numerics::formatWholeNumber(index, current);
     current += length;
     remainder -= length;
@@ -321,7 +321,7 @@ RexxString *RexxCompoundTail::createCompoundName(RexxString *stem)
 /* Function:  Create a fully resolved compound name from a tail buffer        */
 /******************************************************************************/
 {
-    size_t len1 = stem->getLength();                 /* get the stem length               */
+    size_t len1 = size_v(stem->getBLength());                 /* get the stem length               */
     /* create a new string               */
     RexxString *result = (RexxString *)raw_string(len1 + length);
     char *data = result->getWritableData(); /* point to the string data          */

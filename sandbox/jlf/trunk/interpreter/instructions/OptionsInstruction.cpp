@@ -77,7 +77,7 @@ void RexxInstructionOptions::execute(
     {
         /* get the next word                 */
         word = (RexxString *)(stringVal->word(new_integer(i)));
-        if (word->getLength() == 0)        /* get the length of the word        */
+        if (word->getBLength() == 0)        /* get the length of the word        */
         {
             break;                           /* if length of word = 0 then stop   */
         }

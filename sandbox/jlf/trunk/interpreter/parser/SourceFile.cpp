@@ -94,7 +94,7 @@
 
 typedef struct _LINE_DESCRIPTOR {
   size_t position;                     /* position within the buffer        */
-  size_t length;                       /* length of the line                */
+  sizeB_t length;                       /* length of the line                */
 } LINE_DESCRIPTOR;                     /* line within a source buffer       */
 
 #define line_delimiters "\r\n"         /* stream file line end characters   */
@@ -187,7 +187,7 @@ void RexxSource::initBuffered(
     const char *scan;                    /* line scanning pointer             */
     const char *_current;                /* current scan location             */
     char *start;                   /* start of the buffer               */
-    size_t length;                       /* length of the buffer              */
+    sizeB_t length;                       /* length of the buffer              */
 
     extractNameInformation();            // make sure we have name information to work with
                                          /* set the source buffer             */
@@ -225,7 +225,7 @@ void RexxSource::initBuffered(
         /* scan for a important character    */
         scan = Utilities::locateCharacter(_current, line_delimiters, length);
         /* need to skip over null chars      */
-        while (scan != OREF_NULL && *scan == '\0')
+        while (scan != OREF_NULL && *scan == '\0') // JLF : never enter the loop ? if scan is not null then *scan is necessarily \r or \n, but never \0
         {
             /* scan for a linend                 */
             scan = Utilities::locateCharacter(scan + 1, line_delimiters, length - (scan - _current - 1));
@@ -387,7 +387,7 @@ void RexxSource::needVariable(
     if (!token->isVariable())
     {
         /* begin with a dot?                 */
-        if (token->value->getChar(0) == '.')
+        if (token->value->getCharC(0) == '.')
         {
             syntaxError(Error_Invalid_variable_period, token);
         }
@@ -514,7 +514,7 @@ void RexxSource::nextLine()
 
 void RexxSource::position(
     size_t line,                       /* target line number                */
-    size_t offset)                     /* target line offset                */
+    sizeB_t offset)                     /* target line offset                */
 /******************************************************************************/
 /* Function:  Move the current scan position to a new spot                    */
 /******************************************************************************/
@@ -557,7 +557,7 @@ void RexxSource::position(
             /* set the program pointer           */
             this->current = new_line->getStringData();
             /* get the string length             */
-            this->current_length = new_line->getLength();
+            this->current_length = new_line->getBLength();
         }
         /* single buffer source              */
         else
@@ -965,11 +965,11 @@ RexxString *RexxSource::traceBack(
         indent = 0;                        /* just reset it                     */
     }
                                            /* get an output string              */
-    buffer = raw_string(line->getLength() + INSTRUCTION_OVERHEAD + indent * INDENT_SPACING);
+    buffer = raw_string(line->getBLength() + INSTRUCTION_OVERHEAD + indent * INDENT_SPACING);
     /* blank out the first part          */
     buffer->set(0, ' ', INSTRUCTION_OVERHEAD + indent * INDENT_SPACING);
     /* copy in the line                  */
-    buffer->put(INSTRUCTION_OVERHEAD + indent * INDENT_SPACING, line->getStringData(), line->getLength());
+    buffer->put(INSTRUCTION_OVERHEAD + indent * INDENT_SPACING, line->getStringData(), line->getBLength());
     outlength = strlen(linenumber);      /* get the line number length        */
     linepointer = linenumber;            /* point to number start             */
     /* too long for defined field?       */
@@ -1008,7 +1008,7 @@ RexxString *RexxSource::extract(
                                            /* all on one line?                  */
     else if (location.getLineNumber() >= location.getEndLine())
         /* just extract the string           */
-        line = this->get(location.getLineNumber() - this->interpret_adjust)->extract(location.getOffset(),
+        line = this->get(location.getLineNumber() - this->interpret_adjust)->extractB(location.getOffset(),
                                                                                      location.getEndOffset() - location.getOffset());
     /* multiple line clause              */
     else
@@ -1016,7 +1016,7 @@ RexxString *RexxSource::extract(
         /* get the source line               */
         source_line = this->get(location.getLineNumber());
         /* extract the first part            */
-        line = source_line->extract(location.getOffset(), source_line->getLength() - location.getOffset());
+        line = source_line->extractB(location.getOffset(), source_line->getBLength() - location.getOffset());
         /* loop down to end line             */
         for (counter = location.getLineNumber() + 1 - this->interpret_adjust; counter < location.getEndLine(); counter++)
         {
@@ -1024,7 +1024,7 @@ RexxString *RexxSource::extract(
             line = line->concat(this->get(counter));
         }
         /* now add on the last part          */
-        line = line->concat(this->get(counter)->extract(0, location.getEndOffset()));
+        line = line->concat(this->get(counter)->extractB(0, location.getEndOffset()));
     }
     return line;                         /* return the extracted line         */
 }
@@ -1075,7 +1075,7 @@ RexxArray *RexxSource::extractSource(
         if (location.getEndLine() == 0)
         {  /* no ending line?                   */
            /* use the last line                 */
-            location.setEnd(this->line_count, this->get(line_count)->getLength());
+            location.setEnd(this->line_count, this->get(line_count)->getBLength());
         }
         /* end at the line start?            */
         else if (location.getEndOffset() == 0)
@@ -1083,7 +1083,7 @@ RexxArray *RexxSource::extractSource(
             // step back a line
             location.setEndLine(location.getEndLine() - 1); /* step back a line                  */
             /* end at the line end               */
-            location.setEndOffset(this->get(location.getEndLine())->getLength());
+            location.setEndOffset(this->get(location.getEndLine())->getBLength());
         }
         /* get the result array              */
         RexxArray *source = new_array(location.getEndLine() - location.getLineNumber() + 1);
@@ -1094,7 +1094,7 @@ RexxArray *RexxSource::extractSource(
             /* get the line                      */
             RexxString *source_line = this->get(location.getLineNumber());
             /* extract the line segment          */
-            source_line = source_line->extract(location.getOffset(), location.getEndOffset() - location.getOffset());
+            source_line = source_line->extractB(location.getOffset(), location.getEndOffset() - location.getOffset());
             source->put(source_line, 1);     /* insert the trailing piece         */
             return source;                   /* all done                          */
         }
@@ -1108,7 +1108,7 @@ RexxArray *RexxSource::extractSource(
             /* get the line                      */
             RexxString *source_line = this->get(location.getLineNumber());
             /* extract the end portion           */
-            source_line = source_line->extract(location.getOffset(), source_line->getLength() - location.getOffset());
+            source_line = source_line->extractB(location.getOffset(), source_line->getBLength() - location.getOffset());
             source->put(source_line, 1);     /* insert the trailing piece         */
         }
 
@@ -1125,14 +1125,14 @@ RexxArray *RexxSource::extractSource(
         if (location.getEndLine() > location.getLineNumber())
         {
             /* need the entire line?             */
-            if (location.getEndOffset() >= source_line->getLength())
+            if (location.getEndOffset() >= source_line->getBLength())
             {
                 source->put(source_line, i);   /* just use it                       */
             }
             else
             {
                 /* extract the tail part             */
-                source->put(source_line->extract(0, location.getEndOffset() - 1), i);
+                source->put(source_line->extractB(0, location.getEndOffset() - 1), i);
             }
         }
         return source;
@@ -4260,12 +4260,12 @@ RexxCompoundVariable *RexxSource::addCompound(
     RexxString           *stemName;      /* stem part of compound variable    */
     RexxString           *tail;          /* tail section string value         */
     const char *          start;         /* starting scan position            */
-    size_t                length;        /* length of tail section            */
+    sizeB_t                length;        /* length of tail section            */
     const char *          _position;     /* current position                  */
     const char *          end;           // the end scanning position
     size_t                tailCount;     /* count of tails in compound        */
 
-    length = name->getLength();          /* get the string length             */
+    length = name->getBLength();          /* get the string length             */
     _position = name->getStringData();   /* start scanning at first character */
     start = _position;                   /* save the starting point           */
     end = _position + length;            // save our end marker
@@ -4302,7 +4302,7 @@ RexxCompoundVariable *RexxSource::addCompound(
         tail = new_string(start, _position - start);
         /* have a null tail piece or         */
         /* section begin with a digit?       */
-        if (!(tail->getLength() == 0 || (*start >= '0' && *start <= '9')))
+        if (!(tail->getBLength() == 0 || (*start >= '0' && *start <= '9')))
         {
             /* push onto the term stack          */
             this->subTerms->push((RexxObject *)(this->addVariable(tail)));
@@ -4437,7 +4437,7 @@ RexxObject *RexxSource::addText(
                     if (retriever == OREF_NULL)
                     {
                         /* create the shorter name           */
-                        value = name->extract(1, name->getLength() - 1);
+                        value = name->extractB(1, name->getBLength() - 1);
                         /* add this to the common pile       */
                         value = this->commonString((RexxString *)value);
                         /* create a retriever for this       */
@@ -5459,7 +5459,7 @@ RexxArray  *RexxSource::words(
     wordlist->push(word);                /* add to the word list              */
     count = 1;                           /* one word so far                   */
                                          /* while still more words            */
-    for (i = 3, word = (RexxString *)(string->word(IntegerTwo)); word->getLength() != 0; i++)
+    for (i = 3, word = (RexxString *)(string->word(IntegerTwo)); word->getBLength() != 0; i++)
     {
         count++;                           /* have another word                 */
         word = this->commonString(word);   /* get the common version of this    */
@@ -5717,7 +5717,7 @@ bool RexxSource::parseTraceSetting(RexxString *value, size_t &newSetting, size_t
     size_t setting = TRACE_IGNORE;       /* don't change trace setting yet    */
     size_t debug = DEBUG_IGNORE;         /* and the default debug change      */
 
-    size_t length = value->getLength();  /* get the string length             */
+    sizeB_t length = value->getBLength();  /* get the string length             */
     /* null string?                      */
     if (length == 0)
     {
@@ -5733,7 +5733,7 @@ bool RexxSource::parseTraceSetting(RexxString *value, size_t &newSetting, size_t
         {
 
             /* process the next character        */
-            switch (value->getChar(_position))
+            switch (value->getCharB(_position))
             {
 
                 case '?':                      /* debug toggle character            */
@@ -5796,7 +5796,7 @@ bool RexxSource::parseTraceSetting(RexxString *value, size_t &newSetting, size_t
                 default:                       /* unknown trace setting             */
                     // each context handles it's own error reporting, so give back the
                     // information needed for the message.
-                    badOption = value->getChar(_position);
+                    badOption = value->getCharB(_position);
                     return false;
                     break;
             }

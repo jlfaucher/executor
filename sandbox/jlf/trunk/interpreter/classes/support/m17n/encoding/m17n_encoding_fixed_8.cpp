@@ -78,7 +78,7 @@ ENCODING_FIXED_8::encode(IRexxString *src)
 
 /*
 
-=item C<static wholenumber_t get_codepoint(IRexxString *src, wholenumber_t
+=item C<static codepoint_t get_codepoint(IRexxString *src, sizeC_t
 offset)>
 
 codepoints are bytes, so delegate
@@ -87,17 +87,17 @@ codepoints are bytes, so delegate
 
 */
 
-wholenumber_t
-ENCODING_FIXED_8::get_codepoint(IRexxString *src, wholenumber_t offset)
+codepoint_t
+ENCODING_FIXED_8::get_codepoint(IRexxString *src, sizeC_t offset)
 {
-    return get_byte(src, offset);
+    return get_byte(src, size_v(offset)); // fixed_8 : char pos and byte pos are identical
 }
 
 
 /*
 
-=item C<static wholenumber_t find_cclass(IRexxString *s, const wholenumber_t
-*typetable, wholenumber_t flags, wholenumber_t pos, wholenumber_t end)>
+=item C<static sizeC_t find_cclass(IRexxString *s, const wholenumber_t
+*typetable, wholenumber_t flags, sizeC_t pos, sizeC_t end)>
 
 codepoints are bytes, so delegate
 
@@ -105,12 +105,12 @@ codepoints are bytes, so delegate
 
 */
 
-wholenumber_t
-ENCODING_FIXED_8::find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, wholenumber_t pos, wholenumber_t end)
+sizeC_t
+ENCODING_FIXED_8::find_cclass(IRexxString *s, wholenumber_t *typetable, wholenumber_t flags, sizeC_t pos, sizeC_t end)
 {
     const unsigned char *contents = (const unsigned char *)s->getStringData();
     for (; pos < end; ++pos) {
-        if ((typetable[contents[pos]] & flags) != 0) {
+        if ((typetable[contents[size_v(pos)]] & flags) != 0) {
             return pos;
         }
     }
@@ -119,7 +119,7 @@ ENCODING_FIXED_8::find_cclass(IRexxString *s, wholenumber_t *typetable, wholenum
 
 /*
 
-=item C<static wholenumber_t get_byte(IRexxString *src, wholenumber_t
+=item C<static wholenumber_t get_byte(IRexxString *src, sizeB_t
 offset)>
 
 Returns the byte in string C<src> at position C<offset>.
@@ -129,23 +129,23 @@ Returns the byte in string C<src> at position C<offset>.
 */
 
 wholenumber_t
-ENCODING_FIXED_8::get_byte(IRexxString *src, wholenumber_t offset)
+ENCODING_FIXED_8::get_byte(IRexxString *src, sizeB_t offset)
 {
     const unsigned char *contents = (const unsigned char *)src->getStringData();
 
-    if (offset >= (wholenumber_t) src->getBLength()) {
+    if (offset >= src->getBLength()) {
 /*        m17n_ex_throw_from_c_args(NULL, 0,
                 "get_byte past the end of the buffer (%i of %i)",
                 offset, src->bufused); */
         return 0;
     }
 
-    return contents[offset];
+    return contents[size_v(offset)];
 }
 
 /*
 
-=item C<static void set_byte(IRexxString *src, wholenumber_t offset,
+=item C<static void set_byte(IRexxString *src, sizeB_t offset,
 wholenumber_t byte)>
 
 Sets, in string C<src> at position C<offset>, the byte C<byte>.
@@ -155,21 +155,21 @@ Sets, in string C<src> at position C<offset>, the byte C<byte>.
 */
 
 void
-ENCODING_FIXED_8::set_byte(IRexxString *src, wholenumber_t offset, wholenumber_t byte)
+ENCODING_FIXED_8::set_byte(IRexxString *src, sizeB_t offset, wholenumber_t byte)
 {
     unsigned char *contents;
 
-    if (offset >= (wholenumber_t) src->getBLength())
+    if (offset >= src->getBLength())
         reportException(Rexx_Error_Execution_user_defined, "set_byte past the end of the buffer");
 
     contents = (unsigned char *)src->getStringData();
-    contents[offset] = (unsigned char)byte;
+    contents[size_v(offset)] = (unsigned char)byte;
 }
 
 /*
 
-=item C<static RexxString * get_codepoints(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_codepoints(RexxString *src, sizeC_t
+offset, sizeC_t count)>
 
 Returns the codepoints in string C<src> at position C<offset> and length
 C<count>.  (Delegates to C<get_bytes>.)
@@ -179,17 +179,17 @@ C<count>.  (Delegates to C<get_bytes>.)
 */
 
 RexxString *
-ENCODING_FIXED_8::get_codepoints(RexxString *src, wholenumber_t offset, wholenumber_t count)
+ENCODING_FIXED_8::get_codepoints(RexxString *src, sizeC_t offset, sizeC_t count)
 {
-    RexxString * return_string = get_bytes(src, offset, count);
+    RexxString * return_string = get_bytes(src, size_v(offset), size_v(count)); // fixed_8 : char pos and byte pos are identical
     return_string->setCharset(src->getCharset());
     return return_string;
 }
 
 /*
 
-=item C<static RexxString * get_bytes(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_bytes(RexxString *src, sizeB_t
+offset, sizeB_t count)>
 
 Returns the bytes in string C<src> at position C<offset> and length C<count>.
 
@@ -198,9 +198,9 @@ Returns the bytes in string C<src> at position C<offset> and length C<count>.
 */
 
 RexxString *
-ENCODING_FIXED_8::get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t count)
+ENCODING_FIXED_8::get_bytes(RexxString *src, sizeB_t offset, sizeB_t count)
 {
-    RexxString *return_string = raw_string(count, count, src->getCharset(), src->getEncoding());
+    RexxString *return_string = raw_string(count, size_v(count), src->getCharset(), src->getEncoding());
     return_string->put(0, src->getStringData() + offset, count);
     return return_string;
 }
@@ -208,7 +208,7 @@ ENCODING_FIXED_8::get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t
 
 /*
 
-=item C<static wholenumber_t codepoints(IRexxString *src)>
+=item C<static sizeC_t codepoints(IRexxString *src)>
 
 Returns the number of codepoints in string C<src>.
 
@@ -216,21 +216,21 @@ Returns the number of codepoints in string C<src>.
 
 */
 
-wholenumber_t
+sizeC_t
 ENCODING_FIXED_8::codepoints(IRexxString *src)
 {
-    return bytes(src);
+    return size_v(bytes(src));
 }
 
-wholenumber_t
-ENCODING_FIXED_8::codepoints(const char *src, wholenumber_t blength)
+sizeC_t
+ENCODING_FIXED_8::codepoints(const char *src, sizeB_t blength)
 {
-    return blength;
+    return size_v(blength); // fixed_8 : char count and byte count are identical
 }
 
 /*
 
-=item C<static wholenumber_t bytes(IRexxString *src)>
+=item C<static sizeB_t bytes(IRexxString *src)>
 
 Returns the number of bytes in string C<src>.
 
@@ -238,7 +238,7 @@ Returns the number of bytes in string C<src>.
 
 */
 
-wholenumber_t
+sizeB_t
 ENCODING_FIXED_8::bytes(IRexxString *src)
 {
     return src->getBLength();
@@ -250,8 +250,8 @@ ENCODING_FIXED_8::bytes(IRexxString *src)
 
 /*
 
-=item C<static wholenumber_t fixed8_iter_get(IRexxString *str, const
-String_iter *iter, wholenumber_t offset)>
+=item C<static codepoint_t fixed8_iter_get(IRexxString *str, const
+String_iter *iter, sizeC_t offset)>
 
 Get the character at C<iter> plus C<offset>.
 
@@ -259,16 +259,16 @@ Get the character at C<iter> plus C<offset>.
 
 */
 
-wholenumber_t
-ENCODING_FIXED_8::iter_get(IRexxString *str, String_iter *iter, wholenumber_t offset)
+codepoint_t
+ENCODING_FIXED_8::iter_get(IRexxString *str, String_iter *iter, sizeC_t offset)
 {
-    return get_byte(str, iter->charpos + offset);
+    return get_byte(str, size_v(iter->charpos + offset));
 }
 
 /*
 
 =item C<static void fixed8_iter_skip(IRexxString *str,
-String_iter *iter, wholenumber_t skip)>
+String_iter *iter, sizeC_t skip)>
 
 Moves the string iterator C<i> by C<skip> characters.
 
@@ -277,16 +277,16 @@ Moves the string iterator C<i> by C<skip> characters.
 */
 
 void
-ENCODING_FIXED_8::iter_skip(IRexxString *str, String_iter *iter, wholenumber_t skip)
+ENCODING_FIXED_8::iter_skip(IRexxString *str, String_iter *iter, sizeC_t skip)
 {
-    iter->bytepos += skip;
+    iter->bytepos += size_v(skip);
     iter->charpos += skip;
     // PARROT_ASSERT(iter->bytepos <= Buffer_buflen(str));
 }
 
 /*
 
-=item C<static wholenumber_t fixed8_iter_get_and_advance(IRexxString
+=item C<static codepoint_t fixed8_iter_get_and_advance(IRexxString
 *str, String_iter *iter)>
 
 Moves the string iterator C<i> to the next codepoint.
@@ -295,18 +295,18 @@ Moves the string iterator C<i> to the next codepoint.
 
 */
 
-wholenumber_t
+codepoint_t
 ENCODING_FIXED_8::iter_get_and_advance(IRexxString *str, String_iter *iter)
 {
-    const wholenumber_t c = get_byte(str, iter->charpos++);
-    iter->bytepos++;
+    const wholenumber_t c = get_byte(str, iter->bytepos++);
+    iter->charpos++;
     return c;
 }
 
 /*
 
 =item C<static void fixed8_iter_set_and_advance(IRexxString *str,
-String_iter *iter, wholenumber_t c)>
+String_iter *iter, codepoint_t c)>
 
 With the string iterator C<i>, appends the codepoint C<c> and advances to the
 next position in the string.
@@ -316,16 +316,16 @@ next position in the string.
 */
 
 void
-ENCODING_FIXED_8::iter_set_and_advance(IRexxString *str, String_iter *iter, wholenumber_t c)
+ENCODING_FIXED_8::iter_set_and_advance(IRexxString *str, String_iter *iter, codepoint_t c)
 {
-    set_byte(str, iter->charpos++, c);
-    iter->bytepos++;
+    set_byte(str, iter->bytepos++, c);
+    iter->charpos++;
 }
 
 /*
 
 =item C<static void fixed8_iter_set_position(IRexxString *str,
-String_iter *iter, wholenumber_t pos)>
+String_iter *iter, sizeC_t pos)>
 
 Moves the string iterator C<i> to the position C<n> in the string.
 
@@ -334,9 +334,10 @@ Moves the string iterator C<i> to the position C<n> in the string.
 */
 
 void
-ENCODING_FIXED_8::iter_set_position(IRexxString *str, String_iter *iter, wholenumber_t pos)
+ENCODING_FIXED_8::iter_set_position(IRexxString *str, String_iter *iter, sizeC_t pos)
 {
-    iter->bytepos = iter->charpos = pos;
+    iter->bytepos = size_v(pos); // fixed_8 : char pos and byte pos are indentical
+    iter->charpos = pos;
     // PARROT_ASSERT(pos <= Buffer_buflen(str));
 }
 

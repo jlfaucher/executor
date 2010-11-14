@@ -50,37 +50,37 @@ public:
 
     inline RexxBufferBase() {;};
 
-    inline size_t getDataLength() { return this->dataLength; }
-    inline size_t getBufferSize() { return this->bufferSize; }
-    inline void   setDataLength(size_t l) { this->dataLength = l; }
+    inline sizeB_t getDataLength() { return this->dataLength; }
+    inline sizeB_t getBufferSize() { return this->bufferSize; }
+    inline void   setDataLength(sizeB_t l) { this->dataLength = l; }
     virtual char *getData() = 0;
-    inline void copyData(size_t offset, const char *string, size_t l) { memcpy(this->getData() + offset, string, l); }
+    inline void copyData(sizeB_t offset, const char *string, sizeB_t l) { memcpy(this->getData() + offset, string, l); }
     inline void copyData(CONSTRXSTRING &r) { copyData(0, r.strptr, r.strlength); }
     inline void copyData(RXSTRING &r) { copyData(0, r.strptr, r.strlength); }
-    inline void openGap(size_t offset, size_t _size, size_t tailSize)
+    inline void openGap(sizeB_t offset, sizeB_t _size, sizeB_t tailSize)
     {
         memmove(getData() + offset + _size, getData() + offset, tailSize);
     }
-    inline void closeGap(size_t offset, size_t _size, size_t tailSize)
+    inline void closeGap(sizeB_t offset, sizeB_t _size, sizeB_t tailSize)
     {
         memmove(getData() + offset, getData() + offset + _size, tailSize);
     }
 
-    inline void adjustGap(size_t offset, size_t _size, size_t _newSize)
+    inline void adjustGap(sizeB_t offset, sizeB_t _size, sizeB_t _newSize)
     {
         // We have _size bytes to replace by _newSize bytes
         // 0 1 2 3 4 5 6 7 8 9      offset = 3, XX to be replaced by YYY
         // a b c X X f g            _size = 2
         // a b c Y Y Y f g          _newSize = 3
-        size_t offset_from = offset + _size; // offset of the 1st byte to move
+        sizeB_t offset_from = offset + _size; // offset of the 1st byte to move
         if (offset_from < getDataLength())
         {
-            size_t offset_to = offset + _newSize; // destination offset of the 1st byte to move
-            size_t tailSize = getDataLength() - offset_from;
+            sizeB_t offset_to = offset + _newSize; // destination offset of the 1st byte to move
+            sizeB_t tailSize = getDataLength() - offset_from;
             memmove(getData() + offset_to, getData() + offset_from, tailSize);
         }
     }
-    inline void setData(size_t offset, char character, size_t l)
+    inline void setData(sizeB_t offset, char character, sizeB_t l)
     {
         memset(getData() + offset, character, l);
     }
@@ -92,9 +92,9 @@ protected:
     // to ensure appropriate data alignment.  Fortunately, because the sizes of all of the
     // fields doubles when going to 64-bit, this single padding item is sufficient to
     // get everything lined up on all platforms.
-    size_t reserved;
-    size_t bufferSize;                  // size of the buffer
-    size_t dataLength;                  // length of the buffer data (freqently the same)
+    sizeB_t reserved;
+    sizeB_t bufferSize;                  // size of the buffer
+    sizeB_t dataLength;                  // length of the buffer data (freqently the same)
 };
 
 
@@ -110,7 +110,7 @@ public:
     inline RexxBuffer() {;}
     inline RexxBuffer(RESTORETYPE restoreType) { ; }
 
-    RexxBuffer *expand(size_t);
+    RexxBuffer *expand(sizeB_t);
     RexxObject *newRexx(RexxObject **args, size_t argc);
     virtual char *getData() { return data; }
 
@@ -123,7 +123,7 @@ protected:
 };
 
 
- inline RexxBuffer *new_buffer(size_t s) { return new (s) RexxBuffer; }
+ inline RexxBuffer *new_buffer(sizeB_t s) { return new (size_v(s)) RexxBuffer; }
  inline RexxBuffer *new_buffer(CONSTRXSTRING &r)
  {
      RexxBuffer *b = new_buffer(r.strlength);
@@ -138,7 +138,7 @@ protected:
      return b;
  }
 
- inline RexxBuffer *new_buffer(const char *data, size_t length)
+ inline RexxBuffer *new_buffer(const char *data, sizeB_t length)
  {
      RexxBuffer *b = new_buffer(length);
      b->copyData(0, data, length);

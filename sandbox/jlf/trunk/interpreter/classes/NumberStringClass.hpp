@@ -107,8 +107,8 @@
 
     bool         numberValue(wholenumber_t &result, size_t precision);
     bool         numberValue(wholenumber_t &result);
-    bool         unsignedNumberValue(stringsize_t &result, size_t precision);
-    bool         unsignedNumberValue(stringsize_t &result);
+    bool         unsignedNumberValue(uwholenumber_t &result, size_t precision);
+    bool         unsignedNumberValue(uwholenumber_t &result);
     bool         doubleValue(double &result);
     inline RexxNumberString *numberString() { return this; }
     RexxInteger *integerValue(size_t);
@@ -181,7 +181,7 @@
         /* check for any required rounding */
         checkPrecision();
     }
-    bool  createUnsignedValue(const char *thisnum, stringsize_t intlength, int carry, wholenumber_t exponent, size_t maxValue, size_t &result);
+    bool  createUnsignedValue(const char *thisnum, stringsize_t intlength, int carry, wholenumber_t exponent, uwholenumber_t maxValue, uwholenumber_t &result);
     bool  createUnsignedInt64Value(const char *thisnum, stringsize_t intlength, int carry, wholenumber_t exponent, uint64_t maxValue, uint64_t &result);
     bool  checkIntegerDigits(stringsize_t numDigits, stringsize_t &numberLength, wholenumber_t &numberExponent, bool &carry);
     bool  int64Value(int64_t *result, stringsize_t numDigits);
@@ -267,7 +267,7 @@ inline RexxNumberString *new_numberstringFromWholenumber(wholenumber_t n)
     return RexxNumberString::newInstanceFromWholenumber(n);
 }
 
-inline RexxNumberString *new_numberstringFromStringsize(stringsize_t n)
+inline RexxNumberString *new_numberstringFromStringsize(stringsize_t n) // no need of distinction between 'size in byte' and 'size in char'
 {
     return RexxNumberString::newInstanceFromStringsize(n);
 }

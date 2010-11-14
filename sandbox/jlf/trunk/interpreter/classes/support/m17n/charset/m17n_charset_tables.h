@@ -50,7 +50,7 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include "RexxCore.h"
+#include "rexx.h"
 
 #ifndef M17N_CHARSET_TABLES_H_GUARD
 #define M17N_CHARSET_TABLES_H_GUARD

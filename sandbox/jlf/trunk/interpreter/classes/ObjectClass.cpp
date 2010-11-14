@@ -1513,7 +1513,7 @@ RexxString  *RexxObject::defaultName()
       /* return the 'enhanced' id          */
         return defaultname->concatToCstring("enhanced ");
     }
-    switch (defaultname->getChar(0))
+    switch (defaultname->getCharC(0))
     {   /* process based on first character*/
         case 'a':                          /* vowels                          */
         case 'A':
@@ -1849,7 +1849,7 @@ RexxString  *RexxObject::oref()
 
     sprintf(buffer, "%p", this);         /* format this                       */
                                          /* and return a string               */
-    return(RexxString *)new_string(buffer,8);
+    return(RexxString *)new_string(buffer, 8);
 }
 
 void RexxInternalObject::hasUninit()
@@ -1900,7 +1900,7 @@ RexxObject  *RexxObject::run(
         /* this is now required              */
         option = stringArgument(option, ARG_TWO);
         /* process the different options     */
-        switch (toupper(option->getChar(0)))
+        switch (toupper(option->getCharC(0)))
         {
             case 'A':                        /* args are an array                 */
                 {

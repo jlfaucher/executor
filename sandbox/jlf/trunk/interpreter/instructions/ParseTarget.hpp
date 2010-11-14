@@ -73,12 +73,12 @@ class RexxTarget {
   RexxExpressionStack *stack;          // context expression stack (used for anchoring values for GC).
   size_t  stackTop;                    // top location of the epxression stack
   size_t  argcount;
-  stringsize_t  start;                 /* start of substring                */
-  stringsize_t  end;                   /* end of the substring              */
-  stringsize_t  string_length;         /* length of the string              */
-  stringsize_t  pattern_end;           /* end of matched pattern            */
-  stringsize_t  pattern_start;         /* start of matched pattern          */
-  stringsize_t  subcurrent;            /* current location for word parse   */
+  stringsizeC_t  start;                 /* start of substring                */
+  stringsizeC_t  end;                   /* end of the substring              */
+  stringsizeC_t  string_length;         /* length of the string              */
+  stringsizeC_t  pattern_end;           /* end of matched pattern            */
+  stringsizeC_t  pattern_start;         /* start of matched pattern          */
+  stringsizeC_t  subcurrent;            /* current location for word parse   */
   size_t  next_argument;               /* next PARSE ARG argument           */
   size_t  translate;                   /* string translation flag           */
 };

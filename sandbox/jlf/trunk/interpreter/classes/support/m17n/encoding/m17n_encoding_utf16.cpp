@@ -86,7 +86,7 @@ ENCODING_UTF16::encode(IRexxString *src)
         return src->makeMutableBuffer();
     }
 
-    wholenumber_t src_clen = src->getCLength();
+    sizeC_t src_clen = src->getCLength();
     if (src_clen == 0)
     {
         return new RexxMutableBuffer(0, 0, m17n_unicode_charset_ptr, m17n_ucs2_encoding_ptr); // downgrade ?
@@ -95,7 +95,7 @@ ENCODING_UTF16::encode(IRexxString *src)
 #if defined(HAVE_ICU)
     UErrorCode err;
     int32_t dest_clen;
-    wholenumber_t dest_blen = sizeof (UChar) * src_clen;
+    sizeB_t dest_blen = sizeof (UChar) * src_clen;
 
     RexxMutableBuffer *result= new RexxMutableBuffer(dest_blen, src_clen, m17n_unicode_charset_ptr, m17n_utf16_encoding_ptr);
     ProtectedObject pr(result);
@@ -140,7 +140,7 @@ ENCODING_UTF16::encode(IRexxString *src)
 
 /*
 
-=item C<static wholenumber_t get_codepoint(RexxString *src, wholenumber_t
+=item C<static codepoint_t get_codepoint(RexxString *src, sizeC_t
 offset)>
 
 Returns the codepoint in string C<src> at position C<offset>.
@@ -149,12 +149,13 @@ Returns the codepoint in string C<src> at position C<offset>.
 
 */
 
-wholenumber_t
-ENCODING_UTF16::get_codepoint(IRexxString *src, wholenumber_t offset)
+codepoint_t
+ENCODING_UTF16::get_codepoint(IRexxString *src, sizeC_t offset)
 {
 #if defined(HAVE_ICU)
     const UChar *s = (UChar*) src->getStringData();
-    wholenumber_t c, pos;
+    codepoint_t c;
+	sizeB_t pos;
 
     pos = 0;
     U16_FWD_N_UNSAFE(s, pos, offset);
@@ -169,8 +170,8 @@ ENCODING_UTF16::get_codepoint(IRexxString *src, wholenumber_t offset)
 
 /*
 
-=item C<static wholenumber_t find_cclass(IRexxString *s, wholenumber_t
-*typetable, wholenumber_t flags, wholenumber_t pos, wholenumber_t end)>
+=item C<static sizeC_t find_cclass(IRexxString *s, wholenumber_t
+*typetable, wholenumber_t flags, sizeC_t pos, sizeC_t end)>
 
 Stub, the charset level handles this for unicode strings.
 
@@ -178,9 +179,9 @@ Stub, the charset level handles this for unicode strings.
 
 */
 
-wholenumber_t
+sizeC_t
 ENCODING_UTF16::find_cclass(IRexxString *s, wholenumber_t *typetable,
-wholenumber_t flags, wholenumber_t pos, wholenumber_t end)
+wholenumber_t flags, sizeC_t pos, sizeC_t end)
 {
     reportException(Rexx_Error_Execution_user_defined, "No find_cclass support in unicode encoding plugins");
     return -1;
@@ -188,7 +189,7 @@ wholenumber_t flags, wholenumber_t pos, wholenumber_t end)
 
 /*
 
-=item C<static wholenumber_t get_byte(IRexxString *src, wholenumber_t
+=item C<static wholenumber_t get_byte(IRexxString *src, sizeB_t
 offset)>
 
 Returns the byte in string C<src> at position C<offset>.
@@ -198,19 +199,19 @@ Returns the byte in string C<src> at position C<offset>.
 */
 
 wholenumber_t
-ENCODING_UTF16::get_byte(IRexxString *src, wholenumber_t offset)
+ENCODING_UTF16::get_byte(IRexxString *src, sizeB_t offset)
 {
     const char *contents = src->getStringData();
-    if (offset >= (wholenumber_t) src->getBLength()) 
+    if (offset >= src->getBLength()) 
     {
         return 0;
     }
-    return contents[offset];
+    return contents[size_v(offset)];
 }
 
 /*
 
-=item C<static void set_byte(IRexxString *src, wholenumber_t offset,
+=item C<static void set_byte(IRexxString *src, sizeB_t offset,
 wholenumber_t byte)>
 
 Sets, in string C<src> at position C<offset>, the byte C<byte>.
@@ -220,23 +221,23 @@ Sets, in string C<src> at position C<offset>, the byte C<byte>.
 */
 
 void
-ENCODING_UTF16::set_byte(IRexxString *src, wholenumber_t offset, wholenumber_t byte)
+ENCODING_UTF16::set_byte(IRexxString *src, sizeB_t offset, wholenumber_t byte)
 {
     char *contents;
 
-    if (offset >= (wholenumber_t) src->getBLength())
+    if (offset >= src->getBLength())
     {
         reportException(Rexx_Error_Execution_user_defined, "set_byte past the end of the buffer");
     }
 
     contents = src->getWritableData();
-    contents[offset] = (char)byte;
+    contents[size_v(offset)] = (char)byte;
 }
 
 /*
 
-=item C<static RexxString * get_codepoints(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_codepoints(RexxString *src, sizeC_t
+offset, sizeC_t count)>
 
 Returns the codepoints in string C<src> at position C<offset> and length
 C<count>.
@@ -246,10 +247,10 @@ C<count>.
 */
 
 RexxString *
-ENCODING_UTF16::get_codepoints(RexxString *src, wholenumber_t offset, wholenumber_t count)
+ENCODING_UTF16::get_codepoints(RexxString *src, sizeC_t offset, sizeC_t count)
 {
 #if defined(HAVE_ICU)
-    wholenumber_t pos = 0, start;
+    sizeC_t pos = 0, start;
     const UChar *s = (UChar*) src->getStringData();
 
     U16_FWD_N_UNSAFE(s, pos, offset);
@@ -269,8 +270,8 @@ ENCODING_UTF16::get_codepoints(RexxString *src, wholenumber_t offset, wholenumbe
 
 /*
 
-=item C<static RexxString * get_bytes(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_bytes(RexxString *src, sizeB_t
+offset, sizeB_t count)>
 
 Returns the bytes in string C<src> at position C<offset> and length C<count>.
 
@@ -279,7 +280,7 @@ Returns the bytes in string C<src> at position C<offset> and length C<count>.
 */
 
 RexxString *
-ENCODING_UTF16::get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t count)
+ENCODING_UTF16::get_bytes(RexxString *src, sizeB_t offset, sizeB_t count)
 {
     UNIMPL;
     return (RexxString *)TheNilObject;
@@ -287,7 +288,7 @@ ENCODING_UTF16::get_bytes(RexxString *src, wholenumber_t offset, wholenumber_t c
 
 /*
 
-=item C<static wholenumber_t codepoints(IRexxString *src)>
+=item C<static sizeC_t codepoints(IRexxString *src)>
 
 Returns the number of codepoints in string C<src>.
 
@@ -295,19 +296,19 @@ Returns the number of codepoints in string C<src>.
 
 */
 
-wholenumber_t
+sizeC_t
 ENCODING_UTF16::codepoints(IRexxString *src)
 {
     return codepoints(src->getStringData(), src->getBLength());
 }
 
-wholenumber_t
-ENCODING_UTF16::codepoints(const char *src, wholenumber_t blength)
+sizeC_t
+ENCODING_UTF16::codepoints(const char *src, sizeB_t blength)
 {
 #if defined(HAVE_ICU)
     const UChar * const s = (UChar*) src;
-    wholenumber_t pos = 0, charpos = 0;
-    while ((wholenumber_t) (pos * sizeof (UChar)) < blength) {
+    sizeC_t pos = 0, charpos = 0;
+    while ((size_v) (pos * sizeof (UChar)) < blength) {
         U16_FWD_1_UNSAFE(s, pos);
         ++charpos;
     }
@@ -320,7 +321,7 @@ ENCODING_UTF16::codepoints(const char *src, wholenumber_t blength)
 
 /*
 
-=item C<static wholenumber_t bytes(IRexxString *src)>
+=item C<static sizeB_t bytes(IRexxString *src)>
 
 Returns the number of bytes in string C<src>.
 
@@ -328,7 +329,7 @@ Returns the number of bytes in string C<src>.
 
 */
 
-wholenumber_t
+sizeB_t
 ENCODING_UTF16::bytes(IRexxString *src)
 {
     return src->getBLength();
@@ -336,8 +337,8 @@ ENCODING_UTF16::bytes(IRexxString *src)
 
 /*
 
-=item C<static wholenumber_t utf16_iter_get(IRexxString *str, const
-String_iter *i, wholenumber_t offset)>
+=item C<static codepoint_t utf16_iter_get(IRexxString *str, const
+String_iter *i, sizeC_t offset)>
 
 Get the character at C<i> plus C<offset>.
 
@@ -345,12 +346,12 @@ Get the character at C<i> plus C<offset>.
 
 */
 
-wholenumber_t
-ENCODING_UTF16::iter_get(IRexxString *str, String_iter *i, wholenumber_t offset)
+codepoint_t
+ENCODING_UTF16::iter_get(IRexxString *str, String_iter *i, sizeC_t offset)
 {
 #if defined(HAVE_ICU)
     const UChar *s = (UChar*) str->getStringData();
-    wholenumber_t c, pos;
+    sizeC_t c, pos;
 
     pos = i->bytepos / sizeof (UChar);
     if (offset > 0) {
@@ -371,7 +372,7 @@ ENCODING_UTF16::iter_get(IRexxString *str, String_iter *i, wholenumber_t offset)
 /*
 
 =item C<static void utf16_iter_skip(IRexxString *str,
-String_iter *i, wholenumber_t skip)>
+String_iter *i, sizeC_t skip)>
 
 Moves the string iterator C<i> by C<skip> characters.
 
@@ -380,11 +381,11 @@ Moves the string iterator C<i> by C<skip> characters.
 */
 
 void
-ENCODING_UTF16::iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip)
+ENCODING_UTF16::iter_skip(IRexxString *str, String_iter *i, sizeC_t skip)
 {
 #if defined(HAVE_ICU)
     const UChar *s = (const UChar*) str->getStringData();
-    wholenumber_t pos = i->bytepos / sizeof (UChar);
+    sizeC_t pos = i->bytepos / sizeof (UChar);
 
     if (skip > 0) {
         U16_FWD_N_UNSAFE(s, pos, skip);
@@ -402,7 +403,7 @@ ENCODING_UTF16::iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip)
 
 /*
 
-=item C<static wholenumber_t utf16_iter_get_and_advance(IRexxString
+=item C<static codepoint_t utf16_iter_get_and_advance(IRexxString
 *str, String_iter *i)>
 
 Moves the string iterator C<i> to the next UTF-16 codepoint.
@@ -411,12 +412,12 @@ Moves the string iterator C<i> to the next UTF-16 codepoint.
 
 */
 
-wholenumber_t
+codepoint_t
 ENCODING_UTF16::iter_get_and_advance(IRexxString *str, String_iter *i)
 {
 #if defined(HAVE_ICU)
     const UChar *s = (const UChar*) str->getStringData();
-    wholenumber_t c, pos;
+    sizeC_t c, pos;
     pos = i->bytepos / sizeof (UChar);
     /* TODO either make sure that we don't go past end or use SAFE
      *      iter versions
@@ -434,7 +435,7 @@ ENCODING_UTF16::iter_get_and_advance(IRexxString *str, String_iter *i)
 /*
 
 =item C<static void utf16_iter_set_and_advance(IRexxString *str,
-String_iter *i, wholenumber_t c)>
+String_iter *i, codepoint_t c)>
 
 With the string iterator C<i>, appends the codepoint C<c> and advances to the
 next position in the string.
@@ -444,11 +445,11 @@ next position in the string.
 */
 
 void
-ENCODING_UTF16::iter_set_and_advance(IRexxString *str, String_iter *i, wholenumber_t c)
+ENCODING_UTF16::iter_set_and_advance(IRexxString *str, String_iter *i, codepoint_t c)
 {
 #if defined(HAVE_ICU)
     UChar *s = (UChar*) str->getWritableData();
-    wholenumber_t pos;
+    sizeC_t pos;
     pos = i->bytepos / sizeof (UChar);
     U16_APPEND_UNSAFE(s, pos, c);
     i->charpos++;
@@ -461,7 +462,7 @@ ENCODING_UTF16::iter_set_and_advance(IRexxString *str, String_iter *i, wholenumb
 /*
 
 =item C<static void utf16_iter_set_position(IRexxString *str,
-String_iter *i, wholenumber_t n)>
+String_iter *i, sizeC_t n)>
 
 Moves the string iterator C<i> to the position C<n> in the string.
 
@@ -470,11 +471,11 @@ Moves the string iterator C<i> to the position C<n> in the string.
 */
 
 void
-ENCODING_UTF16::iter_set_position(IRexxString *str, String_iter *i, wholenumber_t n)
+ENCODING_UTF16::iter_set_position(IRexxString *str, String_iter *i, sizeC_t n)
 {
 #if defined(HAVE_ICU)
     const UChar *s = (const UChar*) str->getStringData();
-    wholenumber_t pos;
+    sizeC_t pos;
     pos = 0;
     U16_FWD_N_UNSAFE(s, pos, n);
     i->charpos = n;

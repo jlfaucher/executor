@@ -99,7 +99,7 @@ ENCODING_UCS2::encode(IRexxString *src)
 
 /*
 
-=item C<static wholenumber_t get_codepoint(IRexxString *src, wholenumber_t
+=item C<static codepoint_t get_codepoint(IRexxString *src, sizeC_t
 offset)>
 
 Returns the codepoint in string C<src> at position C<offset>.
@@ -108,8 +108,8 @@ Returns the codepoint in string C<src> at position C<offset>.
 
 */
 
-wholenumber_t
-ENCODING_UCS2::get_codepoint(IRexxString *src, wholenumber_t offset)
+codepoint_t
+ENCODING_UCS2::get_codepoint(IRexxString *src, sizeC_t offset)
 {
 #if defined(HAVE_ICU)
     const UChar *s = (const UChar*) src->getStringData();
@@ -123,8 +123,8 @@ ENCODING_UCS2::get_codepoint(IRexxString *src, wholenumber_t offset)
 
 /*
 
-=item C<static wholenumber_t find_cclass(IRexxString *s, wholenumber_t
-*typetable, wholenumber_t flags, wholenumber_t pos, wholenumber_t end)>
+=item C<static sizeC_t find_cclass(IRexxString *s, wholenumber_t
+*typetable, wholenumber_t flags, sizeC_t pos, sizeC_t end)>
 
 Stub, the charset level handles this for unicode strings.
 
@@ -132,9 +132,9 @@ Stub, the charset level handles this for unicode strings.
 
 */
 
-wholenumber_t
+sizeC_t
 ENCODING_UCS2::find_cclass(IRexxString *s, wholenumber_t *typetable,
-wholenumber_t flags, wholenumber_t pos, wholenumber_t end)
+wholenumber_t flags, sizeC_t pos, sizeC_t end)
 {
     reportException(Rexx_Error_Execution_user_defined, "No find_cclass support in unicode encoding plugins");
     return -1;
@@ -142,7 +142,7 @@ wholenumber_t flags, wholenumber_t pos, wholenumber_t end)
 
 /*
 
-=item C<static wholenumber_t get_byte(IRexxString *src, wholenumber_t
+=item C<static wholenumber_t get_byte(IRexxString *src, sizeB_t
 offset)>
 
 Returns the byte in string C<src> at position C<offset>.
@@ -152,7 +152,7 @@ Returns the byte in string C<src> at position C<offset>.
 */
 
 wholenumber_t
-ENCODING_UCS2::get_byte(IRexxString *src, wholenumber_t offset)
+ENCODING_UCS2::get_byte(IRexxString *src, sizeB_t offset)
 {
     UNIMPL;
     return -1;
@@ -160,7 +160,7 @@ ENCODING_UCS2::get_byte(IRexxString *src, wholenumber_t offset)
 
 /*
 
-=item C<static void set_byte(IRexxString *src, wholenumber_t offset,
+=item C<static void set_byte(IRexxString *src, sizeB_t offset,
 wholenumber_t byte)>
 
 Sets, in string C<src> at position C<offset>, the byte C<byte>.
@@ -170,7 +170,7 @@ Sets, in string C<src> at position C<offset>, the byte C<byte>.
 */
 
 void
-ENCODING_UCS2::set_byte(IRexxString *src, wholenumber_t offset,
+ENCODING_UCS2::set_byte(IRexxString *src, sizeB_t offset,
         wholenumber_t byte)
 {
     UNIMPL;
@@ -178,8 +178,8 @@ ENCODING_UCS2::set_byte(IRexxString *src, wholenumber_t offset,
 
 /*
 
-=item C<static RexxString * get_codepoints(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_codepoints(RexxString *src, sizeC_t
+offset, sizeC_t count)>
 
 Returns the codepoints in string C<src> at position C<offset> and length
 C<count>.
@@ -189,7 +189,7 @@ C<count>.
 */
 
 RexxString *
-ENCODING_UCS2::get_codepoints(RexxString *src, wholenumber_t offset, wholenumber_t count)
+ENCODING_UCS2::get_codepoints(RexxString *src, sizeC_t offset, sizeC_t count)
 {
 #if defined(HAVE_ICU)
     RexxString *return_string = raw_string(count * sizeof (UChar), count, src->getCharset(), src->getEncoding());
@@ -198,9 +198,9 @@ ENCODING_UCS2::get_codepoints(RexxString *src, wholenumber_t offset, wholenumber
     String_iter iter;
     STRING_ITER_INIT(&iter);
     iter_set_position(RexxStringWrapper(src), &iter, offset);
-    wholenumber_t start = iter.bytepos;
+    sizeB_t start = iter.bytepos;
     iter_set_position(RexxStringWrapper(src), &iter, offset + count);
-    wholenumber_t bcount = iter.bytepos - start;
+    sizeB_t bcount = iter.bytepos - start;
     RexxString *return_string = raw_string(bcount, count, src->getCharset(), src->getEncoding());
     return_string->put(0, src->getStringData() + start, bcount);
 #endif
@@ -209,8 +209,8 @@ ENCODING_UCS2::get_codepoints(RexxString *src, wholenumber_t offset, wholenumber
 
 /*
 
-=item C<static RexxString * get_bytes(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_bytes(RexxString *src, sizeB_t
+offset, sizeB_t count)>
 
 Returns the bytes in string C<src> at position C<offset> and length C<count>.
 
@@ -219,8 +219,8 @@ Returns the bytes in string C<src> at position C<offset> and length C<count>.
 */
 
 RexxString *
-ENCODING_UCS2::get_bytes(RexxString *src, wholenumber_t offset,
-        wholenumber_t count)
+ENCODING_UCS2::get_bytes(RexxString *src, sizeB_t offset,
+        sizeB_t count)
 {
     UNIMPL;
     return (RexxString *)TheNilObject;
@@ -229,7 +229,7 @@ ENCODING_UCS2::get_bytes(RexxString *src, wholenumber_t offset,
 
 /*
 
-=item C<static wholenumber_t codepoints(RexxString *src)>
+=item C<static sizeC_t codepoints(RexxString *src)>
 
 Returns the number of codepoints in string C<src>.
 
@@ -237,7 +237,7 @@ Returns the number of codepoints in string C<src>.
 
 */
 
-wholenumber_t
+sizeC_t
 ENCODING_UCS2::codepoints(IRexxString *src)
 {
 #if defined(HAVE_ICU)
@@ -248,8 +248,8 @@ ENCODING_UCS2::codepoints(IRexxString *src)
 #endif
 }
 
-wholenumber_t
-ENCODING_UCS2::codepoints(const char *src, wholenumber_t blength)
+sizeC_t
+ENCODING_UCS2::codepoints(const char *src, sizeB_t blength)
 {
 #if defined(HAVE_ICU)
     return blength / sizeof (UChar);
@@ -261,7 +261,7 @@ ENCODING_UCS2::codepoints(const char *src, wholenumber_t blength)
 
 /*
 
-=item C<static wholenumber_t bytes(IRexxString *src)>
+=item C<static sizeB_t bytes(IRexxString *src)>
 
 Returns the number of bytes in string C<src>.
 
@@ -269,7 +269,7 @@ Returns the number of bytes in string C<src>.
 
 */
 
-wholenumber_t
+sizeB_t
 ENCODING_UCS2::bytes(IRexxString *src)
 {
     return src->getBLength();
@@ -277,8 +277,8 @@ ENCODING_UCS2::bytes(IRexxString *src)
 
 /*
 
-=item C<static wholenumber_t ucs2_iter_get(IRexxString *str, const
-String_iter *i, wholenumber_t offset)>
+=item C<static codepoint_t ucs2_iter_get(IRexxString *str, const
+String_iter *i, sizeC_t offset)>
 
 Get the character at C<i> + C<offset>.
 
@@ -286,8 +286,8 @@ Get the character at C<i> + C<offset>.
 
 */
 
-wholenumber_t
-ENCODING_UCS2::iter_get(IRexxString *str, String_iter *i, wholenumber_t offset)
+codepoint_t
+ENCODING_UCS2::iter_get(IRexxString *str, String_iter *i, sizeC_t offset)
 {
     return get_codepoint(str, i->charpos + offset);
 }
@@ -295,7 +295,7 @@ ENCODING_UCS2::iter_get(IRexxString *str, String_iter *i, wholenumber_t offset)
 /*
 
 =item C<static void ucs2_iter_skip(IRexxString *str, String_iter
-*i, wholenumber_t skip)>
+*i, sizeC_t skip)>
 
 Moves the string iterator C<i> by C<skip> characters.
 
@@ -304,7 +304,7 @@ Moves the string iterator C<i> by C<skip> characters.
 */
 
 void
-ENCODING_UCS2::iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip)
+ENCODING_UCS2::iter_skip(IRexxString *str, String_iter *i, sizeC_t skip)
 {
 #if defined(HAVE_ICU)
     i->charpos += skip;
@@ -316,7 +316,7 @@ ENCODING_UCS2::iter_skip(IRexxString *str, String_iter *i, wholenumber_t skip)
 
 /*
 
-=item C<static wholenumber_t ucs2_iter_get_and_advance(IRexxString
+=item C<static codepoint_t ucs2_iter_get_and_advance(IRexxString
 *str, String_iter *i)>
 
 Moves the string iterator C<i> to the next UCS-2 codepoint.
@@ -325,7 +325,7 @@ Moves the string iterator C<i> to the next UCS-2 codepoint.
 
 */
 
-wholenumber_t
+codepoint_t
 ENCODING_UCS2::iter_get_and_advance(IRexxString *str, String_iter *i)
 {
 #if defined(HAVE_ICU)
@@ -341,14 +341,14 @@ ENCODING_UCS2::iter_get_and_advance(IRexxString *str, String_iter *i)
     return c;
 #else
     no_ICU_lib();
-    return (wholenumber_t)0; /* Stop the static analyzers from panicing */
+    return -1;
 #endif
 }
 
 /*
 
 =item C<static void ucs2_iter_set_and_advance(IRexxString *str,
-String_iter *i, wholenumber_t c)>
+String_iter *i, codepoint_t c)>
 
 With the string iterator C<i>, appends the codepoint C<c> and advances to the
 next position in the string.
@@ -358,11 +358,11 @@ next position in the string.
 */
 
 void
-ENCODING_UCS2::iter_set_and_advance(IRexxString *str, String_iter *i, wholenumber_t c)
+ENCODING_UCS2::iter_set_and_advance(IRexxString *str, String_iter *i, codepoint_t c)
 {
 #if defined(HAVE_ICU)
     UChar *s = (UChar*) str->getWritableData();
-    wholenumber_t pos = i->bytepos / sizeof (UChar);
+    sizeB_t pos = i->bytepos / sizeof (UChar);
     s[pos++] = (UChar)c;
     i->charpos++;
     i->bytepos = pos * sizeof (UChar);
@@ -374,7 +374,7 @@ ENCODING_UCS2::iter_set_and_advance(IRexxString *str, String_iter *i, wholenumbe
 /*
 
 =item C<static void ucs2_iter_set_position(IRexxString *str,
-String_iter *i, wholenumber_t n)>
+String_iter *i, sizeC_t n)>
 
 Moves the string iterator C<i> to the position C<n> in the string.
 
@@ -383,7 +383,7 @@ Moves the string iterator C<i> to the position C<n> in the string.
 */
 
 void
-ENCODING_UCS2::iter_set_position(IRexxString *str, String_iter *i, wholenumber_t n)
+ENCODING_UCS2::iter_set_position(IRexxString *str, String_iter *i, sizeC_t n)
 {
 #if defined(HAVE_ICU)
     i->charpos = n;

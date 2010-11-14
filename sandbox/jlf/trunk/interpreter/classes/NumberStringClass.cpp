@@ -218,7 +218,7 @@ RexxString *RexxNumberString::stringValue()
     size_t MaxNumSize, LenValue;
     wholenumber_t numindex;
     wholenumber_t temp, ExpValue, ExpFactor;
-    size_t charpos;
+    sizeB_t charpos;
     RexxString *StringObj;
 
     if (this->stringObject != OREF_NULL) /* already converted?                */
@@ -259,14 +259,14 @@ RexxString *RexxNumberString::stringValue()
             if (this->sign < 0)
             {              /* If number is neagative            */
                            /*  add negative sign and bump index */
-                StringObj->putChar(charpos++, ch_MINUS);
+                StringObj->putCharB(charpos++, ch_MINUS);
             }
             /* For each number digits in number  */
             for (numindex=0; (size_t)numindex < LenValue; numindex++)
             {
                 /* place char rep in NumString       */
                 num = this->number[numindex] + ch_ZERO;
-                StringObj->putChar(charpos++, num);
+                StringObj->putCharB(charpos++, num);
             }                                  /* Done with Fast Path....           */
         }
         else
@@ -372,7 +372,7 @@ RexxString *RexxNumberString::stringValue()
             if (this->sign < 0)
             {              /* Is the number negative?           */
                            /* Yes, add in the negative sign.    */
-                StringObj->putChar(charpos, ch_MINUS);
+                StringObj->putCharB(charpos, ch_MINUS);
             }
             temp = ExpValue + (wholenumber_t)LenValue;   /* get the adjusted length.          */
 
@@ -409,7 +409,7 @@ RexxString *RexxNumberString::stringValue()
                     /* are we carry from round?          */
                     num = this->number[numindex];   /* working copy of this Digit.       */
                     num = num + ch_ZERO;            /* now put the number as a character */
-                    StringObj->putChar(--charpos, num);
+                    StringObj->putCharB(--charpos, num);
                 }
                 temp = -temp;                    /* make the number positive...       */
 
@@ -419,14 +419,14 @@ RexxString *RexxNumberString::stringValue()
                                                     /* now fill in the leading Zeros.    */
                     StringObj->set(charpos, ch_ZERO, temp);
                 }
-                StringObj->putChar(--charpos, ch_PERIOD);
+                StringObj->putCharB(--charpos, ch_PERIOD);
                 if (carry)                       /* now put in the leading 1. is carry*/
                 {
-                    StringObj->putChar(--charpos, ch_ONE);
+                    StringObj->putCharB(--charpos, ch_ONE);
                 }
                 else                             /* or 0. if no carry.                */
                 {
-                    StringObj->putChar(--charpos, ch_ZERO);
+                    StringObj->putCharB(--charpos, ch_ZERO);
                 }
             }
             /* do we need to add zeros at end?   */
@@ -449,7 +449,7 @@ RexxString *RexxNumberString::stringValue()
                 {
                     num = this->number[numindex];   /* working copy of this Digit.       */
                     num = num + ch_ZERO;            /* now put the number as a character */
-                    StringObj->putChar(--charpos, num);
+                    StringObj->putCharB(--charpos, num);
                 }
             }                                  /* done with this case....           */
 
@@ -462,10 +462,10 @@ RexxString *RexxNumberString::stringValue()
                     num = this->number[numindex];   /* working copy of this Digit.       */
                                                     /* now put the number as a character */
                     num += ch_ZERO;
-                    StringObj->putChar(--charpos, num);
+                    StringObj->putCharB(--charpos, num);
                 }
                 /* add in the decimal point.         */
-                StringObj->putChar(--charpos, ch_PERIOD);
+                StringObj->putCharB(--charpos, ch_PERIOD);
 
                 /* Start filling in digits           */
                 /* add numbers before decimal point  */
@@ -473,7 +473,7 @@ RexxString *RexxNumberString::stringValue()
                 {
                     num = this->number[numindex];   /* working copy of this Digit.       */
                     num += ch_ZERO;
-                    StringObj->putChar(--charpos, num);
+                    StringObj->putCharB(--charpos, num);
                 }
                 /* end of final case, conversion done*/
             }
@@ -498,7 +498,7 @@ bool RexxNumberString::numberValue(wholenumber_t &result)
     return this->numberValue(result, Numerics::DEFAULT_DIGITS);
 }
 
-bool RexxNumberString::unsignedNumberValue(stringsize_t &result)
+bool RexxNumberString::unsignedNumberValue(uwholenumber_t &result)
 /******************************************************************************/
 /* Function:  Convert a number string to a unsigned whole number value        */
 /******************************************************************************/
@@ -580,7 +580,7 @@ bool RexxNumberString::numberValue(wholenumber_t &result, size_t numDigits)
     return true;
 }
 
-bool RexxNumberString::unsignedNumberValue(stringsize_t &result, size_t numDigits)
+bool RexxNumberString::unsignedNumberValue(uwholenumber_t &result, size_t numDigits)
 /******************************************************************************/
 /* Function:  Convert a number string to an unsigned number value             */
 /******************************************************************************/
@@ -693,7 +693,7 @@ RexxInteger *RexxNumberString::integerValue(
 /*********************************************************************/
 /*   Function:  Convert the numberstring to unsigned value           */
 /*********************************************************************/
-bool  RexxNumberString::createUnsignedValue(const char *thisnum, stringsize_t intlength, int carry, wholenumber_t exponent, size_t maxValue, size_t &result)
+bool  RexxNumberString::createUnsignedValue(const char *thisnum, stringsize_t intlength, int carry, wholenumber_t exponent, uwholenumber_t maxValue, uwholenumber_t &result)
 {
     // if the exponent multiplier would cause an overflow, there's no point in doing
     // anything here
@@ -703,12 +703,12 @@ bool  RexxNumberString::createUnsignedValue(const char *thisnum, stringsize_t in
     }
 
     // our converted value
-    size_t intNumber = 0;
+    uwholenumber_t intNumber = 0;
 
     for (stringsize_t numpos = 1; numpos <= intlength; numpos++ )
     {
         // add in the next digit value
-        size_t newNumber = (intNumber * 10) + (size_t)*thisnum++;
+        uwholenumber_t newNumber = (intNumber * 10) + (size_t)*thisnum++;
         // if an overflow occurs, then the new number will wrap around and be
         // smaller that the starting value.
         if (newNumber < intNumber)
@@ -723,7 +723,7 @@ bool  RexxNumberString::createUnsignedValue(const char *thisnum, stringsize_t in
     if (carry)
     {
         // add in the carry bit and check for an overflow, again
-        size_t newNumber = intNumber + 1;
+        uwholenumber_t newNumber = intNumber + 1;
         if (newNumber < intNumber)
         {
             return false;
@@ -735,14 +735,14 @@ bool  RexxNumberString::createUnsignedValue(const char *thisnum, stringsize_t in
     if (exponent > 0)
     {
         // get this as a multipler value
-        size_t exponentMultiplier = 1;
+        uwholenumber_t exponentMultiplier = 1;
         while (exponent > 0)
         {
             exponentMultiplier *= 10;
             exponent--;
         }
         // get this as a multipler value
-        size_t newNumber = intNumber * exponentMultiplier;
+        uwholenumber_t newNumber = intNumber * exponentMultiplier;
 
         // did this wrap?  This is a safe test, since we capped
         // the maximum exponent size we can multiply by.

@@ -55,6 +55,7 @@
 /*                                                                            */
 /*  Returned:  New string object                                              */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::bitAnd(RexxString *string2,
                                RexxString *pad)
 {
@@ -62,11 +63,11 @@ RexxString *RexxString::bitAnd(RexxString *string2,
     const char *String1;                 /* string 1 pointer                  */
     const char *PadString;               /* padded string part                */
     const char *String2;                 /* string 2 pointer                  */
-    size_t      String1Len;              /* string 1 length                   */
-    size_t      String2Len;              /* string 2 length                   */
-    size_t      MinLength;               /* length of shorter string          */
-    size_t      PadLength;               /* length to pad                     */
-    size_t      MaxLength;               /* longest length                    */
+    sizeB_t      String1Len;              /* string 1 length                   */
+    sizeB_t      String2Len;              /* string 2 length                   */
+    sizeB_t      MinLength;               /* length of shorter string          */
+    sizeB_t      PadLength;               /* length to pad                     */
+    sizeB_t      MaxLength;               /* longest length                    */
     RexxString *Retval;                  /* return value                      */
     const char *Source;                  /* source string pointer             */
     char       *Target;                  /* target string pointer             */
@@ -74,13 +75,13 @@ RexxString *RexxString::bitAnd(RexxString *string2,
                                          /* get string we will be doing bit   */
                                          /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
-    String2Len = string2->getLength();        /* get the string length             */
+    String2Len = string2->getBLength();        /* get the string length             */
     String2 = string2->getStringData();       /* get the string data pointer       */
     /* get the pad character             */
     PadChar = optionalPadArgument(pad, (char)0xff, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
-    String1Len = this->getLength();      /* get the length                    */
+    String1Len = this->getBLength();      /* get the length                    */
     if (String1Len <= String2Len)
     {      /* string 1 shorter or equal?        */
         MinLength = String1Len;            /* string 1 is the shorter           */
@@ -101,14 +102,14 @@ RexxString *RexxString::bitAnd(RexxString *string2,
     Target = Retval->getWritableData();  /* point to the tArget               */
     memcpy(Target, PadString, MaxLength);/* now copy in the longer one        */
 
-    while (MinLength--)
+    while (MinLength-- != 0)
     {                /* while shorter has data            */
                      /* and in each character             */
         *Target = *Target & *Source++;
         Target++;                          /* step the target                   */
     }
 
-    while (PadLength--)
+    while (PadLength-- != 0)
     {                /* while pad needed                  */
                      /* and in a pad character            */
         *Target = *Target & PadChar;
@@ -124,6 +125,7 @@ RexxString *RexxString::bitAnd(RexxString *string2,
 /*                                                                            */
 /*  Returned:  New string object                                              */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::bitOr(RexxString *string2,
                               RexxString *pad)
 {
@@ -131,11 +133,11 @@ RexxString *RexxString::bitOr(RexxString *string2,
     const char *String1;                  /* string 1 pointer                  */
     const char *PadString;                /* padded string part                */
     const char *String2;                  /* string 2 pointer                  */
-    size_t      String1Len;               /* string 1 length                   */
-    size_t      String2Len;               /* string 2 length                   */
-    size_t      MinLength;                /* length of shorter string          */
-    size_t      PadLength;                /* length to pad                     */
-    size_t      MaxLength;                /* longest length                    */
+    sizeB_t      String1Len;               /* string 1 length                   */
+    sizeB_t      String2Len;               /* string 2 length                   */
+    sizeB_t      MinLength;                /* length of shorter string          */
+    sizeB_t      PadLength;                /* length to pad                     */
+    sizeB_t      MaxLength;                /* longest length                    */
     RexxString *Retval;                   /* return value                      */
     const char *Source;                   /* source string pointer             */
     char       *Target;                   /* tArget string pointer             */
@@ -143,13 +145,13 @@ RexxString *RexxString::bitOr(RexxString *string2,
     /* get string we will be doing bit   */
     /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
-    String2Len = string2->getLength();   /* get the string length             */
+    String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
     PadChar = optionalPadArgument(pad, 0x00, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
-    String1Len = this->getLength();      /* get the length                    */
+    String1Len = this->getBLength();      /* get the length                    */
     if (String1Len <= String2Len)
     {      /* string 1 shorter or equal?        */
         MinLength = String1Len;            /* string 1 is the shorter           */
@@ -170,14 +172,14 @@ RexxString *RexxString::bitOr(RexxString *string2,
     Target = Retval->getWritableData();  /* point to the tArget               */
     memcpy(Target, PadString, MaxLength);/* now copy in the longer one        */
 
-    while (MinLength--)
+    while (MinLength-- != 0)
     {                /* while shorter has data            */
                      /* and in each character             */
         *Target = *Target | *Source++;
         Target++;                          /* step the target                   */
     }
 
-    while (PadLength--)
+    while (PadLength-- != 0)
     {                /* while pad needed                  */
                      /* and in a pad character            */
         *Target = *Target | PadChar;
@@ -193,6 +195,7 @@ RexxString *RexxString::bitOr(RexxString *string2,
 /*                                                                            */
 /*  Returned:  New string object                                              */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::bitXor(RexxString *string2,
                                RexxString *pad)
 {
@@ -200,11 +203,11 @@ RexxString *RexxString::bitXor(RexxString *string2,
     const char *String1;                  /* string 1 pointer                  */
     const char *PadString;                /* padded string part                */
     const char *String2;                  /* string 2 pointer                  */
-    size_t      String1Len;               /* string 1 length                   */
-    size_t      String2Len;               /* string 2 length                   */
-    size_t      MinLength;                /* length of shorter string          */
-    size_t      PadLength;                /* length to pad                     */
-    size_t      MaxLength;                /* longest length                    */
+    sizeB_t      String1Len;               /* string 1 length                   */
+    sizeB_t      String2Len;               /* string 2 length                   */
+    sizeB_t      MinLength;                /* length of shorter string          */
+    sizeB_t      PadLength;                /* length to pad                     */
+    sizeB_t      MaxLength;                /* longest length                    */
     RexxString *Retval;                   /* return value                      */
     const char *Source;                   /* source string pointer             */
     char       *Target;                   /* tArget string pointer             */
@@ -212,13 +215,13 @@ RexxString *RexxString::bitXor(RexxString *string2,
     /* get string we will be doing bit   */
     /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
-    String2Len = string2->getLength();   /* get the string length             */
+    String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
     PadChar = optionalPadArgument(pad, 0x00, ARG_TWO);
 
     String1 = this->getStringData();     /* point to the first string         */
-    String1Len = this->getLength();      /* get the length                    */
+    String1Len = this->getBLength();      /* get the length                    */
     if (String1Len <= String2Len)
     {      /* string 1 shorter or equal?        */
         MinLength = String1Len;            /* string 1 is the shorter           */
@@ -239,14 +242,14 @@ RexxString *RexxString::bitXor(RexxString *string2,
     Target = Retval->getWritableData();  /* point to the tArget               */
     memcpy(Target, PadString, MaxLength);/* now copy in the longer one        */
 
-    while (MinLength--)
+    while (MinLength-- != 0)
     {                /* while shorter has data            */
                      /* and in each character             */
         *Target = *Target ^ *Source++;
         Target++;                          /* step the target                   */
     }
 
-    while (PadLength--)
+    while (PadLength-- != 0)
     {                /* while pad needed                  */
                      /* and in a pad character            */
         *Target = *Target ^ PadChar;

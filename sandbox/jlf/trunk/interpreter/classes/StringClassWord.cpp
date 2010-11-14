@@ -58,17 +58,18 @@
 /*                                                                            */
 /*  Returned:  string, with length words deleted                              */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::delWord(RexxInteger *position,
                                 RexxInteger *plength)
 {
     char       *Current;                 /* current pointer position          */
     const char *Word;                    /* current word pointer              */
     const char *NextSite;                /* next word                         */
-    size_t      WordPos;                 /* needed word position              */
+    sizeB_t      WordPos;                 /* needed word position              */
     size_t      Count;                   /* count of words                    */
-    size_t      Length;                  /* remaining length                  */
-    size_t      WordLength;              /* word size                         */
-    size_t      FrontLength;             /* front substring                   */
+    sizeB_t      Length;                  /* remaining length                  */
+    sizeB_t      WordLength;              /* word size                         */
+    sizeB_t      FrontLength;             /* front substring                   */
     RexxString *Retval;                  /* return value                      */
 
                                          /* convert position to binary        */
@@ -77,12 +78,12 @@ RexxString *RexxString::delWord(RexxInteger *position,
     /* default is "a very large number"  */
     Count = optionalLengthArgument(plength, Numerics::MAX_WHOLENUMBER, ARG_TWO);
 
-    Length = this->getLength();               /* get string length                 */
-    if (!Length)                         /* null string?                      */
+    Length = this->getBLength();               /* get string length                 */
+    if (Length == 0)                         /* null string?                      */
     {
         Retval = OREF_NULLSTRING;          /* result is null also               */
     }
-    else if (!Count)                     /* deleting zero words?              */
+    else if (Count == 0)                     /* deleting zero words?              */
     {
         Retval = this;                     /* just use this string              */
     }
@@ -91,13 +92,13 @@ RexxString *RexxString::delWord(RexxInteger *position,
         Word = this->getStringData();      /* point to the string               */
                                            /* get the first word                */
         WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
-        while (--WordPos && WordLength)
+        while (--WordPos != 0 && WordLength != 0)
         {  /* loop until we reach tArget        */
             Word = NextSite;                 /* copy the start pointer            */
                                              /* get the next word                 */
             WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
         }
-        if (WordPos)                       /* run out of words first            */
+        if (WordPos != 0)                       /* run out of words first            */
         {
             Retval = this;                   /* return entire string              */
         }
@@ -105,13 +106,13 @@ RexxString *RexxString::delWord(RexxInteger *position,
         {                             /* count off number of words         */
                                       /* calculate front length            */
             FrontLength = (size_t)(Word - this->getStringData());
-            while (--Count && WordLength)
+            while (--Count != 0 && WordLength != 0)
             {  /* loop until we reach tArget        */
                 Word = NextSite;               /* copy the start pointer            */
                                                /* get the next word                 */
                 WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
             }
-            if (Length)                      /* didn't use up the string          */
+            if (Length != 0)                      /* didn't use up the string          */
             {
                 StringUtil::skipBlanks(&NextSite, &Length);/* skip over trailing blanks         */
             }
@@ -119,13 +120,13 @@ RexxString *RexxString::delWord(RexxInteger *position,
             Retval = raw_string(FrontLength + Length);
             /* point to data portion             */
             Current = Retval->getWritableData();
-            if (FrontLength)
+            if (FrontLength != 0)
             {               /* have a leading portion?           */
                             /* copy into the result              */
                 memcpy(Current, this->getStringData(), FrontLength);
                 Current += FrontLength;        /* step output position              */
             }
-            if (Length)                      /* any string left?                  */
+            if (Length != 0)                      /* any string left?                  */
             {
                 /* copy what's left                  */
                 memcpy(Current, NextSite, Length);
@@ -142,18 +143,19 @@ RexxString *RexxString::delWord(RexxInteger *position,
 /*                                                                            */
 /*  Returned:  string                                                         */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::space(RexxInteger *space_count,
                               RexxString  *pad)
 {
-    size_t      Spaces;                  /* requested spacing                 */
-    char        PadChar;                 /* pad character                     */
+    sizeC_t      Spaces;                  /* requested spacing                 */
+    codepoint_t        PadChar;                 /* pad character                     */
     char       *Current;                 /* current pointer position          */
     const char *Word;                    /* current word pointer              */
     const char *NextSite;                /* next word                         */
-    size_t      Count;                   /* count of words                    */
-    size_t      WordSize;                /* size of words                     */
-    size_t      Length;                  /* remaining length                  */
-    size_t      WordLength;              /* word size                         */
+    sizeB_t      Count;                   /* count of words                    */
+    sizeB_t      WordSize;                /* size of words                     */
+    sizeB_t      Length;                  /* remaining length                  */
+    sizeB_t      WordLength;              /* word size                         */
     RexxString *Retval;                  /* return value                      */
 
                                          /* get the spacing count             */
@@ -162,14 +164,14 @@ RexxString *RexxString::space(RexxInteger *space_count,
     /* get the pad character             */
     PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
 
-    Length = this->getLength();               /* get the string length             */
+    Length = this->getBLength();               /* get the string length             */
     Count = 0;                           /* no words yet                      */
     WordSize = 0;                        /* no characters either              */
     Word = this->getStringData();        /* point to the string               */
                                          /* get the first word                */
     WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
 
-    while (WordLength)
+    while (WordLength != 0)
     {                 /* loop until we reach tArget        */
         Count++;                           /* count the word                    */
         WordSize += WordLength;            /* add in the word length            */
@@ -177,7 +179,7 @@ RexxString *RexxString::space(RexxInteger *space_count,
                                            /* get the next word                 */
         WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
     }
-    if (!Count)                          /* no words?                         */
+    if (Count == 0)                          /* no words?                         */
     {
         Retval = OREF_NULLSTRING;          /* this is a null string             */
     }
@@ -185,32 +187,32 @@ RexxString *RexxString::space(RexxInteger *space_count,
     {                               /* real words                        */
         Count--;                           /* step back one                     */
                                            /* get space for output              */
-        Retval = raw_string(WordSize + Count * Spaces);
+        Retval = raw_string(WordSize + Count * size_v(Spaces)); // todo m17n : Spaces is a char count
         /* point to output area              */
         Current = Retval->getWritableData();
 
-        Length = this->getLength();             /* recover the length                */
+        Length = this->getBLength();             /* recover the length                */
         Word = this->getStringData();      /* point to the string               */
                                            /* get the first word                */
         WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
 
-        while (Count--)
+        while (Count-- != 0)
         {                  /* loop for each word                */
                            /* copy the word over                */
             memcpy(Current, Word, WordLength);
             Current += WordLength;           /* step over the word                */
-            if (Spaces)
+            if (Spaces != 0)
             {                    /* if have gaps...                   */
                                  /* fill in the pad chars             */
-                memset(Current, PadChar, Spaces);
-                Current += Spaces;             /* step over the pad chars           */
+                memset(Current, PadChar, size_v(Spaces)); // todo m17n
+                Current += size_v(Spaces);             /* step over the pad chars           */ // todo m17n
             }
             Word = NextSite;                 /* copy the start pointer            */
                                              /* get the next word                 */
             WordLength = StringUtil::nextWord(&Word, &Length, &NextSite);
         }
         /* copy the word over                */
-        memcpy(Current, Word, (size_t)WordLength);
+        memcpy(Current, Word, WordLength);
     }
     return Retval;                       /* return spaced string              */
 }
@@ -223,9 +225,10 @@ RexxString *RexxString::space(RexxInteger *space_count,
 /*                                                                            */
 /*  Returned:  string, contains the requested number of words from source     */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::subWord(RexxInteger *position, RexxInteger *plength)
 {
-    return StringUtil::subWord(getStringData(), getLength(), position, plength);
+    return StringUtil::subWord(getStringData(), getBLength(), position, plength);
 }
 
 
@@ -235,9 +238,10 @@ RexxString *RexxString::subWord(RexxInteger *position, RexxInteger *plength)
 /*                                                                            */
 /*  Returned:  string, containing nth word.                                   */
 /******************************************************************************/
+// in behaviour
 RexxString *RexxString::word(RexxInteger *position)
 {
-    return StringUtil::word(getStringData(), getLength(), position);
+    return StringUtil::word(getStringData(), getBLength(), position);
 }
 
 /* the WORDINDEX function */
@@ -246,9 +250,10 @@ RexxString *RexxString::word(RexxInteger *position)
 /*                                                                            */
 /*  Returned:  integer,  actual char position of nth word                     */
 /******************************************************************************/
+// in behaviour
 RexxInteger *RexxString::wordIndex(RexxInteger *position)
 {
-    return StringUtil::wordIndex(getStringData(), getLength(), position);
+    return StringUtil::wordIndex(getStringData(), getBLength(), position);
 }
 
 /* the WORDLENGTH function */
@@ -257,9 +262,10 @@ RexxInteger *RexxString::wordIndex(RexxInteger *position)
 /*                                                                            */
 /*  Returned:  integer, length of nth word                                    */
 /******************************************************************************/
+// in behaviour
 RexxInteger *RexxString::wordLength(RexxInteger *position)
 {
-    return StringUtil::wordLength(getStringData(), getLength(), position);
+    return StringUtil::wordLength(getStringData(), getBLength(), position);
 }
 
 
@@ -271,9 +277,10 @@ RexxInteger *RexxString::wordLength(RexxInteger *position)
  *
  * @return The index of the match location.
  */
+// in behaviour
 RexxInteger *RexxString::wordPos(RexxString  *phrase, RexxInteger *pstart)
 {
-    return StringUtil::wordPos(getStringData(), getLength(), phrase, pstart);
+    return StringUtil::wordPos(getStringData(), getBLength(), phrase, pstart);
 }
 
 
@@ -285,9 +292,10 @@ RexxInteger *RexxString::wordPos(RexxString  *phrase, RexxInteger *pstart)
  *
  * @return The index of the match location.
  */
+// in behaviour
 RexxInteger *RexxString::caselessWordPos(RexxString  *phrase, RexxInteger *pstart)
 {
-    return StringUtil::caselessWordPos(getStringData(), getLength(), phrase, pstart);
+    return StringUtil::caselessWordPos(getStringData(), getBLength(), phrase, pstart);
 }
 
 /* the WORDS function */
@@ -296,9 +304,10 @@ RexxInteger *RexxString::caselessWordPos(RexxString  *phrase, RexxInteger *pstar
 /*                                                                            */
 /*  Returned:  integer, number os words in source                             */
 /******************************************************************************/
+// in behaviour
 RexxInteger *RexxString::words()
 {
-    size_t tempCount = StringUtil::wordCount(this->getStringData(), this->getLength());
+    size_t tempCount = StringUtil::wordCount(this->getStringData(), this->getBLength());
     return new_integer(tempCount);
 }
 

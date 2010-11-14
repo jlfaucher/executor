@@ -991,27 +991,27 @@ RexxString *RexxActivity::messageSubstitution(
     for (size_t i = 1; i <= substitutions; i++)
     {
         /* search for a substitution         */
-        size_t subposition = message->pos(OREF_AND, 0);
+        sizeC_t subposition = message->pos(OREF_AND, 0);
         if (subposition == 0)              /* not found?                        */
         {
             break;                           /* get outta here...                 */
         }
                                              /* get the leading part              */
-        RexxString *front = message->extract(0, subposition - 1);
+        RexxString *front = message->extractC(0, subposition - 1);
         /* pull off the remainder            */
-        RexxString *back = message->extract(subposition + 1, message->getLength() - (subposition + 1));
+        RexxString *back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
         /* get the descriptor position       */
-        size_t selector = message->getChar(subposition);
+        codepoint_t selector = message->getCharC(subposition);
         /* not a good number?                */
         RexxString *stringVal = OREF_NULLSTRING;
-        if (selector < '0' || selector > '9')
+        if (selector < '0' || selector > '9') // todo m17n : DecimalDigitNumber (careful : 'U+0BEF TAMIL DIGIT NINE \u0BEF 9)
         {
             /* use a default message             */
             stringVal = new_string("<BAD MESSAGE>"); /* must be stringValue, not value, otherwise trap */
         }
         else
         {
-            selector -= '0';                 /* convert to a number               */
+            selector -= '0';                 /* convert to a number               */ // todo m17n : DecimalDigitNumber (careful : 'U+0BEF TAMIL DIGIT NINE \u0BEF 9)
             // still in range?
             if (selector <= substitutions)    /* out of our range?                 */
             {
@@ -2163,7 +2163,7 @@ bool RexxActivity::callFunctionExit(
 
         exit_parm.rxfnc_flags.rxffsub = calltype == OREF_FUNCTIONNAME ? 0 : 1;
         /* fill in the name parameter        */
-        exit_parm.rxfnc_namel = (unsigned short)rname->getLength();
+        exit_parm.rxfnc_namel = (unsigned short)size_v(rname->getBLength());
         exit_parm.rxfnc_name = rname->getStringData();
 
         /* Get current active queue name     */
@@ -2171,7 +2171,7 @@ bool RexxActivity::callFunctionExit(
         /* fill in the name                  */
         exit_parm.rxfnc_que = stdqueue->getStringData();
         /* and the length                    */
-        exit_parm.rxfnc_quel = (unsigned short)stdqueue->getLength();
+        exit_parm.rxfnc_quel = (unsigned short)size_v(stdqueue->getBLength());
         /* Build arg array of RXSTRINGs      */
         /* get number of args                */
         exit_parm.rxfnc_argc = (unsigned short)argcount;
@@ -2407,7 +2407,7 @@ bool RexxActivity::callCommandExit(RexxActivation *activation, RexxString *addre
         exit_parm.rxcmd_flags.rxfcfail = 0;/* Initialize failure/error to zero  */
         exit_parm.rxcmd_flags.rxfcerr = 0;
         /* fill in the environment parm      */
-        exit_parm.rxcmd_addressl = (unsigned short)address->getLength();
+        exit_parm.rxcmd_addressl = (unsigned short)size_v(address->getBLength());
         exit_parm.rxcmd_address = address->getStringData();
         /* make cmdaname into RXSTRING form  */
         command->toRxstring(exit_parm.rxcmd_command);
@@ -2563,8 +2563,8 @@ bool  RexxActivity::callQueueNameExit(
         RXMSQNAM_PARM exit_parm;             /* exit parameters                   */
         char          retbuffer[DEFRXSTRING];/* Default result buffer             */
 
-        MAKERXSTRING(exit_parm.rxmsq_name, retbuffer, inputstring->getLength());
-        memcpy(exit_parm.rxmsq_name.strptr, inputstring->getStringData(), inputstring->getLength());
+        MAKERXSTRING(exit_parm.rxmsq_name, retbuffer, size_v(inputstring->getBLength()));
+        memcpy(exit_parm.rxmsq_name.strptr, inputstring->getStringData(), size_v(inputstring->getBLength()));
         /* call the handler                  */
         if (!callExit(activation, "RXMSQ", RXMSQ, RXMSQNAM, (void *)&exit_parm))
         {
@@ -2882,9 +2882,9 @@ RexxObject *RexxActivity::lineOut(
   size_t  length;                      /* length to write out               */
   const char *data;                    /* data pointer                      */
 
-  length = line->getLength();          /* get the string length and the     */
+  length = size_v(line->getBLength());         /* get the string length and the     */
   data = line->getStringData();        /* data pointer                      */
-  printf("%.*s\n",length, data);       /* print it                          */
+  printf("%.*s\n",length, data);       /* print it                          */ // todo m17n
   return (RexxObject *)IntegerZero;    /* return on residual count          */
 }
 

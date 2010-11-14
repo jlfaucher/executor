@@ -57,9 +57,9 @@
 /*                                                                   */
 /*********************************************************************/
 void *SystemInterpreter::allocateResultMemory(
-   size_t   Size )                     /* size to allocate                  */
+   sizeB_t   Size )                     /* size to allocate                  */
 {
-    return (void *)GlobalAlloc(GMEM_FIXED, Size);
+    return (void *)GlobalAlloc(GMEM_FIXED, size_v(Size));
 }
 
 

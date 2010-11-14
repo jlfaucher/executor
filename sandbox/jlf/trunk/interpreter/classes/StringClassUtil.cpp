@@ -102,20 +102,20 @@ stringsize_t positionArgument(
 /*               character, if it exists otherwise return the default         */
 /*               character as defined (passed in) by the BIF.                 */
 /******************************************************************************/
-char padArgument(
+codepoint_t padArgument(
     RexxObject *argument,              /* method argument                   */
     size_t position )                  /* argument position                 */
 {
     RexxString *parameter = (RexxString *)stringArgument(argument, position);
     /* is the string only 1 character?   */
-    if (parameter->getLength() != 1)
+    if (parameter->getCLength() != 1)
     {
         /* argument not good, so raise an    */
         /*error                              */
         reportException(Error_Incorrect_method_pad, argument);
     }
     /* yes, return the character.        */
-    return parameter->getChar(0);
+    return parameter->getCharC(0); // todo m17n
 }
 
 /******************************************************************************/
@@ -130,5 +130,5 @@ char optionArgument(
     /* force option to string            */
     RexxString *parameter = (RexxString *)stringArgument(argument, position);
     /* return the first character        */
-    return toupper(parameter->getChar(0));
+    return toupper(parameter->getCharB(0)); // todo m17n
 }

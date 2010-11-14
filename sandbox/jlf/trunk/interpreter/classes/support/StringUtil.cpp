@@ -63,22 +63,22 @@
  *
  * @return The extracted substring.
  */
-RexxString *StringUtil::substr(const char *string, size_t stringLength, RexxInteger *_position,
+RexxString *StringUtil::substr(const char *string, sizeB_t stringLength, RexxInteger *_position,
     RexxInteger *_length, RexxString  *pad)
 {
-    size_t position = positionArgument(_position, ARG_ONE) - 1;
+    sizeC_t position = positionArgument(_position, ARG_ONE) - 1;
     // assume nothing is pulled from this string
-    size_t length = 0;
+    sizeC_t length = 0;
     // is the position within the string bounds?
-    if (stringLength >= position)
+    if (stringLength >= size_v(position)) // todo m17n
     {
         // we extract everything from the position to the end (potentially)
-        length = stringLength - position;
+        length = size_v(stringLength - size_v(position)); // todo m17n
     }
     // now we process any overrides on this
     length = optionalLengthArgument(_length, length, ARG_TWO);
     // get a padding character (blank is default)
-    char padChar = optionalPadArgument(pad, ' ', ARG_THREE);
+    codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_THREE);
 
     // if our target length is zero, we can just return the null string singleton
     if (length == 0)
@@ -86,26 +86,26 @@ RexxString *StringUtil::substr(const char *string, size_t stringLength, RexxInte
         return OREF_NULLSTRING;
     }
 
-    size_t substrLength = 0;
-    size_t padCount = 0;
+    sizeB_t substrLength = 0;
+    sizeB_t padCount = 0;
 
     // starting past the end of the string?
     // this will be all pad characters
-    if (position > stringLength)
+    if (size_v(position) > stringLength)
     {
-        padCount = length;
+        padCount = size_v(length); // todo m17n
     }
     else
     {
         // we have a combination of source string and pad characters
-        substrLength = Numerics::minVal(length, stringLength - position);
-        padCount = length - substrLength;
+        substrLength = Numerics::minVal(size_v(length), stringLength - size_v(position)); // todo m17n
+        padCount = size_v(length) - substrLength; // todo m17n
     }
-    RexxString *retval = raw_string(length);       /* get result string                 */
-    if (substrLength)                  /* data to copy?                     */
+    RexxString *retval = raw_string(size_v(length));       /* get result string                 */ // todo m17n
+    if (substrLength != 0)                  /* data to copy?                     */
     {
         // copy over the string portion
-        retval->put(0, string + position, substrLength);
+        retval->put(0, string + size_v(position), substrLength); // todo m17n
     }
     // add any needed padding characters
     if (padCount != 0)
@@ -127,16 +127,17 @@ RexxString *StringUtil::substr(const char *string, size_t stringLength, RexxInte
  *
  * @return An integer object giving the located position.
  */
-RexxInteger *StringUtil::posRexx(const char *stringData, size_t length, RexxString *needle, RexxInteger *pstart, RexxInteger *range)
+RexxInteger *StringUtil::posRexx(const char *stringData, sizeB_t length, RexxString *needle, RexxInteger *pstart, RexxInteger *range)
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
     /* get the starting position         */
     size_t _start = optionalPositionArgument(pstart, 1, ARG_TWO);
-    size_t _range = optionalLengthArgument(range, length - _start + 1, ARG_THREE);
+    size_t _range = optionalLengthArgument(range, size_v(length - _start + 1), ARG_THREE);
     /* pass on to the primitive function */
     /* and return as an integer object   */
-    return new_integer(pos(stringData, length, needle, _start - 1, _range));
+    sizeB_t result = pos(stringData, length, needle, _start - 1, _range);
+	return new_integer(result);
 }
 
 
@@ -151,10 +152,10 @@ RexxInteger *StringUtil::posRexx(const char *stringData, size_t length, RexxStri
  *
  * @return The offset of the located needle, or 0 if the needle doesn't exist.
  */
-size_t StringUtil::pos(const char *stringData, size_t haystack_length, RexxString *needle, size_t _start, size_t _range)
+sizeB_t StringUtil::pos(const char *stringData, sizeB_t haystack_length, RexxString *needle, sizeB_t _start, sizeB_t _range)
 {
     // get the two working lengths
-    size_t needle_length = needle->getLength();
+    sizeB_t needle_length = needle->getBLength();
     // make sure the range is capped
     _range = Numerics::minVal(_range, haystack_length - _start);
 
@@ -170,15 +171,15 @@ size_t StringUtil::pos(const char *stringData, size_t haystack_length, RexxStrin
     // address the string value
     const char *haypointer = stringData + _start;
     const char *needlepointer = needle->getStringData();
-    size_t location = _start + 1;         // this is the match location as an index
+    sizeB_t location = _start + 1;         // this is the match location as an index
     // calculate the number of probes we can make in this string
-    size_t count = _range - needle_length + 1;
+    sizeB_t count = _range - needle_length + 1;
 
     // now scan
-    while (count--)
+    while (count-- != 0)
     {
                                            /* get a hit?                        */
-        if (memcmp(haypointer, needlepointer, needle_length) == 0)
+        if (memcmp(haypointer, needlepointer, size_v(needle_length)) == 0) // todo m17n : needle_length is not a byte count
         {
             return location;
         }
@@ -201,10 +202,10 @@ size_t StringUtil::pos(const char *stringData, size_t haystack_length, RexxStrin
  *
  * @return The offset of the located needle, or 0 if the needle doesn't exist.
  */
-size_t StringUtil::caselessPos(const char *stringData, size_t haystack_length, RexxString *needle, size_t _start, size_t _range)
+sizeB_t StringUtil::caselessPos(const char *stringData, sizeB_t haystack_length, RexxString *needle, sizeB_t _start, sizeB_t _range)
 {
     // get the two working lengths
-    size_t needle_length = needle->getLength();
+    sizeB_t needle_length = needle->getBLength();
     // make sure the range is capped
     _range = Numerics::minVal(_range, haystack_length - _start + 1);
 
@@ -220,12 +221,12 @@ size_t StringUtil::caselessPos(const char *stringData, size_t haystack_length, R
     // address the string value
     const char *haypointer = stringData + _start;
     const char *needlepointer = needle->getStringData();
-    size_t location = _start + 1;         // this is the match location as an index
+    sizeB_t location = _start + 1;         // this is the match location as an index
     // calculate the number of probes we can make in this string
-    size_t count = _range - needle_length + 1;
+    sizeB_t count = _range - needle_length + 1;
 
     // now scan
-    while (count--)
+    while (count-- != 0)
     {
                                            /* get a hit?                        */
         if (caselessCompare(haypointer, needlepointer, needle_length) == 0)
@@ -251,14 +252,15 @@ size_t StringUtil::caselessPos(const char *stringData, size_t haystack_length, R
  *
  * @return An integer object giving the located position.
  */
-RexxInteger *StringUtil::lastPosRexx(const char *stringData, size_t haystackLen, RexxString  *needle, RexxInteger *_start, RexxInteger *_range)
+RexxInteger *StringUtil::lastPosRexx(const char *stringData, sizeB_t haystackLen, RexxString  *needle, RexxInteger *_start, RexxInteger *_range)
 {
     needle = stringArgument(needle, ARG_ONE);
     // find out where to start the search. The default is at the very end.
-    size_t startPos = optionalPositionArgument(_start, haystackLen, ARG_TWO);
-    size_t range = optionalLengthArgument(_range, haystackLen, ARG_THREE);
+    sizeB_t startPos = optionalPositionArgument(_start, haystackLen, ARG_TWO);
+    size_t range = optionalLengthArgument(_range, size_v(haystackLen), ARG_THREE);
     // now perform the actual search.
-    return new_integer(lastPos(stringData, haystackLen, needle, startPos, range));
+    sizeB_t result = lastPos(stringData, haystackLen, needle, startPos, range);
+	return new_integer(result);
 }
 
 
@@ -273,9 +275,9 @@ RexxInteger *StringUtil::lastPosRexx(const char *stringData, size_t haystackLen,
  *
  * @return The offset of the located needle, or 0 if the needle doesn't exist.
  */
-size_t StringUtil::lastPos(const char *stringData, size_t haystackLen, RexxString  *needle, size_t _start, size_t range)
+sizeB_t StringUtil::lastPos(const char *stringData, sizeB_t haystackLen, RexxString  *needle, sizeB_t _start, sizeB_t range)
 {
-    size_t needleLen = needle->getLength();          /* and get the length too            */
+    sizeB_t needleLen = needle->getBLength();          /* and get the length too            */
 
     // no match possible if either string is null
     if (needleLen == 0 || haystackLen == 0 || needleLen > range)
@@ -316,7 +318,7 @@ size_t StringUtil::lastPos(const char *stringData, size_t haystackLen, RexxStrin
  *
  * @return A pointer to the match location or NULL if there is no match.
  */
-const char *StringUtil::lastPos(const char *needle, size_t needleLen, const char *haystack, size_t haystackLen)
+const char *StringUtil::lastPos(const char *needle, sizeB_t needleLen, const char *haystack, sizeB_t haystackLen)
 {
     // if the needle's longer than the haystack, no chance of a match
     if (needleLen > haystackLen)
@@ -326,7 +328,7 @@ const char *StringUtil::lastPos(const char *needle, size_t needleLen, const char
     // set the search startpoing point relative to the end of the search string
     haystack = haystack + haystackLen - needleLen;
     // this is the possible number of compares we might need to perform
-    size_t count = haystackLen - needleLen + 1;
+    sizeB_t count = haystackLen - needleLen + 1;
     // now scan backward
     while (count > 0)
     {
@@ -355,9 +357,9 @@ const char *StringUtil::lastPos(const char *needle, size_t needleLen, const char
  *
  * @return The offset of the located needle, or 0 if the needle doesn't exist.
  */
-size_t StringUtil::caselessLastPos(const char *stringData, size_t haystackLen, RexxString *needle, size_t _start, size_t range)
+sizeB_t StringUtil::caselessLastPos(const char *stringData, sizeB_t haystackLen, RexxString *needle, sizeB_t _start, sizeB_t range)
 {
-    size_t needleLen = needle->getLength();          /* and get the length too            */
+    sizeB_t needleLen = needle->getBLength();          /* and get the length too            */
 
     // no match possible if either string is null
     if (needleLen == 0 || haystackLen == 0 || needleLen > range)
@@ -398,7 +400,7 @@ size_t StringUtil::caselessLastPos(const char *stringData, size_t haystackLen, R
  *
  * @return A pointer to the match location or NULL if there is no match.
  */
-const char *StringUtil::caselessLastPos(const char *needle, size_t needleLen, const char *haystack, size_t haystackLen)
+const char *StringUtil::caselessLastPos(const char *needle, sizeB_t needleLen, const char *haystack, sizeB_t haystackLen)
 {
     // if the needle's longer than the haystack, no chance of a match
     if (needleLen > haystackLen)
@@ -408,7 +410,7 @@ const char *StringUtil::caselessLastPos(const char *needle, size_t needleLen, co
     // set the search startpoing point relative to the end of the search string
     haystack = haystack + haystackLen - needleLen;
     // this is the possible number of compares we might need to perform
-    size_t count = haystackLen - needleLen + 1;
+    sizeB_t count = haystackLen - needleLen + 1;
     // now scan backward
     while (count > 0)
     {
@@ -437,7 +439,7 @@ const char *StringUtil::caselessLastPos(const char *needle, size_t needleLen, co
  *
  * @return The target character, as a string value.
  */
-RexxString *StringUtil::subchar(const char *stringData, size_t stringLength, RexxInteger *positionArg)
+RexxString *StringUtil::subchar(const char *stringData, sizeB_t stringLength, RexxInteger *positionArg)
 {
     // the starting position isn't optional
     size_t position = positionArgument(positionArg, ARG_ONE) - 1;
@@ -462,7 +464,7 @@ RexxString *StringUtil::subchar(const char *stringData, size_t stringLength, Rex
  *
  * @return The next match position, or null for no match.
  */
-const char *StringUtil::locateSeparator(const char *start, const char *end, const char *sepData, size_t sepLength)
+const char *StringUtil::locateSeparator(const char *start, const char *end, const char *sepData, sizeB_t sepLength)
 {
     /* search for separator character    */
     while (start < end)
@@ -488,10 +490,10 @@ const char *StringUtil::locateSeparator(const char *start, const char *end, cons
  * @return An array of all strings within the buffer, with the target
  *         delimiter removed.
  */
-RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *separator)
+RexxArray *StringUtil::makearray(const char *start, sizeB_t length, RexxString *separator)
 {
     const char *sepData = "\n";          // set our default separator
-    size_t sepSize = 1;
+    sizeB_t sepSize = 1;
     bool checkCR = true;                 // by default, we look for either separator
 
     // if we have an explicit separator, use it instead
@@ -500,7 +502,7 @@ RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *s
         // make sure this is really a string value
         separator = stringArgument(separator, ARG_ONE);
         sepData = separator->getStringData();
-        sepSize = separator->getLength();
+        sepSize = separator->getBLength();
         checkCR = false;                 // if explicitly given, only use the given one
     }
 
@@ -509,7 +511,7 @@ RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *s
     if (sepSize == 0)
     {
         // we need an array the size of the string
-        RexxArray *array = new_array(length);
+        RexxArray *array = new_array(size_v(length));
         ProtectedObject p1(array);
         // create a string for each character and poke into the array
         for (size_t i = 0; i < length; i++, start++)
@@ -558,6 +560,12 @@ RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *s
 }
 
 
+RexxArray *StringUtil::makearray(RexxString *str, RexxString *separator)
+{
+    return StringUtil::makearray(str->getStringData(), str->getBLength(), separator); // todo m17n
+}
+
+
 /**
  * Perform a caseless comparison of two strings
  *
@@ -568,7 +576,7 @@ RexxArray *StringUtil::makearray(const char *start, size_t length, RexxString *s
  * @return 0 if the two strings are equal, -1 if the first is less than the
  *         second, and 1 if the first string is the greater.
  */
-int  StringUtil::caselessCompare(const char *string1, const char *string2, size_t length)
+int  StringUtil::caselessCompare(const char *string1, const char *string2, sizeB_t length)
 {
     /* totally equal?                    */
     if (!memcmp(string1, string2, length))
@@ -576,7 +584,7 @@ int  StringUtil::caselessCompare(const char *string1, const char *string2, size_
         return 0;                          /* return equality indicator         */
     }
 
-    while (length--)                     /* need to do it the hardway         */
+    while (length-- != 0)                     /* need to do it the hardway         */
     {
         /* not equal?                        */
         if (toupper(*string1) != toupper(*string2))
@@ -714,7 +722,7 @@ char StringUtil::packByte2(const char *Byte)
  *
  * @return The number of valid digits found.
  */
-size_t StringUtil::validateSet(const char *String, size_t Length, const char *Set, int Modulus, bool Hex)
+size_t StringUtil::validateSet(const char *String, sizeB_t Length, const char *Set, int Modulus, bool Hex)
 {
     char     c;                          /* current character                 */
     size_t   Count;                      /* # set members found               */
@@ -741,7 +749,7 @@ size_t StringUtil::validateSet(const char *String, size_t Length, const char *Se
     Count = 0;                           /* start count with zero             */
     Current = String;                    /* point to start                    */
 
-    for (; Length; Length--)
+    for (; Length != 0; Length--)
     {           /* process entire string             */
         c = *Current++;                    /* get char and step pointer         */
                                            /* if c in set                       */
@@ -822,7 +830,7 @@ size_t StringUtil::validateSet(const char *String, size_t Length, const char *Se
  *
  * @return
  */
-size_t  StringUtil::chGetSm(char *Destination, const char *Source, size_t Length, size_t Count, const char *Set, size_t *ScannedSize)
+sizeB_t  StringUtil::chGetSm(char *Destination, const char *Source, sizeB_t Length, sizeB_t Count, const char *Set, sizeB_t *ScannedSize)
 {
     char      c;                         /* current scanned character  */
     const char *Current;                 /* current scan pointer       */
@@ -833,7 +841,7 @@ size_t  StringUtil::chGetSm(char *Destination, const char *Source, size_t Length
     Found = 0;                           /* nothing found yet          */
     Current = Source;                    /* get pointer to string      */
 
-    for (; Length; Length--)
+    for (; Length != 0; Length--)
     {           /* scan entire string         */
         c = *Current++;                    /* get char and step pointer  */
         Scanned++;                         /* remember scan count        */
@@ -862,10 +870,10 @@ size_t  StringUtil::chGetSm(char *Destination, const char *Source, size_t Length
  *
  * @return The resulting packed string.
  */
-RexxString *StringUtil::packHex(const char *String, size_t StringLength)
+RexxString *StringUtil::packHex(const char *String, sizeB_t StringLength)
 {
     size_t   Nibbles;                    /* count of nibbles to pack          */
-    size_t   n;
+    sizeB_t   n;
     const char *Source;                  /* pack source                       */
     char *    Destination;               /* packing destination               */
     size_t   b;                          /* nibble odd count                  */
@@ -873,7 +881,7 @@ RexxString *StringUtil::packHex(const char *String, size_t StringLength)
     size_t   jjj;                        /* copies nibbles                    */
     RexxString *Retval;                  /* result value                      */
 
-    if (StringLength)
+    if (StringLength != 0)
     {                  /* if not a null string              */
         Source = String;                   /* get pointer                       */
         /* validate the information          */
@@ -942,12 +950,12 @@ void StringUtil::unpackNibble(int Val, char *p)
  *
  * @return The position of a match.
  */
-const char *StringUtil::memcpbrk(const char *String, const char *Set, size_t Length)
+const char *StringUtil::memcpbrk(const char *String, const char *Set, sizeB_t Length)
 {
     const char *Retval;                  /* returned value                    */
 
     Retval = NULL;                       /* nothing found yet                 */
-    while (Length--)
+    while (Length-- != 0)
     {                   /* search through string             */
                         /* find a match in ref set?          */
         if (*String == '\0' || !strchr(Set, *String))
@@ -980,7 +988,7 @@ const char *StringUtil::memcpbrk(const char *String, const char *Set, size_t Len
  *
  * @return The count of located characters.
  */
-int StringUtil::valSet(const char *String, size_t Length, const char *Set, int Modulus, size_t *PackedSize )
+int StringUtil::valSet(const char *String, sizeB_t Length, const char *Set, int Modulus, size_t *PackedSize )
 {
     char     c = '\0';                   /* current character                 */
     size_t   Count;                      /* # set members found               */
@@ -997,7 +1005,7 @@ int StringUtil::valSet(const char *String, size_t Length, const char *Set, int M
         Current = String;                  /* point to start                    */
 
         rc = true;                         /* default to good now               */
-        for (; Length; Length--)
+        for (; Length != 0; Length--)
         {         /* process entire string             */
             c = *Current++;                  /* get char and step pointer         */
                                              /* if c in set                       */
@@ -1059,7 +1067,7 @@ int StringUtil::valSet(const char *String, size_t Length, const char *Set, int M
  */
 RexxObject *StringUtil::dataType(RexxString *String, char Option )
 {
-    size_t      Len;                     /* validated string length           */
+    sizeB_t      Len;                     /* validated string length           */
     RexxObject *Answer;                  /* validation result                 */
     RexxObject *Temp;                    /* temporary value                   */
     const char *Scanp;                   /* string data pointer               */
@@ -1067,7 +1075,7 @@ RexxObject *StringUtil::dataType(RexxString *String, char Option )
     int         Type;                    /* validated symbol type             */
     RexxNumberString *TempNum;
 
-    Len = String->getLength();           /* get validated string len          */
+    Len = String->getBLength();           /* get validated string len          */
     Option = toupper(Option);            /* get the first character           */
 
                                          /* assume failure on checking        */
@@ -1210,15 +1218,15 @@ RexxObject *StringUtil::dataType(RexxString *String, char Option )
  * @param StringLength
  *               The length of the string segment.
  */
-void StringUtil::skipBlanks(const char **String, size_t *StringLength )
+void StringUtil::skipBlanks(const char **String, sizeB_t *StringLength )
 {
     const char *Scan;                    /* scan pointer               */
-    size_t   Length;                     /* length to scan             */
+    sizeB_t   Length;                     /* length to scan             */
 
     Scan = *String;                      /* point to data              */
     Length = *StringLength;              /* get the length             */
 
-    for (;Length; Length--)
+    for (;Length != 0; Length--)
     {            /* scan entire string         */
         if (*Scan != ' ' && *Scan != '\t') /* if not a space             */
         {
@@ -1238,15 +1246,15 @@ void StringUtil::skipBlanks(const char **String, size_t *StringLength )
  * @param StringLength
  *               The string length (update on return);
  */
-void StringUtil::skipNonBlanks(const char **String, size_t   *StringLength )
+void StringUtil::skipNonBlanks(const char **String, sizeB_t   *StringLength )
 {
     const char *Scan;                    /* scan pointer               */
-    size_t   Length;                     /* length to scan             */
+    sizeB_t   Length;                     /* length to scan             */
 
     Scan = *String;                      /* point to data              */
     Length = *StringLength;              /* get the length             */
 
-    for (;Length; Length--)
+    for (;Length != 0; Length--)
     {            /* scan entire string         */
         if (*Scan == ' ' || *Scan == '\t') /* if not a space             */
         {
@@ -1269,19 +1277,19 @@ void StringUtil::skipNonBlanks(const char **String, size_t   *StringLength )
  *
  * @return The count of white-space delimited words.
  */
-size_t  StringUtil::wordCount(const char *String, size_t   StringLength )
+size_t  StringUtil::wordCount(const char *String, sizeB_t   StringLength )
 {
     size_t Count = 0;                           /* default to nothing         */
-    if (StringLength)
+    if (StringLength != 0)
     {                  /* if not a null string       */
         skipBlanks(&String, &StringLength);/* skip any leading blanks    */
 
-        while (StringLength)
+        while (StringLength != 0)
         {             /* while still string ...     */
             Count++;                         /* account for this word      */
                                              /* now skip the non-blanks    */
             skipNonBlanks(&String, &StringLength);
-            if (!StringLength)               /* if done with the string    */
+            if (StringLength == 0)               /* if done with the string    */
             {
                 break;                         /* we are finished            */
             }
@@ -1304,14 +1312,14 @@ size_t  StringUtil::wordCount(const char *String, size_t   StringLength )
  *
  * @return The length of the located word.
  */
-size_t StringUtil::nextWord(const char **String, size_t *StringLength, const char **NextString )
+sizeB_t StringUtil::nextWord(const char **String, sizeB_t *StringLength, const char **NextString )
 {
-    size_t WordStart = 0;                       /* nothing moved yet          */
-    if (*StringLength)
+    sizeB_t WordStart = 0;                       /* nothing moved yet          */
+    if (*StringLength != 0)
     {                 /* Something there?           */
         skipBlanks(String, StringLength);  /* skip any leading blanks    */
 
-        if (*StringLength)
+        if (*StringLength != 0)
         {               /* if still string ...        */
             WordStart = *StringLength;       /* save current length        */
             *NextString = *String;           /* save start position now    */
@@ -1334,16 +1342,16 @@ size_t StringUtil::nextWord(const char **String, size_t *StringLength, const cha
  *
  * @return The count of needle occurrences located in the string.
  */
-size_t StringUtil::countStr(const char *hayStack, size_t hayStackLength, RexxString *needle)
+size_t StringUtil::countStr(const char *hayStack, sizeB_t hayStackLength, RexxString *needle)
 {
     size_t count = 0;                           /* no matches yet                    */
     /* get the first match position      */
-    size_t matchPos = pos(hayStack, hayStackLength, needle, 0, hayStackLength);
+    sizeB_t matchPos = pos(hayStack, hayStackLength, needle, 0, hayStackLength);
     while (matchPos != 0)
     {
         count = count + 1;                 /* count this match                  */
         // step to the new position and search
-        matchPos = pos(hayStack, hayStackLength, needle, matchPos + needle->getLength() - 1, hayStackLength);
+        matchPos = pos(hayStack, hayStackLength, needle, matchPos + needle->getBLength() - 1, hayStackLength);
     }
     return count;                        /* return the match count            */
 }
@@ -1359,16 +1367,16 @@ size_t StringUtil::countStr(const char *hayStack, size_t hayStackLength, RexxStr
  *
  * @return The count of needle occurrences located in the string.
  */
-size_t StringUtil::caselessCountStr(const char *hayStack, size_t hayStackLength, RexxString *needle)
+size_t StringUtil::caselessCountStr(const char *hayStack, sizeB_t hayStackLength, RexxString *needle)
 {
     size_t count = 0;                           /* no matches yet                    */
     /* get the first match position      */
-    size_t matchPos = caselessPos(hayStack, hayStackLength, needle, 0, hayStackLength);
+    sizeB_t matchPos = caselessPos(hayStack, hayStackLength, needle, 0, hayStackLength);
     while (matchPos != 0)
     {
         count = count + 1;                 /* count this match                  */
         // step to the new position and search
-        matchPos = caselessPos(hayStack, hayStackLength, needle, matchPos + needle->getLength() - 1, hayStackLength);
+        matchPos = caselessPos(hayStack, hayStackLength, needle, matchPos + needle->getBLength() - 1, hayStackLength);
     }
     return count;                        /* return the match count            */
 }
@@ -1376,14 +1384,14 @@ size_t StringUtil::caselessCountStr(const char *hayStack, size_t hayStackLength,
 
 size_t StringUtil::memPos(
   const char *string,                  /* search string                     */
-  size_t length,                       /* string length                     */
+  sizeB_t length,                       /* string length                     */
   char   target )                      /* target character                  */
 /*********************************************************************/
 /*  Function:  offset of first occurrence of char in string          */
 /*********************************************************************/
 {
                                          /* while in the string               */
-    for (const char *scan = string; length; length--)
+    for (const char *scan = string; length != 0; length--)
     {
         // if we have a match, return the offset
         if (*scan == target)
@@ -1407,11 +1415,11 @@ size_t StringUtil::memPos(
  *
  * @return The match/nomatch position, or 0 if nothing was found.
  */
-RexxInteger *StringUtil::verify(const char *data, size_t stringLen, RexxString  *ref, RexxString  *option, RexxInteger *_start, RexxInteger *range)
+RexxInteger *StringUtil::verify(const char *data, sizeB_t stringLen, RexxString  *ref, RexxString  *option, RexxInteger *_start, RexxInteger *range)
 {
     // get the reference string information
     ref = stringArgument(ref, ARG_ONE);
-    size_t referenceLen = ref->getLength();
+    sizeB_t referenceLen = ref->getBLength();
                                          /* get the option, default 'Nomatch' */
     char opt = optionalOptionArgument(option, VERIFY_NOMATCH, ARG_TWO);
     // validate the possibilities
@@ -1422,8 +1430,8 @@ RexxInteger *StringUtil::verify(const char *data, size_t stringLen, RexxString  
     }
 
     /* get starting position             */
-    size_t startPos = optionalPositionArgument(_start, 1, ARG_THREE);
-    size_t stringRange = optionalLengthArgument(range, stringLen - startPos + 1, ARG_FOUR);
+    sizeB_t startPos = optionalPositionArgument(_start, 1, ARG_THREE);
+    sizeB_t stringRange = optionalLengthArgument(range, size_v(stringLen - startPos + 1), ARG_FOUR);
     if (startPos > stringLen)            /* beyond end of string?             */
     {
         return IntegerZero;              /* couldn't find it                  */
@@ -1457,7 +1465,7 @@ RexxInteger *StringUtil::verify(const char *data, size_t stringLen, RexxString  
                     char ch = *current++;          /* get next char                     */
                                                    /* get reference string              */
                     const char *reference = ref->getStringData();
-                    size_t temp = referenceLen;           /* copy the reference length         */
+                    sizeB_t temp = referenceLen;           /* copy the reference length         */
 
                     while (temp != 0)
                     {               /* spin thru reference               */
@@ -1485,7 +1493,7 @@ RexxInteger *StringUtil::verify(const char *data, size_t stringLen, RexxString  
                     char ch = *current++;          /* get next char                     */
                                                    /* get reference string              */
                     const char *reference = ref->getStringData();
-                    size_t temp = referenceLen;           /* copy the reference length         */
+                    sizeB_t temp = referenceLen;           /* copy the reference length         */
 
                     while (temp != 0)
                     {               /* spin thru reference               */
@@ -1515,7 +1523,7 @@ RexxInteger *StringUtil::verify(const char *data, size_t stringLen, RexxString  
  *
  * @return The string containing the indicated subwords.
  */
-RexxString *StringUtil::subWord(const char *data, size_t length, RexxInteger *position, RexxInteger *plength)
+RexxString *StringUtil::subWord(const char *data, sizeB_t length, RexxInteger *position, RexxInteger *plength)
 {
                                          /* convert position to binary        */
     size_t wordPos = positionArgument(position, ARG_ONE);
@@ -1530,7 +1538,7 @@ RexxString *StringUtil::subWord(const char *data, size_t length, RexxInteger *po
     const char *nextSite = NULL;
     const char *word = data;
                                        /* get the first word                */
-    size_t wordLength = nextWord(&word, &length, &nextSite);
+    sizeB_t wordLength = nextWord(&word, &length, &nextSite);
     while (--wordPos > 0 && wordLength != 0)
     {  /* loop until we reach tArget        */
         word = nextSite;                 /* copy the start pointer            */
@@ -1568,7 +1576,7 @@ RexxString *StringUtil::subWord(const char *data, size_t length, RexxInteger *po
  *
  * @return The string value of the word at the indicated position.
  */
-RexxString *StringUtil::word(const char *data, size_t length, RexxInteger *position)
+RexxString *StringUtil::word(const char *data, sizeB_t length, RexxInteger *position)
 {
                                          /* convert position to binary        */
     size_t wordPos = positionArgument(position, ARG_ONE);
@@ -1580,7 +1588,7 @@ RexxString *StringUtil::word(const char *data, size_t length, RexxInteger *posit
     const char *word = data;             /* point to the string               */
     const char *nextSite = NULL;
                                        /* get the first word                */
-    size_t wordLength = nextWord(&word, &length, &nextSite);
+    sizeB_t wordLength = nextWord(&word, &length, &nextSite);
     while (--wordPos > 0 && wordLength != 0)
     {  /* loop until we reach target        */
         word = nextSite;                 /* copy the start pointer            */
@@ -1605,7 +1613,7 @@ RexxString *StringUtil::word(const char *data, size_t length, RexxInteger *posit
  *
  * @return The string value of the word at the indicated position.
  */
-RexxArray *StringUtil::words(const char *data, size_t length)
+RexxArray *StringUtil::words(const char *data, sizeB_t length)
 {
     const char *word = data;             /* point to the string               */
     const char *nextSite = NULL;
@@ -1613,7 +1621,7 @@ RexxArray *StringUtil::words(const char *data, size_t length)
     RexxArray *result = new_array((size_t)0);
     ProtectedObject p(result);
                                        /* get the first word                */
-    size_t wordLength = nextWord(&word, &length, &nextSite);
+    sizeB_t wordLength = nextWord(&word, &length, &nextSite);
     while (wordLength != 0)
     {
         // add to the result array
@@ -1635,7 +1643,7 @@ RexxArray *StringUtil::words(const char *data, size_t length)
  *
  * @return The offset of the start of the indicated word.
  */
-RexxInteger *StringUtil::wordIndex(const char *data, size_t length, RexxInteger *position)
+RexxInteger *StringUtil::wordIndex(const char *data, sizeB_t length, RexxInteger *position)
 {
                                          /* convert count to binary           */
     size_t wordPos = positionArgument(position, ARG_ONE);
@@ -1643,7 +1651,7 @@ RexxInteger *StringUtil::wordIndex(const char *data, size_t length, RexxInteger 
     const char *nextSite = NULL;
 
                                          /* get the first word                */
-    size_t wordLength = nextWord(&word, &length, &nextSite);
+    sizeB_t wordLength = nextWord(&word, &length, &nextSite);
     while (--wordPos > 0 && wordLength != 0)
     {    /* loop until we reach target        */
         word = nextSite;                   /* copy the start pointer            */
@@ -1669,7 +1677,7 @@ RexxInteger *StringUtil::wordIndex(const char *data, size_t length, RexxInteger 
  * @return The length of the given word at the target index.  Returns
  *         0 if no word is found.
  */
-RexxInteger *StringUtil::wordLength(const char *data, size_t length, RexxInteger *position)
+RexxInteger *StringUtil::wordLength(const char *data, sizeB_t length, RexxInteger *position)
 {
     /* convert count to binary           */
     size_t wordPos = positionArgument(position , ARG_ONE);
@@ -1677,7 +1685,7 @@ RexxInteger *StringUtil::wordLength(const char *data, size_t length, RexxInteger
     const char *nextSite = NULL;
 
     /* get the first word                */
-    size_t wordLength = nextWord(&word, &length, &nextSite);
+    sizeB_t wordLength = nextWord(&word, &length, &nextSite);
     while (--wordPos > 0 && wordLength != 0)
     {    /* loop until we reach target        */
         word = nextSite;                   /* copy the start pointer            */
@@ -1698,17 +1706,17 @@ RexxInteger *StringUtil::wordLength(const char *data, size_t length, RexxInteger
  *
  * @return the location of the start of the search phrase.
  */
-RexxInteger *StringUtil::wordPos(const char *data, size_t length, RexxString  *phrase, RexxInteger *pstart)
+RexxInteger *StringUtil::wordPos(const char *data, sizeB_t length, RexxString  *phrase, RexxInteger *pstart)
 {
     phrase = stringArgument(phrase, ARG_ONE);/* get the phrase we are looking for */
-    stringsize_t needleLength = phrase->getLength();       /* get the length also               */
+    stringsizeB_t needleLength = phrase->getBLength();       /* get the length also               */
                                          /* get starting position, the default*/
                                          /* is the first word                 */
     stringsize_t count = optionalPositionArgument(pstart, 1, ARG_TWO);
 
     const char *needle = phrase->getStringData();  /* get friendly pointer              */
     const char *haystack = data;                   /* and the second also               */
-    stringsize_t haystackLength = length;          /* get the haystack length           */
+    stringsizeB_t haystackLength = length;          /* get the haystack length           */
                                                  /* count the words in needle         */
     stringsize_t needleWords = wordCount(needle, needleLength);
                                          /* and haystack                      */
@@ -1725,7 +1733,7 @@ RexxInteger *StringUtil::wordPos(const char *data, size_t length, RexxString  *p
     const char *nextHaystack;
     const char *nextNeedle;
                                        /* point at first word               */
-    stringsize_t haystackWordLength = nextWord(&haystack, &haystackLength, &nextHaystack);
+    stringsizeB_t haystackWordLength = nextWord(&haystack, &haystackLength, &nextHaystack);
                                        /* now skip over count-1             */
     for (stringsize_t i = count - 1; i && haystackWordLength != 0; i--)
     {
@@ -1736,19 +1744,19 @@ RexxInteger *StringUtil::wordPos(const char *data, size_t length, RexxString  *p
                                        /* get number of searches            */
     stringsize_t searchCount = (haystackWords - needleWords - count) + 2;
                                        /* position at first needle          */
-    stringsize_t firstNeedle = nextWord(&needle, &needleLength, &nextNeedle);
+    stringsizeB_t firstNeedle = nextWord(&needle, &needleLength, &nextNeedle);
                                        /* loop for the possible times       */
     for (; searchCount; searchCount--)
     {
-        stringsize_t needleWordLength = firstNeedle;   /* set the length                    */
+        stringsizeB_t needleWordLength = firstNeedle;   /* set the length                    */
         const char *needlePosition = needle;         /* get the start of phrase           */
         const char *haystackPosition = haystack;     /* and the target string loop        */
                                          /* for needlewords                   */
         const char *nextHaystackPtr = nextHaystack;  /* copy nextword information         */
         const char *nextNeedlePtr = nextNeedle;
                                          /* including the lengths             */
-        stringsize_t haystackScanLength = haystackLength;
-        stringsize_t needleScanLength = needleLength;
+        stringsizeB_t haystackScanLength = haystackLength;
+        stringsizeB_t needleScanLength = needleLength;
 
         stringsize_t i;
 
@@ -1804,17 +1812,17 @@ RexxInteger *StringUtil::wordPos(const char *data, size_t length, RexxString  *p
  *
  * @return the location of the start of the search phrase.
  */
-RexxInteger *StringUtil::caselessWordPos(const char *data, size_t length, RexxString  *phrase, RexxInteger *pstart)
+RexxInteger *StringUtil::caselessWordPos(const char *data, sizeB_t length, RexxString  *phrase, RexxInteger *pstart)
 {
     phrase = stringArgument(phrase, ARG_ONE);/* get the phrase we are looking for */
-    stringsize_t needleLength = phrase->getLength();       /* get the length also               */
+    stringsizeB_t needleLength = phrase->getBLength();       /* get the length also               */
                                          /* get starting position, the default*/
                                          /* is the first word                 */
     stringsize_t count = optionalPositionArgument(pstart, 1, ARG_TWO);
 
     const char *needle = phrase->getStringData();  /* get friendly pointer              */
     const char *haystack = data;                   /* and the second also               */
-    stringsize_t haystackLength = length;          /* get the haystack length           */
+    stringsizeB_t haystackLength = length;          /* get the haystack length           */
                                                  /* count the words in needle         */
     stringsize_t needleWords = wordCount(needle, needleLength);
                                          /* and haystack                      */
@@ -1831,7 +1839,7 @@ RexxInteger *StringUtil::caselessWordPos(const char *data, size_t length, RexxSt
     const char *nextHaystack;
     const char *nextNeedle;
                                        /* point at first word               */
-    stringsize_t haystackWordLength = nextWord(&haystack, &haystackLength, &nextHaystack);
+    stringsizeB_t haystackWordLength = nextWord(&haystack, &haystackLength, &nextHaystack);
                                        /* now skip over count-1             */
     for (stringsize_t i = count - 1; i && haystackWordLength != 0; i--)
     {
@@ -1842,19 +1850,19 @@ RexxInteger *StringUtil::caselessWordPos(const char *data, size_t length, RexxSt
                                        /* get number of searches            */
     stringsize_t searchCount = (haystackWords - needleWords - count) + 2;
                                        /* position at first needle          */
-    stringsize_t firstNeedle = nextWord(&needle, &needleLength, &nextNeedle);
+    stringsizeB_t firstNeedle = nextWord(&needle, &needleLength, &nextNeedle);
                                        /* loop for the possible times       */
     for (; searchCount; searchCount--)
     {
-        stringsize_t needleWordLength = firstNeedle;   /* set the length                    */
+        stringsizeB_t needleWordLength = firstNeedle;   /* set the length                    */
         const char *needlePosition = needle;         /* get the start of phrase           */
         const char *haystackPosition = haystack;     /* and the target string loop        */
                                          /* for needlewords                   */
         const char *nextHaystackPtr = nextHaystack;  /* copy nextword information         */
         const char *nextNeedlePtr = nextNeedle;
                                          /* including the lengths             */
-        stringsize_t haystackScanLength = haystackLength;
-        stringsize_t needleScanLength = needleLength;
+        stringsizeB_t haystackScanLength = haystackLength;
+        stringsizeB_t needleScanLength = needleLength;
 
         stringsize_t i;
 

@@ -43,11 +43,10 @@
 #ifndef M17N_CHARSET_H_GUARD
 #define M17N_CHARSET_H_GUARD
 
-
-#include "m17n/m17n_encoding.h"
-#include "m17n/m17n_cclass.h"
+#include "rexx.h"
 
 class CHARSET;
+class ENCODING;
 class IRexxString;
 class RexxString;
 
@@ -114,57 +113,29 @@ void m17n_register_charset_converter(
 
 class CHARSET {
 public:
-    virtual RexxString * get_graphemes(RexxString *src, wholenumber_t offset, wholenumber_t count) = 0;
+    virtual RexxString * get_graphemes(RexxString *src, sizeC_t offset, sizeC_t count) = 0;
     virtual RexxString * convert(RexxString *src) = 0; // JLF : previous name was to_charset (not appropriate)
     virtual RexxString * compose(RexxString *src) = 0;
     virtual RexxString * decompose(RexxString *src) = 0;
-    virtual RexxString * upcase(RexxString *src) = 0;
-    virtual RexxString * downcase(RexxString *src) = 0;
+    virtual RexxString * upcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1) = 0;
+    virtual RexxString * downcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1) = 0;
     virtual RexxString * titlecase(RexxString *src) = 0;
     virtual RexxString * upcase_first(RexxString *src) = 0;
     virtual RexxString * downcase_first(RexxString *src) = 0;
     virtual RexxString * titlecase_first(RexxString *src) = 0;
     virtual wholenumber_t compare(IRexxString *lhs, IRexxString *rhs) = 0;
-    virtual wholenumber_t index(IRexxString *src, IRexxString *search_string, wholenumber_t offset) = 0;
-    virtual wholenumber_t rindex(IRexxString *src, IRexxString *search_string, wholenumber_t offset) = 0;
+    virtual sizeC_t index(IRexxString *src, IRexxString *search_string, sizeC_t offset) = 0;
+    virtual sizeC_t rindex(IRexxString *src, IRexxString *search_string, sizeC_t offset) = 0;
     virtual wholenumber_t validate(IRexxString *src) = 0;
-    virtual wholenumber_t is_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset) = 0;
-    virtual wholenumber_t find_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset, wholenumber_t count) = 0;
-    virtual wholenumber_t find_not_cclass(wholenumber_t, IRexxString *src, wholenumber_t offset, wholenumber_t count) = 0;
-    virtual RexxString * string_from_codepoint(wholenumber_t codepoint) = 0;
+    virtual wholenumber_t is_cclass(wholenumber_t, IRexxString *src, sizeC_t offset) = 0;
+    virtual sizeC_t find_cclass(wholenumber_t, IRexxString *src, sizeC_t offset, sizeC_t count) = 0;
+    virtual sizeC_t find_not_cclass(wholenumber_t, IRexxString *src, sizeC_t offset, sizeC_t count) = 0;
+    virtual RexxString * string_from_codepoint(codepoint_t codepoint) = 0;
 
     wholenumber_t number;
     const char *name;
     ENCODING *preferred_encoding;
 };
-
-#define CHARSET_GET_GRAPHEMES(source, offset, count) ((source)->getCharset())->get_graphemes((source), (offset), (count))
-#define CHARSET_TO_UNICODE(source, dest) ((source)->getCharset())->to_unicode((source), (dest)) /* JLF deprecated */
-#define CHARSET_COMPOSE(source) ((source)->getCharset())->compose((source))
-#define CHARSET_DECOMPOSE(source) ((source)->getCharset())->decompose((source))
-#define CHARSET_UPCASE(source) ((source)->getCharset())->upcase((source))
-#define CHARSET_DOWNCASE(source) ((source)->getCharset())->downcase((source))
-#define CHARSET_TITLECASE(source) ((source)->getCharset())->titlecase((source))
-#define CHARSET_UPCASE_FIRST(source) ((source)->getCharset())->upcase_first((source))
-#define CHARSET_DOWNCASE_FIRST(source) ((source)->getCharset())->downcase_first((source))
-#define CHARSET_TITLECASE_FIRST(source) ((source)->getCharset())->titlecase_first((source))
-#define CHARSET_COMPARE(lhs, rhs) ((CHARSET *)(lhs)->getCharset())->compare((lhs), (rhs))
-#define CHARSET_INDEX(source, search, offset) ((source)->getCharset())->index((source), (search), (offset))
-#define CHARSET_RINDEX(source, search, offset) ((source)->getCharset())->rindex((source), (search), (offset))
-#define CHARSET_VALIDATE(source) ((source)->getCharset())->validate((source))
-#define CHARSET_IS_CCLASS(flags, source, offset) ((source)->getCharset())->is_cclass((flags), (source), (offset))
-#define CHARSET_FIND_CCLASS(flags, source, offset, count) ((source)->getCharset())->find_cclass((flags), (source), (offset), (count))
-#define CHARSET_FIND_NOT_CCLASS(flags, source, offset, count) ((source)->getCharset())->find_not_cclass((flags), (source), (offset), (count))
-#define CHARSET_GET_PREFERRED_ENCODING(source) ((source)->getCharset())->preferred_encoding
-
-#define CHARSET_ENCODE(source) ((source)->getEncoding())->encode((source)) /* JLF previous name was CHARSET_TO_ENCODING (not appropriate) */
-#define CHARSET_GET_CODEPOINT(source, offset) ((source)->getEncoding())->get_codepoint((source), (offset))
-#define CHARSET_GET_BYTE(source, offset) ((source)->getEncoding())->get_byte((source), (offset))
-#define CHARSET_SET_BYTE(source, offset, value) ((source)->getEncoding())->set_byte((source), (offset), (value))
-#define CHARSET_GET_CODEPOINTS(source, offset, count) ((source)->getEncoding())->get_codepoints((source), (offset), (count))
-#define CHARSET_GET_BYTES(source, offset, count) ((source)->getEncoding())->get_bytes((source), (offset), (count))
-#define CHARSET_CODEPOINTS(source) ((source)->getEncoding())->codepoints((source))
-#define CHARSET_BYTES(source) ((source)->getEncoding())->bytes((source))
 
 
 #endif /* M17N_CHARSET_H_GUARD */

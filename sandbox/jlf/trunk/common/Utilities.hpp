@@ -40,7 +40,9 @@
 #ifndef Included_Utilities
 #define Included_Utilities
 
+#include <rexx.h>
 #include <sys/types.h>
+#include <stdarg.h>
 
 class Utilities
 {
@@ -49,8 +51,8 @@ public:
     static int memicmp(const void *opt1, const void *opt2, size_t len);
     static void strupper(char *str);
     static void strlower(char *str);
-    static const char *strnchr(const char *, size_t n, char ch);
-    static const char *locateCharacter(const char *s, const char *set, size_t l);
+    static const char *strnchr(const char *, sizeB_t n, char ch);
+    static const char *locateCharacter(const char *s, const char *set, sizeB_t l);
     static int vsnprintf(char *buffer, size_t count, const char *format, va_list args);
     static int snprintf(char *buffer, size_t count, const char *format, ...);
 };

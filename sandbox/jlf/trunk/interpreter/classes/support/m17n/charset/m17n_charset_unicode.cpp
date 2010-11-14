@@ -79,8 +79,8 @@ This file implements the charset functions for unicode data
 
 /*
 
-=item C<static RexxString * get_graphemes(RexxString *src, wholenumber_t
-offset, wholenumber_t count)>
+=item C<static RexxString * get_graphemes(RexxString *src, sizeC_t
+offset, sizeC_t count)>
 
 Gets the graphemes from RexxString C<src> starting at C<offset>. Gets
 C<count> graphemes total.
@@ -90,7 +90,7 @@ C<count> graphemes total.
 */
 
 RexxString *
-CHARSET_UNICODE::get_graphemes(RexxString *src, wholenumber_t offset, wholenumber_t count)
+CHARSET_UNICODE::get_graphemes(RexxString *src, sizeC_t offset, sizeC_t count)
 {
     return ENCODING_GET_CODEPOINTS(src, offset, count);
 }
@@ -211,9 +211,9 @@ Throws an exception if ICU is not installed.
 */
 
 RexxString*
-CHARSET_UNICODE::upcase(RexxString *src)
+CHARSET_UNICODE::upcase(RexxString *src, ssizeC_t start, ssizeC_t length)
 {
-    if (src->getBLength()  == src->getCLength()
+    if (src->getBLength()  == size_v(src->getCLength())
             && src->getEncoding() == m17n_utf8_encoding_ptr) {
         return m17n_ascii_charset_ptr->upcase(src);
     }
@@ -304,9 +304,9 @@ Throws an exception if ICU is not installed.
 */
 
 RexxString*
-CHARSET_UNICODE::downcase(RexxString *src)
+CHARSET_UNICODE::downcase(RexxString *src, ssizeC_t start, ssizeC_t length)
 {
-    if (src->getBLength()  == src->getCLength()
+    if (src->getBLength()  == size_v(src->getCLength())
             && src->getEncoding() == m17n_utf8_encoding_ptr) {
         return m17n_ascii_charset_ptr->downcase(src);
     }
@@ -523,7 +523,7 @@ wholenumber_t
 CHARSET_UNICODE::compare(IRexxString *lhs, IRexxString *rhs)
 {
     String_iter l_iter, r_iter;
-    wholenumber_t min_len, l_len, r_len;
+    sizeC_t min_len, l_len, r_len;
 
     /* TODO make optimized equal - strings are equal length then already */
     STRING_ITER_INIT(&l_iter);
@@ -535,8 +535,8 @@ CHARSET_UNICODE::compare(IRexxString *lhs, IRexxString *rhs)
     min_len = l_len > r_len ? r_len : l_len;
 
     while (l_iter.charpos < min_len) {
-        const wholenumber_t cl = STRING_ITER_GET_AND_ADVANCE(lhs, &l_iter);
-        const wholenumber_t cr = STRING_ITER_GET_AND_ADVANCE(rhs, &r_iter);
+        const codepoint_t cl = STRING_ITER_GET_AND_ADVANCE(lhs, &l_iter);
+        const codepoint_t cr = STRING_ITER_GET_AND_ADVANCE(rhs, &r_iter);
 
         if (cl != cr)
             return cl < cr ? -1 : 1;
@@ -554,8 +554,8 @@ CHARSET_UNICODE::compare(IRexxString *lhs, IRexxString *rhs)
 
 /*
 
-=item C<wholenumber_t mixed_cs_index(IRexxString *src, IRexxString
-*search_string, wholenumber_t offset)>
+=item C<sizeC_t mixed_cs_index(IRexxString *src, IRexxString
+*search_string, sizeC_t offset)>
 
 Searches for the first instance of IRexxString C<search> in IRexxString C<src>.
 returns the position where the substring is found if it is indeed found.
@@ -565,9 +565,9 @@ Returns -1 otherwise.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_UNICODE::index(IRexxString *src,
-        IRexxString *search_string, wholenumber_t offset)
+        IRexxString *search_string, sizeC_t offset)
 {
     return mixed_cs_index(src, search_string, offset);
 }
@@ -575,8 +575,8 @@ CHARSET_UNICODE::index(IRexxString *src,
 
 /*
 
-=item C<static wholenumber_t cs_rindex(IRexxString *src, IRexxString
-*search_string, wholenumber_t offset)>
+=item C<static sizeC_t cs_rindex(IRexxString *src, IRexxString
+*search_string, sizeC_t offset)>
 
 Finds the last index of substring C<search_string> in IRexxString C<src>,
 starting from C<offset>. Not implemented.
@@ -585,9 +585,9 @@ starting from C<offset>. Not implemented.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_UNICODE::rindex(IRexxString *src,
-        IRexxString *search_string, wholenumber_t offset)
+        IRexxString *search_string, sizeC_t offset)
 {
     /* TODO: https://trac.parrot.org/parrot/wiki/StringsTasklist Implement this. */
     UNIMPL;
@@ -609,11 +609,11 @@ wholenumber_t
 CHARSET_UNICODE::validate(IRexxString *src)
 {
     String_iter iter;
-    const wholenumber_t length = src->getCLength();
+    const sizeC_t length = src->getCLength();
 
     STRING_ITER_INIT(&iter);
     while (iter.charpos < length) {
-        const wholenumber_t codepoint = STRING_ITER_GET_AND_ADVANCE(src, &iter);
+        const codepoint_t codepoint = STRING_ITER_GET_AND_ADVANCE(src, &iter);
         /* Check for Unicode non-characters */
         if (codepoint >= 0xfdd0
         && (codepoint <= 0xfdef || (codepoint & 0xfffe) == 0xfffe)
@@ -627,7 +627,7 @@ CHARSET_UNICODE::validate(IRexxString *src)
 
 /*
 
-=item C<static int u_iscclass(wholenumber_t codepoint, wholenumber_t flags)>
+=item C<static int u_iscclass(codepoint_t codepoint, wholenumber_t flags)>
 
 Returns Boolean.
 
@@ -636,7 +636,7 @@ Returns Boolean.
 */
 
 static int
-u_iscclass(wholenumber_t codepoint, wholenumber_t flags)
+u_iscclass(codepoint_t codepoint, wholenumber_t flags)
 {
 #if defined(HAVE_ICU)
             /* XXX which one
@@ -723,7 +723,7 @@ u_iscclass(wholenumber_t codepoint, wholenumber_t flags)
 /*
 
 =item C<static wholenumber_t is_cclass(wholenumber_t flags, IRexxString *src,
-wholenumber_t offset)>
+sizeC_t offset)>
 
 Returns Boolean.
 
@@ -732,11 +732,11 @@ Returns Boolean.
 */
 
 wholenumber_t
-CHARSET_UNICODE::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset)
+CHARSET_UNICODE::is_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset)
 {
-    wholenumber_t codepoint;
+    codepoint_t codepoint;
 
-    if (offset >= (wholenumber_t) src->getCLength())
+    if (offset >= src->getCLength())
         return 0;
 
     codepoint = ENCODING_GET_CODEPOINT(src, offset);
@@ -750,8 +750,8 @@ CHARSET_UNICODE::is_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t 
 
 /*
 
-=item C<static wholenumber_t find_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+=item C<static sizeC_t find_cclass(wholenumber_t flags, IRexxString
+*src, sizeC_t offset, sizeC_t count)>
 
 Find a character in the given character class.
 
@@ -759,17 +759,17 @@ Find a character in the given character class.
 
 */
 
-wholenumber_t
-CHARSET_UNICODE::find_cclass(wholenumber_t flags, IRexxString *src, wholenumber_t offset, wholenumber_t count)
+sizeC_t
+CHARSET_UNICODE::find_cclass(wholenumber_t flags, IRexxString *src, sizeC_t offset, sizeC_t count)
 {
     String_iter iter;
-    wholenumber_t     codepoint;
-    wholenumber_t     end = offset + count;
+    codepoint_t     codepoint;
+    sizeC_t     end = offset + count;
 
     STRING_ITER_INIT(&iter);
     STRING_ITER_SET_POSITION(src, &iter, offset);
 
-    end = (wholenumber_t) src->getCLength() < end ? src->getCLength() : end;
+    end = src->getCLength() < end ? src->getCLength() : end;
 
     while (iter.charpos < end) {
         codepoint = STRING_ITER_GET_AND_ADVANCE(src, &iter);
@@ -790,7 +790,7 @@ CHARSET_UNICODE::find_cclass(wholenumber_t flags, IRexxString *src, wholenumber_
 /*
 
 =item C<static wholenumber_t find_not_cclass(wholenumber_t flags, IRexxString
-*src, wholenumber_t offset, wholenumber_t count)>
+*src, sizeC_t offset, sizeC_t count)>
 
 Returns C<wholenumber_t>.
 
@@ -798,26 +798,26 @@ Returns C<wholenumber_t>.
 
 */
 
-wholenumber_t
+sizeC_t
 CHARSET_UNICODE::find_not_cclass(wholenumber_t flags, IRexxString *src,
-        wholenumber_t offset, wholenumber_t count)
+        sizeC_t offset, sizeC_t count)
 {
     String_iter iter;
-    wholenumber_t     codepoint;
-    wholenumber_t     end = offset + count;
+    codepoint_t     codepoint;
+    sizeC_t     end = offset + count;
     int         bit;
 
-    if (offset > (wholenumber_t) src->getCLength()) {
+    if (offset > src->getCLength()) {
         /* XXX: Throw in this case? */
         return offset + count;
     }
 
     STRING_ITER_INIT(&iter);
 
-    if (offset)
+    if (offset != 0)
         STRING_ITER_SET_POSITION(src, &iter, offset);
 
-    end = (wholenumber_t) src->getCLength() < end ? src->getCLength() : end;
+    end = src->getCLength() < end ? src->getCLength() : end;
 
     if (flags == enum_cclass_any)
         return end;
@@ -843,7 +843,7 @@ CHARSET_UNICODE::find_not_cclass(wholenumber_t flags, IRexxString *src,
 
 /*
 
-=item C<static RexxString * string_from_codepoint(wholenumber_t codepoint)>
+=item C<static RexxString * string_from_codepoint(codepoint_t codepoint)>
 
 Returns a one-codepoint string for the given codepoint.
 
@@ -852,7 +852,7 @@ Returns a one-codepoint string for the given codepoint.
 */
 
 RexxString *
-CHARSET_UNICODE::string_from_codepoint(wholenumber_t codepoint)
+CHARSET_UNICODE::string_from_codepoint(codepoint_t codepoint)
 {
     String_iter    iter;
     size_t capacity = m17n_unicode_charset_ptr->preferred_encoding->max_bytes_per_codepoint;

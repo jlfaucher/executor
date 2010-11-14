@@ -69,12 +69,12 @@ bool SystemInterpreter::valueFunction(
   if (Selector->strCompare(SELECTOR)) {/* selector ENVIRONMENT?             */
 
     /* get the size of the environment variable and allocate buffer         */
-    dwSize = GetEnvironmentVariable(Name->getStringData(), NULL, 0);
+    dwSize = GetEnvironmentVariable(Name->getStringData(), NULL, 0); // todo m17n : works only with byte char because, here, the "A" function is called
     if (dwSize)
     {
-      OldValue = (char *) SystemInterpreter::allocateResultMemory(dwSize);
+      OldValue = (char *) SystemInterpreter::allocateResultMemory(size_t(dwSize)); // todo m17n : dwSize is a number of chars. If wide char, then not good...
                                          /* scan for the variable           */
-      if (OldValue && GetEnvironmentVariable(Name->getStringData(),OldValue,dwSize) )
+      if (OldValue && GetEnvironmentVariable(Name->getStringData(),OldValue,size_t(dwSize)) ) // todo m17n : dwSize is a number of chars. If wide char, then not good...
       {
                                          /* have a value already?           */
         result = (RexxObject*) new_string(OldValue);
