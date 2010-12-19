@@ -35,14 +35,7 @@ dnl
 
 dnl Process this file with autoconf to produce a configure script
 AC_INIT(oorexx, 4.2.0)
-AC_PREFIX_DEFAULT(/opt/ooRexx)
-
-dnl This is to fix a problem with distribution prior to Fedora 7. Fedora 7
-dnl requires the share/man location, not just man. Prior distributions didn't
-dnl care that the share was left out but Fedora 7 absolutely requires it. So to
-dnl make things portable we redefine mandir to the correct value so that all
-dnl older distributions are happy.
-mandir="\$(prefix)/share/man"
+AC_PREFIX_DEFAULT(/usr)
 
 PACKAGE=ooRexx
 VERSION=4.2.0
@@ -430,6 +423,8 @@ AC_CONFIG_FILES([
 	platform/unix/debian/postinst
 	rexxapi/server/platform/unix/rxapid
         samples/Makefile
+        samples/native.api/Makefile
+        samples/native.api/call.example/Makefile
         samples/unix/Makefile
         samples/unix/api/Makefile
         samples/unix/api/callrexx/Makefile
@@ -450,23 +445,23 @@ AC_CONFIG_FILES([
         samples/windows/ole/adsi/Makefile
         samples/windows/ole/apps/Makefile
         samples/windows/ole/methinfo/Makefile
-        samples/windows/ole/oleinfo/Makefile
         samples/windows/ole/wmi/Makefile
-        samples/windows/ole/wmi/sysinfo/Makefile
         samples/windows/oodialog/Makefile
         samples/windows/oodialog/bmp/Makefile
         samples/windows/oodialog/controls/Makefile
         samples/windows/oodialog/examples/Makefile
         samples/windows/oodialog/examples/resources/Makefile
+        samples/windows/oodialog/oleinfo/Makefile
         samples/windows/oodialog/ooRexxTry/Makefile
         samples/windows/oodialog/ooRexxTry/doc/Makefile
         samples/windows/oodialog/rc/Makefile
         samples/windows/oodialog/res/Makefile
         samples/windows/oodialog/simple/Makefile
+        samples/windows/oodialog/sysinfo/Makefile
         samples/windows/oodialog/tutorial/Makefile
         samples/windows/oodialog/wav/Makefile
+        samples/windows/oodialog/winsystem/Makefile
         samples/windows/rexutils/Makefile
-        samples/windows/winsystem/Makefile
         samples/windows/wsh/Makefile
         xsl.sh
         platform/unix/oorexx-config

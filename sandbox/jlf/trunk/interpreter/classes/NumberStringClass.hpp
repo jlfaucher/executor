@@ -93,6 +93,7 @@
    public:
     void         *operator new(size_t, size_t);
     inline void  *operator new(size_t size, void *ptr) {return ptr;}
+    inline void   operator delete(void *) { ; }
     inline void   operator delete(void *, size_t) { }
     inline void   operator delete(void *, void *) { }
 
@@ -153,6 +154,7 @@
     bool        isInstanceOf(RexxClass *);
     RexxMethod   *instanceMethod(RexxString *);
     RexxSupplier *instanceMethods(RexxClass *);
+    RexxClass  *classObject();
     inline RexxNumberString *checkNumber(size_t digits, bool rounding)
     {
      if (this->length > digits)            /* is the length larger than digits()*/

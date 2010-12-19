@@ -114,7 +114,7 @@ class RexxNativeActivation;
 
   RexxString *tail(RexxArray *, size_t);
   RexxObject *newRexx(RexxObject **, size_t);
-  RexxObject *evaluateCompoundVariableValue(RexxActivation *context, RexxCompoundTail *resolved_tail);
+  RexxObject *evaluateCompoundVariableValue(RexxActivation *context, RexxString *stemVariableName, RexxCompoundTail *resolved_tail);
   RexxObject *getCompoundVariableValue(RexxCompoundTail *resolved_tail);
   RexxObject *getCompoundVariableRealValue(RexxCompoundTail *resolved_tail);
   RexxObject *realCompoundVariableValue(RexxCompoundTail *resolved_tail);
@@ -127,10 +127,13 @@ class RexxNativeActivation;
   void        setValue(RexxObject *value);
   RexxArray  *tailArray();
   RexxCompoundElement *nextVariable(RexxNativeActivation *activation);
-  RexxObject *handleNovalue(RexxActivation *context, RexxString *name, RexxCompoundElement *variable);
+  RexxObject *handleNovalue(RexxActivation *context, RexxString *name, RexxObject *defaultValue, RexxCompoundElement *variable);
   void        expose(RexxCompoundElement *variable);
   bool        sort(RexxString *prefix, int order, int type, size_t start, size_t end, size_t firstcol, size_t lastcol);
-  void        quickSort(SortData *sd, int (*comparator)(SortData *, RexxString *, RexxString *), RexxString **strings, size_t left, size_t right);
+  void        mergeSort(SortData *sd, int (*comparator)(SortData *, RexxString *, RexxString *), RexxString **strings, RexxString **working, size_t left, size_t right);
+  void        merge(SortData *sd, int (*comparator)(SortData *, RexxString *, RexxString *), RexxString **strings, RexxString **working, size_t left, size_t mid, size_t right);
+  size_t      find(SortData *sd, int (*comparator)(SortData *, RexxString *, RexxString *), RexxString **strings, RexxString *val, int bnd, size_t left, size_t right);
+  void        arraycopy(RexxString **source, size_t start, RexxString **target, size_t index, size_t count);
 
   inline bool compoundVariableExists(RexxCompoundTail *resolved_tail) { return realCompoundVariableValue(resolved_tail) != OREF_NULL; }
   inline RexxString *getName() { return stemName; }

@@ -87,6 +87,7 @@ extern int32_t           stopDialog(pCPlainBaseDialog, RexxThreadContext *c);
 extern int32_t           delDialog(pCPlainBaseDialog, RexxThreadContext *c);
 extern BOOL              getDialogIcons(pCPlainBaseDialog, INT, UINT, PHANDLE, PHANDLE);
 extern bool              isYes(const char *s);
+extern bool              isPointerString(const char *string);
 extern void *            string2pointer(const char *string);
 extern void *            string2pointer(RexxMethodContext *c, RexxStringObject string);
 extern void *            string2pointer(RexxThreadContext *c, RexxObjectPtr ptr);
@@ -174,7 +175,10 @@ extern bool validControlDlg(RexxMethodContext *c, pCPlainBaseDialog pcpbd);
 extern void setFontAttrib(RexxThreadContext *c, pCPlainBaseDialog pcpbd);
 
 // These functions are defined in oodPropertySheet.cpp
-void abortPropertySheet(pCPropertySheetDialog pcpsd, HWND hDlg, DlgProcErrType t);
+extern void abortPropertySheet(pCPropertySheetDialog pcpsd, HWND hDlg, DlgProcErrType t);
+
+// These functions are defined in oodViewControls.cpp
+extern bool isInReportView(HWND hList);
 
 // Shared button stuff.
 typedef enum {push, check, radio, group, owner, notButton} BUTTONTYPE, *PBUTTONTYPE;

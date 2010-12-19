@@ -2155,6 +2155,15 @@ inline bool isInIconView(HWND hList)
 }
 
 /**
+ * Checks if the list view is in report view.
+ */
+bool isInReportView(HWND hList)
+{
+    uint32_t style = (uint32_t)GetWindowLong(hList, GWL_STYLE);
+    return ((style & LVS_TYPEMASK) == LVS_REPORT);
+}
+
+/**
  * Returns the index of the first selected item in the list view, or -1 if no
  * items are selected.
  */
@@ -2275,7 +2284,7 @@ static uint32_t changeStyle(RexxMethodContext *c, pCDialogControl pCSelf, CSTRIN
     uint32_t newStyle = 0;
     if ( remove )
     {
-        newStyle &= ~listViewStyle(_style, 0);
+        newStyle = oldStyle & ~listViewStyle(_style, 0);
         if ( _additionalStyle != NULL )
         {
             newStyle = listViewStyle(_additionalStyle, newStyle);

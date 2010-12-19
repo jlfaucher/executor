@@ -40,7 +40,7 @@ AUTOMAKE_OPTIONS	= foreign dist-zip
 
 MAINTAINERCLEANFILES 	= Makefile.in aclocal.m4 configure config.guess config.sub \
 			depcomp install-sh ltmain.sh missing mkinstalldirs config.h.in \
-			compile @REXXCAT@ rexx.img \
+			compile @REXXCAT@ rexx.img ylwrap \
 			stamp-h.in cscope.files cscope.out $(distdir).tar.gz
 
 DIST_SUBDIRS 		= samples
@@ -1152,14 +1152,17 @@ package:
 	./rexx $(build_os_platform_dir)/makepkg.rex @PACKAGETYPE@ $(ORX_MAJOR).$(ORX_MINOR).$(ORX_MOD_LVL) $(target) $(prefix) $(DESTDIR)
 
 rpm: dist
-	rm -fr $(top_srcdir)/rpm
-	mkdir rpm
-	mkdir rpm/BUILD
-	mkdir rpm/RPMS
-	mkdir rpm/SOURCES
-	mkdir rpm/SPECS
-	mkdir rpm/SRPMS
-	rpmbuild -ba $(build_os_platform_dir)/oorexx.spec < /dev/null;
+	- rm -rf ~/rpmbuild
+	- mkdir ~/rpmbuild
+	- mkdir ~/rpmbuild/BUILD
+	- mkdir ~/rpmbuild/BUILDROOT
+	- mkdir ~/rpmbuild/RPMS
+	- mkdir ~/rpmbuild/SOURCES
+	- mkdir ~/rpmbuild/SPECS
+	- mkdir ~/rpmbuild/SRPMS
+	cp ooRexx*.tar.gz ~/rpmbuild/SOURCES
+	cp platform/unix/oorexx.spec ~/rpmbuild/SPECS
+	rpmbuild -ba --buildroot ~/rpmbuild/BUILDROOT $(build_os_platform_dir)/oorexx.spec < /dev/null;
 
 deb:
 	rm -fr $(top_srcdir)/debian

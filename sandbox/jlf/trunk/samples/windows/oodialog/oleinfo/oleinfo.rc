@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -36,23 +36,82 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /****************************************************************************
-sysinfo.rc
+oleview.rc
 
 produced by IBM Object REXX Resource Workshop
 *****************************************************************************/
 
 #include <windows.h>
 
+#define BITMAP_2	2
+#define DIALOG_5	5
+#define DIALOG_4	4
+#define HelpDialog	4714
+#define DIALOG_3	3
+#define ResultDialog	4713
+#define DIALOG_2	2
+#define RegistryDialog	4712
 #define DIALOG_1	1
+#define MainDialog	4711
 
-4711 DIALOG 80, 40, 213, 201
+MainDialog DIALOG 6, 15, 294, 318
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "System Information"
+CAPTION "Open Object Rexx OLE/ActiveX Object Viewer"
 FONT 8, "MS Sans Serif"
 {
- DEFPUSHBUTTON "OK", IDOK, 158, 180, 50, 14
- LTEXT "System Component", -1, 4, 6, 68, 12
- COMBOBOX 100, 75, 4, 132, 108, CBS_DROPDOWNLIST | WS_TABSTOP
- LISTBOX 101, 4, 24, 204, 150, LBS_STANDARD | WS_HSCROLL
+ PUSHBUTTON "Exit", 200, 8, 296, 50, 14
+ PUSHBUTTON "Help", IDHELP, 236, 296, 50, 14
+ LTEXT "ProgID", -1, 8, 8, 52, 9
+ LTEXT "Name", -1, 8, 22, 52, 8
+ LTEXT "Documentation", -1, 8, 36, 52, 9
+ EDITTEXT 101, 68, 22, 162, 11, ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_TABSTOP
+ EDITTEXT 102, 68, 36, 162, 11, ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_TABSTOP
+ PUSHBUTTON "Look up", 103, 236, 6, 50, 14
+ GROUPBOX "List of methods, properties and events", 200, 8, 84, 278, 136, BS_GROUPBOX
+ GROUPBOX "Details", 201, 8, 224, 278, 60, BS_GROUPBOX
+ EDITTEXT 105, 72, 236, 208, 11, ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_TABSTOP
+ EDITTEXT 106, 72, 250, 208, 11, ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_TABSTOP
+ LTEXT "Method signature", -1, 12, 236, 58, 9
+ LTEXT "Documentation", -1, 12, 250, 58, 9
+ LTEXT "Show:", -1, 12, 268, 58, 9
+ AUTOCHECKBOX "Types", 107, 72, 268, 32, 9
+ AUTOCHECKBOX "Flags", 108, 116, 268, 36, 9
+ AUTOCHECKBOX "Member ID", 109, 160, 268, 48, 9
+ GROUPBOX "Progress", 202, 8, 52, 278, 28, BS_GROUPBOX
+ CONTROL "Progress", 110, "msctls_progress32", WS_CHILD | WS_VISIBLE, 12, 62, 270, 12
+ CONTROL "", 104, "SysListView32", LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOCOLUMNHEADER | WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 13, 95, 268, 121
+ COMBOBOX 100, 67, 8, 164, 284, CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 }
+
+RegistryDialog DIALOG 6, 15, 198, 219
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Registry Information"
+FONT 8, "MS Sans Serif"
+{
+ DEFPUSHBUTTON "OK", IDOK, 8, 196, 50, 14
+ PUSHBUTTON "Cancel", IDCANCEL, 140, 196, 50, 14
+ LTEXT "ProgIDs from the registry", -1, 8, 8, 96, 12
+ LISTBOX 200, 8, 24, 180, 164, LBS_STANDARD
+ PUSHBUTTON "Search", 201, 74, 196, 50, 14
+}
+ResultDialog DIALOG 6, 15, 251, 219
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Result of method invocation"
+FONT 8, "MS Sans Serif"
+{
+ DEFPUSHBUTTON "OK", IDOK, 100, 196, 50, 14
+ LTEXT "Return Value", -1, 8, 8, 48, 9
+ EDITTEXT 400, 64, 8, 174, 11, ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_TABSTOP
+ GROUPBOX "Out Parameters", 402, 8, 24, 232, 160, BS_GROUPBOX
+ LISTBOX 401, 16, 36, 216, 144, LBS_NOTIFY | WS_BORDER | LBS_USETABSTOPS | WS_BORDER | WS_VSCROLL
+}
+HelpDialog DIALOG 6, 15, 345, 208
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Help"
+FONT 8, "Fixedsys"
+{
+ DEFPUSHBUTTON "OK", IDOK, 290, 188, 50, 14
+ EDITTEXT 500, 4, 7, 336, 176, ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_TABSTOP
+}
+
 

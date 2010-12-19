@@ -12,6 +12,9 @@
 /* 1.06 21Dec07 SN As ooRexx 3.2 has lineend constant - remove discovery     *//*{1.06}*/
 /* 1.07 21Apr08 SN provide stripoption for CSVLineIn                         *//*{1.07}*/
 /* 1.08 23Mar09 SN Bugfix - gratitude to Bill Shipman                        *//*{1.08}*/
+/* 1.09 13Dec10 SN Bugfix - headers should be ignored for write replace      *//*{1.09}*/
+/*              SN Allow Directory as input collection                       *//*{1.09}*/
+/*              SN Stream closes itself on uninit if necesary                */
 /*                                                                           */
 /* ========================================================================= */
 
@@ -60,12 +63,15 @@
 ::Attribute originalRawHeaders    private -- for comparison
 ::Attribute headerLineAbsent      private -- headersexist but absent
 ::Attribute OpenArgs              private -- args to open method
+::Attribute CSVStreamOpen?        private -- is the stream open?
+::Attribute CSVState              private -- if not nil overrides stream state
 ::Attribute values                        -- table for headered i/o
 ::Attribute rawText                       -- copy of last line read
 ::Attribute skipHeaders                   -- switch can be set before open
 ::Attribute lineEnd                       -- string used for line terminations
 ::Attribute Delimiter                     -- separates CSV fields              /*{1.02}*/
 ::Attribute Qualifier                     -- Surrounds literals                /*{1.02}*/
+::Attribute LastDataError                 -- if bad data detected, what where
 ::Attribute StripOption get               -- optional stripping on lineIn      /*{1.07}*/
 ::Attribute StripOption set                                                    /*{1.07}*/
    expose stripOption                                                          /*{1.07}*/
@@ -91,6 +97,9 @@ self~qualifier          = '"'     /* surrounds literal fields                *//
 self~openArgs           = .nil                                                 /*{1.05}*/
 self~stripOption        = 'N'                                                  /*{1.07}*/
 self~stripChar          = ' '                                                  /*{1.07}*/
+self~CSVStreamOpen?     = .false
+self~lastDataError      = .nil
+self~CSVState           = .nil
 
 self~init:super(parms)                        /* let stream class initialise */
 
@@ -103,10 +112,15 @@ use arg args
 
 self~openArgs = args~translate             /* Close needs to know open basis */
 
-if self~fileHasHeaders = .true             /* read the headers into a table  */
+if self~openargs~wordpos('REPLACE') > 0                                        /*{1.09}*/
+then ignoreCurrentHeaders? = .true                                             /*{1.09}*/
+else ignoreCurrentHeaders? = .false                                            /*{1.09}*/
+
+if self~fileHasHeaders = .true             /* read the headers into a table  *//*{1.04}*/
 then do
    self~headers = .csvStreamHeader~new           /* blank in case no headers */
-   if self~open:super('read') = 'READY:'
+   if ignoreCurrentHeaders? = .false,                                          /*{1.09}*/
+    , self~open:super('read') = 'READY:'
    then do
       if self~chars > 0
       then do
@@ -128,6 +142,7 @@ then do
 end /* DO */
 
 forward class (super) continue                              /* open the file */
+self~CSVStreamOpen? = .true
 
 if   (args~word(1)~translate \= 'WRITE') , /* move read pointer past headers */
 &    (self~fileHasHeaders     = .true  ) ,
@@ -172,13 +187,26 @@ do until (inLiteral  = .false) ,
    i = 0                                                                       /*{1.05}*/
    do forever                                                                  /*{1.05}*/
       i = i + 1                                                                /*{1.05}*/
-      if i > textLength then leave                                             /*{1.05}*/
+      if i > textLength
+      then do
+         if fieldText \= ''
+         then do  
+            self~csvState = 'ERROR'
+            self~LastDataError = 'Bad CSV data field' fieldno '- unmatched qualifier ('||blip||')'
+         end /* DO */
+         leave                                                                 /*{1.05}*/
+      end
                                                                                /*{1.05}*/
       select
          when text~matchChar(i,qualifier)                                      /*{1.05}*/
             then do
                inLiteral = \inLiteral                                          /*{1.05}*/
                fieldText = fieldText || qualifier                              /*{1.05}*/
+               if \fieldText~matchChar(1,qualifier)
+               then do
+                  self~csvState = 'ERROR'
+                  self~LastDataError = 'Bad CSV data field' fieldno '- qualifier ('||blip||') present but is not first character'
+               end
             end /* DO */
 
          when (text~matchchar(i,delimiter) ,                                   /*{1.05}*/
@@ -197,6 +225,12 @@ do until (inLiteral  = .false) ,
                   fieldText = fieldText~substr(2, fieldText~length - 2)
                   literalFields~put(fieldNo)
                end /* Do */
+
+               if fieldText~countstr(blip) // 2 \= 0
+               then do 
+                  self~csvState = 'ERROR'
+                  self~LastDataError = 'Bad CSV data field' fieldno '- unmatched qualifier ('||blip||') found'
+               end /* DO */
 
                /* '"' are represented in text as '""' */
                fieldText = fieldText~changeStr(blipBlip,blip)                  /*{1.02}*/
@@ -253,17 +287,20 @@ then do
    self~close
    return
 end /* DO */
+else if self~openArgs = .nil
+     then self~open                                                            /*{1.05}*/
 
 parse upper value data~class~string with . dataCollectionType .                /*{1.04}*/
 
 select                                                                         /*{1.04}*/
    /* if we have been passed a table or stem, convert it to an array */
    when (self~fileHasHeaders = .true                       ),
-   &    .set~of('TABLE','STEM')~hasIndex(dataCollectionType)                   /*{1.04}*/
+   &    .set~of('TABLE','STEM','DIRECTORY')~hasIndex(dataCollectionType)       /*{1.09}*/
    then do
       dataArray = .array~new
       do name over data
          if (name = 0) & (dataCollectionType = 'STEM') then iterate            /*{1.04}*/
+
          column = 0
          do i = 1 to self~headers~last
             if self~headers~field(i)~name = name
@@ -272,12 +309,14 @@ select                                                                         /
                leave
             end /* DO */
          end /* DO */
+
          if column = 0                                /* unregistered column */
          then do
             column = self~headers~last + 1
             self~headers~field(column)~name = name
          end /* DO */
          dataArray[column] = data[name]                                        /*{1.04}*/
+
       end /* DO */
       data = dataArray
    end /* DO */
@@ -339,6 +378,8 @@ return self~lineout(text)
 
 self~close:super
 
+self~CSVStreamOpen? = .false    /* let uninit know it does not need to close */
+
 if self~fileHasHeaders
 then do                                               /* maintain headers    */
    headerText = ''                                    /* prepare header line */
@@ -370,6 +411,23 @@ then do                                               /* maintain headers    */
 end /* DO */
 
 /* ------------------------------------------------------------------------- */
+::method state
+/* ------------------------------------------------------------------------- */
+/* the CSVStream can contribute towards this stream having an error condition*/
+
+  if self~csvState = .nil
+  then Return self~state:super
+  else Return self~csvState
+
+/* ------------------------------------------------------------------------- */
+::method description
+/* ------------------------------------------------------------------------- */
+
+  if self~csvState = .nil
+  then Return self~description:super
+  else return self~csvState||':'||self~lastDataError
+
+/* ------------------------------------------------------------------------- */
 ::method getHeaders
 /* ------------------------------------------------------------------------- */
 return self~Headers~copy
@@ -383,6 +441,13 @@ if newHeaders~class~string \= 'The CSVSTREAMHEADER class'
 then raise syntax 93.948 array (1, "CsvStreamHeader")
 
 self~Headers = newHeaders~copy
+
+/* ------------------------------------------------------------------------- */
+::method uninit
+/* ------------------------------------------------------------------------- */
+/* if the CSVstream has not been closed - close it                           */
+
+if self~CSVStreamOpen? then self~close
 
 /* ========================================================================= */
 ::class CsvStreamHeader

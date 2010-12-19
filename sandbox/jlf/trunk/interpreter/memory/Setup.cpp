@@ -385,8 +385,10 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_INDEX        ,TheArrayBehaviour, CPPM(RexxArray::index), 1);
   defineKernelMethod(CHAR_HASITEM      ,TheArrayBehaviour, CPPM(RexxArray::hasItem), 1);
   defineKernelMethod(CHAR_REMOVEITEM   ,TheArrayBehaviour, CPPM(RexxArray::removeItem), 1);
-  defineKernelMethod(CHAR_SORT         ,TheArrayBehaviour, CPPM(RexxArray::sortRexx), 0);
-  defineKernelMethod(CHAR_SORTWITH     ,TheArrayBehaviour, CPPM(RexxArray::sortWithRexx), 1);
+  // there have been some problems with the quick sort used as the default sort, so map everything
+  // to the stable sort.  The stable sort, in theory, uses more memory, but in practice, this is not true.
+  defineKernelMethod(CHAR_SORT         ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
+  defineKernelMethod(CHAR_SORTWITH     ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
   defineKernelMethod(CHAR_STABLESORT   ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
   defineKernelMethod(CHAR_STABLESORTWITH ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
                                        /* set the scope of the methods to   */
@@ -1046,6 +1048,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_MAKESTRING                   ,TheIntegerBehaviour, CPPM(RexxObject::makeStringRexx), 0);
   defineKernelMethod(CHAR_FORMAT                       ,TheIntegerBehaviour, CPPM(RexxInteger::format), 4);
   defineKernelMethod(CHAR_TRUNC                        ,TheIntegerBehaviour, CPPM(RexxInteger::trunc), 1);
+  defineKernelMethod(CHAR_CLASS                        ,TheIntegerBehaviour, CPPM(RexxInteger::classObject), 0);
 
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
@@ -1111,6 +1114,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_MAKESTRING                   ,TheNumberStringBehaviour, CPPM(RexxObject::makeStringRexx), 0);
   defineKernelMethod(CHAR_FORMAT                       ,TheNumberStringBehaviour, CPPM(RexxNumberString::formatRexx), 4);
   defineKernelMethod(CHAR_TRUNC                        ,TheNumberStringBehaviour, CPPM(RexxNumberString::trunc), 1);
+  defineKernelMethod(CHAR_CLASS                        ,TheNumberStringBehaviour, CPPM(RexxNumberString::classObject), 0);
 
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */

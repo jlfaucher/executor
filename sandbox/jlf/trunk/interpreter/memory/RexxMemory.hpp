@@ -146,6 +146,7 @@ class MemorySegmentPool : public MemorySegmentPoolHeader
  public:
    void          *operator new(size_t size, size_t minSize);
    void          *operator new(size_t size, void *pool) { return pool;}
+   inline void    operator delete(void *) { }
    inline void    operator delete(void *, size_t) { }
    inline void    operator delete(void *, void *) { }
 
@@ -426,7 +427,7 @@ inline RexxArray *new_arrayOfObject(size_t s, size_t c, size_t t)  { return memo
 #define setUpFlatten(type)        \
   {                               \
   size_t newSelf = envelope->currentOffset; \
-  type *newThis = (type *)this;
+  type * volatile newThis = (type *)this;   // NB:  This is declared volatile to avoid optimizer problems.
 
 #define cleanUpFlatten                    \
  }

@@ -881,7 +881,7 @@ bool oodObj2handle(RexxMethodContext *c, RexxObjectPtr obj, void **result, size_
         CSTRING str = c->ObjectToStringValue(obj);
         size_t len = strlen(str);
 
-        if ( (len == 0 || len == 2) || (len == 1 && *str != '0') || toupper(str[1]) != 'X' )
+        if ( (len == 0 || len == 2) || (len == 1 && *str != '0') || (len != 1 && toupper(str[1]) != 'X') )
         {
             goto raise_condition;
         }
@@ -979,6 +979,25 @@ int32_t resolveIconID(RexxMethodContext *c, RexxObjectPtr rxIconID, RexxObjectPt
     }
 
     return (int)id;
+}
+
+/**
+ * Tests if a string is a pointer string.
+ *
+ * Pointer strings are strings representing a pointer, handle, etc..  I.e. in
+ * "0xdd" format. But, this really just tests for hexidecimal format.
+ *
+ * @param string  The string to test.
+ *
+ * @return True or false
+ */
+bool isPointerString(const char *string)
+{
+    if ( string != NULL && strlen(string) > 2 )
+    {
+        return *string == '0' && toupper(string[1]) == 'X' && isxdigit(string[2]);
+    }
+    return false;
 }
 
 /**

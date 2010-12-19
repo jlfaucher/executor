@@ -2239,7 +2239,7 @@ bool RexxActivation::trap(             /* trap a condition                  */
  *
  * @return A value for that variable.
  */
-RexxObject *RexxActivation::handleNovalueEvent(RexxString *name, RexxVariable *variable)
+RexxObject *RexxActivation::handleNovalueEvent(RexxString *name, RexxObject *defaultValue, RexxVariable *variable)
 {
     RexxObject *value = this->novalueHandler(name);
     // If the handler returns anything other than .nil, this is a
@@ -2261,8 +2261,8 @@ RexxObject *RexxActivation::handleNovalueEvent(RexxString *name, RexxVariable *v
         reportNovalue(name);
     }
 
-    // the name is the returned value
-    return name;
+    // the provided default value is the returned value
+    return defaultValue;
 }
 
 
@@ -4089,7 +4089,7 @@ RexxObject *RexxActivation::evaluateLocalCompoundVariable(RexxString *stemName, 
     RexxCompoundTail resolved_tail(this, tail, tailCount);
 
     RexxStem *stem_table = getLocalStem(stemName, index);   /* get the stem entry from this dictionary */
-    RexxObject *value = stem_table->evaluateCompoundVariableValue(this, &resolved_tail);
+    RexxObject *value = stem_table->evaluateCompoundVariableValue(this, stemName, &resolved_tail);
     /* need to trace?                    */
     if (tracingIntermediates())
     {

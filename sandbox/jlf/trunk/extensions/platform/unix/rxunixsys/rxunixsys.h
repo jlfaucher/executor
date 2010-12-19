@@ -60,7 +60,9 @@
 #include <time.h>
 #include <netdb.h>
 #include <wordexp.h>
+#if !defined(AIX)
 #include <alloca.h>
+#endif
 #include <pthread.h>
 #include <errno.h>
 #include <dirent.h>
@@ -70,11 +72,14 @@
 #include <attr/xattr.h>
 #endif
 
-
 /*----------------------------------------------------------------------------*/
 /* Definitions                                                                */
 /*----------------------------------------------------------------------------*/
 
+#if defined(__APPLE__) &&  defined(__MACH__)
+# define stat64 stat
+# define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+#endif
 
 /*----------------------------------------------------------------------------*/
 /* Global variables                                                           */
