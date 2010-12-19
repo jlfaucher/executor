@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+"http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter>
+  <title>Expression evaluation</title>
+
+  <section>
+    <title>Variable</title>
+
+    <para>Reference : <ulink
+    url="http://www.os2site.com/sw/dev/rexx/orexx/variables.txt">http://www.os2site.com/sw/dev/rexx/orexx/variables.txt</ulink></para>
+
+    <section>
+      <title>Basics of how object references work</title>
+
+      <para>A variable in Object Rexx is really just a pointer to an object.
+      When you use a variable, the value of that variable is evaluated to
+      generate a reference to the variable. When you assign a variable, the
+      object reference is assigned to the variable.</para>
+
+      <programlisting><![CDATA[a = 1
+b = a]]></programlisting>
+
+      <para>Variable A points to an instance of a Rexx string with the value
+      "1", and the variable B points to the exact same instance. In fact, the
+      Classic Rexx interpreter implemented its internal storage the same way.
+      Now since Rexx strings are "immutable", there is nothing I can do to
+      change the value of that string to anything other than "1". Now consider
+      this.</para>
+
+      <programlisting><![CDATA[a = .array~new
+b = a]]></programlisting>
+
+      <para>The same principle applies as above. Variables A and B now point to
+      the same instance of a Rexx array. Arrays are not immutable. They have
+      internal state that can be changed. Thus</para>
+
+      <programlisting><![CDATA[a[1] = "Fred"
+say b[1]  -- displays "Fred"]]></programlisting>
+
+      <para>The assignment to a[1] does not change the value of A. It still
+      points to the same array created above. The assignment does change the
+      internal state of the array. Since B points to the same array instance,
+      the change is reflected in the Say statement. Neither variable A nor B was
+      changed in this process, only the array they both point to.</para>
+
+      <para>Now lets extend this to calls.</para>
+
+      <programlisting><![CDATA[c = 1
+call fred a, c
+say a[1] c b[1]   -- displays "George 1 George"
+...
+ 
+fred: procedure
+use arg x, y
+ 
+x[1] = "George"
+y = 2]]></programlisting>
+
+      <para>When you make a call (included method calls), the argument
+      expressions are evaluated from left to right, creating a list of object
+      references that are passed to the call target. So in my example above the
+      array contains two elements, the value of the variable A and value of the
+      variable C. The target routine has no knowledge of where these values came
+      from, it only receives the references.</para>
+
+      <para>The use arg instruction is very simple, it merely assigns each
+      listed variable to it's corresponding object reference. So X points to the
+      same array A and B point to, and Y points to the same string "1" that C
+      points to. USE ARG is functionally equivalent to "x = arg(1)", except for
+      the special behavior that USE ARG has for omitted arguments.</para>
+
+      <para>When I do x[1] = "George", this is just like my example above. The
+      variable X is unchanged, but the internal state of the array it points to
+      is, and this change is seen in the calling routine.</para>
+
+      <para>However, when I make the assignment "y = 2", this replaces the Y's
+      object reference to "1" with a new reference to the string "2". C back in
+      the caller has not been touched, it still points to the string "1", which
+      is reflected in the value that shows up on the Say statement.</para>
+    </section>
+
+    <section>
+      <title>Stems</title>
+
+      <para>A stem VARIABLE is just like a normal variable. It also contains a
+      reference to a Rexx object. Stem VARIABLEs are special, however, as there
+      is only a single type of object that can be assigned to a stem VARIABLE.
+      This single type is a STEM object. Please try to keep in mind there is a
+      difference between the stem OBJECT and the stem VARIABLE you use access to
+      the object. </para>
+
+      <para>You can actually use stem OBJECTS without using stem VARIABLES. For
+      example: </para>
+
+      <programlisting><![CDATA[a = .stem~new("A.")
+a[1] = "Fred"
+say a[1] a[2]  -- Displays "Fred A.2"]]></programlisting>
+
+      <para>is functionally equivalent to</para>
+
+      <programlisting><![CDATA[a.1 = "Fred"
+say a.1 a.2]]></programlisting>
+
+      <para>Any time you use either a stem variable or a compound variable, the
+      stem part is evaluated to return the reference to its referenced stem
+      object. If this is the first time you've ever used this stem VARIABLE,
+      then a STEM object is created and assigned to the variable first. Once the
+      stem OBJECT reference has been returned it is then used are the target for
+      compound variable tail lookups. </para>
+
+      <tip>
+        <para>A frequent topic of discussion on this newsgroup is the question
+        of constant values within a compound variable. Uses such as this</para>
+
+        <programlisting><![CDATA[x.i.name = "Rick"
+x.i.address = "Boston"]]></programlisting>
+
+        <para>a frequent convention tacks a digit on the front to prevent
+        accidental uses of those variables. ie,</para>
+
+        <programlisting><![CDATA[x.i.0name = "Rick"
+x.i.0address = "Boston"]]></programlisting>
+
+        <para>In Object Rexx, you can use literal strings by using the "[]"
+        notation</para>
+
+        <programlisting><![CDATA[x.[i, "NAME"] = "Rick"
+x.[i, "ADDRESS"] = "Rick"]]></programlisting>
+
+        <para>note that this functions the same way Rexx arrays work. The stem
+        VARIABLE is evaluated, and the "[]=" method of the resulting stem OBJECT
+        is invoked to do the assignment.</para>
+
+        <para>You can also see this reference effect by using the following
+        assignment":</para>
+
+        <programlisting><![CDATA[x = x.   -- TWO different variables here..."X" and "X."
+ 
+say x[i, "NAME"] x.i.name  -- displays "Rick Rick"]]></programlisting>
+
+        <para>Here we have a simple Rexx variable and a stem Rexx variable
+        referencing the same stem OBJECT.</para>
+      </tip>
+
+      <para>Stem variable assignment also functions slightly differently from
+      normal variable assignments. If you assign a stem variable to another stem
+      variable </para>
+
+      <programlisting><![CDATA[a.1 = "Fred"
+a. = b.
+say b.1 b.2  -- displays "Fred A.2"]]></programlisting>
+
+      <para>The stem variable reference for A. is assigned to a second stem
+      variable B. And you can see this when I referenced the uninitialized stem
+      element B... it displayed the value "A." because the original stem OBJECT
+      was created with a name value of "A." originally. </para>
+
+      <para>If you assign anything other than a stem OBJECT to a stem VARIABLE,
+      then a new stem OBJECT is created and given that value as its default
+      value. This assignment will sever the link to the original stem object. So
+      given the above. </para>
+
+      <programlisting><![CDATA[say a.1 b.1 -- displays "Fred Fred"
+a. = "George"
+say a.1 b.1 -- displays "George Fred"]]></programlisting>
+
+      <para>Now, how does use arg work with stem variables.</para>
+
+      <programlisting><![CDATA[a.1 = "Fred"
+c = 1
+call fred a., c
+say a1 c  -- displays "George 1"
+...
+ 
+fred: procedure
+use arg x., y
+ 
+x.1 = "George"
+y = 2]]></programlisting>
+
+      <para>This is the same as the example above. The stem variable A. in the
+      call evaluates to a reference to a stem OBJECT, which is passed to the
+      target routine. USE ARG accesses that argument list, and assigns the
+      references to each variable in turn. So the local variable X. is assigned
+      the value of the first argument, which is a reference to a stem object. If
+      you recall from the discussion above, a stem object assigned to a stem
+      variable just copies the reference into the variable. Variables X. and A.
+      now point to the same stem OBJECT. Stem objects have updatable internal
+      state, so the assignment </para>
+
+      <programlisting><![CDATA[x.1 = "George" ]]></programlisting>
+
+      <para>is visible back in the calling routine. Interestingly, you can do
+      the same thing without even using a stem variable! Try the following:
+      </para>
+
+      <programlisting><![CDATA[fred: procedure
+use arg x, y    -- X is a simple variable, not a stem!
+ 
+x[1] = "George"
+y = 2]]></programlisting>
+    </section>
+  </section>
+
+  <section>
+    <title>Start script from command line</title>
+
+    <para>Reference : <ulink
+    url="http://sourceforge.net/mailarchive/forum.php?thread_name=63EE03AB-105A-4CA4-A104-E70147D84425%40xs4all.nl&amp;forum_name=oorexx-devel">oorexx-devel</ulink></para>
+
+    <qandaset>
+      <qandadiv>
+        <qandaentry>
+          <question>
+            <para>I observe in gdb that if I put a break in 'main', on my Mac it
+            starts running in code generated from platform/unix/rexx.cpp:107
+            (interestingly, a few lines off). After processing the commandline,
+            it calls RexxStart in kernel/platform/unix/RexxMain.cpp:236. It
+            there assembles RexxStartArguments and proceeds to call
+            RexxSendMessage in (the first platform independnt) file
+            kernel/runtime/RexxActivity.cpp: 3781. Here an activity is
+            instantiated. </para>
+
+            <para>Now a lot starts to happen and I do not readily see where to
+            put the next breakpoint. This for the cases: </para>
+
+            <para>1) I want to trace the startup of Rexx and see where it is
+            opening the file to read source from it, and lexes and parses
+            it.</para>
+          </question>
+
+          <answer>
+            <para>The heart of the action in parsing takes place in the
+            RexxSource class, which is actually scattered across several source
+            files located in the kernel/parser subdirectory. Look at the
+            RexxSource::classNewFile() method for the main starting point of the
+            parsing process.</para>
+          </answer>
+        </qandaentry>
+
+        <qandaentry>
+          <question>
+            <para>2) When I want to see the start of the processing of parsed
+            source (for example if i want to set a stop at a certain source line
+            (in the script) because I suspect something goes wrong?</para>
+          </question>
+
+          <answer>
+            <para>I've never had occasion to set a break point for a particular
+            source line, and nothing jumps out at me immediately as a good place
+            to do that. I generally set the break points on the place where
+            particular instruction types get processed. The main source
+            translation loop is in SourceFile.cpp, the
+            RexxSource::translateBlock() method.</para>
+          </answer>
+        </qandaentry>
+
+        <qandaentry>
+          <question>
+            <para>If I wanted to use the interpreter up to the parser and then
+            walk the tree myself, would that be a viable approach (and where
+            should I look)?</para>
+          </question>
+
+          <answer>
+            <para>Not to sure that's really a viable approach. The parser
+            doesn't actually create a parse tree in the traditional sense, but
+            rather creates a self-executing parse. Each instruction has its own
+            class (see the kernel/instructions directory). Each instruction
+            object has references to the artifacts it requires to execute (such
+            as a self-evaluating expression tree), and the instructions are all
+            linked together to produce a running program. The kernel/expression
+            directory holds the classes that make up elements of an expression
+            tree (variables, functions, etc.).</para>
+
+            <para>If you really want to look at these, then inside of the method
+            object returned by the parser, follow the code-&gt; link to the
+            RexxCode object that holds the executable. The start field in
+            RexxCode is the first instruction of the method, and everything runs
+            from there.</para>
+          </answer>
+        </qandaentry>
+      </qandadiv>
+    </qandaset>
+  </section>
+
+  <section>
+    <title>Mapping between symbolic name and C++ method</title>
+
+    <para>Reference : <ulink
+    url="http://sourceforge.net/mailarchive/forum.php?forum_name=oorexx-devel&amp;max_rows=25&amp;style=nested&amp;viewmonth=200806&amp;viewday=10">oorexx-devel</ulink></para>
+
+    <qandaset>
+      <qandadiv>
+        <qandaentry>
+          <question>
+            <para>If methodLookup() always needs messageName to be an upper case
+            string, for the hash table look up, then I would think that the
+            upper casing of messageName should be done here, and not rely on the
+            caller to upper case the arg. </para>
+          </question>
+
+          <answer>
+            <para>It's a matter of efficiency. Most of the lower-level methods
+            are intended to be called from internal code where it is ok to
+            require that certain requirements are met by the call and error
+            checks can be bypassed. Placing the upper call and argument check at
+            the very lowest level means that lots of additional uppercasing
+            calls are done for situations where it is absolutely unnecessary.
+            </para>
+
+            <para>The real gateway for the version of HASMETHOD callable by
+            ooRexx code is the hasMethodRexx() method of object. For many
+            methods, particularly ones with arguments, there will be a stub
+            version that's the one exposed to the Rexx programmer that does
+            appropriate argument checks and also does operations like folding
+            string values to uppercase. That's the place where the uppercasing
+            needs to be moved to. </para>
+          </answer>
+        </qandaentry>
+
+        <qandaentry>
+          <question>
+            <para>These xxxRexx() stub functions are how the interpreter kernel
+            calls the C++ objects?</para>
+          </question>
+
+          <answer>
+            <para>Yes, now you got it. The mapping between the symbolic name and
+            the C++ methods is done in kernel/runtime/Setup.cpp. For example,
+            the entry for HASMETHOD looks like this:</para>
+
+            <programlisting><![CDATA[defineKernelMethod(CHAR_HASMETHOD, TheObjectBehaviour, CPPM(RexxObject::hasMethodRexx), 1);]]></programlisting>
+
+            <para>This defines HASMETHOD for the Object class as being a native
+            CPP method that takes one argument. Not every method that's exported
+            to Rexx code has a xxxxRexx variant, but there are a number of
+            reason why one is required. Generally, an xxxxRexx version is
+            created when a method of a class is used both within internal code
+            and exported as a Rexx-callable method. In that case, the internal
+            version doesn't do many argument checks and the rigorous argument
+            checking is performed in the xxxxRexx version since you can't depend
+            on pesky users to get things right the first time :-)</para>
+
+            <para>Methods that don't take any arguments do not need this. Other
+            methods that are mostly called from Rexx code rather than internal
+            code also don't really require this split. One additional case which
+            might be non-obvious. When the target of a method call is also
+            implemented as a virtual method of the class, then the Rexx-callable
+            version will need to be non-virtual stub. Don't worry about messing
+            this one up....the compiler will tell you about it if you try to use
+            a virtual method accidentally. </para>
+          </answer>
+        </qandaentry>
+      </qandadiv>
+    </qandaset>
+  </section>
+</chapter>
