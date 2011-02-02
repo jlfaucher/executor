@@ -56,6 +56,7 @@ See documentation for version control
 */
 
     parse arg isDefault
+    parse source . . myPath
     .local~useDefault = .false
     if isDefault~translate = 'DEFAULT' then
         .local~useDefault = .true
@@ -68,7 +69,7 @@ See documentation for version control
     
     call LoadEnvironment                        -- Set up the environment to work with
     .platform~initialize
-    call LoadOptionalComponents
+    call LoadOptionalComponents .File~new(myPath)~parent
     code = .oort_dialog~new()                   -- Create the dialog
     if code~initCode \= 0 then
         do
@@ -87,6 +88,7 @@ exit
 -- Load optional packages/libraries
 -- Remember : don't implement that as a procedure or routine or method !
 LoadOptionalComponents:
+    use strict arg scriptDirectory
     if .platform~is("windows") then do
         call loadPackage("oodialog.cls")
         call loadPackage("winsystm.cls")
@@ -102,8 +104,8 @@ LoadOptionalComponents:
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("../../samples/extension/functional.rex")
-    call loadPackage("../../samples/rgf_util2/wrappers.rex")
+    call loadPackage(scriptDirectory"/../../samples/extension/functional.rex")
+    call loadPackage(scriptDirectory"/../../samples/rgf_util2/wrappers.rex")
     return
     
 
@@ -115,6 +117,7 @@ loadPackage:
     .context~package~loadPackage(filename)
     return .true
     loadPackageError:
+    say "loadPackage KO for" filename
     return .false
 
     

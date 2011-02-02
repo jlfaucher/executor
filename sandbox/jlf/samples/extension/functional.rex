@@ -35,8 +35,8 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
 ::method doer
     use strict arg context=.nil
     parse var self word1 rest
-    -- When the source string contains a single word, it's a message name
-    if rest == "" then do
+    -- When the source string contains a single word without '(', it's a message name
+    if rest == "" & word1~pos("(") == 0 then do
         if context <> .nil then raise syntax 93.963 -- Context not supported 
         return .MessageNameSender~new(self)
     end
@@ -107,8 +107,8 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
     if \inplace then r = self~copy
     string = r~string
     r~delete(1)
-    do i = 1 to string~length
-        self~append(doer~do(string~subchar(i)))
+    do char over string~makearray("")
+        r~append(doer~do(char))
     end
     return r
 ::method mapword
@@ -118,25 +118,8 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
     if \inplace then r = self~copy
     string = r~string
     r~delete(1)
-    first = .true
-    -- Don't use the method "word(n)" since it will be very inefficient for long strings
-    pos = 1
-    c = string~subchar(pos)
-    do forever
-        do while c == " "
-            pos += 1
-            c = string~subchar(pos)
-        end
-        if c == "" then leave
-        start = pos
-        do while c <> " " & c <> ""
-            pos += 1
-            c = string~subchar(pos)
-        end
-        word = string~substr(start, pos - start)
-        if \first then self~append(" ")
-        self~append(doer~do(word))
-        first = .false
+    do word over string~space~makearray(" ")
+        r~append(doer~do(word))
     end
     return r
 
