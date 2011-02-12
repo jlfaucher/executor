@@ -341,7 +341,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     if tokenizer == .nil then return .false
     if tokenizer~errorCount <> 0 then return .false
     
-    parser = self~parse_syntax_diagram(tokenizer, line)
+    parser = self~parse_syntax_diagram(tokenizer, chunk~line)
     if parser~errorCount <> 0 then return .false
 
     xmlizer = self~xmlize_syntax_diagram(tokenizer, parser)
