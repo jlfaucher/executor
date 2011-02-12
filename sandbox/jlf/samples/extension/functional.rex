@@ -18,7 +18,8 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
     if context <> .nil then raise syntax 93.963 -- Context not supported
     return self
 ::method do
-    return self~callWith(arg(1,"a"))
+    self~callWith(arg(1,"a"))
+    if var("result") then return result
 
     
 ::extension Method
@@ -28,7 +29,8 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
     return self
 ::method do
     use strict arg object, ...
-    return object~run(self, "a", arg(2,"a"))
+    object~run(self, "a", arg(2,"a"))
+    if var("result") then return result
 
     
 ::extension String -- first part
@@ -61,9 +63,10 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
     self~messageName = messageName
 ::method do
     use strict arg object, ...
-    return object~sendWith(self~messageName, arg(2,"a"))
-    
-    
+    object~sendWith(self~messageName, arg(2,"a"))
+    if var("result") then return result
+
+
 -----------------------------------------------------------------------------
 -- Higher-order actions
 
@@ -118,8 +121,11 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
     if \inplace then r = self~copy
     string = r~string
     r~delete(1)
+    first = .true
     do word over string~space~makearray(" ")
+        if \first then self~append(" ")
         r~append(doer~do(word))
+        first = .false
     end
     return r
 
@@ -147,4 +153,14 @@ Here, the extensions are declared with ::extension instead of ~define (see ..\fu
 ::extension List inherit MappableCollection
 ::extension Queue inherit MappableCollection
 --::extension CircularQueue inherit MappableCollection -- mixin already inherited from Queue 
+
+
+::extension String
+::method times
+    use strict arg action, context=.nil
+    doer = action~doer(context) -- parse only once, before iteration
+    do i = 1 to self
+        doer~do(i)
+    end
+    return self
 
