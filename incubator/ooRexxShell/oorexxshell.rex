@@ -419,6 +419,8 @@ loadOptionalComponents:
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    call loadPackage("rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
+    call loadPackage("functional.rex") -- requires jlf sandbox ooRexx
     return
     
 
@@ -430,6 +432,9 @@ loadPackage:
     .context~package~loadPackage(filename)
     return .true
     loadPackageError:
+    .color~select(.ooRexxShell~errorColor)
+    say "loadPackage KO for" filename
+    .color~select(.ooRexxShell~defaultColor)
     return .false
 
     
