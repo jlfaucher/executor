@@ -104,8 +104,8 @@ LoadOptionalComponents:
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage(scriptDirectory"/../../samples/extension/functional.rex")
-    call loadPackage(scriptDirectory"/../../samples/rgf_util2/wrappers.rex")
+    call loadPackage("rgf_util2_wrappers.rex")
+    call loadPackage("functional.rex")
     return
     
 
