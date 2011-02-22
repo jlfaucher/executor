@@ -1,10 +1,8 @@
 /*
-This script needs a modified ooRexx interpreter which allows to extend predefined ooRexx classes.
-Something similar to C# extension methods :
-http://msdn.microsoft.com/en-us/library/bb383977.aspx
-http://weblogs.asp.net/scottgu/archive/2007/03/13/new-orcas-language-feature-extension-methods.aspx
+This is a *PARTIAL* adaptation of functional-test.rex
 
-Here, the extensions are declared with ::extension instead of ~define (see ..\functional for ~define)
+This script works with a standard ooRexx, no need of ::extension here.
+Depends on extended classes, but the integration is poor.
 */
 
 say "-----------------------------------------------------------------"
@@ -12,34 +10,46 @@ say "-- Message sending"
 say "-----------------------------------------------------------------"
 
 -- When the source contains a single word, it's a message name
-.Array~of(1,2,3,4)~reduce("+")~dump -- sum = 10
-.Array~of(1,2,3,4)~reduce("*")~dump -- product = 24
+call Object.dump .ExtendedArray~of(1,2,3,4)~reduce(.ExtendedString~new("+")) -- sum = 10
+call Object.dump .ExtendedArray~of(1,2,3,4)~reduce(.ExtendedString~new("*")) -- product = 24
 
-.List~of(1,2,3,4)~reduce("+")~dump -- sum = 10
-.List~of(1,2,3,4)~reduce("*")~dump -- product = 24
+call Object.dump .ExtendedList~of(1,2,3,4)~reduce(.ExtendedString~new("+")) -- sum = 10
+call Object.dump .ExtendedList~of(1,2,3,4)~reduce(.ExtendedString~new("*")) -- product = 24
 
-.Queue~of(1,2,3,4)~reduce("+")~dump -- sum = 10
-.Queue~of(1,2,3,4)~reduce("*")~dump -- product = 24
+call Object.dump .ExtendedQueue~of(1,2,3,4)~reduce(.ExtendedString~new("+")) -- sum = 10
+call Object.dump .ExtendedQueue~of(1,2,3,4)~reduce(.ExtendedString~new("*")) -- product = 24
 
-.CircularQueue~of(1,2,3,4)~reduce("+")~dump -- sum = 10
-.CircularQueue~of(1,2,3,4)~reduce("*")~dump -- product = 24
+call Object.dump .ExtendedCircularQueue~of(1,2,3,4)~reduce(.ExtendedString~new("+")) -- sum = 10
+call Object.dump .ExtendedCircularQueue~of(1,2,3,4)~reduce(.ExtendedString~new("*")) -- product = 24
 
-123~reduce("min")~dump -- min digit = 1
-123~reduce("max")~dump -- max digit = 3
+call Object.dump .ExtendedString~new(123)~reduce(.ExtendedString~new("min")) -- min digit = 1
+call Object.dump .ExtendedString~new(123)~reduce(.ExtendedString~new("max")) -- max digit = 3
 
-.Array~of(1,2,3,4)~map("-")~dump         -- an Array : -1, -2, -3, -4
-.List~of(1,2,3,4)~map("-")~dump          -- a List : -1, -2, -3, -4
-.Queue~of(1,2,3,4)~map("-")~dump         -- a Queue : -1, -2, -3, -4
-.CircularQueue~of(1,2,3,4)~map("-")~dump -- -1,-2,-3,-4 : -1, -2, -3, -4 (strange : The dump of a circular queue does not show its class, it shows its contents...) 
+call Collection.dump .ExtendedArray~of(1,2,3,4)~map(.ExtendedString~new("-"))         -- an Array : -1, -2, -3, -4
+call Collection.dump .ExtendedList~of(1,2,3,4)~map(.ExtendedString~new("-"))          -- a List : -1, -2, -3, -4
+call Collection.dump .ExtendedQueue~of(1,2,3,4)~map(.ExtendedString~new("-"))         -- a Queue : -1, -2, -3, -4
+call Collection.dump .ExtendedCircularQueue~of(1,2,3,4)~map(.ExtendedString~new("-")) -- -1,-2,-3,-4 : -1, -2, -3, -4 (strange : The dump of a circular queue does not show its class, it shows its contents...) 
 
-"abcdefghijklmnopqrstuvwxyz"~mapchar("1-")~dump                             -- `abcdefghijklmnopqrstuvwxy
+
+/*========================================================================================
+Note JLF : I stop adapting the script here !
+The next lines become difficult to adapt : the iteration over each character/word returns
+"normal" String instances, whereas I should use UserExtendedString. 
+It could be possible to modify functional.cls to convert those strings into UserExtendedString
+but why do that ? It's a waste of time...
+========================================================================================*/
+
+return
+
+
+.String~new("abcdefghijklmnopqrstuvwxyz")~mapchar(.String~new("1-"))~dump   -- `abcdefghijklmnopqrstuvwxy
 .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapchar("1+", .false)~dump -- bcdefghijklmnopqrstuvwxyz{
 
 "The quick brown fox jumps over the lazy dog"~mapword("length")~dump                                -- 3 5 5 3 5 4 3 4 3
 .MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapword("length", .false)~dump    -- 3 5 5 3 5 4 3 4 3
 
 -- In place mapping
-array = .Array~of(-1,2,-3,4)
+array = .ExtendedArray~of(-1,2,-3,4)
 array~dump                     -- an Array : -1, 2, -3, 4
 array~map("sign", .true)~dump  -- an Array : -1, 1, -1, 1
 array~dump                     -- an Array : -1, 1, -1, 1
@@ -56,8 +66,8 @@ say "-- Routine calling"
 say "-----------------------------------------------------------------"
 
 -- A source with more than one word is a routine source by default
-.Array~of(1,2,3,4)~map("return arg(1) * 2")~dump -- an Array : 2, 4, 6, 8
-.Array~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- an Array : 1, 2, 6, 24
+.ExtendedArray~of(1,2,3,4)~map("return arg(1) * 2")~dump -- an Array : 2, 4, 6, 8
+.ExtendedArray~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- an Array : 1, 2, 6, 24
 
 .List~of(1,2,3,4)~map("return arg(1) * 2")~dump -- a List : 2, 4, 6, 8
 .List~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- a List : 1, 2, 6, 24
@@ -71,26 +81,19 @@ say "-----------------------------------------------------------------"
 "abcdefghijklmnopqrstuvwxyz"~mapchar("return arg(1)~verify('aeiouy')")~dump
 .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapchar("if arg(1)~verify('aeiouy') == 1 then return arg(1) ; else return ''")~dump
 
-/* todo : doesn't work because the variable translation has no value when evaluating the doer
-translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
-translation~setMethod("UNKNOWN", "return arg(1)")
-"The quick brown fox jumps over the lazy dog"~mapword("return translation~arg(1)",,.context~package)~dump
-.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapword("return translation[arg(1)]", .false, .context~package)~dump
-*/
-
 -- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
-.Array~of(1,2,3,4)~map("::routine return arg(1) * 2")~dump -- an Array : 2, 4, 6, 8
-.Array~of(1,2,3,4)~map("::routine use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- an Array : 1, 2, 6, 24
+.ExtendedArray~of(1,2,3,4)~map("::routine return arg(1) * 2")~dump -- an Array : 2, 4, 6, 8
+.ExtendedArray~of(1,2,3,4)~map("::routine use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- an Array : 1, 2, 6, 24
 
 -- A routine object can be used directly
-.Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump -- an Array : 1, 2, 6, 24
+.ExtendedArray~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump -- an Array : 1, 2, 6, 24
 
 
 say "-----------------------------------------------------------------"
 say "-- Method running"
 say "-----------------------------------------------------------------"
 
-colors = .Array~of( ,
+colors = .ExtendedArray~of( ,
     .Color~new("black", "000000") ,,
     .Color~new("blue",  "0000FF") ,,
     .Color~new("green", "008000") ,,
@@ -141,15 +144,15 @@ colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (
     return self~rgb~substr(5,2)~x2d 
 
 
-::extension Object
-::method dump
-    use strict arg stream = .stdout
+-- Not possible to extend Object to have the ~dump method everywhere
+-- So use a routine...
+::routine Object.dump
+    use strict arg self, stream = .stdout
     stream~lineout(self)
 
-    
-::extension Collection
-::method dump
-    use strict arg stream = .stdout
+
+::routine Collection.dump
+    use strict arg self, stream = .stdout
     stream~charout(self ": ")
     previous = .false
     do e over self
@@ -158,9 +161,9 @@ colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (
         previous = .true
     end
     stream~lineout("")
-    
 
-::extension String
+
+::class UserExtendedString subclass ExtendedString
 ::method "1-"
     c = self~subchar(1)~c2d - 1
     return c~d2c
@@ -168,16 +171,6 @@ colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (
     c = self~subchar(1)~c2d + 1
     return c~d2c
 
-    
-::extension Directory
-::method of class
-    use strict arg key, value, ...
-    directory = .Directory~new
-    do i = 1 to arg() by 2
-        directory[arg(i)] = arg(i+1)
-    end
-    return directory
-    
-    
-::requires "extensions.cls"
+
+::requires "extended.cls"
 
