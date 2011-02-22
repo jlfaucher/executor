@@ -418,9 +418,12 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
+    call loadPackage("pipe.rex")
     call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     call loadPackage("rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
-    call loadPackage("functional.rex") -- requires jlf sandbox ooRexx
+    if \loadPackage("extensions.cls") then do -- requires jlf sandbox ooRexx 
+        call loadPackage("extended.cls") -- works with standard ooRexx, but integration is weak
+    end
     return
     
 
