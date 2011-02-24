@@ -297,8 +297,6 @@ DataQueue *QueueTable::locate(const char *name)
         // find the one we want?
         if (Utilities::strCaselessCompare(name, current->queueName) == 0)
         {
-            // move this to the front so we find it quickly
-            reorderQueues(current, previous);
             return current;
         }
         previous = current;                /* remember this block        */
@@ -308,7 +306,21 @@ DataQueue *QueueTable::locate(const char *name)
 }
 
 /**
- * locate a named data queue
+ * locate a named data queue, with session manager locking
+ *
+ * @param name   The target data queue name.
+ *
+ * @return The DataQueue descriptor, or NULL if it does not
+ *         exist.
+ */
+DataQueue *QueueTable::synchronizedLocate(ServerQueueManager *manager, const char *name)
+{
+    Lock managerLock(manager->lock, "QueueTable::synchronizedLocate", 0);   // this needs synchronization here
+    return locate(name);
+}
+
+/**
+ * locate a session data queue
  *
  * @param id     The session ID of the queue.
  *
@@ -325,14 +337,26 @@ DataQueue *QueueTable::locate(SessionID id)
         // find the one we want?
         if (current->session == id)
         {
-            // move this to the front so we find it quickly
-            reorderQueues(current, previous);
             return current;
         }
         previous = current;         // remember this block
         current = current->next;    // to the next block
     }
     return NULL;                    // return NULL if not located
+}
+
+/**
+ * locate a session data queue, with session manager locking
+ *
+ * @param id     The session ID of the queue.
+ *
+ * @return The DataQueue for the session, which will be created
+ *         if needed.
+ */
+DataQueue *QueueTable::synchronizedLocate(ServerQueueManager *manager, SessionID id)
+{
+    Lock managerLock(manager->lock, "QueueTable::synchronizedLocate", 0);   // this needs synchronization here
+    return locate(id);
 }
 
 
@@ -486,7 +510,11 @@ void ServerQueueManager::pullFromSessionQueue(ServiceMessage &message)
 // nameArg    -- ASCII-Z name of the queue
 void ServerQueueManager::pullFromNamedQueue(ServiceMessage &message)
 {
-    DataQueue *queue = namedQueues.locate(message.nameArg);
+    // we're holding the lock yet, so we need to use the locate
+    // method that grabs the lock first.  If we don't, then we run
+    // the risk that the queue will be reordered while we're searching.
+    // The results will be bad, definitely very bad.
+    DataQueue *queue = namedQueues.synchronizedLocate(this, message.nameArg);
     // not previously created?
     if (queue == NULL)
     {
@@ -505,6 +533,10 @@ void ServerQueueManager::pullFromNamedQueue(ServiceMessage &message)
 // parameter1 -- caller's session id (replaced by queue handle on return);
 DataQueue *ServerQueueManager::getSessionQueue(SessionID session)
 {
+    // this could be redundant, but if called as a result of a PULL operation,
+    // we're not holding the lock yet.  We need to nest the call.
+    Lock managerLock(lock, "ServerQueueManager::getSessionQueue", 0);
+
     DataQueue *queue = sessionQueues.locate(session);
     // not previously created?
     if (queue == NULL)

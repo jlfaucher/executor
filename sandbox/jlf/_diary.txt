@@ -489,3 +489,13 @@ merge 5988-6048 from main/trunk
 merge 6048-6142 from main/trunk
 merge 6142-6189 from main/trunk
 merge 6189-6500 from main/trunk
+merge 6500-6784 from
+    main/trunk/api
+    main/trunk/extension/hostemu
+    main/trunk/interpreter
+    main/trunk/platform
+    main/trunk/rexxapi
+
+Remember todo : 
+    merge 6500-xxxx from main/trunk/extensions/platform/windows/oodialog
+    merge 6500-xxxx from main/trunk/samples

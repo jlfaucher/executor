@@ -512,6 +512,7 @@
 #define Error_Incorrect_method_signature                   93968
 #define Error_Incorrect_method_nostem                      93969
 #define Error_Unsupported_copy_method                      93970
+#define Error_Incorrect_method_multi_dimension             93971
 #define Error_No_method                                    97000
 #define Error_No_method_name                               97001
 #define Error_No_method_user_defined                       97900
@@ -587,6 +588,11 @@
 #define Error_Translation_duplicate_attribute              99931
 #define Error_Translation_duplicate_constant               99932
 #define Error_at_line                                      101000
+#define Message_Translations_error                         101001
+#define Message_Translations_running                       101002
+#define Message_Translations_line                          101003
+#define Message_Translations_debug_error                   101004
+#define Message_Translations_debug_prompt                  101005
 #define Message_Translations_January                       101006
 #define Message_Translations_February                      101007
 #define Message_Translations_March                         101008
@@ -599,11 +605,8 @@
 #define Message_Translations_October                       101015
 #define Message_Translations_November                      101016
 #define Message_Translations_December                      101017
-#define Message_Translations_debug_prompt                  101005
-#define Message_Translations_debug_error                   101004
-#define Message_Translations_error                         101001
-#define Message_Translations_running                       101002
-#define Message_Translations_line                          101003
+#define Message_Translations_routine_invocation            101018
+#define Message_Translations_method_invocation             101019
 #define Error_RXSUBC_general                               999000
 #define Error_RXSUBC_register                              999001
 #define Error_RXSUBC_drop                                  999002

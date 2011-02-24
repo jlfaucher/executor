@@ -255,6 +255,7 @@ inline char IntToHexDigit(int n)
    RexxString  *delWord(RexxInteger *, RexxInteger *); // in behaviour
    RexxString  *space(RexxInteger *, RexxString *); // in behaviour
    RexxString  *subWord(RexxInteger *, RexxInteger *); // in behaviour
+   RexxArray   *subWords(RexxInteger *, RexxInteger *); // in behaviour
    RexxString  *word(RexxInteger *); // in behaviour
    RexxInteger *wordIndex(RexxInteger *); // in behaviour
    RexxInteger *wordLength(RexxInteger *); // in behaviour
@@ -379,6 +380,7 @@ inline char IntToHexDigit(int n)
    inline void  toRxstring(CONSTRXSTRING &r) { r.strptr = getStringData(); r.strlength = size_v(getBLength()); } // no encoding support, so better to use blength
    inline void  toRxstring(RXSTRING &r) { r.strptr = getWritableData(); r.strlength = size_v(getBLength()); }
           void  copyToRxstring(RXSTRING &r);
+   inline bool  endsWith(codepoint_t c) { return getCLength() > 0 && this->getCharC(this->getCLength() - 1) == c; }
 
    RexxNumberString *createNumberString();
 

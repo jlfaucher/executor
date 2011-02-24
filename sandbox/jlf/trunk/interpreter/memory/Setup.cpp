@@ -748,6 +748,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_ALLINDEXES   , TheRelationBehaviour, CPPM(RexxHashTableCollection::allIndexes), 0);
   defineKernelMethod(CHAR_EMPTY        , TheRelationBehaviour, CPPM(RexxHashTableCollection::empty), 0);
   defineKernelMethod(CHAR_ISEMPTY      , TheRelationBehaviour, CPPM(RexxHashTableCollection::isEmpty), 0);
+  defineKernelMethod("REMOVEALL"       , TheRelationBehaviour, CPPM(RexxRelation::removeAll), 1);
 
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
@@ -843,6 +844,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_DELWORD                      ,TheStringBehaviour, CPPM(RexxString::delWord), 2);
   defineKernelMethod(CHAR_SPACE                        ,TheStringBehaviour, CPPM(RexxString::space), 2);
   defineKernelMethod(CHAR_SUBWORD                      ,TheStringBehaviour, CPPM(RexxString::subWord), 2);
+  defineKernelMethod("SUBWORDS"                        ,TheStringBehaviour, CPPM(RexxString::subWords), 2);
   defineKernelMethod(CHAR_TRUNC                        ,TheStringBehaviour, CPPM(RexxString::trunc), 1);
   defineKernelMethod(CHAR_WORD                         ,TheStringBehaviour, CPPM(RexxString::word), 1);
   defineKernelMethod(CHAR_WORDINDEX                    ,TheStringBehaviour, CPPM(RexxString::wordIndex), 1);
@@ -977,6 +979,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_CASELESSMATCHCHAR            ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::caselessMatchChar), 2);
   defineKernelMethod(CHAR_VERIFY                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::verify), 4);
   defineKernelMethod(CHAR_SUBWORD                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::subWord), 2);
+  defineKernelMethod("SUBWORDS"                        ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::subWords), 2);
   defineKernelMethod(CHAR_WORD                         ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::word), 1);
   defineKernelMethod(CHAR_WORDINDEX                    ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::wordIndex), 1);
   defineKernelMethod(CHAR_WORDLENGTH                   ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::wordLength), 1);

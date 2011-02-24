@@ -622,6 +622,9 @@
 #define Error_Execution_invalid_thread_msg                           716
 #define Error_Invalid_expression_parse_msg                           717
 #define Error_Invalid_expression_call_msg                            718
+#define Message_Translations_routine_invocation_msg                  719
+#define Message_Translations_method_invocation_msg                   720
+#define Error_Incorrect_method_multi_dimension_msg                   721
 
 
 #endif

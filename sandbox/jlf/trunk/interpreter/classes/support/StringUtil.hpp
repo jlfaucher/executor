@@ -84,6 +84,7 @@ public:
     static size_t memPos(const char *string, sizeB_t length, char target);
     static RexxInteger *verify(const char *data, sizeB_t stringLen, RexxString  *ref, RexxString  *option, RexxInteger *_start, RexxInteger *range);
     static RexxString *subWord(const char *data, sizeB_t length, RexxInteger *position, RexxInteger *plength);
+    static RexxArray *subWords(const char *data, sizeB_t length, RexxInteger *position, RexxInteger *plength);
     static RexxString *word(const char *data, sizeB_t length, RexxInteger *position);
     static RexxInteger *wordIndex(const char *data, sizeB_t length, RexxInteger *position);
     static RexxInteger *wordLength(const char *data, sizeB_t length, RexxInteger *position);
