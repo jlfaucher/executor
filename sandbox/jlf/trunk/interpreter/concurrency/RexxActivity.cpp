@@ -2788,6 +2788,16 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
 {
     line = line->stringTrace();          /* get traceable form of this        */
                                          /* if exit declines the call         */
+
+    // Add thread id, activation id and lock flag.
+    // Should help to analyze the traces of a multithreaded script...
+    char buffer[100];
+    Utilities::snprintf(buffer, sizeof buffer - 1, "%8.8x %8.8x %c ", 
+                                                   SysCurrentThreadId(),
+                                                   (unsigned int)activation, 
+                                                   (activation && activation->isObjectScopeLocked()) ? '*' : ' ');
+    line = line->concatToCstring(buffer);
+
     if (this->callTraceExit(activation, line))
     {
         /* get the default output stream     */

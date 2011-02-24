@@ -51,6 +51,8 @@
 #include "rexx.h"
 #include "SysDebug.hpp"
 
+inline unsigned int SysCurrentThreadId() { return (unsigned int)pthread_self(); }
+
 class SysSemaphore {
 public:
      SysSemaphore(const char *variable) : semVariable(variable), postedCount(0), created(false) { }

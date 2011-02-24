@@ -41,6 +41,45 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 feb 24
+
+Added thread id, activation id and lock flag in the lines printed by trace.
+Should help to analyze the traces of a multithreaded script.
+
+Not sure yet to have covered all the cases, since I modified only this method :
+RexxActivity::traceOutput
+But looks good on my first tests.
+
+The extract below illustrates quite well the problem of interleaved traces.
+See after the reply, two threads are running concurrently.
+
+coroutine~start -- guarded
+coroutine~resume -- unguarded
+
+0000ccac 7efcae78 *        >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+...<snip>...
+0000ccac 7efcae78 *     92 *-* status = .Coroutine~suspended
+0000ccac 7efcae78 *        >E>   .COROUTINE => "The COROUTINE class"
+0000ccac 7efcae78 *        >M>   "SUSPENDED" => "1"
+0000ccac 7efcae78 *        >>>   "1"
+0000ccac 7efcae78 *        >=>   STATUS <= "1"
+0000ccac 7efcae78 *     93 *-* guard off
+0000ccac 7efcae78       94 *-* reply self
+0000ccac 7efcae78          >V>   SELF => "a COROUTINE"
+0000ccac 7efcae78          >>>   "a COROUTINE"
+0000c8dc 7efcae78          >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+0000ccac 7efd0968          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+0000c8dc 7efcae78       95 *-* signal on any 
+0000ccac 7efd0968      162 *-* expose status yieldValue
+0000c8dc 7efcae78       96 *-* guard on when status <> .Coroutine~suspended
+0000ccac 7efd0968      163 *-* if status == .Coroutine~notStarted 
+0000c8dc 7efcae78 *        >V>   STATUS => "1"
+0000ccac 7efd0968          >V>   STATUS => "1"
+
+If you redirect the stderr to a file, and open it with Excel, then you can filter by thread and/or by activation.
+
+
+===============================================================================
 2010 nov 14
 
 I have reached a state where the interpreter is no longer broken by m17n.

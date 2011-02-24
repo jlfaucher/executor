@@ -407,6 +407,7 @@ class ActivationSettings
    inline bool              isForwarded() { return (this->settings.flags&forwarded) != 0; }
    inline bool              isGuarded() { return (this->settings.flags&guarded_method) != 0; }
    inline void              setGuarded() { this->settings.flags |= guarded_method; }
+   inline bool              isObjectScopeLocked() { return this->object_scope == SCOPE_RESERVED; }
 
    inline bool              isExternalTraceOn() { return (this->settings.flags&trace_on) != 0; }
    inline void              setExternalTraceOn() { this->settings.flags |= trace_on; }

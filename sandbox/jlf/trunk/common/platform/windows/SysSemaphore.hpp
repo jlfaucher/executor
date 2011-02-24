@@ -52,6 +52,7 @@
 #include <stdio.h>
 
 inline void waitHandle(HANDLE s);
+inline unsigned int SysCurrentThreadId() { return (unsigned int)GetCurrentThreadId(); }
 
 class SysSemaphore {
 public:
