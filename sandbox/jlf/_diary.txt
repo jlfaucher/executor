@@ -41,6 +41,21 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 feb 27
+
+Implemented the script samples\trace\tracer.rex.
+This script lets :
+- replace hexadecimal values by more human-readable values like T1, A1.
+- generate a CSV file, for further analysis with your favorite tool.
+
+Can be used as a pipe filter (reads from stdin) :
+rexx my_traced_script.rex 2>&1 | rexx tracer
+
+or can read from a file :
+rexx tracer -csv my_trace_file.txt
+
+
+===============================================================================
 2011 feb 24
 
 Added thread id, activation id and lock flag in the lines printed by trace.

@@ -1,0 +1,1538 @@
+00008cd4 7efb3e30 *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7efb3e30 *     61 *-* self~table = .IdentityTable~new
+00008cd4 7efb3e30 *        >V>   SELF => "The COROUTINE class"
+00008cd4 7efb3e30 *        >E>   .IDENTITYTABLE => "The IdentityTable class"
+00008cd4 7efb3e30 *        >M>   "NEW" => "an IdentityTable"
+00008cd4 7efb3e30 *        >A>   "an IdentityTable"
+00008cd4 7efb3e30 *        >>>   "an IdentityTable"
+00008cd4 7efb15b8          >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+A coroutine implemented by a one-liner routine
+00008cd4 7efbfff8 *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7efbfff8 *     83 *-* use strict arg action="main", ...
+00008cd4 7efbfff8 *        >>>   "say "running coroutine" ; return 1"
+00008cd4 7efbfff8 *        >=>   ACTION <= "say "running coroutine" ; return 1"
+00008cd4 7efbfff8 *     85 *-* self~routine = .nil
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >E>   .NIL => "The NIL object"
+00008cd4 7efbfff8 *        >A>   "The NIL object"
+00008cd4 7efbfff8 *        >>>   "The NIL object"
+00008cd4 7efbfff8 *     86 *-* self~message = .nil
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >E>   .NIL => "The NIL object"
+00008cd4 7efbfff8 *        >A>   "The NIL object"
+00008cd4 7efbfff8 *        >>>   "The NIL object"
+00008cd4 7efbfff8 *     87 *-* self~doer = .nil
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >E>   .NIL => "The NIL object"
+00008cd4 7efbfff8 *        >A>   "The NIL object"
+00008cd4 7efbfff8 *        >>>   "The NIL object"
+00008cd4 7efbfff8 *     88 *-* self~object = .nil
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >E>   .NIL => "The NIL object"
+00008cd4 7efbfff8 *        >A>   "The NIL object"
+00008cd4 7efbfff8 *        >>>   "The NIL object"
+00008cd4 7efbfff8 *     90 *-* self~doer = action~doer
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >V>   ACTION => "say "running coroutine" ; return 1"
+00008cd4 7efbfff8 *        >M>   "DOER" => "a Routine"
+00008cd4 7efbfff8 *        >A>   "a Routine"
+00008cd4 7efbfff8 *        >>>   "a Routine"
+00008cd4 7efbfff8 *     91 *-* if self~doer~isA(.Routine) 
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >M>   "DOER" => "a Routine"
+00008cd4 7efbfff8 *        >E>   .ROUTINE => "The Routine class"
+00008cd4 7efbfff8 *        >A>   "The Routine class"
+00008cd4 7efbfff8 *        >M>   "ISA" => "1"
+00008cd4 7efbfff8 *        >>>   "1"
+00008cd4 7efbfff8 *     91 *-*   then
+00008cd4 7efbfff8 *     91 *-*     use strict arg action="main", start = .true
+00008cd4 7efbfff8 *        >>>       "say "running coroutine" ; return 1"
+00008cd4 7efbfff8 *        >=>       ACTION <= "say "running coroutine" ; return 1"
+00008cd4 7efbfff8 *        >>>       "0"
+00008cd4 7efbfff8 *        >=>       START <= "0"
+00008cd4 7efbfff8 *     94 *-* self~status = .Coroutine~notStarted
+00008cd4 7efbfff8 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efbfff8 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efbfff8 *        >M>   "NOTSTARTED" => "0"
+00008cd4 7efbfff8 *        >A>   "0"
+00008cd4 7efbfff8 *        >>>   "0"
+00008cd4 7efbfff8 *     95 *-* if start 
+00008cd4 7efbfff8 *        >V>   START => "0"
+00008cd4 7efbfff8 *        >>>   "0"
+00008cd4 7efcbe78 *        >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7efcbe78 *    105 *-* expose status
+00008cd4 7efcbe78 *    106 *-* use strict arg -- no arg
+00008cd4 7efcbe78 *    107 *-* if status <> .Coroutine~notStarted 
+00008cd4 7efcbe78 *        >V>   STATUS => "0"
+00008cd4 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efcbe78 *        >M>   "NOTSTARTED" => "0"
+00008cd4 7efcbe78 *        >O>   "<>" => "0"
+00008cd4 7efcbe78 *        >>>   "0"
+00008cd4 7efcbe78 *    108 *-* .Coroutine~table~put(self, self)
+00008cd4 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efcbe78 *        >M>   "TABLE" => "an IdentityTable"
+00008cd4 7efcbe78 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efcbe78 *        >A>   "a COROUTINE"
+00008cd4 7efcbe78 *        >V>   SELF => "a COROUTINE"
+00008cd4 7efcbe78 *        >A>   "a COROUTINE"
+00008cd4 7efcbe78 *    109 *-* status = .Coroutine~suspended
+00008cd4 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efcbe78 *        >M>   "SUSPENDED" => "1"
+00008cd4 7efcbe78 *        >>>   "1"
+00008cd4 7efcbe78 *        >=>   STATUS <= "1"
+00008cd4 7efcbe78 *    110 *-* guard off
+00008cd4 7efcbe78      111 *-* reply self
+00008cd4 7efcbe78          >V>   SELF => "a COROUTINE"
+00008cd4 7efcbe78          >>>   "a COROUTINE"
+00008d58 7efcbe78          >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7efd1968          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7efcbe78      112 *-* signal on any 
+00008cd4 7efd1968      190 *-* expose status yieldValue
+00008d58 7efcbe78      113 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7efd1968      191 *-* if status == .Coroutine~notStarted 
+00008d58 7efcbe78 *        >V>   STATUS => "1"
+00008cd4 7efd1968          >V>   STATUS => "1"
+00008d58 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7efcbe78 *        >M>   "SUSPENDED" => "1"
+00008cd4 7efd1968          >M>   "NOTSTARTED" => "0"
+00008d58 7efcbe78 *        >O>   "<>" => "0"
+00008cd4 7efd1968          >O>   "==" => "0"
+00008d58 7efcbe78 *        >>>   "0"
+00008cd4 7efd1968          >>>   "0"
+00008cd4 7efd1968      192 *-* if status == .Coroutine~killed 
+00008cd4 7efd1968          >V>   STATUS => "1"
+00008cd4 7efd1968          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968          >M>   "KILLED" => "4"
+00008cd4 7efd1968          >O>   "==" => "0"
+00008cd4 7efd1968          >>>   "0"
+00008cd4 7efd1968      193 *-* if status == .Coroutine~completed 
+00008cd4 7efd1968          >V>   STATUS => "1"
+00008cd4 7efd1968          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968          >M>   "COMPLETED" => "3"
+00008cd4 7efd1968          >O>   "==" => "0"
+00008cd4 7efd1968          >>>   "0"
+00008cd4 7efd1968      194 *-* self~arguments = arg(1, "a")
+00008cd4 7efd1968          >V>   SELF => "a COROUTINE"
+00008cd4 7efd1968          >L>   "1"
+00008cd4 7efd1968          >A>   "1"
+00008cd4 7efd1968          >L>   "a"
+00008cd4 7efd1968          >A>   "a"
+00008cd4 7efd1968          >F>   ARG => "an Array"
+00008cd4 7efd1968          >A>   "an Array"
+00008cd4 7efd1968          >>>   "an Array"
+00008cd4 7efd1968      195 *-* status = .Coroutine~running
+00008cd4 7efd1968          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968          >M>   "RUNNING" => "2"
+00008cd4 7efd1968          >>>   "2"
+00008d58 7efcbe78 *        >V>   STATUS => "2"
+00008cd4 7efd1968          >=>   STATUS <= "2"
+00008d58 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968      196 *-* guard on when status <> .Coroutine~running
+00008d58 7efcbe78 *        >M>   "SUSPENDED" => "1"
+00008d58 7efcbe78 *        >O>   "<>" => "1"
+00008d58 7efcbe78 *        >>>   "1"
+00008d58 7efcbe78 *    114 *-* if status == .Coroutine~running 
+00008d58 7efcbe78 *        >V>   STATUS => "2"
+00008d58 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7efcbe78 *        >M>   "RUNNING" => "2"
+00008d58 7efcbe78 *        >O>   "==" => "1"
+00008d58 7efcbe78 *        >>>   "1"
+00008d58 7efcbe78 *    114 *-*   then
+00008d58 7efcbe78 *    114 *-*     do
+00008d58 7efcbe78 *    117 *-*       self~arguments~append(self)
+00008d58 7efcbe78 *        >V>         SELF => "a COROUTINE"
+00008d58 7efcbe78 *        >M>         "ARGUMENTS" => "an Array"
+00008d58 7efcbe78 *        >V>         SELF => "a COROUTINE"
+00008d58 7efcbe78 *        >A>         "a COROUTINE"
+00008d58 7efcbe78 *        >>>         "1"
+00008d58 7efcbe78 *    118 *-*       guard off
+00008d58 7efcbe78      119 *-*       select
+00008cd4 7efd1968 *        >V>   STATUS => "2"
+00008d58 7efcbe78      121 *-*         when self~routine <> .nil 
+00008cd4 7efd1968 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7efcbe78          >V>           SELF => "a COROUTINE"
+00008cd4 7efd1968 *        >M>   "RUNNING" => "2"
+00008cd4 7efd1968 *        >O>   "<>" => "0"
+00008cd4 7efd1968 *        >>>   "0"
+00008d58 7efcbe78          >M>           "ROUTINE" => "The NIL object"
+00008d58 7efcbe78          >E>           .NIL => "The NIL object"
+00008d58 7efcbe78          >O>           "<>" => "0"
+00008d58 7efcbe78          >>>           "0"
+00008d58 7efcbe78      122 *-*         when self~message <> .nil 
+00008d58 7efcbe78          >V>           SELF => "a COROUTINE"
+00008d58 7efcbe78          >M>           "MESSAGE" => "The NIL object"
+00008d58 7efcbe78          >E>           .NIL => "The NIL object"
+00008d58 7efcbe78          >O>           "<>" => "0"
+00008d58 7efcbe78          >>>           "0"
+00008d58 7efcbe78      123 *-*         otherwise
+00008d58 7efcbe78      123 *-*           self~doer~doWith(self~arguments)
+00008d58 7efcbe78          >V>             SELF => "a COROUTINE"
+00008d58 7efcbe78          >M>             "DOER" => "a Routine"
+00008d58 7efcbe78          >V>             SELF => "a COROUTINE"
+00008d58 7efcbe78          >M>             "ARGUMENTS" => "an Array"
+00008d58 7efcbe78          >A>             "an Array"
+running coroutine
+00008d58 7efcbe78          >>>             "1"
+00008d58 7efcbe78      124 *-*       end
+00008d58 7efcbe78      125 *-*       guard on
+00008d58 7efcbe78 *    126 *-*       if var("result") 
+00008d58 7efcbe78 *        >L>         "result"
+00008d58 7efcbe78 *        >A>         "result"
+00008d58 7efcbe78 *        >F>         VAR => "1"
+00008d58 7efcbe78 *        >>>         "1"
+00008d58 7efcbe78 *    126 *-*         then
+00008d58 7efcbe78 *    126 *-*           self~yieldLast(result)
+00008d58 7efcbe78 *        >V>             SELF => "a COROUTINE"
+00008d58 7efcbe78 *        >V>             RESULT => "1"
+00008d58 7efcbe78 *        >A>             "1"
+00008d58 7efe4a58 *        >I> Method YIELDLAST with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7efe4a58 *    181 *-* expose status yieldValue
+00008d58 7efe4a58 *    182 *-* drop yieldValue
+00008d58 7efe4a58 *    183 *-* if status == .Coroutine~killed 
+00008d58 7efe4a58 *        >V>   STATUS => "2"
+00008d58 7efe4a58 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7efe4a58 *        >M>   "KILLED" => "4"
+00008d58 7efe4a58 *        >O>   "==" => "0"
+00008d58 7efe4a58 *        >>>   "0"
+00008d58 7efe4a58 *    184 *-* if arg() <> 0 
+00008d58 7efe4a58 *        >F>   ARG => "1"
+00008d58 7efe4a58 *        >L>   "0"
+00008d58 7efe4a58 *        >O>   "<>" => "1"
+00008d58 7efe4a58 *        >>>   "1"
+00008d58 7efe4a58 *    184 *-*   then
+00008d58 7efe4a58 *    184 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7efe4a58 *        >>>       "1"
+00008d58 7efe4a58 *        >=>       YIELDVALUE <= "1"
+00008d58 7efcbe78 *    128 *-*       status = .Coroutine~completed
+00008d58 7efcbe78 *        >E>         .COROUTINE => "The COROUTINE class"
+00008d58 7efcbe78 *        >M>         "COMPLETED" => "3"
+00008d58 7efcbe78 *        >>>         "3"
+00008d58 7efcbe78 *        >=>         STATUS <= "3"
+00008d58 7efcbe78 *    129 *-*   end
+00008d58 7efcbe78 *    130 *-* .Coroutine~table~remove(self)
+00008d58 7efcbe78 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7efcbe78 *        >M>   "TABLE" => "an IdentityTable"
+00008d58 7efcbe78 *        >V>   SELF => "a COROUTINE"
+00008d58 7efcbe78 *        >A>   "a COROUTINE"
+00008d58 7efcbe78 *        >>>   "a COROUTINE"
+00008d58 7efcbe78 *    131 *-* return
+00008cd4 7efd1968 *        >V>   STATUS => "3"
+00008cd4 7efd1968 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968 *        >M>   "RUNNING" => "2"
+00008cd4 7efd1968 *        >O>   "<>" => "1"
+00008cd4 7efd1968 *        >>>   "1"
+00008cd4 7efd1968 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7efd1968 *        >V>   STATUS => "3"
+00008cd4 7efd1968 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efd1968 *        >M>   "KILLED" => "4"
+00008cd4 7efd1968 *        >O>   "==" => "0"
+00008cd4 7efd1968 *        >>>   "0"
+00008cd4 7efd1968 *    198 *-* if var("yieldValue") 
+00008cd4 7efd1968 *        >L>   "yieldValue"
+00008cd4 7efd1968 *        >A>   "yieldValue"
+00008cd4 7efd1968 *        >F>   VAR => "1"
+00008cd4 7efd1968 *        >>>   "1"
+00008cd4 7efd1968 *    198 *-*   then
+00008cd4 7efd1968 *    198 *-*     return yieldValue
+00008cd4 7efd1968 *        >V>       YIELDVALUE => "1"
+00008cd4 7efd1968 *        >>>       "1"
+1
+00008cd4 7efee848          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7efee848      190 *-* expose status yieldValue
+00008cd4 7efee848      191 *-* if status == .Coroutine~notStarted 
+00008cd4 7efee848          >V>   STATUS => "3"
+00008cd4 7efee848          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efee848          >M>   "NOTSTARTED" => "0"
+00008cd4 7efee848          >O>   "==" => "0"
+00008cd4 7efee848          >>>   "0"
+00008cd4 7efee848      192 *-* if status == .Coroutine~killed 
+00008cd4 7efee848          >V>   STATUS => "3"
+00008cd4 7efee848          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efee848          >M>   "KILLED" => "4"
+00008cd4 7efee848          >O>   "==" => "0"
+00008cd4 7efee848          >>>   "0"
+00008cd4 7efee848      193 *-* if status == .Coroutine~completed 
+00008cd4 7efee848          >V>   STATUS => "3"
+00008cd4 7efee848          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7efee848          >M>   "COMPLETED" => "3"
+00008cd4 7efee848          >O>   "==" => "1"
+00008cd4 7efee848          >>>   "1"
+00008cd4 7efee848      193 *-*   then
+00008cd4 7efee848      193 *-*     return -- raise syntax 93.900 array ("Coroutine is completed")
+Message "RESUME" did not return a result
+
+A coroutine implemented by a one-liner routine, used as a generator
+00008cd4 7eff41b0 *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7eff41b0 *     83 *-* use strict arg action="main", ...
+00008cd4 7eff41b0 *        >>>   "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+00008cd4 7eff41b0 *        >=>   ACTION <= "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+00008cd4 7eff41b0 *     85 *-* self~routine = .nil
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >E>   .NIL => "The NIL object"
+00008cd4 7eff41b0 *        >A>   "The NIL object"
+00008cd4 7eff41b0 *        >>>   "The NIL object"
+00008cd4 7eff41b0 *     86 *-* self~message = .nil
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >E>   .NIL => "The NIL object"
+00008cd4 7eff41b0 *        >A>   "The NIL object"
+00008cd4 7eff41b0 *        >>>   "The NIL object"
+00008cd4 7eff41b0 *     87 *-* self~doer = .nil
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >E>   .NIL => "The NIL object"
+00008cd4 7eff41b0 *        >A>   "The NIL object"
+00008cd4 7eff41b0 *        >>>   "The NIL object"
+00008cd4 7eff41b0 *     88 *-* self~object = .nil
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >E>   .NIL => "The NIL object"
+00008cd4 7eff41b0 *        >A>   "The NIL object"
+00008cd4 7eff41b0 *        >>>   "The NIL object"
+00008cd4 7eff41b0 *     90 *-* self~doer = action~doer
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >V>   ACTION => "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+00008cd4 7eff41b0 *        >M>   "DOER" => "a Routine"
+00008cd4 7eff41b0 *        >A>   "a Routine"
+00008cd4 7eff41b0 *        >>>   "a Routine"
+00008cd4 7eff41b0 *     91 *-* if self~doer~isA(.Routine) 
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >M>   "DOER" => "a Routine"
+00008cd4 7eff41b0 *        >E>   .ROUTINE => "The Routine class"
+00008cd4 7eff41b0 *        >A>   "The Routine class"
+00008cd4 7eff41b0 *        >M>   "ISA" => "1"
+00008cd4 7eff41b0 *        >>>   "1"
+00008cd4 7eff41b0 *     91 *-*   then
+00008cd4 7eff41b0 *     91 *-*     use strict arg action="main", start = .true
+00008cd4 7eff41b0 *        >>>       "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+00008cd4 7eff41b0 *        >=>       ACTION <= "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+00008cd4 7eff41b0 *        >E>       .TRUE => "1"
+00008cd4 7eff41b0 *        >>>       "1"
+00008cd4 7eff41b0 *        >=>       START <= "1"
+00008cd4 7eff41b0 *     94 *-* self~status = .Coroutine~notStarted
+00008cd4 7eff41b0 *        >V>   SELF => "a COROUTINE"
+00008cd4 7eff41b0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7eff41b0 *        >M>   "NOTSTARTED" => "0"
+00008cd4 7eff41b0 *        >A>   "0"
+00008cd4 7eff41b0 *        >>>   "0"
+00008cd4 7eff41b0 *     95 *-* if start 
+00008cd4 7eff41b0 *        >V>   START => "1"
+00008cd4 7eff41b0 *        >>>   "1"
+00008cd4 7eff41b0 *     95 *-*   then
+00008cd4 7eff41b0 *     95 *-*     self~start
+00008cd4 7eff41b0 *        >V>       SELF => "a COROUTINE"
+00008cd4 7f000f10 *        >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f000f10 *    105 *-* expose status
+00008cd4 7f000f10 *    106 *-* use strict arg -- no arg
+00008cd4 7f000f10 *    107 *-* if status <> .Coroutine~notStarted 
+00008cd4 7f000f10 *        >V>   STATUS => "0"
+00008cd4 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f000f10 *        >M>   "NOTSTARTED" => "0"
+00008cd4 7f000f10 *        >O>   "<>" => "0"
+00008cd4 7f000f10 *        >>>   "0"
+00008cd4 7f000f10 *    108 *-* .Coroutine~table~put(self, self)
+00008cd4 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f000f10 *        >M>   "TABLE" => "an IdentityTable"
+00008cd4 7f000f10 *        >V>   SELF => "a COROUTINE"
+00008cd4 7f000f10 *        >A>   "a COROUTINE"
+00008cd4 7f000f10 *        >V>   SELF => "a COROUTINE"
+00008cd4 7f000f10 *        >A>   "a COROUTINE"
+00008cd4 7f000f10 *    109 *-* status = .Coroutine~suspended
+00008cd4 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f000f10 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f000f10 *        >>>   "1"
+00008cd4 7f000f10 *        >=>   STATUS <= "1"
+00008cd4 7f000f10 *    110 *-* guard off
+00008cd4 7f000f10      111 *-* reply self
+00008cd4 7f000f10          >V>   SELF => "a COROUTINE"
+00008cd4 7f000f10          >>>   "a COROUTINE"
+00008d58 7f000f10          >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7eff41b0 *        >>>       "a COROUTINE"
+00008d58 7f000f10      112 *-* signal on any 
+00008cd4 7f006e30          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f000f10      113 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f006e30      190 *-* expose status yieldValue
+00008d58 7f000f10 *        >V>   STATUS => "1"
+00008cd4 7f006e30      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f006e30          >V>   STATUS => "1"
+00008d58 7f000f10 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f006e30          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f000f10 *        >O>   "<>" => "0"
+00008cd4 7f006e30          >M>   "NOTSTARTED" => "0"
+00008d58 7f000f10 *        >>>   "0"
+00008cd4 7f006e30          >O>   "==" => "0"
+00008cd4 7f006e30          >>>   "0"
+00008cd4 7f006e30      192 *-* if status == .Coroutine~killed 
+00008cd4 7f006e30          >V>   STATUS => "1"
+00008cd4 7f006e30          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f006e30          >M>   "KILLED" => "4"
+00008cd4 7f006e30          >O>   "==" => "0"
+00008cd4 7f006e30          >>>   "0"
+00008cd4 7f006e30      193 *-* if status == .Coroutine~completed 
+00008cd4 7f006e30          >V>   STATUS => "1"
+00008cd4 7f006e30          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f006e30          >M>   "COMPLETED" => "3"
+00008cd4 7f006e30          >O>   "==" => "0"
+00008cd4 7f006e30          >>>   "0"
+00008cd4 7f006e30      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f006e30          >V>   SELF => "a COROUTINE"
+00008cd4 7f006e30          >L>   "1"
+00008cd4 7f006e30          >A>   "1"
+00008cd4 7f006e30          >L>   "a"
+00008cd4 7f006e30          >A>   "a"
+00008cd4 7f006e30          >F>   ARG => "an Array"
+00008cd4 7f006e30          >A>   "an Array"
+00008cd4 7f006e30          >>>   "an Array"
+00008cd4 7f006e30      195 *-* status = .Coroutine~running
+00008cd4 7f006e30          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f006e30          >M>   "RUNNING" => "2"
+00008cd4 7f006e30          >>>   "2"
+00008d58 7f000f10 *        >V>   STATUS => "2"
+00008cd4 7f006e30          >=>   STATUS <= "2"
+00008d58 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f006e30      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f000f10 *        >M>   "SUSPENDED" => "1"
+00008d58 7f000f10 *        >O>   "<>" => "1"
+00008d58 7f000f10 *        >>>   "1"
+00008d58 7f000f10 *    114 *-* if status == .Coroutine~running 
+00008d58 7f000f10 *        >V>   STATUS => "2"
+00008d58 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f000f10 *        >M>   "RUNNING" => "2"
+00008d58 7f000f10 *        >O>   "==" => "1"
+00008d58 7f000f10 *        >>>   "1"
+00008d58 7f000f10 *    114 *-*   then
+00008d58 7f000f10 *    114 *-*     do
+00008d58 7f000f10 *    117 *-*       self~arguments~append(self)
+00008d58 7f000f10 *        >V>         SELF => "a COROUTINE"
+00008d58 7f000f10 *        >M>         "ARGUMENTS" => "an Array"
+00008d58 7f000f10 *        >V>         SELF => "a COROUTINE"
+00008d58 7f000f10 *        >A>         "a COROUTINE"
+00008d58 7f000f10 *        >>>         "1"
+00008d58 7f000f10 *    118 *-*       guard off
+00008d58 7f000f10      119 *-*       select
+00008cd4 7f006e30 *        >V>   STATUS => "2"
+00008d58 7f000f10      121 *-*         when self~routine <> .nil 
+00008cd4 7f006e30 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f000f10          >V>           SELF => "a COROUTINE"
+00008cd4 7f006e30 *        >M>   "RUNNING" => "2"
+00008cd4 7f006e30 *        >O>   "<>" => "0"
+00008cd4 7f006e30 *        >>>   "0"
+00008d58 7f000f10          >M>           "ROUTINE" => "The NIL object"
+00008d58 7f000f10          >E>           .NIL => "The NIL object"
+00008d58 7f000f10          >O>           "<>" => "0"
+00008d58 7f000f10          >>>           "0"
+00008d58 7f000f10      122 *-*         when self~message <> .nil 
+00008d58 7f000f10          >V>           SELF => "a COROUTINE"
+00008d58 7f000f10          >M>           "MESSAGE" => "The NIL object"
+00008d58 7f000f10          >E>           .NIL => "The NIL object"
+00008d58 7f000f10          >O>           "<>" => "0"
+00008d58 7f000f10          >>>           "0"
+00008d58 7f000f10      123 *-*         otherwise
+00008d58 7f000f10      123 *-*           self~doer~doWith(self~arguments)
+00008d58 7f000f10          >V>             SELF => "a COROUTINE"
+00008d58 7f000f10          >M>             "DOER" => "a Routine"
+00008d58 7f000f10          >V>             SELF => "a COROUTINE"
+00008d58 7f000f10          >M>             "ARGUMENTS" => "an Array"
+00008d58 7f000f10          >A>             "an Array"
+00008d58 7f017258          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f017258      167 *-* expose status yieldValue
+00008d58 7f017258      168 *-* drop yieldValue
+00008d58 7f017258      169 *-* if status == .Coroutine~killed 
+00008d58 7f017258          >V>   STATUS => "2"
+00008d58 7f017258          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f017258          >M>   "KILLED" => "4"
+00008d58 7f017258          >O>   "==" => "0"
+00008d58 7f017258          >>>   "0"
+00008d58 7f017258      170 *-* if arg() <> 0 
+00008d58 7f017258          >F>   ARG => "1"
+00008d58 7f017258          >L>   "0"
+00008d58 7f017258          >O>   "<>" => "1"
+00008d58 7f017258          >>>   "1"
+00008d58 7f017258      170 *-*   then
+00008d58 7f017258      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f017258          >>>       "1"
+00008d58 7f017258          >=>       YIELDVALUE <= "1"
+00008d58 7f017258      171 *-* status = .Coroutine~suspended
+00008d58 7f017258          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f017258          >M>   "SUSPENDED" => "1"
+00008d58 7f017258          >>>   "1"
+00008cd4 7f006e30 *        >V>   STATUS => "1"
+00008d58 7f017258          >=>   STATUS <= "1"
+00008cd4 7f006e30 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f017258      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f006e30 *        >M>   "RUNNING" => "2"
+00008cd4 7f006e30 *        >O>   "<>" => "1"
+00008cd4 7f006e30 *        >>>   "1"
+00008cd4 7f006e30 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f006e30 *        >V>   STATUS => "1"
+00008cd4 7f006e30 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f006e30 *        >M>   "KILLED" => "4"
+00008cd4 7f006e30 *        >O>   "==" => "0"
+00008cd4 7f006e30 *        >>>   "0"
+00008cd4 7f006e30 *    198 *-* if var("yieldValue") 
+00008cd4 7f006e30 *        >L>   "yieldValue"
+00008cd4 7f006e30 *        >A>   "yieldValue"
+00008cd4 7f006e30 *        >F>   VAR => "1"
+00008cd4 7f006e30 *        >>>   "1"
+00008cd4 7f006e30 *    198 *-*   then
+00008cd4 7f006e30 *    198 *-*     return yieldValue
+00008cd4 7f006e30 *        >V>       YIELDVALUE => "1"
+00008cd4 7f006e30 *        >>>       "1"
+00008d58 7f017258 *        >V>   STATUS => "1"
+1
+00008d58 7f017258 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f017258 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f020120      190 *-* expose status yieldValue
+00008d58 7f017258 *        >O>   "<>" => "0"
+00008cd4 7f020120      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f017258 *        >>>   "0"
+00008cd4 7f020120          >V>   STATUS => "1"
+00008cd4 7f020120          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120          >M>   "NOTSTARTED" => "0"
+00008cd4 7f020120          >O>   "==" => "0"
+00008cd4 7f020120          >>>   "0"
+00008cd4 7f020120      192 *-* if status == .Coroutine~killed 
+00008cd4 7f020120          >V>   STATUS => "1"
+00008cd4 7f020120          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120          >M>   "KILLED" => "4"
+00008cd4 7f020120          >O>   "==" => "0"
+00008cd4 7f020120          >>>   "0"
+00008cd4 7f020120      193 *-* if status == .Coroutine~completed 
+00008cd4 7f020120          >V>   STATUS => "1"
+00008cd4 7f020120          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120          >M>   "COMPLETED" => "3"
+00008cd4 7f020120          >O>   "==" => "0"
+00008cd4 7f020120          >>>   "0"
+00008cd4 7f020120      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f020120          >V>   SELF => "a COROUTINE"
+00008cd4 7f020120          >L>   "1"
+00008cd4 7f020120          >A>   "1"
+00008cd4 7f020120          >L>   "a"
+00008cd4 7f020120          >A>   "a"
+00008cd4 7f020120          >F>   ARG => "an Array"
+00008cd4 7f020120          >A>   "an Array"
+00008cd4 7f020120          >>>   "an Array"
+00008cd4 7f020120      195 *-* status = .Coroutine~running
+00008cd4 7f020120          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120          >M>   "RUNNING" => "2"
+00008cd4 7f020120          >>>   "2"
+00008d58 7f017258 *        >V>   STATUS => "2"
+00008cd4 7f020120          >=>   STATUS <= "2"
+00008d58 7f017258 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f017258 *        >M>   "SUSPENDED" => "1"
+00008d58 7f017258 *        >O>   "<>" => "1"
+00008d58 7f017258 *        >>>   "1"
+00008d58 7f017258 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f017258 *        >V>   STATUS => "2"
+00008d58 7f017258 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f017258 *        >M>   "KILLED" => "4"
+00008d58 7f017258 *        >O>   "==" => "0"
+00008d58 7f017258 *        >>>   "0"
+00008d58 7f017258 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f017258 *        >V>   SELF => "a COROUTINE"
+00008d58 7f017258 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f017258 *        >>>   "an Array"
+00008d58 7f029f40          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f020120 *        >V>   STATUS => "2"
+00008d58 7f029f40      167 *-* expose status yieldValue
+00008cd4 7f020120 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f029f40      168 *-* drop yieldValue
+00008cd4 7f020120 *        >M>   "RUNNING" => "2"
+00008d58 7f029f40      169 *-* if status == .Coroutine~killed 
+00008cd4 7f020120 *        >O>   "<>" => "0"
+00008d58 7f029f40          >V>   STATUS => "2"
+00008cd4 7f020120 *        >>>   "0"
+00008d58 7f029f40          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f029f40          >M>   "KILLED" => "4"
+00008d58 7f029f40          >O>   "==" => "0"
+00008d58 7f029f40          >>>   "0"
+00008d58 7f029f40      170 *-* if arg() <> 0 
+00008d58 7f029f40          >F>   ARG => "1"
+00008d58 7f029f40          >L>   "0"
+00008d58 7f029f40          >O>   "<>" => "1"
+00008d58 7f029f40          >>>   "1"
+00008d58 7f029f40      170 *-*   then
+00008d58 7f029f40      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f029f40          >>>       "2"
+00008d58 7f029f40          >=>       YIELDVALUE <= "2"
+00008d58 7f029f40      171 *-* status = .Coroutine~suspended
+00008d58 7f029f40          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f029f40          >M>   "SUSPENDED" => "1"
+00008d58 7f029f40          >>>   "1"
+00008cd4 7f020120 *        >V>   STATUS => "1"
+00008d58 7f029f40          >=>   STATUS <= "1"
+00008cd4 7f020120 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f029f40      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f020120 *        >M>   "RUNNING" => "2"
+00008cd4 7f020120 *        >O>   "<>" => "1"
+00008cd4 7f020120 *        >>>   "1"
+00008cd4 7f020120 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f020120 *        >V>   STATUS => "1"
+00008cd4 7f020120 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f020120 *        >M>   "KILLED" => "4"
+00008cd4 7f020120 *        >O>   "==" => "0"
+00008cd4 7f020120 *        >>>   "0"
+00008cd4 7f020120 *    198 *-* if var("yieldValue") 
+00008cd4 7f020120 *        >L>   "yieldValue"
+00008cd4 7f020120 *        >A>   "yieldValue"
+00008cd4 7f020120 *        >F>   VAR => "1"
+00008cd4 7f020120 *        >>>   "1"
+00008cd4 7f020120 *    198 *-*   then
+00008cd4 7f020120 *    198 *-*     return yieldValue
+00008cd4 7f020120 *        >V>       YIELDVALUE => "2"
+00008cd4 7f020120 *        >>>       "2"
+2
+00008d58 7f029f40 *        >V>   STATUS => "1"
+00008d58 7f029f40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f029f40 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f033b00      190 *-* expose status yieldValue
+00008d58 7f029f40 *        >O>   "<>" => "0"
+00008cd4 7f033b00      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f029f40 *        >>>   "0"
+00008cd4 7f033b00          >V>   STATUS => "1"
+00008cd4 7f033b00          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00          >M>   "NOTSTARTED" => "0"
+00008cd4 7f033b00          >O>   "==" => "0"
+00008cd4 7f033b00          >>>   "0"
+00008cd4 7f033b00      192 *-* if status == .Coroutine~killed 
+00008cd4 7f033b00          >V>   STATUS => "1"
+00008cd4 7f033b00          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00          >M>   "KILLED" => "4"
+00008cd4 7f033b00          >O>   "==" => "0"
+00008cd4 7f033b00          >>>   "0"
+00008cd4 7f033b00      193 *-* if status == .Coroutine~completed 
+00008cd4 7f033b00          >V>   STATUS => "1"
+00008cd4 7f033b00          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00          >M>   "COMPLETED" => "3"
+00008cd4 7f033b00          >O>   "==" => "0"
+00008cd4 7f033b00          >>>   "0"
+00008cd4 7f033b00      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f033b00          >V>   SELF => "a COROUTINE"
+00008cd4 7f033b00          >L>   "1"
+00008cd4 7f033b00          >A>   "1"
+00008cd4 7f033b00          >L>   "a"
+00008cd4 7f033b00          >A>   "a"
+00008cd4 7f033b00          >F>   ARG => "an Array"
+00008cd4 7f033b00          >A>   "an Array"
+00008cd4 7f033b00          >>>   "an Array"
+00008cd4 7f033b00      195 *-* status = .Coroutine~running
+00008cd4 7f033b00          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00          >M>   "RUNNING" => "2"
+00008cd4 7f033b00          >>>   "2"
+00008d58 7f029f40 *        >V>   STATUS => "2"
+00008cd4 7f033b00          >=>   STATUS <= "2"
+00008d58 7f029f40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f029f40 *        >M>   "SUSPENDED" => "1"
+00008d58 7f029f40 *        >O>   "<>" => "1"
+00008d58 7f029f40 *        >>>   "1"
+00008d58 7f029f40 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f029f40 *        >V>   STATUS => "2"
+00008d58 7f029f40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f029f40 *        >M>   "KILLED" => "4"
+00008d58 7f029f40 *        >O>   "==" => "0"
+00008d58 7f029f40 *        >>>   "0"
+00008d58 7f029f40 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f029f40 *        >V>   SELF => "a COROUTINE"
+00008d58 7f029f40 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f029f40 *        >>>   "an Array"
+00008d58 7f03d920          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f033b00 *        >V>   STATUS => "2"
+00008d58 7f03d920      167 *-* expose status yieldValue
+00008cd4 7f033b00 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f03d920      168 *-* drop yieldValue
+00008cd4 7f033b00 *        >M>   "RUNNING" => "2"
+00008d58 7f03d920      169 *-* if status == .Coroutine~killed 
+00008cd4 7f033b00 *        >O>   "<>" => "0"
+00008d58 7f03d920          >V>   STATUS => "2"
+00008cd4 7f033b00 *        >>>   "0"
+00008d58 7f03d920          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f03d920          >M>   "KILLED" => "4"
+00008d58 7f03d920          >O>   "==" => "0"
+00008d58 7f03d920          >>>   "0"
+00008d58 7f03d920      170 *-* if arg() <> 0 
+00008d58 7f03d920          >F>   ARG => "1"
+00008d58 7f03d920          >L>   "0"
+00008d58 7f03d920          >O>   "<>" => "1"
+00008d58 7f03d920          >>>   "1"
+00008d58 7f03d920      170 *-*   then
+00008d58 7f03d920      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f03d920          >>>       "3"
+00008d58 7f03d920          >=>       YIELDVALUE <= "3"
+00008d58 7f03d920      171 *-* status = .Coroutine~suspended
+00008d58 7f03d920          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f03d920          >M>   "SUSPENDED" => "1"
+00008d58 7f03d920          >>>   "1"
+00008cd4 7f033b00 *        >V>   STATUS => "1"
+00008d58 7f03d920          >=>   STATUS <= "1"
+00008cd4 7f033b00 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f03d920      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f033b00 *        >M>   "RUNNING" => "2"
+00008cd4 7f033b00 *        >O>   "<>" => "1"
+00008cd4 7f033b00 *        >>>   "1"
+00008cd4 7f033b00 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f033b00 *        >V>   STATUS => "1"
+00008cd4 7f033b00 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f033b00 *        >M>   "KILLED" => "4"
+00008cd4 7f033b00 *        >O>   "==" => "0"
+00008cd4 7f033b00 *        >>>   "0"
+00008cd4 7f033b00 *    198 *-* if var("yieldValue") 
+00008cd4 7f033b00 *        >L>   "yieldValue"
+00008cd4 7f033b00 *        >A>   "yieldValue"
+00008cd4 7f033b00 *        >F>   VAR => "1"
+00008cd4 7f033b00 *        >>>   "1"
+00008cd4 7f033b00 *    198 *-*   then
+00008cd4 7f033b00 *    198 *-*     return yieldValue
+00008cd4 7f033b00 *        >V>       YIELDVALUE => "3"
+00008cd4 7f033b00 *        >>>       "3"
+3
+00008d58 7f03d920 *        >V>   STATUS => "1"
+00008cd4 7f047180          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f03d920 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180      190 *-* expose status yieldValue
+00008d58 7f03d920 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f047180      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f03d920 *        >O>   "<>" => "0"
+00008cd4 7f047180          >V>   STATUS => "1"
+00008d58 7f03d920 *        >>>   "0"
+00008cd4 7f047180          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180          >M>   "NOTSTARTED" => "0"
+00008cd4 7f047180          >O>   "==" => "0"
+00008cd4 7f047180          >>>   "0"
+00008cd4 7f047180      192 *-* if status == .Coroutine~killed 
+00008cd4 7f047180          >V>   STATUS => "1"
+00008cd4 7f047180          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180          >M>   "KILLED" => "4"
+00008cd4 7f047180          >O>   "==" => "0"
+00008cd4 7f047180          >>>   "0"
+00008cd4 7f047180      193 *-* if status == .Coroutine~completed 
+00008cd4 7f047180          >V>   STATUS => "1"
+00008cd4 7f047180          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180          >M>   "COMPLETED" => "3"
+00008cd4 7f047180          >O>   "==" => "0"
+00008cd4 7f047180          >>>   "0"
+00008cd4 7f047180      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f047180          >V>   SELF => "a COROUTINE"
+00008cd4 7f047180          >L>   "1"
+00008cd4 7f047180          >A>   "1"
+00008cd4 7f047180          >L>   "a"
+00008cd4 7f047180          >A>   "a"
+00008cd4 7f047180          >F>   ARG => "an Array"
+00008cd4 7f047180          >A>   "an Array"
+00008cd4 7f047180          >>>   "an Array"
+00008cd4 7f047180      195 *-* status = .Coroutine~running
+00008cd4 7f047180          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180          >M>   "RUNNING" => "2"
+00008cd4 7f047180          >>>   "2"
+00008d58 7f03d920 *        >V>   STATUS => "2"
+00008cd4 7f047180          >=>   STATUS <= "2"
+00008d58 7f03d920 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f03d920 *        >M>   "SUSPENDED" => "1"
+00008d58 7f03d920 *        >O>   "<>" => "1"
+00008d58 7f03d920 *        >>>   "1"
+00008d58 7f03d920 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f03d920 *        >V>   STATUS => "2"
+00008d58 7f03d920 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f03d920 *        >M>   "KILLED" => "4"
+00008d58 7f03d920 *        >O>   "==" => "0"
+00008d58 7f03d920 *        >>>   "0"
+00008d58 7f03d920 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f03d920 *        >V>   SELF => "a COROUTINE"
+00008d58 7f03d920 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f03d920 *        >>>   "an Array"
+00008d58 7f0512e0          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f047180 *        >V>   STATUS => "2"
+00008d58 7f0512e0      167 *-* expose status yieldValue
+00008cd4 7f047180 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0512e0      168 *-* drop yieldValue
+00008cd4 7f047180 *        >M>   "RUNNING" => "2"
+00008d58 7f0512e0      169 *-* if status == .Coroutine~killed 
+00008cd4 7f047180 *        >O>   "<>" => "0"
+00008d58 7f0512e0          >V>   STATUS => "2"
+00008cd4 7f047180 *        >>>   "0"
+00008d58 7f0512e0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0512e0          >M>   "KILLED" => "4"
+00008d58 7f0512e0          >O>   "==" => "0"
+00008d58 7f0512e0          >>>   "0"
+00008d58 7f0512e0      170 *-* if arg() <> 0 
+00008d58 7f0512e0          >F>   ARG => "1"
+00008d58 7f0512e0          >L>   "0"
+00008d58 7f0512e0          >O>   "<>" => "1"
+00008d58 7f0512e0          >>>   "1"
+00008d58 7f0512e0      170 *-*   then
+00008d58 7f0512e0      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f0512e0          >>>       "4"
+00008d58 7f0512e0          >=>       YIELDVALUE <= "4"
+00008d58 7f0512e0      171 *-* status = .Coroutine~suspended
+00008d58 7f0512e0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0512e0          >M>   "SUSPENDED" => "1"
+00008d58 7f0512e0          >>>   "1"
+00008cd4 7f047180 *        >V>   STATUS => "1"
+00008d58 7f0512e0          >=>   STATUS <= "1"
+00008cd4 7f047180 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0512e0      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f047180 *        >M>   "RUNNING" => "2"
+00008cd4 7f047180 *        >O>   "<>" => "1"
+00008cd4 7f047180 *        >>>   "1"
+00008cd4 7f047180 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f047180 *        >V>   STATUS => "1"
+00008cd4 7f047180 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f047180 *        >M>   "KILLED" => "4"
+00008cd4 7f047180 *        >O>   "==" => "0"
+00008cd4 7f047180 *        >>>   "0"
+00008cd4 7f047180 *    198 *-* if var("yieldValue") 
+00008cd4 7f047180 *        >L>   "yieldValue"
+00008cd4 7f047180 *        >A>   "yieldValue"
+00008cd4 7f047180 *        >F>   VAR => "1"
+00008cd4 7f047180 *        >>>   "1"
+00008cd4 7f047180 *    198 *-*   then
+00008cd4 7f047180 *    198 *-*     return yieldValue
+00008cd4 7f047180 *        >V>       YIELDVALUE => "4"
+00008cd4 7f047180 *        >>>       "4"
+4
+00008d58 7f0512e0 *        >V>   STATUS => "1"
+00008cd4 7f05ab40          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f0512e0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40      190 *-* expose status yieldValue
+00008d58 7f0512e0 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f05ab40      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f0512e0 *        >O>   "<>" => "0"
+00008cd4 7f05ab40          >V>   STATUS => "1"
+00008d58 7f0512e0 *        >>>   "0"
+00008cd4 7f05ab40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40          >M>   "NOTSTARTED" => "0"
+00008cd4 7f05ab40          >O>   "==" => "0"
+00008cd4 7f05ab40          >>>   "0"
+00008cd4 7f05ab40      192 *-* if status == .Coroutine~killed 
+00008cd4 7f05ab40          >V>   STATUS => "1"
+00008cd4 7f05ab40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40          >M>   "KILLED" => "4"
+00008cd4 7f05ab40          >O>   "==" => "0"
+00008cd4 7f05ab40          >>>   "0"
+00008cd4 7f05ab40      193 *-* if status == .Coroutine~completed 
+00008cd4 7f05ab40          >V>   STATUS => "1"
+00008cd4 7f05ab40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40          >M>   "COMPLETED" => "3"
+00008cd4 7f05ab40          >O>   "==" => "0"
+00008cd4 7f05ab40          >>>   "0"
+00008cd4 7f05ab40      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f05ab40          >V>   SELF => "a COROUTINE"
+00008cd4 7f05ab40          >L>   "1"
+00008cd4 7f05ab40          >A>   "1"
+00008cd4 7f05ab40          >L>   "a"
+00008cd4 7f05ab40          >A>   "a"
+00008cd4 7f05ab40          >F>   ARG => "an Array"
+00008cd4 7f05ab40          >A>   "an Array"
+00008cd4 7f05ab40          >>>   "an Array"
+00008cd4 7f05ab40      195 *-* status = .Coroutine~running
+00008cd4 7f05ab40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40          >M>   "RUNNING" => "2"
+00008cd4 7f05ab40          >>>   "2"
+00008d58 7f0512e0 *        >V>   STATUS => "2"
+00008cd4 7f05ab40          >=>   STATUS <= "2"
+00008d58 7f0512e0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f0512e0 *        >M>   "SUSPENDED" => "1"
+00008d58 7f0512e0 *        >O>   "<>" => "1"
+00008d58 7f0512e0 *        >>>   "1"
+00008d58 7f0512e0 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f0512e0 *        >V>   STATUS => "2"
+00008d58 7f0512e0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0512e0 *        >M>   "KILLED" => "4"
+00008d58 7f0512e0 *        >O>   "==" => "0"
+00008d58 7f0512e0 *        >>>   "0"
+00008d58 7f0512e0 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f0512e0 *        >V>   SELF => "a COROUTINE"
+00008d58 7f0512e0 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f0512e0 *        >>>   "an Array"
+00008d58 7f064ca0          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f05ab40 *        >V>   STATUS => "2"
+00008d58 7f064ca0      167 *-* expose status yieldValue
+00008cd4 7f05ab40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f064ca0      168 *-* drop yieldValue
+00008cd4 7f05ab40 *        >M>   "RUNNING" => "2"
+00008d58 7f064ca0      169 *-* if status == .Coroutine~killed 
+00008cd4 7f05ab40 *        >O>   "<>" => "0"
+00008d58 7f064ca0          >V>   STATUS => "2"
+00008cd4 7f05ab40 *        >>>   "0"
+00008d58 7f064ca0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f064ca0          >M>   "KILLED" => "4"
+00008d58 7f064ca0          >O>   "==" => "0"
+00008d58 7f064ca0          >>>   "0"
+00008d58 7f064ca0      170 *-* if arg() <> 0 
+00008d58 7f064ca0          >F>   ARG => "1"
+00008d58 7f064ca0          >L>   "0"
+00008d58 7f064ca0          >O>   "<>" => "1"
+00008d58 7f064ca0          >>>   "1"
+00008d58 7f064ca0      170 *-*   then
+00008d58 7f064ca0      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f064ca0          >>>       "5"
+00008d58 7f064ca0          >=>       YIELDVALUE <= "5"
+00008d58 7f064ca0      171 *-* status = .Coroutine~suspended
+00008d58 7f064ca0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f064ca0          >M>   "SUSPENDED" => "1"
+00008d58 7f064ca0          >>>   "1"
+00008cd4 7f05ab40 *        >V>   STATUS => "1"
+00008d58 7f064ca0          >=>   STATUS <= "1"
+00008cd4 7f05ab40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f064ca0      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f05ab40 *        >M>   "RUNNING" => "2"
+00008cd4 7f05ab40 *        >O>   "<>" => "1"
+00008cd4 7f05ab40 *        >>>   "1"
+00008cd4 7f05ab40 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f05ab40 *        >V>   STATUS => "1"
+00008cd4 7f05ab40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f05ab40 *        >M>   "KILLED" => "4"
+00008cd4 7f05ab40 *        >O>   "==" => "0"
+00008cd4 7f05ab40 *        >>>   "0"
+00008cd4 7f05ab40 *    198 *-* if var("yieldValue") 
+00008cd4 7f05ab40 *        >L>   "yieldValue"
+00008cd4 7f05ab40 *        >A>   "yieldValue"
+00008cd4 7f05ab40 *        >F>   VAR => "1"
+00008cd4 7f05ab40 *        >>>   "1"
+00008cd4 7f05ab40 *    198 *-*   then
+00008cd4 7f05ab40 *    198 *-*     return yieldValue
+00008cd4 7f05ab40 *        >V>       YIELDVALUE => "5"
+00008cd4 7f05ab40 *        >>>       "5"
+5
+00008d58 7f064ca0 *        >V>   STATUS => "1"
+00008cd4 7f06e500          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f064ca0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500      190 *-* expose status yieldValue
+00008d58 7f064ca0 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f06e500      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f064ca0 *        >O>   "<>" => "0"
+00008cd4 7f06e500          >V>   STATUS => "1"
+00008d58 7f064ca0 *        >>>   "0"
+00008cd4 7f06e500          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500          >M>   "NOTSTARTED" => "0"
+00008cd4 7f06e500          >O>   "==" => "0"
+00008cd4 7f06e500          >>>   "0"
+00008cd4 7f06e500      192 *-* if status == .Coroutine~killed 
+00008cd4 7f06e500          >V>   STATUS => "1"
+00008cd4 7f06e500          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500          >M>   "KILLED" => "4"
+00008cd4 7f06e500          >O>   "==" => "0"
+00008cd4 7f06e500          >>>   "0"
+00008cd4 7f06e500      193 *-* if status == .Coroutine~completed 
+00008cd4 7f06e500          >V>   STATUS => "1"
+00008cd4 7f06e500          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500          >M>   "COMPLETED" => "3"
+00008cd4 7f06e500          >O>   "==" => "0"
+00008cd4 7f06e500          >>>   "0"
+00008cd4 7f06e500      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f06e500          >V>   SELF => "a COROUTINE"
+00008cd4 7f06e500          >L>   "1"
+00008cd4 7f06e500          >A>   "1"
+00008cd4 7f06e500          >L>   "a"
+00008cd4 7f06e500          >A>   "a"
+00008cd4 7f06e500          >F>   ARG => "an Array"
+00008cd4 7f06e500          >A>   "an Array"
+00008cd4 7f06e500          >>>   "an Array"
+00008cd4 7f06e500      195 *-* status = .Coroutine~running
+00008cd4 7f06e500          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500          >M>   "RUNNING" => "2"
+00008cd4 7f06e500          >>>   "2"
+00008d58 7f064ca0 *        >V>   STATUS => "2"
+00008cd4 7f06e500          >=>   STATUS <= "2"
+00008d58 7f064ca0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f064ca0 *        >M>   "SUSPENDED" => "1"
+00008d58 7f064ca0 *        >O>   "<>" => "1"
+00008d58 7f064ca0 *        >>>   "1"
+00008d58 7f064ca0 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f064ca0 *        >V>   STATUS => "2"
+00008d58 7f064ca0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f064ca0 *        >M>   "KILLED" => "4"
+00008d58 7f064ca0 *        >O>   "==" => "0"
+00008d58 7f064ca0 *        >>>   "0"
+00008d58 7f064ca0 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f064ca0 *        >V>   SELF => "a COROUTINE"
+00008d58 7f064ca0 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f064ca0 *        >>>   "an Array"
+00008d58 7f078660          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f06e500 *        >V>   STATUS => "2"
+00008d58 7f078660      167 *-* expose status yieldValue
+00008cd4 7f06e500 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f078660      168 *-* drop yieldValue
+00008cd4 7f06e500 *        >M>   "RUNNING" => "2"
+00008d58 7f078660      169 *-* if status == .Coroutine~killed 
+00008cd4 7f06e500 *        >O>   "<>" => "0"
+00008d58 7f078660          >V>   STATUS => "2"
+00008cd4 7f06e500 *        >>>   "0"
+00008d58 7f078660          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f078660          >M>   "KILLED" => "4"
+00008d58 7f078660          >O>   "==" => "0"
+00008d58 7f078660          >>>   "0"
+00008d58 7f078660      170 *-* if arg() <> 0 
+00008d58 7f078660          >F>   ARG => "1"
+00008d58 7f078660          >L>   "0"
+00008d58 7f078660          >O>   "<>" => "1"
+00008d58 7f078660          >>>   "1"
+00008d58 7f078660      170 *-*   then
+00008d58 7f078660      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f078660          >>>       "6"
+00008d58 7f078660          >=>       YIELDVALUE <= "6"
+00008d58 7f078660      171 *-* status = .Coroutine~suspended
+00008d58 7f078660          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f078660          >M>   "SUSPENDED" => "1"
+00008d58 7f078660          >>>   "1"
+00008cd4 7f06e500 *        >V>   STATUS => "1"
+00008d58 7f078660          >=>   STATUS <= "1"
+00008cd4 7f06e500 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f078660      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f06e500 *        >M>   "RUNNING" => "2"
+00008cd4 7f06e500 *        >O>   "<>" => "1"
+00008cd4 7f06e500 *        >>>   "1"
+00008cd4 7f06e500 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f06e500 *        >V>   STATUS => "1"
+00008cd4 7f06e500 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f06e500 *        >M>   "KILLED" => "4"
+00008cd4 7f06e500 *        >O>   "==" => "0"
+00008cd4 7f06e500 *        >>>   "0"
+00008cd4 7f06e500 *    198 *-* if var("yieldValue") 
+00008cd4 7f06e500 *        >L>   "yieldValue"
+00008cd4 7f06e500 *        >A>   "yieldValue"
+00008cd4 7f06e500 *        >F>   VAR => "1"
+00008cd4 7f06e500 *        >>>   "1"
+00008cd4 7f06e500 *    198 *-*   then
+00008cd4 7f06e500 *    198 *-*     return yieldValue
+00008cd4 7f06e500 *        >V>       YIELDVALUE => "6"
+00008cd4 7f06e500 *        >>>       "6"
+6
+00008d58 7f078660 *        >V>   STATUS => "1"
+00008cd4 7f081ec0          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f078660 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0      190 *-* expose status yieldValue
+00008d58 7f078660 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f081ec0      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f078660 *        >O>   "<>" => "0"
+00008cd4 7f081ec0          >V>   STATUS => "1"
+00008d58 7f078660 *        >>>   "0"
+00008cd4 7f081ec0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0          >M>   "NOTSTARTED" => "0"
+00008cd4 7f081ec0          >O>   "==" => "0"
+00008cd4 7f081ec0          >>>   "0"
+00008cd4 7f081ec0      192 *-* if status == .Coroutine~killed 
+00008cd4 7f081ec0          >V>   STATUS => "1"
+00008cd4 7f081ec0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0          >M>   "KILLED" => "4"
+00008cd4 7f081ec0          >O>   "==" => "0"
+00008cd4 7f081ec0          >>>   "0"
+00008cd4 7f081ec0      193 *-* if status == .Coroutine~completed 
+00008cd4 7f081ec0          >V>   STATUS => "1"
+00008cd4 7f081ec0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0          >M>   "COMPLETED" => "3"
+00008cd4 7f081ec0          >O>   "==" => "0"
+00008cd4 7f081ec0          >>>   "0"
+00008cd4 7f081ec0      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f081ec0          >V>   SELF => "a COROUTINE"
+00008cd4 7f081ec0          >L>   "1"
+00008cd4 7f081ec0          >A>   "1"
+00008cd4 7f081ec0          >L>   "a"
+00008cd4 7f081ec0          >A>   "a"
+00008cd4 7f081ec0          >F>   ARG => "an Array"
+00008cd4 7f081ec0          >A>   "an Array"
+00008cd4 7f081ec0          >>>   "an Array"
+00008cd4 7f081ec0      195 *-* status = .Coroutine~running
+00008cd4 7f081ec0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0          >M>   "RUNNING" => "2"
+00008cd4 7f081ec0          >>>   "2"
+00008d58 7f078660 *        >V>   STATUS => "2"
+00008cd4 7f081ec0          >=>   STATUS <= "2"
+00008d58 7f078660 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f078660 *        >M>   "SUSPENDED" => "1"
+00008d58 7f078660 *        >O>   "<>" => "1"
+00008d58 7f078660 *        >>>   "1"
+00008d58 7f078660 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f078660 *        >V>   STATUS => "2"
+00008d58 7f078660 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f078660 *        >M>   "KILLED" => "4"
+00008d58 7f078660 *        >O>   "==" => "0"
+00008d58 7f078660 *        >>>   "0"
+00008d58 7f078660 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f078660 *        >V>   SELF => "a COROUTINE"
+00008d58 7f078660 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f078660 *        >>>   "an Array"
+00008d58 7f08c020          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f081ec0 *        >V>   STATUS => "2"
+00008d58 7f08c020      167 *-* expose status yieldValue
+00008cd4 7f081ec0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f08c020      168 *-* drop yieldValue
+00008cd4 7f081ec0 *        >M>   "RUNNING" => "2"
+00008d58 7f08c020      169 *-* if status == .Coroutine~killed 
+00008cd4 7f081ec0 *        >O>   "<>" => "0"
+00008d58 7f08c020          >V>   STATUS => "2"
+00008cd4 7f081ec0 *        >>>   "0"
+00008d58 7f08c020          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f08c020          >M>   "KILLED" => "4"
+00008d58 7f08c020          >O>   "==" => "0"
+00008d58 7f08c020          >>>   "0"
+00008d58 7f08c020      170 *-* if arg() <> 0 
+00008d58 7f08c020          >F>   ARG => "1"
+00008d58 7f08c020          >L>   "0"
+00008d58 7f08c020          >O>   "<>" => "1"
+00008d58 7f08c020          >>>   "1"
+00008d58 7f08c020      170 *-*   then
+00008d58 7f08c020      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f08c020          >>>       "7"
+00008d58 7f08c020          >=>       YIELDVALUE <= "7"
+00008d58 7f08c020      171 *-* status = .Coroutine~suspended
+00008d58 7f08c020          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f08c020          >M>   "SUSPENDED" => "1"
+00008d58 7f08c020          >>>   "1"
+00008cd4 7f081ec0 *        >V>   STATUS => "1"
+00008d58 7f08c020          >=>   STATUS <= "1"
+00008cd4 7f081ec0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f08c020      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f081ec0 *        >M>   "RUNNING" => "2"
+00008cd4 7f081ec0 *        >O>   "<>" => "1"
+00008cd4 7f081ec0 *        >>>   "1"
+00008cd4 7f081ec0 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f081ec0 *        >V>   STATUS => "1"
+00008cd4 7f081ec0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f081ec0 *        >M>   "KILLED" => "4"
+00008cd4 7f081ec0 *        >O>   "==" => "0"
+00008cd4 7f081ec0 *        >>>   "0"
+00008cd4 7f081ec0 *    198 *-* if var("yieldValue") 
+00008cd4 7f081ec0 *        >L>   "yieldValue"
+00008cd4 7f081ec0 *        >A>   "yieldValue"
+00008cd4 7f081ec0 *        >F>   VAR => "1"
+00008cd4 7f081ec0 *        >>>   "1"
+00008cd4 7f081ec0 *    198 *-*   then
+00008cd4 7f081ec0 *    198 *-*     return yieldValue
+00008cd4 7f081ec0 *        >V>       YIELDVALUE => "7"
+00008cd4 7f081ec0 *        >>>       "7"
+7
+00008d58 7f08c020 *        >V>   STATUS => "1"
+00008cd4 7f095880          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f08c020 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880      190 *-* expose status yieldValue
+00008d58 7f08c020 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f095880      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f08c020 *        >O>   "<>" => "0"
+00008cd4 7f095880          >V>   STATUS => "1"
+00008d58 7f08c020 *        >>>   "0"
+00008cd4 7f095880          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880          >M>   "NOTSTARTED" => "0"
+00008cd4 7f095880          >O>   "==" => "0"
+00008cd4 7f095880          >>>   "0"
+00008cd4 7f095880      192 *-* if status == .Coroutine~killed 
+00008cd4 7f095880          >V>   STATUS => "1"
+00008cd4 7f095880          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880          >M>   "KILLED" => "4"
+00008cd4 7f095880          >O>   "==" => "0"
+00008cd4 7f095880          >>>   "0"
+00008cd4 7f095880      193 *-* if status == .Coroutine~completed 
+00008cd4 7f095880          >V>   STATUS => "1"
+00008cd4 7f095880          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880          >M>   "COMPLETED" => "3"
+00008cd4 7f095880          >O>   "==" => "0"
+00008cd4 7f095880          >>>   "0"
+00008cd4 7f095880      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f095880          >V>   SELF => "a COROUTINE"
+00008cd4 7f095880          >L>   "1"
+00008cd4 7f095880          >A>   "1"
+00008cd4 7f095880          >L>   "a"
+00008cd4 7f095880          >A>   "a"
+00008cd4 7f095880          >F>   ARG => "an Array"
+00008cd4 7f095880          >A>   "an Array"
+00008cd4 7f095880          >>>   "an Array"
+00008cd4 7f095880      195 *-* status = .Coroutine~running
+00008cd4 7f095880          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880          >M>   "RUNNING" => "2"
+00008cd4 7f095880          >>>   "2"
+00008d58 7f08c020 *        >V>   STATUS => "2"
+00008cd4 7f095880          >=>   STATUS <= "2"
+00008d58 7f08c020 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f08c020 *        >M>   "SUSPENDED" => "1"
+00008d58 7f08c020 *        >O>   "<>" => "1"
+00008d58 7f08c020 *        >>>   "1"
+00008d58 7f08c020 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f08c020 *        >V>   STATUS => "2"
+00008d58 7f08c020 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f08c020 *        >M>   "KILLED" => "4"
+00008d58 7f08c020 *        >O>   "==" => "0"
+00008d58 7f08c020 *        >>>   "0"
+00008d58 7f08c020 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f08c020 *        >V>   SELF => "a COROUTINE"
+00008d58 7f08c020 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f08c020 *        >>>   "an Array"
+00008d58 7f09f9e0          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f095880 *        >V>   STATUS => "2"
+00008d58 7f09f9e0      167 *-* expose status yieldValue
+00008cd4 7f095880 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f09f9e0      168 *-* drop yieldValue
+00008cd4 7f095880 *        >M>   "RUNNING" => "2"
+00008d58 7f09f9e0      169 *-* if status == .Coroutine~killed 
+00008cd4 7f095880 *        >O>   "<>" => "0"
+00008d58 7f09f9e0          >V>   STATUS => "2"
+00008cd4 7f095880 *        >>>   "0"
+00008d58 7f09f9e0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f09f9e0          >M>   "KILLED" => "4"
+00008d58 7f09f9e0          >O>   "==" => "0"
+00008d58 7f09f9e0          >>>   "0"
+00008d58 7f09f9e0      170 *-* if arg() <> 0 
+00008d58 7f09f9e0          >F>   ARG => "1"
+00008d58 7f09f9e0          >L>   "0"
+00008d58 7f09f9e0          >O>   "<>" => "1"
+00008d58 7f09f9e0          >>>   "1"
+00008d58 7f09f9e0      170 *-*   then
+00008d58 7f09f9e0      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f09f9e0          >>>       "8"
+00008d58 7f09f9e0          >=>       YIELDVALUE <= "8"
+00008d58 7f09f9e0      171 *-* status = .Coroutine~suspended
+00008d58 7f09f9e0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f09f9e0          >M>   "SUSPENDED" => "1"
+00008d58 7f09f9e0          >>>   "1"
+00008cd4 7f095880 *        >V>   STATUS => "1"
+00008d58 7f09f9e0          >=>   STATUS <= "1"
+00008cd4 7f095880 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f09f9e0      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f095880 *        >M>   "RUNNING" => "2"
+00008cd4 7f095880 *        >O>   "<>" => "1"
+00008cd4 7f095880 *        >>>   "1"
+00008cd4 7f095880 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f095880 *        >V>   STATUS => "1"
+00008cd4 7f095880 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f095880 *        >M>   "KILLED" => "4"
+00008cd4 7f095880 *        >O>   "==" => "0"
+00008cd4 7f095880 *        >>>   "0"
+00008cd4 7f095880 *    198 *-* if var("yieldValue") 
+00008cd4 7f095880 *        >L>   "yieldValue"
+00008cd4 7f095880 *        >A>   "yieldValue"
+00008cd4 7f095880 *        >F>   VAR => "1"
+00008cd4 7f095880 *        >>>   "1"
+00008cd4 7f095880 *    198 *-*   then
+00008cd4 7f095880 *    198 *-*     return yieldValue
+00008cd4 7f095880 *        >V>       YIELDVALUE => "8"
+00008cd4 7f095880 *        >>>       "8"
+8
+00008d58 7f09f9e0 *        >V>   STATUS => "1"
+00008cd4 7f0a9240          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f09f9e0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240      190 *-* expose status yieldValue
+00008d58 7f09f9e0 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f0a9240      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f09f9e0 *        >O>   "<>" => "0"
+00008cd4 7f0a9240          >V>   STATUS => "1"
+00008d58 7f09f9e0 *        >>>   "0"
+00008cd4 7f0a9240          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240          >M>   "NOTSTARTED" => "0"
+00008cd4 7f0a9240          >O>   "==" => "0"
+00008cd4 7f0a9240          >>>   "0"
+00008cd4 7f0a9240      192 *-* if status == .Coroutine~killed 
+00008cd4 7f0a9240          >V>   STATUS => "1"
+00008cd4 7f0a9240          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240          >M>   "KILLED" => "4"
+00008cd4 7f0a9240          >O>   "==" => "0"
+00008cd4 7f0a9240          >>>   "0"
+00008cd4 7f0a9240      193 *-* if status == .Coroutine~completed 
+00008cd4 7f0a9240          >V>   STATUS => "1"
+00008cd4 7f0a9240          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240          >M>   "COMPLETED" => "3"
+00008cd4 7f0a9240          >O>   "==" => "0"
+00008cd4 7f0a9240          >>>   "0"
+00008cd4 7f0a9240      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f0a9240          >V>   SELF => "a COROUTINE"
+00008cd4 7f0a9240          >L>   "1"
+00008cd4 7f0a9240          >A>   "1"
+00008cd4 7f0a9240          >L>   "a"
+00008cd4 7f0a9240          >A>   "a"
+00008cd4 7f0a9240          >F>   ARG => "an Array"
+00008cd4 7f0a9240          >A>   "an Array"
+00008cd4 7f0a9240          >>>   "an Array"
+00008cd4 7f0a9240      195 *-* status = .Coroutine~running
+00008cd4 7f0a9240          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240          >M>   "RUNNING" => "2"
+00008cd4 7f0a9240          >>>   "2"
+00008d58 7f09f9e0 *        >V>   STATUS => "2"
+00008cd4 7f0a9240          >=>   STATUS <= "2"
+00008d58 7f09f9e0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f09f9e0 *        >M>   "SUSPENDED" => "1"
+00008d58 7f09f9e0 *        >O>   "<>" => "1"
+00008d58 7f09f9e0 *        >>>   "1"
+00008d58 7f09f9e0 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f09f9e0 *        >V>   STATUS => "2"
+00008d58 7f09f9e0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f09f9e0 *        >M>   "KILLED" => "4"
+00008d58 7f09f9e0 *        >O>   "==" => "0"
+00008d58 7f09f9e0 *        >>>   "0"
+00008d58 7f09f9e0 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f09f9e0 *        >V>   SELF => "a COROUTINE"
+00008d58 7f09f9e0 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f09f9e0 *        >>>   "an Array"
+00008d58 7f0b33a0          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f0a9240 *        >V>   STATUS => "2"
+00008d58 7f0b33a0      167 *-* expose status yieldValue
+00008cd4 7f0a9240 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0b33a0      168 *-* drop yieldValue
+00008cd4 7f0a9240 *        >M>   "RUNNING" => "2"
+00008d58 7f0b33a0      169 *-* if status == .Coroutine~killed 
+00008cd4 7f0a9240 *        >O>   "<>" => "0"
+00008d58 7f0b33a0          >V>   STATUS => "2"
+00008cd4 7f0a9240 *        >>>   "0"
+00008d58 7f0b33a0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0b33a0          >M>   "KILLED" => "4"
+00008d58 7f0b33a0          >O>   "==" => "0"
+00008d58 7f0b33a0          >>>   "0"
+00008d58 7f0b33a0      170 *-* if arg() <> 0 
+00008d58 7f0b33a0          >F>   ARG => "1"
+00008d58 7f0b33a0          >L>   "0"
+00008d58 7f0b33a0          >O>   "<>" => "1"
+00008d58 7f0b33a0          >>>   "1"
+00008d58 7f0b33a0      170 *-*   then
+00008d58 7f0b33a0      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f0b33a0          >>>       "9"
+00008d58 7f0b33a0          >=>       YIELDVALUE <= "9"
+00008d58 7f0b33a0      171 *-* status = .Coroutine~suspended
+00008d58 7f0b33a0          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0b33a0          >M>   "SUSPENDED" => "1"
+00008d58 7f0b33a0          >>>   "1"
+00008cd4 7f0a9240 *        >V>   STATUS => "1"
+00008d58 7f0b33a0          >=>   STATUS <= "1"
+00008cd4 7f0a9240 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0b33a0      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f0a9240 *        >M>   "RUNNING" => "2"
+00008cd4 7f0a9240 *        >O>   "<>" => "1"
+00008cd4 7f0a9240 *        >>>   "1"
+00008cd4 7f0a9240 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f0a9240 *        >V>   STATUS => "1"
+00008cd4 7f0a9240 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0a9240 *        >M>   "KILLED" => "4"
+00008cd4 7f0a9240 *        >O>   "==" => "0"
+00008cd4 7f0a9240 *        >>>   "0"
+00008cd4 7f0a9240 *    198 *-* if var("yieldValue") 
+00008cd4 7f0a9240 *        >L>   "yieldValue"
+00008cd4 7f0a9240 *        >A>   "yieldValue"
+00008cd4 7f0a9240 *        >F>   VAR => "1"
+00008cd4 7f0a9240 *        >>>   "1"
+00008cd4 7f0a9240 *    198 *-*   then
+00008cd4 7f0a9240 *    198 *-*     return yieldValue
+00008cd4 7f0a9240 *        >V>       YIELDVALUE => "9"
+00008cd4 7f0a9240 *        >>>       "9"
+00008d58 7f0b33a0 *        >V>   STATUS => "1"
+9
+00008d58 7f0b33a0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f0b33a0 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f0bcf40      190 *-* expose status yieldValue
+00008d58 7f0b33a0 *        >O>   "<>" => "0"
+00008cd4 7f0bcf40      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f0b33a0 *        >>>   "0"
+00008cd4 7f0bcf40          >V>   STATUS => "1"
+00008cd4 7f0bcf40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40          >M>   "NOTSTARTED" => "0"
+00008cd4 7f0bcf40          >O>   "==" => "0"
+00008cd4 7f0bcf40          >>>   "0"
+00008cd4 7f0bcf40      192 *-* if status == .Coroutine~killed 
+00008cd4 7f0bcf40          >V>   STATUS => "1"
+00008cd4 7f0bcf40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40          >M>   "KILLED" => "4"
+00008cd4 7f0bcf40          >O>   "==" => "0"
+00008cd4 7f0bcf40          >>>   "0"
+00008cd4 7f0bcf40      193 *-* if status == .Coroutine~completed 
+00008cd4 7f0bcf40          >V>   STATUS => "1"
+00008cd4 7f0bcf40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40          >M>   "COMPLETED" => "3"
+00008cd4 7f0bcf40          >O>   "==" => "0"
+00008cd4 7f0bcf40          >>>   "0"
+00008cd4 7f0bcf40      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f0bcf40          >V>   SELF => "a COROUTINE"
+00008cd4 7f0bcf40          >L>   "1"
+00008cd4 7f0bcf40          >A>   "1"
+00008cd4 7f0bcf40          >L>   "a"
+00008cd4 7f0bcf40          >A>   "a"
+00008cd4 7f0bcf40          >F>   ARG => "an Array"
+00008cd4 7f0bcf40          >A>   "an Array"
+00008cd4 7f0bcf40          >>>   "an Array"
+00008cd4 7f0bcf40      195 *-* status = .Coroutine~running
+00008cd4 7f0bcf40          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40          >M>   "RUNNING" => "2"
+00008cd4 7f0bcf40          >>>   "2"
+00008d58 7f0b33a0 *        >V>   STATUS => "2"
+00008cd4 7f0bcf40          >=>   STATUS <= "2"
+00008d58 7f0b33a0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f0b33a0 *        >M>   "SUSPENDED" => "1"
+00008d58 7f0b33a0 *        >O>   "<>" => "1"
+00008d58 7f0b33a0 *        >>>   "1"
+00008d58 7f0b33a0 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f0b33a0 *        >V>   STATUS => "2"
+00008d58 7f0b33a0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0b33a0 *        >M>   "KILLED" => "4"
+00008d58 7f0b33a0 *        >O>   "==" => "0"
+00008d58 7f0b33a0 *        >>>   "0"
+00008d58 7f0b33a0 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f0b33a0 *        >V>   SELF => "a COROUTINE"
+00008d58 7f0b33a0 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f0b33a0 *        >>>   "an Array"
+00008d58 7f0c6d60          >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008cd4 7f0bcf40 *        >V>   STATUS => "2"
+00008d58 7f0c6d60      167 *-* expose status yieldValue
+00008cd4 7f0bcf40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0c6d60      168 *-* drop yieldValue
+00008cd4 7f0bcf40 *        >M>   "RUNNING" => "2"
+00008d58 7f0c6d60      169 *-* if status == .Coroutine~killed 
+00008cd4 7f0bcf40 *        >O>   "<>" => "0"
+00008d58 7f0c6d60          >V>   STATUS => "2"
+00008cd4 7f0bcf40 *        >>>   "0"
+00008d58 7f0c6d60          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0c6d60          >M>   "KILLED" => "4"
+00008d58 7f0c6d60          >O>   "==" => "0"
+00008d58 7f0c6d60          >>>   "0"
+00008d58 7f0c6d60      170 *-* if arg() <> 0 
+00008d58 7f0c6d60          >F>   ARG => "1"
+00008d58 7f0c6d60          >L>   "0"
+00008d58 7f0c6d60          >O>   "<>" => "1"
+00008d58 7f0c6d60          >>>   "1"
+00008d58 7f0c6d60      170 *-*   then
+00008d58 7f0c6d60      170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+00008d58 7f0c6d60          >>>       "10"
+00008d58 7f0c6d60          >=>       YIELDVALUE <= "10"
+00008d58 7f0c6d60      171 *-* status = .Coroutine~suspended
+00008d58 7f0c6d60          >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0c6d60          >M>   "SUSPENDED" => "1"
+00008d58 7f0c6d60          >>>   "1"
+00008cd4 7f0bcf40 *        >V>   STATUS => "1"
+00008d58 7f0c6d60          >=>   STATUS <= "1"
+00008cd4 7f0bcf40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0c6d60      172 *-* guard on when status <> .Coroutine~suspended
+00008cd4 7f0bcf40 *        >M>   "RUNNING" => "2"
+00008cd4 7f0bcf40 *        >O>   "<>" => "1"
+00008cd4 7f0bcf40 *        >>>   "1"
+00008cd4 7f0bcf40 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f0bcf40 *        >V>   STATUS => "1"
+00008cd4 7f0bcf40 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0bcf40 *        >M>   "KILLED" => "4"
+00008cd4 7f0bcf40 *        >O>   "==" => "0"
+00008cd4 7f0bcf40 *        >>>   "0"
+00008cd4 7f0bcf40 *    198 *-* if var("yieldValue") 
+00008cd4 7f0bcf40 *        >L>   "yieldValue"
+00008cd4 7f0bcf40 *        >A>   "yieldValue"
+00008cd4 7f0bcf40 *        >F>   VAR => "1"
+00008cd4 7f0bcf40 *        >>>   "1"
+00008cd4 7f0bcf40 *    198 *-*   then
+00008cd4 7f0bcf40 *    198 *-*     return yieldValue
+00008cd4 7f0bcf40 *        >V>       YIELDVALUE => "10"
+00008cd4 7f0bcf40 *        >>>       "10"
+10
+00008d58 7f0c6d60 *        >V>   STATUS => "1"
+00008cd4 7f0d05c0          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f0c6d60 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0      190 *-* expose status yieldValue
+00008d58 7f0c6d60 *        >M>   "SUSPENDED" => "1"
+00008cd4 7f0d05c0      191 *-* if status == .Coroutine~notStarted 
+00008d58 7f0c6d60 *        >O>   "<>" => "0"
+00008cd4 7f0d05c0          >V>   STATUS => "1"
+00008d58 7f0c6d60 *        >>>   "0"
+00008cd4 7f0d05c0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0          >M>   "NOTSTARTED" => "0"
+00008cd4 7f0d05c0          >O>   "==" => "0"
+00008cd4 7f0d05c0          >>>   "0"
+00008cd4 7f0d05c0      192 *-* if status == .Coroutine~killed 
+00008cd4 7f0d05c0          >V>   STATUS => "1"
+00008cd4 7f0d05c0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0          >M>   "KILLED" => "4"
+00008cd4 7f0d05c0          >O>   "==" => "0"
+00008cd4 7f0d05c0          >>>   "0"
+00008cd4 7f0d05c0      193 *-* if status == .Coroutine~completed 
+00008cd4 7f0d05c0          >V>   STATUS => "1"
+00008cd4 7f0d05c0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0          >M>   "COMPLETED" => "3"
+00008cd4 7f0d05c0          >O>   "==" => "0"
+00008cd4 7f0d05c0          >>>   "0"
+00008cd4 7f0d05c0      194 *-* self~arguments = arg(1, "a")
+00008cd4 7f0d05c0          >V>   SELF => "a COROUTINE"
+00008cd4 7f0d05c0          >L>   "1"
+00008cd4 7f0d05c0          >A>   "1"
+00008cd4 7f0d05c0          >L>   "a"
+00008cd4 7f0d05c0          >A>   "a"
+00008cd4 7f0d05c0          >F>   ARG => "an Array"
+00008cd4 7f0d05c0          >A>   "an Array"
+00008cd4 7f0d05c0          >>>   "an Array"
+00008cd4 7f0d05c0      195 *-* status = .Coroutine~running
+00008cd4 7f0d05c0          >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0          >M>   "RUNNING" => "2"
+00008cd4 7f0d05c0          >>>   "2"
+00008d58 7f0c6d60 *        >V>   STATUS => "2"
+00008cd4 7f0d05c0          >=>   STATUS <= "2"
+00008d58 7f0c6d60 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0      196 *-* guard on when status <> .Coroutine~running
+00008d58 7f0c6d60 *        >M>   "SUSPENDED" => "1"
+00008d58 7f0c6d60 *        >O>   "<>" => "1"
+00008d58 7f0c6d60 *        >>>   "1"
+00008d58 7f0c6d60 *    173 *-* if status == .Coroutine~killed 
+00008d58 7f0c6d60 *        >V>   STATUS => "2"
+00008d58 7f0c6d60 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0c6d60 *        >M>   "KILLED" => "4"
+00008d58 7f0c6d60 *        >O>   "==" => "0"
+00008d58 7f0c6d60 *        >>>   "0"
+00008d58 7f0c6d60 *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+00008d58 7f0c6d60 *        >V>   SELF => "a COROUTINE"
+00008d58 7f0c6d60 *        >M>   "ARGUMENTS" => "an Array"
+00008d58 7f0c6d60 *        >>>   "an Array"
+00008d58 7f000f10      124 *-*       end
+00008cd4 7f0d05c0 *        >V>   STATUS => "2"
+00008d58 7f000f10      125 *-*       guard on
+00008cd4 7f0d05c0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0 *        >M>   "RUNNING" => "2"
+00008cd4 7f0d05c0 *        >O>   "<>" => "0"
+00008cd4 7f0d05c0 *        >>>   "0"
+00008d58 7f000f10 *    126 *-*       if var("result") 
+00008d58 7f000f10 *        >L>         "result"
+00008d58 7f000f10 *        >A>         "result"
+00008d58 7f000f10 *        >F>         VAR => "0"
+00008d58 7f000f10 *        >>>         "0"
+00008d58 7f000f10 *    127 *-*         else
+00008d58 7f000f10 *    127 *-*           self~yieldLast
+00008d58 7f000f10 *        >V>             SELF => "a COROUTINE"
+00008d58 7f0dd1d8 *        >I> Method YIELDLAST with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+00008d58 7f0dd1d8 *    181 *-* expose status yieldValue
+00008d58 7f0dd1d8 *    182 *-* drop yieldValue
+00008d58 7f0dd1d8 *    183 *-* if status == .Coroutine~killed 
+00008d58 7f0dd1d8 *        >V>   STATUS => "2"
+00008d58 7f0dd1d8 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f0dd1d8 *        >M>   "KILLED" => "4"
+00008d58 7f0dd1d8 *        >O>   "==" => "0"
+00008d58 7f0dd1d8 *        >>>   "0"
+00008d58 7f0dd1d8 *    184 *-* if arg() <> 0 
+00008d58 7f0dd1d8 *        >F>   ARG => "0"
+00008d58 7f0dd1d8 *        >L>   "0"
+00008d58 7f0dd1d8 *        >O>   "<>" => "0"
+00008d58 7f0dd1d8 *        >>>   "0"
+00008d58 7f000f10 *    128 *-*       status = .Coroutine~completed
+00008d58 7f000f10 *        >E>         .COROUTINE => "The COROUTINE class"
+00008d58 7f000f10 *        >M>         "COMPLETED" => "3"
+00008d58 7f000f10 *        >>>         "3"
+00008d58 7f000f10 *        >=>         STATUS <= "3"
+00008d58 7f000f10 *    129 *-*   end
+00008d58 7f000f10 *    130 *-* .Coroutine~table~remove(self)
+00008d58 7f000f10 *        >E>   .COROUTINE => "The COROUTINE class"
+00008d58 7f000f10 *        >M>   "TABLE" => "an IdentityTable"
+00008d58 7f000f10 *        >V>   SELF => "a COROUTINE"
+00008d58 7f000f10 *        >A>   "a COROUTINE"
+00008d58 7f000f10 *        >>>   "a COROUTINE"
+00008d58 7f000f10 *    131 *-* return
+00008cd4 7f0d05c0 *        >V>   STATUS => "3"
+00008cd4 7f0d05c0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0 *        >M>   "RUNNING" => "2"
+00008cd4 7f0d05c0 *        >O>   "<>" => "1"
+00008cd4 7f0d05c0 *        >>>   "1"
+00008cd4 7f0d05c0 *    197 *-* if status == .Coroutine~killed 
+00008cd4 7f0d05c0 *        >V>   STATUS => "3"
+00008cd4 7f0d05c0 *        >E>   .COROUTINE => "The COROUTINE class"
+00008cd4 7f0d05c0 *        >M>   "KILLED" => "4"
+00008cd4 7f0d05c0 *        >O>   "==" => "0"
+00008cd4 7f0d05c0 *        >>>   "0"
+00008cd4 7f0d05c0 *    198 *-* if var("yieldValue") 
+00008cd4 7f0d05c0 *        >L>   "yieldValue"
+00008cd4 7f0d05c0 *        >A>   "yieldValue"
+00008cd4 7f0d05c0 *        >F>   VAR => "0"
+00008cd4 7f0d05c0 *        >>>   "0"

@@ -1,0 +1,1539 @@
+T1   A1     *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A1     *     61 *-* self~table = .IdentityTable~new
+T1   A1     *        >V>   SELF => "The COROUTINE class"
+T1   A1     *        >E>   .IDENTITYTABLE => "The IdentityTable class"
+T1   A1     *        >M>   "NEW" => "an IdentityTable"
+T1   A1     *        >A>   "an IdentityTable"
+T1   A1     *        >>>   "an IdentityTable"
+T1   A2              >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+A coroutine implemented by a one-liner routine
+T1   A3     *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A3     *     83 *-* use strict arg action="main", ...
+T1   A3     *        >>>   "say "running coroutine" ; return 1"
+T1   A3     *        >=>   ACTION <= "say "running coroutine" ; return 1"
+T1   A3     *     85 *-* self~routine = .nil
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >E>   .NIL => "The NIL object"
+T1   A3     *        >A>   "The NIL object"
+T1   A3     *        >>>   "The NIL object"
+T1   A3     *     86 *-* self~message = .nil
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >E>   .NIL => "The NIL object"
+T1   A3     *        >A>   "The NIL object"
+T1   A3     *        >>>   "The NIL object"
+T1   A3     *     87 *-* self~doer = .nil
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >E>   .NIL => "The NIL object"
+T1   A3     *        >A>   "The NIL object"
+T1   A3     *        >>>   "The NIL object"
+T1   A3     *     88 *-* self~object = .nil
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >E>   .NIL => "The NIL object"
+T1   A3     *        >A>   "The NIL object"
+T1   A3     *        >>>   "The NIL object"
+T1   A3     *     90 *-* self~doer = action~doer
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >V>   ACTION => "say "running coroutine" ; return 1"
+T1   A3     *        >M>   "DOER" => "a Routine"
+T1   A3     *        >A>   "a Routine"
+T1   A3     *        >>>   "a Routine"
+T1   A3     *     91 *-* if self~doer~isA(.Routine) 
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >M>   "DOER" => "a Routine"
+T1   A3     *        >E>   .ROUTINE => "The Routine class"
+T1   A3     *        >A>   "The Routine class"
+T1   A3     *        >M>   "ISA" => "1"
+T1   A3     *        >>>   "1"
+T1   A3     *     91 *-*   then
+T1   A3     *     91 *-*     use strict arg action="main", start = .true
+T1   A3     *        >>>       "say "running coroutine" ; return 1"
+T1   A3     *        >=>       ACTION <= "say "running coroutine" ; return 1"
+T1   A3     *        >>>       "0"
+T1   A3     *        >=>       START <= "0"
+T1   A3     *     94 *-* self~status = .Coroutine~notStarted
+T1   A3     *        >V>   SELF => "a COROUTINE"
+T1   A3     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A3     *        >M>   "NOTSTARTED" => "0"
+T1   A3     *        >A>   "0"
+T1   A3     *        >>>   "0"
+T1   A3     *     95 *-* if start 
+T1   A3     *        >V>   START => "0"
+T1   A3     *        >>>   "0"
+T1   A4     *        >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A4     *    105 *-* expose status
+T1   A4     *    106 *-* use strict arg -- no arg
+T1   A4     *    107 *-* if status <> .Coroutine~notStarted 
+T1   A4     *        >V>   STATUS => "0"
+T1   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A4     *        >M>   "NOTSTARTED" => "0"
+T1   A4     *        >O>   "<>" => "0"
+T1   A4     *        >>>   "0"
+T1   A4     *    108 *-* .Coroutine~table~put(self, self)
+T1   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A4     *        >M>   "TABLE" => "an IdentityTable"
+T1   A4     *        >V>   SELF => "a COROUTINE"
+T1   A4     *        >A>   "a COROUTINE"
+T1   A4     *        >V>   SELF => "a COROUTINE"
+T1   A4     *        >A>   "a COROUTINE"
+T1   A4     *    109 *-* status = .Coroutine~suspended
+T1   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A4     *        >M>   "SUSPENDED" => "1"
+T1   A4     *        >>>   "1"
+T1   A4     *        >=>   STATUS <= "1"
+T1   A4     *    110 *-* guard off
+T1   A4          111 *-* reply self
+T1   A4              >V>   SELF => "a COROUTINE"
+T1   A4              >>>   "a COROUTINE"
+T2   A4              >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A5              >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A4          112 *-* signal on any 
+T1   A5          190 *-* expose status yieldValue
+T2   A4          113 *-* guard on when status <> .Coroutine~suspended
+T1   A5          191 *-* if status == .Coroutine~notStarted 
+T2   A4     *        >V>   STATUS => "1"
+T1   A5              >V>   STATUS => "1"
+T2   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A5              >E>   .COROUTINE => "The COROUTINE class"
+T2   A4     *        >M>   "SUSPENDED" => "1"
+T1   A5              >M>   "NOTSTARTED" => "0"
+T2   A4     *        >O>   "<>" => "0"
+T1   A5              >O>   "==" => "0"
+T2   A4     *        >>>   "0"
+T1   A5              >>>   "0"
+T1   A5          192 *-* if status == .Coroutine~killed 
+T1   A5              >V>   STATUS => "1"
+T1   A5              >E>   .COROUTINE => "The COROUTINE class"
+T1   A5              >M>   "KILLED" => "4"
+T1   A5              >O>   "==" => "0"
+T1   A5              >>>   "0"
+T1   A5          193 *-* if status == .Coroutine~completed 
+T1   A5              >V>   STATUS => "1"
+T1   A5              >E>   .COROUTINE => "The COROUTINE class"
+T1   A5              >M>   "COMPLETED" => "3"
+T1   A5              >O>   "==" => "0"
+T1   A5              >>>   "0"
+T1   A5          194 *-* self~arguments = arg(1, "a")
+T1   A5              >V>   SELF => "a COROUTINE"
+T1   A5              >L>   "1"
+T1   A5              >A>   "1"
+T1   A5              >L>   "a"
+T1   A5              >A>   "a"
+T1   A5              >F>   ARG => "an Array"
+T1   A5              >A>   "an Array"
+T1   A5              >>>   "an Array"
+T1   A5          195 *-* status = .Coroutine~running
+T1   A5              >E>   .COROUTINE => "The COROUTINE class"
+T1   A5              >M>   "RUNNING" => "2"
+T1   A5              >>>   "2"
+T2   A4     *        >V>   STATUS => "2"
+T1   A5              >=>   STATUS <= "2"
+T2   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A5          196 *-* guard on when status <> .Coroutine~running
+T2   A4     *        >M>   "SUSPENDED" => "1"
+T2   A4     *        >O>   "<>" => "1"
+T2   A4     *        >>>   "1"
+T2   A4     *    114 *-* if status == .Coroutine~running 
+T2   A4     *        >V>   STATUS => "2"
+T2   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A4     *        >M>   "RUNNING" => "2"
+T2   A4     *        >O>   "==" => "1"
+T2   A4     *        >>>   "1"
+T2   A4     *    114 *-*   then
+T2   A4     *    114 *-*     do
+T2   A4     *    117 *-*       self~arguments~append(self)
+T2   A4     *        >V>         SELF => "a COROUTINE"
+T2   A4     *        >M>         "ARGUMENTS" => "an Array"
+T2   A4     *        >V>         SELF => "a COROUTINE"
+T2   A4     *        >A>         "a COROUTINE"
+T2   A4     *        >>>         "1"
+T2   A4     *    118 *-*       guard off
+T2   A4          119 *-*       select
+T1   A5     *        >V>   STATUS => "2"
+T2   A4          121 *-*         when self~routine <> .nil 
+T1   A5     *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A4              >V>           SELF => "a COROUTINE"
+T1   A5     *        >M>   "RUNNING" => "2"
+T1   A5     *        >O>   "<>" => "0"
+T1   A5     *        >>>   "0"
+T2   A4              >M>           "ROUTINE" => "The NIL object"
+T2   A4              >E>           .NIL => "The NIL object"
+T2   A4              >O>           "<>" => "0"
+T2   A4              >>>           "0"
+T2   A4          122 *-*         when self~message <> .nil 
+T2   A4              >V>           SELF => "a COROUTINE"
+T2   A4              >M>           "MESSAGE" => "The NIL object"
+T2   A4              >E>           .NIL => "The NIL object"
+T2   A4              >O>           "<>" => "0"
+T2   A4              >>>           "0"
+T2   A4          123 *-*         otherwise
+T2   A4          123 *-*           self~doer~doWith(self~arguments)
+T2   A4              >V>             SELF => "a COROUTINE"
+T2   A4              >M>             "DOER" => "a Routine"
+T2   A4              >V>             SELF => "a COROUTINE"
+T2   A4              >M>             "ARGUMENTS" => "an Array"
+T2   A4              >A>             "an Array"
+running coroutine
+T2   A4              >>>             "1"
+T2   A4          124 *-*       end
+T2   A4          125 *-*       guard on
+T2   A4     *    126 *-*       if var("result") 
+T2   A4     *        >L>         "result"
+T2   A4     *        >A>         "result"
+T2   A4     *        >F>         VAR => "1"
+T2   A4     *        >>>         "1"
+T2   A4     *    126 *-*         then
+T2   A4     *    126 *-*           self~yieldLast(result)
+T2   A4     *        >V>             SELF => "a COROUTINE"
+T2   A4     *        >V>             RESULT => "1"
+T2   A4     *        >A>             "1"
+T2   A6     *        >I> Method YIELDLAST with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A6     *    181 *-* expose status yieldValue
+T2   A6     *    182 *-* drop yieldValue
+T2   A6     *    183 *-* if status == .Coroutine~killed 
+T2   A6     *        >V>   STATUS => "2"
+T2   A6     *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A6     *        >M>   "KILLED" => "4"
+T2   A6     *        >O>   "==" => "0"
+T2   A6     *        >>>   "0"
+T2   A6     *    184 *-* if arg() <> 0 
+T2   A6     *        >F>   ARG => "1"
+T2   A6     *        >L>   "0"
+T2   A6     *        >O>   "<>" => "1"
+T2   A6     *        >>>   "1"
+T2   A6     *    184 *-*   then
+T2   A6     *    184 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A6     *        >>>       "1"
+T2   A6     *        >=>       YIELDVALUE <= "1"
+T2   A4     *    128 *-*       status = .Coroutine~completed
+T2   A4     *        >E>         .COROUTINE => "The COROUTINE class"
+T2   A4     *        >M>         "COMPLETED" => "3"
+T2   A4     *        >>>         "3"
+T2   A4     *        >=>         STATUS <= "3"
+T2   A4     *    129 *-*   end
+T2   A4     *    130 *-* .Coroutine~table~remove(self)
+T2   A4     *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A4     *        >M>   "TABLE" => "an IdentityTable"
+T2   A4     *        >V>   SELF => "a COROUTINE"
+T2   A4     *        >A>   "a COROUTINE"
+T2   A4     *        >>>   "a COROUTINE"
+T2   A4     *    131 *-* return
+T1   A5     *        >V>   STATUS => "3"
+T1   A5     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A5     *        >M>   "RUNNING" => "2"
+T1   A5     *        >O>   "<>" => "1"
+T1   A5     *        >>>   "1"
+T1   A5     *    197 *-* if status == .Coroutine~killed 
+T1   A5     *        >V>   STATUS => "3"
+T1   A5     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A5     *        >M>   "KILLED" => "4"
+T1   A5     *        >O>   "==" => "0"
+T1   A5     *        >>>   "0"
+T1   A5     *    198 *-* if var("yieldValue") 
+T1   A5     *        >L>   "yieldValue"
+T1   A5     *        >A>   "yieldValue"
+T1   A5     *        >F>   VAR => "1"
+T1   A5     *        >>>   "1"
+T1   A5     *    198 *-*   then
+T1   A5     *    198 *-*     return yieldValue
+T1   A5     *        >V>       YIELDVALUE => "1"
+T1   A5     *        >>>       "1"
+1
+T1   A7              >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A7          190 *-* expose status yieldValue
+T1   A7          191 *-* if status == .Coroutine~notStarted 
+T1   A7              >V>   STATUS => "3"
+T1   A7              >E>   .COROUTINE => "The COROUTINE class"
+T1   A7              >M>   "NOTSTARTED" => "0"
+T1   A7              >O>   "==" => "0"
+T1   A7              >>>   "0"
+T1   A7          192 *-* if status == .Coroutine~killed 
+T1   A7              >V>   STATUS => "3"
+T1   A7              >E>   .COROUTINE => "The COROUTINE class"
+T1   A7              >M>   "KILLED" => "4"
+T1   A7              >O>   "==" => "0"
+T1   A7              >>>   "0"
+T1   A7          193 *-* if status == .Coroutine~completed 
+T1   A7              >V>   STATUS => "3"
+T1   A7              >E>   .COROUTINE => "The COROUTINE class"
+T1   A7              >M>   "COMPLETED" => "3"
+T1   A7              >O>   "==" => "1"
+T1   A7              >>>   "1"
+T1   A7          193 *-*   then
+T1   A7          193 *-*     return -- raise syntax 93.900 array ("Coroutine is completed")
+Message "RESUME" did not return a result
+
+A coroutine implemented by a one-liner routine, used as a generator
+T1   A8     *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A8     *     83 *-* use strict arg action="main", ...
+T1   A8     *        >>>   "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+T1   A8     *        >=>   ACTION <= "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+T1   A8     *     85 *-* self~routine = .nil
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >E>   .NIL => "The NIL object"
+T1   A8     *        >A>   "The NIL object"
+T1   A8     *        >>>   "The NIL object"
+T1   A8     *     86 *-* self~message = .nil
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >E>   .NIL => "The NIL object"
+T1   A8     *        >A>   "The NIL object"
+T1   A8     *        >>>   "The NIL object"
+T1   A8     *     87 *-* self~doer = .nil
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >E>   .NIL => "The NIL object"
+T1   A8     *        >A>   "The NIL object"
+T1   A8     *        >>>   "The NIL object"
+T1   A8     *     88 *-* self~object = .nil
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >E>   .NIL => "The NIL object"
+T1   A8     *        >A>   "The NIL object"
+T1   A8     *        >>>   "The NIL object"
+T1   A8     *     90 *-* self~doer = action~doer
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >V>   ACTION => "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+T1   A8     *        >M>   "DOER" => "a Routine"
+T1   A8     *        >A>   "a Routine"
+T1   A8     *        >>>   "a Routine"
+T1   A8     *     91 *-* if self~doer~isA(.Routine) 
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >M>   "DOER" => "a Routine"
+T1   A8     *        >E>   .ROUTINE => "The Routine class"
+T1   A8     *        >A>   "The Routine class"
+T1   A8     *        >M>   "ISA" => "1"
+T1   A8     *        >>>   "1"
+T1   A8     *     91 *-*   then
+T1   A8     *     91 *-*     use strict arg action="main", start = .true
+T1   A8     *        >>>       "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+T1   A8     *        >=>       ACTION <= "use strict arg coroutine ; do i = 1 to 10 ; coroutine~yield(i) ; end"
+T1   A8     *        >E>       .TRUE => "1"
+T1   A8     *        >>>       "1"
+T1   A8     *        >=>       START <= "1"
+T1   A8     *     94 *-* self~status = .Coroutine~notStarted
+T1   A8     *        >V>   SELF => "a COROUTINE"
+T1   A8     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A8     *        >M>   "NOTSTARTED" => "0"
+T1   A8     *        >A>   "0"
+T1   A8     *        >>>   "0"
+T1   A8     *     95 *-* if start 
+T1   A8     *        >V>   START => "1"
+T1   A8     *        >>>   "1"
+T1   A8     *     95 *-*   then
+T1   A8     *     95 *-*     self~start
+T1   A8     *        >V>       SELF => "a COROUTINE"
+T1   A9     *        >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A9     *    105 *-* expose status
+T1   A9     *    106 *-* use strict arg -- no arg
+T1   A9     *    107 *-* if status <> .Coroutine~notStarted 
+T1   A9     *        >V>   STATUS => "0"
+T1   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A9     *        >M>   "NOTSTARTED" => "0"
+T1   A9     *        >O>   "<>" => "0"
+T1   A9     *        >>>   "0"
+T1   A9     *    108 *-* .Coroutine~table~put(self, self)
+T1   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A9     *        >M>   "TABLE" => "an IdentityTable"
+T1   A9     *        >V>   SELF => "a COROUTINE"
+T1   A9     *        >A>   "a COROUTINE"
+T1   A9     *        >V>   SELF => "a COROUTINE"
+T1   A9     *        >A>   "a COROUTINE"
+T1   A9     *    109 *-* status = .Coroutine~suspended
+T1   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A9     *        >M>   "SUSPENDED" => "1"
+T1   A9     *        >>>   "1"
+T1   A9     *        >=>   STATUS <= "1"
+T1   A9     *    110 *-* guard off
+T1   A9          111 *-* reply self
+T1   A9              >V>   SELF => "a COROUTINE"
+T1   A9              >>>   "a COROUTINE"
+T2   A9              >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A8     *        >>>       "a COROUTINE"
+T2   A9          112 *-* signal on any 
+T1   A10             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A9          113 *-* guard on when status <> .Coroutine~suspended
+T1   A10         190 *-* expose status yieldValue
+T2   A9     *        >V>   STATUS => "1"
+T1   A10         191 *-* if status == .Coroutine~notStarted 
+T2   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A10             >V>   STATUS => "1"
+T2   A9     *        >M>   "SUSPENDED" => "1"
+T1   A10             >E>   .COROUTINE => "The COROUTINE class"
+T2   A9     *        >O>   "<>" => "0"
+T1   A10             >M>   "NOTSTARTED" => "0"
+T2   A9     *        >>>   "0"
+T1   A10             >O>   "==" => "0"
+T1   A10             >>>   "0"
+T1   A10         192 *-* if status == .Coroutine~killed 
+T1   A10             >V>   STATUS => "1"
+T1   A10             >E>   .COROUTINE => "The COROUTINE class"
+T1   A10             >M>   "KILLED" => "4"
+T1   A10             >O>   "==" => "0"
+T1   A10             >>>   "0"
+T1   A10         193 *-* if status == .Coroutine~completed 
+T1   A10             >V>   STATUS => "1"
+T1   A10             >E>   .COROUTINE => "The COROUTINE class"
+T1   A10             >M>   "COMPLETED" => "3"
+T1   A10             >O>   "==" => "0"
+T1   A10             >>>   "0"
+T1   A10         194 *-* self~arguments = arg(1, "a")
+T1   A10             >V>   SELF => "a COROUTINE"
+T1   A10             >L>   "1"
+T1   A10             >A>   "1"
+T1   A10             >L>   "a"
+T1   A10             >A>   "a"
+T1   A10             >F>   ARG => "an Array"
+T1   A10             >A>   "an Array"
+T1   A10             >>>   "an Array"
+T1   A10         195 *-* status = .Coroutine~running
+T1   A10             >E>   .COROUTINE => "The COROUTINE class"
+T1   A10             >M>   "RUNNING" => "2"
+T1   A10             >>>   "2"
+T2   A9     *        >V>   STATUS => "2"
+T1   A10             >=>   STATUS <= "2"
+T2   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A10         196 *-* guard on when status <> .Coroutine~running
+T2   A9     *        >M>   "SUSPENDED" => "1"
+T2   A9     *        >O>   "<>" => "1"
+T2   A9     *        >>>   "1"
+T2   A9     *    114 *-* if status == .Coroutine~running 
+T2   A9     *        >V>   STATUS => "2"
+T2   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A9     *        >M>   "RUNNING" => "2"
+T2   A9     *        >O>   "==" => "1"
+T2   A9     *        >>>   "1"
+T2   A9     *    114 *-*   then
+T2   A9     *    114 *-*     do
+T2   A9     *    117 *-*       self~arguments~append(self)
+T2   A9     *        >V>         SELF => "a COROUTINE"
+T2   A9     *        >M>         "ARGUMENTS" => "an Array"
+T2   A9     *        >V>         SELF => "a COROUTINE"
+T2   A9     *        >A>         "a COROUTINE"
+T2   A9     *        >>>         "1"
+T2   A9     *    118 *-*       guard off
+T2   A9          119 *-*       select
+T1   A10    *        >V>   STATUS => "2"
+T2   A9          121 *-*         when self~routine <> .nil 
+T1   A10    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A9              >V>           SELF => "a COROUTINE"
+T1   A10    *        >M>   "RUNNING" => "2"
+T1   A10    *        >O>   "<>" => "0"
+T1   A10    *        >>>   "0"
+T2   A9              >M>           "ROUTINE" => "The NIL object"
+T2   A9              >E>           .NIL => "The NIL object"
+T2   A9              >O>           "<>" => "0"
+T2   A9              >>>           "0"
+T2   A9          122 *-*         when self~message <> .nil 
+T2   A9              >V>           SELF => "a COROUTINE"
+T2   A9              >M>           "MESSAGE" => "The NIL object"
+T2   A9              >E>           .NIL => "The NIL object"
+T2   A9              >O>           "<>" => "0"
+T2   A9              >>>           "0"
+T2   A9          123 *-*         otherwise
+T2   A9          123 *-*           self~doer~doWith(self~arguments)
+T2   A9              >V>             SELF => "a COROUTINE"
+T2   A9              >M>             "DOER" => "a Routine"
+T2   A9              >V>             SELF => "a COROUTINE"
+T2   A9              >M>             "ARGUMENTS" => "an Array"
+T2   A9              >A>             "an Array"
+T2   A11             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A11         167 *-* expose status yieldValue
+T2   A11         168 *-* drop yieldValue
+T2   A11         169 *-* if status == .Coroutine~killed 
+T2   A11             >V>   STATUS => "2"
+T2   A11             >E>   .COROUTINE => "The COROUTINE class"
+T2   A11             >M>   "KILLED" => "4"
+T2   A11             >O>   "==" => "0"
+T2   A11             >>>   "0"
+T2   A11         170 *-* if arg() <> 0 
+T2   A11             >F>   ARG => "1"
+T2   A11             >L>   "0"
+T2   A11             >O>   "<>" => "1"
+T2   A11             >>>   "1"
+T2   A11         170 *-*   then
+T2   A11         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A11             >>>       "1"
+T2   A11             >=>       YIELDVALUE <= "1"
+T2   A11         171 *-* status = .Coroutine~suspended
+T2   A11             >E>   .COROUTINE => "The COROUTINE class"
+T2   A11             >M>   "SUSPENDED" => "1"
+T2   A11             >>>   "1"
+T1   A10    *        >V>   STATUS => "1"
+T2   A11             >=>   STATUS <= "1"
+T1   A10    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A11         172 *-* guard on when status <> .Coroutine~suspended
+T1   A10    *        >M>   "RUNNING" => "2"
+T1   A10    *        >O>   "<>" => "1"
+T1   A10    *        >>>   "1"
+T1   A10    *    197 *-* if status == .Coroutine~killed 
+T1   A10    *        >V>   STATUS => "1"
+T1   A10    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A10    *        >M>   "KILLED" => "4"
+T1   A10    *        >O>   "==" => "0"
+T1   A10    *        >>>   "0"
+T1   A10    *    198 *-* if var("yieldValue") 
+T1   A10    *        >L>   "yieldValue"
+T1   A10    *        >A>   "yieldValue"
+T1   A10    *        >F>   VAR => "1"
+T1   A10    *        >>>   "1"
+T1   A10    *    198 *-*   then
+T1   A10    *    198 *-*     return yieldValue
+T1   A10    *        >V>       YIELDVALUE => "1"
+T1   A10    *        >>>       "1"
+T2   A11    *        >V>   STATUS => "1"
+1
+T2   A11    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A12             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A11    *        >M>   "SUSPENDED" => "1"
+T1   A12         190 *-* expose status yieldValue
+T2   A11    *        >O>   "<>" => "0"
+T1   A12         191 *-* if status == .Coroutine~notStarted 
+T2   A11    *        >>>   "0"
+T1   A12             >V>   STATUS => "1"
+T1   A12             >E>   .COROUTINE => "The COROUTINE class"
+T1   A12             >M>   "NOTSTARTED" => "0"
+T1   A12             >O>   "==" => "0"
+T1   A12             >>>   "0"
+T1   A12         192 *-* if status == .Coroutine~killed 
+T1   A12             >V>   STATUS => "1"
+T1   A12             >E>   .COROUTINE => "The COROUTINE class"
+T1   A12             >M>   "KILLED" => "4"
+T1   A12             >O>   "==" => "0"
+T1   A12             >>>   "0"
+T1   A12         193 *-* if status == .Coroutine~completed 
+T1   A12             >V>   STATUS => "1"
+T1   A12             >E>   .COROUTINE => "The COROUTINE class"
+T1   A12             >M>   "COMPLETED" => "3"
+T1   A12             >O>   "==" => "0"
+T1   A12             >>>   "0"
+T1   A12         194 *-* self~arguments = arg(1, "a")
+T1   A12             >V>   SELF => "a COROUTINE"
+T1   A12             >L>   "1"
+T1   A12             >A>   "1"
+T1   A12             >L>   "a"
+T1   A12             >A>   "a"
+T1   A12             >F>   ARG => "an Array"
+T1   A12             >A>   "an Array"
+T1   A12             >>>   "an Array"
+T1   A12         195 *-* status = .Coroutine~running
+T1   A12             >E>   .COROUTINE => "The COROUTINE class"
+T1   A12             >M>   "RUNNING" => "2"
+T1   A12             >>>   "2"
+T2   A11    *        >V>   STATUS => "2"
+T1   A12             >=>   STATUS <= "2"
+T2   A11    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A12         196 *-* guard on when status <> .Coroutine~running
+T2   A11    *        >M>   "SUSPENDED" => "1"
+T2   A11    *        >O>   "<>" => "1"
+T2   A11    *        >>>   "1"
+T2   A11    *    173 *-* if status == .Coroutine~killed 
+T2   A11    *        >V>   STATUS => "2"
+T2   A11    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A11    *        >M>   "KILLED" => "4"
+T2   A11    *        >O>   "==" => "0"
+T2   A11    *        >>>   "0"
+T2   A11    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A11    *        >V>   SELF => "a COROUTINE"
+T2   A11    *        >M>   "ARGUMENTS" => "an Array"
+T2   A11    *        >>>   "an Array"
+T2   A13             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A12    *        >V>   STATUS => "2"
+T2   A13         167 *-* expose status yieldValue
+T1   A12    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A13         168 *-* drop yieldValue
+T1   A12    *        >M>   "RUNNING" => "2"
+T2   A13         169 *-* if status == .Coroutine~killed 
+T1   A12    *        >O>   "<>" => "0"
+T2   A13             >V>   STATUS => "2"
+T1   A12    *        >>>   "0"
+T2   A13             >E>   .COROUTINE => "The COROUTINE class"
+T2   A13             >M>   "KILLED" => "4"
+T2   A13             >O>   "==" => "0"
+T2   A13             >>>   "0"
+T2   A13         170 *-* if arg() <> 0 
+T2   A13             >F>   ARG => "1"
+T2   A13             >L>   "0"
+T2   A13             >O>   "<>" => "1"
+T2   A13             >>>   "1"
+T2   A13         170 *-*   then
+T2   A13         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A13             >>>       "2"
+T2   A13             >=>       YIELDVALUE <= "2"
+T2   A13         171 *-* status = .Coroutine~suspended
+T2   A13             >E>   .COROUTINE => "The COROUTINE class"
+T2   A13             >M>   "SUSPENDED" => "1"
+T2   A13             >>>   "1"
+T1   A12    *        >V>   STATUS => "1"
+T2   A13             >=>   STATUS <= "1"
+T1   A12    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A13         172 *-* guard on when status <> .Coroutine~suspended
+T1   A12    *        >M>   "RUNNING" => "2"
+T1   A12    *        >O>   "<>" => "1"
+T1   A12    *        >>>   "1"
+T1   A12    *    197 *-* if status == .Coroutine~killed 
+T1   A12    *        >V>   STATUS => "1"
+T1   A12    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A12    *        >M>   "KILLED" => "4"
+T1   A12    *        >O>   "==" => "0"
+T1   A12    *        >>>   "0"
+T1   A12    *    198 *-* if var("yieldValue") 
+T1   A12    *        >L>   "yieldValue"
+T1   A12    *        >A>   "yieldValue"
+T1   A12    *        >F>   VAR => "1"
+T1   A12    *        >>>   "1"
+T1   A12    *    198 *-*   then
+T1   A12    *    198 *-*     return yieldValue
+T1   A12    *        >V>       YIELDVALUE => "2"
+T1   A12    *        >>>       "2"
+2
+T2   A13    *        >V>   STATUS => "1"
+T2   A13    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A14             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A13    *        >M>   "SUSPENDED" => "1"
+T1   A14         190 *-* expose status yieldValue
+T2   A13    *        >O>   "<>" => "0"
+T1   A14         191 *-* if status == .Coroutine~notStarted 
+T2   A13    *        >>>   "0"
+T1   A14             >V>   STATUS => "1"
+T1   A14             >E>   .COROUTINE => "The COROUTINE class"
+T1   A14             >M>   "NOTSTARTED" => "0"
+T1   A14             >O>   "==" => "0"
+T1   A14             >>>   "0"
+T1   A14         192 *-* if status == .Coroutine~killed 
+T1   A14             >V>   STATUS => "1"
+T1   A14             >E>   .COROUTINE => "The COROUTINE class"
+T1   A14             >M>   "KILLED" => "4"
+T1   A14             >O>   "==" => "0"
+T1   A14             >>>   "0"
+T1   A14         193 *-* if status == .Coroutine~completed 
+T1   A14             >V>   STATUS => "1"
+T1   A14             >E>   .COROUTINE => "The COROUTINE class"
+T1   A14             >M>   "COMPLETED" => "3"
+T1   A14             >O>   "==" => "0"
+T1   A14             >>>   "0"
+T1   A14         194 *-* self~arguments = arg(1, "a")
+T1   A14             >V>   SELF => "a COROUTINE"
+T1   A14             >L>   "1"
+T1   A14             >A>   "1"
+T1   A14             >L>   "a"
+T1   A14             >A>   "a"
+T1   A14             >F>   ARG => "an Array"
+T1   A14             >A>   "an Array"
+T1   A14             >>>   "an Array"
+T1   A14         195 *-* status = .Coroutine~running
+T1   A14             >E>   .COROUTINE => "The COROUTINE class"
+T1   A14             >M>   "RUNNING" => "2"
+T1   A14             >>>   "2"
+T2   A13    *        >V>   STATUS => "2"
+T1   A14             >=>   STATUS <= "2"
+T2   A13    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A14         196 *-* guard on when status <> .Coroutine~running
+T2   A13    *        >M>   "SUSPENDED" => "1"
+T2   A13    *        >O>   "<>" => "1"
+T2   A13    *        >>>   "1"
+T2   A13    *    173 *-* if status == .Coroutine~killed 
+T2   A13    *        >V>   STATUS => "2"
+T2   A13    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A13    *        >M>   "KILLED" => "4"
+T2   A13    *        >O>   "==" => "0"
+T2   A13    *        >>>   "0"
+T2   A13    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A13    *        >V>   SELF => "a COROUTINE"
+T2   A13    *        >M>   "ARGUMENTS" => "an Array"
+T2   A13    *        >>>   "an Array"
+T2   A15             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A14    *        >V>   STATUS => "2"
+T2   A15         167 *-* expose status yieldValue
+T1   A14    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A15         168 *-* drop yieldValue
+T1   A14    *        >M>   "RUNNING" => "2"
+T2   A15         169 *-* if status == .Coroutine~killed 
+T1   A14    *        >O>   "<>" => "0"
+T2   A15             >V>   STATUS => "2"
+T1   A14    *        >>>   "0"
+T2   A15             >E>   .COROUTINE => "The COROUTINE class"
+T2   A15             >M>   "KILLED" => "4"
+T2   A15             >O>   "==" => "0"
+T2   A15             >>>   "0"
+T2   A15         170 *-* if arg() <> 0 
+T2   A15             >F>   ARG => "1"
+T2   A15             >L>   "0"
+T2   A15             >O>   "<>" => "1"
+T2   A15             >>>   "1"
+T2   A15         170 *-*   then
+T2   A15         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A15             >>>       "3"
+T2   A15             >=>       YIELDVALUE <= "3"
+T2   A15         171 *-* status = .Coroutine~suspended
+T2   A15             >E>   .COROUTINE => "The COROUTINE class"
+T2   A15             >M>   "SUSPENDED" => "1"
+T2   A15             >>>   "1"
+T1   A14    *        >V>   STATUS => "1"
+T2   A15             >=>   STATUS <= "1"
+T1   A14    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A15         172 *-* guard on when status <> .Coroutine~suspended
+T1   A14    *        >M>   "RUNNING" => "2"
+T1   A14    *        >O>   "<>" => "1"
+T1   A14    *        >>>   "1"
+T1   A14    *    197 *-* if status == .Coroutine~killed 
+T1   A14    *        >V>   STATUS => "1"
+T1   A14    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A14    *        >M>   "KILLED" => "4"
+T1   A14    *        >O>   "==" => "0"
+T1   A14    *        >>>   "0"
+T1   A14    *    198 *-* if var("yieldValue") 
+T1   A14    *        >L>   "yieldValue"
+T1   A14    *        >A>   "yieldValue"
+T1   A14    *        >F>   VAR => "1"
+T1   A14    *        >>>   "1"
+T1   A14    *    198 *-*   then
+T1   A14    *    198 *-*     return yieldValue
+T1   A14    *        >V>       YIELDVALUE => "3"
+T1   A14    *        >>>       "3"
+3
+T2   A15    *        >V>   STATUS => "1"
+T1   A16             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A15    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A16         190 *-* expose status yieldValue
+T2   A15    *        >M>   "SUSPENDED" => "1"
+T1   A16         191 *-* if status == .Coroutine~notStarted 
+T2   A15    *        >O>   "<>" => "0"
+T1   A16             >V>   STATUS => "1"
+T2   A15    *        >>>   "0"
+T1   A16             >E>   .COROUTINE => "The COROUTINE class"
+T1   A16             >M>   "NOTSTARTED" => "0"
+T1   A16             >O>   "==" => "0"
+T1   A16             >>>   "0"
+T1   A16         192 *-* if status == .Coroutine~killed 
+T1   A16             >V>   STATUS => "1"
+T1   A16             >E>   .COROUTINE => "The COROUTINE class"
+T1   A16             >M>   "KILLED" => "4"
+T1   A16             >O>   "==" => "0"
+T1   A16             >>>   "0"
+T1   A16         193 *-* if status == .Coroutine~completed 
+T1   A16             >V>   STATUS => "1"
+T1   A16             >E>   .COROUTINE => "The COROUTINE class"
+T1   A16             >M>   "COMPLETED" => "3"
+T1   A16             >O>   "==" => "0"
+T1   A16             >>>   "0"
+T1   A16         194 *-* self~arguments = arg(1, "a")
+T1   A16             >V>   SELF => "a COROUTINE"
+T1   A16             >L>   "1"
+T1   A16             >A>   "1"
+T1   A16             >L>   "a"
+T1   A16             >A>   "a"
+T1   A16             >F>   ARG => "an Array"
+T1   A16             >A>   "an Array"
+T1   A16             >>>   "an Array"
+T1   A16         195 *-* status = .Coroutine~running
+T1   A16             >E>   .COROUTINE => "The COROUTINE class"
+T1   A16             >M>   "RUNNING" => "2"
+T1   A16             >>>   "2"
+T2   A15    *        >V>   STATUS => "2"
+T1   A16             >=>   STATUS <= "2"
+T2   A15    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A16         196 *-* guard on when status <> .Coroutine~running
+T2   A15    *        >M>   "SUSPENDED" => "1"
+T2   A15    *        >O>   "<>" => "1"
+T2   A15    *        >>>   "1"
+T2   A15    *    173 *-* if status == .Coroutine~killed 
+T2   A15    *        >V>   STATUS => "2"
+T2   A15    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A15    *        >M>   "KILLED" => "4"
+T2   A15    *        >O>   "==" => "0"
+T2   A15    *        >>>   "0"
+T2   A15    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A15    *        >V>   SELF => "a COROUTINE"
+T2   A15    *        >M>   "ARGUMENTS" => "an Array"
+T2   A15    *        >>>   "an Array"
+T2   A17             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A16    *        >V>   STATUS => "2"
+T2   A17         167 *-* expose status yieldValue
+T1   A16    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A17         168 *-* drop yieldValue
+T1   A16    *        >M>   "RUNNING" => "2"
+T2   A17         169 *-* if status == .Coroutine~killed 
+T1   A16    *        >O>   "<>" => "0"
+T2   A17             >V>   STATUS => "2"
+T1   A16    *        >>>   "0"
+T2   A17             >E>   .COROUTINE => "The COROUTINE class"
+T2   A17             >M>   "KILLED" => "4"
+T2   A17             >O>   "==" => "0"
+T2   A17             >>>   "0"
+T2   A17         170 *-* if arg() <> 0 
+T2   A17             >F>   ARG => "1"
+T2   A17             >L>   "0"
+T2   A17             >O>   "<>" => "1"
+T2   A17             >>>   "1"
+T2   A17         170 *-*   then
+T2   A17         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A17             >>>       "4"
+T2   A17             >=>       YIELDVALUE <= "4"
+T2   A17         171 *-* status = .Coroutine~suspended
+T2   A17             >E>   .COROUTINE => "The COROUTINE class"
+T2   A17             >M>   "SUSPENDED" => "1"
+T2   A17             >>>   "1"
+T1   A16    *        >V>   STATUS => "1"
+T2   A17             >=>   STATUS <= "1"
+T1   A16    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A17         172 *-* guard on when status <> .Coroutine~suspended
+T1   A16    *        >M>   "RUNNING" => "2"
+T1   A16    *        >O>   "<>" => "1"
+T1   A16    *        >>>   "1"
+T1   A16    *    197 *-* if status == .Coroutine~killed 
+T1   A16    *        >V>   STATUS => "1"
+T1   A16    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A16    *        >M>   "KILLED" => "4"
+T1   A16    *        >O>   "==" => "0"
+T1   A16    *        >>>   "0"
+T1   A16    *    198 *-* if var("yieldValue") 
+T1   A16    *        >L>   "yieldValue"
+T1   A16    *        >A>   "yieldValue"
+T1   A16    *        >F>   VAR => "1"
+T1   A16    *        >>>   "1"
+T1   A16    *    198 *-*   then
+T1   A16    *    198 *-*     return yieldValue
+T1   A16    *        >V>       YIELDVALUE => "4"
+T1   A16    *        >>>       "4"
+4
+T2   A17    *        >V>   STATUS => "1"
+T1   A18             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A17    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A18         190 *-* expose status yieldValue
+T2   A17    *        >M>   "SUSPENDED" => "1"
+T1   A18         191 *-* if status == .Coroutine~notStarted 
+T2   A17    *        >O>   "<>" => "0"
+T1   A18             >V>   STATUS => "1"
+T2   A17    *        >>>   "0"
+T1   A18             >E>   .COROUTINE => "The COROUTINE class"
+T1   A18             >M>   "NOTSTARTED" => "0"
+T1   A18             >O>   "==" => "0"
+T1   A18             >>>   "0"
+T1   A18         192 *-* if status == .Coroutine~killed 
+T1   A18             >V>   STATUS => "1"
+T1   A18             >E>   .COROUTINE => "The COROUTINE class"
+T1   A18             >M>   "KILLED" => "4"
+T1   A18             >O>   "==" => "0"
+T1   A18             >>>   "0"
+T1   A18         193 *-* if status == .Coroutine~completed 
+T1   A18             >V>   STATUS => "1"
+T1   A18             >E>   .COROUTINE => "The COROUTINE class"
+T1   A18             >M>   "COMPLETED" => "3"
+T1   A18             >O>   "==" => "0"
+T1   A18             >>>   "0"
+T1   A18         194 *-* self~arguments = arg(1, "a")
+T1   A18             >V>   SELF => "a COROUTINE"
+T1   A18             >L>   "1"
+T1   A18             >A>   "1"
+T1   A18             >L>   "a"
+T1   A18             >A>   "a"
+T1   A18             >F>   ARG => "an Array"
+T1   A18             >A>   "an Array"
+T1   A18             >>>   "an Array"
+T1   A18         195 *-* status = .Coroutine~running
+T1   A18             >E>   .COROUTINE => "The COROUTINE class"
+T1   A18             >M>   "RUNNING" => "2"
+T1   A18             >>>   "2"
+T2   A17    *        >V>   STATUS => "2"
+T1   A18             >=>   STATUS <= "2"
+T2   A17    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A18         196 *-* guard on when status <> .Coroutine~running
+T2   A17    *        >M>   "SUSPENDED" => "1"
+T2   A17    *        >O>   "<>" => "1"
+T2   A17    *        >>>   "1"
+T2   A17    *    173 *-* if status == .Coroutine~killed 
+T2   A17    *        >V>   STATUS => "2"
+T2   A17    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A17    *        >M>   "KILLED" => "4"
+T2   A17    *        >O>   "==" => "0"
+T2   A17    *        >>>   "0"
+T2   A17    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A17    *        >V>   SELF => "a COROUTINE"
+T2   A17    *        >M>   "ARGUMENTS" => "an Array"
+T2   A17    *        >>>   "an Array"
+T2   A19             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A18    *        >V>   STATUS => "2"
+T2   A19         167 *-* expose status yieldValue
+T1   A18    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A19         168 *-* drop yieldValue
+T1   A18    *        >M>   "RUNNING" => "2"
+T2   A19         169 *-* if status == .Coroutine~killed 
+T1   A18    *        >O>   "<>" => "0"
+T2   A19             >V>   STATUS => "2"
+T1   A18    *        >>>   "0"
+T2   A19             >E>   .COROUTINE => "The COROUTINE class"
+T2   A19             >M>   "KILLED" => "4"
+T2   A19             >O>   "==" => "0"
+T2   A19             >>>   "0"
+T2   A19         170 *-* if arg() <> 0 
+T2   A19             >F>   ARG => "1"
+T2   A19             >L>   "0"
+T2   A19             >O>   "<>" => "1"
+T2   A19             >>>   "1"
+T2   A19         170 *-*   then
+T2   A19         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A19             >>>       "5"
+T2   A19             >=>       YIELDVALUE <= "5"
+T2   A19         171 *-* status = .Coroutine~suspended
+T2   A19             >E>   .COROUTINE => "The COROUTINE class"
+T2   A19             >M>   "SUSPENDED" => "1"
+T2   A19             >>>   "1"
+T1   A18    *        >V>   STATUS => "1"
+T2   A19             >=>   STATUS <= "1"
+T1   A18    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A19         172 *-* guard on when status <> .Coroutine~suspended
+T1   A18    *        >M>   "RUNNING" => "2"
+T1   A18    *        >O>   "<>" => "1"
+T1   A18    *        >>>   "1"
+T1   A18    *    197 *-* if status == .Coroutine~killed 
+T1   A18    *        >V>   STATUS => "1"
+T1   A18    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A18    *        >M>   "KILLED" => "4"
+T1   A18    *        >O>   "==" => "0"
+T1   A18    *        >>>   "0"
+T1   A18    *    198 *-* if var("yieldValue") 
+T1   A18    *        >L>   "yieldValue"
+T1   A18    *        >A>   "yieldValue"
+T1   A18    *        >F>   VAR => "1"
+T1   A18    *        >>>   "1"
+T1   A18    *    198 *-*   then
+T1   A18    *    198 *-*     return yieldValue
+T1   A18    *        >V>       YIELDVALUE => "5"
+T1   A18    *        >>>       "5"
+5
+T2   A19    *        >V>   STATUS => "1"
+T1   A20             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A19    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A20         190 *-* expose status yieldValue
+T2   A19    *        >M>   "SUSPENDED" => "1"
+T1   A20         191 *-* if status == .Coroutine~notStarted 
+T2   A19    *        >O>   "<>" => "0"
+T1   A20             >V>   STATUS => "1"
+T2   A19    *        >>>   "0"
+T1   A20             >E>   .COROUTINE => "The COROUTINE class"
+T1   A20             >M>   "NOTSTARTED" => "0"
+T1   A20             >O>   "==" => "0"
+T1   A20             >>>   "0"
+T1   A20         192 *-* if status == .Coroutine~killed 
+T1   A20             >V>   STATUS => "1"
+T1   A20             >E>   .COROUTINE => "The COROUTINE class"
+T1   A20             >M>   "KILLED" => "4"
+T1   A20             >O>   "==" => "0"
+T1   A20             >>>   "0"
+T1   A20         193 *-* if status == .Coroutine~completed 
+T1   A20             >V>   STATUS => "1"
+T1   A20             >E>   .COROUTINE => "The COROUTINE class"
+T1   A20             >M>   "COMPLETED" => "3"
+T1   A20             >O>   "==" => "0"
+T1   A20             >>>   "0"
+T1   A20         194 *-* self~arguments = arg(1, "a")
+T1   A20             >V>   SELF => "a COROUTINE"
+T1   A20             >L>   "1"
+T1   A20             >A>   "1"
+T1   A20             >L>   "a"
+T1   A20             >A>   "a"
+T1   A20             >F>   ARG => "an Array"
+T1   A20             >A>   "an Array"
+T1   A20             >>>   "an Array"
+T1   A20         195 *-* status = .Coroutine~running
+T1   A20             >E>   .COROUTINE => "The COROUTINE class"
+T1   A20             >M>   "RUNNING" => "2"
+T1   A20             >>>   "2"
+T2   A19    *        >V>   STATUS => "2"
+T1   A20             >=>   STATUS <= "2"
+T2   A19    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A20         196 *-* guard on when status <> .Coroutine~running
+T2   A19    *        >M>   "SUSPENDED" => "1"
+T2   A19    *        >O>   "<>" => "1"
+T2   A19    *        >>>   "1"
+T2   A19    *    173 *-* if status == .Coroutine~killed 
+T2   A19    *        >V>   STATUS => "2"
+T2   A19    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A19    *        >M>   "KILLED" => "4"
+T2   A19    *        >O>   "==" => "0"
+T2   A19    *        >>>   "0"
+T2   A19    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A19    *        >V>   SELF => "a COROUTINE"
+T2   A19    *        >M>   "ARGUMENTS" => "an Array"
+T2   A19    *        >>>   "an Array"
+T2   A21             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A20    *        >V>   STATUS => "2"
+T2   A21         167 *-* expose status yieldValue
+T1   A20    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A21         168 *-* drop yieldValue
+T1   A20    *        >M>   "RUNNING" => "2"
+T2   A21         169 *-* if status == .Coroutine~killed 
+T1   A20    *        >O>   "<>" => "0"
+T2   A21             >V>   STATUS => "2"
+T1   A20    *        >>>   "0"
+T2   A21             >E>   .COROUTINE => "The COROUTINE class"
+T2   A21             >M>   "KILLED" => "4"
+T2   A21             >O>   "==" => "0"
+T2   A21             >>>   "0"
+T2   A21         170 *-* if arg() <> 0 
+T2   A21             >F>   ARG => "1"
+T2   A21             >L>   "0"
+T2   A21             >O>   "<>" => "1"
+T2   A21             >>>   "1"
+T2   A21         170 *-*   then
+T2   A21         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A21             >>>       "6"
+T2   A21             >=>       YIELDVALUE <= "6"
+T2   A21         171 *-* status = .Coroutine~suspended
+T2   A21             >E>   .COROUTINE => "The COROUTINE class"
+T2   A21             >M>   "SUSPENDED" => "1"
+T2   A21             >>>   "1"
+T1   A20    *        >V>   STATUS => "1"
+T2   A21             >=>   STATUS <= "1"
+T1   A20    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A21         172 *-* guard on when status <> .Coroutine~suspended
+T1   A20    *        >M>   "RUNNING" => "2"
+T1   A20    *        >O>   "<>" => "1"
+T1   A20    *        >>>   "1"
+T1   A20    *    197 *-* if status == .Coroutine~killed 
+T1   A20    *        >V>   STATUS => "1"
+T1   A20    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A20    *        >M>   "KILLED" => "4"
+T1   A20    *        >O>   "==" => "0"
+T1   A20    *        >>>   "0"
+T1   A20    *    198 *-* if var("yieldValue") 
+T1   A20    *        >L>   "yieldValue"
+T1   A20    *        >A>   "yieldValue"
+T1   A20    *        >F>   VAR => "1"
+T1   A20    *        >>>   "1"
+T1   A20    *    198 *-*   then
+T1   A20    *    198 *-*     return yieldValue
+T1   A20    *        >V>       YIELDVALUE => "6"
+T1   A20    *        >>>       "6"
+6
+T2   A21    *        >V>   STATUS => "1"
+T1   A22             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A21    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A22         190 *-* expose status yieldValue
+T2   A21    *        >M>   "SUSPENDED" => "1"
+T1   A22         191 *-* if status == .Coroutine~notStarted 
+T2   A21    *        >O>   "<>" => "0"
+T1   A22             >V>   STATUS => "1"
+T2   A21    *        >>>   "0"
+T1   A22             >E>   .COROUTINE => "The COROUTINE class"
+T1   A22             >M>   "NOTSTARTED" => "0"
+T1   A22             >O>   "==" => "0"
+T1   A22             >>>   "0"
+T1   A22         192 *-* if status == .Coroutine~killed 
+T1   A22             >V>   STATUS => "1"
+T1   A22             >E>   .COROUTINE => "The COROUTINE class"
+T1   A22             >M>   "KILLED" => "4"
+T1   A22             >O>   "==" => "0"
+T1   A22             >>>   "0"
+T1   A22         193 *-* if status == .Coroutine~completed 
+T1   A22             >V>   STATUS => "1"
+T1   A22             >E>   .COROUTINE => "The COROUTINE class"
+T1   A22             >M>   "COMPLETED" => "3"
+T1   A22             >O>   "==" => "0"
+T1   A22             >>>   "0"
+T1   A22         194 *-* self~arguments = arg(1, "a")
+T1   A22             >V>   SELF => "a COROUTINE"
+T1   A22             >L>   "1"
+T1   A22             >A>   "1"
+T1   A22             >L>   "a"
+T1   A22             >A>   "a"
+T1   A22             >F>   ARG => "an Array"
+T1   A22             >A>   "an Array"
+T1   A22             >>>   "an Array"
+T1   A22         195 *-* status = .Coroutine~running
+T1   A22             >E>   .COROUTINE => "The COROUTINE class"
+T1   A22             >M>   "RUNNING" => "2"
+T1   A22             >>>   "2"
+T2   A21    *        >V>   STATUS => "2"
+T1   A22             >=>   STATUS <= "2"
+T2   A21    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A22         196 *-* guard on when status <> .Coroutine~running
+T2   A21    *        >M>   "SUSPENDED" => "1"
+T2   A21    *        >O>   "<>" => "1"
+T2   A21    *        >>>   "1"
+T2   A21    *    173 *-* if status == .Coroutine~killed 
+T2   A21    *        >V>   STATUS => "2"
+T2   A21    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A21    *        >M>   "KILLED" => "4"
+T2   A21    *        >O>   "==" => "0"
+T2   A21    *        >>>   "0"
+T2   A21    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A21    *        >V>   SELF => "a COROUTINE"
+T2   A21    *        >M>   "ARGUMENTS" => "an Array"
+T2   A21    *        >>>   "an Array"
+T2   A23             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A22    *        >V>   STATUS => "2"
+T2   A23         167 *-* expose status yieldValue
+T1   A22    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A23         168 *-* drop yieldValue
+T1   A22    *        >M>   "RUNNING" => "2"
+T2   A23         169 *-* if status == .Coroutine~killed 
+T1   A22    *        >O>   "<>" => "0"
+T2   A23             >V>   STATUS => "2"
+T1   A22    *        >>>   "0"
+T2   A23             >E>   .COROUTINE => "The COROUTINE class"
+T2   A23             >M>   "KILLED" => "4"
+T2   A23             >O>   "==" => "0"
+T2   A23             >>>   "0"
+T2   A23         170 *-* if arg() <> 0 
+T2   A23             >F>   ARG => "1"
+T2   A23             >L>   "0"
+T2   A23             >O>   "<>" => "1"
+T2   A23             >>>   "1"
+T2   A23         170 *-*   then
+T2   A23         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A23             >>>       "7"
+T2   A23             >=>       YIELDVALUE <= "7"
+T2   A23         171 *-* status = .Coroutine~suspended
+T2   A23             >E>   .COROUTINE => "The COROUTINE class"
+T2   A23             >M>   "SUSPENDED" => "1"
+T2   A23             >>>   "1"
+T1   A22    *        >V>   STATUS => "1"
+T2   A23             >=>   STATUS <= "1"
+T1   A22    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A23         172 *-* guard on when status <> .Coroutine~suspended
+T1   A22    *        >M>   "RUNNING" => "2"
+T1   A22    *        >O>   "<>" => "1"
+T1   A22    *        >>>   "1"
+T1   A22    *    197 *-* if status == .Coroutine~killed 
+T1   A22    *        >V>   STATUS => "1"
+T1   A22    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A22    *        >M>   "KILLED" => "4"
+T1   A22    *        >O>   "==" => "0"
+T1   A22    *        >>>   "0"
+T1   A22    *    198 *-* if var("yieldValue") 
+T1   A22    *        >L>   "yieldValue"
+T1   A22    *        >A>   "yieldValue"
+T1   A22    *        >F>   VAR => "1"
+T1   A22    *        >>>   "1"
+T1   A22    *    198 *-*   then
+T1   A22    *    198 *-*     return yieldValue
+T1   A22    *        >V>       YIELDVALUE => "7"
+T1   A22    *        >>>       "7"
+7
+T2   A23    *        >V>   STATUS => "1"
+T1   A24             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A23    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A24         190 *-* expose status yieldValue
+T2   A23    *        >M>   "SUSPENDED" => "1"
+T1   A24         191 *-* if status == .Coroutine~notStarted 
+T2   A23    *        >O>   "<>" => "0"
+T1   A24             >V>   STATUS => "1"
+T2   A23    *        >>>   "0"
+T1   A24             >E>   .COROUTINE => "The COROUTINE class"
+T1   A24             >M>   "NOTSTARTED" => "0"
+T1   A24             >O>   "==" => "0"
+T1   A24             >>>   "0"
+T1   A24         192 *-* if status == .Coroutine~killed 
+T1   A24             >V>   STATUS => "1"
+T1   A24             >E>   .COROUTINE => "The COROUTINE class"
+T1   A24             >M>   "KILLED" => "4"
+T1   A24             >O>   "==" => "0"
+T1   A24             >>>   "0"
+T1   A24         193 *-* if status == .Coroutine~completed 
+T1   A24             >V>   STATUS => "1"
+T1   A24             >E>   .COROUTINE => "The COROUTINE class"
+T1   A24             >M>   "COMPLETED" => "3"
+T1   A24             >O>   "==" => "0"
+T1   A24             >>>   "0"
+T1   A24         194 *-* self~arguments = arg(1, "a")
+T1   A24             >V>   SELF => "a COROUTINE"
+T1   A24             >L>   "1"
+T1   A24             >A>   "1"
+T1   A24             >L>   "a"
+T1   A24             >A>   "a"
+T1   A24             >F>   ARG => "an Array"
+T1   A24             >A>   "an Array"
+T1   A24             >>>   "an Array"
+T1   A24         195 *-* status = .Coroutine~running
+T1   A24             >E>   .COROUTINE => "The COROUTINE class"
+T1   A24             >M>   "RUNNING" => "2"
+T1   A24             >>>   "2"
+T2   A23    *        >V>   STATUS => "2"
+T1   A24             >=>   STATUS <= "2"
+T2   A23    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A24         196 *-* guard on when status <> .Coroutine~running
+T2   A23    *        >M>   "SUSPENDED" => "1"
+T2   A23    *        >O>   "<>" => "1"
+T2   A23    *        >>>   "1"
+T2   A23    *    173 *-* if status == .Coroutine~killed 
+T2   A23    *        >V>   STATUS => "2"
+T2   A23    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A23    *        >M>   "KILLED" => "4"
+T2   A23    *        >O>   "==" => "0"
+T2   A23    *        >>>   "0"
+T2   A23    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A23    *        >V>   SELF => "a COROUTINE"
+T2   A23    *        >M>   "ARGUMENTS" => "an Array"
+T2   A23    *        >>>   "an Array"
+T2   A25             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A24    *        >V>   STATUS => "2"
+T2   A25         167 *-* expose status yieldValue
+T1   A24    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A25         168 *-* drop yieldValue
+T1   A24    *        >M>   "RUNNING" => "2"
+T2   A25         169 *-* if status == .Coroutine~killed 
+T1   A24    *        >O>   "<>" => "0"
+T2   A25             >V>   STATUS => "2"
+T1   A24    *        >>>   "0"
+T2   A25             >E>   .COROUTINE => "The COROUTINE class"
+T2   A25             >M>   "KILLED" => "4"
+T2   A25             >O>   "==" => "0"
+T2   A25             >>>   "0"
+T2   A25         170 *-* if arg() <> 0 
+T2   A25             >F>   ARG => "1"
+T2   A25             >L>   "0"
+T2   A25             >O>   "<>" => "1"
+T2   A25             >>>   "1"
+T2   A25         170 *-*   then
+T2   A25         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A25             >>>       "8"
+T2   A25             >=>       YIELDVALUE <= "8"
+T2   A25         171 *-* status = .Coroutine~suspended
+T2   A25             >E>   .COROUTINE => "The COROUTINE class"
+T2   A25             >M>   "SUSPENDED" => "1"
+T2   A25             >>>   "1"
+T1   A24    *        >V>   STATUS => "1"
+T2   A25             >=>   STATUS <= "1"
+T1   A24    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A25         172 *-* guard on when status <> .Coroutine~suspended
+T1   A24    *        >M>   "RUNNING" => "2"
+T1   A24    *        >O>   "<>" => "1"
+T1   A24    *        >>>   "1"
+T1   A24    *    197 *-* if status == .Coroutine~killed 
+T1   A24    *        >V>   STATUS => "1"
+T1   A24    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A24    *        >M>   "KILLED" => "4"
+T1   A24    *        >O>   "==" => "0"
+T1   A24    *        >>>   "0"
+T1   A24    *    198 *-* if var("yieldValue") 
+T1   A24    *        >L>   "yieldValue"
+T1   A24    *        >A>   "yieldValue"
+T1   A24    *        >F>   VAR => "1"
+T1   A24    *        >>>   "1"
+T1   A24    *    198 *-*   then
+T1   A24    *    198 *-*     return yieldValue
+T1   A24    *        >V>       YIELDVALUE => "8"
+T1   A24    *        >>>       "8"
+8
+T2   A25    *        >V>   STATUS => "1"
+T1   A26             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A25    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A26         190 *-* expose status yieldValue
+T2   A25    *        >M>   "SUSPENDED" => "1"
+T1   A26         191 *-* if status == .Coroutine~notStarted 
+T2   A25    *        >O>   "<>" => "0"
+T1   A26             >V>   STATUS => "1"
+T2   A25    *        >>>   "0"
+T1   A26             >E>   .COROUTINE => "The COROUTINE class"
+T1   A26             >M>   "NOTSTARTED" => "0"
+T1   A26             >O>   "==" => "0"
+T1   A26             >>>   "0"
+T1   A26         192 *-* if status == .Coroutine~killed 
+T1   A26             >V>   STATUS => "1"
+T1   A26             >E>   .COROUTINE => "The COROUTINE class"
+T1   A26             >M>   "KILLED" => "4"
+T1   A26             >O>   "==" => "0"
+T1   A26             >>>   "0"
+T1   A26         193 *-* if status == .Coroutine~completed 
+T1   A26             >V>   STATUS => "1"
+T1   A26             >E>   .COROUTINE => "The COROUTINE class"
+T1   A26             >M>   "COMPLETED" => "3"
+T1   A26             >O>   "==" => "0"
+T1   A26             >>>   "0"
+T1   A26         194 *-* self~arguments = arg(1, "a")
+T1   A26             >V>   SELF => "a COROUTINE"
+T1   A26             >L>   "1"
+T1   A26             >A>   "1"
+T1   A26             >L>   "a"
+T1   A26             >A>   "a"
+T1   A26             >F>   ARG => "an Array"
+T1   A26             >A>   "an Array"
+T1   A26             >>>   "an Array"
+T1   A26         195 *-* status = .Coroutine~running
+T1   A26             >E>   .COROUTINE => "The COROUTINE class"
+T1   A26             >M>   "RUNNING" => "2"
+T1   A26             >>>   "2"
+T2   A25    *        >V>   STATUS => "2"
+T1   A26             >=>   STATUS <= "2"
+T2   A25    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A26         196 *-* guard on when status <> .Coroutine~running
+T2   A25    *        >M>   "SUSPENDED" => "1"
+T2   A25    *        >O>   "<>" => "1"
+T2   A25    *        >>>   "1"
+T2   A25    *    173 *-* if status == .Coroutine~killed 
+T2   A25    *        >V>   STATUS => "2"
+T2   A25    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A25    *        >M>   "KILLED" => "4"
+T2   A25    *        >O>   "==" => "0"
+T2   A25    *        >>>   "0"
+T2   A25    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A25    *        >V>   SELF => "a COROUTINE"
+T2   A25    *        >M>   "ARGUMENTS" => "an Array"
+T2   A25    *        >>>   "an Array"
+T2   A27             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A26    *        >V>   STATUS => "2"
+T2   A27         167 *-* expose status yieldValue
+T1   A26    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A27         168 *-* drop yieldValue
+T1   A26    *        >M>   "RUNNING" => "2"
+T2   A27         169 *-* if status == .Coroutine~killed 
+T1   A26    *        >O>   "<>" => "0"
+T2   A27             >V>   STATUS => "2"
+T1   A26    *        >>>   "0"
+T2   A27             >E>   .COROUTINE => "The COROUTINE class"
+T2   A27             >M>   "KILLED" => "4"
+T2   A27             >O>   "==" => "0"
+T2   A27             >>>   "0"
+T2   A27         170 *-* if arg() <> 0 
+T2   A27             >F>   ARG => "1"
+T2   A27             >L>   "0"
+T2   A27             >O>   "<>" => "1"
+T2   A27             >>>   "1"
+T2   A27         170 *-*   then
+T2   A27         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A27             >>>       "9"
+T2   A27             >=>       YIELDVALUE <= "9"
+T2   A27         171 *-* status = .Coroutine~suspended
+T2   A27             >E>   .COROUTINE => "The COROUTINE class"
+T2   A27             >M>   "SUSPENDED" => "1"
+T2   A27             >>>   "1"
+T1   A26    *        >V>   STATUS => "1"
+T2   A27             >=>   STATUS <= "1"
+T1   A26    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A27         172 *-* guard on when status <> .Coroutine~suspended
+T1   A26    *        >M>   "RUNNING" => "2"
+T1   A26    *        >O>   "<>" => "1"
+T1   A26    *        >>>   "1"
+T1   A26    *    197 *-* if status == .Coroutine~killed 
+T1   A26    *        >V>   STATUS => "1"
+T1   A26    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A26    *        >M>   "KILLED" => "4"
+T1   A26    *        >O>   "==" => "0"
+T1   A26    *        >>>   "0"
+T1   A26    *    198 *-* if var("yieldValue") 
+T1   A26    *        >L>   "yieldValue"
+T1   A26    *        >A>   "yieldValue"
+T1   A26    *        >F>   VAR => "1"
+T1   A26    *        >>>   "1"
+T1   A26    *    198 *-*   then
+T1   A26    *    198 *-*     return yieldValue
+T1   A26    *        >V>       YIELDVALUE => "9"
+T1   A26    *        >>>       "9"
+T2   A27    *        >V>   STATUS => "1"
+9
+T2   A27    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A28             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A27    *        >M>   "SUSPENDED" => "1"
+T1   A28         190 *-* expose status yieldValue
+T2   A27    *        >O>   "<>" => "0"
+T1   A28         191 *-* if status == .Coroutine~notStarted 
+T2   A27    *        >>>   "0"
+T1   A28             >V>   STATUS => "1"
+T1   A28             >E>   .COROUTINE => "The COROUTINE class"
+T1   A28             >M>   "NOTSTARTED" => "0"
+T1   A28             >O>   "==" => "0"
+T1   A28             >>>   "0"
+T1   A28         192 *-* if status == .Coroutine~killed 
+T1   A28             >V>   STATUS => "1"
+T1   A28             >E>   .COROUTINE => "The COROUTINE class"
+T1   A28             >M>   "KILLED" => "4"
+T1   A28             >O>   "==" => "0"
+T1   A28             >>>   "0"
+T1   A28         193 *-* if status == .Coroutine~completed 
+T1   A28             >V>   STATUS => "1"
+T1   A28             >E>   .COROUTINE => "The COROUTINE class"
+T1   A28             >M>   "COMPLETED" => "3"
+T1   A28             >O>   "==" => "0"
+T1   A28             >>>   "0"
+T1   A28         194 *-* self~arguments = arg(1, "a")
+T1   A28             >V>   SELF => "a COROUTINE"
+T1   A28             >L>   "1"
+T1   A28             >A>   "1"
+T1   A28             >L>   "a"
+T1   A28             >A>   "a"
+T1   A28             >F>   ARG => "an Array"
+T1   A28             >A>   "an Array"
+T1   A28             >>>   "an Array"
+T1   A28         195 *-* status = .Coroutine~running
+T1   A28             >E>   .COROUTINE => "The COROUTINE class"
+T1   A28             >M>   "RUNNING" => "2"
+T1   A28             >>>   "2"
+T2   A27    *        >V>   STATUS => "2"
+T1   A28             >=>   STATUS <= "2"
+T2   A27    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A28         196 *-* guard on when status <> .Coroutine~running
+T2   A27    *        >M>   "SUSPENDED" => "1"
+T2   A27    *        >O>   "<>" => "1"
+T2   A27    *        >>>   "1"
+T2   A27    *    173 *-* if status == .Coroutine~killed 
+T2   A27    *        >V>   STATUS => "2"
+T2   A27    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A27    *        >M>   "KILLED" => "4"
+T2   A27    *        >O>   "==" => "0"
+T2   A27    *        >>>   "0"
+T2   A27    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A27    *        >V>   SELF => "a COROUTINE"
+T2   A27    *        >M>   "ARGUMENTS" => "an Array"
+T2   A27    *        >>>   "an Array"
+T2   A29             >I> Method YIELD with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T1   A28    *        >V>   STATUS => "2"
+T2   A29         167 *-* expose status yieldValue
+T1   A28    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A29         168 *-* drop yieldValue
+T1   A28    *        >M>   "RUNNING" => "2"
+T2   A29         169 *-* if status == .Coroutine~killed 
+T1   A28    *        >O>   "<>" => "0"
+T2   A29             >V>   STATUS => "2"
+T1   A28    *        >>>   "0"
+T2   A29             >E>   .COROUTINE => "The COROUTINE class"
+T2   A29             >M>   "KILLED" => "4"
+T2   A29             >O>   "==" => "0"
+T2   A29             >>>   "0"
+T2   A29         170 *-* if arg() <> 0 
+T2   A29             >F>   ARG => "1"
+T2   A29             >L>   "0"
+T2   A29             >O>   "<>" => "1"
+T2   A29             >>>   "1"
+T2   A29         170 *-*   then
+T2   A29         170 *-*     use strict arg yieldValue -- yieldValue will be returned to the coroutine's client by 'resume'
+T2   A29             >>>       "10"
+T2   A29             >=>       YIELDVALUE <= "10"
+T2   A29         171 *-* status = .Coroutine~suspended
+T2   A29             >E>   .COROUTINE => "The COROUTINE class"
+T2   A29             >M>   "SUSPENDED" => "1"
+T2   A29             >>>   "1"
+T1   A28    *        >V>   STATUS => "1"
+T2   A29             >=>   STATUS <= "1"
+T1   A28    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A29         172 *-* guard on when status <> .Coroutine~suspended
+T1   A28    *        >M>   "RUNNING" => "2"
+T1   A28    *        >O>   "<>" => "1"
+T1   A28    *        >>>   "1"
+T1   A28    *    197 *-* if status == .Coroutine~killed 
+T1   A28    *        >V>   STATUS => "1"
+T1   A28    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A28    *        >M>   "KILLED" => "4"
+T1   A28    *        >O>   "==" => "0"
+T1   A28    *        >>>   "0"
+T1   A28    *    198 *-* if var("yieldValue") 
+T1   A28    *        >L>   "yieldValue"
+T1   A28    *        >A>   "yieldValue"
+T1   A28    *        >F>   VAR => "1"
+T1   A28    *        >>>   "1"
+T1   A28    *    198 *-*   then
+T1   A28    *    198 *-*     return yieldValue
+T1   A28    *        >V>       YIELDVALUE => "10"
+T1   A28    *        >>>       "10"
+10
+T2   A29    *        >V>   STATUS => "1"
+T1   A30             >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A29    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A30         190 *-* expose status yieldValue
+T2   A29    *        >M>   "SUSPENDED" => "1"
+T1   A30         191 *-* if status == .Coroutine~notStarted 
+T2   A29    *        >O>   "<>" => "0"
+T1   A30             >V>   STATUS => "1"
+T2   A29    *        >>>   "0"
+T1   A30             >E>   .COROUTINE => "The COROUTINE class"
+T1   A30             >M>   "NOTSTARTED" => "0"
+T1   A30             >O>   "==" => "0"
+T1   A30             >>>   "0"
+T1   A30         192 *-* if status == .Coroutine~killed 
+T1   A30             >V>   STATUS => "1"
+T1   A30             >E>   .COROUTINE => "The COROUTINE class"
+T1   A30             >M>   "KILLED" => "4"
+T1   A30             >O>   "==" => "0"
+T1   A30             >>>   "0"
+T1   A30         193 *-* if status == .Coroutine~completed 
+T1   A30             >V>   STATUS => "1"
+T1   A30             >E>   .COROUTINE => "The COROUTINE class"
+T1   A30             >M>   "COMPLETED" => "3"
+T1   A30             >O>   "==" => "0"
+T1   A30             >>>   "0"
+T1   A30         194 *-* self~arguments = arg(1, "a")
+T1   A30             >V>   SELF => "a COROUTINE"
+T1   A30             >L>   "1"
+T1   A30             >A>   "1"
+T1   A30             >L>   "a"
+T1   A30             >A>   "a"
+T1   A30             >F>   ARG => "an Array"
+T1   A30             >A>   "an Array"
+T1   A30             >>>   "an Array"
+T1   A30         195 *-* status = .Coroutine~running
+T1   A30             >E>   .COROUTINE => "The COROUTINE class"
+T1   A30             >M>   "RUNNING" => "2"
+T1   A30             >>>   "2"
+T2   A29    *        >V>   STATUS => "2"
+T1   A30             >=>   STATUS <= "2"
+T2   A29    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A30         196 *-* guard on when status <> .Coroutine~running
+T2   A29    *        >M>   "SUSPENDED" => "1"
+T2   A29    *        >O>   "<>" => "1"
+T2   A29    *        >>>   "1"
+T2   A29    *    173 *-* if status == .Coroutine~killed 
+T2   A29    *        >V>   STATUS => "2"
+T2   A29    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A29    *        >M>   "KILLED" => "4"
+T2   A29    *        >O>   "==" => "0"
+T2   A29    *        >>>   "0"
+T2   A29    *    174 *-* return self~arguments -- returns the arguments that the coroutine's client passed to 'resume'
+T2   A29    *        >V>   SELF => "a COROUTINE"
+T2   A29    *        >M>   "ARGUMENTS" => "an Array"
+T2   A29    *        >>>   "an Array"
+T2   A9          124 *-*       end
+T1   A30    *        >V>   STATUS => "2"
+T2   A9          125 *-*       guard on
+T1   A30    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A30    *        >M>   "RUNNING" => "2"
+T1   A30    *        >O>   "<>" => "0"
+T1   A30    *        >>>   "0"
+T2   A9     *    126 *-*       if var("result") 
+T2   A9     *        >L>         "result"
+T2   A9     *        >A>         "result"
+T2   A9     *        >F>         VAR => "0"
+T2   A9     *        >>>         "0"
+T2   A9     *    127 *-*         else
+T2   A9     *    127 *-*           self~yieldLast
+T2   A9     *        >V>             SELF => "a COROUTINE"
+T2   A31    *        >I> Method YIELDLAST with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+T2   A31    *    181 *-* expose status yieldValue
+T2   A31    *    182 *-* drop yieldValue
+T2   A31    *    183 *-* if status == .Coroutine~killed 
+T2   A31    *        >V>   STATUS => "2"
+T2   A31    *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A31    *        >M>   "KILLED" => "4"
+T2   A31    *        >O>   "==" => "0"
+T2   A31    *        >>>   "0"
+T2   A31    *    184 *-* if arg() <> 0 
+T2   A31    *        >F>   ARG => "0"
+T2   A31    *        >L>   "0"
+T2   A31    *        >O>   "<>" => "0"
+T2   A31    *        >>>   "0"
+T2   A9     *    128 *-*       status = .Coroutine~completed
+T2   A9     *        >E>         .COROUTINE => "The COROUTINE class"
+T2   A9     *        >M>         "COMPLETED" => "3"
+T2   A9     *        >>>         "3"
+T2   A9     *        >=>         STATUS <= "3"
+T2   A9     *    129 *-*   end
+T2   A9     *    130 *-* .Coroutine~table~remove(self)
+T2   A9     *        >E>   .COROUTINE => "The COROUTINE class"
+T2   A9     *        >M>   "TABLE" => "an IdentityTable"
+T2   A9     *        >V>   SELF => "a COROUTINE"
+T2   A9     *        >A>   "a COROUTINE"
+T2   A9     *        >>>   "a COROUTINE"
+T2   A9     *    131 *-* return
+T1   A30    *        >V>   STATUS => "3"
+T1   A30    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A30    *        >M>   "RUNNING" => "2"
+T1   A30    *        >O>   "<>" => "1"
+T1   A30    *        >>>   "1"
+T1   A30    *    197 *-* if status == .Coroutine~killed 
+T1   A30    *        >V>   STATUS => "3"
+T1   A30    *        >E>   .COROUTINE => "The COROUTINE class"
+T1   A30    *        >M>   "KILLED" => "4"
+T1   A30    *        >O>   "==" => "0"
+T1   A30    *        >>>   "0"
+T1   A30    *    198 *-* if var("yieldValue") 
+T1   A30    *        >L>   "yieldValue"
+T1   A30    *        >A>   "yieldValue"
+T1   A30    *        >F>   VAR => "0"
+T1   A30    *        >>>   "0"
+
