@@ -8,7 +8,7 @@ For a real library of methods, an rgf_util2_oo.rex should be written to use the 
 obj~method2(args) --> obj~method(reworked_args)
 */
 
-::requires "rgf_util2.rex"
+::requires "rgf_util2/rgf_util2.rex"
 
 
 -- Each method delegates to a routine having the same name.

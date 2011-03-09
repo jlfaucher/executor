@@ -172,5 +172,5 @@ colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (
     return c~d2c
 
 
-::requires "extended.cls"
+::requires "extension/std/extensions-std.cls"
 

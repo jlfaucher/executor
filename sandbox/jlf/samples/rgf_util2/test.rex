@@ -181,5 +181,5 @@ call evaluate "demonstration"
         end
     end
     
-::requires "wrappers.rex"
+::requires "rgf_util2/rgf_util2_wrappers.rex"
 

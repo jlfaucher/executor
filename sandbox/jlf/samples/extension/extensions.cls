@@ -1,9 +1,9 @@
 /*
-This script needs a modified ooRexx interpreter which allows to extend predefined ooRexx classes.
+This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
 */
 
-::requires "doers.cls"
-::requires "functionals.cls"
+::requires "extension/doers.cls"
+::requires "extension/functionals.cls"
 
 ::extension String inherit StringDoer StringReduce StringMap StringRepeater
 ::extension MutableBuffer inherit MutableBufferMap

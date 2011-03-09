@@ -1,5 +1,5 @@
 /*
-This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
+This script works with a standard ooRexx, but has drawbacks compared to doers.cls.
 */
 
 --::options trace i
@@ -10,6 +10,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::class RoutineDoer mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose routine
+    use arg routine=.nil
+
 ::method doer
     use strict arg context=.nil
     if context <> .nil then raise syntax 93.900 array ("Context not supported")
@@ -19,11 +24,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return .false -- No need to pass an object as first argument when calling do or doWith
 
 ::method do
+    expose routine -- In some cases, the "real" routine is encapsulated
+    if var("routine"), routine <> .nil then self = routine 
     self~callWith(arg(1,"a"))
     if var("result") then return result
 
 ::method doWith
+    expose routine -- In some cases, the "real" routine is encapsulated
     use strict arg array
+    if var("routine"), routine <> .nil then self = routine 
     self~callWith(array)
     if var("result") then return result
 
@@ -67,30 +76,34 @@ The method 'run' is a private method. So can be called only from another method 
         return self
     end
     if word1~caselessEquals("::method") then do
-        if context == .nil then return .Method~new("", rest)
+        if context == .nil then return .Method~enhanced(.MethodDoer~methods(.nil), "", rest)
         if context~isA(.RexxContext) then context = context~package
-        return .Method~new("", rest, context)
+        return .Method~enhanced(.MethodDoer~methods(.nil), "", rest, context)
     end
     if word1~caselessEquals("::routine") then do
-        if context == .nil then return .Routine~new("", rest)
+        if context == .nil then return .Routine~enhanced(.RoutineDoer~methods(.nil), "", rest)
         if context~isA(.RexxContext) then context = context~package
-        return .Routine~new("", rest, context)
+        return .Routine~enhanced(.RoutineDoer~methods(.nil), "", rest, context)
     end
     -- Routine by default
-    if context == .nil then return .Routine~new("", self)
+    -- To support extended classes, must convert self to a "real" string
+    -- (if self is an ExtendedString then .Routine~new will not accept it).
+    if context == .nil then return .Routine~enhanced(.RoutineDoer~methods(.nil), "", self~string)
     if context~isA(.RexxContext) then context = context~package
-    return .Routine~new("", self, context)
+    return .Routine~enhanced(.RoutineDoer~methods(.nil), "", self~string, context)
 
 ::method needsObject
     return .true -- Must pass an object as first argument when calling do or doWith
 
 ::method do
     use strict arg object, ...
-    object~sendWith(self, arg(2,"a"))
+    -- ~sendWith doesn't accept a subclass of String : must convert self to a String
+    object~sendWith(self~string, arg(2,"a"))
     if var("result") then return result
 
 ::method doWith
     use strict arg object, array
-    object~sendWith(self, array)
+    -- ~sendWith doesn't accept a subclass of String : must convert self to a String
+    object~sendWith(self~string, array)
     if var("result") then return result
 

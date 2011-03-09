@@ -41,6 +41,49 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 mar 10
+
+For all scripts under jlf/sandbox/samples, use path relative to samples in requires,
+assuming the path to samples will be in the PATH.
+
+
+Refactoring of extension :
+- Separation between code for standard ooRexx (in subdirectory std), and sandbox.
+- Removed factory.rex : can be replaced by ~enhanced
+- When ~enhanced can't be used then use delegation
+
+Current pattern for standard ooRexx, to extend a predefined class, assuming that
+the name of the predefined class is "ClassName", and the name of the extension
+is "Extension" (no need of that with ::extension) :
+
+::class ClassNameExtension mixinclass Object public
+
+::method init
+    expose className -- optional : an encapsulated instance of the predefined class
+    use arg className=.nil
+
+::method myMethod
+    expose className
+    if var("className"), className <> .nil then self = className -- delegates to the encapsulated instance
+    -- here your extension code which depends on self
+
+::class ExtendedClassName subclass ClassName public inherit ClassNameExtension1 ClassNameExtension2 ...
+
+The level of integration brougth by extension/std is poor compared to the integration with ::extension !
+Most of the time, you will create instances of your extended class.
+Ex : .ExtendedString~new("say 2*arg(1)")~doer~do(10) -- display 20
+But sometimes, you must work with instances returned by the interpreter, and you can't create an instance 
+of your extended class. In this case, you create an instance of your extension mixin which encapsulates the
+instance returned by the interpreter.
+Ex : routine = .context~package~findRoutine("multiply_by_2")
+     doer = .RoutineDoer~new(routine)
+     doer~do(10) -- display 20
+
+     ::routine multiply_by_2
+     say 2*arg(1)
+
+
+===============================================================================
 2011 mar 09
 
 Send the trace output to the debug output.

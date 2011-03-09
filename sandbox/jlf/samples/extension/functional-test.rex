@@ -179,5 +179,5 @@ colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (
     return directory
     
     
-::requires "extensions.cls"
+::requires "extension/extensions.cls"
 

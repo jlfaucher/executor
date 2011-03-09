@@ -122,5 +122,5 @@ say '-- Error 93.961:  Method argument 1 must have a string value or an array va
 ::class ExtendedString subclass String inherit StringDoer
 
 
-::requires "doers.cls"
+::requires "extension/doers.cls"
 

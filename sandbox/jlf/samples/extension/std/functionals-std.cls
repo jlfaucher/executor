@@ -1,24 +1,38 @@
 /*
-This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
+This script works with a standard ooRexx, but has drawbacks compared to functionals.cls.
 */
 
 --::options trace i
-::requires "extension/doers.cls"
+::requires "extension/std/doers-std.cls"
 
 -----------------------------------------------------------------------------
--- Mixins
+-- Mixins/Wrappers
 -- Reduce
 
 ::class StringReduce mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose string
+    use arg string=.nil
+
 ::method reduce
+    expose string
     use strict arg action, context=.nil
-    return self~makearray("")~reduce(action, context)
+    if var("string"), string <> .nil then self = string 
+    return .CollectionReduce~new(self~makearray(""))~reduce(action, context)
 
 
 ::class CollectionReduce mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose collection
+    use arg collection=.nil
+
 ::method reduce
+    expose collection
+    if var("collection"), collection <> .nil then self = collection 
     use strict arg action, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
     supplier = self~supplier
@@ -33,33 +47,49 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 -----------------------------------------------------------------------------
--- Mixins
+-- Mixins/Wrappers
 -- Map
 
 ::class StringMap mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose string
+    use arg string=.nil
+
 ::method map
     forward message "mapChar"
 
 ::method mapchar
+    expose string
     use strict arg action, inplace=.false, context=.nil
     if inplace == .true then raise syntax 93.900 array ("in place not applicable to string")
-    return .MutableBuffer~new(self)~mapchar(action, .true, context)~string
+    if var("string"), string <> .nil then self = string 
+    return .MutableBuffer~enhanced(.MutableBufferMap~methods(.nil), self)~mapchar(action, .true, context)~string
 
 ::method mapword
+    expose string
     use strict arg action, inplace=.false, context=.nil
     if inplace == .true then raise syntax 93.900 array ("in place not applicable to string")
-    return .MutableBuffer~new(self)~mapword(action, .true, context)~string
+    if var("string"), string <> .nil then self = string 
+    return .MutableBuffer~enhanced(.MutableBufferMap~methods(.nil), self)~mapword(action, .true, context)~string
 
 
 ::class MutableBufferMap mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose mutableBuffer
+    use arg mutableBuffer=.nil
+
 ::method map
     forward message "mapChar"
 
 ::method mapchar
+    expose mutableBuffer 
     use strict arg action, inplace=.true, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
+    if var("mutableBuffer"), mutableBuffer <> .nil then self = mutableBuffer 
     r = self
     if \inplace then r = self~copy
     string = r~string
@@ -70,8 +100,10 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return r
 
 ::method mapword
+    expose mutableBuffer 
     use strict arg action, inplace=.true, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
+    if var("mutableBuffer"), mutableBuffer <> .nil then self = mutableBuffer 
     r = self
     if \inplace then r = self~copy
     string = r~string
@@ -91,9 +123,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- (when inplace == .true the collection is updated in place)
 ::class OrderedCollectionMap mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose orderedCollection
+    use arg orderedCollection=.nil
+
 ::method map
+    expose orderedCollection
     use strict arg action, inplace=.false, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
+    if var("orderedCollection"), orderedCollection <> .nil then self = orderedCollection 
     r = self
     if \inplace then r = self~copy
     current = self~first
@@ -110,17 +149,26 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::class StringRepeater mixinclass Object public
 
+::method init
+    -- Enhancement by delegation (wrapper) when ~enhanced can't be used
+    expose string
+    use arg string=.nil
+
 ::method times
+    expose string
     use strict arg action, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
+    if var("string"), string <> .nil then self = string 
     do i = 1 to self
         doer~do(i)
     end
     return self
 
 ::method upto
+    expose string
     use strict arg upperLimit, action, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
+    if var("string"), string <> .nil then self = string 
     do i = self to upperLimit
         doer~do(i)
     end
