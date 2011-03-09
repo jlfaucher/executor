@@ -43,6 +43,39 @@ http://slatelanguage.org/
 ===============================================================================
 2011 mar 10
 
+Implemented an emulation of coroutine, named "coactivity" to follow the ooRexx
+vocabulary. This is not a "real" coroutine implementation, because it's based on
+ooRexx threads and synchronization. But at least you have all the functionalities
+of a stackful asymmetric coroutine (resume + yield). All is in place to support
+symmetric coroutines (yield only), but the scheduler remains to implement.
+
+For a better support of coactivity, I'm thinking to modify the interpreter :
+Arguments can be passed by the consumer when he resumes a coactivity.
+For the first resume, the traditional arguments declaration can be used on the producer side.
+But for the following resumes, it's less declarative : you get only an array returned by yield.
+I'd like to use the traditional arguments declaration everywhere...
+    consumer : res = coactivity~resume(arg1, arg2)
+               res = coactivity~resume(arg1, arg2)
+               ...
+    producer : use strict arg arg1, arg2
+               res = f(arg1, arg2)...
+               args = coactivity~yield(res) --> returns an array of arguments
+               use strict arg arg1, arg2   --> but this array of arguments can't be read that way
+               ...
+
+For an example of coroutine implementation for the HotSpot JVM, see :
+http://ssw.jku.at/Research/Papers/Stadler11Master
+I found the reading interesting because :
+- Java, like ooRexx, has synchronized threads.
+- Java, like ooRexx, doesn't support real coroutines.
+- With the proposed implementation for JVM, operations on coroutines implicitly always
+  operate on the current thread. This allows the system to assume that only a minimal amount
+  of synchronization is necessary.
+
+
+===============================================================================
+2011 mar 10
+
 For all scripts under jlf/sandbox/samples, use path relative to samples in requires,
 assuming the path to samples will be in the PATH.
 

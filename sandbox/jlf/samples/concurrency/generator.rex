@@ -1,3 +1,6 @@
+-- This file is now deprecated.
+-- See coactivity.cls
+
 -- Generators in ooRexx
 
 g1 = .RangeGenerator~new(10, 1, -2)

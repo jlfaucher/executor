@@ -1,0 +1,36 @@
+/*
+An activity is a thread of execution that can run methods concurrently with methods on other activities.
+An activity contains a stack of invocations that represent the Rexx programs running on the activity.
+*/
+
+if .context~package~loadLibrary("rxunixsys") then
+    .local~rxunixsys.loaded = .true
+else
+    .local~rxunixsys.loaded = .false
+
+
+--------------------------------------------------------------------------------
+::class Activity public
+
+-- Emulate an Activity's environmement : one entry per activity, the key is the thread id. 
+-- See RFE 2868655 : "Add ThreadLocal concept".
+-- Each entry is a directory.
+::attribute directory class private
+
+::method init class
+    self~directory = .Directory~new
+
+
+::method currentThreadId class
+    if .rxunixsys.loaded then return SysGetTid() -- Unix
+    else return SysQueryProcess("TID") -- Windows
+
+
+::method local class
+    local = self~directory[self~currentThreadId]
+    if local == .nil then do
+        local = .Directory~new
+        self~directory[self~currentThreadId] = local
+    end
+    return local
+
