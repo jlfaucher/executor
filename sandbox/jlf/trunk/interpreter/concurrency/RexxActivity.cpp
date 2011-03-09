@@ -2797,6 +2797,7 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
                                                    (unsigned int)activation, 
                                                    (activation && activation->isObjectScopeLocked()) ? '*' : ' ');
     line = line->concatToCstring(buffer);
+    dbgprintf("%s\n", line->getStringData());
 
     if (this->callTraceExit(activation, line))
     {

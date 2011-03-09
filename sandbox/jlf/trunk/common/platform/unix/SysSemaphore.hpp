@@ -85,21 +85,21 @@ public:
      void close();
      inline void request(const char *ds, int di) 
      {
-         dbgprintf("(SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
+         dbgprintf("%8.8x %8.8x %c ...... ... (SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
          pthread_mutex_lock(&mutexMutex); 
-         dbgprintf("(SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
+         dbgprintf("%8.8x %8.8x %c ...... ... (SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
      }
      inline void release(const char *ds, int di) 
      { 
-         dbgprintf("(SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
+         dbgprintf("%8.8x %8.8x %c ...... ... (SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
          pthread_mutex_unlock(&mutexMutex); 
-         dbgprintf("(SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());         
+         dbgprintf("%8.8x %8.8x %c ...... ... (SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
      }
      inline bool requestImmediate(const char *ds, int di) 
      { 
-         dbgprintf("(SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
+         dbgprintf("%8.8x %8.8x %c ...... ... (SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
          bool result = pthread_mutex_trylock(&mutexMutex) == 0;
-         dbgprintf("(SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, (unsigned int)&mutexMutex, ds, (unsigned int)pthread_self());
+         dbgprintf("%8.8x %8.8x %c ...... ... (SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
          return result;
      }
 

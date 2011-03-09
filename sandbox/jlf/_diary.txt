@@ -41,6 +41,30 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 mar 09
+
+Send the trace output to the debug output.
+Made the debug output of SysSemaphore and SysMutex compatible with trace output.
+Now I get the trace lines and the interpreter locks in the same stream, and I can
+parse them with tracer.rex (could be faster, but...).
+
+0001eab4 7eff0af8 *     89 *-* reply self
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.release : before ReleaseMutex(0x1fb4) from ActivityManager::unlockKernel (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.release : after ReleaseMutex(0x1fb4) from ActivityManager::unlockKernel (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.requestImmediate : before WaitForSingleObject(0x1fb4) from ActivityManager::lockKernelImmediate (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.requestImmediate : after WaitForSingleObject(0x1fb4) from ActivityManager::lockKernelImmediate (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.release : before ReleaseMutex(0x1fb4) from ActivityManager::unlockKernel (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.release : after ReleaseMutex(0x1fb4) from ActivityManager::unlockKernel (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.requestImmediate : before WaitForSingleObject(0x1fb4) from ActivityManager::lockKernelImmediate (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.requestImmediate : after WaitForSingleObject(0x1fb4) from ActivityManager::lockKernelImmediate (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.release : before ReleaseMutex(0x1fb4) from ActivityManager::unlockKernel (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.release : after ReleaseMutex(0x1fb4) from ActivityManager::unlockKernel (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.requestImmediate : before WaitForSingleObject(0x1fb4) from ActivityManager::lockKernelImmediate (0x55dec0)
+0001eab4 00000000   ...... ... (SysMutex)ActivityManager::kernelSemaphore.requestImmediate : after WaitForSingleObject(0x1fb4) from ActivityManager::lockKernelImmediate (0x55dec0)
+0001eab4 7eff0af8 *        >V>   SELF => "a COACTIVITY"
+
+
+===============================================================================
 2011 feb 27
 
 Implemented the script samples\trace\tracer.rex.

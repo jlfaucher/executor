@@ -10,7 +10,6 @@ Description :
     Use -csv to generate a CSV output.
     
     Use -filter to filter out the lines which are not a trace
-    (this option is automatically activated when -csv is used).
     
     The expected input format is something like that :
     0000f5fc 7efb0180          >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
@@ -96,8 +95,8 @@ do while streamIn~state="READY"
                 currentTrace~restOfTrace = restOfTrace
             end
         end
-        currentTrace~threadId = threadId
-        currentTrace~activationId = activationId
+        currentTrace~threadId = threadId~strip
+        currentTrace~activationId = activationId~strip
         currentTrace~lock = lock
         currentTrace~trace = trace
     end
@@ -208,8 +207,8 @@ return 0
 ::class Thread
 -------------------------------------------------------------------------------
 
-::constant hexIdWidth 8 -- max width of hex id (used for parsing)
-::constant hrIdWidth 4 -- max width of hr id (used for parsing and rewriting)
+::constant hexIdWidth 8 -- width of hex id (used for parsing)
+::constant hrIdWidth 4 -- width of hr id (used for parsing and rewriting)
 
 ::attribute counter class
 ::attribute directory class
@@ -225,7 +224,7 @@ return 0
         thread = .Thread~new
         .Thread~directory[threadId] = thread
         thread~id = threadId
-        if threadId~verify("0") == 0 then thread~hrId = "T0" -- Always use T0 for null pointer
+        if threadId~verify("0") == 0 | threadId == "T0" then thread~hrId = "T0" -- Always use T0 for null pointer
         else do
             .Thread~counter += 1
             thread~hrId = "T".Thread~counter
@@ -271,7 +270,7 @@ return 0
         activation = .Activation~new
         .Activation~directory[activationId] = activation
         activation~id = activationId
-        if activationId~verify("0") == 0 then activation~hrId = "A0" -- Always use A0 for null pointer
+        if activationId~verify("0") == 0 | activationId == "A0" then activation~hrId = "A0" -- Always use A0 for null pointer
         else do
             .Activation~counter += 1
             activation~hrId = "A".Activation~counter
@@ -319,7 +318,8 @@ return 0
 
 ::method isValidPrefix class
     use strict arg prefix
-    return prefix~space(0)~length == 3 & "*-* +++ >I> >>> >=> >.> >A> >C> >E> >F> >L> >M> >O> >P> >V>"~pos(prefix) <> 0 
+    -- The last "..." is not a standard trace prefix. This is the prefix used by the debug output of SysSemaphore and SysMutex.
+    return prefix~space(0)~length == 3 & "*-* +++ >I> >>> >=> >.> >A> >C> >E> >F> >L> >M> >O> >P> >V> ..."~pos(prefix) <> 0 
 
 ::attribute rawLine
 
