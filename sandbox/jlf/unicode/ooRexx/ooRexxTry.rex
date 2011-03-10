@@ -101,11 +101,11 @@ LoadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
-    call loadPackage("pipe.rex")
-    call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
-    if \loadPackage("extensions.cls") then do -- requires jlf sandbox ooRexx 
-        call loadPackage("extended.cls") -- works with standard ooRexx, but integration is weak
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
+    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
+        call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     return
     
@@ -116,6 +116,7 @@ loadPackage:
     use strict arg filename
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
+    say "loadPackage OK for" filename
     return .true
     loadPackageError:
     say "loadPackage KO for" filename
@@ -127,8 +128,12 @@ loadPackage:
 loadLibrary:
     use strict arg filename
     signal on syntax name loadLibraryError
-    return .context~package~loadLibrary(filename)
+    if .context~package~loadLibrary(filename) then do
+        say "loadLibrary OK for" filename
+        return
+    end
     loadLibraryError:
+    say "loadLibrary KO for" filename
     return .false
 
     
