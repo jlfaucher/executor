@@ -185,6 +185,7 @@ main: procedure
 intro: procedure
     parse version version
     .color~select(.ooRexxShell~infoColor)
+    say
     say version
     .ooRexxShell~sayInterpreters
     say "? : to invoke ooRexx documentation."
@@ -408,6 +409,9 @@ loadOptionalComponents:
         call loadPackage("oodialog.cls")
         call loadPackage("winsystm.cls")
     end
+    if \.platform~is("windows") then do
+        call loadLibrary("rxunixsys")
+    end
     if loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
     call loadPackage("mime.cls")
     call loadPackage("rxftp.cls")
@@ -418,11 +422,11 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
-    call loadPackage("pipe.rex")
-    call loadPackage("rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
-    if \loadPackage("extensions.cls") then do -- requires jlf sandbox ooRexx 
-        call loadPackage("extended.cls") -- works with standard ooRexx, but integration is weak
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
+    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
+        call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     return
     
@@ -433,6 +437,9 @@ loadPackage:
     use strict arg filename
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
+    .color~select(.ooRexxShell~infoColor)
+    say "loadPackage OK for" filename
+    .color~select(.ooRexxShell~defaultColor)
     return .true
     loadPackageError:
     .color~select(.ooRexxShell~errorColor)
@@ -446,8 +453,16 @@ loadPackage:
 loadLibrary:
     use strict arg filename
     signal on syntax name loadLibraryError
-    return .context~package~loadLibrary(filename)
+    if .context~package~loadLibrary(filename) then do
+        .color~select(.ooRexxShell~infoColor)
+        say "loadLibrary OK for" filename
+        .color~select(.ooRexxShell~defaultColor)
+        return .true
+    end
     loadLibraryError:
+    .color~select(.ooRexxShell~errorColor)
+    say "loadLibrary KO for" filename
+    .color~select(.ooRexxShell~defaultColor)
     return .false
 
     
