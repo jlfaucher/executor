@@ -407,7 +407,9 @@ class ActivationSettings
    inline bool              isForwarded() { return (this->settings.flags&forwarded) != 0; }
    inline bool              isGuarded() { return (this->settings.flags&guarded_method) != 0; }
    inline void              setGuarded() { this->settings.flags |= guarded_method; }
-   inline bool              isObjectScopeLocked() { return this->object_scope == SCOPE_RESERVED; }
+   inline bool              isObjectScopeLocked() { return this->object_scope == SCOPE_RESERVED; } // for trace
+   unsigned short           getReserveCount() { return this->settings.object_variables ? this->settings.object_variables->getReserveCount() : 0; } // for trace
+   RexxVariableDictionary * getVariableDictionary() { return this->settings.object_variables; } // for trace
 
    inline bool              isExternalTraceOn() { return (this->settings.flags&trace_on) != 0; }
    inline void              setExternalTraceOn() { this->settings.flags |= trace_on; }

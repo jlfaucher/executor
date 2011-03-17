@@ -2792,9 +2792,11 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
     // Add thread id, activation id and lock flag.
     // Should help to analyze the traces of a multithreaded script...
     char buffer[100];
-    Utilities::snprintf(buffer, sizeof buffer - 1, "%8.8x %8.8x %c ", 
+    Utilities::snprintf(buffer, sizeof buffer - 1, "%8.8x %8.8x %8.8x %5.5hu%c ", 
                                                    SysCurrentThreadId(),
-                                                   (unsigned int)activation, 
+                                                   (unsigned int)activation,
+                                                   (activation) ? activation->getVariableDictionary() : NULL,
+                                                   (activation) ? activation->getReserveCount() : 0,
                                                    (activation && activation->isObjectScopeLocked()) ? '*' : ' ');
     line = line->concatToCstring(buffer);
     dbgprintf("%s\n", line->getStringData());
