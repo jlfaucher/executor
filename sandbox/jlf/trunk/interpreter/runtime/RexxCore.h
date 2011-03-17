@@ -339,6 +339,7 @@ inline size_t optionalLengthArgument(RexxObject *o, size_t d, size_t p)
     return (o == OREF_NULL ? d : lengthArgument(o, p));
 }
 
+#ifdef STRONG_TYPES
 inline sizeB_t optionalLengthArgument(RexxObject *o, sizeB_t d, sizeB_t p)
 {
     return sizeB_v(optionalLengthArgument(o, size_v(d), size_v(p)));
@@ -348,6 +349,7 @@ inline sizeC_t optionalLengthArgument(RexxObject *o, sizeC_t d, sizeC_t p)
 {
     return sizeC_v(optionalLengthArgument(o, size_v(d), size_v(p)));
 }
+#endif
 
 // resides in the string class util
 size_t positionArgument(RexxObject *o, size_t p);
@@ -357,6 +359,7 @@ inline size_t optionalPositionArgument(RexxObject *o, size_t d, size_t p)
     return (o == OREF_NULL ? d : positionArgument(o, p));
 }
 
+#ifdef STRONG_TYPES
 inline sizeB_t optionalPositionArgument(RexxObject *o, sizeB_t d, sizeB_t p)
 {
     return sizeB_v(optionalPositionArgument(o, size_v(d), size_v(p)));
@@ -366,6 +369,7 @@ inline sizeC_t optionalPositionArgument(RexxObject *o, sizeC_t d, sizeC_t p)
 {
     return sizeC_v(optionalPositionArgument(o, size_v(d), size_v(p)));
 }
+#endif
 
 codepoint_t padArgument(RexxObject *o, size_t p);
 

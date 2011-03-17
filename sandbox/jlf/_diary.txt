@@ -43,6 +43,14 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 mar 17
+
+m17n : 
+Don't use strong types by default, because gcc can't compile as-is.
+Fixed compilation errors under Linux.
+
+
+===============================================================================
 2011 mar 16
 
 I learned recently that ooRexx manages nested guard conditions...

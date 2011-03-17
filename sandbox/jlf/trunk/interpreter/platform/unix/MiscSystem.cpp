@@ -134,7 +134,7 @@ RexxString *SystemInterpreter::getSystemVersion()
 void SystemInterpreter::validateAddressName(RexxString *name )
 {
     /* name too long?                    */
-    if (name->getLength() > MAX_ADDRESS_NAME_LENGTH)
+    if (name->getBLength() > MAX_ADDRESS_NAME_LENGTH)
     {
         /* go report an error                */
         reportException(Error_Environment_name_name, MAX_ADDRESS_NAME_LENGTH, name);
@@ -165,18 +165,18 @@ RexxString * SystemInterpreter::getSourceString(RexxString * callType, RexxStrin
 {
     RexxString * source_string;          /* final source string               */
     char       * outPtr;
-    source_string = raw_string(1+sizeof(ORX_SYS_STR)+callType->getLength()+programName->getLength());
+    source_string = raw_string(1+sizeof(ORX_SYS_STR)+callType->getBLength()+programName->getBLength());
     outPtr = source_string->getWritableData();  /* point to result Data.             */
 
     strcpy(outPtr, ORX_SYS_STR);          /* copy the system name              */
     outPtr +=sizeof(ORX_SYS_STR) - 1;     /* step past the name                */
     *outPtr++ = ' ';                     /* put a blank between               */
                                          /* copy the call type                */
-    memcpy(outPtr, callType->getStringData(), callType->getLength());
-    outPtr += callType->getLength();     /* step over the call type           */
+    memcpy(outPtr, callType->getStringData(), callType->getBLength());
+    outPtr += callType->getBLength();     /* step over the call type           */
     *outPtr++ = ' ';                     /* put a blank between               */
                                          /* copy the system name              */
-    memcpy(outPtr, programName->getStringData(), programName->getLength());
+    memcpy(outPtr, programName->getStringData(), programName->getBLength());
     return source_string;                /* return the source string          */
 }
 

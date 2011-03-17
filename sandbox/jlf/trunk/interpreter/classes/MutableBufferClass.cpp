@@ -325,11 +325,13 @@ void RexxMutableBuffer::ensureCapacity(sizeB_t addedLength)
 }
 
 
+#ifdef STRONG_TYPES
 void RexxMutableBuffer::ensureCapacity(sizeC_t addedLength)
 {
     sizeB_t resultLength = this->dataBLength + (size_v(addedLength) * this->getEncoding()->max_bytes_per_codepoint);
 	this->ensureCapacity(resultLength);
 }
+#endif
 
 
 /**

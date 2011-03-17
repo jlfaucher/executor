@@ -228,7 +228,7 @@ typedef ssize_t wholenumber_t;         // a Rexx whole number (signed)
 typedef size_t  logical_t;             // a Rexx logical (1 or 0) value
 typedef ssize_t codepoint_t;           // a Rexx signed codepoint, which allows to pass -1 as default value or return -1 when error
 
-#define STRONG_TYPES
+// #define STRONG_TYPES // Currently supported only by Visual C++
 #ifndef STRONG_TYPES
 
 // Convert helpers (cast), to provide same services for weak and strong types

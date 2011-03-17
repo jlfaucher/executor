@@ -76,7 +76,9 @@ class RexxMutableBufferClass : public RexxClass {
 
    RexxObject        *copy();
    void               ensureCapacity(sizeB_t addedLength);
+#ifdef STRONG_TYPES
    void               ensureCapacity(sizeC_t addedLength);
+#endif
 
    RexxObject        *lengthRexx(); // in behaviour
 

@@ -192,6 +192,8 @@ class RexxIntegerClass : public RexxClass {
 
 
 inline RexxInteger *new_integer(wholenumber_t v) { return TheIntegerClass->newCache(v); }
+#ifdef STRONG_TYPES
 inline RexxInteger *new_integer(sizeB_t v) { return new_integer(size_v(v)); }
 inline RexxInteger *new_integer(sizeC_t v) { return new_integer(size_v(v)); }
+#endif
 #endif

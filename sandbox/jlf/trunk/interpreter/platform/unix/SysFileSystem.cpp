@@ -236,7 +236,7 @@ bool SysFileSystem::fileExists(const char * fname)
 RexxString *SysFileSystem::extractDirectory(RexxString *file)
 {
     const char *pathName = file->getStringData();
-    const char *endPtr = pathName + file->getLength() - 1;
+    const char *endPtr = pathName + file->getBLength() - 1;
 
     // scan backwards looking for a directory delimiter.  This name should
     // be fully qualified, so we don't have to deal with drive letters
@@ -268,7 +268,7 @@ RexxString *SysFileSystem::extractDirectory(RexxString *file)
 RexxString *SysFileSystem::extractExtension(RexxString *file)
 {
     const char *pathName = file->getStringData();
-    const char *endPtr = pathName + file->getLength() - 1;
+    const char *endPtr = pathName + file->getBLength() - 1;
 
     // scan backwards looking for a directory delimiter.  This name should
     // be fully qualified, so we don't have to deal with drive letters
@@ -304,7 +304,7 @@ RexxString *SysFileSystem::extractExtension(RexxString *file)
 RexxString *SysFileSystem::extractFile(RexxString *file)
 {
     const char *pathName = file->getStringData();
-    const char *endPtr = pathName + file->getLength() - 1;
+    const char *endPtr = pathName + file->getBLength() - 1;
 
     // scan backwards looking for a directory delimiter.  This name should
     // be fully qualified, so we don't have to deal with drive letters
