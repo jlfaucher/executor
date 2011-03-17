@@ -8,29 +8,37 @@ Description :
     The annotated trace is sent to stdout.
 
     Use -csv to generate a CSV output.
-    
+
     Use -filter to filter out the lines which are not a trace
-    
+
     The expected input format is something like that :
-    0000f5fc 7efb0180          >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-    0000f5fc 7efb0180          >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-    0000f5fc 7efb29f8 *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-    0000f5fc 7efb29f8 *     44 *-* self~table = .IdentityTable~new
-    00010244 00000000   Error 99 running D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\trace\doit.rex line 17:  Translation error
-    00010244 00000000   Error 99.916:  Unrecognized directive instruction
+    0000f5fc 7efb0180 7eeee7a0  00000         >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+    0000f5fc 7efb0180 7eeee7a0  00000         >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+    0000f5fc 7efb29f8 7eeee7a0  00001*        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+    0000f5fc 7efb29f8 7eeee7a0  00001*     44 *-* self~table = .IdentityTable~new
+    00010244 00000000 00000000  00000  Error 99 running D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\trace\doit.rex line 17:  Translation error
+    00010244 00000000 00000000  00000  Error 99.916:  Unrecognized directive instruction
+
+    See RexxActivity::traceOutput
+    Utilities::snprintf(buffer, sizeof buffer - 1, "%8.8x %8.8x %8.8x %5.5hu%c ", 
+                                                   SysCurrentThreadId(),
+                                                   (unsigned int)activation,
+                                                   (activation) ? activation->getVariableDictionary() : NULL,
+                                                   (activation) ? activation->getReserveCount() : 0,
+                                                   (activation && activation->isObjectScopeLocked()) ? '*' : ' ');
 
     The same format with human-readable ids is also supported :
-    T1   A1              >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-    T1   A1              >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-    T1   A2     *        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-    T1   A2     *     44 *-* self~table = .IdentityTable~new
-    T2   A0       Error 99 running D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\trace\doit.rex line 17:  Translation error
-    T2   A0       Error 99.916:  Unrecognized directive instruction
-    
+    T1   A1                   >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+    T1   A1                   >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+    T1   A2     V1     1*          >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
+    T1   A2     V1     1*       44 *-* self~table = .IdentityTable~new
+    T2   A0                 Error 99 running D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\trace\doit.rex line 17:  Translation error
+    T2   A0                 Error 99.916:  Unrecognized directive instruction
+
 Examples :
     (Remember : you MUST redirect stderr to stdout with 2>&1)
     rexx my_traced_script.rex 2>&1 | rexx tracer
-    
+
     rexx tracer -csv my_trace_file.txt
 ****/
 
@@ -66,11 +74,30 @@ do while streamIn~state="READY"
     currentTrace = .nil
 
     -- Try first with hex ids    
-    parse var rawLine 1 threadId >(.Thread~hexIdWidth) +1 activationId >(.Activation~hexIdWidth) +1 lock >1 +1 trace
-    if \.Thread~isHexId(threadId) | \.Activation~isHexId(activationId) | (lock <> " " & lock <> "*") then do
+    parse var rawLine,
+            1 threadId >(.Thread~hexIdWidth),
+            +1 activationId >(.Activation~hexIdWidth),
+            +1 varDictId >(.VariableDictionary~hexIdWidth),
+            +1 reserveCount >(.WithActivationInfo~reserveCountRawWidth) lock >1,
+            +1 trace
+    if \.Thread~isHexId(threadId) |,
+            \.Activation~isHexId(activationId) |,
+            \.VariableDictionary~isHexId(varDictId) |,
+            \reserveCount~datatype("N") |,
+            (lock <> " " & lock <> "*") then
+    do
         -- Try with hr ids (to support parsing a trace already hr-ized)
-        parse var rawLine 1 threadId >(.Thread~hrIdWidth) +1 activationId >(.Activation~hrIdWidth) +1 lock >1 +1 trace
-        if \.Thread~isHrId(threadId) | \.Activation~isHrId(activationId) | (lock <> " " & lock <> "*") then currentTrace = .UnknownFormat~new
+        parse var rawLine,
+                1 threadId >(.Thread~hrIdWidth),
+                +1 activationId >(.Activation~hrIdWidth),
+                +1 varDictId >(.VariableDictionary~hrIdWidth),
+                +1 reserveCount >(.WithActivationInfo~reserveCountHrWidth) lock >1,
+                +1 trace
+        if \.Thread~isHrId(threadId) |,
+                \.Activation~isHrId(activationId) |,
+                \.VariableDictionary~isHrId(varDictId) |,
+                (\reserveCount~datatype("N") & reserveCount~strip <> "") |,
+                (lock <> " " & lock <> "*") then currentTrace = .UnknownFormat~new
     end
     if currentTrace == .nil then do
         if trace~pos("Error") == 1 then currentTrace = .ErrorTrace~new
@@ -95,8 +122,11 @@ do while streamIn~state="READY"
                 currentTrace~restOfTrace = restOfTrace
             end
         end
+
         currentTrace~threadId = threadId~strip
         currentTrace~activationId = activationId~strip
+        currentTrace~varDictId = varDictId~strip
+        currentTrace~reserveCount = reserveCount~strip
         currentTrace~lock = lock
         currentTrace~trace = trace
     end
@@ -151,6 +181,8 @@ return 0
     use strict arg stream
     stream~charout("thread") ; stream~charout(self~sep)
     stream~charout("activation") ; stream~charout(self~sep)
+    stream~charout("varDict") ; stream~charout(self~sep)
+    stream~charout("count") ; stream~charout(self~sep)
     stream~charout("lock") ; stream~charout(self~sep)
     stream~charout("kind") ; stream~charout(self~sep)
     stream~charout("scope") ; stream~charout(self~sep)
@@ -164,6 +196,8 @@ return 0
 
 ::attribute threadId
 ::attribute activationId
+::attribute varDictId
+::attribute reserveCount
 ::attribute lock
 ::attribute kind -- of executable
 ::attribute scope -- of executable
@@ -177,6 +211,8 @@ return 0
 ::method init
     self~threadId = .TraceLineCsv~defaultValue
     self~activationId = .TraceLineCsv~defaultValue
+    self~varDictId = .TraceLineCsv~defaultValue
+    self~reserveCount = .TraceLineCsv~defaultValue
     self~lock = .TraceLineCsv~defaultValue
     self~kind = .TraceLineCsv~defaultValue
     self~scope = .TraceLineCsv~defaultValue
@@ -191,6 +227,8 @@ return 0
     use strict arg stream
     stream~charout(.Utility~quoted(self~threadId)) ; stream~charout(self~sep)
     stream~charout(.Utility~quoted(self~activationId)) ; stream~charout(self~sep)
+    stream~charout(.Utility~quoted(self~varDictId)) ; stream~charout(self~sep)
+    stream~charout(.Utility~quoted(self~reserveCount)) ; stream~charout(self~sep)
     stream~charout(.Utility~quoted(self~lock)) ; stream~charout(self~sep)
     stream~charout(.Utility~quoted(self~kind)) ; stream~charout(self~sep)
     stream~charout(.Utility~quoted(self~scope)) ; stream~charout(self~sep)
@@ -224,7 +262,7 @@ return 0
         thread = .Thread~new
         .Thread~directory[threadId] = thread
         thread~id = threadId
-        if threadId~verify("0") == 0 | threadId == "T0" then thread~hrId = "T0" -- Always use T0 for null pointer
+        if threadId = 0 | threadId == "T0" then thread~hrId = "T0" -- Always use T0 for null pointer
         else do
             .Thread~counter += 1
             thread~hrId = "T".Thread~counter
@@ -270,7 +308,7 @@ return 0
         activation = .Activation~new
         .Activation~directory[activationId] = activation
         activation~id = activationId
-        if activationId~verify("0") == 0 | activationId == "A0" then activation~hrId = "A0" -- Always use A0 for null pointer
+        if activationId = 0 | activationId == "A0" then activation~hrId = "A0" -- Always use A0 for null pointer
         else do
             .Activation~counter += 1
             activation~hrId = "A".Activation~counter
@@ -303,6 +341,53 @@ return 0
 
 
 -------------------------------------------------------------------------------
+::class VariableDictionary
+-------------------------------------------------------------------------------
+
+::constant hexIdWidth 8 -- max width of hex id (used for parsing)
+::constant hrIdWidth 6 -- max width of hr id (used for parsing and rewriting)
+
+::attribute counter class
+::attribute directory class
+
+::method init class
+    self~counter = 0
+    self~directory = .directory~new
+
+-- Human-readable varDict id
+::method fromId class
+    use strict arg varDictId -- can be made of spaces, when parsing hr trace
+    varDict = .VariableDictionary~directory[varDictId]
+    if varDict == .nil then do
+        varDict = .VariableDictionary~new
+        .VariableDictionary~directory[varDictId] = varDict
+        varDict~id = varDictId
+        if varDictId = 0 | varDictId == "V0" | varDictId = "" then varDict~hrId = "V0" -- Always use V0 for null pointer
+        else do
+            .VariableDictionary~counter += 1
+            varDict~hrId = "V".VariableDictionary~counter
+        end
+    end
+    return varDict
+
+::method isHexId class
+    use strict arg varDictId
+    return .Utility~isHex(varDictId, .VariableDictionary~hexIdWidth) -- Ex : 0001654c
+    
+::method isHrId class
+    use strict arg varDictId
+    if varDictId = "" then return .true -- special case, when parsing hr trace.
+    return varDictId~left(1) =="V" & varDictId~substr(2)~dataType("9")  -- Ex : V1, V12, V123, ...
+    
+::attribute id
+::attribute hrId -- Human-readable
+
+::method init
+    self~id = ""
+    self~hrId = ""
+
+
+-------------------------------------------------------------------------------
 ::class TraceLine
 -------------------------------------------------------------------------------
 -- TraceLine
@@ -328,7 +413,7 @@ return 0
 
 ::method allAssigned
     -- Called when all the attributes have been assigned a value
-    return .true
+    return
 
 ::method lineout
     use strict arg stream, csv, filter
@@ -365,30 +450,54 @@ return 0
 ::class WithActivationInfo subclass TraceLine
 -------------------------------------------------------------------------------
 
+::constant reserveCountRawWidth 5 -- unsigned short : 0...65535 : 5 digits
+::constant reserveCountHrWidth 2 -- in practice, I don't think we go above 99 : 2 digits
+
 ::attribute threadId
 ::attribute activationId
+::attribute varDictId
+::attribute reserveCount
 ::attribute lock
 ::attribute trace
 
 ::method init
     self~threadId = ""
     self~activationId = ""
+    self~varDictId = ""
+    self~reserveCount = ""
     self~lock = ""
     self~trace = ""
 
 ::method lineoutText
     use strict arg stream, filter
+
     thread = .Thread~fromId(self~threadId)
     activation = .Activation~fromId(self~activationId)
-    stream~lineOut(thread~hrId~left(.Thread~hrIdWidth) activation~hrId~left(.Activation~hrIdWidth) self~lock self~trace)
+
+    varDict = .VariableDictionary~fromId(self~varDictId)
+    varDictHrId = varDict~hrId
+    if varDictHrId == "V0" then varDictHrId = ""
+
+    reserveCount = self~reserveCount
+    if reserveCount = 0 then reserveCount = ""
+    if reserveCount <> "" then reserveCount = reserveCount~format(.WithActivationInfo~reserveCountHrWidth) 
+
+    stream~lineOut(thread~hrId~left(.Thread~hrIdWidth),
+                   activation~hrId~left(.Activation~hrIdWidth),
+                   varDictHrId~left(.VariableDictionary~hrIdWidth),
+                   reserveCount~left(.WithActivationInfo~reserveCountHrWidth) || self~lock,
+                   self~trace)
 
 ::method prepareCsv
     use strict arg csv, filter
     -- if \self~prepareCsv:super(csv, filter) then return .false
     thread = .Thread~fromId(self~threadId)
     activation = .Activation~fromId(self~activationId)
+    varDict = .VariableDictionary~fromId(self~varDictId)
     csv~threadId = thread~hrId
     csv~activationId = activation~hrId
+    if varDict~hrId <> "V0" then csv~varDictId = varDict~hrId
+    if self~reserveCount <> 0 then csv~reserveCount = self~reserveCount
     csv~lock = self~lock
     csv~kind = activation~kind
     csv~scope = activation~scope
@@ -437,6 +546,7 @@ return 0
 ::attribute restOfTrace
 
 ::method init
+    self~init:super
     self~lineNumber = ""
     self~traceprefix = ""
     self~restOfTrace = ""
@@ -458,12 +568,14 @@ return 0
 ::attribute package
 
 ::method init
+    self~init:super
     self~routine = ""
     self~package = ""
 
 ::method allAssigned
     -- Stores other infos of the activation's trace on the activation, for use in following trace lines
     use strict arg -- no arg
+    self~allAssigned:super
     activation = .Activation~fromId(self~activationId)
     activation~kind = "routine"
     activation~scope = ""
@@ -480,12 +592,14 @@ return 0
 ::attribute package
 
 ::method init
+    self~init:super
     self~scope = ""
     self~package = ""
 
 ::method allAssigned
     -- Stores other infos of the activation's trace on the activation, for use in following trace lines
     use strict arg -- no arg
+    self~allAssigned:super
     activation = .Activation~fromId(self~activationId)
     activation~kind = "method"
     activation~scope = self~scope
