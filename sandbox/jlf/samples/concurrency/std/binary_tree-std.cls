@@ -12,7 +12,7 @@ Each node has a reference to a node on the left and a reference to a node on the
 Values smaller than current node's value are stored in the left-side subtree, and larger values are stored in the right-side subtree.
 
 myBinaryTree = .BinaryTree~of(4, 6, 2, 7, 5, 3, 1)
-do o over myBinaryTree~ascendingValues -- of course, not supported as-is... but could be.
+do o over myBinaryTree~ascendingValues
     say o
 end
 -- display 1, 2, 3, 4, 5, 6, 7

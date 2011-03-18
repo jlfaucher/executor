@@ -5,15 +5,22 @@
 signal on any name error
 signal on syntax name error
 
+-- See doers-std.cls for more details, but in summary, the one-liner routines/methods have a default
+-- lookup scope which is limited to the doers package. Consequence : the .Coactivity class is not
+-- visible by default, and I have to pass explicitely the .context each time a one-liner routine/method
+-- is created. This is tedious, and I prefer to dynamically extend the lookup scope of the doers package.
+call Doers.AddVisibilityFrom(.context)
 call demo
 call terminate
 return
 
 error:
-say condition("o")~message
+condition = condition("o")
+say condition~instruction condition~condition "for" condition~additional
+if condition~message != .nil then say condition~message
 terminate:
 say
-say "Killed coactivities:" .Coactivity~killAll
+say "Ended coactivities:" .Coactivity~endAll
 return
 
 
@@ -37,12 +44,7 @@ trap_syntax1:
 
 say
 say "A coactivity implemented by a one-liner routine, used as a generator"
--- Must pass the .context, otherwise .Coactivity is not visible...
--- This is because the .Routine instance is created from doers.cls.
--- In doers.cls, there is no ::requires coactivity.cls.
--- Extract from rexxref, .Coroutine~new : by default, newly created routine will
--- inherit the class and routine search scope from the caller of new method.
-c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"), .true, .context)
+c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"))
 c~resume
 do while var("result")
     say result
@@ -52,7 +54,7 @@ end
 
 say
 say "Iteration with a supplier"
-c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"), .true, .context)
+c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"))
 supplier = c~supplier
 do while supplier~available
     say supplier~index ":" supplier~item
@@ -62,7 +64,7 @@ end
 
 say
 say "do over a finite coactivity"
-c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"), .true, .context)
+c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"))
 do v over c
     say v
 end
@@ -71,13 +73,13 @@ end
 say
 say "do over an infinite coactivty : needs a limit"
 say "Local limit setting"
-c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .Coactivity~yield(i) ; i += 1 ; end"), .true, .context)
+c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .Coactivity~yield(i) ; i += 1 ; end"))
 do v over c~makeArray(15)
     say v
 end
 say "Global limit setting (default is ".Coactivity~makeArrayLimit")"
 .Coactivity~makeArrayLimit = 15
-c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .Coactivity~yield(i) ; i += 1 ; end"), .true, .context)
+c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .Coactivity~yield(i) ; i += 1 ; end"))
 do v over c
     say v
 end

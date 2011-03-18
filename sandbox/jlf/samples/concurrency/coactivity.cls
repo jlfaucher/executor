@@ -21,11 +21,11 @@ each other explicitly and deterministically.
 ::requires "concurrency/activity.cls"
 
 --------------------------------------------------------------------------------
-::class Coactivity mixinclass Object public
+::class "Coactivity" mixinclass Object public
 
 /*
 Status transitions :
-    notStarted --> running | killed
+    notStarted --> running | ended | killed
     running --> suspended | ended | killed
     suspended --> running | ended | killed
 */
@@ -54,6 +54,18 @@ Status transitions :
     self~makeArrayLimit = 10000 -- not a constant, I think it's useful to let the end user change this value
 
 
+::method all class
+    return self~table~makeArray
+
+
+::method endAll class
+    count = 0
+    do coactivity over self~table~allIndexes
+        if coactivity~end then count += 1
+    end
+    return count
+
+
 ::method killAll class
     count = 0
     do coactivity over self~table~allIndexes
@@ -62,7 +74,7 @@ Status transitions :
     return count
 
 
-::method init
+::method init unguarded
     /*
     The coactivity entry can be a routine, a couple (message, object) or a couple (method, object).
     The default entry is the couple ("main", self).
@@ -104,10 +116,8 @@ Status transitions :
         else self~yieldLast
         status = .Coactivity~ended
     end
-    signal terminate
     trapCondition:
     self~kill -- maybe already killed or ended
-    terminate:
     if self~hasMethod("onTerminate") then self~onTerminate
     .Coactivity~table~remove(self)
     .Activity~local~empty
@@ -119,7 +129,7 @@ Status transitions :
     -- (The subclassing is optional. You can use any doer as entry point).
 
 
-::method yield class
+::method yield class unguarded
     /*
     Helper method to let yield from any nested invocation
     (i.e. directly or indirectly called by the coactivity 'start' method).
@@ -157,8 +167,6 @@ Status transitions :
     */
     expose status yieldValue
     drop yieldValue
-    if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed")
-    if status == .Coactivity~ended then raise syntax 93.900 array ("Coactivity is ended")
     if arg() <> 0 then use strict arg yieldValue -- yieldValue will be returned to the coactivity's client by 'resume'
 
 
@@ -218,6 +226,18 @@ Status transitions :
         when self~status == .Coactivity~killed then return "killed"
         otherwise return "unknown"
     end
+
+
+/*
+BAD IDEA ! The method defaultName is called by the interpreter when tracing and you enter in
+a recursive loop because defaultName itself is traced. Should use "objectName=" instead, but
+will have to call it each time the status is changed. Maybe later...
+
+::method defaultName
+    defaultName = self~statusText self~class~id
+    if defaultName~caselessMatchChar(1, "aeiou") then article = "An" ; else article = "A"
+    return article defaultName
+*/
 
 
 ::method supplier unguarded
