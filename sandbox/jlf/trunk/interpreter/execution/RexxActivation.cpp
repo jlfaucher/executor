@@ -396,6 +396,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
 #endif
     this->receiver = _receiver;          /* save the message receiver         */
     this->settings.msgname = msgname;    /* use the passed message name       */
+    bool traceEntryDone = false;
 
     /* not a reply restart situation?    */
     if (this->execution_state != REPLIED)
@@ -435,6 +436,14 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
                 {
                     /* get the object variables          */
                     this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
+
+                    // For proper diagnostic in case of deadlock, do the trace now
+                    if (tracingAll() && isMethodOrRoutine())
+                    {
+                        traceEntry();
+                        traceEntryDone = true;
+                    }
+
                     /* reserve the variable scope        */
                     this->settings.object_variables->reserve(this->activity);
                     /* and remember for later            */
@@ -488,7 +497,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
     }
     this->execution_state = ACTIVE;      /* we are now actively processing    */
 
-    if (tracingAll() && isMethodOrRoutine())
+    if (!traceEntryDone && tracingAll() && isMethodOrRoutine())
     {
         traceEntry();
     }

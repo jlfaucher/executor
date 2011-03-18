@@ -43,6 +43,17 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 mar 18
+
+Added an early traceEntry for proper diagnostic in case of deadlock of guarded method.
+See test cases in samples/concurrency :
+deadlock1.rex
+deadlock2.rex
+
+Fixed in RexxActivation::run
+
+
+===============================================================================
 2011 mar 17
 
 I have a small problem with doers : 
