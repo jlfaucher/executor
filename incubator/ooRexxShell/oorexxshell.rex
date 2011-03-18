@@ -74,9 +74,15 @@ MYHANDLER> exit                                     the exit command is supporte
 shell = .context~package~findRoutine("SHELL")
 shell~setSecurityManager(.ooRexxShell~securityManager)
 
+-- In case of error, must end any running coactivity, otherwise the program doesn't terminate
+signal on any name error
+
 -- Bypass defect 2933583 (fixed in release 4.0.1) : 
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
 shell~call(arg(1), address())
+
+error:
+say "Ended coactivities:" .Coactivity~endAll
 
 -- 0 means ok (return 0), anything else means ko (return 1)
 return .ooRexxShell~RC <> 0  
@@ -428,6 +434,13 @@ loadOptionalComponents:
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
+    call loadPackage("concurrency/coactivity.cls")
+
+    -- See doers.cls for more details, but in summary, the one-liner routines/methods have a default
+    -- lookup scope which is limited to the doers package. With next line, I dynamically extend the
+    -- lookup scope of the doers package.
+    call Doers.AddVisibilityFrom(.context)
+
     return
     
 
@@ -677,7 +690,7 @@ LIBRARY gci ; INITINSTANCE
     use strict arg name
     return self~name~caselessEquals(name)
     
-    
+
 ::method unknown class -- delegates to the singleton
     use strict arg msg, args
     forward to (self~current) message (msg) arguments (args)

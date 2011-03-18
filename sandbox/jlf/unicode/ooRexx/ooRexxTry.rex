@@ -79,7 +79,15 @@ See documentation for version control
     say "This console will receive the output of your system commands."
     say "Try 'dir' for example."
     say
+    
+    -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
+    signal on any name error
+    
     code~Execute('ShowTop')                     -- Execute the dialog
+    
+    error:
+    say "Ended coactivities:" .Coactivity~endAll
+    
     code~DeInstall                              -- Finished, so deInstall
 exit
 
@@ -107,6 +115,13 @@ LoadOptionalComponents:
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
+    call loadPackage("concurrency/coactivity.cls")
+    
+    -- See doers.cls for more details, but in summary, the one-liner routines/methods have a default
+    -- lookup scope which is limited to the doers package. With next line, I dynamically extend the
+    -- lookup scope of the doers package.
+    call Doers.AddVisibilityFrom(.context)
+
     return
     
 
