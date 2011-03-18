@@ -5,6 +5,41 @@ This script works with a standard ooRexx, but has drawbacks compared to doers.cl
 --::options trace i
 
 -----------------------------------------------------------------------------
+/*
+Extract from rexxref, .Routine~new : 
+The context allows the created routine to inherit class and routine lookup scope from another source. If
+specified, context can be a Method object, a Routine object, or a Package object. If not specified, the
+newly created method will inherit the class and routine search scope from the caller of new method.
+
+So, by default, any routine created by StringDoer will have a lookup scope limited to the doers package,
+because the routines are created from here, not from the caller's package. 
+StringDoer~doer accepts a context parameter to let the caller pass its own lookup scope, but this is
+tedious to pass it explicitely.
+That's why I provide this routine which lets see from doers the same packages/methods/routines as the caller.
+Usage from caller's package :
+call Doers.AddVisibilityFrom(.context)
+
+Note : this is a temporary workaround. The good approach is to add support for first-class 
+expressions/instructions that are parsed in place, instead of being parsed by StringDoer..
+https://sourceforge.net/mailarchive/message.php?msg_id=19912031
+*/
+
+::routine Doers.AddVisibilityFrom public
+    use strict arg package -- can be a .Package or a .RexxContext
+    if package~isA(.RexxContext) then package = package~package
+    do p over package~importedPackages
+        .context~package~addPackage(p)
+    end
+    classes = package~classes
+    do c over classes
+        .context~package~addClass(c, classes[c])
+    end
+    routines = package~routines
+    do r over routines
+        .context~package~addRoutine(r, routines[r])
+    end
+    
+-----------------------------------------------------------------------------
 -- Mixins.
 -- A Doer is an object who knows how to execute itself (understands "do")
 

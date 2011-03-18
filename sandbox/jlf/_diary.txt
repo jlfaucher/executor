@@ -45,6 +45,44 @@ http://slatelanguage.org/
 ===============================================================================
 2011 mar 17
 
+I have a small problem with doers : 
+Any routine/method created by StringDoer will have a lookup scope limited to the
+doers package, because the routines/methods are created from the doers package,
+not from the caller's package.
+StringDoer~doer accepts a context parameter to let the caller pass its own lookup scope,
+but this is tedious to pass it explicitely at each call.
+Example from oorexxshell :
+say .color                     -- The COLOR class
+"say .color"~doer~do           -- .COLOR because the COLOR class is not visible from doers
+"say .color"~doer(.context)~do -- The COLOR class
+
+I provide the convenience routine "Doers.AddVisibilityFrom" which lets see from doers
+the same packages/methods/routines as the caller.
+Usage from caller's package :
+call Doers.AddVisibilityFrom(.context)
+::requires "extension/doers.cls"
+With this sequence, no need to pass explicitely the .Context when creating a doer :
+"say .color"~doer~do           -- The COLOR class
+
+This problem would not exist if we had support for first-class expressions/instructions
+that are parsed in place, instead of being parsed by StringDoer.
+https://sourceforge.net/mailarchive/message.php?msg_id=19911593
+https://sourceforge.net/mailarchive/message.php?msg_id=19912031
+The proposed syntax [expr] lets defer the evaluation of expr, but is not supposed to
+support instructions (why not ?).
+Maybe
+    c = .Coactivity~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end")
+could become 
+    c = .Coactivity~new([do i = 1 to 10 ; .Coactivity~yield(i) ; end])
+In this case, the context is the "good" context, i.e. the context of the place from where
+the block is parsed. The distinction expression/instructions is similar to the distinction
+eval/apply in Lisp : You evaluate an expression, you apply a method/routine to a list of
+arguments.
+
+
+===============================================================================
+2011 mar 17
+
 m17n : 
 Don't use strong types by default, because gcc can't compile as-is.
 Fixed compilation errors under Linux.
