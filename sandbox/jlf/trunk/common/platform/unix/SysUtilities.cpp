@@ -90,8 +90,8 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
     "xxxxx" x   x   x   \0      return value = 5    <-- different from Windows
     */
     
-    if (buffer == NULL || count == 0) return -1;
-    int n = vsnprintf(buffer, count, format, args);
+    if (buffer == NULL || count == 0 || format == NULL) return -1;
+    int n = ::vsnprintf(buffer, count, format, args);
     buffer[count-1] = '\0'; // Normally not needed, but...
     if (n >= count) n = -1; // The output has been truncated, return -1 to have a common behavior with Windows platform
     return n;
@@ -117,5 +117,44 @@ int Utilities::snprintf(char *buffer, size_t count, const char *format, ...)
     int n = Utilities::vsnprintf(buffer, count, format, args);
     va_end(args);
     return n;
+}
+
+
+// Could be in SysThread.cpp, but for the moment, it's here...
+wholenumber_t Utilities::currentThreadId() 
+{ 
+    return (wholenumber_t)pthread_self(); 
+}
+
+
+// This indicator is used to control the display of additional informations in the trace output for concurrency.
+static bool TRACE_CONCURRENCY = false;
+
+void Utilities::traceConcurrency(bool trace)
+{
+    TRACE_CONCURRENCY = trace;
+}
+
+
+bool Utilities::traceConcurrency()
+{
+    // I don't put this part of code in SystemInterpreter::setupProgram
+    // where RXTRACE is managed, because would be initialized too late : 
+    // Some mutexes/semaphores have been already used before calling setupProgram.
+    static bool firstcall = true;
+    if (firstcall)
+    {
+        firstcall = false;
+        const char *rxTraceBuf = getenv("RXTRACE_CONCURRENCY");
+        if (rxTraceBuf != NULL)
+        {
+            if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+            {
+                /* turn on tracing                   */
+                Utilities::traceConcurrency(true);
+            }
+        }
+    }
+    return TRACE_CONCURRENCY;
 }
 

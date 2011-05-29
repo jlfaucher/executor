@@ -184,9 +184,15 @@ void SysSemaphore::wait(const char *ds, int di)
     
     if (this->postedCount == 0)                      // Has it been posted?
     {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds);
-         rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', semVariable, (unsigned int)&(this->semCond), (unsigned int)&(this->semMutex), ds);
+#ifdef _DEBUG
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+#endif
+        rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
+#ifdef _DEBUG
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+#endif
     }
     
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
@@ -205,10 +211,16 @@ bool SysSemaphore::wait(const char *ds, int di, uint32_t t)           // takes a
     pthread_mutex_lock(&(this->semMutex));    // Lock access to semaphore
     if (!this->postedCount)                   // Has it been posted?
     {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds);
+#ifdef _DEBUG
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+#endif
                                               // wait with timeout
-         result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', semVariable, (unsigned int)&(this->semCond),(unsigned int)&(this->semMutex), ds);
+        result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
+#ifdef _DEBUG
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
+#endif
     }
     pthread_mutex_unlock(&(this->semMutex));    // Release mutex lock
     // a false return means this timed out

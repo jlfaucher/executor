@@ -50,8 +50,7 @@
 #include <stdio.h>
 #include "rexx.h"
 #include "SysDebug.hpp"
-
-inline unsigned int SysCurrentThreadId() { return (unsigned int)pthread_self(); }
+#include "Utilities.hpp"
 
 class SysSemaphore {
 public:
@@ -85,21 +84,39 @@ public:
      void close();
      inline void request(const char *ds, int di) 
      {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+#endif
          pthread_mutex_lock(&mutexMutex); 
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+#endif
      }
      inline void release(const char *ds, int di) 
-     { 
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
+     {
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+#endif
          pthread_mutex_unlock(&mutexMutex); 
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+#endif
      }
      inline bool requestImmediate(const char *ds, int di) 
      { 
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+#endif
          bool result = pthread_mutex_trylock(&mutexMutex) == 0;
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", (unsigned int)pthread_self(), NULL, NULL, 0, ' ', mutexVariable, (unsigned int)&mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+#endif
          return result;
      }
 

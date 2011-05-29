@@ -111,3 +111,41 @@ int Utilities::snprintf(char *buffer, size_t count, const char *format, ...)
     return n;
 }
 
+
+// Could be in SysThread.cpp, but for the moment, it's here...
+wholenumber_t Utilities::currentThreadId() 
+{ 
+    return (wholenumber_t)GetCurrentThreadId(); 
+}
+
+
+// This indicator is used to control the display of additional informations in the trace output for concurrency.
+static bool TRACE_CONCURRENCY = false;
+
+void Utilities::traceConcurrency(bool trace)
+{
+    TRACE_CONCURRENCY = trace;
+}
+
+
+bool Utilities::traceConcurrency()
+{
+    // I don't put this part of code in SystemInterpreter::setupProgram
+    // where RXTRACE is managed, because would be initialized too late : 
+    // Some mutexes/semaphores have been already used before calling setupProgram.
+    static bool firstcall = true;
+    if (firstcall)
+    {
+        firstcall = false;
+        TCHAR rxTraceBuf[8];
+        if (GetEnvironmentVariable("RXTRACE_CONCURRENCY", rxTraceBuf, 8))
+        {
+            if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+            {
+                /* turn on tracing                   */
+                Utilities::traceConcurrency(true);
+            }
+        }
+    }
+    return TRACE_CONCURRENCY;
+}

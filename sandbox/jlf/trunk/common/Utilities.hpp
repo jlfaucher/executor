@@ -44,6 +44,15 @@
 #include <sys/types.h>
 #include <stdarg.h>
 
+#ifdef __REXX64__
+#define CONCURRENCY_TRACE "%16.16x %16.16x %16.16x %5.5hu%c "
+#else
+#define CONCURRENCY_TRACE "%8.8x %8.8x %8.8x %5.5hu%c "
+#endif
+
+#define CONCURRENCY_BUFFER_SIZE 100 // Must be enough to support CONCURRENCY_TRACE
+
+
 class Utilities
 {
 public:
@@ -55,6 +64,9 @@ public:
     static const char *locateCharacter(const char *s, const char *set, sizeB_t l);
     static int vsnprintf(char *buffer, size_t count, const char *format, va_list args);
     static int snprintf(char *buffer, size_t count, const char *format, ...);
+    static wholenumber_t currentThreadId(); // Could be in SysThread.hpp, but for the moment, it's here...
+    static void traceConcurrency(bool);
+    static bool traceConcurrency();
 };
 
 #endif

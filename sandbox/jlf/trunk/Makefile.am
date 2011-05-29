@@ -780,6 +780,7 @@ rxapi_SOURCES = $(build_rexxapi_server_dir)/APIServer.cpp \
                 $(build_rexxapi_common_platform_dir)/SysCSStream.cpp \
                 $(build_rexxapi_common_platform_dir)/SysProcess.cpp \
                 $(build_common_dir)/Utilities.cpp \
+                $(build_common_platform_dir)/SysUtilities.cpp \
                 $(build_common_dir)/platform/unix/SysDebug.cpp \
                 $(build_common_dir)/platform/unix/SysSemaphore.cpp \
                 $(build_common_dir)/platform/unix/SysThread.cpp
@@ -1113,7 +1114,7 @@ install-exec-local:
 	else \
 		$(install_sh_SCRIPT) rexx.cat $(DESTDIR)$(catdir)/rexx.cat; \
 	fi
-	$(install_sh_SCRIPT) $(build_os_platform_dir)/oorexx-config $(DESTDIR)$(prefix)/bin/oorexx-config
+	$(install_sh_SCRIPT) platform/unix/oorexx-config $(DESTDIR)$(prefix)/bin/oorexx-config
 	$(install_sh_SCRIPT) $(build_extensions_rxregexp_dir)/rxregexp.cls $(DESTDIR)$(prefix)/bin/rxregexp.cls
 	$(install_sh_SCRIPT) $(build_extensions_rxftp_dir)/rxftp.cls $(DESTDIR)$(prefix)/bin/rxftp.cls
 	$(install_sh_SCRIPT) $(build_extensions_csvstream_dir)/csvStream.cls $(DESTDIR)$(prefix)/bin/csvStream.cls

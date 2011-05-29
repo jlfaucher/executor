@@ -43,6 +43,60 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 may 29
+
+Adaptation of concurrency trace to support 64 bits pointers.
+
+Now, concurrency trace is displayed only when env variable RXTRACE_CONCURRENCY=ON
+
+The debug messages for semaphores and mutexes are very costly : about 400 times
+slower than main/trunk... Now, those messages are controlled by conditional
+compilation, and activated only in debug configuration.
+
+Slow learning curve of xcode4 under MacOsX, experimentation of several configurations : 
+gcc/debug
+    $oorexx_src_dir/configure --prefix=$oorexx_delivery CFLAGS="-g -O0 -D_DEBUG" CXXFLAGS="-g -O0 -D_DEBUG"
+gcc/default : 
+    $oorexx_src_dir/configure --prefix=$oorexx_delivery
+gcc/release
+    $oorexx_src_dir/configure --prefix=$oorexx_delivery CFLAGS="-g -O3" CXXFLAGS="-g -O3"
+Currently using gcc only, but plan to test llvmgcc.
+Each configuration is initialized by running a shell script located in the appropriate delivery folder.
+If debug from xcode4 is needed, then must launch xcode4 from the config's shell : open -a xcode4
+The directory layout is like that :
+oorexx
+    build
+        main
+            trunk
+                gcc
+                    default : run configure here
+        sandbox
+            jlf
+                trunk
+                    gcc
+                        debug : run configure here
+                        default : run configure here
+                        release : run configure here
+    delivery
+        main
+            trunk
+                gcc
+                    default : setenv.sh to declare config variables
+        sandbox
+            jlf
+                trunk
+                    gcc
+                        debug : setenv.sh to declare config variables
+                        default : setenv.sh to declare config variables
+                        release : setenv.sh to declare config variables
+    svn
+        main
+            trunk
+        sandbox
+            jlf
+                trunk
+
+===============================================================================
 2011 mar 18
 
 Added an early traceEntry for proper diagnostic in case of deadlock of guarded method.
@@ -585,15 +639,49 @@ Added the function dbgprintf to write debug strings.
 Under Windows, it calls OutputDebugString.
 Under Linux, it calls syslog.
 
-Remember, typical debug session under Linux:
+Remember, typical debug session under PuppyLinux (with busybox) :
 Open a console : 
-    syslogd -S -C
+    syslogd -S -C   # -S Smaller loggin output. -C Log to share mem buffer (read it using logred).
     logread -f
     The output of syslog is displayed by logread in this console (lock management, on client and server side).
 Open a console, launch rxapi. 
     Has been compiled to stay as a foreground process. 
     It sends debug strings to stderr, more easy to follow in this console (messages between client and server).
 Open a console, run the rexx command. The two other consoles are updated with debug infos.
+
+
+[2011 apr 25 update]
+Under MacOsX, I see this message in console : process exceeded 500 log messages per second limit.
+To bypass this limit :
+Edit /System/Library/LaunchDaemons/com.apple.syslogd.plist with xcode (binary format)
+Search for : <string>/usr/sbin/syslogd</string>
+Add these lines to the program arguments section :
+<string>-mps_limit</string>
+<string>0</string>
+A value of 0 disables the limit. The default is 500 messages per second.
+Restart the syslog daemon with:
+sudo launchctl unload /System/Library/LaunchDaemons/com.apple.syslogd.plist
+sudo launchctl load /System/Library/LaunchDaemons/com.apple.syslogd.plist
+-----
+LOG_DEBUG messages still not visible in console...
+Probably because of /etc/asl.conf :
+    # save everything from emergency to notice
+    ? [<= Level notice] store
+Remember :
+    Emergency     (level 0)
+    Alert         (level 1)
+    Critical      (level 2)
+    Error         (level 3)
+    Warning       (level 4)
+    Notice        (level 5)
+    Info          (level 6)
+    Debug         (level 7)
+-----
+Create the file /var/log/debug.log : 
+sudo touch /var/log/debug.log
+Add this line to /etc/syslog.conf to get the debug messages in /var/log/debug.log :
+*.debug   /var/log/debug.log
+then restart the syslogd daemon as explained above.
 
 
 ===============================================================================

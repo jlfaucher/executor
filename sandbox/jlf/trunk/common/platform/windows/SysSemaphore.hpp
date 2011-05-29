@@ -52,7 +52,6 @@
 #include <stdio.h>
 
 inline void waitHandle(HANDLE s);
-inline unsigned int SysCurrentThreadId() { return (unsigned int)GetCurrentThreadId(); }
 
 class SysSemaphore {
 public:
@@ -65,16 +64,28 @@ public:
      void post() { SetEvent(sem); };
      inline void wait(const char *ds, int di)
      {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', semVariable, sem, ds);
+#if _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysSemaphore)%s.wait : before waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, di);
+#endif
          waitHandle(sem);
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', semVariable, sem, ds);
+#if _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysSemaphore)%s.wait : after waitHandle(0x%x) from %s (0x%x)\n", semVariable, sem, ds, di);
+#endif
      }
 
      inline bool wait(const char *ds, int di, uint32_t timeout)
      {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', semVariable, sem, timeout, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysSemaphore)%s.wait : before WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, di);
+#endif
          bool result = WaitForSingleObject(sem, timeout) != WAIT_TIMEOUT;
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', semVariable, sem, timeout, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysSemaphore)%s.wait : after WaitForSingleObject(0x%x, timemout) from %s (0x%x)\n", semVariable, sem, timeout, ds, di);
+#endif
          return result;
      }
 
@@ -116,23 +127,41 @@ public:
      void close();
      inline void request(const char *ds, int di)
      {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', mutexVariable, mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.request : before waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+#endif
          waitHandle(mutexMutex);
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', mutexVariable, mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.request : after waitHandle(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+#endif
      }
 
      inline void release(const char *ds, int di)
      {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', mutexVariable, mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.release : before ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+#endif
          ReleaseMutex(mutexMutex);
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', mutexVariable, mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.release : after ReleaseMutex(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+#endif
      }
 
      inline bool requestImmediate(const char *ds, int di)
      {
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', mutexVariable, mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.requestImmediate : before WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+#endif
          bool result = WaitForSingleObject(mutexMutex, 0) != WAIT_TIMEOUT;
-         dbgprintf("%8.8x %8.8x %8.8x %5.5hu%c ...... ... (SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", GetCurrentThreadId(), NULL, NULL, 0, ' ', mutexVariable, mutexMutex, ds);
+#ifdef _DEBUG
+         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+         dbgprintf("(SysMutex)%s.requestImmediate : after WaitForSingleObject(0x%x) from %s (0x%x)\n", mutexVariable, mutexMutex, ds, di);
+#endif
          return result;
      }
 
