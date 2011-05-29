@@ -1191,13 +1191,10 @@ bool SysFile::hasData()
     // actual stream.
     //return !atEof();
     bool b = hasBufferedInput();
-    fprintf(stderr, "hasBufferedInput = %i\n", b);
-    fprintf(stderr, "fileeof = %i\n", fileeof);
     if (!b && fileeof)
     {
         int64_t fileSize;
         getSize(fileSize);
-        fprintf(stderr, "fileSize = %i\n", fileSize);
         return false;
     }
     return true;
