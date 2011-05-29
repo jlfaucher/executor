@@ -9,6 +9,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension MutableBuffer inherit MutableBufferMap
 ::extension Routine inherit RoutineDoer
 ::extension Method inherit MethodDoer
-::extension Collection inherit CollectionReduce
+::extension Collection inherit CollectionReduce CollectionIterator
 ::extension OrderedCollection inherit OrderedCollectionMap
-
+::extension Supplier inherit SupplierReduce SupplierIterator

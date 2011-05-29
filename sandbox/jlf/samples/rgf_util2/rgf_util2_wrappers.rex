@@ -58,6 +58,10 @@ obj~method2(args) --> obj~method(reworked_args)
 ::method stableSort2 ; return stableSort2~call(self, .context~args)
 
 
+::extension Supplier
+::method dump2 ; dump2~call(self, .context~args)
+
+
 ::extension Method
 ::method ppMethod2 ; return ppMethod2~call(self, .context~args)
 

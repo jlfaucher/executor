@@ -47,6 +47,7 @@
 
 #include "rexx.h"
 #include "SysDebug.hpp"
+#include "Utilities.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -91,6 +92,8 @@ public:
 
      inline void reset() { ResetEvent(sem); }
      inline bool posted() { return WaitForSingleObject(sem, 0) != 0; }
+
+     inline void setSemVariable(const char *variable) { semVariable = variable; } // See RexxActivity::RexxActivity, must reassign, so public setter needed.
 
      static inline bool allocTlsIndex()
      {

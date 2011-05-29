@@ -232,6 +232,13 @@ RexxActivity::RexxActivity(bool createThread)
     GlobalProtectedObject p(this);
 
     this->clearObject();               /* globally clear the object         */
+
+    // clearObject overwrites the pointer to variable name of the semaphores...
+    // must reassign those pointers !!! otherwise, you see that in debug output :
+    // (SysSemaphore)(null).wait ... i.e. (null) instead of the variable name.
+    this->runsem.setSemVariable("RexxActivity::runsem");
+    this->guardsem.setSemVariable("RexxActivity::guardsem");
+
                                        /* create an activation stack        */
     this->activations = new_internalstack(ACT_STACK_SIZE);
     this->frameStack.init();           /* initialize the frame stack        */

@@ -65,6 +65,7 @@ public:
      bool wait(const char *ds, int di, uint32_t);
      void reset();
      inline bool posted() { return postedCount != 0; }
+     inline void setSemVariable(const char *variable) { semVariable = variable; } // See RexxActivity::RexxActivity, must reassign, so public setter needed.
 
 protected:
      const char *semVariable;

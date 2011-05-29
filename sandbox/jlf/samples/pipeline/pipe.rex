@@ -1,4 +1,5 @@
 #!/usr/bin/rexx
+--::options trace i
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
@@ -55,7 +56,7 @@
  * by calling the write method.
  */
 
-::class pipeStage public                       -- base pipeStage class
+::class pipeStage public                    -- base pipeStage class
 ::method init
 expose next secondary
 next = .nil
@@ -118,7 +119,7 @@ end
 expose next
 user strict arg newpipeStage
 
-newpipeStage~next = next                       -- just hook into the chain
+newpipeStage~next = next                    -- just hook into the chain
 next = newpipeStage
 
 
@@ -142,27 +143,27 @@ expose source                               -- access the data and next chain
 
 engine = source~supplier                    -- get a data supplier
 do while engine~available                   -- while more data
-  self~process(engine~item)                 -- pump this down the pipe
+  self~process(engine~item, engine~index)   -- pump this down the pipe
   engine~next                               -- get the next data item
 end
 self~eof                                    -- signal that processing is finished
 
 ::method process                            -- default data processing
-use strict arg value                        -- get the data item
-self~write(value)                           -- send this down the line
+use strict arg value, index                 -- get the data item
+self~write(value, index)                    -- send this down the line
 
 ::method write                              -- handle the result from a process method
 expose next
-use strict arg data
+use strict arg data, index
 if .nil <> next then do
-    next~process(data)                      -- only forward if we have a successor
+    next~process(data, index)               -- only forward if we have a successor
 end
 
 ::method writeSecondary                     -- handle a secondary output result from a process method
 expose secondary
-use strict arg data
+use strict arg data, index
 if .nil <> secondary then do
-    secondary~process(data)                 -- only forward if we have a successor
+    secondary~process(data, index)          -- only forward if we have a successor
 end
 
 ::method processSecondary                   -- handle a secondary output result from a process method
@@ -187,7 +188,7 @@ return new .SecondaryConnector(self)
 ::class SecondaryConnector subclass pipeStage
 ::method init
 expose pipeStage
-use strict arg pipeStage                       -- this just hooks up
+use strict arg pipeStage                    -- this just hooks up
 self~init:super                             -- forward the initialization
 
 ::method process                            -- processing operations connect with pipeStage secondaries
@@ -200,7 +201,26 @@ forward to(pipeStage) message('secondaryEof')
 
 
 /******************************************************************************/
-::class sort public subclass pipeStage         -- sort piped data
+::class indexedValue inherit Comparable
+::attribute index
+::attribute value
+
+::method init
+expose value index
+use strict arg value, index
+    
+::method compareTo
+expose index
+use strict arg other
+-- Strange result with compareTo : 10~compareTo(2) returns -1
+--return index~string~compareTo(other~index~string)
+if index~string < other~index~string then return -1
+if index~string = other~index~string then return 0
+return 1
+
+
+/******************************************************************************/
+::class sortByIndex public subclass pipeStage -- sort piped data
 ::method init                               -- sorter initialization method
 expose items                                -- list of sorted items
 items = .array~new                          -- create a new list
@@ -208,16 +228,46 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
-use strict arg value                        -- access the passed value
-items~append(value)                         -- append the value to the accumulator array
+use strict arg value, index                 -- access the passed value
+items~append(.indexedValue~new(value, index)) -- append the value to the accumulator array
 
 ::method eof                                -- process the "end-of-pipe"
 expose items                                -- expose the list
 items~sort                                  -- sort the accumulated items
 
 do i = 1 to items~items                     -- copy all sorted items to the primary stream
-   self~write(items[i])
+   indexedValue = items[i]
+   self~write(indexedValue~value, indexedValue~index)
 end
+
+forward class(super)                        -- make sure we propagate the done message
+
+
+/******************************************************************************/
+::class sort public subclass sortByIndex
+
+
+/******************************************************************************/
+::class sortByValue public subclass pipeStage -- sort piped data
+::method init                               -- sorter initialization method
+expose items                                -- list of sorted items
+items = .array~new                          -- create a new list
+self~init:super                             -- forward the initialization
+
+::method process                            -- process sorter piped data item
+expose items                                -- access internal state data
+use strict arg value, index                 -- access the passed value
+items~append(.indexedValue~new(index, value)) -- append the value to the accumulator array
+
+::method eof                                -- process the "end-of-pipe"
+expose items                                -- expose the list
+items~sort                                  -- sort the accumulated items
+
+do i = 1 to items~items                     -- copy all sorted items to the primary stream
+   indexedValue = items[i]
+   self~write(indexedValue~index, indexedValue~value)
+end
+
 forward class(super)                        -- make sure we propagate the done message
 
 
@@ -231,40 +281,44 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
-use strict arg value                        -- access the passed value
-items~append(value)                         -- append the value to the accumulator array
+use strict arg value, index                 -- access the passed value
+items~append(.indexedValue~new(value, index)) -- append the value to the accumulator array
 
 ::method eof                                -- process the "end-of-pipe"
 expose items comparator                     -- expose the list
 items~sortWith(comparator)                  -- sort the accumulated items
 
 do i = 1 to items~items                     -- copy all sorted items to the primary stream
-   self~write(items[i])
+   indexedValue = items[i]
+   self~write(indexedValue~value, indexedValue~index)
 end
+
 forward class(super)                        -- make sure we propagate the done message
 
 
 /******************************************************************************/
 ::class reverse public subclass pipeStage   -- a string reversal pipeStage
 ::method process                            -- pipeStage processing item
-use strict arg value                        -- get the data item
-self~write(value~reverse)                   -- send it along in reversed form
+use strict arg value, index                 -- get the data item
+self~write(value~string~reverse, index) -- send it along in reversed form
+
 
 /******************************************************************************/
 ::class upper public subclass pipeStage     -- a uppercasing pipeStage
 ::method process                            -- pipeStage processing item
-use strict arg value                        -- get the data item
-self~write(value~upper)                     -- send it along in upper form
+use strict arg value, index                 -- get the data item
+self~write(value~string~upper, index) -- send it along in upper form
+
 
 /******************************************************************************/
 ::class lower public subclass pipeStage     -- a lowercasing pipeStage
 ::method process                            -- pipeStage processing item
-use strict arg value                        -- get the data item
-self~write(value~lower)                     -- send it along in lower form
+use strict arg value, index                 -- get the data item
+self~write(value~string~lower, index) -- send it along in lower form
 
 
 /******************************************************************************/
-::class changestr public subclass pipeStage    -- a string replacement pipeStage
+::class changestr public subclass pipeStage -- a string replacement pipeStage
 ::method init
 expose old new count
 use strict arg old, new, count = 999999999  -- old and new are required, default count is max value
@@ -272,8 +326,8 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose old new count
-use strict arg value                        -- get the data item
-self~write(value~changestr(old, new, count))  -- send it along in altered form
+use strict arg value, index                 -- get the data item
+self~write(value~string~changestr(old, new, count), index) -- send it along in altered form
 
 
 /******************************************************************************/
@@ -285,8 +339,8 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose offset length
-use strict arg value                        -- get the data item
-self~write(value~delstr(offset, length))    -- send it along in altered form
+use strict arg value, index                 -- get the data item
+self~write(value~string~delstr(offset, length), index) -- send it along in altered form
 
 
 /******************************************************************************/
@@ -298,9 +352,9 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose offset length
-use strict arg value                        -- get the data item
-self~write(value~left(length))              -- send the left portion along the primary stream
-self~writeSecondary(value~substr(length + 1))  -- the secondary gets the remainder portion
+use strict arg value, index                 -- get the data item
+self~write(value~string~left(length), index) -- send the left portion along the primary stream
+self~writeSecondary(value~string~substr(length + 1), index) -- the secondary gets the remainder portion
 
 
 /******************************************************************************/
@@ -312,9 +366,9 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose offset length
-use strict arg value                        -- get the data item
-self~write(value~substr(length + 1))        -- the remainder portion goes down main pipe
-self~writeSecondary(value~left(length))     -- send the left portion along the secondary stream
+use strict arg value, index                 -- get the data item
+self~write(value~string~substr(length + 1), index) -- the remainder portion goes down main pipe
+self~writeSecondary(value~string~left(length), index) -- send the left portion along the secondary stream
 
 
 /******************************************************************************/
@@ -326,12 +380,12 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose insert offset
-use strict arg value                        -- get the data item
-self~write(value~insert(insert, offset))    -- send the left portion along the primary stream
+use strict arg value, index                 -- get the data item
+self~write(value~string~insert(insert, offset), index) -- send the left portion along the primary stream
 
 
 /******************************************************************************/
-::class overlay public subclass pipeStage   -- insert a string into each line
+::class overlay public subclass pipeStage   -- overlay a string into each line
 ::method init
 expose overlay offset
 use strict arg overlay, offset              -- we need an offset and an insertion string
@@ -339,129 +393,121 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose insert offset
-use strict arg value                        -- get the data item
-self~write(value~overlay(overlay, offset))  -- send the left portion along the primary stream
+use strict arg value, index                 -- get the data item
+self~write(value~string~overlay(overlay, offset), index) -- send the left portion along the primary stream
 
 
 /******************************************************************************/
 ::class dropnull public subclass pipeStage  -- drop null records
 ::method process                            -- pipeStage processing item
-use strict arg value                        -- get the data item
-if value \== '' then do                     -- forward along non-null records
-    self~write(value)
+use strict arg value, index                 -- get the data item
+if value~string \== '' then do   -- forward along non-null records
+    self~write(value, index)
 end
 
 
 /******************************************************************************/
-::class dropFirst public subclass pipeStage    -- drop the first n records
+::class dropFirst public subclass pipeStage -- drop the first n records
 ::method init
 expose count counter
 use strict arg count
-
 counter = 0
 self~init:super                             -- forward the initialization
 
 ::method process
 expose count counter
-use strict arg value
-
+use strict arg value, index
 counter += 1                                -- if we've dropped our quota, start forwarding
 if counter > count then do
-    self~write(value)
+    self~write(value, index)
 end
 else do
-    self~writeSecondary(value)              -- non-selected records go down the secondary stream
+    self~writeSecondary(value, index)       -- non-selected records go down the secondary stream
 end
 
 
 /******************************************************************************/
-::class dropLast public subclass pipeStage     -- drop the last n records
+::class dropLast public subclass pipeStage  -- drop the last n records
 ::method init
 expose count array
 use strict arg count
-
 array = .array~new                          -- we need to accumulate these until the end
 self~init:super                             -- forward the initialization
 
 ::method process
 expose array
-use strict arg value
-
-array~append(value)                         -- just add to the accumulator
+use strict arg value, index
+array~append(.indexedValue~new(value, index)) -- just add to the accumulator
 
 ::method eof
 expose count array
-
 if array~items < count then do              -- didn't even receive that many items?
-    loop line over array
-        self~write(line)                    -- send everything down the main pipe
+    loop indexedValue over array
+        self~write(indexedValue~value, indexedValue~index) -- send everything down the main pipe
     end
 end
 else do
     first = array~items - count             -- this is the count of discarded items
     loop i = 1 to first
-        self~writeSecondary(array[i])       -- the discarded ones go to the secondary pipe
+        indexedValue = array[i]
+        self~writeSecondary(indexedValue~value, indexedValue~index) -- the discarded ones go to the secondary pipe
     end
-
     loop i = first + 1 to array~items
-        self~write(array[i])                -- the remainder ones go down the main pipe
+        indexedValue = array[i]
+        self~write(indexedValue~value, indexedValue~index) -- the remainder ones go down the main pipe
     end
 end
 
 
 /******************************************************************************/
-::class takeFirst public subclass pipeStage    -- take the first n records
+::class takeFirst public subclass pipeStage -- take the first n records
 ::method init
 expose count counter
 use strict arg count
-
 counter = 0
 self~init:super                             -- forward the initialization
 
 ::method process
 expose count counter
-use strict arg value
-
+use strict arg value, index
 counter += 1                                -- if we've dropped our quota, stop forwarding
 if counter > count then do
-    self~writeSecondary(value)
+    self~writeSecondary(value, index)
 end
 else do
-    self~write(value)                       -- still in the first bunch, send to main pipe
+    self~write(value, index)                -- still in the first bunch, send to main pipe
 end
 
 
 /******************************************************************************/
-::class takeLast public subclass pipeStage     -- drop the last n records
+::class takeLast public subclass pipeStage  -- drop the last n records
 ::method init
 expose count array
 use strict arg count
-
 array = .array~new                          -- we need to accumulate these until the end
 self~init:super                             -- forward the initialization
 
 ::method process
 expose array
-use strict arg value
-
-array~append(value)                         -- just add to the accumulator
+use strict arg value, index
+array~append(.indexedValue~new(value, index)) -- just add to the accumulator
 
 ::method eof
 expose count array
-
 if array~items < count then do              -- didn't even receive that many items?
-    loop line over array
-        self~writeSecondary(line)           -- send everything down the secondary pipe
+    loop indexedValue over array
+        self~writeSecondary(indexedValue~value, indexedValue~index) -- send everything down the secondary pipe
     end
 end
 else do
     first = array~items - count             -- this is the count of selected items
     loop i = 1 to first
-        self~write(array[i])                -- the selected go to the main pipe
+        indexedValue = array[i]
+        self~write(indexedValue~value, indexedValue~index) -- the selected go to the main pipe
     end
-
     loop i = first + 1 to array~items
-        self~writeSecondary(array[i])       -- the discarded ones go down the secondary pipe
+        indexedValue = array[i]
+        self~writeSecondary(indexedValue~value, indexedValue~index) -- the discarded ones go down the secondary pipe
     end
 end
 
@@ -470,8 +516,8 @@ end
 /******************************************************************************/
 ::class x2c public subclass pipeStage       -- translate records to hex characters
 ::method process                            -- pipeStage processing item
-use strict arg value                        -- get the data item
-self~write(value~x2c)
+use strict arg value, index                 -- get the data item
+self~write(value~string~x2c)
 
 
 /******************************************************************************/
@@ -482,9 +528,9 @@ nop                                         -- do nothing with the data
 /******************************************************************************/
 ::class fanout public subclass pipeStage    -- write records to both output streams
 ::method process                            -- pipeStage processing item
-use strict arg value                        -- get the data item
-self~write(value)
-self~writeSecondary(value)
+use strict arg value, index                 -- get the data item
+self~write(value, index)
+self~writeSecondary(value, index)
 
 ::method eof                                -- make sure done messages get propagated along all streams
 self~next~eof
@@ -492,38 +538,32 @@ self~secondary~eof
 
 
 /******************************************************************************/
-::class merge public subclass pipeStage        -- merge the results from primary and secondary streams
+::class merge public subclass pipeStage     -- merge the results from primary and secondary streams
 ::method init
 expose mainDone secondaryEof                -- need pair of EOF conditions
-
 mainDone = .false
 secondaryEof = .false
 self~init:super                             -- forward the initialization
 
 ::method eof
 expose mainDone secondaryEof                -- need interlock flags
-
 if secondaryEof then do                     -- the other input hit EOF already?
     forward class(super)                    -- handle as normal
 end
-
 mainDone = .true                            -- mark this branch as finished.
 
 ::method secondaryEof                       -- eof on the seconary input
 expose mainDone secondaryEof                -- need interlock flags
-
 secondaryEof = .true                        -- mark ourselves finished
-
 if mainDone then do                         -- if both branches finished, do normal done.
     forward message('DONE')
 end
 
 
 /******************************************************************************/
-::class fanin public subclass pipeStage        -- process main stream, then secondary stream
+::class fanin public subclass pipeStage     -- process main stream, then secondary stream
 ::method init
 expose mainDone secondaryEof array          -- need pair of EOF conditions
-
 mainDone = .false
 secondaryEof = .false
 array = .array~new                          -- accumulator for secondary
@@ -531,34 +571,30 @@ self~init:super                             -- forward the initialization
 
 ::method processSecondary                   -- handle the secondary input
 expose array
-use strict arg value
-
-array~append(value)                         -- just append to the end of the array
+use strict arg value, index
+array~append(.indexedValue~new(value, index)) -- just append to the end of the array
 
 ::method eof
 expose mainDone secondaryEof array          -- need interlock flags
-
 if secondaryEof then do                     -- the other input hit EOF already?
     loop i = 1 to array~items               -- need to write out the deferred items
-        self~write(array[i])
+        indexedValue = array[i]
+        self~write(indexedValue~value, indexedValue~index)
     end
     forward class(super)                    -- handle as normal
 end
-
 mainDone = .true                            -- mark this branch as finished.
 
 ::method secondaryEof                       -- eof on the seconary input
 expose mainDone secondaryEof                -- need interlock flags
-
 secondaryEof = .true                        -- mark ourselves finished
-
 if mainDone then do                         -- if both branches finished, do normal done.
     forward message('DONE')
 end
 
 
 /******************************************************************************/
-::class duplicate public subclass pipeStage    -- duplicate each record N times
+::class duplicate public subclass pipeStage -- duplicate each record N times
 ::method init
 expose copies
 use strict arg copies = 1                   -- by default, we do one duplicate
@@ -566,22 +602,22 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose copies
-use strict arg value                        -- get the data item
+use strict arg value, index                 -- get the data item
 loop copies + 1                             -- write this out with the duplicate count
-    self~write(value)
+    self~write(value, index)
 end
 
 
 /******************************************************************************/
 ::class displayer subclass pipeStage public
 ::method process                            -- process a data item
-use strict arg value                        -- get the data value
-say value                                   -- display this item
+use strict arg value, index                 -- get the data value
+say index ":" value                         -- display this item
 forward class(super)
 
 
 /******************************************************************************/
-::class all public subclass pipeStage          -- a string selector pipeStage
+::class all public subclass pipeStage       -- a string selector pipeStage
 ::method init                               -- process initial strings
 expose patterns                             -- access the exposed item
 patterns = arg(1,'a')                       -- get the patterns list
@@ -589,20 +625,39 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- process a selection pipeStage
 expose patterns                             -- expose the pattern list
-use strict arg value                        -- access the data item
+use strict arg value, index                 -- access the data item
 do i = 1 to patterns~size                   -- loop through all the patterns
                                             -- this pattern in the data?
-  if (value~pos(patterns[i]) <> 0) then do
-    self~write(value)                      -- send it along
+  if (value~string~pos(patterns[i]) <> 0) then do
+    self~write(value, index)                -- send it along
     return                                  -- stop the loop
   end
 end
-
-self~writeSecondary(value)                 -- send all mismatches down the other branch, if there
+self~writeSecondary(value, index)           -- send all mismatches down the other branch, if there
 
 
 /******************************************************************************/
-::class startsWith public subclass pipeStage   -- a string selector pipeStage
+::class caselessAll public subclass pipeStage -- a string selector pipeStage
+::method init                               -- process initial strings
+expose patterns                             -- access the exposed item
+patterns = arg(1,'a')                       -- get the patterns list
+self~init:super                             -- forward the initialization
+
+::method process                            -- process a selection pipeStage
+expose patterns                             -- expose the pattern list
+use strict arg value, index                 -- access the data item
+do i = 1 to patterns~size                   -- loop through all the patterns
+                                            -- this pattern in the data?
+  if (value~string~caselessPos(patterns[i]) <> 0) then do
+    self~write(value, index)                -- send it along
+    return                                  -- stop the loop
+  end
+end
+self~writeSecondary(value, index)           -- send all mismatches down the other branch, if there
+
+
+/******************************************************************************/
+::class startsWith public subclass pipeStage -- a string selector pipeStage
 ::method init                               -- process initial strings
 expose match                                -- access the exposed item
 use strict arg match                        -- get the patterns list
@@ -610,18 +665,17 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- process a selection pipeStage
 expose match                                -- expose the pattern list
-use strict arg value                        -- access the data item
-if (value~pos(match) == 1) then do          -- match string occur in first position?
-  self~write(value)                         -- send it along
+use strict arg value, index                 -- access the data item
+if (value~string~pos(match) == 1) then do -- match string occur in first position?
+  self~write(value, index)                  -- send it along
 end
 else do
-   self~writeSecondary(value)              -- send all mismatches down the other branch, if there
+   self~writeSecondary(value, index)        -- send all mismatches down the other branch, if there
 end
-
 
 
 /******************************************************************************/
-::class notall public subclass pipeStage       -- a string de-selector pipeStage
+::class notall public subclass pipeStage    -- a string de-selector pipeStage
 ::method init                               -- process initial strings
 expose patterns                             -- access the exposed item
 patterns = arg(1,'a')                       -- get the patterns list
@@ -629,16 +683,15 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- process a selection pipeStage
 expose patterns                             -- expose the pattern list
-use strict arg value                        -- access the data item
+use strict arg value, index                 -- access the data item
 do i = 1 to patterns~size                   -- loop through all the patterns
                                             -- this pattern in the data?
-  if (value~pos(patterns[i]) <> 0) then do
-    self~writeSecondary(value)             -- send it along the secondary...don't want this one
+  if (value~string~pos(patterns[i]) <> 0) then do
+    self~writeSecondary(value, index)       -- send it along the secondary...don't want this one
     return                                  -- stop the loop
   end
 end
-
-self~write(value)                          -- send all mismatches down the main branch
+self~write(value, index)                    -- send all mismatches down the main branch
 
 
 /******************************************************************************/
@@ -651,28 +704,30 @@ self~init:super                             -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
 expose stem.                                -- expose the stem
-use strict arg value                        -- get the data item
+use strict arg value, index                 -- get the data item
 stem.0 = stem.0 + 1                         -- stem the item count
-stem.[stem.0] = value                       -- save the value
+stem.[stem.0, 'VALUE'] = value              -- save the value
+stem.[stem.0, 'INDEX'] = index              -- save the index
 forward class(super)
 
 /******************************************************************************/
 ::class arraycollector subclass pipeStage public -- collect items in an array
 ::method init                               -- initialize a collector
-expose array index                          -- expose target stem
-use strict arg array                        -- get the stem variable target
-index = 0
+expose valueArray indexArray idx            -- expose target array
+use strict arg valueArray, indexArray=.nil  -- get the array variable target
+idx = 0
 self~init:super                             -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
-expose array index                          -- expose the stem
-use strict arg value                        -- get the data item
-index = index + 1
-array[index] = value                        -- stem the item count
-self~process:super(value)                   -- allow superclass to send down pipe
+expose valueArray indexArray idx            -- expose the array
+use strict arg value, index                 -- get the data item
+idx = idx + 1
+valueArray[idx] = value                     -- save the value
+if indexArray <> .nil then indexArray[idx] = index -- save the index
+self~process:super(value, index)            -- allow superclass to send down pipe
 
 /******************************************************************************/
-::class between subclass pipeStage public      -- write only records from first trigger record
+::class between subclass pipeStage public   -- write only records from first trigger record
                                             -- up to a matching record
 ::method init
 expose startString endString started finished
@@ -683,30 +738,29 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose startString endString started finished
-use strict arg value
+use strict arg value, index
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
-    if value~pos(startString) > 0 then do
+    if value~string~pos(startString) > 0 then do
         started = .true
-        self~write(value)                  -- pass along
+        self~write(value, index)            -- pass along
     end
     else do
-        self~writeSecondary(value)         -- non-selected lines go to the secondary bucket
+        self~writeSecondary(value, index)   -- non-selected lines go to the secondary bucket
     end
     return
 end
-
 if \finished then do                        -- still processing?
-    if value~pos(endString) > 0 then do     -- check for the end position
+    if value~string~pos(endString) > 0 then do -- check for the end position
         finished = .true
     end
-    self~write(value)                      -- pass along
+    self~write(value, index)                -- pass along
 end
 else do
-    self~writeSecondary(value)             -- non-selected lines go to the secondary bucket
+    self~writeSecondary(value, index)       -- non-selected lines go to the secondary bucket
 end
 
 /******************************************************************************/
-::class after subclass pipeStage public        -- write only records from first trigger record
+::class after subclass pipeStage public     -- write only records from first trigger record
 ::method init
 expose startString started
 use strict arg startString
@@ -715,20 +769,19 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose startString endString started
-use strict arg value
+use strict arg value, index
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
-    if value~pos(startString) = 0 then do
-        self~writeSecondary(value)         -- pass along the secondary stream
+    if value~string~pos(startString) = 0 then do
+        self~writeSecondary(value, index)   -- pass along the secondary stream
         return
     end
     started = .true
 end
-
-self~write(value)                          -- pass along
+self~write(value, index)                    -- pass along
 
 
 /******************************************************************************/
-::class before subclass pipeStage public       -- write only records before first trigger record
+::class before subclass pipeStage public    -- write only records before first trigger record
 ::method init
 expose endString finished
 use strict arg endString
@@ -737,21 +790,20 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose endString finished
-use strict arg value
-
+use strict arg value, index
 if \finished then do                        -- still processing?
-    if value~pos(endString) > 0 then do     -- check for the end position
+    if value~string~pos(endString) > 0 then do -- check for the end position
         finished = .true
     end
-    self~write(value)                      -- pass along
+    self~write(value, index)                -- pass along
 end
 else do
-    self~writeSecondary(value)             -- non-selected lines go to the secondary bucket
+    self~writeSecondary(value, index)       -- non-selected lines go to the secondary bucket
 end
 
 
 /******************************************************************************/
-::class buffer subclass pipeStage public       -- write only records before first trigger record
+::class buffer subclass pipeStage public    -- write only records before first trigger record
 ::method init
 expose buffer count delimiter
 use strict arg count = 1, delimiter = ("")
@@ -760,26 +812,25 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose buffer
-use strict arg value
-buffer~append(value)                        -- just accumulate the value
+use strict arg value, index
+buffer~append(.indexedValue~new(value, index)) -- just accumulate the value
 
 ::method eof
 expose buffer count delimiter
-
 loop i = 1 to count                         -- now write copies of the set to the stream
      if i > 1 then do
-         self~write(delimiter)             -- put a delimiter between the sets
+         self~write(delimiter, index)       -- put a delimiter between the sets
      end
      loop j = 1 to buffer~items             -- and send along the buffered lines
-         self~write(buffer[i])
+         indexedValue = buffer[i]
+         self~write(indexedValue~value, indexedValue~index)
      end
 end
-
 forward class(super)                        -- and send the done message along
 
 
 /******************************************************************************/
-::class lineCount subclass pipeStage public    -- count number of records passed through the pipeStage
+::class lineCount subclass pipeStage public -- count number of records passed through the pipeStage
 ::method init
 expose counter
 counter = 0
@@ -787,20 +838,17 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose counter
-use strict arg value
-
+use strict arg value, index
 counter += 1                                -- just bump the counter on each record
 
 ::method eof
 expose counter
-
-self~write(counter);                       -- write out the counter message
-
+self~write(counter, .nil);                  -- write out the counter message
 forward class(super)                        -- and send the done message along
 
 
 /******************************************************************************/
-::class charCount subclass pipeStage public    -- count number of characters passed through the pipeStage
+::class charCount subclass pipeStage public -- count number of characters passed through the pipeStage
 ::method init
 expose counter
 counter = 0
@@ -808,20 +856,17 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose counter
-use strict arg value
-
-counter += value~length                     -- just bump the counter for the length of each record
+use strict arg value, index
+counter += value~string~length   -- just bump the counter for the length of each record
 
 ::method eof
 expose counter
-
-self~write(counter);                       -- write out the counter message
-
+self~write(counter, .nil);                  -- write out the counter message
 forward class(super)                        -- and send the done message along
 
 
 /******************************************************************************/
-::class wordCount subclass pipeStage public    -- count number of characters passed through the pipeStage
+::class wordCount subclass pipeStage public -- count number of characters passed through the pipeStage
 ::method init
 expose counter
 counter = 0
@@ -829,15 +874,12 @@ self~init:super                             -- forward the initialization
 
 ::method process
 expose counter
-use strict arg value
-
-counter += value~words                      -- just bump the counter for the number of words
+use strict arg value, index
+counter += value~string~words    -- just bump the counter for the number of words
 
 ::method eof
 expose counter
-
-self~write(counter);                       -- write out the counter message
-
+self~write(counter, .nil);                  -- write out the counter message
 forward class(super)                        -- and send the done message along
 
 
@@ -857,15 +899,14 @@ self~init:super                             -- forward the initialization
 -- store the pipeStage value and hook up the two output streams
 use strict arg pivotvalue, self~next, self~secondary
 
-::method process                           -- process the split
+::method process                            -- process the split
 expose pivotvalue
-use strict arg value
-
-if value < pivotvalue then do              -- simple split test
-    self~write(value)
+use strict arg value, index
+if value~string < pivotvalue then do -- simple split test
+    self~write(value, index)
 end
 else do
-    self~writeSecondary(value)
+    self~writeSecondary(value, index)
 end
 
 
@@ -888,7 +929,6 @@ self~init:super                             -- forward the initialization
 ::method append                             -- override for the single append version
 expose stages
 use strict arg follower
-
 do stage over stages                        -- append the follower to each of the filter chains
     stage~append(follower)
 end
@@ -898,22 +938,19 @@ raise syntax 93.963                         -- Can't do this, so raise an unsupp
 
 ::method write                              -- broadcast a result to a particular filter
 expose stages
-use strict arg which, value                 -- which is the fiter index, value is the result
-stages[which]~process(value);               -- have the filter handle this
+use strict arg which, value, index          -- which is the fiter index, value is the result
+stages[which]~process(value, index);        -- have the filter handle this
 
-::method eof                               -- broadcast a done message down all of the branches
+::method eof                                -- broadcast a done message down all of the branches
 expose stages
-
 do stage over stages
     stage~eof
 end
 
 ::method process                            -- process the stage stream
 expose stages
-use strict arg value
-
+use strict arg value, index
 do stage over stages                        -- send this down all of the branches
-    stage~process(value)
+    stage~process(value, index)
 end
-
 

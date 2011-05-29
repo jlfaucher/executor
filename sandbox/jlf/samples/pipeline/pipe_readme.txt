@@ -17,7 +17,7 @@ Notes about pipes
 dropLast : eof doesn't forward class(super)
 takeLast : idem
 
-fanout : forward oef to self~next and self~secondary, but not to super
+fanout : forward eof to self~next and self~secondary, but not to super
 
 merge : send a 'done' message
 
@@ -47,8 +47,10 @@ Connectors
 
 pipeStage
     SecondaryConnector(pipeStage)
+    
     sort                                    -- primary (accumulator)
     sortWith(comparator)                    -- primary (accumulator)
+    
     reverse
     upper
     lower
@@ -58,29 +60,40 @@ pipeStage
     right(length)                           -- primary, secondary
     insert(insert, offset)
     overlay(overlay, offset)
+    
     dropnull
     dropFirst(count)                        -- primary, secondary
     dropLast(count)                         -- primary (accumulator), secondary (accumulator)
     takeFirst(count)                        -- primary, secondary
     takeLast(count)                         -- primary (accumulator), secondary (accumulator)
+    
     x2c
+    
     bitbucket
+    
     fanout                                  -- primary, secondary. Write records to both outputs streams.
     merge                                   -- primary, secondary (to investigate : a kind of synchro ?). Merge the results from primary and secondary streams.
     fanin                                   -- primary(in out), secondary (in accumulator). Process main stream, then secondary stream.
+    
     duplicate(copies = 1)
     displayer
+    
     all(patterns...)                        -- primary, secondary (mismatches)
     startsWith(match)                       -- primary, secondary (mismatches)
     notall                                  -- primary, secondary (not selected)
+    
     stemcollector(stem)                     -- primary (non blocking accumulator)
     arraycollector(array)                   -- primary (non blocking accumalator)
+
     between(startString, endString)         -- primary, secondary (not selected)
     after(startString)                      -- primary, secondary (while not started)
     before(endString)                       -- primary, secondary (after started)
+
     buffer(count = 1, delimiter = "")       -- primary (accumulator)
+
     lineCount
     charCount
     wordCount
+
     pivot(pivotvalue, next, secondary)      -- primary, secondary. If value < pivotvalue then route to next else route to secondary
     splitter(stages...)                     -- primary (in). split the processing stream into two or more pipeStages

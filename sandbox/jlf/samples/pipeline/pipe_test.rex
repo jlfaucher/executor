@@ -65,13 +65,15 @@ pipe = .all['e']|.displayer                    /* Pipe to select elements with*/
 
 pipe~go(info)                                  /* Run it                      */
 say '-----------------------------------'
-array1 = .array~new
-array2 = .array~new
+valueArray1 = .array~new
+indexArray1 = .array~new
+valueArray2 = .array~new
+indexArray2 = .array~new
 
 -- this hooks stagess up to two different output streams
 -- the >> secondary stage must preceed the primary hooked up to the same
 -- stage
-pipe = .all['e'] >> .arraycollector[array2] > .arraycollector[array1]
+pipe = .all['e'] >> .arraycollector[valueArray2, indexArray2] > .arraycollector[valueArray1, indexArray1]
 
 
 pipe~go(info)                                  /* Run it                      */
@@ -79,15 +81,19 @@ pipe~go(info)                                  /* Run it                      */
 
 say 'Items selected by all are'
 
-do item over array1
-   say item
+index = valueArray1~first
+do while index <> .nil
+   say index "#" indexArray1[index] ":" valueArray1[index]
+   index = valueArray1~next(index)
 end
 
 say
 say 'Items not selected by all are'
 
-do item over array2
-   say item
+index = valueArray2~first
+do while index <> .nil
+   say index "#" indexArray2[index] ":" valueArray2[index]
+   index = valueArray2~next(index)
 end
 
 say '-----------------------------------'
@@ -97,32 +103,41 @@ pipe = .sort|.stemcollector[a.]                /* Pipe to sort, put in a.     */
 pipe~go(info)                                  /* Run it                      */
 
 Do i = 1 To a.0                                /* Show stem values            */
-  Say a.i
+  --Say a.i.index ":" a.i.value
+  -- index is 'The NIL object' here. Don't know why a.i.'INDEX' doesn't work...
+  Say a.[i, 'INDEX'] ":" a.i.value
 End
 
 say '-----------------------------------'
 
-array1 = .array~new
-array2 = .array~new
+valueArray1 = .array~new
+indexArray1 = .array~new
+valueArray2 = .array~new
+indexArray2 = .array~new
 
 pivot = 'S'
 
-pipe = .pivot[pivot, .arraycollector[array1], .arraycollector[array2]]
+pipe = .pivot[pivot, .arraycollector[valueArray1, indexArray1], .arraycollector[valueArray2, indexArray2]]
 
 pipe~go(info)                                  /* Run it                      */
 
 say 'Items less than pivot' pivot 'are'
 
-do item over array1
-   say item
+index = valueArray1~first
+do while index <> .nil
+   say index "#" indexArray1[index] ":" valueArray1[index]
+   index = valueArray1~next(index)
 end
 
 say
 say 'Items greater than or equal to pivot' pivot 'are'
 
-do item over array2
-   say item
+index = valueArray2~first
+do while index <> .nil
+   say index "#" indexArray2[index] ":" valueArray2[index]
+   index = valueArray2~next(index)
 end
 
 
 ::REQUIRES 'pipe'
+

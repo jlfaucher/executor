@@ -408,8 +408,10 @@ class ActivationSettings
    inline bool              isGuarded() { return (this->settings.flags&guarded_method) != 0; }
    inline void              setGuarded() { this->settings.flags |= guarded_method; }
    inline bool              isObjectScopeLocked() { return this->object_scope == SCOPE_RESERVED; } // for trace
-   unsigned short           getReserveCount() { return this->settings.object_variables ? this->settings.object_variables->getReserveCount() : 0; } // for trace
-   RexxVariableDictionary * getVariableDictionary() { return this->settings.object_variables; } // for trace
+   //unsigned short           getReserveCount() { return this->settings.object_variables ? this->settings.object_variables->getReserveCount() : 0; } // for trace
+   unsigned short           getReserveCount() { RexxVariableDictionary *ovd = this->getVariableDictionary(); return ovd ? ovd->getReserveCount() : 0; } // for trace. Try to get the ovd counter, even if not yet assigned to current activation.
+   //RexxVariableDictionary * getVariableDictionary() { return this->settings.object_variables; } // for trace
+   RexxVariableDictionary * getVariableDictionary() { return this->receiver ? this->receiver->getObjectVariables(this->scope) : NULL; } // for trace. Try to get the ovd, even if not yet assigned to current activation.
 
    inline bool              isExternalTraceOn() { return (this->settings.flags&trace_on) != 0; }
    inline void              setExternalTraceOn() { this->settings.flags |= trace_on; }

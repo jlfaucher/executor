@@ -20,14 +20,20 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method reduce
     use strict arg action, context=.nil
+    return self~supplier~reduce(action, context)
+
+
+::class SupplierReduce mixinclass Object public
+
+::method reduce
+    use strict arg action, context=.nil
     doer = action~doer(context) -- parse only once, before iteration
-    supplier = self~supplier
-    if \ supplier~available then return .nil
-    r = supplier~item
-    supplier~next
-    do while supplier~available
-        r = doer~do(r, supplier~item)
-        supplier~next
+    if \ self~available then return .nil
+    r = self~item
+    self~next
+    do while self~available
+        r = doer~do(r, self~item)
+        self~next
     end
     return r
 
@@ -123,6 +129,30 @@ This script needs a modified ooRexx interpreter which support extension of prede
     doer = action~doer(context) -- parse only once, before iteration
     do i = self to upperLimit
         doer~do(i)
+    end
+    return self
+
+    
+-----------------------------------------------------------------------------
+-- Mixins
+-- Iterator
+
+::class CollectionIterator mixinclass Object public
+
+::method each
+    use strict arg action, context=.nil
+    self~supplier~each(action, context)
+    return self
+
+
+::class SupplierIterator mixinclass Object public
+
+::method each
+    use strict arg action, context=.nil
+    doer = action~doer(context) -- parse only once, before iteration
+    do while self~available
+        doer~do(self~item, self~index) -- I suppose that most of the time, we need only the item
+        self~next
     end
     return self
 

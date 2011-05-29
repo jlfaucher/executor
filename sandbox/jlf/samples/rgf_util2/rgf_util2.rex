@@ -1757,10 +1757,13 @@ syntax:              -- propagate condition
   end
 
 
-  say title": ("coll~items "items)"
-  say
-  count=0
-  len=length(coll~items)
+  if coll~isA(.Collection) then
+  do
+      say title": ("coll~items "items)"
+      say
+     len=length(coll~items)
+  end
+  else len = 5 -- Arbitrary big enough value
 
 
 

@@ -165,7 +165,7 @@ Status transitions :
     /*
     Internal method called when the coactivity action has returned.
     */
-    expose status yieldValue
+    expose yieldValue
     drop yieldValue
     if arg() <> 0 then use strict arg yieldValue -- yieldValue will be returned to the coactivity's client by 'resume'
 

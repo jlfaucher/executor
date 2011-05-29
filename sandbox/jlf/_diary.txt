@@ -45,6 +45,34 @@ http://slatelanguage.org/
 ===============================================================================
 2011 may 29
 
+Modified pipe.rex to keep the index information of the collection passed as argument to ~go.
+Useful when working with a collection of methods, where the name of the methods is available
+only through the indexes.
+
+Added the extension ~pipe to all objects.
+myObject~pipe(myPipeline)
+
+Added extensions to pipe.rex, to benefit from doers :
+inject
+do
+select
+
+Added the extension ~each to all the collections.
+
+Added the extensions ~each and ~reduce to the suppliers.
+
+Fixed a bug in rgf_util2 :
+dump2 was not working with suppliers, because ~items was called.
+
+Concurrency trace : report information about ovd, even if not yet assigned to the RexxActivation.
+See getReserveCount and getVariableDictionary in RexxActivation.hpp.
+
+Debug of semaphores : the variable name was overwritten, fixed.
+
+
+===============================================================================
+2011 may 29
+
 Adaptation of concurrency trace to support 64 bits pointers.
 
 Now, concurrency trace is displayed only when env variable RXTRACE_CONCURRENCY=ON
