@@ -1,4 +1,13 @@
 The interpreter has been modified to add thread id, activation id and lock flag in the lines printed by trace.
+
+Informations that are displayed.
+RexxActivity::traceOutput(RexxActivation *activation, ...
+T1       SysCurrentThreadId(),
+A2       (unsigned int)activation,
+V1       (activation) ? activation->getVariableDictionary() : NULL,         // settings.object_variables
+1        (activation) ? activation->getReserveCount() : 0,                  // settings.object_variables->getReserveCount()
+*        (activation && activation->isObjectScopeLocked()) ? '*' : ' ');    // object_scope == SCOPE_RESERVED
+
 But the thread id and activation id are pointers written in hexadecimal, which is not very easy to read.
 The script tracer.rex lets :
 - replace hexadecimal values by more human-readable values like T1, A1.

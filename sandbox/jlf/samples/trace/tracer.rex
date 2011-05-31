@@ -11,7 +11,7 @@ Description :
 
     Use -filter to filter out the lines which are not a trace
 
-    The expected input format is something like that :
+    The expected input format is something like that (in case of 32-bit pointers) :
     0000f5fc 7efb0180 7eeee7a0  00000         >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
     0000f5fc 7efb0180 7eeee7a0  00000         >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
     0000f5fc 7efb29f8 7eeee7a0  00001*        >I> Method INIT with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
@@ -20,13 +20,22 @@ Description :
     00010244 00000000 00000000  00000  Error 99.916:  Unrecognized directive instruction
 
     See RexxActivity::traceOutput
-    Utilities::snprintf(buffer, sizeof buffer - 1, "%8.8x %8.8x %8.8x %5.5hu%c ", 
-                                                   SysCurrentThreadId(),
-                                                   (unsigned int)activation,
+    Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE, 
+                                                   Utilities::currentThreadId(),
+                                                   activation,
                                                    (activation) ? activation->getVariableDictionary() : NULL,
                                                    (activation) ? activation->getReserveCount() : 0,
                                                    (activation && activation->isObjectScopeLocked()) ? '*' : ' ');
 
+    The same format with 64-bit pointers is also supported.
+    See common\Utilities.hpp
+    #ifdef __REXX64__
+    #define CONCURRENCY_TRACE "%16.16x %16.16x %16.16x %5.5hu%c "
+    #else
+    #define CONCURRENCY_TRACE "%8.8x %8.8x %8.8x %5.5hu%c "
+    #endif
+    
+    
     The same format with human-readable ids is also supported :
     T1   A1                   >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
     T1   A1                   >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
@@ -37,6 +46,7 @@ Description :
 
 Examples :
     (Remember : you MUST redirect stderr to stdout with 2>&1)
+    set RXTRACE_CONCURRENCY=on
     rexx my_traced_script.rex 2>&1 | rexx tracer
 
     rexx tracer -csv my_trace_file.txt
@@ -67,71 +77,12 @@ traceFile = .Utility~unquoted(traceFile)
 if traceFile <> "" then streamIn = .stream~new(traceFile)~~open
 
 streamOut = .stdout
+traceLineParser = .TraceLineParser~new
 
 if csv then .TraceLineCsv~lineoutTitle(streamOut)
 do while streamIn~state="READY"
     rawLine=streamIn~linein
-    currentTrace = .nil
-
-    -- Try first with hex ids    
-    parse var rawLine,
-            1 threadId >(.Thread~hexIdWidth),
-            +1 activationId >(.Activation~hexIdWidth),
-            +1 varDictId >(.VariableDictionary~hexIdWidth),
-            +1 reserveCount >(.WithActivationInfo~reserveCountRawWidth) lock >1,
-            +1 trace
-    if \.Thread~isHexId(threadId) |,
-            \.Activation~isHexId(activationId) |,
-            \.VariableDictionary~isHexId(varDictId) |,
-            \reserveCount~datatype("N") |,
-            (lock <> " " & lock <> "*") then
-    do
-        -- Try with hr ids (to support parsing a trace already hr-ized)
-        parse var rawLine,
-                1 threadId >(.Thread~hrIdWidth),
-                +1 activationId >(.Activation~hrIdWidth),
-                +1 varDictId >(.VariableDictionary~hrIdWidth),
-                +1 reserveCount >(.WithActivationInfo~reserveCountHrWidth) lock >1,
-                +1 trace
-        if \.Thread~isHrId(threadId) |,
-                \.Activation~isHrId(activationId) |,
-                \.VariableDictionary~isHrId(varDictId) |,
-                (\reserveCount~datatype("N") & reserveCount~strip <> "") |,
-                (lock <> " " & lock <> "*") then currentTrace = .UnknownFormat~new
-    end
-    if currentTrace == .nil then do
-        if trace~pos("Error") == 1 then currentTrace = .ErrorTrace~new
-        else do -- normal trace line
-            parse var trace 1 lineNumber >6 +1 tracePrefix >3 +1 restOfTrace
-            if \.TraceLine~isValidPrefix(tracePrefix) then currentTrace = .UnknownTracePrefix~new
-            else do
-                if tracePrefix == ">I>" then do
-                    if restOfTrace~pos("Routine ") == 1 then do
-                        currentTrace = .RoutineActivation~new
-                        parse var restOfTrace"Routine " currentTrace~routine " in package " currentTrace~package
-                    end
-                    else if restOfTrace~pos("Method ") == 1 then do
-                        currentTrace = .MethodActivation~new
-                        parse var restOfTrace "Method " currentTrace~method ' with scope "' currentTrace~scope '" in package ' currentTrace~package
-                    end
-                    else currentTrace = .UnknownActivation~new
-                end
-                else currentTrace = .GenericTrace~new
-                currentTrace~lineNumber = lineNumber
-                currentTrace~tracePrefix = tracePrefix
-                currentTrace~restOfTrace = restOfTrace
-            end
-        end
-
-        currentTrace~threadId = threadId~strip
-        currentTrace~activationId = activationId~strip
-        currentTrace~varDictId = varDictId~strip
-        currentTrace~reserveCount = reserveCount~strip
-        currentTrace~lock = lock
-        currentTrace~trace = trace
-    end
-    currentTrace~rawLine = rawLine
-    currentTrace~allAssigned
+    currentTrace = traceLineParser~parse(rawLine)
     currentTrace~lineOut(streamOut, csv, filter)
 end
 
@@ -142,6 +93,7 @@ return 0
 
 -------------------------------------------------------------------------------
 ::class Utility
+-------------------------------------------------------------------------------
 
 ::method isHex class
     use strict arg str, length
@@ -165,6 +117,146 @@ return 0
         return string~substr(2, string~length - 2)~changeStr(doubleQuote, quote)
     else
         return string
+
+
+-------------------------------------------------------------------------------
+::class TraceLineParser
+-------------------------------------------------------------------------------
+
+::constant hexIdWidth64bit 16 -- width in digit count of hex id
+::constant hexIdWidth32bit 8 -- width in characters of hex id
+
+-- Specific to concurrency trace
+::attribute threadId
+::attribute activationId
+::attribute varDictId
+::attribute reserveCount
+::attribute lock
+-- Normal trace line, without concurrency trace
+::attribute rawTrace
+::attribute lineNumber
+::attribute tracePrefix
+::attribute restOfTrace
+
+
+::method isHexId64bit class
+    use strict arg id
+    return .Utility~isHex(id, .TraceLineParser~hexIdWidth64bit) -- Ex : 0001654c0001654c
+
+
+::method isHexId32bit class
+    use strict arg id
+    return .Utility~isHex(id, .TraceLineParser~hexIdWidth32bit) -- Ex : 0001654c
+
+
+::method init
+    threadId = ""
+    activationId = ""
+    varDictId = ""
+    reserveCount = ""
+    lock = ""
+    rawTrace = ""
+    lineNumber = ""
+    tracePrefix = ""
+    restOfTrace = ""
+
+
+::method parse64bit
+    use strict arg rawLine
+    parse var rawLine,
+            1 self~threadId >(.TraceLineParser~hexIdWidth64bit),
+            +1 self~activationId >(.TraceLineParser~hexIdWidth64bit),
+            +1 self~varDictId >(.TraceLineParser~hexIdWidth64bit),
+            +1 self~reserveCount >(.WithActivationInfo~reserveCountRawWidth) self~lock >1,
+            +1 self~rawTrace
+    if \.TraceLineParser~isHexId64bit(self~threadId) |,
+            \.TraceLineParser~isHexId64bit(self~activationId) |,
+            \.TraceLineParser~isHexId64bit(self~varDictId) |,
+            \self~reserveCount~datatype("N") |,
+            (self~lock <> " " & self~lock <> "*") then return .false
+    return .true
+
+
+::method parse32bit
+    use strict arg rawLine
+    parse var rawLine,
+            1 self~threadId >(.TraceLineParser~hexIdWidth32bit),
+            +1 self~activationId >(.TraceLineParser~hexIdWidth32bit),
+            +1 self~varDictId >(.TraceLineParser~hexIdWidth32bit),
+            +1 self~reserveCount >(.WithActivationInfo~reserveCountRawWidth) self~lock >1,
+            +1 self~rawTrace
+    if \.TraceLineParser~isHexId32bit(self~threadId) |,
+            \.TraceLineParser~isHexId32bit(self~activationId) |,
+            \.TraceLineParser~isHexId32bit(self~varDictId) |,
+            \self~reserveCount~datatype("N") |,
+            (self~lock <> " " & self~lock <> "*") then return .false
+    return .true
+
+
+::method parseHrId
+    use strict arg rawLine
+    parse var rawLine,
+            1 self~threadId >(.Thread~hrIdWidth),
+            +1 self~activationId >(.Activation~hrIdWidth),
+            +1 self~varDictId >(.VariableDictionary~hrIdWidth),
+            +1 self~reserveCount >(.WithActivationInfo~reserveCountHrWidth) self~lock >1,
+            +1 self~rawTrace
+    if \.Thread~isHrId(self~threadId) |,
+            \.Activation~isHrId(self~activationId) |,
+            \.VariableDictionary~isHrId(self~varDictId) |,
+            (\self~reserveCount~datatype("N") & self~reserveCount~strip <> "") |,
+            (self~lock <> " " & self~lock <> "*") then return .false
+    return .true
+
+
+::method parse
+    use strict arg rawLine
+    currentTrace = .nil
+
+    -- Try with 64-bit pointers
+    if \self~parse64bit(rawLine) then    
+    do
+        -- Try with 32-bit pointers
+        if \self~parse32bit(rawLine) then
+        do
+            -- Try with hr ids (to support parsing a trace already hr-ized)
+            if \self~parseHrId(rawLine) then currentTrace = .UnknownFormat~new
+        end
+    end
+    if currentTrace == .nil then do
+        if self~rawTrace~pos("Error") == 1 then currentTrace = .ErrorTrace~new
+        else do -- normal trace line
+            parse value self~rawTrace with 1 self~lineNumber >6 +1 self~tracePrefix >3 +1 self~restOfTrace
+            if \.TraceLine~isValidPrefix(self~tracePrefix) then currentTrace = .UnknownTracePrefix~new
+            else do
+                if self~tracePrefix == ">I>" then do
+                    if self~restOfTrace~pos("Routine ") == 1 then do
+                        currentTrace = .RoutineActivation~new
+                        parse value self~restOfTrace with "Routine " currentTrace~routine " in package " currentTrace~package
+                    end
+                    else if self~restOfTrace~pos("Method ") == 1 then do
+                        currentTrace = .MethodActivation~new
+                        parse value self~restOfTrace with "Method " currentTrace~method ' with scope "' currentTrace~scope '" in package ' currentTrace~package
+                    end
+                    else currentTrace = .UnknownActivation~new
+                end
+                else currentTrace = .GenericTrace~new
+                currentTrace~lineNumber = self~lineNumber
+                currentTrace~tracePrefix = self~tracePrefix
+                currentTrace~restOfTrace = self~restOfTrace
+            end
+        end
+
+        currentTrace~threadId = self~threadId~strip
+        currentTrace~activationId = self~activationId~strip
+        currentTrace~varDictId = self~varDictId~strip
+        currentTrace~reserveCount = self~reserveCount~strip
+        currentTrace~lock = self~lock
+        currentTrace~rawTrace = self~rawTrace
+    end
+    currentTrace~rawLine = rawLine
+    currentTrace~allAssigned
+    return currentTrace
 
 
 -------------------------------------------------------------------------------
@@ -245,7 +337,6 @@ return 0
 ::class Thread
 -------------------------------------------------------------------------------
 
-::constant hexIdWidth 8 -- width of hex id (used for parsing)
 ::constant hrIdWidth 4 -- width of hr id (used for parsing and rewriting)
 
 ::attribute counter class
@@ -270,10 +361,6 @@ return 0
     end
     return thread
 
-::method isHexId class
-    use strict arg threadId
-    return .Utility~isHex(threadId, .Thread~hexIdWidth) -- Ex : 0001654c
-    
 ::method isHrId class
     use strict arg threadId
     return threadId~left(1) =="T" & threadId~substr(2)~dataType("9")  -- Ex : T1, T12, T123, ...
@@ -290,7 +377,6 @@ return 0
 ::class Activation
 -------------------------------------------------------------------------------
 
-::constant hexIdWidth 8 -- max width of hex id (used for parsing)
 ::constant hrIdWidth 6 -- max width of hr id (used for parsing and rewriting)
 
 ::attribute counter class
@@ -316,10 +402,6 @@ return 0
     end
     return activation
 
-::method isHexId class
-    use strict arg activationId
-    return .Utility~isHex(activationId, .Activation~hexIdWidth) -- Ex : 0001654c
-    
 ::method isHrId class
     use strict arg activationId
     return activationId~left(1) =="A" & activationId~substr(2)~dataType("9")  -- Ex : A1, A12, A123, ...
@@ -344,7 +426,6 @@ return 0
 ::class VariableDictionary
 -------------------------------------------------------------------------------
 
-::constant hexIdWidth 8 -- max width of hex id (used for parsing)
 ::constant hrIdWidth 6 -- max width of hr id (used for parsing and rewriting)
 
 ::attribute counter class
@@ -370,10 +451,6 @@ return 0
     end
     return varDict
 
-::method isHexId class
-    use strict arg varDictId
-    return .Utility~isHex(varDictId, .VariableDictionary~hexIdWidth) -- Ex : 0001654c
-    
 ::method isHrId class
     use strict arg varDictId
     if varDictId = "" then return .true -- special case, when parsing hr trace.
@@ -458,7 +535,7 @@ return 0
 ::attribute varDictId
 ::attribute reserveCount
 ::attribute lock
-::attribute trace
+::attribute rawTrace
 
 ::method init
     self~threadId = ""
@@ -466,7 +543,7 @@ return 0
     self~varDictId = ""
     self~reserveCount = ""
     self~lock = ""
-    self~trace = ""
+    self~rawTrace = ""
 
 ::method lineoutText
     use strict arg stream, filter
@@ -486,7 +563,7 @@ return 0
                    activation~hrId~left(.Activation~hrIdWidth),
                    varDictHrId~left(.VariableDictionary~hrIdWidth),
                    reserveCount~left(.WithActivationInfo~reserveCountHrWidth) || self~lock,
-                   self~trace)
+                   self~rawTrace)
 
 ::method prepareCsv
     use strict arg csv, filter
@@ -503,7 +580,6 @@ return 0
     csv~scope = activation~scope
     csv~executable = activation~executable
     csv~package = activation~package
-    trace off
     return .true
 
 
@@ -518,7 +594,7 @@ return 0
 ::method prepareCsv
     use strict arg csv, filter
     if \self~prepareCsv:super(csv, filter) then return .false
-    csv~raw = self~trace
+    csv~raw = self~rawTrace
     return .true
 
 
@@ -533,7 +609,7 @@ return 0
 ::method prepareCsv
     use strict arg csv, filter
     if \self~prepareCsv:super(csv, filter) then return .false
-    csv~raw = self~trace
+    csv~raw = self~rawTrace
     return .true
 
 
