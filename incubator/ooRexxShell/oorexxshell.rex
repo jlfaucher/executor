@@ -432,6 +432,7 @@ loadOptionalComponents:
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     call loadPackage("pipeline/pipe.rex")
+    call loadPackage("pipeline/pipe_extension.cls") -- requires jlf sandbox ooRexx
     call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
