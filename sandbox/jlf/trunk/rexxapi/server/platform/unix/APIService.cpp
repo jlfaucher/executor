@@ -65,9 +65,14 @@
 #  define ENABLE_NOBODY
 #endif
 
+#ifdef _DEBUG
+// Force RXAPI to run as a foreground process.
+// #define RUN_AS_DAEMON
+#else
 // For testing purposes comment out the following line to force RXAPI to
 // run as a foreground process.
-//#define RUN_AS_DAEMON
+#define RUN_AS_DAEMON
+#endif
 
 #ifdef RUN_AS_DAEMON
 #define OOREXX_PIDFILE "/var/run/ooRexx.pid"
