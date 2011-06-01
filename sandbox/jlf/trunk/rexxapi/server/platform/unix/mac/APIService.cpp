@@ -49,38 +49,7 @@
 #include <pwd.h>
 #include "APIServer.hpp"
 #include "stdio.h"
-
-// Add signal handler for SIGTERM
-#define ENABLE_SIGTERM
-
-// If compiling on AIX, enable AIX SRC
-#ifdef AIX
-#define ENABLE_AIX_SRC
-#endif
-
-// Temp fix for AXI 6.1 problem - will be removed later
-// - switching the daemon to nobody does not work on AIX 6.1
-// - it does work on AIX 5.2 / 5.3
-#ifndef AIX_REMOVED
-#  define ENABLE_NOBODY
-#endif
-
-#ifdef _DEBUG
-// Force RXAPI to run as a foreground process.
-// #define RUN_AS_DAEMON
-#else
-// For testing purposes comment out the following line to force RXAPI to
-// run as a foreground process.
-#define RUN_AS_DAEMON
-#endif
-
-#ifdef RUN_AS_DAEMON
-#define OOREXX_PIDFILE "/var/run/ooRexx.pid"
-bool run_as_daemon = true;
-#else
 #define OOREXX_PIDFILE "/tmp/ooRexx.pid"
-bool run_as_daemon = false;
-#endif
 
 APIServer apiServer;             // the real server instance
 
@@ -108,7 +77,6 @@ void Run (bool asService)
     apiServer.terminateServer();     // shut everything down
 }
 
-#ifdef ENABLE_SIGTERM
 /*==========================================================================*
  *  Function: Stop
  *
@@ -123,81 +91,6 @@ void Stop(int signo)
     apiServer.terminateServer();     // shut everything down
 
     exit(1);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-// Routines to run RXAPI as an daemon BEGIN
-
-
-/*==========================================================================*
- *  Function: morph2daemon
- *
- *  Purpose:
- *
- *  Turn this process into a daemon.
- *
- * Returns TRUE if a daemon, FALSE if not or an error
- *
- *==========================================================================*/
-static bool morph2daemon(void)
-{
-    char pid_buf[256];
-
-    if (run_as_daemon == false) {
-        return true; // go ahead and run in the foreground
-    }
-
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
-		return false;
-	}
-
-	pid_t pid = fork();
-	if (pid < 0) {
-		return false;
-	}
-    // if we are the parent process then we are done
-	if (pid != 0) {
-		exit( 0 );
-	}
-
-    // become the session leader
-	setsid();
-    // second fork to become a real daemon
-	pid = fork();
-	if (pid < 0) {
-		return false;
-	}
-    // if we are the parent process then we are done
-	if (pid != 0) {
-		exit(0);
-	}
-
-    // create the pid file (overwrite of old pid file is ok)
-    unlink(OOREXX_PIDFILE);
-    int pfile = open(OOREXX_PIDFILE, O_WRONLY | O_CREAT, 0640);
-    snprintf(pid_buf, sizeof(pid_buf), "%d\n", (int)getpid());
-    write(pfile, pid_buf, strlen(pid_buf));
-    close(pfile);
-
-    // housekeeping
-	chdir("/");
-	umask(0);
-	for(int i = 0; i < 1024; i++) {
-		close(i);
-	}
-
-#ifdef ENABLE_NOBODY
-    // We start out with root privileges. This is bad from a security perspective. So
-    // switch to the nobody user so we do not have previleges we do not need.
-    struct passwd *pw;
-    pw = getpwnam("nobody");
-    if (pw != NULL) {
-        setuid(pw->pw_uid);
-    }
-#endif
-	return true;
 }
 
 
@@ -214,12 +107,8 @@ int main(int argc, char *argv[])
     char pid_buf[256];
     int pfile, len;
     pid_t pid = 0;
-#ifdef ENABLE_AIX_SRC
     struct stat st;
-#endif
-#ifdef ENABLE_SIGTERM
     struct sigaction sa;
-#endif
     // Get the command line args
     if (argc > 1) {
         printf("Error: Invalid command line option(s).\n");
@@ -256,65 +145,6 @@ int main(int argc, char *argv[])
     write(pfile, pid_buf, strlen(pid_buf));
     close(pfile);
 
-    // make ourselves a daemon
-    // - if this is AIX we check if the rxapi daemon was sarted via SRC
-    //   - if the daemon was started via SRC we do not morph - the SRC handles this
-    //
-    // - add to AIX SRC without auto restart:
-    //   mkssys -s rxapi -p /opt/ooRexx/bin/rxapi -i /dev/null -e /dev/console \
-    //          -o /dev/console -u 0 -S -n 15 -f 9 -O -Q
-    //
-    // - add to AIX SRC with auto restart:
-    //   mkssys -s rxapi -p /opt/ooRexx/bin/rxapi -i /dev/null -e /dev/console \
-    //          -o /dev/console -u 0 -S -n 15 -f 9 -R -Q
-#ifdef ENABLE_AIX_SRC
-    if (fstat(0, &st) <0) {
-        if (morph2daemon() == false) {
-            return -1;
-        }
-    } else {
-        if ((st.st_mode & S_IFMT) == S_IFCHR) {
-            if (isatty(0)) {
-                if (morph2daemon() == false) {
-                    return -1;
-                }
-            }
-        } else {
-            if (morph2daemon() == false) {
-                return -1;
-            }
-        }
-    }
-#else
-        if (morph2daemon() == false) {
-            return -1;
-        }
-#endif
-
-    // run the server
-#ifdef ENABLE_AIX_SRC
-    if (run_as_daemon == false) {
-        printf("Starting request processing loop.\n");
-    } else {
-        (void) setsid();
-        printf("Starting request processing loop.\n");
-#ifdef ENABLE_NOBODY
-        // We start out with root privileges. This is bad from a security perspective. So
-        // switch to the nobody user so we do not have previleges we do not need.
-        struct passwd *pw;
-        pw = getpwnam("nobody");
-        if (pw != NULL) {
-            setuid(pw->pw_uid);
-        }
-#endif
-    }
-#else
-    if (run_as_daemon == false) {
-        printf("Starting request processing loop.\n");
-    }
-#endif
-
-#ifdef ENABLE_SIGTERM
     // handle kill -15
     (void) sigemptyset(&sa.sa_mask);
     (void) sigaddset(&sa.sa_mask, SIGTERM);
@@ -323,7 +153,6 @@ int main(int argc, char *argv[])
     if (sigaction(SIGTERM, &sa, NULL) == -1) {
         exit(1);
     }
-#endif
 
     Run(false);
 

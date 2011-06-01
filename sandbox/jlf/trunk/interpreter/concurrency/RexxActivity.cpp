@@ -495,6 +495,9 @@ RexxDirectory *RexxActivity::createConditionObject(RexxString *condition, RexxOb
     {
         conditionObj->put(result, OREF_RESULT);
     }
+
+    // add in all location-specific information
+    generateProgramInformation(conditionObj);
     return conditionObj;
 }
 
@@ -880,6 +883,25 @@ RexxDirectory *RexxActivity::createExceptionObject(
         exobj->put(result, OREF_RESULT);
     }
 
+    // add in all location-specific information
+    generateProgramInformation(exobj);
+
+    // the condition name is always SYNTAX
+    exobj->put(OREF_SYNTAX, OREF_CONDITION);
+    /* fill in the propagation status    */
+    exobj->put(TheFalseObject, OREF_PROPAGATED);
+
+    return exobj;
+}
+
+
+/**
+ * Add program location-specific information to a condition object.
+ *
+ * @param exobj  The exception object being constructed.
+ */
+void RexxActivity::generateProgramInformation(RexxDirectory *exobj)
+{
     // create lists for both the stack frames and the traceback lines
     RexxList *stackFrames = new_list();
                                          /* add to the exception object       */
@@ -934,13 +956,6 @@ RexxDirectory *RexxActivity::createExceptionObject(
         // if not available, then this is explicitly a NULLSTRINg.
         exobj->put(OREF_NULLSTRING, OREF_PROGRAM);
     }
-
-    // the condition name is always SYNTAX
-    exobj->put(OREF_SYNTAX, OREF_CONDITION);
-    /* fill in the propagation status    */
-    exobj->put(TheFalseObject, OREF_PROPAGATED);
-
-    return exobj;
 }
 
 
@@ -2416,7 +2431,7 @@ bool RexxActivity::callCommandExit(RexxActivation *activation, RexxString *addre
     SecurityManager *manager = activation->getEffectiveSecurityManager();
     if (manager != OREF_NULL)
     {
-        if (manager->checkCommand(address, command, result, condition))
+        if (manager->checkCommand(this, address, command, result, condition))
         {
             return false;
         }
@@ -2447,14 +2462,14 @@ bool RexxActivity::callCommandExit(RexxActivation *activation, RexxString *addre
         if (exit_parm.rxcmd_flags.rxfcfail)/* need to raise failure condition?  */
         {
             // raise the condition when things are done
-            condition = RexxActivity::createConditionObject(OREF_FAILURENAME, (RexxObject *)result, command, OREF_NULL, OREF_NULL);
+            condition = createConditionObject(OREF_FAILURENAME, (RexxObject *)result, command, OREF_NULL, OREF_NULL);
         }
 
         /* Did we find the function??        */
         else if (exit_parm.rxcmd_flags.rxfcerr)
         {
             // raise the condition when things are done
-            condition = RexxActivity::createConditionObject(OREF_ERRORNAME, (RexxObject *)result, command, OREF_NULL, OREF_NULL);
+            condition = createConditionObject(OREF_ERRORNAME, (RexxObject *)result, command, OREF_NULL, OREF_NULL);
         }
         /* Get input string and return it    */
         result = new_string(exit_parm.rxcmd_retc);
@@ -2815,7 +2830,7 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
     if (this->callTraceExit(activation, line))
     {
         /* get the default output stream     */
-        RexxObject *stream = getLocalEnvironment(OREF_ERRORNAME);
+        RexxObject *stream = getLocalEnvironment(OREF_TRACEOUTPUT);
         /* have .local set up yet?           */
         if (stream != OREF_NULL && stream != TheNilObject)
         {
@@ -2865,7 +2880,7 @@ RexxString *RexxActivity::traceInput(  /* read a line of trace input        */
     if (this->callDebugInputExit(activation, value))
     {
         /* get the input stream              */
-        RexxObject *stream = getLocalEnvironment(OREF_INPUT);
+        RexxObject *stream = getLocalEnvironment(OREF_DEBUGINPUT);
         if (stream != OREF_NULL)           /* have a stream?                    */
         {
             /* read from it                      */

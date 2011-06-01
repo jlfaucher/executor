@@ -414,6 +414,26 @@ RexxRoutine0(RexxObjectPtr,
 
 
 /**
+ * Method:        SysKill
+ *
+ * Kill a process.
+ *
+ * @param pid1    The pid to kill.
+ *
+ * @param sig1    The signal to send.
+ *
+ * @return        return code
+ */
+RexxRoutine2(int,
+             SysKill,
+             int, pid1,
+             int, sig1)
+{
+    return kill((pid_t)pid1, sig1);
+}
+
+
+/**
  * Method:        SysSymlink
  *
  * Create a symbolic link.
@@ -547,6 +567,23 @@ RexxRoutine1(int,
              int, nmask)
 {
     return umask((mode_t)nmask);
+}
+
+
+/**
+ * Method:        SysClose
+ *
+ * Close a file handle.
+ *
+ * @param nmask   The file handle to close.
+ *
+ * @return        the return code from the C close function
+ */
+RexxRoutine1(int,
+             SysClose,
+             int, fh)
+{
+    return close(fh);
 }
 
 
@@ -1696,6 +1733,7 @@ RexxRoutineEntry orxnixclib_routines[] = {
     REXX_TYPED_ROUTINE(SysGetpid, SysGetpid),
     REXX_TYPED_ROUTINE(SysGetppid, SysGetppid),
     REXX_TYPED_ROUTINE(SysGettid, SysGettid),
+    REXX_TYPED_ROUTINE(SysKill, SysKill),
     REXX_TYPED_ROUTINE(SysSymlink, SysSymlink),
     REXX_TYPED_ROUTINE(SysLink, SysLink),
     REXX_TYPED_ROUTINE(SysUnlink, SysUnlink),
@@ -1703,6 +1741,7 @@ RexxRoutineEntry orxnixclib_routines[] = {
     REXX_TYPED_ROUTINE(SysLchown, SysLchown),
     REXX_TYPED_ROUTINE(SysChroot, SysChroot),
     REXX_TYPED_ROUTINE(SysUmask, SysUmask),
+    REXX_TYPED_ROUTINE(SysClose, SysClose),
     REXX_TYPED_ROUTINE(SysGetpwnam, SysGetpwnam),
     REXX_TYPED_ROUTINE(SysGetpwuid, SysGetpwuid),
     REXX_TYPED_ROUTINE(SysGetgrnam, SysGetgrnam),

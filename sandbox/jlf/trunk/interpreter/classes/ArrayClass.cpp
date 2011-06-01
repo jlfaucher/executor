@@ -97,10 +97,13 @@ void RexxArray::createInstance()
 }
 
 
+/**
+ * Initialize an array
+ *
+ * @param _size   The initial size of the array.
+ * @param maxSize The maximum size this array can hold (maxSize >= size)
+ */
 void RexxArray::init(size_t _size, size_t maxSize)
-/******************************************************************************/
-/* Function:  Initialize an array                                             */
-/******************************************************************************/
 {
   this->arraySize = _size;
   this->maximumSize = maxSize;
@@ -109,6 +112,11 @@ void RexxArray::init(size_t _size, size_t maxSize)
   OrefSet(this, this->expansionArray, this);
 }
 
+/**
+ * Copy the array (and the expansion array, if necessary)
+ *
+ * @return A copy of the array object.
+ */
 RexxObject  *RexxArray::copy(void)
 /******************************************************************************/
 /* Function:   create a copy of array and expansion array.                    */
@@ -184,12 +192,17 @@ void RexxArray::flatten(RexxEnvelope *envelope)
 }
 
 
+/**
+ * Place an object into the array.  Note:  This version does not
+ * do any bounds checking.  The caller is responsible for
+ * ensuring there is sufficient space.
+ *
+ * @param eref   The object to add.
+ * @param pos    The index of the added item (origin 1)
+ */
 void RexxArray::put(RexxObject * eref, size_t pos)
-/******************************************************************************/
-/* Function:  Place an object in the array                                    */
-/******************************************************************************/
 {
-    OrefSet(this->expansionArray, (this->data())[pos -1], eref);
+    OrefSet(this->expansionArray, (this->data())[pos - 1], eref);
     // check the last set element
     if (pos > lastElement)
     {
@@ -197,10 +210,16 @@ void RexxArray::put(RexxObject * eref, size_t pos)
     }
 }
 
+/**
+ * The Rexx stub for the Array PUT method.  This does full
+ * checking for the array.
+ *
+ * @param arguments The array of all arguments sent to the method (variable arguments allowed here.)
+ * @param argCount  The number of arguments in the method call.
+ *
+ * @return Always return nothing.
+ */
 RexxObject  *RexxArray::putRexx(RexxObject **arguments, size_t argCount)
-/******************************************************************************/
-/* Function:  Performs REXX-level puts to arrays.                             */
-/******************************************************************************/
 {
     size_t position;                     /* array position                    */
 
@@ -271,7 +290,7 @@ RexxObject  *RexxArray::appendRexx(RexxObject *value)
     requiredArgument(value, ARG_ONE);
 
     // this is not intended for multi-dimensional arrays since they can't expand
-    if (this->dimensions != OREF_NULL && this->dimensions->size() != 1)
+    if (isMultiDimensional())
     {
         reportException(Error_Incorrect_method_array_dimension, CHAR_APPEND);
     }
@@ -285,25 +304,114 @@ RexxObject  *RexxArray::appendRexx(RexxObject *value)
 
 
 /**
+ * Insert an element into the given index location.
+ *
+ * @param _value The value to insert.  This can be omitted, which will
+ *               insert an empty slot at the indicated position.
+ * @param index  The target index.  This can be .nil, which will insert
+ *               at the beginning, omitted, which will insert at the end,
+ *               or a single-dimensional index of the position where the
+ *               value will be inserted after.
+ *
+ * @return The index of the inserted valued.
+ */
+RexxObject *RexxArray::insertRexx(RexxObject *_value, RexxObject *index)
+{
+    /* multidimensional array?           */
+    if (isMultiDimensional())
+    {
+        /* this is an error                  */
+        reportException(Error_Incorrect_method_array_dimension, "INSERT");
+    }
+
+    size_t position;                     // array position
+
+    if (index == TheNilObject)
+    {
+        position = 1;                   // the insertion point of the item is 1
+    }
+    else if (index == OREF_NULL)
+    {
+        position = size() + 1;          // inserting after the last item
+    }
+    else
+    {
+        // validate the index and expand if necessary.
+        this->validateIndex(&index, 1, 2, RaiseBoundsInvalid | RaiseBoundsTooMany, position);
+        position = position + 1;          // we insert AFTER the given index, so bump this
+    }
+
+    // do the actual insertion
+    return new_integer(insert(_value, position));
+}
+
+
+/**
+ * Delete an element from the given index location, shifting the
+ * item indexes as required.
+ *
+ * @param index  The target index.  This can be a single number or an array
+ *               containing a single number.
+ *
+ * @return The object that has been deleted.  Returns .nil if the
+ *         target index does not exist.
+ */
+RexxObject *RexxArray::deleteRexx(RexxObject *index)
+{
+    /* multidimensional array?           */
+    if (isMultiDimensional())
+    {
+        /* this is an error                  */
+        reportException(Error_Incorrect_method_array_dimension, "DELETE");
+    }
+
+    size_t position;                     // array position
+
+    // validate the index and expand if necessary.
+    this->validateIndex(&index, 1, 1, RaiseBoundsInvalid | RaiseBoundsTooMany, position);
+
+    // do the actual insertion
+    return deleteItem(position);
+}
+
+
+/**
  * Open a gap in the array by shifting each element to the right
  * starting at the given index.
  *
- * @param index    The index of the first item to shift.
+ * @param index The index of the first item to shift.
  *
  * @param elements The number of elements to shift.
  */
 void RexxArray::openGap(size_t index, size_t elements)
 {
-    size_t newIndex = index + elements;
-    size_t lastIndex = lastElement;   // where we start moving from
-    // make sure we have space
-    ensureSpace(lastIndex);
-    // open from the back...
-    for (size_t i = lastIndex; i >= index; i--)
+    // is this larger than our current size?  If so, we have nothing to move
+    // but do need to expand the array size to accommodate the additional members
+    if (index > size())
     {
-        // copy the element to the new position and null out the old slot
-        put(get(i), i + elements);
-        put(OREF_NULL, i);
+        ensureSpace(index + elements - 1);
+    }
+    else {
+        // the last element to move.  NOTE:  we check this BEFORE
+        // expanding the size, otherwise we move too many elements.
+        char *_end = (char *)slotAddress(this->size() + 1);
+
+        // make sure we have space for the additional elements
+        ensureSpace(size() + elements);
+                                             /* get the address of first element  */
+        char *_start = (char *)slotAddress(index);
+        char *_target = (char *)slotAddress(index + elements);
+        /* shift the array over              */
+        memmove(_target, _start, _end - _start);
+
+        // now null out all of the slots in the gap, using an
+        // explicit assignment rather than put to avoid old-to-new
+        // tracking issues
+        for (size_t i = index - 1; i < index + elements - 1; i++)
+        {
+            this->data()[i] = OREF_NULL;
+        }
+        lastElement += elements;     // the position of the last element has now moved.
     }
 }
 
@@ -311,20 +419,36 @@ void RexxArray::openGap(size_t index, size_t elements)
  * Close a gap in the array item.
  *
  * @param index    The gap to close.
- * @param elements
+ * @param elements The size of the gap to close.
  */
 void RexxArray::closeGap(size_t index, size_t elements)
 {
-    // cap the number of elements we're shifting.
-    elements = Numerics::maxVal(elements, lastElement - index + 1);
-    size_t firstIndex = index + elements;
-    for (size_t i = 0; i < elements; i++)
+    // if we're beyond the current size, nothing to do
+    if (index > size())
     {
-        put(get(firstIndex + i), index + i);
-        put(OREF_NULL, firstIndex + i);
+        return;
     }
+
+    // cap the number of elements we're shifting.
+    elements = Numerics::minVal(elements, lastElement - index + 1);
+
+    // explicitly null out the slots of the gap we're closing to
+    // ensure that any oldspace tracking issues are resolved.  This
+    // explicitly uses put() to make sure this is done.
+    for (size_t i = index; i < index + elements; i++)
+    {
+        put(OREF_NULL, i);
+    }
+                                         /* get the address of first element  */
+    char *_target = (char *)slotAddress(index);
+    char *_start =  (char *)slotAddress(index + elements);
+    // and the end location of the real data
+    char *_end = (char *)slotAddress(lastElement + 1);
+    /* shift the array over              */
+    memmove(_target, _start, _end - _start);
     // adjust the last element position
     lastElement -= elements;
+    shrink(elements);      // adjust the size downward
 }
 
 
@@ -345,10 +469,18 @@ size_t RexxArray::append(RexxObject *value)
 }
 
 
+
+/**
+ * The Rexx stub for the Array GET method.  This does full
+ * checking for the array.
+ *
+ * @param arguments The array of all arguments sent to the method (variable arguments allowed here.)
+ * @param argCount  The number of arguments in the method call.
+ *
+ * @return Value at the provided index or .nil if the item does
+ *         not exist.
+ */
 RexxObject  *RexxArray::getRexx(RexxObject **arguments, size_t argCount)
-/******************************************************************************/
-/* Function:  Performs REXX-level gets from arrays.                           */
-/******************************************************************************/
 {
     size_t position;                     /* array position                    */
     RexxObject * _result;                /* returned result                   */
@@ -411,6 +543,13 @@ void RexxArray::putApi(RexxObject *o, size_t position)
 }
 
 
+/**
+ * Determine if an item exists for a given index position.
+ *
+ * @param i      The target index.
+ *
+ * @return Either true or false, depending on whether the item exists.
+ */
 bool RexxArray::hasIndexApi(size_t i)
 /******************************************************************************/
 /* Function:  Determine if an element exist for a position                    */
@@ -574,7 +713,7 @@ RexxObject *RexxArray::dimension(      /* query dimensions of an array      */
         /* convert to a number               */
         size_t position = target->requiredPositive(ARG_ONE);
         /* asking for dimension of single?   */
-        if ((this->dimensions == OREF_NULL) || (this->dimensions->size() == 1))
+        if (isSingleDimensional())
         {
             if (position == 1)
             {             /* first dimension?                  */
@@ -682,7 +821,7 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
     }
 
     /* Is this array one-dimensional?    */
-    if (this->dimensions == OREF_NULL || this->dimensions->size() == 1)
+    if (isSingleDimensional())
     {
         /* Too many subscripts?  Say so.     */
         if (indexCount > 1)
@@ -884,10 +1023,15 @@ RexxInteger  *RexxArray::sizeRexx()
     return new_integer(this->size());
 }
 
+/**
+ * Section an array to the given size.
+ *
+ * @param _start The starting point of the section.
+ * @param _end   The end section index
+ *
+ * @return A new array representing the given section.
+ */
 RexxArray *  RexxArray::section(size_t _start, size_t _end)
-/******************************************************************************/
-/* Function:  Section an array for a given size                               */
-/******************************************************************************/
 {
     size_t newSize;                      /* Size for new array.               */
     RexxArray *newArray;                 /* The new array.                    */
@@ -911,7 +1055,7 @@ RexxArray *  RexxArray::section(size_t _start, size_t _end)
         // a new array cannot be oldspace, by definition.  It's safe to use
         // memcpy to copy the data.
         /* yes, we can do a memcpy           */
-        memcpy(newArray->data(), &(this->expansionArray->objects[_start-1]), sizeof(RexxObject *) * newSize);
+        memcpy(newArray->data(), slotAddress(_start), sizeof(RexxObject *) * newSize);
     }
     else
     {
@@ -921,20 +1065,30 @@ RexxArray *  RexxArray::section(size_t _start, size_t _end)
     return newArray;                     /* return the newly created array    */
 }
 
-RexxObject *RexxArray::sectionRexx(
-            RexxObject * _start,
-            RexxObject * _end)
-/******************************************************************************/
-/* Function:  Rexx level section method                                       */
-/******************************************************************************/
+/**
+ * Extract a section of the array as another array
+ *
+ * @param _start The starting index position
+ * @param _end   The number of items to section.
+ *
+ * @return A new array containing the section elements.
+ */
+RexxObject *RexxArray::sectionRexx(RexxObject * _start, RexxObject * _end)
 {
-    size_t nstart, nend, i;
-    RexxArray *rref;
+    /* multidimensional array?           */
+    if (isMultiDimensional())
+    {
+        /* this is an error                  */
+        reportException(Error_Incorrect_method_section);
+    }
 
+    // the index is required
+    requiredArgument(_start, ARG_ONE);
+    size_t nstart;                    // array position
 
-    requiredArgument(_start, ARG_ONE);   /* need a start position             */
-                                         /* Start specified - check it out    */
-    nstart = _start->requiredPositive(ARG_ONE);
+    // validate the index and expand if necessary.
+    this->validateIndex(&_start, 1, 1, RaiseBoundsInvalid | RaiseBoundsTooMany, nstart);
+    size_t nend = 0; ;
     if (_end == OREF_NULL)                /* If no end position specified,     */
     {
         nend = this->size();               /* Defaults to last element          */
@@ -943,23 +1097,18 @@ RexxObject *RexxArray::sectionRexx(
     {                               /* End specified - check it out      */
         nend = _end->requiredNonNegative(ARG_TWO);
     }
-    /* multidimensional array?           */
-    if (this->dimensions != OREF_NULL && this->dimensions->size() != 1)
-    {
-        /* this is an error                  */
-        reportException(Error_Incorrect_method_section);
-    }
+
     if (!isOfClass(Array, this))             /* actually an array subclass?       */
     {
         /* need to do this the slow way      */
         return this->sectionSubclass(nstart, nend);
     }
+
     if (nstart > this->size())           /* too big?                          */
     {
-
-        rref = (RexxArray *)(((RexxArray *)TheNullArray)->copy());
+        // return a zero-size array
+        return (RexxArray *)(((RexxArray *)TheNullArray)->copy());
     }
-    /* return zero elements              */
     else
     {
         /* go past the bounds?               */
@@ -970,20 +1119,20 @@ RexxObject *RexxArray::sectionRexx(
         if (nend == 0)                     /* requesting zero?                  */
         {
             /* return zero elements              */
-            rref = (RexxArray *)(((RexxArray *)TheNullArray)->copy());
+            return (RexxArray *)(((RexxArray *)TheNullArray)->copy());
         }
         else
         {                             /* real sectioning to do             */
                                       /* create a new array                */
-            rref = (RexxArray *)new_array(nend);
-            for (i = 1; i <= nend; i++)
+            RexxArray *rref = (RexxArray *)new_array(nend);
+            for (size_t i = 1; i <= nend; i++)
             {    /* loop through the elements         */
                  /* copy an element                   */
                 rref->put(this->get(nstart + i - 1), i);
             }
+            return rref;                         /* return the new array              */
         }
     }
-    return rref;                         /* return the new array              */
 }
 
 RexxObject *RexxArray::sectionSubclass(
@@ -1037,16 +1186,14 @@ RexxObject  *RexxArray::firstRexx(void)
 /*            object                                                          */
 /******************************************************************************/
 {
-    size_t i;                            /* counter for the loop              */
-    RexxObject **thisObject;
-    size_t  _arraySize;                   /* size of the array                 */
-
     /* get the address of the first      */
     /*element in the array               */
-    thisObject = this->expansionArray->objects;
-    _arraySize = this->size();            /* get the size of the array         */
+    RexxObject **thisObject = this->expansionArray->objects;
+    size_t _arraySize = this->size();            /* get the size of the array         */
     /* find first position in the        */
     /*array with data                    */
+
+    size_t i;
     for (i = 0; i < _arraySize && thisObject[i] == OREF_NULL; i++);
 
     if (i == _arraySize)                  /* is array empty                    */
@@ -1088,8 +1235,7 @@ RexxObject  *RexxArray::nextRexx(RexxObject **arguments, size_t argCount)
 /* Function:  Return the next entry after a given array index                 */
 /******************************************************************************/
 {
-    size_t i;
-    stringsize_t position;
+    size_t position;
     /* go validate the index             */
     if (!this->validateIndex(arguments, argCount, 1, RaiseBoundsTooMany | RaiseBoundsInvalid, position))
     {
@@ -1102,6 +1248,8 @@ RexxObject  *RexxArray::nextRexx(RexxObject **arguments, size_t argCount)
     size_t _arraySize = this->size();            /* get the size of the array         */
     /* find next entry in the array with */
     /*data                               */
+
+    size_t i;
     for (i = position; i < _arraySize && thisObject[i] == OREF_NULL; i++);
 
     if (i >= this->size())
@@ -1120,17 +1268,14 @@ RexxObject  *RexxArray::previousRexx(RexxObject **arguments, size_t argCount)
 /* Function:  Return the index preceeding a given index                       */
 /******************************************************************************/
 {
-    size_t i;                            /* counter for the loop              */
-    RexxObject **thisObject;
-    size_t  _arraySize;                   /* size of the array                 */
-    stringsize_t position;
+    size_t position;
 
     this->validateIndex(arguments, argCount, 1, RaiseBoundsTooMany | RaiseBoundsInvalid, position);
     /* get the index object into an      */
     /*integer object                     */
-    i = position;
+    size_t i = position;
 
-    _arraySize = this->size();            /* get the size of the array         */
+    size_t _arraySize = this->size();     /* get the size of the array         */
 
     if (i > _arraySize)                   /* beyond the size of the array?     */
     {
@@ -1145,7 +1290,7 @@ RexxObject  *RexxArray::previousRexx(RexxObject **arguments, size_t argCount)
 
                                            /* get the address of the first      */
                                            /*element in the array               */
-    thisObject = this->expansionArray->objects;
+    RexxObject **thisObject = this->expansionArray->objects;
     /* find previous entry in the        */
     /*array with data                    */
     for (; i > 0 && thisObject[i-1] == OREF_NULL; i--);
@@ -1159,25 +1304,6 @@ RexxObject  *RexxArray::previousRexx(RexxObject **arguments, size_t argCount)
         /* return the index to the           */
         /*previous entry                     */
         return convertIndex(i);
-    }
-}
-
-
-RexxInteger *RexxArray::hasIndex(RexxObject * _index)
-/******************************************************************************/
-/* Function:  Determine if an individual array element exists                 */
-/******************************************************************************/
-{
-    size_t i;
-
-    if (isOfClass(Integer,_index) && (i = ((RexxInteger *)_index)->getValue()) > 0 && i <= this->size() &&
-        *(this->data()+i-1) != OREF_NULL)
-    {
-        return TheTrueObject;
-    }
-    else
-    {
-        return TheFalseObject;
     }
 }
 
@@ -1427,10 +1553,10 @@ RexxObject *RexxArray::join(           /* join two arrays into one          */
     RexxArray *newArray = (RexxArray*)new_array(this->size() + other->size());
     // it's safe to just copy the references because the newArray will be new space
     /* copy first array into new one     */
-    memcpy(newArray->data(), this->data(), ((char *)&(this->data()[this->size()])) - ((char *)this->data()));
+    memcpy(newArray->data(), this->data(), this->dataSize());
     /* copy 2nd array into the new one   */
     /* after the first one.              */
-    memcpy((void *)&(newArray->data()[this->size()]), other->data(), ((char *)&(other->data()[other->size()])) - ((char *)other->data()));
+    memcpy((void *)newArray->slotAddress(this->size() + 1), other->data(), other->dataSize());
     return newArray;                     /* All done, return joined array     */
 
 }
@@ -1500,38 +1626,6 @@ size_t RexxArray::indexOf(
     return 0;                            /* not found here                    */
 }
 
-void RexxArray::deleteItem(
-    size_t     targetIndex)            /* target to remove                  */
-/*****************************************************************************/
-/* Function:  Remove an item from a list array, shrinking the array item     */
-/*            and moving the relevent items                                  */
-/*****************************************************************************/
-{
-    size_t _size = this->size();                /* get the array size                */
-    /* spin through the array            */
-    for (size_t i = targetIndex; i < _size; i++)
-    {
-        this->put(this->get(i +1), i);     /* move down each item               */
-    }
-    this->shrink(1);                     /* now shrink the array              */
-}
-
-void RexxArray::insertItem(
-    RexxObject *newItem,               /* new item to add                   */
-    size_t     targetIndex)            /* insertion point                   */
-/*****************************************************************************/
-/* Function:  Remove an item from a list array, shrinking the array item     */
-/*            and moving the relevent items                                  */
-/*****************************************************************************/
-{
-    this->extend(1);                     /* extend the array size             */
-                                         /* spin through the array            */
-    for (size_t i = this->size(); i > targetIndex; i--)
-    {
-        this->put(this->get(i - 1), i);    /* move up each item                 */
-    }
-    this->put(newItem, targetIndex);     /* insert the new item               */
-}
 
 RexxArray *RexxArray::extend(          /* join two arrays into one          */
     size_t extension)                  /* number of elements to extend      */
@@ -1559,7 +1653,7 @@ RexxArray *RexxArray::extend(          /* join two arrays into one          */
     /* OldSpace,  we can skip the        */
     /* OrefSets and just copy            */
     /* copy ourselves into the new array */
-    memcpy(newArray->data(), this->data(), ((char *)&(this->data()[this->size()])) - ((char *)this->data()));
+    memcpy(newArray->data(), this->data(), this->dataSize());
     this->resize();                      /* adjust ourself to be null arrayobj*/
 
     newArray->setExpansion(OREF_NULL);   /* clear the new expansion array     */
@@ -1612,7 +1706,7 @@ size_t RexxArray::findSingleIndexItem(RexxObject *item)
 RexxObject *RexxArray::convertIndex(size_t idx)
 {
     // single dimension array?  This is easy
-    if (this->dimensions == OREF_NULL || this->dimensions->size() == 1)
+    if (isSingleDimensional())
     {
         return new_integer(idx);
     }
@@ -1945,7 +2039,7 @@ RexxArray *RexxArray::extendMulti(     /* Extend multi array                */
         /* or original array was empty       */
         /* or adding dimensions or increas   */
         /* last original dimension?          */
-        if (this->dimensions == OREF_NULL || this->dimensions->size() == 1 ||
+        if (isSingleDimensional() ||
             this->size() == 0 ||
             !firstDimChanged || firstDimChanged <= additionalDim + 1)
         {
@@ -2003,38 +2097,45 @@ RexxArray *RexxArray::extendMulti(     /* Extend multi array                */
 }
 
 
-RexxObject *RexxArray::insert(         /* insert an element into an array   */
-     RexxObject *value,                /* value to be inserted              */
-     size_t  _index )                  /* index of the insertion point      */
-/******************************************************************************/
-/* Function:  Insert an element into an array                                 */
-/******************************************************************************/
+/**
+ * Insert an element into the array, shifting all of the
+ * existing elements at the inserted position and adjusting
+ * the size accordingly.
+ *
+ * @param value  The value to insert (can be OREF_NULL to just open a new slot)
+ * @param _index The insertion index position. NOTE:  Unlike the
+ *               Rexx version, the index is the position where
+ *               this value will be inserted, not the index of
+ *               where it is inserted after.
+ *
+ * @return The index of the inserted item.
+ */
+size_t RexxArray::insert(RexxObject *value, size_t  _index)
 {
-    RexxObject ** _start;                /* move starting point               */
-    RexxObject ** _end;                  /* move ending point                 */
-
-                                         /* get the address of first element  */
-    _start = &(this->data()[_index - 1 ]);
-    /* and the last element              */
-    _end = &(this->data()[this->size() - 1]);
-    /* shift the array over              */
-    memmove(_start + sizeof(RexxObject *), _start, _end - _start);
-    /* NOTE:  The following assignment   */
-    /* is done directly to avoid problems*/
-    /* with oldspace to newspace object  */
-    /* references.  Just doing the put   */
-    /* without nulling out the item first*/
-    /* can cause the reference count of  */
-    /* the object that previously        */
-    /* occupied that spot to go to zero, */
-    /* making the object subject to a    */
-    /* garbage collection.  We zero it   */
-    /* out first to make it an empty     */
-    /* slot first                        */
-    this->data()[_index - 1] = OREF_NULL;
-    this->put(value, _index);             /* add the new element in            */
-    return value;                        /* return the inserted value         */
+    openGap(_index, 1);          // open an appropriate sized gap in the array
+    this->put(value, _index);    // add the inserted element                   */
+    return _index;               // return the index of the insertion
 }
+
+
+/**
+ * Insert an element into the array, shifting all of the
+ * existing elements at the inserted position and adjusting
+ * the size accordingly.
+ *
+ * @param value  The value to insert (can be OREF_NULL to just open a new slot)
+ * @param _index The insertion index position.
+ *
+ * @return The index of the inserted item.
+ */
+RexxObject *RexxArray::deleteItem(size_t  _index)
+{
+    RexxObject *result = get(_index);   // save the return value
+    closeGap(_index, 1);         // close up the gap for the deleted item
+                                 // return .nil if there's nothing at that position
+    return result == OREF_NULL ? TheNilObject : result;
+}
+
 
 void *   RexxArray::operator new(size_t size,
     size_t items,                      /* items in the array                */

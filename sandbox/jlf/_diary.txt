@@ -870,7 +870,15 @@ merge 6500-6784 from
     main/trunk/interpreter
     main/trunk/platform
     main/trunk/rexxapi
+merge 6784-6976 from
+    main/trunk/extensions/platform/unix
+    main/trunk/extensions/rexxutil
+    main/trunk/extensions/rxsock
+    main/trunk/interpreter
+    main/trunk/platform/unix
+    main/trunk/rexxapi
 
 Remember todo : 
     merge 6500-xxxx from main/trunk/extensions/platform/windows/oodialog
     merge 6500-xxxx from main/trunk/samples
+    merge 6784-xxxx from main/trunk/platform/windows
