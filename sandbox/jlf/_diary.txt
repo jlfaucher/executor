@@ -871,6 +871,9 @@ merge 6500-6784 from
     main/trunk/platform
     main/trunk/rexxapi
 merge 6784-6976 from
+    main/trunk/configure.ac (except oodialog)
+    main/trunk/Makefile.am
+    main/trunk/makeorx.bat
     main/trunk/extensions/platform/unix
     main/trunk/extensions/rexxutil
     main/trunk/extensions/rxsock
