@@ -387,6 +387,7 @@ interpretCommand:
     say .ooRexxShell~command
     .color~select(.ooRexxShell~errorColor)
     say condition("O")~message
+    say condition("O")~traceback~makearray~tostring
     RC = condition("O")~code
     if RC <> 0 then say "RC=" RC
     .color~select(.ooRexxShell~defaultColor)
@@ -426,6 +427,7 @@ loadOptionalComponents:
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
+    call loadPackage("regex/regex.cls")
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
