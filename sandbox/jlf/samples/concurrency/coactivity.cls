@@ -17,8 +17,16 @@ threads is that they do not have to be synchronized because they pass control to
 each other explicitly and deterministically.
 */
 
+
 --::options trace i
 ::requires "concurrency/activity.cls"
+
+
+-- .yield[value] is more compact than .Coactivity~yield(value)
+::class yield public
+::method "[]" class unguarded
+    forward message ("yield") to (.Coactivity)
+
 
 --------------------------------------------------------------------------------
 ::class "Coactivity" mixinclass Object public

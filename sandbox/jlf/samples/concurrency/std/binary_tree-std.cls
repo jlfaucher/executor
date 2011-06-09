@@ -49,13 +49,13 @@ end
 ::method visitAscending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
     if self~leftNode <> .nil then self~leftNode~visitAscending
-    .Coactivity~yield(self~value)
+    .yield[self~value]
     if self~rightNode <> .nil then self~rightNode~visitAscending
 
 ::method visitDescending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
     if self~rightNode <> .nil then self~rightNode~visitDescending
-    .Coactivity~yield(self~value)
+    .yield[self~value]
     if self~leftNode <> .nil then self~leftNode~visitDescending
 
 

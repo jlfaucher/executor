@@ -43,6 +43,73 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 june 09
+
+The alternate syntax [] for pipeStage gave me the idea to do the same for the yield
+method of the coactivity class.
+    .yield[value]
+    is equivalent to (and more compact than)
+    .Coactivity~yield(value)
+Remember : the blank operator would be still more compact,
+    .yield value
+but unfortunately a result is mandatory (an operator is not a message instruction),
+and that triggers a command if the result is not used... So forget this syntax.
+
+
+Side note : I start to find this triggering of commands seriously annoying !
+Too easy to trigger a command accidentaly. Yes, I could use a security manager, but
+would be tedious to put it *everywhere*.
+To investigate : a message instruction can trigger a command only if surrounded by ().
+Not possible to apply this rule all the time, including expressions ?
+rm "*".lst --> the string "rm *.lst" would be assigned to the variable RESULT.
+(rm "*".lst) --> the string "rm *.lst" would be submitted as a command to the external environment.
+That way, the programmer controls explicitely where a command can be triggered.
+Code review :
+    SourceFile.cpp
+        RexxSource::instruction
+            this->messageNew
+                RexxSource::messageNew
+                    new RexxInstructionMessage
+            this->commandNew
+                RexxSource::commandNew
+                    _expression = this->expression(TERM_EOC)
+                        RexxSource::expression
+                            this->subExpression(terminators)
+                    new RexxInstructionCommand
+    InstructionParser.cpp
+        RexxInstructionCommand
+        RexxSource::commandNew
+            expression = this->expression(TERM_EOC)
+    MessageInstruction.cpp
+        RexxInstructionMessage::execute (assign the RESULT variable)
+    CommandInstruction.cpp
+        RexxInstructionCommand::execute
+            RexxObject *result = this->expression->evaluate(context, stack);
+                ***HERE*** could decide to assign result to RESULT instead of triggering command
+            RexxString *command = REQUEST_STRING(result);    /* force to string form              */
+            context->command(context->getAddress(), command);
+
+
+Side note :
+A message term can have one of the following forms :
+    receiver~messagename:symbol(expression, ...)
+    receiver~~messagename:symbol(expression, ...)
+    receiver[expression, ...]
+The receiver is a term.
+Would it make sense to add that ?
+    receiver(expression, ...)
+Probably not, according to my tests :
+    .c~"()"    -- the method "()" is called
+    .c()       -- could not find routine ".C"
+    ::class c
+    ::method "()" class
+A function call is a term in an expression calling a routine.
+    function_name(expression, ...)
+The function_name is a literal string or a single symbol, which is taken to be a constant.
+So no way to have something similar to the C++ operator().
+
+
+===============================================================================
 2011 may 29
 
 Modified pipe.rex to keep the index information of the collection passed as argument to ~go.

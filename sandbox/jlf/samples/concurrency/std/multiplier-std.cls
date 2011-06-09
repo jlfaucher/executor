@@ -16,19 +16,19 @@ An example of coactivity whose entry point is a routine.
     -- Note that the multiplier is passed as argument only to the first invocation
     use strict arg multiplier
     call busy "A"
-    args = .Coactivity~yield("The multiplier" multiplier "has been assigned and will be reused in future invocations") 
+    args = .yield["The multiplier" multiplier "has been assigned and will be reused in future invocations"] 
 
     -- use strict arg description, value    
     description = args[1]
     value = args[2]
     call busy "B"
-    args = .Coactivity~yield("The result of the" description "for" value "is" multiplier * value)
+    args = .yield["The result of the" description "for" value "is" multiplier * value]
 
     -- use strict arg description, value    
     description = args[1]
     value = args[2]
     call busy "C"
-    args = .Coactivity~yield("The result of the" description "for" value "is" multiplier * value)
+    args = .yield["The result of the" description "for" value "is" multiplier * value]
 
     -- use strict arg description, value    
     description = args[1]
@@ -59,13 +59,13 @@ The entry point is the default entry point : 'main' method.
     
     use strict arg description, value
     call busy "A"
-    args = .Coactivity~yield("The result of the" description "for" value "is" self~multiplier * value)
+    args = .yield["The result of the" description "for" value "is" self~multiplier * value]
 
     -- use strict arg description, value    
     description = args[1]
     value = args[2]
     call busy "B"
-    args = .Coactivity~yield("The result of the" description "for" value "is" self~multiplier * value)
+    args = .yield["The result of the" description "for" value "is" self~multiplier * value]
 
     -- use strict arg description, value    
     description = args[1]

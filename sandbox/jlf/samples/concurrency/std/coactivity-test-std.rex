@@ -44,7 +44,7 @@ trap_syntax1:
 
 say
 say "A coactivity implemented by a one-liner routine, used as a generator"
-c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"))
+c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .yield[i] ; end"))
 c~resume
 do while var("result")
     say result
@@ -54,7 +54,7 @@ end
 
 say
 say "Iteration with a supplier"
-c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"))
+c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .yield[i] ; end"))
 supplier = c~supplier
 do while supplier~available
     say supplier~index ":" supplier~item
@@ -64,7 +64,7 @@ end
 
 say
 say "do over a finite coactivity"
-c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end"))
+c = .Coactivity~new(.ExtendedString~new("do i = 1 to 10 ; .yield[i] ; end"))
 do v over c
     say v
 end
@@ -73,13 +73,13 @@ end
 say
 say "do over an infinite coactivty : needs a limit"
 say "Local limit setting"
-c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .Coactivity~yield(i) ; i += 1 ; end"))
+c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .yield[i] ; i += 1 ; end"))
 do v over c~makeArray(15)
     say v
 end
 say "Global limit setting (default is ".Coactivity~makeArrayLimit")"
 .Coactivity~makeArrayLimit = 15
-c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .Coactivity~yield(i) ; i += 1 ; end"))
+c = .Coactivity~new(.ExtendedString~new("i = 1 ; do forever ; .yield[i] ; i += 1 ; end"))
 do v over c
     say v
 end
