@@ -1,0 +1,306 @@
+
+-- The coactivity yields two results.
+-- The hello outputs are not in the pipeline flow (not displayed by the .displayer).
+.coactivity~new("echo hello ; .yield[a] ; say hello ; .yield[b]")~pipe(.upper|.displayer)
+HELLO
+1 : A
+HELLO
+2 : B
+
+
+-- A collection can be sorted by value (default)
+.array~of(b, a, c)~pipe(.sort byValue | .displayer)
+2 : A
+1 : B
+3 : C
+
+
+-- ...or by index
+.array~of(b, a, c)~pipe(.sort byIndex | .displayer)
+1 : B
+2 : A
+3 : C
+
+
+-- ...ascending (default)
+.array~of(b, a, c)~pipe(.sort byValue ascending | .displayer)
+2 : A
+1 : B
+3 : C
+
+
+-- ...descending
+.array~of(b, a, c)~pipe(.sort byValue descending | .displayer)
+3 : C
+1 : B
+2 : A
+
+
+-- ...by index descending
+.array~of(b, a, c)~pipe(.sort byIndex descending | .displayer)
+3 : C
+2 : A
+1 : B
+
+
+-- ...descending (using a comparator).
+-- The DescendingComparator use the default CompareTo, which is made on values.
+.array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .displayer)
+3 : C
+1 : B
+2 : A
+
+
+-- ...caseless
+.array~of("b", "A", "c", "a", "B")~pipe(.sort byValue caseless | .displayer)
+2 : A
+4 : a
+1 : b
+5 : B
+3 : c
+
+
+-- ...stable (default)
+.array~of("c:2", "b:2", "A:2", "c:1", "a:1", "B:1", "C:3")~pipe(,
+    .sortWith[.InvertingComparator~new(.CaselessColumnComparator~new(3,1))] |,
+    .sortWith[.CaselessColumnComparator~new(1,1)] |,
+    .displayer,
+    )
+3 : A:2
+5 : a:1
+2 : b:2
+6 : B:1
+7 : C:3
+1 : c:2
+4 : c:1
+
+
+-- Select files whose name contains "rexx" in c:\program files\oorexx
+.file~new("c:\program files\oorexx")~listFiles~pipe(,
+    .select["arg(1)~name~caselessPos('rexx') <> 0"] |,
+    .displayer,
+    )
+11 : c:\program files\oorexx\ooRexxTry.rex
+12 : c:\program files\oorexx\orexxole.cls
+13 : c:\program files\oorexx\orexxole.dll
+14 : c:\program files\oorexx\rexx.dll
+15 : c:\program files\oorexx\rexx.exe
+16 : c:\program files\oorexx\rexx.ico
+17 : c:\program files\oorexx\rexx.img
+18 : c:\program files\oorexx\rexxapi.dll
+19 : c:\program files\oorexx\rexxc.exe
+20 : c:\program files\oorexx\rexxhide.exe
+21 : c:\program files\oorexx\rexxpaws.exe
+22 : c:\program files\oorexx\rexxtry.rex
+23 : c:\program files\oorexx\rexxutil.dll
+
+
+-- All instance methods of the context.
+-- Notice that the default sort by value is useless here... Must sort by index.
+.context~instanceMethods~pipe(.sort byIndex | .displayer)
+ : a Method
+  : a Method
+<> : a Method
+= : a Method
+== : a Method
+>< : a Method
+ARGS : a Method
+CLASS : a Method
+CONDITION : a Method
+COPY : a Method
+COPY : a Method
+DEFAULTNAME : a Method
+DIGITS : a Method
+DUMP2 : a Method
+EXECUTABLE : a Method
+FORM : a Method
+FUZZ : a Method
+HASHCODE : a Method
+HASMETHOD : a Method
+IDENTITYHASH : a Method
+INIT : a Method
+INSTANCEMETHOD : a Method
+INSTANCEMETHODS : a Method
+ISA : a Method
+ISINSTANCEOF : a Method
+LINE : a Method
+OBJECTNAME : a Method
+OBJECTNAME= : a Method
+PACKAGE : a Method
+PIPE : a Method
+PP2 : a Method
+PPINDEX2 : a Method
+REQUEST : a Method
+RS : a Method
+RUN : a Method
+SEND : a Method
+SENDWITH : a Method
+SETMETHOD : a Method
+START : a Method
+STARTWITH : a Method
+STRING : a Method
+UNSETMETHOD : a Method
+VARIABLES : a Method
+\= : a Method
+\== : a Method
+|| : a Method
+
+
+-- All private methods of the context.
+.context~instanceMethods~pipe(,
+    .select["arg(1)~isPrivate"] |,
+    .sort byIndex |,
+    .displayer,
+    )
+RUN : a Method
+SETMETHOD : a Method
+UNSETMETHOD : a Method
+
+
+-- Instance methods of the context (not including those inherited).
+-- The 'instanceMethods' has been moved in the pipeline, to get the class from the current item.
+-- The context is written in the pipeline, followed by the returned methods.
+.context~pipe(,
+    .inject["arg(1)~instanceMethods(arg(1)~class)"] |,
+    .sort byIndex |,
+    .displayer,
+    )
+1 : a RexxContext
+1.ARGS : a Method
+1.CONDITION : a Method
+1.COPY : a Method
+1.DIGITS : a Method
+1.EXECUTABLE : a Method
+1.FORM : a Method
+1.FUZZ : a Method
+1.LINE : a Method
+1.PACKAGE : a Method
+1.RS : a Method
+1.VARIABLES : a Method
+
+
+-- Methods (not inherited) of all the classes whose id starts with "R".
+.environment~pipe(,
+    .select["arg(1)~isA(.class)"] |,
+    .select["arg(1)~id~caselessAbbrev('R') <> 0"] |,
+    .inject["arg(1)~methods(arg(1))"] |,
+    .sort byIndex |,
+    .displayer,
+    )
+RELATION : The Relation class
+RELATION.ALLAT : a Method
+RELATION.ALLINDEX : a Method
+RELATION.ALLINDEXES : a Method
+RELATION.ALLITEMS : a Method
+RELATION.AT : a Method
+RELATION.DIFFERENCE : a Method
+RELATION.EMPTY : a Method
+RELATION.HASINDEX : a Method
+RELATION.HASITEM : a Method
+RELATION.INDEX : a Method
+RELATION.INTERSECTION : a Method
+RELATION.ISEMPTY : a Method
+RELATION.ITEMS : a Method
+RELATION.MAKEARRAY : a Method
+RELATION.PUT : a Method
+RELATION.READOBJECT : a Method
+RELATION.REMOVE : a Method
+RELATION.REMOVEALL : a Method
+RELATION.REMOVEITEM : a Method
+RELATION.SUBSET : a Method
+RELATION.SUPPLIER : a Method
+RELATION.UNION : a Method
+RELATION.WRITEOBJECT : a Method
+RELATION.XOR : a Method
+RELATION.[] : a Method
+RELATION.[]= : a Method
+REXXCONTEXT : The RexxContext class
+REXXCONTEXT.ARGS : a Method
+REXXCONTEXT.CONDITION : a Method
+REXXCONTEXT.COPY : a Method
+REXXCONTEXT.DIGITS : a Method
+REXXCONTEXT.EXECUTABLE : a Method
+REXXCONTEXT.FORM : a Method
+REXXCONTEXT.FUZZ : a Method
+REXXCONTEXT.LINE : a Method
+REXXCONTEXT.PACKAGE : a Method
+REXXCONTEXT.RS : a Method
+REXXCONTEXT.VARIABLES : a Method
+REXXQUEUE : The RexxQueue class
+REXXQUEUE.DELETE : a Method
+REXXQUEUE.EMPTY : a Method
+REXXQUEUE.GET : a Method
+REXXQUEUE.INIT : a Method
+REXXQUEUE.LINEIN : a Method
+REXXQUEUE.LINEOUT : a Method
+REXXQUEUE.MAKEARRAY : a Method
+REXXQUEUE.PULL : a Method
+REXXQUEUE.PUSH : a Method
+REXXQUEUE.QUEUE : a Method
+REXXQUEUE.QUEUED : a Method
+REXXQUEUE.SAY : a Method
+REXXQUEUE.SET : a Method
+ROUTINE : The Routine class
+ROUTINE.CALL : a Method
+ROUTINE.CALLWITH : a Method
+ROUTINE.PACKAGE : a Method
+ROUTINE.SETSECURITYMANAGER : a Method
+ROUTINE.SOURCE : a Method
+
+
+-- All packages that are visible from current context, including the current package (source of the pipeline).
+-- The .displayer is not useful here (will be extended to let choose the values to display)...
+.context~package~pipe(,
+    .inject["arg(1)~importedPackages"] recursive |,
+    .sort |,
+    .displayer,
+    )
+1 : a Package
+1.1 : a Package
+1.1.1 : a Package
+1.1.1.1 : a Package
+1.1.2 : a Package
+1.1.2.1 : a Package
+1.1.2.1.1 : a Package
+1.2 : a Package
+1.2.1 : a Package
+1.3 : a Package
+1.3.1 : a Package
+1.3.2 : a Package
+1.3.2.1 : a Package
+1.3.3 : a Package
+1.3.3.1 : a Package
+1.4 : a Package
+1.4.1 : a Package
+
+
+-- ...In the meantime, use the .do pipeStage to display the useful values.
+-- The package names are indented to highlight the dependency between packages.
+-- arg(2) returns the current index, which is always an array.
+
+-- Notice the circular dependency between packages (supported by inject - the recursion is stopped) :
+-- extensions.cls --> doers.cls --> extensions.cls
+-- This is because of Doers.AddVisibilityFrom
+
+.context~package~pipe(,
+    .inject["arg(1)~importedPackages"] recursive |,
+    .sort |,
+    .do["say '  '~copies(arg(2)~items) arg(1)~name"],
+    )
+   D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension_test.rex
+     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
+         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\functionals.cls
+         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
+           d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
+     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\activity.cls
+     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension.cls
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
+         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\activity.cls
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2_wrappers.rex
+         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2.rex
+     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2_wrappers.rex
+       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2.rex

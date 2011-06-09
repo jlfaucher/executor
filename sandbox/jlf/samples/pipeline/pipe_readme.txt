@@ -14,9 +14,6 @@ If the stdout of the command is sent to a Rexx queue then it should be possible 
 Notes about pipes
 =========================================
 
-dropLast : eof doesn't forward class(super)
-takeLast : idem
-
 fanout : forward eof to self~next and self~secondary, but not to super
 
 merge : send a 'done' message

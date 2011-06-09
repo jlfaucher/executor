@@ -45,6 +45,23 @@ http://slatelanguage.org/
 ===============================================================================
 2011 june 09
 
+More work on pipe.rex.
+
+Added support to pass options to a pipeStage (use the blank operator) :
+    .myStage[arg1, arg2, ...] option1 option2 ...
+
+.sort : added options byValue, byIndex, ascending, descending, caseless, quickSort.
+
+.sortWith : added option quickSort.
+
+.inject : added option recursive.
+In case of infinite recursion, the recursion is stopped. This is detected
+by keeping a stack of items already processed.
+
+
+===============================================================================
+2011 june 09
+
 The alternate syntax [] for pipeStage gave me the idea to do the same for the yield
 method of the coactivity class.
     .yield[value]
