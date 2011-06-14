@@ -251,11 +251,11 @@ use strict arg other, start=1, length=(-1), caseless=.false
 -- This method is not used by the pipeline services, which offers specialized comparators.
 -- To let use the standard ColumnComparator, I added the optional parameters start and length.
 /*
-comparator = .indexedValue.indexComparator~new(caseless)
+comparator = .indexedValueComparator~new(caseless,,"index")
 comparison = comparator~compare(self, other)
 if comparison <> 0 then return comparison
 */
-comparator = .indexedValue.valueComparator~new(caseless)
+comparator = .indexedValueComparator~new(caseless)
 comparison = comparator~compareTo(self, other, start, length)
 return comparison
 
@@ -263,103 +263,138 @@ return comparison
 use strict arg other, start=1, length=(-1)
 return self~compareTo(other, start, length, .true)
 
+-- Remember : compareTo and caselessCompareTo above are still necessary because the
+-- 'other' argument is of type indexedValue. The unknown method below unboxes the
+-- value of self, but not the value of other.
+::method unknown
+use strict arg msg, args
+forward to (self~value) message (msg) arguments (args)
+
 
 /******************************************************************************/
-::class indexedValue.indexComparator inherit Comparator CaselessComparator
+::class indexedValueComparator public inherit Comparator
 
 ::method init
-expose caseless
-use strict arg caseless=.false
+expose caseless strict expression doer context
+use strict arg caseless=.false, strict=.false, expression="value", context=.nil
+doer = .nil
+if expression~caselessEquals("value") then return
+if expression~caselessEquals("index") then return
+-- Parse the expression now (only once)
+doer = self~makeFunctionDoer(expression, context) -- see pipe_extension
 
-::method compare -- not strict (numbers are correctly compared)
-expose caseless
+::method compareStrings
+expose caseless strict
+use strict arg s1, s2
+if caseless then do
+    s1 = s1~upper
+    s2 = s2~upper
+end
+if strict then do
+    if s1 << s2 then return -1
+    if s1 >> s2 then return 1
+end
+else do
+    if s1 < s2 then return -1
+    if s1 > s2 then return 1
+end
+return 0
+
+::method compareIndexes
 use strict arg first, second
 index1 = first~index
 index2 = second~index
+-- An index is an array of values
 do i=1 to index1~dimension(1)
     i1 = index1[i]
     i2 = index2[i]
     if i1 == .nil & i2 == .nil then iterate
     if i1 == .nil then return -1
     if i2 == .nil then return 1
-    s1 = i1~string
-    s2 = i2~string
-    if caseless then do
-        s1 = s1~upper
-        s2 = s2~upper
-    end
-    if s1 < s2 then return -1
-    if s1 > s2 then return 1
+    compare = self~compareStrings(i1~string, i2~string)
+    if compare <> 0 then return compare
 end
 return 0
 
-
-/******************************************************************************/
-::class indexedValue.valueComparator inherit Comparator CaselessComparator
-
-::method init
-expose caseless
-use strict arg caseless=.false
-
-::method compare -- not strict (numbers are correctly compared)
-expose caseless
+::method compareValues
 use strict arg first, second
 value1 = first~value
 value2 = second~value
-s1 = value1~string
-s2 = value2~string
-if caseless then do
-    s1 = s1~upper
-    s2 = s2~upper
-end
-if s1 < s2 then return -1
-if s1 > s2 then return 1
-return 0
+return self~compareStrings(value1~string, value2~string)
 
+::method compare
+expose expression
+use strict arg first, second
+if expression~caselessEquals("index") then return self~compareIndexes(first, second)
+if expression~caselessEquals("value") then return self~compareValues(first, second)
+return self~compareExpressions(first, second)
+
+-- For convenience, add support for .ColumnComparator.
+-- The comparison is by value.
 ::method compareTo
-expose caseless
 use strict arg first, second, start=1, length=(-1)
--- If comparison of the whole strings then do a non-strict comparison (numbers are correctly compared)
-if start == 1 & length == -1 then return self~compare(first, second)
--- Strict string comparison (will not give good result for numbers)
 value1 = first~value
 value2 = second~value
-s1 = value1~string
-s2 = value2~string
-if caseless then compareTo = "caselessCompareTo"
-            else compareTo = "compareTo"
-if length == -1 then forward to (s1) message (compareTo) array (s2, start)
-forward to (s1) message (compareTo) array (s2, start, length)
+if length == -1 then do
+    s1 = value1~string~substr(start)
+    s2 = value2~string~substr(start)
+end
+else do
+    s1 = value1~string~substr(start, length)
+    s2 = value2~string~substr(start, length)
+end
+return self~compareStrings(s1, s2)
 
 
 /******************************************************************************/
 ::class sort public subclass pipeStage      -- sort piped data
+::attribute descending
+::attribute caseless
+::attribute quickSort
+::attribute strict
 
 ::method init
-expose items
-use strict arg -- none
+expose items context
+use strict arg context=.nil                 -- will be used for the options of type expression
 items = .array~new                          -- create a new list
 forward class (super)
 
 ::method initOptions
-expose sortByIndex sortDescending sortCaseless quickSort
-sortByIndex = .false
-sortDescending = .false
-sortCaseless = .false
+expose descending caseless quickSort strict criteria
+descending = .false
+caseless = .false
 quickSort = .false -- use a stable sort by default
+strict = .false
 unknown = .array~new
+criteria = .array~new
 do a over arg(1, "a")
-    if "byIndex"~caselessAbbrev(a, 3) then sortByIndex = .true 
-    else if "index"~caselessAbbrev(a, 3) then sortByIndex = .true 
-    else if "byValue"~caselessAbbrev(a, 3) then sortByIndex = .false
-    else if "value"~caselessAbbrev(a, 3) then sortByIndex = .false
-    else if "ascending"~caselessAbbrev(a, 1) then sortDescending = .false
-    else if "descending"~caselessAbbrev(a, 1) then sortDescending = .true
-    else if "caseless"~caselessAbbrev(a, 1) then sortCaseless = .true
-    else if "quickSort"~caselessAbbrev(a, 1) then quickSort = .true
-    else unknown~append(a) 
+    if "byIndex"~caselessAbbrev(a, 3) then criteria~append(.array~of("sortBy", "index")) 
+    else if "byValue"~caselessAbbrev(a, 1) then criteria~append(.array~of("sortBy", "value"))
+    else if "ascending"~caselessAbbrev(a, 1) then criteria~append(.array~of("descending=", .false))
+    else if "descending"~caselessAbbrev(a, 1) then criteria~append(.array~of("descending=", .true))
+    else if "case"~caselessAbbrev(a, 4) then criteria~append(.array~of("caseless=", .false))
+    else if "caseless"~caselessAbbrev(a, 5) then criteria~append(.array~of("caseless=", .true))
+    else if "stableSort"~caselessAbbrev(a, 3) then criteria~append(.array~of("quickSort=", .false))
+    else if "quickSort"~caselessAbbrev(a, 1) then criteria~append(.array~of("quickSort=", .true))
+    else if "numeric"~caselessAbbrev(a, 1) then criteria~append(.array~of("strict=", .false))
+    else if "strict"~caselessAbbrev(a, 3) then criteria~append(.array~of("strict=", .true))
+    else do
+        -- The sort by expression is an optional feature, not available with standard ooRexx.
+        -- compareExpressions depends on doers, and is implemented in a separate file.
+        if .indexedValueComparator~method("compareExpressions") <> .nil
+            then criteria~append(.array~of("sortBy", a)) -- assume this is an expression
+            else unknown~append(a)
+    end
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+
+::method sortBy
+expose items context descending caseless quickSort strict
+use strict arg criterion
+comparator = .indexedValueComparator~new(caseless, strict, criterion, context)
+if descending then comparator = .InvertingComparator~new(comparator)
+if quickSort then items~sortWith(comparator)
+             else items~stableSortWith(comparator)
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
@@ -367,12 +402,12 @@ use strict arg value, index                 -- access the passed value
 items~append(.indexedValue~new(value, index))
 
 ::method eof                                -- process the "end-of-pipe"
-expose items sortByIndex sortDescending sortCaseless quickSort
-if sortByIndex then comparator = .indexedValue.indexComparator~new(sortCaseless)
-               else comparator = .indexedValue.valueComparator~new(sortCaseless)
-if sortDescending then comparator = .InvertingComparator~new(comparator)
-if quickSort then items~sortWith(comparator)
-             else items~stableSortWith(comparator)
+expose items criteria
+do criterion over criteria                  -- apply each criterion
+    message = criterion[1]
+    argument = criterion[2]
+    self~send(message, argument)
+end
 do i = 1 to items~items                     -- copy all sorted items to the primary stream
    indexedValue = items[i]
    self~write(indexedValue~value, indexedValue~index)
@@ -390,7 +425,7 @@ items = .array~new                          -- create a new list
 forward class (super)                       -- forward the initialization
 
 ::method initOptions
-expose sortByIndex sortDescending sortCaseless quickSort
+expose quickSort
 quickSort = .false -- use a stable sort by default
 unknown = .array~new
 do a over arg(1, "a")

@@ -43,6 +43,24 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 june 13
+
+More work on pipe.
+
+.sort : refactoring of the internal helpers.
+Now a single indexedValueComparator handles all the kinds of comparisons
+(by value, by index, by expression).
+
+.sort : added option 'strict'
+
+.sort : can sort on several criteria.
+The order in which the options are passed is the order in which they are executed.
+A 'value' or 'index' or expression option is impacted only by the preceding options.
+
+.inject : a limit can be specified with option recursive : recursive.10
+
+
+===============================================================================
 2011 june 09
 
 More work on pipe.rex.

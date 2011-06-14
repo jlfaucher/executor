@@ -21,27 +21,35 @@ nop
 
 
 -- ...ascending (default)
-.array~of(b, a, c)~pipe(.sort byValue ascending | .displayer)
+-- The order of options is important : a value option is impacted only by the preceding options
+-- This is because several value options can be specified, and a sort is made for each.
+.array~of(b, a, c)~pipe(.sort ascending byValue | .displayer)
 
 
 -- ...descending
-.array~of(b, a, c)~pipe(.sort byValue descending | .displayer)
+.array~of(b, a, c)~pipe(.sort descending byValue | .displayer)
 
 
 -- ...by index descending
-.array~of(b, a, c)~pipe(.sort byIndex descending | .displayer)
+-- The order of options is important : an index option is impacted only by the preceding options.
+-- This is because several index options can be specified, and a sort is made for each.
+.array~of(b, a, c)~pipe(.sort descending byIndex | .displayer)
 
 
--- ...descending (using a comparator).
+-- ...caseless (stable by default)
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .displayer)
+
+
+-- ...caseless quickSort (unstable)
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .displayer)
+
+
+-- Sort descending with a comparator.
 -- The DescendingComparator use the default CompareTo, which is made on values.
 .array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .displayer)
 
 
--- ...caseless
-.array~of("b", "A", "c", "a", "B")~pipe(.sort byValue caseless | .displayer)
-
-
--- ...stable (default)
+-- Sort by column with a comparator.
 .array~of("c:2", "b:2", "A:2", "c:1", "a:1", "B:1", "C:3")~pipe(,
     .sortWith[.InvertingComparator~new(.CaselessColumnComparator~new(3,1))] |,
     .sortWith[.CaselessColumnComparator~new(1,1)] |,
@@ -49,9 +57,63 @@ nop
     )
 
 
+-- Do something for each item (no returned value).
+.array~of(1, 2, 3)~pipe(.do["say 'value='value 'index='index"] | .displayer)
+
+
+-- Do something for each item (the returned result replaces the value).
+.array~of(1, 2, 3)~pipe(.do["return 2*value"] | .displayer)
+
+
+-- Inject a value for each item. The index of the injected value is made of two indexes.
+.array~of(1, 2, 3)~pipe(.inject["value+1"] | .displayer)
+
+
+-- Inject two values for each item (each item of the returned collection is written in the pipe).
+.array~of(1, 2, 3)~pipe(.inject[".array~of(value+1, value+2)"] | .displayer)
+
+
+-- Each injected value can be used as input to inject a new value, recursively.
+-- If the recursion is infinite, must specify a limit (here 10).
+.array~of(1, 2, 3)~pipe(.inject["value+1"] recursive.10 | .displayer)
+
+
+-- Factorial, no value injected for -1
+.array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject[,
+    "use arg n;",
+    "if n < 0 then return;",
+    "if n == 0 then return 1;",
+    "return n * .context~executable~call(n - 1)"] | .displayer)
+
+
 -- Select files whose name contains "rexx" in c:\program files\oorexx
 .file~new("c:\program files\oorexx")~listFiles~pipe(,
-    .select["arg(1)~name~caselessPos('rexx') <> 0"] |,
+    .select["value~name~caselessPos('rexx') <> 0"] |,
+    .displayer,
+    )
+
+
+-- Select files whose name contains "rexx" in c:\program files\oorexx, sorted by file size.
+-- The "length" message is sent to the value.
+.file~new("c:\program files\oorexx")~listFiles~pipe(,
+    .select["value~name~caselessPos('rexx') <> 0"] |,
+    .sortWith[.MessageComparator~new("length/N")] |,
+    .displayer,
+    )
+
+
+-- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
+.file~new("c:\program files\oorexx")~listFiles~pipe(,
+    .select["value~name~caselessPos('rexx') <> 0"] |,
+    .sort "value~length" |,
+    .displayer,
+    )
+
+
+-- Sort by file size, then by file extension (with only one .sort pipestage)
+.file~new("c:\program files\oorexx")~listFiles~pipe(,
+    .select["value~name~caselessPos('rexx') <> 0"] |,
+    .sort "value~length" "filespec('e', value~name)" |,
     .displayer,
     )
 
@@ -63,17 +125,16 @@ nop
 
 -- All private methods of the context.
 .context~instanceMethods~pipe(,
-    .select["arg(1)~isPrivate"] |,
+    .select["value~isPrivate"] |,
     .sort byIndex |,
     .displayer,
     )
 
 
--- Instance methods of the context (not including those inherited).
--- The 'instanceMethods' has been moved in the pipeline, to get the class from the current item.
--- The context is written in the pipeline, followed by the returned methods.
-.context~pipe(,
-    .inject["arg(1)~instanceMethods(arg(1)~class)"] |,
+-- Instance methods of the specified classes (not including those inherited).
+-- Each class is written in the pipeline, followed by the returned methods.
+.array~of(.RexxContext, .Package, .Method)~pipe(,
+    .inject["value~instanceMethods(value~class)"] |,
     .sort byIndex |,
     .displayer,
     )
@@ -81,9 +142,9 @@ nop
 
 -- Methods (not inherited) of all the classes whose id starts with "R".
 .environment~pipe(,
-    .select["arg(1)~isA(.class)"] |,
-    .select["arg(1)~id~caselessAbbrev('R') <> 0"] |,
-    .inject["arg(1)~methods(arg(1))"] |,
+    .select["value~isA(.class)"] |,
+    .select["value~id~caselessAbbrev('R') <> 0"] |,
+    .inject["value~methods(value)"] |,
     .sort byIndex |,
     .displayer,
     )
@@ -92,7 +153,7 @@ nop
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 -- The .displayer is not useful here (will be extended to let choose the values to display)...
 .context~package~pipe(,
-    .inject["arg(1)~importedPackages"] recursive |,
+    .inject["value~importedPackages"] recursive |,
     .sort |,
     .displayer,
     )
@@ -100,16 +161,16 @@ nop
 
 -- ...In the meantime, use the .do pipeStage to display the useful values.
 -- The package names are indented to highlight the dependency between packages.
--- arg(2) returns the current index, which is always an array.
+-- The index is always an array.
 
 -- Notice the circular dependency between packages (supported by inject - the recursion is stopped) :
 -- extensions.cls --> doers.cls --> extensions.cls
 -- This is because of Doers.AddVisibilityFrom
 
 .context~package~pipe(,
-    .inject["arg(1)~importedPackages"] recursive |,
+    .inject["value~importedPackages"] recursive |,
     .sort |,
-    .do["say '  '~copies(arg(2)~items) arg(1)~name"],
+    .do["say '  '~copies(index~items) value~name"],
     )
 
 

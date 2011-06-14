@@ -1,4 +1,5 @@
 ::requires "pipeline/pipe.rex"
+::requires "extension/doers.cls"
 ::requires "concurrency/coactivity.cls"
 ::requires "rgf_util2/rgf_util2_wrappers"
 --::options trace i
@@ -49,6 +50,27 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 
 /******************************************************************************/
+-- This class is defined in pipe.rex, but I don't want to make pipe.rex dependent
+-- on extensions. That's why this method is added here.
+-- There is a test at runtime to see if compareExpression is present on the class.
+-- If not present (case of standard ooRexx), an error "Unknown option" is raised if
+-- the user specifies an expression in the sort pipestage.
+::extension indexedValueComparator
+
+::method compareExpressions
+    expose doer
+    use strict arg first, second
+    result1 = doer~do(first~value, first~index)
+    result2 = doer~do(second~value, second~index)
+    return self~compareStrings(result1~string, result2~string)
+
+-- The routine makeFunctionDoer is not visible from pipe.rex
+::method makeFunctionDoer
+    use strict arg oneLinerFunction, context=.nil
+    return makeFunctionDoer(oneLinerFunction, context)
+
+
+/******************************************************************************/
 -- An inject pipeStage to inject a collection in the pipeline.
 -- This collection is calculated for each processed value.
 -- The history of indexes is kept : assuming that the current value has index i,
@@ -61,30 +83,37 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method init
     expose doer
     use strict arg function, context=.nil
-    -- I want to avoid to type "return" to make the filter simpler...
-    if function~caselessPos("return ") == 0 then function = "return" function
-    doer = function~doer(context)
-    doer~setSecurityManager(.CommandNotAllowed~new)
+    doer = makeFunctionDoer(function, context)
     forward class (super)
 
 ::method initOptions
-    expose recursive
+    expose recursive limit
     recursive = .false
+    limit = -1
     unknown = .array~new
     do a over arg(1, "a")
-        if "recursive"~caselessAbbrev(a, 1) then recursive = .true 
+        parse var a first "." rest
+        if "recursive"~caselessAbbrev(first, 1) then do
+            recursive = .true
+            if rest <> "" then do -- recursive.limit
+                if rest~dataType("W") then limit = rest
+                else raise syntax 93.900 array("Expected a whole number after "first". in "a) 
+            end
+        end
         else unknown~append(a) 
     end
     forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
 ::method process
-    expose doer recursive
+    expose doer recursive limit
     use strict arg value, index, processed=(.queue~new)
     self~write(value, index)
-    supplier = doer~do(value, index)~supplier
-    do while supplier~available
-      if index~isA(.array) then newindex = index~copy
-                           else newindex = .array~of(index)
+    doer~do(value, index)
+    if \ var("result") then return -- no result returned, nothing to inject
+    if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-collection result
+    supplier = result~supplier
+    do while supplier~available & processed~items <> limit
+      newindex = index~copy
       newindex~append(supplier~index)
       if recursive then do
           if processed~hasItem(supplier~item) then do
@@ -107,7 +136,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method init
     expose doer
     use strict arg action, context=.nil
-    doer = action~doer(context)
+    doer = makeActionDoer(action, context)
     forward class (super)
 
 ::method process
@@ -115,7 +144,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg value, index
     doer~do(value, index)              
     if var("result") then self~write(result, index) -- if a result was returned by the doer then send the result
-    self~write(value, index)                     -- otherwise send the data item itself
+    else self~write(value, index)                     -- otherwise send the data item itself
 
 
 /******************************************************************************/
@@ -125,10 +154,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method init
     expose doer
     use strict arg filter, context=.nil
-    -- I want to avoid to type "return" to make the filter simpler...
-    if filter~caselessPos("return ") == 0 then filter = "return" filter
-    doer = filter~doer(context)
-    doer~setSecurityManager(.CommandNotAllowed~new)
+    doer = makeFunctionDoer(filter, context)
     forward class (super)
 
 ::method process
@@ -151,4 +177,30 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method command
     use strict arg info
     raise syntax 98.948 array("Command not allowed:" info~address info~command)
+
+
+/******************************************************************************/
+-- A function always takes two parameters : value and index. They are automatically declared.
+-- A function always return a result. The "return" instruction is automatically inserted, if missing.
+-- A function is not allowed to run a command.
+::routine makeFunctionDoer public
+    use strict arg oneLinerFunction, context=.nil
+    if oneLinerFunction~strip <> "" then do
+        if oneLinerFunction~caselessPos("return ") == 0 then oneLinerFunction = "return" oneLinerFunction
+        oneLinerFunction = "use arg value, index;" oneLinerFunction
+    end
+    doer = oneLinerFunction~doer(context)
+    if doer~hasMethod("setSecurityManager") then doer~setSecurityManager(.CommandNotAllowed~new) -- A doer can be a message, which has not this method
+    return doer
+
+-- An action always takes two parameters : value and index. They are automatically declared.
+-- An action can return optionnally a result, it's up to the user to insert the "return".
+-- An action can run a command, so no security restriction.
+::routine makeActionDoer public
+    use strict arg oneLinerAction, context=.nil
+    if oneLinerAction~strip <> "" then do
+        oneLinerAction = "use arg value, index;" oneLinerAction
+    end
+    doer = oneLinerAction~doer(context)
+    return doer
 
