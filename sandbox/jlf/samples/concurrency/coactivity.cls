@@ -280,6 +280,7 @@ Instead, it calculates the next item only when the 'next' method is called.
 ::class LazyCoactivitySupplier subclass Supplier
 
 ::attribute coactivity
+::attribute startedByMe
 ::attribute currentIndex
 ::attribute currentItem
 ::attribute isAvailable
@@ -290,9 +291,23 @@ Instead, it calculates the next item only when the 'next' method is called.
     empty = .array~new(0) -- Lazy supplier
     self~init:super(empty, empty)
     self~coactivity = coactivity
-    if \self~coactivity~isStarted then self~coactivity~start
+    self~startedByMe = .false
+    if \self~coactivity~isStarted then do ; self~coactivity~start ; self~startedByMe = .true; end
     self~currentIndex = 0
     self~next
+
+
+::method uninit
+    /*
+    I think I need the uninit method to support properly this use case :
+    .coactivity~new("i=0; do forever; i+=1; .yield[i]; end")~pipe(.take 5 | .displayer)
+    While the pipeline is running, the coactivity supplier is referenced by the 'source' property of the first pipe stage, and can't be GC'ed.
+    The pipeline itself can't be GC'ed because the first pipe stage is referenced from the call stack, as an argument of 'pipe'.
+    When 5 values have been taken (.take 5), the pipeline is stopped and the method 'pipe' returns.
+    From now, the pipeline can be GC'ed, because it's no longer referenced from the call stack.
+    And once the pipeline is GC'ed, there is no more reference to the coactivity supplier, which can be GC'ed.
+    */
+    if self~startedByMe then self~coactivity~end
 
 
 ::method available

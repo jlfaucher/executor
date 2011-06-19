@@ -507,70 +507,108 @@ ROUTINE.SOURCE : a Method
 
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
--- The .displayer is not useful here (will be extended to let choose the values to display)...
-.context~package~pipe(,
-    .inject["value~importedPackages"] recursive |,
-    .sort |,
-    .displayer,
-    )
-1 : a Package
-1.1 : a Package
-1.1.1 : a Package
-1.1.1.1 : a Package
-1.1.2 : a Package
-1.1.2.1 : a Package
-1.1.2.1.1 : a Package
-1.2 : a Package
-1.2.1 : a Package
-1.3 : a Package
-1.3.1 : a Package
-1.3.2 : a Package
-1.3.2.1 : a Package
-1.3.2.1.1 : a Package
-1.3.2.2 : a Package
-1.3.2.2.1 : a Package
-1.3.2.3 : a Package
-1.3.3 : a Package
-1.3.3.1 : a Package
-1.3.4 : a Package
-1.3.4.1 : a Package
-1.4 : a Package
-1.4.1 : a Package
-
-
--- ...In the meantime, use the .do pipeStage to display the useful values.
--- The package names are indented to highlight the dependency between packages.
--- The index is always an array.
-
 -- Notice the circular dependency between packages (supported by inject - the recursion is stopped) :
 -- extensions.cls --> doers.cls --> extensions.cls
--- This is because of Doers.AddVisibilityFrom
-
+-- This is because of Doers.AddVisibilityFrom.
 .context~package~pipe(,
     .inject["value~importedPackages"] recursive |,
-    .sort |,
-    .do["say '  '~copies(index~items) value~name"],
+    .displayer index.10,
+               "'    '~copies(index~items)",
+               ".file~new(value~name)~name",
+               newline,
     )
-   D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension_test.rex
-     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\functionals.cls
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
-           d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
-     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\activity.cls
-     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension.cls
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
-           d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
-           d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\activity.cls
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension.cls
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\activity.cls
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2_wrappers.rex
-         d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2.rex
-     d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2_wrappers.rex
-       d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\rgf_util2\rgf_util2.rex
+1             pipe_extension_test.rex
+1.1               extensions.cls
+1.1.1                 doers.cls
+1.1.1.1                   extensions.cls
+1.1.2                 functionals.cls
+1.1.2.1                   doers.cls
+1.1.2.1.1                     extensions.cls
+1.2               coactivity.cls
+1.2.1                 activity.cls
+1.3               pipe_extension.cls
+1.3.1                 pipe.rex
+1.3.2                 doers.cls
+1.3.2.1                   extensions.cls
+1.3.2.1.1                     doers.cls
+1.3.2.2                   coactivity.cls
+1.3.2.2.1                     activity.cls
+1.3.2.3                   pipe_extension.cls
+1.3.3                 coactivity.cls
+1.3.3.1                   activity.cls
+1.3.4                 rgf_util2_wrappers.rex
+1.3.4.1                   rgf_util2.rex
+1.4               rgf_util2_wrappers.rex
+1.4.1                 rgf_util2.rex
+
+
+-- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
+-- has been reached, whatever its position in the pipeline.
+supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
+supplier~pipe(.displayer '"2*"' value '"="' | .do["return 2*value"] | .take 2 | .displayer value newline)
+2*1=2
+2*2=4
+say supplier~index
+3
+supplier~pipe(.displayer '"4*"' value '"="' | .do["return 4*value"] | .take 4 | .displayer value newline)
+4*3=12
+4*4=16
+4*5=20
+4*6=24
+say supplier~index
+7
+
+
+-- Display the 4 first sorted items
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .displayer)
+3 : 1
+6 : 2
+4 : 3
+1 : 5
+
+
+-- Sort the 4 first items
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .displayer)
+3 : 1
+4 : 3
+1 : 5
+2 : 8
+
+
+-- The .append pipeStage copies items from its primary input to its primary output, and then invokes
+-- the supplier passed as argument and writes the items produced by that supplier to its primary output.
+supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
+supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
+-- The first .take limits supplier1 to 2 items.
+-- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
+supplier1~pipe(.take 2 | .append[supplier2] | .take 5 | .displayer)
+1 : 1
+2 : 2
+1 : 10
+2 : 11
+3 : 12
+say supplier1~index
+3
+say supplier2~index
+4
+supplier1~pipe(.take 4 | .append[supplier2] | .take 9 | .displayer)
+3 : 3
+4 : 4
+5 : 5
+6 : 6
+4 : 13
+5 : 14
+6 : 15
+7 : 16
+8 : 17
+say supplier1~index
+7
+say supplier2~index
+9
+
+
+-- Remove header and footer
+.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first 1 | .drop last 1 | .displayer)
+2 : 1
+3 : 2
+4 : 3

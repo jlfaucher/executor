@@ -58,10 +58,11 @@
 
 ::class pipeStage public                    -- base pipeStage class
 ::method init
-expose next secondary options
+expose next secondary options isEOP
 next = .nil
 secondary = .nil                            -- all pipeStages have a secondary output potential
 options = .array~new                        -- arguments can be passed like that : .myStage~new(a1,a2) or .myStage[a1,a2] or .myStage a1 a2
+isEOP = .false                              -- indicator of End Of Process
 
 ::method '|' class                          -- concatenate an instance of a pipeStage with following pipeStage
 use strict arg follower
@@ -148,7 +149,8 @@ self~begin                                  -- now go feed the pipeline
 ::method secondary attribute                -- a potential secondary attribute
 ::method next attribute                     -- next stage of the pipeStage
 ::method source attribute                   -- source of the initial data
-                                            -- that they are class objects for
+::method isEOP attribute                    -- becomes .true if the pipeStage has finished processing the datas (see .take)
+
 ::method new                                -- the pipeStage chaining process
 return self                                 -- just return ourself
 
@@ -156,11 +158,11 @@ return self                                 -- just return ourself
 expose source                               -- access the data and next chain
 self~start                                  -- signal that processing is starting
 engine = source~supplier                    -- get a data supplier
-do while engine~available                   -- while more data
+do while engine~available, \self~isEOP      -- while more data
   -- The index is passed as an array, because some pipeStage may create
   -- additional indexes that will be appended.
   self~process(engine~item, .array~of(engine~index)) -- pump this down the pipe
-  engine~next                               -- get the next data item
+  engine~next                               -- get the next data item (even if self is now EOP, that way the supplier is ready for continuation)
 end
 self~eof                                    -- signal that processing is finished
 
@@ -182,22 +184,38 @@ do a over arg(1, "a")
 end
 raise syntax 93.900 array("Unknown option") 
 
+::method checkEOP
+-- Accept zero to n arguments, each argument being a pipeStage or .nil
+-- If all the args are .nil then don't change isEOP (this is a terminal pipeStage).
+-- If all the nonNil arguments (i.e. pipeStages) are EOP then the current pipeStage becomes EOP.
+allEOP = .true
+allNIL = .true
+do pipeStage over arg(1, "a")
+    if pipeStage <> .nil then do
+        allNIL = .false 
+        if \pipeStage~isEOP then allEOP = .false
+    end
+end
+if allNIL then return
+if allEOP then self~isEOP = .true
+
 ::method process                            -- default data processing
 use strict arg value, index                 -- get the data item
 self~write(value, index)                    -- send this down the line
+self~checkEOP(self~next)
 
 ::method write                              -- handle the result from a process method
 expose next
 use strict arg data, index
-if .nil <> next then do
-    next~process(data, index)               -- only forward if we have a successor
+if .nil <> next, \next~isEOP then do
+    next~process(data, index)               -- only forward if we have an active successor
 end
 
 ::method writeSecondary                     -- handle a secondary output result from a process method
 expose secondary
 use strict arg data, index
-if .nil <> secondary then do
-    secondary~process(data, index)          -- only forward if we have a successor
+if .nil <> secondary, \secondary~isEOP then do
+    secondary~process(data, index)          -- only forward if we have an active successor
 end
 
 ::method processSecondary                   -- handle a secondary output result from a process method
@@ -233,6 +251,15 @@ forward to(pipeStage) message('processSecondary')
 ::method eof                                -- processing operations connect with pipeStage secondaries
 expose pipeStage
 forward to(pipeStage) message('secondaryEof')
+
+
+/******************************************************************************/
+-- Provide services that depend on extensions
+-- Will be extended in a separate file
+::class pipeExtensions public
+
+::method available class
+    return self~hasMethod("installed")
 
 
 /******************************************************************************/
@@ -275,13 +302,8 @@ forward to (self~value) message (msg) arguments (args)
 ::class indexedValueComparator public inherit Comparator
 
 ::method init
-expose caseless strict expression doer context
-use strict arg caseless=.false, strict=.false, expression="value", context=.nil
-doer = .nil
-if expression~caselessEquals("value") then return
-if expression~caselessEquals("index") then return
--- Parse the expression now (only once)
-doer = self~makeFunctionDoer(expression, context) -- see pipe_extension
+expose caseless strict criterion
+use strict arg caseless=.false, strict=.false, criterion="value"
 
 ::method compareStrings
 expose caseless strict
@@ -322,11 +344,18 @@ value1 = first~value
 value2 = second~value
 return self~compareStrings(value1~string, value2~string)
 
-::method compare
-expose expression
+::method compareExpressions
+expose criterion
 use strict arg first, second
-if expression~caselessEquals("index") then return self~compareIndexes(first, second)
-if expression~caselessEquals("value") then return self~compareValues(first, second)
+result1 = criterion~do(first~value, first~index)
+result2 = criterion~do(second~value, second~index)
+return self~compareStrings(result1~string, result2~string)
+
+::method compare
+expose criterion
+use strict arg first, second
+if criterion~string == "index" then return self~compareIndexes(first, second)
+if criterion~string == "value" then return self~compareValues(first, second)
 return self~compareExpressions(first, second)
 
 -- For convenience, add support for .ColumnComparator.
@@ -360,7 +389,7 @@ items = .array~new                          -- create a new list
 forward class (super)
 
 ::method initOptions
-expose descending caseless quickSort strict criteria
+expose descending caseless quickSort strict criteria context
 descending = .false
 caseless = .false
 quickSort = .false -- use a stable sort by default
@@ -378,20 +407,20 @@ do a over arg(1, "a")
     else if "quickSort"~caselessAbbrev(a, 1) then criteria~append(.array~of("quickSort=", .true))
     else if "numeric"~caselessAbbrev(a, 1) then criteria~append(.array~of("strict=", .false))
     else if "strict"~caselessAbbrev(a, 3) then criteria~append(.array~of("strict=", .true))
-    else do
-        -- The sort by expression is an optional feature, not available with standard ooRexx.
-        -- compareExpressions depends on doers, and is implemented in a separate file.
-        if .indexedValueComparator~method("compareExpressions") <> .nil
-            then criteria~append(.array~of("sortBy", a)) -- assume this is an expression
-            else unknown~append(a)
+    else do -- assume this is an expression or a function
+        if .pipeExtensions~available then do
+            function = .pipeExtensions~makeFunctionDoer(a, context)
+            criteria~append(.array~of("sortBy", function))
+        end
+        else unknown~append(a)
     end
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
 ::method sortBy
-expose items context descending caseless quickSort strict
+expose items descending caseless quickSort strict
 use strict arg criterion
-comparator = .indexedValueComparator~new(caseless, strict, criterion, context)
+comparator = .indexedValueComparator~new(caseless, strict, criterion)
 if descending then comparator = .InvertingComparator~new(comparator)
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
@@ -403,12 +432,15 @@ items~append(.indexedValue~new(value, index))
 
 ::method eof                                -- process the "end-of-pipe"
 expose items criteria
+message = ""
 do criterion over criteria                  -- apply each criterion
     message = criterion[1]
     argument = criterion[2]
     self~send(message, argument)
 end
-do i = 1 to items~items                     -- copy all sorted items to the primary stream
+-- if the last criterion is not a "sortBy", then do a sortBy value.
+if message <> "sortBy" then self~sortBy("value")
+do i = 1 to items~items while self~next <> .nil, \self~next~isEOP -- copy all sorted items to the primary stream
    indexedValue = items[i]
    self~write(indexedValue~value, indexedValue~index)
 end
@@ -432,7 +464,7 @@ do a over arg(1, "a")
     if "quickSort"~caselessAbbrev(a, 1) then quickSort = .true
     else unknown~append(a) 
 end
-forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
@@ -443,7 +475,7 @@ items~append(.indexedValue~new(value, index)) -- append the value to the accumul
 expose items comparator quickSort
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
-do i = 1 to items~items                     -- copy all sorted items to the primary stream
+do i = 1 to items~items while self~next <> .nil, \self~next~isEOP -- copy all sorted items to the primary stream
    indexedValue = items[i]
    self~write(indexedValue~value, indexedValue~index)
 end
@@ -454,21 +486,24 @@ forward class(super)                        -- make sure we propagate the done m
 ::class reverse public subclass pipeStage   -- a string reversal pipeStage
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
-self~write(value~string~reverse, index) -- send it along in reversed form
+self~write(value~string~reverse, index)     -- send it along in reversed form
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
 ::class upper public subclass pipeStage     -- a uppercasing pipeStage
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
-self~write(value~string~upper, index) -- send it along in upper form
+self~write(value~string~upper, index)       -- send it along in upper form
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
 ::class lower public subclass pipeStage     -- a lowercasing pipeStage
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
-self~write(value~string~lower, index) -- send it along in lower form
+self~write(value~string~lower, index)       -- send it along in lower form
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
@@ -483,6 +518,7 @@ forward class (super)                       -- forward the initialization
 expose old new count
 use strict arg value, index                 -- get the data item
 self~write(value~string~changestr(old, new, count), index) -- send it along in altered form
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
@@ -497,6 +533,7 @@ forward class (super)                       -- forward the initialization
 expose offset length
 use strict arg value, index                 -- get the data item
 self~write(value~string~delstr(offset, length), index) -- send it along in altered form
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
@@ -512,6 +549,7 @@ expose length
 use strict arg value, index                 -- get the data item
 self~write(value~string~left(length), index) -- send the left portion along the primary stream
 self~writeSecondary(value~string~substr(length + 1), index) -- the secondary gets the remainder portion
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -527,6 +565,7 @@ expose offset length
 use strict arg value, index                 -- get the data item
 self~write(value~string~substr(length + 1), index) -- the remainder portion goes down main pipe
 self~writeSecondary(value~string~left(length), index) -- send the left portion along the secondary stream
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -541,6 +580,7 @@ forward class (super)                       -- forward the initialization
 expose insert offset
 use strict arg value, index                 -- get the data item
 self~write(value~string~insert(insert, offset), index) -- send the left portion along the primary stream
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
@@ -555,6 +595,7 @@ forward class (super)                       -- forward the initialization
 expose insert offset
 use strict arg value, index                 -- get the data item
 self~write(value~string~overlay(overlay, offset), index) -- send the left portion along the primary stream
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
@@ -564,19 +605,49 @@ self~write(value~string~overlay(overlay, offset), index) -- send the left portio
 use strict arg value, index                 -- get the data item
 if value~string \== '' then do              -- forward along non-null records
     self~write(value, index)
+    self~checkEOP(self~next)
 end
 
 
 /******************************************************************************/
-::class dropFirst public subclass pipeStage -- drop the first n records
+::class drop public subclass pipeStage -- drop the first or last n records
 
 ::method init
-expose count counter
-use strict arg count
-counter = 0
+expose counter array
+counter = 0                                 -- if first, we need to count the processed items
+array = .array~new                          -- if last, we need to accumulate these until the end
 forward class (super)                       -- forward the initialization
 
-::method process
+::method initOptions
+expose first count
+first = .true                               -- selects items from the begining by default
+count = 1                                   -- number of items to be selected by default
+firstSpecified = .false
+lastSpecified = .false
+countSpecified = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "first"~caselessAbbrev(a, 1) then do
+        if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
+        if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
+        firstSpecified = .true
+        first = .true
+    end
+    else if "last"~caselessAbbrev(a, 1) then do
+        if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
+        if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
+        lastSpecified = .true
+        first = .false
+    end
+    else if a~dataType("W") then do
+        count = a
+        countSpecified = .true
+    end
+    else unknown~append(a) 
+end
+forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+
+::method processFirst
 expose count counter
 use strict arg value, index
 counter += 1                                -- if we've dropped our quota, start forwarding
@@ -586,53 +657,81 @@ end
 else do
     self~writeSecondary(value, index)       -- non-selected records go down the secondary stream
 end
+self~checkEOP(self~next, self~secondary)
 
-
-/******************************************************************************/
-::class dropLast public subclass pipeStage  -- drop the last n records
-
-::method init
-expose count array
-use strict arg count
-array = .array~new                          -- we need to accumulate these until the end
-forward class (super)                       -- forward the initialization
-
-::method process
+::method processLast
 expose array
 use strict arg value, index
 array~append(.indexedValue~new(value, index)) -- just add to the accumulator
 
+::method process
+expose first
+use strict arg value, index
+if first then self~processFirst(value, index)
+         else self~processLast(value, index)
+
 ::method eof
-expose count array
-if array~items < count then do              -- didn't even receive that many items?
-    loop indexedValue over array
-        self~write(indexedValue~value, indexedValue~index) -- send everything down the main pipe
+expose first count array
+if \first then do
+    if array~items < count then do              -- didn't even receive that many items?
+        loop indexedValue over array while self~secondary <> .nil, \self~secondary~isEOP
+            self~writeSecondary(indexedValue~value, indexedValue~index) -- send everything down the secondary pipe
+        end
     end
-end
-else do
-    first = array~items - count             -- this is the count of discarded items
-    loop i = 1 to first
-        indexedValue = array[i]
-        self~writeSecondary(indexedValue~value, indexedValue~index) -- the discarded ones go to the secondary pipe
-    end
-    loop i = first + 1 to array~items
-        indexedValue = array[i]
-        self~write(indexedValue~value, indexedValue~index) -- the remainder ones go down the main pipe
+    else do
+        first = array~items - count             -- this is the count of selected items
+        loop i = 1 to first while self~next <> .nil, \self~next~isEOP
+            indexedValue = array[i]
+            self~write(indexedValue~value, indexedValue~index) -- the selected go to the main pipe
+        end
+        loop i = first + 1 to array~items while self~secondary <> .nil, \self~secondary~isEOP
+            indexedValue = array[i]
+            self~writeSecondary(indexedValue~value, indexedValue~index) -- the discarded go down the secondary pipe
+        end
     end
 end
 forward class(super)                        -- make sure we propagate the done message
 
 
 /******************************************************************************/
-::class takeFirst public subclass pipeStage -- take the first n records
+::class take public subclass pipeStage      -- take the first or last n records
 
 ::method init
-expose count counter
-use strict arg count
-counter = 0
+expose counter array
+counter = 0                                 -- if first, we need to count the processed items
+array = .array~new                          -- if last, we need to accumulate these until the end
 forward class (super)                       -- forward the initialization
 
-::method process
+::method initOptions
+expose first count
+first = .true                               -- selects items from the begining by default
+count = 1                                   -- number of items to be selected by default
+firstSpecified = .false
+lastSpecified = .false
+countSpecified = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "first"~caselessAbbrev(a, 1) then do
+        if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
+        if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
+        firstSpecified = .true
+        first = .true
+    end
+    else if "last"~caselessAbbrev(a, 1) then do
+        if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
+        if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
+        lastSpecified = .true
+        first = .false
+    end
+    else if a~dataType("W") then do
+        count = a
+        countSpecified = .true
+    end
+    else unknown~append(a) 
+end
+forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+
+::method processFirst
 expose count counter
 use strict arg value, index
 counter += 1                                -- if we've dropped our quota, stop forwarding
@@ -642,37 +741,38 @@ end
 else do
     self~write(value, index)                -- still in the first bunch, send to main pipe
 end
+self~checkEOP(self~next, self~secondary)
+if counter == count & self~secondary == .nil then self~isEOP = .true
 
-
-/******************************************************************************/
-::class takeLast public subclass pipeStage  -- drop the last n records
-
-::method init
-expose count array
-use strict arg count
-array = .array~new                          -- we need to accumulate these until the end
-
-::method process
+::method processLast
 expose array
 use strict arg value, index
 array~append(.indexedValue~new(value, index)) -- just add to the accumulator
 
+::method process
+expose first
+use strict arg value, index
+if first then self~processFirst(value, index)
+         else self~processLast(value, index)
+
 ::method eof
-expose count array
-if array~items < count then do              -- didn't even receive that many items?
-    loop indexedValue over array
-        self~writeSecondary(indexedValue~value, indexedValue~index) -- send everything down the secondary pipe
+expose first count array
+if \first then do
+    if array~items < count then do          -- didn't even receive that many items?
+        loop indexedValue over array while self~next <> .nil, \self~next~isEOP
+            self~write(indexedValue~value, indexedValue~index) -- send everything down the main pipe
+        end
     end
-end
-else do
-    first = array~items - count             -- this is the count of selected items
-    loop i = 1 to first
-        indexedValue = array[i]
-        self~write(indexedValue~value, indexedValue~index) -- the selected go to the main pipe
-    end
-    loop i = first + 1 to array~items
-        indexedValue = array[i]
-        self~writeSecondary(indexedValue~value, indexedValue~index) -- the discarded ones go down the secondary pipe
+    else do
+        first = array~items - count         -- this is the count of discarded items
+        loop i = 1 to first while self~secondary <> .nil, \self~secondary~isEOP
+            indexedValue = array[i]
+            self~writeSecondary(indexedValue~value, indexedValue~index) -- the discarded go down the secondary pipe
+        end
+        loop i = first + 1 to array~items while self~next <> .nil, \self~next~isEOP
+            indexedValue = array[i]
+            self~write(indexedValue~value, indexedValue~index) -- the selected go to the main pipe
+        end
     end
 end
 forward class(super)                        -- make sure we propagate the done message
@@ -684,6 +784,7 @@ forward class(super)                        -- make sure we propagate the done m
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 self~write(value~string~x2c)
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
@@ -700,6 +801,7 @@ nop                                         -- do nothing with the data
 use strict arg value, index                 -- get the data item
 self~write(value, index)
 self~writeSecondary(value, index)
+self~checkEOP(self~next, self~secondary)
 
 ::method eof                                -- make sure done messages get propagated along all streams
 self~next~eof
@@ -750,7 +852,7 @@ array~append(.indexedValue~new(value, index)) -- just append to the end of the a
 ::method eof
 expose mainDone secondaryEof array          -- need interlock flags
 if secondaryEof then do                     -- the other input hit EOF already?
-    loop i = 1 to array~items               -- need to write out the deferred items
+    loop i = 1 to array~items while self~next <> .nil, \self~next~isEOP -- need to write out the deferred items
         indexedValue = array[i]
         self~write(indexedValue~value, indexedValue~index)
     end
@@ -777,17 +879,98 @@ forward class (super)                       -- forward the initialization
 ::method process                            -- pipeStage processing item
 expose copies
 use strict arg value, index                 -- get the data item
-loop copies + 1                             -- write this out with the duplicate count
+loop copies + 1 while self~next <> .nil, \self~next~isEOP -- write this out with the duplicate count
     self~write(value, index)
 end
+self~checkEOP(self~next)
 
 
 /******************************************************************************/
 ::class displayer subclass pipeStage public
 
+::method init
+expose items context
+use strict arg context=.nil                 -- will be used for the options of type expression
+forward class (super)
+
+::method initOptions
+expose actions context
+unknown = .array~new
+actions = .array~new
+do a over arg(1, "a")
+    parse var a first "." rest
+    if "index"~caselessAbbrev(first, 1) then do
+        indexWidth = -1
+        if rest <> "" then do -- index.width
+            if rest~dataType("W") then indexWidth = rest
+            else raise syntax 93.900 array("Expected a whole number after "index". in "a) 
+        end
+        actions~append(.array~of("displayIndex", indexWidth))
+    end
+    else if "value"~caselessAbbrev(first, 1) then do
+        valueWidth = -1
+        if rest <> "" then do -- value.width
+            if rest~dataType("W") then valueWidth = rest
+            else raise syntax 93.900 array("Expected a whole number after "value". in "a) 
+        end
+        actions~append(.array~of("displayValue", valueWidth))
+    end
+    else if "space"~caselessAbbrev(first, 1) then do
+        spaceWidth = -1
+        if rest <> "" then do -- space.width
+            if rest~dataType("W") then spaceWidth = rest
+            else raise syntax 93.900 array("Expected a whole number after "space". in "a) 
+        end
+        actions~append(.array~of("displaySpace", spaceWidth))
+    end
+    else if "newline"~caselessAbbrev(a, 1) then actions~append(.array~of("displayNewline"))
+    else do
+        -- assume this is an expression or a function
+        if .pipeExtensions~available then do
+            function = .pipeExtensions~makeFunctionDoer(a, context)
+            actions~append(.array~of("displayExpression", function))
+        end
+        else unknown~append(a)
+    end
+end
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
+::method displayIndex
+use strict arg width, value, index
+if width == -1 then .output~charout(index~tostring(, "."))
+               else .output~charout(index~tostring(, ".")~left(width))
+
+::method displayValue
+use strict arg width, value, index
+if width == -1 then .output~charout(value~string)
+               else .output~charout(value~string~left(width))
+
+::method displaySpace
+use strict arg width, value, index
+if width == -1 then .output~charout(" ")
+               else .output~charout(" "~copies(width))
+
+::method displayNewline
+use strict arg dummy, value, index
+.output~lineout("")
+
+::method displayExpression
+use strict arg expression, value, index
+.output~charout(expression~do(value, index))
+
 ::method process                            -- process a data item
+expose actions
 use strict arg value, index                 -- get the data value
-say index~tostring(, ".") ":" value         -- display this item
+if actions~items == 0 then do
+    say index~tostring(, ".") ":" value     -- default display
+end
+else do
+    do action over actions                 -- do each action
+        message = action[1]
+        argument = action[2]
+        self~send(message, argument, value, index)
+    end
+end
 forward class(super)
 
 
@@ -796,43 +979,31 @@ forward class(super)
 
 ::method init
 expose patterns                             -- access the exposed item
-use strict arg ...
 patterns = arg(1,'a')                       -- get the patterns list
 forward class (super)                       -- forward the initialization
 
-::method process                            -- process a selection pipeStage
-expose patterns                             -- expose the pattern list
-use strict arg value, index                 -- access the data item
-do i = 1 to patterns~size                   -- loop through all the patterns
-                                            -- this pattern in the data?
-  if (value~string~pos(patterns[i]) <> 0) then do
-    self~write(value, index)                -- send it along
-    return                                  -- stop the loop
-  end
+::method initOptions
+expose caseless
+caseless = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
+                                       else unknown~append(a)
 end
-self~writeSecondary(value, index)           -- send all mismatches down the other branch, if there
-
-
-/******************************************************************************/
-::class caselessAll public subclass pipeStage -- a string selector pipeStage
-
-::method init
-expose patterns                             -- access the exposed item
-use strict arg ...
-patterns = arg(1,'a')                       -- get the patterns list
-forward class (super)                       -- forward the initialization
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- process a selection pipeStage
-expose patterns                             -- expose the pattern list
+expose patterns caseless                    -- expose the pattern list
 use strict arg value, index                 -- access the data item
-do i = 1 to patterns~size                   -- loop through all the patterns
+selected = .false
+do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
-  if (value~string~caselessPos(patterns[i]) <> 0) then do
-    self~write(value, index)                -- send it along
-    return                                  -- stop the loop
-  end
+    if caseless then selected = (value~string~caselessPos(patterns[i]) <> 0)
+                else selected = (value~string~pos(patterns[i]) <> 0)
+    if selected then self~write(value, index) -- send it along 
 end
-self~writeSecondary(value, index)           -- send all mismatches down the other branch, if there
+if \selected then self~writeSecondary(value, index) -- send all mismatches down the other branch, if there
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -840,18 +1011,27 @@ self~writeSecondary(value, index)           -- send all mismatches down the othe
 
 ::method init
 expose match                                -- access the exposed item
-use strict arg match                        -- get the patterns list
+use strict arg match                        -- get the match string
 forward class (super)                       -- forward the initialization
 
+::method initOptions
+expose caseless
+caseless = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
+                                       else unknown~append(a)
+end
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 ::method process                            -- process a selection pipeStage
-expose match                                -- expose the pattern list
+expose match caseless                       -- expose the pattern list
 use strict arg value, index                 -- access the data item
-if (value~string~pos(match) == 1) then do -- match string occur in first position?
-  self~write(value, index)                  -- send it along
-end
-else do
-   self~writeSecondary(value, index)        -- send all mismatches down the other branch, if there
-end
+if caseless then matched = (value~string~caselessPos(match) == 1)
+            else matched = (value~string~pos(match) == 1)
+if matched then self~write(value, index)    -- send it along
+           else self~writeSecondary(value, index) -- send all mismatches down the other branch, if there
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -859,21 +1039,31 @@ end
 
 ::method init
 expose patterns                             -- access the exposed item
-use strict arg ...
 patterns = arg(1,'a')                       -- get the patterns list
 forward class (super)                       -- forward the initialization
 
-::method process                            -- process a selection pipeStage
-expose patterns                             -- expose the pattern list
-use strict arg value, index                 -- access the data item
-do i = 1 to patterns~size                   -- loop through all the patterns
-                                            -- this pattern in the data?
-  if (value~string~pos(patterns[i]) <> 0) then do
-    self~writeSecondary(value, index)       -- send it along the secondary...don't want this one
-    return                                  -- stop the loop
-  end
+::method initOptions
+expose caseless
+caseless = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
+                                       else unknown~append(a)
 end
-self~write(value, index)                    -- send all mismatches down the main branch
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
+::method process                            -- process a selection pipeStage
+expose patterns caseless                    -- expose the pattern list
+use strict arg value, index                 -- access the data item
+selected = .false
+do i = 1 to patterns~size while \selected   -- loop through all the patterns
+                                            -- this pattern in the data?
+    if caseless then selected = (value~string~caselessPos(patterns[i]) <> 0)
+                else selected = (value~string~pos(patterns[i]) <> 0)
+    if selected then self~writeSecondary(value, index) -- send it along the secondary...don't want this one
+end
+if \selected then self~write(value, index)  -- send all mismatches down the main branch
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -908,7 +1098,7 @@ use strict arg value, index                 -- get the data item
 idx = idx + 1
 valueArray[idx] = value                     -- save the value
 if indexArray <> .nil then indexArray[idx] = index -- save the index
-self~process:super(value, index)            -- allow superclass to send down pipe
+forward class(super)                        -- allow superclass to send down pipe
 
 /******************************************************************************/
 ::class between subclass pipeStage public   -- write only records from first trigger record
@@ -920,28 +1110,35 @@ started = .false                            -- not processing any lines yet
 finished = .false
 forward class (super)                       -- forward the initialization
 
+::method initOptions
+expose caseless
+caseless = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
+                                       else unknown~append(a)
+end
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 ::method process
 expose startString endString started finished
 use strict arg value, index
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
-    if value~string~pos(startString) > 0 then do
-        started = .true
-        self~write(value, index)            -- pass along
-    end
-    else do
-        self~writeSecondary(value, index)   -- non-selected lines go to the secondary bucket
-    end
-    return
+    if caseless then started = (value~string~caselessPos(startString) > 0)
+                else started = (value~string~pos(startString) > 0)
+    if started then self~write(value, index) -- pass along
+               else self~writeSecondary(value, index)   -- non-selected lines go to the secondary bucket
 end
-if \finished then do                        -- still processing?
-    if value~string~pos(endString) > 0 then do -- check for the end position
-        finished = .true
-    end
+else if \finished then do                   -- still processing?
+    if caseless then finished = (value~string~caselessPos(endString) > 0)
+                else finished = (value~string~pos(endString) > 0)
     self~write(value, index)                -- pass along
 end
 else do
     self~writeSecondary(value, index)       -- non-selected lines go to the secondary bucket
 end
+self~checkEOP(self~next, self~secondary)
+
 
 /******************************************************************************/
 ::class after subclass pipeStage public     -- write only records from first trigger record
@@ -952,17 +1149,26 @@ use strict arg startString
 started = .false                            -- not processing any lines yet
 forward class (super)                       -- forward the initialization
 
+::method initOptions
+expose caseless
+caseless = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
+                                       else unknown~append(a)
+end
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 ::method process
-expose startString endString started
+expose startString endString started caseless
 use strict arg value, index
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
-    if value~string~pos(startString) = 0 then do
-        self~writeSecondary(value, index)   -- pass along the secondary stream
-        return
-    end
-    started = .true
+    if caseless then started = (value~string~caselessPos(startString) > 0)
+                else started = (value~string~pos(startString) > 0)
+    if \started then self~writeSecondary(value, index) -- pass along the secondary stream
 end
-self~write(value, index)                    -- pass along
+else self~write(value, index)               -- pass along
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -974,18 +1180,29 @@ use strict arg endString
 finished = .false
 forward class (super)                       -- forward the initialization
 
+::method initOptions
+expose caseless
+caseless = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
+                                       else unknown~append(a)
+end
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 ::method process
-expose endString finished
+expose endString finished caseless
 use strict arg value, index
 if \finished then do                        -- still processing?
-    if value~string~pos(endString) > 0 then do -- check for the end position
-        finished = .true
-    end
+    if caseless 
+        then finished = (value~string~caselessPos(endString) > 0)
+        else finished = (value~string~pos(endString) > 0)
     self~write(value, index)                -- pass along
 end
 else do
     self~writeSecondary(value, index)       -- non-selected lines go to the secondary bucket
 end
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -1004,11 +1221,11 @@ buffer~append(.indexedValue~new(value, index)) -- just accumulate the value
 
 ::method eof
 expose buffer count delimiter
-loop i = 1 to count                         -- now write copies of the set to the stream
+loop i = 1 to count while self~next <> .nil, \self~next~isEOP -- now write copies of the set to the stream
      if i > 1 then do
          self~write(delimiter, index)       -- put a delimiter between the sets
      end
-     loop j = 1 to buffer~items             -- and send along the buffered lines
+     loop j = 1 to buffer~items while self~next <> .nil, self~next~isEOP -- and send along the buffered lines
          indexedValue = buffer[i]
          self~write(indexedValue~value, indexedValue~index)
      end
@@ -1048,7 +1265,7 @@ forward class (super)                       -- forward the initialization
 ::method process
 expose counter
 use strict arg value, index
-counter += value~string~length   -- just bump the counter for the length of each record
+counter += value~string~length              -- just bump the counter for the length of each record
 
 ::method eof
 expose counter
@@ -1068,7 +1285,7 @@ forward class (super)                       -- forward the initialization
 ::method process
 expose counter
 use strict arg value, index
-counter += value~string~words    -- just bump the counter for the number of words
+counter += value~string~words               -- just bump the counter for the number of words
 
 ::method eof
 expose counter
@@ -1096,12 +1313,13 @@ use strict arg pivotvalue, self~next, self~secondary
 ::method process                            -- process the split
 expose pivotvalue
 use strict arg value, index
-if value~string < pivotvalue then do -- simple split test
+if value~string < pivotvalue then do        -- simple split test
     self~write(value, index)
 end
 else do
     self~writeSecondary(value, index)
 end
+self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -1118,7 +1336,6 @@ end
 
 ::method init
 expose stages
-use strict arg ...
 stages = arg(1, 'A')                        -- just save the arguments as an array
 forward class (super)                       -- forward the initialization
 
@@ -1135,7 +1352,8 @@ raise syntax 93.963                         -- Can't do this, so raise an unsupp
 ::method write                              -- broadcast a result to a particular filter
 expose stages
 use strict arg which, value, index          -- which is the fiter index, value is the result
-stages[which]~process(value, index);        -- have the filter handle this
+stage = stages[which]
+if \stage~isEOP then stage~process(value, index); -- have the filter handle this
 
 ::method eof                                -- broadcast a done message down all of the branches
 expose stages
@@ -1150,4 +1368,4 @@ use strict arg value, index
 do stage over stages                        -- send this down all of the branches
     stage~process(value, index)
 end
-
+forward message ("checkEOP") arguments (stages)

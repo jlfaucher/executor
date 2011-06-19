@@ -43,6 +43,42 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 june 20
+
+More work on pipe.
+
+.sort : the doers are parsed as soon as possible (during initOptions)
+
+.all, .startsWith, .notall, .between, .after, .before : added option 'caseLess'
+
+.displayer : added options 'index', 'value', 'space', newline', expression
+
+Added support for end of process (EOP). The idea comes from
+CMS Pipeline Telecourse (http://www.vm.ibm.com/download/packages/descript.cgi?TCVM2)
+<<
+pipe < big file a | take 5 | console
+The TAKE stage take the first 5 records passing through the pipe (in this case
+coming from the disk-read stage). After having seen 5 records go by, the TAKE stage
+tells the PIPE dispatcher "I've done my job, I don't need anything more...", and the
+dispatcher in turn informs the previous stage that there isn't anybody listening
+anymore to its output, so it can stop also.
+So, a pipeline can suddenly collapse when one stage decides to stop
+>>
+There is no dispatcher in current implementation, but the idea of end of process is
+very interesting. In particular with infinite coactivities :
+.coactivity~new("i=0; do forever; i+=1; .yield[i]; end")~pipe(.take 5 | .displayer)
+Also interesting with big files, when only the n first lines must be processed...
+
+.drop : replace both .dropFirst and .dropLast
+
+.take : replace both .takeFirst and .takeLast
+
+.append : new pipeStage
+Copy items from its primary input to its primary output, and then invoke the supplier
+passed as argument and write the items produced by that supplier to its primary output.
+
+
+===============================================================================
 2011 june 13
 
 More work on pipe.

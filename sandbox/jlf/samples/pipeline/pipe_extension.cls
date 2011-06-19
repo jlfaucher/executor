@@ -50,40 +50,78 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 
 /******************************************************************************/
--- This class is defined in pipe.rex, but I don't want to make pipe.rex dependent
--- on extensions. That's why this method is added here.
--- There is a test at runtime to see if compareExpression is present on the class.
--- If not present (case of standard ooRexx), an error "Unknown option" is raised if
--- the user specifies an expression in the sort pipestage.
-::extension indexedValueComparator
+-- This class is defined in pipe.rex, to make it visible without requiring the
+-- current file (I don't want to make pipe.rex dependent on extensions).
+-- There is a test at runtime to see if 'installed' is present on the class.
+::extension pipeExtensions
 
-::method compareExpressions
-    expose doer
-    use strict arg first, second
-    result1 = doer~do(first~value, first~index)
-    result2 = doer~do(second~value, second~index)
-    return self~compareStrings(result1~string, result2~string)
+::method installed class
+    return .true
 
--- The routine makeFunctionDoer is not visible from pipe.rex
-::method makeFunctionDoer
+-- A function always takes two parameters : value and index. They are automatically declared.
+-- A function always return a result. The "return" instruction is automatically inserted, if missing.
+-- A function is not allowed to run a command.
+::method makeFunctionDoer public class
     use strict arg oneLinerFunction, context=.nil
-    return makeFunctionDoer(oneLinerFunction, context)
+    if oneLinerFunction~strip <> "" then do
+        if oneLinerFunction~caselessPos("return ") == 0 then oneLinerFunction = "return" oneLinerFunction
+        oneLinerFunction = "use arg value, index;" oneLinerFunction
+    end
+    doer = oneLinerFunction~doer(context)
+    if doer~hasMethod("setSecurityManager") then doer~setSecurityManager(.CommandNotAllowed~new) -- A doer can be a message, which has not this method
+    return doer
+
+-- An action always takes two parameters : value and index. They are automatically declared.
+-- An action can return optionnally a result, it's up to the user to insert the "return".
+-- An action can run a command, so no security restriction.
+::method makeActionDoer public class
+    use strict arg oneLinerAction, context=.nil
+    if oneLinerAction~strip <> "" then do
+        oneLinerAction = "use arg value, index;" oneLinerAction
+    end
+    doer = oneLinerAction~doer(context)
+    return doer
 
 
 /******************************************************************************/
--- An inject pipeStage to inject a collection in the pipeline.
--- This collection is calculated for each processed value.
+-- An append pipeStage to copy items from its primary input to its primary output,
+-- and then invoke the supplier passed as argument and write the items produced by
+-- that supplier to its primary output.
+::class append public subclass pipeStage
+
+::method init
+    expose supplier
+    use strict arg producer, context=.nil
+    if producer~hasMethod("doer") then producer = .pipeExtensions~makeFunctionDoer(producer, context)~do
+    if \producer~hasMethod("supplier") then supplier = .array~of(producer) -- for convenience, accept a non-supplier
+    supplier = producer~supplier
+    forward class (super)
+
+::method eof
+    expose supplier
+    do while supplier~available, \self~isEOP
+      -- The index is passed as an array, because some pipeStage may create
+      -- additional indexes that will be appended.
+      self~process(supplier~item, .array~of(supplier~index))
+      supplier~next -- get the next data item (even if self is now EOP, that way the supplier is ready for continuation)
+    end
+    forward class(super) -- make sure we propagate the done message
+
+
+/******************************************************************************/
+-- An inject pipeStage to inject the items produced by a supplier in the pipeline.
+-- The supplier is calculated for each processed value.
 -- The history of indexes is kept : assuming that the current value has index i,
--- and the collection is (i1,v1), (i2,v2) etc... then the injected values will be 
--- (i.i1, v1), (i.i2, v2) etc..
--- The processed value itself is written in the pipeline before injecting each
--- element of the collection.
+-- and the supplier produces the items (i1,v1), (i2,v2) etc... then the injected
+-- values will be (i.i1, v1), (i.i2, v2) etc..
+-- The processed value itself is written in the pipeline before injecting the items
+-- produced by the supplier.
 ::class inject public subclass pipeStage
 
 ::method init
     expose doer
     use strict arg function, context=.nil
-    doer = makeFunctionDoer(function, context)
+    doer = .pipeExtensions~makeFunctionDoer(function, context)
     forward class (super)
 
 ::method initOptions
@@ -102,7 +140,7 @@ So I added the 'pipe' method which injects the object in the pipe :
         end
         else unknown~append(a) 
     end
-    forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+    forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process
     expose doer recursive limit
@@ -110,9 +148,9 @@ So I added the 'pipe' method which injects the object in the pipe :
     self~write(value, index)
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
-    if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-collection result
+    if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-supplier result
     supplier = result~supplier
-    do while supplier~available & processed~items <> limit
+    do while supplier~available & processed~items <> limit & \self~next~isEOP
       newindex = index~copy
       newindex~append(supplier~index)
       if recursive then do
@@ -127,16 +165,22 @@ So I added the 'pipe' method which injects the object in the pipe :
       else self~write(supplier~item, newindex)
       supplier~next
     end
+    self~checkEOP(self~next)
 
-    
+ 
 /******************************************************************************/
--- a do pipeStage to execute an action passed as argument
+-- a do pipeStage to execute an action passed as argument.
+-- CAREFULL ! There is NO automatic insertion of the "return" instruction, and
+-- the commands are authorized here, so DON'T FORGET the "return" instruction
+-- if you want to return a value !!!!
+-- Ex : assuming value==10
+-- .do[2*value] will not insert 20 in the pipeline, but will instead run the command "20".
 ::class do public subclass pipeStage
 
 ::method init
     expose doer
     use strict arg action, context=.nil
-    doer = makeActionDoer(action, context)
+    doer = .pipeExtensions~makeActionDoer(action, context)
     forward class (super)
 
 ::method process
@@ -144,17 +188,18 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg value, index
     doer~do(value, index)              
     if var("result") then self~write(result, index) -- if a result was returned by the doer then send the result
-    else self~write(value, index)                     -- otherwise send the data item itself
+    else self~write(value, index) -- otherwise send the data item itself
+    self~checkEOP(self~next)
 
 
 /******************************************************************************/
--- a select pipeStage to execute a boolean filter passed as argument
+-- a select pipeStage to execute a boolean filter passed as argument.
 ::class select public subclass pipeStage
 
 ::method init
     expose doer
     use strict arg filter, context=.nil
-    doer = makeFunctionDoer(filter, context)
+    doer = .pipeExtensions~makeFunctionDoer(filter, context)
     forward class (super)
 
 ::method process
@@ -166,6 +211,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     else do
         self~writeSecondary(value, index)        -- send all not selected items down the other branch, if there
     end
+    self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
@@ -177,30 +223,4 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method command
     use strict arg info
     raise syntax 98.948 array("Command not allowed:" info~address info~command)
-
-
-/******************************************************************************/
--- A function always takes two parameters : value and index. They are automatically declared.
--- A function always return a result. The "return" instruction is automatically inserted, if missing.
--- A function is not allowed to run a command.
-::routine makeFunctionDoer public
-    use strict arg oneLinerFunction, context=.nil
-    if oneLinerFunction~strip <> "" then do
-        if oneLinerFunction~caselessPos("return ") == 0 then oneLinerFunction = "return" oneLinerFunction
-        oneLinerFunction = "use arg value, index;" oneLinerFunction
-    end
-    doer = oneLinerFunction~doer(context)
-    if doer~hasMethod("setSecurityManager") then doer~setSecurityManager(.CommandNotAllowed~new) -- A doer can be a message, which has not this method
-    return doer
-
--- An action always takes two parameters : value and index. They are automatically declared.
--- An action can return optionnally a result, it's up to the user to insert the "return".
--- An action can run a command, so no security restriction.
-::routine makeActionDoer public
-    use strict arg oneLinerAction, context=.nil
-    if oneLinerAction~strip <> "" then do
-        oneLinerAction = "use arg value, index;" oneLinerAction
-    end
-    doer = oneLinerAction~doer(context)
-    return doer
 

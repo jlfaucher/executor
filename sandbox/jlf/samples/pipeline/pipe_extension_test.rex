@@ -151,29 +151,54 @@ nop
 
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
--- The .displayer is not useful here (will be extended to let choose the values to display)...
-.context~package~pipe(,
-    .inject["value~importedPackages"] recursive |,
-    .sort |,
-    .displayer,
-    )
-
-
--- ...In the meantime, use the .do pipeStage to display the useful values.
--- The package names are indented to highlight the dependency between packages.
--- The index is always an array.
-
 -- Notice the circular dependency between packages (supported by inject - the recursion is stopped) :
 -- extensions.cls --> doers.cls --> extensions.cls
--- This is because of Doers.AddVisibilityFrom
-
+-- This is because of Doers.AddVisibilityFrom.
 .context~package~pipe(,
     .inject["value~importedPackages"] recursive |,
-    .sort |,
-    .do["say '  '~copies(index~items) value~name"],
+    .displayer index.10,
+               "'    '~copies(index~items)",
+               ".file~new(value~name)~name",
+               newline,
     )
 
 
+-- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
+-- has been reached, whatever its position in the pipeline.
+supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
+supplier~pipe(.displayer '"2*"' value '"="' | .do["return 2*value"] | .take 2 | .displayer value newline)
+say supplier~index
+supplier~pipe(.displayer '"4*"' value '"="' | .do["return 4*value"] | .take 4 | .displayer value newline)
+say supplier~index
+
+
+-- Display the 4 first sorted items
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .displayer)
+
+
+-- Sort the 4 first items
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .displayer)
+
+
+-- The .append pipeStage copies items from its primary input to its primary output, and then invokes
+-- the supplier passed as argument and writes the items produced by that supplier to its primary output.
+supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
+supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
+-- The first .take limits supplier1 to 2 items.
+-- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
+supplier1~pipe(.take 2 | .append[supplier2] | .take 5 | .displayer)
+say supplier1~index
+say supplier2~index
+supplier1~pipe(.take 4 | .append[supplier2] | .take 9 | .displayer)
+say supplier1~index
+say supplier2~index
+
+
+-- Remove header and footer
+.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first 1 | .drop last 1 | .displayer)
+
+
+-------------------------------------------------------------------------------
 ::routine evaluate
     use strict arg routineName
     routine = .context~package~findRoutine(routineName)
