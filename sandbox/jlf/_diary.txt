@@ -43,6 +43,27 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 june 25
+
+More work on pipe.
+
+.inject : added options 'append', 'pushIndex'.
+The option 'recursive' has two new sub-options : 'depthFirst', 'breadthFirst'.
+
+.fileTree : new pipeStage
+Get the childrens (files or directories) of a file instance.
+
+.fileText : new pipeStage
+Get the contents of a text file line by line.
+
+.words : new pipeStage
+Get the words of the current value.
+
+.characters : new pipeStage
+Get the characters of the current value.
+
+
+===============================================================================
 2011 june 20
 
 More work on pipe.

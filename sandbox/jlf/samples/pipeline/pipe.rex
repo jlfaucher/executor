@@ -887,6 +887,7 @@ self~checkEOP(self~next)
 
 /******************************************************************************/
 ::class displayer subclass pipeStage public
+::constant indexSeparator "|"
 
 ::method init
 expose items context
@@ -937,8 +938,8 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method displayIndex
 use strict arg width, value, index
-if width == -1 then .output~charout(index~tostring(, "."))
-               else .output~charout(index~tostring(, ".")~left(width))
+if width == -1 then .output~charout(index~tostring(, self~indexSeparator))
+               else .output~charout(index~tostring(, self~indexSeparator)~left(width))
 
 ::method displayValue
 use strict arg width, value, index
@@ -962,7 +963,7 @@ use strict arg expression, value, index
 expose actions
 use strict arg value, index                 -- get the data value
 if actions~items == 0 then do
-    say index~tostring(, ".") ":" value     -- default display
+    say index~tostring(, self~indexSeparator) ":" value -- default display
 end
 else do
     do action over actions                 -- do each action
@@ -1369,3 +1370,61 @@ do stage over stages                        -- send this down all of the branche
     stage~process(value, index)
 end
 forward message ("checkEOP") arguments (stages)
+
+
+/******************************************************************************/
+-- A fileText pipeStage to get the contents of the file line by line.
+-- The input value can be a string (used as a path) or a .File instance.
+::class fileText public subclass pipeStage
+
+::method process
+use strict arg value, index
+if \value~isA(.File) then value = .File~new(value~string)
+stream = .Stream~new(value~absolutePath)
+signal on notready
+stream~open("read")
+linepos = 1
+do while self~next <> .nil, \self~next~isEOP
+    linetext = stream~linein
+    newindex = index~copy
+    newindex~append(value~absolutePath)
+    newindex~append(linepos)
+    self~write(linetext, newindex)
+    linepos += 1
+end
+notready:
+self~checkEOP(self~next)
+stream~close
+
+
+/******************************************************************************/
+-- A words pipeStage to get the words of the current value.
+::class words public subclass pipeStage
+
+::method process
+use strict arg value, index
+wordpos = 1
+do word over value~string~space~makearray(" ") while self~next <> .nil, \self~next~isEOP
+    newindex = index~copy
+    newindex~append(wordpos)
+    self~write(word, newindex)
+    wordpos += 1
+end
+self~checkEOP(self~next)
+
+
+/******************************************************************************/
+-- A characters pipeStage to get the characters of the current value.
+::class characters public subclass pipeStage
+
+::method process
+use strict arg value, index
+charpos = 1
+do char over value~string~makearray("") while self~next <> .nil, \self~next~isEOP
+    newindex = index~copy
+    newindex~append(charpos)
+    self~write(char, newindex)
+    charpos += 1
+end
+self~checkEOP(self~next)
+

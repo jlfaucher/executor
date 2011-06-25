@@ -61,24 +61,30 @@ nop
 .array~of(1, 2, 3)~pipe(.do["say 'value='value 'index='index"] | .displayer)
 
 
--- Do something for each item (the returned result replaces the value).
+-- Do something for each item (the returned result replaces the item's value).
 .array~of(1, 2, 3)~pipe(.do["return 2*value"] | .displayer)
 
 
--- Inject a value for each item. The index of the injected value is made of two indexes.
-.array~of(1, 2, 3)~pipe(.inject["value+1"] | .displayer)
+-- Inject a value for each item (the returned value is appended). 
+-- The index of the injected value is pushed on the current index.
+.array~of(1, 2, 3)~pipe(.inject["value*10"] pushIndex append | .displayer)
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, 2, 3)~pipe(.inject[".array~of(value+1, value+2)"] | .displayer)
+.array~of(1, 2, 3)~pipe(.inject[".array~of(value*10, value*20)"] pushIndex append | .displayer)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
--- If the recursion is infinite, must specify a limit (here 10).
-.array~of(1, 2, 3)~pipe(.inject["value+1"] recursive.10 | .displayer)
+-- The default order is depth-first.
+-- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
+-- The option 'append' is not used, so the initial value is discarded.
+.array~of(1, 2, 3)~pipe(.inject["value*10"] pushIndex recursive.0 | .displayer)
+.array~of(1, 2, 3)~pipe(.inject["value*20"] pushIndex recursive.1| .displayer)
+.array~of(1, 2, 3)~pipe(.inject["value*30"] pushIndex recursive.2 | .displayer)
 
 
 -- Factorial, no value injected for -1
+-- The option 'pushIndex' is not used, so the index remains made of one value.
 .array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject[,
     "use arg n;",
     "if n < 0 then return;",
@@ -132,9 +138,10 @@ nop
 
 
 -- Instance methods of the specified classes (not including those inherited).
--- Each class is written in the pipeline, followed by the returned methods.
+-- Each class is written in the pipeline (option append), followed by the returned methods.
+-- The option pushIndex lets have the name of the method in the index.
 .array~of(.RexxContext, .Package, .Method)~pipe(,
-    .inject["value~instanceMethods(value~class)"] |,
+    .inject["value~instanceMethods(value~class)"] append pushIndex |,
     .sort byIndex |,
     .displayer,
     )
@@ -144,7 +151,7 @@ nop
 .environment~pipe(,
     .select["value~isA(.class)"] |,
     .select["value~id~caselessAbbrev('R') <> 0"] |,
-    .inject["value~methods(value)"] |,
+    .inject["value~methods(value)"] append pushIndex |,
     .sort byIndex |,
     .displayer,
     )
@@ -155,8 +162,18 @@ nop
 -- extensions.cls --> doers.cls --> extensions.cls
 -- This is because of Doers.AddVisibilityFrom.
 .context~package~pipe(,
-    .inject["value~importedPackages"] recursive |,
-    .displayer index.10,
+    .inject["value~importedPackages"] recursive append pushIndex |,
+    .displayer index.15,
+               "'    '~copies(index~items)",
+               ".file~new(value~name)~name",
+               newline,
+    )
+
+
+-- Same as above, but in breadth-first order
+.context~package~pipe(,
+    .inject["value~importedPackages"] recursive.breadthFirst append pushIndex |,
+    .displayer index.15,
                "'    '~copies(index~items)",
                ".file~new(value~name)~name",
                newline,
@@ -195,7 +212,32 @@ say supplier2~index
 
 
 -- Remove header and footer
-.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first 1 | .drop last 1 | .displayer)
+.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .displayer)
+
+
+-- The *.txt files of ooRexx
+"c:\program files\oorexx"~pipe(,
+    .fileTree recursive |,
+    .select["filespec('e', value~name) == 'txt'"] |,
+    .displayer,
+    )
+
+
+-- Alphanumeric words found in the *.txt files of ooRexx.
+--
+-- Exemple of result :
+-- 1|c:\program files\oorexx\CPLv1.0.txt|149|8 : appropriateness
+-- "appropriateness" is the 8th word of the 149th line of the file  
+-- "c:\program files\oorexx\CPLv1.0.txt"
+--
+-- To investigate : I get sometimes a crash in the sort.
+--
+"c:\program files\oorexx"~pipe(,
+    .fileTree recursive |,
+    .select["filespec('e', value~name) == 'txt'"] |,
+    .fileText | .words | .select["value~datatype('a') & value~length >= 15"] |,
+    .sort caseless | .displayer,
+    )
 
 
 -------------------------------------------------------------------------------
