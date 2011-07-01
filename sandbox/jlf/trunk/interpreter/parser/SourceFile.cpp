@@ -89,6 +89,7 @@
 #include "RoutineClass.hpp"
 #include "ActivationFrame.hpp"
 #include "StackFrameClass.hpp"
+#include "ContextualSourceClass.hpp"
 
 #define HOLDSIZE         60            /* room for 60 temporaries           */
 
@@ -605,6 +606,7 @@ void RexxSource::live(size_t liveMark)
   memory_mark(this->holdstack);
   memory_mark(this->variables);
   memory_mark(this->literals);
+  memory_mark(this->sourceLiterals);
   memory_mark(this->labels);
   memory_mark(this->strings);
   memory_mark(this->guard_variables);
@@ -676,6 +678,7 @@ void RexxSource::liveGeneral(int reason)
   memory_mark_general(this->holdstack);
   memory_mark_general(this->variables);
   memory_mark_general(this->literals);
+  memory_mark_general(this->sourceLiterals);
   memory_mark_general(this->labels);
   memory_mark_general(this->strings);
   memory_mark_general(this->guard_variables);
@@ -736,6 +739,7 @@ void RexxSource::flatten (RexxEnvelope *envelope)
     flatten_reference(newThis->holdstack, envelope);
     flatten_reference(newThis->variables, envelope);
     flatten_reference(newThis->literals, envelope);
+    flatten_reference(newThis->sourceLiterals, envelope);
     flatten_reference(newThis->labels, envelope);
     flatten_reference(newThis->strings, envelope);
     flatten_reference(newThis->guard_variables, envelope);
@@ -987,12 +991,15 @@ RexxString *RexxSource::traceBack(
 }
 
 RexxString *RexxSource::extract(
-    SourceLocation &location )         /* target retrieval structure        */
+    SourceLocation &location,            /* target retrieval structure        */
+    bool newline                         /* if true then inserts a newline at then end of each line */
+    )
 /******************************************************************************/
 /* Extrace a line from the source using the given location information        */
 /******************************************************************************/
 {
-    RexxString *line;                    /* returned source line              */
+    RexxString *line = OREF_NULLSTRING;  /* returned source line              */
+    ProtectedObject pline(line);
     RexxString *source_line;             /* current extracting line           */
     size_t  counter;                     /* line counter                      */
 
@@ -1017,14 +1024,17 @@ RexxString *RexxSource::extract(
         source_line = this->get(location.getLineNumber());
         /* extract the first part            */
         line = source_line->extractB(location.getOffset(), source_line->getBLength() - location.getOffset());
+        if (location.isLimitedTrace()) return line;
         /* loop down to end line             */
         for (counter = location.getLineNumber() + 1 - this->interpret_adjust; counter < location.getEndLine(); counter++)
         {
             /* concatenate the next line on      */
-            line = line->concat(this->get(counter));
+            if (newline) line = line->concatWith(this->get(counter), '\n');
+            else line = line->concat(this->get(counter));
         }
         /* now add on the last part          */
-        line = line->concat(this->get(counter)->extractB(0, location.getEndOffset()));
+        if (newline) line = line->concatWith(this->get(counter)->extractB(0, location.getEndOffset()), '\n');
+        else line = line->concat(this->get(counter)->extractB(0, location.getEndOffset()));
     }
     return line;                         /* return the extracted line         */
 }
@@ -1154,6 +1164,7 @@ void RexxSource::globalSetup()
   OrefSet(this, this->subTerms, new_queue());
   OrefSet(this, this->operators, new_queue());
   OrefSet(this, this->literals, new_directory());
+  OrefSet(this, this->sourceLiterals, new_directory());
   // during an image build, we have a global string table.  If this is
   // available now, use it.
   OrefSet(this, this->strings, memoryObject.getGlobalStrings());
@@ -1300,6 +1311,7 @@ void RexxSource::cleanup()
                                        /* release any saved objects         */
   OrefSet(this, this->savelist, OREF_NULL);
   OrefSet(this, this->literals, OREF_NULL);
+  OrefSet(this, this->sourceLiterals, OREF_NULL);
   OrefSet(this, this->strings, OREF_NULL);
   OrefSet(this, this->clause, OREF_NULL);
   OrefSet(this, this->control, OREF_NULL);
@@ -4466,6 +4478,19 @@ RexxObject *RexxSource::addText(
             }
             break;
 
+        case TOKEN_SOURCE_LITERAL:         /* source literal strings            */
+            /* get a lookup object               */
+            /* see if we've had this before      */
+            retriever = this->sourceLiterals->fastAt(name);
+            /* first time literal?               */
+            if (retriever == OREF_NULL)
+            {
+                RexxString *source = new_string(name->getStringData()+1, name->getBLength()-2); // Remove surrounding {}
+                retriever = (RexxObject *) new RexxSourceLiteral(source, this->getPackage());
+                this->sourceLiterals->put(retriever,  name);
+            }
+            break;
+
         default:                           /* all other tokens                  */
             retriever = OREF_NULL;           /* don't return anything             */
             break;
@@ -4610,6 +4635,10 @@ RexxObject *RexxSource::constantExpression()
     {
         _expression = this->addText(token); /* get the literal retriever         */
     }
+    else if (token->isSourceLiteral())        /* source literal expression?        */
+    {
+        _expression = this->addText(token); /* get the literal retriever         */
+    }
     else if (token->isConstant())        /* how about a constant symbol?      */
     {
         _expression = this->addText(token); /* get the literal retriever         */
@@ -4658,6 +4687,10 @@ RexxObject *RexxSource::constantLogicalExpression()
     if (token->isLiteral())              /* literal string expression?        */
     {
 
+        _expression = this->addText(token); /* get the literal retriever         */
+    }
+    else if (token->isSourceLiteral())        /* source literal expression?        */
+    {
         _expression = this->addText(token); /* get the literal retriever         */
     }
     else if (token->isConstant())        /* how about a constant symbol?      */
@@ -4785,6 +4818,7 @@ RexxObject *RexxSource::subExpression(
 
             case  TOKEN_SYMBOL:              /* Symbol in the expression          */
             case  TOKEN_LITERAL:             /* Literal in the expression         */
+            case  TOKEN_SOURCE_LITERAL:      /* Source literal in the expression  */
             case  TOKEN_LEFT:                /* start of subexpression            */
 
                 location = token->getLocation(); /* get the token start position      */
@@ -5319,6 +5353,7 @@ RexxObject *RexxSource::subTerm(
 
         case  TOKEN_SYMBOL:                /* Symbol in the expression          */
         case  TOKEN_LITERAL:               /* Literal in the expression         */
+        case  TOKEN_SOURCE_LITERAL:        /* Source literal in the expression         */
             second = nextToken();            /* get the next token                */
                                              /* have a function call?             */
             if (second->classId == TOKEN_LEFT)
@@ -5520,13 +5555,12 @@ void RexxSource::errorLine(
 
 void RexxSource::errorPosition(
      int        errorcode,             /* error to raise                    */
-     RexxToken *token )                /* token value for description       */
+     SourceLocation token_location )   /* token location for description       */
 /******************************************************************************/
 /* Function:  Raise an error, displaying the location of a token associated   */
 /*            with the error.                                                 */
 /******************************************************************************/
 {
-  SourceLocation token_location = token->getLocation(); /* get the token location            */
   this->errorCleanup();                /* release any saved objects         */
                                        /* pass on the exception info        */
   ActivityManager::currentActivity->raiseException(errorcode, OREF_NULL, new_array(new_integer(token_location.getOffset()), new_integer(token_location.getLineNumber())), OREF_NULL);
@@ -5595,6 +5629,13 @@ void RexxSource::errorToken(
                 value = (RexxString *)OREF_NULLSTRING;
                 break;
         }
+    }
+    else if (token->getLocation().isLimitedTrace())
+    {                                        /* multi-line value, display only the first line*/
+        const char *string = value->getStringData();
+        const char *newline = strchr(string, '\n');
+        if (newline) value = new_string(string, newline - string);
+        this->clauseLocation.setLimitedTrace(true);
     }
     this->errorCleanup();                /* release any saved objects         */
                                          /* pass on the exception info        */

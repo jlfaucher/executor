@@ -60,6 +60,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="IdentityTable" class="RexxIdentityTable" include="IdentityTableClass.hpp"/>
 <Class id="StackFrame" class="StackFrameClass" include="StackFrameClass.hpp"/>
 <Class id="Exception" class="ExceptionClass" include="ExceptionClass.hpp"/>
+<Class id="RexxContextualSource" class="RexxContextualSource" include="ContextualSourceClass.hpp"/>
 </Exported>
 <Internal>
 <Class id="NilObject" class="RexxNilObject" include="ObjectClass.hpp"/>
@@ -152,6 +153,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="InterpreterInstance" class="InterpreterInstance" include="InterpreterInstance.hpp"/>
 <Class id="SecurityManager" class="SecurityManager" include="SecurityManager.hpp"/>
 <Class id="CommandHandler" class="CommandHandler" include="CommandHandler.hpp"/>
+<Class id="SourceLiteral" class="RexxSourceLiteral" include="ContextualSourceClass.hpp"/>
 </Transient>
 </Classes>
 </RexxClasses>

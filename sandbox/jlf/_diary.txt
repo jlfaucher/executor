@@ -43,6 +43,70 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 june 27
+
+Added support for source literals.
+Currently, a source literal is surrounded by curly braces, which is probably heretical,
+but my main focus is not on the syntax.
+My needs :
+- I need to make a distinction between a "real" string and a source literal. 
+  (will be useful for the pipeStage .Displayer)
+- I need the context of the source literal's definer. Thay way, I no longer need to call
+  Doers.AddVisibilityFrom.
+- I need sometimes to transform the source (see pipelines : add arguments, add return),
+  so must not be parsed too early because the initial source is not always valid ooRexx.
+  I prefer to have the source as a single string, instead of an array of lines.
+  (this transformation of source must be reworked, because current implementation is not
+  very robust, especially for the insertion of return).
+- I want to keep the current functionalities of doers. The source literal is passed
+  as argument to .Method~new or .Routine~new, or used as a message when containing
+  only one word.
+In the current implementation, a source literal is a multiline string whose scanning is
+aware of the ooRexx tokens. Curly braces in comments or in string are properly supported.
+For the parser, a source literal is a token, which is translated to a RexxSourceLiteral
+(transient class). When evaluated, a RexxSourceLiteral returns a RexxContextualSource
+(exported class).
+
+New class available from an ooRexx script :
+::class RexxContextualSource
+::method getPackage -- the package where the source literal is defined.
+::method getContext -- the context of the execution environment from which the source literal was evaluated.
+::method getSource -- the text inside the curly braces, where '\n' has been replaced by ';'
+
+Example of use : 
+The source literal can be assigned to a variable and passed as argument to a routine.
+
+-- package1.rex
+function = {use arg n
+            return doubler(n)}
+do v over map(.array~of(1,2,3,4), function)
+    say v
+end
+::routine doubler
+return 2*arg(1)
+::requires package2.rex
+
+-- package2.rex
+::routine map public
+use strict arg array, contextualSource
+say contextualSource~source
+-- parse only once, before iteration
+routine = .routine~new("", contextualSource~source, contextualSource~package)
+value = .array~new(array~items)
+do v over array
+    value~append(routine~call(v)) -- 'doubler', which is defined in package1, is visible
+end
+return value
+
+Output :
+use arg n;            return doubler(n)
+2
+4
+6
+8
+
+
+===============================================================================
 2011 june 25
 
 More work on pipe.

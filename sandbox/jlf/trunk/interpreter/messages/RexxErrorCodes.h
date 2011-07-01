@@ -309,11 +309,13 @@
 #define Error_Unmatched_parenthesis_user_defined           36900
 #define Error_Unmatched_parenthesis_paren                  36901
 #define Error_Unmatched_parenthesis_square                 36902
+#define Error_Unmatched_parenthesis_curly                  36903
 #define Error_Unexpected_comma                             37000
 #define Error_Unexpected_comma_comma                       37001
 #define Error_Unexpected_comma_paren                       37002
 #define Error_Unexpected_comma_user_defined                37900
 #define Error_Unexpected_comma_bracket                     37901
+#define Error_Unexpected_curly_bracket                     37902
 #define Error_Invalid_template                             38000
 #define Error_Invalid_template_trigger                     38001
 #define Error_Invalid_template_position                    38002

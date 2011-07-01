@@ -87,6 +87,7 @@
 #include "ContextClass.hpp"
 #include "StackFrameClass.hpp"
 #include "ExceptionClass.hpp"
+#include "ContextualSourceClass.hpp"
 
 
 void RexxMemory::defineKernelMethod(
@@ -222,6 +223,7 @@ void RexxMemory::createImage()
   WeakReference::createInstance();
   StackFrameClass::createInstance();
   ExceptionClass::createInstance();
+  RexxContextualSource::createInstance();
 
                                        /* build the common retriever tables */
   TheCommonRetrievers = (RexxDirectory *)new_directory();
@@ -1377,6 +1379,32 @@ void RexxMemory::createImage()
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheExceptionClass->subClassable(false);
+
+  /***************************************************************************/
+  /*           RexxContextualSource                                          */
+  /***************************************************************************/
+
+                                       /* Add the NEW methods to the        */
+                                       /* class behaviour                   */
+  defineKernelMethod(CHAR_NEW     ,TheRexxContextualSourceClassBehaviour, CPPM(RexxContextualSource::newRexx), A_COUNT);
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheRexxContextualSourceClassBehaviour->setMethodDictionaryScope(TheRexxContextualSourceClass);
+
+  defineKernelMethod(CHAR_COPY          ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::copyRexx), 0);
+  defineKernelMethod(CHAR_SOURCE        ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getSource), 0);
+  defineKernelMethod(CHAR_PACKAGE       ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getPackage), 0);
+  defineKernelMethod(CHAR_CONTEXT       ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getContext), 0);
+
+                                       /* Add the instance methods to the   */
+                                       /* instance behaviour mdict          */
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheRexxContextualSourceBehaviour->setMethodDictionaryScope(TheRexxContextualSourceClass);
+
+                                       /* Now call the class subclassable   */
+                                       /* method                            */
+  TheRexxContextualSourceClass->subClassable(true);
 
   /***************************************************************************/
   /***************************************************************************/

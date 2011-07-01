@@ -625,6 +625,8 @@
 #define Message_Translations_routine_invocation_msg                  719
 #define Message_Translations_method_invocation_msg                   720
 #define Error_Incorrect_method_multi_dimension_msg                   721
+#define Error_Unmatched_parenthesis_curly_msg                        722
+#define Error_Unexpected_curly_bracket_msg                           723
 
 
 #endif

@@ -57,7 +57,7 @@ ICU_LIBS=icudt.lib icuuc.lib
 # Main (default) target:
 # -------------------------------------------------------------------------
 # CHM moved target definition to top
-all : ORXHEADERS $(OR_OUTDIR)\rexx.dll  \
+all : ORXGENERATED $(OR_OUTDIR)\rexx.dll  \
       COPYORXFILES COPYAPIFILES
     @ECHO ...
     @ECHO All done ....
@@ -132,7 +132,7 @@ OKPOBJ1=$(OR_OUTDIR)\RexxEnvelope.$(OBJ) $(OR_OUTDIR)\ArrayClass.$(OBJ) $(OR_OUT
         $(OR_OUTDIR)\ClassClass.$(OBJ) $(OR_OUTDIR)\DeadObject.$(OBJ) $(OR_OUTDIR)\PointerClass.$(OBJ) \
 	$(OR_OUTDIR)\WeakReferenceClass.$(OBJ)
 OKPOBJ2=$(OR_OUTDIR)\DirectoryClass.$(OBJ) $(OR_OUTDIR)\MethodClass.$(OBJ)  $(OR_OUTDIR)\RoutineClass.$(OBJ) \
-	 $(OR_OUTDIR)\PackageClass.$(OBJ) $(OR_OUTDIR)\ContextClass.$(OBJ)
+	 $(OR_OUTDIR)\PackageClass.$(OBJ) $(OR_OUTDIR)\ContextClass.$(OBJ) $(OR_OUTDIR)\ContextualSourceClass.$(OBJ)
 OKPOBJ3=$(OR_OUTDIR)\ListClass.$(OBJ)   $(OR_OUTDIR)\RexxMemory.$(OBJ) $(OR_OUTDIR)\MemorySegment.$(OBJ) \
          $(OR_OUTDIR)\MemoryStats.$(OBJ) $(OR_OUTDIR)\MessageClass.$(OBJ)    \
         $(OR_OUTDIR)\StemClass.$(OBJ)   $(OR_OUTDIR)\ObjectClass.$(OBJ) $(OR_OUTDIR)\RexxCompoundTail.$(OBJ) \
@@ -211,6 +211,8 @@ ORXFILES=$(OR_OUTDIR)\CoreClasses.orx  $(OR_OUTDIR)\StreamClasses.orx \
 ORXHEADERS=$(OR_APISRC)\oorexxerrors.h $(INTERPRETER_MESSAGES)\RexxErrorCodes.h $(INTERPRETER_MESSAGES)\RexxMessageNumbers.h $(INTERPRETER_MESSAGES)\RexxMessageTable.h $(INTERPRETER_RUNTIME)\RexxCore.h \
     $(BEHAVIOUR)\PrimitiveBehaviourNames.h $(BEHAVIOUR)\ClassTypeCodes.h
 
+ORXGENERATED=$(ORXHEADERS) $(BEHAVIOUR)\PrimitiveBehaviours.cpp $(BEHAVIOUR)\VirtualFunctionTable.cpp 
+
 # All the files needed to compile and link an external program using the native
 # API are copied to one directory to make building an external program easier.
 APIFILES = $(OR_OUTDIR_API)\oorexxapi.h $(OR_OUTDIR_API)\oorexxerrors.h $(OR_OUTDIR_API)\rexx.h \
@@ -240,7 +242,7 @@ $(OR_OUTDIR)\rexx.lib : $(ORYXKOBJ)  \
 #
 # need import libraries and def files still
 #
-$(OR_OUTDIR)\rexx.dll : $(ORXHEADERS) $(ORYXKOBJ) $(ORYXLOBJ) \
+$(OR_OUTDIR)\rexx.dll : $(ORXGENERATED) $(ORYXKOBJ) $(ORYXLOBJ) \
                          $(OR_OUTDIR)\$(@B).lib $(INT_PLATFORM)\wrexx.def    \
                          $(OR_OUTDIR)\winmsgtb.res $(OR_OUTDIR)\verinfo.res
  type <<$(OR_OUTDIR)\oryxk.lst
@@ -359,7 +361,7 @@ COPYAPIFILES: $(APIFILES)
 #
 # *** Make sure headers are generated
 #
-ORXHEADERS: $(ORXHEADERS)
+ORXGENERATED: $(ORXGENERATED)
 
 #
 # *** Inference Rule for Rexx Class files

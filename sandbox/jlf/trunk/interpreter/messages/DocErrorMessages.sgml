@@ -1780,7 +1780,7 @@ special character (such as a parenthesis).
 </variablelist>
 </section>
 <section id="ERR36">
-<title>Error 36 - Unmatched "(" or "[" in expression</title>
+<title>Error 36 - Unmatched "(" or "[" or "{" in expression</title>
 <para>
 <emphasis role="bold">Explanation:</emphasis>
 </para>
@@ -1807,14 +1807,20 @@ special character (such as a parenthesis).
 <para>Square bracket "[" in position <emphasis role="italic">position</emphasis> on line <emphasis role="italic">line_number</emphasis> requires a corresponding right square bracket "]"</para>
 </listitem>
 </varlistentry>
+<varlistentry>
+<term>903</term>
+<listitem>
+<para>Curly bracket "{" in position <emphasis role="italic">position</emphasis> on line <emphasis role="italic">line_number</emphasis> requires a corresponding right curly bracket "}"</para>
+</listitem>
+</varlistentry>
 </variablelist>
 </section>
 <section id="ERR37">
-<title>Error 37 - Unexpected ",", ")", or "]"</title>
+<title>Error 37 - Unexpected ",", ")", "]", or "}"</title>
 <para>
 <emphasis role="bold">Explanation:</emphasis>
 </para>
-<para>Either a comma was found outside a function invocation, or there are too many right parentheses or right square brackets in an expression. To include a comma in a character expression, enclose it in quotation marks.  For example, write the instruction: </para>
+<para>Either a comma was found outside a function invocation, or there are too many right parentheses or right square brackets or right curly brackets in an expression. To include a comma in a character expression, enclose it in quotation marks.  For example, write the instruction: </para>
 <programlisting>
        Say Enter A, B, or C
     </programlisting>
@@ -1848,6 +1854,12 @@ special character (such as a parenthesis).
 <term>901</term>
 <listitem>
 <para>Unexpected "]"</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>902</term>
+<listitem>
+<para>Unexpected "}"</para>
 </listitem>
 </varlistentry>
 </variablelist>

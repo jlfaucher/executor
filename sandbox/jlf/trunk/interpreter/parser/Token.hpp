@@ -85,6 +85,7 @@
 #define TOKEN_DCOLON      TOKEN_SQRIGHT   + 1
 #define TOKEN_CONTINUE    TOKEN_DCOLON    + 1
 #define TOKEN_ASSIGNMENT  TOKEN_CONTINUE  + 1
+#define TOKEN_SOURCE_LITERAL TOKEN_ASSIGNMENT+ 1
 
 /* token extended types - symbols */
 #define SYMBOL_CONSTANT    1251
@@ -402,6 +403,7 @@ class RexxToken : public RexxInternalObject {
 
   inline bool       isVariable() { return (this->subclass == SYMBOL_VARIABLE || this->subclass == SYMBOL_STEM || this->subclass == SYMBOL_COMPOUND); };
   inline bool       isLiteral()  { return (this->classId == TOKEN_LITERAL); };
+  inline bool       isSourceLiteral()  { return (this->classId == TOKEN_SOURCE_LITERAL); };
   inline bool       isSymbolOrLiteral()  { return (this->classId == TOKEN_LITERAL) || (this->classId == TOKEN_SYMBOL); };
   inline bool       isConstant()  { return (this->classId == TOKEN_SYMBOL && this->subclass != SYMBOL_VARIABLE && this->subclass != SYMBOL_STEM && this->subclass != SYMBOL_COMPOUND); };
   inline bool       isSymbol() { return (this->classId == TOKEN_SYMBOL); };

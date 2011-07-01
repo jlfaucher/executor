@@ -247,6 +247,8 @@ void RexxSource::comment()
                 // update the error information
                 clauseLocation = clause->getLocation();
                 /* error, must report                */
+                // The comment can be multiline, so must limit the amount of lines displayed in the error message
+                clauseLocation.setLimitedTrace(true);
                 syntaxError(Error_Unmatched_quote_comment, new_integer(startline));
             }
             continue;                        /* go loop around                    */
@@ -287,6 +289,7 @@ unsigned int RexxSource::locateToken(
         /* paren or right square bracket     */
         (previous->classId == TOKEN_SYMBOL ||
          previous->classId == TOKEN_LITERAL ||
+         previous->classId == TOKEN_SOURCE_LITERAL ||
          previous->classId == TOKEN_RIGHT ||
          previous->classId == TOKEN_SQRIGHT))
     {
@@ -617,6 +620,41 @@ RexxString *RexxSource::packLiteral(
     return value;                         /* return newly created string       */
 }
 
+RexxToken *RexxSource::sourceLiteral(size_t clause_free, SourceLocation location)
+{
+    sizeB_t start = this->line_offset;           /* save the starting point           */
+    size_t startline = this->line_number;        /* remember the starting position    */
+    sizeB_t sourceLiteralEnd;                    /* end of source literal             */
+    sizeB_t length;                              /* length of extracted token         */
+    RexxToken *previous = OREF_NULL;
+    for (;;)
+    {                                            /* spin through the source literal   */
+        if (this->nextSpecial('}', location))
+        {
+            sourceLiteralEnd = this->line_offset - 1; /* remember end location             */
+            break;
+        }
+        RexxToken *token = this->sourceNextToken(previous);
+        if (token == OREF_NULL)
+        {                                        /* reached the end of the source?    */
+            this->clause->setEnd(this->line_number, this->line_offset);
+            clauseLocation = clause->getLocation();
+            // The source literal can be multiline, so must limit the amount of lines displayed in the error message
+            clauseLocation.setLimitedTrace(true);
+            syntaxErrorAt(Error_Unmatched_parenthesis_curly, location);
+        }
+        previous = token;
+    }
+    this->clause->setEnd(this->line_number, this->line_offset);
+    length = sourceLiteralEnd - start;           /* get length of literal data        */
+    RexxString *value = this->extract(location, true);
+    value = this->commonString(value);
+    location.setLimitedTrace(true);              /* don't do that before this->extract */
+    this->endLocation(location);                 /* record the end position           */
+    this->clause->free = clause_free;            /* all the tokens scanned for the source literal are replaced by the source literal token */
+    return this->clause->newToken(TOKEN_SOURCE_LITERAL, 0, value, location);
+}
+
 RexxToken *RexxSource::sourceNextToken(
     RexxToken *previous )              /* previous token scanned off        */
 /*********************************************************************/
@@ -687,8 +725,9 @@ RexxToken *RexxSource::sourceNextToken(
                  inch == '\"' ||              /* or start of a " quoted literal    */
                  inch == '\'' ||              /* or start of a ' quoted literal    */
                  inch == '('  ||              /* or a left parenthesis             */
-                 inch == '['))
-            {              /* or a left square bracket          */
+                 inch == '['  ||              /* or a left square bracket          */
+                 inch == '{' ))               /* or a left curly bracket           */
+            {
                            /* return blank token                */
                 token = this->clause->newToken(TOKEN_BLANK, OPERATOR_BLANK, (RexxString *)OREF_BLANK, location);
             }
@@ -1079,6 +1118,10 @@ RexxToken *RexxSource::sourceNextToken(
                         token = this->clause->newToken(TOKEN_SQRIGHT, 0, OREF_NULL, location);
                         break;
 
+                    case '}':
+                        /* end of source literal, but when seen here, it's an error */
+                        syntaxError(Error_Unexpected_curly_bracket);
+
                     case '(':                     /* left parenthesis                  */
                         /* this is a special character class */
                         token = this->clause->newToken(TOKEN_LEFT, 0, OREF_NULL, location);
@@ -1087,6 +1130,11 @@ RexxToken *RexxSource::sourceNextToken(
                     case '[':                     /* left square bracket               */
                         /* this is a special character class */
                         token = this->clause->newToken(TOKEN_SQLEFT, 0, OREF_NULL, location);
+                        break;
+
+                    case '{':
+                        /* start of source literal */
+                        token = this->sourceLiteral(this->clause->free, location);
                         break;
 
                     case ',':                     /* comma                             */

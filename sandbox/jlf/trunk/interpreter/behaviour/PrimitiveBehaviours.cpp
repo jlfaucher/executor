@@ -109,6 +109,8 @@ RexxBehaviour RexxBehaviour::primitiveBehaviours[T_Last_Primitive_Class + 1] =
     RexxBehaviour(T_StackFrameClass, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_Exception, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_ExceptionClass, (PCPPM *)RexxObject::operatorMethods),
+    RexxBehaviour(T_RexxContextualSource, (PCPPM *)RexxObject::operatorMethods),
+    RexxBehaviour(T_RexxContextualSourceClass, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_NilObject, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_Behaviour, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_RexxSource, (PCPPM *)RexxObject::operatorMethods),
@@ -192,6 +194,7 @@ RexxBehaviour RexxBehaviour::primitiveBehaviours[T_Last_Primitive_Class + 1] =
     RexxBehaviour(T_InterpreterInstance, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_SecurityManager, (PCPPM *)RexxObject::operatorMethods),
     RexxBehaviour(T_CommandHandler, (PCPPM *)RexxObject::operatorMethods),
+    RexxBehaviour(T_SourceLiteral, (PCPPM *)RexxObject::operatorMethods),
 };
 
 

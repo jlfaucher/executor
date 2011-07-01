@@ -309,11 +309,13 @@
 #define Rexx_Error_Unmatched_parenthesis_user_defined           36900
 #define Rexx_Error_Unmatched_parenthesis_paren                  36901
 #define Rexx_Error_Unmatched_parenthesis_square                 36902
+#define Rexx_Error_Unmatched_parenthesis_curly                  36903
 #define Rexx_Error_Unexpected_comma                             37000
 #define Rexx_Error_Unexpected_comma_comma                       37001
 #define Rexx_Error_Unexpected_comma_paren                       37002
 #define Rexx_Error_Unexpected_comma_user_defined                37900
 #define Rexx_Error_Unexpected_comma_bracket                     37901
+#define Rexx_Error_Unexpected_curly_bracket                     37902
 #define Rexx_Error_Invalid_template                             38000
 #define Rexx_Error_Invalid_template_trigger                     38001
 #define Rexx_Error_Invalid_template_position                    38002

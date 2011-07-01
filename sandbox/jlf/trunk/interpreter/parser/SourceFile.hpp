@@ -171,8 +171,9 @@ class RexxSource : public RexxInternalObject {
     RexxString *get(size_t);
     void        nextClause();
     RexxToken  *sourceNextToken(RexxToken *);
+    RexxToken  *sourceLiteral(size_t, SourceLocation);
     RexxString *traceBack(SourceLocation &, size_t, bool);
-    RexxString *extract(SourceLocation &);
+    RexxString *extract(SourceLocation &, bool=false);
     RexxArray  *extractSource(SourceLocation &);
     RexxArray  *extractSource();
     void        startLocation(SourceLocation &);
@@ -267,7 +268,7 @@ class RexxSource : public RexxInternalObject {
     void        error(int, RexxObject *, RexxObject *, RexxObject *);
     void        error(int errorcode, SourceLocation &location, RexxArray *subs);
     void        errorLine(int, RexxInstruction *);
-    void        errorPosition(int, RexxToken *);
+    void        errorPosition(int, SourceLocation);
     void        errorToken(int, RexxToken *);
     void        blockError(RexxInstruction *);
     RexxInstruction *sourceNewObject(size_t, RexxBehaviour *, int);
@@ -309,7 +310,8 @@ class RexxSource : public RexxInternalObject {
     inline void        resetPosition(size_t p) { clause->reset(p); }
     inline void        syntaxError(int errorcode, RexxInstruction *i) { this->errorLine(errorcode, i); }
     inline void        blockSyntaxError(RexxInstruction *i) { this->blockError(i); }
-    inline void        syntaxErrorAt(int errorcode, RexxToken *token) { this->errorPosition(errorcode, token); }
+    inline void        syntaxErrorAt(int errorcode, RexxToken *token) { this->errorPosition(errorcode, token->getLocation()); }
+    inline void        syntaxErrorAt(int errorcode, SourceLocation token_location) { this->errorPosition(errorcode, token_location); }
     inline void        syntaxError(int errorcode, RexxObject *a1) { this->error(errorcode, a1); }
     inline void        syntaxError(int errorcode, RexxObject *a1, RexxObject *a2) { this->error(errorcode, a1, a2); }
     inline void        syntaxError(int errorcode, RexxObject *a1, RexxObject *a2, RexxObject *a3) { this->error(errorcode, a1, a2, a3); }
@@ -487,6 +489,7 @@ protected:
     RexxIdentityTable *savelist;           /* saved objects                     */
     RexxStack       *holdstack;          /* stack for holding temporaries     */
     RexxDirectory   *literals;           /* root of associated literal list   */
+    RexxDirectory   *sourceLiterals;     /* root of associated source literal list */
     RexxDirectory   *strings;            /* common pool of created strings    */
     RexxQueue       *control;            /* queue of control structures       */
     RexxQueue       *terms;              /* stack of expression terms         */

@@ -450,6 +450,7 @@ void AbstractCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *r
 #include "ContextClass.hpp"
 #include "StackFrameClass.hpp"
 #include "ExceptionClass.hpp"
+#include "ContextualSourceClass.hpp"
 
 PCPPM CPPCode::exportedMethods[] =     /* start of exported methods table   */
 {
@@ -1007,6 +1008,13 @@ CPPM(ExceptionClass::getCondition),
 CPPM(ExceptionClass::getStackFrames),
 CPPM(ExceptionClass::getTraceBack),
 CPPM(ExceptionClass::fillInStackTrace),
+
+CPPM(RexxContextualSource::newRexx),
+CPPM(RexxContextualSource::copyRexx),
+CPPM(RexxContextualSource::getSource),
+CPPM(RexxContextualSource::getPackage),
+CPPM(RexxContextualSource::getContext),
+
 NULL                                   /* final terminating method          */
 };
 

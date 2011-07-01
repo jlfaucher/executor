@@ -2452,7 +2452,7 @@ special character (such as a parenthesis).
     <Component>Rexx</Component>
     <Severity>Warning</Severity>
     <SymbolicName>Error_Unmatched_parenthesis</SymbolicName>
-    <Text>Unmatched <q>(</q> or <q>[</q> in expression</Text>
+    <Text>Unmatched <q>(</q> or <q>[</q> or <q>{</q> in expression</Text>
     <Explanation><para>A matched parenthesis or bracket was found within an expression. There are more left parentheses than right parentheses or more left brackets than right brackets. To include a single parenthesis in a command, enclose it in quotation marks.</para></Explanation>
     <Subcodes>
       <SubMessage>
@@ -2482,6 +2482,15 @@ special character (such as a parenthesis).
         <SymbolicName>Error_Unmatched_parenthesis_square</SymbolicName>
         <Text>Square bracket <q>[</q> in position <Sub position="1" name="position"/> on line <Sub position="2" name="line_number"/> requires a corresponding right square bracket <q>]</q></Text>
       </SubMessage>
+      <SubMessage>
+        <Code>36</Code>
+        <Subcode>903</Subcode>
+        <MessageNumber>722</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Unmatched_parenthesis_curly</SymbolicName>
+        <Text>Curly bracket <q>{</q> in position <Sub position="1" name="position"/> on line <Sub position="2" name="line_number"/> requires a corresponding right curly bracket <q>}</q></Text>
+      </SubMessage>
     </Subcodes>
   </Message>
   <Message>
@@ -2491,8 +2500,8 @@ special character (such as a parenthesis).
     <Component>Rexx</Component>
     <Severity>Warning</Severity>
     <SymbolicName>Error_Unexpected_comma</SymbolicName>
-    <Text>Unexpected <q>,</q>, <q>)</q>, or <q>]</q></Text>
-    <Explanation><para>Either a comma was found outside a function invocation, or there are too many right parentheses or right square brackets in an expression. To include a comma in a character expression, enclose it in quotation marks.  For example, write the instruction: </para>
+    <Text>Unexpected <q>,</q>, <q>)</q>, <q>]</q>, or <q>}</q></Text>
+    <Explanation><para>Either a comma was found outside a function invocation, or there are too many right parentheses or right square brackets or right curly brackets in an expression. To include a comma in a character expression, enclose it in quotation marks.  For example, write the instruction: </para>
     <programlisting>
        Say Enter A, B, or C
     </programlisting>
@@ -2537,6 +2546,15 @@ special character (such as a parenthesis).
         <Severity>Warning</Severity>
         <SymbolicName>Error_Unexpected_comma_bracket</SymbolicName>
         <Text>Unexpected <q>]</q></Text>
+      </SubMessage>
+      <SubMessage>
+          <Code>37</Code>
+          <Subcode>902</Subcode>
+          <MessageNumber>723</MessageNumber>
+          <Component>Rexx</Component>
+          <Severity>Warning</Severity>
+          <SymbolicName>Error_Unexpected_curly_bracket</SymbolicName>
+          <Text>Unexpected <q>}</q></Text>
       </SubMessage>
     </Subcodes>
   </Message>

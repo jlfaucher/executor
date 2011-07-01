@@ -48,15 +48,18 @@
 class SourceLocation                   /* token/clause location information */
 {
 public:
-    inline size_t getLineNumber() { return startLine; }
-    inline sizeB_t getOffset()     { return startOffset; }
-    inline size_t getEndLine()    { return endLine; }
-    inline sizeB_t getEndOffset()  { return endOffset; }
+    inline SourceLocation() : /*startLine(0), startOffset(0), endLine(0), endOffset(0),*/ limitedTrace(false) {};
+    inline size_t getLineNumber() const { return startLine; }
+    inline sizeB_t getOffset() const    { return startOffset; }
+    inline size_t getEndLine() const    { return endLine; }
+    inline sizeB_t getEndOffset() const { return endOffset; }
+    inline bool isLimitedTrace() const  { return limitedTrace; }
 
     inline void setLineNumber(size_t l) { startLine = l; }
-    inline void setOffset(sizeB_t l)     { startOffset = l; }
+    inline void setOffset(sizeB_t l)    { startOffset = l; }
     inline void setEndLine(size_t l)    { endLine = l; }
-    inline void setEndOffset(sizeB_t l)  { endOffset = l; }
+    inline void setEndOffset(sizeB_t l) { endOffset = l; }
+    inline void setLimitedTrace(bool b) { limitedTrace = b; }
 
     inline void setStart(SourceLocation &l)
     {
@@ -86,12 +89,13 @@ public:
 
     }
 
-    inline void setLocation(size_t line, sizeB_t offset, size_t end, sizeB_t end_offset)
+    inline void setLocation(size_t line, sizeB_t offset, size_t end, sizeB_t end_offset, bool limited_trace=false)
     {
         startLine = line;
         startOffset = offset;
         endLine = end;
         endOffset = end_offset;
+        limitedTrace = limited_trace;
     }
 
     inline void setLocation(SourceLocation &l)
@@ -100,6 +104,7 @@ public:
         startOffset = l.startOffset;
         endLine = l.endLine;
         endOffset = l.endOffset;
+        limitedTrace = l.limitedTrace;
     }
 
     inline const SourceLocation & operator= (const SourceLocation &l)
@@ -108,14 +113,16 @@ public:
         startOffset = l.startOffset;
         endLine = l.endLine;
         endOffset = l.endOffset;
+        limitedTrace = l.limitedTrace;
         return *this;
     }
 
 protected:
     size_t startLine;                    // file line start location
-    sizeB_t startOffset;                  // offset within the file line
+    sizeB_t startOffset;                 // offset within the file line
     size_t endLine;                      // file line end location
-    sizeB_t endOffset;                    // file end offset
+    sizeB_t endOffset;                   // file end offset
+    bool limitedTrace;                   // Used by /*...*/ and {...} to limit the traceBack when error "unmatched"
 };
 
 

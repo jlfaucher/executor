@@ -99,6 +99,8 @@
 #define TheStackFrameClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_StackFrameClass])
 #define TheExceptionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Exception])
 #define TheExceptionClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_ExceptionClass])
+#define TheRexxContextualSourceBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxContextualSource])
+#define TheRexxContextualSourceClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxContextualSourceClass])
 #define TheNilObjectBehaviour      (&RexxBehaviour::primitiveBehaviours[T_NilObject])
 #define TheBehaviourBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Behaviour])
 #define TheRexxSourceBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxSource])
@@ -182,6 +184,7 @@
 #define TheInterpreterInstanceBehaviour      (&RexxBehaviour::primitiveBehaviours[T_InterpreterInstance])
 #define TheSecurityManagerBehaviour      (&RexxBehaviour::primitiveBehaviours[T_SecurityManager])
 #define TheCommandHandlerBehaviour      (&RexxBehaviour::primitiveBehaviours[T_CommandHandler])
+#define TheSourceLiteralBehaviour      (&RexxBehaviour::primitiveBehaviours[T_SourceLiteral])
 
 
 /* -------------------------------------------------------------------------- */
