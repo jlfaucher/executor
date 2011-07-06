@@ -45,6 +45,31 @@ http://slatelanguage.org/
 ===============================================================================
 2011 july 06
 
+Adapted the package doers.cls to source literals.
+The class String is no longer used to hold routine's source or method's source.
+Now RexxContextualSource is used for that.
+    doer = {use arg name; say "hello" name}~doer
+    say doer~class -- The Routine class
+    doer~do("John") -- hello John
+    
+    doer = {::method say "hello" self}~doer
+    say doer~class -- The Method class
+    doer~do("John") -- hello John
+Strings are still used for doers of type Message.
+    doer = "length"~doer
+    say doer~class -- The String class
+    say doer~do("John") -- 4
+
+
+Adapted the samples in extension, concurrency, pipeline :
+- No longer need to call Doers.AddVisibilityFrom(.context).
+- Source fragments are no longer strings, but source literals.
+- Use abbreviated syntax when passing source literals
+
+
+===============================================================================
+2011 july 06
+
 When a source literal was evaluated by an interpret instruction, the package associated
 to the RexxContextualSource (at parse time) was not holding the right informations
 for class & routine lookup scope. 

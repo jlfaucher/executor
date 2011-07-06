@@ -24,9 +24,9 @@ T1                                                                          next
 T1                              resume +1
 */
 
-call Doers.AddVisibilityFrom(.context)
+--call Doers.AddVisibilityFrom(.context)
 
-.coactivity~new('.coactivity~yield("a") ; .coactivity~yield("b")')~pipe(.upper|.displayer)
+.coactivity~new({.coactivity~yield("a") ; .coactivity~yield("b")})~pipe(.upper|.displayer)
 
 --::options trace i
 ::requires "extension/extensions.cls"

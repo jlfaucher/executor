@@ -12,22 +12,22 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class StringReduce mixinclass Object public
 
 ::method reduce
-    use strict arg action, context=.nil
-    return self~makearray("")~reduce(action, context)
+    use strict arg action
+    return self~makearray("")~reduce(action)
 
 
 ::class CollectionReduce mixinclass Object public
 
 ::method reduce
-    use strict arg action, context=.nil
-    return self~supplier~reduce(action, context)
+    use strict arg action
+    return self~supplier~reduce(action)
 
 
 ::class SupplierReduce mixinclass Object public
 
 ::method reduce
-    use strict arg action, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg action
+    doer = action~doer -- parse only once, before iteration
     if \ self~available then return .nil
     r = self~item
     self~next
@@ -48,14 +48,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "mapChar"
 
 ::method mapchar
-    use strict arg action, inplace=.false, context=.nil
+    use strict arg action, inplace=.false
     if inplace == .true then raise syntax 93.900 array ("in place not applicable to string")
-    return .MutableBuffer~new(self)~mapchar(action, .true, context)~string
+    return .MutableBuffer~new(self)~mapchar(action, .true)~string
 
 ::method mapword
-    use strict arg action, inplace=.false, context=.nil
+    use strict arg action, inplace=.false
     if inplace == .true then raise syntax 93.900 array ("in place not applicable to string")
-    return .MutableBuffer~new(self)~mapword(action, .true, context)~string
+    return .MutableBuffer~new(self)~mapword(action, .true)~string
 
 
 ::class MutableBufferMap mixinclass Object public
@@ -64,8 +64,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "mapChar"
 
 ::method mapchar
-    use strict arg action, inplace=.true, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg action, inplace=.true
+    doer = action~doer -- parse only once, before iteration
     r = self
     if \inplace then r = self~copy
     string = r~string
@@ -76,8 +76,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return r
 
 ::method mapword
-    use strict arg action, inplace=.true, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg action, inplace=.true
+    doer = action~doer -- parse only once, before iteration
     r = self
     if \inplace then r = self~copy
     string = r~string
@@ -98,8 +98,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class OrderedCollectionMap mixinclass Object public
 
 ::method map
-    use strict arg action, inplace=.false, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg action, inplace=.false
+    doer = action~doer -- parse only once, before iteration
     r = self
     if \inplace then r = self~copy
     current = self~first
@@ -117,16 +117,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class StringRepeater mixinclass Object public
 
 ::method times
-    use strict arg action, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg action
+    doer = action~doer -- parse only once, before iteration
     do i = 1 to self
         doer~do(i)
     end
     return self
 
 ::method upto
-    use strict arg upperLimit, action, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg upperLimit, action
+    doer = action~doer -- parse only once, before iteration
     do i = self to upperLimit
         doer~do(i)
     end
@@ -140,16 +140,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class CollectionIterator mixinclass Object public
 
 ::method each
-    use strict arg action, context=.nil
-    self~supplier~each(action, context)
+    use strict arg action
+    self~supplier~each(action)
     return self
 
 
 ::class SupplierIterator mixinclass Object public
 
 ::method each
-    use strict arg action, context=.nil
-    doer = action~doer(context) -- parse only once, before iteration
+    use strict arg action
+    doer = action~doer -- parse only once, before iteration
     do while self~available
         doer~do(self~item, self~index) -- I suppose that most of the time, we need only the item
         self~next

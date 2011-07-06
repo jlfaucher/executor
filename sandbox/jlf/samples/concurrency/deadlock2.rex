@@ -18,8 +18,8 @@ But that's enough to make a good diagnostic.
 T1   A9     V1      1         >I> Method ENDALL
 */
 
-call Doers.AddVisibilityFrom(.context)
-c = .coactivity~new(".coactivity~yield(1) ; return 2")
+--call Doers.AddVisibilityFrom(.context)
+c = .coactivity~new({.coactivity~yield(1) ; return 2})
 say c
 say c~resume
 --say c~resume -- If we don't resume to get the 2nd value, then we can have a deadlock

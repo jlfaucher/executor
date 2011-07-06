@@ -56,31 +56,31 @@ say "-- Routine calling"
 say "-----------------------------------------------------------------"
 
 -- A source with more than one word is a routine source by default
-.Array~of(1,2,3,4)~map("return arg(1) * 2")~dump -- an Array : 2, 4, 6, 8
-.Array~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- an Array : 1, 2, 6, 24
+.Array~of(1,2,3,4)~map{return arg(1) * 2}~dump -- an Array : 2, 4, 6, 8
+.Array~of(1,2,3,4)~map{use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)}~dump -- an Array : 1, 2, 6, 24
 
-.List~of(1,2,3,4)~map("return arg(1) * 2")~dump -- a List : 2, 4, 6, 8
-.List~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- a List : 1, 2, 6, 24
+.List~of(1,2,3,4)~map{return arg(1) * 2}~dump -- a List : 2, 4, 6, 8
+.List~of(1,2,3,4)~map{use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)}~dump -- a List : 1, 2, 6, 24
 
-.Queue~of(1,2,3,4)~map("return arg(1) * 2")~dump -- a Queue : 2, 4, 6, 8
-.Queue~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- a Queue : 1, 2, 6, 24
+.Queue~of(1,2,3,4)~map{return arg(1) * 2}~dump -- a Queue : 2, 4, 6, 8
+.Queue~of(1,2,3,4)~map{use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)}~dump -- a Queue : 1, 2, 6, 24
 
-.CircularQueue~of(1,2,3,4)~map("return arg(1) * 2")~dump -- 2,4,6,8 : 2, 4, 6, 8 (strange : the class is not displayed)
-.CircularQueue~of(1,2,3,4)~map("use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- 1,2,6,24 : 1, 2, 6, 24
+.CircularQueue~of(1,2,3,4)~map{return arg(1) * 2}~dump -- 2,4,6,8 : 2, 4, 6, 8 (strange : the class is not displayed)
+.CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)}~dump -- 1,2,6,24 : 1, 2, 6, 24
 
-"abcdefghijklmnopqrstuvwxyz"~mapchar("return arg(1)~verify('aeiouy')")~dump
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapchar("if arg(1)~verify('aeiouy') == 1 then return arg(1) ; else return ''")~dump
+"abcdefghijklmnopqrstuvwxyz"~mapchar{return arg(1)~verify('aeiouy')}~dump
+.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapchar{if arg(1)~verify('aeiouy') == 1 then return arg(1) ; else return ''}~dump
 
 /* todo : doesn't work because the variable translation has no value when evaluating the doer
 translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
 translation~setMethod("UNKNOWN", "return arg(1)")
-"The quick brown fox jumps over the lazy dog"~mapword("return translation~arg(1)",,.context~package)~dump
-.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapword("return translation[arg(1)]", .false, .context~package)~dump
+"The quick brown fox jumps over the lazy dog"~mapword{return translation~arg(1)}~dump
+.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapword({return translation[arg(1)]}, .false)~dump
 */
 
 -- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
-.Array~of(1,2,3,4)~map("::routine return arg(1) * 2")~dump -- an Array : 2, 4, 6, 8
-.Array~of(1,2,3,4)~map("::routine use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)")~dump -- an Array : 1, 2, 6, 24
+.Array~of(1,2,3,4)~map{::routine return arg(1) * 2}~dump -- an Array : 2, 4, 6, 8
+.Array~of(1,2,3,4)~map{::routine use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)}~dump -- an Array : 1, 2, 6, 24
 
 -- A routine object can be used directly
 .Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump -- an Array : 1, 2, 6, 24
@@ -98,7 +98,7 @@ colors = .Array~of( ,
     )
     
 -- A source can be tagged explicitely as a method (you need that, because it's a routine by default)
-colors~map('::method return self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"')~dump -- an Array : 0 (0, 0, 0), 255 (0, 0, 255), 32768 (0, 128, 0), 12500670 (190, 190, 190)
+colors~map{::method return self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump -- an Array : 0 (0, 0, 0), 255 (0, 0, 255), 32768 (0, 128, 0), 12500670 (190, 190, 190)
 
 -- A method object can be used directly
 -- No need to define the method on the receiver class

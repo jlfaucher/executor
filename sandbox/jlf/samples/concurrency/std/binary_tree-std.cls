@@ -79,10 +79,10 @@ end
     self~rootNode~insert(value)
 
 ::method ascendingValues
-    return .Coactivity~new(.ExtendedString~new("visitAscending"), , , self~rootNode)
+    return .Coactivity~new(.ExtendedString~new("visitAscending"), , self~rootNode)
 
 ::method descendingValues
-    return .Coactivity~new(.ExtendedString~new("visitDescending"), , , self~rootNode)
+    return .Coactivity~new(.ExtendedString~new("visitDescending"), , self~rootNode)
 
 
 /*

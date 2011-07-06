@@ -62,16 +62,16 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- A function always return a result. The "return" instruction is automatically inserted, if missing.
 -- A function is not allowed to run a command.
 ::method makeFunctionDoer public class
-    use strict arg doable, context=.nil
-    if doable~isA(.String) then do
-        source = doable
+    use strict arg doable
+    if doable~isA(.RexxContextualSource) then do
+        source = doable~source
         if source~strip <> "" then do
             if source~caselessPos("return ") == 0 then source = "return" source
             source = "use arg value, index;" source
         end
-        doable = source
+        doable~source = source
     end
-    doer = doable~doer(context)
+    doer = doable~doer
     if doer~hasMethod("setSecurityManager") then doer~setSecurityManager(.CommandNotAllowed~new) -- A doer can be a message, which has not this method
     return doer
 
@@ -79,15 +79,15 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- An action can return optionnally a result, it's up to the user to insert the "return".
 -- An action can run a command, so no security restriction.
 ::method makeActionDoer public class
-    use strict arg doable, context=.nil
-    if doable~isA(.String) then do
-        source = doable
+    use strict arg doable
+    if doable~isA(.RexxContextualSource) then do
+        source = doable~source
         if source~strip <> "" then do
             source = "use arg value, index;" source
         end
-        doable = source
+        doable~source = source
     end
-    doer = doable~doer(context)
+    doer = doable~doer
     return doer
 
 
@@ -108,13 +108,18 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- that supplier to its primary output.
 ::class append public subclass pipeStage
 
-::method init
+::method initOptions
     expose supplier
-    use strict arg producer, context=.nil
-    if producer~hasMethod("doer") then producer = .pipeExtensions~makeFunctionDoer(producer, context)~do
-    if \producer~hasMethod("supplier") then supplier = .array~of(producer) -- for convenience, accept a non-supplier
-    supplier = producer~supplier
-    forward class (super)
+    supplier = .nil
+    unknown = .array~new
+    do a over arg(1, "a")
+        if supplier <> .nil then raise syntax 93.900 array("Only one producer is supported")
+        producer = a
+        if producer~hasMethod("doer") then producer = .pipeExtensions~makeFunctionDoer(producer)~do
+        if \producer~hasMethod("supplier") then supplier = .array~of(producer) -- for convenience, accept a non-supplier
+        supplier = producer~supplier
+    end
+    forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method eof
     expose supplier
@@ -137,14 +142,9 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- pipeline before injecting the items produced by the supplier.
 ::class inject public subclass pipeStage
 
-::method init
-    expose doer
-    use strict arg function, context=.nil
-    doer = .pipeExtensions~makeFunctionDoer(function, context)
-    forward class (super)
-
 ::method initOptions
-    expose recursive limit depthFirst append pushIndex
+    expose doer recursive limit depthFirst append pushIndex
+    doer = .nil
     recursive = .false
     limit = -1
     depthFirst = .true
@@ -152,22 +152,30 @@ So I added the 'pipe' method which injects the object in the pipe :
     pushIndex = .false
     unknown = .array~new
     do a over arg(1, "a")
-        parse var a first "." rest
-        if "recursive"~caselessAbbrev(first, 3) then do
-            -- recursive[.limit|.depthFirst|.breadthFirst]*
-            recursive = .true
-            do while rest <> "" 
-                parse var rest first "." rest
-                if first~dataType("W") then limit = first
-                else if "depthFirst"~caselessAbbrev(first, 1) then depthFirst = .true
-                else if "breadthFirst"~caselessAbbrev(first, 1) then depthFirst = .false
-                else raise syntax 93.900 array("Expected 'depthFirst' or 'breadthFirst' after "first". in "a)
+        if a~isA(.String) then do
+            parse var a first "." rest
+            if "recursive"~caselessAbbrev(first, 3) then do
+                -- recursive[.limit|.depthFirst|.breadthFirst]*
+                recursive = .true
+                do while rest <> "" 
+                    parse var rest first "." rest
+                    if first~dataType("W") then limit = first
+                    else if "depthFirst"~caselessAbbrev(first, 1) then depthFirst = .true
+                    else if "breadthFirst"~caselessAbbrev(first, 1) then depthFirst = .false
+                    else raise syntax 93.900 array("Expected 'depthFirst' or 'breadthFirst' after "first". in "a)
+                end
+                iterate
             end
+            if "append"~caselessAbbrev(a, 1) then do ; append = .true ; iterate ; end
+            if "replace"~caselessAbbrev(a, 3) then do ; append = .false ; iterate ; end
+            if "pushIndex"~caselessAbbrev(a, 1) then do ; pushIndex = .true ; iterate ; end
         end
-        else if "append"~caselessAbbrev(a, 1) then append = .true
-        else if "replace"~caselessAbbrev(a, 3) then append = .false
-        else if "pushIndex"~caselessAbbrev(a, 1) then pushIndex = .true
-        else unknown~append(a) 
+        if a~hasMethod("doer") then do
+            if doer <> .nil then raise syntax 93.900 array("Only one producer is supported")
+            doer = .pipeExtensions~makeFunctionDoer(a)
+            iterate
+        end
+        unknown~append(a)
     end
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
@@ -258,14 +266,19 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- the commands are authorized here, so DON'T FORGET the "return" instruction
 -- if you want to return a value !!!!
 -- Ex : assuming value==10
--- .do["2*value"] will not insert 20 in the pipeline, but will instead run the command "20".
+-- .do {2*value} will not insert 20 in the pipeline, but will instead run the command "20".
 ::class do public subclass pipeStage
 
-::method init
+::method initOptions
     expose doer
-    use strict arg action, context=.nil
-    doer = .pipeExtensions~makeActionDoer(action, context)
-    forward class (super)
+    doer = .nil
+    unknown = .array~new
+    do a over arg(1, "a")
+        if doer <> .nil then raise syntax 93.900 array("Only one action is supported")
+        if a~hasMethod("doer") then do ; doer = .pipeExtensions~makeActionDoer(a) ; iterate ; end
+        unknown~append(a)
+    end
+    forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process
     expose doer
@@ -280,11 +293,17 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- A select pipeStage to execute a boolean filter passed as argument.
 ::class select public subclass pipeStage
 
-::method init
+::method initOptions
     expose doer
-    use strict arg filter, context=.nil
-    doer = .pipeExtensions~makeFunctionDoer(filter, context)
-    forward class (super)
+    doer = .nil
+    unknown = .array~new
+    do a over arg(1, "a")
+        if doer <> .nil then raise syntax 93.900 array("Only one filter is supported")
+        if a~hasMethod("doer") then do ; doer = .pipeExtensions~makeFunctionDoer(a) ; iterate ; end
+        unknown~append(a)
+    end
+    forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
+
 
 ::method process
     expose doer
@@ -304,10 +323,13 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- Use the option 'recursive' to search subdirectories recursively.
 ::class fileTree public subclass inject
 
-::method init
+::method initOptions
     expose doer
     doer = .context~package~findRoutine("fileTreeFind")
-    self~init:super(doer)
+    args = arg(1, "a")
+    args~append(doer)
+    forward class (super) arguments (args)
+
 
 ::routine fileTreeFind
     use arg value, index

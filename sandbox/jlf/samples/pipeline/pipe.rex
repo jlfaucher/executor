@@ -383,13 +383,13 @@ return self~compareStrings(s1, s2)
 ::attribute strict
 
 ::method init
-expose items context
-use strict arg context=.nil                 -- will be used for the options of type expression
+expose items
+use strict arg -- none
 items = .array~new                          -- create a new list
 forward class (super)
 
 ::method initOptions
-expose descending caseless quickSort strict criteria context
+expose descending caseless quickSort strict criteria
 descending = .false
 caseless = .false
 quickSort = .false -- use a stable sort by default
@@ -397,23 +397,26 @@ strict = .false
 unknown = .array~new
 criteria = .array~new
 do a over arg(1, "a")
-    if "byIndex"~caselessAbbrev(a, 3) then criteria~append(.array~of("sortBy", "index")) 
-    else if "byValue"~caselessAbbrev(a, 1) then criteria~append(.array~of("sortBy", "value"))
-    else if "ascending"~caselessAbbrev(a, 1) then criteria~append(.array~of("descending=", .false))
-    else if "descending"~caselessAbbrev(a, 1) then criteria~append(.array~of("descending=", .true))
-    else if "case"~caselessAbbrev(a, 4) then criteria~append(.array~of("caseless=", .false))
-    else if "caseless"~caselessAbbrev(a, 5) then criteria~append(.array~of("caseless=", .true))
-    else if "stableSort"~caselessAbbrev(a, 3) then criteria~append(.array~of("quickSort=", .false))
-    else if "quickSort"~caselessAbbrev(a, 1) then criteria~append(.array~of("quickSort=", .true))
-    else if "numeric"~caselessAbbrev(a, 1) then criteria~append(.array~of("strict=", .false))
-    else if "strict"~caselessAbbrev(a, 3) then criteria~append(.array~of("strict=", .true))
-    else do -- assume this is an expression or a function
-        if .pipeExtensions~available then do
-            function = .pipeExtensions~makeFunctionDoer(a, context)
-            criteria~append(.array~of("sortBy", function))
-        end
-        else unknown~append(a)
+    if a~isA(.String) then do
+        if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end 
+        if "byValue"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
+        if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
+        if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
+        if "case"~caselessAbbrev(a, 4) then do ; criteria~append(.array~of("caseless=", .false)) ; iterate ; end
+        if "caseless"~caselessAbbrev(a, 5) then do ; criteria~append(.array~of("caseless=", .true)) ; iterate ; end
+        if "stableSort"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("quickSort=", .false)) ; iterate ; end
+        if "quickSort"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("quickSort=", .true)) ; iterate ; end
+        if "numeric"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("strict=", .false)) ; iterate ; end
+        if "strict"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("strict=", .true)) ; iterate ; end
     end
+    if a~hasMethod("doer") then do
+        if .pipeExtensions~available then do
+            function = .pipeExtensions~makeFunctionDoer(a)
+            criteria~append(.array~of("sortBy", function))
+            iterate
+        end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
@@ -461,8 +464,10 @@ expose quickSort
 quickSort = .false -- use a stable sort by default
 unknown = .array~new
 do a over arg(1, "a")
-    if "quickSort"~caselessAbbrev(a, 1) then quickSort = .true
-    else unknown~append(a) 
+    if a~isA(.String) then do
+        if "quickSort"~caselessAbbrev(a, 1) then do ; quickSort = .true ; iterate ; end
+    end
+    unknown~append(a) 
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -627,23 +632,28 @@ lastSpecified = .false
 countSpecified = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "first"~caselessAbbrev(a, 1) then do
-        if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
-        if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
-        firstSpecified = .true
-        first = .true
+    if a~isA(.String) then do
+        if "first"~caselessAbbrev(a, 1) then do
+            if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
+            if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
+            firstSpecified = .true
+            first = .true
+            iterate
+        end
+        if "last"~caselessAbbrev(a, 1) then do
+            if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
+            if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
+            lastSpecified = .true
+            first = .false
+            iterate
+        end
+        if a~dataType("W") then do
+            count = a
+            countSpecified = .true
+            iterate
+        end
     end
-    else if "last"~caselessAbbrev(a, 1) then do
-        if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
-        if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
-        lastSpecified = .true
-        first = .false
-    end
-    else if a~dataType("W") then do
-        count = a
-        countSpecified = .true
-    end
-    else unknown~append(a) 
+    unknown~append(a) 
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
@@ -711,23 +721,28 @@ lastSpecified = .false
 countSpecified = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "first"~caselessAbbrev(a, 1) then do
-        if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
-        if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
-        firstSpecified = .true
-        first = .true
+    if a~isA(.String) then do
+        if "first"~caselessAbbrev(a, 1) then do
+            if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
+            if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
+            firstSpecified = .true
+            first = .true
+            iterate
+        end
+        if "last"~caselessAbbrev(a, 1) then do
+            if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
+            if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
+            lastSpecified = .true
+            first = .false
+            iterate
+        end
+        if a~dataType("W") then do
+            count = a
+            countSpecified = .true
+            iterate
+        end
     end
-    else if "last"~caselessAbbrev(a, 1) then do
-        if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
-        if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
-        lastSpecified = .true
-        first = .false
-    end
-    else if a~dataType("W") then do
-        count = a
-        countSpecified = .true
-    end
-    else unknown~append(a) 
+    unknown~append(a) 
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
@@ -890,49 +905,59 @@ self~checkEOP(self~next)
 ::constant indexSeparator "|"
 
 ::method init
-expose items context
-use strict arg context=.nil                 -- will be used for the options of type expression
+expose items
+use strict arg -- none
 forward class (super)
 
 ::method initOptions
-expose actions context
+expose actions
 unknown = .array~new
 actions = .array~new
 do a over arg(1, "a")
-    parse var a first "." rest
-    if "index"~caselessAbbrev(first, 1) then do
-        indexWidth = -1
-        if rest <> "" then do -- index.width
-            if rest~dataType("W") then indexWidth = rest
-            else raise syntax 93.900 array("Expected a whole number after "index". in "a) 
+    if a~isA(.String) then do
+        parse var a first "." rest
+        if "index"~caselessAbbrev(first, 1) then do
+            indexWidth = -1
+            if rest <> "" then do -- index.width
+                if rest~dataType("W") then indexWidth = rest
+                else raise syntax 93.900 array("Expected a whole number after "index". in "a) 
+            end
+            actions~append(.array~of("displayIndex", indexWidth))
+            iterate
         end
-        actions~append(.array~of("displayIndex", indexWidth))
-    end
-    else if "value"~caselessAbbrev(first, 1) then do
-        valueWidth = -1
-        if rest <> "" then do -- value.width
-            if rest~dataType("W") then valueWidth = rest
-            else raise syntax 93.900 array("Expected a whole number after "value". in "a) 
+        if "value"~caselessAbbrev(first, 1) then do
+            valueWidth = -1
+            if rest <> "" then do -- value.width
+                if rest~dataType("W") then valueWidth = rest
+                else raise syntax 93.900 array("Expected a whole number after "value". in "a) 
+            end
+            actions~append(.array~of("displayValue", valueWidth))
+            iterate
         end
-        actions~append(.array~of("displayValue", valueWidth))
-    end
-    else if "space"~caselessAbbrev(first, 1) then do
-        spaceWidth = -1
-        if rest <> "" then do -- space.width
-            if rest~dataType("W") then spaceWidth = rest
-            else raise syntax 93.900 array("Expected a whole number after "space". in "a) 
+        if "space"~caselessAbbrev(first, 1) then do
+            spaceWidth = -1
+            if rest <> "" then do -- space.width
+                if rest~dataType("W") then spaceWidth = rest
+                else raise syntax 93.900 array("Expected a whole number after "space". in "a) 
+            end
+            actions~append(.array~of("displaySpace", spaceWidth))
+            iterate
         end
-        actions~append(.array~of("displaySpace", spaceWidth))
+        if "newline"~caselessAbbrev(a, 1) then do 
+            actions~append(.array~of("displayNewline"))
+            iterate
+        end
+        actions~append(.array~of("displayString", a))
+        iterate
     end
-    else if "newline"~caselessAbbrev(a, 1) then actions~append(.array~of("displayNewline"))
-    else do
-        -- assume this is an expression or a function
+    if a~hasMethod("doer") then do
         if .pipeExtensions~available then do
-            function = .pipeExtensions~makeFunctionDoer(a, context)
+            function = .pipeExtensions~makeFunctionDoer(a)
             actions~append(.array~of("displayExpression", function))
+            iterate
         end
-        else unknown~append(a)
     end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -954,6 +979,10 @@ if width == -1 then .output~charout(" ")
 ::method displayNewline
 use strict arg dummy, value, index
 .output~lineout("")
+
+::method displayString
+use strict arg string, value, index
+.output~charout(string)
 
 ::method displayExpression
 use strict arg expression, value, index
@@ -988,8 +1017,10 @@ expose caseless
 caseless = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
-                                       else unknown~append(a)
+    if a~isA(.String) then do
+        if "caseless"~caselessAbbrev(a, 5) then do ; caseless = .true ; iterate ; end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -1020,8 +1051,10 @@ expose caseless
 caseless = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
-                                       else unknown~append(a)
+    if a~isA(.String) then do
+        if "caseless"~caselessAbbrev(a, 5) then do ; caseless = .true ; iterate ; end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -1048,8 +1081,10 @@ expose caseless
 caseless = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
-                                       else unknown~append(a)
+    if a~isA(.String) then do
+        if "caseless"~caselessAbbrev(a, 5) then do ; caseless = .true ; iterate ; end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -1116,8 +1151,10 @@ expose caseless
 caseless = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
-                                       else unknown~append(a)
+    if a~isA(.String) then do
+        if "caseless"~caselessAbbrev(a, 5) then do ; caseless = .true ; iterate ; end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -1155,8 +1192,10 @@ expose caseless
 caseless = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
-                                       else unknown~append(a)
+    if a~isA(.String) then do
+        if "caseless"~caselessAbbrev(a, 5) then do ; caseless = .true ; iterate ; end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -1186,8 +1225,10 @@ expose caseless
 caseless = .false
 unknown = .array~new
 do a over arg(1, "a")
-    if "caseless"~caselessAbbrev(a, 5) then caseless = .true
-                                       else unknown~append(a)
+    if a~isA(.String) then do
+        if "caseless"~caselessAbbrev(a, 5) then do ; caseless = .true ; iterate ; end
+    end
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -1373,9 +1414,9 @@ forward message ("checkEOP") arguments (stages)
 
 
 /******************************************************************************/
--- A fileText pipeStage to get the contents of the file line by line.
+-- A getFiles pipeStage to get the contents of a list of files line by line.
 -- The input value can be a string (used as a path) or a .File instance.
-::class fileText public subclass pipeStage
+::class getFiles public subclass pipeStage
 
 ::method process
 use strict arg value, index

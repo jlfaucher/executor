@@ -88,9 +88,9 @@ Status transitions :
     The default entry is the couple ("main", self).
     By default, the coactivity is started (the 'start' method is called) 
     */
-    use strict arg action="main", start=.true, context=.nil, self~object=(self)
+    use strict arg action="main", start=.true, self~object=(self)
 
-    self~doer = action~doer(context)
+    self~doer = action~doer
     self~status = .Coactivity~notStarted
     if start then self~start
 

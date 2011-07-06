@@ -5,11 +5,6 @@
 signal on any name error
 signal on syntax name error
 
--- See doers.cls for more details, but in summary, the one-liner routines/methods have a default
--- lookup scope which is limited to the doers package. Consequence : the .Coactivity class is not
--- visible by default, and I have to pass explicitely the .context each time a one-liner routine/method
--- is created. This is tedious, and I prefer to dynamically extend the lookup scope of the doers package.
-call Doers.AddVisibilityFrom(.context)
 call demo
 call terminate
 return
@@ -34,7 +29,7 @@ return
 
 say
 say "A coactivity implemented by a one-liner routine"
-c = .Coactivity~new('say "running coactivity" ; return 1', .false)
+c = .Coactivity~new({say "running coactivity" ; return 1}, .false)
 c~start
 say c~resume
 signal on syntax name trap_syntax1
@@ -44,7 +39,7 @@ trap_syntax1:
 
 say
 say "A coactivity implemented by a one-liner routine, used as a generator"
-c = .Coactivity~new("do i = 1 to 10 ; .yield[i] ; end")
+c = .Coactivity~new{do i = 1 to 10 ; .yield[i] ; end}
 c~resume
 do while var("result")
     say result
@@ -54,7 +49,7 @@ end
 
 say
 say "Iteration with a supplier"
-c = .Coactivity~new("do i = 1 to 10 ; .yield[i] ; end")
+c = .Coactivity~new{do i = 1 to 10 ; .yield[i] ; end}
 supplier = c~supplier
 do while supplier~available
     say supplier~index ":" supplier~item
@@ -64,7 +59,7 @@ end
 
 say
 say "do over a finite coactivity"
-c = .Coactivity~new("do i = 1 to 10 ; .yield[i] ; end")
+c = .Coactivity~new{do i = 1 to 10 ; .yield[i] ; end}
 do v over c
     say v
 end
@@ -73,13 +68,13 @@ end
 say
 say "do over an infinite coactivty : needs a limit"
 say "Local limit setting"
-c = .Coactivity~new("i = 1 ; do forever ; .yield[i] ; i += 1 ; end")
+c = .Coactivity~new{i = 1 ; do forever ; .yield[i] ; i += 1 ; end}
 do v over c~makeArray(15)
     say v
 end
 say "Global limit setting (default is ".Coactivity~makeArrayLimit")"
 .Coactivity~makeArrayLimit = 15
-c = .Coactivity~new("i = 1 ; do forever ; .yield[i] ; i += 1 ; end")
+c = .Coactivity~new{i = 1 ; do forever ; .yield[i] ; i += 1 ; end}
 do v over c
     say v
 end
