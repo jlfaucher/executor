@@ -85,7 +85,7 @@ class RexxCode : public BaseCode
    inline RexxString *extract(SourceLocation &l) { return source->extract(l); }
    inline SecurityManager *getSecurityManager() { return source->getSecurityManager(); }
    inline void        install(RexxActivation *activation) { source->install(activation); }
-   inline RexxCode *interpret(RexxString *s, size_t n) { return source->interpret(s, labels, n); }
+   inline RexxCode *interpret(RexxString *s, size_t n, RexxActivation *activation) { return source->interpret(s, labels, n, activation); }
    inline RexxDirectory *getMethods() { return source->getMethods(); };
    inline RexxDirectory *getRoutines() { return source->getRoutines(); };
    inline RoutineClass *findRoutine(RexxString *n) { return source->findRoutine(n); }

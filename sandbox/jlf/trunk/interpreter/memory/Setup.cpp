@@ -1393,6 +1393,7 @@ void RexxMemory::createImage()
 
   defineKernelMethod(CHAR_COPY          ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::copyRexx), 0);
   defineKernelMethod(CHAR_SOURCE        ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getSource), 0);
+  defineKernelMethod(CHAR_SOURCEEQUALS  ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::setSource), 1);
   defineKernelMethod(CHAR_PACKAGE       ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getPackage), 0);
   defineKernelMethod(CHAR_CONTEXT       ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getContext), 0);
 
@@ -1427,6 +1428,7 @@ void RexxMemory::createImage()
   kernel_public(CHAR_ROUTINE          ,TheRoutineClass ,TheEnvironment);
   kernel_public(CHAR_PACKAGE          ,ThePackageClass ,TheEnvironment);
   kernel_public(CHAR_REXXCONTEXT      ,TheRexxContextClass ,TheEnvironment);
+  kernel_public(CHAR_REXXCONTEXTUALSOURCE,TheRexxContextualSourceClass ,TheEnvironment);
   kernel_public(CHAR_NIL              ,TheNilObject    ,TheEnvironment);
   kernel_public(CHAR_OBJECT           ,TheObjectClass  ,TheEnvironment);
   kernel_public(CHAR_QUEUE            ,TheQueueClass   ,TheEnvironment);

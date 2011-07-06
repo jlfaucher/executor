@@ -170,6 +170,7 @@
 #define TheRequiresDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RequiresDirective])
 #define TheCompoundElementBehaviour      (&RexxBehaviour::primitiveBehaviours[T_CompoundElement])
 #define TheParseTriggerBehaviour      (&RexxBehaviour::primitiveBehaviours[T_ParseTrigger])
+#define TheSourceLiteralBehaviour      (&RexxBehaviour::primitiveBehaviours[T_SourceLiteral])
 #define TheMemoryBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Memory])
 #define TheInternalStackBehaviour      (&RexxBehaviour::primitiveBehaviours[T_InternalStack])
 #define TheStackBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Stack])
@@ -184,7 +185,6 @@
 #define TheInterpreterInstanceBehaviour      (&RexxBehaviour::primitiveBehaviours[T_InterpreterInstance])
 #define TheSecurityManagerBehaviour      (&RexxBehaviour::primitiveBehaviours[T_SecurityManager])
 #define TheCommandHandlerBehaviour      (&RexxBehaviour::primitiveBehaviours[T_CommandHandler])
-#define TheSourceLiteralBehaviour      (&RexxBehaviour::primitiveBehaviours[T_SourceLiteral])
 
 
 /* -------------------------------------------------------------------------- */

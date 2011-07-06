@@ -109,10 +109,11 @@ typedef struct _LINE_DESCRIPTOR {
  * @param source_array
  *               The array of the source lines.
  */
-RexxSource::RexxSource(RexxString *programname, RexxArray  *source_array)
+RexxSource::RexxSource(RexxString *programname, RexxArray  *source_array, RexxActivation *activation)
 {
                                          /* fill in the name                  */
     setProgramName(programname);
+    OrefSet(this, this->interpret_activation, activation);
     /* fill in the source array          */
     OrefSet(this, this->sourceArray, source_array);
     /* fill in the source size           */
@@ -633,6 +634,7 @@ void RexxSource::live(size_t liveMark)
   memory_mark(this->active_class);
   memory_mark(this->active_extension);
   memory_mark(this->initCode);
+  memory_mark(this->interpret_activation);
 }
 
 void RexxSource::liveGeneral(int reason)
@@ -705,6 +707,7 @@ void RexxSource::liveGeneral(int reason)
   memory_mark_general(this->active_class);
   memory_mark_general(this->active_extension);
   memory_mark_general(this->initCode);
+  memory_mark_general(this->interpret_activation);
 }
 
 void RexxSource::flatten (RexxEnvelope *envelope)
@@ -722,6 +725,7 @@ void RexxSource::flatten (RexxEnvelope *envelope)
     this->sourceBuffer = OREF_NULL;
     this->sourceIndices = OREF_NULL;
     this->securityManager = OREF_NULL;
+    this->interpret_activation = OREF_NULL;
     flatten_reference(newThis->sourceArray, envelope);
     flatten_reference(newThis->parentSource, envelope);
     flatten_reference(newThis->programName, envelope);
@@ -766,6 +770,7 @@ void RexxSource::flatten (RexxEnvelope *envelope)
     flatten_reference(newThis->active_class, envelope);
     flatten_reference(newThis->active_extension, envelope);
     flatten_reference(newThis->initCode, envelope);
+    flatten_reference(newThis->interpret_activation, envelope);
 
   cleanUpFlatten
 }
@@ -1213,14 +1218,15 @@ RexxCode *RexxSource::interpretMethod(
 
 RexxCode *RexxSource::interpret(
     RexxString    *string,             /* interpret string value            */
-    RexxDirectory *_labels,             /* parent labels                     */
-    size_t         _line_number )       /* line number of interpret          */
+    RexxDirectory *_labels,            /* parent labels                     */
+    size_t         _line_number,       /* line number of interpret          */
+    RexxActivation *activation)
 /******************************************************************************/
 /* Function:   Interpret a string in the current activation context           */
 /******************************************************************************/
 {
                                        /* create a source object            */
-  RexxSource *source = new RexxSource (this->programName, new_array(string));
+  RexxSource *source = new RexxSource (this->programName, new_array(string), activation);
   ProtectedObject p(source);
   source->interpretLine(_line_number);  /* fudge the line numbering          */
                                        /* convert to executable form        */
@@ -4486,7 +4492,8 @@ RexxObject *RexxSource::addText(
             if (retriever == OREF_NULL)
             {
                 RexxString *source = new_string(name->getStringData()+1, name->getBLength()-2); // Remove surrounding {}
-                retriever = (RexxObject *) new RexxSourceLiteral(source, this->getPackage());
+                PackageClass *package = this->isInterpret() ? this->interpret_activation->getPackage() : this->getPackage();
+                retriever = (RexxObject *) new RexxSourceLiteral(source, package);
                 this->sourceLiterals->put(retriever,  name);
             }
             break;
@@ -4818,7 +4825,7 @@ RexxObject *RexxSource::subExpression(
 
             case  TOKEN_SYMBOL:              /* Symbol in the expression          */
             case  TOKEN_LITERAL:             /* Literal in the expression         */
-            case  TOKEN_SOURCE_LITERAL:      /* Source literal in the expression  */
+            //case  TOKEN_SOURCE_LITERAL:      /* Source literal in the expression  */
             case  TOKEN_LEFT:                /* start of subexpression            */
 
                 location = token->getLocation(); /* get the token start position      */
@@ -4973,6 +4980,16 @@ size_t RexxSource::argList(
     arglist = this->subTerms;            /* use the subterms list             */
     realcount = 0;                       /* no arguments yet                  */
     total = 0;
+
+    /* Shortcut syntax : f{...} is equivalent to f({...}) */
+    if (_first && _first->isSourceLiteral())
+    {
+        RexxObject *expr = this->addText(_first);
+        arglist->push(expr);             /* add next argument to list         */
+        realcount++;                     /* increment the total               */
+        return realcount;                /* return the argument count         */
+    }
+
     /* get the first real token, which   */
     nextReal();                          /* skips any leading blanks on CALL  */
     previousToken();                     /* now put it back                   */
@@ -5013,6 +5030,17 @@ size_t RexxSource::argList(
         arglist->pop();                    /* just pop off the dummy            */
         total--;                           /* reduce the total                  */
     }
+
+    /* Shortcut syntax : f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...}) */
+    token = nextToken();
+    if (token && token->isSourceLiteral())
+    {
+        RexxObject *expr = this->addText(token);
+        arglist->push(expr);             /* add next argument to list         */
+        realcount++;                     /* increment the total               */
+    }
+    else previousToken();                /* put it back                       */
+
     return realcount;                    /* return the argument count         */
 }
 
@@ -5136,7 +5164,7 @@ RexxObject *RexxSource::message(
     }
     if (token != OREF_NULL)
     {            /* not reached the clause end?       */
-        if (token->classId == TOKEN_LEFT)  /* have an argument list?            */
+        if (token->classId == TOKEN_LEFT || token->isSourceLiteral())  /* have an argument list?            */
         {
             /* process the argument list         */
             argCount = this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
@@ -5356,7 +5384,7 @@ RexxObject *RexxSource::subTerm(
         case  TOKEN_SOURCE_LITERAL:        /* Source literal in the expression         */
             second = nextToken();            /* get the next token                */
                                              /* have a function call?             */
-            if (second->classId == TOKEN_LEFT)
+            if (second->classId == TOKEN_LEFT || second->isSourceLiteral())
             {
                 /* process the function call         */
                 term = this->function(second, token, terminators);

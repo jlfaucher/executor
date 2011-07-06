@@ -1012,6 +1012,7 @@ CPPM(ExceptionClass::fillInStackTrace),
 CPPM(RexxContextualSource::newRexx),
 CPPM(RexxContextualSource::copyRexx),
 CPPM(RexxContextualSource::getSource),
+CPPM(RexxContextualSource::setSource),
 CPPM(RexxContextualSource::getPackage),
 CPPM(RexxContextualSource::getContext),
 

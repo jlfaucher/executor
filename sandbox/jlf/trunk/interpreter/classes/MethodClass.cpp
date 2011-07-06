@@ -263,7 +263,7 @@ RexxMethod::RexxMethod(RexxString *name, RexxArray *s)
     ProtectedObject p(this);
     OrefSet(this, this->executableName, name);
     // get a source object to generat this from
-    RexxSource *_source = new RexxSource(name, s);
+    RexxSource *_source = new RexxSource(name, s, OREF_NULL);
     ProtectedObject p2(_source);
     // generate our code object and make the file hook up.
     RexxCode *codeObj = _source->generateCode(true);

@@ -68,6 +68,8 @@ public:
     RexxString *getSource() { return source; }
     PackageClass *getPackage() { return package; }
 
+    void setSource(RexxString *);
+
     RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *);
 
 protected:
@@ -97,6 +99,8 @@ public:
     RexxString *getSource();
     PackageClass *getPackage();
     RexxContext *getContext();
+
+    RexxObject *setSource(RexxObject *);
 
     static void createInstance();
     static RexxClass *classInstance;   // singleton class instance

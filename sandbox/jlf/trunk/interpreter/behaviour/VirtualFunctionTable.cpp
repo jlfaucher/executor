@@ -545,6 +545,9 @@ void RexxMemory::buildVirtualFunctionTable()
    objectPtr = new (objectLoc) RexxTrigger(RESTOREIMAGE);
    virtualFunctionTable[T_ParseTrigger] = getVftPointer(objectLoc);
    
+   objectPtr = new (objectLoc) RexxSourceLiteral(RESTOREIMAGE);
+   virtualFunctionTable[T_SourceLiteral] = getVftPointer(objectLoc);
+   
    objectPtr = new (objectLoc) RexxObject(RESTOREIMAGE);
    virtualFunctionTable[T_Memory] = getVftPointer(objectLoc);
    
@@ -586,9 +589,6 @@ void RexxMemory::buildVirtualFunctionTable()
    
    objectPtr = new (objectLoc) CommandHandler(RESTOREIMAGE);
    virtualFunctionTable[T_CommandHandler] = getVftPointer(objectLoc);
-   
-   objectPtr = new (objectLoc) RexxSourceLiteral(RESTOREIMAGE);
-   virtualFunctionTable[T_SourceLiteral] = getVftPointer(objectLoc);
    
 };
 

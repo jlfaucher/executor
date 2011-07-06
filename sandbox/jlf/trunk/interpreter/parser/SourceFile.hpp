@@ -136,7 +136,7 @@ class RexxSource : public RexxInternalObject {
     inline void *operator new(size_t size, void *ptr) {return ptr;}
     inline void  operator delete(void *) { ; }
     inline void  operator delete(void *, void *) { ; }
-    RexxSource(RexxString *, RexxArray *);
+    RexxSource(RexxString *, RexxArray *, RexxActivation *);
     RexxSource(RexxString *programname, RexxBuffer *source_buffer);
     RexxSource(RexxString *programname, const char *data, size_t length);
     RexxSource(RexxString *programname);
@@ -184,7 +184,7 @@ class RexxSource : public RexxInternalObject {
     RexxString *packLiteral(sizeB_t, sizeB_t, int);
     RexxCode   *generateCode(bool isMethod);
     RexxCode   *interpretMethod(RexxDirectory *);
-    RexxCode   *interpret(RexxString *, RexxDirectory *, size_t);
+    RexxCode   *interpret(RexxString *, RexxDirectory *, size_t, RexxActivation *);
     void        checkDirective();
     bool        hasBody();
     RexxObject *toss(RexxObject *);
@@ -454,6 +454,7 @@ protected:
     size_t line_number;                  /* current line position             */
     sizeB_t line_offset;                  /* current offset with in the line   */
     size_t interpret_adjust;             /* INTERPRET adjustment              */
+    RexxActivation *interpret_activation;
 
     RexxCode *initCode;                  // the initialization code
                                          /* start of directives section       */

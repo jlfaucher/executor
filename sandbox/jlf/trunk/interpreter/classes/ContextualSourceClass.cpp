@@ -110,6 +110,12 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p)
 }
 
 
+void RexxSourceLiteral::setSource(RexxString *s) 
+{ 
+    OrefSet(this, this->source, s); 
+}
+
+
 RexxObject  *RexxSourceLiteral::evaluate(
     RexxActivation      *context,      /* current activation context        */
     RexxExpressionStack *stack )       /* evaluation stack                  */
@@ -214,6 +220,15 @@ PackageClass *RexxContextualSource::getPackage()
 RexxContext *RexxContextualSource::getContext() 
 {
     return context;
+}
+
+
+RexxObject *RexxContextualSource::setSource(RexxObject *source)
+{
+    requiredArgument(source, ARG_ONE);
+    source = stringArgument(source, ARG_ONE);
+    this->sourceLiteral->setSource((RexxString *)source);
+    return OREF_NULL;
 }
 
 

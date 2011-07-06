@@ -43,6 +43,43 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 july 06
+
+When a source literal was evaluated by an interpret instruction, the package associated
+to the RexxContextualSource (at parse time) was not holding the right informations
+for class & routine lookup scope. 
+Symptom (assuming .myclass is visible from the current package, thanks to a ::requires) :
+    {say .myclass}~doer~do             --> display The MYCLASS class (good)
+    interpret "{say .myclass}~doer~do" --> display .MYCLASS          (not good)
+Fixed by using the package associated to the RexxActivation in which the interpret is parsed.
+
+
+I get "Error 49:  Interpretation error" when running
+    rexx -e "v={}"
+This is because SourceLiteral is currently a transient class, and I reach this code
+in RexxEnvelope.cpp :
+        // transient classes should never be flattened.  This is a problem if we encounter one
+        if (newObj->behaviour->isTransientClass())
+        {
+            reportException(Error_Interpretation);
+        }
+Fixed by making the class SourceLiteral an internal class.
+
+
+Added support for abbreviated syntax of arguments list (similar to Groovy syntax for closures) :
+f{...} is equivalent to f({...})
+f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...})
+
+
+New method on class RexxContextualSource :
+::method "source=" -- lets assign an updated source, while keeping all the contextual infos.
+I need that for the pipe stages which accept source literals used as expression.
+.select {value~isPrivate} --> the source of the RexxContextualSource is transformed to :
+"use arg value, index; return value~isPrivate"
+See makeFunctionDoer in pipeline/pipe_extension.cls.
+
+
+===============================================================================
 2011 june 27
 
 Added support for source literals.
@@ -69,9 +106,9 @@ For the parser, a source literal is a token, which is translated to a RexxSource
 
 New class available from an ooRexx script :
 ::class RexxContextualSource
-::method getPackage -- the package where the source literal is defined.
-::method getContext -- the context of the execution environment from which the source literal was evaluated.
-::method getSource -- the text inside the curly braces, where '\n' has been replaced by ';'
+::method package -- the package where the source literal is defined.
+::method context -- the context of the execution environment from which the source literal was evaluated.
+::method source -- the text inside the curly braces, where '\n' has been replaced by ';'
 
 Example of use : 
 The source literal can be assigned to a variable and passed as argument to a routine.

@@ -137,6 +137,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <Class id="CompoundElement" class="RexxCompoundElement" include="RexxCompoundElement.hpp"/>
 <Class id="ParseTrigger" class="RexxTrigger" include="ParseTrigger.hpp"/>
+<Class id="SourceLiteral" class="RexxSourceLiteral" include="ContextualSourceClass.hpp"/>
 </Internal>
 <Transient>
 <Class id="Memory" class="RexxMemory" include="RexxMemory.hpp" objectvirtual="true"/>
@@ -153,7 +154,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="InterpreterInstance" class="InterpreterInstance" include="InterpreterInstance.hpp"/>
 <Class id="SecurityManager" class="SecurityManager" include="SecurityManager.hpp"/>
 <Class id="CommandHandler" class="CommandHandler" include="CommandHandler.hpp"/>
-<Class id="SourceLiteral" class="RexxSourceLiteral" include="ContextualSourceClass.hpp"/>
 </Transient>
 </Classes>
 </RexxClasses>

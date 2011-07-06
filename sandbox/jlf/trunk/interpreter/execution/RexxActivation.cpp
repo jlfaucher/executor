@@ -2364,7 +2364,7 @@ void RexxActivation::interpret(RexxString * codestring)
 {
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
     /* translate the code                */
-    RexxCode * newCode = this->code->interpret(codestring, this->current->getLineNumber());
+    RexxCode * newCode = this->code->interpret(codestring, this->current->getLineNumber(), this);
     /* create a new activation           */
     RexxActivation *newActivation = ActivityManager::newActivation(this->activity, this, newCode, INTERPRET);
     this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
@@ -2385,7 +2385,7 @@ void RexxActivation::debugInterpret(   /* interpret interactive debug input */
     try
     {
         /* translate the code                */
-        RexxCode *newCode = this->code->interpret(codestring, this->current->getLineNumber());
+        RexxCode *newCode = this->code->interpret(codestring, this->current->getLineNumber(), this);
         /* create a new activation           */
         RexxActivation *newActivation = ActivityManager::newActivation(this->activity, this, newCode, DEBUGPAUSE);
         this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
