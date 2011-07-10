@@ -389,9 +389,9 @@ fi
 AC_SUBST(REXXCAT)
 
 xsl=''
-AC_PATH_PROGS([xsl], [Xalan xalan])
+AC_PATH_PROGS([xsl], [Xalan xalan, xsltproc])
 if test -z "$xsl"; then
-   AC_MSG_WARN([cannot find xalan, Xalan])
+   AC_MSG_WARN([cannot find xalan, Xalan, xsltproc])
 else
    # $1="OUT" $2="XML" $3="XSL"
    case "$xsl" in
@@ -401,8 +401,11 @@ else
       *xalan)
          xsl="$xsl -out \$1 -in \$2 -xsl \$3"
          ;;
+      *xsltproc)
+         xsl="$xsl -o \$1 \$3 \$2"
+         ;;
       *)
-         xsl="echo Cannot transform XSL as Xalan not installed;exit 1"
+         xsl="echo Cannot transform XSL as Xalan or xsltproc not installed;exit 1"
          ;;
    esac
 fi
