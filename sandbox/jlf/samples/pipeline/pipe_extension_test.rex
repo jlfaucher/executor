@@ -8,7 +8,7 @@ nop
 
 -- The coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .displayer).
-.coactivity~new{echo hello ; .yield[a] ; say hello ; .yield[b]}~pipe(.upper|.displayer)
+.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.displayer)
 
 
 -- A collection can be sorted by value (default)
@@ -91,34 +91,40 @@ nop
     return n * .context~executable~call(n - 1)} | .displayer)
 
 
--- Select files whose name contains "rexx" in c:\program files\oorexx
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+-- Select files in the installation directory, whose name contains "rexx".
+-- Take the 15 firsts.
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
+    .take 15 |,
     .displayer,
     )
 
 
--- Select files whose name contains "rexx" in c:\program files\oorexx, sorted by file size.
+-- Select files in the installation directory, whose name contains "rexx" , sorted by file size.
 -- The "length" message is sent to the value.
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+-- Take the 15 firsts.
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sortWith[.MessageComparator~new("length/N")] |,
+    .take 15 |,
     .displayer,
     )
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} |,
+    .take 15 |,
     .displayer,
     )
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} {filespec('e', value~name)} |,
+    .take 15 |,
     .displayer,
     )
 
@@ -211,29 +217,62 @@ say supplier2~index
 .array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .displayer)
 
 
--- The *.txt files of ooRexx
-"c:\program files\oorexx"~pipe(,
+-- The *.cls files of ooRexx
+installdir()~pipe(,
     .fileTree recursive |,
-    .select {filespec('e', value~name) == 'txt'} |,
+    .select {filespec('e', value~name) == 'cls'} |,
     .displayer,
     )
 
 
--- Alphanumeric words of 15+ chars found in the *.txt files of ooRexx.
---
+-- From here, some methods of the pipeline classes are instrumented to let profiling.
+-- The performances are impacted because the profiled methods are instrumented with an additional forward.
+.pipeProfiler~instrument("start", "process", "eof", "isEOP")
+
+
+-- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
+-- Only the first two words per file are taken :
+--     .take 2 {index[2]}
+-- Here, index[2] is the name of the file.
 -- Exemple of result :
--- 1|c:\program files\oorexx\CPLv1.0.txt|149|8 : appropriateness
--- "appropriateness" is the 8th word of the 149th line of the file  
--- "c:\program files\oorexx\CPLv1.0.txt"
+-- 352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|250|2 : DeleteDesktopIcon
+-- "DeleteDesktopIcon" is the 2nd word of the 352th line of the file  
+-- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
-"c:\program files\oorexx"~pipe(,
+installdir()~pipeProfile(,
     .fileTree recursive |,
-    .select {filespec('e', value~name) == 'txt'} |,
-    .getFiles | .words | .select {value~datatype('a') & value~length >= 15} |,
-    .sort caseless | .displayer,
+    .select {filespec('e', value~name) == 'cls'} |,
+    .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
+    .take 2 {index[2]} | .sort caseless | .displayer,
     )
+
+
+say installdir() ; say
+
+
+-------------------------------------------------------------------------------
+::requires "extension/extensions.cls"
+::requires "concurrency/coactivity.cls"
+::requires "pipeline/pipe_extension.cls"
+
+
+-------------------------------------------------------------------------------
+-- Installation directory of ooRexx
+::routine installdir
+installdir = "c:\program files\oorexx" -- Assume Windows platform by default
+"which rexx | rxqueue"
+if queued() then do
+    parse pull whichrexx
+    rexx = "rexx.exe"
+    if \ whichrexx~right(rexx~length)~caselessEquals(rexx) then do
+        rexx = "rexx"
+        if \ whichrexx~right(rexx~length)~caselessEquals(rexx) then rexx = ""
+    end
+    if rexx <> "" then installdir = whichrexx~left(whichrexx~length - rexx~length)
+end
+return installdir
 
 
 -------------------------------------------------------------------------------
@@ -281,8 +320,3 @@ syntax:
     evaluate_string = ""
     signal iterate
 
-
-::requires "extension/extensions.cls"
-::requires "concurrency/coactivity.cls"
-::requires "pipeline/pipe_extension.cls"
-::requires "rgf_util2/rgf_util2_wrappers"

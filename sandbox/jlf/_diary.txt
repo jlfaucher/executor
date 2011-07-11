@@ -43,6 +43,86 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 july 11
+
+More work on pipe.
+
+.inject : the detection of cycles has a runtime cost. This detection is no longer
+active by default, must pass the option "cycles" to activate it.
+
+
+.inject : it's now possible to replace completely the current index by a new index,
+using .index_value or .value_index.
+.array~of(10,20,30)~pipe(.displayer)
+1 : 10
+2 : 20
+3 : 30
+.array~of(10,20,30)~pipe(.inject {.index_value[value, 2*value]} | .displayer)
+10 : 20
+20 : 40
+30 : 60
+
+
+.inject : with option 'pushIndex', it's now possible to pass an array of indexes.
+.array~of(10,20,30)~pipe(.inject {
+    .index_value[ .array~of(value-1, value+1), 2*value ]
+    } push | .displayer)
+1|9|11 : 20
+2|19|21 : 40
+3|29|31 : 60
+
+
+Made .do a subclass of .inject, because I realized that .do is really like .inject,
+except for the execution of commands : with .do, you can execute address commands,
+with .inject, it's not allowed.
+
+
+.take : added support for partition expression, to take the specified number of
+elements in the partition. When the partition key changes, the counter is reset.
+.array~of(1,1,1,2,2,2,2,3,3,3,3,3,1,1,1)~pipe(.take 2 {value} | .displayer)
+1 : 1
+2 : 1
+4 : 2
+5 : 2
+8 : 3
+9 : 3
+13 : 1
+14 : 1
+
+
+Added profiling of pipeline :
+.array~of(b, a, c)~pipeProfile(.sort byValue | .displayer)
+2 : A
+1 : B
+3 : C
+----------------------------------------
+.SORT~go
+  .SORT~EOF count=1 duration=0
+    .DISPLAYER~EOF count=1 duration=0
+    .DISPLAYER~ISEOP count=6 duration=0
+    .DISPLAYER~PROCESS count=3 duration=0
+  .SORT~ISEOP count=3 duration=0
+  .SORT~PROCESS count=3 duration=0
+  .SORT~START count=1 duration=0
+    .DISPLAYER~START count=1 duration=0
+duration=0
+----------------------------------------
+The pipeline's methods to profile must be instrumented.
+    ::method myMethod
+    my code here...
+
+    is instrumented to become :
+    
+    ::method myMethod protected        <-- will be intercepted
+    forward message("myMethod_unprotected")
+
+    ::method myMethod_unprotected      <-- the security manager will forward this message
+    my code here...
+The profiling has an impact on the performances, but the durations should keep their
+proportions.
+
+
+===============================================================================
 2011 july 06
 
 Adapted the package doers.cls to source literals.
@@ -92,9 +172,11 @@ Fixed by making the class SourceLiteral an internal class.
 
 
 Added support for abbreviated syntax of arguments list (similar to Groovy syntax for closures) :
-f{...} is equivalent to f({...})
-f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...})
-
+    f{...} is equivalent to f({...})
+    f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...})
+Example :
+    10~times{call charout , arg(1)}  -- 12345678910
+    4~upto(7){call charout , arg(1)} -- 4567
 
 New method on class RexxContextualSource :
 ::method "source=" -- lets assign an updated source, while keeping all the contextual infos.

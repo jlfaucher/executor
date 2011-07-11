@@ -50,6 +50,9 @@
 /******************************************************************************/
 
 
+::requires "profiling/profiling.cls"
+
+
 /**
  * Base pipeStage class.  Most sub classes need only override the process() method to
  * implement a pipeStage.  The transformed results are passed down the pipeStage chain
@@ -57,12 +60,10 @@
  */
 
 ::class pipeStage public                    -- base pipeStage class
-::method init
-expose next secondary options isEOP
-next = .nil
-secondary = .nil                            -- all pipeStages have a secondary output potential
-options = .array~new                        -- arguments can be passed like that : .myStage~new(a1,a2) or .myStage[a1,a2] or .myStage a1 a2
-isEOP = .false                              -- indicator of End Of Process
+
+-- .myStep[arg1, arg2]
+::method '[]' class                         -- create a pipeStage instance with arguments
+forward to (self) message('NEW')            -- just forward this as a new message
 
 ::method '|' class                          -- concatenate an instance of a pipeStage with following pipeStage
 use strict arg follower
@@ -78,6 +79,31 @@ return me>follower                          -- perform the hook up
 use strict arg follower
 me = self~new                               -- create a new pipeStage instance
 return me>>follower                         -- perform the hook up
+
+-- .myStep arg1 arg2
+::method " " class                          -- another way to pass arguments (one by one)
+use strict arg arg
+me = self~new                               -- no arg for init
+me~options~append(arg)
+return me
+
+---------- instance attributes / methods ----------
+
+::attribute options                         -- the options are passed one by one, accumulated here
+::attribute secondary                       -- a potential secondary attribute
+::attribute next                            -- next stage of the pipeStage
+::attribute source                          -- source of the initial data
+::attribute isEOP                           -- becomes .true if the pipeStage has finished processing the datas (see .take)
+
+::method new                                -- the pipeStage chaining process
+return self                                 -- just return ourself
+
+::method init
+expose next secondary options isEOP
+next = .nil
+secondary = .nil                            -- all pipeStages have a secondary output potential
+options = .array~new                        -- arguments can be passed like that : .myStage~new(a1,a2) or .myStage[a1,a2] or .myStage a1 a2
+isEOP = .false                              -- indicator of End Of Process
 
 ::method '|'
 use strict arg follower
@@ -96,6 +122,12 @@ use strict arg follower
 follower = follower~new                     -- make sure this is an instance
 self~appendSecondary(follower)              -- do the chain append logic
 return self                                 -- we're our own return value
+
+::method " "                                -- the 2nd argument and next are passed one by one
+expose options
+use strict arg arg                          -- to the instance
+options~append(arg)
+return self                                 -- by returning self, let chain the blank operators
 
 ::method append                             -- append a pipeStage to the entire chain
 expose next
@@ -123,36 +155,19 @@ user strict arg newpipeStage
 newpipeStage~next = next                    -- just hook into the chain
 next = newpipeStage
 
--- .myStep[arg1, arg2]
-::method '[]' class                         -- create a pipeStage instance with arguments
-forward to (self) message('NEW')            -- just forward this as a new message
-
--- .myStep arg1 arg2
-::method " " class                          -- another way to pass arguments (one by one)
-use strict arg arg
-instance = self~new                         -- no arg for init
-instance~options~append(arg)
-return instance
-
-::method " "                                -- the 2nd argument and next are passed one by one
-expose options
-use strict arg arg                          -- to the instance
-options~append(arg)
-return self                                 -- by returning self, let chain the blank operators
-
 ::method go                                 -- execute using a provided object
 expose source                               -- get the source supplier
-use strict arg source                       -- set to the supplied object
+use strict arg source, profile=.false
+if profile then do
+    profiler = .pipeProfiler~new
+    profiler~push(self, "go")               -- the root message of the call stack
+    .context~package~setSecurityManager(profiler)
+end
 self~begin                                  -- now go feed the pipeline
-
-::method options attribute                  -- the options are passed one by one, accumulated here
-::method secondary attribute                -- a potential secondary attribute
-::method next attribute                     -- next stage of the pipeStage
-::method source attribute                   -- source of the initial data
-::method isEOP attribute                    -- becomes .true if the pipeStage has finished processing the datas (see .take)
-
-::method new                                -- the pipeStage chaining process
-return self                                 -- just return ourself
+if profile then do
+    profiler~reportResults(profiler~pull)
+    .context~package~setSecurityManager
+end
 
 ::method begin                              -- start pumping the pipeline
 expose source                               -- access the data and next chain
@@ -182,7 +197,7 @@ if arg() == 0 then return
 do a over arg(1, "a")
     .stderr~lineout("Unknown option '"a"'") 
 end
-raise syntax 93.900 array("Unknown option") 
+raise syntax 93.900 array(self~class~id ": Unknown option") 
 
 ::method checkEOP
 -- Accept zero to n arguments, each argument being a pipeStage or .nil
@@ -259,7 +274,19 @@ forward to(pipeStage) message('secondaryEof')
 ::class pipeExtensions public
 
 ::method available class
-    return self~hasMethod("installed")
+return self~hasMethod("installed")
+
+
+/******************************************************************************/
+::class pipeProfiler public subclass Profiler
+
+::method instrument class
+use strict arg message, ...
+messages = arg(1, "a")
+self~instrumentMethods(.pipeStage, messages)
+do class over .pipeStage~subclasses
+    self~instrumentMethods(class, messages)
+end
 
 
 /******************************************************************************/
@@ -489,6 +516,7 @@ forward class(super)                        -- make sure we propagate the done m
 
 /******************************************************************************/
 ::class reverse public subclass pipeStage   -- a string reversal pipeStage
+
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 self~write(value~string~reverse, index)     -- send it along in reversed form
@@ -497,6 +525,7 @@ self~checkEOP(self~next)
 
 /******************************************************************************/
 ::class upper public subclass pipeStage     -- a uppercasing pipeStage
+
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 self~write(value~string~upper, index)       -- send it along in upper form
@@ -505,6 +534,7 @@ self~checkEOP(self~next)
 
 /******************************************************************************/
 ::class lower public subclass pipeStage     -- a lowercasing pipeStage
+
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 self~write(value~string~lower, index)       -- send it along in lower form
@@ -634,15 +664,15 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "first"~caselessAbbrev(a, 1) then do
-            if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
-            if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
+            if lastSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'first' after 'last'")
+            if countSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'first' after the number")
             firstSpecified = .true
             first = .true
             iterate
         end
         if "last"~caselessAbbrev(a, 1) then do
-            if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
-            if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
+            if firstSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'last' after 'first'")
+            if countSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'last' after the number")
             lastSpecified = .true
             first = .false
             iterate
@@ -707,31 +737,33 @@ forward class(super)                        -- make sure we propagate the done m
 ::class take public subclass pipeStage      -- take the first or last n records
 
 ::method init
-expose counter array
+expose counter array previousPartitionString
 counter = 0                                 -- if first, we need to count the processed items
 array = .array~new                          -- if last, we need to accumulate these until the end
+previousPartitionString = .nil
 forward class (super)                       -- forward the initialization
 
 ::method initOptions
-expose first count
+expose first count doer
 first = .true                               -- selects items from the begining by default
 count = 1                                   -- number of items to be selected by default
 firstSpecified = .false
 lastSpecified = .false
 countSpecified = .false
+doer = .nil
 unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "first"~caselessAbbrev(a, 1) then do
-            if lastSpecified then raise syntax 93.900 array("You can't specify 'first' after 'last'")
-            if countSpecified then raise syntax 93.900 array("You can't specify 'first' after the number")
+            if lastSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'first' after 'last'")
+            if countSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'first' after the number")
             firstSpecified = .true
             first = .true
             iterate
         end
         if "last"~caselessAbbrev(a, 1) then do
-            if firstSpecified then raise syntax 93.900 array("You can't specify 'last' after 'first'")
-            if countSpecified then raise syntax 93.900 array("You can't specify 'last' after the number")
+            if firstSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'last' after 'first'")
+            if countSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'last' after the number")
             lastSpecified = .true
             first = .false
             iterate
@@ -742,13 +774,23 @@ do a over arg(1, "a")
             iterate
         end
     end
+    if a~hasMethod("doer") then do
+        if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        doer = .pipeExtensions~makeFunctionDoer(a)
+        iterate
+    end
     unknown~append(a) 
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
 ::method processFirst
-expose count counter
+expose count counter doer previousPartitionString
 use strict arg value, index
+if doer <> .nil then do
+    partitionString = doer~do(value, index)~string
+    if previousPartitionString == .nil | previousPartitionString <> partitionString then counter = 0
+    previousPartitionString = partitionString
+end
 counter += 1                                -- if we've dropped our quota, stop forwarding
 if counter > count then do
     self~writeSecondary(value, index)
@@ -757,7 +799,7 @@ else do
     self~write(value, index)                -- still in the first bunch, send to main pipe
 end
 self~checkEOP(self~next, self~secondary)
-if counter == count & self~secondary == .nil then self~isEOP = .true
+if counter >= count & self~secondary == .nil & doer == .nil then self~isEOP = .true
 
 ::method processLast
 expose array
@@ -798,7 +840,7 @@ forward class(super)                        -- make sure we propagate the done m
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
-self~write(value~string~x2c)
+self~write(value~string~x2c, index)
 self~checkEOP(self~next)
 
 
@@ -920,7 +962,7 @@ do a over arg(1, "a")
             indexWidth = -1
             if rest <> "" then do -- index.width
                 if rest~dataType("W") then indexWidth = rest
-                else raise syntax 93.900 array("Expected a whole number after "index". in "a) 
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "index". in "a) 
             end
             actions~append(.array~of("displayIndex", indexWidth))
             iterate
@@ -929,7 +971,7 @@ do a over arg(1, "a")
             valueWidth = -1
             if rest <> "" then do -- value.width
                 if rest~dataType("W") then valueWidth = rest
-                else raise syntax 93.900 array("Expected a whole number after "value". in "a) 
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a) 
             end
             actions~append(.array~of("displayValue", valueWidth))
             iterate
@@ -938,7 +980,7 @@ do a over arg(1, "a")
             spaceWidth = -1
             if rest <> "" then do -- space.width
                 if rest~dataType("W") then spaceWidth = rest
-                else raise syntax 93.900 array("Expected a whole number after "space". in "a) 
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "space". in "a) 
             end
             actions~append(.array~of("displaySpace", spaceWidth))
             iterate
@@ -961,10 +1003,21 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
+::method arrayToString
+use strict arg array
+string = ""
+separator = ""
+do item over array
+    string ||= separator || item~string 
+    separator = self~indexSeparator
+end
+return string
+
 ::method displayIndex
 use strict arg width, value, index
-if width == -1 then .output~charout(index~tostring(, self~indexSeparator))
-               else .output~charout(index~tostring(, self~indexSeparator)~left(width))
+string = self~arrayToString(index)
+if width == -1 then .output~charout(string)
+               else .output~charout(string~left(width))
 
 ::method displayValue
 use strict arg width, value, index
@@ -992,7 +1045,7 @@ use strict arg expression, value, index
 expose actions
 use strict arg value, index                 -- get the data value
 if actions~items == 0 then do
-    say index~tostring(, self~indexSeparator) ":" value -- default display
+    say self~arrayToString(index) ":" value -- default display
 end
 else do
     do action over actions                 -- do each action
@@ -1291,7 +1344,7 @@ counter += 1                                -- just bump the counter on each rec
 
 ::method eof
 expose counter
-self~write(counter, .nil);                  -- write out the counter message
+self~write(counter, .array~of(1));          -- write out the counter message
 forward class(super)                        -- and send the done message along
 
 
@@ -1311,7 +1364,7 @@ counter += value~string~length              -- just bump the counter for the len
 
 ::method eof
 expose counter
-self~write(counter, .nil);                  -- write out the counter message
+self~write(counter, .array~of(1));          -- write out the counter message
 forward class(super)                        -- and send the done message along
 
 
@@ -1331,7 +1384,7 @@ counter += value~string~words               -- just bump the counter for the num
 
 ::method eof
 expose counter
-self~write(counter, .nil);                  -- write out the counter message
+self~write(counter, .array~of(1));          -- write out the counter message
 forward class(super)                        -- and send the done message along
 
 
