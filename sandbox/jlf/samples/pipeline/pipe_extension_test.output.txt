@@ -1,7 +1,7 @@
 
 -- The coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .displayer).
-.coactivity~new{echo hello ; .yield[a] ; say hello ; .yield[b]}~pipe(.upper|.displayer)
+.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.displayer)
 HELLO
 1 : A
 HELLO
@@ -97,18 +97,15 @@ HELLO
 -- Do something for each item (no returned value).
 .array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .displayer)
 value=1 index=an Array
-1 : 1
 value=2 index=an Array
-2 : 2
 value=3 index=an Array
-3 : 3
 
 
 -- Do something for each item (the returned result replaces the item's value).
 .array~of(1, 2, 3)~pipe(.do {return 2*value} | .displayer)
 1 : 2
-2 : 4
-3 : 6
+1 : 4
+1 : 6
 
 
 -- Inject a value for each item (the returned value is appended). 
@@ -169,100 +166,114 @@ value=3 index=an Array
     if n < 0 then return
     if n == 0 then return 1
     return n * .context~executable~call(n - 1)} | .displayer)
-2 : 1
-3 : 1
-4 : 2
-5 : 6
-6 : 24
-7 : 120
-8 : 720
-9 : 5040
-10 : 40320
-11 : 362880
+1 : 1
+1 : 1
+1 : 2
+1 : 6
+1 : 24
+1 : 120
+1 : 720
+1 : 5040
+1 : 40320
+1 : 362880
 
 
--- Select files whose name contains "rexx" in c:\program files\oorexx
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+-- Select files in the installation directory, whose name contains "rexx".
+-- Take the 15 firsts.
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
+    .take 15 |,
     .displayer,
     )
-11 : c:\program files\oorexx\ooRexxTry.rex
-12 : c:\program files\oorexx\orexxole.cls
-13 : c:\program files\oorexx\orexxole.dll
-14 : c:\program files\oorexx\rexx.dll
-15 : c:\program files\oorexx\rexx.exe
-16 : c:\program files\oorexx\rexx.ico
-17 : c:\program files\oorexx\rexx.img
-18 : c:\program files\oorexx\rexxapi.dll
-19 : c:\program files\oorexx\rexxc.exe
-20 : c:\program files\oorexx\rexxhide.exe
-21 : c:\program files\oorexx\rexxpaws.exe
-22 : c:\program files\oorexx\rexxtry.rex
-23 : c:\program files\oorexx\rexxutil.dll
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
+154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.dll
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
+156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.lib
+157 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.map
+158 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.obj
+159 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.pdb
+187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.dll
+188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exe
+189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
+190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.img
+191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.lib
+192 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.map
+193 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.obj
+194 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.pdb
 
 
--- Select files whose name contains "rexx" in c:\program files\oorexx, sorted by file size.
+-- Select files in the installation directory, whose name contains "rexx" , sorted by file size.
 -- The "length" message is sent to the value.
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+-- Take the 15 firsts.
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sortWith[.MessageComparator~new("length/N")] |,
+    .take 15 |,
     .displayer,
     )
-16 : c:\program files\oorexx\rexx.ico
-12 : c:\program files\oorexx\orexxole.cls
-22 : c:\program files\oorexx\rexxtry.rex
-11 : c:\program files\oorexx\ooRexxTry.rex
-20 : c:\program files\oorexx\rexxhide.exe
-19 : c:\program files\oorexx\rexxc.exe
-15 : c:\program files\oorexx\rexx.exe
-21 : c:\program files\oorexx\rexxpaws.exe
-13 : c:\program files\oorexx\orexxole.dll
-18 : c:\program files\oorexx\rexxapi.dll
-23 : c:\program files\oorexx\rexxutil.dll
-17 : c:\program files\oorexx\rexx.img
-14 : c:\program files\oorexx\rexx.dll
+241 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.exp
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
+242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.lib
+156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.lib
+189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
+191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.lib
+200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.exp
+195 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.res
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
+201 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.lib
+223 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexximage.obj
+210 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\RexxCompiler.obj
+219 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxhide.obj
+235 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxpaws.obj
+193 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.obj
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} |,
+    .take 15 |,
     .displayer,
     )
-16 : c:\program files\oorexx\rexx.ico
-12 : c:\program files\oorexx\orexxole.cls
-22 : c:\program files\oorexx\rexxtry.rex
-11 : c:\program files\oorexx\ooRexxTry.rex
-20 : c:\program files\oorexx\rexxhide.exe
-19 : c:\program files\oorexx\rexxc.exe
-15 : c:\program files\oorexx\rexx.exe
-21 : c:\program files\oorexx\rexxpaws.exe
-13 : c:\program files\oorexx\orexxole.dll
-18 : c:\program files\oorexx\rexxapi.dll
-23 : c:\program files\oorexx\rexxutil.dll
-17 : c:\program files\oorexx\rexx.img
-14 : c:\program files\oorexx\rexx.dll
+241 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.exp
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
+242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.lib
+156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.lib
+189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
+191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.lib
+200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.exp
+195 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.res
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
+201 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.lib
+223 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexximage.obj
+210 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\RexxCompiler.obj
+219 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxhide.obj
+235 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxpaws.obj
+193 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.obj
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
-.file~new("c:\program files\oorexx")~listFiles~pipe(,
+.file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} {filespec('e', value~name)} |,
+    .take 15 |,
     .displayer,
     )
-12 : c:\program files\oorexx\orexxole.cls
-13 : c:\program files\oorexx\orexxole.dll
-18 : c:\program files\oorexx\rexxapi.dll
-23 : c:\program files\oorexx\rexxutil.dll
-14 : c:\program files\oorexx\rexx.dll
-20 : c:\program files\oorexx\rexxhide.exe
-19 : c:\program files\oorexx\rexxc.exe
-15 : c:\program files\oorexx\rexx.exe
-21 : c:\program files\oorexx\rexxpaws.exe
-16 : c:\program files\oorexx\rexx.ico
-17 : c:\program files\oorexx\rexx.img
-22 : c:\program files\oorexx\rexxtry.rex
-11 : c:\program files\oorexx\ooRexxTry.rex
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
+154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.dll
+199 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.dll
+240 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.dll
+187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.dll
+221 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexximage.exe
+217 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxhide.exe
+205 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxc.exe
+188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exe
+233 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxpaws.exe
+241 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.exp
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
+189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
+200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.exp
+190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.img
 
 
 -- All instance methods of the context.
@@ -298,6 +309,7 @@ OBJECTNAME : a Method
 OBJECTNAME= : a Method
 PACKAGE : a Method
 PIPE : a Method
+PIPEPROFILE : a Method
 PP2 : a Method
 PPINDEX2 : a Method
 REQUEST : a Method
@@ -510,13 +522,12 @@ ROUTINE|SOURCE : a Method
 1|2|1                      activity.cls
 1|3                    pipe_extension.cls
 1|3|1                      pipe.rex
+1|3|1|1                        profiling.cls
 1|3|2                      doers.cls
 1|3|3                      coactivity.cls
 1|3|3|1                        activity.cls
 1|3|4                      rgf_util2_wrappers.rex
 1|3|4|1                        rgf_util2.rex
-1|4                    rgf_util2_wrappers.rex
-1|4|1                      rgf_util2.rex
 
 
 -- Same as above, but in breadth-first order
@@ -531,7 +542,6 @@ ROUTINE|SOURCE : a Method
 1|1                    extensions.cls
 1|2                    coactivity.cls
 1|3                    pipe_extension.cls
-1|4                    rgf_util2_wrappers.rex
 1|1|1                      doers.cls
 1|1|2                      functionals.cls
 1|2|1                      activity.cls
@@ -539,10 +549,6 @@ ROUTINE|SOURCE : a Method
 1|3|2                      doers.cls
 1|3|3                      coactivity.cls
 1|3|4                      rgf_util2_wrappers.rex
-1|4|1                      rgf_util2.rex
-1|1|2|1                        doers.cls
-1|3|3|1                        activity.cls
-1|3|4|1                        rgf_util2.rex
 
 
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
@@ -617,62 +623,95 @@ say supplier2~index
 4 : 3
 
 
--- The *.txt files of ooRexx
-"c:\program files\oorexx"~pipe(,
+-- The *.cls files of ooRexx
+installdir()~pipe(,
     .fileTree recursive |,
-    .select {filespec('e', value~name) == 'txt'} |,
+    .select {filespec('e', value~name) == 'cls'} |,
     .displayer,
     )
-1 : c:\program files\oorexx\CPLv1.0.txt
-1 : c:\program files\oorexx\doc\CHANGES.txt
-1 : c:\program files\oorexx\doc\ReleaseNotes.txt
-1 : c:\program files\oorexx\samples\api\readme.txt
-1 : c:\program files\oorexx\samples\api\wpipe\readme.txt
-1 : c:\program files\oorexx\samples\ole\oleinfo\help.txt
-1 : c:\program files\oorexx\samples\oodialog\examples\readme.txt
-1 : c:\program files\oorexx\samples\oodialog\wav\readme.txt
+31 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\csvStream.cls
+115 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\mime.cls
+133 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\ooDialog.cls
+144 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\oodPlain.cls
+151 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\oodWin32.cls
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
+253 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rxftp.cls
+264 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rxregexp.cls
+297 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\smtp.cls
+298 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\socket.cls
+306 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\streamsocket.cls
+352 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls
 
 
--- Alphanumeric words of 15+ chars found in the *.txt files of ooRexx.
---
+-- From here, some methods of the pipeline classes are instrumented to let profiling.
+-- The performances are impacted because the profiled methods are instrumented with an additional forward.
+.pipeProfiler~instrument("start", "process", "eof", "isEOP")
+
+
+-- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
+-- Only the first two words per file are taken :
+--     .take 2 {index[2]}
+-- Here, index[2] is the name of the file.
 -- Exemple of result :
--- 1|c:\program files\oorexx\CPLv1.0.txt|149|8 : appropriateness
--- "appropriateness" is the 8th word of the 149th line of the file  
--- "c:\program files\oorexx\CPLv1.0.txt"
+-- 352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|250|2 : DeleteDesktopIcon
+-- "DeleteDesktopIcon" is the 2nd word of the 352th line of the file  
+-- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
-"c:\program files\oorexx"~pipe(,
+installdir()~pipeProfile(,
     .fileTree recursive |,
-    .select {filespec('e', value~name) == 'txt'} |,
-    .getFiles | .words | .select {value~datatype('a') & value~length >= 15} |,
-    .sort caseless | .displayer,
+    .select {filespec('e', value~name) == 'cls'} |,
+    .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
+    .take 2 {index[2]} | .sort caseless | .displayer,
     )
-1|c:\program files\oorexx\CPLv1.0.txt|149|8 : appropriateness
-1|c:\program files\oorexx\samples\ole\oleinfo\help.txt|56|10 : GetKnownMethods
-1|c:\program files\oorexx\samples\ole\oleinfo\help.txt|60|1 : GetKnownMethods
-1|c:\program files\oorexx\doc\ReleaseNotes.txt|146|1 : isCaseSensitive
-1|c:\program files\oorexx\doc\ReleaseNotes.txt|162|1 : isCaseSensitive
-1|c:\program files\oorexx\CPLv1.0.txt|84|8 : merchantability
-1|c:\program files\oorexx\CPLv1.0.txt|148|2 : MERCHANTABILITY
-1|c:\program files\oorexx\samples\api\readme.txt|27|8 : MERCHANTABILITY
-1|c:\program files\oorexx\samples\api\wpipe\readme.txt|27|8 : MERCHANTABILITY
-1|c:\program files\oorexx\samples\ole\oleinfo\help.txt|27|8 : MERCHANTABILITY
-1|c:\program files\oorexx\samples\oodialog\examples\readme.txt|26|8 : MERCHANTABILITY
-1|c:\program files\oorexx\samples\oodialog\wav\readme.txt|27|8 : MERCHANTABILITY
-1|c:\program files\oorexx\samples\api\readme.txt|15|2 : Redistributions
-1|c:\program files\oorexx\samples\api\readme.txt|17|2 : Redistributions
-1|c:\program files\oorexx\samples\api\wpipe\readme.txt|15|2 : Redistributions
-1|c:\program files\oorexx\samples\api\wpipe\readme.txt|17|2 : Redistributions
-1|c:\program files\oorexx\samples\ole\oleinfo\help.txt|15|2 : Redistributions
-1|c:\program files\oorexx\samples\ole\oleinfo\help.txt|17|2 : Redistributions
-1|c:\program files\oorexx\samples\oodialog\examples\readme.txt|14|2 : Redistributions
-1|c:\program files\oorexx\samples\oodialog\examples\readme.txt|16|2 : Redistributions
-1|c:\program files\oorexx\samples\oodialog\wav\readme.txt|15|2 : Redistributions
-1|c:\program files\oorexx\samples\oodialog\wav\readme.txt|17|2 : Redistributions
-1|c:\program files\oorexx\CPLv1.0.txt|113|8 : responsibilities
-1|c:\program files\oorexx\doc\CHANGES.txt|79|3 : RexxRegisterFunctionDLL
-1|c:\program files\oorexx\doc\ReleaseNotes.txt|234|1 : SysGetservbyname
-1|c:\program files\oorexx\doc\ReleaseNotes.txt|235|1 : SysGetservbyport
-1|c:\program files\oorexx\doc\ReleaseNotes.txt|237|1 : SysGetsizeofptr
-1|c:\program files\oorexx\samples\ole\oleinfo\help.txt|98|5 : VersionIndependentProgID
+352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|250|2 : DeleteDesktopIcon
+153|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls|70|2 : disconnectEvents
+133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\ooDialog.cls|71|2 : getSystemMetrics
+31|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\csvStream.cls|64|2 : headerLineAbsent
+306|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\streamsocket.cls|52|5 : InputOutputStream
+133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\ooDialog.cls|94|2 : isAtLeastWindows7
+31|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\csvStream.cls|63|2 : originalRawHeaders
+153|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls|71|2 : removeEventHandler
+352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|188|2 : WindowsProgramManager
+----------------------------------------
+.FILETREE~go
+  .FILETREE~EOF count=1 duration=0.016000
+    .SELECT~EOF count=1 duration=0.016000
+      .GETFILES~EOF count=1 duration=0.016000
+        .WORDS~EOF count=1 duration=0.016000
+          .SELECT~EOF count=1 duration=0.016000
+            .TAKE~EOF count=1 duration=0.016000
+              .SORT~EOF count=1 duration=0.016000
+                .DISPLAYER~EOF count=1 duration=0
+                .DISPLAYER~ISEOP count=18 duration=0
+                .DISPLAYER~PROCESS count=9 duration=0.016000
+  .FILETREE~ISEOP count=1 duration=0
+  .FILETREE~PROCESS count=1 duration=20.469000
+    .SELECT~ISEOP count=387 duration=0
+    .SELECT~PROCESS count=386 duration=20.064000
+      .GETFILES~ISEOP count=398 duration=0.016000
+      .GETFILES~PROCESS count=12 duration=19.782000
+        .WORDS~ISEOP count=28386 duration=0.048000
+        .WORDS~PROCESS count=14181 duration=16.605000
+          .SELECT~ISEOP count=141387 duration=0.546000
+          .SELECT~PROCESS count=63603 duration=7.782000
+            .TAKE~ISEOP count=63974 duration=0.109000
+            .TAKE~PROCESS count=371 duration=0.031000
+              .SORT~ISEOP count=380 duration=0
+              .SORT~PROCESS count=9 duration=0
+  .FILETREE~START count=1 duration=0
+    .SELECT~START count=1 duration=0
+      .GETFILES~START count=1 duration=0
+        .WORDS~START count=1 duration=0
+          .SELECT~START count=1 duration=0
+            .TAKE~START count=1 duration=0
+              .SORT~START count=1 duration=0
+                .DISPLAYER~START count=1 duration=0
+duration=20.485000
+----------------------------------------
+
+
+say installdir() ; say
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32dbg/
+
