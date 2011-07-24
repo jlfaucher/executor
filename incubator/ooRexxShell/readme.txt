@@ -5,7 +5,7 @@ This shell supports several interpreters :
 - the system address (cmd under Windows, bash under Linux)
 - any other external environment (you need to modify this script, search for hostemu for an example).
 The prompt indicates which interpreter is active.
-By default the shell is in current address mode.
+By default the shell is in ooRexx mode.
 When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
 When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.

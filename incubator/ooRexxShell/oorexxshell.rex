@@ -44,7 +44,7 @@ This shell supports several interpreters :
 - the system address (cmd under Windows, bash under Linux)
 - any other external environment (you need to modify this script, search for hostemu for an example).
 The prompt indicates which interpreter is active.
-By default the shell is in current address mode.
+By default the shell is in ooRexx mode.
 When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
 When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.
@@ -82,7 +82,8 @@ signal on any name error
 shell~call(arg(1), address())
 
 error:
-say "Ended coactivities:" .Coactivity~endAll
+endCount = .Coactivity~endAll
+if .ooRexxShell~isInteractive then say "Ended coactivities:" endCount
 
 -- 0 means ok (return 0), anything else means ko (return 1)
 return .ooRexxShell~RC <> 0  
@@ -108,24 +109,23 @@ use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
 .ooRexxShell~interpreters~setEntry(.ooRexxShell~systemAddress, .ooRexxShell~systemAddress)
 .ooRexxShell~interpreters~setEntry(address(), address()) -- maybe the same as systemAddress, maybe not
 
+.ooRexxShell~isInteractive = (.ooRexxShell~initialArgument == "")
 call loadOptionalComponents
 
 address value .ooRexxShell~initialAddress
-.ooRexxShell~interpreter = address()
+.ooRexxShell~interpreter = "oorexx"
 
 .ooRexxShell~queuePrivateName = rxqueue("create")
 .ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queuePrivateName)
 
 select
-    when .ooRexxShell~initialArgument == "" then do
-        .ooRexxShell~isInteractive = .true
+    when .ooRexxShell~isInteractive then do
         call intro
         call main
     end
     otherwise do
         -- One-liner for default address() and exit.
         -- Beware ! It's not ooRexx by default, unless you start the line by the word oorexx. 
-        .ooRexxShell~isInteractive = .false
         push unquoted(.ooRexxShell~initialArgument)
         call main
     end
@@ -254,8 +254,8 @@ readline: procedure
                 parse pull inputrx2 -- output of 'echo'
                 if .ooRexxShell~traceReadline then do
                     .color~select(.ooRexxShell~traceColor)
-                    say "[readline] inputrx1=" inputrx1
-                    say "[readline] inputrx2=" inputrx2
+                    .traceOutput~say("[readline] inputrx1=" inputrx1)
+                    .traceOutput~say("[readline] inputrx2=" inputrx2)
                     .color~select(.ooRexxShell~defaultColor)
                 end
                 
@@ -278,7 +278,7 @@ readline: procedure
     end
     if .ooRexxShell~traceReadline then do
         .color~select(.ooRexxShell~traceColor)
-        say "[readline] inputrx=" inputrx
+        .traceOutput~say("[readline] inputrx=" inputrx)
         .color~select(.ooRexxShell~defaultColor)
     end
     return inputrx
@@ -298,7 +298,7 @@ help: procedure
             'acroread /opt/oorexx/doc/rexxref.pdf&'
         end
         otherwise do
-            say .platform~name "has no online help for ooRexx."
+            .error~say(.platform~name "has no online help for ooRexx.")
         end
     end
     address -- restore
@@ -366,7 +366,7 @@ dispatchCommand:
 interpretCommand:
     if .ooRexxShell~traceDispatchCommand then do
         .color~select(.ooRexxShell~traceColor)
-        say "[interpret] command=" .ooRexxShell~command
+        .traceOutput~say("[interpret] command=" .ooRexxShell~command)
         .color~select(.ooRexxShell~defaultColor)
     end
     RC = 0
@@ -375,21 +375,21 @@ interpretCommand:
     signal off syntax
     if RC <> 0 & .ooRexxShell~isInteractive then do
         .color~select(.ooRexxShell~infoColor)
-        say .ooRexxShell~command
+        .error~say(.ooRexxShell~command)
         .color~select(.ooRexxShell~errorColor)
-        say "RC=" RC
+        .error~say("RC=" RC)
         .color~select(.ooRexxShell~defaultColor)
     end
     signal return_to_dispatchCommand
     
     interpretError:
     .color~select(.ooRexxShell~infoColor)
-    say .ooRexxShell~command
+    .error~say(.ooRexxShell~command)
     .color~select(.ooRexxShell~errorColor)
-    say condition("O")~message
-    say condition("O")~traceback~makearray~tostring
+    .error~say(condition("O")~message)
+    .error~say(condition("O")~traceback~makearray~tostring)
     RC = condition("O")~code
-    if RC <> 0 then say "RC=" RC
+    if RC <> 0 then .error~say("RC=" RC)
     .color~select(.ooRexxShell~defaultColor)
     signal return_to_dispatchCommand
 
@@ -403,9 +403,9 @@ addressCommand:
     address -- restore previous
     if RC <> 0 & .ooRexxShell~isInteractive then do
         .color~select(.ooRexxShell~infoColor)
-        say .ooRexxShell~command
+        .error~say(.ooRexxShell~command)
         .color~select(.ooRexxShell~errorColor)
-        say "RC=" RC
+        .error~say("RC=" RC)
         .color~select(.ooRexxShell~defaultColor)
     end
     signal return_to_dispatchCommand
@@ -442,11 +442,6 @@ loadOptionalComponents:
     end
     call loadPackage("concurrency/coactivity.cls")
 
-    -- See doers.cls for more details, but in summary, the one-liner routines/methods have a default
-    -- lookup scope which is limited to the doers package. With next line, I dynamically extend the
-    -- lookup scope of the doers package.
-    call Doers.AddVisibilityFrom(.context)
-
     return
     
 
@@ -456,13 +451,15 @@ loadPackage:
     use strict arg filename
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
-    .color~select(.ooRexxShell~infoColor)
-    say "loadPackage OK for" filename
-    .color~select(.ooRexxShell~defaultColor)
+    if .ooRexxShell~isInteractive then do
+        .color~select(.ooRexxShell~infoColor)
+        say "loadPackage OK for" filename
+        .color~select(.ooRexxShell~defaultColor)
+    end
     return .true
     loadPackageError:
     .color~select(.ooRexxShell~errorColor)
-    say "loadPackage KO for" filename
+    .error~say("loadPackage KO for" filename)
     .color~select(.ooRexxShell~defaultColor)
     return .false
 
@@ -473,14 +470,16 @@ loadLibrary:
     use strict arg filename
     signal on syntax name loadLibraryError
     if .context~package~loadLibrary(filename) then do
-        .color~select(.ooRexxShell~infoColor)
-        say "loadLibrary OK for" filename
-        .color~select(.ooRexxShell~defaultColor)
+        if .ooRexxShell~isInteractive then do
+            .color~select(.ooRexxShell~infoColor)
+            say "loadLibrary OK for" filename
+            .color~select(.ooRexxShell~defaultColor)
+        end
         return .true
     end
     loadLibraryError:
     .color~select(.ooRexxShell~errorColor)
-    say "loadLibrary KO for" filename
+    .error~say("loadLibrary KO for" filename)
     .color~select(.ooRexxShell~defaultColor)
     return .false
 
@@ -554,8 +553,8 @@ loadLibrary:
     use arg info
     if self~traceCommand then do
         .color~select(.ooRexxShell~traceColor)
-        say "[securityManager] address=" info~address
-        say "[securityManager] command=" info~command
+        .traceOutput~say("[securityManager] address=" info~address)
+        .traceOutput~say("[securityManager] command=" info~command)
         .color~select(.ooRexxShell~defaultColor)
     end
     if self~isRunningCommand then return 0 -- recursive call, delegate to system 
