@@ -1751,6 +1751,7 @@ RexxCode *RexxSource::translate(
     digits = Numerics::DEFAULT_DIGITS;
     form = Numerics::DEFAULT_FORM;
     fuzz = Numerics::DEFAULT_FUZZ;
+    enableCommands = RexxActivation::default_enable_commands;
     traceSetting = DEFAULT_TRACE_SETTING;
     traceFlags = RexxActivation::default_trace_flags;
 
@@ -2596,6 +2597,18 @@ void RexxSource::optionsDirective()
                     {
                         syntaxError(Error_Invalid_trace_trace, new_string(&badOption, 1));
                     }
+                    break;
+                }
+                // ::OPTIONS COMMANDS
+                case SUBDIRECTIVE_COMMANDS:
+                {
+                    enableCommands = true;
+                    break;
+                }
+                // ::OPTIONS NOCOMMANDS
+                case SUBDIRECTIVE_NOCOMMANDS:
+                {
+                    enableCommands = false;
                     break;
                 }
 

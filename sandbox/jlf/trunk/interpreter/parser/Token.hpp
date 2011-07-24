@@ -278,6 +278,8 @@
 #define SUBDIRECTIVE_FORM        2519
 #define SUBDIRECTIVE_FUZZ        2520
 #define SUBDIRECTIVE_TRACE       2521
+#define SUBDIRECTIVE_COMMANDS    2522
+#define SUBDIRECTIVE_NOCOMMANDS  2523
 
 
 /* condition keywords */

@@ -147,10 +147,10 @@ $ Error_Invalid_expression
 35 Invalid expression
 
 $ Error_Unmatched_parenthesis
-36 Unmatched "(" or "[" in expression
+36 Unmatched "(" or "[" or "{" in expression
 
 $ Error_Unexpected_comma
-37 Unexpected ",", ")", or "]"
+37 Unexpected ",", ")", "]", or "}"
 
 $ Error_Invalid_template
 38 Invalid template or pattern
@@ -1756,6 +1756,21 @@ $ Error_Invalid_expression_parse
 
 $ Error_Invalid_expression_call
 718 Missing expression for calculated CALL name
+
+$ Message_Translations_routine_invocation
+719 Routine &1 in package &2
+
+$ Message_Translations_method_invocation
+720 Method &1 with scope "&2" in package &3
+
+$ Error_Incorrect_method_multi_dimension
+721 Method argument &1 cannot have more than a single dimension
+
+$ Error_Unmatched_parenthesis_curly
+722 Curly bracket "{" in position &1 on line &2 requires a corresponding right curly bracket "}"
+
+$ Error_Unexpected_curly_bracket
+723 Unexpected "}"
 
 
 $ * -------------------------------------------------------------------------- */

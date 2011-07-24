@@ -97,22 +97,8 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 
 RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p) 
 {
-    // Convert the multiline string s to a monoline string, using ';' as separator.
-    // Could convert the multiline string s to an array, but I find easier to work on a single string when transforming the source
-    RexxString *scopy = (RexxString *)s->copy();
-    char *data = scopy->getWritableData();
-    for (sizeB_t i=0; i < scopy->getBLength(); i++)
-    {
-        if (data[i] == '\n') data[i] = ';';
-    }
-    OrefSet(this, this->source, scopy);
+    OrefSet(this, this->source, s->makeArray(NULL)); // use default separator \n
     OrefSet(this, this->package, p);
-}
-
-
-void RexxSourceLiteral::setSource(RexxString *s) 
-{ 
-    OrefSet(this, this->source, s); 
 }
 
 
@@ -205,9 +191,9 @@ RexxObject *RexxContextualSource::copyRexx()
 }
 
 
-RexxString *RexxContextualSource::getSource() 
+RexxArray *RexxContextualSource::getSource() 
 { 
-    return sourceLiteral->getSource(); 
+    return (RexxArray *)(sourceLiteral->getSource()->copy()); 
 }
 
 
@@ -220,15 +206,6 @@ PackageClass *RexxContextualSource::getPackage()
 RexxContext *RexxContextualSource::getContext() 
 {
     return context;
-}
-
-
-RexxObject *RexxContextualSource::setSource(RexxObject *source)
-{
-    requiredArgument(source, ARG_ONE);
-    source = stringArgument(source, ARG_ONE);
-    this->sourceLiteral->setSource((RexxString *)source);
-    return OREF_NULL;
 }
 
 

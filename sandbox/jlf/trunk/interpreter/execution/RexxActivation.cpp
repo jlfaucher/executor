@@ -106,6 +106,8 @@ const size_t RexxActivation::trace_all_flags = (trace_all | trace_labels | trace
 const size_t RexxActivation::trace_results_flags = (trace_all | trace_labels | trace_results | trace_commands);
 const size_t RexxActivation::trace_intermediates_flags = (trace_all | trace_labels | trace_results | trace_commands | trace_intermediates);
 
+const bool RexxActivation::default_enable_commands = true;
+
 const size_t RexxActivation::single_step         = 0x00000800; /* we are single stepping execution  */
 const size_t RexxActivation::single_step_nested  = 0x00001000; /* this is a nested stepping         */
 const size_t RexxActivation::debug_prompt_issued = 0x00002000; /* debug prompt already issued       */
@@ -188,6 +190,7 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     this->settings.numericSettings.fuzz = sourceObject->getFuzz();
     this->settings.numericSettings.form = sourceObject->getForm();
     setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
+    this->settings.enableCommands = sourceObject->getEnableCommands();
 
     if (_method->isGuarded())            // make sure we set the appropriate guarded state
     {
@@ -332,6 +335,7 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
     this->settings.numericSettings.fuzz = sourceObject->getFuzz();
     this->settings.numericSettings.form = sourceObject->getForm();
     setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
+    this->settings.enableCommands = sourceObject->getEnableCommands();
     /* save the source also              */
     this->settings.parent_code = this->code;
 
@@ -1941,6 +1945,14 @@ bool RexxActivation::form()
     return this->settings.numericSettings.form;
 }
 
+bool RexxActivation::enableCommands()
+/******************************************************************************/
+/* Function:  Return the current COMMANDS setting                             */
+/******************************************************************************/
+{
+    return this->settings.enableCommands;
+}
+
 /**
  * Set the digits setting to the package-defined default
  */
@@ -1991,6 +2003,15 @@ void RexxActivation::setForm(bool formVal)
 /******************************************************************************/
 {
     this->settings.numericSettings.form = formVal;
+}
+
+
+void RexxActivation::enableCommands(bool status)
+/******************************************************************************/
+/* Function:  Set the new current ENABLE_COMMANDS setting                             */
+/******************************************************************************/
+{
+    this->settings.enableCommands = status;
 }
 
 

@@ -67,14 +67,31 @@ void RexxInstructionCommand::execute(
     context->traceCommand(this);         /* trace if necessary                */
                                          /* get the expression value          */
     RexxObject *result = this->expression->evaluate(context, stack);
-    RexxString *command = REQUEST_STRING(result);    /* force to string form              */
-    /* are we tracing commands?          */
-    if (context->tracingCommands())
+    if (context->enableCommands())
     {
-        /* then we always trace full command */
-        context->traceValue((RexxObject *)command, TRACE_PREFIX_RESULT);
+        RexxString *command = REQUEST_STRING(result);    /* force to string form              */
+        /* are we tracing commands?          */
+        if (context->tracingCommands())
+        {
+            /* then we always trace full command */
+            context->traceValue((RexxObject *)command, TRACE_PREFIX_RESULT);
+        }
+        /* go process the command            */
+        context->command(context->getAddress(), command);
     }
-    /* go process the command            */
-    context->command(context->getAddress(), command);
+    else
+    {
+        if (result != OREF_NULL)   /* result returned?                  */
+        {
+            /* set the RESULT variable to the    */
+            /* message return value              */
+            context->setLocalVariable(OREF_RESULT, VARIABLE_RESULT, (RexxObject *)result);
+            context->traceResult((RexxObject *)result);  /* trace if necessary                */
+        }
+        else                               /* drop the variable RESULT          */
+        {
+            context->dropLocalVariable(OREF_RESULT, VARIABLE_RESULT);
+        }
+    }
 }
 

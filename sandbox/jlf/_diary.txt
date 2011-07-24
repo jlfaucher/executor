@@ -43,6 +43,68 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 july 21
+
+[expression evaluation]
+Added an option to control execution of commands :
+    ::options COMMANDS
+    ::options NOCOMMANDS
+    options "COMMANDS"
+    options "NOCOMMANDS"
+By default, a clause consisting of an expression only is interpreted as a command string.
+When using the option NOCOMMANDS, the value of the expression is stored in the
+variable RESULT, and not interpreted as a command string.
+
+
+[source literal]
+Removed method RexxSourceLiteral::setSource
+Removed method RexxContextualSource::setSource
+Removed method RexxContextualSource~"source="
+This assignment of source is not needed, and moreover was buggy (overwriting directly
+the literal source in the directory of literals).
+
+
+[source literal]
+Now RexxSourceLiteral::getSource returns an array of strings, no longer a monoline string.
+The monoline string was buggy, because continuation characters were not supported correctly.
+And that's how the sources are managed everywhere else.
+
+
+[source literal]
+To investigate...
+When a routine or method is created, a new RexxSource is created. So all the settings
+defined on the package level (i.e. RexxSource) have the default values.
+It's possible to pass a context from which a RexxSource is taken (called parentSource)
+which allows the created routine/method to inherit class and routine lookup scope from
+another source. Nothing else is inherited.
+    [inherited from context]
+        routines
+        merged_public_routines
+        installed_classes
+        merged_public_classes
+    [currently never inherited from context]
+        digits
+        fuzz
+        form
+        trace
+        enableCommands
+See RoutineClass::newRoutineObject and RexxMethod::newMethodObject, there is a call to
+getSourceObject()->inheritSourceContext(parentSource).
+This chained context is managed in the following methods :
+    RexxSource::findLocalRoutine   (search in routines)
+    RexxSource::findPublicRoutine  (search in merged_public_routines)
+    RexxSource::findInstalledClass (search in installed_classes)
+    RexxSource::findPublicClass    (search in merged_public_classes)
+A source literal is somewhat special, because it's supposed to have all the settings of
+the package in which it's defined (well, I suppose...). So, should find a way to
+initialize the RexxSource of the source literal with the settings of the package.
+Then, I have the same need for the settings of the RexxActivation in which the executable
+created from the RexxContextualSource will run. I think that the closure will be the right
+place to manage that, since the closure is a snapshot of the RexxActivation in which the
+RexxContextualSource is created.
+
+
+===============================================================================
 2011 july 11
 
 More work on pipe.

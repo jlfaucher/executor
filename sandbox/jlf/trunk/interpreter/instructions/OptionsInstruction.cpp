@@ -82,6 +82,16 @@ void RexxInstructionOptions::execute(
             break;                           /* if length of word = 0 then stop   */
         }
 
+        if (word->strCaselessCompare(CHAR_COMMANDS))
+        {
+            context->enableCommands(true);
+        }
+
+        if (word->strCaselessCompare(CHAR_NOCOMMANDS))
+        {
+            context->enableCommands(false);
+        }
+
 #ifdef _DEBUG
         if (word->strCaselessCompare("DUMPMEMORY"))
         {

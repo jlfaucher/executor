@@ -65,15 +65,13 @@ public:
     RexxSourceLiteral(RexxString *, PackageClass *);
     inline RexxSourceLiteral(RESTORETYPE restoreType) { ; };
 
-    RexxString *getSource() { return source; }
+    RexxArray *getSource() { return source; }
     PackageClass *getPackage() { return package; }
-
-    void setSource(RexxString *);
 
     RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *);
 
 protected:
-    RexxString *source;
+    RexxArray *source;
     PackageClass *package;
 };
 
@@ -96,11 +94,9 @@ public:
     RexxObject *newRexx(RexxObject **args, size_t argc);
     RexxObject *copyRexx();
 
-    RexxString *getSource();
+    RexxArray *getSource();
     PackageClass *getPackage();
     RexxContext *getContext();
-
-    RexxObject *setSource(RexxObject *);
 
     static void createInstance();
     static RexxClass *classInstance;   // singleton class instance
