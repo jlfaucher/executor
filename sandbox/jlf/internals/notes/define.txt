@@ -1,0 +1,265 @@
+CoreClasses.orx utilise !define_methods pour ajouter des méthodes sur les classes prédéfinies
+
+Implémenté par : RexxClass::defineClassMethod dans setup.cpp
+  defineProtectedKernelMethod("!DEFINE_CLASS_METHOD"  ,TheClassBehaviour, CPPM(RexxClass::defineClassMethod), 2);
+RexxConstants.hpp
+CHARCONSTANT(DEFINE_METHODS, "!DEFINE_METHODS");
+
+
+
+================================================================
+
+ 	rexx.dll!RexxActivity::raiseCondition(RexxDirectory * conditionObj=0x7eee9858)  Line 433	C++
+ 	rexx.dll!RexxActivity::raiseCondition(RexxString * condition=0x7fd20bb8, RexxObject * rc=0x00000000, RexxString * description=0x7eee8788, RexxObject * additional=0x7fd382b8, RexxObject * result=0x00000000)  Line 420	C++
+ 	rexx.dll!reportNomethod(RexxString * message=0x7eee8788, RexxObject * receiver=0x7fd382b8)  Line 238 + 0x1e bytes	C++
+>	rexx.dll!RexxClass::defineMethod(RexxString * method_name=0x7eee87b8, RexxMethod * method_object=0x7eee96b8)  Line 633	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fcc1698, RexxObject * receiver=0x7fd382b8, RexxString * messageName=0x7eee8788, RexxObject * * argPtr=0x7eae244c, unsigned int count=0x00000002, ProtectedObject & result={...})  Line 152 + 0x13 bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7fd382b8, RexxString * msgname=0x7eee8788, RexxObject * * argPtr=0x7eae244c, unsigned int count=0x00000002, ProtectedObject & result={...})  Line 325	C++
+ 	rexx.dll!RexxObject::processProtectedMethod(RexxString * messageName=0x7eee8788, RexxMethod * targetMethod=0x7fcc1698, RexxObject * * arguments=0x7eae244c, unsigned int count=0x00000002, ProtectedObject & result={...})  Line 860	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eee8788, RexxObject * * arguments=0x7eae244c, unsigned int count=0x00000002, ProtectedObject & result={...})  Line 785	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eee8788, unsigned int count=0x00000002, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context=0x7eee96e0, RexxExpressionStack * stack=0x7eee97a0)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7fd69840, RexxObject * * _arglist=0x7eee6978, unsigned int _argcount=0x00000000, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5638, RoutineClass * routine=0x7eee6ad8, RexxString * msgname=0x7fd69840, RexxObject * * argPtr=0x7eee6978, unsigned int argcount=0x00000000, RexxString * calltype=0x7fcf6108, RexxString * environment=0x7eee5bf0, int context=0x00000010, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity=0x7eee5638, RexxString * calltype=0x7fcf6108, RexxString * environment=0x7eee5bf0, RexxObject * * arguments=0x7eee6978, unsigned int argCount=0x00000000, ProtectedObject & result={...})  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher={...})  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target={...})  Line 2995	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits=0x00000000, const char * env=0x0041d234)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount=0x00000000, _CONSTRXSTRING * arglist=0x000aff5c, const char * programname=0x00a45715, _RXSTRING * instore=0x00000000, const char * envname=0x0041d234, int calltype=0x00000000, _RXSYSEXIT * exits=0x00000000, short * retcode=0x000adf28, _RXSTRING * result=0x000aff4c)  Line 165	C++
+ 	rexx.exe!main(int argc=0x00000002, char * * argv=0x00a45700)  Line 198 + 0x27 bytes	C++
+
+
+ClassClass.cpp
+RexxClass::defineMethod
+Bridé par isRexxDefined
+
+ClassClass.hpp
+   inline bool         isRexxDefined() { return (classFlags & REXX_DEFINED) != 0; };
+   RexxObject * setRexxDefined();
+
+
+define ne marche pas sur les nombres
+ObjectClass.cpp
+RexxObject::messageSend
+
+
+La méthode est cherchée sur instanceBehaviour :
+interpreter\behaviour\RexxBehaviour.cpp
+    RexxClass *RexxBehaviour::restoreClass()
+    {
+        this->owningClass->setInstanceBehaviour(this);
+        return this->owningClass;            /* return the associated class       */
+    }
+interpreter\classes\ArrayClass.cpp (et aussi StringClass, DirectoryClass, ExceptionClass, etc...)
+    RexxArray::operator new
+        /* Create the new array              */
+        newArray = (RexxArray *)new_object(bytes);
+        /* Give it array behaviour.          */
+        newArray->setBehaviour(arrayClass->getInstanceBehaviour());
+interpreter\classes\ClassClass.cpp
+    voir, entre autres, l'utilisation de instanceBehaviour->copy() :
+        RexxClass::defineMethod
+        RexxClass::deleteMethod
+        RexxClass::newRexx          normal de faire une copie
+        
+
+
+
+
+
+
+
+The problem described in the following lines has been fixed by Rick.
+Commit 6221
+[ oorexx-Bugs-2982725 ] The Integer class  is not supposed to show through
+/main/trunk/interpreter/classes/IntegerClass.cpp
+/main/trunk/interpreter/classes/IntegerClass.hpp
+/main/trunk/interpreter/classes/NumberStringClass.cpp
+/main/trunk/interpreter/classes/NumberStringClass.hpp
+/main/trunk/interpreter/execution/CPPCode.cpp
+/main/trunk/interpreter/memory/Setup.cpp
+
+
+
+=====================================================================================
+Analyse pourquoi les identityHash sont différents :
+    say .String~identityHash
+    say 123~class~identityHash
+c'est parce que dans le 1er cas on a la classe String et dans le 2ème cas on a la classe interne RexxIntegerClass
+=====================================================================================        
+
+identityHash :
+interpreter\classes\ObjectClass.cpp
+interpreter\classes\ObjectClass.hpp
+interpreter\classes\support\RexxHashTable.hpp
+   // NB:  Ideally, hashPrimitiveIndex() would be best served by using the identityHash().  Unfortunately,
+   // the identity hash value is derived directly from the object reference.  This means that objects that
+   // are in the saved image (or restored as part of saved programs) will have different identity hashes before
+   // and after the store, which will cause hash table lookup failures.  We'll use whatever value is stored
+   // in the hashvalue field.
+
+
+
+say .String~identityHash
+ 	rexx.dll!HASHOREF()  Line 204	C++
+ 	rexx.dll!RexxInternalObject::identityHash()  Line 278 + 0xf bytes	C++
+ 	rexx.dll!RexxObject::identityHashRexx()  Line 2257 + 0x8 bytes	C++
+        return new_integer(this->identityHash());
+        avec
+        this == 7fce39a0 [RexxClass]
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fcc17c8, RexxObject * receiver=0x7fce39a0, RexxString * messageName=0x7eee8778, RexxObject * * argPtr=0x7eae244c, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 144 + 0x6 bytes	C++
+        result = (receiver->*((PCPPM0)methodEntry))();
+        avec
+        receiver == 7fce39a0 [RexxClass]
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7fce39a0, RexxString * msgname=0x7eee8778, RexxObject * * argPtr=0x7eae244c, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 325	C++
+        code->run(activity, this, receiver, msgname, argPtr, count, result);
+        avec
+        this == 7fcc17c8 [RexxMethod]
+        receiver == 7fce39a0 [RexxClass]
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eee8778, RexxObject * * arguments=0x7eae244c, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 793	C++
+        RexxMethod *method_save = this->behaviour->methodLookup(msgname);
+        avec
+        this == [RexxClass]
+        this->RexxInternalObject.behaviour == 003d6a28
+        ...
+        method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);
+        avec
+        method_save == [RexxMethod]     la méthode qui répond au message
+        this == 7fce39a0 [RexxClass "String"]
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eee8778, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+        (*(this->top - count))->messageSend(message, (RexxObject **)(this->top -count + 1), count, result); };
+        avec
+        this == 7eee8ad8 [RexxExpressionStack]
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context=0x7eee8a18, RexxExpressionStack * stack=0x7eee8ad8)  Line 139	C++
+        stack->send(this->messageName, argcount, result);
+        avec
+        stack == 7eee8ad8 [RexxExpressionStack]
+        this == 7eee8810 [RexxExpressionMessage]
+>	rexx.dll!RexxInstructionSay::execute(RexxActivation * context=0x7eee8a18, RexxExpressionStack * stack=0x7eee8ad8)  Line 73 + 0x1b bytes	C++
+        RexxObject *result = this->expression->evaluate(context, stack);
+        avec
+        this == 7eee8838 [RexxInstructionSay]
+        this->expression == 7eee8810 [RexxExpressionMessage]
+            target == [RexxDotVariable]
+            messageName = "IDENTITYHASH"
+            argumentCount == 0
+            
+            
+            
+say 123~class~identityHash
+>	rexx.dll!HASHOREF()  Line 204	C++
+ 	rexx.dll!RexxInternalObject::identityHash()  Line 278 + 0xf bytes	C++
+ 	rexx.dll!RexxObject::identityHashRexx()  Line 2257 + 0x8 bytes	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fcc17c8, RexxObject * receiver=0x7fd61730, RexxString * messageName=0x7eee8778, RexxObject * * argPtr=0x7eae244c, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 144 + 0x6 bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7fd61730, RexxString * msgname=0x7eee8778, RexxObject * * argPtr=0x7eae244c, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 325	C++
+        code->run(activity, this, receiver, msgname, argPtr, count, result);
+        avec
+        code (this->BaseExecutable->code) == [CppCode]
+        activity == [RexxActivity]
+        this == [RexxMethod "IDENTITYHASH"]
+        receiver == 7fd61730 [RexxIntegerClass]
+        msgname ==
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eee8778, RexxObject * * arguments=0x7eae244c, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 793	C++
+        method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);
+        avec
+        method_save = [RexxMethod]     la méthode qui répond au message
+        this == 7fd61730 [RexxIntegerClass]
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eee8778, unsigned int count=0x00000000, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+        (*(this->top - count))->messageSend(message, (RexxObject **)(this->top -count + 1), count, result); };
+        avec
+        this == 7eee8ad8 [RexxExpressionStack]
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context=0x7eee8a18, RexxExpressionStack * stack=0x7eee8ad8)  Line 139	C++
+        stack->send(this->messageName, argcount, result);
+        avec
+        stack == 7eee8ad8 [RexxExpressionStack] 
+        this == [RexxVariableBase]
+ 	rexx.dll!RexxInstructionSay::execute(RexxActivation * context=0x7eee8a18, RexxExpressionStack * stack=0x7eee8ad8)  Line 73 + 0x1b bytes	C++
+        RexxObject *result = this->expression->evaluate(context, stack);
+        avec
+        this == 7eee89c0 [RexxInstructionSay]
+        this->expression == 7eee8998 [RexxExpressionMessage]
+        
+
+say .String        
+        RexxObject *result = this->expression->evaluate(context, stack);    --> 7fce39a0 [RexxClass "String"]
+        value = REQUEST_STRING(result);    /* get the string version            */
+            RexxString *RexxObject::requestString()     --> c'est une baseClass (primitive object)
+            avec
+            this == 7fce39a0 [RexxClass "String"]
+                string_value = this->primitiveMakeString(); --> .nil
+                string_value = this->stringValue();     --> récupère la string mais fait un raise condition
+                    return (RexxString *)this->sendMessage(OREF_OBJECTNAME);
+                        this->sendMessage(message, r);      envoie le message "OBJECTNAME"
+                            inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, result); };
+                            la méthode existe
+
+
+say 123~class
+        RexxObject *result = this->expression->evaluate(context, stack);    --> 7fd61730 [RexxIntegerClass]
+        value = REQUEST_STRING(result);    /* get the string version            */
+            RexxObject::requestString       --> c'est une baseClass (primitive object)
+                string_value = this->primitiveMakeString();     --> .nil
+                string_value = this->stringValue();
+                    return (RexxString *)this->sendMessage(OREF_OBJECTNAME);
+                        this->sendMessage(message, r);      envoie le message "OBJECTNAME" à [RexxIntegerClass]
+                            inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, result); };
+                            la méthode existe
+va lire le object name sur [RexxIntegerClass]
+    RexxString *RexxObject::objectName()
+        string_value = (RexxString *)this->getObjectVariable(OREF_NAME, scope);     --> variable "name" pas trouvée
+        string_value = this->defaultName();
+            RexxClass::defaultName      --> renvoie "The " || [RexxIntegerClass]->id (== "String") || " class"
+
+Voir IntegerClass.cpp :
+void RexxInteger::createInstance()
+{
+    CLASS_CREATE(Integer, "String", RexxIntegerClass);
+    /*  initialize our static array of   */
+    /*  cached integers                  */
+    new (TheIntegerClass) RexxIntegerClass();
+}
+
+            
+============================================================================
+say 123~class~hashcode
+============================================================================
+
+Quand le message "HASHCODE" est envoyé à [RexxIntegerClass], on arrive ici :
+RexxObject::hashCode    (ObjectClass.cpp)
+    avec 
+    this == [RexxIntegerClass]
+        RexxClass::getHashValue
+    
+HashCode RexxClass::getHashValue()
+{
+    // always, always, always return the hash value, which will be the
+    // hash value of our id string.  This is important, since we need to
+    // have a hash value that will be the same before and after the image save
+    return id->getHashValue();
+}
+
+
+donc le hashcode est calculé à partir du 123~class~id (qui est "String")
+
+
+========================================================================
+Pourquoi méthode pas trouvée :
+123~class~method("reduce")
+========================================================================
+
+La classe est [RexxIntegerClass]
+
+>	rexx.dll!RexxActivity::raiseException(long errcode=0x00017ae9, RexxString * description=0x00000000, RexxArray * additional=0x7ef13b30, RexxObject * result=0x00000000)  Line 730	C++
+ 	rexx.dll!RexxActivity::reportAnException(long errcode=0x00017ae9, RexxObject * substitution1=0x7fd61730, RexxObject * substitution2=0x7ef13b00)  Line 523	C++
+ 	rexx.dll!reportException(long error=0x00017ae9, RexxObject * a1=0x7fd61730, RexxObject * a2=0x7ef13b00)  Line 209	C++
+ 	rexx.dll!RexxClass::method(RexxString * method_name=0x7ef13b00)  Line 799	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fcc0f48, RexxObject * receiver=0x7fd61730, RexxString * messageName=0x7ef0fb70, RexxObject * * argPtr=0x7eae24ac, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 148 + 0xc bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7fd61730, RexxString * msgname=0x7ef0fb70, RexxObject * * argPtr=0x7eae24ac, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7ef0fb70, RexxObject * * arguments=0x7eae24ac, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7ef0fb70, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context=0x7ef10780, RexxExpressionStack * stack=0x7ef10840)  Line 139	C++
+ 	rexx.dll!RexxBinaryOperator::evaluate(RexxActivation * context=0x7ef10780, RexxExpressionStack * stack=0x7ef10840)  Line 112 + 0x1d bytes	C++
+ 	rexx.dll!RexxInstructionSay::execute(RexxActivation * context=0x7ef10780, RexxExpressionStack * stack=0x7ef10840)  Line 73 + 0x1b bytes	C++
+
+Pas trouvé parce que la recherche se fait sur le dictionnaire de RexxIntegerClass, au lieu du dictionnaire de String.

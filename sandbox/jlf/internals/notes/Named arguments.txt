@@ -1,0 +1,62 @@
+named arguments
+
+
+C# : http://msdn.microsoft.com/en-us/library/dd264739.aspx
+When you use named and optional arguments, the arguments are evaluated in the order in which they appear in the argument list, not the parameter list.
+A named argument can follow positional arguments, as shown here : CalculateBMI(123, height: 64);
+However, a positional argument cannot follow a named argument : //CalculateBMI(weight: 123, 64);
+
+Python
+http://docs.python.org/py3k/reference/compound_stmts.html#function-definitions
+http://docs.python.org/py3k/reference/expressions.html#calls
+http://docs.python.org/tutorial/controlflow.html#more-on-defining-functions
+http://docs.python.org/extending/extending.html#keyword-parameters-for-extension-functions
+
+
+
+=================================================================
+--> I started to think about that, but it appears that the ooRexx arguments are not easy to manage by name.
+It's because the arguments are not declared in a single place at the begining of a procedure/routine/method.
+They can be declared several times, and complex expressions can be used (stem, instance's attribute, ...).
+Moreover, named arguments can be passed in any order, and that's a problem with current management by array.
+So, I give up...
+
+
+
+
+RexxCore.h
+inline RexxArray *arrayArgument(RexxObject *object, size_t position)
+    RexxObject *RoutineClass::callWithRexx(RexxArray *args)
+
+ObjectClass.cpp
+RexxArray *RexxObject::requestArray()
+Il n'y a pas de ::requestDirectory --> à ajouter
+
+
+void RexxCode::call
+appelé si call myroutine ...
+    appelé par void RoutineClass::runProgram
+    appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
+        appelle RexxInstructionCall::execute
+            --> CallInstruction.hpp : il y a un tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
+            Evalue chaque argument (push stack)
+            puis appelle context->externalCall (mais il peut y avoir d'autres formes d'appel)
+                RexxActivation::externalCall
+                    RoutineClass::call
+                        RexxCode::call
+appelé si myroutine~call(...)
+    appelé par void RoutineClass::runProgram
+    appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
+        appelle RexxInstructionMessage::execute     
+            --> MessageInstruction.hpp : il y a le tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
+            Evalue chaque argument (push stack)
+            puis appelle stack->send(this->name, argcount, result);
+                RexxObject::messageSend
+                    RexxMethod::run
+                        RexxCode::run
+    
+
+Evaluation des arguments
+RexxInstructionCall
+
+

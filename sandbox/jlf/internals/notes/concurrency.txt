@@ -1,0 +1,350 @@
+===================================================================================
+
+
+http://soniacodes.wordpress.com/2011/03/15/concurrency-review/
+
+http://threadingbuildingblocks.org/
+
+
+=====================================================================
+RexxActivation.hpp
+getReserveCount
+getVariableDictionary
+
+Modification des accesseurs qui renvoient le dictionnaire et le compteur
+Le but est d'avoir l'info, même si l'activation n'a pas encore été mise à jour avec ces infos.
+D'après ce que je comprends, la mise à jour se fait uniquement s'il y a accès à une variable.
+
+
+            this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
+Le receiver est tout objet :
+   RexxObject          *receiver;      /* target of a message invocation    */
+ObjectClass.hpp
+     RexxVariableDictionary *getObjectVariables(RexxObject *);
+
+
+=====================================================================
+
+
+Le flag object_scope == SCOPE_RESERVED est local à chaque activation.
+J'ai l'impression que c'est une optimisation et il n'apporte pas une info très utile...
+Ce qui est plus utile, c'est si le dictionnaire de variable est reservé :
+this->settings.object_variables->reserve(this->activity);
+et par qui :
+this->reservingActivity
+
+guard on
+guard off
+
+        ==========================================
+        JLF : ici le context est un RexxACtivation
+        ==========================================
+        if (!(instructionFlags&guard_on_form))      /* is this the OFF form?             */
+        {
+            context->guardOff();             /* set unguarded status in activation*/
+        }
+        else
+        {
+            context->guardOn();              /* set guarded status in activation  */
+        }
+
+
+
+guard on when expression
+RexxInstructionGuard::execute(
+    RexxActivation      *context,      /* current activation context        */
+    RexxExpressionStack *stack )       /* evaluation stack                  */
+
+        size = variableCount;              /* get variable list count           */
+        for (i = 0; i < size; i++)       /* loop through the variable list    */
+        {
+            /* set a guard on each variable,     */
+            /* counting the guards on each       */
+            /* variable that is actually exposed */
+            this->variables[i]->setGuard(context);
+        }
+
+        if (!(instructionFlags&guard_on_form)) /* is this the OFF form?             */
+        {
+            context->guardOff();             /* set unguarded status in activation*/
+        }
+        else
+        {
+            ==============================================================================
+            JLF : DONC ON RESERVE LE DICTIONNAIRE AVANT MËME DE TESTER L'EXPRESSION ??????
+            ==============================================================================
+            context->guardOn();              /* set guarded status in activation  */
+        }
+
+
+        ================================================
+        JLF : il y a UN SEUL currentActivity dans le système (!!!!)
+        C'est une variable statique de ActivityManager
+        ================================================
+        ActivityManager::currentActivity->guardSet();       /* initialize the guard sem          */         JLF : c'est un RESET !
+
+
+        /* get the expression value          */
+        result = this->expression->evaluate(context, stack);
+        context->traceResult(result);      /* trace if necessary                */
+                                           /* do first evaluation without       */
+                                           /* establishing any variable guards  */
+                                           /* false on first attempt?           */
+        if (!result->truthValue(Error_Logical_value_guard))
+        {
+            do                             /* need to loop until true           */
+            {
+                stack->clear();                /* clear the expression stack        */
+                context->guardWait();       /* establish guards and wait         */                         JLF : RexxActivation::guardWait
+                ActivityManager::currentActivity->guardSet();   /* initialize the guard sem          */     JLF : c'est un RESET !
+                result = this->expression->evaluate(context, stack);
+                context->traceResult(result);  /* trace if necessary                */
+                                               /* while this is still false         */
+            } while (!result->truthValue(Error_Logical_value_guard));
+        }
+        for (i = 0; i < size; i++)       /* loop through the variable list    */
+        {
+            /* set a guard on each variable,     */
+            /* counting the guards on each       */
+            /* variable that is actually exposed */
+            this->variables[i]->clearGuard(context);
+        }
+
+
+
+
+Il y a un sémaphore par instance de RexxActivity pour les guard expressions
+   SysSemaphore        guardsem;       /* guard expression semaphore        */
+
+
+
+
+void RexxActivation::guardWait()
+/******************************************************************************/
+/* Function:  Wait for a variable in a guard expression to get updated.       */
+/******************************************************************************/
+{
+    int initial_state = this->object_scope;  /* save the initial state            */
+                                         /* have the scope reserved?          */
+    if (this->object_scope == SCOPE_RESERVED)
+    {
+        /* tell the receiver to release this */
+        this->settings.object_variables->release(this->activity);
+        /* and change our local state        */
+        this->object_scope = SCOPE_RELEASED;    /* do an assignment! */
+    }
+    this->activity->guardWait();         /* wait on a variable inform event   */
+                                         /* did we release the scope?         */
+    if (initial_state == SCOPE_RESERVED)
+    {
+        /* tell the receiver to reserve this */
+        this->settings.object_variables->reserve(this->activity);
+        /* and change our local state        */
+        this->object_scope = SCOPE_RESERVED;    /* do an assignment! */
+    }
+}
+
+
+
+void RexxActivity::guardSet()
+/******************************************************************************/
+/* Function:  Clear a guard expression semaphore in preparation to perform a  */
+/*            guard wait                                                      */
+/******************************************************************************/
+{
+    guardsem.reset();               /* set up for guard call             */
+}
+
+
+
+
+
+
+===============================================================================
+
+Relation entre RexxActivity et thread
+
+class RexxActivity
+   thread_id_t threadIdMethod();
+   bool isThread(thread_id_t id) { return currentThread.equals(id); }
+
+   SysActivity currentThread;            /* descriptor for this thread        */
+
+
+===============================================================================
+
+RexxActivity.cpp
+RexxActivity::RexxActivity(bool createThread)
+: runsem("RexxActivity::runsem"), guardsem("RexxActivity::guardsem")
+
+Le nom des variables passé en paramètre est bien stocké
+mais ensuite effacé par
+this->clearObject();
+
+défini dans ObjectClass.hpp
+  class RexxInternalObject : public RexxVirtualBase{
+     inline void   clearObject() { memset(getObjectDataSpace(), '\0', getObjectDataSize()); }
+
+     static inline size_t getObjectHeaderSize() { return sizeof(RexxInternalObject); }
+     inline size_t getObjectDataSize() { return getObjectSize() - getObjectHeaderSize(); }
+     inline void  *getObjectDataSpace() { return ((char *)this) + getObjectHeaderSize(); }
+
+
+====================================================================================
+https://mail.google.com/mail/?shva=1#inbox/12eb5d34607ac1c0
+Guard conditions nest.  So the guard off in the m1 method does not
+completely remove the locking from that thread.  It only removes the
+guarded condition caused by entry to that method, so the object is
+still locked by that thread.
+
+
+RexxActivation.object_scope est une optimisation :
+si == SCOPE_RELEASED alors pas besoin d'aller voir le dictionnaire de variables this->settings.object_variables
+sinon, le reserveCount est testé
+
+
+RexxActivation.hpp
+   inline void       guardOff()
+    {
+                                           /* currently locked?                 */
+      if (this->object_scope == SCOPE_RESERVED) {
+                                           /* release the variable dictionary   */
+        this->settings.object_variables->release(this->activity);
+                                           /* set the state to released         */
+        this->object_scope = SCOPE_RELEASED;
+      }
+    }
+
+
+RexxActivation.cpp
+void RexxActivation::guardOn()
+{
+    ====================================
+    JLF : si object_scope indique que le dictionnaire est déjà reservé, rien à faire.
+    sinon, on demande à reserver le dictionnaire mais ça peut être bloquant. En sortie, on est SCOPE_RESERVED.
+    ====================================
+    /* currently in unguarded state?     */
+    if (this->object_scope == SCOPE_RELEASED)
+    {
+        /* not retrieved yet?                */
+        if (this->settings.object_variables == OREF_NULL)
+        {
+            /* get the object variables          */
+            this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
+        }
+        /* lock the variable dictionary      */
+        this->settings.object_variables->reserve(this->activity);			JLF : peut BLOQUER si besoin (object_variables est un RexxVariableDictionary)
+        /* set the state here also           */
+        this->object_scope = SCOPE_RESERVED;						JLF : donc cette activation n'aura le status SCOPE_RESERVED que lorsque la réservation est effective, après attente si besoin
+    }
+}
+
+
+====================================================================================
+
+interpreter/execution/RexxVariableDictionary.cpp
+RexxVariableDictionary::release
+this->reserveCount
+
+
+RexxVariableDictionary::reserve
+if (this->reservingActivity == OREF_NULL) // currently unlocked ?
+this->reserveCount++;
+
+
+RexxVariableDictionary::release
+this->reserveCount--;
+
+
+RexxVariableDictionary::transfer
+
+
+
+Plus de détails
+---------------
+Un dictionnaire est associé à une activité qui l'a réservé.
+3 cas :
+- dictionnaire pas encore réservé : assignation du reservingActivity et reserveCount=1
+- dictionnaire déjà réservé et l'appel se fait pour la même activité : reserveCount++
+- dictionnaire déjà réservé et l'appel se fait par une autre activité : 
+  l'activité appelante est ajoutée en fin de queue, et mise en attente
+
+
+void RexxVariableDictionary::reserve(
+  RexxActivity *activity)              /* reserving activity                */
+/******************************************************************************/
+/* Function:  Reserve a scope on an object, waiting for completion if this    */
+/*            is already reserved by another activity                         */
+/******************************************************************************/
+{
+    /* currently unlocked?               */
+    if (this->reservingActivity == OREF_NULL)
+    {
+        /* set the locker                    */
+        OrefSet(this, this->reservingActivity, activity);
+        this->reserveCount = 1;            /* we're reserved once               */
+    }
+    /* doing again on the same stack?    */
+    else if (this->reservingActivity == activity)
+    {
+        this->reserveCount++;              /* bump the nesting count            */
+    }
+    else
+    {                               /* need to wait on this              */
+                                    /* go perform dead lock checks       */
+        this->reservingActivity->checkDeadLock(activity);
+        /* no list here?                     */
+        if (this->waitingActivities == OREF_NULL)
+        {
+            /* get a waiting queue               */
+            OrefSet(this, this->waitingActivities, new_list());
+        }
+        /* add to the wait queue             */
+        this->waitingActivities->addLast((RexxObject *)activity);
+        /* ok, now we wait                   */
+        activity->waitReserve((RexxObject *)this);
+    }
+}
+
+
+====================================================================================
+
+
+RexxActivation::run
+/* Function:  Run a REXX method...this is it!  This is the heart of the       */
+/*            interpreter that makes the whole thing run!                     */
+...
+                if (isGuarded())
+                {
+                    /* get the object variables          */
+                    this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
+                    /* reserve the variable scope        */
+                    this->settings.object_variables->reserve(this->activity);
+                    /* and remember for later            */
+                    this->object_scope = SCOPE_RESERVED;
+                }
+...
+
+
+
+RexxVariableDictionary * RexxActivation::getObjectVariables()
+/******************************************************************************/
+/* Function:  Return the associated object variables vdict                    */
+/******************************************************************************/
+{
+    /* no retrieved yet?                 */
+    if (this->settings.object_variables == OREF_NULL)
+    {
+        /* get the object variables          */
+        this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
+        if (isGuarded())                   /* guarded method?                   */
+        {
+            /* reserve the variable scope        */
+            this->settings.object_variables->reserve(this->activity);
+            /* and remember for later            */
+            this->object_scope = SCOPE_RESERVED;
+        }
+    }
+    /* return the vdict                  */
+    return this->settings.object_variables;
+}

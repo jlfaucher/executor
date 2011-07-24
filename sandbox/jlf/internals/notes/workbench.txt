@@ -1,0 +1,5 @@
+http://publib.boulder.ibm.com/infocenter/iadthelp/v6r0/index.jsp?topic=/com.ibm.etools.iseries.orxw.doc/orxw_ref724.htm
+
+broken link :
+http://www.ibm.com/software/ad/obj-rexx/
+

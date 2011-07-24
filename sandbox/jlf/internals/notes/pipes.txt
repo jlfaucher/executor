@@ -1,0 +1,102 @@
+http://michaelnielsen.org/blog/write-your-first-mapreduce-program-in-20-minutes/
+
+http://hestia.typepad.com/flatlander/2011/06/partial-function-application-in-f-part-2-a-technique-for-simplicity.html
+Il y a un exemple de pipe |> dans F#
+
+http://lorgonblog.wordpress.com/2008/03/30/pipelining-in-f/
+
+http://www.wordloosed.com/running-yahoo-pipes-on-google-app-engine
+
+http://pipes.yahoo.com/pipes/
+
+http://ipages.iland.net/~jimj/
+
+http://www.tenfiftytwo.co.uk/pipelines/
+http://sourceforge.net/projects/oorexx/forums/forum/408479/topic/3814527
+
+Simon Nash
+http://jstreamer.com/technical.html
+
+Flow based programming
+http://www.pypes.org/
+
+Flow based programming
+http://wiki.python.org/moin/FlowBasedProgramming
+
+Ruffus is a lightweight python module for running computational pipelines
+http://code.google.com/p/ruffus/
+
+Pipe: Infix syntax for Python
+http://dev-tricks.net/pipe-infix-syntax-for-python
+
+http://code.google.com/p/appengine-pipeline/
+
+Kamaelia - Concurrency made useful, fun
+http://www.kamaelia.org/Home.html
+
+http://software.intel.com/en-us/blogs/2011/03/31/the-join-node-in-the-intel-threading-building-blocks-graph-community-preview-feature-2/
+
+http://threadingbuildingblocks.org/
+
+http://en.wikipedia.org/wiki/Pipeline_%28Unix%29
+
+http://lorgonblog.wordpress.com/2008/03/30/pipelining-in-f/
+
+
+============================================================================
+http://groups.google.com/group/comp.lang.rexx/browse_thread/thread/356f08d60008ac05?hl=en
+
+I was looking into SysCreatePipe regarding Swiftys problem with piping a mail body to the mail command.
+I couldn't find any examples of the usage of SysCreatePipe and the Ref.Manual is very sparse.
+My knowledge of unnamed pipes in Unix, is shaky so I may be way out of bounds here.
+Anyway, I came up with this code:
+#!/usr/bin/rexx
+signal on novalue
+trace r
+handles = SysCreatePipe()
+parse var handles IN OUT .
+say "Input handle is"  IN
+say "Output handle is" OUT
+-- Se Chapter 14.1.4 in ooRexx Ref.
+outstream = .stream~New("HANDLE:"OUT)
+outstream~lineout("2 hello")
+outstream~lineout("3 hello")
+outstream~lineout("4 hello")
+outstream~lineout("8 hello")
+outstream~lineout("9 hello")
+outstream~lineout("7 hello")
+outstream~lineout("1 hello")
+outstream~lineout("")
+outstream~flush
+--Redirect handle IN linked to  stdin (0)
+address bash "sort" IN"<&0 >/tmp/sorted file"
+outstream~close
+exit 0
+  ... which gave the following output:
+
+      5 *-* handles = SysCreatePipe()
+        >>>   "4 5"
+      7 *-* parse var handles IN OUT .
+        >>>   "4 5"
+        >>>   "4"
+        >>>   "5"
+      9 *-* say "Input handle is"  IN
+        >>>   "Input handle is 4"
+Input handle is 4
+     10 *-* say "Output handle is" OUT
+        >>>   "Output handle is 5"
+Output handle is 5
+     12 *-* outstream = .stream~New("HANDLE:"OUT)
+        >>>   "a Stream"
+     14 *-* outstream~lineout("2 hello")
+Segmentation fault
+
+:-(
+
+/dg
+
+Running on Linux AMD64 (Ubuntu 10.04 lucid Kernel 2.6.32-28-generic)
+Open Object Rexx Version 4.1.0
+Build date: Dec  3 2010
+Addressing Mode: 64 
+============================================================================

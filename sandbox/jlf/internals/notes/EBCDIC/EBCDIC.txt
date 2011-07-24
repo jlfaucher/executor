@@ -1,0 +1,9 @@
+Test de EBCDIC :
+interpreter\parser\KeywordConstants.cpp
+interpreter\parser\Scanner.cpp
+interpreter\platform\unix\PlatformDefinitions.h
+
+
+interpreter/parser/KeywordConstants.cpp
+Pourquoi une déclaration spéciale EBCDIC pour RexxSource::builtinFunctions[] ?
+Voir RexxSource_characterTable_csdiff.htm

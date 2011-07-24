@@ -1,0 +1,145 @@
+====================================================================
+rxqueue("create")
+
+createUniqueQueue
+ServerQueueManager::createUniqueQueue
+
+D:\local\Rexx\ooRexx\svn\main\trunk\rexxapi\server\QueueManager.cpp
+    ::routine rxqueue
+D:\local\Rexx\ooRexx\svn\main\trunk\rexxapi\client\LocalQueueManager.cpp
+D:\local\Rexx\ooRexx\svn\main\trunk\interpreter\classes\RexxQueueMethods.cpp
+D:\local\Rexx\ooRexx\svn\main\trunk\interpreter\RexxClasses\CoreClasses.orx
+
+====================================================================
+14.1.3.1. Unnamed Queues says :
+One unnamed queue is automatically provided for each Rexx program in operation. Its name is always "QUEUE:"
+
+At the end of 14.1.3.2, there is :
+Named queues are available across the entire system. Therefore, the names of queues must be unique within the system. If a queue named anyque exists, using the following function:
+newqueue = RXQUEUE("Create", "ANYQUE")
+results in an error.
+
+but 7.4.55 RXQUEUE CREATE says the opposite :
+If a queue with the specified name exists already, a queue is still created with a name assigned by the language processor. The assigned name is then returned to you.
+
+====================================================================
+
+
+newq = RXQUEUE("Create") /* create a unique queue */
+oq = RXQUEUE("Set",newq) /* establish new queue */
+push date() time() /* push date and time */
+do 1000 /* let's spend some time */
+nop /* doing nothing */
+end /* end of loop */
+pull a b /* get pushed information */
+say "Pushed at " a b ", Pulled at " date() time() /* tell user */
+call RXQUEUE "Delete",newq /* destroy unique queue created */
+call RXQUEUE "Set",oq /* reset to default queue (not required) */
+
+lineout FIFO
+push    LIFO    last-in-last-out    LIFO
+queue   FIFO                        FIFO
+
+====================================================================
+rexx -e ''
+
+[rxapi 00016] ServiceMessage APIManager CONNECTION_ACTIVE
+[rxapi 00016] session=30448
+[rxapi 00016] nameArg=
+[rxapi 00016] userid=root
+[rxapi 00017] ServiceMessage QueueManager CREATE_SESSION_QUEUE
+[rxapi 00017] session=30448
+[rxapi 00017] nameArg=
+[rxapi 00017] userid=root
+[rxapi 00018] ServiceMessage QueueManager DELETE_SESSION_QUEUE
+[rxapi 00018] session=30448
+[rxapi 00018] nameArg=
+[rxapi 00018] userid=root
+[rxapi 00019] ServiceMessage APIManager CLOSE_CONNECTION
+[rxapi 00019] session=0
+[rxapi 00019] nameArg=
+[rxapi 00019] userid=
+
+====================================================================
+rexx -e 'say queued()'
+
+[rxapi 00020] ServiceMessage APIManager CONNECTION_ACTIVE
+[rxapi 00020] session=30982
+[rxapi 00020] nameArg=
+[rxapi 00020] userid=root
+[rxapi 00021] ServiceMessage QueueManager CREATE_SESSION_QUEUE
+[rxapi 00021] session=30982
+[rxapi 00021] nameArg=
+[rxapi 00021] userid=root
+[rxapi 00022] ServiceMessage QueueManager GET_SESSION_QUEUE_COUNT
+[rxapi 00022] session=30982
+[rxapi 00022] nameArg=
+[rxapi 00022] userid=root
+[rxapi 00023] ServiceMessage QueueManager DELETE_SESSION_QUEUE
+[rxapi 00023] session=30982
+[rxapi 00023] nameArg=
+[rxapi 00023] userid=root
+[rxapi 00024] ServiceMessage APIManager CLOSE_CONNECTION
+[rxapi 00024] session=0
+[rxapi 00024] nameArg=
+[rxapi 00024] userid=
+
+====================================================================
+rexx -e '"echo test | rxqueue" ; say queued()'
+
+[rxapi 00025] ServiceMessage APIManager CONNECTION_ACTIVE
+[rxapi 00025] session=31754
+[rxapi 00025] nameArg=
+[rxapi 00025] userid=root
+[rxapi 00026] ServiceMessage QueueManager CREATE_SESSION_QUEUE
+[rxapi 00026] session=31754
+[rxapi 00026] nameArg=
+[rxapi 00026] userid=root
+[rxapi 00028] ServiceMessage APIManager CONNECTION_ACTIVE
+[rxapi 00028] session=31763
+[rxapi 00028] nameArg=
+[rxapi 00028] userid=root
+[rxapi 00029] ServiceMessage QueueManager NEST_SESSION_QUEUE
+[rxapi 00029] session=31763
+[rxapi 00029] nameArg=
+[rxapi 00029] userid=root
+[rxapi 00030] ServiceMessage QueueManager GET_SESSION_QUEUE_COUNT
+[rxapi 00030] session=31763
+[rxapi 00030] nameArg=
+[rxapi 00030] userid=root
+[rxapi 00031] ServiceMessage QueueManager ADD_TO_SESSION_QUEUE
+[rxapi 00031] session=31763
+[rxapi 00031] nameArg=
+[rxapi 00031] userid=root
+[rxapi 00032] ServiceException caught
+[rxapi 00032] ServiceMessage QueueManager GET_SESSION_QUEUE_COUNT
+[rxapi 00032] session=31754
+[rxapi 00032] nameArg=
+[rxapi 00032] userid=root
+[rxapi 00033] ServiceMessage QueueManager DELETE_SESSION_QUEUE
+[rxapi 00033] session=31754
+[rxapi 00033] nameArg=
+[rxapi 00033] userid=root
+[rxapi 00034] ServiceMessage APIManager CLOSE_CONNECTION
+[rxapi 00034] session=0
+[rxapi 00034] nameArg=
+[rxapi 00034] userid=
+
+====================================================================
+root> echo test | rxqueue myQueue 
+REX124: The queue myQueue does not exist.
+
+
+[rxapi 00035] ServiceMessage APIManager CONNECTION_ACTIVE
+[rxapi 00035] session=8163
+[rxapi 00035] nameArg=
+[rxapi 00035] userid=root
+[rxapi 00036] ServiceMessage QueueManager CREATE_SESSION_QUEUE
+[rxapi 00036] session=8163
+[rxapi 00036] nameArg=
+[rxapi 00036] userid=root
+[rxapi 00037] ServiceMessage QueueManager GET_NAMED_QUEUE_COUNT
+[rxapi 00037] session=8163
+[rxapi 00037] nameArg=myQueue
+[rxapi 00037] userid=root
+[rxapi 00038] ServiceException caught

@@ -1,0 +1,100 @@
+Creation d'un stream
+
+RexxActivation::resolveStream   (RexxActivation.cpp)
+            /* get the stream class              */
+            RexxObject *streamClass = TheEnvironment->at(OREF_STREAM);
+            /* create a new stream object        */
+            stream = streamClass->sendMessage(OREF_NEW, name);
+
+Initialisation d'un stream
+stream_init (StreamNative.cpp)
+    // create a new stream info member
+    StreamInfo *stream_info = new StreamInfo(self, name);
+    RexxPointerObject streamPtr = context->NewPointer(stream_info);
+    context->SetObjectVariable("CSELF", streamPtr);
+
+
+StreamInfo::StreamInfo  (StreamNative.cpp)
+    ...
+    // initialize the default values
+    resetFields();
+    ...
+
+
+StreamInfo::implicitOpen
+    open(O_RDWR, IREAD_IWRITE, RX_SH_DENYWR)    --> error 13
+    open(O_RDONLY, S_IREAD, RX_SH_DENYWR);
+
+
+SysFile.cpp
+errInfo never reset, except in SysFile::SysFile and SysFile::close
+errInfo is reset by StreamInfo::notreadyError
+
+
+===============================================
+
+
+Les classes Stream sont déclarées dans
+interpreter\RexxClasses\StreamClasses.orx
+
+Les méthodes sont implémentées dans
+interpreter\streamLibrary\StreamNative.cpp
+
+Le status StreamError n'est utilisé que dans
+StreamNative.cpp
+StreamNative.hpp
+Il est positionné par StreamInfo::notreadyError
+
+
+
+
+
+
+
+Review of interpreter\streamLibrary\StreamNative.cpp
+StreamNotready is never assigned.
+
+StreamEof is assigned by StreamInfo::eof, which is called by StreamInfo::checkEof, called by StreamInfo::readLine
+returned as "NOTREADY" by StreamInfo::getState, 
+returned as "NOTREADY:EOF" by StreamInfo::getDescription
+
+On the reader side, we have the status ERROR at the end because of that :
+void StreamInfo::readBuffer(char *data, size_t length, size_t &bytesRead)
+{
+    if (!fileInfo.read(data, length, bytesRead))
+    {
+        fprintf(stderr, "\n*** StreamInfo::readBuffer\n");
+        notreadyError();
+    }
+...
+There is no EOF test here, if fileInfo.read returns false, then it's an error, always.
+If appropriate (is it ?) we could call checkEof() instead of notreadyError().
+Tested under Windows and Unix : with this change, we get NOTREADY:EOF instead of ERROR:0 at the end of execution of receiver.rex
+
+On the writer side, under Windows, we don't get the status ERROR, it's always READY
+Under Unix, we get the status ERROR because of StreamInfo::WriteBuffer which calls fileInfo.getPosition
+If it does that, it's because stdout is not declared transient...
+Tested under Windows : stdout is transient
+Tested under Unix : stdout is not transient
+
+So now, must see why stdout is not transient under Unix...
+
+
+Depending on the side of the pipe, the results are different (which makes sense, but this is and indication that an additional test if needed for pipes)
+root> rexx sender.rex | rexx receiver.rex 
+
+*** SysFile::getStreamTypeInfo : isatty(0)=1                stdin on sender side    : transient
+*** SysFile::getStreamTypeInfo#2 : is character device=1
+*** SysFile::getStreamTypeInfo : isatty(1)=0                stdout on sender side   : not transient
+*** SysFile::getStreamTypeInfo#2 : is character device=0
+*** SysFile::getStreamTypeInfo : isatty(2)=1                stderr on sender side   : transient
+*** SysFile::getStreamTypeInfo#2 : is character device=1
+*** SysFile::getStreamTypeInfo : isatty(0)=0                stdin on receiver side  : not transient
+*** SysFile::getStreamTypeInfo#2 : is character device=0
+*** SysFile::getStreamTypeInfo : isatty(1)=1                stdout on receiver side : transient
+*** SysFile::getStreamTypeInfo#2 : is character device=1
+*** SysFile::getStreamTypeInfo : isatty(2)=1                stderr on receiver side : transient
+*** SysFile::getStreamTypeInfo#2 : is character device=1
+
+
+

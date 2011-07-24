@@ -1,0 +1,132 @@
+A propos du problème de reset de location
+
+
+interpreter\parser\InstructionParser.cpp :
+RexxInstruction *RexxSource::sayNew()
+/****************************************************************************/
+/* Function:  Create a SAY instruction object                               */
+/****************************************************************************/
+{
+    RexxObject *_expression = this->expression(TERM_EOC);
+    /* create a new translator object    */
+    RexxInstruction *newObject = new_instruction(SAY, Say);     <-- location is copied from this->clause by RexxSource::sourceNewObject
+    /* now complete this                 */
+    new ((void *)newObject) RexxInstructionSay(_expression);
+    return newObject; /* done, return this                 */
+}
+
+
+interpreter\parser\SourceFile.hpp :
+#define new_instruction(name, type) this->sourceNewObject(sizeof(RexxInstruction##type), The##type##InstructionBehaviour, KEYWORD_##name)
+
+
+interpreter\parser\SourceFile.cpp :
+RexxInstruction *RexxSource::sourceNewObject(
+    size_t        size,                /* Object size                       */
+    RexxBehaviour *_behaviour,         /* Object's behaviour                */
+    int            type )              /* Type of instruction               */
+/******************************************************************************/
+/* Function:  Create a "raw" translator instruction object                    */
+/******************************************************************************/
+{
+  RexxObject *newObject = new_object(size);        /* Get new object                    */
+  newObject->setBehaviour(_behaviour); /* Give new object its behaviour     */
+                                       /* do common initialization          */
+  new ((void *)newObject) RexxInstruction (this->clause, type);                             <-- location is copied from this->clause
+                                       /* now protect this                  */
+  OrefSet(this, this->currentInstruction, (RexxInstruction *)newObject);
+  return (RexxInstruction *)newObject; /* return the new object             */
+}
+
+
+RexxInstructionSay::RexxInstructionSay
+    RexxInstructionExpression::RexxInstructionExpression
+        RexxInstruction::RexxInstruction
+            RexxInternalObject::RexxInternalObject
+        
+===================================================================
+
+interpreter\parser\SourceFile.cpp
+RexxInstruction *RexxSource::instruction()
+                case KEYWORD_NOP:          /* NOP instruction                   */
+                case KEYWORD_DROP:         /* DROP instruction                  */
+                case KEYWORD_SIGNAL:       /* various forms of SIGNAL           */
+                case KEYWORD_CALL:         /* various forms of CALL             */
+                case KEYWORD_RAISE:        /* RAISE instruction                 */
+                case KEYWORD_ADDRESS:      /* ADDRESS instruction               */
+                case KEYWORD_NUMERIC:      /* NUMERIC instruction               */
+                case KEYWORD_TRACE:        /* TRACE instruction                 */
+                case KEYWORD_DO:           /* all variations of DO instruction  */
+                case KEYWORD_LOOP:         /* all variations of LOOP instruction  */
+                case KEYWORD_EXIT:         /* EXIT instruction                  */
+                case KEYWORD_INTERPRET:    /* INTERPRET instruction             */
+                case KEYWORD_PUSH:         /* PUSH instruction                  */
+                case KEYWORD_QUEUE:        /* QUEUE instruction                 */
+                case KEYWORD_REPLY:        /* REPLY instruction                 */
+                case KEYWORD_RETURN:       /* RETURN instruction                */
+                case KEYWORD_IF:           /* IF instruction                    */
+                case KEYWORD_ITERATE:      /* ITERATE instruction               */
+                case KEYWORD_LEAVE:        /* LEAVE instruction                 */
+                case KEYWORD_EXPOSE:       /* EXPOSE instruction                */
+                case KEYWORD_FORWARD:      /* FORWARD instruction               */
+                case KEYWORD_PROCEDURE:    /* PROCEDURE instruction             */
+                case KEYWORD_GUARD:        /* GUARD instruction                 */
+                case KEYWORD_USE:          /* USE instruction                   */
+                case KEYWORD_ARG:          /* ARG instruction                   */
+                case KEYWORD_PULL:         /* PULL instruction                  */
+                case KEYWORD_PARSE:        /* PARSE instruction                 */
+                case KEYWORD_SAY:          /* SAY instruction                   */
+                case KEYWORD_OPTIONS:      /* OPTIONS instruction               */
+                case KEYWORD_SELECT:       /* SELECT instruction                */
+                case KEYWORD_WHEN:         /* WHEN in an SELECT instruction     */
+                case KEYWORD_OTHERWISE:    /* OTHERWISE in a SELECT             */
+                case KEYWORD_ELSE:         /* unexpected ELSE                   */
+                case KEYWORD_END:          /* END for a block construct         */
+                case KEYWORD_THEN:         /* unexpected THEN                   */
+
+Il y a une équivalence avec les fichiers *.hpp dans interpreter\instructions
+sauf pour ces cas :
+                case KEYWORD_LOOP:         /* all variations of LOOP instruction  */
+                case KEYWORD_PUSH:         /* PUSH instruction                  */
+                case KEYWORD_ITERATE:      /* ITERATE instruction               */
+                case KEYWORD_ARG:          /* ARG instruction                   */
+                case KEYWORD_PULL:         /* PULL instruction                  */
+                case KEYWORD_WHEN:         /* WHEN in an SELECT instruction     */
+    AssignmentInstruction
+    ClassDirective
+    CommandInstruction
+    DoBlock
+    EndIf
+    ExtensionDirective
+    LabelInstruction
+    LibraryDirective
+    MessageInstruction
+    ParseTarget
+    ParseTrigger
+    RequiresDirective
+    RexxDirective
+    RexxInstruction
+
+
+interpreter\parser\Scanner.cpp
+RexxSource::characterTable[]
+Cette table est utilisée pour scanner un symbol :
+- elle renvoie 0 pour un caractère qui n'est pas autorisé dans un symbol.
+- elle convertit les minuscules en majuscules.
+
+
+interpreter\parser\Scanner.cpp
+RexxSource::sourceNextToken
+-->
+gère les symboles, les strings, ...
+
+
+interpreter\parser\Scanner.cpp
+RexxSource::locateToken
+
+
+interpreter\parser\SourceFile.cpp
+RexxSource::commonString
+Stocke tous les symboles, toutes les chaines de caractères dans
+RexxDirectory   *strings;            /* common pool of created strings    */
+--> le but est d'avoir une valeur unique de chaque chaîne

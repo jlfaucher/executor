@@ -1,0 +1,8 @@
+interpreter\execution\RexxActivation.cpp
+
+RexxActivation::rexxVariable
+.methods
+.routines
+.rs
+.line
+.context

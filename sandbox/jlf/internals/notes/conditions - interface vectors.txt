@@ -1,0 +1,541 @@
+RexxThreadInterface
+déclaré dans RexxActivity.hpp
+implémenté dans ThreadContextStubs.cpp
+
+
+oorexxapi.h             RexxThreadInterface *RexxThreadContext::functions;     // the interface function vector
+oorexxapi.h             void RexxThreadContext::RaiseException(size_t n, RexxArrayObject ao)
+oorexxapi.h                 functions->RaiseException(this, n, ao);
+ThreadContextStubs.cpp          void RexxEntry APIRaiseException(RexxThreadContext *c, size_t n, RexxArrayObject a)
+ThreadContextStubs.cpp              reportException((wholenumber_t)n, (RexxArray *)a);
+ActivityManager.hpp                     inline void reportException(wholenumber_t error, RexxArray *args)
+ActivityManager.hpp                         ActivityManager::currentActivity->raiseException(error, OREF_NULL, args, OREF_NULL);
+RexxActivity.cpp                                 /**
+                                                 * Raise an exception on the current activity.
+                                                 *
+                                                 * @param errcode    The syntax error code.
+                                                 * @param description
+                                                 *                   The associated description string.
+                                                 * @param additional The message substitution parameters.
+                                                 * @param result     The message result.
+                                                 */
+                                                void RexxActivity::raiseException(wholenumber_t  errcode, RexxString *description, RexxArray *additional, RexxObject *result)
+                                                /******************************************************************************/
+                                                /* This routine is used for SYNTAX conditions only.                           */
+                                                /*                                                                            */
+                                                /* The inserts are passed as objects because that happens to be more          */
+                                                /* convenient for the calling code in the two cases where this facility       */
+                                                /* is used.                                                                   */
+                                                /*                                                                            */
+                                                /* NOTE: The building of the excepption obejct (EXOBJ)  has been re-arranged  */
+                                                /*  so that a garbage collection in the middle of building traceBack/etc      */
+                                                /*  doesn't clean up the newly built objects.  SO we create exobj early on    */
+                                                /*  save it, and add newlly built objects to exobj as we go.                  */
+                                                /******************************************************************************/
+                                                {
+                                                    // during error processing, we need to request the string value of message
+                                                    // substitution objects.  It is possible that the string process will also
+                                                    // cause a syntax error, resulting in a recursion loop.  We snip that off here,
+                                                    // by disallowing a nested error condition.
+                                                    if (requestingString)
+                                                    {
+                                                        throw RecursiveStringError;
+                                                    }
+
+                                                    RexxActivationBase *topFrame = this->getTopStackFrame();
+
+                                                    RexxActivation *activation = this->getCurrentRexxFrame(); /* get the current activation        */
+                                                    // if we're raised within a real Rexx context, we need to deal with forwarded
+                                                    // frames
+                                                    if (topFrame == activation)
+                                                    {
+                                                        // unwind the stack until we find
+                                                        while (activation != OREF_NULL && activation->isForwarded())
+                                                        {
+                                                            // terminate and remove this stack frame
+                                                            popStackFrame(activation);
+                                                            // grab the new current frame
+                                                            activation = this->getCurrentRexxFrame();
+                                                        }
+                                                    }
+                                                    else {
+                                                        activation = NULL;      // raised from a native context, don't add to stack trace
+                                                    }
+
+                                                    this->conditionobj = createExceptionObject(errcode, description, additional, result);
+
+                                                    /* process as common condition       */
+                                                    if (!this->raiseCondition(conditionobj))
+                                                    {
+                                                        /* fill in the propagation status    */
+                                                        conditionobj->put(TheTrueObject, OREF_PROPAGATED);
+                                                        // if we have an Rexx context to work with, unwind to that point,
+                                                        if (activation != OREF_NULL)
+                                                        {
+                                                            // unwind the frame to this point
+                                                            unwindToFrame(activation);
+                                                            popStackFrame(activation);     // remove it from the stack
+                                                        }
+                                                        this->raisePropagate(conditionobj);  /* pass on down the chain            */
+                                                    }
+                                                }
+
+
+oorexxapi.h             RexxThreadInterface *RexxThreadContext::functions;     // the interface function vector
+oorexxapi.h             void RexxThreadContext::RaiseCondition(CSTRING s1, RexxStringObject s2, RexxObjectPtr ao, RexxObjectPtr o)
+oorexxapi.h                 functions->RaiseCondition(this, s1, s2, ao, o);
+ThreadContextStubs.cpp          void RexxEntry RaiseCondition(RexxThreadContext *c, CSTRING name, RexxStringObject desc, RexxObjectPtr add, RexxObjectPtr result)
+ThreadContextStubs.cpp              context.activity->raiseCondition(new_upper_string(name), OREF_NULL, (RexxString *)desc, (RexxObject *)add, (RexxObject *)result);
+RexxActivity.cpp                        bool RexxActivity::raiseCondition(RexxString *condition, RexxObject *rc, RexxString *description, RexxObject *additional, RexxObject *result)
+                                            // just create a condition object and process the traps.
+                                            RexxDirectory *conditionObj = createConditionObject(condition, rc, description, additional, result);
+                                            return raiseCondition(conditionObj);
+                                                bool RexxActivity::raiseCondition(RexxDirectory *conditionObj)
+                                                {
+                                                    bool handled = false;                     /* condition not handled yet         */
+                                                    RexxString *condition = (RexxString *)conditionObj->at(OREF_CONDITION);
+
+                                                    /* invoke the error traps, on all    */
+                                                    /*  nativeacts until reach 1st       */
+                                                    /*  also give 1st activation a shot. */
+                                                    for (RexxActivationBase *activation = this->getTopStackFrame() ; !activation->isStackBase(); activation = activation->getPreviousStackFrame())
+                                                    {
+                                                        handled = activation->trap(condition, conditionObj);
+                                                        if (isOfClass(Activation, activation)) /* reached our 1st activation yet.   */
+                                                        {
+                                                            break;                           /* yes, break out of loop            */
+                                                        }
+                                                    }
+
+                                                    /* Control will not return here if the condition was trapped via*/
+                                                    /* SIGNAL ON SYNTAX.  For CALL ON conditions, handled will be   */
+                                                    /* true if a trap is pending.                                   */
+
+                                                    return handled;                      /* this has been handled             */
+                                                }
+
+
+-------------------------------------------------------------
+Usage of raiseException
+-------------------------------------------------------------
+
+Nothing special to report
+
+
+-------------------------------------------------------------
+Usage of raiseCondition
+-------------------------------------------------------------
+
+ObjectClass.cpp
+RexxString *RexxObject::requestString()
+            /* raise a NOSTRING condition        */
+            ActivityManager::currentActivity->raiseCondition(OREF_NOSTRING, OREF_NULL, string_value, this, OREF_NULL);
+
+
+ActivityManager.hpp
+inline void reportCondition(RexxString *condition, RexxString *description) { ActivityManager::currentActivity->raiseCondition(condition, OREF_NULL, description, OREF_NULL, OREF_NULL); }
+inline void reportNovalue(RexxString *description) { reportCondition(OREF_NOVALUE, description); }
+inline void reportNostring(RexxString *description) { reportCondition(OREF_NOSTRING, description); }
+inline void reportNomethod(RexxString *message, RexxObject *receiver)
+{
+    if (!ActivityManager::currentActivity->raiseCondition(OREF_NOMETHOD, OREF_NULL, message, receiver, OREF_NULL))
+    {
+                                           /* raise as a syntax error           */
+        reportException(Error_No_method_name, receiver, message);
+    }
+}
+
+
+RexxActivation.cpp
+void RexxActivation::processClauseBoundary()
+        if (!activity->raiseCondition(OREF_HALT, OREF_NULL, settings.halt_description, OREF_NULL, OREF_NULL))
+        {
+                                               /* raise as a syntax error           */
+            reportException(Error_Program_interrupted_condition, OREF_HALT);
+        }
+
+
+RexxActivation.cpp
+void RexxActivation::command(RexxString *address, RexxString *commandString)
+            // try to raise the condition, and if it isn't handled, we might
+            // munge this into an ERROR condition
+            if (!activity->raiseCondition(conditionObj))
+            {
+                // untrapped failure condition?  Turn into an ERROR condition and
+                // reraise
+                if (failureCondition)
+                {
+                    // just change the condition name
+                    conditionObj->put(OREF_ERRORNAME, OREF_CONDITION);
+                    activity->raiseCondition(conditionObj);
+                }
+            }
+
+
+ObjectClass.cpp
+void RexxObject::processUnknown(
+    if (method_save == OREF_NULL)        /* "unknown" method exists?          */
+    /* no unknown method - try to raise  */
+    /* a NOMETHOD condition, and if that */
+    {
+        reportNomethod(messageName, this); /* fails, it is an error message     */
+    }
+
+
+-------------------------------------------------------------
+oorexxapi.h
+-------------------------------------------------------------
+
+typedef struct
+{
+    void             (RexxEntry *RaiseException)(RexxThreadContext *, size_t, RexxArrayObject);
+    void             (RexxEntry *RaiseCondition)(RexxThreadContext *, CSTRING, RexxStringObject, RexxObjectPtr, RexxObjectPtr);
+
+} RexxThreadInterface;
+
+
+struct RexxThreadContext_
+{
+    RexxInstance *instance;             // the owning instance
+    RexxThreadInterface *functions;     // the interface function vector
+
+    void RaiseException(size_t n, RexxArrayObject ao)
+    {
+        functions->RaiseException(this, n, ao);
+    }
+    void RaiseCondition(CSTRING s1, RexxStringObject s2, RexxObjectPtr ao, RexxObjectPtr o)
+    {
+        functions->RaiseCondition(this, s1, s2, ao, o);
+    }
+
+};
+
+
+struct RexxMethodContext_
+{
+    RexxThreadContext *threadContext;   // the interpreter instance state
+    MethodContextInterface *functions;  // functions available in a method context
+    ValueDescriptor *arguments;         // the argument descriptor
+
+    void RaiseException(size_t n, RexxArrayObject ao)
+    {
+        threadContext->RaiseException(n, ao);
+    }
+    void RaiseCondition(CSTRING s1, RexxStringObject s2, RexxObjectPtr ao, RexxObjectPtr o)
+    {
+        threadContext->RaiseCondition(s1, s2, ao, o);
+    }
+
+};
+
+
+struct RexxCallContext_
+{
+    RexxThreadContext *threadContext;   // the interpreter instance state
+    CallContextInterface *functions;    // functions available in a method context
+    ValueDescriptor *arguments;         // the argument descriptor
+
+    void RaiseException(size_t n, RexxArrayObject ao)
+    {
+        threadContext->RaiseException(n, ao);
+    }
+    void RaiseCondition(CSTRING s1, RexxStringObject s2, RexxObjectPtr ao, RexxObjectPtr o)
+    {
+        threadContext->RaiseCondition(s1, s2, ao, o);
+    }
+
+};
+
+
+struct RexxExitContext_
+{
+    RexxThreadContext *threadContext;   // the interpreter instance state
+    ExitContextInterface *functions;    // functions available in a method context
+    ValueDescriptor *arguments;         // the argument descriptor
+
+    void RaiseException(size_t n, RexxArrayObject ao)
+    {
+        threadContext->RaiseException(n, ao);
+    }
+    void RaiseCondition(CSTRING s1, RexxStringObject s2, RexxObjectPtr ao, RexxObjectPtr o)
+    {
+        threadContext->RaiseCondition(s1, s2, ao, o);
+    }
+
+};
+
+
+----------------------------------------------------------------------------------------
+ThreadContextStubs.cpp
+----------------------------------------------------------------------------------------
+
+RexxThreadInterface RexxActivity::threadContextFunctions =
+{
+    APIRaiseException,
+    RaiseCondition,
+};
+
+
+void RexxEntry APIRaiseException(RexxThreadContext *c, size_t n, RexxArrayObject a)
+{
+    ApiContext context(c);
+    try
+    {
+        reportException((wholenumber_t)n, (RexxArray *)a);
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+}
+
+
+void RexxEntry RaiseCondition(RexxThreadContext *c, CSTRING name, RexxStringObject desc, RexxObjectPtr add, RexxObjectPtr result)
+{
+    ApiContext context(c);
+    try
+    {
+        context.context->enableConditionTrap();
+        context.activity->raiseCondition(new_upper_string(name), OREF_NULL, (RexxString *)desc, (RexxObject *)add, (RexxObject *)result);
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+}
+
+
+----------------------------------------------------------------------------------------
+RexxActivity.hpp
+----------------------------------------------------------------------------------------
+
+   bool        raiseCondition(RexxString *, RexxObject *, RexxString *, RexxObject *, RexxObject *);
+   bool        raiseCondition(RexxDirectory *);
+   RexxDirectory *createConditionObject(RexxString *, RexxObject *, RexxString *, RexxObject *, RexxObject *);
+   void        raiseException(wholenumber_t, RexxString *, RexxArray *, RexxObject *);
+
+   // structures containing the various interface vectors
+   static RexxThreadInterface threadContextFunctions;
+   static MethodContextInterface methodContextFunctions;
+   static CallContextInterface callContextFunctions;
+   static ExitContextInterface exitContextFunctions;
+
+
+----------------------------------------------------------------------------------------
+RexxActivity.cpp
+----------------------------------------------------------------------------------------
+
+/**
+ * Set up an activity as a root activity used either for a main
+ * interpreter thread or an attached thread.
+ *
+ * @param interpreter
+ *               The interpreter instance this thread belongs to.
+ */
+void RexxActivity::addToInstance(InterpreterInstance *interpreter)
+{
+    // we're associated with this instance
+    instance = interpreter;
+    // create a thread context that we can hand out when needed.
+    threadContext.threadContext.instance = instance->getInstanceContext();
+    threadContext.threadContext.functions = &threadContextFunctions;
+    threadContext.owningActivity = this;
+
+    // go copy the exit definitions
+    setupExits();
+}
+
+
+bool RexxActivity::raiseCondition(RexxString *condition, RexxObject *rc, RexxString *description, RexxObject *additional, RexxObject *result)
+{
+    // just create a condition object and process the traps.
+    RexxDirectory *conditionObj = createConditionObject(condition, rc, description, additional, result);
+    return raiseCondition(conditionObj);
+}
+
+
+/**
+ * Process condition trapping for a condition or syntax
+ * error.
+ *
+ * @param conditionObj
+ *               The condition object that describes the condition.
+ *
+ * @return true if this was trapped, false otherwise.  If trapped
+ *         via a SIGNAL ON, this will NOT return to here.
+ */
+bool RexxActivity::raiseCondition(RexxDirectory *conditionObj)
+{
+    bool handled = false;                     /* condition not handled yet         */
+    RexxString *condition = (RexxString *)conditionObj->at(OREF_CONDITION);
+
+    /* invoke the error traps, on all    */
+    /*  nativeacts until reach 1st       */
+    /*  also give 1st activation a shot. */
+    for (RexxActivationBase *activation = this->getTopStackFrame() ; !activation->isStackBase(); activation = activation->getPreviousStackFrame())
+    {
+        handled = activation->trap(condition, conditionObj);
+        if (isOfClass(Activation, activation)) /* reached our 1st activation yet.   */
+        {
+            break;                           /* yes, break out of loop            */
+        }
+    }
+
+    /* Control will not return here if the condition was trapped via*/
+    /* SIGNAL ON SYNTAX.  For CALL ON conditions, handled will be   */
+    /* true if a trap is pending.                                   */
+
+    return handled;                      /* this has been handled             */
+}
+
+
+/**
+ * Raise an exception on the current activity.
+ *
+ * @param errcode    The syntax error code.
+ * @param description
+ *                   The associated description string.
+ * @param additional The message substitution parameters.
+ * @param result     The message result.
+ */
+void RexxActivity::raiseException(wholenumber_t  errcode, RexxString *description, RexxArray *additional, RexxObject *result)
+/******************************************************************************/
+/* This routine is used for SYNTAX conditions only.                           */
+/*                                                                            */
+/* The inserts are passed as objects because that happens to be more          */
+/* convenient for the calling code in the two cases where this facility       */
+/* is used.                                                                   */
+/*                                                                            */
+/* NOTE: The building of the excepption obejct (EXOBJ)  has been re-arranged  */
+/*  so that a garbage collection in the middle of building traceBack/etc      */
+/*  doesn't clean up the newly built objects.  SO we create exobj early on    */
+/*  save it, and add newlly built objects to exobj as we go.                  */
+/******************************************************************************/
+{
+    // during error processing, we need to request the string value of message
+    // substitution objects.  It is possible that the string process will also
+    // cause a syntax error, resulting in a recursion loop.  We snip that off here,
+    // by disallowing a nested error condition.
+    if (requestingString)
+    {
+        throw RecursiveStringError;
+    }
+
+    RexxActivationBase *topFrame = this->getTopStackFrame();
+
+    RexxActivation *activation = this->getCurrentRexxFrame(); /* get the current activation        */
+    // if we're raised within a real Rexx context, we need to deal with forwarded
+    // frames
+    if (topFrame == activation)
+    {
+        // unwind the stack until we find
+        while (activation != OREF_NULL && activation->isForwarded())
+        {
+            // terminate and remove this stack frame
+            popStackFrame(activation);
+            // grab the new current frame
+            activation = this->getCurrentRexxFrame();
+        }
+    }
+    else {
+        activation = NULL;      // raised from a native context, don't add to stack trace
+    }
+
+    this->conditionobj = createExceptionObject(errcode, description, additional, result);
+
+    /* process as common condition       */
+    if (!this->raiseCondition(conditionobj))
+    {
+        /* fill in the propagation status    */
+        conditionobj->put(TheTrueObject, OREF_PROPAGATED);
+        // if we have an Rexx context to work with, unwind to that point,
+        if (activation != OREF_NULL)
+        {
+            // unwind the frame to this point
+            unwindToFrame(activation);
+            popStackFrame(activation);     // remove it from the stack
+        }
+        this->raisePropagate(conditionobj);  /* pass on down the chain            */
+    }
+}
+
+
+----------------------------------------------------------------------------------------
+ActivityManager.hpp
+----------------------------------------------------------------------------------------
+
+inline void reportException(wholenumber_t error, RexxArray *args)
+{
+    ActivityManager::currentActivity->raiseException(error, OREF_NULL, args, OREF_NULL);
+}
+
+
+----------------------------------------------------------------------------------------
+Instruction raise
+----------------------------------------------------------------------------------------
+
+void RexxInstructionRaise::execute
+    if (instructionFlags&raise_return)   /* is this the exit form?            */
+    {
+                                         /* let activation handle as return   */
+        context->raise(this->condition, rc, _description, _additional, _result, conditionobj);
+    }
+    else
+    {
+        /* activation needs to exit          */
+        context->raiseExit(this->condition, rc, _description, _additional, _result, conditionobj);
+    }
+
+
+RexxActivation::raiseExit
+[delegate to raise, most of the time]
+if (this->isTopLevelCall()) then this->raise(condition, rc, description, additional, resultObj, conditionobj);
+this->parent->raiseExit(condition, rc, description, additional, resultObj, conditionobj);
+
+
+RexxActivation::raise(
+     RexxString    * condition,        /* condition to raise                */
+     RexxObject    * rc,               /* information assigned to RC        */
+     RexxString    * description,      /* description of the condition      */
+     RexxObject    * additional,       /* extra descriptive information     */
+     RexxObject    * resultObj,        /* return result                     */
+     RexxDirectory * conditionobj )    /* propagated condition object       */
+if condition == "PROPAGATE" then we have a conditionobj otherwise build one
+
+
+
+
+----------------------------------------------------------------------------------------
+mail
+----------------------------------------------------------------------------------------
+
+RaiseException(size_t n, RexxArrayObject ao)
+is implemented by
+void RexxActivity::raiseException(wholenumber_t  errcode, RexxString *description, RexxArray *additional, RexxObject *result)
+where errcode=n, description=null, additional=ao, result=null
+
+You will see that raiseException creates a conditionobj by calling createExceptionObject(errcode, description, additional, result)
+then calls raiseCondition
+and then propagate the condition if it was not caught.
+
+RaiseCondition(CSTRING s1, RexxStringObject s2, RexxObjectPtr ao, RexxObjectPtr o)
+is implemented by
+bool RexxActivity::raiseCondition(RexxDirectory *conditionObj)
+where conditionObj = createConditionObject(condition, rc, description, additional, result)
+where
+condition=new_upper_string(s1)
+rc=OREF_NULL
+description=s2
+additional=ao
+result=o
+
+
+You should have a look at RexxActivation::raise and use it as a model to implement your own method.
+This method handles two cases :
+- when the condition name is "SYNTAX", it calls raiseException, the error number being given by the parameter rc.
+- otherwise it does something similar to raiseCondition.
+In both cases, a condition object is built from the parameters.
+
+To understand which parameters are passed to RexxActivation::raise, see the implementation of the instruction raise in RexxInstructionRaise::execute
+
+raise ... exit : calls RexxActivation::raiseExit, which itself calls RexxActivation::raise
+raise ... return : calls RexxActivation::raise
+

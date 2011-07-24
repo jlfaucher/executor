@@ -1,0 +1,45 @@
+
+=================================================================
+
+J'ai un problème avec cette méthode :
+self == NULL
+quand je debug, je vois argcount=0
+A priori c'est normal puisque l'appel est 
+window~show()
+
+-------------------------- code "normal"
+
+RexxMethod1(int,                       // Return type
+            GrxWidgetShow,             // Object_method name
+            CSELF, self)               // GTK self
+{
+    gtk_widget_show(GTK_WIDGET(self));
+
+    return 0;
+}
+
+-------------------------- code "preprocessé"
+
+int GrxWidgetShow_impl (RexxMethodContext * context, POINTER self); 
+static uint16_t GrxWidgetShow_types[] = {12, 5, 0}; 
+extern "C" uint16_t * __stdcall GrxWidgetShow (RexxMethodContext *context, ValueDescriptor *arguments); 
+uint16_t * __stdcall GrxWidgetShow (RexxMethodContext *context, ValueDescriptor *arguments) 
+{ 
+    if (arguments != 0) 
+    { 
+        arguments[0].value.value_int = (GrxWidgetShow_impl(context, arguments[1].value.value_CSELF)); 
+        return 0;; 
+    } 
+    return GrxWidgetShow_types; 
+} 
+
+int GrxWidgetShow_impl(RexxMethodContext *context, POINTER self)               
+
+#line 153 "grxwidget.cpp"
+{
+    gtk_widget_show(((((GtkWidget*) g_type_check_instance_cast ((GTypeInstance*) ((self)), ((gtk_widget_get_type ())))))));
+
+    return 0;
+}
+
+=================================================================

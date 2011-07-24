@@ -1,0 +1,335 @@
+--------------------------------------------------------------------------------------------------------------
+
+RXTRACE
+
+interpreter/platform/windows/MiscSystem.cpp
+void SystemInterpreter::setupProgram(RexxActivation *activation)
+/******************************************************************************/
+/* Function:  Do system specific program setup                                */
+/******************************************************************************/
+{
+    TCHAR rxTraceBuf[8];
+
+    /* scan current environment,         */
+    if (GetEnvironmentVariable("RXTRACE", rxTraceBuf, 8))
+    {
+        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        {
+                                           /* turn on tracing                   */
+            activation->enableExternalTrace();
+        }
+    }
+}
+
+interpreter/platform/unix/MiscSystem.cpp
+void SystemInterpreter::setupProgram(RexxActivation *activation)
+/******************************************************************************/
+/* Function:  Do system specific program setup                                */
+/******************************************************************************/
+{
+    /* scan current environment,         */
+    const char *rxTraceBuf = getenv("RXTRACE");
+    if (rxTraceBuf != NULL)
+    {
+        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        {
+                                           /* turn on tracing                   */
+            activation->enableExternalTrace();
+        }
+    }
+}
+
+
+RexxActivation.cpp
+/**
+ * Turn on external trace at program startup (e.g, because
+ * RXTRACE is set)
+ */
+void RexxActivation::enableExternalTrace()
+{
+    this->setTrace(TRACE_RESULTS | DEBUG_ON, trace_results_flags | trace_debug);
+}
+
+
+--------------------------------------------------------------------------------------------------------------
+Windows : GetCurrentThreadId()
+#include SysSemaphore.hpp
+
+Unix : (unsigned int)pthread_self()
+#include SysSemaphore.hpp
+
+--------------------------------------------------------------------------------------------------------------
+Occurences de ->trace
+RexxActivation.hpp :beaucoup de inline
+
+context->traceAssignment(messageName, (RexxObject *)result);
+return _source->traceBack(location, this->settings.traceindent, true);
+this->traceClause(this->current, TRACE_PREFIX_CLAUSE);
+context->traceCompoundName(stemName, (RexxObject **)&tails[0], tailCount, variable->getName());
+this->traceCompoundValue(TRACE_PREFIX_COMPOUND, stemVar, tails, tailCount, VALUE_MARKER, tail->createCompoundName(stemVar));
+context->traceDotVariable(variableName, result);
+context->traceFunction(functionName, (RexxObject *)result);
+context->traceIntermediate(this, TRACE_PREFIX_LITERAL);
+context->traceMessage(messageName, (RexxObject *)result);
+context->traceOperator(operatorName(), result);
+this->traceOperatorValue(TRACE_PREFIX_OPERATOR, n, v); 
+this->traceOutput(currentRexxFrame, text);
+context->tracePrefix(operatorName(), result);
+context->traceResult(value);
+this->traceSourceString();       /* trace the source string           */
+this->traceTaggedValue(TRACE_PREFIX_VARIABLE, NULL, false, n, VALUE_MARKER, v);
+this->traceValue(commandString, TRACE_PREFIX_RESULT);
+
+--------------------------------------------------------------------------------------------------------------
+Occurences de ::trace
+
+RexxActivity.cpp
+void  RexxActivity::traceOutput(       /* write a line of trace information */
+      RexxActivation *activation,      /* sending activation                */
+      RexxString *line)                /* line to write out                 */
+
+
+InstructionParser.cpp
+RexxString *RexxSource::traceBack(
+     SourceLocation &location,         /* value to trace                    */
+     size_t         indent,            /* blank indentation                 */
+     bool           trace )            /* traced instruction (vs. error)    */
+
+
+RexxInstruction *RexxSource::traceNew()
+
+
+SourceFile.cpp
+InterpreterInstance.cpp
+bool InterpreterInstance::processOptions(RexxOption *options)
+
+
+--------------------------------------------------------------------------------------------------------------
+
+rev 6700 Add trace information about method invocations
+/main/trunk/interpreter/classes/MethodClass.hpp
+class BaseExecutable
+    RexxString *getName() { return executableName; }
+
+/main/trunk/interpreter/concurrency/RexxActivity.cpp
+simplifcation de code
+RexxString *message = buildMessage(errcode, additional);
++
+RexxString *RexxActivity::buildMessage(wholenumber_t messageCode, RexxArray *substitutions)
+
+/main/trunk/interpreter/concurrency/RexxActivity.hpp
+enum TracePrefixes {
+    ajoute : TRACE_PREFIX_INVOCATION
+class class RexxActivity
+    ajoute : RexxString *buildMessage(wholenumber_t, RexxArray *);
+    
+/main/trunk/interpreter/execution/RexxActivation.cpp
+#include "PackageClass.hpp"
+Dans RexxActivation::run :
+    if (tracingAll() && isMethodOrRoutine())
+    {
+        traceEntry();
+    }
+Dans trace_prefix_table[] :
+  ">I>",                               /* TRACE_PREFIX_INVOCATION           */
+Ajout de :
+/**
+ * Trace program entry for a method or routine
+ */
+void RexxActivation::traceEntry()
+{
+    // since we're advertising the entry location up front, we want to disable
+    // the normal trace-turn on notice.  We'll get one or the other, but not
+    // both
+    this->settings.flags |= source_traced;
+
+    RexxArray *info = OREF_NULL;
+
+    if (isMethod())
+    {
+        info = new_array(getMessageName(), scope, getPackage()->getName());
+    }
+    else
+    {
+        info = new_array(getExecutable()->getName(), getPackage()->getName());
+    }
+    ProtectedObject p(info);
+
+    RexxString *message = activity->buildMessage(isRoutine() ? Message_Translations_routine_invocation : Message_Translations_method_invocation, info);
+    p = message;
+
+    /* get a string large enough to      */
+    size_t outlength = message->getLength() + INSTRUCTION_OVERHEAD;
+    RexxString *buffer = raw_string(outlength);      /* get an output string              */
+    /* insert the leading blanks         */
+    buffer->set(0, ' ', INSTRUCTION_OVERHEAD);
+    /* add the trace prefix              */
+    buffer->put(PREFIX_OFFSET, trace_prefix_table[TRACE_PREFIX_INVOCATION], PREFIX_LENGTH);
+    /* copy the string value             */
+    buffer->put(INSTRUCTION_OVERHEAD, message->getStringData(), message->getLength());
+                                         /* write out the line                */
+    activity->traceOutput(this, buffer);
+}
+
+
+/main/trunk/interpreter/execution/RexxActivation.hpp
+   inline bool isMethodOrRoutine() { return isMethod() || isRoutine(); }
+   void              traceEntry();
+
+/main/trunk/interpreter/messages/RexxErrorCodes.h
+Generated
+
+/main/trunk/interpreter/messages/RexxMessageNumbers.h
+Generated
+
+/main/trunk/interpreter/messages/RexxMessageTable.h
+Generated
+
+/main/trunk/interpreter/messages/rexxmsg.xml
+      <SubMessage>
+        <Code>101</Code>
+        <Subcode>018</Subcode>
+        <MessageNumber>719</MessageNumber>
+        <Component>Translation</Component>
+        <Severity>Info</Severity>
+        <SymbolicName>Message_Translations_routine_invocation</SymbolicName>
+        <Text>Routine <Sub position="1" name="routine"/> in package <Sub position="2" name="package"/></Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>101</Code>
+        <Subcode>019</Subcode>
+        <MessageNumber>720</MessageNumber>
+        <Component>Translation</Component>
+        <Severity>Info</Severity>
+        <SymbolicName>Message_Translations_method_invocation</SymbolicName>
+        <Text>Method <Sub position="1" name="method"/> with scope <q><Sub position="2" name="class"/></q> in package <Sub position="3" name="package"/></Text>
+
+/main/trunk/interpreter/platform/windows/winmsgtb.rc
+Generated
+
+
+--------------------------------------------------------------------------------------------------------------
+
+context->traceInstruction
+RexxActivation.hpp
+   inline void              traceInstruction(RexxInstruction * v) { if (this->settings.flags&trace_all) this->traceClause(v, TRACE_PREFIX_CLAUSE); }
+
+
+
+PackageClass.hpp
+    RexxObject    *trace();
+
+
+RexxActivation.hpp
+      size_t traceOption;                  /* current active trace option       */
+      size_t flags;                        /* trace/numeric and other settings  */
+      wholenumber_t trace_skip;            /* count of trace events to skip     */
+      size_t  traceindent;                 /* trace indentation                 */
+      bool intermediate_trace;             /* very quick test for intermediate trace */
+   void              setTrace(size_t, size_t);
+   void              setTrace(RexxString *);
+   static size_t     processTraceSetting(size_t traceSetting);
+   RexxString      * traceSetting();
+   void              traceValue(RexxObject *, int);
+   void              traceCompoundValue(int prefix, RexxString *stemName, RexxObject **tails, size_t tailCount, RexxCompoundTail *tail);
+   void              traceCompoundValue(int prefix, RexxString *stem, RexxObject **tails, size_t tailCount, const char *marker, RexxObject * value);
+   void              traceTaggedValue(int prefix, const char *tagPrefix, bool quoteTag, RexxString *tag, const char *marker, RexxObject * value);
+   void              traceOperatorValue(int prefix, const char *tag, RexxObject *value);
+   void              traceSourceString();
+   void              traceClause(RexxInstruction *, int);
+   RexxString      * formatTrace(RexxInstruction *, RexxSource *);
+   RexxString      * getTraceBack();
+   void              externalTraceOn();
+   void              externalTraceOff();
+
+
+ActivityManager.hpp
+    static void traceAllActivities(bool on);
+    static bool setActivityTrace(thread_id_t thread_id, bool on_or_off);
+
+
+RexxActivity.hpp
+/* Constants used for trace prefixes                                          */
+enum TracePrefixes {
+    TRACE_PREFIX_CLAUSE   ,
+    TRACE_PREFIX_ERROR    ,
+    TRACE_PREFIX_RESULT   ,
+    TRACE_PREFIX_DUMMY    ,
+    TRACE_PREFIX_VARIABLE ,
+    TRACE_PREFIX_DOTVARIABLE ,
+    TRACE_PREFIX_LITERAL  ,
+    TRACE_PREFIX_FUNCTION ,
+    TRACE_PREFIX_PREFIX   ,
+    TRACE_PREFIX_OPERATOR ,
+    TRACE_PREFIX_COMPOUND ,
+    TRACE_PREFIX_MESSAGE  ,
+    TRACE_PREFIX_ARGUMENT ,
+    TRACE_PREFIX_ASSIGNMENT,
+};
+// marker used for tagged traces to separate tag from the value
+#define VALUE_MARKER " => "
+// marker used for tagged traces to separate tag from the value
+#define ASSIGNMENT_MARKER " <= "
+#define MAX_TRACEBACK_LIST 80      /* 40 messages are displayed */
+#define MAX_TRACEBACK_INDENT 20    /* 10 messages are indented */
+
+
+--------------------------------------------------------------------------------------------------------------
+
+CPPCode.cpp
+AttributeSetterCode::run
+        // get the variable pool and get the guard lock
+        RexxVariableDictionary *objectVariables = receiver->getObjectVariables(method->getScope());
+        objectVariables->reserve(activity);
+        // go set the attribue
+        attribute->set(objectVariables, argPtr[0]);
+        // and ensure we release this afterwards
+        objectVariables->release(activity);
+
+
+--------------------------------------------------------------------------------------------------------------
+
+
+RexxNativeActivation.cpp
+void RexxNativeActivation::guardOff()
+/******************************************************************************/
+/* Function:  Release a variable pool guard lock                              */
+/******************************************************************************/
+{
+    /* currently locked?                 */
+    if (this->object_scope == SCOPE_RESERVED)
+    {
+        /* release the variable dictionary   */
+        this->objectVariables->release(this->activity);
+        /* set the state to released         */
+        this->object_scope = SCOPE_RELEASED;
+    }
+}
+
+void RexxNativeActivation::guardOn()
+/******************************************************************************/
+/* Function:  Acquire a variable pool guard lock                              */
+/******************************************************************************/
+{
+    // if there's no receiver object, then this is not a true method call.
+    // there's nothing to lock
+    if (receiver == OREF_NULL)
+    {
+        return;
+    }
+    /* first retrieval? */
+    if (this->objectVariables == OREF_NULL)
+    {
+        /* grab the object variables associated with this object */
+        this->objectVariables = this->receiver->getObjectVariables(((RexxMethod *)executable)->getScope());
+    }
+    /* not currently holding the lock? */
+    if (this->object_scope == SCOPE_RELEASED)
+    {
+        /* reserve the variable scope */
+        this->objectVariables->reserve(this->activity);
+        /* and remember for later */
+        this->object_scope = SCOPE_RESERVED;
+    }
+}
+

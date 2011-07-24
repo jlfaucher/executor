@@ -1,0 +1,56 @@
+Pour avoir un n° de version toujours à jour
+il faut faire :
+cdtrunk
+rm oorexx.ver.incl
+
+
+
+==================================
+
+Makefile.am
+COMMON_CPPFLAGS = -DORX_VER=$(ORX_MAJOR) -DORX_REL=$(ORX_MINOR) -DORX_MOD=$(ORX_MOD_LVL)
+
+
+oorexxapi.h
+...
+#define REXX_INTERPRETER_4_2_0  0x00040100
+#define REXX_CURRENT_INTERPRETER_VERSION REXX_INTERPRETER_4_2_0
+...
+#define REXX_LANGUAGE_6_04 0x00000604
+#define REXX_CURRENT_LANGUAGE_LEVEL REXX_LANGUAGE_6_04
+
+
+configure.ac
+...
+AC_INIT(oorexx, 4.2.0)
+...
+VERSION=4.2.0
+
+
+rxftp.cls
+...
+self~version = '4.2.0'           -- current version of this class
+
+
+version.cpp
+...
+        sprintf(buffer, "REXX-ooRexx_%d.%d.%d(MT) 6.04 %s %s %s", ORX_VER, ORX_REL, ORX_MOD, day, month, year);
+
+
+oorexx.ver
+ORX_MAJOR=4
+ORX_MINOR=2
+ORX_MOD_LVL=0
+ORX_BLD_LVL=0
+ORX_VER_STR="4.2.0"
+...
+ORX_REVISION=3
+
+
+oorexx.ver.incl
+Généré par makeorx.bat
+ORX_MAJOR=4
+ORX_MINOR=0
+ORX_MOD_LVL=0
+ORX_BLD_LVL=1
+ORX_VER_STR="4.0.0.1"

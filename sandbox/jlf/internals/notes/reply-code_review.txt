@@ -1,0 +1,89 @@
+RexxInstructionReply::execute(
+    RexxActivation      *context,      /* current activation context        */
+    RexxExpressionStack *stack)        /* evaluation stack                  */
+{
+result = this->expression->evaluate(context, stack);
+context->reply(result);
+}
+
+
+
+
+
+void RexxActivation::reply(
+     RexxObject * resultObj)           /* returned REPLY result             */
+{
+    this->settings.flags |= reply_issued;/* turn on the replied flag          */
+                                         /* change execution state to         */
+    this->execution_state = REPLIED;     /* terminate the main loop           */
+    this->next = OREF_NULL;              /* turn off execution engine         */
+    this->result = resultObj;            /* save the result value             */
+}
+
+
+
+
+
+
+RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,
+     size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+{
+    while (true)                         // loop until we get a terminating condition
+    {
+        try
+        {
+            RexxExpressionStack *localStack = &this->stack;                /* load up the stack                 */
+            RexxInstruction *nextInst = this->next;  /* get the next instruction          */
+            /* loop until we get a terminating   */
+            while (nextInst != OREF_NULL)
+            {
+                this->current = nextInst;          /* set the next instruction          */
+                this->next = nextInst->nextInstruction;/* prefetch the next clause          */
+                nextInst->execute(this, localStack);  /* execute the instruction           */
+                localStack->clear();                  /* Force the stack clear             */
+                nextInst = this->next;             /* get the next instruction          */
+            }
+
+            if (this->execution_state == RETURNED)
+            {
+                this->termination();               /* do activation termination process */
+                resultObj = this->result;  /* save the result                   */
+                this->activity->popStackFrame(false);   /* now pop the current activity      */
+            }
+            else
+            {                               /* execution_state is REPLIED        */
+                resultObj = this->result;          /* save the result                   */
+                /* reset the next instruction        */
+                this->next = this->current->nextInstruction;
+                oldActivity = this->activity;      /* save the current activity         */
+                                                   /* clone the current activity        */
+                this->activity = oldActivity->spawnReply();
+
+                /* migrate the local variables and the expression stack to the */
+                /* new activity.  NOTE:  these must be done in this order to */
+                /* get them allocated from the new activity in the correct */
+                /* order. */
+                localStack->migrate(this->activity);
+                settings.local_variables.migrate(this->activity);
+                /* if we have arguments, we need to migrate those also, as they are subject to overwriting once we return to the parent activation.  */
+                if (argcount > 0)
+                {
+                    RexxObject **newArguments = activity->allocateFrame(argcount);
+                    memcpy(newArguments, arglist, sizeof(RexxObject *) * argcount);
+                    this->arglist = newArguments;  /* must be set on "this"  */
+                    settings.parent_arglist = newArguments;
+                }
+
+                this->activity->pushStackFrame(this);/* push it on to the activity stack  */
+                // pop the old one off of the stack frame (but without returning it to
+                // the activation cache)
+                oldActivity->popStackFrame(true);  /* pop existing one off the stack    */
+                                                   /* is the scope reserved?            */
+                this->activity->run();             /* continue running the new activity */
+                oldActivity->relinquish();         /* give other activity a chance to go*/
+            }
+            return resultObj;                    /* return the result object          */
+        }
+    }
+}
+

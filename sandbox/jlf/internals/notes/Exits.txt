@@ -1,0 +1,26 @@
+UserData, de type char *
+En fait, un pointeur sur une zone de 2 pointeurs.
+
+
+        if (userPointer != NULL)
+        {
+            userData[0] = ((uintptr_t*)userPointer)[0];
+            userData[1] = ((uintptr_t*)userPointer)[1];
+        }
+        else
+        {
+            userData[0] = 0;
+            userData[1] = 0;
+        }
+
+
+
+class ServiceRegistrationData
+    uintptr_t userData[2];                     // saved user data
+
+
+
+RexxRegisterSubcomExe
+RexxQuerySubcom
+RexxRegisterExitExe
+RexxQueryExit

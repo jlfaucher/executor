@@ -1,0 +1,104 @@
+========================================================================
+http://www.boredomandlaziness.org/2011/02/justifying-python-language-changes.html
+
+List/set/dict comprehensions
+----------------------------
+(and the reduction builtins any(), all(), min(), max(), sum())
+	
+target = [op(x) for x in source]
+instead of:
+	
+target = []
+for x in source:
+    target.append(op(x))
+The transformation (`op(x)`) is far more prominent in the comprehension version, as is the fact that all the loop does is produce a new list. 
+I include the various reduction builtins here, since they serve exactly the same purpose of taking an idiomatic looping construct and turning it into a single expression.
+
+
+
+Generator expressions
+---------------------
+	
+total = sum(x*x for x in source)
+instead of:
+	
+def _g(seq):
+    for x in source:
+        yield x*x
+total = sum(_g(x))
+or:
+	
+total = sum([x*x for x in source])
+Here, the GE version has obvious readability gains over the generator function version (as with comprehensions, 
+it brings the operation being applied to each element front and centre instead of burying it in the middle of the code, 
+as well as allowing reduction operations like sum() to retain their prominence), but doesn't actually improve readability 
+significantly over the second LC-based version. The gain over the latter, of course, is that the GE based version needs 
+a lot less memory than the LC version, and, as it consumes the source data incrementally, can work on source iterators of 
+arbitrary (even infinite) length, and can also cope with source iterators with large time gaps between items (e.g. reading 
+from a socket) as each item will be returned as it becomes available (obviously, the latter two features aren't useful when 
+used in conjunction with reduction operations like sum, but they can be helpful in other contexts).
+
+
+With statement
+--------------
+	
+with lock:
+    # perform synchronised operations
+instead of:
+	
+lock.acquire()
+try:
+    # perform synchronised operations
+finally:
+    lock.release()
+This change was a gain for both readability and writability - there were plenty of ways to get this kind of code wrong 
+(e.g. leave out the try-finally altogether, acquire the resource inside the try block instead of before it, 
+call the wrong method or spell the variable name wrong when attempting to release the resource in the finally block), 
+and it wasn't easy to audit because the resource acquisition and release could be separated by an arbitrary number of 
+lines of code. By combining all of that into a single line of code at the beginning of the block, the with statement 
+eliminated a lot of those issues, making the code much easier to write correctly in the first place, and also easier 
+to audit for correctness later (just make sure the code is using the correct context manager for the task at hand).
+
+
+
+Function decorators
+-------------------
+	
+@classmethod
+def f(cls):
+    # Method body
+instead of:
+	
+def f(cls):
+    # Method body
+f = classmethod(f)
+Easier to write (function name only written once instead of three times), and easier to read (decorator names up top with 
+the function signature instead of buried after the function body). Some folks still dislike the use of the @ symbol, 
+but compared to the drawbacks of the old approach, the dedicated function decorator syntax is a huge improvement.
+
+
+
+Conditional expressions
+-----------------------
+	
+x = A if C else B
+instead of:
+	
+x = C and A or B
+The addition of conditional expressions arguably wasn't a particularly big win for readability, but it was a big win for correctness. 
+The and/or based workaround for the lack of a true conditional expression was not only hard to read if you weren't already familiar 
+with the construct, but using it was also a potential source of bugs if A could ever be False while C was True (in such cases, B would 
+be returned from the expression instead of A).
+
+
+Except clause
+-------------
+	
+except Exception as ex:
+instead of:
+	
+except Exception, ex:
+Another example of changing the syntax to reduce the potential for non-obvious bugs (in this case, except clauses like 
+`except TypeError, AttributeError:`, that would actually never catch AttributeError, and would locally do 
+AttributeError=TypeError if a TypeError was caught). 
+

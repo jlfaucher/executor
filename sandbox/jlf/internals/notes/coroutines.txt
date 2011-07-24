@@ -1,0 +1,28 @@
+http://www.python.org/dev/peps/pep-3152/	cofunctions
+
+http://www.python.org/dev/peps/pep-0380/	Syntax for Delegating to a Subgenerator
+
+http://yinsochen.com/flapjax-functional-reactive-programming-in-javascrip/
+
+http://flapjax-lang.org/
+
+http://www.dabeaz.com/coroutines/
+
+
+http://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/
+
+
+https://github.com/harukizaemon/hamster
+Hamster - Efficient, Immutable, Thread-Safe Collection classes for Ruby
+
+
+http://paradigmatic.streum.org/2011/03/lazy-parallel-evaluation/
+
+http://www.ruby-doc.org/core-1.9/classes/Fiber.html
+
+http://www.infoq.com/news/2007/08/ruby-1-9-fibers
+
+http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/11960
+
+http://classparser.blogspot.com/
+

@@ -1,0 +1,250 @@
+Under Windows, ooRexx in release mode crashes when leaving LibraryLoaderDispatcher::run because the call stack is not properly cleaned by hostemu_loader.
+
+
+ 	hostemu.dll!hostemu_loader(RexxThreadContext_ * context=0x7eee564c)  Line 872	C++
+ 	rexx.dll!LibraryLoaderDispatcher::run()  Line 510	C++
+ 	rexx.dll!RexxNativeActivation::run(CallbackDispatcher & dispatcher={...})  Line 1593	C++
+ 	rexx.dll!RexxActivity::run(CallbackDispatcher & target={...})  Line 3046	C++
+ 	rexx.dll!LibraryPackage::loadPackage()  Line 235	C++
+ 	rexx.dll!LibraryPackage::load()  Line 147	C++
+ 	rexx.dll!PackageManager::loadLibrary(RexxString * name=0x7eee87a8)  Line 219 + 0x8 bytes	C++
+>	rexx.dll!PackageClass::loadLibrary(RexxString * name=0x7eee87a8)  Line 600 + 0x8 bytes	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fd4c940, RexxObject * receiver=0x7eee8a30, RexxString * messageName=0x7eee8778, RexxObject * * argPtr=0x7eae244c, unsigned int count=1, ProtectedObject & result={...})  Line 148 + 0xc bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7eee8a30, RexxString * msgname=0x7eee8778, RexxObject * * argPtr=0x7eae244c, unsigned int count=1, ProtectedObject & result={...})  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eee8778, RexxObject * * arguments=0x7eae244c, unsigned int count=1, ProtectedObject & result={...})  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eee8778, unsigned int count=1, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context=0x7eee88d8, RexxExpressionStack * stack=0x7eee8998)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7fd69840, RexxObject * * _arglist=0x7eee6970, unsigned int _argcount=0, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5638, RoutineClass * routine=0x7eee6a98, RexxString * msgname=0x7fd69840, RexxObject * * argPtr=0x7eee6970, unsigned int argcount=0, RexxString * calltype=0x7fcf6108, RexxString * environment=0x7eee5bf0, int context=16, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity=0x7eee5638, RexxString * calltype=0x7fcf6108, RexxString * environment=0x7eee5bf0, RexxObject * * arguments=0x7eee6970, unsigned int argCount=0, ProtectedObject & result={...})  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher={...})  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target={...})  Line 2995	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits=0x00000000, const char * env=0x0041d234)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount=0, _CONSTRXSTRING * arglist=0x000aff5c, const char * programname=0x00a4551a, _RXSTRING * instore=0x00000000, const char * envname=0x0041d234, int calltype=0, _RXSYSEXIT * exits=0x00000000, short * retcode=0x000adf28, _RXSTRING * result=0x000aff4c)  Line 165	C++
+ 	rexx.exe!main(int argc=2, char * * argv=0x00a454d8)  Line 198 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 266 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 182	C
+
+
+
+-----------------------------------------------------------------------
+
+static void hostemu_loader(RexxThreadContext *context) {
+00B71CD0  push        ebp  
+00B71CD1  mov         ebp,esp 
+00B71CD3  push        ecx  
+   RexxReturnCode rc;
+
+   rc = RexxRegisterSubcomExe("HostEmu", (REXXPFN)GrxHost, NULL);
+00B71CD4  push        0    
+00B71CD6  push        offset GrxHost (0B71160h) 
+00B71CDB  push        offset ___xt_z+0FCh (0B942B0h) 
+00B71CE0  call        RexxRegisterSubcomExe (0B72B4Ch) 
+00B71CE5  mov         dword ptr [rc],eax 
+   htmxExecIO = CreateMutex(NULL, false, NULL);
+00B71CE8  push        0    
+00B71CEA  push        0    
+00B71CEC  push        0    
+00B71CEE  call        dword ptr [__imp__CreateMutexA@12 (0B94024h)] 
+00B71CF4  mov         dword ptr [htmxExecIO (0B9EF60h)],eax 
+   #ifdef HOSTEMU_DEBUG
+   printf("HOSTEMU: Library loaded.\n");
+00B71CF9  push        offset ___xt_z+104h (0B942B8h) 
+00B71CFE  call        printf (0B73750h) 
+00B71D03  add         esp,4 
+   printf("HOSTEMU: RexxRegisterSubcomExe retc = %d.\n", rc);
+00B71D06  mov         eax,dword ptr [rc] 
+00B71D09  push        eax  
+00B71D0A  push        offset ___xt_z+120h (0B942D4h) 
+00B71D0F  call        printf (0B73750h) 
+00B71D14  add         esp,8 
+   printf("HOSTEMU: CreateMutex htmxExecIO = %d.\n", htmxExecIO);
+00B71D17  mov         ecx,dword ptr [htmxExecIO (0B9EF60h)] 
+00B71D1D  push        ecx  
+00B71D1E  push        offset ___xt_z+14Ch (0B94300h) 
+00B71D23  call        printf (0B73750h) 
+00B71D28  add         esp,8 
+   #endif
+   }
+00B71D2B  mov         esp,ebp 
+00B71D2D  pop         ebp  
+00B71D2E  ret              
+
+-----------------------------------------------------------------------
+
+void LibraryLoaderDispatcher::run()
+{
+00323640  push        ebp  
+00323641  mov         ebp,esp 
+00323643  sub         esp,8 
+00323646  mov         dword ptr [ebp-8],ecx 
+    RexxThreadContext *context = activity->getThreadContext();
+00323649  mov         eax,dword ptr [this] 
+0032364C  mov         ecx,dword ptr [eax+8] 
+0032364F  call        RexxActivity::getThreadContext (316860h) 
+00323654  mov         dword ptr [context],eax 
+
+    loader(context);
+00323657  mov         ecx,dword ptr [context] 
+0032365A  push        ecx  
+0032365B  mov         edx,dword ptr [this] 
+0032365E  mov         eax,dword ptr [edx+14h] 
+00323661  call        eax                               <-----
+}
+00323663  mov         esp,ebp 
+00323665  pop         ebp  
+00323666  ret              
+
+-----------------------------------------------------------------------
+
+void RexxNativeActivation::run(CallbackDispatcher &dispatcher)
+{
+0031FAB0  push        ebp  
+0031FAB1  mov         ebp,esp 
+0031FAB3  push        0FFFFFFFFh 
+0031FAB5  push        offset __ehhandler$?run@RexxNativeActivation@@QAEXAAVCallbackDispatcher@@@Z (3A2222h) 
+0031FABA  mov         eax,dword ptr fs:[00000000h] 
+0031FAC0  push        eax  
+0031FAC1  push        ecx  
+0031FAC2  sub         esp,8 
+0031FAC5  push        ebx  
+0031FAC6  push        esi  
+0031FAC7  push        edi  
+0031FAC8  mov         eax,dword ptr [___security_cookie (3D34C0h)] 
+0031FACD  xor         eax,ebp 
+0031FACF  push        eax  
+0031FAD0  lea         eax,[ebp-0Ch] 
+0031FAD3  mov         dword ptr fs:[00000000h],eax 
+0031FAD9  mov         dword ptr [ebp-10h],esp 
+0031FADC  mov         dword ptr [ebp-18h],ecx 
+    activationType = CALLBACK_ACTIVATION;    // we're handling a callback
+0031FADF  mov         eax,dword ptr [ebp-18h] 
+0031FAE2  mov         dword ptr [eax+3Ch],4 
+    // use the default security manager
+    securityManager = activity->getInstanceSecurityManager();
+0031FAE9  mov         ecx,dword ptr [ebp-18h] 
+0031FAEC  mov         ecx,dword ptr [ecx+18h] 
+0031FAEF  call        RexxActivity::getInstanceSecurityManager (30E130h) 
+0031FAF4  mov         edx,dword ptr [ebp-18h] 
+0031FAF7  mov         dword ptr [edx+44h],eax 
+    size_t activityLevel = this->activity->getActivationLevel();
+0031FAFA  mov         eax,dword ptr [ebp-18h] 
+0031FAFD  mov         ecx,dword ptr [eax+18h] 
+0031FB00  call        RexxActivity::getActivationLevel (30E950h) 
+0031FB05  mov         dword ptr [ebp-14h],eax 
+    trapErrors = true;               // trap errors on
+0031FB08  mov         ecx,dword ptr [ebp-18h] 
+0031FB0B  mov         byte ptr [ecx+69h],1 
+    try
+    {
+0031FB0F  mov         dword ptr [ebp-4],0 
+        // make the activation hookup
+        dispatcher.setContext(activity, this);
+0031FB16  mov         edx,dword ptr [ebp-18h] 
+0031FB19  push        edx  
+0031FB1A  mov         eax,dword ptr [ebp-18h] 
+0031FB1D  mov         ecx,dword ptr [eax+18h] 
+0031FB20  push        ecx  
+0031FB21  mov         ecx,dword ptr [ebp+8] 
+0031FB24  call        CallbackDispatcher::setContext (321BC0h) 
+        activity->releaseAccess();           /* force this to "safe" mode         */
+0031FB29  mov         edx,dword ptr [ebp-18h] 
+0031FB2C  mov         ecx,dword ptr [edx+18h] 
+0031FB2F  call        RexxActivity::releaseAccess (30D250h) 
+        dispatcher.run();
+0031FB34  mov         eax,dword ptr [ebp+8] 
+0031FB37  mov         edx,dword ptr [eax] 
+0031FB39  mov         ecx,dword ptr [ebp+8] 
+0031FB3C  mov         eax,dword ptr [edx+4] 
+0031FB3F  call        eax                                   <---------
+        OutputDebugString("after dispatcher.run");
+0031FB41  push        3AFDBCh 
+0031FB46  call        dword ptr [__imp__OutputDebugStringA@4 (3A801Ch)] 
+        activity->requestAccess();           /* now in unsafe mode again          */
+0031FB4C  mov         ecx,dword ptr [ebp-18h] 
+0031FB4F  mov         ecx,dword ptr [ecx+18h] 
+0031FB52  call        RexxActivity::requestAccess (30D270h) 
+    }
+0031FB57  jmp         __catch$?run@RexxNativeActivation@@QAEXAAVCallbackDispatcher@@@Z$1+0Dh (31FB73h) 
+    catch (ActivityException)
+    {
+    }
+0031FB59  mov         dword ptr [ebp-4],0FFFFFFFFh 
+0031FB60  mov         eax,offset __tryend$?run@RexxNativeActivation@@QAEXAAVCallbackDispatcher@@@Z$2 (31FB7Ah) 
+0031FB65  ret              
+    catch (RexxNativeActivation *)
+    {
+    }
+0031FB66  mov         dword ptr [ebp-4],0FFFFFFFFh 
+0031FB6D  mov         eax,offset __tryend$?run@RexxNativeActivation@@QAEXAAVCallbackDispatcher@@@Z$2 (31FB7Ah) 
+0031FB72  ret              
+
+0031FB73  mov         dword ptr [ebp-4],0FFFFFFFFh 
+    // if we're not the current kernel holder when things return, make sure we
+    // get the lock before we continue
+    if (ActivityManager::currentActivity != activity)
+0031FB7A  mov         edx,dword ptr [ActivityManager::currentActivity (3D7754h)] 
+0031FB80  mov         eax,dword ptr [ebp-18h] 
+0031FB83  cmp         edx,dword ptr [eax+18h] 
+0031FB86  je          __tryend$?run@RexxNativeActivation@@QAEXAAVCallbackDispatcher@@@Z$2+19h (31FB93h) 
+    {
+        activity->requestAccess();
+0031FB88  mov         ecx,dword ptr [ebp-18h] 
+0031FB8B  mov         ecx,dword ptr [ecx+18h] 
+0031FB8E  call        RexxActivity::requestAccess (30D270h) 
+    }
+
+    trapErrors = false;          // back to normal mode for error trapping
+0031FB93  mov         edx,dword ptr [ebp-18h] 
+0031FB96  mov         byte ptr [edx+69h],0 
+
+    // belt and braces...this restores the activity level to whatever
+    // level we had when we made the callout.
+    this->activity->restoreActivationLevel(activityLevel);
+0031FB9A  mov         eax,dword ptr [ebp-14h] 
+0031FB9D  push        eax  
+0031FB9E  mov         ecx,dword ptr [ebp-18h] 
+0031FBA1  mov         ecx,dword ptr [ecx+18h] 
+0031FBA4  call        RexxActivity::restoreActivationLevel (30E970h) 
+    // make sure we handle the error notifications
+    if (conditionObj != OREF_NULL)
+0031FBA9  mov         edx,dword ptr [ebp-18h] 
+0031FBAC  cmp         dword ptr [edx+40h],0 
+0031FBB0  je          __tryend$?run@RexxNativeActivation@@QAEXAAVCallbackDispatcher@@@Z$2+4Ch (31FBC6h) 
+    {
+        // pass the condition information on to the dispatch unig
+        dispatcher.handleError(conditionObj);
+0031FBB2  mov         eax,dword ptr [ebp-18h] 
+0031FBB5  mov         ecx,dword ptr [eax+40h] 
+0031FBB8  push        ecx  
+0031FBB9  mov         edx,dword ptr [ebp+8] 
+0031FBBC  mov         eax,dword ptr [edx] 
+0031FBBE  mov         ecx,dword ptr [ebp+8] 
+0031FBC1  mov         edx,dword ptr [eax+8] 
+0031FBC4  call        edx  
+    }
+    return;                             /* and finished                      */
+}
+0031FBC6  mov         ecx,dword ptr [ebp-0Ch] 
+0031FBC9  mov         dword ptr fs:[0],ecx 
+0031FBD0  pop         ecx  
+0031FBD1  pop         edi  
+0031FBD2  pop         esi  
+0031FBD3  pop         ebx  
+0031FBD4  mov         esp,ebp 
+0031FBD6  pop         ebp  
+0031FBD7  ret         4    
+
+
+-------------------------------------------------------------------------------------------------------
+
+Review of options :
+
+
+release cl /EHsc -O2         /Gr /Gs /MT  
+debug   cl /EHsc     -Zi /Od /Gr     /MTd
+
+release link                               /SUBSYSTEM:Windows  /DLL
+debug   link /PROFILE /DEBUG -debugtype:cv /SUBSYSTEM:Windows  /DLL
+

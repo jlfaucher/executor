@@ -1,0 +1,146 @@
+Debug 
+[Oorexx-bugs] [ oorexx-Bugs-2975571 ] Interpreter does not provide STDIN in pipeline
+
+
+La fonction lines() renvoie 0
+
+Délègue à .INPUT
+qui est un monitor
+qui encapsule .STDIN
+
+Implémentation :
+StreamNative.cpp
+RexxMethod2(int64_t, stream_lines, CSELF, streamPtr, OPTIONAL_CSTRING, option)
+
+
+ATTENTION ! 
+Le 1er appel sert à récupérer la signature des arguments
+Le 2nd appel sert à la vraie execution
+
+
+// method with two arguments
+#define RexxMethod2(returnType ,name, t1, n1, t2, n2) \
+/* forward reference definition for method */ \
+__type(returnType) name##_impl (RexxMethodContext * context, __adcl(t1, n1), __adcl(t2, n2));  \
+                               \
+/* method signature definition */ \
+static uint16_t name##_types[] = {__tdcl(returnType), __tdcl(t1), __tdcl(t2), REXX_ARGUMENT_TERMINATOR};    \
+\
+__cpp_method_proto(name) \
+/* generated calling stub function */ \
+__methodstub(name) \
+{ \
+    if (arguments != NULL) /* if no arguments passed, this a signature request */ \
+    {                                                                             \
+        /* forward to the method implementation */                                \
+        __ret(returnType, name##_impl(context, __arg(1, t1), __arg(2, t2)));                    \
+    }                                                                             \
+    return name##_types;     /* return the type signature */                      \
+} \
+/* the real target method code */  \
+__type(returnType) name##_impl(RexxMethodContext *context, __adcl(t1, n1), __adcl(t2, n2))
+
+
+
+
+fait appel à
+int64_t StreamInfo::lines(bool quick)
+avec quick = false
+
+
+
+fait appel à
+bool SysFile::hasData()
+
+
+
+
+>	rexx.dll!stream_lines(RexxMethodContext_ * context=0x000ad7b4, ValueDescriptor * arguments=0x00000000)  Line 1801	C++
+ 	rexx.dll!RexxNativeActivation::run(RexxMethod * _method=0x7fcef358, RexxNativeMethod * _code=0x7fcbb110, RexxObject * _receiver=0x7eee2958, RexxString * _msgname=0x7fceb948, RexxObject * * _arglist=0x7eee8d20, unsigned int _argcount=0x00000001, ProtectedObject & resultObj={...})  Line 1212 + 0xf bytes	C++
+ 	rexx.dll!RexxNativeMethod::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fcef358, RexxObject * receiver=0x7eee2958, RexxString * messageName=0x7fceb948, RexxObject * * argPtr=0x7eee8d20, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 279	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7eee2958, RexxString * msgname=0x7fceb948, RexxObject * * argPtr=0x7eee8d20, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 327	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7fceb948, RexxObject * * arguments=0x7eee8d20, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 793	C++
+ 	rexx.dll!RexxActivation::forward(RexxObject * target=0x7eee2958, RexxString * message=0x7fceb948, RexxObject * superClass=0x00000000, RexxObject * * _arguments=0x7eee8d20, unsigned int _argcount=0x00000001, bool continuing=false)  Line 1295	C++
+ 	rexx.dll!RexxInstructionForward::execute(RexxActivation * context=0x7eee8d30, RexxExpressionStack * stack=0x7eee8df0)  Line 193 + 0x27 bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x7eee3dd0, RexxString * msgname=0x7fce64e0, RexxObject * * _arglist=0x000adb14, unsigned int _argcount=0x00000002, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 517	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity=0x7eee5638, RexxMethod * method=0x7fd1e498, RexxObject * receiver=0x7eee3dd0, RexxString * msgname=0x7fce64e0, RexxObject * * argPtr=0x000adb14, unsigned int argcount=0x00000002, ProtectedObject & result={...})  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5638, RexxObject * receiver=0x7eee3dd0, RexxString * msgname=0x7fce64e0, RexxObject * * argPtr=0x000adb14, unsigned int count=0x00000002, ProtectedObject & result={...})  Line 327	C++
+ 	rexx.dll!RexxObject::processUnknown(RexxString * messageName=0x7fceb948, RexxObject * * arguments=0x000adb80, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 895	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7fceb948, RexxObject * * arguments=0x000adb80, unsigned int count=0x00000001, ProtectedObject & result={...})  Line 798	C++
+ 	rexx.dll!RexxObject::sendMessage(RexxString * message=0x7fceb948, RexxObject * argument1=0x7fd528d0, ProtectedObject & result={...})  Line 443 + 0x1d bytes	C++
+ 	rexx.dll!RexxObject::sendMessage(RexxString * message=0x7fceb948, RexxObject * argument1=0x7fd528d0)  Line 632	C++
+ 	rexx.dll!builtin_function_LINES(RexxActivation * context=0x7eee8a48, unsigned int argcount=0x00000000, RexxExpressionStack * stack=0x7eee8b08)  Line 2112 + 0x12 bytes	C++
+
+ 	rexx.dll!RexxExpressionFunction::evaluate(RexxActivation * context=0x7eee8a48, RexxExpressionStack * stack=0x7eee8b08)  Line 217 + 0x1a bytes	C++
+ 	rexx.dll!RexxInstructionDo::whileCondition(RexxActivation * context=0x7eee8a48, RexxExpressionStack * stack=0x7eee8b08)  Line 794 + 0x1b bytes	C++
+ 	rexx.dll!RexxInstructionDo::execute(RexxActivation * context=0x7eee8a48, RexxExpressionStack * stack=0x7eee8b08)  Line 392 + 0x10 bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7fd528a0, RexxObject * * _arglist=0x7eee6978, unsigned int _argcount=0x00000000, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 517	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5638, RoutineClass * routine=0x7eee6a50, RexxString * msgname=0x7fd528a0, RexxObject * * argPtr=0x7eee6978, unsigned int argcount=0x00000000, RexxString * calltype=0x7fcef950, RexxString * environment=0x7eee5bf0, int context=0x00000010, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity=0x7eee5638, RexxString * calltype=0x7fcef950, RexxString * environment=0x7eee5bf0, RexxObject * * arguments=0x7eee6978, unsigned int argCount=0x00000000, ProtectedObject & result={...})  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher={...})  Line 1534	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target={...})  Line 2966	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits=0x00000000, const char * env=0x0041d234)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount=0x00000000, _CONSTRXSTRING * arglist=0x000aff5c, const char * programname=0x00a3577d, _RXSTRING * instore=0x00000000, const char * envname=0x0041d234, int calltype=0x00000000, _RXSYSEXIT * exits=0x00000000, short * retcode=0x000adf28, _RXSTRING * result=0x000aff4c)  Line 165	C++
+ 	rexx.exe!main(int argc=0x00000002, char * * argv=0x00a35768)  Line 198 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 266 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 182	C
+
+
+
+===============================
+
+SysFile::getSize (common\platform\windows\SysFile.cpp)
+fileHandle == 0
+_fstati64(fileHandle, &fileInfo) -->
+    st_dev == 0
+    st_ino == 0
+    st_mode == 0x1000
+    st_size == 0x55
+
+st_mode : Bit mask for file-mode information. The _S_IFCHR bit is set if fd refers to a device. The _S_IFREG bit is set if fd refers to an ordinary file. The read/write bits are set according to the file's permission mode. _S_IFCHR and other constants are defined in SYS\Stat.h.
+#define _S_IFMT         0xF000          /* file type mask */
+#define _S_IFDIR        0x4000          /* directory */
+#define _S_IFCHR        0x2000          /* character special */
+#define _S_IFIFO        0x1000          /* pipe */
+#define _S_IFREG        0x8000          /* regular */
+#define _S_IREAD        0x0100          /* read permission, owner */
+#define _S_IWRITE       0x0080          /* write permission, owner */
+#define _S_IEXEC        0x0040          /* execute/search permission, owner */
+--> returns 0 because not a regular file
+
+MSDN doc :
+st_size : If fd refers to a device, the st_atime, st_ctime, st_mtime, and st_size fields are not meaningful. 
+st_dev : If a device, fd; otherwise 0.
+
+Fix :
+            //if ((fileInfo.st_mode & _S_IFREG) != 0)
+            if (fileInfo.st_dev == 0)
+            {
+                size = fileInfo.st_size;
+            }
+
+SysFile::getStreamTypeInfo
+        if ((fileInfo.st_mode & _S_IFIFO) != 0)
+        {
+            transient = true;
+        }
+
+SysFile::hasData
+    return !atEof();
+
+
+2nd call : st_size == 0
+
+
+
+-----------------------
+
+interpreter\streamLibrary\StreamNative.cpp
+RexxMethod3(RexxStringObject, stream_linein, CSELF, streamPtr, OPTIONAL_int64_t, position, OPTIONAL_size_t, count)
+    RexxStringObject StreamInfo::linein(bool _setPosition, int64_t position, size_t count)
+        RexxStringObject StreamInfo::readVariableLine()
+            bool SysFile::gets(char *buffer, size_t bufferLen, size_t &bytesRead)   (common\platform\windows\SysFile.cpp)
+                bool SysFile::read(char *buf, size_t len, size_t &bytesRead)
+
+

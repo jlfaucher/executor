@@ -1,0 +1,127 @@
+Operations called by the test framework
+
+[rxapi] ServiceMessage APIManager CLOSE_CONNECTION
+[rxapi] ServiceMessage APIManager CONNECTION_ACTIVE
+[rxapi] ServiceMessage MacroSpaceManager QUERY_MACRO
+[rxapi] ServiceMessage QueueManager ADD_TO_NAMED_QUEUE
+[rxapi] ServiceMessage QueueManager ADD_TO_SESSION_QUEUE
+[rxapi] ServiceMessage QueueManager CLEAR_NAMED_QUEUE
+[rxapi] ServiceMessage QueueManager CLEAR_SESSION_QUEUE
+[rxapi] ServiceMessage QueueManager CREATE_SESSION_QUEUE
+[rxapi] ServiceMessage QueueManager DELETE_NAMED_QUEUE
+[rxapi] ServiceMessage QueueManager DELETE_SESSION_QUEUE
+[rxapi] ServiceMessage QueueManager GET_NAMED_QUEUE_COUNT
+[rxapi] ServiceMessage QueueManager GET_SESSION_QUEUE_COUNT
+[rxapi] ServiceMessage QueueManager NEST_SESSION_QUEUE
+[rxapi] ServiceMessage QueueManager OPEN_NAMED_QUEUE
+[rxapi] ServiceMessage QueueManager PULL_FROM_NAMED_QUEUE
+[rxapi] ServiceMessage QueueManager PULL_FROM_SESSION_QUEUE
+[rxapi] ServiceMessage QueueManager QUERY_NAMED_QUEUE
+[rxapi] ServiceMessage RegistrationManager REGISTER_LOAD_LIBRARY
+
+
+rxapi operations : the ===>operations have been used by the test framework
+
+// macro space operations
+ADD_MACRO,
+ITERATE_MACRO_DESCRIPTORS,
+NEXT_MACRO_DESCRIPTOR,
+GET_MACRO_IMAGE,
+GET_MACRO_DESCRIPTOR,
+CLEAR_MACRO_SPACE,
+REMOVE_MACRO,
+===>QUERY_MACRO,
+REORDER_MACRO,
+MACRO_SEND_NEXT,
+ITERATE_MACROS,
+NEXT_MACRO_IMAGE,
+MACRO_RETRIEVE_NEXT,
+
+// queue manager operations
+===>NEST_SESSION_QUEUE,
+===>CREATE_SESSION_QUEUE,
+CREATE_NAMED_QUEUE,
+===>DELETE_SESSION_QUEUE,
+===>DELETE_NAMED_QUEUE,
+===>GET_SESSION_QUEUE_COUNT,
+===>GET_NAMED_QUEUE_COUNT,
+===>ADD_TO_NAMED_QUEUE,
+===>ADD_TO_SESSION_QUEUE,
+===>PULL_FROM_NAMED_QUEUE,
+===>PULL_FROM_SESSION_QUEUE,
+===>CLEAR_SESSION_QUEUE,
+===>CLEAR_NAMED_QUEUE,
+===>OPEN_NAMED_QUEUE,
+===>QUERY_NAMED_QUEUE,
+
+// registration manager operations
+REGISTER_LIBRARY,
+REGISTER_ENTRYPOINT,
+REGISTER_DROP,
+REGISTER_DROP_LIBRARY,
+REGISTER_QUERY,
+REGISTER_QUERY_LIBRARY,
+===>REGISTER_LOAD_LIBRARY,
+UPDATE_CALLBACK,
+
+// global API operations
+SHUTDOWN_SERVER,
+PROCESS_CLEANUP,
+===>CONNECTION_ACTIVE,
+===>CLOSE_CONNECTION,
+
+
+
+--------------------------------------------------------------------------------------------
+Someone said in comp.lang.rexx that the performances of ooRexx v4.0 on his web server are not good compared to 3.2
+I have no idea of the architecture of a web server based on rexx (only one rexx processes ? several ?). 
+That brought me a question about rxapi and its usage for a web server.
+
+My understanding of rxapi is that it lets share some informations between several oorexx processes (queues, global environment).
+
+
+List of functions exported by rxapi.dll
+Those imported by rexx.dll are tagged with "1"
+Those imported by rexx.exe are tagged with "2"
+Those imported by rexxutil.dll are tagged with "3"
+Those imported by rxqueue.exe are tagged with "4"
+Those imported by rxsubcom.exe are tagged with "5"
+
+3 RexxAddMacro
+14 RexxAddQueue
+RexxAllocateMemory
+3 RexxClearMacroSpace
+14 RexxClearQueue
+1 RexxCreateQueue
+1 RexxCreateSessionQueue
+1 RexxDeleteQueue
+1 RexxDeleteSessionQueue
+RexxDeregisterExit
+1 RexxDeregisterFunction
+5 RexxDeregisterSubcom
+3 RexxDropMacro
+123 RexxFreeMemory
+3 RexxLoadMacroSpace
+5 RexxLoadSubcom
+1 RexxOpenQueue
+1 RexxPullFromQueue
+RexxPullQueue
+RexxQueryExit
+1 RexxQueryFunction
+13 RexxQueryMacro
+14 RexxQueryQueue
+5 RexxQuerySubcom
+1 RexxQueueExists
+RexxRegisterExitDll
+RexxRegisterExitExe
+1 RexxRegisterFunctionDll
+RexxRegisterFunctionExe
+5 RexxRegisterSubcomDll
+RexxRegisterSubcomExe
+3 RexxReorderMacro
+1 RexxResolveExit
+1 RexxResolveMacroFunction
+1 RexxResolveRoutine
+1 RexxResolveSubcom
+3 RexxSaveMacroSpace
+RexxShutDownAPI

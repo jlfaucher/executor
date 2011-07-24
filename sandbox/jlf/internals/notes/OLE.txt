@@ -1,0 +1,14 @@
+OLEObject_Init
+    fExploreTypeInfo
+        fExploreTypeAttr
+            AddFuncInfoBlock
+            
+            
+            
+http://oreilly.com/catalog/pythonwin32/chapter/ch12.html
+
+http://spec.winprog.org/typeinf2/
+
+http://sourceforge.net/projects/pywin32/
+
+        

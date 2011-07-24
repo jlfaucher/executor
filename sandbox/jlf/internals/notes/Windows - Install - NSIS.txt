@@ -1,0 +1,10 @@
+Pour construire ooRexxProcess.dll
+cd D:\local\Rexx\ooRexx\svn\build-utilities\trunk
+nmake /f Makefile.win ooRexxProcess_Plugin
+
+Ce fichier ooRexxProcess.dll doit être placé dans le répertoire plug-in de NSIS
+
+
+Pour construire le setup :
+cdtrunk
+makeorx NODEBUG PACKAGE D:\local\Rexx\ooRexx\svn\docs\trunk.sd.doc

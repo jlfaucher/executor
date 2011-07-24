@@ -1,0 +1,104 @@
+"LOL LOCK.txt"
+
+def LockComputer():
+    os.system("rundll32.exe user32.dll, LockWorkStation")
+
+http://vlaurie.com/computers2/Articles/rundll32.htm
+http://support.microsoft.com/kb/164787
+
+
+
+
+===============================================================
+
+#!/usr/bin/env python
+#Created By Ricky saltzer
+#----------------------------
+import pyHook, pythoncom, os, random, time
+from VideoCapture import Device
+
+#-------------
+# Settings
+#-------------
+snapshot = "C:\\snap\\"     # Snapshot Directory, Use Two Backslashes for Paths
+count = 5 # Define Startup Time
+
+#------------
+# Splash
+#------------
+print("LOL LOCK")
+print("Version .01")
+print("Created By: Ricky Saltzer")
+print("-"*25)
+
+#-----------------
+# Webcam Capture
+#-----------------
+def TakePicture():
+    cam = Device()
+    location = "%s%s.jpg" % (snapshot, str(random.randint(1,1000)))
+    print(location)
+    cam.saveSnapshot(location)
+    return location
+    
+#----------------
+# Lock Computer
+#----------------
+def LockComputer():
+    os.system("rundll32.exe user32.dll, LockWorkStation")
+
+
+#----------------------
+# Load Snapshot Folder
+#----------------------
+def ViewSnapshots():
+    command = "explorer.exe %s" % snapshot
+    os.system(command)
+
+
+#-------------------
+# Mouse Move Event
+#-------------------
+
+def onclick(event):
+    LockComputer()  # Lock System 
+    location = TakePicture()   # Take Picture of Victim and get Location
+    ViewSnapshots() # Load Snapshot   
+    exit()
+
+#-------------------
+# Keydown Event
+#-------------------
+
+def exitkey(event):
+    if event.KeyID == 164:
+        exit()
+
+
+#----------------------
+# Count for 5 Seconds
+#----------------------
+pause = True
+ti = count
+while pause:
+    print("Starting in %d") % ti
+    ti = ti -1
+    time.sleep(1)
+    
+    if ti == 0:
+        pause = False
+
+print("Hook Inserted...")
+
+#------------------------------
+# Mouse / Keyboard Hook Loop
+#------------------------------
+
+hm = pyHook.HookManager()
+hm.SubscribeMouseAllButtonsDown(onclick)
+km = pyHook.HookManager()
+km.KeyDown = exitkey
+km.HookKeyboard()
+hm.HookMouse()
+pythoncom.PumpMessages()
+hm.UnhookMouse()

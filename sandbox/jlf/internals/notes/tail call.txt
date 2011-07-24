@@ -1,0 +1,58 @@
+======================================================================
+http://www.lua.org/pil/6.3.html
+
+A tail call is a kind of goto. 
+As such, a quite useful application of proper tail calls in Lua is for programming state machines. 
+Such applications can represent each state by a function; to change state is to go to (or to call) a specific function.
+
+This game is a typical state machine, where the current room is the state. 
+We can implement such maze with one function for each room. 
+We use tail calls to move from one room to another. 
+A small maze with four rooms could look like this: 
+
+    function room1 ()
+      local move = io.read()
+      if move == "south" then return room3()
+      elseif move == "east" then return room2()
+      else print("invalid move")
+           return room1()   -- stay in the same room
+      end
+    end
+    
+    function room2 ()
+      local move = io.read()
+      if move == "south" then return room4()
+      elseif move == "west" then return room1()
+      else print("invalid move")
+           return room2()
+      end
+    end
+    
+    function room3 ()
+      local move = io.read()
+      if move == "north" then return room1()
+      elseif move == "east" then return room4()
+      else print("invalid move")
+           return room3()
+      end
+    end
+    
+    function room4 ()
+      print("congratulations!")
+    end
+
+=========================================================================
+Problems with C
+
+The big complication with C is that pointers are allowed to alias local memory for as long as a call is active. 
+Here's a simple example that would choke in a straight forward tail call optimization.
+
+int foo {
+  int bar = 42;
+  return baz(&bar);
+}
+
+int baz(int *quux) {
+  return *quux;
+}
+

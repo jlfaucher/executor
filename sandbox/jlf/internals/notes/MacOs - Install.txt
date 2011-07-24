@@ -1,0 +1,2 @@
+http://blog.xebia.com/2011/03/31/bundling-a-python-application-on-mac-os-x-with-virtualenv/
+Bundling a Python application on Mac OS X with VirtualEnv

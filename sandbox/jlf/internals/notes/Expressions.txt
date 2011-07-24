@@ -1,0 +1,14 @@
+Expression tree
+http://msdn.microsoft.com/en-us/library/bb397951.aspx
+http://msdn.microsoft.com/en-us/library/bb882637.aspx
+http://msdn.microsoft.com/en-us/library/bb546158.aspx
+
+Lambda expressions
+http://msdn.microsoft.com/en-us/library/bb397687.aspx
+
+Anonymous methods
+http://msdn.microsoft.com/en-us/library/0yw3tz5k(VS.80).aspx
+
+Nimrod
+AST is part of the specification - this allows a powerful macro system.
+http://force7.de/nimrod/index.html

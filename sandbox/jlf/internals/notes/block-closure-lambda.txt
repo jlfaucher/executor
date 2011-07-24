@@ -1,0 +1,851 @@
+http://nathansjslessons.appspot.com/
+
+
+http://www.reddit.com/r/compsci/comments/isyps/closures_why_do_you_need_them/
+
+
+https://wiki.php.net/rfc/closures
+PHP Request for Comments: Lambda functions and closures
+
+http://www.ibm.com/developerworks/opensource/library/os-php-lambda/?ca=drs-
+Leveraging PHP 5.3's lambdas and closures
+
+
+http://www.stat.yale.edu/~jay/NQR/VLDSemerson.pdf
+Many computational problems in statistics are solved by performing the same calculation 
+repeatedly on independent sets of data. These problems can be solved by
+- partitioning the data (the split)
+- performing a single calculation on each partition (the apply)
+- returning the results in a specified format (the combine)
+“split-apply-combine” was coined by Hadley Wickham, but the approach has been supported 
+on a number of different environments for some time under different names:
+- SAS: by
+- Google: MapReduce
+- Apache: Hadoop
+
+
+http://www.music.mcgill.ca/~sinclair/content/blog/comparing_c_0x_lambdas_with_scheme_an_object_with_mutable_state_no_classes_involved
+Comparing C++0x lambdas with Scheme: An "object" with mutable state, no classes involved!
+
+
+http://csharpindepth.com/Articles/Chapter5/Closures.aspx
+The Beauty of Closures
+
+
+http://www.jcp.org/en/jsr/detail?id=335
+JSR 335: Lambda Expressions for the JavaTM Programming Language
+
+http://www.infoq.com/articles/lambdas-java-analysis
+inc = #(int x) (x+1); // single expression
+inc2 = #(int x) { return x+1; }; // block
+
+
+http://www.robertsosinski.com/2008/12/21/understanding-ruby-blocks-procs-and-lambdas/
+
+
+http://docs.python.org/release/3.1.3/reference/simple_stmts.html#the-nonlocal-statement
+Python monlocal similar to expose ?
+
+
+http://en.wikipedia.org/wiki/Funarg_problem
+Upwards funarg problem
+Downwards funarg problem
+
+
+http://en.wikipedia.org/wiki/Closure_(computer_science)
+
+
+http://innig.net/software/ruby/closures-in-ruby.rb
+CLOSURES IN RUBY     Paul Cantrell    http://innig.net
+
+
+http://blog.morrisjohns.com/javascript_closures_for_dummies.html
+--> les examples sont interessants, en particulier pour comprendre que c'est le stack frame
+à la fin de l'execution qui est mémorisé.
+
+
+http://algorithm.com.au/blog/files/immutability-blocks-lambdas-closures.php
+Immutability and Blocks, Lambdas and Closures
+
+http://math.andrej.com/2009/04/09/pythons-lambda-is-broken/
+
+http://www.reddit.com/r/programming/comments/ghlbs/immutability_and_blocks_lambdas_and_closures/
+
+http://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-this/4199355#4199355
+
+http://python-history.blogspot.com/2010/06/from-list-comprehensions-to-generator.html
+
+https://developer.mozilla.org/en/new_in_javascript_1.7
+let
+
+http://thirdcog.eu/pwcblocks/#objcblocks
+In Mac OS X 10.6, Apple introduced a syntax and runtime for using blocks (more commonly known as closures) in C and Objective-C.
+
+http://msdn.microsoft.com/fr-fr/library/aa985932.aspx
+Function Objects
+
+http://msdn.microsoft.com/fr-fr/library/dd293608.aspx
+Lambda Expressions in C++
+
+http://msdn.microsoft.com/fr-fr/library/dd293603.aspx
+Lambda Expression Syntax
+
+http://msdn.microsoft.com/fr-fr/library/dd293599.aspx
+Examples of Lambda Expressions
+
+http://blogs.msdn.com/b/ericlippert/archive/2009/11/12/closing-over-the-loop-variable-considered-harmful.aspx
+Closing over the loop variable considered harmful
+
+http://blogs.msdn.com/b/nativeconcurrency/archive/2011/02/21/the-concurrency-runtime-and-visual-c-2010-lambda-expressions.aspx
+The Concurrency Runtime and Visual C++ 2010: Lambda Expressions
+
+http://groovy.codehaus.org/JN2515-Closures
+
+http://jrdodds.blogs.com/blog/2006/05/javascript_clos.html
+
+http://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture-in-python
+
+http://www.psg.com/~dlamkins/sl/chapter11.html
+
+http://www.newlisp.org/index.cgi?Closures
+
+http://gleichmann.wordpress.com/2010/11/15/functional-scala-closures/
+
+http://letoverlambda.com/textmode.cl/guest/chap2.html
+
+http://perfectionkills.com/a-closer-look-at-expression-closures/
+
+http://stackoverflow.com/questions/3329368/how-can-i-use-php-5-3-closures-like-we-use-blocks-in-ruby
+
+http://mark-story.com/posts/view/picking-up-javascript-closures-and-lexical-scoping
+
+http://jibbering.com/faq/notes/closures/
+Javascript Closures
+
+
+=====================================================================
+Reminder of previous discussions on the dev list :
+
+From Rick :
+https://sourceforge.net/mailarchive/message.php?msg_id=19911593
+    I've been giving some thought to whether closures could be added to
+    the language for some time, but the issues generally lie on the
+    calling end.  That is, what is the syntax to be used that would allow
+    a closure to be created without cluttering up the language with lots
+    of special exceptions or awkward syntax.  Ideally, a closure would be
+    something that would just be an extension of normal expression syntax.
+    Closures would be assignable to variables and, of course, allowed as
+    method arguments.  Implemented that way, there's no additional
+    overhead needed on the argument calling mechanisms.  So far, I've not
+    found a syntax that I'm happy with.
+
+    There are other side issues that need to be addressed, such as
+    ensuring that the closure somehow becomes invalid when the environment
+    where it was created is no longer valid, or the more interesting case
+    of a closure passed to a method that does an early reply...now the
+    closure will be executed on an entirely different thread.
+
+    This is an interesting idea, but not one I'm prepared to jump on and
+    accept until all of the implications are written down and discussed.
+
+
+From Rick :
+https://sourceforge.net/mailarchive/message.php?msg_id=19912031
+    Another somewhat related area I've been mentally toying with is
+    introducing the concept of a variable reference.  This would allow
+    call-by-reference semantics on calls/methods.  With this enhancement,
+    there's a new "variable reference" class.  The only way to create a
+    variable reference is via the special syntax "[name]".  Where name is
+    the name of a valid Rexx variable.  At present, I was going to limit
+    this to simple and stem variables.
+
+    A variable reference has just a couple of methods, value() and
+    "VALUE=".  However, it can be coupled with USE ARG to create actual
+    variable aliasing:
+
+       USE ARG [foo]
+
+    says that we're expecting a variable reference object as the first
+    argument, and this will be aliased to the variable FOO.  From that
+    point, you can just
+
+       say foo
+       foo = somethingElse
+
+    and you are in reality accessing variable NAME back in the caller's
+    context.  The [] syntax will work well, if defined carefully to
+    disambiguate the usage as method names.  This processing can even be
+    extended to message assignment syntax to allow [foo~name] to be passed
+    as a reference.
+
+    As I was thinking about your proposal, and what I wanted to do with
+    variable references, I realized that the variable reference objects
+    are just a specialization of what you specified for closures.  The
+    syntax [expr] would create a deferred evaluation.  If the "expr" is a
+    valid assignment left-hand-side, then this is a variable reference
+    object that supports assignment.  Otherwise, this is an expression
+    reference object that only supports evaluate.  This really becomes
+    rather clean.
+
+    There's an additional type of closure that's used in other languages
+    like groovy, which is an actual code snippet that can be passed
+    around, but executes in the variable context of place where it was
+    created.  This is similar to your proposal, but the code is not
+    limited to just a single expression.  This can be a very handy (but
+    somewhat confusing) feature to have.  That one has a few more syntax
+    challenges than this.
+
+
+=====================================================================
+Recherche des impacts possibles de SourceLiteral
+=====================================================================
+
+SourceFile.cpp
+RexxSource::constantExpression
+    if (token->isLiteral())              /* literal string expression?        */
+    {
+        _expression = this->addText(token); /* get the literal retriever         */
+    }
+
+
+SourceFile.cpp
+RexxSource::constantLogicalExpression
+    if (token->isLiteral())              /* literal string expression?        */
+    {
+        _expression = this->addText(token); /* get the literal retriever         */
+    }
+
+
+SourceFile.cpp
+RexxSource::function
+  _function = new (argCount) RexxExpressionFunction(name->value, argCount, this->subTerms, this->resolveBuiltin(name->value), name->isLiteral());
+                                       /* add to table of references        */
+
+
+SourceFile.cpp
+RexxSource::subExpression
+            case  TOKEN_SYMBOL:              /* Symbol in the expression          */
+            case  TOKEN_LITERAL:             /* Literal in the expression         */
+            case  TOKEN_SOURCE_LITERAL:      /* Source literal in the expression  */
+            case  TOKEN_LEFT:                /* start of subexpression            */
+
+                location = token->getLocation(); /* get the token start position      */
+                                                 /* abuttal ends on the same line     */
+                location.setEnd(location.getLineNumber(), location.getOffset());
+                /* This is actually an abuttal       */
+                token = new RexxToken (TOKEN_OPERATOR, OPERATOR_ABUTTAL, OREF_NULLSTRING, location);
+                previousToken();               /* step back on the token list       */
+
+
+SourceFile.cpp
+RexxSource::subTerm
+        case  TOKEN_SYMBOL:                /* Symbol in the expression          */
+        case  TOKEN_LITERAL:               /* Literal in the expression         */
+            second = nextToken();            /* get the next token                */
+                                             /* have a function call?             */
+            if (second->classId == TOKEN_LEFT)
+
+
+InstructionParser.cpp
+RexxSource::callNew()
+    /* call with a string target         */
+    else if (token->isLiteral())
+    {
+        name = token->value;               /* set the default target            */
+                                           /* set the builtin index for later   */
+                                           /* resolution step                   */
+        builtin_index = this->builtin(token);
+        /* process the argument list         */
+        argCount = this->argList(OREF_NULL, TERM_EOC);
+        _flags |= RexxInstructionCall::call_nointernal;          /* do not check for internal routines*/
+    }
+--> ici ça pourrait avoir un impact si on veut supporter ça :
+call { return arg(1)+1 } 99
+
+InstructionParser.cpp
+RexxSource::callNew()
+    /* indirect call case?               */
+    else if (token->classId == TOKEN_LEFT)
+    {
+        _flags |= RexxInstructionCall::call_dynamic;             /* going to be indirect              */
+--> ici ça pourrait avoir un impact si on veut supporter ça :
+routine = { return arg(1)+1 }
+call (routine) 99
+
+
+InstructionParser.cpp
+RexxSource::parseNew
+--> hors sujet, c'est pour l'instruction parse.
+
+
+=====================================================================
+interpreter/execution/RexxActivation.cpp
+
+RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,
+     size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+/* Function:  Run a REXX method...this is it!  This is the heart of the       */
+/*            interpreter that makes the whole thing run!                     */
+
+
+
+A creuser : 
+Le paramètre start permet de démarrer ailleurs qu'à la 1ère instruction
+Ca sert lorsqu'on n'est pas au top-level
+
+
+===========================================================================
+
+sourceArray     NULL
+current         "say block
+                say block~class"
+sourceBuffer    "block = [1]
+                 say ..."
+current_length  9
+
+Quand le parsing démarre avec le new source, on est avec
+this->line_offset == 0
+this->current_length == 9
+
+#define GETCHAR()  ((unsigned char)(this->current[size_v(this->line_offset)]))
+this->current de type const char * == "say block..."
+est calculé par RexxSource::position(size_t line, sizeB_t offset)
+2 cas supportés :
+this->sourceArray <> NULL ==> le source est dans un tableau et on récupère la ligne n° line (- interpret_adjust). L'offset ne sert pas, mais il est mémorisé
+this->sourceArray == NULL ==> le source est dans une string. La position dans la string est calculée avec descriptors = (LINE_DESCRIPTOR *)(this->sourceIndices->getData()
+
+
+===========================================================================
+
+Ajout
+
+RexxSource::RexxSource(RexxSource *enclosingSource)
+RexxCode *RexxSource::translateSubBlock(RexxDirectory *_labels)
+
+
+===========================================================================
+Creation of a RexxSource
+
+RexxSource::globalSetup
+
+
+RexxSource::inheritSourceContext
+--> see usage
+--> see usage of this->parentSource
+
+
+===========================================================================
+Implementation of .Method~new
+
+
+===========================================================================
+Implementation of INTERPRET instruction
+
+
+RexxActivation.cpp
+void RexxActivation::interpret(RexxString * codestring)
+{
+    ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+    /* translate the code                */
+    RexxCode * newCode = this->code->interpret(codestring, this->current->getLineNumber());
+    /* create a new activation           */
+    RexxActivation *newActivation = ActivityManager::newActivation(this->activity, this, newCode, INTERPRET);
+    this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
+    ProtectedObject r;
+    /* run the internal routine on the   */
+    /* new activation                    */
+    newActivation->run(OREF_NULL, OREF_NULL, arglist, argcount, OREF_NULL, r);
+}
+
+this->code is of type RexxCode
+
+
+RexxCode.hpp
+class RexxCode : public BaseCode
+{
+   inline RexxCode *interpret(RexxString *s, size_t n) { return source->interpret(s, labels, n); }
+  RexxSource      * source;            // the source this code belongs to.
+}
+
+
+SourceFile.hpp
+class RexxSource : public RexxInternalObject {
+
+
+In SourceFile.cpp, the flag _interpret is used to test if INTERPRET
+
+
+SourceFile.cpp
+RexxCode *RexxSource::interpret(
+    RexxString    *string,             /* interpret string value            */
+    RexxDirectory *_labels,             /* parent labels                     */
+    size_t         _line_number )       /* line number of interpret          */
+{
+                                       /* create a source object            */
+  RexxSource *source = new RexxSource (this->programName, new_array(string));
+  ProtectedObject p(source);
+  source->interpretLine(_line_number);  /* fudge the line numbering          */
+                                       /* convert to executable form        */
+  return source->interpretMethod(_labels);
+}
+
+
+SourceFile.cpp
+RexxCode *RexxSource::interpretMethod(
+    RexxDirectory *_labels )            /* parent label set                  */
+{
+  this->globalSetup();                 /* do the global setup part          */
+  this->flags |= _interpret;           /* this is an interpret              */
+  RexxCode *newCode = this->translate(_labels); /* translate the source program      */
+  ProtectedObject p(newCode);
+  this->cleanup();                     /* release temporary tables          */
+  return newCode;                      /* return the method                 */
+}
+
+
+===========================================================================
+RoutineClass::fromFile
+    // process this from the source
+    return new RoutineClass(filename, program_buffer);
+
+
+RexxActivation.cpp
+bool RexxActivation::callExternalRexx(
+  RexxString *      target,            /* Name of external function         */
+  RexxObject **     _arguments,        /* Argument array                    */
+  size_t            _argcount,         /* number of arguments in the call   */
+  RexxString *      calltype,          /* Type of call                      */
+  ProtectedObject  &resultObj)         /* Result of function call           */
+{
+    /* Get full name including path      */
+    RexxString *filename = resolveProgramName(target);
+    if (filename != OREF_NULL)           /* found something?                  */
+    {
+        this->stack.push(filename);        /* protect the file name here        */
+        // try for a saved program or translate anew.
+        RoutineClass *routine = RoutineClass::fromFile(filename);
+        this->stack.pop();                 /* remove the protected name         */
+        if (routine == OREF_NULL)          /* Do we have a method???            */
+        {
+            return false;                    /* No, return not found              */
+        }
+        else                               /* Try to run method                 */
+        {
+            ProtectedObject p(routine);
+            /* run as a call                     */
+            routine->call(this->activity, target, _arguments, _argcount, calltype, this->settings.current_env, EXTERNALCALL, resultObj);
+            /* now merge all of the public info  */
+            this->settings.parent_code->mergeRequired(routine->getSourceObject());
+            return true;                     /* Return routine found flag         */
+        }
+    }
+    else
+    {
+        return false;                      /* this wasn't found                 */
+    }
+}
+
+
+PackageManager.cpp
+RoutineClass *PackageManager::getRequiresFile(RexxActivity *activity, RexxString *name, RexxObject *securityManager, ProtectedObject &result)
+{
+    // make sure we're not stuck in a circular reference
+    activity->checkRequires(name);
+    // try to load this from a previously compiled source file or
+    // translate it a new if not.
+    RoutineClass *code = RoutineClass::fromFile(name);
+    result = code;   // we need to protect this until things are fully resolved.
+
+    if (securityManager == OREF_NULL)
+    {
+        code->setSecurityManager(securityManager);
+    }
+    return code;
+}
+
+
+RexxStartDispatcher.cpp
+void CallProgramDispatcher::run()
+{
+    RexxString *targetName = new_string(program);
+    /* go resolve the name               */
+    RexxString *name = activity->resolveProgramName(targetName, OREF_NULL, OREF_NULL);
+    if (name == OREF_NULL)                /* not found?                        */
+    {
+        /* got an error here                 */
+        reportException(Error_Program_unreadable_notfound, targetName);
+    }
+    ProtectedObject p(name);
+    // create a routine from this file
+    RoutineClass *routine = RoutineClass::fromFile(name);
+    p = routine;
+
+    if (arguments != OREF_NULL)
+    {
+        // use the provided name for the call name
+        routine->runProgram(activity, arguments->data(), arguments->size(), result);
+    }
+    else
+    {
+        // we use a null string for the name when things are called directly
+        routine->runProgram(activity, NULL, 0, result);
+    }
+}
+
+
+===========================================================================
+This method is called when parsing a source file
+
+translateBlock
+
+
+>	rexx.dll!RexxSource::translateBlock(RexxDirectory * _labels)  Line 3517	C++
+ 	rexx.dll!RexxSource::translate(RexxDirectory * _labels)  Line 1740 + 0xc bytes	C++
+ 	rexx.dll!RexxSource::generateCode(bool isMethod)  Line 1177 + 0xa bytes	C++
+ 	rexx.dll!RoutineClass::RoutineClass(RexxString * name, RexxBuffer * s)  Line 136 + 0xa bytes	C++
+ 	rexx.dll!RoutineClass::fromFile(RexxString * filename)  Line 863 + 0x2a bytes	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 129 + 0x8 bytes	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher)  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target)  Line 3024	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits, const char * env)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount, _CONSTRXSTRING * arglist, const char * programname, _RXSTRING * instore, const char * envname, int calltype, _RXSYSEXIT * exits, short * retcode, _RXSTRING * result)  Line 165	C++
+ 	rexx.exe!main(int argc, char * * argv)  Line 212 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 189	C
+
+
+===========================================================================
+
+->translateBlock
+    ->instruction
+
+RexxSource::methodDirective
+        RexxCode *code = this->translateBlock(OREF_NULL);
+        this->saveObject((RexxObject *)code);
+
+        /* go do the next block of code      */
+        _method = new RexxMethod(name, code);
+        
+    _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+    // add to the compilation
+    addMethod(internalname, _method, Class);
+
+
+RexxSource::createMethod
+    RexxCode *code = this->translateBlock(OREF_NULL);
+    this->saveObject((RexxObject *)code);
+
+    /* go do the next block of code      */
+    RexxMethod *_method = new RexxMethod(name, code);
+    _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // go add the method to the accumulator
+    addMethod(name, _method, classMethod);
+
+
+RexxSource::routineDirective
+        this->saveObject(name);          /* protect the name                  */
+            RexxCode *code = this->translateBlock(OREF_NULL);
+            this->saveObject((RexxObject *)code);
+            RoutineClass *routine = new RoutineClass(name, code);
+            /* add to the routine directory      */
+            this->routines->setEntry(name, routine);
+            if (Public == PUBLIC_SCOPE)    /* a public routine?                 */
+            {
+                /* add to the public directory too   */
+                this->public_routines->setEntry(name, routine);
+            }
+        this->toss(name);                /* release the "Gary Cole" (GC) lock */
+
+
+==============================================================================
+
+#define new_instruction(name, type) this->sourceNewObject(sizeof(RexxInstruction##type), The##type##InstructionBehaviour, KEYWORD_##name)
+
+RexxInstruction *newObject = new_instruction(DO, Do)
+RexxInstruction *newObject = this->sourceNewObject(sizeof(RexxInstructionDo), TheDoInstructionBehaviour, KEYWORD_DO)
+
+==============================================================================
+RexxContext
+
+
+RexxConstants.hpp
+CHARCONSTANT(REXXCONTEXT, "REXXCONTEXT");
+
+
+RexxCore.h
+/******************************************************************************/
+/* Global Objects - General                                                   */
+/******************************************************************************/
+// TODO:  make these into statics inside classes.
+#define TheRexxContextClass RexxContext::classInstance
+
+
+ClassTypeCodes.h (generated by ClassTypeIds.xsl)
+    T_RexxContext = 42,
+    T_RexxContextClass = 43,
+
+
+PrimitiveBehaviourNames.h (generated by ?)
+#define TheRexxContextBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxContext])
+#define TheRexxContextClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxContextClass])
+
+
+PrimitiveBehaviours.cpp (generated by ?)
+    RexxBehaviour(T_RexxContext, (PCPPM *)RexxObject::operatorMethods),
+    RexxBehaviour(T_RexxContextClass, (PCPPM *)RexxObject::operatorMethods),
+
+
+VirtualFunctionTable.cpp
+   objectPtr = new (objectLoc) RexxContext(RESTOREIMAGE);
+   virtualFunctionTable[T_RexxContext] = getVftPointer(objectLoc);
+
+   objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
+   virtualFunctionTable[T_RexxContextClass] = getVftPointer(objectLoc);
+
+
+CPPCode.cpp
+CPPM(RexxContext::newRexx),
+CPPM(RexxContext::copyRexx),
+CPPM(RexxContext::getPackage),
+CPPM(RexxContext::getDigits),
+CPPM(RexxContext::getFuzz),
+CPPM(RexxContext::getForm),
+CPPM(RexxContext::getVariables),
+CPPM(RexxContext::getExecutable),
+CPPM(RexxContext::getArgs),
+CPPM(RexxContext::getCondition),
+CPPM(RexxContext::getLine),
+CPPM(RexxContext::getRS),
+
+
+RexxMemory.cpp
+void RexxMemory::restore()
+    RESTORE_CLASS(RexxContext, RexxClass);
+
+
+Setup.cpp
+void RexxMemory::createImage()
+  RexxContext::createInstance();
+
+  -------------------------------------  
+  /***************************************************************************/
+  /*           RexxContext                                                   */
+  /***************************************************************************/
+
+                                       /* Add the NEW methods to the        */
+                                       /* class behaviour                   */
+  defineKernelMethod(CHAR_NEW     ,TheRexxContextClassBehaviour, CPPM(RexxContext::newRexx), A_COUNT);
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheRexxContextBehaviour->setMethodDictionaryScope(TheRexxContextClass);
+
+  defineKernelMethod(CHAR_COPY          ,TheRexxContextBehaviour, CPPM(RexxContext::copyRexx), 0);
+  defineKernelMethod(CHAR_PACKAGE       ,TheRexxContextBehaviour, CPPM(RexxContext::getPackage), 0);
+  defineKernelMethod(CHAR_EXECUTABLE    ,TheRexxContextBehaviour, CPPM(RexxContext::getExecutable), 0);
+  defineKernelMethod(CHAR_FORM          ,TheRexxContextBehaviour, CPPM(RexxContext::getForm), 0);
+  defineKernelMethod(CHAR_FUZZ          ,TheRexxContextBehaviour, CPPM(RexxContext::getFuzz), 0);
+  defineKernelMethod(CHAR_DIGITS        ,TheRexxContextBehaviour, CPPM(RexxContext::getDigits), 0);
+  defineKernelMethod(CHAR_VARIABLES     ,TheRexxContextBehaviour, CPPM(RexxContext::getVariables), 0);
+  defineKernelMethod(CHAR_ARGS          ,TheRexxContextBehaviour, CPPM(RexxContext::getArgs), 0);
+  defineKernelMethod(CHAR_CONDITION     ,TheRexxContextBehaviour, CPPM(RexxContext::getCondition), 0);
+  defineKernelMethod("LINE"             ,TheRexxContextBehaviour, CPPM(RexxContext::getLine), 0);
+  defineKernelMethod("RS"               ,TheRexxContextBehaviour, CPPM(RexxContext::getRS), 0);
+
+                                       /* Add the instance methods to the   */
+                                       /* instance behaviour mdict          */
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheRexxContextBehaviour->setMethodDictionaryScope(TheRexxContextClass);
+
+                                       /* Now call the class subclassable   */
+                                       /* method                            */
+  TheRexxContextClass->subClassable(true);
+  -------------------------------------  
+
+  /* put the kernel-provided public objects in the environment directory */
+  kernel_public(CHAR_REXXCONTEXT      ,TheRexxContextClass ,TheEnvironment);
+
+
+ContextClass.hpp
+ContextClass.cpp
+
+
+StackFrameClass.hpp
+StackFrameClass.cpp
+
+RexxActivation.hpp
+   virtual RexxActivation  *getRexxContext();
+   virtual RexxActivation  *findRexxContext();
+   virtual bool             isRexxContext();
+   RexxObject *getContextObject();      <-- creates the context
+   RexxObject *getContextLine();
+   size_t      getContextLineNumber();
+   RexxObject *getContextReturnStatus();
+   RexxContext         *contextObject; // the context object representing the execution context
+RexxActivation.cpp
+
+
+
+==============================================================================
+interpreter\instructions
+
+RexxInternalObject
+    RexxTrigger     -- Primitive PARSE instruction parsing trigger Class Definitions
+    RexxInstruction     --   virtual void execute(RexxActivation *, RexxExpressionStack *) { ; };
+        RexxDirective
+            ClassDirective
+            ExtensionDirective
+            LibraryDirective
+            RequiresDirective
+        RexxBlockInstruction
+            RexxInstructionDo
+            RexxInstructionSelect
+        RexxInstructionSet
+            RexxInstructionElse
+            RexxInstructionEndIf
+            RexxInstructionIf
+            RexxInstructionThen
+        RexxInstructionExpression       -- RexxObject *expression;              /* expression to evaluate            */
+            RexxInstructionCommand
+            RexxInstructionExit
+            RexxInstructionInterpret
+            RexxInstructionNumeric
+            RexxInstructionOptions
+            RexxInstructionQueue
+            RexxInstructionReply
+            RexxInstructionReturn
+            RexxInstructionSay
+        RexxInstructionAddress
+        RexxInstructionAssignment
+        RexxInstructionCallBase
+            RexxInstructionCall
+            RexxInstructionSignal
+        RexxInstructionDrop
+        RexxInstructionEnd
+        RexxInstructionExpose
+        RexxInstructionForward
+        RexxInstructionGuard
+        RexxInstructionLabel
+        RexxInstructionLeave
+        RexxInstructionMessage
+        RexxInstructionNop
+        RexxInstructionOtherwise
+        RexxInstructionParse
+        RexxInstructionProcedure
+        RexxInstructionRaise
+        RexxInstructionTrace
+        RexxInstructionUseStrict
+
+
+RexxInternalObject
+    RexxDoBlock
+
+
+RexxTarget -- Primitive PARSE instruction parsing target Class Definitions
+
+
+==============================================================================
+interpreter\expression
+
+RexxExpressionStack
+RexxInternalObject
+    RexxExpressionOperator
+        RexxBinaryOperator          evaluate
+        RexxUnaryOperator           evaluate
+    RexxVariableBase
+        RexxCompoundVariable        evaluate
+        RexxDotVariable             evaluate
+        RexxExpressionMessage       evaluate
+        RexxStemVariable            evaluate
+        RexxParseVariable           evaluate
+        RexxVariableReference       
+    RexxExpressionFunction          evaluate
+    RexxExpressionLogical           evaluate
+    
+
+==============================================================================
+
+
+interpreter/parser/token.hpp
+
+/* token types */
+#define TOKEN_NULL        1201
+#define TOKEN_BLANK       TOKEN_NULL      + 1   1202
+#define TOKEN_SYMBOL      TOKEN_BLANK     + 1   1203
+#define TOKEN_LITERAL     TOKEN_SYMBOL    + 1   1204
+#define TOKEN_OPERATOR    TOKEN_LITERAL   + 1   1205
+#define TOKEN_EOC         TOKEN_OPERATOR  + 1   1206
+#define TOKEN_COMMA       TOKEN_EOC       + 1   1207
+#define TOKEN_PREFIX      TOKEN_COMMA     + 1   1208
+#define TOKEN_LEFT        TOKEN_PREFIX    + 1   1209
+#define TOKEN_RIGHT       TOKEN_LEFT      + 1   1210
+#define TOKEN_POINT       TOKEN_RIGHT     + 1   1211
+#define TOKEN_COLON       TOKEN_POINT     + 1   1212
+#define TOKEN_TILDE       TOKEN_COLON     + 1   1213
+#define TOKEN_DTILDE      TOKEN_TILDE     + 1   1214
+#define TOKEN_SQLEFT      TOKEN_DTILDE    + 1   1215    [
+#define TOKEN_SQRIGHT     TOKEN_SQLEFT    + 1   1216    ]
+#define TOKEN_DCOLON      TOKEN_SQRIGHT   + 1   1217
+#define TOKEN_CONTINUE    TOKEN_DCOLON    + 1   1218
+#define TOKEN_ASSIGNMENT  TOKEN_CONTINUE  + 1   1219
+
+==============================================================================
+SourceFile.cpp
+RexxSource::subTerm
+
+Add support for [expr] --> abandonned, replaced by source literal
+
+
+==============================================================================
+
+void RexxInstructionAssignment::execute(
+    RexxActivation      *context,      /* current activation context        */
+    RexxExpressionStack *stack)        /* evaluation stack                  */
+{
+    this->variable->assign(context, stack, this->expression->evaluate(context, stack));
+}
+
+block = [1/0]
+
+>	rexx.dll!RexxActivity::raiseException(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 730	C++
+ 	rexx.dll!RexxActivity::reportAnException(long errcode)  Line 502	C++
+ 	rexx.dll!reportException(long error)  Line 139	C++
+ 	rexx.dll!RexxNumberString::Division(RexxNumberString * other, unsigned int DivOP)  Line 331 + 0xa bytes	C++
+ 	rexx.dll!RexxNumberString::divide(RexxObject * right)  Line 2729	C++
+ 	rexx.dll!RexxInteger::divide(RexxInteger * other)  Line 563	C++
+ 	rexx.dll!callOperatorMethod(RexxObject * object, unsigned int methodOffset, RexxObject * argument)  Line 472	C++
+ 	rexx.dll!RexxBinaryOperator::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 114 + 0x12 bytes	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 122 + 0x1d bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 537	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity, RexxString * calltype, RexxString * environment, RexxObject * * arguments, unsigned int argCount, ProtectedObject & result)  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher)  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target)  Line 3024	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits, const char * env)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount, _CONSTRXSTRING * arglist, const char * programname, _RXSTRING * instore, const char * envname, int calltype, _RXSYSEXIT * exits, short * retcode, _RXSTRING * result)  Line 165	C++
+ 	rexx.exe!main(int argc, char * * argv)  Line 212 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 189	C
+
+
+[say 1] -- no longer an error, now supports this expression
+
+>	rexx.dll!RexxActivity::raiseException(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 730	C++
+ 	rexx.dll!RexxSource::errorToken(int errorcode, RexxToken * token)  Line 5602	C++
+ 	rexx.dll!RexxSource::syntaxError(int errorcode, RexxToken * token)  Line 316 + 0x17 bytes	C++
+ 	rexx.dll!RexxSource::subTerm(int terminators)  Line 5371	C++
+ 	rexx.dll!RexxSource::messageTerm()  Line 5179 + 0xa bytes	C++
+ 	rexx.dll!RexxSource::instruction()  Line 3915 + 0x8 bytes	C++
+ 	rexx.dll!RexxSource::translateBlock(RexxDirectory * _labels)  Line 3561 + 0x8 bytes	C++
+ 	rexx.dll!RexxSource::translate(RexxDirectory * _labels)  Line 1740 + 0xc bytes	C++
+ 	rexx.dll!RexxSource::generateCode(bool isMethod)  Line 1177 + 0xa bytes	C++
+ 	rexx.dll!RoutineClass::RoutineClass(RexxString * name, RexxBuffer * s)  Line 136 + 0xa bytes	C++
+ 	rexx.dll!RoutineClass::fromFile(RexxString * filename)  Line 863 + 0x2a bytes	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 129 + 0x8 bytes	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher)  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target)  Line 3024	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits, const char * env)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount, _CONSTRXSTRING * arglist, const char * programname, _RXSTRING * instore, const char * envname, int calltype, _RXSYSEXIT * exits, short * retcode, _RXSTRING * result)  Line 165	C++
+ 	rexx.exe!main(int argc, char * * argv)  Line 212 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 189	C

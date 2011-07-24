@@ -1,0 +1,99 @@
+===========================================================================
+interpreter\runtime\RexxCore.h
+// this one is special, and is truly global.
+EXTERNMEM RexxMemory  memoryObject;   /* memory object                     */
+
+interpreter\memory\RexxMemory.cpp
+/* NOTE:  There is just a single memory object in global storage.  We'll define      */
+/* memobj to be the direct address of this memory object.                            */
+RexxMemory memoryObject;
+
+
+Attention :
+RexxMemory::RexxMemory
+n'initialise pas image_buffer à NULL, mais cette valeur est testée dans RexxMemory::restore
+
+Initialisation bizarre dans RexxMemory::initialize :
+    new (this) RexxMemory;  --> ça rappelle le constructeur RexxMemory::RexxMemory sur lui-même
+    new (&newSpaceNormalSegments) NormalSegmentSet(this);
+    new (&newSpaceLargeSegments) LargeSegmentSet(this);
+
+    /* and the new/old Space segments    */
+    new (&oldSpaceSegments) OldSpaceSegmentSet(this);
+
+
+ClassTypeCodes.xsl
+Ce fichier est généré
+
+interpreter\behaviour\ClassTypeCodes.h
+Ce fichier est généré
+
+interpreter\behaviour\VirtualFunctionTable.cpp
+Ce fichier est généré
+
+
+
+interpreter\memory\Setup.cpp
+RexxMemory::createImage
+RexxMemory::restoreImage
+
+
+interpreter\memory\RexxMemory.cpp
+RexxMemory::create
+RexxMemory::restore
+
+
+SystemInterpreter::loadImage    Charge rexx.img (déclaré dans PlatformDefinitions.h)
+    RexxMemory::restoreImage
+        RexxMemory::initialize
+            ...
+            
+
+RexxMemory::restore                                 interpreter\memory\RexxMemory.cpp
+    RexxMemory::initialize                          interpreter\memory\RexxMemory.cpp
+        Interpreter::startInterpreter               interpreter\runtime\Interpreter.cpp
+            Interpreter::createInterpreterInstance  interpreter\runtime\Interpreter.cpp
+                InstanceBlock::InstanceBlock        interpreter\runtime\Interpreter.cpp
+                    ActivityDispatcher::invoke      interpreter\concurrency\ActivityDispatcher.cpp
+                        RexxStart                   interpreter\api\InterpreterAPI.cpp
+                            main                    utilities\rexx\platform\windows\rexx.cpp
+                            
+                            
+interpreter\interpreter.mak                            
+    Génération de fichiers à partir de rexxmsg.xml :
+    $(INT_PLATFORM)\winmsgtb.rc: $(INT_PLATFORM)\WinMessageResource.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\RexxErrorCodes.h: $(INTERPRETER_MESSAGES)\RexxErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\DocErrorMessages.sgml: $(INTERPRETER_MESSAGES)\DocBookErrors.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\RexxMessageNumbers.h: $(INTERPRETER_MESSAGES)\RexxMessageNumbers.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\RexxMessageTable.h: $(INTERPRETER_MESSAGES)\RexxMessageTable.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(OR_APISRC)\oorexxerrors.h: $(INTERPRETER_MESSAGES)\ApiErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+
+    Génération de fichiers à partir de PrimitiveClasses.xml :
+    $(BEHAVIOUR)\PrimitiveBehaviourNames.h: $(BEHAVIOUR)\PrimitiveBehaviourNames.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+    $(BEHAVIOUR)\PrimitiveBehaviours.cpp: $(BEHAVIOUR)\PrimitiveBehaviours.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+    $(BEHAVIOUR)\VirtualFunctionTable.cpp: $(BEHAVIOUR)\VirtualFunctionTable.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+    $(BEHAVIOUR)\ClassTypeCodes.h: $(BEHAVIOUR)\ClassTypeCodes.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+
+
+Dans RexxMemory::restore, il n'y a que les classes Exported qui sont restaurées.
+
+
+===========================================================================
+RexxMemory::virtualFunctionTable est utilisé dans :
+ObjectClass.cpp
+    RexxNilObject::operator new : setVirtualFunctions
+RexxEnvelope.cpp
+    RexxEnvelope::puff : setVirtualFunctions
+RexxMemory.cpp
+    RexxMemory::initialize : crée la table des vtables
+    RexxMemory::restoreImage : affecte sa vtable à chaque objet de l'image
+    RexxMemory::oldObject : initializeNewObject
+    RexxMemory::newObject : initializeNewObject
+    RexxMemory::newObjects : initializeNewObject
+    RexxMemory::temporaryObject : initializeNewObject
+RexxHashTable.cpp
+    RexxHashTable::newInstance : initializeNewObject
+RexxListTable.cpp
+    RexxListTable::operator new : initializeNewObject
+VirtualFunctionTable.cpp
+

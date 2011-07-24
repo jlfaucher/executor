@@ -1,0 +1,58 @@
+FFI = Foreign Function Interface
+
+Python ctypes
+http://docs.python.org/library/ctypes.html
+http://python.net/crew/theller/ctypes/tutorial.html
+
+
+Cython
+http://docs.cython.org/docs/external_C_code.html
+
+
+Ruby/DL
+http://www.jbrowse.com/text/rdl_en.html
+
+
+=================================================================================
+
+>	gci.dll!_GciDispatcher(const char * calledname=0x7f245d2c, unsigned long argc=2, _RXSTRING * const argv=0x000ad684, const char * queuename=0x7eee66b4, _RXSTRING * returnstring=0x000ad66c)  Line 1107	C
+ 	rexx.dll!RexxNativeActivation::callRegisteredRoutine(RoutineClass * _routine=0x7f5504a8, RegisteredRoutine * _code=0x7f54e660, RexxString * functionName=0x7f245d08, RexxObject * * list=0x7eae2624, unsigned int count=2, ProtectedObject & resultObj={...})  Line 1441 + 0x34 bytes	C++
+ 	rexx.dll!RegisteredRoutine::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7f5504a8, RexxString * functionName=0x7f245d08, RexxObject * * argPtr=0x7eae2624, unsigned int count=2, ProtectedObject & result={...})  Line 353	C++
+ 	rexx.dll!RoutineClass::call(RexxActivity * activity=0x7eee5640, RexxString * msgname=0x7f245d08, RexxObject * * argPtr=0x7eae2624, unsigned int argcount=2, ProtectedObject & result={...})  Line 234	C++
+ 	rexx.dll!PackageManager::callNativeRoutine(RexxActivity * activity=0x7eee5640, RexxString * name=0x7f245d08, RexxObject * * arguments=0x7eae2624, unsigned int argcount=2, ProtectedObject & result={...})  Line 669	C++
+ 	rexx.dll!SystemInterpreter::invokeExternalFunction(RexxActivation * activation=0x7f657b68, RexxActivity * activity=0x7eee5640, RexxString * target=0x7f245d08, RexxObject * * arguments=0x7eae2624, unsigned int argcount=2, RexxString * calltype=0x7fd693a0, ProtectedObject & result={...})  Line 272 + 0x17 bytes	C++
+ 	rexx.dll!RexxActivation::externalCall(RexxString * target=0x7f245d08, unsigned int _argcount=2, RexxExpressionStack * _stack=0x7f657c28, RexxString * calltype=0x7fd693a0, ProtectedObject & resultObj={...})  Line 2627 + 0x25 bytes	C++
+ 	rexx.dll!RexxExpressionFunction::evaluate(RexxActivation * context=0x7f657b68, RexxExpressionStack * stack=0x7f657c28)  Line 225	C++
+ 	rexx.dll!RexxInstructionSay::execute(RexxActivation * context=0x7f657b68, RexxExpressionStack * stack=0x7f657c28)  Line 73 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x00000000, RexxObject * * _arglist=0x7eae249c, unsigned int _argcount=0, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 522	C++
+ 	rexx.dll!RexxActivation::interpret(RexxString * codestring=0x7efc9aa0)  Line 2360	C++
+ 	rexx.dll!RexxInstructionInterpret::execute(RexxActivation * context=0x7f6b6238, RexxExpressionStack * stack=0x7f6b62f8)  Line 80	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x00000000, RexxObject * * _arglist=0x7eae249c, unsigned int _argcount=0, RexxInstruction * start=0x7eeed6f0, ProtectedObject & resultObj={...})  Line 522	C++
+ 	rexx.dll!RexxActivation::internalCall(RexxInstruction * target=0x7eeed6b0, unsigned int _argcount=0, RexxExpressionStack * _stack=0x7ef3a8d0, ProtectedObject & returnObject={...})  Line 2847	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context=0x7ef3a810, RexxExpressionStack * stack=0x7ef3a8d0)  Line 265	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7eee90f8, RexxObject * * _arglist=0x7eae244c, unsigned int _argcount=2, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eefe7b0, RexxString * msgname=0x7eee90f8, RexxObject * * argPtr=0x7eae244c, unsigned int argcount=2, RexxString * calltype=0x7fd69718, RexxString * environment=0x00000000, int context=32, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eefe7b0, RexxString * msgname=0x7eee90f8, RexxObject * * argPtr=0x7eae244c, unsigned int argcount=2, ProtectedObject & result={...})  Line 92	C++
+ 	rexx.dll!RoutineClass::callRexx(RexxObject * * args=0x7eae244c, unsigned int count=2)  Line 269	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5640, RexxMethod * method=0x7fd4d770, RexxObject * receiver=0x7eefe7b0, RexxString * messageName=0x7eee9460, RexxObject * * argPtr=0x7eae244c, unsigned int count=2, ProtectedObject & result={...})  Line 121 + 0xe bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5640, RexxObject * receiver=0x7eefe7b0, RexxString * msgname=0x7eee9460, RexxObject * * argPtr=0x7eae244c, unsigned int count=2, ProtectedObject & result={...})  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eee9460, RexxObject * * arguments=0x7eae244c, unsigned int count=2, ProtectedObject & result={...})  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eee9460, unsigned int count=2, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context=0x7ef17510, RexxExpressionStack * stack=0x7ef175d0)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7fd694d8, RexxObject * * _arglist=0x7eee6988, unsigned int _argcount=0, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eee6a00, RexxString * msgname=0x7fd694d8, RexxObject * * argPtr=0x7eee6988, unsigned int argcount=0, RexxString * calltype=0x7fcf5ec0, RexxString * environment=0x7eee5c00, int context=16, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity=0x7eee5640, RexxString * calltype=0x7fcf5ec0, RexxString * environment=0x7eee5c00, RexxObject * * arguments=0x7eee6988, unsigned int argCount=0, ProtectedObject & result={...})  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher={...})  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target={...})  Line 2997	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits=0x00000000, const char * env=0x0041d234)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount=0, _CONSTRXSTRING * arglist=0x000aff5c, const char * programname=0x00a45452, _RXSTRING * instore=0x00000000, const char * envname=0x0041d234, int calltype=0, _RXSYSEXIT * exits=0x00000000, short * retcode=0x000adf28, _RXSTRING * result=0x000aff4c)  Line 165	C++
+ 	rexx.exe!main(int argc=2, char * * argv=0x00a45410)  Line 198 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 266 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 182	C
+ 	kernel32.dll!7c817077() 	
+ 	[Frames below may be incorrect and/or missing, no symbols loaded for kernel32.dll]	
+ 	rexx.dll!RexxList::getFree()  Line 144	C++
+ 	63005300()	
+
+

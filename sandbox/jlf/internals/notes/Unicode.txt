@@ -1,0 +1,791 @@
+
+=========================================================================================
+
+rexx testOORexx.rex -s -S -R ooRexx\base\bif -f delstr
+rexx testOORexx.rex -s -S -R ooRexx\base\bif -f time
+rexx testOORexx.rex -s -S -R ooRexx\base\class -f method
+
+RexxNumberString::stringValue
+Numerics::formatWholeNumber
+RexxString::concatBlank
+
+
+[error] [20101113 19:51:57.328000]
+  svn:    r5505   Change date: 2010-01-24 05:14:18 +0100
+  Test:   TEST_DEFINE
+  Class:  Class.testGroup
+  File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\class\Class.testGroup
+  Event:  [SYNTAX 97.1] raised unexpectedly.
+    Object "a TEST_A" does not understand message "TESTMETHOD"
+    Line:    120
+   120 *-*
+       *-* Compiled code
+  1547 *-*
+  1532 *-*
+   540 *-*
+   540 *-*
+   114 *-*
+    79 *-*
+
+[error] [20101113 19:51:57.328000]
+  svn:    r5505   Change date: 2010-01-24 05:14:18 +0100
+  Test:   TEST_DELETE
+  Class:  Class.testGroup
+  File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\class\Class.testGroup
+  Event:  [SYNTAX 97.1] raised unexpectedly.
+    Object "a TEST_B2" does not understand message "TESTMETHOD"
+    Line:    149
+   149 *-*
+       *-* Compiled code
+  1547 *-*
+  1532 *-*
+   540 *-*
+   540 *-*
+   114 *-*
+    79 *-*
+    
+
+[failure] [20101113 17:52:32.328000]
+  svn:    r4502   Change date: 2009-04-25 17:42:58 +0200
+  Test:   TEST_670
+  Class:  PARSE.testGroup
+  File:   D:\local\Rexx\ooRexx\...\test\trunk\ooRexx\base\keyword\PARSE.testGroup
+  Line:   4682
+  Failed: assertSame
+    Expected: [[STRING], identityHash="230682261"]
+    Actual:   [[STRING1], identityHash="261008545"]
+
+[failure] [20101113 17:52:32.484000]
+  svn:    r4502   Change date: 2009-04-25 17:42:58 +0200
+  Test:   TEST_PARSE_INSTRUCTION_EXAMPLES
+  Class:  PARSE.testGroup
+  File:   D:\local\Rexx\ooRexx\...\test\trunk\ooRexx\base\keyword\PARSE.testGroup
+  1063 *-*                         if frame~name~caselessEquals(testName)
+  1049 *-*
+   761 *-*
+   652 *-*
+   765 *-*
+   987 *-*
+   129 *-*
+   119 *-*
+    79 *-*
+Error 91 running D:\local\Rexx\ooRexx\svn\test\trunk\framework\OOREXXUNIT.CLS line 1063:  No result
+object
+Error 91.999:  Message "NAME" did not return a result
+
+    
+=======================================================
+
+interpreter\classes\RoutineClass.cpp    RoutineClass::restore
+hash-bang
+if (data[0] == '#' && data[1] == '!')
+
+
+interpreter\parser\SourceFile.cpp       RexxSource::initBuffered
+    // neutralize shell '#!...'
+    if (start[0] == '#' && start[1] == '!')
+
+Pas de risque de fausse reconnaissance si utf-8 ?
+    scan = (const char *)memchr(start, ctrl_z, length);
+
+===========================================================
+
+Problème de parsing
+
+SourceFile.cpp
+RexxSource::nextClause
+Mettre point d'arrêt sur 
+    token = this->sourceNextToken(OREF_NULL)
+
+Le fichier CoreClasses.orx est parsé sans problème.
+L'erreur vient du parsing du fichier Serializable.orx
+qui est chargé par :
+call "Serializable.orx"
+-->
+Donc il faut mettre un point d'arrêt sur call
+
+call "Serializable.orx" :
+loader->runProgram                                                      interpreter\memory\Setup.cpp                        RexxMemory::createImage
+    code->call                                                          interpreter\classes\RoutineClass.cpp                RoutineClass::runProgram
+        newacta->run                                                    interpreter\execution\RexxCode.cpp                  RexxCode::call
+            nextInst->execute(this, localStack)                         interpreter\execution\RexxActivation.cpp            RexxActivation::run
+                context->externalCall                                   interpreter\instructions\CallInstruction.cpp        RexxInstructionCall::execute    (call_external)
+                    SystemInterpreter::invokeExternalFunction           interpreter\execution\RexxActivation.cpp            RexxActivation::externalCall
+                        activation->callExternalRexx                    interpreter\platform\windows\ExternalFunctions.cpp  SystemInterpreter::invokeExternalFunction
+                            RoutineClass::fromFile                      interpreter\execution\RexxActivation.cpp            RexxActivation::callExternalRexx
+
+
+=================================================================
+
+http://cplusplus-soup.com/2010/07/23/lisp-macro-capability-in-c/
+
+======================================================================================
+todo oorexx
+
+overload :
+optionalPositionArgument
+optionalLengthArgument
+optionalPadArgument
+
+ThreadContextStubs.cpp
+size_t RexxEntry StringLength(RexxThreadContext *c, RexxStringObject s)
+size_t  RexxEntry BufferStringLength(RexxThreadContext *c, RexxBufferStringObject s)
+--> StringCLength & StringBLength
+
+
+A priori utilisé pour gérer des noms de variables composites (a.b.c)
+Donc peut se limiter à l'ASCII --> il faudra un test du genre "string compatible avec symbol)
+interpreter\classes\support\RexxCompoundTail.hpp
+RexxCompoundTail
+
+
+======================================================================================
+Remember Parrot
+trunk/src/io/utf8.c
+
+
+
+======================================================================================
+Reorg Parrot
+
+http://irclog.perlgeek.de/parrot/2010-10-02
+...
+49417   [str] Switch to STRING_substr macro
+49416   [str] Switch to STRING_equal macro
+49415   [str] Switch to STRING_ord macro
+41414   [str] String API optimizations
+49413   [str] Add own encoding for null string
+49388   [str] Fix non-ICU build
+
+48996 Add deprecation notice for fixed_8 encoding.
+The 'fixed_8' encoding is going away. Use 'ascii' instead. If you want to test
+for a fixed_8 encoding, you have to compare the encoding to 'ascii',
+'iso-8859-1' and 'binary' separately.
+
+the list of supported encodings is:
+ascii
+iso-8859-1
+binary
+utf8
+utf16
+ucs2
+ucs4
+
+
+48980 Update string API documentation
+trunk/docs/book/pir/ch04_variables.pod
+Every string in Parrot has an associated encoding and character set. The default
+format is 8-bit ASCII, which is almost universally supported.  Double-quoted
+string constants can have an optional prefix specifying the string's
+format.N<As you might suspect, single-quoted strings do not support this.>
+Parrot tracks information about encoding and charset internally, and
+automatically converts strings when necessary to preserve these
+characteristics. Strings constants may have prefixes of the form C<format:>.
+...
+  $S0 = utf8:"Hello UTF-8 Unicode World!"
+  $S1 = utf16:"Hello UTF-16 Unicode World!"
+  $S2 = ascii:"This is 8-bit ASCII"
+  $S3 = binary:"This is raw, unformatted binary data"
+...
+Parrot supports the formats C<ascii>, C<binary>, C<iso-8859-1>
+(Latin 1), C<utf8>, C<utf16>, C<ucs2>, and C<ucs4>.
+
+
+48853 speed up equality check of same encoding multibyte strings
+trunk/src/string/encoding/shared.c
+
+
+48833 Merge branch charset_massacre
+
+
+
+apic.c                  pas d'impact
+cclass.h                pas d'impact
+charset.c               supprimé
+charset.h               supprimé
+encoding.c
+encoding.h              modifié. Suppression de class ENCODING. Nouvelle classe _str_vtable dans string.h
+    
+charset/ascii.c         déplacé dans encoding
+charset/ascii.h         supprimé, remplacé par shared.h
+charset/binary.c        déplacé dans encoding
+charset/binary.h        supprimé, remplacé par shared.h
+charset/iso-8859-1.c    déplacé dans encoding et renommé latin1.c ?
+charset/iso-8859-1.h
+charset/table.c         déplacé dans encoding
+charset/table.h         déplacé dans encoding
+charset/unicode.c
+charset/unicode.h
+encoding/fixed_8.c      supprimé
+encoding/fixed_8.h      supprimé
+encoding/ucs2.h         supprimé
+encoding/ucs4.h         supprimé
+encoding/utf16.h        supprimé
+encoding/utf8.h         supprimé
+
+
+
+
+                                                                extern ENCODING *m17n_fixed_8_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_ascii_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_latin1_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_binary_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_utf8_encoding_ptr;               extern ENCODING *m17n_utf8_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_utf16_encoding_ptr;              extern ENCODING *m17n_utf16_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_ucs2_encoding_ptr;               extern ENCODING *m17n_ucs2_encoding_ptr;
+PARROT_DATA STR_VTABLE *Parrot_ucs4_encoding_ptr;               extern ENCODING *m17n_ucs4_encoding_ptr;
+
+PARROT_DATA STR_VTABLE *Parrot_default_encoding_ptr;            extern ENCODING *m17n_default_encoding_ptr;
+
+struct _str_vtable {
+    int         num;                                            ENCODING::number
+    const char *name;                                           ENCODING::name
+    STRING     *name_str;                                       pas utilisé dans m17n
+    UINTVAL     max_bytes_per_codepoint;                        ENCODING::max_bytes_per_codepoint
+
+    str_vtable_to_encoding_t            to_encoding;            ENCODING::encode
+    str_vtable_chr_t                    chr;
+
+    str_vtable_equal_t                  equal;
+    str_vtable_compare_t                compare;
+    str_vtable_index_t                  index;
+    str_vtable_rindex_t                 rindex;
+    str_vtable_hash_t                   hash;
+    str_vtable_validate_t               validate;
+
+    str_vtable_scan_t                   scan;
+    str_vtable_ord_t                    ord;
+    str_vtable_substr_t                 substr;
+
+    str_vtable_is_cclass_t              is_cclass;
+    str_vtable_find_cclass_t            find_cclass;            ENCODING::find_cclass
+    str_vtable_find_not_cclass_t        find_not_cclass;
+
+    str_vtable_get_graphemes_t          get_graphemes;
+    str_vtable_compose_t                compose;
+    str_vtable_decompose_t              decompose;
+
+    str_vtable_upcase_t                 upcase;
+    str_vtable_downcase_t               downcase;
+    str_vtable_titlecase_t              titlecase;
+    str_vtable_upcase_first_t           upcase_first;
+    str_vtable_downcase_first_t         downcase_first;
+    str_vtable_titlecase_first_t        titlecase_first;
+
+    str_vtable_iter_get_t               iter_get;               ENCODING::iter_get
+    str_vtable_iter_skip_t              iter_skip;              ENCODING::iter_skip
+    str_vtable_iter_get_and_advance_t   iter_get_and_advance;   ENCODING::iter_get_and_advance
+    str_vtable_iter_set_and_advance_t   iter_set_and_advance;   ENCODING::iter_set_and_advance
+    str_vtable_iter_set_position_t      iter_set_position;      ENCODING::set_position
+                                                                ENCODING::get_codepoint
+                                                                ENCODING::get_byte
+                                                                ENCODING::set_byte
+                                                                ENCODING::get_codepoints
+                                                                ENCODING::get_bytes
+                                                                ENCODING::codepoints
+                                                                ENCODING::bytes
+};
+
+
+======================================================================================
+Analyse des erreurs rencontrées lors des tests de charout.testGroup
+
+SysFile::getPosition
+    buffered = true
+    writeBuffered = false (true if from tiny script)
+
+SysFile::writeData
+    _write(fileHandle, data, (unsigned int)length) --> -1
+    errno == 22 EINVAL  Invalid argument
+    
+RexxActivation::resolveStream
+    RexxDirectory *streamTable = getStreams(); /* get the current stream set        */
+            ...
+            /* get the stream class              */
+            RexxObject *streamClass = TheEnvironment->at(OREF_STREAM);
+            /* create a new stream object        */
+            stream = streamClass->sendMessage(OREF_NEW, name);
+
+RexxActivation::getStreams
+
+
+Error 1450 (ERROR_NO_SYSTEM_RESOURCES) after return from WriteFile (called internally by _write)
+The error 1450 is mapped on EINVAL.
+http://social.msdn.microsoft.com/Forums/en-US/vcgeneral/thread/fef1c9b5-fd92-4ada-8de5-44c2eb30b516
+WriteFile() API behaving differently on 64-bit machine
+This limitation occurs when the file is opened with FILE_FLAG_NO_BUFFERING --> not used in ooRexx sources
+-----
+fh = 3
+const void *buf =...
+unsigned cnt = 209715200
+
+
+characters = str~copies(1 * 1024 * 1024)    --> charout returns 0
+characters = str~copies(2 * 1024 * 1024)    --> charout returns 0
+characters = str~copies(3 * 1024 * 1024)    --> charout returns 0
+characters = str~copies(4 * 1024 * 1024)    --> charout returns 83886080
+characters = str~copies(5 * 1024 * 1024)    --> charout returns 104857600
+...
+characters = str~copies(10 * 1024 * 1024)   --> charout returns 209715200
+
+
+63 * 1024 * 1024 + 1015732
+64 * 1024 * 1024 - 32844
+
+======================================================================================
+
+
+tests :
+rexx testOORexx.rex -s -S
+rexx testOORexx.rex -s -S -R ooRexx/base/class/MutableBuffer -f replaceAt
+rexx testOORexx.rex -s -S -R ooRexx/base/bif -f charout > out.txt 2> err.txt
+Note : the redirection to file makes TEST_STDOUT_START fail (no error raised, probably ok)
+
+
+crash trunk :
+rexx -e "say .mutablebuffer~new('abcdef')~replaceat('XXX', 1, 16)~string"
+(plante à partir de 10)
+
+
+crash :
+rexx -e ".mutablebuffer~new('')~replaceAt('xxx', 1, 1)~string"
+
+crash :
+rexx -e ".mutablebuffer~new('abcdef')~replaceAt('', 1, 1)"
+
+ 	rexx.dll!RexxBufferBase::adjustGap(unsigned int offset, unsigned int _size, unsigned int _newSize)  Line 71 + 0x44 bytes	C++
+>	rexx.dll!RexxMutableBuffer::replaceAt(RexxObject * str, RexxObject * pos, RexxObject * len, RexxObject * pad)  Line 541	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 160 + 0x21 bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 522	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity, RexxString * calltype, RexxString * environment, RexxObject * * arguments, unsigned int argCount, ProtectedObject & result)  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher)  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target)  Line 2995	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits, const char * env)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount, _CONSTRXSTRING * arglist, const char * programname, _RXSTRING * instore, const char * envname, int calltype, _RXSYSEXIT * exits, short * retcode, _RXSTRING * result)  Line 165	C++
+ 	rexx.exe!main(int argc, char * * argv)  Line 186 + 0x29 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 189	C
+
+
+ensureCapacity : to investigate (pass total length instead of increment)
+RexxMutableBuffer::overlay
+RexxMutableBuffer::replaceAt
+
+
+=============================================================
+Detection of ICU
+
+trunk/configure.ac
+AC_CHECK_HEADERS([
+#  include <unicode/ucnv.h>
+#  include <unicode/utypes.h>
+#  include <unicode/uchar.h>
+#  include <unicode/ustring.h>
+#  include <unicode/unorm.h>
+
+
+=============================================================
+xrange : Returns a string of all valid 1-byte encodings
+
+c2x
+
+x2c
+
+c2d
+
+d2c
+
+Hex and binary literals also present some interesting challenges
+
+There are also lots of places in the APIs where strings are passed around using similar assumptions, so these transitions need to be defined.
+
+Also versions of the APIs that can deal with UNICode strings will need to be defined.
+
+
+========================================================
+
+0   0x003f89b8  ENCODING_FIXED_8
+1   0x003f8a40  ENCODING_UTF8
+2   0x003f8ad0  ENCODING_UCS2
+    0x003f8a88  ENCODING_UTF16
+3   0x003f8b60  ENCODING_UCS4
+
+0   0x003f8b18  CHARSET_ASCII
+1   0x003f8c50  CHARSET_ISO_8859
+2   0x003f8c98  CHARSET_BINARY
+    0x003f8bf8  CHARSET_UNICODE
+    
+    
+SysInterpreterInstance.instance --> InterpreterInstance.searchExtensions
+
+
+
+
+Parrot_str_init (string/api.c)
+    Parrot_charsets_encodings_init  (charset.c)
+    
+parrot_string_t (pobj.h)
+
+
+STRING                              RexxString
+INTVAL                              wholenumber_t   (Parrot_Int = long)
+UINTVAL                             wholenumber_t   (Parrot_UInt = unsigned long)
+PARROT_INTERP                       supprimé
+SHIM                                supprimé
+    #define SHIM(a) /*@unused@*/ /*@null@*/ a ##_unused __attribute__unused__
+SHIM_INTERP                         supprimé
+PARROT_DATA                         supprimé
+    config.h
+    #  define PARROT_DATA extern "C" __declspec(dllimport)
+    #  define PARROT_DATA extern __declspec(dllimport)
+    #  define PARROT_DATA extern "C" __declspec(dllexport)
+    #  define PARROT_DATA extern __declspec(dllexport)
+NOTNULL                             supprimé
+    #  define NOTNULL(x)                  /*@notnull@*/ x
+Parrot_str_equal(X, Y)              X->primitiveIsEqual(Y)
+Parrot_str_new_constant             new_string(*(...))
+Parrot_str_clone(STRING*)           new_string(*(...))
+Parrot_ex_throw_from_c_args         reportException(Rexx_Error_Execution_user_defined, "text")
+Parrot_str_indexed(s, idx)          CHARSET_GET_CODEPOINT(s, idx)
+Parrot_str_length(s)                s->getLength()
+string_make                         new_string
+Buffer_buflen
+    #define Buffer_buflen(buffer)      (buffer)->_buflen
+
+
+RexxMutableBuffer *mutbuffer = ((RexxMutableBufferClass*) TheMutableBufferClass)->newRexx(NULL, 0);
+ProtectedObject p1(mutbuffer);
+mutbuffer->append(_stringValue);
+newString = mutbuffer->makeString();
+
+
+RexxBufferStringObject obj;
+    obj = context->NewBufferString(len);
+    POINTER str = context->BufferStringData(obj)
+    size_t sz = context->BufferLength(obj);
+    RexxStringObject str = context->FinishBufferString(obj, len)
+
+    StreamNative.cpp
+        RexxBufferStringObject result = context->NewBufferString(read_length);
+        char *buffer = (char *)context->BufferStringData(result);
+        // do the actual read
+        size_t bytesRead;
+        readBuffer(buffer, read_length, bytesRead);
+        // now convert our buffered string into a real string object and return it.
+        RexxStringObject res = context->FinishBufferString(result, bytesRead);
+
+
+RexxBuffer
+    
+
+ENCODING_GET_CODEPOINT : si utilisé dans une boucle, PAS BON !!! à ré-écrire avec un itérateur car offset est une position de caractère, recherché à chaque appel depuis le début
+U16_FWD_1_UNSAFE : vérifié si ok dans boucle (ex : ENCODING_UTF16::codepoints)
+
+
+return (RexxString *)TheNilObject;
+    
+null string singleton :
+OREF_NULLSTRING     (créé par une macro, donc pas trouvé tel quel dans les *.h*)
+
+
+Returned values when exception :
+ENCODING
+    find_cclass                 return -1;
+    codepoints                  return 0;
+    get_bytes                   return (RexxString *)TheNilObject;
+    get_codepoint               return -1;
+    get_codepoints              return (RexxString *)TheNilObject;
+    iter_get                    return -1;
+    iter_get_and_advance        return -1;
+    to_encoding                 return (RexxString *)TheNilObject;
+    
+
+  defineKernelMethod(CHAR_APPEND                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::append), 1);
+1>d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\memory\Setup.cpp(947): error C2440: 'type cast' : cannot convert from 'overloaded-function' to 'PCPPM'
+
+
+
+
+==============================================
+http://stackoverflow.com/questions/42308/tool-to-track-include-dependencies
+
+here is GNUmake syntax to automatically 1) generate the dependency files, 2) keep them up to date, and 3) use them in your makefile:
+
+.dep:
+    mkdir $@
+.dep/%.dep: %.c .dep
+    (echo $@ \\; $(CC) $(IFLAGS) -MM $<) > $@ || (rm $@; false)
+.dep/%.dep: %.cpp .dep
+    (echo $@ \\; $(CXX) $(IFLAGS) -MM $<) > $@ || (rm $@; false)
+DEPEND := $(patsubst %.dep,.dep/%.dep,$(OBJ:.o=.dep))
+-include $(DEPEND)
+
+
+
+cl option
+/showIncludes
+
+
+http://www.conifersystems.com/2008/10/09/dependencies-from-showincludes/
+How to Get Dependencies from /showIncludes
+(Python)
+
+
+
+==============================================
+
+RexxString::concat
+    /* create a new string               */
+    result = (RexxString *)raw_string(len1+len2);
+    data = result->getWritableData();    /* point to the string data          */
+
+    // both lengths are non-zero because of the test above, so we can
+    // unconditionally copy
+    /* copy the front part               */
+    memcpy(data, this->getStringData(), len1);
+    memcpy(data + len1, other->getStringData(), len2);
+    return result;                       /* return the result                 */
+
+
+
+RexxString::lower
+    // get a copy of the string
+    RexxString *newstring = extract(0, getLength());
+
+    char *data = newstring->getWritableData() + offset;
+    // now uppercase in place
+    for (size_t i = 0; i < _length; i++)
+    {
+        *data = tolower(*data);
+        data++;
+    }
+    return newstring;
+
+
+
+if (errorStatus == COMMAND_FAILURE) {
+    // Note: The return code needs to be included with the FAILURE condition
+    context->RaiseCondition("FAILURE", command, NULLOBJECT, context->WholeNumber(-1));
+    // just return null...the RC value is picked up from the condition.
+    return NULLOBJECT;
+}
+else if (errorStatus == COMMAND_ERROR) {
+    // Note: The return code needs to be included with the ERROR condition
+    context->RaiseCondition("ERROR", command, NULLOBJECT, context->WholeNumber(rc));
+    // just return null...the RC value is picked up from the condition.
+    return NULLOBJECT;
+}
+
+
+oodialog/APICommon.cpp
+void failedToRetrieveException(RexxThreadContext *c, CSTRING item, RexxObjectPtr source)
+{
+    char buf[128];
+
+    RexxObjectPtr name = c->SendMessage0(source, "OBJECTNAME");
+    _snprintf(buf, RXITEMCOUNT(buf), "Could not retrieve the %s information for %s",
+              item, c->ObjectToStringValue(name));
+
+    c->RaiseException1(Rexx_Error_Execution_user_defined, c->String(buf));
+}
+
+
+
+ActivityManager.hpp
+inline void reportException(wholenumber_t error)
+inline void reportException(wholenumber_t error, RexxArray *args)
+inline void reportException(wholenumber_t error, RexxObject *a1)
+inline void reportException(wholenumber_t error, wholenumber_t a1)
+inline void reportException(wholenumber_t error, wholenumber_t a1, wholenumber_t a2)
+inline void reportException(wholenumber_t error, wholenumber_t a1, RexxObject *a2)
+inline void reportException(wholenumber_t error, RexxObject *a1, wholenumber_t a2)
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2)
+inline void reportException(wholenumber_t error, RexxObject *a1, const char *a2)
+inline void reportException(wholenumber_t error, const char *a1)
+inline void reportException(wholenumber_t error, const char *a1, const char *a2)
+inline void reportException(wholenumber_t error, const char *a1, wholenumber_t a2)
+inline void reportException(wholenumber_t error, const char *a1, wholenumber_t a2, RexxObject *a3)
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, wholenumber_t a3)
+inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2)
+inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2, RexxObject *a3)
+inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2, RexxObject *a3, RexxObject *a4)
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, const char *a3, RexxObject *a4)
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3, RexxObject *a4)
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3)
+
+BuiltinFunctions.hpp
+#define positive_integer(n,f,p) if (n <= 0) reportException(Error_Incorrect_call_positive, CHAR_##f, p, n)
+#define nonnegative_integer(n,f,p) if (n < 0) reportException(Error_Incorrect_call_nonnegative, CHAR_##f, p, n)
+
+RexxCore.h
+        reportException(Error_Invalid_argument_noarg, name);
+        reportException(Error_Execution_noarray, object);
+        reportException(Error_Invalid_argument_noarg, name);
+        reportException(Error_Invalid_argument_noarray, name);
+        reportException(Error_Invalid_argument_noarg, name);
+        reportException(Error_Invalid_argument_noclass, name, clazz->getId());
+
+StringClass.cpp
+        reportException(Error_Conversion_operator, this);
+        reportException(Error_Incorrect_method_string_nonumber, CHAR_ABS, this);
+        reportException(Error_Incorrect_method_nostring, IntegerOne);
+
+93964   Application error: message      Rexx_Error_Application_error
+98900   message                         Rexx_Error_Execution_user_defined
+
+
+
+==============================================
+
+StringUtil.hpp
+    MutableBufferClass.cpp
+    NumberStringClass.cpp
+    StringClass.cpp
+    StringClass.hpp
+    StringClassConversion.cpp
+    StringClassMisc.cpp
+    StringClassSub.cpp
+    StringClassWord.cpp
+    interpreter\platform\unix\ExternalFunctions.cpp
+    interpreter\platform\windows\ExternalFunctions.cpp
+
+============================================
+
+addToConnectionQ    done
+_connectItem        done
+_connectSysItem     done
+menuConnectItems    msg done
+connectAllCommandEvents done
+
+addMiscMessage
+addCommandMessage
+addNotifyMessage
+addDialogMessage
+
+processLVN
+processUDN
+processMCN
+processDTN
+genericAddDialogMessage
+genericCommandInvoke
+
+================================
+
+bug dans CppMenu::maybeConnectItem ?
+Le paramètre methodName n'est pas utilisé alors qu'il recoit une nouvelle valeur
+
+================================
+
+idFrom2rexxArg
+hwndFrom2rexxArg
+DTN_USERSTRING      message window ?
+getListBoxData      vu
+getComboBoxData     vu
+
+================================
+
+bool rxsetCodePage(int codepage)
+{
+#if 0 // See http://blogs.msdn.com/michkap/archive/2007/05/11/2547703.aspx : CRT no longer supports UTF-8
+    const char *cpstr = codePageToString(codepage);
+    if (cpstr == NULL) return false;
+    const char *locale = setlocale(LC_CTYPE, cpstr);
+    if (locale == NULL) return false;
+#endif
+#if 0 // See http://stackoverflow.com/questions/166503/utf-8-in-windows : UTF-8 not supported
+    int done = _setmbcp(codepage);
+    if (done == -1) return false;
+#endif
+    theCodePage = codepage;
+    return true;
+}
+
+================================
+
+chercher 
+(LPARAM)        --> fait
+(LPSTR)         --> fait
+CB_GETLBTEXT    --> fait
+sizeof          --> fait
+malloc          --> fait
+LocalAlloc      --> fait
+strlen          --> fait
+memcpy          --> fait
+strcpy          --> fait
+_tcscpy         --> fait
+GetWindowTextLength --> fait
+printf          --> fait
+ObjectToStringValue     --> fait, mais pourquoi j'avais noté de le regarder ? rien vu d'utile...
+->fontName      vérifier les affectations de string (doit faire une copie)  --> fait
+.fontName       --> fait, aucune occurence
+dwTypeData      il y a des affectations de string   --> fait. apparemment déclaré non const car peut recevoir une valeur, selon service appelé
+lpstrInitialDir vérifier les affectations de string --> fait
+lpstrTitle      vérifier les affectations de string --> fait
+lpstrFilter     vérifier les affectations de string --> fait
+lpstrDefExt     vérifier les affectations de string --> fait
+.pszText        vérifier les affectations de string --> fait
+->pszText        vérifier les affectations de string    --> fait
+'\0'            --> fait
+%s              en relation avec printf
+unicode2ansi    encore utile ?  oui
+putUnicodeText  encore utile ? oui car gère les chaines NULL de façon spéciale
+CP_ACP          --> fait, tout remplacé
+
+rexx editrex.rex    the storage allocated for the dialog template is too small (DLGTEMPLATE_TOO_SMALL_MSG)
+
+Remember :
+_stprintf(msgBuffer, 511, _T("%s...     <-- le 2nd arg est le nombre de caractères
+
+// warning C4996: '_swprintf': swprintf has been changed to conform with the ISO C standard, 
+// adding an extra character count parameter. 
+// To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+#define _CRT_NON_CONFORMING_SWPRINTFS
+
+rxwchar tocheck : I assume it's safe to cast to non const... Was like that before rxwcharization
+
+
+todo :
+putUnicodeText : à revoir...
+genericCommandInvoke : attention au paramètre lParam
+image_getImage_cls : à revoir, l'utilisation de name1 n'est pas top...
+
+
+Types définis par ooDialog :
+DIALOGADMIN
+DATATABLEENTRY
+BITMAPTABLEENTRY
+COLORTABLEENTRY
+ICONTABLEENTRY
+
+
+==========================
+
+#ifdef UNICODE
+        rxcharW dataW[DATA_BUFFER+1];
+        result = SendDlgItemMessage(hwnd, itemID, LB_GETTEXT, result, (LPARAM)dataW);
+        rxcharA *dataA;
+        bool done = rxW2A(dataW, &dataA);
+        if (done == false) return false;
+        strcpy(data, dataA);
+        free(dataA);
+#else
+        result = SendDlgItemMessage(hwnd, itemID, LB_GETTEXT, result, (LPARAM)data);
+#endif
+
+
+
+
+
+========================
+
+UTF8-CPP: UTF-8 with C++ in a Portable Way
+http://utfcpp.sourceforge.net/
+
+================================
+

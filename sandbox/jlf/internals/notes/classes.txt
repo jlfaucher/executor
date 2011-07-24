@@ -1,0 +1,166 @@
+===========================================================================
+interpreter/behaviour
+
+T_First_Primitive_Class n'est pas utilisé
+
+T_First_Exported_Class n'est pas utilisé
+
+T_Last_Exported_Class est utilisé dans
+    interpreter/behaviour/RexxBehaviour.cpp
+    interpreter/behaviour/RexxBehaviour.hpp
+    interpreter/memory/RexxMemory.cpp
+
+T_First_Internal_Class n'est pas utilisé
+
+T_Last_Internal_Class n'est pas utilisé
+
+T_First_Transient_Class est utilisé dans
+    interpreter/behaviour/RexxBehaviour.cpp
+
+T_Last_Transient_Class n'est pas utilisé
+
+T_Last_Primitive_Class est utilisé dans 
+    interpreter/behaviour/PrimitiveBehaviours.cpp
+
+T_Last_Class_Type est utilisé dans
+    interpreter/memory/VirtualFunctionTable.cpp
+    interpreter/memory/MemoryStats.cpp
+    interpreter/memory/MemoryStats.hpp
+    interpreter/memory/RexxMemory.cpp
+
+
+
+
+Classe exported :
+    T_<class> = n
+    T_<class>Class = n+1
+    si opérateurs propre alors <class>::operatorMethods
+    sinon RexxObject::operatorMethods
+
+Class internal
+    pas d'opérateur propre, toujours RexxObject::operatorMethods
+
+Class transient
+    pas d'opérateur propre, toujours RexxObject::operatorMethods
+
+
+===========================================================================
+
+RexxMemory::virtualFunctionTable
+    renvoie la table des vtables
+RexxBehaviour::getClassType
+    renvoie l'index du type dans la table RexxMemory::virtualFunctionTable
+RexxObject::setVirtualFunctions
+    stocke la vtable
+    ((RexxObject *)objectPointer)->setVirtualFunctions(virtualFunctionTable[primitiveTypeNum]);
+
+===========================================================================
+sizeof(uintptr_t) = 4
+sizeof(objectBuffer) = 1024
+sizeof(RexxObject) = 20
+sizeof(RexxObject) = 20
+sizeof(RexxArray) = 44
+sizeof(RexxDirectory) = 32
+sizeof(RexxInteger) = 28
+sizeof(RexxIntegerClass) = 508
+sizeof(RexxList) = 44
+sizeof(RexxMessage) = 76
+sizeof(RexxMethod) = 36
+sizeof(RexxNumberString) = 44
+sizeof(RexxQueue) = 44
+sizeof(RexxStem) = 40
+sizeof(RexxString) = 40
+sizeof(RexxSupplier) = 32
+sizeof(RexxTable) = 24
+sizeof(RexxRelation) = 24
+sizeof(RexxMutableBuffer) = 36
+sizeof(RexxPointer) = 24
+sizeof(RexxBuffer) = 36
+sizeof(WeakReference) = 28
+sizeof(RoutineClass) = 28
+sizeof(PackageClass) = 24
+sizeof(RexxContext) = 24
+sizeof(RexxIdentityTable) = 24
+sizeof(StackFrameClass) = 48
+sizeof(ExceptionClass) = 52
+sizeof(RexxNilObject) = 24
+sizeof(RexxBehaviour) = 40
+sizeof(RexxSource) = 272
+sizeof(LibraryPackage) = 40
+sizeof(RexxCode) = 36
+sizeof(RexxNativeMethod) = 32
+sizeof(RexxNativeRoutine) = 32
+sizeof(RegisteredRoutine) = 32
+sizeof(CPPCode) = 24
+sizeof(AttributeGetterCode) = 20
+sizeof(AttributeSetterCode) = 20
+sizeof(ConstantGetterCode) = 20
+sizeof(AbstractCode) = 16
+sizeof(RexxHashTable) = 36
+sizeof(RexxListTable) = 32
+sizeof(RexxSmartBuffer) = 24
+sizeof(RexxVariable) = 32
+sizeof(RexxVariableDictionary) = 40
+sizeof(RexxParseVariable) = 24
+sizeof(RexxCompoundVariable) = 32
+sizeof(RexxStemVariable) = 24
+sizeof(RexxDotVariable) = 20
+sizeof(RexxVariableReference) = 20
+sizeof(RexxExpressionFunction) = 32
+sizeof(RexxExpressionMessage) = 40
+sizeof(RexxUnaryOperator) = 28
+sizeof(RexxBinaryOperator) = 28
+sizeof(RexxExpressionLogical) = 24
+sizeof(RexxInstruction) = 40
+sizeof(RexxInstructionAddress) = 52
+sizeof(RexxInstructionAssignment) = 48
+sizeof(RexxInstructionCall) = 60
+sizeof(RexxInstructionCommand) = 44
+sizeof(RexxInstructionDo) = 76
+sizeof(RexxInstructionDrop) = 48
+sizeof(RexxInstructionElse) = 44
+sizeof(RexxInstructionEnd) = 44
+sizeof(RexxInstructionEndIf) = 48
+sizeof(RexxInstructionExit) = 44
+sizeof(RexxInstructionExpose) = 48
+sizeof(RexxInstructionForward) = 60
+sizeof(RexxInstructionGuard) = 52
+sizeof(RexxInstructionIf) = 48
+sizeof(RexxInstructionInterpret) = 44
+sizeof(RexxInstructionLabel) = 40
+sizeof(RexxInstructionLeave) = 44
+sizeof(RexxInstructionMessage) = 60
+sizeof(RexxInstructionNop) = 40
+sizeof(RexxInstructionNumeric) = 44
+sizeof(RexxInstructionOptions) = 44
+sizeof(RexxInstructionOtherwise) = 40
+sizeof(RexxInstructionParse) = 56
+sizeof(RexxInstructionProcedure) = 48
+sizeof(RexxInstructionQueue) = 44
+sizeof(RexxInstructionRaise) = 64
+sizeof(RexxInstructionReply) = 44
+sizeof(RexxInstructionReturn) = 44
+sizeof(RexxInstructionSay) = 44
+sizeof(RexxInstructionSelect) = 56
+sizeof(RexxInstructionSignal) = 72
+sizeof(RexxInstructionThen) = 44
+sizeof(RexxInstructionTrace) = 56
+sizeof(RexxInstructionUseStrict) = 60
+sizeof(ClassDirective) = 76
+sizeof(LibraryDirective) = 44
+sizeof(RequiresDirective) = 44
+sizeof(RexxCompoundElement) = 52
+sizeof(RexxTrigger) = 32
+sizeof(RexxInternalStack) = 28
+sizeof(RexxStack) = 28
+sizeof(RexxActivity) = 280
+sizeof(RexxActivation) = 320
+sizeof(RexxNativeActivation) = 108
+sizeof(RexxActivationFrameBuffer) = 32
+sizeof(RexxEnvelope) = 48
+sizeof(RexxClause) = 52
+sizeof(RexxToken) = 48
+sizeof(RexxDoBlock) = 44
+sizeof(InterpreterInstance) = 224
+sizeof(SecurityManager) = 20
+sizeof(CommandHandler) = 24
