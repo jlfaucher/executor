@@ -43,6 +43,33 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 july 25
+
+[pipe]
+.displayer renamed .console, to be closer to CMS pipeline.
+
+
+[pipe extensions]
+Refactoring of makeFunctionDoer and makeActionDoer : now implemented in doers.cls
+as methods functionDoer and actionDoer on RexxContextualSource.
+
+
+[doers]
+New class ClauseSupplier which lets iterate over the clauses of a source and replace
+a clause by a new clause.
+
+New method sourceDoer which lets transform the source before creating a doer from it.
+This method is used by functionDoer and actionDoer .
+Ex :
+    {if value==0 then "infinity" ; else 1/value}~functionDoer("use arg value")
+returns a routine built using this transformed source
+    {use arg value                            -- optional source fragment passed as parameter to functionDoer
+     option "NOCOMMANDS"                      -- added by functionDoer : expressions are not commands in functions
+     if value==0 then "infinity" else 1/value -- original source literal, unchanged
+     if var("result") then return result}     -- added by functionDoer : returns the result of the last evaluated expression
+
+
+===============================================================================
 2011 july 21
 
 [expression evaluation]

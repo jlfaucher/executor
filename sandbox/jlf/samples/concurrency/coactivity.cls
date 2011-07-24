@@ -300,7 +300,7 @@ Instead, it calculates the next item only when the 'next' method is called.
 ::method uninit
     /*
     I think I need the uninit method to support properly this use case :
-    .coactivity~new("i=0; do forever; i+=1; .yield[i]; end")~pipe(.take 5 | .displayer)
+    .coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~pipe(.take 5 | .displayer)
     While the pipeline is running, the coactivity supplier is referenced by the 'source' property of the first pipe stage, and can't be GC'ed.
     The pipeline itself can't be GC'ed because the first pipe stage is referenced from the call stack, as an argument of 'pipe'.
     When 5 values have been taken (.take 5), the pipeline is stopped and the method 'pipe' returns.

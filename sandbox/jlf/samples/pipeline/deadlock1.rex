@@ -26,7 +26,7 @@ T1                              resume +1
 
 --call Doers.AddVisibilityFrom(.context)
 
-.coactivity~new({.coactivity~yield("a") ; .coactivity~yield("b")})~pipe(.upper|.displayer)
+.coactivity~new({.coactivity~yield("a") ; .coactivity~yield("b")})~pipe(.upper|.console)
 
 --::options trace i
 ::requires "extension/extensions.cls"
@@ -53,7 +53,7 @@ T1   A3                       >I> Routine d:\local\Rexx\ooRexx\svn\sandbox\jlf\s
 T1   A4                    24 *-* call Doers.AddVisibilityFrom(.context)
 T1   A4                       >E>   .CONTEXT => "a RexxContext"
 T1   A4                       >A>   "a RexxContext"
-T1   A4                    26 *-* .coactivity~new('.coactivity~yield("a") ; .coactivity~yield("b")')~pipe(.upper|.displayer)
+T1   A4                    26 *-* .coactivity~new('.coactivity~yield("a") ; .coactivity~yield("b")')~pipe(.upper|.console)
 T1   A4                       >E>   .COACTIVITY => "The Coactivity class"
 T1   A4                       >L>   ".coactivity~yield("a") ; .coactivity~yield("b")"
 T1   A4                       >A>   ".coactivity~yield("a") ; .coactivity~yield("b")"
@@ -113,15 +113,15 @@ T2   A6     V2      1*    102 *-* .Activity~local~empty
 T1   A4                       >M>   "NEW" => "a Coactivity"
 T2   A6     V2      1*        >E>   .ACTIVITY => "The ACTIVITY class"
 T1   A4                       >E>   .UPPER => "The UPPER class"
-T1   A4                       >E>   .DISPLAYER => "The DISPLAYER class"
+T1   A4                       >E>   .CONSOLE => "The CONSOLE class"
 T2   A6     V2      1*        >M>   "LOCAL" => "a Directory"
 T1   A7     V3                >I> Method | with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T2   A6     V2      1*    103 *-* .Activity~local~coactivity = self
 T1   A7     V3      1*     66 *-* use strict arg follower
 T2   A6     V2      1*        >E>   .ACTIVITY => "The ACTIVITY class"
-T1   A7     V3      1*        >>>   "The DISPLAYER class"
+T1   A7     V3      1*        >>>   "The CONSOLE class"
 T2   A6     V2      1*        >M>   "LOCAL" => "a Directory"
-T1   A7     V3      1*        >=>   FOLLOWER <= "The DISPLAYER class"
+T1   A7     V3      1*        >=>   FOLLOWER <= "The CONSOLE class"
 T2   A6     V2      1*        >V>   SELF => "a Coactivity"
 T1   A7     V3      1*     67 *-* me = self~new                               -- create a new pipeStage instance
 T2   A6     V2      1*        >A>   "a Coactivity"
@@ -157,13 +157,13 @@ T1   A7     V3      1*     68 *-* return me|follower                          --
 T2   A6     V2      1*        >O>   "<>" => "0"
 T1   A7     V3      1*        >V>   ME => "an UPPER"
 T2   A6     V2      1*        >>>   "0"
-T1   A7     V3      1*        >V>   FOLLOWER => "The DISPLAYER class"
+T1   A7     V3      1*        >V>   FOLLOWER => "The CONSOLE class"
 T1   A9     V4                >I> Method | with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A9     V4      1*     81 *-* use strict arg follower
-T1   A9     V4      1*        >>>   "The DISPLAYER class"
-T1   A9     V4      1*        >=>   FOLLOWER <= "The DISPLAYER class"
+T1   A9     V4      1*        >>>   "The CONSOLE class"
+T1   A9     V4      1*        >=>   FOLLOWER <= "The CONSOLE class"
 T1   A9     V4      1*     82 *-* follower = follower~new                     -- make sure this is an instance
-T1   A9     V4      1*        >V>   FOLLOWER => "The DISPLAYER class"
+T1   A9     V4      1*        >V>   FOLLOWER => "The CONSOLE class"
 T1   A10    V5                >I> Method INIT with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A10    V5      1*     61 *-* expose next secondary
 T1   A10    V5      1*     62 *-* next = .nil
@@ -174,18 +174,18 @@ T1   A10    V5      1*     63 *-* secondary = .nil                            --
 T1   A10    V5      1*        >E>   .NIL => "The NIL object"
 T1   A10    V5      1*        >>>   "The NIL object"
 T1   A10    V5      1*        >=>   SECONDARY <= "The NIL object"
-T1   A9     V4      1*        >M>   "NEW" => "a DISPLAYER"
-T1   A9     V4      1*        >>>   "a DISPLAYER"
-T1   A9     V4      1*        >=>   FOLLOWER <= "a DISPLAYER"
+T1   A9     V4      1*        >M>   "NEW" => "a CONSOLE"
+T1   A9     V4      1*        >>>   "a CONSOLE"
+T1   A9     V4      1*        >=>   FOLLOWER <= "a CONSOLE"
 T1   A9     V4      1*     83 *-* self~append(follower)                       -- do the chain append logic
 T1   A9     V4      1*        >V>   SELF => "an UPPER"
-T1   A9     V4      1*        >V>   FOLLOWER => "a DISPLAYER"
-T1   A9     V4      1*        >A>   "a DISPLAYER"
+T1   A9     V4      1*        >V>   FOLLOWER => "a CONSOLE"
+T1   A9     V4      1*        >A>   "a CONSOLE"
 T1   A11    V4      1         >I> Method APPEND with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A11    V4      2*     99 *-* expose next
 T1   A11    V4      2*    100 *-* use strict arg follower
-T1   A11    V4      2*        >>>   "a DISPLAYER"
-T1   A11    V4      2*        >=>   FOLLOWER <= "a DISPLAYER"
+T1   A11    V4      2*        >>>   "a CONSOLE"
+T1   A11    V4      2*        >=>   FOLLOWER <= "a CONSOLE"
 T1   A11    V4      2*    101 *-* if .nil == next 
 T1   A11    V4      2*        >E>   .NIL => "The NIL object"
 T1   A11    V4      2*        >V>   NEXT => "The NIL object"
@@ -194,9 +194,9 @@ T1   A11    V4      2*        >>>   "1"
 T1   A11    V4      2*    101 *-*   then
 T1   A11    V4      2*    101 *-*     do                     -- if we're the end already, just update the next
 T1   A11    V4      2*    102 *-*       next = follower
-T1   A11    V4      2*        >V>         FOLLOWER => "a DISPLAYER"
-T1   A11    V4      2*        >>>         "a DISPLAYER"
-T1   A11    V4      2*        >=>         NEXT <= "a DISPLAYER"
+T1   A11    V4      2*        >V>         FOLLOWER => "a CONSOLE"
+T1   A11    V4      2*        >>>         "a CONSOLE"
+T1   A11    V4      2*        >=>         NEXT <= "a CONSOLE"
 T1   A11    V4      2*    103 *-*   end
 T1   A9     V4      1*     84 *-* return self                                 -- we're our own return value
 T1   A9     V4      1*        >V>   SELF => "an UPPER"
@@ -335,7 +335,7 @@ T1   A3                       >I> Routine d:\local\Rexx\ooRexx\svn\sandbox\jlf\s
 T1   A4                    24 *-* call Doers.AddVisibilityFrom(.context)
 T1   A4                       >E>   .CONTEXT => "a RexxContext"
 T1   A4                       >A>   "a RexxContext"
-T1   A4                    26 *-* .coactivity~new('.coactivity~yield("a") ; .coactivity~yield("b")')~pipe(.upper|.displayer)
+T1   A4                    26 *-* .coactivity~new('.coactivity~yield("a") ; .coactivity~yield("b")')~pipe(.upper|.console)
 T1   A4                       >E>   .COACTIVITY => "The Coactivity class"
 T1   A4                       >L>   ".coactivity~yield("a") ; .coactivity~yield("b")"
 T1   A4                       >A>   ".coactivity~yield("a") ; .coactivity~yield("b")"
@@ -395,15 +395,15 @@ T2   A6     V2      1*    102 *-* .Activity~local~empty
 T1   A4                       >M>   "NEW" => "a Coactivity"
 T2   A6     V2      1*        >E>   .ACTIVITY => "The ACTIVITY class"
 T1   A4                       >E>   .UPPER => "The UPPER class"
-T1   A4                       >E>   .DISPLAYER => "The DISPLAYER class"
+T1   A4                       >E>   .CONSOLE => "The CONSOLE class"
 T2   A6     V2      1*        >M>   "LOCAL" => "a Directory"
 T1   A7     V3                >I> Method | with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T2   A6     V2      1*    103 *-* .Activity~local~coactivity = self
 T1   A7     V3      1*     66 *-* use strict arg follower
 T2   A6     V2      1*        >E>   .ACTIVITY => "The ACTIVITY class"
-T1   A7     V3      1*        >>>   "The DISPLAYER class"
+T1   A7     V3      1*        >>>   "The CONSOLE class"
 T2   A6     V2      1*        >M>   "LOCAL" => "a Directory"
-T1   A7     V3      1*        >=>   FOLLOWER <= "The DISPLAYER class"
+T1   A7     V3      1*        >=>   FOLLOWER <= "The CONSOLE class"
 T2   A6     V2      1*        >V>   SELF => "a Coactivity"
 T1   A7     V3      1*     67 *-* me = self~new                               -- create a new pipeStage instance
 T2   A6     V2      1*        >A>   "a Coactivity"
@@ -439,13 +439,13 @@ T1   A7     V3      1*     68 *-* return me|follower                          --
 T2   A6     V2      1*        >O>   "<>" => "0"
 T1   A7     V3      1*        >V>   ME => "an UPPER"
 T2   A6     V2      1*        >>>   "0"
-T1   A7     V3      1*        >V>   FOLLOWER => "The DISPLAYER class"
+T1   A7     V3      1*        >V>   FOLLOWER => "The CONSOLE class"
 T1   A9     V4                >I> Method | with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A9     V4      1*     81 *-* use strict arg follower
-T1   A9     V4      1*        >>>   "The DISPLAYER class"
-T1   A9     V4      1*        >=>   FOLLOWER <= "The DISPLAYER class"
+T1   A9     V4      1*        >>>   "The CONSOLE class"
+T1   A9     V4      1*        >=>   FOLLOWER <= "The CONSOLE class"
 T1   A9     V4      1*     82 *-* follower = follower~new                     -- make sure this is an instance
-T1   A9     V4      1*        >V>   FOLLOWER => "The DISPLAYER class"
+T1   A9     V4      1*        >V>   FOLLOWER => "The CONSOLE class"
 T1   A10    V5                >I> Method INIT with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A10    V5      1*     61 *-* expose next secondary
 T1   A10    V5      1*     62 *-* next = .nil
@@ -456,18 +456,18 @@ T1   A10    V5      1*     63 *-* secondary = .nil                            --
 T1   A10    V5      1*        >E>   .NIL => "The NIL object"
 T1   A10    V5      1*        >>>   "The NIL object"
 T1   A10    V5      1*        >=>   SECONDARY <= "The NIL object"
-T1   A9     V4      1*        >M>   "NEW" => "a DISPLAYER"
-T1   A9     V4      1*        >>>   "a DISPLAYER"
-T1   A9     V4      1*        >=>   FOLLOWER <= "a DISPLAYER"
+T1   A9     V4      1*        >M>   "NEW" => "a CONSOLE"
+T1   A9     V4      1*        >>>   "a CONSOLE"
+T1   A9     V4      1*        >=>   FOLLOWER <= "a CONSOLE"
 T1   A9     V4      1*     83 *-* self~append(follower)                       -- do the chain append logic
 T1   A9     V4      1*        >V>   SELF => "an UPPER"
-T1   A9     V4      1*        >V>   FOLLOWER => "a DISPLAYER"
-T1   A9     V4      1*        >A>   "a DISPLAYER"
+T1   A9     V4      1*        >V>   FOLLOWER => "a CONSOLE"
+T1   A9     V4      1*        >A>   "a CONSOLE"
 T1   A11    V4      1         >I> Method APPEND with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A11    V4      2*     99 *-* expose next
 T1   A11    V4      2*    100 *-* use strict arg follower
-T1   A11    V4      2*        >>>   "a DISPLAYER"
-T1   A11    V4      2*        >=>   FOLLOWER <= "a DISPLAYER"
+T1   A11    V4      2*        >>>   "a CONSOLE"
+T1   A11    V4      2*        >=>   FOLLOWER <= "a CONSOLE"
 T1   A11    V4      2*    101 *-* if .nil == next 
 T1   A11    V4      2*        >E>   .NIL => "The NIL object"
 T1   A11    V4      2*        >V>   NEXT => "The NIL object"
@@ -476,9 +476,9 @@ T1   A11    V4      2*        >>>   "1"
 T1   A11    V4      2*    101 *-*   then
 T1   A11    V4      2*    101 *-*     do                     -- if we're the end already, just update the next
 T1   A11    V4      2*    102 *-*       next = follower
-T1   A11    V4      2*        >V>         FOLLOWER => "a DISPLAYER"
-T1   A11    V4      2*        >>>         "a DISPLAYER"
-T1   A11    V4      2*        >=>         NEXT <= "a DISPLAYER"
+T1   A11    V4      2*        >V>         FOLLOWER => "a CONSOLE"
+T1   A11    V4      2*        >>>         "a CONSOLE"
+T1   A11    V4      2*        >=>         NEXT <= "a CONSOLE"
 T1   A11    V4      2*    103 *-*   end
 T1   A9     V4      1*     84 *-* return self                                 -- we're our own return value
 T1   A9     V4      1*        >V>   SELF => "an UPPER"
@@ -762,16 +762,16 @@ T1   A24    V4      3*        >>>   "A"
 T1   A24    V4      3*        >=>   DATA <= "A"
 T1   A24    V4      3*    158 *-* if .nil <> next 
 T1   A24    V4      3*        >E>   .NIL => "The NIL object"
-T1   A24    V4      3*        >V>   NEXT => "a DISPLAYER"
+T1   A24    V4      3*        >V>   NEXT => "a CONSOLE"
 T1   A24    V4      3*        >O>   "<>" => "1"
 T1   A24    V4      3*        >>>   "1"
 T1   A24    V4      3*    158 *-*   then
 T1   A24    V4      3*    158 *-*     do
 T1   A24    V4      3*    159 *-*       next~process(data)                      -- only forward if we have a successor
-T1   A24    V4      3*        >V>         NEXT => "a DISPLAYER"
+T1   A24    V4      3*        >V>         NEXT => "a CONSOLE"
 T1   A24    V4      3*        >V>         DATA => "A"
 T1   A24    V4      3*        >A>         "A"
-T1   A25    V8                >I> Method PROCESS with scope "The DISPLAYER class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
+T1   A25    V8                >I> Method PROCESS with scope "The CONSOLE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A25    V8      1*    579 *-* use strict arg value                        -- get the data value
 T1   A25    V8      1*        >>>   "A"
 T1   A25    V8      1*        >=>   VALUE <= "A"
@@ -786,7 +786,7 @@ T1   A26    V5      1*    152 *-* use strict arg value                        --
 T1   A26    V5      1*        >>>   "A"
 T1   A26    V5      1*        >=>   VALUE <= "A"
 T1   A26    V5      1*    153 *-* self~write(value)                           -- send this down the line
-T1   A26    V5      1*        >V>   SELF => "a DISPLAYER"
+T1   A26    V5      1*        >V>   SELF => "a CONSOLE"
 T1   A26    V5      1*        >V>   VALUE => "A"
 T1   A26    V5      1*        >A>   "A"
 T1   A27    V5      1         >I> Method WRITE with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
@@ -1008,16 +1008,16 @@ T1   A35    V4      3*        >>>   "B"
 T1   A35    V4      3*        >=>   DATA <= "B"
 T1   A35    V4      3*    158 *-* if .nil <> next 
 T1   A35    V4      3*        >E>   .NIL => "The NIL object"
-T1   A35    V4      3*        >V>   NEXT => "a DISPLAYER"
+T1   A35    V4      3*        >V>   NEXT => "a CONSOLE"
 T1   A35    V4      3*        >O>   "<>" => "1"
 T1   A35    V4      3*        >>>   "1"
 T1   A35    V4      3*    158 *-*   then
 T1   A35    V4      3*    158 *-*     do
 T1   A35    V4      3*    159 *-*       next~process(data)                      -- only forward if we have a successor
-T1   A35    V4      3*        >V>         NEXT => "a DISPLAYER"
+T1   A35    V4      3*        >V>         NEXT => "a CONSOLE"
 T1   A35    V4      3*        >V>         DATA => "B"
 T1   A35    V4      3*        >A>         "B"
-T1   A36    V8                >I> Method PROCESS with scope "The DISPLAYER class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
+T1   A36    V8                >I> Method PROCESS with scope "The CONSOLE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A36    V8      1*    579 *-* use strict arg value                        -- get the data value
 T1   A36    V8      1*        >>>   "B"
 T1   A36    V8      1*        >=>   VALUE <= "B"
@@ -1032,7 +1032,7 @@ T1   A37    V5      1*    152 *-* use strict arg value                        --
 T1   A37    V5      1*        >>>   "B"
 T1   A37    V5      1*        >=>   VALUE <= "B"
 T1   A37    V5      1*    153 *-* self~write(value)                           -- send this down the line
-T1   A37    V5      1*        >V>   SELF => "a DISPLAYER"
+T1   A37    V5      1*        >V>   SELF => "a CONSOLE"
 T1   A37    V5      1*        >V>   VALUE => "B"
 T1   A37    V5      1*        >A>   "B"
 T1   A38    V5      1         >I> Method WRITE with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
@@ -1231,13 +1231,13 @@ T1   A45    V4      2         >I> Method EOF with scope "The PIPESTAGE class" in
 T1   A45    V4      3*    173 *-* expose next secondary
 T1   A45    V4      3*    174 *-* if .nil <> next 
 T1   A45    V4      3*        >E>   .NIL => "The NIL object"
-T1   A45    V4      3*        >V>   NEXT => "a DISPLAYER"
+T1   A45    V4      3*        >V>   NEXT => "a CONSOLE"
 T1   A45    V4      3*        >O>   "<>" => "1"
 T1   A45    V4      3*        >>>   "1"
 T1   A45    V4      3*    174 *-*   then
 T1   A45    V4      3*    174 *-*     do
 T1   A45    V4      3*    175 *-*       next~eof                                -- only forward if we have a successor
-T1   A45    V4      3*        >V>         NEXT => "a DISPLAYER"
+T1   A45    V4      3*        >V>         NEXT => "a CONSOLE"
 T1   A46    V5                >I> Method EOF with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A46    V5      1*    173 *-* expose next secondary
 T1   A46    V5      1*    174 *-* if .nil <> next 

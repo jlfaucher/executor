@@ -269,15 +269,6 @@ forward to(pipeStage) message('secondaryEof')
 
 
 /******************************************************************************/
--- Provide services that depend on extensions
--- Will be extended in a separate file
-::class pipeExtensions public
-
-::method available class
-return self~hasMethod("installed")
-
-
-/******************************************************************************/
 ::class pipeProfiler public subclass Profiler
 
 ::method instrument class
@@ -436,12 +427,10 @@ do a over arg(1, "a")
         if "numeric"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("strict=", .false)) ; iterate ; end
         if "strict"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("strict=", .true)) ; iterate ; end
     end
-    if a~hasMethod("doer") then do
-        if .pipeExtensions~available then do
-            function = .pipeExtensions~makeFunctionDoer(a)
-            criteria~append(.array~of("sortBy", function))
-            iterate
-        end
+    if a~hasMethod("functionDoer") then do
+        function = a~functionDoer("use arg value, index")
+        criteria~append(.array~of("sortBy", function))
+        iterate
     end
     unknown~append(a)
 end
@@ -774,9 +763,9 @@ do a over arg(1, "a")
             iterate
         end
     end
-    if a~hasMethod("doer") then do
+    if a~hasMethod("functionDoer") then do
         if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        doer = .pipeExtensions~makeFunctionDoer(a)
+        doer = a~functionDoer("use arg value, index")
         iterate
     end
     unknown~append(a) 
@@ -943,7 +932,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class displayer subclass pipeStage public
+::class console subclass pipeStage public
 ::constant indexSeparator "|"
 
 ::method init
@@ -992,12 +981,10 @@ do a over arg(1, "a")
         actions~append(.array~of("displayString", a))
         iterate
     end
-    if a~hasMethod("doer") then do
-        if .pipeExtensions~available then do
-            function = .pipeExtensions~makeFunctionDoer(a)
-            actions~append(.array~of("displayExpression", function))
-            iterate
-        end
+    if a~hasMethod("functionDoer") then do
+        function = a~functionDoer("use arg value, index")
+        actions~append(.array~of("displayExpression", function))
+        iterate
     end
     unknown~append(a)
 end

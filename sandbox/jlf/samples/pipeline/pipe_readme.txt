@@ -18,8 +18,8 @@ fanout : forward eof to self~next and self~secondary, but not to super
 
 merge : send a 'done' message
 
-displayer : process does forward class (super) --> why needed here, and not in other classes ?
-answer : because .displayer does not transform the values, it just displays them. So it can
+console : process does forward class (super) --> why needed here, and not in other classes ?
+answer : because .console does not transform the values, it just displays them. So it can
 forward to class (super) which will take care of sending the value & index to next pipestage.
 The other classes transform the values, and write themselves the new value. If they forwarded
 to class (super) then the unchanged value would be also sent to the next pipeStage.
@@ -77,7 +77,7 @@ pipeStage
     fanin                                   -- primary(in out), secondary (in accumulator). Process main stream, then secondary stream.
     
     duplicate(copies = 1)
-    displayer
+    console
     
     all(patterns...)                        -- primary, secondary (mismatches)
     startsWith(match)                       -- primary, secondary (mismatches)

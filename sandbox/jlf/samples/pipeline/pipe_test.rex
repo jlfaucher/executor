@@ -53,14 +53,14 @@ info = .array~of('Tom','Mike','Rick','Steve')  /* Create an array to use      */
                                                /* stages on (any collection   */
                                                /* would work).                */
 
-pipe = .sort|.reverse|.displayer               /* Pipe to sort, reverse       */
+pipe = .sort|.reverse|.console                 /* Pipe to sort, reverse       */
                                                /* elements and display.       */
 
 pipe~go(info)                                  /* Run it                      */
 
 say '-----------------------------------'
 
-pipe = .all['e']|.displayer                    /* Pipe to select elements with*/
+pipe = .all['e']|.console                      /* Pipe to select elements with*/
                                                /* 'e' and display.            */
 
 pipe~go(info)                                  /* Run it                      */

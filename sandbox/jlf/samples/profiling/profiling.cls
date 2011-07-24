@@ -1,5 +1,52 @@
 /******************************************************************************/
--- This class is a security manager, which 
+/*
+This class is a security manager, which intercepts the messages sent for
+protected methods. A call stack, call count and duration is managed for each
+method.
+
+To let intercept the messages, the methods to profile must be instrumented 
+by calling one of those methods :
+.Profiler~instrumentMethods(myclass, arrayOfMessagesToIntercept)
+.Profiler~instrumentMethod(myclass, message)
+
+Changes made by the instrumentation :
+    ::method myMethod
+    <my code here...>
+    
+    is instrumented to become :
+    
+    ::method myMethod protected        <-- will be intercepted
+    forward message("myMethod_unprotected")
+    
+    ::method myMethod_unprotected      <-- the security manager will forward this message
+    <my code here...>
+
+Typical usage of the profiler :
+    profiler = .Profiler~new                      -- create a fresh profiler, all counters at zero, empty call stack
+    profiler~push(rootObject, rootMessage)        -- will be the first entry displayed in the call stack
+    .context~package~setSecurityManager(profiler) -- put in place the profiler
+    <run your code>
+    profiler~reportResults(profiler~pull)         -- display the results
+
+Exemple of output :
+.array~of(b, a, c)~pipeProfile(.sort byValue | .console)
+2 : A
+1 : B
+3 : C
+----------------------------------------
+.SORT~go
+  .SORT~EOF count=1 duration=0
+    .CONSOLE~EOF count=1 duration=0
+    .CONSOLE~ISEOP count=6 duration=0
+    .CONSOLE~PROCESS count=3 duration=0
+  .SORT~ISEOP count=3 duration=0
+  .SORT~PROCESS count=3 duration=0
+  .SORT~START count=1 duration=0
+    .CONSOLE~START count=1 duration=0
+duration=0
+----------------------------------------
+*/
+
 ::class Profiler public
 
 ::attribute output
@@ -25,16 +72,16 @@
     end
 
 ::method instrumentMethod class
-    use strict arg class, methodName
-    method = class_method(class, methodName)
+    use strict arg class, message
+    method = class_method(class, message)
     if method == .nil then return -- nothing to do
-    newMethodName = methodName"_unprotected"
-    newMethod = class_method(class, newMethodName)
+    newMessage = message"_unprotected"
+    newMethod = class_method(class, newMessage)
     if newMethod <> .nil then return -- already done
-    newMethod = .Method~new("", "forward message("newMethodName")")
+    newMethod = .Method~new("", "forward message("newMessage")")
     newMethod~setProtected
-    class~define(methodName, newMethod)
-    class~define(newMethodName, method)
+    class~define(message, newMethod)
+    class~define(newMessage, method)
 
 ---------- Profiling ------------------
 

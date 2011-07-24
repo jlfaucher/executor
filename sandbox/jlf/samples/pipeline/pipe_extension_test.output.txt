@@ -1,7 +1,7 @@
 
 -- The coactivity yields two results.
--- The hello outputs are not in the pipeline flow (not displayed by the .displayer).
-.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.displayer)
+-- The hello outputs are not in the pipeline flow (not displayed by the .console).
+.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.console)
 HELLO
 1 : A
 HELLO
@@ -9,14 +9,14 @@ HELLO
 
 
 -- A collection can be sorted by value (default)
-.array~of(b, a, c)~pipe(.sort byValue | .displayer)
+.array~of(b, a, c)~pipe(.sort byValue | .console)
 2 : A
 1 : B
 3 : C
 
 
 -- ...or by index
-.array~of(b, a, c)~pipe(.sort byIndex | .displayer)
+.array~of(b, a, c)~pipe(.sort byIndex | .console)
 1 : B
 2 : A
 3 : C
@@ -25,14 +25,14 @@ HELLO
 -- ...ascending (default)
 -- The order of options is important : a value option is impacted only by the preceding options
 -- This is because several value options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort ascending byValue | .displayer)
+.array~of(b, a, c)~pipe(.sort ascending byValue | .console)
 2 : A
 1 : B
 3 : C
 
 
 -- ...descending
-.array~of(b, a, c)~pipe(.sort descending byValue | .displayer)
+.array~of(b, a, c)~pipe(.sort descending byValue | .console)
 3 : C
 1 : B
 2 : A
@@ -41,14 +41,14 @@ HELLO
 -- ...by index descending
 -- The order of options is important : an index option is impacted only by the preceding options.
 -- This is because several index options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort descending byIndex | .displayer)
+.array~of(b, a, c)~pipe(.sort descending byIndex | .console)
 3 : C
 2 : A
 1 : B
 
 
 -- ...caseless (stable by default)
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .displayer)
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .console)
 2 : AA
 4 : Aa
 6 : aA
@@ -60,7 +60,14 @@ HELLO
 
 
 -- ...caseless quickSort (unstable)
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .displayer)
+-- No difference bewteen stable and unstable ? yes, see commit 6275 in interpreter/memory/setup.cpp :
+--  // there have been some problems with the quick sort used as the default sort, so map everything
+--  // to the stable sort.  The stable sort, in theory, uses more memory, but in practice, this is not true.
+--  defineKernelMethod(CHAR_SORT         ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
+--  defineKernelMethod(CHAR_SORTWITH     ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
+--  defineKernelMethod(CHAR_STABLESORT   ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
+--  defineKernelMethod(CHAR_STABLESORTWITH ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .console)
 2 : AA
 4 : Aa
 6 : aA
@@ -73,7 +80,7 @@ HELLO
 
 -- Sort descending with a comparator.
 -- The DescendingComparator use the default CompareTo, which is made on values.
-.array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .displayer)
+.array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .console)
 3 : C
 1 : B
 2 : A
@@ -83,7 +90,7 @@ HELLO
 .array~of("c:2", "b:2", "A:2", "c:1", "a:1", "B:1", "C:3")~pipe(,
     .sortWith[.InvertingComparator~new(.CaselessColumnComparator~new(3,1))] |,
     .sortWith[.CaselessColumnComparator~new(1,1)] |,
-    .displayer,
+    .console,
     )
 3 : A:2
 5 : a:1
@@ -95,14 +102,14 @@ HELLO
 
 
 -- Do something for each item (no returned value).
-.array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .displayer)
+.array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .console)
 value=1 index=an Array
 value=2 index=an Array
 value=3 index=an Array
 
 
 -- Do something for each item (the returned result replaces the item's value).
-.array~of(1, 2, 3)~pipe(.do {return 2*value} | .displayer)
+.array~of(1, 2, 3)~pipe(.do {return 2*value} | .console)
 1 : 2
 1 : 4
 1 : 6
@@ -110,7 +117,7 @@ value=3 index=an Array
 
 -- Inject a value for each item (the returned value is appended). 
 -- The index of the injected value is pushed on the current index.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex append | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex append | .console)
 1 : 1
 1|1 : 10
 2 : 2
@@ -120,7 +127,7 @@ value=3 index=an Array
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, 2, 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
 1 : 1
 1|1 : 10
 1|2 : 20
@@ -136,18 +143,18 @@ value=3 index=an Array
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
 -- The option 'append' is not used, so the initial value is discarded.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex recursive.0 | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
 1|1 : 10
 2|1 : 20
 3|1 : 30
-.array~of(1, 2, 3)~pipe(.inject {value*20} pushIndex recursive.1| .displayer)
+.array~of(1, 2, 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
 1|1 : 20
 1|1|1 : 400
 2|1 : 40
 2|1|1 : 800
 3|1 : 60
 3|1|1 : 1200
-.array~of(1, 2, 3)~pipe(.inject {value*30} pushIndex recursive.2 | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
 1|1 : 30
 1|1|1 : 900
 1|1|1|1 : 27000
@@ -165,7 +172,7 @@ value=3 index=an Array
     use arg n
     if n < 0 then return
     if n == 0 then return 1
-    return n * .context~executable~call(n - 1)} | .displayer)
+    return n * .context~executable~call(n - 1)} | .console)
 1 : 1
 1 : 1
 1 : 2
@@ -183,23 +190,23 @@ value=3 index=an Array
 .file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .take 15 |,
-    .displayer,
+    .console,
     )
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
-154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.dll
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
-156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.lib
-157 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.map
-158 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.obj
-159 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.pdb
-187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.dll
-188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exe
-189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
-190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.img
-191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.lib
-192 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.map
-193 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.obj
-194 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.pdb
+152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.dll
+154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
+156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.map
+157 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.obj
+184 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.dll
+185 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exe
+186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
+187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.img
+188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
+189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.map
+190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
+191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
+192 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxActivation.obj
 
 
 -- Select files in the installation directory, whose name contains "rexx" , sorted by file size.
@@ -209,23 +216,23 @@ value=3 index=an Array
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sortWith[.MessageComparator~new("length/N")] |,
     .take 15 |,
-    .displayer,
+    .console,
     )
-241 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.exp
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
-242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.lib
-156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.lib
-189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
-191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.lib
-200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.exp
-195 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.res
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
-201 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.lib
-223 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexximage.obj
-210 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\RexxCompiler.obj
-219 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxhide.obj
-235 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxpaws.obj
-193 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.obj
+216 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexximage.obj
+232 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.exp
+154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
+233 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.lib
+204 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxCompiler.obj
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
+186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
+213 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxhide.obj
+227 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxpaws.obj
+190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
+188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
+196 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.exp
+191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
+152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+197 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.lib
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
@@ -233,23 +240,23 @@ value=3 index=an Array
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} |,
     .take 15 |,
-    .displayer,
+    .console,
     )
-241 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.exp
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
-242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.lib
-156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.lib
-189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
-191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.lib
-200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.exp
-195 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.res
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
-201 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.lib
-223 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexximage.obj
-210 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\RexxCompiler.obj
-219 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxhide.obj
-235 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxpaws.obj
-193 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.obj
+216 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexximage.obj
+232 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.exp
+154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
+233 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.lib
+204 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxCompiler.obj
+155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
+186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
+213 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxhide.obj
+227 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxpaws.obj
+190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
+188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
+196 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.exp
+191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
+152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+197 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.lib
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
@@ -257,28 +264,28 @@ value=3 index=an Array
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} {filespec('e', value~name)} |,
     .take 15 |,
-    .displayer,
+    .console,
     )
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
-154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.dll
-199 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.dll
-240 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.dll
-187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.dll
-221 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexximage.exe
-217 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxhide.exe
-205 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxc.exe
-188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exe
-233 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxpaws.exe
-241 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxutil.exp
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.exp
-189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.exp
-200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexxapi.exp
-190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rexx.img
+152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.dll
+195 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.dll
+231 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.dll
+184 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.dll
+214 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexximage.exe
+211 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxhide.exe
+200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxc.exe
+185 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exe
+225 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxpaws.exe
+232 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.exp
+154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
+186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
+196 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.exp
+187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.img
 
 
 -- All instance methods of the context.
 -- Notice that the default sort by value is useless here... Must sort by index.
-.context~instanceMethods~pipe(.sort byIndex | .displayer)
+.context~instanceMethods~pipe(.sort byIndex | .console)
  : a Method
   : a Method
 <> : a Method
@@ -332,7 +339,7 @@ VARIABLES : a Method
 .context~instanceMethods~pipe(,
     .select {value~isPrivate} |,
     .sort byIndex |,
-    .displayer,
+    .console,
     )
 RUN : a Method
 SETMETHOD : a Method
@@ -345,7 +352,7 @@ UNSETMETHOD : a Method
 .array~of(.RexxContext, .Package, .Method)~pipe(,
     .inject {value~instanceMethods(value~class)} append pushIndex |,
     .sort byIndex |,
-    .displayer,
+    .console,
     )
 1 : The RexxContext class
 1|<> : a Method
@@ -436,7 +443,7 @@ UNSETMETHOD : a Method
     .select {value~id~caselessAbbrev('R') <> 0} |,
     .inject {value~methods(value)} append pushIndex |,
     .sort byIndex |,
-    .displayer,
+    .console,
     )
 RELATION : The Relation class
 RELATION|ALLAT : a Method
@@ -482,7 +489,6 @@ REXXCONTEXTUALSOURCE|CONTEXT : a Method
 REXXCONTEXTUALSOURCE|COPY : a Method
 REXXCONTEXTUALSOURCE|PACKAGE : a Method
 REXXCONTEXTUALSOURCE|SOURCE : a Method
-REXXCONTEXTUALSOURCE|SOURCE= : a Method
 REXXQUEUE : The RexxQueue class
 REXXQUEUE|DELETE : a Method
 REXXQUEUE|EMPTY : a Method
@@ -508,10 +514,10 @@ ROUTINE|SOURCE : a Method
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
     .inject {value~importedPackages} recursive append pushIndex |,
-    .displayer index.15,
-               {'    '~copies(index~items)},
-               {.file~new(value~name)~name},
-               newline,
+    .console index.15,
+             {'    '~copies(index~items)},
+             {.file~new(value~name)~name},
+             newline,
     )
 1                  pipe_extension_test.rex
 1|1                    extensions.cls
@@ -533,10 +539,10 @@ ROUTINE|SOURCE : a Method
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
     .inject {value~importedPackages} recursive.breadthFirst append pushIndex |,
-    .displayer index.15,
-               {'    '~copies(index~items)},
-               {.file~new(value~name)~name},
-               newline,
+    .console index.15,
+             {'    '~copies(index~items)},
+             {.file~new(value~name)~name},
+             newline,
     )
 1                  pipe_extension_test.rex
 1|1                    extensions.cls
@@ -554,12 +560,12 @@ ROUTINE|SOURCE : a Method
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
 -- has been reached, whatever its position in the pipeline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.displayer "2*" value "=" | .do {return 2*value} | .take 2 | .displayer value newline)
+supplier~pipe(.console "2*" value "=" | .do {return 2*value} | .take 2 | .console value newline)
 2*1=2
 2*2=4
 say supplier~index
 3
-supplier~pipe(.displayer "4*" value "=" | .do {return 4*value} | .take 4 | .displayer value newline)
+supplier~pipe(.console "4*" value "=" | .do {return 4*value} | .take 4 | .console value newline)
 4*3=12
 4*4=16
 4*5=20
@@ -569,7 +575,7 @@ say supplier~index
 
 
 -- Display the 4 first sorted items
-.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .displayer)
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .console)
 3 : 1
 6 : 2
 4 : 3
@@ -577,7 +583,7 @@ say supplier~index
 
 
 -- Sort the 4 first items
-.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .displayer)
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .console)
 3 : 1
 4 : 3
 1 : 5
@@ -590,7 +596,7 @@ supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
 -- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
-supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .displayer)
+supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
 1 : 1
 2 : 2
 1 : 10
@@ -600,7 +606,7 @@ say supplier1~index
 3
 say supplier2~index
 4
-supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .displayer)
+supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
 3 : 3
 4 : 4
 5 : 5
@@ -617,7 +623,7 @@ say supplier2~index
 
 
 -- Remove header and footer
-.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .displayer)
+.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .console)
 2 : 1
 3 : 2
 4 : 3
@@ -627,20 +633,20 @@ say supplier2~index
 installdir()~pipe(,
     .fileTree recursive |,
     .select {filespec('e', value~name) == 'cls'} |,
-    .displayer,
+    .console,
     )
-31 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\csvStream.cls
-115 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\mime.cls
-133 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\ooDialog.cls
-144 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\oodPlain.cls
-151 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\oodWin32.cls
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls
-253 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rxftp.cls
-264 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\rxregexp.cls
-297 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\smtp.cls
-298 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\socket.cls
-306 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\streamsocket.cls
-352 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls
+32 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls
+115 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls
+133 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls
+143 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls
+150 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls
+152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls
+251 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls
+280 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls
+281 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls
+289 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls
+335 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -663,41 +669,41 @@ installdir()~pipeProfile(,
     .fileTree recursive |,
     .select {filespec('e', value~name) == 'cls'} |,
     .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index[2]} | .sort caseless | .displayer,
+    .take 2 {index[2]} | .sort caseless | .console,
     )
-352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|250|2 : DeleteDesktopIcon
-153|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls|70|2 : disconnectEvents
-133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\ooDialog.cls|71|2 : getSystemMetrics
-31|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\csvStream.cls|64|2 : headerLineAbsent
-306|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\streamsocket.cls|52|5 : InputOutputStream
-133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\ooDialog.cls|94|2 : isAtLeastWindows7
-31|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\csvStream.cls|63|2 : originalRawHeaders
-153|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\orexxole.cls|71|2 : removeEventHandler
-352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|188|2 : WindowsProgramManager
+335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
+152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|70|2 : disconnectEvents
+133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|71|2 : getSystemMetrics
+32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|64|2 : headerLineAbsent
+289|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls|52|5 : InputOutputStream
+133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|94|2 : isAtLeastWindows7
+32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|63|2 : originalRawHeaders
+152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|71|2 : removeEventHandler
+335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|188|2 : WindowsProgramManager
 ----------------------------------------
 .FILETREE~go
-  .FILETREE~EOF count=1 duration=0.016000
-    .SELECT~EOF count=1 duration=0.016000
-      .GETFILES~EOF count=1 duration=0.016000
-        .WORDS~EOF count=1 duration=0.016000
-          .SELECT~EOF count=1 duration=0.016000
-            .TAKE~EOF count=1 duration=0.016000
-              .SORT~EOF count=1 duration=0.016000
-                .DISPLAYER~EOF count=1 duration=0
-                .DISPLAYER~ISEOP count=18 duration=0
-                .DISPLAYER~PROCESS count=9 duration=0.016000
+  .FILETREE~EOF count=1 duration=0
+    .SELECT~EOF count=1 duration=0
+      .GETFILES~EOF count=1 duration=0
+        .WORDS~EOF count=1 duration=0
+          .SELECT~EOF count=1 duration=0
+            .TAKE~EOF count=1 duration=0
+              .SORT~EOF count=1 duration=0
+                .CONSOLE~EOF count=1 duration=0
+                .CONSOLE~ISEOP count=18 duration=0
+                .CONSOLE~PROCESS count=9 duration=0
   .FILETREE~ISEOP count=1 duration=0
-  .FILETREE~PROCESS count=1 duration=20.469000
-    .SELECT~ISEOP count=387 duration=0
-    .SELECT~PROCESS count=386 duration=20.064000
-      .GETFILES~ISEOP count=398 duration=0.016000
-      .GETFILES~PROCESS count=12 duration=19.782000
-        .WORDS~ISEOP count=28386 duration=0.048000
-        .WORDS~PROCESS count=14181 duration=16.605000
-          .SELECT~ISEOP count=141387 duration=0.546000
-          .SELECT~PROCESS count=63603 duration=7.782000
-            .TAKE~ISEOP count=63974 duration=0.109000
-            .TAKE~PROCESS count=371 duration=0.031000
+  .FILETREE~PROCESS count=1 duration=8.281000
+    .SELECT~ISEOP count=621 duration=0
+    .SELECT~PROCESS count=620 duration=7.907000
+      .GETFILES~ISEOP count=632 duration=0
+      .GETFILES~PROCESS count=12 duration=7.812000
+        .WORDS~ISEOP count=28386 duration=0.046000
+        .WORDS~PROCESS count=14181 duration=7.076000
+          .SELECT~ISEOP count=141387 duration=0.155000
+          .SELECT~PROCESS count=63603 duration=3.456000
+            .TAKE~ISEOP count=63974 duration=0.064000
+            .TAKE~PROCESS count=371 duration=0.032000
               .SORT~ISEOP count=380 duration=0
               .SORT~PROCESS count=9 duration=0
   .FILETREE~START count=1 duration=0
@@ -707,11 +713,11 @@ installdir()~pipeProfile(,
           .SELECT~START count=1 duration=0
             .TAKE~START count=1 duration=0
               .SORT~START count=1 duration=0
-                .DISPLAYER~START count=1 duration=0
-duration=20.485000
+                .CONSOLE~START count=1 duration=0
+duration=8.281000
 ----------------------------------------
 
 
 say installdir() ; say
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32dbg/
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/
 

@@ -68,8 +68,8 @@ say "-----------------------------------------------------------------"
 .CircularQueue~of(1,2,3,4)~map{return arg(1) * 2}~dump -- 2,4,6,8 : 2, 4, 6, 8 (strange : the class is not displayed)
 .CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then return 1 ; return n * .context~executable~call(n - 1)}~dump -- 1,2,6,24 : 1, 2, 6, 24
 
-"abcdefghijklmnopqrstuvwxyz"~mapchar{return arg(1)~verify('aeiouy')}~dump
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapchar{if arg(1)~verify('aeiouy') == 1 then return arg(1) ; else return ''}~dump
+"abcdefghijklmnopqrstuvwxyz"~mapchar{return arg(1)~verify('aeiouy')}~dump -- 01110111011111011111011101
+.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapchar{if arg(1)~verify('aeiouy') == 1 then return arg(1) ; else return ''}~dump -- bcdfghjklmnpqrstvwxz
 
 /* todo : doesn't work because the variable translation has no value when evaluating the doer
 translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
@@ -101,8 +101,15 @@ colors = .Array~of( ,
 colors~map{::method return self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump -- an Array : 0 (0, 0, 0), 255 (0, 0, 255), 32768 (0, 128, 0), 12500670 (190, 190, 190)
 
 -- A method object can be used directly
--- No need to define the method on the receiver class
+-- No need to define the method on the receiver class...
 colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (0, 0, 255), 32768 (0, 128, 0), 12500670 (190, 190, 190)
+
+-- ... except when the method is recursive and recalls itself by name
+.String~define("factorial", .methods~entry("factorial"))
+.Array~of(1,2,3,4)~map(.methods~entry("factorial"))~dump -- an Array : 1, 2, 6, 24
+
+-- Here, the method is recursive, but does not recall itself by name
+.Array~of(1,2,3,4)~map(.methods~entry("factorialExecutable"))~dump -- an Array : 1, 2, 6, 24
 
 
 -----------------------------------------------------------------
@@ -112,12 +119,17 @@ colors~map(.methods~entry("decimalColor"))~dump -- an Array : 0 (0, 0, 0), 255 (
 ::routine factorial
     use strict arg n
     if n == 0 then return 1
-    return n * factorial(n - 1)
+    return n * factorial(n - 1) -- here, the routine 'factorial' has a global name, and can be called
 
     
 ::method factorial
     if self == 0 then return 1
-    return self * (self - 1)~factorial
+    return self * (self - 1)~factorial -- this code will work only if self understands 'factorial'
+
+
+::method factorialExecutable
+    if self == 0 then return 1
+    return self * (self - 1)~run(.context~executable) -- recursive call, but not by name
 
 
 ::method decimalColor

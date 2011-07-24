@@ -5,16 +5,16 @@
 --::options trace i
 
 /*
-I wanted to support something like that : "a"|.upper|.displayer
+I wanted to support something like that : "a"|.upper|.console
 where the first '|' is an overriden operator which injects any object in the pipe.
 But can't do that because :
 - extension does not override existing methods ('|' already exists on .String).
 - even if '|' overriding was possible, the injection wouldn't be possible from the
   overriden '|' because it's too early... The expression above is in fact
-  ("a"|.upper)|.displayer
-  so an injection made by ("a"|.upper) wouldn't reach |.displayer.
+  ("a"|.upper)|.console
+  so an injection made by ("a"|.upper) wouldn't reach |.console.
 So I added the 'pipe' method which injects the object in the pipe :
-"a"~pipe(.upper|.displayer)
+"a"~pipe(.upper|.console)
 */
 
 ::extension Object
@@ -30,62 +30,6 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method pipeProfile
     use strict arg pipe
     return self~pipe(pipe, .true)
-
-
-/******************************************************************************/
--- This class is defined in pipe.rex, to make it visible without requiring the
--- current file (I don't want to make pipe.rex dependent on extensions).
--- There is a test at runtime to see if 'installed' is present on the class.
-
-::extension pipeExtensions
-
-::method installed class
-    return .true
-
--- A function always takes two parameters : value and index. They are automatically declared.
--- A function always return a result. The "return" instruction is automatically inserted, if missing.
--- Beware ! The insertion of 'return' is not robust. More work needed here...
--- A function is not allowed to run a command.
-::method makeFunctionDoer public class
-    use strict arg doable
-    if doable~isA(.RexxContextualSource) then do
-        source = doable~source~strip
-        if source <> "" then do
-            if source~caselessPos("return ") == 0 then do
-                -- If the source is multiline, then some ';' have been inserted to replace the newlines.
-                -- Must remove the first and final ';', if any.
-                -- If there are still ';' in the source then 'return' can't be inserted (the source is probably wrong).
-                do until changed == .false
-                    start = 1 ; length = source~length ; changed = .false
-                    if source~left(1) == ";" then do ; start=2 ; length -= 1 ; changed = .true ; end
-                    if source~right(1) == ";" then do ; length -= 1 ; changed = .true ; end
-                    source = source~substr(start, length)
-                end
-                if source~pos(";") <> 0 then raise syntax 93.900 array("This is not an expression :" source)
-                source = "return" source
-            end
-            source = "use arg value, index;" source
-        end
-        doable~source = source
-    end
-    doer = doable~doer
-    if doer~hasMethod("setSecurityManager") then doer~setSecurityManager(.CommandNotAllowed~new) -- A doer can be a message, which has not this method
-    return doer
-
--- An action always takes two parameters : value and index. They are automatically declared.
--- An action can return optionnally a result, it's up to the user to insert the "return".
--- An action can run a command, so no security restriction.
-::method makeActionDoer public class
-    use strict arg doable
-    if doable~isA(.RexxContextualSource) then do
-        source = doable~source
-        if source~strip <> "" then do
-            source = "use arg value, index;" source
-        end
-        doable~source = source
-    end
-    doer = doable~doer
-    return doer
 
 
 /******************************************************************************/
@@ -123,17 +67,6 @@ forward to (self) message("of")
 
 
 /******************************************************************************/
-::class CommandNotAllowed -- Security manager 
-
-::method unknown
-    return 0
-    
-::method command
-    use strict arg info
-    raise syntax 98.948 array("Command not allowed:" info~address info~command)
-
-
-/******************************************************************************/
 -- An append pipeStage to copy items from its primary input to its primary output,
 -- and then invoke the supplier passed as argument and write the items produced by
 -- that supplier to its primary output.
@@ -142,16 +75,10 @@ forward to (self) message("of")
 
 ::method initOptions
     expose supplier
-    supplier = .nil
-    unknown = .array~new
-    do a over arg(1, "a")
-        if supplier <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
-        producer = a
-        if producer~hasMethod("doer") then producer = .pipeExtensions~makeFunctionDoer(producer)~do
-        if \producer~hasMethod("supplier") then supplier = .array~of(producer) -- for convenience, accept a non-supplier
-        supplier = producer~supplier
-    end
-    forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
+    use strict arg producer
+    if producer~hasMethod("doer") then producer = producer~doer~do
+    if \producer~hasMethod("supplier") then producer = .array~of(producer) -- for convenience, accept a non-supplier
+    supplier = producer~supplier
 
 ::method eof
     expose supplier
@@ -213,8 +140,9 @@ self~init:super
         end
         if a~hasMethod("doer") then do
             if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
-            if allowCommand then doer = .pipeExtensions~makeActionDoer(a)
-                            else doer = .pipeExtensions~makeFunctionDoer(a)
+            if allowCommand, a~hasMethod("actionDoer") then doer = a~actionDoer("use arg value, index")
+            else if a~hasMethod("functionDoer") then doer = a~functionDoer("use arg value, index")
+            else doer = a~doer
             iterate
         end
         unknown~append(a)
@@ -355,15 +283,9 @@ self~init:super(.true) -- allow commands
 
 ::method initOptions
     expose doer
-    doer = .nil
-    unknown = .array~new
-    do a over arg(1, "a")
-        if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one filter is supported")
-        if a~hasMethod("doer") then do ; doer = .pipeExtensions~makeFunctionDoer(a) ; iterate ; end
-        unknown~append(a)
-    end
-    if doer == .nil then raise syntax 93.900 array(self~class~id ": No filter specified")
-    forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
+    use strict arg filter
+    if filter~hasMethod("functionDoer") then doer = filter~functionDoer("use arg value, index")
+                                        else doer = filter~doer
 
 
 ::method process

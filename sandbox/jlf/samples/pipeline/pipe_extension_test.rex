@@ -7,79 +7,86 @@ call evaluate "demonstration"
 nop
 
 -- The coactivity yields two results.
--- The hello outputs are not in the pipeline flow (not displayed by the .displayer).
-.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.displayer)
+-- The hello outputs are not in the pipeline flow (not displayed by the .console).
+.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.console)
 
 
 -- A collection can be sorted by value (default)
-.array~of(b, a, c)~pipe(.sort byValue | .displayer)
+.array~of(b, a, c)~pipe(.sort byValue | .console)
 
 
 -- ...or by index
-.array~of(b, a, c)~pipe(.sort byIndex | .displayer)
+.array~of(b, a, c)~pipe(.sort byIndex | .console)
 
 
 -- ...ascending (default)
 -- The order of options is important : a value option is impacted only by the preceding options
 -- This is because several value options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort ascending byValue | .displayer)
+.array~of(b, a, c)~pipe(.sort ascending byValue | .console)
 
 
 -- ...descending
-.array~of(b, a, c)~pipe(.sort descending byValue | .displayer)
+.array~of(b, a, c)~pipe(.sort descending byValue | .console)
 
 
 -- ...by index descending
 -- The order of options is important : an index option is impacted only by the preceding options.
 -- This is because several index options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort descending byIndex | .displayer)
+.array~of(b, a, c)~pipe(.sort descending byIndex | .console)
 
 
 -- ...caseless (stable by default)
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .displayer)
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .console)
 
 
 -- ...caseless quickSort (unstable)
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .displayer)
+-- No difference bewteen stable and unstable ? yes, see commit 6275 in interpreter/memory/setup.cpp :
+--  // there have been some problems with the quick sort used as the default sort, so map everything
+--  // to the stable sort.  The stable sort, in theory, uses more memory, but in practice, this is not true.
+--  defineKernelMethod(CHAR_SORT         ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
+--  defineKernelMethod(CHAR_SORTWITH     ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
+--  defineKernelMethod(CHAR_STABLESORT   ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
+--  defineKernelMethod(CHAR_STABLESORTWITH ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .console)
 
 
 -- Sort descending with a comparator.
 -- The DescendingComparator use the default CompareTo, which is made on values.
-.array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .displayer)
+.array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .console)
 
 
 -- Sort by column with a comparator.
 .array~of("c:2", "b:2", "A:2", "c:1", "a:1", "B:1", "C:3")~pipe(,
     .sortWith[.InvertingComparator~new(.CaselessColumnComparator~new(3,1))] |,
     .sortWith[.CaselessColumnComparator~new(1,1)] |,
-    .displayer,
+    .console,
     )
 
 
 -- Do something for each item (no returned value).
-.array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .displayer)
+.array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .console)
 
 
 -- Do something for each item (the returned result replaces the item's value).
-.array~of(1, 2, 3)~pipe(.do {return 2*value} | .displayer)
+.array~of(1, 2, 3)~pipe(.do {return 2*value} | .console)
 
 
 -- Inject a value for each item (the returned value is appended). 
 -- The index of the injected value is pushed on the current index.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex append | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex append | .console)
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, 2, 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
 -- The option 'append' is not used, so the initial value is discarded.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex recursive.0 | .displayer)
-.array~of(1, 2, 3)~pipe(.inject {value*20} pushIndex recursive.1| .displayer)
-.array~of(1, 2, 3)~pipe(.inject {value*30} pushIndex recursive.2 | .displayer)
+.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
+.array~of(1, 2, 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
+.array~of(1, 2, 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
 
 
 -- Factorial, no value injected for -1
@@ -88,7 +95,7 @@ nop
     use arg n
     if n < 0 then return
     if n == 0 then return 1
-    return n * .context~executable~call(n - 1)} | .displayer)
+    return n * .context~executable~call(n - 1)} | .console)
 
 
 -- Select files in the installation directory, whose name contains "rexx".
@@ -96,7 +103,7 @@ nop
 .file~new(installdir())~listFiles~pipe(,
     .select {value~name~caselessPos('rexx') <> 0} |,
     .take 15 |,
-    .displayer,
+    .console,
     )
 
 
@@ -107,7 +114,7 @@ nop
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sortWith[.MessageComparator~new("length/N")] |,
     .take 15 |,
-    .displayer,
+    .console,
     )
 
 
@@ -116,7 +123,7 @@ nop
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} |,
     .take 15 |,
-    .displayer,
+    .console,
     )
 
 
@@ -125,20 +132,20 @@ nop
     .select {value~name~caselessPos('rexx') <> 0} |,
     .sort {value~length} {filespec('e', value~name)} |,
     .take 15 |,
-    .displayer,
+    .console,
     )
 
 
 -- All instance methods of the context.
 -- Notice that the default sort by value is useless here... Must sort by index.
-.context~instanceMethods~pipe(.sort byIndex | .displayer)
+.context~instanceMethods~pipe(.sort byIndex | .console)
 
 
 -- All private methods of the context.
 .context~instanceMethods~pipe(,
     .select {value~isPrivate} |,
     .sort byIndex |,
-    .displayer,
+    .console,
     )
 
 
@@ -148,7 +155,7 @@ nop
 .array~of(.RexxContext, .Package, .Method)~pipe(,
     .inject {value~instanceMethods(value~class)} append pushIndex |,
     .sort byIndex |,
-    .displayer,
+    .console,
     )
 
 
@@ -158,45 +165,45 @@ nop
     .select {value~id~caselessAbbrev('R') <> 0} |,
     .inject {value~methods(value)} append pushIndex |,
     .sort byIndex |,
-    .displayer,
+    .console,
     )
 
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
     .inject {value~importedPackages} recursive append pushIndex |,
-    .displayer index.15,
-               {'    '~copies(index~items)},
-               {.file~new(value~name)~name},
-               newline,
+    .console index.15,
+             {'    '~copies(index~items)},
+             {.file~new(value~name)~name},
+             newline,
     )
 
 
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
     .inject {value~importedPackages} recursive.breadthFirst append pushIndex |,
-    .displayer index.15,
-               {'    '~copies(index~items)},
-               {.file~new(value~name)~name},
-               newline,
+    .console index.15,
+             {'    '~copies(index~items)},
+             {.file~new(value~name)~name},
+             newline,
     )
 
 
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
 -- has been reached, whatever its position in the pipeline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.displayer "2*" value "=" | .do {return 2*value} | .take 2 | .displayer value newline)
+supplier~pipe(.console "2*" value "=" | .do {return 2*value} | .take 2 | .console value newline)
 say supplier~index
-supplier~pipe(.displayer "4*" value "=" | .do {return 4*value} | .take 4 | .displayer value newline)
+supplier~pipe(.console "4*" value "=" | .do {return 4*value} | .take 4 | .console value newline)
 say supplier~index
 
 
 -- Display the 4 first sorted items
-.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .displayer)
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .console)
 
 
 -- Sort the 4 first items
-.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .displayer)
+.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .console)
 
 
 -- The .append pipeStage copies items from its primary input to its primary output, and then invokes
@@ -205,23 +212,23 @@ supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
 -- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
-supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .displayer)
+supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
 say supplier1~index
 say supplier2~index
-supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .displayer)
+supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
 say supplier1~index
 say supplier2~index
 
 
 -- Remove header and footer
-.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .displayer)
+.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .console)
 
 
 -- The *.cls files of ooRexx
 installdir()~pipe(,
     .fileTree recursive |,
     .select {filespec('e', value~name) == 'cls'} |,
-    .displayer,
+    .console,
     )
 
 
@@ -245,7 +252,7 @@ installdir()~pipeProfile(,
     .fileTree recursive |,
     .select {filespec('e', value~name) == 'cls'} |,
     .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index[2]} | .sort caseless | .displayer,
+    .take 2 {index[2]} | .sort caseless | .console,
     )
 
 
