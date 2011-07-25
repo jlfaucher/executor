@@ -23,6 +23,7 @@ say doer~class -- The Routine class
 doer~do("John") -- hello John
 say
 
+-- Here, ::method is a tag to indicate that the executable must be a method
 doer = {::method say "hello" self}~doer
 say doer~class -- The Method class
 doer~do("John") -- hello John
@@ -56,7 +57,18 @@ say doer~class -- The Routine class
 say doer~do("John") -- 4
 say
 
--- The method functionDoer takes care of the implicit return
+-- The method sourceDoer takes care of the expose instruction : keep it always as first instruction
+-- The original source
+--    ::method expose a b ; x*(a+b)
+-- becomes :
+--    expose a b  ; use arg x ; options NOCOMMANDS; x*(a+b)
+--    return result
+doer = {::method expose a b ; x*(a+b)}~sourceDoer("use arg x ; options NOCOMMANDS", "return result")
+say doer~class -- The Method class
+say doer~source~tostring
+say
+
+-- The method functionDoer (which calls sourceDoer) takes care of the implicit return
 doer = {x~length}~functionDoer("use arg x")
 say doer~class -- The Routine class
 say doer~do("John") -- 4
@@ -237,7 +249,97 @@ The method 'run' is a private method. So can be called only from another method 
 -----------------------------------------------------------------------------
 -- Helper for source analysis & transformation.
 
-::class ClauseSupplier
+/*
+The ClauseSupplier works directly on the source array passed at creation.
+It returns only non-empty clauses (unless you modify a clause, see below).
+You can modify the source array by replacing the current clause by a new one :
+    mySupplier~item = mySourceFragment
+The new clause is inserted as-is and not iterated over by the supplier.
+Of course, you can create a new clause supplier using the modified source, and
+then you will iterate over your modified clauses.
+While you don't call ~next, ~item will return the last assigned value, which
+can be anything, like an empty string or a string containing several clauses.  
+
+Exemple :
+
+------------------------------------
+csource = {
+    clause1
+
+    clause2 ; clause3
+    clause4 ; ;
+}
+sourceArray = csource~source -- Each time you call this method, you get a copy of the original source literal
+
+say "Iterate over the original source :"
+i = 1
+do sourceLine over sourceArray
+    say i '"'sourceLine'"'
+    i +=1
+end
+
+say
+say "Iterate over the clauses, modify clause2 and remove clause3:"
+clauseSupplier = .ClauseSupplier~new(sourceArray) -- The supplier works directly on this source array, no copy
+i = 1
+do while clauseSupplier~available
+    clause = clauseSupplier~item
+    if clause~strip == "clause2" then clauseSupplier~item = "clause2 before ; "clause" ; clause2 after"
+    if clause~strip == "clause3" then clauseSupplier~item = ""
+    say i '"'clause'" --> "'clauseSupplier~item'"'
+    clauseSupplier~next
+    i += 1
+end
+
+say
+say "Iterate over the modified source :"
+i = 1
+do sourceLine over sourceArray
+    say i '"'sourceLine'"'
+    i += 1
+end
+
+say
+say "Iterate over the clauses of the modified source :"
+clauseSupplier = .ClauseSupplier~new(sourceArray)
+i = 1
+do while clauseSupplier~available
+    clause = clauseSupplier~item
+    say i '"'clause'"'
+    clauseSupplier~next
+    i += 1
+end
+------------------------------------
+Output :
+Iterate over the original source :
+1 ""
+2 "    clause1"
+3 ""
+4 "    clause2 ; clause3"
+5 "    clause4 ; ;"
+
+Iterate over the clauses, modify clause2 and remove clause3:
+1 "    clause1" --> "    clause1"
+2 "    clause2 " --> "clause2 before ;     clause2  ; clause2 after"
+3 " clause3" --> ""
+4 "    clause4 " --> "    clause4 "
+
+Iterate over the modified source :
+1 ""
+2 "    clause1"
+3 ""
+4 "clause2 before ;     clause2  ; clause2 after;"
+5 "    clause4 ; ;"
+
+Iterate over the clauses of the modified source :
+1 "    clause1"
+2 "clause2 before "
+3 "     clause2  "
+4 " clause2 after"
+5 "    clause4 "
+*/
+
+::class ClauseSupplier public
 
 ::method init
     expose sourceArray lineNum clauseStart clauseEnd
@@ -270,6 +372,7 @@ The method 'run' is a private method. So can be called only from another method 
     sourceLine = sourceArray[lineNum]
     sourceArray[lineNum] = sourceLine~replaceAt(newSourceFragment, clauseStart, oldLength)
     if clauseEnd > 0 then clauseEnd += newLength - oldLength -- yes, continue AFTER the new source fragment
+    clause = newSourceFragment -- If you recall ~item then you will get the modified clause
     
 ::method next -- non empty clause
     expose sourceArray lineNum clauseStart clauseEnd clause
@@ -279,6 +382,7 @@ The method 'run' is a private method. So can be called only from another method 
             lineNum = sourceArray~next(lineNum)
         end
         else if clauseEnd > 0 then clauseStart = clauseEnd + 1
+        if lineNum == .nil then leave
         sourceLine = sourceArray[lineNum]
         clauseEnd = sourceLine~pos(";", clauseStart)
         if clauseEnd == 0 then clauseLength = sourceLine~length - clauseStart + 1
