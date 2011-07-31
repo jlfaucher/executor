@@ -3,6 +3,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 */
 
 --::options trace i
+::requires "concurrency/coactivity.cls"
+
 
 -----------------------------------------------------------------------------
 -- Mixin.
@@ -15,7 +17,7 @@ A doer can be created from :
   as a target for the 'do' message.
 - an executable (Routine or Method) : 
   No cost, this is for convenience, the doer is the executable itself.
-  
+
 Examples :
 
 doer = {use arg name; say "hello" name}~doer
@@ -27,6 +29,14 @@ say
 doer = {::method say "hello" self}~doer
 say doer~class -- The Method class
 doer~do("John") -- hello John
+say
+
+-- Here, ::coactivity is a tag to indicate that the executable must be a coactivity
+doer = {::coactivity say "hello" arg(1) ; arg = .yield[] ; say "good bye" arg[1]}~doer
+say doer~class -- The Coactivity class
+doer~do("John") -- hello John
+doer~do("Kathie") -- good bye Kathie
+doer~do("Keith") -- <nothing done, the coactivity is ended>
 say
 
 -- By default, a string is a message
@@ -50,9 +60,9 @@ say
 -- The original source
 --    x~length
 -- becomes :
---    use arg x ; options NOCOMMANDS ; x~length
+--    use arg x ; options "NOCOMMANDS" ; x~length
 --    return result
-doer = {x~length}~sourceDoer("use arg x ; options NOCOMMANDS", "return result")
+doer = {x~length}~sourceDoer('use arg x ; options NOCOMMANDS', "return result")
 say doer~class -- The Routine class
 say doer~do("John") -- 4
 say
@@ -61,9 +71,9 @@ say
 -- The original source
 --    ::method expose a b ; x*(a+b)
 -- becomes :
---    expose a b  ; use arg x ; options NOCOMMANDS; x*(a+b)
+--    expose a b  ; use arg x ; options "NOCOMMANDS"; x*(a+b)
 --    return result
-doer = {::method expose a b ; x*(a+b)}~sourceDoer("use arg x ; options NOCOMMANDS", "return result")
+doer = {::method expose a b ; x*(a+b)}~sourceDoer('use arg x ; options "NOCOMMANDS"', "return result")
 say doer~class -- The Method class
 say doer~source~tostring
 say
@@ -79,48 +89,98 @@ say doer~do("John") -- 4
 
 ::method doer abstract
 
-::method sourceDoer -- Helper to create a doer from a source, after transformation of the source if needed/requested
-    use strict arg before="", after="", context=.nil
+/*
+Helper to create a doer from a source, after transformation of the source if needed/requested.
+Possible transformations :
+- Insert a clause at the begining (takes care of the expose instruction, keep it always as
+  first instruction).
+- Insert a clause at the end.
+- Make the first clause (other than "expose" and "use [strict] arg") a pure expression, unless
+  this clause is a "return" clause.
+*/
+::method sourceDoer
+    use strict arg clauseBefore="", clauseAfter="", context=.nil, expression=.false
     if context == .nil then context = self~package -- lookup scope
 
     sourceArray = self~source -- always an array, even if empty or just one line
     if sourceArray~items == 0 then raise syntax 93.900 array("No source available")
-    clauseSupplier = .ClauseSupplier~new(sourceArray) -- yes, the supplier works directly on the source array (no copy)
-    
-    -- If the first word of the source is ::method then remove this word and remember it's a method.
-    -- If the first word of the source is ::routine then remove this word and remember it's a routine.
-    isRoutine = \ self~isA(.method) -- routine by default, unless self is a method
-    if clauseSupplier~available then do
-        clause = clauseSupplier~item
-        parse var clause word rest
-        if word~caselessEquals("::method")  then do ; clauseSupplier~item = rest ; isRoutine = .false ; end
-        if word~caselessEquals("::routine") then do ; clauseSupplier~item = rest ; isRoutine = .true ; end
+    clauser = .Clauser~new(sourceArray)
+
+    -- If the first word is ::m[ethod] then remove this word and remember it's a method.
+    -- If the first word is ::c[oactivity] then remove this word and remember it's a coactivity.
+    -- If the first word is :[:routine] then remove this word and remember it's a routine.
+    -- If the first word is ::[xxx] then raise an error (unknown tag)
+    -- If the first word starts with ':' then remove this character and remember it's a routine
+    kind = "r" -- routine by default
+    if self~isA(.method) then kind = "m" -- unless self is a method
+    if clauser~clauseAvailable then do
+        clause = clauser~clause
+        parse lower var clause word rest
+        if "::method"~abbrev(word, 3)  then do ; clauser~clause = rest ; kind = "m" ; end
+        else if "::coactivity"~abbrev(word, 3) then do ; clauser~clause = rest ; kind = "c" ; end
+        else if "::routine"~abbrev(word, 1) then do ; clauser~clause = rest ; kind = "r" ; end
+        else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
+        else if word~left(1) == ":" then do; clauser~clause = word~substr(2) rest ; kind = "r" ; end  
     end
-    
-    -- Insert the 'before' source fragment, if any
-    if before <> "" then do
-        -- If the next word is "expose" then must ensure that this clause remains the first clause.
-        if clauseSupplier~available then do
-            clause = clauseSupplier~item
-            parse var clause word rest
-            if word~caselessEquals("expose") then clauseSupplier~item = clause ";" before
-                                             else clauseSupplier~item = before ";" clause
+
+    -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
+    if clauser~clauseAvailable then do
+        clause = clauser~clause
+        parse lower var clause word rest
+        if word == "expose" & \ isAssignment(rest) then clauser~nextClause
+    end
+
+    -- Make the current clause a pure expression, if requested and candidate
+    expressionDone = .false
+    if expression & clauser~clauseAvailable then do
+        -- If the clause is a "return" clause then no need to make it a pure expression.
+        parse lower var clause word rest
+        if word == "return" & \ isAssignment(rest) then expression = .false
+        if expression then do
+            -- If the clause is a "use [strict] arg" clause then it's not candidate to become pure expression.
+            parse lower var clause word1 word2 word3 .
+            if \ (word1 == "use" & word2 == "strict" & word3 == "arg") & \ (word1 == "use" & word2 == "arg") then do 
+                clauser~clause = "(" clauser~clause ")"
+                expressionDone = .true
+            end
         end
-        else sourceArray~append(before)
+    end
+        
+    -- Insert the 'clauseBefore', if any
+    if clauseBefore <> "" then do
+        if clauser~clauseAvailable then clauser~clause = clauseBefore ";" clauser~clause
+        else sourceArray~append(clauseBefore)
+    end
+
+    -- If pure expression not yet done, then make next clause a pure expression
+    if expression & \ expressionDone then do
+        clauser~nextClause
+        if clauser~clauseAvailable then clauser~clause = "(" clauser~clause ")"
     end
     
-    -- Insert the 'after' source fragment, if any
-    if after <> "" then sourceArray~append(after)
+    if expression then do
+        -- If the source has more clauses then it can't be a pure expression, unless it's a return clause
+        clauser~nextClause
+        if clauser~clauseAvailable then do
+            parse lower var clause word rest
+            if word == "return" & \ isAssignment(rest) then clauser~nextClause
+            if clauser~clauseAvailable then raise syntax 93.900 array("Not an expression")
+        end
+    end
     
+    -- Insert the 'clauseAfter', if any
+    if clauseAfter <> "" then sourceArray~append(clauseAfter)
+
     -- Returns the executable
-    if isRoutine then return .Routine~new("", sourceArray, context)
-                 else return .Method~new("", sourceArray, context)
+    if kind == "r" then return .Routine~new("", sourceArray, context)
+    else if kind == "m" then return .Method~new("", sourceArray, context)
+    else if kind == "c" then return .Coactivity~new(.Routine~new("", sourceArray, context))
 
 
 -----------------------------------------------------------------------------
 -- Mixin.
 -- A Doer is an object who knows how to execute itself (understands "do")
--- This is an abstraction of routine, method and message.
+-- This is an abstraction of routine, method, message, coactivity.
 
 ::class Doer mixinclass Object public inherit DoerFactory
 
@@ -223,7 +283,7 @@ The method 'run' is a private method. So can be called only from another method 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class RexxContextualSourceDoer mixinclass Object public inherit Doer
+::class RexxContextualSourceDoer mixinclass Object public inherit DoerFactory
 
 ::method doer
     use strict arg -- none
@@ -235,30 +295,59 @@ The method 'run' is a private method. So can be called only from another method 
 -- criteria doesn't apply to them. So they will have already the right arguments and an
 -- explicit return, if needed.
 ::method functionDoer
-    use strict arg before="", after=""
-    before ||= ' ; options "NOCOMMANDS"'
-    after ||= ' ; if var("result") then return result'
-    return self~sourceDoer(before, after)
+    use strict arg clauseBefore="", clauseAfter=""
+    clauseBefore ||= ' ; options "NOCOMMANDS"'
+    clauseAfter ||= ' ; if var("result") then return result'
+    signal on syntax
+    -- try first by surrounding with round brackets,
+    -- that lets support expressions like "arg()" which is otherwise an invalid expression :
+    -- Missing expression following ( of parse template
+    return self~sourceDoer(clauseBefore, clauseAfter, , .true)
+    syntax:
+    -- the source is not a pure expression
+    return self~sourceDoer(clauseBefore, clauseAfter)
 
 -- Same remark as above.
 ::method actionDoer
-    use strict arg before="", after=""
-    return self~sourceDoer(before, after)
+    use strict arg clauseBefore="", clauseAfter=""
+    return self~sourceDoer(clauseBefore, clauseAfter)
+
+
+-----------------------------------------------------------------------------
+-- Mixin.
+
+::class CoactivityDoer mixinclass Object public inherit Doer
+
+::method doer
+    use strict arg -- none
+    return self
+
+::method needsObject
+    return .false -- No need to pass an object as first argument when calling do or doWith
+
+::method do
+    forward message ("resume")
+    if var("result") then return result
+
+::method doWith
+    use strict arg array
+    forward message ("resume") arguments (array)
+    if var("result") then return result
 
 
 -----------------------------------------------------------------------------
 -- Helper for source analysis & transformation.
 
 /*
-The ClauseSupplier works directly on the source array passed at creation.
+The Clauser works directly on the source array passed at creation.
 It returns only non-empty clauses (unless you modify a clause, see below).
 You can modify the source array by replacing the current clause by a new one :
-    mySupplier~item = mySourceFragment
-The new clause is inserted as-is and not iterated over by the supplier.
-Of course, you can create a new clause supplier using the modified source, and
+    myClauser~clause = mySourceFragment
+The new clause is inserted as-is and not iterated over by the clauser.
+Of course, you can create a new clauser using the modified source, and
 then you will iterate over your modified clauses.
-While you don't call ~next, ~item will return the last assigned value, which
-can be anything, like an empty string or a string containing several clauses.  
+While you don't call ~nextClause, ~clause will return the last assigned value,
+which can be anything, like an empty string or a string containing several clauses.  
 
 Exemple :
 
@@ -280,14 +369,14 @@ end
 
 say
 say "Iterate over the clauses, modify clause2 and remove clause3:"
-clauseSupplier = .ClauseSupplier~new(sourceArray) -- The supplier works directly on this source array, no copy
+clauser = .Clauser~new(sourceArray) -- The clauser works directly on this source array, no copy
 i = 1
-do while clauseSupplier~available
-    clause = clauseSupplier~item
-    if clause~strip == "clause2" then clauseSupplier~item = "clause2 before ; "clause" ; clause2 after"
-    if clause~strip == "clause3" then clauseSupplier~item = ""
-    say i '"'clause'" --> "'clauseSupplier~item'"'
-    clauseSupplier~next
+do while clauser~clauseAvailable
+    clause = clauser~clause
+    if clause~strip == "clause2" then clauser~clause = "clause2 before ; "clause" ; clause2 after"
+    if clause~strip == "clause3" then clauser~clause = ""
+    say i '"'clause'" --> "'clauser~clause'"'
+    clauser~nextClause
     i += 1
 end
 
@@ -301,12 +390,12 @@ end
 
 say
 say "Iterate over the clauses of the modified source :"
-clauseSupplier = .ClauseSupplier~new(sourceArray)
+clauser = .Clauser~new(sourceArray)
 i = 1
-do while clauseSupplier~available
-    clause = clauseSupplier~item
+do while clauser~clauseAvailable
+    clause = clauser~clause
     say i '"'clause'"'
-    clauseSupplier~next
+    clauser~nextClause
     i += 1
 end
 ------------------------------------
@@ -319,75 +408,304 @@ Iterate over the original source :
 5 "    clause4 ; ;"
 
 Iterate over the clauses, modify clause2 and remove clause3:
-1 "    clause1" --> "    clause1"
-2 "    clause2 " --> "clause2 before ;     clause2  ; clause2 after"
-3 " clause3" --> ""
-4 "    clause4 " --> "    clause4 "
+1 "clause1" --> "clause1"
+2 "clause2" --> "clause2 before ; clause2 ; clause2 after"
+3 "clause3" --> ""
+4 "clause4" --> "clause4"
 
 Iterate over the modified source :
 1 ""
 2 "    clause1"
 3 ""
-4 "clause2 before ;     clause2  ; clause2 after;"
+4 "clause2 before ; clause2 ; clause2 after;"
 5 "    clause4 ; ;"
 
 Iterate over the clauses of the modified source :
-1 "    clause1"
-2 "clause2 before "
-3 "     clause2  "
-4 " clause2 after"
-5 "    clause4 "
+1 "clause1"
+2 "clause2 before"
+3 "clause2"
+4 "clause2 after"
+5 "clause4"
 */
 
-::class ClauseSupplier public
+::class Clauser public
+
+-- Special characters : Must be more than one char, to never be equal to a source char
+::constant CLAUSEEND_EOF 10
+::constant CLAUSEEND_EOL 11
+::constant CONTINUATION 12
+
+::constant TOKEN_EOC 1
+::constant TOKEN_OTHER 2
 
 ::method init
-    expose sourceArray lineNum clauseStart clauseEnd
+    expose sourceArray buffer
     use strict arg sourceArray
-    lineNum = sourceArray~first
-    clauseStart = 1
-    clauseEnd = -1 -- indicator of first call to next
-    self~next
+    self~gotoLine(sourceArray~first)
+    buffer = .MutableBuffer~new
+    self~nextClause
 
-::method available
-    expose lineNum
-    return lineNum <> .nil
-
-::method index
-    expose lineNum clauseStart
-    if \ self~available then raise syntax 937
-    return lineNum clauseStart
-
-::method item
+::method clauseAvailable
     expose clause
-    if \ self~available then raise syntax 937
+    return clause <> .nil
+
+::method clause
+    expose clause
+    if \ self~clauseAvailable then raise syntax 937
     return clause
 
-::method "item=" -- replace the current clause by the new source fragment (black box, can be several clauses, won't be scanned)
-    expose sourceArray lineNum clauseStart clauseEnd clause
-    if \ self~available then raise syntax 937
+-- Replace the current clause by the new source fragment (black box, can be several clauses, won't be scanned)
+-- The new source fragment is always monoline
+-- The new source fragment is always inserted in the first line of the current clause.
+-- If the current clause is multiline, then the remaining lines are made empty.
+::method "clause="
+    expose sourceArray sourceLine lineNum lineOffset lineLength clauseStartLine clauseStartOffset clauseEndLine clauseEndOffset clause
+    if \ self~clauseAvailable then raise syntax 937
     use strict arg newSourceFragment
-    oldLength = clause~length
-    newLength = newSourceFragment~length
-    sourceLine = sourceArray[lineNum]
-    sourceArray[lineNum] = sourceLine~replaceAt(newSourceFragment, clauseStart, oldLength)
-    if clauseEnd > 0 then clauseEnd += newLength - oldLength -- yes, continue AFTER the new source fragment
-    clause = newSourceFragment -- If you recall ~item then you will get the modified clause
-    
-::method next -- non empty clause
-    expose sourceArray lineNum clauseStart clauseEnd clause
-    do while lineNum <> .nil
-        if clauseEnd == 0 then do
-            clauseStart = 1
-            lineNum = sourceArray~next(lineNum)
+    if clauseStartLine == clauseEndLine then do
+        oldLength = clauseEndOffset - clauseStartOffset + 1
+        newLength = newSourceFragment~length
+        sourceArray[clauseStartLine] = sourceArray[clauseStartLine]~replaceAt(newSourceFragment, clauseStartOffset, oldLength)
+        if lineNum == clauseStartLine then do
+            lineOffset += newLength - oldLength -- continue AFTER the new source fragment
+            self~gotoLine(lineNum, lineOffset)
         end
-        else if clauseEnd > 0 then clauseStart = clauseEnd + 1
-        if lineNum == .nil then leave
-        sourceLine = sourceArray[lineNum]
-        clauseEnd = sourceLine~pos(";", clauseStart)
-        if clauseEnd == 0 then clauseLength = sourceLine~length - clauseStart + 1
-                          else clauseLength = clauseEnd - clauseStart
-        clause = sourceLine~substr(clauseStart, clauseLength)
-        if clause~strip <> "" then return
+        clauseEndOffset = clauseStartOffset + newLength - 1
     end
+    else do
+        sourceArray[clauseStartLine] = sourceArray[clauseStartLine]~left(clauseStartOffset - 1) || newSourceFragment
+        line = sourceArray~next(clauseStartLine)
+        do while line <> .nil, line < clauseEndLine
+            sourceArray[line] = ""
+            line = sourceArray~next(line)
+        end
+        -- In the last line, remove the part of the current clause
+        source = sourceArray[clauseEndLine]
+        oldLength = source~length
+        source = source~substr(clauseEndOffset + 1)
+        newLength = source~length
+        sourceArray[clauseEndLine] = source
+        if lineNum == clauseEndLine then do
+            lineOffset += newLength - oldLength -- continue AFTER the new source fragment
+            self~gotoLine(lineNum, lineOffset)
+        end
+        -- The clause is now monoline
+        clauseEndLine = clauseStartLine
+        clauseEndOffset = sourceArray[clauseStartLine]~length
+    end
+    clause = newSourceFragment -- If you recall ~clause then you will get the modified clause
+    
+::method nextClause -- next non empty stripped clause
+    expose lineNum lineOffset clauseStartLine clauseStartOffset buffer clause
+    do while lineNum <> .nil
+        buffer~delete(1)
+        clauseStartLine = lineNum
+        clauseStartOffset = lineOffset
+        do until token == self~TOKEN_EOC
+            token = self~sourceNextToken
+        end
+        clause = buffer~string~strip
+        if clause <> "" then return
+    end
+    clause = .nil
+
+::method gotoLine private
+    expose sourceArray sourceLine lineNum lineOffset lineLength
+    use strict arg lineNum, lineOffset=1
+    if lineNum == .nil then return .false
+    sourceLine = sourceArray[lineNum]
+    lineLength = sourceLine~length
+    return .true
+
+::method gotoNextLine private
+    expose sourceArray lineNum
+    lineNum = sourceArray~next(lineNum)
+    return self~gotoLine(lineNum)
+
+-- ooRexx adaptation of method RexxSource::comment in interpreter/parser/scanner.cpp
+::method skipComment private
+    --Scan source to skip over a nest of comments
+    expose sourceLine lineNum lineOffset lineLength
+    level = 1 -- start the comment nesting
+    lineOffset += 2 -- step over the comment start
+    do while level > 0 --while still in a comment nest
+        if lineOffset > lineLength then do -- hit the end of a line?
+            if \ self~gotoNextLine then raise syntax 93.900 array("Unmatched comment delimiter /*)")
+            iterate
+        end
+        inch = sourceLine~subchar(lineOffset)
+        lineOffset += 1
+        if inch == '*' & sourceLine~subchar(lineOffset) == '/' then do
+            level -= 1
+            lineOffset += 1
+        end
+        else if inch == '/' & sourceLine~subchar(lineOffset) == '*' then do
+            level += 1
+            lineOffset += 1
+        end
+    end
+
+-- ooRexx adaptation of method RexxSource::locateToken in interpreter/parser/scanner.cpp
+::method locateToken private
+    -- Locate next significant token in source, skipping extra blanks and comments.
+    expose sourceArray sourceLine lineNum lineOffset lineLength
+    if lineNum == .nil then character = self~CLAUSEEND_EOF
+    else if lineOffset > lineLength then character = self~CLAUSEEND_EOL
+    else do
+        do while lineOffset <= lineLength
+            inch = sourceLine~subchar(lineOffset)
+            if inch == ' ' | inch == '09'x then do
+                character = ' '
+                leave
+            end
+            -- possible continuation character?
+            else if inch == ',' | inch == '-' then do
+                -- line comment?
+                if inch == '-' & sourceLine~subchar(lineOffset + 1) == '-' then do
+                    lineOffset = lineLength + 1 -- skip the remaining characters of the line
+                    leave
+                end
+                character = inch -- assume for now real character
+                -- check for EOL (possibly following blanks and comments)
+                startOffset = lineOffset
+                startLine = lineNum
+                lineOffset += 1
+                do while lineOffset <= lineLength
+                    inch2 = sourceLine~subchar(lineOffset)
+                    if inch2 == '/' & sourceLine~subchar(lineOffset + 1) == '*' then do
+                        self~skipComment
+                        iterate
+                    end
+                    if inch2 == '-' & sourceLine~subchar(lineOffset + 1) == '-' then do
+                        lineOffset = lineLength + 1
+                        leave
+                    end
+                    if inch2 <> ' ' & inch2 <> '09'x then leave
+                    lineOffset += 1
+                end
+                if lineOffset > lineLength then do -- continuation
+                    nextLineNum = sourceArray~next(lineNum)
+                    if nextLineNum <> .nil then do
+                        self~gotoLine(nextLineNum)
+                        character = self~CONTINUATION
+                        leave
+                    end
+                end
+                else do -- real character
+                    self~gotoLine(startLine)
+                    lineOffset = startOffset
+                    character = inch
+                    leave
+                end
+            end
+            else if inch == '/' & sourceLine~subchar(lineOffset + 1) == '*' then self~skipComment
+            else do
+                character = inch -- this is a good character
+                leave
+            end
+        end
+        if lineOffset > lineLength then character = self~CLAUSEEND_EOL
+    end
+    return character
+
+-- ooRexx adaptation of method RexxSource::nextSpecial in interpreter/parser/scanner.cpp
+::method nextSpecial private
+    -- Find the next special character and verify against a target
+    expose sourceLine lineOffset
+    use strict arg target
+    inch = self~locateToken -- find the next token
+    -- have something else on this line?
+    if inch <> self~CLAUSEEND_EOF & inch <> self~CLAUSEEND_EOL then do
+        if sourceLine~subchar(lineOffset) == target then do
+            lineOffset +=1
+            return .true
+        end
+    end
+    return .false
+
+-- ooRexx adaptation of a subset of method RexxSource::sourceNextToken in interpreter/parser/scanner.cpp
+-- I don't need to get ALL the tokens, I just need to skip them correctly (in particular strings and
+-- source literal). The comments and continuation characters are also properly supported.
+-- Possible result : .nil (end of source), TOKEN_EOC (end of clause), TOKEN_OTHER
+-- The clause is built incrementally, accumulating all the characters, except comments.
+-- The line continuations are removed, replaced by a blank.
+-- So a clause is always monoline, even if it's distributed on several lines in the source.
+::method sourceNextToken
+    expose sourceLine lineNum lineOffset lineLength clauseEndLine clauseEndOffset buffer
+    do forever
+        inch = self~locateToken
+        if inch == self~CLAUSEEND_EOF then return .nil
+        else if inch == self~CLAUSEEND_EOL then do
+            clauseEndLine = lineNum
+            clauseEndOffset = lineLength
+            self~gotoNextLine
+            return self~TOKEN_EOC
+        end
+        else if inch == self~CONTINUATION then do
+            buffer~append(' ')
+            return self~TOKEN_OTHER
+        end
+        else do
+            -- [don't manage symbols, not needed]
+            -- start of a quoted string? [don't manage the suffix type xXbB]
+            if inch == "'" | inch == '"' then do
+                buffer~append(inch)
+                literalDelimiter = inch
+                do forever
+                    lineOffset += 1
+                    if lineOffset > lineLength then do
+                        -- Unmatched quote
+                        if literalDelimiter == "'" then raise syntax 93.900 array("Unmatched single quote")
+                        raise syntax 93.900 array("Unmatched double quote")
+                    end
+                    inch = sourceLine~subchar(lineOffset)
+                    buffer~append(inch)
+                    if literalDelimiter == inch then do
+                        lineOffset += 1
+                        if lineOffset > lineLength then leave
+                        inch = sourceLine~subchar(lineOffset)
+                        if inch <> literalDelimiter then leave
+                        buffer~append(inch)
+                    end
+                end
+            end
+            else do
+                lineOffset += 1
+                if inch == '}' then raise syntax 93.900 array("Unexpected }")
+                -- start of a source literal?
+                else if inch == '{' then do
+                    buffer~append(inch)
+                    do forever
+                        if self~nextSpecial('}') then do
+                            buffer~append('}')
+                            leave
+                        end
+                        if self~sourceNextToken == .nil then do
+                            raise syntax 93.900 array("Curly bracket { requires a corresponding right curly bracket }")
+                        end
+                    end
+                end
+                else if inch == ';' then do
+                    clauseEndLine = lineNum
+                    clauseEndOffset = lineOffset - 2 -- the offset of the character before ';'
+                    return self~TOKEN_EOC
+                end
+                else do
+                    buffer~append(inch)
+                end
+            end
+        end
+        return self~TOKEN_OTHER
+    end
+
+::routine isAssignment
+    use strict arg str
+    left1 = str~left(1)
+    left2 = str~left(2)
+    left3 = str~left(3)
+    if left2 == "==" then return .false
+    if left1 == "=" then return .true
+    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true 
+    if "//= ||= &&="~pos(left3) <> 0 then return .true
+    return .false
 

@@ -45,6 +45,74 @@ http://slatelanguage.org/
 ===============================================================================
 2011 july 31
 
+[doers]
+
+ClauseSupplier renamed Clauser because it does not follow the semantics of a supplier.
+New implementation which is derived from the ooRexx scanner : the comments and
+continuations are correctly supported.
+The multiline clauses are flattened to get only monoline clauses (more easy to transform).
+
+New kind of doers : coactivity
+
+The tag can be abbreviated like that :
+    ::m[ethod]
+    ::c[oactivity]
+    :[:routine]
+    : (defaults to routine)
+
+Exemple :
+    doer = {::coactivity
+            say "hello" arg(1)
+            arg = .yield[]
+            say "good bye" arg[1]
+           }~doer
+    say doer~class -- The Coactivity class
+    doer~do("John") -- hello John
+    doer~do("Kathie") -- good bye Kathie
+    doer~do("Keith") -- <nothing done, the coactivity is ended>
+
+    doer = {::c
+            do i=1 to 10000000
+                call charout ,"yield["i"] "
+                .yield[i]
+            end}~doer
+    doer~pipe(.take 3 | .console)
+    doer~pipe(.take 4 | .console)
+    .coactivity~endAll
+    ----------
+    Output :
+    yield[1] 1 : 1
+    yield[2] 2 : 2
+    yield[3] 3 : 3
+    yield[4] 1 : 4
+    yield[5] 2 : 5
+    yield[6] 3 : 6
+    yield[7] 4 : 7
+
+
+[functional]
+
+Make use of functionDoer to emulate pure expressions, but the current emulation shows its limits.
+    arg(1) * 2 --> Incorrect PARSE template detected at "*"
+If I change the expression to : 
+    2 * arg(1)
+then it's ok.
+That gave me the idea to modify functionDoer to surround the first clause other than "expose" and
+"use [strict] arg" by round brackets. An error is raised if a clause other than "return" is found
+after the surrounded clause. So the pattern is :
+    [expose some variables]
+    * point of insertion of clauseBefore
+    [use [strict] arg some arguments]
+    [a clause candidate to expression] --> if present then will be surrounded by round brackets
+    [return something]
+    * point of insertion of clauseAfter
+In case of syntax error, the so-called 'clause candidate to expression' is used as-is.
+Will see on usage if that works effectively...
+
+
+===============================================================================
+2011 july 31
+
 The parsing of a source literal is now immediate when the first character is not ':'.
 A routine is created and attached to the source literal.
 This routine is accessible using the method RexxContextualSource~executable.

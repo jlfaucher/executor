@@ -177,7 +177,12 @@ do while engine~available, \self~isEOP      -- while more data
   -- The index is passed as an array, because some pipeStage may create
   -- additional indexes that will be appended.
   self~process(engine~item, .array~of(engine~index)) -- pump this down the pipe
-  engine~next                               -- get the next data item (even if self is now EOP, that way the supplier is ready for continuation)
+  -- Matter of choice : should I stay on current item or get the next item before leaving ?
+  -- Current choice works good for coactivities : no lost item when piping directly the coactivity
+  -- to several pipes. But if you pass the same supplier to several pipes then you have to call
+  -- ~next if you don't want to get the last processed item again.
+  if self~isEOP then leave
+  engine~next                               -- get the next data item
 end
 self~eof                                    -- signal that processing is finished
 
@@ -417,7 +422,7 @@ criteria = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end 
-        if "byValue"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
+        if "byValue"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
         if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
         if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
         if "case"~caselessAbbrev(a, 4) then do ; criteria~append(.array~of("caseless=", .false)) ; iterate ; end

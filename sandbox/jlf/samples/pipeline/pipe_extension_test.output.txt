@@ -1,7 +1,7 @@
 
 -- The coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .console).
-.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.console)
+{::c echo hello ; .yield[a] ; say hello ; .yield[b] }~doer~pipe(.upper|.console)
 HELLO
 1 : A
 HELLO
@@ -522,14 +522,22 @@ ROUTINE|SOURCE : a Method
 1                  pipe_extension_test.rex
 1|1                    extensions.cls
 1|1|1                      doers.cls
+1|1|1|1                        coactivity.cls
+1|1|1|1|1                          activity.cls
 1|1|2                      functionals.cls
 1|1|2|1                        doers.cls
+1|1|2|1|1                          coactivity.cls
+1|1|2|1|1|1                            activity.cls
+1|1|3                      coactivity.cls
+1|1|3|1                        activity.cls
 1|2                    coactivity.cls
 1|2|1                      activity.cls
 1|3                    pipe_extension.cls
 1|3|1                      pipe.rex
 1|3|1|1                        profiling.cls
 1|3|2                      doers.cls
+1|3|2|1                        coactivity.cls
+1|3|2|1|1                          activity.cls
 1|3|3                      coactivity.cls
 1|3|3|1                        activity.cls
 1|3|4                      rgf_util2_wrappers.rex
@@ -550,11 +558,23 @@ ROUTINE|SOURCE : a Method
 1|3                    pipe_extension.cls
 1|1|1                      doers.cls
 1|1|2                      functionals.cls
+1|1|3                      coactivity.cls
 1|2|1                      activity.cls
 1|3|1                      pipe.rex
 1|3|2                      doers.cls
 1|3|3                      coactivity.cls
 1|3|4                      rgf_util2_wrappers.rex
+1|1|1|1                        coactivity.cls
+1|1|2|1                        doers.cls
+1|1|3|1                        activity.cls
+1|3|1|1                        profiling.cls
+1|3|2|1                        coactivity.cls
+1|3|3|1                        activity.cls
+1|3|4|1                        rgf_util2.rex
+1|1|1|1|1                          activity.cls
+1|1|2|1|1                          coactivity.cls
+1|3|2|1|1                          activity.cls
+1|1|2|1|1|1                            activity.cls
 
 
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
@@ -563,15 +583,16 @@ supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier~pipe(.console "2*" value "=" | .do {return 2*value} | .take 2 | .console value newline)
 2*1=2
 2*2=4
-say supplier~index
-3
+say supplier~index -- this is the index of the last processed item
+2
+supplier~next -- skip the last processed item
 supplier~pipe(.console "4*" value "=" | .do {return 4*value} | .take 4 | .console value newline)
 4*3=12
 4*4=16
 4*5=20
 4*6=24
 say supplier~index
-7
+6
 
 
 -- Display the 4 first sorted items
@@ -603,9 +624,11 @@ supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
 2 : 11
 3 : 12
 say supplier1~index
-3
+2
 say supplier2~index
-4
+3
+supplier1~next
+supplier2~next
 supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
 3 : 3
 4 : 4
@@ -617,9 +640,9 @@ supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
 7 : 16
 8 : 17
 say supplier1~index
-7
+6
 say supplier2~index
-9
+8
 
 
 -- Remove header and footer
@@ -682,28 +705,28 @@ installdir()~pipeProfile(,
 335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|188|2 : WindowsProgramManager
 ----------------------------------------
 .FILETREE~go
-  .FILETREE~EOF count=1 duration=0
-    .SELECT~EOF count=1 duration=0
-      .GETFILES~EOF count=1 duration=0
-        .WORDS~EOF count=1 duration=0
-          .SELECT~EOF count=1 duration=0
-            .TAKE~EOF count=1 duration=0
-              .SORT~EOF count=1 duration=0
+  .FILETREE~EOF count=1 duration=0.016000
+    .SELECT~EOF count=1 duration=0.016000
+      .GETFILES~EOF count=1 duration=0.016000
+        .WORDS~EOF count=1 duration=0.016000
+          .SELECT~EOF count=1 duration=0.016000
+            .TAKE~EOF count=1 duration=0.016000
+              .SORT~EOF count=1 duration=0.016000
                 .CONSOLE~EOF count=1 duration=0
                 .CONSOLE~ISEOP count=18 duration=0
                 .CONSOLE~PROCESS count=9 duration=0
-  .FILETREE~ISEOP count=1 duration=0
-  .FILETREE~PROCESS count=1 duration=8.281000
+  .FILETREE~ISEOP count=2 duration=0
+  .FILETREE~PROCESS count=1 duration=8.765000
     .SELECT~ISEOP count=621 duration=0
-    .SELECT~PROCESS count=620 duration=7.907000
+    .SELECT~PROCESS count=620 duration=8.528000
       .GETFILES~ISEOP count=632 duration=0
-      .GETFILES~PROCESS count=12 duration=7.812000
-        .WORDS~ISEOP count=28386 duration=0.046000
-        .WORDS~PROCESS count=14181 duration=7.076000
-          .SELECT~ISEOP count=141387 duration=0.155000
-          .SELECT~PROCESS count=63603 duration=3.456000
-            .TAKE~ISEOP count=63974 duration=0.064000
-            .TAKE~PROCESS count=371 duration=0.032000
+      .GETFILES~PROCESS count=12 duration=8.328000
+        .WORDS~ISEOP count=28386 duration=0.094000
+        .WORDS~PROCESS count=14181 duration=7.377000
+          .SELECT~ISEOP count=141387 duration=0.156000
+          .SELECT~PROCESS count=63603 duration=3.589000
+            .TAKE~ISEOP count=63974 duration=0.080000
+            .TAKE~PROCESS count=371 duration=0.016000
               .SORT~ISEOP count=380 duration=0
               .SORT~PROCESS count=9 duration=0
   .FILETREE~START count=1 duration=0
@@ -714,7 +737,7 @@ installdir()~pipeProfile(,
             .TAKE~START count=1 duration=0
               .SORT~START count=1 duration=0
                 .CONSOLE~START count=1 duration=0
-duration=8.281000
+duration=8.781000
 ----------------------------------------
 
 

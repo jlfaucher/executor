@@ -86,6 +86,11 @@ forward to (self) message("of")
       -- The index is passed as an array, because some pipeStage may create
       -- additional indexes that will be appended.
       self~process(supplier~item, .array~of(supplier~index))
+      -- Matter of choice : should I stay on current item or get the next item before leaving ?
+      -- Current choice works good for coactivities : no lost item when piping directly the coactivity
+      -- to several pipes. But if you pass the same supplier to several pipes then you have to call
+      -- ~next if you don't want to get the last processed item again.
+      if self~isEOP then leave
       supplier~next -- get the next data item (even if self is now EOP, that way the supplier is ready for continuation)
     end
     forward class(super) -- make sure we propagate the done message
@@ -248,7 +253,7 @@ self~init:super
         newindex = toprocess~pull
         if detectCycles then stack = toprocess~pull
         else level = toprocess~pull
-        self~processBreadthFirstCurrent(supplier_item, newindex, stack, toprocess, level)
+        self~processBreadthFirstCurrent(supplier_item, newindex, toprocess, stack, level)
     end
 
  

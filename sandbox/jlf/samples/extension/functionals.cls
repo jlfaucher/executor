@@ -27,7 +27,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method reduce
     use strict arg action
-    doer = action~doer -- parse only once, before iteration
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer
+                                        else doer = action~doer
     if \ self~available then return .nil
     r = self~item
     self~next
@@ -65,7 +67,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method mapchar
     use strict arg action, inplace=.true
-    doer = action~doer -- parse only once, before iteration
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer
+                                        else doer = action~doer
     r = self
     if \inplace then r = self~copy
     string = r~string
@@ -77,7 +81,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method mapword
     use strict arg action, inplace=.true
-    doer = action~doer -- parse only once, before iteration
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer
+                                        else doer = action~doer
     r = self
     if \inplace then r = self~copy
     string = r~string
@@ -99,7 +105,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method map
     use strict arg action, inplace=.false
-    doer = action~doer -- parse only once, before iteration
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer
+                                        else doer = action~doer
     r = self
     if \inplace then r = self~copy
     current = self~first

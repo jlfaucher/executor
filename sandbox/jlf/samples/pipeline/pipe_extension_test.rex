@@ -8,7 +8,7 @@ nop
 
 -- The coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .console).
-.coactivity~new{ echo hello ; .yield[a] ; say hello ; .yield[b] }~pipe(.upper|.console)
+{::c echo hello ; .yield[a] ; say hello ; .yield[b] }~doer~pipe(.upper|.console)
 
 
 -- A collection can be sorted by value (default)
@@ -193,7 +193,8 @@ nop
 -- has been reached, whatever its position in the pipeline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier~pipe(.console "2*" value "=" | .do {return 2*value} | .take 2 | .console value newline)
-say supplier~index
+say supplier~index -- this is the index of the last processed item
+supplier~next -- skip the last processed item
 supplier~pipe(.console "4*" value "=" | .do {return 4*value} | .take 4 | .console value newline)
 say supplier~index
 
@@ -215,6 +216,8 @@ supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
 say supplier1~index
 say supplier2~index
+supplier1~next
+supplier2~next
 supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
 say supplier1~index
 say supplier2~index

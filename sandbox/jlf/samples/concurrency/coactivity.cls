@@ -277,7 +277,7 @@ Lazy Coactivity supplier :
 This supplier does not take a snapshot of the items remaining to generate by the coactivity.
 Instead, it calculates the next item only when the 'next' method is called.
 */
-::class LazyCoactivitySupplier subclass Supplier
+::class "LazyCoactivitySupplier" subclass Supplier
 
 ::attribute coactivity
 ::attribute startedByMe
