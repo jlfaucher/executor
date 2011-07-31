@@ -97,8 +97,24 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 
 RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p) 
 {
-    OrefSet(this, this->source, s->makeArray(NULL)); // use default separator \n
+    RexxArray *sa = s->makeArray(NULL); // use default separator \n
+    ProtectedObject pr(sa);
+    OrefSet(this, this->source, sa);
     OrefSet(this, this->package, p);
+    OrefSet(this, this->routine, OREF_NULL);
+    // If the first character > 32 is not a ':' then create an executable
+    bool colon = false;
+    for (sizeC_t i=0; i < s->getCLength(); i++)
+    {
+        codepoint_t c = s->getCharC(i);
+        if (c <= 32) continue;
+        colon = (c == ':');
+        break;
+    }
+    if (!colon)
+    {
+        OrefSet(this, this->routine, this->makeRoutine(sa, p));
+    }
 }
 
 
@@ -112,6 +128,21 @@ RexxObject  *RexxSourceLiteral::evaluate(
                                        /* trace if necessary                */
     context->traceIntermediate(value, TRACE_PREFIX_LITERAL);
     return value;                      /* also return the result            */
+}
+
+
+RoutineClass *RexxSourceLiteral::makeRoutine(RexxArray *source, PackageClass *parentSource) 
+{
+    RoutineClass *routine = new RoutineClass(new_string(""), source);
+    ProtectedObject p(routine);
+
+    // if there is a parent source, then merge in the scope information
+    if (parentSource != OREF_NULL)
+    {
+        routine->getSourceObject()->inheritSourceContext(parentSource->getSourceObject());
+    }
+
+    return routine;
 }
 
 
@@ -207,6 +238,57 @@ RexxContext *RexxContextualSource::getContext()
 {
     return context;
 }
+
+
+RexxObject *RexxContextualSource::getExecutable()
+{
+    RoutineClass *routine = sourceLiteral->getExecutable();
+    if (routine == OREF_NULL) return TheNilObject;
+    return routine;
+}
+
+
+/**
+ * Call a source literal routine from Rexx-level code.
+ *
+ * @param args   The call arguments.
+ * @param count  The count of arguments.
+ *
+ * @return The call result (if any).
+ */
+RexxObject *RexxContextualSource::callRexx(RexxObject **args, size_t count)
+{
+    RoutineClass *routine = sourceLiteral->getExecutable();
+    if (routine == OREF_NULL) 
+    {
+        reportException(Error_Incorrect_call_user_defined, new_string("This contextual source has no executable (deferred parsing)"));
+        return TheNilObject;
+    }
+    return routine->callRexx(args, count);
+}
+
+
+/**
+ * Call a source literal routine from Rexx-level code.
+ *
+ * @param args   The call arguments.
+ *
+ * @return The call result (if any).
+ */
+RexxObject *RexxContextualSource::callWithRexx(RexxArray *args)
+{
+    // this is required and must be an array
+    args = arrayArgument(args, ARG_ONE);
+
+    RoutineClass *routine = sourceLiteral->getExecutable();
+    if (routine == OREF_NULL) 
+    {
+        reportException(Error_Incorrect_call_user_defined, new_string("This contextual source has no executable (deferred parsing)"));
+        return TheNilObject;
+    }
+    return routine->callWithRexx(args);
+}
+
 
 
 void RexxContextualSource::live(size_t liveMark)

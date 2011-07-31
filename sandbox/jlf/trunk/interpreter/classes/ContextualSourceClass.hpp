@@ -67,12 +67,17 @@ public:
 
     RexxArray *getSource() { return source; }
     PackageClass *getPackage() { return package; }
+    RoutineClass *getExecutable() { return routine; }
 
     RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *);
 
 protected:
     RexxArray *source;
     PackageClass *package;
+    RoutineClass *routine; // A routine or null if deferred parsing
+
+private:
+    RoutineClass *makeRoutine(RexxArray *, PackageClass *);
 };
 
 
@@ -97,6 +102,9 @@ public:
     RexxArray *getSource();
     PackageClass *getPackage();
     RexxContext *getContext();
+    RexxObject *getExecutable();
+    RexxObject *callRexx(RexxObject **, size_t);
+    RexxObject *callWithRexx(RexxArray *);
 
     static void createInstance();
     static RexxClass *classInstance;   // singleton class instance

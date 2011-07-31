@@ -43,6 +43,27 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 july 31
+
+The parsing of a source literal is now immediate when the first character is not ':'.
+A routine is created and attached to the source literal.
+This routine is accessible using the method RexxContextualSource~executable.
+    routine = {say arg(1)+1}~executable
+    routine~call(99) -- 100
+For convenience, this routine is callable using the method RexxContextualSource~call.
+    {say arg(1)+1}~call(99) -- 100
+    say {return arg(1)+1}~call(99) -- 100
+
+A source literal starting with ':' is not parsed immediately (deferred parsing).
+In this case, no routine is attached to the source literal.
+    {:say arg(1)+1}~executable -- .nil
+    {:say arg(1)+1}~call(99) -- Error : Incorrect call to routine
+Such a source literal can be handled by the package extensions.cls :
+    {:say arg(1)+1}~doer~do(99) -- 100
+    ::requires "extension/extensions.cls"
+
+
+===============================================================================
 2011 july 25
 
 [pipe]
