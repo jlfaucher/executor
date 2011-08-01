@@ -70,6 +70,7 @@ void RexxSourceLiteral::live(size_t liveMark)
 {
     memory_mark(this->source);
     memory_mark(this->package);
+    memory_mark(this->routine);
 }
 
 void RexxSourceLiteral::liveGeneral(int reason)
@@ -79,6 +80,7 @@ void RexxSourceLiteral::liveGeneral(int reason)
 {
     memory_mark_general(this->source);
     memory_mark_general(this->package);
+    memory_mark_general(this->routine);
 }
 
 void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
@@ -90,6 +92,7 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 
   newThis->source = OREF_NULL;   // this never should be getting flattened, so sever the connection
   newThis->package = OREF_NULL;  // idem
+  newThis->routine = OREF_NULL;  // idem
 
   cleanUpFlatten
 }
