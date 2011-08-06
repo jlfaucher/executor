@@ -3,3 +3,6 @@ http://publib.boulder.ibm.com/infocenter/iadthelp/v6r0/index.jsp?topic=/com.ibm.
 broken link :
 http://www.ibm.com/software/ad/obj-rexx/
 
+http://pytools.codeplex.com/releases/view/70667
+http://www.reddit.com/search?q=python+tools+for+visual+studio&restrict_sr=off&sort=relevance
+

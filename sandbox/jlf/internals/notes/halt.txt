@@ -1,0 +1,281 @@
+------------------------------
+
+rexxpg
+RexxSetHalt
+
+I see two reasons to return RXARI_NOT_FOUND from RexxSetHalt :
+either the interpreter is not started
+or the threadid parameter is not registered with a RexxActivity
+(the procid parameter is not used)
+
+A RexxActivity has an attribute
+SysActivity currentThread 
+
+This SysActivity has a attribute
+(unix)    pthread_t     threadId;
+(windows) thread_id_t   threadId;
+Default value is zero (not yet created or current thread not yet assigned).
+Non zero when a system thread is assigned.
+Back to zero when closed.
+
+This attribute threadId is assigned when the RexxActivity instance is created
+RexxActivity::RexxActivity(bool createThread)
+(if createThread)      currentThread.create(this, C_STACK_SIZE);
+(if not createTread)   currentThread.useCurrentThread();
+
+
+------------------------------
+
+rexxpg
+context->Halt
+Raise a HALT condition on all threads associated with the interpreter instance
+(see haltAllActivities below)
+
+
+==================================================================
+RexxSetHalt
+==================================================================
+
+trunk/api/rexx.h
+    /***    RexxSetHalt - Request Program Halt */
+
+    RexxReturnCode REXXENTRY RexxSetHalt(
+             process_id_t,                /* Process Id                  */
+             thread_id_t);                /* Thread Id                   */
+    typedef RexxReturnCode (REXXENTRY *PFNREXXSETHALT)(process_id_t, thread_id_t);
+    #define REXXSETHALT  RexxSetHalt
+
+
+hostemu HI subcommand
+    unix :
+         RexxSetHalt(getpid(), pthread_self());
+    windows :
+         RexxSetHalt(GetCurrentProcessId(), GetCurrentThreadId());
+
+
+ * @param procid   The process id (ignored).
+ * @param threadid The target threadid
+trunk/interpreter/api/InterpreterAPI.cpp
+    RexxReturnCode REXXENTRY RexxSetHalt(process_id_t procid, thread_id_t threadid)
+    {
+        return RexxHaltThread(threadid);
+    }
+
+
+==================================================================
+RexxHaltThread
+==================================================================
+
+trunk/interpreter/api/InterpreterAPI.cpp
+RexxReturnCode REXXENTRY RexxHaltThread(thread_id_t threadid)
+{
+    if (Interpreter::isActive())
+    {                        /* Are we up?                     */
+       if (!ActivityManager::haltActivity(threadid, OREF_NULL))
+       {
+           return (RXARI_NOT_FOUND);             /* Couldn't find threadid         */
+       }
+       return (RXARI_OK);
+    }
+    return RXARI_NOT_FOUND;     /* REXX not running, error...     */
+}
+
+
+trunk/interpreter/runtime/interpreter.hpp
+    Interpreter::isActive()
+        { return active; }
+    
+    static bool   active;            // indicates whether the interpreter is initialized
+    --> set to true by Interpreter::startInterpreter
+    --> never set to false (should be by Interpreter::terminateInterpreter)
+
+
+==================================================================
+ActivityManager::haltActivity
+==================================================================
+
+trunk/interpreter/concurrency/ActivityManager.hpp
+    static bool haltActivity(thread_id_t thread_id, RexxString * description);
+
+
+trunk/interpreter/concurrency/ActivityManager.cpp
+    bool ActivityManager::haltActivity(
+         thread_id_t  thread_id,           /* target thread id                  */
+         RexxString * description )        /* description to use                */
+    {
+        ResourceSection lock("ActivityManager::haltActivity", 0);
+        // locate the activity associated with this thread_id.  If not found, return
+        // a failure.
+        RexxActivity *activity = findActivity(thread_id);
+        if (activity != OREF_NULL)
+        {
+            return activity->halt(description);
+        }
+        return false;                        // this was a failure
+    }
+
+
+==================================================================
+ActivityManager::findActivity
+==================================================================
+
+trunk/interpreter/concurrency/ActivityManager.hpp
+    static RexxActivity *findActivity(thread_id_t);
+
+
+trunk/interpreter/concurrency/ActivityManager.cpp
+    RexxActivity *ActivityManager::findActivity(thread_id_t threadId)
+    {
+        // this is a critical section
+        ResourceSection lock("ActivityManager::findActivity", 0);
+
+        // NB:  New activities are pushed on to the end, so it's prudent to search
+        // from the list end toward the front of the list.  Also, this ensures we
+        // will find the toplevel activity nested on a given thread first.
+        for (size_t listIndex = allActivities->lastIndex();
+             listIndex != LIST_END;
+             listIndex = allActivities->previousIndex(listIndex) )
+        {
+            RexxActivity *activity = (RexxActivity *)allActivities->getValue(listIndex);
+            // this should never happen, but we never return suspended threads
+            if (activity->isThread(threadId) && !activity->isSuspended())
+            {
+                return activity;
+            }
+        }
+        return OREF_NULL;
+    }
+
+
+trunk/interpreter/concurrency/ActivityManager.hpp
+    protected:
+        static RexxList         *allActivities;
+
+
+==================================================================
+RexxActivity::isTread
+==================================================================
+
+trunk/interpreter/concurrency/RexxActivity.hpp
+   bool isThread(thread_id_t id) { return currentThread.equals(id); }
+   protected:
+   SysActivity currentThread;            /* descriptor for this thread        */
+
+
+==================================================================
+SysActivity::currentThread
+==================================================================
+
+trunk/interpreter/platform/windows/SysActivity.hpp
+protected:
+    thread_id_t   threadId;         // the thread identifier
+    HANDLE        hThread;          // handle to thread (needed for some operations)
+
+trunk/interpreter/platform/unix/SysActivity.hpp
+protected:
+    pthread_t     threadId;         // the thread identifier
+
+
+
+==================================================================
+haltAllActivities
+==================================================================
+
+trunk/interpreter/api/InterpreterInstanceStubs.cpp
+    void RexxEntry Halt(RexxInstance *c)
+    {
+        InstanceApiContext context(c);
+        context.instance->haltAllActivities();
+    }
+
+
+trunk/interpreter/concurrency/ActivityManager.hpp
+    static void haltAllActivities();
+
+
+trunk/interpreter/runtime/Interpreter.hpp
+    static bool haltAllActivities();
+
+
+trunk/interpreter/runtime/Interpreter.cpp
+    /**
+     * Tell the interpreter to have all of the instances halt its activities.
+     */
+    bool Interpreter::haltAllActivities()
+    {
+        ResourceSection lock("Interpreter::haltAllActivities", 0);
+        bool result = true;
+
+        for (size_t listIndex = interpreterInstances->firstIndex() ;
+             listIndex != LIST_END;
+             listIndex = interpreterInstances->nextIndex(listIndex) )
+        {
+                                             /* Get the next message object to    */
+                                             /*process                            */
+            InterpreterInstance *instance = (InterpreterInstance *)interpreterInstances->getValue(listIndex);
+            // halt every thing
+            result = result && instance->haltAllActivities();
+        }
+        return result;
+    }
+
+
+trunk/interpreter/runtime/InterpreterInstance.hpp
+    bool haltAllActivities();
+
+
+trunk/interpreter/runtime/InterpreterInstance.cpp
+    /**
+     * Raise a halt condition on all running activities.
+     */
+    bool InterpreterInstance::haltAllActivities()
+    {
+        // make sure we lock this, since it is possible the table can get updated
+        // as a result of setting these flags
+        ResourceSection lock("InterpreterInstance::haltAllActivities", 0);
+        bool result = true;
+        for (size_t listIndex = allActivities->firstIndex() ;
+             listIndex != LIST_END;
+             listIndex = allActivities->nextIndex(listIndex) )
+        {
+                                             /* Get the next message object to    */
+                                             /*process                            */
+            RexxActivity *activity = (RexxActivity *)allActivities->getValue(listIndex);
+            // only halt the active ones
+            if (activity->isActive())
+            {
+                result = result && activity->halt(OREF_NULL);
+            }
+        }
+        return result;
+    }
+
+
+trunk/interpreter/platform/unix
+    void signalHandler(int sig)
+    {
+        ...
+        // if the signal is a ctrl-C, we perform a halt operation
+        if (sig == SIGINT)
+        {
+            Interpreter::haltAllActivities();
+            return;
+        }
+        ...
+
+
+
+trunk/interpreter/platform/unix
+    bool SystemInterpreter::processSignal(DWORD dwCtrlType)
+    {
+        ...
+        // if this is a ctrl_C, try to halt all of the activities.  If we hit this
+        // in a situation where we still have one pending, then we'll allow the system
+        // to kill the process.
+        if (dwCtrlType == CTRL_C_EVENT)
+        {
+            return Interpreter::haltAllActivities();
+        }
+        ...
+
+

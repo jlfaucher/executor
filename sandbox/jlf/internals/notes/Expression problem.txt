@@ -16,3 +16,5 @@ http://www.javarants.com/2011/01/22/using-closures-method-handles-and-extension-
 http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-3.html
 
 http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v3.pdf
+
+http://confluence.jetbrains.net/display/Kotlin/Extension+functions
