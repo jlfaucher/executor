@@ -85,6 +85,8 @@ error:
 endCount = .Coactivity~endAll
 if .ooRexxShell~isInteractive then say "Ended coactivities:" endCount
 
+if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
+
 -- 0 means ok (return 0), anything else means ko (return 1)
 return .ooRexxShell~RC <> 0  
 
@@ -163,6 +165,13 @@ main: procedure
                 .ooRexxShell~debug = .true
             when .ooRexxShell~inputrx~caselessEquals("debugoff") then
                 .ooRexxShell~debug = .false
+            when .ooRexxShell~inputrx~caselessEquals("reload") then do
+                -- Often, I modify some packages that are loaded by ooRexxShell at startup.
+                -- To benefit from the changes, I have to reload the components.
+                -- Can't do that without leaving the interpreter (to my knowledge).
+                .ooRexxShell~RC = .ooRexxShell~reload
+                exit
+            end
             when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
                 -- Change the default interpreter
                 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx)
@@ -195,7 +204,7 @@ intro: procedure
     say version
     .ooRexxShell~sayInterpreters
     say "? : to invoke ooRexx documentation."
-    say "Other commands : exit interpreters traceoff traceon."
+    say "Other commands : exit interpreters reload traceoff traceon."
     .color~select(.ooRexxShell~defaultColor)
     return
 
@@ -370,9 +379,11 @@ interpretCommand:
         .color~select(.ooRexxShell~defaultColor)
     end
     RC = 0
+    result = .ooRexxShell~result -- restore previous result
     signal on syntax name interpretError
     interpret .ooRexxShell~command
     signal off syntax
+    .ooRexxShell~result = result -- backup current result
     if RC <> 0 & .ooRexxShell~isInteractive then do
         .color~select(.ooRexxShell~infoColor)
         .error~say(.ooRexxShell~command)
@@ -433,14 +444,14 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
-    call loadPackage("pipeline/pipe.rex")
-    call loadPackage("pipeline/pipe_extension.cls") -- requires jlf sandbox ooRexx
-    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     call loadPackage("concurrency/coactivity.cls")
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("pipeline/pipe_extension.cls") -- requires jlf sandbox ooRexx
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
 
     return
     
@@ -487,6 +498,7 @@ loadLibrary:
 -------------------------------------------------------------------------------
 ::class ooRexxShell
 -------------------------------------------------------------------------------
+::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
@@ -497,6 +509,7 @@ loadLibrary:
 ::attribute isInteractive class -- Are we in interactive mode, or are we executing a one-liner ?
 ::attribute prompt class -- The prompt to display
 ::attribute RC class -- Return code from the last executed command
+::attribute result class -- result's value from the last interpreted line
 ::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...) 
 ::attribute securityManager class
 ::attribute queuePrivateName class -- Private queue for no interference with the user commands

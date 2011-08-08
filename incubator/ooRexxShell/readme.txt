@@ -88,3 +88,19 @@ Known problems under all platforms :
 See demo/hostemu_from_THE.png
 for an example of shell with 4 interpreters.
 Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
+
+
+-----------------------------------------------
+2011 aug 08
+
+New command 'reload'.
+Often, I modify some packages that are loaded by ooRexxShell at startup.
+To benefit from the changes, I have to reload the components.
+Can't do that without leaving the interpreter (to my knowledge).
+When entering 'reload', the exit value 200 (arbitrary value) is returned to the
+system, and tested from the script that launched rexx.
+Ex (Windows) :
+    :run
+    cmd /c "rexx.exe "%incubator_dir%\ooRexxShell\oorexxshell.rex""
+    if errorlevel 200 goto run
+Good point : the history of commands is kept.
