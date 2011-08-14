@@ -200,9 +200,9 @@ end
 -- Here, we receive the options that are unknown to the current pipeStage.
 if arg() == 0 then return
 do a over arg(1, "a")
-    .stderr~lineout("Unknown option '"a"'") 
+    .stderr~lineout("Unknown option '"a"'")
 end
-raise syntax 93.900 array(self~class~id ": Unknown option") 
+raise syntax 93.900 array(self~class~id ": Unknown option")
 
 ::method checkEOP
 -- Accept zero to n arguments, each argument being a pipeStage or .nil
@@ -212,7 +212,7 @@ allEOP = .true
 allNIL = .true
 do pipeStage over arg(1, "a")
     if pipeStage <> .nil then do
-        allNIL = .false 
+        allNIL = .false
         if \pipeStage~isEOP then allEOP = .false
     end
 end
@@ -421,7 +421,7 @@ unknown = .array~new
 criteria = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
-        if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end 
+        if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end
         if "byValue"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
         if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
         if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
@@ -488,7 +488,7 @@ do a over arg(1, "a")
     if a~isA(.String) then do
         if "quickSort"~caselessAbbrev(a, 1) then do ; quickSort = .true ; iterate ; end
     end
-    unknown~append(a) 
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
@@ -640,6 +640,9 @@ end
 
 /******************************************************************************/
 ::class drop public subclass pipeStage -- drop the first or last n records
+-- .drop 'first' [count=1]
+-- .drop ['first'] count
+-- .drop 'last' [count=1]
 
 ::method init
 expose counter array
@@ -649,37 +652,23 @@ forward class (super)                       -- forward the initialization
 
 ::method initOptions
 expose first count
+use strict arg opt1="first" opt2=1
 first = .true                               -- selects items from the begining by default
 count = 1                                   -- number of items to be selected by default
-firstSpecified = .false
-lastSpecified = .false
-countSpecified = .false
-unknown = .array~new
-do a over arg(1, "a")
-    if a~isA(.String) then do
-        if "first"~caselessAbbrev(a, 1) then do
-            if lastSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'first' after 'last'")
-            if countSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'first' after the number")
-            firstSpecified = .true
-            first = .true
-            iterate
-        end
-        if "last"~caselessAbbrev(a, 1) then do
-            if firstSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'last' after 'first'")
-            if countSpecified then raise syntax 93.900 array(self~class~id ": You can't specify 'last' after the number")
-            lastSpecified = .true
-            first = .false
-            iterate
-        end
-        if a~dataType("W") then do
-            count = a
-            countSpecified = .true
-            iterate
-        end
-    end
-    unknown~append(a) 
+if \ opt1~isA(.String) then forward class (super) -- forward the initialization to super to process the unknown options
+if opt1~dataType("W") then do
+    count = opt1
+    if opt2 <> "" then raise syntax 93.900 array(self~class~id ": Nothing expected after the number")
 end
-forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+else do
+    if "first"~caselessAbbrev(opt1, 1) then first = .true
+    else if "last"~caselessAbbrev(opt1, 1) then first = .false
+    else forward class (super)              -- forward the initialization to super to process the unknown options
+    if opt2 <> "" then do
+        if opt2~dataType("W") then count = opt2
+        else raise syntax 93.900 array(self~class~id ": Number expected after '"opt1"'")
+    end
+end
 
 ::method processFirst
 expose count counter
@@ -773,7 +762,7 @@ do a over arg(1, "a")
         doer = a~functionDoer("use arg value, index")
         iterate
     end
-    unknown~append(a) 
+    unknown~append(a)
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
@@ -956,7 +945,7 @@ do a over arg(1, "a")
             indexWidth = -1
             if rest <> "" then do -- index.width
                 if rest~dataType("W") then indexWidth = rest
-                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "index". in "a) 
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "index". in "a)
             end
             actions~append(.array~of("displayIndex", indexWidth))
             iterate
@@ -965,7 +954,7 @@ do a over arg(1, "a")
             valueWidth = -1
             if rest <> "" then do -- value.width
                 if rest~dataType("W") then valueWidth = rest
-                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a) 
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a)
             end
             actions~append(.array~of("displayValue", valueWidth))
             iterate
@@ -974,12 +963,12 @@ do a over arg(1, "a")
             spaceWidth = -1
             if rest <> "" then do -- space.width
                 if rest~dataType("W") then spaceWidth = rest
-                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "space". in "a) 
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "space". in "a)
             end
             actions~append(.array~of("displaySpace", spaceWidth))
             iterate
         end
-        if "newline"~caselessAbbrev(a, 1) then do 
+        if "newline"~caselessAbbrev(a, 1) then do
             actions~append(.array~of("displayNewline"))
             iterate
         end
@@ -995,19 +984,19 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
-::method arrayToString
+::method arrayToString class -- useful for debug
 use strict arg array
 string = ""
 separator = ""
 do item over array
-    string ||= separator || item~string 
+    string ||= separator || item~string
     separator = self~indexSeparator
 end
 return string
 
 ::method displayIndex
 use strict arg width, value, index
-string = self~arrayToString(index)
+string = self~class~arrayToString(index)
 if width == -1 then .output~charout(string)
                else .output~charout(string~left(width))
 
@@ -1037,7 +1026,7 @@ use strict arg expression, value, index
 expose actions
 use strict arg value, index                 -- get the data value
 if actions~items == 0 then do
-    say self~arrayToString(index) ":" value -- default display
+    say self~class~arrayToString(index) ":" value -- default display
 end
 else do
     do action over actions                 -- do each action
@@ -1077,7 +1066,7 @@ do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
     if caseless then selected = (value~string~caselessPos(patterns[i]) <> 0)
                 else selected = (value~string~pos(patterns[i]) <> 0)
-    if selected then self~write(value, index) -- send it along 
+    if selected then self~write(value, index) -- send it along
 end
 if \selected then self~writeSecondary(value, index) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
@@ -1153,6 +1142,7 @@ self~checkEOP(self~next, self~secondary)
 ::method init
 expose stem.                                -- expose target stem
 use strict arg stem.                        -- get the stem variable target
+stem.~empty
 stem.0 = 0                                  -- start with zero items
 forward class (super)                       -- forward the initialization
 
@@ -1170,6 +1160,8 @@ forward class(super)
 ::method init                               -- initialize a collector
 expose valueArray indexArray idx            -- expose target array
 use strict arg valueArray, indexArray=.nil  -- get the array variable target
+valueArray~empty
+if indexArray <> .nil then indexArray~empty
 idx = 0
 forward class (super)                       -- forward the initialization
 
@@ -1281,7 +1273,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose endString finished caseless
 use strict arg value, index
 if \finished then do                        -- still processing?
-    if caseless 
+    if caseless
         then finished = (value~string~caselessPos(endString) > 0)
         else finished = (value~string~pos(endString) > 0)
     self~write(value, index)                -- pass along
@@ -1511,6 +1503,50 @@ do char over value~string~makearray("") while self~next <> .nil, \self~next~isEO
     newindex~append(charpos)
     self~write(char, newindex)
     charpos += 1
+end
+self~checkEOP(self~next)
+
+
+/******************************************************************************/
+/*
+A system pipeStage to execute a system command and get the contents of its stdout line by line.
+To investigate : is it possible to get its stderr ? Don't see how to do that with just one queue.
+I can merge stdout and stderr before piping to rxqueue but then how to separate the lines ?
+Usage :
+    .system [command]           (where command is a string or a source literal)
+Example :
+    "*.log"~pipe(.system {"ls" value} | .console)
+    .array~of("ls", "hello", "dummy")~pipe(.system {value} | .console)
+*/
+::class system public subclass pipeStage
+
+::method initOptions
+expose command doer
+use strict arg command=.nil
+doer = .nil
+-- test only "functionDoer", not "doer" because :
+-- 1) a string has the method "doer", and will be interpreted as a message sent to the value.
+--    Not good ! I want to keep the possibility to use literal strings.
+-- 2) a functionDoer insert an "options nocommands", which is good here. You don't want to run
+--    a system command from the doer (because will not be redirected to queue:). The doer is
+--    supposed to return the command to execute.
+if command~hasMethod("functionDoer") then doer = command~functionDoer("use arg value, index")
+-- No need to : forward class (super) arguments (unknown) -- because i'm sure there is no unknown options (see use strict arg)
+
+::method process
+expose command doer
+use strict arg value, index
+if command == .nil then command = value
+else if doer <> .nil then command = doer~do(value, index)
+command "| rxqueue"
+linepos = 1
+do while queued() <> 0, self~next <> .nil, \self~next~isEOP
+    line = linein("queue:")
+    --newindex = index~copy
+    --newindex~append(linepos)
+    newindex = .array~of(command, linepos)
+    self~write(line, newindex)
+    linepos += 1
 end
 self~checkEOP(self~next)
 

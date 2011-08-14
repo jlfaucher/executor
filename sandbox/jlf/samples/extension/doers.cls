@@ -15,7 +15,7 @@ A doer can be created from :
   Can be costly since the interpreter must parse the source and create an AST.
   But you do it only once... After, you get an executable in your hands, which you can use
   as a target for the 'do' message.
-- an executable (Routine or Method) : 
+- an executable (Routine or Method) :
   No cost, this is for convenience, the doer is the executable itself.
 
 Examples :
@@ -85,7 +85,7 @@ say doer~do("John") -- 4
 
 */
 
-::class DoerFactory mixinclass Object public
+::class "DoerFactory" mixinclass Object public
 
 ::method doer abstract
 
@@ -115,12 +115,12 @@ Possible transformations :
     if self~isA(.method) then kind = "m" -- unless self is a method
     if clauser~clauseAvailable then do
         clause = clauser~clause
-        parse lower var clause word rest
-        if "::method"~abbrev(word, 3)  then do ; clauser~clause = rest ; kind = "m" ; end
-        else if "::coactivity"~abbrev(word, 3) then do ; clauser~clause = rest ; kind = "c" ; end
-        else if "::routine"~abbrev(word, 1) then do ; clauser~clause = rest ; kind = "r" ; end
+        parse var clause word rest
+        if "::method"~caselessAbbrev(word, 3)  then do ; clauser~clause = rest ; kind = "m" ; end
+        else if "::coactivity"~caselessAbbrev(word, 3) then do ; clauser~clause = rest ; kind = "c" ; end
+        else if "::routine"~caselessAbbrev(word, 1) then do ; clauser~clause = rest ; kind = "r" ; end
         else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
-        else if word~left(1) == ":" then do; clauser~clause = word~substr(2) rest ; kind = "r" ; end  
+        else if word~left(1) == ":" then do; clauser~clause = clause~substr(2) ; kind = "r" ; end
     end
 
     -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
@@ -139,13 +139,13 @@ Possible transformations :
         if expression then do
             -- If the clause is a "use [strict] arg" clause then it's not candidate to become pure expression.
             parse lower var clause word1 word2 word3 .
-            if \ (word1 == "use" & word2 == "strict" & word3 == "arg") & \ (word1 == "use" & word2 == "arg") then do 
+            if \ (word1 == "use" & word2 == "strict" & word3 == "arg") & \ (word1 == "use" & word2 == "arg") then do
                 clauser~clause = "(" clauser~clause ")"
                 expressionDone = .true
             end
         end
     end
-        
+
     -- Insert the 'clauseBefore', if any
     if clauseBefore <> "" then do
         if clauser~clauseAvailable then clauser~clause = clauseBefore ";" clauser~clause
@@ -157,7 +157,7 @@ Possible transformations :
         clauser~nextClause
         if clauser~clauseAvailable then clauser~clause = "(" clauser~clause ")"
     end
-    
+
     if expression then do
         -- If the source has more clauses then it can't be a pure expression, unless it's a return clause
         clauser~nextClause
@@ -167,7 +167,7 @@ Possible transformations :
             if clauser~clauseAvailable then raise syntax 93.900 array("Not an expression")
         end
     end
-    
+
     -- Insert the 'clauseAfter', if any
     if clauseAfter <> "" then sourceArray~append(clauseAfter)
 
@@ -182,7 +182,7 @@ Possible transformations :
 -- A Doer is an object who knows how to execute itself (understands "do")
 -- This is an abstraction of routine, method, message, coactivity.
 
-::class Doer mixinclass Object public inherit DoerFactory
+::class "Doer" mixinclass Object public inherit DoerFactory
 
 ::method needsObject abstract
 ::method do abstract
@@ -192,7 +192,7 @@ Possible transformations :
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class RoutineDoer mixinclass Object public inherit Doer
+::class "RoutineDoer" mixinclass Object public inherit Doer
 
 ::method doer
     use strict arg -- none
@@ -220,7 +220,7 @@ The method 'run' is a private method. So can be called only from another method 
 "hello"~run({::method say self}~doer) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
 {::method say self}~doer~do("hello") --> No error, display "hello" (so the private method is visible ?)
 */
-::class MethodDoer mixinclass Object public inherit Doer
+::class "MethodDoer" mixinclass Object public inherit Doer
 
 ::method doer
     use strict arg -- none
@@ -243,7 +243,7 @@ The method 'run' is a private method. So can be called only from another method 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class StringDoer mixinclass Object public inherit Doer
+::class "StringDoer" mixinclass Object public inherit Doer
 
 ::method doer
     use strict arg -- none
@@ -283,10 +283,11 @@ The method 'run' is a private method. So can be called only from another method 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class RexxContextualSourceDoer mixinclass Object public inherit DoerFactory
+::class "RexxContextualSourceDoer" mixinclass Object public inherit DoerFactory
 
 ::method doer
     use strict arg -- none
+    if self~executable <> .nil then return self~executable
     return self~sourceDoer
 
 -- Could be defined on DoerFactory to give access to this functionality from any doer,
@@ -296,27 +297,36 @@ The method 'run' is a private method. So can be called only from another method 
 -- explicit return, if needed.
 ::method functionDoer
     use strict arg clauseBefore="", clauseAfter=""
+    -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
+    -- if self~executable <> .nil then return self~executable
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
-    signal on syntax
-    -- try first by surrounding with round brackets,
-    -- that lets support expressions like "arg()" which is otherwise an invalid expression :
+    -- try first to parse the source as-is
+    signal on syntax name syntax1
+    return self~sourceDoer(clauseBefore, clauseAfter)
+    syntax1:
+    -- The source as-is can't be parsed, try surrounding with round brackets...
+    -- That lets support expressions like "arg()" which is otherwise an invalid expression :
     -- Missing expression following ( of parse template
+    signal on syntax name syntax2
     return self~sourceDoer(clauseBefore, clauseAfter, , .true)
-    syntax:
-    -- the source is not a pure expression
+    syntax2:
+    -- The source is not a pure expression, fallback (again) to source as-is
+    -- that will raise a syntax error, but this time, don't catch the error.
     return self~sourceDoer(clauseBefore, clauseAfter)
 
 -- Same remark as above.
 ::method actionDoer
     use strict arg clauseBefore="", clauseAfter=""
+    -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
+    -- if self~executable <> .nil then return self~executable
     return self~sourceDoer(clauseBefore, clauseAfter)
 
 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class CoactivityDoer mixinclass Object public inherit Doer
+::class "CoactivityDoer" mixinclass Object public inherit Doer
 
 ::method doer
     use strict arg -- none
@@ -347,7 +357,7 @@ The new clause is inserted as-is and not iterated over by the clauser.
 Of course, you can create a new clauser using the modified source, and
 then you will iterate over your modified clauses.
 While you don't call ~nextClause, ~clause will return the last assigned value,
-which can be anything, like an empty string or a string containing several clauses.  
+which can be anything, like an empty string or a string containing several clauses.
 
 Exemple :
 
@@ -357,6 +367,9 @@ csource = {
 
     clause2 ; clause3
     clause4 ; ;
+    clause5a, -- comment
+    clause5b /* multiline
+    comment */ clause5c ; clause6
 }
 sourceArray = csource~source -- Each time you call this method, you get a copy of the original source literal
 
@@ -368,13 +381,14 @@ do sourceLine over sourceArray
 end
 
 say
-say "Iterate over the clauses, modify clause2 and remove clause3:"
+say "Iterate over the clauses, surround clause2, remove clause3, shrink clause5:"
 clauser = .Clauser~new(sourceArray) -- The clauser works directly on this source array, no copy
 i = 1
 do while clauser~clauseAvailable
     clause = clauser~clause
-    if clause~strip == "clause2" then clauser~clause = "clause2 before ; "clause" ; clause2 after"
-    if clause~strip == "clause3" then clauser~clause = ""
+    if clause~match(1, "clause2") then clauser~clause = "clause2 before ; "clause" ; clause2 after"
+    if clause~match(1, "clause3") then clauser~clause = ""
+    if clause~match(1, "clause5") then clauser~clause = "clause5"
     say i '"'clause'" --> "'clauser~clause'"'
     clauser~nextClause
     i += 1
@@ -406,12 +420,17 @@ Iterate over the original source :
 3 ""
 4 "    clause2 ; clause3"
 5 "    clause4 ; ;"
+6 "    clause5a, -- comment"
+7 "    clause5b /* multiline"
+8 "    comment */ clause5c ; clause6"
 
-Iterate over the clauses, modify clause2 and remove clause3:
+Iterate over the clauses, surround clause2, remove clause3, shrink clause5:
 1 "clause1" --> "clause1"
 2 "clause2" --> "clause2 before ; clause2 ; clause2 after"
 3 "clause3" --> ""
 4 "clause4" --> "clause4"
+5 "clause5a     clause5b  clause5c" --> "clause5"
+6 "clause6" --> "clause6"
 
 Iterate over the modified source :
 1 ""
@@ -419,6 +438,9 @@ Iterate over the modified source :
 3 ""
 4 "clause2 before ; clause2 ; clause2 after;"
 5 "    clause4 ; ;"
+6 "clause5"
+7 ""
+8 "; clause6"
 
 Iterate over the clauses of the modified source :
 1 "clause1"
@@ -426,9 +448,11 @@ Iterate over the clauses of the modified source :
 3 "clause2"
 4 "clause2 after"
 5 "clause4"
+6 "clause5"
+7 "clause6"
 */
 
-::class Clauser public
+::class "Clauser" public
 
 -- Special characters : Must be more than one char, to never be equal to a source char
 ::constant CLAUSEEND_EOF 10
@@ -494,7 +518,7 @@ Iterate over the clauses of the modified source :
         clauseEndOffset = sourceArray[clauseStartLine]~length
     end
     clause = newSourceFragment -- If you recall ~clause then you will get the modified clause
-    
+
 ::method nextClause -- next non empty stripped clause
     expose lineNum lineOffset clauseStartLine clauseStartOffset buffer clause
     do while lineNum <> .nil
@@ -705,7 +729,7 @@ Iterate over the clauses of the modified source :
     left3 = str~left(3)
     if left2 == "==" then return .false
     if left1 == "=" then return .true
-    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true 
+    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true
     if "//= ||= &&="~pos(left3) <> 0 then return .true
     return .false
 

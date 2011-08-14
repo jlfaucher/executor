@@ -9,21 +9,21 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Mixins
 -- Reduce
 
-::class StringReduce mixinclass Object public
+::class "StringReduce" mixinclass Object public
 
 ::method reduce
     use strict arg action
     return self~makearray("")~reduce(action)
 
 
-::class CollectionReduce mixinclass Object public
+::class "CollectionReduce" mixinclass Object public
 
 ::method reduce
     use strict arg action
     return self~supplier~reduce(action)
 
 
-::class SupplierReduce mixinclass Object public
+::class "SupplierReduce" mixinclass Object public
 
 ::method reduce
     use strict arg action
@@ -44,7 +44,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Mixins
 -- Map
 
-::class StringMap mixinclass Object public
+::class "StringMap" mixinclass Object public
 
 ::method map
     forward message "mapChar"
@@ -60,7 +60,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return .MutableBuffer~new(self)~mapword(action, .true)~string
 
 
-::class MutableBufferMap mixinclass Object public
+::class "MutableBufferMap" mixinclass Object public
 
 ::method map
     forward message "mapChar"
@@ -101,7 +101,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- These 4 classes are subclasses of  OrderedCollection.
 -- I don't use a supplier because it works on a snapshot of the collection and is not done for updating the collection
 -- (when inplace == .true the collection is updated in place)
-::class OrderedCollectionMap mixinclass Object public
+::class "OrderedCollectionMap" mixinclass Object public
 
 ::method map
     use strict arg action, inplace=.false
@@ -122,7 +122,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Mixins
 -- Repeater
 
-::class StringRepeater mixinclass Object public
+::class "StringRepeater" mixinclass Object public
 
 ::method times
     use strict arg action
@@ -140,12 +140,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
     end
     return self
 
-    
+
 -----------------------------------------------------------------------------
 -- Mixins
 -- Iterator
 
-::class CollectionIterator mixinclass Object public
+::class "CollectionIterator" mixinclass Object public
 
 ::method each
     use strict arg action
@@ -153,7 +153,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self
 
 
-::class SupplierIterator mixinclass Object public
+::class "SupplierIterator" mixinclass Object public
 
 ::method each
     use strict arg action

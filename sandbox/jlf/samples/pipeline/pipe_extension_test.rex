@@ -64,33 +64,43 @@ nop
 
 
 -- Do something for each item (no returned value).
-.array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='.console~arrayToString(index)} | .console)
 
 
 -- Do something for each item (the returned result replaces the item's value).
-.array~of(1, 2, 3)~pipe(.do {return 2*value} | .console)
+-- Note : the index created by .do is a pair (value, resultIndex) where
+--     value is the processed value.
+--     resultIndex is the index of the current result calculated with value.
+-- Here, only one result is calculated for a value, so resultIndex is always 1.
+.array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
 
 
--- Inject a value for each item (the returned value is appended). 
+-- Inject a value for each item (the returned value is appended).
 -- The index of the injected value is pushed on the current index.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex append | .console)
+-- Index, 1st column : index of the values in the array on entry (1, 3, 5)
+-- Index, 2nd column and 3rd column : pair (value, resultIndex)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex append | .console)
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, 2, 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
 -- The option 'append' is not used, so the initial value is discarded.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
-.array~of(1, 2, 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
-.array~of(1, 2, 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
+-- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
+-- Ex : the last line is
+-- 5|3|1|90|1|2700|1 : 81000
+-- The item at index 5 in input array has generated 3 pairs by recursion : (3,1) then (90,1) then (2700,1)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
 
 
 -- Factorial, no value injected for -1
--- The option 'pushIndex' is not used, so the index remains made of one value.
+-- The option 'pushIndex' is not used, so the index remains made of one pair (value, resultIndex).
 .array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject {
     use arg n
     if n < 0 then return
@@ -172,8 +182,8 @@ nop
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
     .inject {value~importedPackages} recursive append pushIndex |,
-    .console index.15,
-             {'    '~copies(index~items)},
+    .console index.75,
+             {'  '~copies(index~items)},
              {.file~new(value~name)~name},
              newline,
     )
@@ -182,8 +192,8 @@ nop
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
     .inject {value~importedPackages} recursive.breadthFirst append pushIndex |,
-    .console index.15,
-             {'    '~copies(index~items)},
+    .console index.75,
+             {'  '~copies(index~items)},
              {.file~new(value~name)~name},
              newline,
     )
@@ -242,12 +252,14 @@ installdir()~pipe(,
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
---     .take 2 {index[2]}
--- Here, index[2] is the name of the file.
+--     .take 2 {index[3]}
+-- Here, index[3] is the name of the file.
 -- Exemple of result :
--- 352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|250|2 : DeleteDesktopIcon
--- "DeleteDesktopIcon" is the 2nd word of the 352th line of the file  
+-- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
+-- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
 -- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
+-- which is the 335th file/directory of the directory
+-- "d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/"
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
@@ -255,7 +267,7 @@ installdir()~pipeProfile(,
     .fileTree recursive |,
     .select {filespec('e', value~name) == 'cls'} |,
     .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index[2]} | .sort caseless | .console,
+    .take 2 {index[3]} | .sort caseless | .console,
     )
 
 
@@ -266,6 +278,7 @@ say installdir() ; say
 ::requires "extension/extensions.cls"
 ::requires "concurrency/coactivity.cls"
 ::requires "pipeline/pipe_extension.cls"
+::requires "rgf_util2/rgf_util2_wrappers.rex"
 
 
 -------------------------------------------------------------------------------

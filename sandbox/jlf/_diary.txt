@@ -45,6 +45,66 @@ http://slatelanguage.org/
 ===============================================================================
 2011 aug 14
 
+[doers]
+
+Modified functionDoer : Try first the source as-is, and in case of error try
+the 'clause transformed to expression'.
+Before this change :
+    say {if .true then 2}~functionDoer~do 
+    -- display : "IF 1 THEN 2"
+    -- because the clause has been transformed to an expression.
+    say {if .true then 2}~functionDoer~source~tostring
+    -- display :
+    -- options "NOCOMMANDS" ; ( if .true then 2 )
+    --  ; if var("result") then return result    
+Now :
+    say {if .true then 2}~functionDoer~do 
+    -- display : "2"
+    -- because the clause remains as-is :
+    -- options "NOCOMMANDS" ; if .true then 2
+    --  ; if var("result") then return result    
+
+
+[pipes]
+
+New pipeStages :
+.superClasses    : equivalent to .inject {value~superClasses}
+.subClasses      : equivalent to .inject {value~subClasses}
+.methods         : equivalent to .inject {value~methods}
+.instanceMethods : equivalent to .inject {value~instanceMethods}
+.system          : to execute a system command and get the contents of its stdout line by line
+
+The index created by .inject is now a pair (value, resultIndex) where
+- value is the processed value.
+- resultIndex is the index of the current result calculated with value.
+When doing recursive calculations and using the pushIndex option, the index
+is like a call stack with intermediate results : you get one pair 
+(value, resultIndex) for each level of recursion.
+Ex :
+.stream~pipe(.superclasses recursive pushIndex | .console)
+1|The Stream class|1 : The InputOutputStream class
+1|The Stream class|1|The InputOutputStream class|1 : The Object class
+1|The Stream class|1|The InputOutputStream class|2 : The InputStream class
+1|The Stream class|1|The InputOutputStream class|2|The InputStream class|1 : The Object class
+1|The Stream class|1|The InputOutputStream class|3 : The OutputStream class
+1|The Stream class|1|The InputOutputStream class|3|The OutputStream class|1 : The Object class
+
+New option 'unique' added to .inject.
+When used, a value that has been already processed will not be processed again.
+No need of having sorted values, a list of all previously processed values is kept.
+This option is different from 'cycles' which lets stop infinite recursion (use
+also a list, but the list is limited to the call stack).
+Ex :
+.stream~pipe(.superclasses recursive pushIndex unique | .console)
+1|The Stream class|1 : The InputOutputStream class
+1|The Stream class|1|The InputOutputStream class|1 : The Object class
+1|The Stream class|1|The InputOutputStream class|2 : The InputStream class
+1|The Stream class|1|The InputOutputStream class|3 : The OutputStream class
+
+
+===============================================================================
+2011 aug 14
+
 Fixed a crash that occured after GC : in RexxActivity::createConditionObject),
 the value returned by new_directory() must be protected.
 

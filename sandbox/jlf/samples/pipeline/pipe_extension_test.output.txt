@@ -102,87 +102,97 @@ HELLO
 
 
 -- Do something for each item (no returned value).
-.array~of(1, 2, 3)~pipe(.do {say 'value='value 'index='index} | .console)
-value=1 index=an Array
-value=2 index=an Array
-value=3 index=an Array
+.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='.console~arrayToString(index)} | .console)
+value=1 index=1
+value=2 index=3
+value=3 index=5
 
 
 -- Do something for each item (the returned result replaces the item's value).
-.array~of(1, 2, 3)~pipe(.do {return 2*value} | .console)
-1 : 2
-1 : 4
-1 : 6
+-- Note : the index created by .do is a pair (value, resultIndex) where
+--     value is the processed value.
+--     resultIndex is the index of the current result calculated with value.
+-- Here, only one result is calculated for a value, so resultIndex is always 1.
+.array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
+1|1 : 2
+2|1 : 4
+3|1 : 6
 
 
 -- Inject a value for each item (the returned value is appended). 
 -- The index of the injected value is pushed on the current index.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex append | .console)
-1 : 1
-1|1 : 10
-2 : 2
-2|1 : 20
-3 : 3
-3|1 : 30
+-- Index, 1st column : index of the values in the array on entry (1, 3, 5)
+-- Index, 2nd column and 3rd column : pair (value, resultIndex)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex append | .console)
+1|1|1 : 1
+1|1|1 : 10
+3|2|1 : 2
+3|2|1 : 20
+5|3|1 : 3
+5|3|1 : 30
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, 2, 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
-1 : 1
-1|1 : 10
-1|2 : 20
-2 : 2
-2|1 : 20
-2|2 : 40
-3 : 3
-3|1 : 30
-3|2 : 60
+.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
+1|1|1 : 1
+1|1|1 : 10
+1|1|2 : 20
+3|2|1 : 2
+3|2|1 : 20
+3|2|2 : 40
+5|3|1 : 3
+5|3|1 : 30
+5|3|2 : 60
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
 -- The option 'append' is not used, so the initial value is discarded.
-.array~of(1, 2, 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
-1|1 : 10
-2|1 : 20
-3|1 : 30
-.array~of(1, 2, 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
-1|1 : 20
-1|1|1 : 400
-2|1 : 40
-2|1|1 : 800
-3|1 : 60
-3|1|1 : 1200
-.array~of(1, 2, 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
-1|1 : 30
-1|1|1 : 900
-1|1|1|1 : 27000
-2|1 : 60
-2|1|1 : 1800
-2|1|1|1 : 54000
-3|1 : 90
-3|1|1 : 2700
-3|1|1|1 : 81000
+-- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
+-- Ex : the last line is
+-- 5|3|1|90|1|2700|1 : 81000
+-- The item at index 5 in input array has generated 3 pairs by recursion : (3,1) then (90,1) then (2700,1)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
+1|1|1 : 10
+3|2|1 : 20
+5|3|1 : 30
+.array~of(1, , 2, , 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
+1|1|1 : 20
+1|1|1|20|1 : 400
+3|2|1 : 40
+3|2|1|40|1 : 800
+5|3|1 : 60
+5|3|1|60|1 : 1200
+.array~of(1, , 2, , 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
+1|1|1 : 30
+1|1|1|30|1 : 900
+1|1|1|30|1|900|1 : 27000
+3|2|1 : 60
+3|2|1|60|1 : 1800
+3|2|1|60|1|1800|1 : 54000
+5|3|1 : 90
+5|3|1|90|1 : 2700
+5|3|1|90|1|2700|1 : 81000
 
 
 -- Factorial, no value injected for -1
--- The option 'pushIndex' is not used, so the index remains made of one value.
+-- The option 'pushIndex' is not used, so the index remains made of one pair (value, resultIndex).
 .array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject {
     use arg n
     if n < 0 then return
     if n == 0 then return 1
     return n * .context~executable~call(n - 1)} | .console)
-1 : 1
-1 : 1
-1 : 2
-1 : 6
-1 : 24
-1 : 120
-1 : 720
-1 : 5040
-1 : 40320
-1 : 362880
+0|1 : 1
+1|1 : 1
+2|1 : 2
+3|1 : 6
+4|1 : 24
+5|1 : 120
+6|1 : 720
+7|1 : 5040
+8|1 : 40320
+9|1 : 362880
 
 
 -- Select files in the installation directory, whose name contains "rexx".
@@ -354,87 +364,87 @@ UNSETMETHOD : a Method
     .sort byIndex |,
     .console,
     )
-1 : The RexxContext class
-1|<> : a Method
-1|= : a Method
-1|== : a Method
-1|>< : a Method
-1|BASECLASS : a Method
-1|DEFAULTNAME : a Method
-1|DEFINE : a Method
-1|DELETE : a Method
-1|ENHANCED : a Method
-1|HASHCODE : a Method
-1|ID : a Method
-1|INHERIT : a Method
-1|ISSUBCLASSOF : a Method
-1|METACLASS : a Method
-1|METHOD : a Method
-1|METHODS : a Method
-1|MIXINCLASS : a Method
-1|QUERYMIXINCLASS : a Method
-1|SUBCLASS : a Method
-1|SUBCLASSES : a Method
-1|SUPERCLASS : a Method
-1|SUPERCLASSES : a Method
-1|UNINHERIT : a Method
-1|\= : a Method
-1|\== : a Method
-2 : The Package class
-2|<> : a Method
-2|= : a Method
-2|== : a Method
-2|>< : a Method
-2|BASECLASS : a Method
-2|DEFAULTNAME : a Method
-2|DEFINE : a Method
-2|DELETE : a Method
-2|ENHANCED : a Method
-2|HASHCODE : a Method
-2|ID : a Method
-2|INHERIT : a Method
-2|ISSUBCLASSOF : a Method
-2|METACLASS : a Method
-2|METHOD : a Method
-2|METHODS : a Method
-2|MIXINCLASS : a Method
-2|QUERYMIXINCLASS : a Method
-2|SUBCLASS : a Method
-2|SUBCLASSES : a Method
-2|SUPERCLASS : a Method
-2|SUPERCLASSES : a Method
-2|UNINHERIT : a Method
-2|\= : a Method
-2|\== : a Method
-3 : The Method class
-3|!DEFINE_CLASS_METHOD : a Method
-3|!DEFINE_METHODS : a Method
-3|!REXXDEFINED : a Method
-3|<> : a Method
-3|= : a Method
-3|== : a Method
-3|>< : a Method
-3|BASECLASS : a Method
-3|DEFAULTNAME : a Method
-3|DEFINE : a Method
-3|DELETE : a Method
-3|ENHANCED : a Method
-3|HASHCODE : a Method
-3|ID : a Method
-3|INHERIT : a Method
-3|ISSUBCLASSOF : a Method
-3|METACLASS : a Method
-3|METHOD : a Method
-3|METHODS : a Method
-3|MIXINCLASS : a Method
-3|QUERYMIXINCLASS : a Method
-3|SUBCLASS : a Method
-3|SUBCLASSES : a Method
-3|SUPERCLASS : a Method
-3|SUPERCLASSES : a Method
-3|UNINHERIT : a Method
-3|\= : a Method
-3|\== : a Method
+1|The RexxContext class|1 : The RexxContext class
+1|The RexxContext class|<> : a Method
+1|The RexxContext class|= : a Method
+1|The RexxContext class|== : a Method
+1|The RexxContext class|>< : a Method
+1|The RexxContext class|BASECLASS : a Method
+1|The RexxContext class|DEFAULTNAME : a Method
+1|The RexxContext class|DEFINE : a Method
+1|The RexxContext class|DELETE : a Method
+1|The RexxContext class|ENHANCED : a Method
+1|The RexxContext class|HASHCODE : a Method
+1|The RexxContext class|ID : a Method
+1|The RexxContext class|INHERIT : a Method
+1|The RexxContext class|ISSUBCLASSOF : a Method
+1|The RexxContext class|METACLASS : a Method
+1|The RexxContext class|METHOD : a Method
+1|The RexxContext class|METHODS : a Method
+1|The RexxContext class|MIXINCLASS : a Method
+1|The RexxContext class|QUERYMIXINCLASS : a Method
+1|The RexxContext class|SUBCLASS : a Method
+1|The RexxContext class|SUBCLASSES : a Method
+1|The RexxContext class|SUPERCLASS : a Method
+1|The RexxContext class|SUPERCLASSES : a Method
+1|The RexxContext class|UNINHERIT : a Method
+1|The RexxContext class|\= : a Method
+1|The RexxContext class|\== : a Method
+2|The Package class|1 : The Package class
+2|The Package class|<> : a Method
+2|The Package class|= : a Method
+2|The Package class|== : a Method
+2|The Package class|>< : a Method
+2|The Package class|BASECLASS : a Method
+2|The Package class|DEFAULTNAME : a Method
+2|The Package class|DEFINE : a Method
+2|The Package class|DELETE : a Method
+2|The Package class|ENHANCED : a Method
+2|The Package class|HASHCODE : a Method
+2|The Package class|ID : a Method
+2|The Package class|INHERIT : a Method
+2|The Package class|ISSUBCLASSOF : a Method
+2|The Package class|METACLASS : a Method
+2|The Package class|METHOD : a Method
+2|The Package class|METHODS : a Method
+2|The Package class|MIXINCLASS : a Method
+2|The Package class|QUERYMIXINCLASS : a Method
+2|The Package class|SUBCLASS : a Method
+2|The Package class|SUBCLASSES : a Method
+2|The Package class|SUPERCLASS : a Method
+2|The Package class|SUPERCLASSES : a Method
+2|The Package class|UNINHERIT : a Method
+2|The Package class|\= : a Method
+2|The Package class|\== : a Method
+3|The Method class|!DEFINE_CLASS_METHOD : a Method
+3|The Method class|!DEFINE_METHODS : a Method
+3|The Method class|!REXXDEFINED : a Method
+3|The Method class|1 : The Method class
+3|The Method class|<> : a Method
+3|The Method class|= : a Method
+3|The Method class|== : a Method
+3|The Method class|>< : a Method
+3|The Method class|BASECLASS : a Method
+3|The Method class|DEFAULTNAME : a Method
+3|The Method class|DEFINE : a Method
+3|The Method class|DELETE : a Method
+3|The Method class|ENHANCED : a Method
+3|The Method class|HASHCODE : a Method
+3|The Method class|ID : a Method
+3|The Method class|INHERIT : a Method
+3|The Method class|ISSUBCLASSOF : a Method
+3|The Method class|METACLASS : a Method
+3|The Method class|METHOD : a Method
+3|The Method class|METHODS : a Method
+3|The Method class|MIXINCLASS : a Method
+3|The Method class|QUERYMIXINCLASS : a Method
+3|The Method class|SUBCLASS : a Method
+3|The Method class|SUBCLASSES : a Method
+3|The Method class|SUPERCLASS : a Method
+3|The Method class|SUPERCLASSES : a Method
+3|The Method class|UNINHERIT : a Method
+3|The Method class|\= : a Method
+3|The Method class|\== : a Method
 
 
 -- Methods (not inherited) of all the classes whose id starts with "R".
@@ -445,136 +455,149 @@ UNSETMETHOD : a Method
     .sort byIndex |,
     .console,
     )
-RELATION : The Relation class
-RELATION|ALLAT : a Method
-RELATION|ALLINDEX : a Method
-RELATION|ALLINDEXES : a Method
-RELATION|ALLITEMS : a Method
-RELATION|AT : a Method
-RELATION|DIFFERENCE : a Method
-RELATION|EMPTY : a Method
-RELATION|HASINDEX : a Method
-RELATION|HASITEM : a Method
-RELATION|INDEX : a Method
-RELATION|INTERSECTION : a Method
-RELATION|ISEMPTY : a Method
-RELATION|ITEMS : a Method
-RELATION|MAKEARRAY : a Method
-RELATION|PUT : a Method
-RELATION|READOBJECT : a Method
-RELATION|REMOVE : a Method
-RELATION|REMOVEALL : a Method
-RELATION|REMOVEITEM : a Method
-RELATION|SUBSET : a Method
-RELATION|SUPPLIER : a Method
-RELATION|UNION : a Method
-RELATION|WRITEOBJECT : a Method
-RELATION|XOR : a Method
-RELATION|[] : a Method
-RELATION|[]= : a Method
-REXXCONTEXT : The RexxContext class
-REXXCONTEXT|ARGS : a Method
-REXXCONTEXT|CONDITION : a Method
-REXXCONTEXT|COPY : a Method
-REXXCONTEXT|DIGITS : a Method
-REXXCONTEXT|EXECUTABLE : a Method
-REXXCONTEXT|FORM : a Method
-REXXCONTEXT|FUZZ : a Method
-REXXCONTEXT|LINE : a Method
-REXXCONTEXT|PACKAGE : a Method
-REXXCONTEXT|RS : a Method
-REXXCONTEXT|VARIABLES : a Method
-REXXCONTEXTUALSOURCE : The RexxContextualSource class
-REXXCONTEXTUALSOURCE|CONTEXT : a Method
-REXXCONTEXTUALSOURCE|COPY : a Method
-REXXCONTEXTUALSOURCE|PACKAGE : a Method
-REXXCONTEXTUALSOURCE|SOURCE : a Method
-REXXQUEUE : The RexxQueue class
-REXXQUEUE|DELETE : a Method
-REXXQUEUE|EMPTY : a Method
-REXXQUEUE|GET : a Method
-REXXQUEUE|INIT : a Method
-REXXQUEUE|LINEIN : a Method
-REXXQUEUE|LINEOUT : a Method
-REXXQUEUE|MAKEARRAY : a Method
-REXXQUEUE|PULL : a Method
-REXXQUEUE|PUSH : a Method
-REXXQUEUE|QUEUE : a Method
-REXXQUEUE|QUEUED : a Method
-REXXQUEUE|SAY : a Method
-REXXQUEUE|SET : a Method
-ROUTINE : The Routine class
-ROUTINE|CALL : a Method
-ROUTINE|CALLWITH : a Method
-ROUTINE|PACKAGE : a Method
-ROUTINE|SETSECURITYMANAGER : a Method
-ROUTINE|SOURCE : a Method
+RELATION|The Relation class|1 : The Relation class
+RELATION|The Relation class|ALLAT : a Method
+RELATION|The Relation class|ALLINDEX : a Method
+RELATION|The Relation class|ALLINDEXES : a Method
+RELATION|The Relation class|ALLITEMS : a Method
+RELATION|The Relation class|AT : a Method
+RELATION|The Relation class|DIFFERENCE : a Method
+RELATION|The Relation class|EMPTY : a Method
+RELATION|The Relation class|HASINDEX : a Method
+RELATION|The Relation class|HASITEM : a Method
+RELATION|The Relation class|INDEX : a Method
+RELATION|The Relation class|INTERSECTION : a Method
+RELATION|The Relation class|ISEMPTY : a Method
+RELATION|The Relation class|ITEMS : a Method
+RELATION|The Relation class|MAKEARRAY : a Method
+RELATION|The Relation class|PUT : a Method
+RELATION|The Relation class|READOBJECT : a Method
+RELATION|The Relation class|REMOVE : a Method
+RELATION|The Relation class|REMOVEALL : a Method
+RELATION|The Relation class|REMOVEITEM : a Method
+RELATION|The Relation class|SUBSET : a Method
+RELATION|The Relation class|SUPPLIER : a Method
+RELATION|The Relation class|UNION : a Method
+RELATION|The Relation class|WRITEOBJECT : a Method
+RELATION|The Relation class|XOR : a Method
+RELATION|The Relation class|[] : a Method
+RELATION|The Relation class|[]= : a Method
+REXXCONTEXT|The RexxContext class|1 : The RexxContext class
+REXXCONTEXT|The RexxContext class|ARGS : a Method
+REXXCONTEXT|The RexxContext class|CONDITION : a Method
+REXXCONTEXT|The RexxContext class|COPY : a Method
+REXXCONTEXT|The RexxContext class|DIGITS : a Method
+REXXCONTEXT|The RexxContext class|EXECUTABLE : a Method
+REXXCONTEXT|The RexxContext class|FORM : a Method
+REXXCONTEXT|The RexxContext class|FUZZ : a Method
+REXXCONTEXT|The RexxContext class|LINE : a Method
+REXXCONTEXT|The RexxContext class|PACKAGE : a Method
+REXXCONTEXT|The RexxContext class|RS : a Method
+REXXCONTEXT|The RexxContext class|VARIABLES : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|1 : The RexxContextualSource class
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|CALL : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|CALLWITH : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|CONTEXT : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|COPY : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|EXECUTABLE : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|PACKAGE : a Method
+REXXCONTEXTUALSOURCE|The RexxContextualSource class|SOURCE : a Method
+REXXQUEUE|The RexxQueue class|1 : The RexxQueue class
+REXXQUEUE|The RexxQueue class|DELETE : a Method
+REXXQUEUE|The RexxQueue class|EMPTY : a Method
+REXXQUEUE|The RexxQueue class|GET : a Method
+REXXQUEUE|The RexxQueue class|INIT : a Method
+REXXQUEUE|The RexxQueue class|LINEIN : a Method
+REXXQUEUE|The RexxQueue class|LINEOUT : a Method
+REXXQUEUE|The RexxQueue class|MAKEARRAY : a Method
+REXXQUEUE|The RexxQueue class|PULL : a Method
+REXXQUEUE|The RexxQueue class|PUSH : a Method
+REXXQUEUE|The RexxQueue class|QUEUE : a Method
+REXXQUEUE|The RexxQueue class|QUEUED : a Method
+REXXQUEUE|The RexxQueue class|SAY : a Method
+REXXQUEUE|The RexxQueue class|SET : a Method
+ROUTINE|The Routine class|1 : The Routine class
+ROUTINE|The Routine class|CALL : a Method
+ROUTINE|The Routine class|CALLWITH : a Method
+ROUTINE|The Routine class|PACKAGE : a Method
+ROUTINE|The Routine class|SETSECURITYMANAGER : a Method
+ROUTINE|The Routine class|SOURCE : a Method
 
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
     .inject {value~importedPackages} recursive append pushIndex |,
-    .console index.15,
-             {'    '~copies(index~items)},
+    .console index.75,
+             {'  '~copies(index~items)},
              {.file~new(value~name)~name},
              newline,
     )
-1                  pipe_extension_test.rex
-1|1                    extensions.cls
-1|1|1                      doers.cls
-1|1|1|1                        coactivity.cls
-1|1|1|1|1                          activity.cls
-1|1|2                      functionals.cls
-1|1|2|1                        doers.cls
-1|1|2|1|1                          coactivity.cls
-1|1|2|1|1|1                            activity.cls
-1|1|3                      coactivity.cls
-1|1|3|1                        activity.cls
-1|2                    coactivity.cls
-1|2|1                      activity.cls
-1|3                    pipe_extension.cls
-1|3|1                      pipe.rex
-1|3|1|1                        profiling.cls
-1|3|2                      doers.cls
-1|3|2|1                        coactivity.cls
-1|3|2|1|1                          activity.cls
-1|3|3                      coactivity.cls
-1|3|3|1                        activity.cls
-1|3|4                      rgf_util2_wrappers.rex
-1|3|4|1                        rgf_util2.rex
+1|a Package|1                                                                    pipe_extension_test.rex
+1|a Package|1                                                                    extensions.cls
+1|a Package|1|a Package|1                                                            doers.cls
+1|a Package|1|a Package|1|a Package|1                                                    coactivity.cls
+1|a Package|1|a Package|1|a Package|1|a Package|1                                            activity.cls
+1|a Package|1|a Package|2                                                            functionals.cls
+1|a Package|1|a Package|2|a Package|1                                                    doers.cls
+1|a Package|1|a Package|2|a Package|1|a Package|1                                            coactivity.cls
+1|a Package|1|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
+1|a Package|1|a Package|3                                                            coactivity.cls
+1|a Package|1|a Package|3|a Package|1                                                    activity.cls
+1|a Package|2                                                                    coactivity.cls
+1|a Package|2|a Package|1                                                            activity.cls
+1|a Package|3                                                                    pipe_extension.cls
+1|a Package|3|a Package|1                                                            pipe.rex
+1|a Package|3|a Package|1|a Package|1                                                    profiling.cls
+1|a Package|3|a Package|2                                                            extensions.cls
+1|a Package|3|a Package|2|a Package|1                                                    doers.cls
+1|a Package|3|a Package|2|a Package|1|a Package|1                                            coactivity.cls
+1|a Package|3|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
+1|a Package|3|a Package|2|a Package|2                                                    functionals.cls
+1|a Package|3|a Package|2|a Package|2|a Package|1                                            doers.cls
+1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1                                    coactivity.cls
+1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1|a Package|1                            activity.cls
+1|a Package|3|a Package|2|a Package|3                                                    coactivity.cls
+1|a Package|3|a Package|2|a Package|3|a Package|1                                            activity.cls
+1|a Package|4                                                                    rgf_util2_wrappers.rex
+1|a Package|4|a Package|1                                                            rgf_util2.rex
 
 
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
     .inject {value~importedPackages} recursive.breadthFirst append pushIndex |,
-    .console index.15,
-             {'    '~copies(index~items)},
+    .console index.75,
+             {'  '~copies(index~items)},
              {.file~new(value~name)~name},
              newline,
     )
-1                  pipe_extension_test.rex
-1|1                    extensions.cls
-1|2                    coactivity.cls
-1|3                    pipe_extension.cls
-1|1|1                      doers.cls
-1|1|2                      functionals.cls
-1|1|3                      coactivity.cls
-1|2|1                      activity.cls
-1|3|1                      pipe.rex
-1|3|2                      doers.cls
-1|3|3                      coactivity.cls
-1|3|4                      rgf_util2_wrappers.rex
-1|1|1|1                        coactivity.cls
-1|1|2|1                        doers.cls
-1|1|3|1                        activity.cls
-1|3|1|1                        profiling.cls
-1|3|2|1                        coactivity.cls
-1|3|3|1                        activity.cls
-1|3|4|1                        rgf_util2.rex
-1|1|1|1|1                          activity.cls
-1|1|2|1|1                          coactivity.cls
-1|3|2|1|1                          activity.cls
-1|1|2|1|1|1                            activity.cls
+1|a Package|1                                                                    pipe_extension_test.rex
+1|a Package|1                                                                    extensions.cls
+1|a Package|2                                                                    coactivity.cls
+1|a Package|3                                                                    pipe_extension.cls
+1|a Package|4                                                                    rgf_util2_wrappers.rex
+1|a Package|1|a Package|1                                                            doers.cls
+1|a Package|1|a Package|2                                                            functionals.cls
+1|a Package|1|a Package|3                                                            coactivity.cls
+1|a Package|2|a Package|1                                                            activity.cls
+1|a Package|3|a Package|1                                                            pipe.rex
+1|a Package|3|a Package|2                                                            extensions.cls
+1|a Package|4|a Package|1                                                            rgf_util2.rex
+1|a Package|1|a Package|1|a Package|1                                                    coactivity.cls
+1|a Package|1|a Package|2|a Package|1                                                    doers.cls
+1|a Package|1|a Package|3|a Package|1                                                    activity.cls
+1|a Package|3|a Package|1|a Package|1                                                    profiling.cls
+1|a Package|3|a Package|2|a Package|1                                                    doers.cls
+1|a Package|3|a Package|2|a Package|2                                                    functionals.cls
+1|a Package|3|a Package|2|a Package|3                                                    coactivity.cls
+1|a Package|1|a Package|1|a Package|1|a Package|1                                            activity.cls
+1|a Package|1|a Package|2|a Package|1|a Package|1                                            coactivity.cls
+1|a Package|3|a Package|2|a Package|1|a Package|1                                            coactivity.cls
+1|a Package|3|a Package|2|a Package|2|a Package|1                                            doers.cls
+1|a Package|3|a Package|2|a Package|3|a Package|1                                            activity.cls
+1|a Package|1|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
+1|a Package|3|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
+1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1                                    coactivity.cls
+1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1|a Package|1                            activity.cls
 
 
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
@@ -658,18 +681,18 @@ installdir()~pipe(,
     .select {filespec('e', value~name) == 'cls'} |,
     .console,
     )
-32 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls
-115 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls
-133 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls
-143 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls
-150 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls
-152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
-242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls
-251 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls
-280 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls
-281 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls
-289 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls
-335 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|32 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|115 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|133 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|143 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|150 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|251 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|280 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|281 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|289 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|335 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -679,12 +702,14 @@ installdir()~pipe(,
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
---     .take 2 {index[2]}
--- Here, index[2] is the name of the file.
+--     .take 2 {index[3]}
+-- Here, index[3] is the name of the file.
 -- Exemple of result :
--- 352|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls|250|2 : DeleteDesktopIcon
--- "DeleteDesktopIcon" is the 2nd word of the 352th line of the file  
+-- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
+-- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file  
 -- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
+-- which is the 335th file/directory of the directory
+-- "d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/"
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
@@ -692,52 +717,52 @@ installdir()~pipeProfile(,
     .fileTree recursive |,
     .select {filespec('e', value~name) == 'cls'} |,
     .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index[2]} | .sort caseless | .console,
+    .take 2 {index[3]} | .sort caseless | .console,
     )
-335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
-152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|70|2 : disconnectEvents
-133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|71|2 : getSystemMetrics
-32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|64|2 : headerLineAbsent
-289|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls|52|5 : InputOutputStream
-133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|94|2 : isAtLeastWindows7
-32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|63|2 : originalRawHeaders
-152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|71|2 : removeEventHandler
-335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|188|2 : WindowsProgramManager
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|70|2 : disconnectEvents
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|71|2 : getSystemMetrics
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|64|2 : headerLineAbsent
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|289|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls|52|5 : InputOutputStream
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|94|2 : isAtLeastWindows7
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|63|2 : originalRawHeaders
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|71|2 : removeEventHandler
+d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|188|2 : WindowsProgramManager
 ----------------------------------------
-.FILETREE~go
-  .FILETREE~EOF count=1 duration=0.016000
-    .SELECT~EOF count=1 duration=0.016000
-      .GETFILES~EOF count=1 duration=0.016000
-        .WORDS~EOF count=1 duration=0.016000
-          .SELECT~EOF count=1 duration=0.016000
-            .TAKE~EOF count=1 duration=0.016000
-              .SORT~EOF count=1 duration=0.016000
+.fileTree~go
+  .fileTree~EOF count=1 duration=0
+    .select~EOF count=1 duration=0
+      .GETFILES~EOF count=1 duration=0
+        .WORDS~EOF count=1 duration=0
+          .select~EOF count=1 duration=0
+            .TAKE~EOF count=1 duration=0
+              .SORT~EOF count=1 duration=0
                 .CONSOLE~EOF count=1 duration=0
                 .CONSOLE~ISEOP count=18 duration=0
                 .CONSOLE~PROCESS count=9 duration=0
-  .FILETREE~ISEOP count=2 duration=0
-  .FILETREE~PROCESS count=1 duration=8.765000
-    .SELECT~ISEOP count=621 duration=0
-    .SELECT~PROCESS count=620 duration=8.528000
-      .GETFILES~ISEOP count=632 duration=0
-      .GETFILES~PROCESS count=12 duration=8.328000
-        .WORDS~ISEOP count=28386 duration=0.094000
-        .WORDS~PROCESS count=14181 duration=7.377000
-          .SELECT~ISEOP count=141387 duration=0.156000
-          .SELECT~PROCESS count=63603 duration=3.589000
-            .TAKE~ISEOP count=63974 duration=0.080000
-            .TAKE~PROCESS count=371 duration=0.016000
-              .SORT~ISEOP count=380 duration=0
+  .fileTree~ISEOP count=2 duration=0
+  .fileTree~PROCESS count=1 duration=8.516000
+    .select~ISEOP count=1241 duration=0.016000
+    .select~PROCESS count=620 duration=8.220000
+      .GETFILES~ISEOP count=632 duration=0.016000
+      .GETFILES~PROCESS count=12 duration=8.047000
+        .WORDS~ISEOP count=28386 duration=0.031000
+        .WORDS~PROCESS count=14181 duration=7.035000
+          .select~ISEOP count=141387 duration=0.359000
+          .select~PROCESS count=63603 duration=3.322000
+            .TAKE~ISEOP count=63974 duration=0.140000
+            .TAKE~PROCESS count=371 duration=0.047000
+              .SORT~ISEOP count=380 duration=0.015000
               .SORT~PROCESS count=9 duration=0
-  .FILETREE~START count=1 duration=0
-    .SELECT~START count=1 duration=0
+  .fileTree~START count=1 duration=0.015000
+    .select~START count=1 duration=0.015000
       .GETFILES~START count=1 duration=0
         .WORDS~START count=1 duration=0
-          .SELECT~START count=1 duration=0
+          .select~START count=1 duration=0
             .TAKE~START count=1 duration=0
               .SORT~START count=1 duration=0
                 .CONSOLE~START count=1 duration=0
-duration=8.781000
+duration=8.531000
 ----------------------------------------
 
 

@@ -1,7 +1,5 @@
 ::requires "pipeline/pipe.rex"
-::requires "extension/doers.cls"
-::requires "concurrency/coactivity.cls"
-::requires "rgf_util2/rgf_util2_wrappers"
+::requires "extension/extensions.cls"
 --::options trace i
 
 /*
@@ -17,7 +15,27 @@ So I added the 'pipe' method which injects the object in the pipe :
 "a"~pipe(.upper|.console)
 */
 
+::extension Class
+
+-- Must review the extension mechanisms ! Not normal to have to do that...
+::method pipe class
+    use strict arg pipe, profile=.false
+    if pipe~isa(.class) then pipe = pipe~new
+    source = self
+    if \source~hasMethod("supplier") then source = .array~of(source)
+    pipe~go(source, profile)
+    return pipe
+
 ::extension Object
+
+-- Must review the extension mechanisms ! Not normal to have to do that...
+::method pipe class
+    use strict arg pipe, profile=.false
+    if pipe~isa(.class) then pipe = pipe~new
+    source = self
+    if \source~hasMethod("supplier") then source = .array~of(source)
+    pipe~go(source, profile)
+    return pipe
 
 ::method pipe
     use strict arg pipe, profile=.false
@@ -33,12 +51,12 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 
 /******************************************************************************/
--- Convenience notation : 
--- .index_value[index, value, index, value, ...] 
--- .value_index[value, index, value, index, ...] 
+-- Convenience notation :
+-- .index_value[index, value, index, value, ...]
+-- .value_index[value, index, value, index, ...]
 -- are useful with .inject and .do
 
-::class index_value public
+::class "index_value" public
 
 ::method "[]" class
 forward to (self) message("of")
@@ -52,7 +70,7 @@ forward to (self) message("of")
     return table
 
 
-::class value_index public
+::class "value_index" public
 
 ::method "[]" class
 forward to (self) message("of")
@@ -71,7 +89,7 @@ forward to (self) message("of")
 -- and then invoke the supplier passed as argument and write the items produced by
 -- that supplier to its primary output.
 
-::class append public subclass pipeStage
+::class "append" public subclass pipeStage
 
 ::method initOptions
     expose supplier
@@ -79,6 +97,8 @@ forward to (self) message("of")
     if producer~hasMethod("doer") then producer = producer~doer~do
     if \producer~hasMethod("supplier") then producer = .array~of(producer) -- for convenience, accept a non-supplier
     supplier = producer~supplier
+    -- No need to : forward class (super) arguments (unknown)
+
 
 ::method eof
     expose supplier
@@ -105,7 +125,7 @@ forward to (self) message("of")
 -- When using the option 'append', the processed value itself is written in the
 -- pipeline before injecting the items produced by the supplier.
 
-::class inject public subclass pipeStage
+::class "inject" public subclass pipeStage
 
 ::method init
 expose allowCommand
@@ -113,7 +133,7 @@ use strict arg allowCommand=.false -- by default, the doer is a function whose r
 self~init:super
 
 ::method initOptions
-    expose allowCommand doer recursive limit depthFirst append pushIndex detectCycles
+    expose allowCommand doer recursive limit depthFirst append pushIndex detectCycles unique debug trace
     doer = .nil
     recursive = .false
     limit = -1
@@ -121,6 +141,9 @@ self~init:super
     detectCycles = .false
     append = .false
     pushIndex = .false
+    unique = .false
+    debug = .false
+    trace = .false
     unknown = .array~new
     do a over arg(1, "a")
         if a~isA(.String) then do
@@ -128,7 +151,7 @@ self~init:super
             if "recursive"~caselessAbbrev(first, 3) then do
                 -- recursive[.limit|.depthFirst|.breadthFirst|.cycles]*
                 recursive = .true
-                do while rest <> "" 
+                do while rest <> ""
                     parse var rest first "." rest
                     if first~dataType("W") then limit = first
                     else if "depthFirst"~caselessAbbrev(first, 1) then depthFirst = .true
@@ -141,7 +164,11 @@ self~init:super
             if "append"~caselessAbbrev(a, 1) then do ; append = .true ; iterate ; end
             if "replace"~caselessAbbrev(a, 3) then do ; append = .false ; iterate ; end
             if "pushIndex"~caselessAbbrev(a, 1) then do ; pushIndex = .true ; iterate ; end
-            unknown~append(a) ; iterate -- do that now, otherwise you will enter in the doer section
+            if "unique"~caselessAbbrev(a, 1) then do ; unique = .true ; iterate ; end
+            if "debug"~caselessAbbrev(a, 1) then do ; debug = .true ; iterate ; end
+            if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
+            unknown~append(a)
+            iterate -- do that now, otherwise you will enter in the doer section
         end
         if a~hasMethod("doer") then do
             if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
@@ -156,7 +183,11 @@ self~init:super
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method newIndex
-    expose pushIndex
+    expose pushIndex trace
+    if trace then do
+        .traceOutput~say(">I> Method .inject~newIndex")
+        trace i
+    end
     use strict arg index1, index2
     if pushIndex then do
         newindex = index1~copy
@@ -172,100 +203,186 @@ self~init:super
     return newindex
 
 ::method processDepthFirstCurrent
-    expose recursive limit detectCycles
-    use strict arg value, index, stack=(.queue~new), level=0
+    expose recursive limit detectCycles unique trace
+    if trace then do
+        .traceOutput~say(">I> Method .inject~processDepthFirstCurrent")
+        trace i
+    end
+    use strict arg value, index, stack, level, previousValues
+    if unique then do
+        if previousValues~hasItem(value) then do
+            self~writeSecondary(value, index)
+            return
+        end
+        previousValues~append(value)
+    end
     if recursive & level <> limit then do
         if detectCycles then do
             if \ stack~hasItem(value) then do -- Recurse only if not already processed
                 self~write(value, index)
                 stack~push(value)
-                self~processDepthFirst(value, index, stack, level+1)
+                self~processDepthFirst(value, index, stack, level+1, previousValues)
                 stack~pull
+            end
+            else do
+                self~writeSecondary(value, index)
+                return
             end
         end
         else do
             self~write(value, index)
-            self~processDepthFirst(value, index, stack, level+1)
+            self~processDepthFirst(value, index, stack, level+1, previousValues)
         end
     end
     else self~write(value, index)
 
 ::method processDepthFirst
-    expose doer pushIndex
-    use strict arg value, index, stack=(.queue~new), level=0
+    expose doer trace
+    if trace then do
+        .traceOutput~say(">I> Method .inject~processDepthFirst")
+        trace i
+    end
+    use strict arg value, index, stack=(.queue~new), level=0, previousValues=(.array~new)
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
     if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-supplier result
     supplier = result~supplier
-    do while supplier~available, self~next <> .nil, \self~next~isEOP
-        newindex = self~newIndex(index, supplier~index)
+    do while supplier~available, \self~isEOP
         item = supplier~item
-        self~processDepthFirstCurrent(item, newindex, stack, level)
+        if \ item~hasMethod("supplier") then do
+            newindex = self~newIndex(index, .array~of(value, supplier~index))
+            self~processDepthFirstCurrent(item, newindex, stack, level, previousValues)
+        end
+        else do
+            supplier2 = item~supplier
+            do while supplier2~available, \self~isEOP
+                item2 = supplier2~item
+                newindex2 = self~newIndex(index, .array~of(value, supplier2~index))
+                self~processDepthFirstCurrent(item2, newindex2, stack, level, previousValues)
+                supplier2~next
+                self~checkEOP(self~next, self~secondary)
+            end
+        end
         supplier~next
+        self~checkEOP(self~next, self~secondary)
     end
 
- 
+::method processBreadthFirstCurrent2
+    expose recursive limit detectCycles trace
+    if trace then do
+        .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent2")
+        trace i
+    end
+    use strict arg value, index, toprocess, stack, level
+    if recursive & level <> limit then do
+        if detectCycles then do
+            if \ stack~hasItem(value) then do -- Recurse only if not already processed
+                self~write(value, index)
+                stack~push(value)
+                toprocess~queue(value)
+                toprocess~queue(index)
+                toprocess~queue(stack~copy)
+                stack~pull
+            end
+            else do
+                self~writeSecondary(value, index)
+                return
+            end
+        end
+        else do
+            self~write(value, index)
+            toprocess~queue(value)
+            toprocess~queue(index)
+            toprocess~queue(level+1)
+        end
+    end
+    else do
+        self~write(value, index)
+        toprocess~queue(value)
+        toprocess~queue(index)
+        toprocess~queue(level+1)
+    end
+
 ::method processBreadthFirstCurrent
-    expose doer recursive limit pushIndex detectCycles
+    expose doer trace
+    if trace then do
+        .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent")
+        trace i
+    end
     use strict arg value, index, toprocess, stack, level
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
     if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-supplier result
     supplier = result~supplier
-    do while supplier~available, self~next <> .nil, \self~next~isEOP
-        newindex = self~newIndex(index, supplier~index)
-        if recursive & level <> limit then do
-            if detectCycles then do
-                if \ stack~hasItem(supplier~item) then do -- Recurse only if not already processed
-                    self~write(supplier~item, newindex)
-                    stack~push(supplier~item)
-                    toprocess~queue(supplier~item)
-                    toprocess~queue(newindex)
-                    toprocess~queue(stack~copy)
-                    stack~pull
-                end
-            end
-            else do
-                self~write(supplier~item, newindex)
-                toprocess~queue(supplier~item)
-                toprocess~queue(newindex)
-                toprocess~queue(level+1)
-            end
+    do while supplier~available, \self~isEOP
+        item = supplier~item
+        if \ item~hasMethod("supplier") then do
+            newindex = self~newIndex(index, .array~of(value, supplier~index))
+            self~processBreadthFirstCurrent2(item, newindex, toprocess, stack, level)
         end
         else do
-            self~write(supplier~item, newindex)
-            toprocess~queue(supplier~item)
-            toprocess~queue(newindex)
-            toprocess~queue(level+1)
+            supplier2 = item~supplier
+            do while supplier2~available, \self~isEOP
+                item2 = supplier2~item
+                newindex2 = self~newIndex(index, .array~of(value, supplier2~index))
+                self~processBreadthFirstCurrent2(item2, newindex2, toprocess, stack, level)
+                supplier2~next
+                self~checkEOP(self~next, self~secondary)
+            end
         end
         supplier~next
+        self~checkEOP(self~next, self~secondary)
     end
 
- 
 ::method processBreadthFirst
-    expose detectCycles
+    expose detectCycles unique trace
+    if trace then do
+        .traceOutput~say(">I> Method .inject~processBreadthFirst")
+        trace i
+    end
     use strict arg value, index
     stack = .queue~new
     toprocess = .queue~new
+    previousValues = .array~new
     self~processBreadthFirstCurrent(value, index, toprocess, stack, 0)
-    do while \toprocess~isEmpty
+    do while \toprocess~isEmpty, \self~isEOP
         supplier_item = toprocess~pull
         newindex = toprocess~pull
+        if unique then do
+            if previousValues~hasItem(supplier_item) then do
+                self~writeSecondary(supplier_item, newindex)
+                iterate
+            end
+            previousValues~append(supplier_item)
+        end
         if detectCycles then stack = toprocess~pull
         else level = toprocess~pull
         self~processBreadthFirstCurrent(supplier_item, newindex, toprocess, stack, level)
     end
 
- 
 ::method process
-    expose doer depthFirst append
+    expose doer depthFirst append trace debug
+    if debug then do
+        say "-"~copies(20)
+        say doer~source~tostring
+        say "-"~copies(20)
+    end
+    if trace then do
+        .traceOutput~say(">I> Method .inject~process")
+        trace i
+    end
     use strict arg value, index
-    if append then self~write(value, index)
+    if append then do
+        -- follow the same convention as for calculated values.
+        -- here, it's like getting a single result from value (result == value, index == 1)
+        newIndex = self~newIndex(index, .array~of(value, 1))
+        self~write(value, newIndex)
+    end
     if depthFirst then self~processDepthFirst(value, index)
                   else self~processBreadthFirst(value, index)
     self~checkEOP(self~next)
 
- 
+
 /******************************************************************************/
 -- A do pipeStage to execute an action passed as argument.
 -- CAREFULL ! There is NO automatic insertion of the "return" instruction, and
@@ -274,7 +391,7 @@ self~init:super
 -- Ex : assuming value==10
 -- .do {2*value} will not insert 20 in the pipeline, but will instead run the command "20".
 
-::class do public subclass inject
+::class "do" public subclass inject
 
 ::method init
 use strict arg -- none
@@ -284,21 +401,19 @@ self~init:super(.true) -- allow commands
 /******************************************************************************/
 -- A select pipeStage to execute a boolean filter passed as argument.
 
-::class select public subclass pipeStage
+::class "select" public subclass pipeStage
 
 ::method initOptions
     expose doer
     use strict arg filter
     if filter~hasMethod("functionDoer") then doer = filter~functionDoer("use arg value, index")
                                         else doer = filter~doer
-
-
 ::method process
     expose doer
     use strict arg value, index
-    if doer~do(value, index) then do             -- apply the filter to the data item              
+    if doer~do(value, index) then do             -- apply the filter to the data item
         self~write(value, index)                 -- the selected items are sent
-    end 
+    end
     else do
         self~writeSecondary(value, index)        -- send all not selected items down the other branch, if there
     end
@@ -310,18 +425,112 @@ self~init:super(.true) -- allow commands
 -- The input value can be a string (used as a path) or a .File instance.
 -- Use the option 'recursive' to search subdirectories recursively.
 
-::class fileTree public subclass inject
+::class "fileTree" public subclass inject
 
 ::method initOptions
-    doer = .context~package~findRoutine("fileTreeFind")
+    producer = {
+        use arg value
+        if \value~isA(.File) then value = .File~new(value~string)
+        childs = value~listFiles
+        if childs <> .nil then return childs
+    }~doer -- get the doer now, to avoid application of functionDoer later
     args = arg(1, "a")
-    args~append(doer)
+    args~append(producer)
     forward class (super) arguments (args)
 
 
-::routine fileTreeFind
-    use arg value, index
-    if \value~isA(.File) then value = .File~new(value~string)
-    childs = value~listFiles
-    if childs <> .nil then return childs
+/******************************************************************************/
+-- A superClass pipeStage to get the superClasses of the current value.
+-- The input value must be a .Class instance.
+-- By default, return the immediate superclasses.
+-- Use the option 'recursive' to get all the superclasses up to the root .Object.
+
+::class "superClasses" public subclass inject
+
+::method initOptions
+    producer = {use arg value ; return value~superclasses}~doer -- get the doer now, to avoid application of functionDoer later
+    args = arg(1, "a")
+    args~append(producer)
+    forward class (super) arguments (args)
+
+
+/******************************************************************************/
+-- A subClass pipeStage to get the subClasses of the current value.
+-- The input value must be a .Class instance.
+-- By default, return the immediate subclasses.
+-- Use the option 'recursive' to get all the subclasses up to the leaves.
+
+::class "subClasses" public subclass inject
+
+::method initOptions
+    producer = {use arg value ; return value~subclasses}~doer -- get the doer now, to avoid application of functionDoer later
+    args = arg(1, "a")
+    args~append(producer)
+    forward class (super) arguments (args)
+
+
+/******************************************************************************/
+-- Implementation note :
+-- The pipeStages methods and instanceMethods are very similar.
+-- The only difference is the message sent to the object. Hence this class.
+-- The implementation looks complex (3 classes, 4 methods) when compared to :
+--     .inject {value~methods(value)}
+--     .inject {value~instanceMethods(value)}
+-- but that lets write :
+--     .methods
+--     .instanceMethods
+-- which is shorter, and this is the opportunity to use a closure, so...
+
+::class "queryByClass" public subclass inject
+
+::method init private
+    expose message class
+    use strict arg message, class
+    self~init:super
+
+::method initOptions
+    expose message class
+    if .false then do
+        -- For the moment, doesn't work... I have to implement the closures.
+        producer = {
+            expose message class
+            use arg value
+            ofclass = class
+            if ofclass == .nil then ofclass = value~class
+            return value~send(message, ofclass)
+        }~doer -- get the doer now, to avoid application of functionDoer later
+    end
+    -- temporary partial implementation (assume class == .nil)
+    else if message == "methods" then producer = {use arg value ; return value~methods(value)}
+    else if message == "instanceMethods" then producer = {use arg value ; return value~instanceMethods(value)}
+    args = arg(1, "a")
+    args~append(producer)
+    forward class (super) arguments (args)
+
+
+/******************************************************************************/
+-- A methods pipeStage to get the methods of the current value.
+-- The input value can be any object.
+-- By default, return the methods defined by the value's class.
+-- You can pass another class as argument : .methods[class]
+
+::class "methods" public subclass queryByClass
+
+::method init
+    use strict arg class=.nil
+    self~init:super("methods", class)
+
+
+/******************************************************************************/
+-- An instanceMethods pipeStage to get the instanceMethods of the current value.
+-- The input value can be any object.
+-- By default, return the instances methods defined by the value's class.
+-- You can pass another class as argument : .instanceMethods[class]
+
+::class "instanceMethods" public subclass queryByClass
+
+::method init
+    use strict arg class=.nil
+    self~init:super("instanceMethods", class)
+
 
