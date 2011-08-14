@@ -49,7 +49,6 @@
 class PackageClass;
 class RexxContext;
 
-
 class RexxSourceLiteral : public RexxInternalObject
 {
 public:
@@ -62,7 +61,7 @@ public:
     void liveGeneral(int reason);
     void flatten(RexxEnvelope*);
 
-    RexxSourceLiteral(RexxString *, PackageClass *);
+    RexxSourceLiteral(RexxString *, PackageClass *, size_t);
     inline RexxSourceLiteral(RESTORETYPE restoreType) { ; };
 
     RexxArray *getSource() { return source; }
@@ -77,7 +76,7 @@ protected:
     RoutineClass *routine; // A routine or null if deferred parsing
 
 private:
-    RoutineClass *makeRoutine(RexxArray *, PackageClass *);
+    RoutineClass *makeRoutine(RexxArray *, PackageClass *, size_t);
 };
 
 

@@ -67,7 +67,6 @@
 #include "InterpreterInstance.hpp"
 #include <ctype.h>
 
-
 // singleton class instance
 RexxClass *RoutineClass::classInstance = OREF_NULL;
 
@@ -167,7 +166,7 @@ RoutineClass::RoutineClass(RexxString *name, const char *data, size_t length)
  * @param name   The name of the routine.
  * @param source the source buffer.
  */
-RoutineClass::RoutineClass(RexxString *name, RexxArray *s)
+RoutineClass::RoutineClass(RexxString *name, RexxArray *s, size_t startLine)
 {
     // we need to protect this object until the constructor completes.
     // the code generation step will create lots of new objects, giving a
@@ -175,8 +174,9 @@ RoutineClass::RoutineClass(RexxString *name, RexxArray *s)
     ProtectedObject p(this);
     OrefSet(this, this->executableName, name);
     // get a source object to generat this from
-    RexxSource *_source = new RexxSource(name, s, OREF_NULL);
+    RexxSource *_source = new RexxSource(name, s);
     ProtectedObject p2(_source);
+    if (startLine != 0) _source->adjustLine(startLine, startLine + s->size() - 1);
     // generate our code object and make the file hook up.
     RexxCode *codeObj = _source->generateCode(false);
     OrefSet(this, this->code, codeObj);

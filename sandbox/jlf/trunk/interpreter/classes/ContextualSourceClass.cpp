@@ -98,7 +98,7 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 }
 
 
-RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p) 
+RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t startLine)
 {
     RexxArray *sa = s->makeArray(NULL); // use default separator \n
     ProtectedObject pr(sa);
@@ -116,7 +116,7 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p)
     }
     if (!colon)
     {
-        OrefSet(this, this->routine, this->makeRoutine(sa, p));
+        OrefSet(this, this->routine, this->makeRoutine(sa, p, startLine));
     }
 }
 
@@ -134,9 +134,9 @@ RexxObject  *RexxSourceLiteral::evaluate(
 }
 
 
-RoutineClass *RexxSourceLiteral::makeRoutine(RexxArray *source, PackageClass *parentSource) 
+RoutineClass *RexxSourceLiteral::makeRoutine(RexxArray *source, PackageClass *parentSource, size_t startLine)
 {
-    RoutineClass *routine = new RoutineClass(new_string(""), source);
+    RoutineClass *routine = new RoutineClass(new_string(""), source, startLine);
     ProtectedObject p(routine);
 
     // if there is a parent source, then merge in the scope information
@@ -225,19 +225,19 @@ RexxObject *RexxContextualSource::copyRexx()
 }
 
 
-RexxArray *RexxContextualSource::getSource() 
-{ 
-    return (RexxArray *)(sourceLiteral->getSource()->copy()); 
+RexxArray *RexxContextualSource::getSource()
+{
+    return (RexxArray *)(sourceLiteral->getSource()->copy());
 }
 
 
-PackageClass *RexxContextualSource::getPackage() 
+PackageClass *RexxContextualSource::getPackage()
 {
     return sourceLiteral->getPackage();
 }
 
 
-RexxContext *RexxContextualSource::getContext() 
+RexxContext *RexxContextualSource::getContext()
 {
     return context;
 }
@@ -262,7 +262,7 @@ RexxObject *RexxContextualSource::getExecutable()
 RexxObject *RexxContextualSource::callRexx(RexxObject **args, size_t count)
 {
     RoutineClass *routine = sourceLiteral->getExecutable();
-    if (routine == OREF_NULL) 
+    if (routine == OREF_NULL)
     {
         reportException(Error_Incorrect_call_user_defined, new_string("This contextual source has no executable (deferred parsing)"));
         return TheNilObject;
@@ -284,7 +284,7 @@ RexxObject *RexxContextualSource::callWithRexx(RexxArray *args)
     args = arrayArgument(args, ARG_ONE);
 
     RoutineClass *routine = sourceLiteral->getExecutable();
-    if (routine == OREF_NULL) 
+    if (routine == OREF_NULL)
     {
         reportException(Error_Incorrect_call_user_defined, new_string("This contextual source has no executable (deferred parsing)"));
         return TheNilObject;

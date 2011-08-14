@@ -136,7 +136,7 @@ class RexxSource : public RexxInternalObject {
     inline void *operator new(size_t size, void *ptr) {return ptr;}
     inline void  operator delete(void *) { ; }
     inline void  operator delete(void *, void *) { ; }
-    RexxSource(RexxString *, RexxArray *, RexxActivation *);
+    RexxSource(RexxString *, RexxArray *);
     RexxSource(RexxString *programname, RexxBuffer *source_buffer);
     RexxSource(RexxString *programname, const char *data, size_t length);
     RexxSource(RexxString *programname);
@@ -147,7 +147,7 @@ class RexxSource : public RexxInternalObject {
     bool        reconnect();
     void        setReconnect();
     void        setBufferedSource(RexxBuffer *newSource) { this->initBuffered(newSource); }
-    void        interpretLine(size_t);
+    void        adjustLine(size_t, size_t);
     void        comment();
     void        needVariable(RexxToken *);
     void        needVariableOrDotSymbol(RexxToken *);
@@ -183,7 +183,7 @@ class RexxSource : public RexxInternalObject {
     void        globalSetup();
     RexxString *packLiteral(sizeB_t, sizeB_t, int);
     RexxCode   *generateCode(bool isMethod);
-    RexxCode   *interpretMethod(RexxDirectory *);
+    RexxCode   *interpretMethod(RexxDirectory *, RexxActivation *);
     RexxCode   *interpret(RexxString *, RexxDirectory *, size_t, RexxActivation *);
     void        checkDirective();
     bool        hasBody();
@@ -450,11 +450,11 @@ protected:
     SourceLocation clauseLocation;       // current clause location for errors
     RexxBuffer *sourceBuffer;            /* contiguous buffered source        */
     RexxBuffer *sourceIndices;           /* line locations within buffer      */
-    sizeB_t current_length;               /* length of current line            */
+    sizeB_t current_length;              /* length of current line            */
     size_t line_count;                   /* size of source array              */
     size_t line_number;                  /* current line position             */
-    sizeB_t line_offset;                  /* current offset with in the line   */
-    size_t interpret_adjust;             /* INTERPRET adjustment              */
+    sizeB_t line_offset;                 /* current offset with in the line   */
+    size_t line_adjust;                  /* INTERPRET/sourceLiteral adjustment*/
     RexxActivation *interpret_activation;
 
     RexxCode *initCode;                  // the initialization code

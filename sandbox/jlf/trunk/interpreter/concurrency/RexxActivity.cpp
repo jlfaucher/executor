@@ -477,6 +477,7 @@ RexxDirectory *RexxActivity::createConditionObject(RexxString *condition, RexxOb
 {
     // condition objects are directories
     RexxDirectory *conditionObj = new_directory();
+    ProtectedObject p(conditionObj);
                                        /* put in the condition name         */
     conditionObj->put(condition, OREF_CONDITION);
                                        /* fill in default description       */
@@ -2816,7 +2817,7 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
         // Add thread id, activation id and lock flag.
         // Should help to analyze the traces of a multithreaded script...
         char buffer[CONCURRENCY_BUFFER_SIZE];
-        Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE, 
+        Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE,
                                                        Utilities::currentThreadId(),
                                                        activation,
                                                        (activation) ? activation->getVariableDictionary() : NULL,

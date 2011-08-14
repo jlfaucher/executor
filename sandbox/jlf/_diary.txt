@@ -43,6 +43,35 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 aug 14
+
+Fixed a crash that occured after GC : in RexxActivity::createConditionObject),
+the value returned by new_directory() must be protected.
+
+
+[source literal]
+
+Fixed a crash which occurred when running
+    interpret "{"
+where interpret is on line 2 or above.
+
+I need a line adjustment (similar to what's done for interpret) for error reporting.
+- The line adjustment is made only in case of immediate parsing.
+- The current name 'interpret_adjust' is not adapted to source literals...
+  Renamed 'line_adjust'.
+- Same remark for RexxSource::interpretLine, renamed RexxSource::adjustLine.
+- To support this line adjustment for source literals, I had to deactivate this
+  optimization :
+      case TOKEN_SOURCE_LITERAL:
+          retriever = this->sourceLiterals->fastAt(name);
+  Was a copy-paste of the optimization done for the string literals.
+  Using this optimization, when the same source literal was used at different places
+  in the package's source, only one instance of RexxSourceLiteral was created, and so
+  only one routine object was created.
+  Not sure it was a useful optimization for source literals.
+
+
+===============================================================================
 2011 july 31
 
 [doers]

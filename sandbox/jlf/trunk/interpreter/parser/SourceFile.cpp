@@ -109,11 +109,10 @@ typedef struct _LINE_DESCRIPTOR {
  * @param source_array
  *               The array of the source lines.
  */
-RexxSource::RexxSource(RexxString *programname, RexxArray  *source_array, RexxActivation *activation)
+RexxSource::RexxSource(RexxString *programname, RexxArray  *source_array)
 {
                                          /* fill in the name                  */
     setProgramName(programname);
-    OrefSet(this, this->interpret_activation, activation);
     /* fill in the source array          */
     OrefSet(this, this->sourceArray, source_array);
     /* fill in the source size           */
@@ -362,21 +361,21 @@ void RexxSource::setReconnect()
   this->flags |= reclaim_possible;     /* we have a shot at this!           */
 }
 
-void RexxSource::interpretLine(size_t _line_number)
+void RexxSource::adjustLine(size_t start_line_number, size_t end_line_number)
 /******************************************************************************/
-/* Arguments:  interpret line location                                        */
+/* Arguments:  interpret/sourceLiteral line location                          */
 /*                                                                            */
 /* Function:  Adjust the source object so that it thinks it is scanning a     */
-/*            1-line source file with a line number other than 1 so that      */
-/*            errors and trace of an interpreted instruction will display     */
-/*            the interpret instructions line number.                         */
+/*            set of lines with a line number other than 1 so that errors     */
+/*            and trace of an interpreted instruction/ source literal will    */
+/*            display the good line numbers.                                  */
 /******************************************************************************/
 {
                                        /* fill in the source size           */
-  this->line_count = _line_number;     /* size is now the line number       */
-  this->line_number = _line_number;    /* we are now on line "nn of nn"     */
+  this->line_count = end_line_number;  /* size is now the end line number   */
+  this->line_number = start_line_number;/* we are now on line "nn of mm"    */
                                        /* remember for positioning          */
-  this->interpret_adjust = _line_number - 1;
+  this->line_adjust = start_line_number - 1;
 }
 
 void RexxSource::needVariable(
@@ -539,7 +538,7 @@ void RexxSource::position(
         if (this->sourceArray != OREF_NULL)
         {
             /* get the next line                 */
-            new_line = (RexxString *)(this->sourceArray->get(line - this->interpret_adjust));
+            new_line = (RexxString *)(this->sourceArray->get(line - this->line_adjust));
             if (new_line == OREF_NULL)      /* missing line?                     */
             {
                 /* this is an error                  */
@@ -578,9 +577,9 @@ void RexxSource::position(
                 buffer_start = this->sourceBuffer->getData();
             }
             /* calculate the line start          */
-            this->current = buffer_start + descriptors[line - this->interpret_adjust].position;
+            this->current = buffer_start + descriptors[line - this->line_adjust].position;
             /* and get the length                */
-            this->current_length = descriptors[line - this->interpret_adjust].length;
+            this->current_length = descriptors[line - this->line_adjust].length;
         }
     }
 }
@@ -1020,18 +1019,18 @@ RexxString *RexxSource::extract(
                                            /* all on one line?                  */
     else if (location.getLineNumber() >= location.getEndLine())
         /* just extract the string           */
-        line = this->get(location.getLineNumber() - this->interpret_adjust)->extractB(location.getOffset(),
+        line = this->get(location.getLineNumber() - this->line_adjust)->extractB(location.getOffset(),
                                                                                      location.getEndOffset() - location.getOffset());
     /* multiple line clause              */
     else
     {
         /* get the source line               */
-        source_line = this->get(location.getLineNumber());
+        source_line = this->get(location.getLineNumber() - this->line_adjust);
         /* extract the first part            */
         line = source_line->extractB(location.getOffset(), source_line->getBLength() - location.getOffset());
         if (location.isLimitedTrace()) return line;
         /* loop down to end line             */
-        for (counter = location.getLineNumber() + 1 - this->interpret_adjust; counter < location.getEndLine(); counter++)
+        for (counter = location.getLineNumber() + 1 - this->line_adjust; counter < location.getEndLine(); counter++)
         {
             /* concatenate the next line on      */
             if (newline) line = line->concatWith(this->get(counter), '\n');
@@ -1080,7 +1079,7 @@ RexxArray *RexxSource::extractSource(
         }
     }
     /* is the location out of bounds?    */
-    if (location.getLineNumber() == 0 || location.getLineNumber() - this->interpret_adjust > this->line_count)
+    if (location.getLineNumber() == 0 || location.getLineNumber() - this->line_adjust > this->line_count)
     {
         /* just give back a null array       */
         return (RexxArray *)TheNullArray->copy();
@@ -1203,13 +1202,15 @@ RexxCode *RexxSource::generateCode(bool isMethod)
 }
 
 RexxCode *RexxSource::interpretMethod(
-    RexxDirectory *_labels )            /* parent label set                  */
+    RexxDirectory *_labels,             /* parent label set                  */
+    RexxActivation *_activation)        /* INTERPRET's activation            */
 /******************************************************************************/
 /* Function:  Convert a source object into an executable interpret method     */
 /******************************************************************************/
 {
   this->globalSetup();                 /* do the global setup part          */
   this->flags |= _interpret;           /* this is an interpret              */
+  OrefSet(this, this->interpret_activation, _activation);
   RexxCode *newCode = this->translate(_labels); /* translate the source program      */
   ProtectedObject p(newCode);
   this->cleanup();                     /* release temporary tables          */
@@ -1226,11 +1227,11 @@ RexxCode *RexxSource::interpret(
 /******************************************************************************/
 {
                                        /* create a source object            */
-  RexxSource *source = new RexxSource (this->programName, new_array(string), activation);
+  RexxSource *source = new RexxSource (this->programName, new_array(string));
   ProtectedObject p(source);
-  source->interpretLine(_line_number);  /* fudge the line numbering          */
+  source->adjustLine(_line_number, _line_number);/* fudge the line numbering*/
                                        /* convert to executable form        */
-  return source->interpretMethod(_labels);
+  return source->interpretMethod(_labels, activation);
 }
 
 void RexxSource::checkDirective()
@@ -4499,14 +4500,23 @@ RexxObject *RexxSource::addText(
 
         case TOKEN_SOURCE_LITERAL:         /* source literal strings            */
             /* get a lookup object               */
+#if 0
+            // JLF : to rework ? because of line adjustment, can't optimize like that because need a distinct source object for each source literal
             /* see if we've had this before      */
             retriever = this->sourceLiterals->fastAt(name);
+#else
+            retriever = OREF_NULL;
+#endif
             /* first time literal?               */
             if (retriever == OREF_NULL)
             {
                 RexxString *source = new_string(name->getStringData()+1, name->getBLength()-2); // Remove surrounding {}
+                ProtectedObject p(source); // an array of lines will be derived from it, which could trigger GC
                 PackageClass *package = this->isInterpret() ? this->interpret_activation->getPackage() : this->getPackage();
-                retriever = (RexxObject *) new RexxSourceLiteral(source, package);
+                // Remember : I pass only the startLine instead of the complete tokenLocation because the source array built
+                // from the string MAY be one line smaller than tokenLocation.endLine (that happens when the final '}' is
+                // the first character of the last line. The "real" endLine will be calculated using the source array size.
+                retriever = (RexxObject *) new RexxSourceLiteral(source, package, token->tokenLocation.getLineNumber());
                 this->sourceLiterals->put(retriever,  name);
             }
             break;
@@ -5604,7 +5614,7 @@ void RexxSource::errorPosition(
 {
   this->errorCleanup();                /* release any saved objects         */
                                        /* pass on the exception info        */
-  ActivityManager::currentActivity->raiseException(errorcode, OREF_NULL, new_array(new_integer(token_location.getOffset()), new_integer(token_location.getLineNumber())), OREF_NULL);
+  ActivityManager::currentActivity->raiseException(errorcode, OREF_NULL, new_array(new_integer(token_location.getOffset() + 1), new_integer(token_location.getLineNumber())), OREF_NULL);
 }
 
 void RexxSource::errorToken(
