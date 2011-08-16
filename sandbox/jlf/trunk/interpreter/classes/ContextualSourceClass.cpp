@@ -100,8 +100,8 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 
 RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t startLine)
 {
+    ProtectedObject pr(this);
     RexxArray *sa = s->makeArray(NULL); // use default separator \n
-    ProtectedObject pr(sa);
     OrefSet(this, this->source, sa);
     OrefSet(this, this->package, p);
     OrefSet(this, this->routine, OREF_NULL);

@@ -492,7 +492,7 @@ protected:
     RexxIdentityTable *savelist;           /* saved objects                     */
     RexxStack       *holdstack;          /* stack for holding temporaries     */
     RexxDirectory   *literals;           /* root of associated literal list   */
-    RexxDirectory   *sourceLiterals;     /* root of associated source literal list */
+    RexxList        *sourceLiterals;     /* root of associated source literal list */
     RexxDirectory   *strings;            /* common pool of created strings    */
     RexxQueue       *control;            /* queue of control structures       */
     RexxQueue       *terms;              /* stack of expression terms         */

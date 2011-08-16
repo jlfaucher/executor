@@ -1168,7 +1168,7 @@ void RexxSource::globalSetup()
   OrefSet(this, this->subTerms, new_queue());
   OrefSet(this, this->operators, new_queue());
   OrefSet(this, this->literals, new_directory());
-  OrefSet(this, this->sourceLiterals, new_directory());
+  OrefSet(this, this->sourceLiterals, new_list());
   // during an image build, we have a global string table.  If this is
   // available now, use it.
   OrefSet(this, this->strings, memoryObject.getGlobalStrings());
@@ -4499,17 +4499,8 @@ RexxObject *RexxSource::addText(
             break;
 
         case TOKEN_SOURCE_LITERAL:         /* source literal strings            */
-            /* get a lookup object               */
-#if 0
-            // JLF : to rework ? because of line adjustment, can't optimize like that because need a distinct source object for each source literal
-            /* see if we've had this before      */
-            retriever = this->sourceLiterals->fastAt(name);
-#else
-            retriever = OREF_NULL;
-#endif
-            /* first time literal?               */
-            if (retriever == OREF_NULL)
             {
+                // can't optimize like TOKEN_LITERAL because need a distinct source object for each source literal
                 RexxString *source = new_string(name->getStringData()+1, name->getBLength()-2); // Remove surrounding {}
                 ProtectedObject p(source); // an array of lines will be derived from it, which could trigger GC
                 PackageClass *package = this->isInterpret() ? this->interpret_activation->getPackage() : this->getPackage();
@@ -4517,7 +4508,8 @@ RexxObject *RexxSource::addText(
                 // from the string MAY be one line smaller than tokenLocation.endLine (that happens when the final '}' is
                 // the first character of the last line. The "real" endLine will be calculated using the source array size.
                 retriever = (RexxObject *) new RexxSourceLiteral(source, package, token->tokenLocation.getLineNumber());
-                this->sourceLiterals->put(retriever,  name);
+                p = retriever; // Now protect the source literal
+                this->sourceLiterals->append(retriever); // Hooked, to not GC it.
             }
             break;
 

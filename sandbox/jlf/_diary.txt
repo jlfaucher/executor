@@ -43,6 +43,68 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 aug 16
+
+Fixed a crash in relation with source literals and GC.
+Two problems :
+1) Forgot to replace RexxDirectory by RexxList when disabling the optimization
+for source literals (was a copy-paste of optimization done for string literals). 
+2) The constructor RexxSourceLiteral::RexxSourceLiteral can trigger a GC. Must protect
+'this'.
+
+
+Remember1:
+----------
+When the crash occurs during GC (ex : in ObjectHeader::isObjectMarked), it's possible
+to see which ooRexx object is corrupted. Here the object is 0x7eeff200
+ 	rexx.dll!ObjectHeader::isObjectMarked(unsigned int mark)  Line 106 + 0xa bytes	C++
+ 	rexx.dll!RexxInternalObject::isObjectMarked(unsigned int markword)  Line 247 + 0x16 bytes	C++
+ 	rexx.dll!RexxListTable::live(unsigned int liveMark)  Line 55 + 0x26 bytes	C++
+>	rexx.dll!RexxMemory::markObjectsMain(RexxObject * rootObject)  Line 374	C++                 <-- markObject = 0x7eeff200 {size=2129676696 elements=0x7eeff214 }  RexxListTable with OVERWRITTEN size !!!
+ 	rexx.dll!RexxMemory::markObjects()  Line 645	C++
+ 	rexx.dll!RexxMemory::collect()  Line 1022	C++
+
+A conditional break "newObj == 0x7eeff200" on the last line of RexxMemory::newObject (RexxMemory.cpp)
+lets stop the execution when the object is created. If too long, then modify the source :
+    if (newObj == (RexxObject*)0x7eeff200)
+    {
+        int dummy=0;    //  <-- put breakpoint here
+    }
+    return newObj;
+Once the interpreter is stopped here, it's relatively easy to do a code review of the methods
+in the call stack, to check if an intermediate object must be protected.
+
+If needed, a data breakpoint can be set on the part of memory which is overwritten
+(here the 'size' attribute). In my case, was triggered when the object was inserted
+in the list of dead objects.
+
+
+Remember2:
+----------
+Occurences of new_directory, not protected (no crash so far, except for createConditionObject) :
+DirectoryClass.cpp, RexxDirectory::newRexx
+ExceptionClass.cpp, ExceptionClass::getCondition
+RexxActivation.cpp, RexxActivation::raise
+RexxActivity.cpp, RexxActivity::createConditionObject (fixed in sandbox)
+
+Other potential problems. A fresh created object is not protected, and some calls are made that could trigger GC.
+RexxBehaviour.cpp, RexxBehaviour::copy : newBehaviour is not protected.
+RexxBehaviour.cpp, RexxBehaviour::addScope : this->scopes->allAt(TheNilObject) creates an object which is not protected.
+RexxCollection.cpp, RexxHashTableCollection::copy : newObj is not protected. 
+    Should be protected only if ActivityManager::currentActivity != NULL, otherwise crash in implementation of ProtectedObject's methods 
+    (RexxHashTableCollection::copy is called during interpreter initialization, and at this time, ActivityManager::currentActivity == NULL).
+ArrayClass.cpp, RexxArray::copy : newArray is not protected.
+ClassClass.cpp, RexxClass::defineMethod : method_name and method_object are not protected.
+ClassClass.cpp, RexxClass::methodDictionaryCreate : method_name is not protected.
+DirectoryClass.cpp, RexxDirectory::copy : newObj is not protected.
+ListClass.cpp, RexxList::copy : newList is not protected.
+ObjectClass.cpp, RexxObject::copy : newObj is not protected.
+ObjectClass.cpp, RexxObject::defMethod : msgname and methcopy are not protected.
+InstructionParser.cpp, RexxSource::signalNew : newObject is not protected.
+SourceFile.cpp, RexxSource::translateBlock : _instruction is not protected.
+
+
+===============================================================================
 2011 aug 14
 
 [doers]
