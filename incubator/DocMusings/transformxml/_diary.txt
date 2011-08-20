@@ -1,4 +1,10 @@
 ===============================================================================
+2011 august 20
+
+Directory "makevalidxml" renamed to "transformxml".
+
+
+===============================================================================
 2010 april 28
 
 Fix a bug in the tokenizer, which improves the performances : some attributes
