@@ -1,0 +1,8 @@
+#!/bin/sh
+while true
+do
+    rexx oorexxshell.rex $*
+    status=$?
+    if test $status -ne 200; then break; fi
+done
+exit $status

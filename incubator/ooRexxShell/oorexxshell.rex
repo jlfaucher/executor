@@ -56,7 +56,7 @@ CMD> say 1+2                                        error, the ooRexx interprete
 CMD> oorexx say 1+2                                 you can temporarily select an interpreter
 CMD> oorexx                                         switch to the ooRexx interpreter
 ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
-ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd 
+ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd
 ooRexx[CMD] say 1+2                                 3
 ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
 ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
@@ -77,18 +77,20 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
 signal on any name error
 
--- Bypass defect 2933583 (fixed in release 4.0.1) : 
+-- Bypass defect 2933583 (fixed in release 4.0.1) :
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
 shell~call(arg(1), address())
 
 error:
-endCount = .Coactivity~endAll
-if .ooRexxShell~isInteractive then say "Ended coactivities:" endCount
+if .Coactivity~isA(.Class) then do
+    endCount = .Coactivity~endAll
+    if .ooRexxShell~isInteractive then say "Ended coactivities:" endCount
+end
 
 if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 
 -- 0 means ok (return 0), anything else means ko (return 1)
-return .ooRexxShell~RC <> 0  
+return .ooRexxShell~RC <> 0
 
 
 -------------------------------------------------------------------------------
@@ -127,7 +129,6 @@ select
     end
     otherwise do
         -- One-liner for default address() and exit.
-        -- Beware ! It's not ooRexx by default, unless you start the line by the word oorexx. 
         push unquoted(.ooRexxShell~initialArgument)
         call main
     end
@@ -151,9 +152,9 @@ main: procedure
         select
             when .ooRexxShell~inputrx == "" then
                 nop
-            when .ooRexxShell~inputrx == "?" then 
+            when .ooRexxShell~inputrx == "?" then
                 call help
-            when .ooRexxShell~inputrx~caselessEquals("exit") then 
+            when .ooRexxShell~inputrx~caselessEquals("exit") then
                 exit
             when .ooRexxShell~inputrx~caselessEquals("interpreters") then
                 .ooRexxShell~sayInterpreters
@@ -189,13 +190,13 @@ main: procedure
                 signal dispatchCommand -- don't call, because some ooRexx interpreter informations would be saved/restored
             end
         end
-        
+
         CONTINUE_REPL:
         if var("RC") then .ooRexxShell~RC = RC
         if \.ooRexxShell~isInteractive & queued() == 0 then return -- For one-liner, stop loop when queue is empty.
     signal REPL
 
-    
+
 -------------------------------------------------------------------------------
 intro: procedure
     parse version version
@@ -221,8 +222,8 @@ prompt: procedure
     if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]"
     prompt ||= "> "
     return prompt
-    
-    
+
+
 -------------------------------------------------------------------------------
 readline: procedure
     use strict arg prompt
@@ -267,12 +268,12 @@ readline: procedure
                     .traceOutput~say("[readline] inputrx2=" inputrx2)
                     .color~select(.ooRexxShell~defaultColor)
                 end
-                
+
                 -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
                 -- Ex : echo, 'echo a', ls, 'ls -la'
                 -- Remove these quotes.
                 inputrx1 = unquoted(inputrx1, "'")
-                
+
                 -- Select the most appropriate line, depending on the target interpreter
                 interpreter = .ooRexxShell~interpreter -- default
                 if .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = inputrx1~word(1) -- temporary
@@ -292,7 +293,7 @@ readline: procedure
     end
     return inputrx
 
-        
+
 -------------------------------------------------------------------------------
 help: procedure
     -- The current address can be anything, not necessarily the system address.
@@ -334,7 +335,7 @@ systemAddress: procedure
 quoted: procedure
     use strict arg string, quote='"'
     return quote || string || quote
-    
+
 
 -------------------------------------------------------------------------------
 unquoted: procedure
@@ -343,7 +344,7 @@ unquoted: procedure
         return string~substr(2, string~length - 2)
     else
         return string
-    
+
 
 -------------------------------------------------------------------------------
 haltHandler:
@@ -360,12 +361,12 @@ dispatchCommand:
     call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         signal interpretCommand -- don't call
-    else 
+    else
         signal addressCommand -- don't call
     return_to_dispatchCommand:
     call rxqueue "set", .ooRexxShell~queuePrivateName -- Back to the private ooRexxShell queue
     signal CONTINUE_REPL
-    
+
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
@@ -392,7 +393,7 @@ interpretCommand:
         .color~select(.ooRexxShell~defaultColor)
     end
     signal return_to_dispatchCommand
-    
+
     interpretError:
     .color~select(.ooRexxShell~infoColor)
     .error~say(.ooRexxShell~command)
@@ -420,8 +421,8 @@ addressCommand:
         .color~select(.ooRexxShell~defaultColor)
     end
     signal return_to_dispatchCommand
-    
-    
+
+
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
 -- Remember : don't implement that as a procedure or routine or method !
@@ -444,7 +445,7 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
-    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
+    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     call loadPackage("concurrency/coactivity.cls")
@@ -454,7 +455,7 @@ loadOptionalComponents:
     call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
 
     return
-    
+
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
@@ -474,7 +475,7 @@ loadPackage:
     .color~select(.ooRexxShell~defaultColor)
     return .false
 
-    
+
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
 loadLibrary:
@@ -494,7 +495,7 @@ loadLibrary:
     .color~select(.ooRexxShell~defaultColor)
     return .false
 
-    
+
 -------------------------------------------------------------------------------
 ::class ooRexxShell
 -------------------------------------------------------------------------------
@@ -510,7 +511,7 @@ loadLibrary:
 ::attribute prompt class -- The prompt to display
 ::attribute RC class -- Return code from the last executed command
 ::attribute result class -- result's value from the last interpreted line
-::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...) 
+::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
 ::attribute securityManager class
 ::attribute queuePrivateName class -- Private queue for no interference with the user commands
 ::attribute queueInitialName class -- Backup the initial external queue name (probably "SESSION")
@@ -532,22 +533,22 @@ loadLibrary:
     self~traceDispatchCommand = .false
     self~debug = .false
 
-    
+
 ::method sayInterpreters class
-    do interpreter over .ooRexxShell~interpreters~allIndexes~sort 
+    do interpreter over .ooRexxShell~interpreters~allIndexes~sort
         say interpreter~lower" : to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
     end
-    
+
 
 ::method trace class
     use strict arg trace
     self~traceReadline = trace
     self~traceDispatchCommand = trace
     self~securityManager~traceCommand = trace
-    
-    
+
+
 -------------------------------------------------------------------------------
-::class securityManager 
+::class securityManager
 -------------------------------------------------------------------------------
 ::attribute isRunningCommand
 ::attribute traceCommand
@@ -556,12 +557,12 @@ loadLibrary:
 ::method init
    self~isRunningCommand = .false
    self~traceCommand = .false
-   
-   
+
+
 ::method unknown
     return 0
 
-    
+
 ::method command
     use arg info
     if self~traceCommand then do
@@ -570,7 +571,7 @@ loadLibrary:
         .traceOutput~say("[securityManager] command=" info~command)
         .color~select(.ooRexxShell~defaultColor)
     end
-    if self~isRunningCommand then return 0 -- recursive call, delegate to system 
+    if self~isRunningCommand then return 0 -- recursive call, delegate to system
     command = self~adjustCommand(info~address, info~command)
     if command == info~command then return 0 -- command not impacted, delegate to system
     self~isRunningCommand = .true
@@ -581,11 +582,11 @@ loadLibrary:
     self~isRunningCommand = .false
     return 1
 
-    
+
 ::method adjustCommand
     use strict arg address, command
     if address~caselessEquals("cmd") then do
-        -- [WIN32] Bypass a problem with doskey history : 
+        -- [WIN32] Bypass a problem with doskey history :
         -- When a command is directly executable (i.e. passed without "cmd /c" to CreateProcess
         -- in SystemCommands.cpp) then the history is cleared...
         -- So add "cmd /c" in front of the command...
@@ -600,7 +601,7 @@ loadLibrary:
         exefullpath = qualify(exepath)
         if .platform~subsystem(exefullpath) == 2 then return 'start "" 'command -- Don't wait when GUI application
         return 'cmd /c "'command'"'
-        
+
     end
     else if address~caselessEquals("bash") then do
         -- If directly managed by the systemCommandHandler then don't add bash in front of the command
@@ -632,7 +633,7 @@ loadLibrary:
                 when color~caselessEquals("red") then .platform~SetConsoleTextColor(4)
                 when color~caselessEquals("bred") then .platform~SetConsoleTextColor(12)
                 when color~caselessEquals("green") then .platform~SetConsoleTextColor(2)
-                when color~caselessEquals("bgreen") then .platform~SetConsoleTextColor(10) 
+                when color~caselessEquals("bgreen") then .platform~SetConsoleTextColor(10)
                 when color~caselessEquals("yellow") then .platform~SetConsoleTextColor(6) -- (called brown by by ctext)
                 when color~caselessEquals("byellow") then .platform~SetConsoleTextColor(14) -- (called yellow by ctext)
                 otherwise nop
@@ -667,8 +668,8 @@ loadLibrary:
     if RxFuncadd(GciFuncDrop, "gci", "GciFuncDrop") <> 0 then return
     if RxFuncadd(GciPrefixChar, "gci", "GciPrefixChar") <> 0 then return
     self~isInstalled = .true
-    
-    
+
+
 /*
 To compile gci-sources.1.1 for ooRexx under Win32, I had to create the file rexxsaa.h,
 located above the GCI source directory, which contains :
@@ -707,7 +708,7 @@ LIBRARY gci ; INITINSTANCE
 ::method is class
     use strict arg name
     return self~name~caselessEquals(name)
-    
+
 
 ::method unknown class -- delegates to the singleton
     use strict arg msg, args
@@ -722,15 +723,15 @@ LIBRARY gci ; INITINSTANCE
 ::method init
     use strict arg name
     self~name = name
-    
-    
+
+
 ::method which
     use strict arg filespec
     if filespec("location", filespec) == "" then return SysSearchPath("PATH", filespec)
     else if SysIsFile(filespec) then return filespec
     return ""
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::class WindowsPlatform subclass platform
 -------------------------------------------------------------------------------
@@ -754,13 +755,13 @@ LIBRARY gci ; INITINSTANCE
         self~defineSetConsoleTextAttribute
         self~defineGetStdHandle
     end
-    
-    
+
+
 ::method init
     forward class (super) continue
     self~class~current = self -- normally you never call directly a method of .WindowsPlatform, but just in case...
-    
-    
+
+
 ::method which
     -- The order of precedence in locating executable files is given by the PATHEXT environment variable.
     use strict arg filespec
@@ -786,8 +787,8 @@ LIBRARY gci ; INITINSTANCE
         if SysIsFile(filespec) then return filespec
     end
     return ""
-    
-    
+
+
 ::method string2args
     -- Converts a string to an array of arguments.
     -- Arguments are separated by whitespaces (anything < 32) and can be quoted.
@@ -803,11 +804,11 @@ LIBRARY gci ; INITINSTANCE
             if string~subchar(i) > " " then leave
             i += 1
         end
-    
+
         current = .MutableBuffer~new
         loop label current_argument
             if string~subchar(i) == '"' then do
-                -- Chunk surrounded by quotes : whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote  
+                -- Chunk surrounded by quotes : whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote
                 loop label quoted_chunk
                     i += 1
                     if i > string~length then return args~~append(current~string)
@@ -820,7 +821,7 @@ LIBRARY gci ; INITINSTANCE
                             i += 1
                             leave quoted_chunk
                         end
-                        otherwise current~append(string~subchar(i)) 
+                        otherwise current~append(string~subchar(i))
                     end
                 end quoted_chunk
             end
@@ -828,7 +829,7 @@ LIBRARY gci ; INITINSTANCE
                 args~append(current~string)
                 leave current_argument
             end
-            -- Chunk not surrounded by quotes : ends when a whitespace or quote is reached 
+            -- Chunk not surrounded by quotes : ends when a whitespace or quote is reached
             loop
                 if i > string~length then return args~~append(current~string)
                 if string~subchar(i) <= " " | string~subchar(i) == '"' then leave
@@ -838,8 +839,8 @@ LIBRARY gci ; INITINSTANCE
         end current_argument
     end arguments
     return args
-    
-    
+
+
 ::method subsystem
     -- Return the id of the subsystem needed to execute the executable.
     -- Remember : GetBinaryType does not return this information.
@@ -868,8 +869,8 @@ LIBRARY gci ; INITINSTANCE
     return littleendian2integer16(subsystem)
     notready:
     return .false
-    
-    
+
+
 ::constant STD_INPUT_HANDLE -10
 ::constant STD_OUTPUT_HANDLE -11
 ::constant STD_ERROR_HANDLE -12
@@ -887,14 +888,14 @@ LIBRARY gci ; INITINSTANCE
     stem.return.type = self~HANDLE
     return RxFuncDefine("GetStdHandle", "kernel32", "GetStdHandle", "stem") == 0 -- return .true if no error
 
-    
+
 ::method GetStdHandle private
     use strict arg deviceId
     stem.1.value = unsigned32(deviceId) -- GCI complains when passing a negative value...
     call GetStdHandle "stem"
     return stem.return.value
 
-    
+
 ::method defineSetConsoleTextAttribute class private
     /*
     BOOL WINAPI SetConsoleTextAttribute(
@@ -927,8 +928,8 @@ LIBRARY gci ; INITINSTANCE
     return result <> 0 -- return .true if no error
     syntax:
     return .false
-    
-    
+
+
 -------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
@@ -937,8 +938,8 @@ LIBRARY gci ; INITINSTANCE
     numeric digits 10
     if number >= 0 then return number
     return 4294967296 + number
-    
-    
+
+
 ::routine littleendian2integer16
     use strict arg string
     byte2 = string~subchar(2)~c2d
@@ -946,8 +947,8 @@ LIBRARY gci ; INITINSTANCE
     integer16 = 256 * byte2 + byte1
     if byte2 >= 128 then return integer16 - 65536
     return integer16
-    
-    
+
+
 ::routine littleendian2integer32
     use strict arg string
     numeric digits 10
@@ -958,8 +959,8 @@ LIBRARY gci ; INITINSTANCE
     integer32 = 16777216 * byte4 + 65536 * byte3 + 256 * byte2 + byte1
     if byte4 >= 128 then return integer32 - 4294967296
     return integer32
-    
-    
+
+
 -------------------------------------------------------------------------------
 ::requires "rxregexp.cls"
 
