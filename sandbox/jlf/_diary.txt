@@ -43,6 +43,34 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 aug 21
+
+Refinement of tokens 'subclass' attribute (for analysis) :
+The scanner splits a source file in clauses, and decompose each clause in tokens.
+Then the parser creates an AST from the tokens. 
+The tokens were not annotated by the parser to attach semantic information found
+during parsing. After a discussion with Rony about syntax coloring, I decided to
+see which informations could be added to the tokens. I found that the attribute
+'subclass' of the tokens could hold informations like that :
+IS_KEYWORD
+IS_SUBKEY
+IS_DIRECTIVE
+IS_SUBDIRECTIVE
+IS_CONDITION
+IS_BUILTIN
+There is no impact on the interpreter, as far as I can tell... Except maybe the
+tokenized files ? did not check.
+
+For the moment, there is no access to the clauses/tokens from an ooRexx script.
+If the environment variable RXTRACE_PARSING=ON then the clauses and tokens are
+dumped to the debug output (Windows) or the log (Unix) using dbgprintf.
+See samples/parsing for an example of dump.
+
+Interesting to watch :
+http://ibm-netrexx.215625.n3.nabble.com/NetRexx-Eclipse-status-video-td3271843.html
+
+
+===============================================================================
 2011 aug 16
 
 Fixed a crash in relation with source literals and GC.

@@ -131,6 +131,7 @@ RexxInstruction *RexxSource::addressNew()
                                       /* may be value keyword, however...  */
             if (this->subKeyword(token) == SUBKEY_VALUE)
             {
+                refineSubclass(token, IS_SUBKEY);
                 /* process the expression            */
                 _expression = this->expression(TERM_EOC);
                 if (_expression == OREF_NULL)   /* no expression?                    */
@@ -235,6 +236,7 @@ RexxInstruction *RexxSource::callNew()
         int _keyword = this->subKeyword(token); /* check for the subkeywords         */
         if (_keyword == SUBKEY_ON)
         {        /* CALL ON instruction?              */
+            refineSubclass(token, IS_SUBKEY);
             _flags |= RexxInstructionCall::call_on_off;  /* this is a CALL ON                 */
             token = nextReal();              /* get the next token                */
                                              /* no condition specified or not a   */
@@ -260,6 +262,7 @@ RexxInstruction *RexxSource::callNew()
             /* actually a USER condition request?*/
             else if (_keyword == CONDITION_USER)
             {
+                refineSubclass(token, IS_CONDITION);
                 token = nextReal();            /* get the next token                */
                                                /* no condition specified or not a   */
                                                /* symbol?                           */
@@ -271,6 +274,7 @@ RexxInstruction *RexxSource::callNew()
                 /* set the builtin index for later   */
                 /* resolution step                   */
                 builtin_index = this->builtin(token);
+                if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
                 _condition = token->value;     /* get the token string value        */
                 name = _condition;             /* set the default target            */
                                                /* condition name is "USER condition"*/
@@ -285,6 +289,7 @@ RexxInstruction *RexxSource::callNew()
                                                /* set the builtin index for later   */
                                                /* resolution step                   */
                 builtin_index = this->builtin(token);
+                if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
             }
             token = nextReal();              /* get the next token                */
                                              /* anything real here?               */
@@ -302,6 +307,7 @@ RexxInstruction *RexxSource::callNew()
                     /* got an error here                 */
                     syntaxError(Error_Invalid_subkeyword_callonname, token);
                 }
+                refineSubclass(token, IS_SUBKEY);
                 token = nextReal();            /* get the next token                */
                 if (token->classId != TOKEN_SYMBOL && token->classId != TOKEN_LITERAL)
                 {
@@ -312,6 +318,7 @@ RexxInstruction *RexxSource::callNew()
                                                /* set the builtin index for later   */
                                                /* resolution step                   */
                 builtin_index = this->builtin(token);
+                if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
                 token = nextReal();            /* get the next token                */
                                                /* must have the clause end here     */
                 if (!token->isEndOfClause())
@@ -323,6 +330,7 @@ RexxInstruction *RexxSource::callNew()
         }
         else if (_keyword == SUBKEY_OFF)
         { /* CALL OFF instruction?             */
+            refineSubclass(token, IS_SUBKEY);
             token = nextReal();              /* get the next token                */
                                              /* no condition specified or not a   */
                                              /* symbol?                           */
@@ -347,6 +355,7 @@ RexxInstruction *RexxSource::callNew()
             /* actually a USER condition request?*/
             else if (_keyword == CONDITION_USER)
             {
+                refineSubclass(token, IS_CONDITION);
                 token = nextReal();            /* get the next token                */
                                                /* no condition specified or not a   */
                                                /* symbol?                           */
@@ -379,6 +388,7 @@ RexxInstruction *RexxSource::callNew()
             /* set the builtin index for later   */
             /* resolution step                   */
             builtin_index = this->builtin(token);
+            if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
             /* get the argument list             */
             argCount = this->argList(OREF_NULL, TERM_EOC);
         }
@@ -390,6 +400,7 @@ RexxInstruction *RexxSource::callNew()
                                            /* set the builtin index for later   */
                                            /* resolution step                   */
         builtin_index = this->builtin(token);
+        if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
         /* process the argument list         */
         argCount = this->argList(OREF_NULL, TERM_EOC);
         _flags |= RexxInstructionCall::call_nointernal;          /* do not check for internal routines*/
@@ -500,6 +511,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
             RexxToken *name = nextReal();
             if (name->isSymbol())
             {
+                refineSubclass(token, IS_SUBKEY);
                 OrefSet(newDo, newDo->label, name->value);
                 // update the reset position before stepping to the next position
                 _position = markPosition();
@@ -583,6 +595,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                 {
 
                     case SUBKEY_BY:
+                        refineSubclass(token, IS_SUBKEY);
                         // only one per customer
                         if (newDo->by != OREF_NULL)
                         {
@@ -600,6 +613,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                         break;
 
                     case SUBKEY_TO:
+                        refineSubclass(token, IS_SUBKEY);
                         // only one per customer
                         if (newDo->to != OREF_NULL)
                         {
@@ -617,6 +631,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                         break;
 
                     case SUBKEY_FOR:
+                        refineSubclass(token, IS_SUBKEY);
                         // only one per customer
                         if (newDo->forcount != OREF_NULL)
                         {
@@ -634,6 +649,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                         break;
 
                     case SUBKEY_WHILE:
+                        refineSubclass(token, IS_SUBKEY);
                         // step back a token and process the conditional
                         previousToken();
                         OrefSet(newDo, newDo->conditional, this->parseConditional(NULL, 0));
@@ -643,6 +659,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                         break;
 
                     case SUBKEY_UNTIL:
+                        refineSubclass(token, IS_SUBKEY);
                         // step back a token and process the conditional
                         previousToken();
                         OrefSet(newDo, newDo->conditional, this->parseConditional(NULL, 0));
@@ -657,6 +674,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
         // DO name OVER collection form?
         else if (this->subKeyword(second) == SUBKEY_OVER)
         {
+            refineSubclass(second, IS_SUBKEY);
             // this is a DO OVER type
             newDo->type = DO_OVER;
             // if this DO/LOOP didn't have a label clause, use the control
@@ -697,6 +715,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
             {
                 case SUBKEY_FOREVER:         // DO FOREVER
 
+                    refineSubclass(token, IS_SUBKEY);
                     newDo->type = DO_FOREVER;
                     // this has a potential conditional
                     OrefSet(newDo, newDo->conditional, this->parseConditional(&conditional, Error_Invalid_do_forever));
@@ -712,6 +731,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                     break;
 
                 case SUBKEY_WHILE:           // DO WHILE cond                     */
+                    refineSubclass(token, IS_SUBKEY);
                     // step back one token and process the conditional
                     previousToken();
                     OrefSet(newDo, newDo->conditional, this->parseConditional(&conditional, 0));
@@ -719,6 +739,7 @@ RexxInstruction *RexxSource::createDoLoop(RexxInstructionDo *newDo, bool isLoop)
                     break;
 
                 case SUBKEY_UNTIL:           // DO WHILE cond                     */
+                    refineSubclass(token, IS_SUBKEY);
                     // step back one token and process the conditional
                     previousToken();
                     OrefSet(newDo, newDo->conditional, this->parseConditional(&conditional, 0));
@@ -884,6 +905,7 @@ void RexxSource::RexxInstructionForwardCreate(
         { /* get the keyword value             */
 
             case SUBKEY_TO:                  /* FORWARD TO expr                   */
+                refineSubclass(token, IS_SUBKEY);
                 /* have a description already?       */
                 if (newObject->target != OREF_NULL)
                 {
@@ -901,6 +923,7 @@ void RexxSource::RexxInstructionForwardCreate(
                 break;
 
             case SUBKEY_CLASS:               /* FORWARD CLASS expr                */
+                refineSubclass(token, IS_SUBKEY);
                 /* have a class over ride already?   */
                 if (newObject->superClass != OREF_NULL)
                 {
@@ -918,6 +941,7 @@ void RexxSource::RexxInstructionForwardCreate(
                 break;
 
             case SUBKEY_MESSAGE:             /* FORWARD MESSAGE expr              */
+                refineSubclass(token, IS_SUBKEY);
                 /* have a message over ride already? */
                 if (newObject->message != OREF_NULL)
                 {
@@ -935,6 +959,7 @@ void RexxSource::RexxInstructionForwardCreate(
                 break;
 
             case SUBKEY_ARGUMENTS:           /* FORWARD ARGUMENTS expr            */
+                refineSubclass(token, IS_SUBKEY);
                 /* have a additional already?        */
                 if (newObject->arguments != OREF_NULL || newObject->array != OREF_NULL)
                 {
@@ -952,6 +977,7 @@ void RexxSource::RexxInstructionForwardCreate(
                 break;
 
             case SUBKEY_ARRAY:               /* FORWARD ARRAY (expr, expr)        */
+                refineSubclass(token, IS_SUBKEY);
                 /* have arguments already?           */
                 if (newObject->arguments != OREF_NULL || newObject->array != OREF_NULL)
                 {
@@ -970,6 +996,7 @@ void RexxSource::RexxInstructionForwardCreate(
                 break;
 
             case SUBKEY_CONTINUE:            /* FORWARD CONTINUE                  */
+                refineSubclass(token, IS_SUBKEY);
                 if (returnContinue)            /* already had the return action?    */
                 {
                     /* this is invalid                   */
@@ -1023,10 +1050,12 @@ RexxInstruction *RexxSource::guardNew()
     switch (this->subKeyword(token))
     {
         case SUBKEY_OFF:                   /* GUARD OFF instruction             */
+            refineSubclass(token, IS_SUBKEY);
             on_off = false;                  /* this is the guard off form        */
             break;
 
         case SUBKEY_ON:                    /* GUARD ON instruction              */
+            refineSubclass(token, IS_SUBKEY);
             on_off = true;                   /* remember it is the on form        */
             break;
 
@@ -1043,6 +1072,7 @@ RexxInstruction *RexxSource::guardNew()
         { /* and process                       */
 
             case SUBKEY_WHEN:                /* GUARD ON WHEN expr                */
+                refineSubclass(token, IS_SUBKEY);
                 this->setGuard();              /* turn on guard variable collection */
                                                /* process the expression            */
                 _expression = this->expression(TERM_EOC);
@@ -1304,6 +1334,7 @@ RexxInstruction *RexxSource::numericNew()
     }
 
     unsigned short type = this->subKeyword(token);      /* resolve the subkeyword            */
+    if (type != 0) refineSubclass(token, IS_SUBKEY);
     switch (type)
     {                      /* process the subkeyword            */
         case SUBKEY_DIGITS:                /* NUMERIC DIGITS instruction        */
@@ -1328,6 +1359,7 @@ RexxInstruction *RexxSource::numericNew()
                 {
 
                     case SUBKEY_SCIENTIFIC:      /* NUMERIC FORM SCIENTIFIC           */
+                        refineSubclass(token, IS_SUBKEY);
                         token = nextReal();        /* get the next token                */
                                                    /* end of the instruction?           */
                         if (!token->isEndOfClause())
@@ -1338,6 +1370,7 @@ RexxInstruction *RexxSource::numericNew()
                         break;
 
                     case SUBKEY_ENGINEERING:     /* NUMERIC FORM ENGINEERING          */
+                        refineSubclass(token, IS_SUBKEY);
                         /* switch to engineering             */
                         _flags |= numeric_engineering;
                         token = nextReal();        /* get the next token                */
@@ -1350,6 +1383,7 @@ RexxInstruction *RexxSource::numericNew()
                         break;
 
                     case SUBKEY_VALUE:           /* NUMERIC FORM VALUE expr           */
+                        refineSubclass(token, IS_SUBKEY);
                         /* process the expression            */
                         _expression = this->expression(TERM_EOC);
                         /* no expression?                    */
@@ -1457,6 +1491,7 @@ RexxInstruction *RexxSource::parseNew(
             {               /* process potential modifiers       */
 
                 case SUBKEY_UPPER:             /* doing uppercasing?                */
+                    refineSubclass(token, IS_SUBKEY);
                     if (_flags&parse_translate)   /* already had a translation option? */
                     {
                         break;                     /* this is an unrecognized keyword   */
@@ -1465,6 +1500,7 @@ RexxInstruction *RexxSource::parseNew(
                     continue;                    /* go around for another one         */
 
                 case SUBKEY_LOWER:             /* doing lowercasing?                */
+                    refineSubclass(token, IS_SUBKEY);
                     if (_flags&parse_translate)   /* already had a translation option? */
                     {
                         break;                     /* this is an unrecognized keyword   */
@@ -1474,6 +1510,7 @@ RexxInstruction *RexxSource::parseNew(
                     continue;                    /* go around for another one         */
 
                 case SUBKEY_CASELESS:          /* caseless comparisons?             */
+                    refineSubclass(token, IS_SUBKEY);
                     if (_flags&parse_caseless)    /* already had this options?         */
                     {
                         break;                     /* this is an unrecognized keyword   */
@@ -1494,9 +1531,11 @@ RexxInstruction *RexxSource::parseNew(
             case SUBKEY_ARG:                 /* PARSE ARG instruction             */
             case SUBKEY_SOURCE:              /* PARSE SOURCE instruction          */
             case SUBKEY_VERSION:             /* PARSE VERSION instruction         */
+                refineSubclass(token, IS_SUBKEY);
                 break;                         /* this is already done              */
 
             case SUBKEY_VAR:                 /* PARSE VAR name instruction        */
+                refineSubclass(token, IS_SUBKEY);
                 token = nextReal();            /* get the next token                */
                                                /* not a symbol token                */
                 if (!token->isSymbol())
@@ -1510,6 +1549,7 @@ RexxInstruction *RexxSource::parseNew(
                 break;
 
             case SUBKEY_VALUE:               /* need to process an expression     */
+                refineSubclass(token, IS_SUBKEY);
                 _expression = this->expression(TERM_WITH | TERM_KEYWORD);
                 if (_expression == OREF_NULL )       /* If script not complete, report error RI0001 */
                 {
@@ -1524,6 +1564,7 @@ RexxInstruction *RexxSource::parseNew(
                     /* got another error                 */
                     syntaxError(Error_Invalid_template_with);
                 }
+                refineSubclass(token, IS_SUBKEY);
                 break;
 
             default:                         /* unknown (or duplicate) keyword    */
@@ -1739,6 +1780,7 @@ RexxInstruction *RexxSource::procedureNew()
         {
             syntaxError(Error_Invalid_subkeyword_procedure, token);
         }
+        refineSubclass(token, IS_SUBKEY);
         /* go process the list               */
         variableCount = this->processVariableList(KEYWORD_PROCEDURE);
     }
@@ -1787,6 +1829,7 @@ RexxInstruction *RexxSource::raiseNew()
     RexxString *_condition = token->value;           /* use the condition string value    */
     saveQueue->push(_condition);         /* save the condition name           */
     int _keyword = this->condition(token);   /* check for the subkeywords         */
+    if (_keyword != 0) refineSubclass(token, IS_CONDITION);
     switch (_keyword)
     {                  /* process the different conditions  */
 
@@ -1843,6 +1886,7 @@ RexxInstruction *RexxSource::raiseNew()
             syntaxError(Error_Invalid_subkeyword_raiseoption, token);
         }
         _keyword = this->subKeyword(token); /* get the keyword value             */
+        if (_keyword != 0) refineSubclass(token, IS_SUBKEY);
         switch (_keyword)
         {                /* process the subkeywords           */
 
@@ -2022,6 +2066,7 @@ RexxInstruction *RexxSource::selectNew()
                                        /* raise an error                    */
         syntaxError(Error_Invalid_subkeyword_select, token);
     }
+    refineSubclass(token, IS_SUBKEY);
     // ok, get the label now
     token = nextReal();
     // this is required, and must be a symbol
@@ -2077,6 +2122,7 @@ RexxInstruction *RexxSource::signalNew()
             int _keyword = this->subKeyword(token);
             if (_keyword == SUBKEY_ON)
             {      /* SIGNAL ON instruction?            */
+                refineSubclass(token, IS_SUBKEY);
                 _flags |= signal_on;            /* this is a SIGNAL ON               */
                 token = nextReal();            /* get the next token                */
                                                /* no condition specified or not a   */
@@ -2097,6 +2143,7 @@ RexxInstruction *RexxSource::signalNew()
                 /* actually a USER condition request?*/
                 else if (_keyword == CONDITION_USER)
                 {
+                    refineSubclass(token, IS_CONDITION);
                     token = nextReal();          /* get the next token                */
                                                  /* no condition specified or not a   */
                                                  /* symbol?                           */
@@ -2132,6 +2179,7 @@ RexxInstruction *RexxSource::signalNew()
                         /* got an error here                 */
                         syntaxError(Error_Invalid_subkeyword_signalonname, token);
                     }
+                    refineSubclass(token, IS_SUBKEY);
                     token = nextReal();          /* get the next token                */
                                                  /* not got a symbol here?            */
                     if (!token->isSymbolOrLiteral())
@@ -2151,6 +2199,7 @@ RexxInstruction *RexxSource::signalNew()
             }
             else if (_keyword == SUBKEY_OFF)
             {/* SIGNAL OFF instruction?           */
+                refineSubclass(token, IS_SUBKEY);
                 signalOff = true;              /* doing a SIGNAL OFF                */
                 token = nextReal();            /* get the next token                */
                                                /* no condition specified or not a   */
@@ -2171,6 +2220,7 @@ RexxInstruction *RexxSource::signalNew()
                 /* actually a USER condition request?*/
                 else if (_keyword == CONDITION_USER)
                 {
+                    refineSubclass(token, IS_CONDITION);
                     token = nextReal();          /* get the next token                */
                                                  /* no condition specified or not a   */
                                                  /* symbol?                           */
@@ -2200,6 +2250,7 @@ RexxInstruction *RexxSource::signalNew()
             /* is this the value keyword form?   */
             else if (_keyword == SUBKEY_VALUE)
             {
+                refineSubclass(token, IS_SUBKEY);
                 /* get the expression                */
                 _expression = this->expression(TERM_EOC);
                 if (_expression == OREF_NULL)   /* no expression here?               */
@@ -2275,6 +2326,7 @@ RexxInstruction *RexxSource::traceNew()
             /* TRACE VALUE expr?                 */
             if (this->subKeyword(token) == SUBKEY_VALUE)
             {
+                refineSubclass(token, IS_SUBKEY);
                 /* process the expression            */
                 _expression = this->expression(TERM_EOC);
                 if (_expression == OREF_NULL)   /* no expression?                    */
@@ -2392,6 +2444,7 @@ RexxInstruction *RexxSource::useNew()
 
     if (subkeyword == SUBKEY_STRICT)
     {
+        refineSubclass(token, IS_SUBKEY);
         token = nextReal();        // skip over the token
         strictChecking = true;     // apply the strict checks.
     }
@@ -2401,6 +2454,7 @@ RexxInstruction *RexxSource::useNew()
     {
         syntaxError(Error_Invalid_subkeyword_use, token);
     }
+    refineSubclass(token, IS_SUBKEY);
 
     // we accumulate 2 sets of data here, so we need 2 queues to push them in
     // if this is the SIMPLE version, the second queue will be empty.

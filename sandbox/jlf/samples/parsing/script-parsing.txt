@@ -1,0 +1,308 @@
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_FIRST" instructionFlags=0 startLine=0 startCol=0 endLine=0 endCol=0 instruction={}
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#1
+(Parsing)parse="pattern"
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=4 startCol=0 endLine=4 endCol=15 instruction={parse="pattern"}
+(Parsing)startLine=4 startCol=0 endLine=4 endCol=5 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=4 startCol=5 endLine=4 endCol=6 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=4 startCol=6 endLine=4 endCol=15 classId=TOKEN_LITERAL subclass=0 numeric=0 token="pattern"
+(Parsing)startLine=4 startCol=15 endLine=4 endCol=15 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)parse = parse "extending pattern"
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=5 startCol=0 endLine=5 endCol=33 instruction={parse = parse "extending pattern"}
+(Parsing)startLine=5 startCol=0 endLine=5 endCol=5 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=5 startCol=6 endLine=5 endCol=7 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=5 startCol=8 endLine=5 endCol=13 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=5 startCol=13 endLine=5 endCol=14 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=5 startCol=14 endLine=5 endCol=33 classId=TOKEN_LITERAL subclass=0 numeric=0 token="extending pattern"
+(Parsing)startLine=5 startCol=33 endLine=5 endCol=33 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)parse var parse one two three
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_PARSE" instructionFlags=0 startLine=6 startCol=0 endLine=6 endCol=29 instruction={parse var parse one two three}
+(Parsing)startLine=6 startCol=0 endLine=6 endCol=5 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="PARSE"
+(Parsing)startLine=6 startCol=5 endLine=6 endCol=6 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=6 startCol=6 endLine=6 endCol=9 classId=TOKEN_SYMBOL subclass=IS_SUBKEY numeric=0 token="VAR"
+(Parsing)startLine=6 startCol=9 endLine=6 endCol=10 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=6 startCol=10 endLine=6 endCol=15 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=6 startCol=15 endLine=6 endCol=16 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=6 startCol=16 endLine=6 endCol=19 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ONE"
+(Parsing)startLine=6 startCol=19 endLine=6 endCol=20 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=6 startCol=20 endLine=6 endCol=23 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="TWO"
+(Parsing)startLine=6 startCol=23 endLine=6 endCol=24 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=6 startCol=24 endLine=6 endCol=29 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THREE"
+(Parsing)startLine=6 startCol=29 endLine=6 endCol=29 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "one:" one "from:" parse
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=7 startCol=0 endLine=7 endCol=28 instruction={say "one:" one "from:" parse}
+(Parsing)startLine=7 startCol=0 endLine=7 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=7 startCol=3 endLine=7 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=7 startCol=4 endLine=7 endCol=10 classId=TOKEN_LITERAL subclass=0 numeric=0 token="one:"
+(Parsing)startLine=7 startCol=10 endLine=7 endCol=11 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=7 startCol=11 endLine=7 endCol=14 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ONE"
+(Parsing)startLine=7 startCol=14 endLine=7 endCol=15 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=7 startCol=15 endLine=7 endCol=22 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from:"
+(Parsing)startLine=7 startCol=22 endLine=7 endCol=23 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=7 startCol=23 endLine=7 endCol=28 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=7 startCol=28 endLine=7 endCol=28 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "two:" two "from:" parse
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=8 startCol=0 endLine=8 endCol=28 instruction={say "two:" two "from:" parse}
+(Parsing)startLine=8 startCol=0 endLine=8 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=8 startCol=3 endLine=8 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=8 startCol=4 endLine=8 endCol=10 classId=TOKEN_LITERAL subclass=0 numeric=0 token="two:"
+(Parsing)startLine=8 startCol=10 endLine=8 endCol=11 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=8 startCol=11 endLine=8 endCol=14 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="TWO"
+(Parsing)startLine=8 startCol=14 endLine=8 endCol=15 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=8 startCol=15 endLine=8 endCol=22 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from:"
+(Parsing)startLine=8 startCol=22 endLine=8 endCol=23 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=8 startCol=23 endLine=8 endCol=28 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=8 startCol=28 endLine=8 endCol=28 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "three:" three "from:" parse
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=9 startCol=0 endLine=9 endCol=32 instruction={say "three:" three "from:" parse}
+(Parsing)startLine=9 startCol=0 endLine=9 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=9 startCol=3 endLine=9 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=9 startCol=4 endLine=9 endCol=12 classId=TOKEN_LITERAL subclass=0 numeric=0 token="three:"
+(Parsing)startLine=9 startCol=12 endLine=9 endCol=13 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=9 startCol=13 endLine=9 endCol=18 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THREE"
+(Parsing)startLine=9 startCol=18 endLine=9 endCol=19 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=9 startCol=19 endLine=9 endCol=26 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from:"
+(Parsing)startLine=9 startCol=26 endLine=9 endCol=27 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=9 startCol=27 endLine=9 endCol=32 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=9 startCol=32 endLine=9 endCol=32 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)someValue="xyz pattern extedning pattern 123"
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=11 startCol=0 endLine=11 endCol=45 instruction={someValue="xyz pattern extedning pattern 123"}
+(Parsing)startLine=11 startCol=0 endLine=11 endCol=9 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="SOMEVALUE"
+(Parsing)startLine=11 startCol=9 endLine=11 endCol=10 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=11 startCol=10 endLine=11 endCol=45 classId=TOKEN_LITERAL subclass=0 numeric=0 token="xyz pattern extedning pattern 123"
+(Parsing)startLine=11 startCol=45 endLine=11 endCol=45 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)parse var someValue first (parse) last
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_PARSE" instructionFlags=0 startLine=12 startCol=0 endLine=12 endCol=38 instruction={parse var someValue first (parse) last}
+(Parsing)startLine=12 startCol=0 endLine=12 endCol=5 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="PARSE"
+(Parsing)startLine=12 startCol=5 endLine=12 endCol=6 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=12 startCol=6 endLine=12 endCol=9 classId=TOKEN_SYMBOL subclass=IS_SUBKEY numeric=0 token="VAR"
+(Parsing)startLine=12 startCol=9 endLine=12 endCol=10 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=12 startCol=10 endLine=12 endCol=19 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="SOMEVALUE"
+(Parsing)startLine=12 startCol=19 endLine=12 endCol=20 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=12 startCol=20 endLine=12 endCol=25 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="FIRST"
+(Parsing)startLine=12 startCol=25 endLine=12 endCol=26 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=12 startCol=26 endLine=12 endCol=27 classId=TOKEN_LEFT subclass=0 numeric=0 token=NULL
+(Parsing)startLine=12 startCol=27 endLine=12 endCol=32 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=12 startCol=32 endLine=12 endCol=33 classId=TOKEN_RIGHT subclass=0 numeric=0 token=NULL
+(Parsing)startLine=12 startCol=33 endLine=12 endCol=34 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=12 startCol=34 endLine=12 endCol=38 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="LAST"
+(Parsing)startLine=12 startCol=38 endLine=12 endCol=38 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "first:" first "from:" someValue", pattern:" parse
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=13 startCol=0 endLine=13 endCol=54 instruction={say "first:" first "from:" someValue", pattern:" parse}
+(Parsing)startLine=13 startCol=0 endLine=13 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=13 startCol=3 endLine=13 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=13 startCol=4 endLine=13 endCol=12 classId=TOKEN_LITERAL subclass=0 numeric=0 token="first:"
+(Parsing)startLine=13 startCol=12 endLine=13 endCol=13 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=13 startCol=13 endLine=13 endCol=18 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="FIRST"
+(Parsing)startLine=13 startCol=18 endLine=13 endCol=19 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=13 startCol=19 endLine=13 endCol=26 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from:"
+(Parsing)startLine=13 startCol=26 endLine=13 endCol=27 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=13 startCol=27 endLine=13 endCol=36 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="SOMEVALUE"
+(Parsing)startLine=13 startCol=36 endLine=13 endCol=48 classId=TOKEN_LITERAL subclass=0 numeric=0 token=", pattern:"
+(Parsing)startLine=13 startCol=48 endLine=13 endCol=49 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=13 startCol=49 endLine=13 endCol=54 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=13 startCol=54 endLine=13 endCol=54 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "last:" last "from:" someValue", pattern:" parse
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=14 startCol=0 endLine=14 endCol=52 instruction={say "last:" last "from:" someValue", pattern:" parse}
+(Parsing)startLine=14 startCol=0 endLine=14 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=14 startCol=3 endLine=14 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=14 startCol=4 endLine=14 endCol=11 classId=TOKEN_LITERAL subclass=0 numeric=0 token="last:"
+(Parsing)startLine=14 startCol=11 endLine=14 endCol=12 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=14 startCol=12 endLine=14 endCol=16 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="LAST"
+(Parsing)startLine=14 startCol=16 endLine=14 endCol=17 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=14 startCol=17 endLine=14 endCol=24 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from:"
+(Parsing)startLine=14 startCol=24 endLine=14 endCol=25 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=14 startCol=25 endLine=14 endCol=34 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="SOMEVALUE"
+(Parsing)startLine=14 startCol=34 endLine=14 endCol=46 classId=TOKEN_LITERAL subclass=0 numeric=0 token=", pattern:"
+(Parsing)startLine=14 startCol=46 endLine=14 endCol=47 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=14 startCol=47 endLine=14 endCol=52 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PARSE"
+(Parsing)startLine=14 startCol=52 endLine=14 endCol=52 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)if=1
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=17 startCol=0 endLine=17 endCol=4 instruction={if=1}
+(Parsing)startLine=17 startCol=0 endLine=17 endCol=2 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="IF"
+(Parsing)startLine=17 startCol=2 endLine=17 endCol=3 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=17 startCol=3 endLine=17 endCol=4 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=1258 token="1"
+(Parsing)startLine=17 startCol=4 endLine=17 endCol=4 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)then=1
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=18 startCol=0 endLine=18 endCol=6 instruction={then=1}
+(Parsing)startLine=18 startCol=0 endLine=18 endCol=4 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THEN"
+(Parsing)startLine=18 startCol=4 endLine=18 endCol=5 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=18 startCol=5 endLine=18 endCol=6 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=1258 token="1"
+(Parsing)startLine=18 startCol=6 endLine=18 endCol=6 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)else=1
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=19 startCol=0 endLine=19 endCol=6 instruction={else=1}
+(Parsing)startLine=19 startCol=0 endLine=19 endCol=4 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ELSE"
+(Parsing)startLine=19 startCol=4 endLine=19 endCol=5 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=19 startCol=5 endLine=19 endCol=6 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=1258 token="1"
+(Parsing)startLine=19 startCol=6 endLine=19 endCol=6 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)if if then say then "from branch #1"
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_IF" instructionFlags=0 startLine=21 startCol=0 endLine=21 endCol=6 instruction={if if }
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_IFTHEN" instructionFlags=0 startLine=21 startCol=6 endLine=21 endCol=10 instruction={then}
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=21 startCol=11 endLine=21 endCol=36 instruction={say then "from branch #1"}
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ENDTHEN" instructionFlags=0 startLine=21 startCol=11 endLine=21 endCol=36 instruction={say then "from branch #1"}
+(Parsing)startLine=21 startCol=0 endLine=21 endCol=2 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="IF"
+(Parsing)startLine=21 startCol=2 endLine=21 endCol=3 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=21 startCol=3 endLine=21 endCol=5 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="IF"
+(Parsing)startLine=21 startCol=5 endLine=21 endCol=6 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=21 startCol=6 endLine=21 endCol=10 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THEN"
+(Parsing)startLine=21 startCol=10 endLine=21 endCol=11 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=21 startCol=11 endLine=21 endCol=14 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=21 startCol=14 endLine=21 endCol=15 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=21 startCol=15 endLine=21 endCol=19 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THEN"
+(Parsing)startLine=21 startCol=19 endLine=21 endCol=20 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=21 startCol=20 endLine=21 endCol=36 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from branch #1"
+(Parsing)startLine=21 startCol=36 endLine=21 endCol=36 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)else if else then say else "from branch #2"
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ELSE" instructionFlags=0 startLine=22 startCol=6 endLine=22 endCol=10 instruction={else}
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_IF" instructionFlags=0 startLine=22 startCol=11 endLine=22 endCol=19 instruction={if else }
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_IFTHEN" instructionFlags=0 startLine=22 startCol=19 endLine=22 endCol=23 instruction={then}
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=22 startCol=24 endLine=22 endCol=49 instruction={say else "from branch #2"}
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ENDTHEN" instructionFlags=0 startLine=22 startCol=24 endLine=22 endCol=49 instruction={say else "from branch #2"}
+(Parsing)startLine=22 startCol=6 endLine=22 endCol=10 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="ELSE"
+(Parsing)startLine=22 startCol=10 endLine=22 endCol=11 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=22 startCol=11 endLine=22 endCol=13 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="IF"
+(Parsing)startLine=22 startCol=13 endLine=22 endCol=14 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=22 startCol=14 endLine=22 endCol=18 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ELSE"
+(Parsing)startLine=22 startCol=18 endLine=22 endCol=19 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=22 startCol=19 endLine=22 endCol=23 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THEN"
+(Parsing)startLine=22 startCol=23 endLine=22 endCol=24 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=22 startCol=24 endLine=22 endCol=27 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=22 startCol=27 endLine=22 endCol=28 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=22 startCol=28 endLine=22 endCol=32 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ELSE"
+(Parsing)startLine=22 startCol=32 endLine=22 endCol=33 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=22 startCol=33 endLine=22 endCol=49 classId=TOKEN_LITERAL subclass=0 numeric=0 token="from branch #2"
+(Parsing)startLine=22 startCol=49 endLine=22 endCol=49 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "if:  " if
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ENDELSE" instructionFlags=0 startLine=24 startCol=0 endLine=24 endCol=14 instruction={say "if:  " if}
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=24 startCol=0 endLine=24 endCol=14 instruction={say "if:  " if}
+(Parsing)startLine=24 startCol=0 endLine=24 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=24 startCol=3 endLine=24 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=24 startCol=4 endLine=24 endCol=11 classId=TOKEN_LITERAL subclass=0 numeric=0 token="if:  "
+(Parsing)startLine=24 startCol=11 endLine=24 endCol=12 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=24 startCol=12 endLine=24 endCol=14 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="IF"
+(Parsing)startLine=24 startCol=14 endLine=24 endCol=14 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "then:" then
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=25 startCol=0 endLine=25 endCol=16 instruction={say "then:" then}
+(Parsing)startLine=25 startCol=0 endLine=25 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=25 startCol=3 endLine=25 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=25 startCol=4 endLine=25 endCol=11 classId=TOKEN_LITERAL subclass=0 numeric=0 token="then:"
+(Parsing)startLine=25 startCol=11 endLine=25 endCol=12 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=25 startCol=12 endLine=25 endCol=16 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="THEN"
+(Parsing)startLine=25 startCol=16 endLine=25 endCol=16 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)say "else:" else
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_SAY" instructionFlags=0 startLine=26 startCol=0 endLine=26 endCol=16 instruction={say "else:" else}
+(Parsing)startLine=26 startCol=0 endLine=26 endCol=3 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="SAY"
+(Parsing)startLine=26 startCol=3 endLine=26 endCol=4 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=26 startCol=4 endLine=26 endCol=11 classId=TOKEN_LITERAL subclass=0 numeric=0 token="else:"
+(Parsing)startLine=26 startCol=11 endLine=26 endCol=12 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=26 startCol=12 endLine=26 endCol=16 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ELSE"
+(Parsing)startLine=26 startCol=16 endLine=26 endCol=16 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)raise propagate  -- will "propagate" be highlighted as a subkeyword in this context?
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_RAISE" instructionFlags=0 startLine=29 startCol=0 endLine=29 endCol=84 instruction={raise propagate  -- will "propagate" be highlighted as a subkeyword in this context?}
+(Parsing)startLine=29 startCol=0 endLine=29 endCol=5 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="RAISE"
+(Parsing)startLine=29 startCol=5 endLine=29 endCol=6 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=29 startCol=6 endLine=29 endCol=15 classId=TOKEN_SYMBOL subclass=IS_CONDITION numeric=0 token="PROPAGATE"
+(Parsing)startLine=29 startCol=84 endLine=29 endCol=84 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)propagate=.true  -- will ".true" be highlighed, but "propagate" not in this conetxt?
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=30 startCol=0 endLine=30 endCol=84 instruction={propagate=.true  -- will ".true" be highlighed, but "propagate" not in this conetxt?}
+(Parsing)startLine=30 startCol=0 endLine=30 endCol=9 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="PROPAGATE"
+(Parsing)startLine=30 startCol=9 endLine=30 endCol=10 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=30 startCol=10 endLine=30 endCol=15 classId=TOKEN_SYMBOL subclass=SYMBOL_DOTSYMBOL numeric=0 token=".TRUE"
+(Parsing)startLine=30 startCol=84 endLine=30 endCol=84 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)raise syntax 17.1 array ("someValue") -- will "syntax" and "array" be highlighted in this context?
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_RAISE" instructionFlags=2 startLine=32 startCol=0 endLine=32 endCol=98 instruction={raise syntax 17.1 array ("someValue") -- will "syntax" and "array" be highlighted in this context?}
+(Parsing)startLine=32 startCol=0 endLine=32 endCol=5 classId=TOKEN_SYMBOL subclass=IS_KEYWORD numeric=0 token="RAISE"
+(Parsing)startLine=32 startCol=5 endLine=32 endCol=6 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=32 startCol=6 endLine=32 endCol=12 classId=TOKEN_SYMBOL subclass=IS_CONDITION numeric=0 token="SYNTAX"
+(Parsing)startLine=32 startCol=12 endLine=32 endCol=13 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=32 startCol=13 endLine=32 endCol=17 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=0 token="17.1"
+(Parsing)startLine=32 startCol=17 endLine=32 endCol=18 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=32 startCol=18 endLine=32 endCol=23 classId=TOKEN_SYMBOL subclass=IS_SUBKEY numeric=0 token="ARRAY"
+(Parsing)startLine=32 startCol=23 endLine=32 endCol=24 classId=TOKEN_BLANK subclass=OPERATOR_BLANK numeric=0 token=" "
+(Parsing)startLine=32 startCol=24 endLine=32 endCol=25 classId=TOKEN_LEFT subclass=0 numeric=0 token=NULL
+(Parsing)startLine=32 startCol=25 endLine=32 endCol=36 classId=TOKEN_LITERAL subclass=0 numeric=0 token="someValue"
+(Parsing)startLine=32 startCol=36 endLine=32 endCol=37 classId=TOKEN_RIGHT subclass=0 numeric=0 token=NULL
+(Parsing)startLine=32 startCol=98 endLine=32 endCol=98 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)array=.array~of(1,2,3) -- will "array" be highlighted in this context?
+(Parsing)
+(Parsing)Add RexxInstruction : instructionType="KEYWORD_ASSIGNMENT" instructionFlags=0 startLine=33 startCol=0 endLine=33 endCol=70 instruction={array=.array~of(1,2,3) -- will "array" be highlighted in this context?}
+(Parsing)startLine=33 startCol=0 endLine=33 endCol=5 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="ARRAY"
+(Parsing)startLine=33 startCol=5 endLine=33 endCol=6 classId=TOKEN_OPERATOR subclass=OPERATOR_EQUAL numeric=0 token="="
+(Parsing)startLine=33 startCol=6 endLine=33 endCol=12 classId=TOKEN_SYMBOL subclass=SYMBOL_DOTSYMBOL numeric=0 token=".ARRAY"
+(Parsing)startLine=33 startCol=12 endLine=33 endCol=13 classId=TOKEN_TILDE subclass=0 numeric=0 token=NULL
+(Parsing)startLine=33 startCol=13 endLine=33 endCol=15 classId=TOKEN_SYMBOL subclass=SYMBOL_VARIABLE numeric=0 token="OF"
+(Parsing)startLine=33 startCol=15 endLine=33 endCol=16 classId=TOKEN_LEFT subclass=0 numeric=0 token=NULL
+(Parsing)startLine=33 startCol=16 endLine=33 endCol=17 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=1258 token="1"
+(Parsing)startLine=33 startCol=17 endLine=33 endCol=18 classId=TOKEN_COMMA subclass=0 numeric=0 token=NULL
+(Parsing)startLine=33 startCol=18 endLine=33 endCol=19 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=1258 token="2"
+(Parsing)startLine=33 startCol=19 endLine=33 endCol=20 classId=TOKEN_COMMA subclass=0 numeric=0 token=NULL
+(Parsing)startLine=33 startCol=20 endLine=33 endCol=21 classId=TOKEN_SYMBOL subclass=SYMBOL_CONSTANT numeric=1258 token="3"
+(Parsing)startLine=33 startCol=21 endLine=33 endCol=22 classId=TOKEN_RIGHT subclass=0 numeric=0 token=NULL
+(Parsing)startLine=33 startCol=70 endLine=33 endCol=70 classId=TOKEN_EOC subclass=CLAUSEEND_EOL numeric=0 token=NULL
+(Parsing)-------------------------------------------------
+(Parsing)From RexxSource::translateBlock#7
+(Parsing)
+(Parsing)

@@ -67,6 +67,8 @@ public:
     static wholenumber_t currentThreadId(); // Could be in SysThread.hpp, but for the moment, it's here...
     static void traceConcurrency(bool);
     static bool traceConcurrency();
+    static void traceParsing(bool);
+    static bool traceParsing();
 };
 
 #endif

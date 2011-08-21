@@ -449,6 +449,7 @@ bool RexxSource::terminator(
             if (terminators&TERM_KEYWORD)
             {  /* need to do keyword checks?        */
                /* process based on the keyword      */
+                // JLF todo ? token->subclass ?
                 switch (this->subKeyword(token))
                 {
 
@@ -851,6 +852,56 @@ RexxString *RexxSource::get(
     }
 }
 
+#ifdef _DEBUG
+#define dumpClause(from, source, clause) dumpClauseImpl(from, source, clause)
+#else
+#define dumpClause(from, source, clause)
+#endif
+
+void dumpClauseImpl(const char *from, RexxSource *source, RexxClause *clause)
+{
+    if (!Utilities::traceParsing()) return;
+
+    RexxString *value = source->extract(clause->clauseLocation, true);
+    ProtectedObject p(value);
+    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+    dbgprintf("(Parsing)-------------------------------------------------\n");
+    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+    dbgprintf("(Parsing)From %s\n", from);
+    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+    dbgprintf("(Parsing)%s\n", value->getStringData());
+    if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+    dbgprintf("(Parsing)\n");
+}
+
+#ifdef _DEBUG
+#define dumpTokens(from, source, clause) dumpTokensImpl(from, source, clause)
+#else
+#define dumpTokens(from, source, clause)
+#endif
+
+void dumpTokensImpl(const char *from, RexxSource *source, RexxClause *clause)
+{
+    if (!Utilities::traceParsing()) return;
+
+    // I think it's better to always start from 1, because this method is called
+    // after the creation of instructions, and the 'first' attribute will be the
+    // first token of the last instruction extracted from the clause.
+    // Here, I want to see ALL the tokens of the clause (after semantic annotation).
+    for (size_t i=1/*clause->first*/; i < clause->free; i++)
+    {
+        RexxToken *token = (RexxToken *)clause->tokens->get(i);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i ", token->tokenLocation.getLineNumber(), token->tokenLocation.getOffset(), token->tokenLocation.getEndLine(), token->tokenLocation.getEndOffset());
+        dbgprintf("classId=%s subclass=%s numeric=%i ", RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric);
+        if (token->value == NULL)
+            dbgprintf("token=NULL\n");
+        else
+            dbgprintf("token=\"%s\"\n", token->value->getStringData());
+        if (token->classId == TOKEN_EOC) break;
+    }
+}
+
 void RexxSource::nextClause()
 /*********************************************************************/
 /* Extract a clause from the source and return as a clause object.   */
@@ -1244,6 +1295,7 @@ void RexxSource::checkDirective()
     SourceLocation location = clauseLocation;
 
     this->nextClause();                  /* get the next clause               */
+    dumpClause("RexxSource::checkDirective", this, this->clause);
     /* have a next clause?               */
     if (!(this->flags&no_clause))
     {
@@ -1278,6 +1330,7 @@ bool RexxSource::hasBody()
 
     // if we have anything to look at, see if it is a directive or not.
     this->nextClause();
+    dumpClause("RexxSource::hasBody", this, this->clause);
     if (!(this->flags&no_clause))
     {
         // we have a clause, now check if this is a directive or not
@@ -1781,7 +1834,9 @@ RexxCode *RexxSource::translate(
                                            /* translation stopped by a directive*/
         if (this->flags&_interpret)        /* is this an interpret?             */
         {
+            dumpTokens("RexxSource::translate (interpret)", this, this->clause);
             this->nextClause();              /* get the directive clause          */
+            dumpClause("RexxSource::translate (interpret)", this, this->clause);
                                              /* raise an error                    */
             syntaxError(Error_Translation_directive_interpret);
         }
@@ -1966,6 +2021,7 @@ void RexxSource::classDirective()
         {                         /* have some sort of option keyword  */
                                   /* get the keyword type              */
             int type = this->subDirective(token);
+            if (type != 0) refineSubclass(token, IS_SUBDIRECTIVE);
             switch (type)
             {              /* process each sub keyword          */
                     /* ::CLASS name METACLASS metaclass  */
@@ -2118,6 +2174,7 @@ void RexxSource::extensionDirective()
         {                         /* have some sort of option keyword  */
                                   /* get the keyword type              */
             int type = this->subDirective(token);
+            if (type != 0) refineSubclass(token, IS_SUBDIRECTIVE);
             switch (type)
             {              /* process each sub keyword          */
                 case SUBDIRECTIVE_INHERIT:
@@ -2268,6 +2325,7 @@ void RexxSource::methodDirective()
             {
                 /* ::METHOD name CLASS               */
                 case SUBDIRECTIVE_CLASS:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Class)               /* had one of these already?         */
                     {
                                              /* duplicates are invalid            */
@@ -2277,6 +2335,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name EXTERNAL extname    */
                 case SUBDIRECTIVE_EXTERNAL:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already had an external?          */
                     if (externalname != OREF_NULL || abstractMethod)
                     {
@@ -2294,6 +2353,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name PRIVATE             */
                 case SUBDIRECTIVE_PRIVATE:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2303,6 +2363,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name PUBLIC             */
                 case SUBDIRECTIVE_PUBLIC:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2312,6 +2373,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name PROTECTED           */
                 case SUBDIRECTIVE_PROTECTED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Protected != DEFAULT_PROTECTION)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2321,6 +2383,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name UNPROTECTED           */
                 case SUBDIRECTIVE_UNPROTECTED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Protected != DEFAULT_PROTECTION)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2330,6 +2393,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name UNGUARDED           */
                 case SUBDIRECTIVE_UNGUARDED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already seen one of these?        */
                     if (guard != DEFAULT_GUARD)
                     {
@@ -2340,6 +2404,7 @@ void RexxSource::methodDirective()
                     break;
                     /* ::METHOD name GUARDED             */
                 case SUBDIRECTIVE_GUARDED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already seen one of these?        */
                     if (guard != DEFAULT_GUARD)
                     {
@@ -2351,6 +2416,7 @@ void RexxSource::methodDirective()
                     /* ::METHOD name ATTRIBUTE           */
                 case SUBDIRECTIVE_ATTRIBUTE:
 
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Attribute)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2369,6 +2435,7 @@ void RexxSource::methodDirective()
                                            /* ::METHOD name ABSTRACT            */
                 case SUBDIRECTIVE_ABSTRACT:
 
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (abstractMethod || externalname != OREF_NULL)
                     {
                         syntaxError(Error_Invalid_subkeyword_method, token);
@@ -2505,6 +2572,7 @@ void RexxSource::optionsDirective()
                 // ::OPTIONS DIGITS nnnn
                 case SUBDIRECTIVE_DIGITS:
                 {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     token = nextReal();      /* get the next token                */
                                              /* not a string?                     */
                     if (!token->isSymbolOrLiteral())
@@ -2529,6 +2597,7 @@ void RexxSource::optionsDirective()
                 }
                 // ::OPTIONS FORM ENGINEERING/SCIENTIFIC
                 case SUBDIRECTIVE_FORM:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     token = nextReal();      /* get the next token                */
                                              /* not a string?                     */
                     if (!token->isSymbol())
@@ -2542,10 +2611,12 @@ void RexxSource::optionsDirective()
                     {
 
                         case SUBKEY_SCIENTIFIC:        /* NUMERIC FORM SCIENTIFIC           */
+                            refineSubclass(token, IS_SUBKEY);
                             form = Numerics::FORM_SCIENTIFIC;
                             break;
 
                         case SUBKEY_ENGINEERING:     /* NUMERIC FORM ENGINEERING          */
+                            refineSubclass(token, IS_SUBKEY);
                             form = Numerics::FORM_ENGINEERING;
                             break;
 
@@ -2559,6 +2630,7 @@ void RexxSource::optionsDirective()
                 // ::OPTIONS FUZZ nnnn
                 case SUBDIRECTIVE_FUZZ:
                 {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     token = nextReal();      /* get the next token                */
                                              /* not a string?                     */
                     if (!token->isSymbolOrLiteral())
@@ -2584,6 +2656,7 @@ void RexxSource::optionsDirective()
                 // ::OPTIONS TRACE setting
                 case SUBDIRECTIVE_TRACE:
                 {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     token = nextReal();      /* get the next token                */
                                              /* not a string?                     */
                     if (!token->isSymbolOrLiteral())
@@ -2603,12 +2676,14 @@ void RexxSource::optionsDirective()
                 // ::OPTIONS COMMANDS
                 case SUBDIRECTIVE_COMMANDS:
                 {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     enableCommands = true;
                     break;
                 }
                 // ::OPTIONS NOCOMMANDS
                 case SUBDIRECTIVE_NOCOMMANDS:
                 {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     enableCommands = false;
                     break;
                 }
@@ -2737,6 +2812,7 @@ void RexxSource::attributeDirective()
             switch (this->subDirective(token))
             {
                 case SUBDIRECTIVE_GET:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     // only one of GET/SET allowed
                     if (style != ATTRIBUTE_BOTH)
                     {
@@ -2746,6 +2822,7 @@ void RexxSource::attributeDirective()
                     break;
 
                 case SUBDIRECTIVE_SET:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     // only one of GET/SET allowed
                     if (style != ATTRIBUTE_BOTH)
                     {
@@ -2757,6 +2834,7 @@ void RexxSource::attributeDirective()
 
                 /* ::ATTRIBUTE name CLASS               */
                 case SUBDIRECTIVE_CLASS:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Class)               /* had one of these already?         */
                     {
                                              /* duplicates are invalid            */
@@ -2765,6 +2843,7 @@ void RexxSource::attributeDirective()
                     Class = true;            /* flag this for later processing    */
                     break;
                 case SUBDIRECTIVE_PRIVATE:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2774,6 +2853,7 @@ void RexxSource::attributeDirective()
                     break;
                     /* ::METHOD name PUBLIC             */
                 case SUBDIRECTIVE_PUBLIC:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2783,6 +2863,7 @@ void RexxSource::attributeDirective()
                     break;
                     /* ::METHOD name PROTECTED           */
                 case SUBDIRECTIVE_PROTECTED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Protected != DEFAULT_PROTECTION)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2791,6 +2872,7 @@ void RexxSource::attributeDirective()
                     Protected = PROTECTED_METHOD;        /* flag for later processing         */
                     break;
                 case SUBDIRECTIVE_UNPROTECTED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     if (Protected != DEFAULT_PROTECTION)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
@@ -2800,6 +2882,7 @@ void RexxSource::attributeDirective()
                     break;
                     /* ::METHOD name UNGUARDED           */
                 case SUBDIRECTIVE_UNGUARDED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already seen one of these?        */
                     if (guard != DEFAULT_GUARD)
                     {
@@ -2810,6 +2893,7 @@ void RexxSource::attributeDirective()
                     break;
                     /* ::METHOD name GUARDED             */
                 case SUBDIRECTIVE_GUARDED:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already seen one of these?        */
                     if (guard != DEFAULT_GUARD)
                     {
@@ -2820,6 +2904,7 @@ void RexxSource::attributeDirective()
                     break;
                     /* ::METHOD name ATTRIBUTE           */
                 case SUBDIRECTIVE_EXTERNAL:
+                    refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already had an external?          */
                     if (externalname != OREF_NULL)
                     {
@@ -3197,6 +3282,7 @@ void RexxSource::routineDirective()
         {
             /* ::ROUTINE name EXTERNAL []*/
             case SUBDIRECTIVE_EXTERNAL:
+                refineSubclass(token, IS_SUBDIRECTIVE);
                 /* already had an external?          */
                 if (externalname != OREF_NULL)
                 {
@@ -3215,6 +3301,7 @@ void RexxSource::routineDirective()
                 break;
                 /* ::ROUTINE name PUBLIC             */
             case SUBDIRECTIVE_PUBLIC:
+                refineSubclass(token, IS_SUBDIRECTIVE);
                 if (Public != DEFAULT_ACCESS_SCOPE)   /* already had one of these?         */
                 {
                     /* duplicates are invalid            */
@@ -3225,6 +3312,7 @@ void RexxSource::routineDirective()
                 break;
                 /* ::ROUTINE name PUBLIC             */
             case SUBDIRECTIVE_PRIVATE:
+                refineSubclass(token, IS_SUBDIRECTIVE);
                 if (Public != DEFAULT_ACCESS_SCOPE)   /* already had one of these?         */
                 {
                     /* duplicates are invalid            */
@@ -3404,6 +3492,7 @@ void RexxSource::libraryDirective(RexxString *name, RexxToken *token)
     {
         syntaxError(Error_Invalid_subkeyword_requires, token);
     }
+    refineSubclass(token, IS_SUBDIRECTIVE);
     token = nextReal();              /* get the next token                */
     if (!token->isEndOfClause()) /* something appear after this?      */
     {
@@ -3423,7 +3512,9 @@ void RexxSource::directive()
 {
     RexxToken    *token;                 /* current token under processing    */
 
+    dumpClause("RexxSource::directive", this, this->clause);
     this->nextClause();                  /* get the directive clause          */
+    dumpClause("RexxSource::directive", this, this->clause);
     if (this->flags&no_clause)           /* reached the end?                  */
         return;                          /* all finished                      */
     token = nextReal();                  /* skip the leading ::               */
@@ -3435,6 +3526,8 @@ void RexxSource::directive()
                                          /* have an error here                */
         syntaxError(Error_Symbol_expected_directive);
 
+    int directiveType = this->keyDirective(token);
+    if (directiveType != 0 ) refineSubclass(token, IS_DIRECTIVE);
     switch (this->keyDirective(token))
     { /* match against the directive list  */
 
@@ -3583,7 +3676,9 @@ RexxCode *RexxSource::translateBlock(
     _instruction = new RexxInstruction(OREF_NULL, KEYWORD_FIRST);
     this->pushDo(_instruction);           /* set bottom of control stack       */
     this->addClause(_instruction);        /* add to the instruction list       */
+    dumpTokens("RexxSource::translateBlock#1", this, this->clause);
     this->nextClause();                  /* get the next physical clause      */
+    dumpClause("RexxSource::translateBlock#1", this, this->clause);
     for (;;)                             /* process all clauses               */
     {
         _instruction = OREF_NULL;           /* zero the instruction pointer      */
@@ -3601,7 +3696,9 @@ RexxCode *RexxSource::translateBlock(
                 break;                         /* have a non-label clause           */
             }
             this->addClause(_instruction);    /* add this to clause list           */
+            dumpTokens("RexxSource::translateBlock#2", this, this->clause);
             this->nextClause();              /* get the next physical clause      */
+            dumpClause("RexxSource::translateBlock#2", this, this->clause);
             _instruction = OREF_NULL;         /* no instruction any more           */
         }
         /* get an end-of-clause?             */
@@ -3674,7 +3771,9 @@ RexxCode *RexxSource::translateBlock(
                                                /* have a terminator before the THEN?*/
                 if (token->isEndOfClause())
                 {
+                    dumpTokens("RexxSource::translateBlock#3", this, this->clause);
                     this->nextClause();          /* get the next physical clause      */
+                    dumpClause("RexxSource::translateBlock#3", this, this->clause);
                     if (this->flags&no_clause)   /* get an end-of-file?               */
                     {
                         /* raise an error                    */
@@ -3693,7 +3792,9 @@ RexxCode *RexxSource::translateBlock(
                                                  /* terminator here?                  */
                     if (token->isEndOfClause())
                     {
+                        dumpTokens("RexxSource::translateBlock#4", this, this->clause);
                         this->nextClause();        /* get the next physical clause      */
+                        dumpClause("RexxSource::translateBlock#4", this, this->clause);
                         if (this->flags&no_clause) /* get an end-of-file?               */
                         {
                             /* raise an error                    */
@@ -3714,7 +3815,9 @@ RexxCode *RexxSource::translateBlock(
                                                  /* terminator here?                  */
                     if (token->isEndOfClause())
                     {
+                        dumpTokens("RexxSource::translateBlock#5", this, this->clause);
                         this->nextClause();        /* get the next physical clause      */
+                        dumpClause("RexxSource::translateBlock#5", this, this->clause);
                         if (this->flags&no_clause) /* get an end-of-file?               */
                         {
                             /* raise an error                    */
@@ -3748,7 +3851,9 @@ RexxCode *RexxSource::translateBlock(
                                                /* have an ELSE keyword alone?       */
                 if (token->isEndOfClause())
                 {
+                    dumpTokens("RexxSource::translateBlock#6", this, this->clause);
                     this->nextClause();          /* get the next physical clause      */
+                    dumpClause("RexxSource::translateBlock#6", this, this->clause);
                     if (this->flags&no_clause)   /* get an end-of-file?               */
                     {
                         /* raise an error                    */
@@ -3836,7 +3941,9 @@ RexxCode *RexxSource::translateBlock(
             default:                         /* other types of instruction        */
                 break;
         }
+        dumpTokens("RexxSource::translateBlock#7", this, this->clause);
         this->nextClause();                /* get the next physical clause      */
+        dumpClause("RexxSource::translateBlock#7", this, this->clause);
     }
     /* now go resolve any label targets  */
     _instruction = (RexxInstruction *)(this->calls->removeFirst());
@@ -4007,76 +4114,91 @@ RexxInstruction *RexxSource::instruction()
             {           /* process each instruction type     */
 
                 case KEYWORD_NOP:          /* NOP instruction                   */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->nopNew();
                     break;
 
                 case KEYWORD_DROP:         /* DROP instruction                  */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->dropNew();
                     break;
 
                 case KEYWORD_SIGNAL:       /* various forms of SIGNAL           */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->signalNew();
                     break;
 
                 case KEYWORD_CALL:         /* various forms of CALL             */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->callNew();
                     break;
 
                 case KEYWORD_RAISE:        /* RAISE instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->raiseNew();
                     break;
 
                 case KEYWORD_ADDRESS:      /* ADDRESS instruction               */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->addressNew();
                     break;
 
                 case KEYWORD_NUMERIC:      /* NUMERIC instruction               */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->numericNew();
                     break;
 
                 case KEYWORD_TRACE:        /* TRACE instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->traceNew();
                     break;
 
                 case KEYWORD_DO:           /* all variations of DO instruction  */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->doNew();
                     break;
 
                 case KEYWORD_LOOP:         /* all variations of LOOP instruction  */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->loopNew();
                     break;
 
                 case KEYWORD_EXIT:         /* EXIT instruction                  */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->exitNew();
                     break;
 
                 case KEYWORD_INTERPRET:    /* INTERPRET instruction             */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->interpretNew();
                     break;
 
                 case KEYWORD_PUSH:         /* PUSH instruction                  */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->queueNew(QUEUE_LIFO);
                     break;
 
                 case KEYWORD_QUEUE:        /* QUEUE instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->queueNew(QUEUE_FIFO);
                     break;
 
                 case KEYWORD_REPLY:        /* REPLY instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* interpreted?                      */
                     if (this->flags&_interpret)
                         syntaxError(Error_Translation_reply_interpret);
@@ -4085,26 +4207,31 @@ RexxInstruction *RexxSource::instruction()
                     break;
 
                 case KEYWORD_RETURN:       /* RETURN instruction                */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->returnNew();
                     break;
 
                 case KEYWORD_IF:           /* IF instruction                    */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->ifNew(KEYWORD_IF);
                     break;
 
                 case KEYWORD_ITERATE:      /* ITERATE instruction               */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->leaveNew(KEYWORD_ITERATE);
                     break;
 
                 case KEYWORD_LEAVE:        /* LEAVE instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->leaveNew(KEYWORD_LEAVE);
                     break;
 
                 case KEYWORD_EXPOSE:       /* EXPOSE instruction                */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* interpreted?                      */
                     if (this->flags&_interpret)
                         syntaxError(Error_Translation_expose_interpret);
@@ -4113,6 +4240,7 @@ RexxInstruction *RexxSource::instruction()
                     break;
 
                 case KEYWORD_FORWARD:      /* FORWARD instruction               */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* interpreted?                      */
                     if (this->flags&_interpret)
                         syntaxError(Error_Translation_forward_interpret);
@@ -4121,11 +4249,13 @@ RexxInstruction *RexxSource::instruction()
                     break;
 
                 case KEYWORD_PROCEDURE:    /* PROCEDURE instruction             */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->procedureNew();
                     break;
 
                 case KEYWORD_GUARD:        /* GUARD instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* interpreted?                      */
                     if (this->flags&_interpret)
                         syntaxError(Error_Translation_guard_interpret);
@@ -4134,6 +4264,7 @@ RexxInstruction *RexxSource::instruction()
                     break;
 
                 case KEYWORD_USE:          /* USE instruction                   */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* interpreted?                      */
                     if (this->flags&_interpret)
                         syntaxError(Error_Translation_use_interpret);
@@ -4142,51 +4273,61 @@ RexxInstruction *RexxSource::instruction()
                     break;
 
                 case KEYWORD_ARG:          /* ARG instruction                   */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->parseNew(SUBKEY_ARG);
                     break;
 
                 case KEYWORD_PULL:         /* PULL instruction                  */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->parseNew(SUBKEY_PULL);
                     break;
 
                 case KEYWORD_PARSE:        /* PARSE instruction                 */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->parseNew(KEYWORD_PARSE);
                     break;
 
                 case KEYWORD_SAY:          /* SAY instruction                   */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->sayNew();
                     break;
 
                 case KEYWORD_OPTIONS:      /* OPTIONS instruction               */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->optionsNew();
                     break;
 
                 case KEYWORD_SELECT:       /* SELECT instruction                */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->selectNew();
                     break;
 
                 case KEYWORD_WHEN:         /* WHEN in an SELECT instruction     */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->ifNew(KEYWORD_WHEN);
                     break;
 
                 case KEYWORD_OTHERWISE:    /* OTHERWISE in a SELECT             */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->otherwiseNew(_first);
                     break;
 
                 case KEYWORD_ELSE:         /* unexpected ELSE                   */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->elseNew(_first);
                     break;
 
                 case KEYWORD_END:          /* END for a block construct         */
+                    refineSubclass(_first, IS_KEYWORD);
                     /* add the instruction to the parse  */
                     _instruction = this->endNew();
                     break;
@@ -4561,6 +4702,18 @@ void RexxSource::addClause(
 /* Add an instruction to the tree code execution stream                       */
 /******************************************************************************/
 {
+#ifdef _DEBUG
+    if (Utilities::traceParsing())
+    {
+        RexxString *instructionSource = this->extract(_instruction->instructionLocation, true);
+        ProtectedObject p(instructionSource);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(Parsing)Add RexxInstruction : instructionType=\"%s\" instructionFlags=%i ", RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags);
+        dbgprintf("startLine=%i startCol=%i endLine=%i endCol=%i ", _instruction->instructionLocation.getLineNumber(), _instruction->instructionLocation.getOffset(), _instruction->instructionLocation.getEndLine(), _instruction->instructionLocation.getEndOffset());
+        dbgprintf("instruction={%s}\n", instructionSource->getStringData());
+    }
+#endif
+
     /* is this the first one?            */
     if (this->first == OREF_NULL)
     {
@@ -6062,6 +6215,7 @@ RexxObject *RexxSource::parseConditional(
             {
 
                 case SUBKEY_WHILE:              /* DO WHILE exprw                    */
+                    refineSubclass(token, IS_SUBKEY);
                     /* get next subexpression            */
                     _condition = this->parseLogical(OREF_NULL, TERM_COND);
                     if (_condition == OREF_NULL) /* nothing really there?             */
@@ -6079,6 +6233,7 @@ RexxObject *RexxSource::parseConditional(
                     break;
 
                 case SUBKEY_UNTIL:              /* DO UNTIL expru                    */
+                    refineSubclass(token, IS_SUBKEY);
                     /* get next subexpression            */
                     /* get next subexpression            */
                     _condition = this->parseLogical(OREF_NULL, TERM_COND);

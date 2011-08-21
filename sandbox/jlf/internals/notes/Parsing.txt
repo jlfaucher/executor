@@ -1,3 +1,86 @@
+RexxCode *RexxSource::translate
+    RexxCode *newMethod = this->translateBlock(_labels);
+        while (!this->atEnd())             /* loop until end of source          */
+        {
+            this->directive();               /* process the directive             */
+        }
+
+        
+        
+void RexxSource::directive
+    switch (this->keyDirective(token))
+    { /* match against the directive list  */
+
+        case DIRECTIVE_CLASS:              /* ::CLASS directive                 */
+            classDirective();
+            break;
+
+        case DIRECTIVE_EXTENSION:         /* ::EXTENSION directive              */
+            extensionDirective();
+            break;
+
+        case DIRECTIVE_METHOD:             /* ::METHOD directive                */
+            methodDirective();
+            break;
+
+        case DIRECTIVE_ROUTINE:            /* ::ROUTINE directive               */
+            routineDirective();
+            break;
+
+        case DIRECTIVE_REQUIRES:           /* ::REQUIRES directive              */
+            requiresDirective();
+            break;
+
+        case DIRECTIVE_ATTRIBUTE:          /* ::ATTRIBUTE directive             */
+            attributeDirective();
+            break;
+
+        case DIRECTIVE_CONSTANT:           /* ::CONSTANT directive              */
+            constantDirective();
+            break;
+
+        case DIRECTIVE_OPTIONS:            /* ::OPTIONS directive               */
+            optionsDirective();
+            break;
+
+        default:                           /* unknown directive                 */
+            syntaxError(Error_Translation_bad_directive);
+            break;
+    }
+
+    
+    
+RexxInstruction *RexxSource::sourceNewObject
+RexxInstruction *RexxSource::instruction
+this->addClause(_instruction)
+
+
+Refining token->subclass :
+    resolveKeyword, called by
+        subKeyword : done
+        keyword
+        builtin : done
+        resolveBuiltin : done
+        condition : done
+        parseOption : done
+        keyDirective : done
+        subDirective : done
+    
+
+Crash after changing builtin function codes from 1 to 2700
+    CallInstruction.cpp
+                builtin_index = RexxSource::resolveBuiltin(_name);
+                    result = (*(RexxSource::builtinTable[builtin_index]))(context, argcount, stack);
+    InstructionParser.cpp
+                    builtin_index = this->builtin(token);
+                    if (builtin_index != 0) refineSubclass(token, builtin_index);
+        new ((void *)newObject) RexxInstructionCall(name, _condition, argCount, this->subTerms, _flags, builtin_index);
+--> better to cancel this change and just assign the same subclass 2700 to each token (their value is the name of the function)
+
+
+=============================================================================================
+
+
 A propos du problème de reset de location
 
 

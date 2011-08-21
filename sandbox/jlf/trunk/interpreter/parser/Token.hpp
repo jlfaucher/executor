@@ -46,6 +46,12 @@
 
 #include "SourceLocation.hpp"
 
+#define REFINE_SUBCLASS
+#ifdef REFINE_SUBCLASS
+#define refineSubclass(token, refinedSubclass) {token->subclass = refinedSubclass;}
+#else
+#define refineSubclass(token, subclass) {}
+#endif
 
 #define   TERM_EOC     0x00000001u     /* terminate on end of clause        */
 #define   TERM_RIGHT   0x00000002u     /* terminate on left paren           */
@@ -135,6 +141,7 @@
 
 
 /* token extended types - instruction keywords */
+#define IS_KEYWORD                 2100 // refinedtoken subclass
 #define KEYWORD_ADDRESS            1
 #define KEYWORD_ARG                KEYWORD_ADDRESS           + 1
 #define KEYWORD_CALL               KEYWORD_ARG               + 1
@@ -192,6 +199,7 @@
 #define KEYWORD_LIBRARY            KEYWORD_LOOP              + 1
 
 /* token extended types - instruction option keywords */
+#define IS_SUBKEY          2200 // refined token subclass
 #define SUBKEY_ARG         1
 #define SUBKEY_BY          SUBKEY_ARG         + 1
 #define SUBKEY_DIGITS      SUBKEY_BY          + 1
@@ -247,6 +255,7 @@
 #define CLAUSEEND_NULL        2304
 
 /* directive types */
+#define IS_DIRECTIVE        2400 // refined token subclass
 #define DIRECTIVE_REQUIRES  2401
 #define DIRECTIVE_CLASS     2402
 #define DIRECTIVE_METHOD    2403
@@ -257,6 +266,7 @@
 #define DIRECTIVE_EXTENSION 2408
 
 /* directive sub-keywords */
+#define IS_SUBDIRECTIVE          2500 // refined token subclass
 #define SUBDIRECTIVE_PUBLIC      2501
 #define SUBDIRECTIVE_METACLASS   2502
 #define SUBDIRECTIVE_INHERIT     2503
@@ -283,6 +293,7 @@
 
 
 /* condition keywords */
+#define IS_CONDITION         2600 // refined token subclass
 #define CONDITION_ANY        2601
 #define CONDITION_ERROR      2602
 #define CONDITION_FAILURE    2603
@@ -298,6 +309,8 @@
 
 /* builtin function codes */
 #define  NO_BUILTIN                0   /* builtin function not found        */
+
+#define IS_BUILTIN                 2700 // refined token subclass
 
 #define  BUILTIN_ABBREV            1
 #define  BUILTIN_ABS               BUILTIN_ABBREV           + 1
@@ -390,6 +403,9 @@
 
 class RexxToken : public RexxInternalObject {
  public:
+  static const char *codeText(int code);
+  static const char *keywordText(int code);
+
   void      *operator new(size_t);
   inline void      *operator new(size_t size, void *ptr) {return ptr;};
   inline void  operator delete(void *) { ; }

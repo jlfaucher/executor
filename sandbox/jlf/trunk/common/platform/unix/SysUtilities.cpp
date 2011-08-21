@@ -47,7 +47,7 @@
 
 /**
  * Encapsulation of vsnprintf Unix implementation.
- * The goal is to have the same behavior on all platforms. 
+ * The goal is to have the same behavior on all platforms.
  *
  * @param buffer  Buffer receiving the formated output.
  * @param size    Size of buffer.
@@ -63,23 +63,23 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
     http://linux.die.net/man/3/snprintf
 
     Return value
-    Upon successful return, return the number of characters printed (not including the trailing '\0' used to end output to strings). 
-    The functions snprintf() do not write more than size bytes (including the trailing '\0'). 
+    Upon successful return, return the number of characters printed (not including the trailing '\0' used to end output to strings).
+    The functions snprintf() do not write more than size bytes (including the trailing '\0').
     If the output was truncated due to this limit then the return value is the number of characters (not including the trailing '\0') which would have been written to the final string if enough space had been available.
-    Thus, a return value of size or more means that the output was truncated. (See also below under NOTES.) 
+    Thus, a return value of size or more means that the output was truncated. (See also below under NOTES.)
     If an output error is encountered, a negative value is returned.
 
     Conforming To
     The snprintf() function conform to C99.
-    Concerning the return value of snprintf(), SUSv2 and C99 contradict each other: 
-    when snprintf() is called with size=0 then SUSv2 stipulates an unspecified return value less than 1, 
+    Concerning the return value of snprintf(), SUSv2 and C99 contradict each other:
+    when snprintf() is called with size=0 then SUSv2 stipulates an unspecified return value less than 1,
     while C99 allows str to be NULL in this case, and gives the return value (as always) as the number of characters that would have been written in case the output string has been large enough.
 
     Notes
     The glibc implementation of the functions snprintf() conforms to the C99 standard, i.e., behaves as described above, since glibc version 2.1.
-    Until glibc 2.0.6 they would return -1 when the output was truncated.     
+    Until glibc 2.0.6 they would return -1 when the output was truncated.
     */
-    
+
     /*
     vsnprintf behavior, assuming the buffer is 4 bytes :
             0   1   2   3
@@ -89,7 +89,7 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
     "xxxx"  x   x   x   \0      return value = 4    <-- different from Windows
     "xxxxx" x   x   x   \0      return value = 5    <-- different from Windows
     */
-    
+
     if (buffer == NULL || count == 0 || format == NULL) return -1;
     int n = ::vsnprintf(buffer, count, format, args);
     buffer[count-1] = '\0'; // Normally not needed, but...
@@ -100,7 +100,7 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
 
 /**
  * Encapsulation of snprintf Unix implementation.
- * The goal is to have the same behavior on all platforms. 
+ * The goal is to have the same behavior on all platforms.
  *
  * @param buffer  Buffer receiving the formated output.
  * @param size    Size of buffer.
@@ -121,9 +121,9 @@ int Utilities::snprintf(char *buffer, size_t count, const char *format, ...)
 
 
 // Could be in SysThread.cpp, but for the moment, it's here...
-wholenumber_t Utilities::currentThreadId() 
-{ 
-    return (wholenumber_t)pthread_self(); 
+wholenumber_t Utilities::currentThreadId()
+{
+    return (wholenumber_t)pthread_self();
 }
 
 
@@ -139,7 +139,7 @@ void Utilities::traceConcurrency(bool trace)
 bool Utilities::traceConcurrency()
 {
     // I don't put this part of code in SystemInterpreter::setupProgram
-    // where RXTRACE is managed, because would be initialized too late : 
+    // where RXTRACE is managed, because would be initialized too late :
     // Some mutexes/semaphores have been already used before calling setupProgram.
     static bool firstcall = true;
     if (firstcall)
@@ -156,5 +156,34 @@ bool Utilities::traceConcurrency()
         }
     }
     return TRACE_CONCURRENCY;
+}
+
+
+// This indicator is used to control the display of additional informations in the trace output while parsing.
+static bool TRACE_PARSING = false;
+
+void Utilities::traceParsing(bool trace)
+{
+    TRACE_PARSING = trace;
+}
+
+
+bool Utilities::traceParsing()
+{
+    static bool firstcall = true;
+    if (firstcall)
+    {
+        firstcall = false;
+        const char *rxTraceBuf = getenv("RXTRACE_PARSING");
+        if (rxTraceBuf != NULL)
+        {
+            if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+            {
+                /* turn on tracing                   */
+                Utilities::traceParsing(true);
+            }
+        }
+    }
+    return TRACE_PARSING;
 }
 

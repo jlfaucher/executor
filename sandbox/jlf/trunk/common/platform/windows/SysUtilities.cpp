@@ -48,8 +48,8 @@
 #include "Utilities.hpp"
 
 /**
- * Encapsulation of _vsnprintf Windows implementation. 
- * The goal is to have the same behavior on all platforms. 
+ * Encapsulation of _vsnprintf Windows implementation.
+ * The goal is to have the same behavior on all platforms.
  *
  * @param buffer  Buffer receiving the formated output.
  * @param size    Size of buffer.
@@ -65,14 +65,14 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
     http://msdn.microsoft.com/en-us/library/1kt27hek%28v=VS.71%29.aspx
 
     Return value
-    _vsnprintf returns the number of bytes stored in buffer, not counting the terminating null character. 
-    If the number of bytes required to store the data exceeds count, then count bytes of data are stored in buffer and a negative value is returned. 
-    
+    _vsnprintf returns the number of bytes stored in buffer, not counting the terminating null character.
+    If the number of bytes required to store the data exceeds count, then count bytes of data are stored in buffer and a negative value is returned.
+
     Remarks
     The _snprintf function formats and stores count or fewer characters and values (including a terminating null character that is always appended
-    unless count is zero or the formatted string length is greater than or equal to count characters) in buffer.    
+    unless count is zero or the formatted string length is greater than or equal to count characters) in buffer.
     */
-    
+
     /*
     _vsnprintf behavior, assuming the buffer is 4 bytes :
             0   1   2   3
@@ -82,7 +82,7 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
     "xxxx"  x   x   x   x       return value = -1 (truncated, no final '\0')
     "xxxxx" x   x   x   x       return value = -1 (truncated, no final '\0')
     */
-    
+
     if (buffer == NULL || count == 0) return -1;
     int n = _vsnprintf(buffer, count, format, args);
     buffer[count-1] = '\0'; // Unlike Unix implementation, we are not sure to have a final '\0'
@@ -92,7 +92,7 @@ int Utilities::vsnprintf(char *buffer, size_t count, const char *format, va_list
 
 /**
  * Encapsulation of snprintf Windows implementation.
- * The goal is to have the same behavior on all platforms. 
+ * The goal is to have the same behavior on all platforms.
  *
  * @param buffer  Buffer receiving the formated output.
  * @param size    Size of buffer.
@@ -113,9 +113,9 @@ int Utilities::snprintf(char *buffer, size_t count, const char *format, ...)
 
 
 // Could be in SysThread.cpp, but for the moment, it's here...
-wholenumber_t Utilities::currentThreadId() 
-{ 
-    return (wholenumber_t)GetCurrentThreadId(); 
+wholenumber_t Utilities::currentThreadId()
+{
+    return (wholenumber_t)GetCurrentThreadId();
 }
 
 
@@ -131,7 +131,7 @@ void Utilities::traceConcurrency(bool trace)
 bool Utilities::traceConcurrency()
 {
     // I don't put this part of code in SystemInterpreter::setupProgram
-    // where RXTRACE is managed, because would be initialized too late : 
+    // where RXTRACE is managed, because would be initialized too late :
     // Some mutexes/semaphores have been already used before calling setupProgram.
     static bool firstcall = true;
     if (firstcall)
@@ -149,3 +149,32 @@ bool Utilities::traceConcurrency()
     }
     return TRACE_CONCURRENCY;
 }
+
+// This indicator is used to control the display of additional informations in the trace output while parsing.
+static bool TRACE_PARSING = false;
+
+void Utilities::traceParsing(bool trace)
+{
+    TRACE_PARSING = trace;
+}
+
+
+bool Utilities::traceParsing()
+{
+    static bool firstcall = true;
+    if (firstcall)
+    {
+        firstcall = false;
+        TCHAR rxTraceBuf[8];
+        if (GetEnvironmentVariable("RXTRACE_PARSING", rxTraceBuf, 8))
+        {
+            if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+            {
+                /* turn on tracing                   */
+                Utilities::traceParsing(true);
+            }
+        }
+    }
+    return TRACE_PARSING;
+}
+
