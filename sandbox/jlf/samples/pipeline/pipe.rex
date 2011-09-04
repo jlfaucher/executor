@@ -59,7 +59,7 @@
  * by calling the write method.
  */
 
-::class pipeStage public                    -- base pipeStage class
+::class "pipeStage" public                  -- base pipeStage class
 
 -- .myStep[arg1, arg2]
 ::method '[]' class                         -- create a pipeStage instance with arguments
@@ -200,7 +200,7 @@ end
 -- Here, we receive the options that are unknown to the current pipeStage.
 if arg() == 0 then return
 do a over arg(1, "a")
-    .stderr~lineout("Unknown option '"a"'")
+    .error~lineout("Unknown option '"a"'") -- .error can be trapped, unlike .stderr
 end
 raise syntax 93.900 array(self~class~id ": Unknown option")
 
@@ -257,7 +257,7 @@ end
 return new .SecondaryConnector(self)
 
 /******************************************************************************/
-::class SecondaryConnector subclass pipeStage
+::class "SecondaryConnector" subclass pipeStage
 
 ::method init
 expose pipeStage
@@ -274,7 +274,7 @@ forward to(pipeStage) message('secondaryEof')
 
 
 /******************************************************************************/
-::class pipeProfiler public subclass Profiler
+::class "pipeProfiler" public subclass Profiler
 
 ::method instrument class
 use strict arg message, ...
@@ -286,7 +286,7 @@ end
 
 
 /******************************************************************************/
-::class indexedValue inherit Comparable
+::class "indexedValue" inherit Comparable
 ::attribute index -- always an array, even when only one value
 ::attribute value -- any type
 
@@ -322,7 +322,7 @@ forward to (self~value) message (msg) arguments (args)
 
 
 /******************************************************************************/
-::class indexedValueComparator public inherit Comparator
+::class "indexedValueComparator" public inherit Comparator
 
 ::method init
 expose caseless strict criterion
@@ -399,7 +399,7 @@ return self~compareStrings(s1, s2)
 
 
 /******************************************************************************/
-::class sort public subclass pipeStage      -- sort piped data
+::class "sort" public subclass pipeStage    -- sort piped data
 ::attribute descending
 ::attribute caseless
 ::attribute quickSort
@@ -421,19 +421,25 @@ unknown = .array~new
 criteria = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
+        if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
         if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end
         if "byValue"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
-        if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
-        if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
         if "case"~caselessAbbrev(a, 4) then do ; criteria~append(.array~of("caseless=", .false)) ; iterate ; end
         if "caseless"~caselessAbbrev(a, 5) then do ; criteria~append(.array~of("caseless=", .true)) ; iterate ; end
-        if "stableSort"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("quickSort=", .false)) ; iterate ; end
-        if "quickSort"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("quickSort=", .true)) ; iterate ; end
+        if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
         if "numeric"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("strict=", .false)) ; iterate ; end
+        if "quickSort"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("quickSort=", .true)) ; iterate ; end
+        if "stableSort"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("quickSort=", .false)) ; iterate ; end
         if "strict"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("strict=", .true)) ; iterate ; end
     end
+    -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         function = a~functionDoer("use arg value, index")
+        criteria~append(.array~of("sortBy", function))
+        iterate
+    end
+    if a~hasMethod("doer") then do
+        function = a~doer
         criteria~append(.array~of("sortBy", function))
         iterate
     end
@@ -472,7 +478,7 @@ forward class(super)                        -- make sure we propagate the done m
 
 
 /******************************************************************************/
-::class sortWith public subclass pipeStage  -- sort piped data
+::class "sortWith" public subclass pipeStage-- sort piped data
 
 ::method init
 expose items comparator                     -- list of sorted items
@@ -509,7 +515,7 @@ forward class(super)                        -- make sure we propagate the done m
 
 
 /******************************************************************************/
-::class reverse public subclass pipeStage   -- a string reversal pipeStage
+::class "reverse" public subclass pipeStage -- a string reversal pipeStage
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
@@ -518,7 +524,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class upper public subclass pipeStage     -- a uppercasing pipeStage
+::class "upper" public subclass pipeStage   -- a uppercasing pipeStage
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
@@ -527,7 +533,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class lower public subclass pipeStage     -- a lowercasing pipeStage
+::class "lower" public subclass pipeStage   -- a lowercasing pipeStage
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
@@ -536,7 +542,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class changestr public subclass pipeStage -- a string replacement pipeStage
+::class "changeStr" public subclass pipeStage-- a string replacement pipeStage
 
 ::method init
 expose old new count
@@ -551,7 +557,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class delstr public subclass pipeStage    -- a string deletion pipeStage
+::class "delStr" public subclass pipeStage  -- a string deletion pipeStage
 
 ::method init
 expose offset length
@@ -566,7 +572,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class left public subclass pipeStage      -- a splitter pipeStage
+::class "left" public subclass pipeStage    -- a splitter pipeStage
 
 ::method init
 expose length
@@ -582,7 +588,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class right public subclass pipeStage     -- a splitter pipeStage
+::class "right" public subclass pipeStage   -- a splitter pipeStage
 
 ::method init
 expose length
@@ -598,7 +604,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class insert public subclass pipeStage    -- insert a string into each line
+::class "insert" public subclass pipeStage  -- insert a string into each line
 
 ::method init
 expose insert offset
@@ -613,7 +619,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class overlay public subclass pipeStage   -- overlay a string into each line
+::class "overlay" public subclass pipeStage -- overlay a string into each line
 
 ::method init
 expose overlay offset
@@ -628,7 +634,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class dropnull public subclass pipeStage  -- drop null records
+::class "dropNull" public subclass pipeStage-- drop null records
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
@@ -639,7 +645,7 @@ end
 
 
 /******************************************************************************/
-::class drop public subclass pipeStage -- drop the first or last n records
+::class "drop" public subclass pipeStage    -- drop the first or last n records
 -- .drop 'first' [count=1]
 -- .drop ['first'] count
 -- .drop 'last' [count=1]
@@ -717,7 +723,7 @@ forward class(super)                        -- make sure we propagate the done m
 
 
 /******************************************************************************/
-::class take public subclass pipeStage      -- take the first or last n records
+::class "take" public subclass pipeStage    -- take the first or last n records
 
 ::method init
 expose counter array previousPartitionString
@@ -757,9 +763,15 @@ do a over arg(1, "a")
             iterate
         end
     end
+    -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         doer = a~functionDoer("use arg value, index")
+        iterate
+    end
+    if a~hasMethod("doer") then do
+        if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        doer = a~doer
         iterate
     end
     unknown~append(a)
@@ -819,7 +831,7 @@ forward class(super)                        -- make sure we propagate the done m
 
 
 /******************************************************************************/
-::class x2c public subclass pipeStage       -- translate records to hex characters
+::class "x2c" public subclass pipeStage     -- translate records to hex characters
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
@@ -828,14 +840,14 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class bitbucket public subclass pipeStage -- just consume the records
+::class "bitbucket" public subclass pipeStage-- just consume the records
 
 ::method process                            -- pipeStage processing item
 nop                                         -- do nothing with the data
 
 
 /******************************************************************************/
-::class fanout public subclass pipeStage    -- write records to both output streams
+::class "fanout" public subclass pipeStage  -- write records to both output streams
 
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
@@ -849,7 +861,7 @@ self~secondary~eof
 
 
 /******************************************************************************/
-::class merge public subclass pipeStage     -- merge the results from primary and secondary streams
+::class "merge" public subclass pipeStage   -- merge the results from primary and secondary streams
 
 ::method init
 expose mainDone secondaryEof                -- need pair of EOF conditions
@@ -874,7 +886,7 @@ end
 
 
 /******************************************************************************/
-::class fanin public subclass pipeStage     -- process main stream, then secondary stream
+::class "fanin" public subclass pipeStage   -- process main stream, then secondary stream
 
 ::method init
 expose mainDone secondaryEof array          -- need pair of EOF conditions
@@ -909,7 +921,7 @@ end
 
 
 /******************************************************************************/
-::class duplicate public subclass pipeStage -- duplicate each record N times
+::class "duplicate" public subclass pipeStage-- duplicate each record N times
 
 ::method init
 expose copies
@@ -926,7 +938,7 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
-::class console subclass pipeStage public
+::class "console" subclass pipeStage public
 ::constant indexSeparator "|"
 
 ::method init
@@ -950,13 +962,8 @@ do a over arg(1, "a")
             actions~append(.array~of("displayIndex", indexWidth))
             iterate
         end
-        if "value"~caselessAbbrev(first, 1) then do
-            valueWidth = -1
-            if rest <> "" then do -- value.width
-                if rest~dataType("W") then valueWidth = rest
-                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a)
-            end
-            actions~append(.array~of("displayValue", valueWidth))
+        if "newline"~caselessAbbrev(a, 1) then do
+            actions~append(.array~of("displayNewline"))
             iterate
         end
         if "space"~caselessAbbrev(first, 1) then do
@@ -968,15 +975,26 @@ do a over arg(1, "a")
             actions~append(.array~of("displaySpace", spaceWidth))
             iterate
         end
-        if "newline"~caselessAbbrev(a, 1) then do
-            actions~append(.array~of("displayNewline"))
+        if "value"~caselessAbbrev(first, 1) then do
+            valueWidth = -1
+            if rest <> "" then do -- value.width
+                if rest~dataType("W") then valueWidth = rest
+                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a)
+            end
+            actions~append(.array~of("displayValue", valueWidth))
             iterate
         end
         actions~append(.array~of("displayString", a))
         iterate
     end
+    -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         function = a~functionDoer("use arg value, index")
+        actions~append(.array~of("displayExpression", function))
+        iterate
+    end
+    if a~hasMethod("doer") then do
+        function = a~doer
         actions~append(.array~of("displayExpression", function))
         iterate
     end
@@ -1039,7 +1057,7 @@ forward class(super)
 
 
 /******************************************************************************/
-::class all public subclass pipeStage       -- a string selector pipeStage
+::class "all" public subclass pipeStage     -- a string selector pipeStage
 
 ::method init
 expose patterns                             -- access the exposed item
@@ -1073,7 +1091,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class startsWith public subclass pipeStage -- a string selector pipeStage
+::class "startsWith" public subclass pipeStage-- a string selector pipeStage
 
 ::method init
 expose match                                -- access the exposed item
@@ -1103,7 +1121,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class notall public subclass pipeStage    -- a string de-selector pipeStage
+::class "notAll" public subclass pipeStage  -- a string de-selector pipeStage
 
 ::method init
 expose patterns                             -- access the exposed item
@@ -1137,7 +1155,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class stemcollector subclass pipeStage public -- collect items in a stem
+::class "stemCollector" subclass pipeStage public-- collect items in a stem
 
 ::method init
 expose stem.                                -- expose target stem
@@ -1155,7 +1173,7 @@ stem.[stem.0, 'INDEX'] = index              -- save the index
 forward class(super)
 
 /******************************************************************************/
-::class arraycollector subclass pipeStage public -- collect items in an array
+::class "arrayCollector" subclass pipeStage public-- collect items in an array
 
 ::method init                               -- initialize a collector
 expose valueArray indexArray idx            -- expose target array
@@ -1174,7 +1192,7 @@ if indexArray <> .nil then indexArray[idx] = index -- save the index
 forward class(super)                        -- allow superclass to send down pipe
 
 /******************************************************************************/
-::class between subclass pipeStage public   -- write only records from first trigger record
+::class "between" subclass pipeStage public -- write only records from first trigger record
                                             -- up to a matching record
 ::method init
 expose startString endString started finished
@@ -1216,7 +1234,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class after subclass pipeStage public     -- write only records from first trigger record
+::class "after" subclass pipeStage public   -- write only records from first trigger record
 
 ::method init
 expose startString started
@@ -1249,7 +1267,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class before subclass pipeStage public    -- write only records before first trigger record
+::class "before" subclass pipeStage public  -- write only records before first trigger record
 
 ::method init
 expose endString finished
@@ -1285,7 +1303,7 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class buffer subclass pipeStage public    -- write only records before first trigger record
+::class "buffer" subclass pipeStage public  -- write only records before first trigger record
 
 ::method init
 expose buffer count delimiter
@@ -1313,7 +1331,7 @@ forward class(super)                        -- and send the done message along
 
 
 /******************************************************************************/
-::class lineCount subclass pipeStage public -- count number of records passed through the pipeStage
+::class "lineCount" subclass pipeStage public-- count number of records passed through the pipeStage
 
 ::method init
 expose counter
@@ -1333,7 +1351,7 @@ forward class(super)                        -- and send the done message along
 
 
 /******************************************************************************/
-::class charCount subclass pipeStage public -- count number of characters passed through the pipeStage
+::class "charCount" subclass pipeStage public-- count number of characters passed through the pipeStage
 
 ::method init
 expose counter
@@ -1353,7 +1371,7 @@ forward class(super)                        -- and send the done message along
 
 
 /******************************************************************************/
-::class wordCount subclass pipeStage public -- count number of characters passed through the pipeStage
+::class "wordCount" subclass pipeStage public-- count number of words passed through the pipeStage
 
 ::method init
 expose counter
@@ -1380,7 +1398,7 @@ forward class(super)                        -- and send the done message along
  * strings are routed to pipeStage 2
  */
 
-::class pivot subclass pipeStage public
+::class "pivot" subclass pipeStage public
 
 ::method init
 expose pivotvalue
@@ -1411,7 +1429,7 @@ self~checkEOP(self~next, self~secondary)
  * perform the broadcast.
  */
 
-::class splitter subclass pipeStage public
+::class "splitter" subclass pipeStage public
 
 ::method init
 expose stages
@@ -1451,9 +1469,9 @@ forward message ("checkEOP") arguments (stages)
 
 
 /******************************************************************************/
--- A getFiles pipeStage to get the contents of a list of files line by line.
+-- A 'getFiles' pipeStage to get the contents of a list of files line by line.
 -- The input value can be a string (used as a path) or a .File instance.
-::class getFiles public subclass pipeStage
+::class "getFiles" public subclass pipeStage
 
 ::method process
 use strict arg value, index
@@ -1476,8 +1494,8 @@ stream~close
 
 
 /******************************************************************************/
--- A words pipeStage to get the words of the current value.
-::class words public subclass pipeStage
+-- A 'words' pipeStage to get the words of the current value.
+::class "words" public subclass pipeStage
 
 ::method process
 use strict arg value, index
@@ -1492,8 +1510,8 @@ self~checkEOP(self~next)
 
 
 /******************************************************************************/
--- A characters pipeStage to get the characters of the current value.
-::class characters public subclass pipeStage
+-- A 'characters' pipeStage to get the characters of the current value.
+::class "characters" public subclass pipeStage
 
 ::method process
 use strict arg value, index
@@ -1509,7 +1527,7 @@ self~checkEOP(self~next)
 
 /******************************************************************************/
 /*
-A system pipeStage to execute a system command and get the contents of its stdout line by line.
+A 'system' pipeStage to execute a system command and get the contents of its stdout line by line.
 To investigate : is it possible to get its stderr ? Don't see how to do that with just one queue.
 I can merge stdout and stderr before piping to rxqueue but then how to separate the lines ?
 Usage :
@@ -1518,35 +1536,59 @@ Example :
     "*.log"~pipe(.system {"ls" value} | .console)
     .array~of("ls", "hello", "dummy")~pipe(.system {value} | .console)
 */
-::class system public subclass pipeStage
+::class "system" public subclass pipeStage
 
 ::method initOptions
-expose command doer
-use strict arg command=.nil
+expose command doer trace
+command = .nil
 doer = .nil
--- test only "functionDoer", not "doer" because :
--- 1) a string has the method "doer", and will be interpreted as a message sent to the value.
---    Not good ! I want to keep the possibility to use literal strings.
--- 2) a functionDoer insert an "options nocommands", which is good here. You don't want to run
---    a system command from the doer (because will not be redirected to queue:). The doer is
---    supposed to return the command to execute.
-if command~hasMethod("functionDoer") then doer = command~functionDoer("use arg value, index")
--- No need to : forward class (super) arguments (unknown) -- because i'm sure there is no unknown options (see use strict arg)
+trace = .false
+unknown = .array~new
+do a over arg(1, "a")
+    if a~isA(.String) then do
+        if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
+        if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+        command = a
+        iterate -- do that now, otherwise you will enter in the doer section
+    end
+    -- "actionDoer" not tested here because you don't want to run a system command from the doer.
+    -- The doer is supposed to return the command to execute.
+    if a~hasMethod("functionDoer") then do
+        if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+        command = a
+        doer = a~functionDoer("use arg value, index")
+        iterate
+    end
+    if a~hasMethod("doer") then do
+        if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+        command = a
+        doer = a~doer
+        iterate
+    end
+    unknown~append(a)
+end
+if command == .nil then raise syntax 93.900 array(self~class~id ": No command specified")
+forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process
-expose command doer
+expose command doer trace
+-- not a block do...end, to not see the 'end' in the trace output
+if trace then .traceOutput~say(">I> Method .system~process")
+if trace then trace i
 use strict arg value, index
 if command == .nil then command = value
 else if doer <> .nil then command = doer~do(value, index)
-command "| rxqueue"
+queue = .RexxQueue~new(.RexxQueue~create)
+command '| rxqueue "'queue~get'"'
 linepos = 1
-do while queued() <> 0, self~next <> .nil, \self~next~isEOP
-    line = linein("queue:")
+do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
+    line = queue~linein
     --newindex = index~copy
     --newindex~append(linepos)
     newindex = .array~of(command, linepos)
     self~write(line, newindex)
     linepos += 1
 end
+queue~delete
 self~checkEOP(self~next)
 

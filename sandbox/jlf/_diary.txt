@@ -43,6 +43,43 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 sep 04
+
+[pipes]
+
+Standardization of doers usage : 
+    try first ~functionDoer,
+    then ~actionDoer (if candidate), 
+    then ~doer.
+The goal is to accept traditional routines or methods everywhere a functionDoer is
+accepted. Currently, only RexxContextualSourceDoer has the methods ~functionDoer
+and ~actionDoer.
+Ex :
+.sort myRoutine
+where myRoutine is a routine which returns a result that is used as key for sorting.
+Before, only .sort {my source literal} was accepted.
+
+The .system pipeStage now manages a private queue for each execution of command.
+
+The .inject pipeStage now accepts the options 'before' and 'after'.
+When using 'before', the new values generated from the current value by .inject
+are written to the pipe before writing the current value :
+    new_values value.
+When using 'after', the new values generated from the current value by .inject
+are written to the pipe after writing the current value :
+    value new_values.
+You can specify both 'before' and 'after'. In this case, you will have the sequence
+    value new_values value
+The option 'append' has been removed, since equivalent to 'after'.
+The option 'replace' has been removed, because useless (just don't use 'before'
+and 'after' to get the same effect).
+
+
+[source literal]
+Fixed a crash in relation with line adjustment.
+
+
+===============================================================================
 2011 aug 21
 
 Refinement of tokens 'subclass' attribute (for analysis) :

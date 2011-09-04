@@ -85,23 +85,29 @@ forward to (self) message("of")
 
 
 /******************************************************************************/
--- An append pipeStage to copy items from its primary input to its primary output,
--- and then invoke the supplier passed as argument and write the items produced by
--- that supplier to its primary output.
+-- An 'append' pipeStage to copy items from its primary input to its primary output,
+-- and then invoke the producer passed as argument and write the items produced by
+-- that producer to its primary output.
 
 ::class "append" public subclass pipeStage
 
 ::method initOptions
-    expose supplier
+    expose producer
     use strict arg producer
-    if producer~hasMethod("doer") then producer = producer~doer~do
-    if \producer~hasMethod("supplier") then producer = .array~of(producer) -- for convenience, accept a non-supplier
-    supplier = producer~supplier
+    -- if doer then parse now, to detect possible errors before running the pipe.
+    -- "actionDoer" not candidate here, we want a result.
+    -- "functionDoer" : no need of args (called from ~eof, not from ~process).
+    if producer~hasMethod("functionDoer") then producer = producer~functionDoer
+    else if producer~hasMethod("doer") then producer = producer~doer
+    else nop -- will be used as a supplier (if capable) or as a single value
     -- No need to : forward class (super) arguments (unknown)
 
 
 ::method eof
-    expose supplier
+    expose producer
+    if producer~hasMethod("do") then producer = producer~do
+    if \producer~hasMethod("supplier") then producer = .array~of(producer) -- for convenience, accept a non-supplier
+    supplier = producer~supplier
     do while supplier~available, \self~isEOP
       -- The index is passed as an array, because some pipeStage may create
       -- additional indexes that will be appended.
@@ -111,13 +117,13 @@ forward to (self) message("of")
       -- to several pipes. But if you pass the same supplier to several pipes then you have to call
       -- ~next if you don't want to get the last processed item again.
       if self~isEOP then leave
-      supplier~next -- get the next data item (even if self is now EOP, that way the supplier is ready for continuation)
+      supplier~next -- get the next data item
     end
     forward class(super) -- make sure we propagate the done message
 
 
 /******************************************************************************/
--- An inject pipeStage to inject the items produced by a supplier in the pipeline.
+-- An 'inject' pipeStage to inject the items produced by a supplier in the pipeline.
 -- The supplier is calculated for each processed value.
 -- When using the option 'pushIndex', the history of indexes is kept : assuming
 -- that the current value has index i, and the supplier produces the items (i1,v1),
@@ -133,21 +139,24 @@ use strict arg allowCommand=.false -- by default, the doer is a function whose r
 self~init:super
 
 ::method initOptions
-    expose allowCommand doer recursive limit depthFirst append pushIndex detectCycles unique debug trace
+    expose allowCommand doer recursive limit depthFirst before after pushIndex detectCycles unique trace
     doer = .nil
     recursive = .false
     limit = -1
     depthFirst = .true
     detectCycles = .false
-    append = .false
+    before = .false
+    after = .false
     pushIndex = .false
     unique = .false
-    debug = .false
     trace = .false
     unknown = .array~new
     do a over arg(1, "a")
         if a~isA(.String) then do
             parse var a first "." rest
+            if "after"~caselessAbbrev(a, 1) then do ; after = .true ; iterate ; end
+            if "before"~caselessAbbrev(a, 1) then do ; before = .true ; iterate ; end
+            if "pushIndex"~caselessAbbrev(a, 1) then do ; pushIndex = .true ; iterate ; end
             if "recursive"~caselessAbbrev(first, 3) then do
                 -- recursive[.limit|.depthFirst|.breadthFirst|.cycles]*
                 recursive = .true
@@ -161,20 +170,24 @@ self~init:super
                 end
                 iterate
             end
-            if "append"~caselessAbbrev(a, 1) then do ; append = .true ; iterate ; end
-            if "replace"~caselessAbbrev(a, 3) then do ; append = .false ; iterate ; end
-            if "pushIndex"~caselessAbbrev(a, 1) then do ; pushIndex = .true ; iterate ; end
             if "unique"~caselessAbbrev(a, 1) then do ; unique = .true ; iterate ; end
-            if "debug"~caselessAbbrev(a, 1) then do ; debug = .true ; iterate ; end
             if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
             unknown~append(a)
             iterate -- do that now, otherwise you will enter in the doer section
         end
+        if allowCommand, a~hasMethod("actionDoer") then do
+            if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            doer = a~actionDoer("use arg value, index")
+            iterate
+        end
+        if a~hasMethod("functionDoer") then do
+            if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            doer = a~functionDoer("use arg value, index")
+            iterate
+        end
         if a~hasMethod("doer") then do
             if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
-            if allowCommand, a~hasMethod("actionDoer") then doer = a~actionDoer("use arg value, index")
-            else if a~hasMethod("functionDoer") then doer = a~functionDoer("use arg value, index")
-            else doer = a~doer
+            doer = a~doer
             iterate
         end
         unknown~append(a)
@@ -184,10 +197,9 @@ self~init:super
 
 ::method newIndex
     expose pushIndex trace
-    if trace then do
-        .traceOutput~say(">I> Method .inject~newIndex")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~newIndex")
+    if trace then trace i
     use strict arg index1, index2
     if pushIndex then do
         newindex = index1~copy
@@ -204,14 +216,14 @@ self~init:super
 
 ::method processDepthFirstCurrent
     expose recursive limit detectCycles unique trace
-    if trace then do
-        .traceOutput~say(">I> Method .inject~processDepthFirstCurrent")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~processDepthFirstCurrent")
+    if trace then trace i
     use strict arg value, index, stack, level, previousValues
     if unique then do
         if previousValues~hasItem(value) then do
             self~writeSecondary(value, index)
+            self~checkEOP(self~next, self~secondary)
             return
         end
         previousValues~append(value)
@@ -220,28 +232,33 @@ self~init:super
         if detectCycles then do
             if \ stack~hasItem(value) then do -- Recurse only if not already processed
                 self~write(value, index)
+                self~checkEOP(self~next, self~secondary)
                 stack~push(value)
                 self~processDepthFirst(value, index, stack, level+1, previousValues)
                 stack~pull
             end
             else do
                 self~writeSecondary(value, index)
+                self~checkEOP(self~next, self~secondary)
                 return
             end
         end
         else do
             self~write(value, index)
+            self~checkEOP(self~next, self~secondary)
             self~processDepthFirst(value, index, stack, level+1, previousValues)
         end
     end
-    else self~write(value, index)
+    else do
+        self~write(value, index)
+        self~checkEOP(self~next, self~secondary)
+    end
 
 ::method processDepthFirst
     expose doer trace
-    if trace then do
-        .traceOutput~say(">I> Method .inject~processDepthFirst")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~processDepthFirst")
+    if trace then trace i
     use strict arg value, index, stack=(.queue~new), level=0, previousValues=(.array~new)
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
@@ -260,24 +277,22 @@ self~init:super
                 newindex2 = self~newIndex(index, .array~of(value, supplier2~index))
                 self~processDepthFirstCurrent(item2, newindex2, stack, level, previousValues)
                 supplier2~next
-                self~checkEOP(self~next, self~secondary)
             end
         end
         supplier~next
-        self~checkEOP(self~next, self~secondary)
     end
 
 ::method processBreadthFirstCurrent2
     expose recursive limit detectCycles trace
-    if trace then do
-        .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent2")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent2")
+    if trace then trace i
     use strict arg value, index, toprocess, stack, level
     if recursive & level <> limit then do
         if detectCycles then do
             if \ stack~hasItem(value) then do -- Recurse only if not already processed
                 self~write(value, index)
+                self~checkEOP(self~next, self~secondary)
                 stack~push(value)
                 toprocess~queue(value)
                 toprocess~queue(index)
@@ -286,11 +301,13 @@ self~init:super
             end
             else do
                 self~writeSecondary(value, index)
+                self~checkEOP(self~next, self~secondary)
                 return
             end
         end
         else do
             self~write(value, index)
+            self~checkEOP(self~next, self~secondary)
             toprocess~queue(value)
             toprocess~queue(index)
             toprocess~queue(level+1)
@@ -298,6 +315,7 @@ self~init:super
     end
     else do
         self~write(value, index)
+        self~checkEOP(self~next, self~secondary)
         toprocess~queue(value)
         toprocess~queue(index)
         toprocess~queue(level+1)
@@ -305,10 +323,9 @@ self~init:super
 
 ::method processBreadthFirstCurrent
     expose doer trace
-    if trace then do
-        .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent")
+    if trace then trace i
     use strict arg value, index, toprocess, stack, level
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
@@ -327,19 +344,16 @@ self~init:super
                 newindex2 = self~newIndex(index, .array~of(value, supplier2~index))
                 self~processBreadthFirstCurrent2(item2, newindex2, toprocess, stack, level)
                 supplier2~next
-                self~checkEOP(self~next, self~secondary)
             end
         end
         supplier~next
-        self~checkEOP(self~next, self~secondary)
     end
 
 ::method processBreadthFirst
     expose detectCycles unique trace
-    if trace then do
-        .traceOutput~say(">I> Method .inject~processBreadthFirst")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~processBreadthFirst")
+    if trace then trace i
     use strict arg value, index
     stack = .queue~new
     toprocess = .queue~new
@@ -351,6 +365,7 @@ self~init:super
         if unique then do
             if previousValues~hasItem(supplier_item) then do
                 self~writeSecondary(supplier_item, newindex)
+                self~checkEOP(self~next, self~secondary)
                 iterate
             end
             previousValues~append(supplier_item)
@@ -361,30 +376,38 @@ self~init:super
     end
 
 ::method process
-    expose doer depthFirst append trace debug
-    if debug then do
-        say "-"~copies(20)
-        say doer~source~tostring
-        say "-"~copies(20)
+    expose doer depthFirst before after trace
+    if trace then do -- additional info
+        .traceOutput~say "-"~copies(20)
+        .traceOutput~say doer~source~tostring
+        .traceOutput~say "-"~copies(20)
     end
-    if trace then do
-        .traceOutput~say(">I> Method .inject~process")
-        trace i
-    end
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say(">I> Method .inject~process")
+    if trace then trace i
     use strict arg value, index
-    if append then do
+    if after then do
         -- follow the same convention as for calculated values.
         -- here, it's like getting a single result from value (result == value, index == 1)
         newIndex = self~newIndex(index, .array~of(value, 1))
         self~write(value, newIndex)
+        self~checkEOP(self~next, self~secondary)
     end
+    if self~isEOP then return
     if depthFirst then self~processDepthFirst(value, index)
                   else self~processBreadthFirst(value, index)
-    self~checkEOP(self~next)
+    if self~isEOP then return
+    if before then do
+        -- follow the same convention as for calculated values.
+        -- here, it's like getting a single result from value (result == value, index == 1)
+        newIndex = self~newIndex(index, .array~of(value, 1))
+        self~write(value, newIndex)
+        self~checkEOP(self~next, self~secondary)
+    end
 
 
 /******************************************************************************/
--- A do pipeStage to execute an action passed as argument.
+-- A 'do' pipeStage to execute an action passed as argument.
 -- CAREFULL ! There is NO automatic insertion of the "return" instruction, and
 -- the commands are authorized here, so DON'T FORGET the "return" instruction
 -- if you want to return a value !!!!
@@ -399,13 +422,14 @@ self~init:super(.true) -- allow commands
 
 
 /******************************************************************************/
--- A select pipeStage to execute a boolean filter passed as argument.
+-- A 'select' pipeStage to execute a boolean filter passed as argument.
 
 ::class "select" public subclass pipeStage
 
 ::method initOptions
     expose doer
     use strict arg filter
+    -- "actionDoer" not candidate here, we want a result.
     if filter~hasMethod("functionDoer") then doer = filter~functionDoer("use arg value, index")
                                         else doer = filter~doer
 ::method process
@@ -421,7 +445,7 @@ self~init:super(.true) -- allow commands
 
 
 /******************************************************************************/
--- A fileTree pipeStage to get the childrens (files or directories) of the current value.
+-- A 'fileTree' pipeStage to get the childrens (files or directories) of the current value.
 -- The input value can be a string (used as a path) or a .File instance.
 -- Use the option 'recursive' to search subdirectories recursively.
 
@@ -440,7 +464,7 @@ self~init:super(.true) -- allow commands
 
 
 /******************************************************************************/
--- A superClass pipeStage to get the superClasses of the current value.
+-- A 'superClass' pipeStage to get the superClasses of the current value.
 -- The input value must be a .Class instance.
 -- By default, return the immediate superclasses.
 -- Use the option 'recursive' to get all the superclasses up to the root .Object.
@@ -455,7 +479,7 @@ self~init:super(.true) -- allow commands
 
 
 /******************************************************************************/
--- A subClass pipeStage to get the subClasses of the current value.
+-- A 'subClass' pipeStage to get the subClasses of the current value.
 -- The input value must be a .Class instance.
 -- By default, return the immediate subclasses.
 -- Use the option 'recursive' to get all the subclasses up to the leaves.
@@ -470,67 +494,29 @@ self~init:super(.true) -- allow commands
 
 
 /******************************************************************************/
--- Implementation note :
--- The pipeStages methods and instanceMethods are very similar.
--- The only difference is the message sent to the object. Hence this class.
--- The implementation looks complex (3 classes, 4 methods) when compared to :
---     .inject {value~methods(value)}
---     .inject {value~instanceMethods(value)}
--- but that lets write :
---     .methods
---     .instanceMethods
--- which is shorter, and this is the opportunity to use a closure, so...
+-- A 'methods' pipeStage to get the methods of the current value.
+-- The input value must be a .Class instance.
+-- Returns only the instance methods defined by the value.
 
-::class "queryByClass" public subclass inject
-
-::method init private
-    expose message class
-    use strict arg message, class
-    self~init:super
+::class "methods" public subclass inject
 
 ::method initOptions
-    expose message class
-    if .false then do
-        -- For the moment, doesn't work... I have to implement the closures.
-        producer = {
-            expose message class
-            use arg value
-            ofclass = class
-            if ofclass == .nil then ofclass = value~class
-            return value~send(message, ofclass)
-        }~doer -- get the doer now, to avoid application of functionDoer later
-    end
-    -- temporary partial implementation (assume class == .nil)
-    else if message == "methods" then producer = {use arg value ; return value~methods(value)}
-    else if message == "instanceMethods" then producer = {use arg value ; return value~instanceMethods(value)}
+    producer = {use arg value ; return value~methods(.nil)}~doer -- get the doer now, to avoid application of functionDoer later
     args = arg(1, "a")
     args~append(producer)
     forward class (super) arguments (args)
 
 
 /******************************************************************************/
--- A methods pipeStage to get the methods of the current value.
+-- An 'instanceMethods' pipeStage to get the instanceMethods of the current value.
 -- The input value can be any object.
--- By default, return the methods defined by the value's class.
--- You can pass another class as argument : .methods[class]
+-- Returns the instances methods defined by the value's class.
 
-::class "methods" public subclass queryByClass
+::class "instanceMethods" public subclass inject
 
-::method init
-    use strict arg class=.nil
-    self~init:super("methods", class)
-
-
-/******************************************************************************/
--- An instanceMethods pipeStage to get the instanceMethods of the current value.
--- The input value can be any object.
--- By default, return the instances methods defined by the value's class.
--- You can pass another class as argument : .instanceMethods[class]
-
-::class "instanceMethods" public subclass queryByClass
-
-::method init
-    use strict arg class=.nil
-    self~init:super("instanceMethods", class)
-
+::method initOptions
+    producer = {use arg value ; return value~instanceMethods(value~class)}~doer -- get the doer now, to avoid application of functionDoer later
+    args = arg(1, "a")
+    args~append(producer)
+    forward class (super) arguments (args)
 

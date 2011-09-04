@@ -79,17 +79,17 @@ nop
 -- The index of the injected value is pushed on the current index.
 -- Index, 1st column : index of the values in the array on entry (1, 3, 5)
 -- Index, 2nd column and 3rd column : pair (value, resultIndex)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex append | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex after | .console)
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex append | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex after | .console)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
--- The option 'append' is not used, so the initial value is discarded.
+-- The options 'before' and 'after' are not used, so the initial value is discarded.
 -- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
 -- Ex : the last line is
 -- 5|3|1|90|1|2700|1 : 81000
@@ -160,10 +160,9 @@ nop
 
 
 -- Instance methods of the specified classes (not including those inherited).
--- Each class is written in the pipeline (option append), followed by the returned methods.
--- The option pushIndex lets have the name of the method in the index.
+-- Each class is written in the pipeline, followed by the returned methods (option 'after').
 .array~of(.RexxContext, .Package, .Method)~pipe(,
-    .inject {value~instanceMethods(value~class)} append pushIndex |,
+    .inject {value~instanceMethods(value~class)} after pushIndex |,
     .sort byIndex |,
     .console,
     )
@@ -173,7 +172,7 @@ nop
 .environment~pipe(,
     .select {value~isA(.class)} |,
     .select {value~id~caselessAbbrev('R') <> 0} |,
-    .inject {value~methods(value)} append pushIndex |,
+    .inject {value~methods(value)} after pushIndex |,
     .sort byIndex |,
     .console,
     )
@@ -181,7 +180,7 @@ nop
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
-    .inject {value~importedPackages} recursive append pushIndex |,
+    .inject {value~importedPackages} recursive after pushIndex |,
     .console index.75,
              {'  '~copies(index~items)},
              {.file~new(value~name)~name},
@@ -191,7 +190,7 @@ nop
 
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
-    .inject {value~importedPackages} recursive.breadthFirst append pushIndex |,
+    .inject {value~importedPackages} recursive.breadthFirst after pushIndex |,
     .console index.75,
              {'  '~copies(index~items)},
              {.file~new(value~name)~name},
@@ -255,10 +254,10 @@ installdir()~pipe(,
 --     .take 2 {index[3]}
 -- Here, index[3] is the name of the file.
 -- Exemple of result :
--- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|335|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
+-- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
 -- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
 -- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
--- which is the 335th file/directory of the directory
+-- which is the 336th file/directory of the directory
 -- "d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/"
 --
 -- To investigate : I get sometimes a crash in the sort.
