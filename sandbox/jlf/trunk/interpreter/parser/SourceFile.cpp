@@ -1130,7 +1130,7 @@ RexxArray *RexxSource::extractSource(
         }
     }
     /* is the location out of bounds?    */
-    if (location.getLineNumber() == 0 || location.getLineNumber() - this->line_adjust > this->line_count)
+    if (location.getLineNumber() == 0 || location.getLineNumber() /*- this->line_adjust*/ > this->line_count)
     {
         /* just give back a null array       */
         return (RexxArray *)TheNullArray->copy();
@@ -1157,7 +1157,7 @@ RexxArray *RexxSource::extractSource(
         if (location.getLineNumber() == location.getEndLine())
         {
             /* get the line                      */
-            RexxString *source_line = this->get(location.getLineNumber());
+            RexxString *source_line = this->get(location.getLineNumber() - this->line_adjust);
             /* extract the line segment          */
             source_line = source_line->extractB(location.getOffset(), location.getEndOffset() - location.getOffset());
             source->put(source_line, 1);     /* insert the trailing piece         */
@@ -1171,7 +1171,7 @@ RexxArray *RexxSource::extractSource(
         else
         {
             /* get the line                      */
-            RexxString *source_line = this->get(location.getLineNumber());
+            RexxString *source_line = this->get(location.getLineNumber() - this->line_adjust);
             /* extract the end portion           */
             source_line = source_line->extractB(location.getOffset(), source_line->getBLength() - location.getOffset());
             source->put(source_line, 1);     /* insert the trailing piece         */
@@ -1182,10 +1182,10 @@ RexxArray *RexxSource::extractSource(
         for (size_t counter = location.getLineNumber() + 1; counter < location.getEndLine(); counter++, i++)
         {
             /* copy over the entire line         */
-            source->put(this->get(counter), i);
+            source->put(this->get(counter - this->line_adjust), i);
         }
         /* get the last line                 */
-        RexxString *source_line = this->get(location.getEndLine());
+        RexxString *source_line = this->get(location.getEndLine() - this->line_adjust);
         /* more than one line?               */
         if (location.getEndLine() > location.getLineNumber())
         {
