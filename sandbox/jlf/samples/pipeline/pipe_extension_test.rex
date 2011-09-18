@@ -6,10 +6,120 @@ call evaluate "demonstration"
 --- Strange... without this instruction, I don't get the first comments
 nop
 
--- The coactivity yields two results.
--- The hello outputs are not in the pipeline flow (not displayed by the .console).
-{::c echo hello ; .yield[a] ; say hello ; .yield[b] }~doer~pipe(.upper|.console)
+-- ----------------------------------------------------------------------------
+-- Overview of pipe indexes
+-- ----------------------------------------------------------------------------
 
+-- A minimal pipe index is created from a tag and a nested pipe index (which can be .nil).
+i0 = .pipeIndex~create("tag0", .nil)
+say i0 -- by default, the tags are not included in the representation string, so nothing visible.
+say i0~makeString(.true) -- showTags=.true
+
+
+-- Any number of local indexes can be memorized.
+-- Representation : the strings (except the strings numbers) are surrounded by quotes.
+i1 = .pipeIndex~create("tag1", .nil, "a", 1, 2, 3, 4)
+say i1 ; say i1~makeString(.true)
+
+
+-- Nested pipe indexes are used when memorizing intermediate calculations.
+-- Representation : the pipe indexes are separated by |
+i2 = .pipeIndex~create("tag2", i1, "a", 1, 2)
+say i2 ; say i2~makeString(.true)
+
+
+-- Representation : the objects other than strings are surrounded by round brackets.
+i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(22222), .file~new("my file"))
+say i3 ; say i3~makeString(.true)
+
+
+-- showPool=.true : when a value (other than numbers) appears several times then it is replaced by a reference to the first occurence of the value.
+-- The references are named i1, i2, etc... (no relation with the variables i1, i2, i3 used so far, this is just a naming convention).
+-- The operator == is used for the comparison.
+-- "a" and .file~new("my file" are entered in the pool, because there is more than one occurence of them.
+-- .mutableBuffer~new(22222) is not entered in the pool, because two distincts instances are never equal, even if their string representation is the same.
+i4 = .pipeIndex~create("tag4", i3, .file~new("my file"), .mutableBuffer~new(22222))
+say i4 ; say i4~makeString(.false, .true)
+
+
+-- ----------------------------------------------------------------------------
+-- Overview of the sources supported by pipes
+-- ----------------------------------------------------------------------------
+
+-- Any object can be a source of pipe.
+-- When the object does not support the method ~supplier then it's injected as-is.
+-- Its associated index is always 1.
+"hello"~pipe(.console)
+
+
+-- By default, the tags are not shown, use the option showTags.
+"hello"~pipe(.console showTags)
+
+
+-- A collection can be a source of pipe : each item of the collection is injected in the pipe.
+-- The indexes are those of the collection.
+.array~of(10,20,30)~pipe(.console)
+.array~of(10,20,30)~pipe(.console showTags)
+
+
+-- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazy).
+-- Example :
+-- This coactivity yields two results.
+-- The hello outputs are not in the pipeline flow (not displayed by the .console).
+{::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+{::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console showTags)
+
+
+-- ----------------------------------------------------------------------------
+-- Overview of the pipe operators.
+-- Reminder of the precedence (highest at the top) :
+-- (message send)         : ~ ~~ (not overloaded for pipes)
+-- (prefix operators)     : + - \ (not overloaded for pipes)
+-- (power)                : ** (not overloaded for pipes)
+-- (multiply and divide)  : * / % // (not overloaded for pipes)
+-- (add and subtract)     : + - (not overloaded for pipes)
+-- (blank) || (abuttal)   : (blank) is overloaded for adding options.
+-- (comparison operators) : > >> are overloaded for pipes, the rest is not used : = < == << \= >< <> \> \< \== \>> \<< >= >>= <= <<=
+-- (and operator)         : & (not overloaded for pipes).
+-- (or, exclusive or)     : | is overloaded, && is not used.
+-- ----------------------------------------------------------------------------
+
+-- stage1 | stage2
+-- stage1 > stage2
+-- | and > share the same implementation...
+-- (they connect the primary output of stage1 to the primary input of stage2)
+"hello"~pipe(.left[2] | .upper | .console)
+
+-- Same pipeline as previous, but with methods only
+"hello"~pipe(    (.left~new(2) ~append(.upper~new))    ~append(.console~new)    )
+
+
+-- ...but | and > don't have the same precedence ! No impact here.
+"hello"~pipe(.left[2] | .upper > .console)
+
+-- Same pipeline as previous, but with methods only
+"hello"~pipe(    .left~new(2) ~append(   .upper~new ~append(.console~new)    )    )
+
+
+-- stage1 >> stage2
+-- Connects the secondary output of stage1 to the primary input of stage2
+-- Here, the result is not what you expect. You want "LLO", you get "he"...
+"hello"~pipe(.left[2] >> .upper | .console)
+
+-- Same pipeline as previous, but with methods only
+"hello"~pipe(    (.left~new(2) ~appendSecondary(.upper~new))    ~append(.console~new)    )
+
+
+-- ...You need additional parentheses to get the expected behavior
+"hello"~pipe(.left[2] >> ( .upper | .console ) )
+
+-- Same pipeline as previous, but with methods only
+"hello"~pipe(    .left~new(2) ~appendSecondary(    .upper~new ~append(.console~new)    )    )
+
+
+-- ----------------------------------------------------------------------------
+-- Overview of the sorting facilities
+-- ----------------------------------------------------------------------------
 
 -- A collection can be sorted by value (default)
 .array~of(b, a, c)~pipe(.sort byValue | .console)
@@ -63,8 +173,55 @@ nop
     )
 
 
+-- ----------------------------------------------------------------------------
+-- Options available on any pipeStage : memorizeIndex
+-- ----------------------------------------------------------------------------
+
+"aaaBBBcccDDDeee"~pipe(.reverse mem | .console showTags)
+
+
+"aaaBBBcccDDDeee"~pipe(.upper mem | .console showTags)
+
+
+"aaaBBBcccDDDeee"~pipe(.lower mem | .console showTags)
+
+
+"aaaBBBcccDDDeee"~pipe(.changeStr["B", "b", 2] mem | .console showTags)
+
+
+"aaaBBBcccDDDeee"~pipe(.delStr[4, 9] mem | .console showTags)
+
+
+"aaaBBBcccDDDeee"~pipe(.left[3] mem >> .console showTags "secondary :" index ":" value | .console showTags "primary:" index ":" value)
+
+
+"aaaBBBcccDDDeee"~pipe(.right[3] mem >> .console showTags "secondary :" index ":" value | .console showTags "primary:" index ":" value)
+
+
+"aaaBBBcccDDDeee"~pipe(.insert["---", 3] mem | .console showTags)
+
+
+"aaaBBBcccDDDeee"~pipe(.overlay["---", 3] mem | .console showTags)
+
+
+"48656c6c6f"~pipe(.x2c mem | .console showTags)
+
+
+.array~of("a", "", "b", , "c", , "", "d")~pipe(.dropNull mem | .console showTags)
+
+
+.array~of("header", 1, 2 ,3 , "footer")~pipe(,
+    .drop first mem >> .console showTags "secondary of drop first :" index ":" value |,
+    .drop last mem >> .console showTags "secondary of drop last :" index ":" value |,
+    .console showTags "primary:" index ":" value) -- Remove header and footer
+
+
+-- ----------------------------------------------------------------------------
+-- .do and .inject pipeStages
+-- ----------------------------------------------------------------------------
+
 -- Do something for each item (no returned value).
-.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='.console~arrayToString(index)} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='index} | .console)
 
 
 -- Do something for each item (the returned result replaces the item's value).
@@ -75,32 +232,57 @@ nop
 .array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
 
 
--- Inject a value for each item (the returned value is appended).
--- The index of the injected value is pushed on the current index.
+-- Inject a value for each item (the returned value is injected after the input value).
+-- Use the default index.
 -- Index, 1st column : index of the values in the array on entry (1, 3, 5)
 -- Index, 2nd column and 3rd column : pair (value, resultIndex)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex after | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} memorize after | .console)
+
+
+-- Inject a value for each item (the returned value is injected after the input value).
+-- The index is user-defined.
+-- Two helpers are available for user-defined indexes :
+-- .index_value : the first arg is the index, the second arg is the value.
+-- .value_index : the first arg is the value, the second arg is the index.
+.array~of(1, , 2, , 3)~pipe(.inject {.index_value~of(value, value*10)} memorize after | .console)
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex after | .console)
+-- Use the default index.
+.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} memorize after | .console)
+
+
+-- Inject two values for each item (each item of the returned collection is written in the pipe).
+-- The index is user-defined, and it's an array : each item in the index array becomes a local index.
+.array~of(1, , 2, , 3)~pipe(.inject {
+    .index_value~of(                              -
+        .array~of(value-1, value+1),    /*index*/ -
+        .array~of(value*10, value*20)   /*value*/ -
+        )
+    } memorize after | .console)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
 -- The options 'before' and 'after' are not used, so the initial value is discarded.
+-- Use the default index.
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2 | .console)
+
+
+-- Same as previous example, but here, the recursive.memorize option is used.
 -- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
 -- Ex : the last line is
--- 5|3|1|90|1|2700|1 : 81000
+-- an Array,5|3,1|90,1|2700,1 : 81000
 -- The item at index 5 in input array has generated 3 pairs by recursion : (3,1) then (90,1) then (2700,1)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0.memorize | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1.memorize | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2.memorize | .console)
 
 
 -- Factorial, no value injected for -1
--- The option 'pushIndex' is not used, so the index remains made of one pair (value, resultIndex).
 .array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject {
     use arg n
     if n < 0 then return
@@ -108,43 +290,39 @@ nop
     return n * .context~executable~call(n - 1)} | .console)
 
 
--- Select files in the installation directory, whose name contains "rexx".
--- Take the 15 firsts.
-.file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
-    .take 15 |,
-    .console,
-    )
+-- ----------------------------------------------------------------------------
+-- Additional sorting facilities
+-- ----------------------------------------------------------------------------
 
-
--- Select files in the installation directory, whose name contains "rexx" , sorted by file size.
+-- Select files in the installation directory, whose path contains "math" , sorted by file size.
 -- The "length" message is sent to the value.
--- Take the 15 firsts.
 .file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
+    .all["math"] caseless |,
     .sortWith[.MessageComparator~new("length/N")] |,
-    .take 15 |,
     .console,
     )
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
 .file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
+    .all["math"] caseless |,
     .sort {value~length} |,
-    .take 15 |,
     .console,
     )
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
 .file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
+    .all["math"] caseless |,
     .sort {value~length} {filespec('e', value~name)} |,
-    .take 15 |,
     .console,
     )
 
+
+-- ----------------------------------------------------------------------------
+-- Various examples with collections and recursive processing
+-- Illustration of the depthFirst vs breadthFirst options
+-- ----------------------------------------------------------------------------
 
 -- All instance methods of the context.
 -- Notice that the default sort by value is useless here... Must sort by index.
@@ -162,7 +340,7 @@ nop
 -- Instance methods of the specified classes (not including those inherited).
 -- Each class is written in the pipeline, followed by the returned methods (option 'after').
 .array~of(.RexxContext, .Package, .Method)~pipe(,
-    .inject {value~instanceMethods(value~class)} after pushIndex |,
+    .inject {value~instanceMethods(value~class)} after memorize |,
     .sort byIndex |,
     .console,
     )
@@ -172,7 +350,7 @@ nop
 .environment~pipe(,
     .select {value~isA(.class)} |,
     .select {value~id~caselessAbbrev('R') <> 0} |,
-    .inject {value~methods(value)} after pushIndex |,
+    .inject {value~methods(value)} after memorize |,
     .sort byIndex |,
     .console,
     )
@@ -180,31 +358,34 @@ nop
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
-    .inject {value~importedPackages} recursive after pushIndex |,
-    .console index.75,
-             {'  '~copies(index~items)},
+    .inject {value~importedPackages} recursive.memorize after |,
+    .console index.92,
+             {'  '~copies(index~depth)},
              {.file~new(value~name)~name},
-             newline,
     )
 
 
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
-    .inject {value~importedPackages} recursive.breadthFirst after pushIndex |,
-    .console index.75,
-             {'  '~copies(index~items)},
+    .inject {value~importedPackages} recursive.breadthFirst.memorize after |,
+    .console index.92,
+             {'  '~copies(index~depth)},
              {.file~new(value~name)~name},
-             newline,
     )
 
 
+-- ----------------------------------------------------------------------------
+-- .take pipeStage
+-- ----------------------------------------------------------------------------
+
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
 -- has been reached, whatever its position in the pipeline.
+-- Note the "" at the end of the first .console. This is an indicator to not insert a newline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.console "2*" value "=" | .do {return 2*value} | .take 2 | .console value newline)
+supplier~pipe(.console "2*" value "=" "" | .do {return 2*value} | .take 2 | .console value)
 say supplier~index -- this is the index of the last processed item
 supplier~next -- skip the last processed item
-supplier~pipe(.console "4*" value "=" | .do {return 4*value} | .take 4 | .console value newline)
+supplier~pipe(.console "4*" value "=" "" | .do {return 4*value} | .take 4 | .console value)
 say supplier~index
 
 
@@ -215,6 +396,21 @@ say supplier~index
 -- Sort the 4 first items
 .array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .console)
 
+
+-- Select files in the installation directory, whose name contains "rexx".
+-- Note : the .select is not equivalent to .all["rexx"], because .select tests only the name,
+-- whereas .all tests the string representation of the value, which is the absolute path.
+-- Take the 15 firsts.
+.file~new(installdir())~listFiles~pipe(,
+    .select {value~name~caselessPos('rexx') <> 0} |,
+    .take 15 |,
+    .console,
+    )
+
+
+-- ----------------------------------------------------------------------------
+-- .append pipeStage
+-- ----------------------------------------------------------------------------
 
 -- The .append pipeStage copies items from its primary input to its primary output, and then invokes
 -- the supplier passed as argument and writes the items produced by that supplier to its primary output.
@@ -232,14 +428,141 @@ say supplier1~index
 say supplier2~index
 
 
--- Remove header and footer
-.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .console)
+-- ----------------------------------------------------------------------------
+-- pipeStages which support partitions
+-- ----------------------------------------------------------------------------
 
+-- Drop the first value
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop | .console)
+
+
+-- Drop the first value of each partition
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop {value} | .console)
+
+
+-- Drop the last value
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last | .console)
+
+
+-- Drop the last value of each partition
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {value} | .console)
+
+
+datas = .directory~new
+datas["key1"] = .array~of("header", 1, 2, "footer")
+datas["key2"] = .array~of("header", 5, 3, -9, 12, "footer")
+datas["key3"] = .array~of("header", 4, 6, 5, "footer")
+
+
+-- The whole datas, including headers and footers
+datas~pipe(.inject {value} mem | .console)
+
+
+-- The datas without the headers and footers
+datas~pipe(.inject {value} memorize | .drop first {index["inject"]~value } | .drop last {index["inject"]~value } | .console)
+
+
+-- No partition here, so the whole set of words is written twice, separated by "==="
+.array~of("one two three","un deux trois")~pipe(.words | .buffer[2, "==="] | .console)
+
+
+-- There is a partition on the strings received by .words, so there is a separator "===" between each set of words extracted from each string
+.array~of("one two three","un deux trois")~pipe(.words mem | .buffer[2, "==="] {index["words"]~value} | .console)
+
+
+-- ----------------------------------------------------------------------------
+-- .fanout, .fanin, .merge pipeStages
+-- ----------------------------------------------------------------------------
+
+-- Here, only the output from fanout1 is sent to console.
+fanout1 = .left[3]  mem | .lower mem
+fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1 | .console showTags)
+
+
+-- Here, each branch of the fanout remains separated. Each branch has its own console.
+fanout1 = .left[3]  mem | .lower mem | .console showTags
+fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .console showTags
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+
+
+-- Here, a fanin is used to serialize the branches of the fanout.
+-- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
+fanin = .fanin mem | .console showTags
+fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
+fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~secondaryConnector -- bufferized until fanout1 is eof
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+
+-- Here, a merge is used to serialize the branches of the fanout.
+-- The output from fanout1 is sent to console, then the output from fanout2
+merge = .merge mem | .console showTags
+fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
+fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+
+
+-- ----------------------------------------------------------------------------
+-- .fileTree pipeStage
+-- ----------------------------------------------------------------------------
 
 -- The *.cls files of ooRexx
 installdir()~pipe(,
     .fileTree recursive |,
-    .select {filespec('e', value~name) == 'cls'} |,
+    .endsWith[".cls"] |,
+    .console,
+    )
+
+
+-- Total number of lines in the *.cls files of ooRexx
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles | .lineCount |,
+    .console,
+    )
+
+
+-- Number of lines in each *.cls files of ooRexx
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles memorize | .lineCount {index["getFiles"]~value} |,
+    .console,
+    )
+
+
+-- Total number of words in the *.cls files of ooRexx
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles | .wordCount |,
+    .console,
+    )
+
+
+-- Number of words in each *.cls files of ooRexx
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles memorize | .wordCount {index["getFiles"]~value} |,
+    .console,
+    )
+
+
+-- Total number of characters in the *.cls files of ooRexx (not counting the newline characters)
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles | .charCount |,
+    .console,
+    )
+
+
+-- Number of characters in each *.cls files of ooRexx (not counting the newline characters)
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles memorize | .charCount {index["getFiles"]~value} |,
     .console,
     )
 
@@ -251,8 +574,8 @@ installdir()~pipe(,
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
---     .take 2 {index[3]}
--- Here, index[3] is the name of the file.
+--     .take 2 {index["getFiles"]~value}
+-- Here, the partition expression returns the file object processed by the pipeStage "getFiles".
 -- Exemple of result :
 -- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
 -- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
@@ -264,9 +587,9 @@ installdir()~pipe(,
 --
 installdir()~pipeProfile(,
     .fileTree recursive |,
-    .select {filespec('e', value~name) == 'cls'} |,
-    .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index[3]} | .sort caseless | .console,
+    .endsWith[".cls"] |,
+    .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
+    .take 2 {index["getFiles"]~value} | .sort caseless | .console,
     )
 
 
@@ -316,9 +639,9 @@ return installdir
         else if evaluate_sourceline~strip~left(2) == "--" then say evaluate_sourceline -- Comments starting with 2 '-' are kept
         else if evaluate_sourceline~strip == "" then say
         else do
-            say evaluate_sourceline
+            say "   "evaluate_sourceline
             evaluate_curly_bracket_count += evaluate_sourceline~countStr("{") - evaluate_sourceline~countStr("}")
-            if evaluate_sourceline~right(1) == "," then do
+            if ",-"~pos(evaluate_sourceline~right(1)) <> 0 then do
                 evaluate_string ||= evaluate_clause_separator || evaluate_sourceline~left(evaluate_sourceline~length - 1)
                 evaluate_clause_separator = ""
             end

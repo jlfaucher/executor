@@ -43,6 +43,101 @@ http://slatelanguage.org/
 
 
 ===============================================================================
+2011 sep 18
+
+[pipes]
+
+.startsWith now accepts a variable number of arguments (like .all and .notAll).
+The value is selected if it starts with one of the strings passed as argument.
+
+New pipeStage .endsWith, useful to test the suffix of files.
+"c:\"~pipe(.fileTree | .endsWith["sys", "bat"] caseless | .console)
+
+Added partition support to pipeStages that delay their output :
+.drop, .take, .buffer, .lineCount, .charCount, .wordCount
+(.take had already partition support for 'first' but not for 'last').
+
+New management of indexes.
+A pipeIndex is an array of variable length :
+array[1] : tag (generally the id of the pipeStage class, or "source" for the initial index)
+array[2] : nested pipeIndex (received from previous pipeStage)
+array[3] : optional local index1
+array[4] : optional local index2
+etc...
+When a pipeStage receives an index and a value, it applies transformations or
+filters on the value. When a value is forwarded to a following pipeStage, it can
+be accompanied by a new index that encapsulates the received index and add a tag
+and local indexes. See option 'memorizeIndex' below.
+Conventions followed in this pipeline implementation :
+- The received value becomes the first local index (you have a call stack with arguments).
+- If the pipeStage generates several values from the received value, then a second
+  local index is added, which gives the position of the current generated value.
+- If the pipeStage lets create a user-defined index (ex : .inject), then this index
+  becomes the third (and following) local index. 
+
+The creation of the pipe indexes is controlled by the option 'memorizeIndex' (abbrev 'mem').
+This option is available from any pipeStage.
+By default, the pipe indexes are not created, except for the source of the pipeline.
+
+.inject : adaptation of the behaviour to the new management of indexes.
+Two options are available : 'memorizeIndex' and 'recursive.memorizeIndex'.
+By default, no index is memorized by .inject. 
+In the example below, the first column is the source index (always memorized)
+1~pipe(.inject {value+1} recursive.2 | .console)
+1,1 : 2
+1,1 : 3
+1,1 : 4
+Here, the last index calculated by .inject during recursive calls is memorized.
+1~pipe(.inject {value+1} recursive.2 mem | .console)
+1,1|1,1 : 2
+1,1|2,1 : 3
+1,1|3,1 : 4
+Here, the intermediate indexes calculated by .inject during recursive calls are memorized.
+No need to specify the stand-alone 'memorizeIndex' option, because 'recursive.memorizeIndex'
+includes its functionality (but you can if you wish, it's just redundant).
+1~pipe(.inject {value+1} recursive.2.mem | .console)
+1,1|1,1 : 2
+1,1|1,1|2,1 : 3
+1,1|1,1|2,1|3,1 : 4
+
+A memorized index can be retrieved by tag.
+Example :
+This pipeline iterates over all the files in the ooRexx install directory.
+For each file, iterates over its contents, line by line.
+Selects the lines which contain '::class'.
+The .take pipeStage takes only one line per file.
+'C:\Program Files\ooRexx\'~pipe(.fileTree recursive | .getFiles memorize | .all['::class'] | .take 1 {index~get('getFiles')~value} | .console)
+Example of output :
+'C:\Program Files\ooRexx\',1|(C:\Program Files\ooRexx\csvStream.cls),55 : ::class CsvStream subclass Stream Public
+'C:\Program Files\ooRexx\',1|(C:\Program Files\ooRexx\mime.cls),49 : ::class mimepart public
+'C:\Program Files\ooRexx\',1|(C:\Program Files\ooRexx\OODIALOG.CLS),54 : ::class 'DialogExtensions' public MIXINCLASS object
+...
+
+The class pipeIndex has a specific 'makeString' method which accepts two arguments :
+- showTags (default .false) : when .true, the tags are inserted in the representation string.
+- showPool (default .false) : when .true, a value which appears several times is replaced by
+  a reference to the first occurence of the value.
+Strings are surrounded by quotes, except string numbers.
+To make a distinction between a real string and other objects, the representation
+of instances of objects other than strings are surrounded by round brackets.
+Example :
+i1 = .pipeIndex~create("tag1", .nil, 1)                   -- 1
+i2 = .pipeIndex~create("tag2", i1, "a")                   -- 1|'a'
+i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(2)) -- 1|'a'|(2)
+i4 = .pipeIndex~create("tag4", i3, .file~new("c:\"))      -- 1|'a'|(2)|(c:)
+i5 = .pipeIndex~create("tag5", i4, .file~new("c:\"))      -- 1|'a'|(2)|(c:)|(c:)
+say i5~makeString(.true)                                  -- tag1[1]|tag2['a']|tag3[(2)]|tag4[(c:)]|tag5[(c:)]
+say i5~makeString(.false, .true)                          -- 1|'a'|(2)|i1=(c:)|i1
+
+.console :
+- By default, the tags of the pipe indexes are not displayed by .console.
+  Use the option 'showTags' to see them.
+- .console always use showPool=.true.
+- By default, .console writes a newline at the end of the text.
+  If the last expression is an empty string "" then no newline is written.
+
+
+===============================================================================
 2011 sep 04
 
 [pipes]

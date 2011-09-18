@@ -21,9 +21,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method pipe class
     use strict arg pipe, profile=.false
     if pipe~isa(.class) then pipe = pipe~new
-    source = self
-    if \source~hasMethod("supplier") then source = .array~of(source)
-    pipe~go(source, profile)
+    pipe~go(self, profile)
     return pipe
 
 ::extension Object
@@ -32,17 +30,13 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::method pipe class
     use strict arg pipe, profile=.false
     if pipe~isa(.class) then pipe = pipe~new
-    source = self
-    if \source~hasMethod("supplier") then source = .array~of(source)
-    pipe~go(source, profile)
+    pipe~go(self, profile)
     return pipe
 
 ::method pipe
     use strict arg pipe, profile=.false
     if pipe~isa(.class) then pipe = pipe~new
-    source = self
-    if \source~hasMethod("supplier") then source = .array~of(source)
-    pipe~go(source, profile)
+    pipe~go(self, profile)
     return pipe
 
 ::method pipeProfile
@@ -106,30 +100,37 @@ forward to (self) message("of")
 ::method eof
     expose producer
     if producer~hasMethod("do") then producer = producer~do
-    if \producer~hasMethod("supplier") then producer = .array~of(producer) -- for convenience, accept a non-supplier
-    supplier = producer~supplier
-    do while supplier~available, \self~isEOP
-      -- The index is passed as an array, because some pipeStage may create
-      -- additional indexes that will be appended.
-      self~process(supplier~item, .array~of(supplier~index))
-      -- Matter of choice : should I stay on current item or get the next item before leaving ?
-      -- Current choice works good for coactivities : no lost item when piping directly the coactivity
-      -- to several pipes. But if you pass the same supplier to several pipes then you have to call
-      -- ~next if you don't want to get the last processed item again.
-      if self~isEOP then leave
-      supplier~next -- get the next data item
+    -- Similar to .pipeStage~begin :
+    if \producer~hasMethod("supplier") then do
+        index = .pipeIndex~create(self~class~id, .nil, source, 1)
+        self~process(producer, index)
+    end
+    else do
+        supplier = producer~supplier
+        do while supplier~available, \self~isEOP
+            index = .pipeIndex~create(self~class~id, .nil, producer, supplier~index) -- always created (no alternative to forward)
+            self~process(supplier~item, index)
+            -- Similar to .pipeStage~begin :
+            -- Matter of choice : should I stay on current item or get the next item before leaving ?
+            -- Current choice works good for coactivities : no lost item when piping directly the coactivity
+            -- to several pipes. But if you pass the same supplier to several pipes then you have to call
+            -- ~next if you don't want to get the last processed item again.
+            if self~isEOP then leave
+            supplier~next -- get the next data item
+        end
     end
     forward class(super) -- make sure we propagate the done message
 
 
 /******************************************************************************/
--- An 'inject' pipeStage to inject the items produced by a supplier in the pipeline.
--- The supplier is calculated for each processed value.
--- When using the option 'pushIndex', the history of indexes is kept : assuming
--- that the current value has index i, and the supplier produces the items (i1,v1),
--- (i2,v2) etc... then the injected values will be (i.i1, v1), (i.i2, v2) etc...
--- When using the option 'append', the processed value itself is written in the
--- pipeline before injecting the items produced by the supplier.
+-- An 'inject' pipeStage to inject the items produced by a producer in the pipeline.
+-- The producer is calculated for each processed value bye a doer.
+-- When using the option 'recursive.memorizeIndex', the intermediate indexes calculated
+-- during recursive calls are pushed onto the initial index.
+-- Format of an intermediate index :
+--     current input value,
+--     user-defined local indexes, (optional, single value or array of values, returned using .index_value or .value_index)
+--     position of the current result calculated with the current input value.
 
 ::class "inject" public subclass pipeStage
 
@@ -139,7 +140,7 @@ use strict arg allowCommand=.false -- by default, the doer is a function whose r
 self~init:super
 
 ::method initOptions
-    expose allowCommand doer recursive limit depthFirst before after pushIndex detectCycles unique trace
+    expose allowCommand doer recursive limit depthFirst before after recursiveMemorizeIndex detectCycles unique trace
     doer = .nil
     recursive = .false
     limit = -1
@@ -147,7 +148,7 @@ self~init:super
     detectCycles = .false
     before = .false
     after = .false
-    pushIndex = .false
+    recursiveMemorizeIndex = .false
     unique = .false
     trace = .false
     unknown = .array~new
@@ -156,17 +157,17 @@ self~init:super
             parse var a first "." rest
             if "after"~caselessAbbrev(a, 1) then do ; after = .true ; iterate ; end
             if "before"~caselessAbbrev(a, 1) then do ; before = .true ; iterate ; end
-            if "pushIndex"~caselessAbbrev(a, 1) then do ; pushIndex = .true ; iterate ; end
-            if "recursive"~caselessAbbrev(first, 3) then do
+            if "recursive"~caselessAbbrev(first, 1) then do
                 -- recursive[.limit|.depthFirst|.breadthFirst|.cycles]*
                 recursive = .true
                 do while rest <> ""
                     parse var rest first "." rest
                     if first~dataType("W") then limit = first
-                    else if "depthFirst"~caselessAbbrev(first, 1) then depthFirst = .true
                     else if "breadthFirst"~caselessAbbrev(first, 1) then depthFirst = .false
                     else if "cycles"~caselessAbbrev(first, 1) then detectCycles = .true
-                    else raise syntax 93.900 array(self~class~id ": Expected 'depthFirst' or 'breadthFirst' or 'cycles' after "first". in "a)
+                    else if "depthFirst"~caselessAbbrev(first, 1) then depthFirst = .true
+                    else if "memorizeIndex"~caselessAbbrev(first, 3) then do ; recursiveMemorizeIndex = .true ; self~memorizeIndex = .true ; end
+                    else raise syntax 93.900 array(self~class~id ": Expected 'breadthFirst' or 'cycles' or 'depthFirst' or 'memorizeIndex' after "first". in "a)
                 end
                 iterate
             end
@@ -196,28 +197,33 @@ self~init:super
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method newIndex
-    expose pushIndex trace
+    expose recursiveMemorizeIndex initialIndex trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~newIndex")
+    if trace then .traceOutput~say("       >I> Method .inject~newIndex")
     if trace then trace i
-    use strict arg index1, index2
-    if pushIndex then do
-        newindex = index1~copy
-        if \ index2~isA(.Array) then newindex~append(index2)
-        else do i over index2
-            newindex~append(i)
-        end
+    use strict arg index, value, localIndex, ...
+    if recursiveMemorizeIndex then do
+        newIndex = .pipeIndex~create(self~class~id, index, value)
     end
     else do
-        newindex = index2
-        if \ newindex~isA(.Array) then newindex = .array~of(newindex)
+        newIndex = initialIndex
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, initialIndex, value)
+    end
+    if self~memorizeIndex then do
+        do a = 3 to arg()
+            localIndex = arg(a)
+            if \ localIndex~isA(.Array) then newIndex~append(localIndex)
+            else do i over localIndex
+                newIndex~append(i)
+            end
+        end
     end
     return newindex
 
 ::method processDepthFirstCurrent
     expose recursive limit detectCycles unique trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~processDepthFirstCurrent")
+    if trace then .traceOutput~say("       >I> Method .inject~processDepthFirstCurrent")
     if trace then trace i
     use strict arg value, index, stack, level, previousValues
     if unique then do
@@ -257,35 +263,42 @@ self~init:super
 ::method processDepthFirst
     expose doer trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~processDepthFirst")
+    if trace then .traceOutput~say("       >I> Method .inject~processDepthFirst")
     if trace then trace i
     use strict arg value, index, stack=(.queue~new), level=0, previousValues=(.array~new)
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
-    if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-supplier result
-    supplier = result~supplier
-    do while supplier~available, \self~isEOP
-        item = supplier~item
-        if \ item~hasMethod("supplier") then do
-            newindex = self~newIndex(index, .array~of(value, supplier~index))
-            self~processDepthFirstCurrent(item, newindex, stack, level, previousValues)
-        end
-        else do
-            supplier2 = item~supplier
-            do while supplier2~available, \self~isEOP
-                item2 = supplier2~item
-                newindex2 = self~newIndex(index, .array~of(value, supplier2~index))
-                self~processDepthFirstCurrent(item2, newindex2, stack, level, previousValues)
-                supplier2~next
+    doResult = result -- better to store in user-defined variable, no ?
+    -- Similar to .pipeStage~begin :
+    if \ doResult~hasMethod("supplier") then do
+        newIndex = self~newIndex(index, value, 1)
+        self~processDepthFirstCurrent(doResult, newIndex, stack, level, previousValues)
+    end
+    else do
+        supplier = doResult~supplier
+        do while supplier~available, \self~isEOP
+            item = supplier~item
+            if \ item~hasMethod("supplier") then do
+                newindex = self~newIndex(index, value, supplier~index)
+                self~processDepthFirstCurrent(item, newindex, stack, level, previousValues)
             end
+            else do
+                supplier2 = item~supplier
+                do while supplier2~available, \self~isEOP
+                    item2 = supplier2~item
+                    newindex2 = self~newIndex(index, value, supplier2~index, supplier~index)
+                    self~processDepthFirstCurrent(item2, newindex2, stack, level, previousValues)
+                    supplier2~next
+                end
+            end
+            supplier~next
         end
-        supplier~next
     end
 
 ::method processBreadthFirstCurrent2
     expose recursive limit detectCycles trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent2")
+    if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirstCurrent2")
     if trace then trace i
     use strict arg value, index, toprocess, stack, level
     if recursive & level <> limit then do
@@ -302,7 +315,6 @@ self~init:super
             else do
                 self~writeSecondary(value, index)
                 self~checkEOP(self~next, self~secondary)
-                return
             end
         end
         else do
@@ -316,43 +328,47 @@ self~init:super
     else do
         self~write(value, index)
         self~checkEOP(self~next, self~secondary)
-        toprocess~queue(value)
-        toprocess~queue(index)
-        toprocess~queue(level+1)
     end
 
 ::method processBreadthFirstCurrent
     expose doer trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~processBreadthFirstCurrent")
+    if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirstCurrent")
     if trace then trace i
     use strict arg value, index, toprocess, stack, level
     doer~do(value, index)
     if \ var("result") then return -- no result returned, nothing to inject
-    if \ result~hasMethod("supplier") then result = .array~of(result) -- for convenience, accept a non-supplier result
-    supplier = result~supplier
-    do while supplier~available, \self~isEOP
-        item = supplier~item
-        if \ item~hasMethod("supplier") then do
-            newindex = self~newIndex(index, .array~of(value, supplier~index))
-            self~processBreadthFirstCurrent2(item, newindex, toprocess, stack, level)
-        end
-        else do
-            supplier2 = item~supplier
-            do while supplier2~available, \self~isEOP
-                item2 = supplier2~item
-                newindex2 = self~newIndex(index, .array~of(value, supplier2~index))
-                self~processBreadthFirstCurrent2(item2, newindex2, toprocess, stack, level)
-                supplier2~next
+    doResult = result -- better to store in user-defined variable, no ?
+    -- Similar to .pipeStage~begin :
+    if \ doResult~hasMethod("supplier") then do
+        newIndex = self~newIndex(index, value, 1)
+        self~processBreadthFirstCurrent2(doResult, newIndex, toprocess, stack, level)
+    end
+    else do
+        supplier = doResult~supplier
+        do while supplier~available, \self~isEOP
+            item = supplier~item
+            if \ item~hasMethod("supplier") then do
+                newindex = self~newIndex(index, value, supplier~index)
+                self~processBreadthFirstCurrent2(item, newindex, toprocess, stack, level)
             end
+            else do
+                supplier2 = item~supplier
+                do while supplier2~available, \self~isEOP
+                    item2 = supplier2~item
+                    newindex2 = self~newIndex(index, value, supplier2~index, supplier~index)
+                    self~processBreadthFirstCurrent2(item2, newindex2, toprocess, stack, level)
+                    supplier2~next
+                end
+            end
+            supplier~next
         end
-        supplier~next
     end
 
 ::method processBreadthFirst
     expose detectCycles unique trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~processBreadthFirst")
+    if trace then .traceOutput~say("       >I> Method .inject~processBreadthFirst")
     if trace then trace i
     use strict arg value, index
     stack = .queue~new
@@ -376,31 +392,33 @@ self~init:super
     end
 
 ::method process
-    expose doer depthFirst before after trace
-    if trace then do -- additional info
-        .traceOutput~say "-"~copies(20)
-        .traceOutput~say doer~source~tostring
-        .traceOutput~say "-"~copies(20)
-    end
+    expose doer depthFirst before after initialIndex trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say(">I> Method .inject~process")
+    if trace then .traceOutput~say("       >I> Method .inject~process")
+    if trace then do -- additional info
+        .traceOutput~say("-"~copies(20))
+        .traceOutput~say(doer~source~tostring)
+        .traceOutput~say("-"~copies(20))
+    end
     if trace then trace i
-    use strict arg value, index
+    use strict arg value, initialIndex
     if after then do
         -- follow the same convention as for calculated values.
         -- here, it's like getting a single result from value (result == value, index == 1)
-        newIndex = self~newIndex(index, .array~of(value, 1))
+        newIndex = initialIndex
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, initialIndex, value, 1)
         self~write(value, newIndex)
         self~checkEOP(self~next, self~secondary)
     end
     if self~isEOP then return
-    if depthFirst then self~processDepthFirst(value, index)
-                  else self~processBreadthFirst(value, index)
+    if depthFirst then self~processDepthFirst(value, initialIndex)
+                  else self~processBreadthFirst(value, initialIndex)
     if self~isEOP then return
     if before then do
         -- follow the same convention as for calculated values.
         -- here, it's like getting a single result from value (result == value, index == 1)
-        newIndex = self~newIndex(index, .array~of(value, 1))
+        newIndex = initialIndex
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, initialIndex, value, 1)
         self~write(value, newIndex)
         self~checkEOP(self~next, self~secondary)
     end
@@ -435,11 +453,13 @@ self~init:super(.true) -- allow commands
 ::method process
     expose doer
     use strict arg value, index
+    newIndex = index
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
     if doer~do(value, index) then do             -- apply the filter to the data item
-        self~write(value, index)                 -- the selected items are sent
+        self~write(value, newIndex)              -- the selected items are sent
     end
     else do
-        self~writeSecondary(value, index)        -- send all not selected items down the other branch, if there
+        self~writeSecondary(value, newIndex)     -- send all not selected items down the other branch, if there
     end
     self~checkEOP(self~next, self~secondary)
 

@@ -1,62 +1,202 @@
 
--- The coactivity yields two results.
--- The hello outputs are not in the pipeline flow (not displayed by the .console).
-{::c echo hello ; .yield[a] ; say hello ; .yield[b] }~doer~pipe(.upper|.console)
-HELLO
-1 : A
-HELLO
-2 : B
+-- ----------------------------------------------------------------------------
+-- Overview of pipe indexes
+-- ----------------------------------------------------------------------------
 
+-- A minimal pipe index is created from a tag and a nested pipe index (which can be .nil).
+   i0 = .pipeIndex~create("tag0", .nil)
+   say i0 -- by default, the tags are not included in the representation string, so nothing visible.
+
+   say i0~makeString(.true) -- showTags=.true
+tag0[]
+
+
+-- Any number of local indexes can be memorized.
+-- Representation : the strings (except the strings numbers) are surrounded by quotes.
+   i1 = .pipeIndex~create("tag1", .nil, "a", 1, 2, 3, 4)
+   say i1 ; say i1~makeString(.true)
+'a',1,2,3,4
+tag1['a',1,2,3,4]
+
+
+-- Nested pipe indexes are used when memorizing intermediate calculations.
+-- Representation : the pipe indexes are separated by |
+   i2 = .pipeIndex~create("tag2", i1, "a", 1, 2)
+   say i2 ; say i2~makeString(.true)
+'a',1,2,3,4|'a',1,2
+tag1['a',1,2,3,4]|tag2['a',1,2]
+
+
+-- Representation : the objects other than strings are surrounded by round brackets.
+   i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(22222), .file~new("my file"))
+   say i3 ; say i3~makeString(.true)
+'a',1,2,3,4|'a',1,2|(22222),(my file)
+tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[(22222),(my file)]
+
+
+-- showPool=.true : when a value (other than numbers) appears several times then it is replaced by a reference to the first occurence of the value.
+-- The references are named i1, i2, etc... (no relation with the variables i1, i2, i3 used so far, this is just a naming convention).
+-- The operator == is used for the comparison.
+-- "a" and .file~new("my file" are entered in the pool, because there is more than one occurence of them.
+-- .mutableBuffer~new(22222) is not entered in the pool, because two distincts instances are never equal, even if their string representation is the same.
+   i4 = .pipeIndex~create("tag4", i3, .file~new("my file"), .mutableBuffer~new(22222))
+   say i4 ; say i4~makeString(.false, .true)
+'a',1,2,3,4|'a',1,2|(22222),(my file)|(my file),(22222)
+i1='a',1,2,3,4|i1,1,2|(22222),i2=(my file)|i2,(22222)
+
+
+-- ----------------------------------------------------------------------------
+-- Overview of the sources supported by pipes
+-- ----------------------------------------------------------------------------
+
+-- Any object can be a source of pipe.
+-- When the object does not support the method ~supplier then it's injected as-is.
+-- Its associated index is always 1.
+   "hello"~pipe(.console)
+'hello',1 : hello
+
+
+-- By default, the tags are not shown, use the option showTags.
+   "hello"~pipe(.console showTags)
+source['hello',1] : hello
+
+
+-- A collection can be a source of pipe : each item of the collection is injected in the pipe.
+-- The indexes are those of the collection.
+   .array~of(10,20,30)~pipe(.console)
+(an Array),1 : 10
+(an Array),2 : 20
+(an Array),3 : 30
+   .array~of(10,20,30)~pipe(.console showTags)
+source[(an Array),1] : 10
+source[(an Array),2] : 20
+source[(an Array),3] : 30
+
+
+-- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazy).
+-- Example :
+-- This coactivity yields two results.
+-- The hello outputs are not in the pipeline flow (not displayed by the .console).
+   {::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+HELLO
+(a Coactivity),1 : a
+HELLO
+(a Coactivity),2 : b
+   {::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console showTags)
+HELLO
+source[(a Coactivity),1] : a
+HELLO
+source[(a Coactivity),2] : b
+
+
+-- ----------------------------------------------------------------------------
+-- Overview of the pipe operators.
+-- Reminder of the precedence (highest at the top) :
+-- (message send)         : ~ ~~ (not overloaded for pipes)
+-- (prefix operators)     : + - \ (not overloaded for pipes)
+-- (power)                : ** (not overloaded for pipes)
+-- (multiply and divide)  : * / % // (not overloaded for pipes)
+-- (add and subtract)     : + - (not overloaded for pipes)
+-- (blank) || (abuttal)   : (blank) is overloaded for adding options.
+-- (comparison operators) : > >> are overloaded for pipes, the rest is not used : = < == << \= >< <> \> \< \== \>> \<< >= >>= <= <<=
+-- (and operator)         : & (not overloaded for pipes).
+-- (or, exclusive or)     : | is overloaded, && is not used.
+-- ----------------------------------------------------------------------------
+
+-- stage1 | stage2
+-- stage1 > stage2
+-- | and > share the same implementation...
+-- (they connect the primary output of stage1 to the primary input of stage2)
+   "hello"~pipe(.left[2] | .upper | .console)
+'hello',1 : HE
+
+-- Same pipeline as previous, but with methods only
+   "hello"~pipe(    (.left~new(2) ~append(.upper~new))    ~append(.console~new)    )
+'hello',1 : HE
+
+
+-- ...but | and > don't have the same precedence ! No impact here.
+   "hello"~pipe(.left[2] | .upper > .console)
+'hello',1 : HE
+
+-- Same pipeline as previous, but with methods only
+   "hello"~pipe(    .left~new(2) ~append(   .upper~new ~append(.console~new)    )    )
+'hello',1 : HE
+
+
+-- stage1 >> stage2
+-- Connects the secondary output of stage1 to the primary input of stage2
+-- Here, the result is not what you expect. You want "LLO", you get "he"...
+   "hello"~pipe(.left[2] >> .upper | .console)
+'hello',1 : he
+
+-- Same pipeline as previous, but with methods only
+   "hello"~pipe(    (.left~new(2) ~appendSecondary(.upper~new))    ~append(.console~new)    )
+'hello',1 : he
+
+
+-- ...You need additional parentheses to get the expected behavior
+   "hello"~pipe(.left[2] >> ( .upper | .console ) )
+'hello',1 : LLO
+
+-- Same pipeline as previous, but with methods only
+   "hello"~pipe(    .left~new(2) ~appendSecondary(    .upper~new ~append(.console~new)    )    )
+'hello',1 : LLO
+
+
+-- ----------------------------------------------------------------------------
+-- Overview of the sorting facilities
+-- ----------------------------------------------------------------------------
 
 -- A collection can be sorted by value (default)
-.array~of(b, a, c)~pipe(.sort byValue | .console)
-2 : A
-1 : B
-3 : C
+   .array~of(b, a, c)~pipe(.sort byValue | .console)
+(an Array),2 : A
+(an Array),1 : B
+(an Array),3 : C
 
 
 -- ...or by index
-.array~of(b, a, c)~pipe(.sort byIndex | .console)
-1 : B
-2 : A
-3 : C
+   .array~of(b, a, c)~pipe(.sort byIndex | .console)
+(an Array),1 : B
+(an Array),2 : A
+(an Array),3 : C
 
 
 -- ...ascending (default)
 -- The order of options is important : a value option is impacted only by the preceding options
 -- This is because several value options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort ascending byValue | .console)
-2 : A
-1 : B
-3 : C
+   .array~of(b, a, c)~pipe(.sort ascending byValue | .console)
+(an Array),2 : A
+(an Array),1 : B
+(an Array),3 : C
 
 
 -- ...descending
-.array~of(b, a, c)~pipe(.sort descending byValue | .console)
-3 : C
-1 : B
-2 : A
+   .array~of(b, a, c)~pipe(.sort descending byValue | .console)
+(an Array),3 : C
+(an Array),1 : B
+(an Array),2 : A
 
 
 -- ...by index descending
 -- The order of options is important : an index option is impacted only by the preceding options.
 -- This is because several index options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort descending byIndex | .console)
-3 : C
-2 : A
-1 : B
+   .array~of(b, a, c)~pipe(.sort descending byIndex | .console)
+(an Array),3 : C
+(an Array),2 : A
+(an Array),1 : B
 
 
 -- ...caseless (stable by default)
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .console)
-2 : AA
-4 : Aa
-6 : aA
-8 : aa
-1 : bb
-3 : bB
-5 : Bb
-7 : BB
+   .array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .console)
+(an Array),2 : AA
+(an Array),4 : Aa
+(an Array),6 : aA
+(an Array),8 : aa
+(an Array),1 : bb
+(an Array),3 : bB
+(an Array),5 : Bb
+(an Array),7 : BB
 
 
 -- ...caseless quickSort (unstable)
@@ -67,45 +207,113 @@ HELLO
 --  defineKernelMethod(CHAR_SORTWITH     ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
 --  defineKernelMethod(CHAR_STABLESORT   ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
 --  defineKernelMethod(CHAR_STABLESORTWITH ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .console)
-2 : AA
-4 : Aa
-6 : aA
-8 : aa
-1 : bb
-3 : bB
-5 : Bb
-7 : BB
+   .array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .console)
+(an Array),2 : AA
+(an Array),4 : Aa
+(an Array),6 : aA
+(an Array),8 : aa
+(an Array),1 : bb
+(an Array),3 : bB
+(an Array),5 : Bb
+(an Array),7 : BB
 
 
 -- Sort descending with a comparator.
 -- The DescendingComparator use the default CompareTo, which is made on values.
-.array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .console)
-3 : C
-1 : B
-2 : A
+   .array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .console)
+(an Array),3 : C
+(an Array),1 : B
+(an Array),2 : A
 
 
 -- Sort by column with a comparator.
-.array~of("c:2", "b:2", "A:2", "c:1", "a:1", "B:1", "C:3")~pipe(,
-    .sortWith[.InvertingComparator~new(.CaselessColumnComparator~new(3,1))] |,
-    .sortWith[.CaselessColumnComparator~new(1,1)] |,
-    .console,
-    )
-3 : A:2
-5 : a:1
-2 : b:2
-6 : B:1
-7 : C:3
-1 : c:2
-4 : c:1
+   .array~of("c:2", "b:2", "A:2", "c:1", "a:1", "B:1", "C:3")~pipe(,
+       .sortWith[.InvertingComparator~new(.CaselessColumnComparator~new(3,1))] |,
+       .sortWith[.CaselessColumnComparator~new(1,1)] |,
+       .console,
+       )
+(an Array),3 : A:2
+(an Array),5 : a:1
+(an Array),2 : b:2
+(an Array),6 : B:1
+(an Array),7 : C:3
+(an Array),1 : c:2
+(an Array),4 : c:1
 
+
+-- ----------------------------------------------------------------------------
+-- Options available on any pipeStage : memorizeIndex
+-- ----------------------------------------------------------------------------
+
+   "aaaBBBcccDDDeee"~pipe(.reverse mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|reverse[i1] : eeeDDDcccBBBaaa
+
+
+   "aaaBBBcccDDDeee"~pipe(.upper mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|upper[i1] : AAABBBCCCDDDEEE
+
+
+   "aaaBBBcccDDDeee"~pipe(.lower mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|lower[i1] : aaabbbcccdddeee
+
+
+   "aaaBBBcccDDDeee"~pipe(.changeStr["B", "b", 2] mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|changeStr[i1] : aaabbBcccDDDeee
+
+
+   "aaaBBBcccDDDeee"~pipe(.delStr[4, 9] mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|delStr[i1] : aaaeee
+
+
+   "aaaBBBcccDDDeee"~pipe(.left[3] mem >> .console showTags "secondary :" index ":" value | .console showTags "primary:" index ":" value)
+primary: source[i1='aaaBBBcccDDDeee',1]|left[i1] : aaa 
+secondary : source[i1='aaaBBBcccDDDeee',1]|left[i1] : BBBcccDDDeee 
+
+
+   "aaaBBBcccDDDeee"~pipe(.right[3] mem >> .console showTags "secondary :" index ":" value | .console showTags "primary:" index ":" value)
+primary: source[i1='aaaBBBcccDDDeee',1]|right[i1] : eee 
+secondary : source[i1='aaaBBBcccDDDeee',1]|right[i1] : aaaBBBcccDDD 
+
+
+   "aaaBBBcccDDDeee"~pipe(.insert["---", 3] mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|insert[i1] : aaa---BBBcccDDDeee
+
+
+   "aaaBBBcccDDDeee"~pipe(.overlay["---", 3] mem | .console showTags)
+source[i1='aaaBBBcccDDDeee',1]|overlay[i1] : aa---BcccDDDeee
+
+
+   "48656c6c6f"~pipe(.x2c mem | .console showTags)
+source[i1='48656c6c6f',1]|x2c[i1] : Hello
+
+
+   .array~of("a", "", "b", , "c", , "", "d")~pipe(.dropNull mem | .console showTags)
+source[(an Array),1]|dropNull['a'] : a
+source[(an Array),3]|dropNull['b'] : b
+source[(an Array),5]|dropNull['c'] : c
+source[(an Array),8]|dropNull['d'] : d
+
+
+   .array~of("header", 1, 2 ,3 , "footer")~pipe(,
+       .drop first mem >> .console showTags "secondary of drop first :" index ":" value |,
+       .drop last mem >> .console showTags "secondary of drop last :" index ":" value |,
+       .console showTags "primary:" index ":" value) -- Remove header and footer
+secondary of drop first : source[(an Array),1]|drop['header'] : header 
+primary: source[(an Array),2]|drop[1]|drop[1] : 1 
+primary: source[(an Array),3]|drop[2]|drop[2] : 2 
+primary: source[(an Array),4]|drop[3]|drop[3] : 3 
+secondary of drop last : source[(an Array),5]|drop[i1='footer']|drop[i1] : footer 
+
+
+-- ----------------------------------------------------------------------------
+-- .do and .inject pipeStages
+-- ----------------------------------------------------------------------------
 
 -- Do something for each item (no returned value).
-.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='.console~arrayToString(index)} | .console)
-value=1 index=1
-value=2 index=3
-value=3 index=5
+   .array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='index} | .console)
+value=1 index=(an Array),1
+value=2 index=(an Array),3
+value=3 index=(an Array),5
 
 
 -- Do something for each item (the returned result replaces the item's value).
@@ -113,596 +321,928 @@ value=3 index=5
 --     value is the processed value.
 --     resultIndex is the index of the current result calculated with value.
 -- Here, only one result is calculated for a value, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
-1|1 : 2
-2|1 : 4
-3|1 : 6
+   .array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
+(an Array),1 : 2
+(an Array),3 : 4
+(an Array),5 : 6
 
 
--- Inject a value for each item (the returned value is appended).
--- The index of the injected value is pushed on the current index.
+-- Inject a value for each item (the returned value is injected after the input value).
+-- Use the default index.
 -- Index, 1st column : index of the values in the array on entry (1, 3, 5)
 -- Index, 2nd column and 3rd column : pair (value, resultIndex)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex after | .console)
-1|1|1 : 1
-1|1|1 : 10
-3|2|1 : 2
-3|2|1 : 20
-5|3|1 : 3
-5|3|1 : 30
+   .array~of(1, , 2, , 3)~pipe(.inject {value*10} memorize after | .console)
+(an Array),1|1,1 : 1
+(an Array),1|1,1 : 10
+(an Array),3|2,1 : 2
+(an Array),3|2,1 : 20
+(an Array),5|3,1 : 3
+(an Array),5|3,1 : 30
+
+
+-- Inject a value for each item (the returned value is injected after the input value).
+-- The index is user-defined.
+-- Two helpers are available for user-defined indexes :
+-- .index_value : the first arg is the index, the second arg is the value.
+-- .value_index : the first arg is the value, the second arg is the index.
+   .array~of(1, , 2, , 3)~pipe(.inject {.index_value~of(value, value*10)} memorize after | .console)
+(an Array),1|1,1 : 1
+(an Array),1|1,1 : 10
+(an Array),3|2,1 : 2
+(an Array),3|2,2 : 20
+(an Array),5|3,1 : 3
+(an Array),5|3,3 : 30
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
-.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} pushIndex after | .console)
-1|1|1 : 1
-1|1|1 : 10
-1|1|2 : 20
-3|2|1 : 2
-3|2|1 : 20
-3|2|2 : 40
-5|3|1 : 3
-5|3|1 : 30
-5|3|2 : 60
+-- Use the default index.
+   .array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} memorize after | .console)
+(an Array),1|1,1 : 1
+(an Array),1|1,1 : 10
+(an Array),1|1,2 : 20
+(an Array),3|2,1 : 2
+(an Array),3|2,1 : 20
+(an Array),3|2,2 : 40
+(an Array),5|3,1 : 3
+(an Array),5|3,1 : 30
+(an Array),5|3,2 : 60
+
+
+-- Inject two values for each item (each item of the returned collection is written in the pipe).
+-- The index is user-defined, and it's an array : each item in the index array becomes a local index.
+   .array~of(1, , 2, , 3)~pipe(.inject {
+       .index_value~of(                              -
+           .array~of(value-1, value+1),    /*index*/ -
+           .array~of(value*10, value*20)   /*value*/ -
+           )
+       } memorize after | .console)
+(an Array),1|1,1 : 1
+(an Array),1|1,1,0,2 : 10
+(an Array),1|1,2,0,2 : 20
+(an Array),3|2,1 : 2
+(an Array),3|2,1,1,3 : 20
+(an Array),3|2,2,1,3 : 40
+(an Array),5|3,1 : 3
+(an Array),5|3,1,2,4 : 30
+(an Array),5|3,2,2,4 : 60
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
 -- The options 'before' and 'after' are not used, so the initial value is discarded.
+-- Use the default index.
+   .array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0 | .console)
+(an Array),1 : 10
+(an Array),3 : 20
+(an Array),5 : 30
+   .array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1 | .console)
+(an Array),1 : 20
+(an Array),1 : 400
+(an Array),3 : 40
+(an Array),3 : 800
+(an Array),5 : 60
+(an Array),5 : 1200
+   .array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2 | .console)
+(an Array),1 : 30
+(an Array),1 : 900
+(an Array),1 : 27000
+(an Array),3 : 60
+(an Array),3 : 1800
+(an Array),3 : 54000
+(an Array),5 : 90
+(an Array),5 : 2700
+(an Array),5 : 81000
+
+
+-- Same as previous example, but here, the recursive.memorize option is used.
 -- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
 -- Ex : the last line is
--- 5|3|1|90|1|2700|1 : 81000
+-- an Array,5|3,1|90,1|2700,1 : 81000
 -- The item at index 5 in input array has generated 3 pairs by recursion : (3,1) then (90,1) then (2700,1)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} pushIndex recursive.0 | .console)
-1|1|1 : 10
-3|2|1 : 20
-5|3|1 : 30
-.array~of(1, , 2, , 3)~pipe(.inject {value*20} pushIndex recursive.1| .console)
-1|1|1 : 20
-1|1|1|20|1 : 400
-3|2|1 : 40
-3|2|1|40|1 : 800
-5|3|1 : 60
-5|3|1|60|1 : 1200
-.array~of(1, , 2, , 3)~pipe(.inject {value*30} pushIndex recursive.2 | .console)
-1|1|1 : 30
-1|1|1|30|1 : 900
-1|1|1|30|1|900|1 : 27000
-3|2|1 : 60
-3|2|1|60|1 : 1800
-3|2|1|60|1|1800|1 : 54000
-5|3|1 : 90
-5|3|1|90|1 : 2700
-5|3|1|90|1|2700|1 : 81000
+   .array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0.memorize | .console)
+(an Array),1|1,1 : 10
+(an Array),3|2,1 : 20
+(an Array),5|3,1 : 30
+   .array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1.memorize | .console)
+(an Array),1|1,1 : 20
+(an Array),1|1,1|20,1 : 400
+(an Array),3|2,1 : 40
+(an Array),3|2,1|40,1 : 800
+(an Array),5|3,1 : 60
+(an Array),5|3,1|60,1 : 1200
+   .array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2.memorize | .console)
+(an Array),1|1,1 : 30
+(an Array),1|1,1|30,1 : 900
+(an Array),1|1,1|30,1|900,1 : 27000
+(an Array),3|2,1 : 60
+(an Array),3|2,1|60,1 : 1800
+(an Array),3|2,1|60,1|1800,1 : 54000
+(an Array),5|3,1 : 90
+(an Array),5|3,1|90,1 : 2700
+(an Array),5|3,1|90,1|2700,1 : 81000
 
 
 -- Factorial, no value injected for -1
--- The option 'pushIndex' is not used, so the index remains made of one pair (value, resultIndex).
-.array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject {
-    use arg n
-    if n < 0 then return
-    if n == 0 then return 1
-    return n * .context~executable~call(n - 1)} | .console)
-0|1 : 1
-1|1 : 1
-2|1 : 2
-3|1 : 6
-4|1 : 24
-5|1 : 120
-6|1 : 720
-7|1 : 5040
-8|1 : 40320
-9|1 : 362880
+   .array~of(-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)~pipe(.inject {
+       use arg n
+       if n < 0 then return
+       if n == 0 then return 1
+       return n * .context~executable~call(n - 1)} | .console)
+(an Array),2 : 1
+(an Array),3 : 1
+(an Array),4 : 2
+(an Array),5 : 6
+(an Array),6 : 24
+(an Array),7 : 120
+(an Array),8 : 720
+(an Array),9 : 5040
+(an Array),10 : 40320
+(an Array),11 : 362880
 
 
--- Select files in the installation directory, whose name contains "rexx".
--- Take the 15 firsts.
-.file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
-    .take 15 |,
-    .console,
-    )
-152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.dll
-154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
-156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.map
-157 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.obj
-184 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.dll
-185 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exe
-186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
-187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.img
-188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
-189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.map
-190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
-191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
-192 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxActivation.obj
+-- ----------------------------------------------------------------------------
+-- Additional sorting facilities
+-- ----------------------------------------------------------------------------
 
-
--- Select files in the installation directory, whose name contains "rexx" , sorted by file size.
+-- Select files in the installation directory, whose path contains "math" , sorted by file size.
 -- The "length" message is sent to the value.
--- Take the 15 firsts.
-.file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
-    .sortWith[.MessageComparator~new("length/N")] |,
-    .take 15 |,
-    .console,
-    )
-216 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexximage.obj
-232 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.exp
-154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
-233 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.lib
-204 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxCompiler.obj
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
-186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
-213 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxhide.obj
-227 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxpaws.obj
-190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
-188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
-196 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.exp
-191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
-152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
-197 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.lib
+   .file~new(installdir())~listFiles~pipe(,
+       .all["math"] caseless |,
+       .sortWith[.MessageComparator~new("length/N")] |,
+       .console,
+       )
+(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp
+(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib
+(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj
+(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj
+(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj
+(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map
+(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
-.file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
-    .sort {value~length} |,
-    .take 15 |,
-    .console,
-    )
-216 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexximage.obj
-232 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.exp
-154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
-233 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.lib
-204 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxCompiler.obj
-155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
-186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
-213 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxhide.obj
-227 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxpaws.obj
-190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
-188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
-196 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.exp
-191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
-152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
-197 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.lib
+   .file~new(installdir())~listFiles~pipe(,
+       .all["math"] caseless |,
+       .sort {value~length} |,
+       .console,
+       )
+(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp
+(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib
+(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj
+(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj
+(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj
+(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map
+(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
-.file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
-    .sort {value~length} {filespec('e', value~name)} |,
-    .take 15 |,
-    .console,
-    )
-152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
-153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.dll
-195 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.dll
-231 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.dll
-184 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.dll
-214 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexximage.exe
-211 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxhide.exe
-200 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxc.exe
-185 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exe
-225 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxpaws.exe
-232 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxutil.exp
-154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
-186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
-196 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexxapi.exp
-187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.img
+   .file~new(installdir())~listFiles~pipe(,
+       .all["math"] caseless |,
+       .sort {value~length} {filespec('e', value~name)} |,
+       .console,
+       )
+(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll
+(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp
+(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib
+(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map
+(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj
+(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj
+(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj
 
+
+-- ----------------------------------------------------------------------------
+-- Various examples with collections and recursive processing
+-- Illustration of the depthFirst vs breadthFirst options
+-- ----------------------------------------------------------------------------
 
 -- All instance methods of the context.
 -- Notice that the default sort by value is useless here... Must sort by index.
-.context~instanceMethods~pipe(.sort byIndex | .console)
- : a Method
-  : a Method
-<> : a Method
-= : a Method
-== : a Method
->< : a Method
-ARGS : a Method
-CLASS : a Method
-CONDITION : a Method
-COPY : a Method
-COPY : a Method
-DEFAULTNAME : a Method
-DIGITS : a Method
-DUMP2 : a Method
-EXECUTABLE : a Method
-FORM : a Method
-FUZZ : a Method
-HASHCODE : a Method
-HASMETHOD : a Method
-IDENTITYHASH : a Method
-INIT : a Method
-INSTANCEMETHOD : a Method
-INSTANCEMETHODS : a Method
-ISA : a Method
-ISINSTANCEOF : a Method
-LINE : a Method
-OBJECTNAME : a Method
-OBJECTNAME= : a Method
-PACKAGE : a Method
-PIPE : a Method
-PIPEPROFILE : a Method
-PP2 : a Method
-PPINDEX2 : a Method
-REQUEST : a Method
-RS : a Method
-RUN : a Method
-SEND : a Method
-SENDWITH : a Method
-SETMETHOD : a Method
-START : a Method
-STARTWITH : a Method
-STRING : a Method
-UNSETMETHOD : a Method
-VARIABLES : a Method
-\= : a Method
-\== : a Method
-|| : a Method
+   .context~instanceMethods~pipe(.sort byIndex | .console)
+(a Supplier),'' : a Method
+(a Supplier),' ' : a Method
+(a Supplier),'<>' : a Method
+(a Supplier),'=' : a Method
+(a Supplier),'==' : a Method
+(a Supplier),'><' : a Method
+(a Supplier),'ARGS' : a Method
+(a Supplier),'CLASS' : a Method
+(a Supplier),'CONDITION' : a Method
+(a Supplier),'COPY' : a Method
+(a Supplier),'COPY' : a Method
+(a Supplier),'DEFAULTNAME' : a Method
+(a Supplier),'DIGITS' : a Method
+(a Supplier),'DUMP2' : a Method
+(a Supplier),'EXECUTABLE' : a Method
+(a Supplier),'FORM' : a Method
+(a Supplier),'FUZZ' : a Method
+(a Supplier),'HASHCODE' : a Method
+(a Supplier),'HASMETHOD' : a Method
+(a Supplier),'IDENTITYHASH' : a Method
+(a Supplier),'INIT' : a Method
+(a Supplier),'INSTANCEMETHOD' : a Method
+(a Supplier),'INSTANCEMETHODS' : a Method
+(a Supplier),'ISA' : a Method
+(a Supplier),'ISINSTANCEOF' : a Method
+(a Supplier),'LINE' : a Method
+(a Supplier),'OBJECTNAME' : a Method
+(a Supplier),'OBJECTNAME=' : a Method
+(a Supplier),'PACKAGE' : a Method
+(a Supplier),'PIPE' : a Method
+(a Supplier),'PIPEPROFILE' : a Method
+(a Supplier),'PP2' : a Method
+(a Supplier),'PPINDEX2' : a Method
+(a Supplier),'REQUEST' : a Method
+(a Supplier),'RS' : a Method
+(a Supplier),'RUN' : a Method
+(a Supplier),'SEND' : a Method
+(a Supplier),'SENDWITH' : a Method
+(a Supplier),'SETMETHOD' : a Method
+(a Supplier),'SETMETHOD1' : a Method
+(a Supplier),'START' : a Method
+(a Supplier),'STARTWITH' : a Method
+(a Supplier),'STRING' : a Method
+(a Supplier),'UNSETMETHOD' : a Method
+(a Supplier),'VARIABLES' : a Method
+(a Supplier),'\=' : a Method
+(a Supplier),'\==' : a Method
+(a Supplier),'||' : a Method
 
 
 -- All private methods of the context.
-.context~instanceMethods~pipe(,
-    .select {value~isPrivate} |,
-    .sort byIndex |,
-    .console,
-    )
-RUN : a Method
-SETMETHOD : a Method
-UNSETMETHOD : a Method
+   .context~instanceMethods~pipe(,
+       .select {value~isPrivate} |,
+       .sort byIndex |,
+       .console,
+       )
+(a Supplier),'RUN' : a Method
+(a Supplier),'SETMETHOD' : a Method
+(a Supplier),'UNSETMETHOD' : a Method
 
 
 -- Instance methods of the specified classes (not including those inherited).
 -- Each class is written in the pipeline, followed by the returned methods (option 'after').
-.array~of(.RexxContext, .Package, .Method)~pipe(,
-    .inject {value~instanceMethods(value~class)} after pushIndex |,
-    .sort byIndex |,
-    .console,
-    )
-1|The RexxContext class|1 : The RexxContext class
-1|The RexxContext class|<> : a Method
-1|The RexxContext class|= : a Method
-1|The RexxContext class|== : a Method
-1|The RexxContext class|>< : a Method
-1|The RexxContext class|BASECLASS : a Method
-1|The RexxContext class|DEFAULTNAME : a Method
-1|The RexxContext class|DEFINE : a Method
-1|The RexxContext class|DELETE : a Method
-1|The RexxContext class|ENHANCED : a Method
-1|The RexxContext class|HASHCODE : a Method
-1|The RexxContext class|ID : a Method
-1|The RexxContext class|INHERIT : a Method
-1|The RexxContext class|ISSUBCLASSOF : a Method
-1|The RexxContext class|METACLASS : a Method
-1|The RexxContext class|METHOD : a Method
-1|The RexxContext class|METHODS : a Method
-1|The RexxContext class|MIXINCLASS : a Method
-1|The RexxContext class|QUERYMIXINCLASS : a Method
-1|The RexxContext class|SUBCLASS : a Method
-1|The RexxContext class|SUBCLASSES : a Method
-1|The RexxContext class|SUPERCLASS : a Method
-1|The RexxContext class|SUPERCLASSES : a Method
-1|The RexxContext class|UNINHERIT : a Method
-1|The RexxContext class|\= : a Method
-1|The RexxContext class|\== : a Method
-2|The Package class|1 : The Package class
-2|The Package class|<> : a Method
-2|The Package class|= : a Method
-2|The Package class|== : a Method
-2|The Package class|>< : a Method
-2|The Package class|BASECLASS : a Method
-2|The Package class|DEFAULTNAME : a Method
-2|The Package class|DEFINE : a Method
-2|The Package class|DELETE : a Method
-2|The Package class|ENHANCED : a Method
-2|The Package class|HASHCODE : a Method
-2|The Package class|ID : a Method
-2|The Package class|INHERIT : a Method
-2|The Package class|ISSUBCLASSOF : a Method
-2|The Package class|METACLASS : a Method
-2|The Package class|METHOD : a Method
-2|The Package class|METHODS : a Method
-2|The Package class|MIXINCLASS : a Method
-2|The Package class|QUERYMIXINCLASS : a Method
-2|The Package class|SUBCLASS : a Method
-2|The Package class|SUBCLASSES : a Method
-2|The Package class|SUPERCLASS : a Method
-2|The Package class|SUPERCLASSES : a Method
-2|The Package class|UNINHERIT : a Method
-2|The Package class|\= : a Method
-2|The Package class|\== : a Method
-3|The Method class|!DEFINE_CLASS_METHOD : a Method
-3|The Method class|!DEFINE_METHODS : a Method
-3|The Method class|!REXXDEFINED : a Method
-3|The Method class|1 : The Method class
-3|The Method class|<> : a Method
-3|The Method class|= : a Method
-3|The Method class|== : a Method
-3|The Method class|>< : a Method
-3|The Method class|BASECLASS : a Method
-3|The Method class|DEFAULTNAME : a Method
-3|The Method class|DEFINE : a Method
-3|The Method class|DELETE : a Method
-3|The Method class|ENHANCED : a Method
-3|The Method class|HASHCODE : a Method
-3|The Method class|ID : a Method
-3|The Method class|INHERIT : a Method
-3|The Method class|ISSUBCLASSOF : a Method
-3|The Method class|METACLASS : a Method
-3|The Method class|METHOD : a Method
-3|The Method class|METHODS : a Method
-3|The Method class|MIXINCLASS : a Method
-3|The Method class|QUERYMIXINCLASS : a Method
-3|The Method class|SUBCLASS : a Method
-3|The Method class|SUBCLASSES : a Method
-3|The Method class|SUPERCLASS : a Method
-3|The Method class|SUPERCLASSES : a Method
-3|The Method class|UNINHERIT : a Method
-3|The Method class|\= : a Method
-3|The Method class|\== : a Method
+   .array~of(.RexxContext, .Package, .Method)~pipe(,
+       .inject {value~instanceMethods(value~class)} after memorize |,
+       .sort byIndex |,
+       .console,
+       )
+(an Array),1|(The RexxContext class),1 : The RexxContext class
+(an Array),1|(The RexxContext class),'<>' : a Method
+(an Array),1|(The RexxContext class),'=' : a Method
+(an Array),1|(The RexxContext class),'==' : a Method
+(an Array),1|(The RexxContext class),'><' : a Method
+(an Array),1|(The RexxContext class),'BASECLASS' : a Method
+(an Array),1|(The RexxContext class),'DEFAULTNAME' : a Method
+(an Array),1|(The RexxContext class),'DEFINE' : a Method
+(an Array),1|(The RexxContext class),'DELETE' : a Method
+(an Array),1|(The RexxContext class),'ENHANCED' : a Method
+(an Array),1|(The RexxContext class),'HASHCODE' : a Method
+(an Array),1|(The RexxContext class),'ID' : a Method
+(an Array),1|(The RexxContext class),'INHERIT' : a Method
+(an Array),1|(The RexxContext class),'ISSUBCLASSOF' : a Method
+(an Array),1|(The RexxContext class),'METACLASS' : a Method
+(an Array),1|(The RexxContext class),'METHOD' : a Method
+(an Array),1|(The RexxContext class),'METHODS' : a Method
+(an Array),1|(The RexxContext class),'MIXINCLASS' : a Method
+(an Array),1|(The RexxContext class),'QUERYMIXINCLASS' : a Method
+(an Array),1|(The RexxContext class),'SUBCLASS' : a Method
+(an Array),1|(The RexxContext class),'SUBCLASSES' : a Method
+(an Array),1|(The RexxContext class),'SUPERCLASS' : a Method
+(an Array),1|(The RexxContext class),'SUPERCLASSES' : a Method
+(an Array),1|(The RexxContext class),'UNINHERIT' : a Method
+(an Array),1|(The RexxContext class),'\=' : a Method
+(an Array),1|(The RexxContext class),'\==' : a Method
+(an Array),2|(The Package class),1 : The Package class
+(an Array),2|(The Package class),'<>' : a Method
+(an Array),2|(The Package class),'=' : a Method
+(an Array),2|(The Package class),'==' : a Method
+(an Array),2|(The Package class),'><' : a Method
+(an Array),2|(The Package class),'BASECLASS' : a Method
+(an Array),2|(The Package class),'DEFAULTNAME' : a Method
+(an Array),2|(The Package class),'DEFINE' : a Method
+(an Array),2|(The Package class),'DELETE' : a Method
+(an Array),2|(The Package class),'ENHANCED' : a Method
+(an Array),2|(The Package class),'HASHCODE' : a Method
+(an Array),2|(The Package class),'ID' : a Method
+(an Array),2|(The Package class),'INHERIT' : a Method
+(an Array),2|(The Package class),'ISSUBCLASSOF' : a Method
+(an Array),2|(The Package class),'METACLASS' : a Method
+(an Array),2|(The Package class),'METHOD' : a Method
+(an Array),2|(The Package class),'METHODS' : a Method
+(an Array),2|(The Package class),'MIXINCLASS' : a Method
+(an Array),2|(The Package class),'QUERYMIXINCLASS' : a Method
+(an Array),2|(The Package class),'SUBCLASS' : a Method
+(an Array),2|(The Package class),'SUBCLASSES' : a Method
+(an Array),2|(The Package class),'SUPERCLASS' : a Method
+(an Array),2|(The Package class),'SUPERCLASSES' : a Method
+(an Array),2|(The Package class),'UNINHERIT' : a Method
+(an Array),2|(The Package class),'\=' : a Method
+(an Array),2|(The Package class),'\==' : a Method
+(an Array),3|(The Method class),'!DEFINE_CLASS_METHOD' : a Method
+(an Array),3|(The Method class),'!DEFINE_METHODS' : a Method
+(an Array),3|(The Method class),'!REXXDEFINED' : a Method
+(an Array),3|(The Method class),1 : The Method class
+(an Array),3|(The Method class),'<>' : a Method
+(an Array),3|(The Method class),'=' : a Method
+(an Array),3|(The Method class),'==' : a Method
+(an Array),3|(The Method class),'><' : a Method
+(an Array),3|(The Method class),'BASECLASS' : a Method
+(an Array),3|(The Method class),'DEFAULTNAME' : a Method
+(an Array),3|(The Method class),'DEFINE' : a Method
+(an Array),3|(The Method class),'DELETE' : a Method
+(an Array),3|(The Method class),'ENHANCED' : a Method
+(an Array),3|(The Method class),'HASHCODE' : a Method
+(an Array),3|(The Method class),'ID' : a Method
+(an Array),3|(The Method class),'INHERIT' : a Method
+(an Array),3|(The Method class),'ISSUBCLASSOF' : a Method
+(an Array),3|(The Method class),'METACLASS' : a Method
+(an Array),3|(The Method class),'METHOD' : a Method
+(an Array),3|(The Method class),'METHODS' : a Method
+(an Array),3|(The Method class),'MIXINCLASS' : a Method
+(an Array),3|(The Method class),'QUERYMIXINCLASS' : a Method
+(an Array),3|(The Method class),'SUBCLASS' : a Method
+(an Array),3|(The Method class),'SUBCLASSES' : a Method
+(an Array),3|(The Method class),'SUPERCLASS' : a Method
+(an Array),3|(The Method class),'SUPERCLASSES' : a Method
+(an Array),3|(The Method class),'UNINHERIT' : a Method
+(an Array),3|(The Method class),'\=' : a Method
+(an Array),3|(The Method class),'\==' : a Method
 
 
 -- Methods (not inherited) of all the classes whose id starts with "R".
-.environment~pipe(,
-    .select {value~isA(.class)} |,
-    .select {value~id~caselessAbbrev('R') <> 0} |,
-    .inject {value~methods(value)} after pushIndex |,
-    .sort byIndex |,
-    .console,
-    )
-RELATION|The Relation class|1 : The Relation class
-RELATION|The Relation class|ALLAT : a Method
-RELATION|The Relation class|ALLINDEX : a Method
-RELATION|The Relation class|ALLINDEXES : a Method
-RELATION|The Relation class|ALLITEMS : a Method
-RELATION|The Relation class|AT : a Method
-RELATION|The Relation class|DIFFERENCE : a Method
-RELATION|The Relation class|EMPTY : a Method
-RELATION|The Relation class|HASINDEX : a Method
-RELATION|The Relation class|HASITEM : a Method
-RELATION|The Relation class|INDEX : a Method
-RELATION|The Relation class|INTERSECTION : a Method
-RELATION|The Relation class|ISEMPTY : a Method
-RELATION|The Relation class|ITEMS : a Method
-RELATION|The Relation class|MAKEARRAY : a Method
-RELATION|The Relation class|PUT : a Method
-RELATION|The Relation class|READOBJECT : a Method
-RELATION|The Relation class|REMOVE : a Method
-RELATION|The Relation class|REMOVEALL : a Method
-RELATION|The Relation class|REMOVEITEM : a Method
-RELATION|The Relation class|SUBSET : a Method
-RELATION|The Relation class|SUPPLIER : a Method
-RELATION|The Relation class|UNION : a Method
-RELATION|The Relation class|WRITEOBJECT : a Method
-RELATION|The Relation class|XOR : a Method
-RELATION|The Relation class|[] : a Method
-RELATION|The Relation class|[]= : a Method
-REXXCONTEXT|The RexxContext class|1 : The RexxContext class
-REXXCONTEXT|The RexxContext class|ARGS : a Method
-REXXCONTEXT|The RexxContext class|CONDITION : a Method
-REXXCONTEXT|The RexxContext class|COPY : a Method
-REXXCONTEXT|The RexxContext class|DIGITS : a Method
-REXXCONTEXT|The RexxContext class|EXECUTABLE : a Method
-REXXCONTEXT|The RexxContext class|FORM : a Method
-REXXCONTEXT|The RexxContext class|FUZZ : a Method
-REXXCONTEXT|The RexxContext class|LINE : a Method
-REXXCONTEXT|The RexxContext class|PACKAGE : a Method
-REXXCONTEXT|The RexxContext class|RS : a Method
-REXXCONTEXT|The RexxContext class|VARIABLES : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|1 : The RexxContextualSource class
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|CALL : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|CALLWITH : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|CONTEXT : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|COPY : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|EXECUTABLE : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|PACKAGE : a Method
-REXXCONTEXTUALSOURCE|The RexxContextualSource class|SOURCE : a Method
-REXXQUEUE|The RexxQueue class|1 : The RexxQueue class
-REXXQUEUE|The RexxQueue class|DELETE : a Method
-REXXQUEUE|The RexxQueue class|EMPTY : a Method
-REXXQUEUE|The RexxQueue class|GET : a Method
-REXXQUEUE|The RexxQueue class|INIT : a Method
-REXXQUEUE|The RexxQueue class|LINEIN : a Method
-REXXQUEUE|The RexxQueue class|LINEOUT : a Method
-REXXQUEUE|The RexxQueue class|MAKEARRAY : a Method
-REXXQUEUE|The RexxQueue class|PULL : a Method
-REXXQUEUE|The RexxQueue class|PUSH : a Method
-REXXQUEUE|The RexxQueue class|QUEUE : a Method
-REXXQUEUE|The RexxQueue class|QUEUED : a Method
-REXXQUEUE|The RexxQueue class|SAY : a Method
-REXXQUEUE|The RexxQueue class|SET : a Method
-ROUTINE|The Routine class|1 : The Routine class
-ROUTINE|The Routine class|CALL : a Method
-ROUTINE|The Routine class|CALLWITH : a Method
-ROUTINE|The Routine class|PACKAGE : a Method
-ROUTINE|The Routine class|SETSECURITYMANAGER : a Method
-ROUTINE|The Routine class|SOURCE : a Method
+   .environment~pipe(,
+       .select {value~isA(.class)} |,
+       .select {value~id~caselessAbbrev('R') <> 0} |,
+       .inject {value~methods(value)} after memorize |,
+       .sort byIndex |,
+       .console,
+       )
+(The Environment Directory),'RELATION'|(The Relation class),1 : The Relation class
+(The Environment Directory),'RELATION'|(The Relation class),'ALLAT' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'ALLINDEX' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'ALLINDEXES' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'ALLITEMS' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'AT' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'DIFFERENCE' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'EMPTY' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'HASINDEX' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'HASITEM' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'INDEX' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'INTERSECTION' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'ISEMPTY' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'ITEMS' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'MAKEARRAY' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'PUT' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'READOBJECT' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'REMOVE' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'REMOVEALL' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'REMOVEITEM' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'SUBSET' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'SUPPLIER' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'UNION' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'WRITEOBJECT' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'XOR' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'[]' : a Method
+(The Environment Directory),'RELATION'|(The Relation class),'[]=' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),1 : The RexxContext class
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'ARGS' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'CONDITION' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'COPY' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'DIGITS' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'EXECUTABLE' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'FORM' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'FUZZ' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'LINE' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'PACKAGE' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'RS' : a Method
+(The Environment Directory),'REXXCONTEXT'|(The RexxContext class),'VARIABLES' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),1 : The RexxContextualSource class
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'CALL' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'CALLWITH' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'CONTEXT' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'COPY' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'EXECUTABLE' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'PACKAGE' : a Method
+(The Environment Directory),'REXXCONTEXTUALSOURCE'|(The RexxContextualSource class),'SOURCE' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),1 : The RexxQueue class
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'DELETE' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'EMPTY' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'GET' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'INIT' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'LINEIN' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'LINEOUT' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'MAKEARRAY' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'PULL' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'PUSH' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'QUEUE' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'QUEUED' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'SAY' : a Method
+(The Environment Directory),'REXXQUEUE'|(The RexxQueue class),'SET' : a Method
+(The Environment Directory),'ROUTINE'|(The Routine class),1 : The Routine class
+(The Environment Directory),'ROUTINE'|(The Routine class),'CALL' : a Method
+(The Environment Directory),'ROUTINE'|(The Routine class),'CALLWITH' : a Method
+(The Environment Directory),'ROUTINE'|(The Routine class),'PACKAGE' : a Method
+(The Environment Directory),'ROUTINE'|(The Routine class),'SETSECURITYMANAGER' : a Method
+(The Environment Directory),'ROUTINE'|(The Routine class),'SOURCE' : a Method
 
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
-.context~package~pipe(,
-    .inject {value~importedPackages} recursive after pushIndex |,
-    .console index.75,
-             {'  '~copies(index~items)},
-             {.file~new(value~name)~name},
-             newline,
-    )
-1|a Package|1                                                                    pipe_extension_test.rex
-1|a Package|1                                                                    extensions.cls
-1|a Package|1|a Package|1                                                            doers.cls
-1|a Package|1|a Package|1|a Package|1                                                    coactivity.cls
-1|a Package|1|a Package|1|a Package|1|a Package|1                                            activity.cls
-1|a Package|1|a Package|2                                                            functionals.cls
-1|a Package|1|a Package|2|a Package|1                                                    doers.cls
-1|a Package|1|a Package|2|a Package|1|a Package|1                                            coactivity.cls
-1|a Package|1|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
-1|a Package|1|a Package|3                                                            coactivity.cls
-1|a Package|1|a Package|3|a Package|1                                                    activity.cls
-1|a Package|2                                                                    coactivity.cls
-1|a Package|2|a Package|1                                                            activity.cls
-1|a Package|3                                                                    pipe_extension.cls
-1|a Package|3|a Package|1                                                            pipe.rex
-1|a Package|3|a Package|1|a Package|1                                                    profiling.cls
-1|a Package|3|a Package|2                                                            extensions.cls
-1|a Package|3|a Package|2|a Package|1                                                    doers.cls
-1|a Package|3|a Package|2|a Package|1|a Package|1                                            coactivity.cls
-1|a Package|3|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
-1|a Package|3|a Package|2|a Package|2                                                    functionals.cls
-1|a Package|3|a Package|2|a Package|2|a Package|1                                            doers.cls
-1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1                                    coactivity.cls
-1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1|a Package|1                            activity.cls
-1|a Package|3|a Package|2|a Package|3                                                    coactivity.cls
-1|a Package|3|a Package|2|a Package|3|a Package|1                                            activity.cls
-1|a Package|4                                                                    rgf_util2_wrappers.rex
-1|a Package|4|a Package|1                                                            rgf_util2.rex
+   .context~package~pipe(,
+       .inject {value~importedPackages} recursive.memorize after |,
+       .console index.92,
+                {'  '~copies(index~depth)},
+                {.file~new(value~name)~name},
+       )
+i1=(a Package),1|i1,1                                                                           pipe_extension_test.rex 
+i1=(a Package),1|i1,1                                                                           extensions.cls 
+i1=(a Package),1|i1,1|(a Package),1                                                               doers.cls 
+i1=(a Package),1|i1,1|(a Package),1|(a Package),1                                                   coactivity.cls 
+i1=(a Package),1|i1,1|(a Package),1|(a Package),1|(a Package),1                                       activity.cls 
+i1=(a Package),1|i1,1|(a Package),2                                                               functionals.cls 
+i1=(a Package),1|i1,1|(a Package),2|(a Package),1                                                   doers.cls 
+i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1                                       coactivity.cls 
+i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1|(a Package),1                           activity.cls 
+i1=(a Package),1|i1,1|(a Package),3                                                               coactivity.cls 
+i1=(a Package),1|i1,1|(a Package),3|(a Package),1                                                   activity.cls 
+i1=(a Package),1|i1,2                                                                           coactivity.cls 
+i1=(a Package),1|i1,2|(a Package),1                                                               activity.cls 
+i1=(a Package),1|i1,3                                                                           pipe_extension.cls 
+i1=(a Package),1|i1,3|(a Package),1                                                               pipe.rex 
+i1=(a Package),1|i1,3|(a Package),1|(a Package),1                                                   profiling.cls 
+i1=(a Package),1|i1,3|(a Package),2                                                               extensions.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),1                                                   doers.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),1|(a Package),1                                       coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),1|(a Package),1|(a Package),1                           activity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2                                                   functionals.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1                                       doers.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1                           coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1|(a Package),1               activity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),3                                                   coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),3|(a Package),1                                       activity.cls 
+i1=(a Package),1|i1,4                                                                           rgf_util2_wrappers.rex 
+i1=(a Package),1|i1,4|(a Package),1                                                               rgf_util2.rex 
 
 
 -- Same as above, but in breadth-first order
-.context~package~pipe(,
-    .inject {value~importedPackages} recursive.breadthFirst after pushIndex |,
-    .console index.75,
-             {'  '~copies(index~items)},
-             {.file~new(value~name)~name},
-             newline,
-    )
-1|a Package|1                                                                    pipe_extension_test.rex
-1|a Package|1                                                                    extensions.cls
-1|a Package|2                                                                    coactivity.cls
-1|a Package|3                                                                    pipe_extension.cls
-1|a Package|4                                                                    rgf_util2_wrappers.rex
-1|a Package|1|a Package|1                                                            doers.cls
-1|a Package|1|a Package|2                                                            functionals.cls
-1|a Package|1|a Package|3                                                            coactivity.cls
-1|a Package|2|a Package|1                                                            activity.cls
-1|a Package|3|a Package|1                                                            pipe.rex
-1|a Package|3|a Package|2                                                            extensions.cls
-1|a Package|4|a Package|1                                                            rgf_util2.rex
-1|a Package|1|a Package|1|a Package|1                                                    coactivity.cls
-1|a Package|1|a Package|2|a Package|1                                                    doers.cls
-1|a Package|1|a Package|3|a Package|1                                                    activity.cls
-1|a Package|3|a Package|1|a Package|1                                                    profiling.cls
-1|a Package|3|a Package|2|a Package|1                                                    doers.cls
-1|a Package|3|a Package|2|a Package|2                                                    functionals.cls
-1|a Package|3|a Package|2|a Package|3                                                    coactivity.cls
-1|a Package|1|a Package|1|a Package|1|a Package|1                                            activity.cls
-1|a Package|1|a Package|2|a Package|1|a Package|1                                            coactivity.cls
-1|a Package|3|a Package|2|a Package|1|a Package|1                                            coactivity.cls
-1|a Package|3|a Package|2|a Package|2|a Package|1                                            doers.cls
-1|a Package|3|a Package|2|a Package|3|a Package|1                                            activity.cls
-1|a Package|1|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
-1|a Package|3|a Package|2|a Package|1|a Package|1|a Package|1                                    activity.cls
-1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1                                    coactivity.cls
-1|a Package|3|a Package|2|a Package|2|a Package|1|a Package|1|a Package|1                            activity.cls
+   .context~package~pipe(,
+       .inject {value~importedPackages} recursive.breadthFirst.memorize after |,
+       .console index.92,
+                {'  '~copies(index~depth)},
+                {.file~new(value~name)~name},
+       )
+i1=(a Package),1|i1,1                                                                           pipe_extension_test.rex 
+i1=(a Package),1|i1,1                                                                           extensions.cls 
+i1=(a Package),1|i1,2                                                                           coactivity.cls 
+i1=(a Package),1|i1,3                                                                           pipe_extension.cls 
+i1=(a Package),1|i1,4                                                                           rgf_util2_wrappers.rex 
+i1=(a Package),1|i1,1|(a Package),1                                                               doers.cls 
+i1=(a Package),1|i1,1|(a Package),2                                                               functionals.cls 
+i1=(a Package),1|i1,1|(a Package),3                                                               coactivity.cls 
+i1=(a Package),1|i1,2|(a Package),1                                                               activity.cls 
+i1=(a Package),1|i1,3|(a Package),1                                                               pipe.rex 
+i1=(a Package),1|i1,3|(a Package),2                                                               extensions.cls 
+i1=(a Package),1|i1,4|(a Package),1                                                               rgf_util2.rex 
+i1=(a Package),1|i1,1|(a Package),1|(a Package),1                                                   coactivity.cls 
+i1=(a Package),1|i1,1|(a Package),2|(a Package),1                                                   doers.cls 
+i1=(a Package),1|i1,1|(a Package),3|(a Package),1                                                   activity.cls 
+i1=(a Package),1|i1,3|(a Package),1|(a Package),1                                                   profiling.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),1                                                   doers.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2                                                   functionals.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),3                                                   coactivity.cls 
+i1=(a Package),1|i1,1|(a Package),1|(a Package),1|(a Package),1                                       activity.cls 
+i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1                                       coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),1|(a Package),1                                       coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1                                       doers.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),3|(a Package),1                                       activity.cls 
+i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1|(a Package),1                           activity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),1|(a Package),1|(a Package),1                           activity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1                           coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1|(a Package),1               activity.cls 
 
+
+-- ----------------------------------------------------------------------------
+-- .take pipeStage
+-- ----------------------------------------------------------------------------
 
 -- The .take pipeStage lets stop the preceding pipeStages when the number of items to take
 -- has been reached, whatever its position in the pipeline.
-supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.console "2*" value "=" | .do {return 2*value} | .take 2 | .console value newline)
-2*1=2
-2*2=4
-say supplier~index -- this is the index of the last processed item
+-- Note the "" at the end of the first .console. This is an indicator to not insert a newline.
+   supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
+   supplier~pipe(.console "2*" value "=" "" | .do {return 2*value} | .take 2 | .console value)
+2* 1 =  2 
+2* 2 =  4 
+   say supplier~index -- this is the index of the last processed item
 2
-supplier~next -- skip the last processed item
-supplier~pipe(.console "4*" value "=" | .do {return 4*value} | .take 4 | .console value newline)
-4*3=12
-4*4=16
-4*5=20
-4*6=24
-say supplier~index
+   supplier~next -- skip the last processed item
+   supplier~pipe(.console "4*" value "=" "" | .do {return 4*value} | .take 4 | .console value)
+4* 3 =  12 
+4* 4 =  16 
+4* 5 =  20 
+4* 6 =  24 
+   say supplier~index
 6
 
 
 -- Display the 4 first sorted items
-.array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .console)
-3 : 1
-6 : 2
-4 : 3
-1 : 5
+   .array~of(5, 8, 1, 3, 6, 2)~pipe(.sort | .take 4 | .console)
+(an Array),3 : 1
+(an Array),6 : 2
+(an Array),4 : 3
+(an Array),1 : 5
 
 
 -- Sort the 4 first items
-.array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .console)
-3 : 1
-4 : 3
-1 : 5
-2 : 8
+   .array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .console)
+(an Array),3 : 1
+(an Array),4 : 3
+(an Array),1 : 5
+(an Array),2 : 8
 
+
+-- Select files in the installation directory, whose name contains "rexx".
+-- Note : the .select is not equivalent to .all["rexx"], because .select tests only the name,
+-- whereas .all tests the string representation of the value, which is the absolute path.
+-- Take the 15 firsts.
+   .file~new(installdir())~listFiles~pipe(,
+       .select {value~name~caselessPos('rexx') <> 0} |,
+       .take 15 |,
+       .console,
+       )
+(an Array),152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+(an Array),153 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.dll
+(an Array),154 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.exp
+(an Array),155 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.lib
+(an Array),156 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.map
+(an Array),157 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.obj
+(an Array),184 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.dll
+(an Array),185 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exe
+(an Array),186 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.exp
+(an Array),187 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.img
+(an Array),188 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.lib
+(an Array),189 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.map
+(an Array),190 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.obj
+(an Array),191 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rexx.res
+(an Array),192 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\RexxActivation.obj
+
+
+-- ----------------------------------------------------------------------------
+-- .append pipeStage
+-- ----------------------------------------------------------------------------
 
 -- The .append pipeStage copies items from its primary input to its primary output, and then invokes
 -- the supplier passed as argument and writes the items produced by that supplier to its primary output.
-supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
+   supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
+   supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
 -- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
-supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
-1 : 1
-2 : 2
-1 : 10
-2 : 11
-3 : 12
-say supplier1~index
+   supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
+(a Supplier),1 : 1
+(a Supplier),2 : 2
+(a Supplier),1 : 10
+(a Supplier),2 : 11
+(a Supplier),3 : 12
+   say supplier1~index
 2
-say supplier2~index
+   say supplier2~index
 3
-supplier1~next
-supplier2~next
-supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
-3 : 3
-4 : 4
-5 : 5
-6 : 6
-4 : 13
-5 : 14
-6 : 15
-7 : 16
-8 : 17
-say supplier1~index
+   supplier1~next
+   supplier2~next
+   supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
+(a Supplier),3 : 3
+(a Supplier),4 : 4
+(a Supplier),5 : 5
+(a Supplier),6 : 6
+(a Supplier),4 : 13
+(a Supplier),5 : 14
+(a Supplier),6 : 15
+(a Supplier),7 : 16
+(a Supplier),8 : 17
+   say supplier1~index
 6
-say supplier2~index
+   say supplier2~index
 8
 
 
--- Remove header and footer
-.array~of("header", 1, 2 ,3 , "footer")~pipe(.drop first | .drop last | .console)
-2 : 1
-3 : 2
-4 : 3
+-- ----------------------------------------------------------------------------
+-- pipeStages which support partitions
+-- ----------------------------------------------------------------------------
 
+-- Drop the first value
+   .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop | .console)
+(an Array),2 : 1
+(an Array),3 : 1
+(an Array),4 : 2
+(an Array),5 : 2
+(an Array),6 : 2
+(an Array),7 : 3
+(an Array),8 : 3
+(an Array),9 : 3
+(an Array),10 : 1
+(an Array),11 : 1
+(an Array),12 : 1
+
+
+-- Drop the first value of each partition
+   .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop {value} | .console)
+(an Array),2 : 1
+(an Array),3 : 1
+(an Array),5 : 2
+(an Array),6 : 2
+(an Array),8 : 3
+(an Array),9 : 3
+(an Array),11 : 1
+(an Array),12 : 1
+
+
+-- Drop the last value
+   .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last | .console)
+(an Array),1 : 1
+(an Array),2 : 1
+(an Array),3 : 1
+(an Array),4 : 2
+(an Array),5 : 2
+(an Array),6 : 2
+(an Array),7 : 3
+(an Array),8 : 3
+(an Array),9 : 3
+(an Array),10 : 1
+(an Array),11 : 1
+
+
+-- Drop the last value of each partition
+   .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {value} | .console)
+(an Array),1 : 1
+(an Array),2 : 1
+(an Array),4 : 2
+(an Array),5 : 2
+(an Array),7 : 3
+(an Array),8 : 3
+(an Array),10 : 1
+(an Array),11 : 1
+
+
+   datas = .directory~new
+   datas["key1"] = .array~of("header", 1, 2, "footer")
+   datas["key2"] = .array~of("header", 5, 3, -9, 12, "footer")
+   datas["key3"] = .array~of("header", 4, 6, 5, "footer")
+
+
+-- The whole datas, including headers and footers
+   datas~pipe(.inject {value} mem | .console)
+(a Directory),'key1'|(an Array),1 : header
+(a Directory),'key1'|(an Array),2 : 1
+(a Directory),'key1'|(an Array),3 : 2
+(a Directory),'key1'|(an Array),4 : footer
+(a Directory),'key2'|(an Array),1 : header
+(a Directory),'key2'|(an Array),2 : 5
+(a Directory),'key2'|(an Array),3 : 3
+(a Directory),'key2'|(an Array),4 : -9
+(a Directory),'key2'|(an Array),5 : 12
+(a Directory),'key2'|(an Array),6 : footer
+(a Directory),'key3'|(an Array),1 : header
+(a Directory),'key3'|(an Array),2 : 4
+(a Directory),'key3'|(an Array),3 : 6
+(a Directory),'key3'|(an Array),4 : 5
+(a Directory),'key3'|(an Array),5 : footer
+
+
+-- The datas without the headers and footers
+   datas~pipe(.inject {value} memorize | .drop first {index["inject"]~value } | .drop last {index["inject"]~value } | .console)
+(a Directory),'key1'|(an Array),2 : 1
+(a Directory),'key1'|(an Array),3 : 2
+(a Directory),'key2'|(an Array),2 : 5
+(a Directory),'key2'|(an Array),3 : 3
+(a Directory),'key2'|(an Array),4 : -9
+(a Directory),'key2'|(an Array),5 : 12
+(a Directory),'key3'|(an Array),2 : 4
+(a Directory),'key3'|(an Array),3 : 6
+(a Directory),'key3'|(an Array),4 : 5
+
+
+-- No partition here, so the whole set of words is written twice, separated by "==="
+   .array~of("one two three","un deux trois")~pipe(.words | .buffer[2, "==="] | .console)
+(an Array),1 : one
+(an Array),1 : two
+(an Array),1 : three
+(an Array),2 : un
+(an Array),2 : deux
+(an Array),2 : trois
+===
+(an Array),1 : one
+(an Array),1 : two
+(an Array),1 : three
+(an Array),2 : un
+(an Array),2 : deux
+(an Array),2 : trois
+
+
+-- There is a partition on the strings received by .words, so there is a separator "===" between each set of words extracted from each string
+   .array~of("one two three","un deux trois")~pipe(.words mem | .buffer[2, "==="] {index["words"]~value} | .console)
+(an Array),1|'one two three',1 : one
+(an Array),1|'one two three',2 : two
+(an Array),1|'one two three',3 : three
+===
+(an Array),1|'one two three',1 : one
+(an Array),1|'one two three',2 : two
+(an Array),1|'one two three',3 : three
+===
+(an Array),2|'un deux trois',1 : un
+(an Array),2|'un deux trois',2 : deux
+(an Array),2|'un deux trois',3 : trois
+===
+(an Array),2|'un deux trois',1 : un
+(an Array),2|'un deux trois',2 : deux
+(an Array),2|'un deux trois',3 : trois
+
+
+-- ----------------------------------------------------------------------------
+-- .fanout, .fanin, .merge pipeStages
+-- ----------------------------------------------------------------------------
+
+-- Here, only the output from fanout1 is sent to console.
+   fanout1 = .left[3]  mem | .lower mem
+   fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after
+   .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1 | .console showTags)
+source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower['aaa'] : aaa
+source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC'] : ccc
+source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe'] : eee
+
+
+-- Here, each branch of the fanout remains separated. Each branch has its own console.
+   fanout1 = .left[3]  mem | .lower mem | .console showTags
+   fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .console showTags
+   .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower['aaa'] : aaa
+source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB'] : BBB
+source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB'] : my_BBB
+source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC'] : ccc
+source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd'] : DDD
+source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd'] : my_DDD
+source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe'] : eee
+source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : FFF
+source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : my_FFF
+
+
+-- Here, a fanin is used to serialize the branches of the fanout.
+-- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
+   fanin = .fanin mem | .console showTags
+   fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
+   fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~secondaryConnector -- bufferized until fanout1 is eof
+   .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|fanin[i2] : aaa
+source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|fanin['ccc'] : ccc
+source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|fanin['eee'] : eee
+source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|fanin[i2] : BBB
+source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|fanin['my_BBB'] : my_BBB
+source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['DDD'] : DDD
+source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['my_DDD'] : my_DDD
+source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['FFF'] : FFF
+source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['my_FFF'] : my_FFF
+
+-- Here, a merge is used to serialize the branches of the fanout.
+-- The output from fanout1 is sent to console, then the output from fanout2
+   merge = .merge mem | .console showTags
+   fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
+   fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized
+   .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|merge[i2] : aaa
+source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|merge[i2] : BBB
+source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|merge['my_BBB'] : my_BBB
+source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|merge['ccc'] : ccc
+source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|merge['DDD'] : DDD
+source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|merge['my_DDD'] : my_DDD
+source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|merge['eee'] : eee
+source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['FFF'] : FFF
+source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my_FFF'] : my_FFF
+
+
+-- ----------------------------------------------------------------------------
+-- .fileTree pipeStage
+-- ----------------------------------------------------------------------------
 
 -- The *.cls files of ooRexx
-installdir()~pipe(,
-    .fileTree recursive |,
-    .select {filespec('e', value~name) == 'cls'} |,
-    .console,
-    )
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|32 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|115 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|133 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|143 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|150 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|152 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|242 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|251 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|280 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|281 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|289 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .console,
+       )
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls
+
+
+-- Total number of lines in the *.cls files of ooRexx
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles | .lineCount |,
+       .console,
+       )
+14181
+
+
+-- Number of lines in each *.cls files of ooRexx
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles memorize | .lineCount {index["getFiles"]~value} |,
+       .console,
+       )
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) : 490
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls) : 236
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) : 8325
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls) : 39
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls) : 39
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) : 208
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls) : 1971
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls) : 56
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls) : 416
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls) : 884
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) : 409
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 1108
+
+
+-- Total number of words in the *.cls files of ooRexx
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles | .wordCount |,
+       .console,
+       )
+63603
+
+
+-- Number of words in each *.cls files of ooRexx
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles memorize | .wordCount {index["getFiles"]~value} |,
+       .console,
+       )
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) : 2105
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls) : 955
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) : 38007
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls) : 337
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls) : 337
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) : 875
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls) : 7489
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls) : 397
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls) : 1665
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls) : 4593
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) : 1660
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 5183
+
+
+-- Total number of characters in the *.cls files of ooRexx (not counting the newline characters)
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles | .charCount |,
+       .console,
+       )
+535151
+
+
+-- Number of characters in each *.cls files of ooRexx (not counting the newline characters)
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles memorize | .charCount {index["getFiles"]~value} |,
+       .console,
+       )
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) : 24470
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\mime.cls) : 11208
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) : 304785
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodPlain.cls) : 2985
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\oodWin32.cls) : 2985
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) : 7948
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxftp.cls) : 62044
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxregexp.cls) : 3433
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\smtp.cls) : 18247
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\socket.cls) : 43889
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls) : 18066
+(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 35091
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
 -- The performances are impacted because the profiled methods are instrumented with an additional forward.
-.pipeProfiler~instrument("start", "process", "eof", "isEOP")
+   .pipeProfiler~instrument("start", "process", "eof", "isEOP")
 
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
---     .take 2 {index[3]}
--- Here, index[3] is the name of the file.
+--     .take 2 {index["getFiles"]~value}
+-- Here, the partition expression returns the file object processed by the pipeStage "getFiles".
 -- Exemple of result :
 -- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
 -- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
@@ -712,25 +1252,25 @@ d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336 : d:\local\Rexx\ooRexx\
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
-installdir()~pipeProfile(,
-    .fileTree recursive |,
-    .select {filespec('e', value~name) == 'cls'} |,
-    .getFiles | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index[3]} | .sort caseless | .console,
-    )
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|70|2 : disconnectEvents
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|71|2 : getSystemMetrics
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|64|2 : headerLineAbsent
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|289|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls|52|5 : InputOutputStream
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|133|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls|94|2 : isAtLeastWindows7
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|32|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls|63|2 : originalRawHeaders
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|152|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls|71|2 : removeEventHandler
-d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|188|2 : WindowsProgramManager
+   installdir()~pipeProfile(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
+       .take 2 {index["getFiles"]~value} | .sort caseless | .console,
+       )
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls),250 : DeleteDesktopIcon
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls),70 : disconnectEvents
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls),71 : getSystemMetrics
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls),64 : headerLineAbsent
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls),52 : InputOutputStream
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls),94 : isAtLeastWindows7
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls),63 : originalRawHeaders
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls),71 : removeEventHandler
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls),188 : WindowsProgramManager
 ----------------------------------------
 .fileTree~go
   .fileTree~EOF count=1 duration=0
-    .select~EOF count=1 duration=0
+    .endsWith~EOF count=1 duration=0
       .getFiles~EOF count=1 duration=0
         .words~EOF count=1 duration=0
           .select~EOF count=1 duration=0
@@ -739,32 +1279,31 @@ d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\sv
                 .console~EOF count=1 duration=0
                 .console~ISEOP count=18 duration=0
                 .console~PROCESS count=9 duration=0
-  .fileTree~ISEOP count=2 duration=0
-  .fileTree~PROCESS count=1 duration=8.250000
-    .select~ISEOP count=1242 duration=0
-    .select~PROCESS count=621 duration=7.922000
+  .fileTree~PROCESS count=1 duration=8.828000
+    .endsWith~ISEOP count=1242 duration=0
+    .endsWith~PROCESS count=621 duration=8.467000
       .getFiles~ISEOP count=633 duration=0
-      .getFiles~PROCESS count=12 duration=7.765000
+      .getFiles~PROCESS count=12 duration=8.451000
         .words~ISEOP count=28386 duration=0
-        .words~PROCESS count=14181 duration=6.946000
-          .select~ISEOP count=141387 duration=0.063000
-          .select~PROCESS count=63603 duration=3.558000
-            .take~ISEOP count=63974 duration=0.094000
-            .take~PROCESS count=371 duration=0.077000
+        .words~PROCESS count=14181 duration=7.564000
+          .select~ISEOP count=141387 duration=0.202000
+          .select~PROCESS count=63603 duration=3.916000
+            .take~ISEOP count=63974 duration=0.092000
+            .take~PROCESS count=371 duration=0.032000
               .sort~ISEOP count=380 duration=0
               .sort~PROCESS count=9 duration=0
-  .fileTree~START count=1 duration=0.015000
-    .select~START count=1 duration=0.015000
-      .getFiles~START count=1 duration=0.015000
-        .words~START count=1 duration=0.015000
-          .select~START count=1 duration=0.015000
+  .fileTree~START count=1 duration=0
+    .endsWith~START count=1 duration=0
+      .getFiles~START count=1 duration=0
+        .words~START count=1 duration=0
+          .select~START count=1 duration=0
             .take~START count=1 duration=0
               .sort~START count=1 duration=0
                 .console~START count=1 duration=0
-duration=8.265000
+duration=8.828000
 ----------------------------------------
 
 
-say installdir() ; say
+   say installdir() ; say
 d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/
 
