@@ -28,10 +28,12 @@ tag1['a',1,2,3,4]|tag2['a',1,2]
 
 
 -- Representation : the objects other than strings are surrounded by round brackets.
+-- When showTags is .true then a tag class#id is inserted before the representation of objects. 
+-- The id is a short id (starts from 1, incremented for each new instance of the same class in the index).
    i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(22222), .file~new("my file"))
    say i3 ; say i3~makeString(.true)
 'a',1,2,3,4|'a',1,2|(22222),(my file)
-tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[(22222),(my file)]
+tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[MutableBuffer#1(22222),File#1(my file)]
 
 
 -- showPool=.true : when a value (other than numbers) appears several times then it is replaced by a reference to the first occurence of the value.
@@ -43,6 +45,18 @@ tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[(22222),(my file)]
    say i4 ; say i4~makeString(.false, .true)
 'a',1,2,3,4|'a',1,2|(22222),(my file)|(my file),(22222)
 i1='a',1,2,3,4|i1,1,2|(22222),i2=(my file)|i2,(22222)
+
+
+-- The 'makeString' method has more arguments :
+--     localMask : which local indexes to include ("" means all). Ex : "2 3".
+--     showNested : if .false then the nested index is not included.
+-- The convenience method 'show' lets select the local indexes to include in the representation
+-- while providing default values for the other parameters : 
+-- ~show(localMask) <==> ~makeString(.false, .false, localMask, .false)
+   say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in show argument not significant
+'a',1,2,3,4|'a',1,2|(22222),(my file)|(my file),(22222)
+tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[MutableBuffer#1(22222),File#1(my file)]|tag4[File#1(my file),MutableBuffer#2(22222)]
+'a',2
 
 
 -- ----------------------------------------------------------------------------
@@ -57,6 +71,11 @@ i1='a',1,2,3,4|i1,1,2|(22222),i2=(my file)|i2,(22222)
 
 
 -- By default, the tags are not shown, use the option showTags.
+-- showTags is interpreted as the string "SHOWTAGS" because no value assigned.
+-- If showTags was a variable with an assigned value, then you should use explicitely the string "showTags" (caseless).
+-- Other options supported by .console : index, value
+-- The string "INDEX" (caseless) is replaced by the result of {index~makeString).
+-- The string "VALUE" (caseless) is replaced by the result of {value~string}.
    "hello"~pipe(.console showTags)
 source['hello',1] : hello
 
@@ -68,9 +87,9 @@ source['hello',1] : hello
 (an Array),2 : 20
 (an Array),3 : 30
    .array~of(10,20,30)~pipe(.console showTags)
-source[(an Array),1] : 10
-source[(an Array),2] : 20
-source[(an Array),3] : 30
+source[Array#1(an Array),1] : 10
+source[Array#1(an Array),2] : 20
+source[Array#1(an Array),3] : 30
 
 
 -- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazy).
@@ -84,9 +103,9 @@ HELLO
 (a Coactivity),2 : b
    {::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console showTags)
 HELLO
-source[(a Coactivity),1] : a
+source[Coactivity#1(a Coactivity),1] : a
 HELLO
-source[(a Coactivity),2] : b
+source[Coactivity#1(a Coactivity),2] : b
 
 
 -- ----------------------------------------------------------------------------
@@ -127,6 +146,12 @@ source[(a Coactivity),2] : b
 -- stage1 >> stage2
 -- Connects the secondary output of stage1 to the primary input of stage2
 -- Here, the result is not what you expect. You want "LLO", you get "he"...
+-- This is because .console is the primary follower of .left, not the primary
+-- follower of .upper.
+-- Why ? because the pipestage returned by .left[2] >> .upper is .left,
+-- and .console is attached to the pipestage found by starting from .left
+-- and walking through the 'next' references until a pipestage with no 'next'
+-- is found. So .upper is not walked though, because it's a secondary follower.
    "hello"~pipe(.left[2] >> .upper | .console)
 'hello',1 : he
 
@@ -135,7 +160,8 @@ source[(a Coactivity),2] : b
 'hello',1 : he
 
 
--- ...You need additional parentheses to get the expected behavior
+-- ...You need additional parentheses to get the expected behavior.
+-- Here, .console is the primary follower of .upper.
    "hello"~pipe(.left[2] >> ( .upper | .console ) )
 'hello',1 : LLO
 
@@ -288,21 +314,21 @@ source[i1='48656c6c6f',1]|x2c[i1] : Hello
 
 
    .array~of("a", "", "b", , "c", , "", "d")~pipe(.dropNull mem | .console showTags)
-source[(an Array),1]|dropNull['a'] : a
-source[(an Array),3]|dropNull['b'] : b
-source[(an Array),5]|dropNull['c'] : c
-source[(an Array),8]|dropNull['d'] : d
+source[Array#1(an Array),1]|dropNull['a'] : a
+source[Array#1(an Array),3]|dropNull['b'] : b
+source[Array#1(an Array),5]|dropNull['c'] : c
+source[Array#1(an Array),8]|dropNull['d'] : d
 
 
    .array~of("header", 1, 2 ,3 , "footer")~pipe(,
        .drop first mem >> .console showTags "secondary of drop first :" index ":" value |,
        .drop last mem >> .console showTags "secondary of drop last :" index ":" value |,
        .console showTags "primary:" index ":" value) -- Remove header and footer
-secondary of drop first : source[(an Array),1]|drop['header'] : header 
-primary: source[(an Array),2]|drop[1]|drop[1] : 1 
-primary: source[(an Array),3]|drop[2]|drop[2] : 2 
-primary: source[(an Array),4]|drop[3]|drop[3] : 3 
-secondary of drop last : source[(an Array),5]|drop[i1='footer']|drop[i1] : footer 
+secondary of drop first : source[Array#1(an Array),1]|drop['header'] : header 
+primary: source[Array#1(an Array),2]|drop[1]|drop[1] : 1 
+primary: source[Array#1(an Array),3]|drop[2]|drop[2] : 2 
+primary: source[Array#1(an Array),4]|drop[3]|drop[3] : 3 
+secondary of drop last : source[Array#1(an Array),5]|drop[i1='footer']|drop[i1] : footer 
 
 
 -- ----------------------------------------------------------------------------
@@ -321,16 +347,16 @@ value=3 index=(an Array),5
 --     value is the processed value.
 --     resultIndex is the index of the current result calculated with value.
 -- Here, only one result is calculated for a value, so resultIndex is always 1.
-   .array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
-(an Array),1 : 2
-(an Array),3 : 4
-(an Array),5 : 6
+   .array~of(1, , 2, , 3)~pipe(.do {return 2*value} mem | .console)
+(an Array),1|1,1 : 2
+(an Array),3|2,1 : 4
+(an Array),5|3,1 : 6
 
 
 -- Inject a value for each item (the returned value is injected after the input value).
 -- Use the default index.
--- Index, 1st column : index of the values in the array on entry (1, 3, 5)
--- Index, 2nd column and 3rd column : pair (value, resultIndex)
+-- Index, 1st part : index of the values in the array on entry (1, 3, 5)
+-- Index, 2nd part : pair (value, resultIndex)
    .array~of(1, , 2, , 3)~pipe(.inject {value*10} memorize after | .console)
 (an Array),1|1,1 : 1
 (an Array),1|1,1 : 10
@@ -345,6 +371,9 @@ value=3 index=(an Array),5
 -- Two helpers are available for user-defined indexes :
 -- .index_value : the first arg is the index, the second arg is the value.
 -- .value_index : the first arg is the value, the second arg is the index.
+-- Note : This user-defined index is used only for the values calculated by .inject (10, 20, 30).
+--        The input values always have an index equal to 1 (1st line, 3rd line, 5th line).
+--        It's like getting a single result from the input value (result == value, index == 1).
    .array~of(1, , 2, , 3)~pipe(.inject {.index_value~of(value, value*10)} memorize after | .console)
 (an Array),1|1,1 : 1
 (an Array),1|1,1 : 10
@@ -370,10 +399,15 @@ value=3 index=(an Array),5
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
 -- The index is user-defined, and it's an array : each item in the index array becomes a local index.
+-- Ex: the last two lines are 
+-- (an Array),5|3,1,2,4 : 30
+-- (an Array),5|3,2,2,4 : 60
+-- From the 5th item of the input array (value=3), 2 values have been injected (30 with index 1, 60 with index 2).
+-- A user-defined index has been appended to the default index : (2,4) which is (value-1, value+1).
    .array~of(1, , 2, , 3)~pipe(.inject {
        .index_value~of(                              -
-           .array~of(value-1, value+1),    /*index*/ -
-           .array~of(value*10, value*20)   /*value*/ -
+           .array~of(value-1, value+1),    /*index : made of several values, each value being a local index*/ -
+           .array~of(value*10, value*20)   /*values : two values will be injected*/ -
            )
        } memorize after | .console)
 (an Array),1|1,1 : 1
@@ -418,8 +452,8 @@ value=3 index=(an Array),5
 -- Same as previous example, but here, the recursive.memorize option is used.
 -- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
 -- Ex : the last line is
--- an Array,5|3,1|90,1|2700,1 : 81000
--- The item at index 5 in input array has generated 3 pairs by recursion : (3,1) then (90,1) then (2700,1)
+-- (an Array),5|3,1|90,1|2700,1 : 81000
+-- The item at index 5 in input array has generated 3 intermediate pairs by recursion : (3,1) then (90,1) then (2700,1)
    .array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0.memorize | .console)
 (an Array),1|1,1 : 10
 (an Array),3|2,1 : 20
@@ -466,34 +500,34 @@ value=3 index=(an Array),5
 -- ----------------------------------------------------------------------------
 
 -- Select files in the installation directory, whose path contains "math" , sorted by file size.
--- The "length" message is sent to the value.
+-- The "length" message is sent to the value and the returned result is used as a key for sorting.
    .file~new(installdir())~listFiles~pipe(,
        .all["math"] caseless |,
        .sortWith[.MessageComparator~new("length/N")] |,
-       .console,
+       .console index ":" value {"length="value~length},
        )
-(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp
-(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib
-(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj
-(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj
-(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj
-(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map
-(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll
+(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp length=886 
+(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib length=1728 
+(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj length=22859 
+(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj length=53776 
+(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj length=55813 
+(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map length=76043 
+(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll length=139776 
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
    .file~new(installdir())~listFiles~pipe(,
        .all["math"] caseless |,
        .sort {value~length} |,
-       .console,
+       .console index ":" value {"length="value~length},
        )
-(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp
-(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib
-(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj
-(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj
-(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj
-(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map
-(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll
+(an Array),244 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp length=886 
+(an Array),245 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib length=1728 
+(an Array),247 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj length=22859 
+(an Array),121 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj length=53776 
+(an Array),120 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj length=55813 
+(an Array),246 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map length=76043 
+(an Array),243 : d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll length=139776 
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
@@ -891,7 +925,11 @@ i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1|(a
 -- ----------------------------------------------------------------------------
 
 -- The .append pipeStage copies items from its primary input to its primary output, and then invokes
--- the supplier passed as argument and writes the items produced by that supplier to its primary output.
+-- the producer passed as argument and writes the items produced by that producer to its primary output.
+-- If the producer is a doer, then the producer is executed to get the effective producer.
+-- If the effective producer understands the message "supplier" then each pair (value, index) returned
+-- by the supplier is appended.
+-- Otherwise, the effective producer is appended as-is (single object) with local index 1.
    supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
    supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
@@ -1064,24 +1102,24 @@ i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1|(a
    fanout1 = .left[3]  mem | .lower mem
    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1 | .console showTags)
-source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower['aaa'] : aaa
-source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC'] : ccc
-source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe'] : eee
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower['aaa'] : aaa
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC'] : ccc
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe'] : eee
 
 
 -- Here, each branch of the fanout remains separated. Each branch has its own console.
    fanout1 = .left[3]  mem | .lower mem | .console showTags
    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .console showTags
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
-source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower['aaa'] : aaa
-source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB'] : BBB
-source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB'] : my_BBB
-source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC'] : ccc
-source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd'] : DDD
-source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd'] : my_DDD
-source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe'] : eee
-source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : FFF
-source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : my_FFF
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower['aaa'] : aaa
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB'] : BBB
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB'] : my_BBB
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC'] : ccc
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd'] : DDD
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd'] : my_DDD
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe'] : eee
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : FFF
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : my_FFF
 
 
 -- Here, a fanin is used to serialize the branches of the fanout.
@@ -1090,31 +1128,31 @@ source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF'] : my_FFF
    fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~secondaryConnector -- bufferized until fanout1 is eof
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
-source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|fanin[i2] : aaa
-source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|fanin['ccc'] : ccc
-source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|fanin['eee'] : eee
-source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|fanin[i2] : BBB
-source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|fanin['my_BBB'] : my_BBB
-source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['DDD'] : DDD
-source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['my_DDD'] : my_DDD
-source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['FFF'] : FFF
-source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['my_FFF'] : my_FFF
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|fanin[i2] : aaa
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|fanin['ccc'] : ccc
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|fanin['eee'] : eee
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|fanin[i2] : BBB
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|fanin['my_BBB'] : my_BBB
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['DDD'] : DDD
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['my_DDD'] : my_DDD
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['FFF'] : FFF
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['my_FFF'] : my_FFF
 
 -- Here, a merge is used to serialize the branches of the fanout.
--- The output from fanout1 is sent to console, then the output from fanout2
+-- There is no specific order (no delay).
    merge = .merge mem | .console showTags
    fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized
    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
-source[(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|merge[i2] : aaa
-source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|merge[i2] : BBB
-source[(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|merge['my_BBB'] : my_BBB
-source[(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|merge['ccc'] : ccc
-source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|merge['DDD'] : DDD
-source[(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|merge['my_DDD'] : my_DDD
-source[(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|merge['eee'] : eee
-source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['FFF'] : FFF
-source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my_FFF'] : my_FFF
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|merge[i2] : aaa
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|merge[i2] : BBB
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|merge['my_BBB'] : my_BBB
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|merge['ccc'] : ccc
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|merge['DDD'] : DDD
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|merge['my_DDD'] : my_DDD
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|merge['eee'] : eee
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['FFF'] : FFF
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my_FFF'] : my_FFF
 
 
 -- ----------------------------------------------------------------------------
@@ -1279,17 +1317,17 @@ source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my_FFF'] 
                 .console~EOF count=1 duration=0
                 .console~ISEOP count=18 duration=0
                 .console~PROCESS count=9 duration=0
-  .fileTree~PROCESS count=1 duration=8.828000
+  .fileTree~PROCESS count=1 duration=8.953000
     .endsWith~ISEOP count=1242 duration=0
-    .endsWith~PROCESS count=621 duration=8.467000
+    .endsWith~PROCESS count=621 duration=8.593000
       .getFiles~ISEOP count=633 duration=0
-      .getFiles~PROCESS count=12 duration=8.451000
-        .words~ISEOP count=28386 duration=0
-        .words~PROCESS count=14181 duration=7.564000
-          .select~ISEOP count=141387 duration=0.202000
-          .select~PROCESS count=63603 duration=3.916000
-            .take~ISEOP count=63974 duration=0.092000
-            .take~PROCESS count=371 duration=0.032000
+      .getFiles~PROCESS count=12 duration=8.578000
+        .words~ISEOP count=28386 duration=0.015000
+        .words~PROCESS count=14181 duration=7.628000
+          .select~ISEOP count=141387 duration=0.264000
+          .select~PROCESS count=63603 duration=3.482000
+            .take~ISEOP count=63974 duration=0.093000
+            .take~PROCESS count=371 duration=0.030000
               .sort~ISEOP count=380 duration=0
               .sort~PROCESS count=9 duration=0
   .fileTree~START count=1 duration=0
@@ -1300,7 +1338,7 @@ source[(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my_FFF'] 
             .take~START count=1 duration=0
               .sort~START count=1 duration=0
                 .console~START count=1 duration=0
-duration=8.828000
+duration=8.953000
 ----------------------------------------
 
 

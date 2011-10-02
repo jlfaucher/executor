@@ -4028,7 +4028,9 @@ RexxInstruction *RexxSource::instruction()
             // "symbol == expr" is considered an error
             if (second->subclass == OPERATOR_STRICT_EQUAL)
             {
-                syntaxError(Error_Invalid_expression_general, second);
+                // With implicit return, an expression like value==1 is quite common, and not an error.
+                // So, next line deactivated...
+                // syntaxError(Error_Invalid_expression_general, second);
             }
             // true assignment instruction?
             if (second->subclass == OPERATOR_EQUAL)
@@ -4105,9 +4107,15 @@ RexxInstruction *RexxSource::instruction()
 
         firstToken();                  /* reset to the first token          */
         _first = nextToken();          /* get the first token again         */
+        {
+            size_t mark = markPosition();
+            second = nextToken();
+            resetPosition(mark);
+        }
                                        /* is first a symbol that matches a  */
                                        /* defined REXX keyword?             */
-        if (_first->isSymbol() && (_keyword = this->keyword(_first)))
+                                       /* Not a keyword if the symbol is followed by a left paren (it's a function call) */
+        if (_first->isSymbol() && (second->classId != TOKEN_LEFT) && (_keyword = this->keyword(_first)))
         {
 
             switch (_keyword)

@@ -1,0 +1,681 @@
+
+-- --------------------------------------------------------------
+-- Message sending
+-- --------------------------------------------------------------
+
+-- A string is a message name
+
+-- Reduce
+-- The messages like "+" "-" etc. take two arguments, so you can't use the "indexed" option.
+--   arg(1) : accumulated result
+--   arg(2) : current item of collection
+--   arg(3) : current index of collection (passed if option "indexed" is used)
+
+-- initial value is the first item (default)
+   .Array~of(1,2,3,4)~reduce("+")~dump2
+[10]
+
+
+-- initial value is 100
+   .Array~of(1,2,3,4)~reduce(100, "+")~dump2
+[110]
+
+
+   .Array~of(1,2,3,4)~reduce("*")~dump2
+[24]
+
+
+   .List~of(1,2,3,4)~reduce("+")~dump2
+[10]
+
+
+   .List~of(1,2,3,4)~reduce(100, "+")~dump2
+[110]
+
+
+   .List~of(1,2,3,4)~reduce("*")~dump2
+[24]
+
+
+   .Queue~of(1,2,3,4)~reduce("+")~dump2
+[10]
+
+
+   .Queue~of(1,2,3,4)~reduce(100, "+")~dump2
+[110]
+
+
+   .Queue~of(1,2,3,4)~reduce("*")~dump2
+[24]
+
+
+   .CircularQueue~of(1,2,3,4)~reduce("+")~dump2
+[10]
+
+
+   .CircularQueue~of(1,2,3,4)~reduce(100, "+")~dump2
+[110]
+
+
+   .CircularQueue~of(1,2,3,4)~reduce("*")~dump2
+[24]
+
+
+-- initial value is the first char (default)
+   123~reduceChar("+")~dump2
+[6]
+
+
+-- initial value is 100
+   123~reduceChar(100, "+")~dump2
+[106]
+
+
+   123~reduceChar("min")~dump2
+[1]
+
+
+   123~reduceChar("max")~dump2
+[3]
+
+
+-- initial value is the first word (default)
+   "10 20 30"~reduceWord("+")~dump2
+[60]
+
+
+-- initial value is 100
+   "10 20 30"~reduceWord(100, "+")~dump2
+[160]
+
+
+   .Array~of(1,2,3,4)~map("-")~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[-2]
+    # 3: index=[3] -> item=[-3]
+    # 4: index=[4] -> item=[-4]
+--------------------------------------------------
+
+
+   .List~of(1,2,3,4)~map("-")~dump2
+type: The List class: (4 items)
+
+    # 1: index=[0] -> item=[-1]
+    # 2: index=[1] -> item=[-2]
+    # 3: index=[2] -> item=[-3]
+    # 4: index=[3] -> item=[-4]
+--------------------------------------------------
+
+
+   .Queue~of(1,2,3,4)~map("-")~dump2
+type: The Queue class: (4 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[-2]
+    # 3: index=[3] -> item=[-3]
+    # 4: index=[4] -> item=[-4]
+--------------------------------------------------
+
+
+   .CircularQueue~of(1,2,3,4)~map("-")~dump2 
+type: The CircularQueue class: (4 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[-2]
+    # 3: index=[3] -> item=[-3]
+    # 4: index=[4] -> item=[-4]
+--------------------------------------------------
+
+
+   "abcdefghijklmnopqrstuvwxyz"~mapChar("1-")~dump2
+[`abcdefghijklmnopqrstuvwxy]
+
+
+   .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapChar("1+")~dump2
+[bcdefghijklmnopqrstuvwxyz{ id#_267046739]
+
+
+   "The quick brown fox jumps over the lazy dog"~mapWord("length")~dump2
+[3 5 5 3 5 4 3 4 3]
+
+
+   .MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapWord("length")~dump2
+[3 5 5 3 5 4 3 4 3 id#_267025579]
+
+
+-- In place mapping
+   array = .Array~of(-1,2,-3,4)
+   array~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[-3]
+    # 4: index=[4] -> item=[4]
+--------------------------------------------------
+   array~map("inplace", "sign")~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[1]
+    # 3: index=[3] -> item=[-1]
+    # 4: index=[4] -> item=[1]
+--------------------------------------------------
+   array~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[1]
+    # 3: index=[3] -> item=[-1]
+    # 4: index=[4] -> item=[1]
+--------------------------------------------------
+
+
+-- In place mapping (this is the default for MutableBuffer)
+   buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
+   buffer~dump2
+[abcdefghijklmnopqrstuvwxyz id#_266855810]
+   buffer~mapChar("1+")~dump2
+[bcdefghijklmnopqrstuvwxyz{ id#_266855810]
+   buffer~dump2
+[bcdefghijklmnopqrstuvwxyz{ id#_266855810]
+
+
+-- You can explicitely request not inplace mapping
+   buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
+   buffer~dump2
+[abcdefghijklmnopqrstuvwxyz id#_266866800]
+   buffer~mapChar("\inplace", "1+")~dump2
+[bcdefghijklmnopqrstuvwxyz{ id#_266869592]
+   buffer~dump2
+[abcdefghijklmnopqrstuvwxyz id#_266866800]
+
+
+-- --------------------------------------------------------------
+-- Routine calling
+-- --------------------------------------------------------------
+
+-- A literal source is a routine source by default
+
+-- Reduce :
+--   arg(1) : accumulated result
+--   arg(2) : current item of collection
+--   arg(3) : current index of collection (passed if option "indexed" is used)
+
+-- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+   .Array~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[65]
+
+
+-- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+   .Array~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[66]
+
+
+   .List~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[63]
+
+
+   .List~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump
+63
+
+
+   .Queue~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[65]
+
+
+   .Queue~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[66]
+
+
+   .CircularQueue~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[65]
+
+
+   .CircularQueue~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+[66]
+
+
+-- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+   "10 20 30"~reduceWord(, "ind"){arg(1) + arg(2) + arg(3)}
+
+
+-- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+   "10 20 30"~reduceWord(0, "ind"){arg(1) + arg(2) + arg(3)}
+
+
+-- Map :
+--   arg(1) : current item of collection
+--   arg(2) : current index of collection (passed if option "indexed" is used)
+
+   .Array~of(1,2,3,4)~map{arg(1) * 2}~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[8]
+--------------------------------------------------
+
+
+   .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------
+
+
+   .List~of(1,2,3,4)~map{arg(1) * 2}~dump2
+type: The List class: (4 items)
+
+    # 1: index=[0] -> item=[2]
+    # 2: index=[1] -> item=[4]
+    # 3: index=[2] -> item=[6]
+    # 4: index=[3] -> item=[8]
+--------------------------------------------------
+
+
+   .List~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+type: The List class: (4 items)
+
+    # 1: index=[0] -> item=[1]
+    # 2: index=[1] -> item=[2]
+    # 3: index=[2] -> item=[6]
+    # 4: index=[3] -> item=[24]
+--------------------------------------------------
+
+
+   .Queue~of(1,2,3,4)~map{arg(1) * 2}~dump2
+type: The Queue class: (4 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[8]
+--------------------------------------------------
+
+
+   .Queue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+type: The Queue class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------
+
+
+   .CircularQueue~of(1,2,3,4)~map{arg(1) * 2}~dump2
+type: The CircularQueue class: (4 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[8]
+--------------------------------------------------
+
+
+   .CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+type: The CircularQueue class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------
+
+
+   "abcdefghijklmnopqrstuvwxyz"~mapChar{arg(1)~verify('aeiouy')}~dump2
+[01110111011111011111011101]
+
+
+   .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapChar{if arg(1)~verify('aeiouy') == 1 then arg(1) ; else ''}~dump2
+[bcdfghjklmnpqrstvwxz id#_266489022]
+
+
+-- Filtering (if no result returned by the doer, then nothing appended)
+   "abcdefghijklmnopqrstuvwxyz"~mapChar{if arg(1)~verify('aeiouy') then arg(1)}~dump2
+[bcdfghjklmnpqrstvwxz]
+
+
+   .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapChar{if arg(1)~verify('aeiouy') == 1 then arg(1)}~dump2
+[bcdfghjklmnpqrstvwxz id#_266216724]
+
+
+   "one two three"~mapWord{if arg(1)~length == 2 then arg(1)}~dump2
+[]
+
+
+   .array~of("one", "two", "three")~map{if arg(1)~length == 2 then arg(1)}~dump2
+type: The Array class: (0 items)
+
+--------------------------------------------------
+
+
+-- index passed as 2nd argument
+   "one two three"~mapWord("ind"){arg(2)":"arg(1)}~dump2
+[1:one 2:two 3:three]
+
+
+-- todo : doesn't work because the variable translation has no value when evaluating the doer : needs a closure
+-- translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
+-- translation~setMethod("UNKNOWN", "arg(1)")
+-- "The quick brown fox jumps over the lazy dog"~mapWord{translation~arg(1)}~dump2
+--.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapWord({expose translation ; translation[arg(1)]}, .false)~dump2
+
+
+-- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
+   .Array~of(1,2,3,4)~map{::routine arg(1) * 2}~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[8]
+--------------------------------------------------
+
+
+   .Array~of(1,2,3,4)~map{::routine use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------
+
+
+-- A routine object can be used directly
+   .Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------
+
+
+-- ~times can act as an array generator : it collects the values returned by the doer
+-- there is no default action (unlike ~upto and ~downto)
+   3~times{0}~dump2
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[0]
+    # 2: index=[2] -> item=[0]
+    # 3: index=[3] -> item=[0]
+--------------------------------------------------
+
+
+   3~times{arg(1)}~dump2
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[3]
+--------------------------------------------------
+
+
+-- returns .nil : no resulting array because no result returned during the iteration
+   say 3~times{say arg(1)} 
+1
+2
+3
+The NIL object
+
+
+-- ~upto can act as an array generator : it collects the values returned by the doer
+-- returns .array~of(11,12,13) because the default action is {arg(1)}
+   11~upto(13)~dump2             
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[11]
+    # 2: index=[2] -> item=[12]
+    # 3: index=[3] -> item=[13]
+--------------------------------------------------
+
+
+-- Note that -1 MUST be surrounded by paren or quotes
+   (-1)~upto(3)~dump2
+type: The Array class: (5 items)
+
+    # 1: index=[1] -> item=[-1]
+    # 2: index=[2] -> item=[0]
+    # 3: index=[3] -> item=[1]
+    # 4: index=[4] -> item=[2]
+    # 5: index=[5] -> item=[3]
+--------------------------------------------------
+
+
+   11~upto(13){2*arg(1)}~dump2
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[22]
+    # 2: index=[2] -> item=[24]
+    # 3: index=[3] -> item=[26]
+--------------------------------------------------
+
+
+-- returns .nil : no resulting array because no result returned during the iteration
+   say 11~upto(13){say arg(1)}
+11
+12
+13
+The NIL object
+
+
+-- ~downto can act as an array generator : it collects the values returned by the doer
+-- returns .array~of(13,12,11) because the default action is {arg(1)}
+   13~downto(11)~dump2
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[13]
+    # 2: index=[2] -> item=[12]
+    # 3: index=[3] -> item=[11]
+--------------------------------------------------
+
+
+   3~upto(-1)~dump2
+*** got an error : Object "The NIL object" does not understand message "DUMP2"
+
+
+   13~downto(11){2*arg(1)}~dump2
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[26]
+    # 2: index=[2] -> item=[24]
+    # 3: index=[3] -> item=[22]
+--------------------------------------------------
+
+
+-- returns .nil : no resulting array because no result returned during the iteration
+   say 13~downto(11){say arg(1)}
+13
+12
+11
+The NIL object
+
+
+-- each : 
+-- The type of generated collection depends on the type of itererated source.
+-- collection --> same type of collection
+-- supplier --> array
+-- coactivity --> array
+
+   .Array~of(1,2,3)~each{2*arg(1)}~dump2
+type: The Array class: (3 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+--------------------------------------------------
+
+
+   .Bag~of(1,2,3)~each{2*arg(1)}~dump2
+type: The Bag class: (3 items)
+
+    # 1: index=[2] -> item=[2]
+    # 2: index=[4] -> item=[4]
+    # 3: index=[6] -> item=[6]
+--------------------------------------------------
+
+
+   .CircularQueue~of(1,2,3)~each{2*arg(1)}~dump2
+type: The CircularQueue class: (3 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+--------------------------------------------------
+
+
+   .Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
+type: The Directory class: (3 items)
+
+    # 1: index=[v1] -> item=[2]
+    # 2: index=[v2] -> item=[4]
+    # 3: index=[v3] -> item=[6]
+--------------------------------------------------
+
+
+   .List~of(1,2,3)~each{2*arg(1)}~dump2
+type: The List class: (3 items)
+
+    # 1: index=[0] -> item=[2]
+    # 2: index=[1] -> item=[4]
+    # 3: index=[2] -> item=[6]
+--------------------------------------------------
+
+
+   .Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
+type: The Properties class: (3 items)
+
+    # 1: index=[v1] -> item=[2]
+    # 2: index=[v2] -> item=[4]
+    # 3: index=[v3] -> item=[6]
+--------------------------------------------------
+
+
+   .Queue~of(1,2,3)~each{2*arg(1)}~dump2
+type: The Queue class: (3 items)
+
+    # 1: index=[1] -> item=[2]
+    # 2: index=[2] -> item=[4]
+    # 3: index=[3] -> item=[6]
+--------------------------------------------------
+
+
+   .Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
+type: The Relation class: (3 items)
+
+    # 1: index=[v1] -> item=[2]
+    # 2: index=[v2] -> item=[4]
+    # 3: index=[v3] -> item=[6]
+--------------------------------------------------
+
+
+   .Set~of(1,2,3)~each{2*arg(1)}~dump2
+type: The Set class: (3 items)
+
+    # 1: index=[2] -> item=[2]
+    # 2: index=[4] -> item=[4]
+    # 3: index=[6] -> item=[6]
+--------------------------------------------------
+
+
+   .Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
+type: The Stem class: (3 items)
+
+    # 1: index=[v1] -> item=[2]
+    # 2: index=[v2] -> item=[4]
+    # 3: index=[v3] -> item=[6]
+--------------------------------------------------
+
+
+   .Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
+type: The Table class: (3 items)
+
+    # 1: index=[v1] -> item=[2]
+    # 2: index=[v2] -> item=[4]
+    # 3: index=[v3] -> item=[6]
+--------------------------------------------------
+
+
+   .IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
+type: The IdentityTable class: (3 items)
+
+    # 1: index=[v1] -> item=[2]
+    # 2: index=[v2] -> item=[4]
+    # 3: index=[v3] -> item=[6]
+--------------------------------------------------
+
+
+-- supplier : the collection generated by ~each is always an array
+   .set~of(1,2,3)~supplier~each{2*arg(1)}
+
+
+-- coactivity : the collection generated by ~each is always an array
+   {::c do i=1 to 3; .yield[i]; end}~doer~each{2*arg(1)}
+
+
+-- --------------------------------------------------------------
+-- Method running
+-- --------------------------------------------------------------
+
+   colors = .Array~of( ,
+       .Color~new("black", "000000") ,,
+       .Color~new("blue",  "0000FF") ,,
+       .Color~new("green", "008000") ,,
+       .Color~new("grey",  "BEBEBE") ,
+       )
+
+
+-- A source can be tagged explicitely as a method (you need that, because it's a routine by default)
+   colors~map{::method self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[0 (0, 0, 0)]
+    # 2: index=[2] -> item=[255 (0, 0, 255)]
+    # 3: index=[3] -> item=[32768 (0, 128, 0)]
+    # 4: index=[4] -> item=[12500670 (190, 190, 190)]
+--------------------------------------------------
+
+
+-- A method object can be used directly
+-- No need to define the method on the receiver class...
+   colors~map(.methods~entry("decimalColor"))~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[0 (0, 0, 0)]
+    # 2: index=[2] -> item=[255 (0, 0, 255)]
+    # 3: index=[3] -> item=[32768 (0, 128, 0)]
+    # 4: index=[4] -> item=[12500670 (190, 190, 190)]
+--------------------------------------------------
+
+
+-- ... except when the method is recursive and recalls itself by name
+   .String~define("factorial", .methods~entry("factorial"))
+   .Array~of(1,2,3,4)~map(.methods~entry("factorial"))~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------
+
+
+-- Here, the method is recursive, but does not recall itself by name
+   .Array~of(1,2,3,4)~map(.methods~entry("factorialExecutable"))~dump2
+type: The Array class: (4 items)
+
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[6]
+    # 4: index=[4] -> item=[24]
+--------------------------------------------------

@@ -8,6 +8,8 @@ To let intercept the messages, the methods to profile must be instrumented
 by calling one of those methods :
 .Profiler~instrumentMethods(myclass, arrayOfMessagesToIntercept)
 .Profiler~instrumentMethod(myclass, message)
+.Profiler~instrumentClassMethods(myclass, arrayOfMessagesToIntercept) -- Not supported by standard ooRexx
+.Profiler~instrumentClassMethod(myclass, message)                     -- Not supported by standard ooRexx
 
 Changes made by the instrumentation :
     ::method myMethod
@@ -29,23 +31,32 @@ Typical usage of the profiler :
     profiler~reportResults(profiler~pull)         -- display the results
 
 Exemple of output :
-.array~of(b, a, c)~pipeProfile(.sort byValue | .console)
-2 : A
-1 : B
-3 : C
+.pipeProfiler~instrument("start", "process", "eof", "isEOP")
+.pipeProfiler~instrumentClassMethods(.pipeIndex, .array~of("create")) -- no effect with standard ooRexx
+(.sort byValue | .console)~go(.array~of(b, a, c), .true) -- standard ooRexx
+.array~of(b, a, c)~pipeProfile(.sort byValue | .console) -- extended ooRexx
+(an Array),2 : A
+(an Array),1 : B
+(an Array),3 : C
 ----------------------------------------
-.SORT~go
-  .SORT~EOF count=1 duration=0
-    .CONSOLE~EOF count=1 duration=0
-    .CONSOLE~ISEOP count=6 duration=0
-    .CONSOLE~PROCESS count=3 duration=0
-  .SORT~ISEOP count=3 duration=0
-  .SORT~PROCESS count=3 duration=0
-  .SORT~START count=1 duration=0
-    .CONSOLE~START count=1 duration=0
-duration=0
+.sort~go
+  .sort~EOF count=1 duration=0.015000
+    .console~EOF count=1 duration=0
+    .console~ISEOP count=6 duration=0
+    .console~PROCESS count=3 duration=0.015000
+  .sort~ISEOP count=6 duration=0
+  .sort~PROCESS count=3 duration=0
+  .sort~START count=1 duration=0
+    .console~START count=1 duration=0
+  .pipeIndex~CREATE count=3 duration=0
+duration=0.015000
 ----------------------------------------
 */
+
+-- To profile class methods, I need to redefine instances methods of classes.
+-- For that, must use setMethod, but setMethod is a private method.
+-- Don't know how to redefine an instance method on any class, unless doing that...
+.Object~define("setMethod1", "forward message('setMethod')") -- No effect with standard ooRexx
 
 ::class Profiler public
 
@@ -82,6 +93,24 @@ duration=0
     newMethod~setProtected
     class~define(message, newMethod)
     class~define(newMessage, method)
+
+::method instrumentClassMethods class
+    use strict arg class, messages
+    do message over messages
+        self~instrumentClassMethod(class, message)
+    end
+
+::method instrumentClassMethod class
+    use strict arg class, message
+    method = object_instanceMethod(class, message)
+    if method == .nil then return -- nothing to do
+    newMessage = message"_unprotected"
+    newMethod = object_instanceMethod(class, newMessage)
+    if newMethod <> .nil then return -- already done
+    newMethod = .Method~new("", "forward message("newMessage")")
+    newMethod~setProtected
+    class~setMethod1(message, newMethod)
+    class~setMethod1(newMessage, method)
 
 ---------- Profiling ------------------
 
@@ -125,7 +154,8 @@ duration=0
     if current == .nil then return
     if level == 0 then self~lineout(self~header)
     self~charout(self~indent~copies(level))
-    self~charout("."current~object~class~id)
+    if current~object~isA(.Class) then self~charout("."current~object~id) -- to rework
+    else self~charout("."current~object~class~id)
     self~charout("~"current~message)
     if current~count <> 0 then do
         self~charout(" count="current~count)
@@ -172,6 +202,16 @@ duration=0
 ::routine class_method -- helper, different from .Class~method, because limited to the methods of the class itself
     use strict arg class, methodName
     supplier = class~methods(.nil)
+    do while supplier~available
+        if supplier~index~caselessEquals(methodName) then return supplier~item
+        supplier~next
+    end
+    return .nil
+
+/******************************************************************************/
+::routine object_instanceMethod -- helper, different from .Object~instanceMethod, because limited to the methods of the object itself
+    use strict arg object, methodName
+    supplier = object~instanceMethods(object)
     do while supplier~available
         if supplier~index~caselessEquals(methodName) then return supplier~item
         supplier~next

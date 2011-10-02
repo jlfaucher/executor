@@ -57,7 +57,7 @@ forward to (self) message("of")
 
 ::method of class
     use strict arg index, value, ...
-    table = .table~new
+    table = .Table~new -- potential problem : .Table is not an ordered collection
     do i = 1 to arg() by 2
         table[arg(i)] = arg(i+1)
     end
@@ -71,7 +71,7 @@ forward to (self) message("of")
 
 ::method of class
     use strict arg value, index, ...
-    table = .table~new
+    table = .Table~new -- potential problem : .Table is not an ordered collection
     do i = 1 to arg() by 2
         table[arg(i+1)] = arg(i)
     end
@@ -87,14 +87,24 @@ forward to (self) message("of")
 
 ::method initOptions
     expose producer
-    use strict arg producer
-    -- if doer then parse now, to detect possible errors before running the pipe.
-    -- "actionDoer" not candidate here, we want a result.
-    -- "functionDoer" : no need of args (called from ~eof, not from ~process).
-    if producer~hasMethod("functionDoer") then producer = producer~functionDoer
-    else if producer~hasMethod("doer") then producer = producer~doer
-    else nop -- will be used as a supplier (if capable) or as a single value
-    -- No need to : forward class (super) arguments (unknown)
+    producer = .nil    
+    unknown = .array~new
+    do a over arg(1, "a")
+        if a~isA(.String) then nop
+        else do
+            if producer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            -- if doer then parse now, to detect possible errors before running the pipe.
+            -- "actionDoer" not candidate here, we want a result.
+            -- "functionDoer" : no need of args (called from ~eof, not from ~process).
+            if a~hasMethod("functionDoer") then producer = a~functionDoer
+            else if a~hasMethod("doer") then producer = a~doer
+            else producer = a -- will be used as a supplier (if capable) or as a single value
+            iterate
+        end
+        unknown~append(a)
+    end
+    if producer == .nil then raise syntax 93.900 array(self~class~id ": No producer specified")
+    forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 
 ::method eof
@@ -275,14 +285,13 @@ self~init:super
         self~processDepthFirstCurrent(doResult, newIndex, stack, level, previousValues)
     end
     else do
+        userDefined = doResult~isA(.Table) -- Will be .true is .index_value or .value_index has been used : a table is returned
         supplier = doResult~supplier
         do while supplier~available, \self~isEOP
             item = supplier~item
-            if \ item~hasMethod("supplier") then do
-                newindex = self~newIndex(index, value, supplier~index)
-                self~processDepthFirstCurrent(item, newindex, stack, level, previousValues)
-            end
-            else do
+            if userDefined & item~hasMethod("supplier") then do
+                -- We are in this case : .inject {.index_value["index", .array~of(...)]}
+                -- The goal is to inject each item of the array
                 supplier2 = item~supplier
                 do while supplier2~available, \self~isEOP
                     item2 = supplier2~item
@@ -290,6 +299,10 @@ self~init:super
                     self~processDepthFirstCurrent(item2, newindex2, stack, level, previousValues)
                     supplier2~next
                 end
+            end
+            else do
+                newindex = self~newIndex(index, value, supplier~index)
+                self~processDepthFirstCurrent(item, newindex, stack, level, previousValues)
             end
             supplier~next
         end
@@ -345,14 +358,13 @@ self~init:super
         self~processBreadthFirstCurrent2(doResult, newIndex, toprocess, stack, level)
     end
     else do
+        userDefined = doResult~isA(.Table) -- Will be .true is .index_value or .value_index has been used : a table is returned
         supplier = doResult~supplier
         do while supplier~available, \self~isEOP
             item = supplier~item
-            if \ item~hasMethod("supplier") then do
-                newindex = self~newIndex(index, value, supplier~index)
-                self~processBreadthFirstCurrent2(item, newindex, toprocess, stack, level)
-            end
-            else do
+            if userDefined & item~hasMethod("supplier") then do
+                -- We are in this case : .inject {.index_value["index", .array~of(...)]}
+                -- The goal is to inject each item of the array
                 supplier2 = item~supplier
                 do while supplier2~available, \self~isEOP
                     item2 = supplier2~item
@@ -360,6 +372,10 @@ self~init:super
                     self~processBreadthFirstCurrent2(item2, newindex2, toprocess, stack, level)
                     supplier2~next
                 end
+            end
+            else do
+                newindex = self~newIndex(index, value, supplier~index)
+                self~processBreadthFirstCurrent2(item, newindex, toprocess, stack, level)
             end
             supplier~next
         end
@@ -446,10 +462,21 @@ self~init:super(.true) -- allow commands
 
 ::method initOptions
     expose doer
-    use strict arg filter
-    -- "actionDoer" not candidate here, we want a result.
-    if filter~hasMethod("functionDoer") then doer = filter~functionDoer("use arg value, index")
-                                        else doer = filter~doer
+    doer = .nil    
+    unknown = .array~new
+    do a over arg(1, "a")
+        if a~isA(.String) then nop
+        else do
+            -- "actionDoer" not candidate here, we want a result.
+            if a~hasMethod("functionDoer") then doer = a~functionDoer("use arg value, index")
+                                           else doer = a~doer
+            iterate
+        end
+        unknown~append(a)
+    end
+    if doer == .nil then raise syntax 93.900 array(self~class~id ": No filter specified")
+    forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
 ::method process
     expose doer
     use strict arg value, index

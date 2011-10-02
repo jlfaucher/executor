@@ -41,6 +41,138 @@ Extension of the message term : keyword and multiple dispatch.
 http://atomo-lang.org/
 http://slatelanguage.org/
 
+Tracer todo :
+Add support for classic trace (without multithread infos).
+The CSV format can be useful for classic trace, because each line has the name of the current executable.
+
+Pipes todo :
+.inject in breadthFirst mode is not limited by the ooRexx callstack size.
+Do the same for depthFirst mode.
+1~pipe(.inject {2*value} rec.869 | .console) is ok, but if you do one more recursion, 
+you get the error "Insufficient control stack space; cannot continue execution"
+No such problem in breadthFirst mode :
+1~pipe(.inject {2*value} rec.100000 | .console) --> last result is 1.99800307E+30103
+
+Pipes todo :
+Add partition support to .stemCollector, .arrayCollector
+For .arrayCollector, the collected values will be arrays.
+For .stemCollector, I don't know.
+Is .stemCollector really needed ? I don't see the added value, compared to .arrayCollector
+
+Pipes todo (maybe)
+.index_value~of and .value_index~of returns a table of user-defined indexed values.
+But a table is not an ordered collection, so the indexed values injected in the pipeline are
+not necessarily in the order given by the user. 
+Could fix that by returning an array of .IndexedValue.
+
+
+===============================================================================
+2011 oct 02
+
+{ooRexx parser]
+
+For good or bad reason, arg(1) at the begining of a clause is recognized as an
+instruction, because arg is a keyword instruction.
+I often use source literals like {arg(1)...} where I want arg(1) to be interpreted
+as a function call. So I decided to change the behavior of the parser to interpret
+as a function call any symbol followed immediatly by a left paren, even if the
+symbol is a keyword instruction.
+
+With implicit return, such an expression is quite common when filtering : value==1
+    .array~of(1,2,1)~pipe(.select {value==1} | .console)
+but the parser raises an error to protect the user against a potential typo error,
+assuming the user wanted to enter : value=1.
+I deactivated this control, now the expression above is ok.
+Yes, it remains a problem (no syntax error, but it's an assignment, not a test) : 
+    .array~of(1,2,1)~pipe(.select {value=1} | .console)
+good point, the lack of returned value is detected, must surround by parentheses
+to make it a real expression.
+    .array~of(1,2,1)~pipe(.select {(value=1)} | .console)
+(an Array),1 : 1
+(an Array),3 : 1
+
+
+[functional]
+
+reduce : added optional initial value
+123~reduceChar("+")                    -- initial value is the first char (default), returns 6
+123~reduceChar(100, "+")               -- initial value is 100, returns 106
+"10 20 30"~reduceWord("+")             -- initial value is the first word (default), returns 60
+"10 20 30"~reduceWord(100, "+")        -- initial value is 100, returns 160
+.array~of(10, 20, 30)~reduce("+")      -- initial value is the first item (default), returns 60
+.array~of(10, 20, 30)~reduce(100, "+") -- initial value is 100, returns 160
+
+reduce : added option "ind[exed]"
+    arg(1) : accumulated result
+    arg(2) : current item of collection
+    arg(3) : current index of collection, passed only if option "ind[exed]" is specified
+"10 20 30"~reduceWord(, "ind"){arg(1) + arg(2) + arg(3)}         -- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+"10 20 30"~reduceWord(0, "ind"){arg(1) + arg(2) + arg(3)}        -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+.array~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}  -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+.array~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+
+map : can act as a filter.
+"one two three"~mapWord{if arg(1)~length == 3 then arg(1)} -- returns "one two"
+
+map : added option "ind[exed]".
+    arg(1) : current item of collection
+    arg(2) : current index of collection, passed only if option "ind[exed]" is specified
+"one two three"~mapWord("ind"){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+
+times : now can act as an array generator.
+3~times{0}          -- returns .array~of(0,0,0)
+3~times{arg(1)}     -- returns .array~of(1,2,3)
+3~times{say arg(1)} -- returns .nil : no resulting array because no result returned during the iteration
+3~times             -- raise an error because the parameter action is mandatory
+
+upto and downto : now can act as an array generator.
+11~upto(13)             -- returns .array~of(11,12,13) because the default action is {arg(1)}
+(-1)~upto(3)            -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
+11~upto(13){2*arg(1)}   -- returns .array~of(22,24,26)
+11~upto(13){say arg(1)} -- returns .nil : no resulting array because no result returned during the iteration
+
+each : can act as a collection generator and a filter.
+The type of generated collection depends on the type of itererated source :
+    collection --> same type of collection
+    supplier --> array
+    coactivity --> array
+.array~of(1,2,3)~each{2*arg(1)}                       -- returns .array~of(2,4,6)
+.set~of(1,2,3)~each{2*arg(1)}                         -- returns .set~of(2,4,6)
+.set~of(1,2,3)~supplier~each{2*arg(1)}                -- returns .array~of(2,4,6)
+{::c do i=1 to 3; .yield[i]; end}~doer~each{2*arg(1)} -- returns .array~of(2,4,6)
+1~upto(20){if arg(1) // 3 == 0 then arg(1)}           -- returns .array~of(3,6,9,12,15,18) -- filter
+
+[pipes]
+
+pipeIndex representation : When using the option 'showTags', a tag class#id is
+inserted before the representation of objects. The id is a short id (starts from 1,
+incremented for each new instance of the same class in the index).
+before : tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[(22222),(my file)]
+now    : tag1['a',1,2,3,4]|tag2['a',1,2]|tag3[MutableBuffer#1(22222),File#1(my file)]
+
+pipeIndex representation : ~makeString takes two additional parameters :
+localMask : which local indexes to include ("" means all). Ex : "2 3".
+showNested : if .false then the nested index is not included.
+
+Added two scripts to illustrate how a pipeline can be used for real scripts :
+grep_sources.rex
+trailing_whitespaces.rex
+
+
+[profiling]
+
+Added support for class methods.
+But that won't work with standard ooRexx, because depends on ~setMethod which is private.
+
+
+[array programming]
+
+Currently investigating this area from several languages : APL, J, F-Script.
+A first consequence was the modification of ~times ~upto ~downto and ~each to make them
+generators of array.
+
+Work in progress in extension/array.cls
+
 
 ===============================================================================
 2011 sep 18

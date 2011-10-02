@@ -283,7 +283,7 @@ The method 'run' is a private method. So can be called only from another method 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class "RexxContextualSourceDoer" mixinclass Object public inherit DoerFactory
+::class "RexxContextualSourceDoer" mixinclass Object public inherit Doer
 
 ::method doer
     use strict arg -- none
@@ -301,7 +301,9 @@ The method 'run' is a private method. So can be called only from another method 
     -- if self~executable <> .nil then return self~executable
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
-    -- try first to parse the source as-is
+    -- try first to parse the source as-is, because of that :
+    -- say {if .true then 2}~functionDoer~do 
+    -- would display "IF 1 THEN 2" if the clause had been transformed to an expression.
     signal on syntax name syntax1
     return self~sourceDoer(clauseBefore, clauseAfter)
     syntax1:

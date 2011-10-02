@@ -29,6 +29,8 @@ say i2 ; say i2~makeString(.true)
 
 
 -- Representation : the objects other than strings are surrounded by round brackets.
+-- When showTags is .true then a tag class#id is inserted before the representation of objects. 
+-- The id is a short id (starts from 1, incremented for each new instance of the same class in the index).
 i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(22222), .file~new("my file"))
 say i3 ; say i3~makeString(.true)
 
@@ -42,6 +44,15 @@ i4 = .pipeIndex~create("tag4", i3, .file~new("my file"), .mutableBuffer~new(2222
 say i4 ; say i4~makeString(.false, .true)
 
 
+-- The 'makeString' method has more arguments :
+--     localMask : which local indexes to include ("" means all). Ex : "2 3".
+--     showNested : if .false then the nested index is not included.
+-- The convenience method 'show' lets select the local indexes to include in the representation
+-- while providing default values for the other parameters : 
+-- ~show(localMask) <==> ~makeString(.false, .false, localMask, .false)
+say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in show argument not significant
+
+
 -- ----------------------------------------------------------------------------
 -- Overview of the sources supported by pipes
 -- ----------------------------------------------------------------------------
@@ -53,6 +64,11 @@ say i4 ; say i4~makeString(.false, .true)
 
 
 -- By default, the tags are not shown, use the option showTags.
+-- showTags is interpreted as the string "SHOWTAGS" because no value assigned.
+-- If showTags was a variable with an assigned value, then you should use explicitely the string "showTags" (caseless).
+-- Other options supported by .console : index, value
+-- The string "INDEX" (caseless) is replaced by the result of {index~makeString).
+-- The string "VALUE" (caseless) is replaced by the result of {value~string}.
 "hello"~pipe(.console showTags)
 
 
@@ -104,13 +120,20 @@ say i4 ; say i4~makeString(.false, .true)
 -- stage1 >> stage2
 -- Connects the secondary output of stage1 to the primary input of stage2
 -- Here, the result is not what you expect. You want "LLO", you get "he"...
+-- This is because .console is the primary follower of .left, not the primary
+-- follower of .upper.
+-- Why ? because the pipestage returned by .left[2] >> .upper is .left,
+-- and .console is attached to the pipestage found by starting from .left
+-- and walking through the 'next' references until a pipestage with no 'next'
+-- is found. So .upper is not walked though, because it's a secondary follower.
 "hello"~pipe(.left[2] >> .upper | .console)
 
 -- Same pipeline as previous, but with methods only
 "hello"~pipe(    (.left~new(2) ~appendSecondary(.upper~new))    ~append(.console~new)    )
 
 
--- ...You need additional parentheses to get the expected behavior
+-- ...You need additional parentheses to get the expected behavior.
+-- Here, .console is the primary follower of .upper.
 "hello"~pipe(.left[2] >> ( .upper | .console ) )
 
 -- Same pipeline as previous, but with methods only
@@ -229,13 +252,13 @@ say i4 ; say i4~makeString(.false, .true)
 --     value is the processed value.
 --     resultIndex is the index of the current result calculated with value.
 -- Here, only one result is calculated for a value, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.do {return 2*value} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {return 2*value} mem | .console)
 
 
 -- Inject a value for each item (the returned value is injected after the input value).
 -- Use the default index.
--- Index, 1st column : index of the values in the array on entry (1, 3, 5)
--- Index, 2nd column and 3rd column : pair (value, resultIndex)
+-- Index, 1st part : index of the values in the array on entry (1, 3, 5)
+-- Index, 2nd part : pair (value, resultIndex)
 .array~of(1, , 2, , 3)~pipe(.inject {value*10} memorize after | .console)
 
 
@@ -244,6 +267,9 @@ say i4 ; say i4~makeString(.false, .true)
 -- Two helpers are available for user-defined indexes :
 -- .index_value : the first arg is the index, the second arg is the value.
 -- .value_index : the first arg is the value, the second arg is the index.
+-- Note : This user-defined index is used only for the values calculated by .inject (10, 20, 30).
+--        The input values always have an index equal to 1 (1st line, 3rd line, 5th line).
+--        It's like getting a single result from the input value (result == value, index == 1).
 .array~of(1, , 2, , 3)~pipe(.inject {.index_value~of(value, value*10)} memorize after | .console)
 
 
@@ -254,10 +280,15 @@ say i4 ; say i4~makeString(.false, .true)
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
 -- The index is user-defined, and it's an array : each item in the index array becomes a local index.
+-- Ex: the last two lines are 
+-- (an Array),5|3,1,2,4 : 30
+-- (an Array),5|3,2,2,4 : 60
+-- From the 5th item of the input array (value=3), 2 values have been injected (30 with index 1, 60 with index 2).
+-- A user-defined index has been appended to the default index : (2,4) which is (value-1, value+1).
 .array~of(1, , 2, , 3)~pipe(.inject {
     .index_value~of(                              -
-        .array~of(value-1, value+1),    /*index*/ -
-        .array~of(value*10, value*20)   /*value*/ -
+        .array~of(value-1, value+1),    /*index : made of several values, each value being a local index*/ -
+        .array~of(value*10, value*20)   /*values : two values will be injected*/ -
         )
     } memorize after | .console)
 
@@ -275,8 +306,8 @@ say i4 ; say i4~makeString(.false, .true)
 -- Same as previous example, but here, the recursive.memorize option is used.
 -- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
 -- Ex : the last line is
--- an Array,5|3,1|90,1|2700,1 : 81000
--- The item at index 5 in input array has generated 3 pairs by recursion : (3,1) then (90,1) then (2700,1)
+-- (an Array),5|3,1|90,1|2700,1 : 81000
+-- The item at index 5 in input array has generated 3 intermediate pairs by recursion : (3,1) then (90,1) then (2700,1)
 .array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0.memorize | .console)
 .array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1.memorize | .console)
 .array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2.memorize | .console)
@@ -295,11 +326,11 @@ say i4 ; say i4~makeString(.false, .true)
 -- ----------------------------------------------------------------------------
 
 -- Select files in the installation directory, whose path contains "math" , sorted by file size.
--- The "length" message is sent to the value.
+-- The "length" message is sent to the value and the returned result is used as a key for sorting.
 .file~new(installdir())~listFiles~pipe(,
     .all["math"] caseless |,
     .sortWith[.MessageComparator~new("length/N")] |,
-    .console,
+    .console index ":" value {"length="value~length},
     )
 
 
@@ -307,7 +338,7 @@ say i4 ; say i4~makeString(.false, .true)
 .file~new(installdir())~listFiles~pipe(,
     .all["math"] caseless |,
     .sort {value~length} |,
-    .console,
+    .console index ":" value {"length="value~length},
     )
 
 
@@ -413,7 +444,11 @@ say supplier~index
 -- ----------------------------------------------------------------------------
 
 -- The .append pipeStage copies items from its primary input to its primary output, and then invokes
--- the supplier passed as argument and writes the items produced by that supplier to its primary output.
+-- the producer passed as argument and writes the items produced by that producer to its primary output.
+-- If the producer is a doer, then the producer is executed to get the effective producer.
+-- If the effective producer understands the message "supplier" then each pair (value, index) returned
+-- by the supplier is appended.
+-- Otherwise, the effective producer is appended as-is (single object) with local index 1.
 supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
@@ -494,7 +529,7 @@ fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~second
 .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
 
 -- Here, a merge is used to serialize the branches of the fanout.
--- The output from fanout1 is sent to console, then the output from fanout2
+-- There is no specific order (no delay).
 merge = .merge mem | .console showTags
 fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
 fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized

@@ -26,9 +26,9 @@ to class (super) then the unchanged value would be also sent to the next pipeSta
 
 
 http://freshmeat.net/projects/pv
-pv (Pipe Viewer) is a terminal-based tool for monitoring the progress of data through a pipeline. 
-It can be inserted into any normal pipeline between two processes to give a visual indication of 
-how quickly data is passing through, how long it has taken, how near to completion it is, and an 
+pv (Pipe Viewer) is a terminal-based tool for monitoring the progress of data through a pipeline.
+It can be inserted into any normal pipeline between two processes to give a visual indication of
+how quickly data is passing through, how long it has taken, how near to completion it is, and an
 estimate of how long it will be until completion.
 
 
@@ -48,10 +48,10 @@ Connectors
 
 pipeStage
     SecondaryConnector(pipeStage)
-    
-    sort                                    -- primary (accumulator)
-    sortWith(comparator)                    -- primary (accumulator)
-    
+
+    sort (['ascending'|'descending'] ['case'|'caseless'] ['numeric'|'strict'] ['quickSort'|'stableSort'] ['byIndex'|'byValue'|{criteria}])* -- primary (accumulator)
+    sortWith(comparator) ['quickSort'|'stableSort'] -- primary (accumulator)
+
     reverse
     upper
     lower
@@ -61,40 +61,59 @@ pipeStage
     right(length)                           -- primary, secondary
     insert(insert, offset)
     overlay(overlay, offset)
-    
+
     dropnull
-    dropFirst(count)                        -- primary, secondary
-    dropLast(count)                         -- primary (accumulator), secondary (accumulator)
-    takeFirst(count)                        -- primary, secondary
-    takeLast(count)                         -- primary (accumulator), secondary (accumulator)
-    
+    drop ['first'] [counter=1] [{partition}]-- primary, secondary
+    drop last [counter=1] [{partition}]     -- primary (accumulator), secondary (accumulator)
+    take ['first'] [counter=1] [{partition}]-- primary, secondary
+    take last [counter=1] [{partition}]     -- primary (accumulator), secondary (accumulator)
+
     x2c
-    
+
     bitbucket
-    
+
     fanout                                  -- primary, secondary. Write records to both outputs streams.
-    merge                                   -- primary, secondary (to investigate : a kind of synchro ?). Merge the results from primary and secondary streams.
+    merge                                   -- primary, secondary. Merge the results from primary and secondary streams (no specific order : no delay).
     fanin                                   -- primary(in out), secondary (in accumulator). Process main stream, then secondary stream.
-    
-    duplicate(copies = 1)
-    console
-    
-    all(patterns...)                        -- primary, secondary (mismatches)
-    startsWith(match)                       -- primary, secondary (mismatches)
-    notall                                  -- primary, secondary (not selected)
-    
+
+    duplicate [copies = 1]
+    console (['index'] ['value'] ['showTags'] [<any other string>] [{expression}])*
+
+    all(patterns...) ['caseless']           -- primary, secondary (mismatches)
+    notall(patterns...) ['caseless']        -- primary, secondary (not selected)
+    startsWith(patterns...) ['caseless']      -- primary, secondary (mismatches)
+    endsWith(patterns...) ['caseless']        -- primary, secondary (mismatches)
+
     stemcollector(stem)                     -- primary (non blocking accumulator)
     arraycollector(array)                   -- primary (non blocking accumalator)
 
-    between(startString, endString)         -- primary, secondary (not selected)
-    after(startString)                      -- primary, secondary (while not started)
-    before(endString)                       -- primary, secondary (after started)
+    between(startString, endString) ['caseless'] -- primary, secondary (not selected)
+    after(startString) ['caseless']         -- primary, secondary (while not started)
+    before(endString) ['caseless']          -- primary, secondary (after started)
 
-    buffer(count = 1, delimiter = "")       -- primary (accumulator)
+    buffer(count = 1, delimiter = "") [{partition}] -- primary (accumulator)
 
-    lineCount
-    charCount
-    wordCount
+    lineCount [{partition}]
+    charCount [{partition}]
+    wordCount [{partition}]
 
     pivot(pivotvalue, next, secondary)      -- primary, secondary. If value < pivotvalue then route to next else route to secondary
     splitter(stages...)                     -- primary (in). split the processing stream into two or more pipeStages
+
+    getFiles
+    words
+    characters
+
+    system ["command"|{command}]
+
+    append {producer}
+
+    inject          ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+    do              ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+    fileTree        ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+    superClasses    ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+    subClasses      ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+    methods         ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+    instanceMethods ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+
+    select {filter}

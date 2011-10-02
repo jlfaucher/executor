@@ -266,7 +266,10 @@ end
 if arg() == 0 then return
 error = .false
 do a over arg(1, "a")
-    if "memorizeIndex"~caselessAbbrev(a, 3) then do ; self~memorizeIndex = .true ; iterate ; end
+    if a~isA(.String) then do
+        if a~strip == "" then iterate
+        if "memorizeIndex"~caselessAbbrev(a, 3) then do ; self~memorizeIndex = .true ; iterate ; end
+    end
     error = .true
     .error~lineout("Unknown option '"a"'")
 end
@@ -536,14 +539,19 @@ return .false
 -- Ex :
 -- with showPool == .false : "my string",(a Method)|"my string",(a Method),1
 -- with showPool == .true  : i1="my string",i2=(a Method)|i1,i2,1
-use strict arg showTags=.false, showPool=.false, pool=(.queue~new)
+--
+-- localMask lets indicate which local indexes to include ("" means all). Ex : "2 3".
+-- showNested lets indicate if the nested indexes must be included.
+-- If showNested==.true, then the same localMask is used at all levels.
+use strict arg showTags=.false, showPool=.false, localMask="", showNested=.true, pool=(.queue~new), classInstances=(.identityTable~new)
 nestedIndex = self~nestedIndex
 nestedIndexString = ""
-if nestedIndex <> .nil then nestedIndexString = nestedIndex~makeString(showTags, showPool, pool)
+if showNested, nestedIndex <> .nil then nestedIndexString = nestedIndex~makeString(showTags, showPool, localMask, .true, pool, classInstances)
 string = ""
 if showTags then string = self~tag"["
 separator = ""
 do i = self~firstLocalIndex to self~dimension(1)
+    if localMask <> "", localMask~wordPos(i - self~firstLocalIndex + 1) == 0 then iterate
     string ||= separator
     val = self[i]
     valstr = val~string
@@ -554,6 +562,17 @@ do i = self~firstLocalIndex to self~dimension(1)
     else do
         isnum = .false
         valstr = "("valstr")" -- to make a distinction between a real string and other objects
+        if showTags then do
+            -- Insert class#id in front of valstr, where id is a short unique identifier of the instance in val (1,2, ...)
+            instances = classInstances[val~class]
+            if instances = .nil then do
+                instances = .array~new
+                classInstances[val~class] = instances
+            end
+            instanceId = instances~index(val)
+            if instanceId == .nil then instanceId = instances~append(val)
+            valstr = val~class~id"#"instanceId || valstr
+        end
     end
     if isnum | \showPool then string ||= valstr
     else do
@@ -572,6 +591,12 @@ end
 if showTags then string ||= "]"
 if nestedIndexString <> "" then return nestedIndexString"|"string
 return string
+
+-- Convenience method, to show only the current level,
+-- limited to local indexes whose numbers are in localMask
+::method show
+use strict arg localMask=""
+return self~makeString(.false, .false, localMask, .false)
 
 
 /******************************************************************************/
@@ -689,8 +714,8 @@ do a over arg(1, "a")
         if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
         if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end
         if "byValue"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
-        if "case"~caselessAbbrev(a, 4) then do ; criteria~append(.array~of("caseless=", .false)) ; iterate ; end
-        if "caseless"~caselessAbbrev(a, 5) then do ; criteria~append(.array~of("caseless=", .true)) ; iterate ; end
+        if "caseless"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("caseless=", .true)) ; iterate ; end
+        if "\caseless"~caselessAbbrev(a, 2) then do ; criteria~append(.array~of("caseless=", .false)) ; iterate ; end -- needed to let reset when several sort keys
         if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
         if "numeric"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("strict=", .false)) ; iterate ; end
         if "quickSort"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("quickSort=", .true)) ; iterate ; end
@@ -758,6 +783,7 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "quickSort"~caselessAbbrev(a, 1) then do ; quickSort = .true ; iterate ; end
+        if "stableSort"~caselessAbbrev(a, 3) then do ; quickSort = .false ; iterate ; end
     end
     unknown~append(a)
 end
@@ -1330,8 +1356,15 @@ self~finalize                               -- will finalize if both branches fi
 
 ::method initOptions
 expose copies
-use strict arg copies = 1                   -- by default, we do one duplicate
---forward class (super)                     -- forward the initialization
+copies = 1                                  -- by default, we do one duplicate
+unknown = .array~new
+do a over arg(1, "a")
+    if a~isA(.String) then do
+        if a~dataType("W") then do ; copies = a ; iterate ; end
+    end
+    unknown~append(a)
+end
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- pipeStage processing item
 expose copies
@@ -2070,6 +2103,7 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
+        if "memorizeIndex"~caselessAbbrev(a, 3) then do ; self~memorizeIndex = .true ; iterate ; end -- MUST detect this option here, otherwise would be taken as a command
         if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
         command = a
         iterate -- do that now, otherwise you will enter in the doer section
