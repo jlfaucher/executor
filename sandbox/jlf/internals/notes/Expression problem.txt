@@ -1,6 +1,8 @@
 In relation with extensions of predefined classes in ooRexx.
 
 
+http://perfectionkills.com/extending-built-in-native-objects-evil-or-not/
+
 http://channel9.msdn.com/shows/Going+Deep/C9-Lectures-Dr-Ralf-Laemmel-Advanced-Functional-Programming-The-Expression-Problem/
 http://channel9.msdn.com/shows/Going+Deep/C9-Lectures-Dr-Ralf-Lmmel-Advanced-Functional-Programming-Type-Classes/
 

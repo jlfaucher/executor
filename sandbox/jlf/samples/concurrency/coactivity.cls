@@ -166,7 +166,7 @@ Status transitions :
     guard on when status <> .Coactivity~suspended
     if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
     if status == .Coactivity~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
-    return self~arguments -- returns the arguments that the coactivity's client passed to 'resume'
+    if self~arguments~items <> 0 then return self~arguments -- returns the arguments that the coactivity's client passed to 'resume'
 
 
 ::method yieldLast private

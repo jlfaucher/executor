@@ -7,13 +7,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::requires "concurrency/coactivity.cls"
 ::requires "extension/array.cls"
 
-::extension String inherit StringDoer StringReduce StringMap StringRepeater
-::extension MutableBuffer inherit MutableBufferMap
+::extension String inherit StringDoer StringReducer StringMapper StringRepeater StringIterator
+::extension MutableBuffer inherit MutableBufferReducer MutableBufferMapper MutableBufferIterator
 ::extension Routine inherit RoutineDoer
 ::extension Method inherit MethodDoer
-::extension Coactivity inherit CoactivityDoer CoactivityReduce CoactivityIterator
+::extension Coactivity inherit CoactivityDoer CoactivityReducer CoactivityIterator
 ::extension RexxContextualSource inherit RexxContextualSourceDoer
-::extension Collection inherit CollectionReduce CollectionIterator
-::extension OrderedCollection inherit OrderedCollectionMap
-::extension Supplier inherit SupplierReduce SupplierIterator
+::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator
+::extension Supplier inherit SupplierReducer SupplierIterator
 ::extension Array inherit ArrayInitializer

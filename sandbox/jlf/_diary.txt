@@ -51,7 +51,7 @@ Do the same for depthFirst mode.
 1~pipe(.inject {2*value} rec.869 | .console) is ok, but if you do one more recursion, 
 you get the error "Insufficient control stack space; cannot continue execution"
 No such problem in breadthFirst mode :
-1~pipe(.inject {2*value} rec.100000 | .console) --> last result is 1.99800307E+30103
+1~pipe(.inject {2*value} rec.b.100000 | .console) --> last result is 1.99800307E+30103
 
 Pipes todo :
 Add partition support to .stemCollector, .arrayCollector
@@ -64,6 +64,91 @@ Pipes todo (maybe)
 But a table is not an ordered collection, so the indexed values injected in the pipeline are
 not necessarily in the order given by the user. 
 Could fix that by returning an array of .IndexedValue.
+
+Coactivity todo :
+The arguments passed to the coactivity with resume should be available like traditional
+arguments (use arg...). Currently they are returned by yield as an array.
+
+
+===============================================================================
+2011 oct 16
+
+
+[functional]
+
+Refactoring of ~reduce, ~map and ~each :
+- Since a parameter "options" is supported by ~reduce and ~map, I could remove
+  ~reduceChar ~reduceWord ~mapChar ~mapWord, and pass an option "char" or "word"
+  to the methods ~reduce and ~map.
+  After experimentation, I think it's not a good idea. More verbose to write, and
+  sometimes must omit parameters.
+  The reading of http://en.wikipedia.org/wiki/Fold_(higher-order_function) convinced
+  me to have different methods names, using one letter for each option, including the
+  "indexed" and "inplace" options, "inplace" being renamed "replace".
+  Consequence : the parameter "options" is removed.
+- ~map allowed to update in-place, but the design decisions was not good... I limited
+  this option to collections which understand ~append, because I wanted to support 
+  deletion (filtering) of items. But that's a bad idea, better to not allow deletion
+  and use []= for assignment. That will work with any collection, including multi-
+  dimensional arrays.
+- String and MutableBuffer are a special case, where ~append is more appropriate for
+  implementing ~map. Filtering is supported.
+- ~map and ~each had overlapping features. Now, these methods have distinct usage :
+  The result returned by ~map has the same type as the self object.
+  The result returned by ~each is either an array or no result (if procedural action).
+  ~map can be in-place, ~each is never in-place.
+  ~map can't filter collections, ~each can filter collections.
+- ~each must be available on String and MutableBuffer. The result is an array or no result.
+  
+In summary :
+                reduce   reduceC   reduceW   map   mapC   mapW   mapR   mapCR   mapWR   each    eachC    eachW
+                reduceI  reduceCI  reduceWI  mapI  mapCI  mapWI  mapRI  mapCRI  mapWRI  eachI   eachCI   eachWI
+                                                                                        eachII  eachCII  eachWII
+.String         ............X.........X..............X......X......................................X........X...
+.MutableBuffer  ............X.........X..............X......X.............X.......X................X........X...
+.Array          ...X..........................X....................X......................X.....................
+.Bag            ...X..........................X....................X......................X.....................
+.CircularQueue  ...X..........................X....................X......................X.....................
+.Directory      ...X..........................X....................X......................X.....................
+.List           ...X..........................X....................X......................X.....................
+.Properties     ...X..........................X....................X......................X.....................
+.Queue          ...X..........................X....................X......................X.....................
+.Relation       ...X..........................X....................X......................X.....................
+.Set            ...X..........................X....................X......................X.....................
+.Stem           ...X..........................X....................X......................X.....................
+.Table          ...X..........................X....................X......................X.....................
+.IdentityTable  ...X..........................X....................X......................X.....................
+.Supplier       ...X......................................................................X.....................
+.Coactivity     ...X......................................................................X.....................
+
+Reduce on non-ordered collections will give good results only with commutative operations.
+Ex : any collection can be reduced with "+", but only ordered collections should be reduced with "-".
+
+Experimental : I search my way to implement lazy iterators using coactivities.
+I created additional methods like 
+    ~times.yield
+    ~yield.upto
+    ~yield.downto
+They work as expected, but having to create a new method to manage the coactivity sounds not good.
+Especially if I want to do the same for the ~each methods (21 methods to add...).
+So far, I see these possibilities :
+    1~yield.upto(10){arg(1)}   -- Current implementation, with a distinct method which creates the coactivity and delegates to ~upto which yields each value.
+    1~upto(10, .true){arg(1)}  -- Pass a boolean to ask for a coactivity. The coactivity and the yield are managed by ~upto.
+    1~upto(10){.yield[arg(1)]} -- The yield is done by the doer. Problem : ~upto has no way to know that a coactivity must be created...
+                               -- ...unless the doer "knows" it contains a yield, and ~upto can test that.
+According to what I see in Python, the interpreter automatically creates a generator when a yield is in the code of a function.
+At the first call of the function, the generator object is returned.
+    def countdown(n):
+        print "Counting down from", n
+        while n > 0:
+            yield n
+            n -= 1
+    >>> x = countdown(10)
+    >>> x
+    <generator object at 0x58490>
+    >>>
+So it looks similar to the third solution. Except that in the Python example, the loop and the yield are in the same function.
+In the case of ~upto, the loop and the yield are not in the same routine. 
 
 
 ===============================================================================

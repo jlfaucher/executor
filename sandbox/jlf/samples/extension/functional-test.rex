@@ -5,9 +5,42 @@ http://msdn.microsoft.com/en-us/library/bb383977.aspx
 http://weblogs.asp.net/scottgu/archive/2007/03/13/new-orcas-language-feature-extension-methods.aspx
 
 Here, the extensions are declared with ::extension instead of ~define (see ..\functional for ~define)
+
+Organization of this file :
+Doer of type message
+    Reducing
+        Collection reduce
+        String reduce
+        Mutable buffer reduce
+        Coactivity reduce
+    Mapping
+        Collection map
+        String map
+        Mutable buffer map
+Doer of type routine
+    Reducing
+        Collection reduce
+        String reduce
+        Mutable buffer reduce
+        Coactivity reduce
+    Mapping
+        Collection map
+        String map
+        Mutable buffer map
+    Repeating & collecting : times, upto, downto
+    Iterating & collecting
+        Collection each
+        Supplier each
+        String each
+        Mutable buffer each
+        Coactivity each
+Doer of type method
+    Mapping
 */
 
 call evaluate "demonstration"
+say
+say "Ended coactivities:" .Coactivity~endAll
 
 --::options trace i
 ::routine demonstration
@@ -16,124 +49,361 @@ call evaluate "demonstration"
 nop
 
 -- --------------------------------------------------------------
--- Message sending
+-- Reducing a collection with a message
 -- --------------------------------------------------------------
 
--- A string is a message name
+-- A doer of type string is a message name
 
 -- Reduce
--- The messages like "+" "-" etc. take two arguments, so you can't use the "indexed" option.
 --   arg(1) : accumulated result
 --   arg(2) : current item of collection
 --   arg(3) : current index of collection (passed if option "indexed" is used)
+-- The messages like "+" "-" etc. take two arguments, so you can't use the "indexed" option with them.
+-- But you can define your own methods which support the index argument.
 
--- initial value is the first item (default)
-.Array~of(1,2,3,4)~reduce("+")~dump2
-
-
--- initial value is 100
-.Array~of(1,2,3,4)~reduce(100, "+")~dump2
-
-
-.Array~of(1,2,3,4)~reduce("*")~dump2
+-- Ordered collection, the operation can be non-commutative
+.Array~of(1,2,3)~reduce("-")~dump -- initial value is the first item (default)
+.Array~of(1,2,3)~reduce(100, "-")~dump -- initial value is 100
 
 
-.List~of(1,2,3,4)~reduce("+")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Bag~of(1,2,3)~reduce("+")~dump
+.Bag~of(1,2,3)~reduce(100, "+")~dump
 
 
-.List~of(1,2,3,4)~reduce(100, "+")~dump2
+-- Ordered collection, the operation can be non-commutative
+.CircularQueue~of(1,2,3)~reduce("-")~dump
+.CircularQueue~of(1,2,3)~reduce(100, "-")~dump
 
 
-.List~of(1,2,3,4)~reduce("*")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
 
 
-.Queue~of(1,2,3,4)~reduce("+")~dump2
+-- Ordered collection, the operation can be non-commutative
+.List~of(1,2,3)~reduce("-")~dump
+.List~of(1,2,3)~reduce(100, "-")~dump
 
 
-.Queue~of(1,2,3,4)~reduce(100, "+")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
 
 
-.Queue~of(1,2,3,4)~reduce("*")~dump2
+-- Ordered collection, the operation can be non-commutative
+.Queue~of(1,2,3)~reduce("-")~dump
+.Queue~of(1,2,3)~reduce(100, "-")~dump
 
 
-.CircularQueue~of(1,2,3,4)~reduce("+")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
 
 
-.CircularQueue~of(1,2,3,4)~reduce(100, "+")~dump2
+-- A relation which has more than one item per index is supported
+.Relation~new~~put(1, "v1")~~put(2, "v1")~~put(3, "v3")~reduce("+")~dump
+.Relation~new~~put(1, "v1")~~put(2, "v1")~~put(3, "v3")~reduce(100, "+")~dump
 
 
-.CircularQueue~of(1,2,3,4)~reduce("*")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Set~of(1,2,3)~reduce("+")~dump
+.Set~of(1,2,3)~reduce(100, "+")~dump
 
 
--- initial value is the first char (default)
-123~reduceChar("+")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
 
 
--- initial value is 100
-123~reduceChar(100, "+")~dump2
+-- Non-ordered collection, the operation must be commutative
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
 
 
-123~reduceChar("min")~dump2
-
-
-123~reduceChar("max")~dump2
-
-
--- initial value is the first word (default)
-"10 20 30"~reduceWord("+")~dump2
-
-
--- initial value is 100
-"10 20 30"~reduceWord(100, "+")~dump2
-
-
-.Array~of(1,2,3,4)~map("-")~dump2
-
-
-.List~of(1,2,3,4)~map("-")~dump2
-
-
-.Queue~of(1,2,3,4)~map("-")~dump2
-
-
-.CircularQueue~of(1,2,3,4)~map("-")~dump2 
-
-
-"abcdefghijklmnopqrstuvwxyz"~mapChar("1-")~dump2
-
-
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapChar("1+")~dump2
-
-
-"The quick brown fox jumps over the lazy dog"~mapWord("length")~dump2
-
-
-.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapWord("length")~dump2
-
-
--- In place mapping
-array = .Array~of(-1,2,-3,4)
-array~dump2
-array~map("inplace", "sign")~dump2
-array~dump2
-
-
--- In place mapping (this is the default for MutableBuffer)
-buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
-buffer~dump2
-buffer~mapChar("1+")~dump2
-buffer~dump2
-
-
--- You can explicitely request not inplace mapping
-buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
-buffer~dump2
-buffer~mapChar("\inplace", "1+")~dump2
-buffer~dump2
+-- Non-ordered collection, the operation must be commutative
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce("+")~dump
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~reduce(100, "+")~dump
 
 
 -- --------------------------------------------------------------
--- Routine calling
+-- Reducing a string with a message
+-- --------------------------------------------------------------
+
+-- initial value is the first char (default)
+123~reduceC("-")~dump
+
+
+-- initial value is 100
+123~reduceC(100, "-")~dump
+
+
+123~reduceC("min")~dump
+
+
+123~reduceC("max")~dump
+
+
+-- initial value is the first word (default)
+"10 20 30"~reduceW("-")~dump
+
+
+-- initial value is 100
+"10 20 30"~reduceW(100, "-")~dump
+
+
+-- --------------------------------------------------------------
+-- Reducing a mutable buffer with a message
+-- --------------------------------------------------------------
+
+-- initial value is the first char (default)
+.MutableBuffer~new(123)~reduceC("-")~dump
+
+
+-- initial value is 100
+.MutableBuffer~new(123)~reduceC(100, "-")~dump
+
+
+.MutableBuffer~new(123)~reduceC("min")~dump
+
+
+.MutableBuffer~new(123)~reduceC("max")~dump
+
+
+-- initial value is the first word (default)
+.MutableBuffer~new("10 20 30")~reduceW("-")~dump
+
+
+-- initial value is 100
+.MutableBuffer~new("10 20 30")~reduceW(100, "-")~dump
+
+
+-- --------------------------------------------------------------
+-- Reducing a coactivity with a message
+-- --------------------------------------------------------------
+
+-- The full tag is "::coactivity".
+-- The shortest abbreviation is "::c".
+-- initial value is the first yielded item (default)
+{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce("-")~dump
+
+
+-- initial value is 100
+{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(100, "-")~dump
+
+
+-- --------------------------------------------------------------
+-- Mapping a collection with a message, not-in-place
+-- --------------------------------------------------------------
+
+array = .Array~of(-1,2,-3)
+array~dump -- collection before mapping
+array~map("sign")~dump
+array~dump -- collection after mapping (unchanged)
+
+
+bag = .Bag~of(-1,2,-3)
+bag~dump -- collection before mapping
+bag~map("sign")~dump
+bag~dump -- collection after mapping (unchanged)
+
+
+circularQueue = .CircularQueue~of(-1,2,-3)
+circularQueue~dump -- collection before mapping
+circularQueue~map("sign")~dump
+circularQueue~dump -- collection after mapping (unchanged)
+
+
+directory = .Directory~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+directory~dump -- collection before mapping
+directory~map("sign")~dump
+directory~dump -- collection after mapping (unchanged)
+
+
+list = .List~of(-1,2,-3)
+list~dump -- collection before mapping
+list~map("sign")~dump
+list~dump -- collection after mapping (unchanged)
+
+
+properties = .Properties~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+properties~dump -- collection before mapping
+properties~map("sign")~dump
+properties~dump -- collection after mapping (unchanged)
+
+
+queue = .Queue~of(-1,2,-3)
+queue~dump -- collection before mapping
+queue~map("sign")~dump
+queue~dump -- collection after mapping (unchanged)
+
+
+relation = .Relation~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+relation~dump -- collection before mapping
+relation~map("sign")~dump
+relation~dump -- collection after mapping (unchanged)
+
+
+-- A relation which has more than one item per index is supported
+relation = .Relation~new~~put(-1, "v1")~~put(1, "v1")~~put(-3, "v3")
+relation~dump -- collection before mapping
+relation~map("sign")~dump
+relation~dump -- collection after mapping (unchanged)
+
+
+-- The resulting set has less items (normal... it's a set)
+set = .Set~of(-1,2,-3)
+set~dump -- collection before mapping
+set~map("sign")~dump
+set~dump -- collection after mapping (unchanged)
+
+
+stem = .Stem~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+stem~dump -- collection before mapping
+stem~map("sign")~dump
+stem~dump -- collection after mapping (unchanged)
+
+
+table = .Table~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+table~dump -- collection before mapping
+table~map("sign")~dump
+table~dump -- collection after mapping (unchanged)
+
+
+identityTable = .IdentityTable~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+identityTable~dump -- collection before mapping
+identityTable~map("sign")~dump
+identityTable~dump -- collection after mapping (unchanged)
+
+
+-- --------------------------------------------------------------
+-- Mapping a collection with a message, in-place (replace the items)
+-- --------------------------------------------------------------
+
+array = .Array~of(-1,2,-3)
+array~dump -- collection before mapping
+array~mapR("sign")~dump
+array~dump -- collection after mapping (impacted by mapping)
+
+
+bag = .Bag~of(-1,2,-3)
+bag~dump -- collection before mapping
+bag~mapR("sign")~dump
+bag~dump -- collection after mapping (impacted by mapping
+
+
+circularQueue = .CircularQueue~of(-1,2,-3)
+circularQueue~dump -- collection before mapping
+circularQueue~mapR("sign")~dump
+circularQueue~dump -- collection after mapping (impacted by mapping
+
+
+directory = .Directory~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+directory~dump -- collection before mapping
+directory~mapR("sign")~dump
+directory~dump -- collection after mapping (impacted by mapping
+
+
+list = .List~of(-1,2,-3)
+list~dump -- collection before mapping
+list~mapR("sign")~dump
+list~dump -- collection after mapping (impacted by mapping
+
+
+properties = .Properties~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+properties~dump -- collection before mapping
+properties~mapR("sign")~dump
+properties~dump -- collection after mapping (impacted by mapping
+
+
+queue = .Queue~of(-1,2,-3)
+queue~dump -- collection before mapping
+queue~mapR("sign")~dump
+queue~dump -- collection after mapping (impacted by mapping
+
+
+relation = .Relation~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+relation~dump -- collection before mapping
+relation~mapR("sign")~dump
+relation~dump -- collection after mapping (impacted by mapping
+
+
+-- A relation which has more than one item per index is supported
+relation = .Relation~new~~put(-1, "v1")~~put(1, "v1")~~put(-3, "v3")
+relation~dump -- collection before mapping
+relation~mapR("sign")~dump
+relation~dump -- collection after mapping (impacted by mapping
+
+
+-- The resulting set has less items (normal... it's a set)
+set = .Set~of(-1,2,-3)
+set~dump -- collection before mapping
+set~mapR("sign")~dump
+set~dump -- collection after mapping (impacted by mapping
+
+
+stem = .Stem~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+stem~dump -- collection before mapping
+stem~mapR("sign")~dump
+stem~dump -- collection after mapping (impacted by mapping
+
+
+table = .Table~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+table~dump -- collection before mapping
+table~mapR("sign")~dump
+table~dump -- collection after mapping (impacted by mapping
+
+
+identityTable = .IdentityTable~new~~put(-1, "v1")~~put(2, "v2")~~put(-3, "v3")
+identityTable~dump -- collection before mapping
+identityTable~mapR("sign")~dump
+identityTable~dump -- collection after mapping (impacted by mapping
+
+
+-- --------------------------------------------------------------
+-- Mapping a string with a message
+-- --------------------------------------------------------------
+
+"abcdefghijklmnopqrstuvwxyz"~mapC("c2x")~dump
+
+
+"The quick brown fox jumps over the lazy dog"~mapW("length")~dump
+
+
+-- --------------------------------------------------------------
+-- Mapping a mutable buffer with a message
+-- --------------------------------------------------------------
+
+--  Not-in-place mapping (map the characters)
+buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
+buffer~dump -- mutable buffer before mapping
+buffer~mapC("c2x")~dump
+buffer~dump -- mutable buffer after mapping
+
+
+--  Not-in-place mapping (map the words)
+buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
+buffer~dump -- mutable buffer before mapping
+buffer~mapW("length")~dump
+buffer~dump -- mutable buffer after mapping
+
+
+-- In place mapping (Replace the characters)
+buffer = .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")
+buffer~dump -- mutable buffer before mapping
+buffer~mapCR("c2x")~dump
+buffer~dump -- mutable buffer after mapping
+
+
+-- In place mapping (Replace the words)
+buffer = .MutableBuffer~new("The quick brown fox jumps over the lazy dog")
+buffer~dump -- mutable buffer before mapping
+buffer~mapWR("length")~dump
+buffer~dump -- mutable buffer after mapping
+
+
+-- --------------------------------------------------------------
+-- Reducing a collection with a routine
 -- --------------------------------------------------------------
 
 -- A literal source is a routine source by default
@@ -143,204 +413,398 @@ buffer~dump2
 --   arg(2) : current item of collection
 --   arg(3) : current index of collection (passed if option "indexed" is used)
 
--- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
-.Array~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+-- The source literal is transformed by ~reduce before creating an executable,
+-- which lets use an implicit return.
+-- See method ~functionDoer in doers.cls for more details.
+-- You can see the transformed source by running that from ooRexxShell :
+--    {arg(1) + arg(2) + arg(3)}~functionDoer~source=
+-- The output is :
+--    # 1: index=[1] -> item=[options "NOCOMMANDS" ; arg(1) + arg(2) + arg(3)]
+--    # 2: index=[2] -> item=[ ; if var("result") then return result]
+
+.Array~of(10, 20, 30)~reduceI{arg(1) + arg(2) + arg(3)}~dump -- returns 10 + 20+2 + 30+3 = 65
+.Array~of(10, 20, 30)~reduceI(0){arg(1) + arg(2) + arg(3)}~dump -- returns 0 + 10+1 + 20+2 + 30+3 = 66
 
 
--- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-.Array~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+-- Remember ! In a bag, the index and the item have the same value
+.Bag~of(10 ,20 ,30)~reduceI{arg(1) + arg(2) + arg(3)}~dump
+.Bag~of(10 ,20 ,30)~reduceI(0){arg(1) + arg(2) + arg(3)}~dump
 
 
-.List~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+.CircularQueue~of(10, 20, 30)~reduceI{arg(1) + arg(2) + arg(3)}~dump
+.CircularQueue~of(10, 20, 30)~reduceI(0){arg(1) + arg(2) + arg(3)}~dump
 
 
-.List~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
 
 
-.Queue~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+-- Special case ! The index of a list starts at 0...
+.List~of(10, 20, 30)~reduceI{arg(1) + arg(2) + arg(3)}~dump
+.List~of(10, 20, 30)~reduceI(0){arg(1) + arg(2) + arg(3)}~dump
 
 
-.Queue~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
 
 
-.CircularQueue~of(10, 20, 30)~reduce(, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+.Queue~of(10, 20, 30)~reduceI{arg(1) + arg(2) + arg(3)}~dump
+.Queue~of(10, 20, 30)~reduceI(0){arg(1) + arg(2) + arg(3)}~dump
 
 
-.CircularQueue~of(10, 20, 30)~reduce(0, "ind"){arg(1) + arg(2) + arg(3)}~dump2
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+
+
+-- A relation which has more than one item per index is supported
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+
+
+-- Remember ! In a set, the index and the item have the same value
+.Set~of(10 ,20 ,30)~reduceI{arg(1) + arg(2) + arg(3)}~dump
+.Set~of(10 ,20 ,30)~reduceI(0){arg(1) + arg(2) + arg(3)}~dump
+
+
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+
+
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+
+
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI{arg(1) + arg(2) + arg(3)~c2d}~dump
+.IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduceI(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+
+
+-- --------------------------------------------------------------
+-- Reducing a string with a routine
+-- --------------------------------------------------------------
+
+-- initial value is the first char (default), index passed as 3rd argument, returns 1 + 2+2 + 3+3 = 11
+123~reduceCI{arg(1) + arg(2) + arg(3)}~dump
+
+
+-- initial value is 0, index passed as 3rd argument, returns 0 + 1+1 + 2+2 + 3+3 = 12
+123~reduceCI(0){arg(1) + arg(2) + arg(3)}~dump
 
 
 -- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
-"10 20 30"~reduceWord(, "ind"){arg(1) + arg(2) + arg(3)}
+"10 20 30"~reduceWI{arg(1) + arg(2) + arg(3)}~dump
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-"10 20 30"~reduceWord(0, "ind"){arg(1) + arg(2) + arg(3)}
+"10 20 30"~reduceWI(0){arg(1) + arg(2) + arg(3)}~dump
 
+
+-- --------------------------------------------------------------
+-- Reducing a mutable buffer with a routine
+-- --------------------------------------------------------------
+
+-- initial value is the first char (default), index passed as 3rd argument, returns 1 + 2+2 + 3+3 = 11
+.MutableBuffer~new(123)~reduceCI{arg(1) + arg(2) + arg(3)}~dump
+
+
+-- initial value is 0, index passed as 3rd argument, returns 0 + 1+1 + 2+2 + 3+3 = 12
+.MutableBuffer~new(123)~reduceCI(0){arg(1) + arg(2) + arg(3)}~dump
+
+
+-- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+.MutableBuffer~new("10 20 30")~reduceWI{arg(1) + arg(2) + arg(3)}~dump
+
+
+-- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+.MutableBuffer~new("10 20 30")~reduceWI(0){arg(1) + arg(2) + arg(3)}~dump
+
+
+-- --------------------------------------------------------------
+-- Reducing a coactivity with a routine
+-- --------------------------------------------------------------
+
+-- initial value is the first yielded item (default)
+{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduceI{arg(1) + arg(2) + arg(3)}~dump
+
+
+-- initial value is 0
+{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduceI(0){arg(1) + arg(2) + arg(3)}~dump
+
+
+-- --------------------------------------------------------------
+-- Mapping a collection with a routine
+-- --------------------------------------------------------------
 
 -- Map :
 --   arg(1) : current item of collection
 --   arg(2) : current index of collection (passed if option "indexed" is used)
 
-.Array~of(1,2,3,4)~map{arg(1) * 2}~dump2
+.Array~of(1,2,3,4)~map{arg(1) * 2}~dump
 
 
-.Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+.Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-.List~of(1,2,3,4)~map{arg(1) * 2}~dump2
+.List~of(1,2,3,4)~map{arg(1) * 2}~dump
 
 
-.List~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+.List~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-.Queue~of(1,2,3,4)~map{arg(1) * 2}~dump2
+.Queue~of(1,2,3,4)~map{arg(1) * 2}~dump
 
 
-.Queue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+.Queue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-.CircularQueue~of(1,2,3,4)~map{arg(1) * 2}~dump2
+.CircularQueue~of(1,2,3,4)~map{arg(1) * 2}~dump
 
 
-.CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
+.CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-"abcdefghijklmnopqrstuvwxyz"~mapChar{arg(1)~verify('aeiouy')}~dump2
+-- Filtering is not possible on collections using map (to keep the indexes unchanged).
+-- When no value is returned by ~map, then the current item is kept unchanged in the collection.
+.array~of("one", "two", "three")~map{if arg(1)~length == 3 then arg(1)}~dump
 
 
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapChar{if arg(1)~verify('aeiouy') == 1 then arg(1) ; else ''}~dump2
+-- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
+.Array~of(1,2,3,4)~map{::routine arg(1) * 2}~dump
+
+
+-- The shortest abbreviation is of "::routine" is ":"
+-- When the interpreter sees a ":" as first character of a source literal, then no executable is created by it (delayed parsing).
+-- That can be useful when the source literal is not parsable by the interpreter as-is, but becomes interpretable after transformation
+-- (this is not the case here, the source literal can be parsed without error by the interpreter).
+.Array~of(1,2,3,4)~map{: use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
+
+
+-- A routine object can be used directly.
+-- In this case, there is no source transformation.
+.Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump
+
+
+-- --------------------------------------------------------------
+-- Mapping a string with a routine
+-- --------------------------------------------------------------
+
+"abcdefghijklmnopqrstuvwxyz"~mapC{arg(1)~verify('aeiouy')}~dump
 
 
 -- Filtering (if no result returned by the doer, then nothing appended)
-"abcdefghijklmnopqrstuvwxyz"~mapChar{if arg(1)~verify('aeiouy') then arg(1)}~dump2
+"abcdefghijklmnopqrstuvwxyz"~mapC{if arg(1)~verify('aeiouy') then arg(1)}~dump
 
 
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapChar{if arg(1)~verify('aeiouy') == 1 then arg(1)}~dump2
+"one two three"~mapW{if arg(1)~length == 3 then arg(1)}~dump
 
 
-"one two three"~mapWord{if arg(1)~length == 2 then arg(1)}~dump2
+-- Reminder : index passed as 2nd argument
+"one two three"~mapWI{arg(2)":"arg(1)}~dump
 
 
-.array~of("one", "two", "three")~map{if arg(1)~length == 2 then arg(1)}~dump2
+-- --------------------------------------------------------------
+-- Mapping a mutable buffer with a routine
+-- --------------------------------------------------------------
+
+-- Looks like a filtering, but it's not : a value is returned for each character (can be empty string)
+.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if arg(1)~verify('aeiouy') == 1 then arg(1) ; else ''}~dump
 
 
--- index passed as 2nd argument
-"one two three"~mapWord("ind"){arg(2)":"arg(1)}~dump2
+.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if arg(1)~verify('aeiouy') == 1 then arg(1)}~dump
 
 
 -- todo : doesn't work because the variable translation has no value when evaluating the doer : needs a closure
 -- translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
 -- translation~setMethod("UNKNOWN", "arg(1)")
--- "The quick brown fox jumps over the lazy dog"~mapWord{translation~arg(1)}~dump2
---.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapWord({expose translation ; translation[arg(1)]}, .false)~dump2
-
-
--- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
-.Array~of(1,2,3,4)~map{::routine arg(1) * 2}~dump2
-
-
-.Array~of(1,2,3,4)~map{::routine use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump2
-
-
--- A routine object can be used directly
-.Array~of(1,2,3,4)~map(.context~package~findRoutine("factorial"))~dump2
-
-
--- ~times can act as an array generator : it collects the values returned by the doer
--- there is no default action (unlike ~upto and ~downto)
-3~times{0}~dump2
-
-
-3~times{arg(1)}~dump2
-
-
--- returns .nil : no resulting array because no result returned during the iteration
-say 3~times{say arg(1)} 
-
-
--- ~upto can act as an array generator : it collects the values returned by the doer
--- returns .array~of(11,12,13) because the default action is {arg(1)}
-11~upto(13)~dump2             
-
-
--- Note that -1 MUST be surrounded by paren or quotes
-(-1)~upto(3)~dump2
-
-
-11~upto(13){2*arg(1)}~dump2
-
-
--- returns .nil : no resulting array because no result returned during the iteration
-say 11~upto(13){say arg(1)}
-
-
--- ~downto can act as an array generator : it collects the values returned by the doer
--- returns .array~of(13,12,11) because the default action is {arg(1)}
-13~downto(11)~dump2
-
-
-3~upto(-1)~dump2
-
-
-13~downto(11){2*arg(1)}~dump2
-
-
--- returns .nil : no resulting array because no result returned during the iteration
-say 13~downto(11){say arg(1)}
-
-
--- each : 
--- The type of generated collection depends on the type of itererated source.
--- collection --> same type of collection
--- supplier --> array
--- coactivity --> array
-
-.Array~of(1,2,3)~each{2*arg(1)}~dump2
-
-
-.Bag~of(1,2,3)~each{2*arg(1)}~dump2
-
-
-.CircularQueue~of(1,2,3)~each{2*arg(1)}~dump2
-
-
-.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
-
-
-.List~of(1,2,3)~each{2*arg(1)}~dump2
-
-
-.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
-
-
-.Queue~of(1,2,3)~each{2*arg(1)}~dump2
-
-
-.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
-
-
-.Set~of(1,2,3)~each{2*arg(1)}~dump2
-
-
-.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
-
-
-.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
-
-
-.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump2
-
-
--- supplier : the collection generated by ~each is always an array
-.set~of(1,2,3)~supplier~each{2*arg(1)}
-
-
--- coactivity : the collection generated by ~each is always an array
-{::c do i=1 to 3; .yield[i]; end}~doer~each{2*arg(1)}
+-- "The quick brown fox jumps over the lazy dog"~mapW{translation~arg(1)}~dump
+--.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{expose translation ; translation[arg(1)]}~dump
 
 
 -- --------------------------------------------------------------
--- Method running
+-- Repeating & collecting with a routine
+-- --------------------------------------------------------------
+
+-- No resulting array because no result returned during the iteration.
+3~times{say 2*arg(1)}
+
+
+-- ~times can act as an array generator : it collects the values returned by the doer.
+3~times{2*arg(1)}~dump
+
+
+3~times{0}~dump
+
+
+-- returns .array~of(1,2,3) because the default action is {arg(1)}
+3~times~dump
+
+
+-- No resulting array because no result returned during the iteration.
+11~upto(13){say 2*arg(1)}
+
+
+-- ~upto can act as an array generator : it collects the values returned by the doer.
+11~upto(13){2*arg(1)}~dump
+
+
+11~upto(13){0}~dump
+
+
+-- returns .array~of(11,12,13) because the default action is {arg(1)}
+11~upto(13)~dump
+
+
+-- Note that -1 MUST be surrounded by paren or quotes
+(-1)~upto(3)~dump
+
+
+-- No resulting array because no result returned during the iteration
+13~downto(11){say 2*arg(1)}
+
+
+-- ~downto can act as an array generator : it collects the values returned by the doer.
+13~downto(11){2*arg(1)}~dump
+
+
+-- returns .array~of(13,12,11) because the default action is {arg(1)}
+13~downto(11)~dump
+
+
+3~downto(-1)~dump
+
+
+-- --------------------------------------------------------------
+-- Iterating over a collection & collecting with a routine
+-- --------------------------------------------------------------
+
+-- each :
+-- The values returned by the action are collected in an array
+
+.Array~of(1,2,3)~each{2*arg(1)}~dump
+.Array~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Array~of(1,2,3)~eachII{2*arg(1) + arg(2)}~dump
+
+
+.Bag~of(1,2,3)~each{2*arg(1)}~dump
+.Bag~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Bag~of(1,2,3)~eachII{2*arg(1) + arg(2)}~dump
+
+
+.CircularQueue~of(1,2,3)~each{2*arg(1)}~dump
+.CircularQueue~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.CircularQueue~of(1,2,3)~eachII{2*arg(1) + arg(2)}~dump
+
+
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachII{2*arg(1) + arg(2)~c2d}~dump
+
+
+.List~of(1,2,3)~each{2*arg(1)}~dump
+.List~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.List~of(1,2,3)~eachII{2*arg(1) + arg(2)}~dump
+
+
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachII{2*arg(1) + arg(2)~c2d}~dump
+
+
+.Queue~of(1,2,3)~each{2*arg(1)}~dump
+.Queue~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Queue~of(1,2,3)~eachII{2*arg(1) + arg(2)}~dump
+
+
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachII{2*arg(1) + arg(2)~c2d}~dump
+
+
+.Set~of(1,2,3)~each{2*arg(1)}~dump
+.Set~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Set~of(1,2,3)~eachII{2*arg(1) + arg(2)}~dump
+
+
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachII{2*arg(1) + arg(2)~c2d}~dump
+
+
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachII{2*arg(1) + arg(2)~c2d}~dump
+
+
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+-- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachII{2*arg(1) + arg(2)~c2d}~dump
+
+
+-- --------------------------------------------------------------
+-- Iterating over a supplier & collecting with a routine
+-- --------------------------------------------------------------
+
+-- supplier : the collection generated by ~each is always an array
+.set~of(1,2,3)~supplier~each{2*arg(1)}~dump
+
+
+-- --------------------------------------------------------------
+-- Iterating over a string & collecting with a routine
+-- --------------------------------------------------------------
+
+-- string : the collection generated by ~each is always an array
+
+"abcdef"~eachC{arg(1)}~dump
+"abcdef"~eachCI{".."~copies(arg(2))arg(1)}~dump
+"abcdef"~eachCII{".."~copies(arg(2))arg(1)}~dump
+
+
+"The quick brown fox"~eachW{arg(1)}~dump
+"The quick brown fox"~eachWI{".."~copies(arg(2))arg(1)}~dump
+"The quick brown fox"~eachWII{".."~copies(arg(2))arg(1)}~dump
+
+
+-- --------------------------------------------------------------
+-- Iterating over a mutable buffer & collecting with a routine
+-- --------------------------------------------------------------
+
+-- mutable buffer : the collection generated by ~each is always an array
+
+.MutableBuffer~new("abcdef")~eachC{arg(1)}~dump
+.MutableBuffer~new("abcdef")~eachCI{".."~copies(arg(2))arg(1)}~dump
+.MutableBuffer~new("abcdef")~eachCII{".."~copies(arg(2))arg(1)}~dump
+
+
+.MutableBuffer~new("The quick brown fox")~eachW{arg(1)}~dump
+.MutableBuffer~new("The quick brown fox")~eachWI{".."~copies(arg(2))arg(1)}~dump
+.MutableBuffer~new("The quick brown fox")~eachWII{".."~copies(arg(2))arg(1)}~dump
+
+
+-- --------------------------------------------------------------
+-- Iterating over a coactivity & collecting with a routine
+-- --------------------------------------------------------------
+
+-- coactivity : the collection generated by ~each is always an array
+
+{::c do i=1 to 3; .yield[i]; end}~doer~each{2*arg(1)}
+{::c do i=1 to 3; .yield[i]; end}~doer~eachI{2*arg(1) + arg(2)}
+{::c do i=1 to 3; .yield[i]; end}~doer~eachII{2*arg(1) + arg(2)}
+
+
+-- --------------------------------------------------------------
+-- Mapping with a method
 -- --------------------------------------------------------------
 
 colors = .Array~of( ,
@@ -350,23 +814,23 @@ colors = .Array~of( ,
     .Color~new("grey",  "BEBEBE") ,
     )
 
-    
+
 -- A source can be tagged explicitely as a method (you need that, because it's a routine by default)
-colors~map{::method self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump2
+colors~map{::method self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump
 
 
 -- A method object can be used directly
 -- No need to define the method on the receiver class...
-colors~map(.methods~entry("decimalColor"))~dump2
+colors~map(.methods~entry("decimalColor"))~dump
 
 
 -- ... except when the method is recursive and recalls itself by name
 .String~define("factorial", .methods~entry("factorial"))
-.Array~of(1,2,3,4)~map(.methods~entry("factorial"))~dump2
+.Array~of(1,2,3,4)~map(.methods~entry("factorial"))~dump
 
 
 -- Here, the method is recursive, but does not recall itself by name
-.Array~of(1,2,3,4)~map(.methods~entry("factorialExecutable"))~dump2
+.Array~of(1,2,3,4)~map(.methods~entry("factorialExecutable"))~dump
 
 
 -----------------------------------------------------------------
@@ -378,7 +842,7 @@ colors~map(.methods~entry("decimalColor"))~dump2
     if n == 0 then return 1
     return n * factorial(n - 1) -- here, the routine 'factorial' has a global name, and can be called
 
-    
+
 ::method factorial
     if self == 0 then return 1
     return self * (self - 1)~factorial -- this code will work only if self understands 'factorial'
@@ -403,41 +867,17 @@ colors~map(.methods~entry("decimalColor"))~dump2
     self~rgb = rgb
     self~rgbInteger = rgb~x2d
 ::method redIntensity
-    return self~rgb~substr(1,2)~x2d 
+    return self~rgb~substr(1,2)~x2d
 ::method greenIntensity
-    return self~rgb~substr(3,2)~x2d 
+    return self~rgb~substr(3,2)~x2d
 ::method blueIntensity
-    return self~rgb~substr(5,2)~x2d 
+    return self~rgb~substr(5,2)~x2d
 
 
-::extension Object
-::method dump
-    use strict arg stream = .stdout
-    stream~lineout(self)
+-----------------------------------------------------------------
+-- Helpers
+-----------------------------------------------------------------
 
-    
-::extension Collection
-::method dump
-    use strict arg stream = .stdout
-    stream~charout(self ": ")
-    previous = .false
-    do e over self
-        if previous then stream~charout(", ")
-        stream~charout(e)
-        previous = .true
-    end
-    stream~lineout("")
-    
-
-::extension String
-::method "1-"
-    c = self~subchar(1)~c2d - 1
-    return c~d2c
-::method "1+"
-    c = self~subchar(1)~c2d + 1
-    return c~d2c
-
-    
 ::extension Directory
 ::method of class
     use strict arg key, value, ...
@@ -446,9 +886,65 @@ colors~map(.methods~entry("decimalColor"))~dump2
         directory[arg(i)] = arg(i+1)
     end
     return directory
-    
-    
--------------------------------------------------------------------------------
+
+
+::extension Object
+::method dump
+    say '['self~string']'
+
+
+::extension String
+::method dump
+    valstr = self~string
+    isnum = self~dataType("N")
+    if \isnum then valstr = '"'valstr'"' -- strings are surrounded by quotes, except string numbers
+    say '['valstr']'
+
+
+::extension MutableBuffer
+-- Unlike the routine pp2, this method does not display the identityHash
+-- (to avoid false differences when comparing with previous output)
+::method dump
+    self~string~dump
+
+
+::extension Collection
+::method dump
+    call dump self
+
+
+::extension Supplier
+::method dump
+    call dump self
+
+
+-----------------------------------------------------------------
+::routine dump
+    use arg coll, indent=""
+
+    say indent"["coll~class~id":"
+    s=coll~supplier
+    do while s~available
+        .output~charout(indent layout(s~index)~left(3)" : ")
+        if s~item~isA(.Collection) then do
+            say
+            call dump s~item, "    "indent 
+        end
+        else say layout(s~item)
+        s~next
+    end
+    say indent"]"
+
+
+::routine layout
+    use strict arg obj
+    if \obj~isA(.String) then return obj~string
+    if \obj~dataType("N") then return obj
+    if obj < 0 then return obj
+    return " "obj
+
+
+-----------------------------------------------------------------
 ::routine evaluate
     use strict arg evaluate_routineName
     evaluate_routine = .context~package~findRoutine(evaluate_routineName)
@@ -492,8 +988,7 @@ syntax:
     signal iterate
 
 
--------------------------------------------------------------------------------
+-----------------------------------------------------------------
 ::requires "extension/extensions.cls"
-::requires "rgf_util2/rgf_util2_wrappers.rex"
 
 
