@@ -379,12 +379,18 @@ interpretCommand:
         .traceOutput~say("[interpret] command=" .ooRexxShell~command)
         .color~select(.ooRexxShell~defaultColor)
     end
+    if .ooRexxShell~command~right(1) == "=" then do
+        if .ooRexxShell~isExtended then .ooRexxShell~command = 'options "NOCOMMANDS";'.ooRexxShell~command~left(.ooRexxShell~command~length - 1)';call dumpResult'
+                                   else .ooRexxShell~command = "call dumpResult" .ooRexxShell~command~left(.ooRexxShell~command~length - 1)
+    end
     RC = 0
-    result = .ooRexxShell~result -- restore previous result
+    if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
+                              else drop result
     signal on syntax name interpretError
     interpret .ooRexxShell~command
     signal off syntax
-    .ooRexxShell~result = result -- backup current result
+    if var("result") then .ooRexxShell~lastResult = result -- backup current result
+                     else .ooRexxShell~dropLastResult
     if RC <> 0 & .ooRexxShell~isInteractive then do
         .color~select(.ooRexxShell~infoColor)
         .error~say(.ooRexxShell~command)
@@ -392,6 +398,7 @@ interpretCommand:
         .error~say("RC=" RC)
         .color~select(.ooRexxShell~defaultColor)
     end
+    options "COMMANDS" -- Commands must be re-enabled for proper execution of ooRexxShell
     signal return_to_dispatchCommand
 
     interpretError:
@@ -403,6 +410,7 @@ interpretCommand:
     RC = condition("O")~code
     if RC <> 0 then .error~say("RC=" RC)
     .color~select(.ooRexxShell~defaultColor)
+    options "COMMANDS" -- Commands must be re-enabled for proper execution of ooRexxShell
     signal return_to_dispatchCommand
 
 
@@ -421,6 +429,25 @@ addressCommand:
         .color~select(.ooRexxShell~defaultColor)
     end
     signal return_to_dispatchCommand
+
+
+-------------------------------------------------------------------------------
+dumpResult: procedure expose result
+    if arg() == 0 & \var("result") then do
+        say "[no result]"
+        return
+    end
+    else do
+        use strict arg object=(result)
+        if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
+        else say pp2(object)
+        return object -- To get this value in the variable RESULT
+    end
+
+
+-------------------------------------------------------------------------------
+clearResult:
+    return
 
 
 -------------------------------------------------------------------------------
@@ -445,7 +472,9 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
+    .ooRexxShell~isExtended = .true
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
+        .ooRexxShell~isExtended = .false
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     call loadPackage("concurrency/coactivity.cls")
@@ -500,6 +529,7 @@ loadLibrary:
 ::class ooRexxShell
 -------------------------------------------------------------------------------
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
+::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
@@ -510,7 +540,7 @@ loadLibrary:
 ::attribute isInteractive class -- Are we in interactive mode, or are we executing a one-liner ?
 ::attribute prompt class -- The prompt to display
 ::attribute RC class -- Return code from the last executed command
-::attribute result class -- result's value from the last interpreted line
+::attribute lastResult class -- result's value from the last interpreted line
 ::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
 ::attribute securityManager class
 ::attribute queuePrivateName class -- Private queue for no interference with the user commands
@@ -529,9 +559,19 @@ loadLibrary:
 ::attribute debug class
 
 ::method init class
+    self~isExtended = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
     self~debug = .false
+
+
+::method hasLastResult class
+    expose lastResult
+    return var("lastResult")
+
+::method dropLastResult class
+    expose lastResult
+    drop lastResult
 
 
 ::method sayInterpreters class

@@ -91,6 +91,21 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2011 oct 13
+
+If an ooRexx command line ends with "=" then the command line is transformed
+to display the result :
+Standard ooRexx : '1+2=' becomes 'call dumpResult 1+2'
+Extended ooRexx : '1+2=' becomes 'options "NOCOMMANDS";1+2;call dumpResult'
+The 1st transformation works only with expressions. Not intended to be used in other cases.
+The 2nd transformation works with any command (expression or not).
+In both case, '=' alone displays the current value of the variable RESULT.
+
+If you need to clear the result, then do :
+call clearResult
+
+
+-----------------------------------------------
 2011 aug 08
 
 New command 'reload'.
