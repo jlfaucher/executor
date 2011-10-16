@@ -1,3 +1,28 @@
+http://msdn.microsoft.com/en-us/library/dd293603.aspx
+
+
+http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/
+
+
+http://javac.info/
+Closures (Lambda Expressions) for the Java Programming Language
+
+
+http://people.csail.mit.edu/gregs/ll1-discuss-archive-html/msg03277.html
+A closure is an object that supports exactly one method: "apply".
+
+
+http://skilldrick.co.uk/2011/04/closures-explained-with-javascript/
+Makes reference to : ˆ 
+http://www.mail-archive.com/jsmentors@googlegroups.com/msg02393.html
+which explains that :
+a closure actually remembers its environment rather than its free variables, so if you define a new variable in the environment of the closure after the closureÕs definition, it will be accessible inside the closure.
+
+
+http://eclipsezone.com/eclipse/forums/t86911.html
+When is a closure not a closure ?
+
+
 http://nathansjslessons.appspot.com/
 
 
@@ -22,6 +47,9 @@ on a number of different environments for some time under different names:
 - SAS: by
 - Google: MapReduce
 - Apache: Hadoop
+
+
+http://ayende.com/blog/4435/map-reduce-a-visual-explanation
 
 
 http://www.music.mcgill.ca/~sinclair/content/blog/comparing_c_0x_lambdas_with_scheme_an_object_with_mutable_state_no_classes_involved
@@ -81,16 +109,16 @@ let
 http://thirdcog.eu/pwcblocks/#objcblocks
 In Mac OS X 10.6, Apple introduced a syntax and runtime for using blocks (more commonly known as closures) in C and Objective-C.
 
-http://msdn.microsoft.com/fr-fr/library/aa985932.aspx
+http://msdn.microsoft.com/en-us/library/aa985932.aspx
 Function Objects
 
-http://msdn.microsoft.com/fr-fr/library/dd293608.aspx
+http://msdn.microsoft.com/en-us/library/dd293608.aspx
 Lambda Expressions in C++
 
-http://msdn.microsoft.com/fr-fr/library/dd293603.aspx
+http://msdn.microsoft.com/en-us/library/dd293603.aspx
 Lambda Expression Syntax
 
-http://msdn.microsoft.com/fr-fr/library/dd293599.aspx
+http://msdn.microsoft.com/en-us/library/dd293599.aspx
 Examples of Lambda Expressions
 
 http://blogs.msdn.com/b/ericlippert/archive/2009/11/12/closing-over-the-loop-variable-considered-harmful.aspx
@@ -100,6 +128,15 @@ http://blogs.msdn.com/b/nativeconcurrency/archive/2011/02/21/the-concurrency-run
 The Concurrency Runtime and Visual C++ 2010: Lambda Expressions
 
 http://groovy.codehaus.org/JN2515-Closures
+http://groovy.codehaus.org/api/groovy/lang/Closure.html
+Trampoline :
+Builds a trampolined variant of the current closure. 
+To prevent stack overflow due to deep recursion, functions can instead leverage the trampoline mechanism and avoid recursive calls altogether. 
+Under trampoline, the function is supposed to perform one step of the calculation and, instead of a recursive call to itself or another function, 
+it return back a new closure, which will be executed by the trampoline as the next step. 
+Once a non-closure value is returned, the trampoline stops and returns the value as the final result.
+
+
 
 http://jrdodds.blogs.com/blog/2006/05/javascript_clos.html
 
@@ -849,3 +886,102 @@ block = [1/0]
  	rexx.exe!main(int argc, char * * argv)  Line 212 + 0x27 bytes	C++
  	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
  	rexx.exe!mainCRTStartup()  Line 189	C
+
+
+=====================================================================================
+Code review for expose
+=====================================================================================
+
+RexxLocalVariables.hpp
+    #define VARIABLE_SELF    1             /* variable lookaside indices        */
+    #define VARIABLE_SUPER   2
+    #define VARIABLE_RESULT  3
+    #define VARIABLE_RC      4
+    #define VARIABLE_SIGL    5
+    #define FIRST_VARIABLE_INDEX 5         /* variable index list first slot    */
+
+
+---------------
+procedureExpose
+---------------
+    ProcedureInstruction.cpp
+        void RexxInstructionProcedure::execute(
+            RexxActivation      *context,      /* current activation context        */
+            RexxExpressionStack *stack)        /* evaluation stack                  */
+            ...
+            context->procedureExpose(variables, variableCount);
+            ...
+    RexxActivation.hpp
+        void              procedureExpose(RexxVariableBase **variables, size_t count);
+    RexxActivation.cpp
+        void RexxActivation::procedureExpose(RexxVariableBase **variables, size_t count)
+    ExpressionBaseVariable.hpp
+        class RexxVariableBase
+            virtual void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *) {;}
+    ExpressionCompoundVariable.hpp
+        class RexxCompoundVariable : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+    ExpressionCompoundVariable.cpp
+        void RexxCompoundVariable::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+    ExpressionStem.hpp
+        class RexxStemVariable : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+    ExpressionStem.cpp
+        void RexxStemVariable::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+    ExpressionVariable.hpp
+        class RexxParseVariable : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+    ExpressionVariable.cpp
+        void RexxParseVariable::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+    IndirectVariableReference.hpp
+        class RexxVariableReference : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+    IndirectVariableReference.cpp
+        void RexxVariableReference::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+
+
+--------------------------
+allocateLocalVariableFrame
+--------------------------
+
+    RexxActivity.hpp
+       inline void allocateLocalVariableFrame(RexxLocalVariables *locals)
+       {
+           locals->setFrame(frameStack.allocateFrame(locals->size));
+       }
+       
+    RexxActivation.cpp
+    
+        RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+            /* allocate a frame for the local variables from activity stack */
+            settings.local_variables.init(this, code->getLocalVariableSize());
+            this->activity->allocateLocalVariableFrame(&settings.local_variables);
+            
+        RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context)
+            /* allocate a frame for the local variables from activity stack */
+            settings.local_variables.init(this, code->getLocalVariableSize());
+            this->activity->allocateLocalVariableFrame(&settings.local_variables);
+            
+        void RexxActivation::procedureExpose(
+            /* get a new  */
+            RexxVariableBase **variables, size_t count)
+            activity->allocateLocalVariableFrame(&settings.local_variables);
+            /* make sure we clear out the dictionary, otherwise we'll see the */
+            /* dynamic entries from the previous level. */
+            settings.local_variables.procedure(this);
+            
+    RexxLocalVariables.cpp
+    
+

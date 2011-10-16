@@ -1,0 +1,198 @@
+-------------------------------------------
+From Rony 
+
+In dynamic languages the class definitions (the name, the methods) are represented in objects as well. 
+The class used for creating objects that keep the definition of a class in ooRexx (and many other languages) is called "Class". 
+As instances of this class describe the structure and behaviour of individual classes the term "metaclass" is used for it. 
+So the ooRexx class "Class" is the metaclass of ooRexx. 
+Of course, if one subclasses "Class" it inherits all abilities of "Class" and as such keeps on being able to maintain the definition of classes. 
+An instance of "Class" or one of its subclasses (hence of any metaclass) is called "class object".
+
+The instance methods of metaclasses (i.e. "class objects") are called "class methods", indicating that these methods belong to the class object.
+
+Finally ad methods of a class object: 
+all methods of a class object are "instance methods", sometimes dubbed "class methods", because they are the instance methods of a metclass/class object. 
+A class object is just a normal ooRexx object 
+
+
+------------------------------------------
+From Rick
+
+A metaclass has one very important distinction:  The NEW method of a
+metaclass MUST return a class object, not some other sort of object.
+It is a factory for making class objects used to build new classes.
+
+The processing goes something like this:
+
+1)  Send a NEW message to the metaclass to create a new class object
+instance.  This object will implement some number of methods directly
+just be virtue of being an object.  These are the class object's
+instance methods, but since it is a class object, they are frequently
+referred to as "class" methods.  It also has an internal dictionary
+which are the methods that will be given to its instances when they
+are created.  These are the methods that are frequently referred to as
+"instance" methods.  Typically, the metaclass is just the Class class.
+
+2)  Give the two dictionaries above (I'll refer to them as the class
+method dictionary and the instance method dictionary from here on), a
+merging process then takes place to create the new class object.  Each
+of these dictionaries are merged with the following:
+
+   a)  The class and instance method dictionaries from the superclass.
+   b)  The class and instance method dictionaries from each of the
+inherited mixin classes
+   c)  The additional methods defined by the directories.  The
+methods tagged with the CLASS keyword are added to the class
+dictionary, the "regular" methods are added to the instance
+dictionary.
+
+A lot of the metaclass processing was driven by the since removed SOM
+support.  On an import, a SOM metaclass object was used to retrieve
+the methods associated with the imported SOM class.  I believe that
+the SOM support was the reason the metaclasses array exists.  I think
+the SOM object model allowed for multiple metaclasses.
+
+
+-------------------------------------------
+rexxref 5.1.1 Note (Object)
+<<The Object class also has available class methods that its metaclass, the Class class, defines.>>
+JLF : "its metaclass" ? should be "its class", no ? not necessarily... sounds correct
+In 3.2 : If you specify the METACLASS option, the instance methods of the metaclass class become class methods of the classname class.
+In 4.1.4, example version 2 : the instance methods of the metaclass become the class methods of the class.
+
+rexxref 5.1.2.10 (metaClass)
+<< The instance methods of the default metaclass are the class methods of the receiver class.>>
+
+
+rexxref 5.1.2.14 (.Class~new) :
+JLF : This description of the ~new method is for a class object, not for a metaclass object.>>
+      The doc should say that the ~new method takes one argument : the name of the class to create.
+----
+4.2.1 : 
+<<When you create a new class, it is always a subclass of an existing class. You can create new classes with
+  the ::CLASS directive or by sending the SUBCLASS or MIXINCLASS message to an existing class.>>
+
+
+A metaclass is a class that you can use to create a class, that is, a class whose instances are classes. 
+The Class class and its subclasses are metaclasses.
+
+
+-------------------------------------------
+
+.object                         RexxInternalObject::behaviour = Instance methods, available on all objects
+~class = The Class class        RexxInternalObject::behaviour = Class methods
+~metaclass = The Class class
+~superclass = The NIL object
+~baseclass = The Object class
+
+
+.class                          RexxInternalObject::behaviour = Instance methods (class methods of all classes)
+~class = The Class class
+~metaclass = The Class class
+~baseclass = The Class class
+~superclass = The Object class
+
+
+-----------------------------------------------
+Rexx methods
+-----------------------------------------------
+
+~class
+RexxClass *RexxObject::classObject() --> this->behaviour->getOwningClass()
+
+~superclass
+RexxClass *RexxClass::getSuperClass() --> return (RexxClass *)this->instanceSuperClasses->get(1)
+
+~superclasses
+RexxArray *RexxClass::getSuperClasses() --> (RexxArray *)this->instanceSuperClasses->copy()
+
+~baseclass
+RexxClass *RexxClass::getBaseClass() --> this->baseClass
+
+~metaclass
+RexxClass *RexxClass::getMetaClass() --> 
+    if (this->isPrimitiveClass()) return TheClassClass; //this is always .class
+    else return(RexxClass *)this->metaClass->get(1); // first member of list
+
+~instanceMethod
+RexxMethod *RexxObject::instanceMethod(RexxString *method_name) -->
+    RexxMethod *method_object = (RexxMethod *)this->behaviour->getMethodDictionary()->stringGet(method_name);
+
+~instanceMethods
+RexxSupplier *RexxObject::instanceMethods(RexxClass *class_object) -->
+    return this->behaviour->getMethods(class_object);
+
+~setMethod
+RexxObject  *RexxObject::setMethod(RexxString *msgname, RexxMethod *methobj, RexxString *option) -->
+    this->defMethod(msgname, methobj, option)
+
+~define
+RexxObject *RexxClass::defineMethod(RexxString *method_name, RexxMethod *method_object) -->
+    /* make a copy of the instance       */
+    /* behaviour so any previous objects */
+    /* aren't enhanced                   */
+    OrefSet(this, this->instanceBehaviour, (RexxBehaviour *)this->instanceBehaviour->copy());
+    /* add method to the instance mdict  */
+    this->instanceMethodDictionary->stringPut((RexxObject *)method_object, method_name);
+    /* any subclasses that we have need  */
+    /* to redo their instance behaviour  */
+    /* this also updates our own         */
+    this->updateInstanceSubClasses();
+
+~!DEFINE_CLASS_METHOD (available on .Class)
+RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *newMethod) -->
+    this->behaviour->getMethodDictionary()->stringPut(newMethod, method_name);
+    this->classMethodDictionary->stringAdd(newMethod, method_name);
+
+
+-----------------------------------------------
+C++ methods
+-----------------------------------------------
+
+RexxTable *RexxClass::getInstanceBehaviourDictionary()
+    RexxTable *methodTable = this->instanceBehaviour->getMethodDictionary();
+    if (methodTable == OREF_NULL) return new_table();
+    else return(RexxTable *)methodTable->copy();
+
+
+-----------------------------------------------
+Data model
+-----------------------------------------------
+
+
+ObjectClass.hpp
+  class RexxInternalObject : public RexxVirtualBase{
+     inline RexxBehaviour *getObjectType() { return behaviour; }
+     -----
+     RexxBehaviour *behaviour;           // the object's behaviour                              ~class, ~instanceMethod, ~instanceMethods, ~setMethod, ~unsetMethod
+
+RexxBehavious.hpp
+ class RexxBehaviour : public RexxInternalObject
+ {
+   inline RexxTable  *getMethodDictionary()   { return this->methodDictionary; };
+   RexxIdentityTable  *scopes;           // scopes table                      */
+   RexxTable  *methodDictionary;         // method dictionary                                   ~instanceMethod, ~instanceMethods
+   RexxClass  *owningClass;              // class that created this object                      ~class
+   RexxTable  *instanceMethodDictionary; // methods added via SETMETHOD                         ~setMethod, ~unsetMethod
+
+
+ObjectClass.hpp
+  class RexxObject : public RexxInternalObject {
+     inline RexxBehaviour *behaviourObject() { return this->behaviour; }
+
+
+ClassClass.hpp
+ class RexxClass : public RexxObject {
+    RexxTable         *classMethodDictionary; // class methods specific to this class           ~!DEFINE_CLASS_METHOD (also used by ::extension)
+    RexxBehaviour     *instanceBehaviour; // instances of this class inherit this behaviour     [~define --> this->updateInstanceSubClasses(]
+    RexxTable         *instanceMethodDictionary; // methods added to this class                 ~define
+    ---------
+    RexxClass         *baseClass; // Baseclass of this class                                    ~baseclass
+    RexxArray         *metaClass; // Metaclass of this class                                    ~metaclass
+    RexxArray         *metaClassMethodDictionary; // Metaclass mdict
+    RexxIdentityTable *metaClassScopes; // Metaclass scopes
+    ---------
+    RexxArray         *classSuperClasses; // The superclass and any inherited mixins for class behaviour
+    RexxArray         *instanceSuperClasses; // The superclass and any inherited mixins for instance behaviour      ~superclass, ~superclasses
+    ---------
+    RexxList          *subClasses;         // our list of weak referenced subclasses

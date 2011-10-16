@@ -1,3 +1,9 @@
+http://billfen.wordpress.com/incremental-parsing-and-ast-repair-with-javacc-and-jjtree/
+http://ibm-netrexx.215625.n3.nabble.com/NetRexx-Eclipse-status-video-td3271843.html
+
+
+==============================================================================
+
 RexxCode *RexxSource::translate
     RexxCode *newMethod = this->translateBlock(_labels);
         while (!this->atEnd())             /* loop until end of source          */

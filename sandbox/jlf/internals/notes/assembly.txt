@@ -1,0 +1,45 @@
+Careful ! In C++ The arithmetic on address depends on the size of the dereferenced pointer
+In assembly, no such thing : if you add 18h then you *REALLY* add 18h, not something like : mysize*18h
+
+sizeof(this)=4
+sizeof(*this)=28 = 0x1C
+this    7f1359f8
+this+1  7f135a14    <-- + 0x1C
+this+2  7f135a30
+
+
+sizeof((int*)this) = 4
+sizeof(*(int*)this) = 4
+((int*)this)    = 0x7f1359f8
+((int*)this)+1  = 0x7f1359fC    <-- + 0x4
+
+
+RexxObject *left = this->left_term->evaluate(context, stack);
+ this = 0x7f1359f8
+ 
+100AACE9  mov         eax,dword ptr [stack]  
+100AACEC  push        eax  
+
+100AACED  mov         ecx,dword ptr [context]  
+100AACF0  push        ecx  
+
+100AACF1  mov         edx,dword ptr [this]      		EDX	7F1359F8	this
+100AACF4  mov         eax,dword ptr [edx+18h] 		    EAX	7F1359D8	*((int*)(((char*)this)+0x18))
+                                                                        *(
+                                                                           (int*)(
+                                                                                   ((char*)this)
+                                                                                   +0x18
+                                                                             )
+                                                                         )
+
+100AACF7  mov         ecx,dword ptr [this]      		ECX	7F1359F8	this
+100AACFA  mov         ecx,dword ptr [ecx+18h]   		ECX	7F1359D8	*(this+0x18)
+
+100AACFD  mov         edx,dword ptr [eax]       		EDX	100FADDC	
+100AACFF  mov         eax,dword ptr [edx+20h]   		EAX	100A8B10	
+
+100AAD02  call        eax  
+100AAD04  mov         dword ptr [left],eax  
+
+
+

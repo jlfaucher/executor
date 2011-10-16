@@ -164,3 +164,81 @@ sizeof(RexxDoBlock) = 44
 sizeof(InterpreterInstance) = 224
 sizeof(SecurityManager) = 20
 sizeof(CommandHandler) = 24
+
+
+===================================================================================
+
+
+myClass = .class~new("myClass")
+    ~class = The Class class
+    ~metaclass = The Class class
+    ~superclass = The Object class
+    ~baseclass = The myClass class
+    Problem : myClass~new raise an error "does not understand message new"
+myClass = .object~subclass("myClass)
+    ~class = The Class class
+    ~metaclass = The Class class
+    ~superclass = The Object class
+    ~baseclass = The myClass class
+    Here, myClass~new works !
+myMetaClass = .class~subclass("myMetaClass")
+    ~class = The Class class
+    ~metaclass = The Class class
+    ~superclass = The Class class
+    ~baseclass = The myMetaClass class
+myMixinMetaClass = .class~mixinClass("myMixinMetaClass")
+    ~class = The Class class
+    ~metaclass = The Class class
+    ~superclass = The Class class
+    ~baseclass = The Class class <----
+
+
+
+
+Object methods
+Can be extended using .object~define
+.object~methods~pipe(.sort byindex | .console {("'"index["source"]~index"'")~left(17)} " : " {value~identityHash} | .linecount | .console)
+
+Object instance methods
+.object~instancemethods~pipe(.sort byindex | .console {("'"index["source"]~index"'")~left(17)} " : " {value~identityHash} | .linecount | .console)
+
+Class methods
+.class~methods~pipe(.sort byindex | .console {("'"index["source"]~index"'")~left(17)} " : " {value~identityHash} | .linecount | .console)
+
+
+Class instance methods
+.class~instancemethods~pipe(.sort byindex | .console {("'"index["source"]~index"'")~left(17)} " : " {value~identityHash} | .linecount | .console)
+
+
+ObjectClass.cpp
+ * Return a supplier containing the methods implemented by an
+ * object.  Depending on the argument, this is either 
+ * A) all of the methods, 
+ * B) just the explicitly set instance methods, or
+ * C) the methods provided by a given class.
+ */
+RexxSupplier *RexxObject::instanceMethods(RexxClass *class_object)
+{
+    // the behaviour handles all of this
+    return this->behaviour->getMethods(class_object);
+
+
+ClassClass.cpp
+RexxSupplier *RexxClass::methods(
+    RexxClass *class_object)           /* target class object               */
+~methods
+        // return all the methods that an instance of this class will inherit
+        return this->instanceBehaviour->getMethodDictionary()->supplier();
+~methods(.nil)
+        // return just the methods introduced at this class scope
+        return this->instanceMethodDictionary->supplier();
+~methods(class_object)
+        // let the class specified return it's own methods
+        class_object->sendMessage(OREF_METHODS, TheNilObject, r);
+        return(RexxSupplier *)(RexxObject *)r;
+
+
+Remember :
+[Oorexx-svn] SF.net SVN: oorexx: [2683] interpreter-3.x/trunk/kernel/classes/ClassClass. cpp
+[ 1144953 ] ooRexx multiple inheritance among metaclasses not working
+
