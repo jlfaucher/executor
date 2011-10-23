@@ -82,10 +82,7 @@ signal on any name error
 shell~call(arg(1), address())
 
 error:
-if .Coactivity~isA(.Class) then do
-    endCount = .Coactivity~endAll
-    if .ooRexxShell~isInteractive then say "Ended coactivities:" endCount
-end
+endCount = .Coactivity~endAll
 
 if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 
@@ -98,6 +95,7 @@ return .ooRexxShell~RC <> 0
 use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
 
 .ooRexxShell~readline = .true -- assign .false if you want only the basic "parse pull" functionality
+.ooRexxShell~showInfos = .true -- assign .false if you don't want the infos displayed after each line interpretation
 
 .ooRexxShell~defaultColor = "white"
 .ooRexxShell~errorColor = "bred"
@@ -358,13 +356,40 @@ haltHandler:
 -- Remember : don't implement that as a procedure or routine or method !
 -- Moreover don't call it, you must jump to (signal) it...
 dispatchCommand:
+    call time('r') -- to see how long this takes
+    RC = 0
+    .ooRexxShell~error = .false
     call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         signal interpretCommand -- don't call
     else
         signal addressCommand -- don't call
+
     return_to_dispatchCommand:
+    options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queuePrivateName -- Back to the private ooRexxShell queue
+    if .ooRexxShell~error then do
+        .color~select(.ooRexxShell~errorColor)
+        .error~say(condition("O")~message)
+        .error~say(condition("O")~traceback~makearray~tostring)
+        .color~select(.ooRexxShell~defaultColor)
+    end
+    if RC <> 0 then do
+        .color~select(.ooRexxShell~errorColor)
+        .error~say("RC=" RC)
+        .color~select(.ooRexxShell~defaultColor)
+    end
+    if RC <> 0 | .ooRexxShell~error then do
+        .color~select(.ooRexxShell~infoColor)
+        .error~say(.ooRexxShell~command)
+        .color~select(.ooRexxShell~defaultColor)
+    end
+    if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
+        .color~select(.ooRexxShell~infoColor)
+        say "Duration:" time('e') -- elapsed duration
+        say "#Coactivities:" .Coactivity~count -- counter of coactivities
+        .color~select(.ooRexxShell~defaultColor)
+    end
     signal CONTINUE_REPL
 
 
@@ -383,7 +408,6 @@ interpretCommand:
         if .ooRexxShell~isExtended then .ooRexxShell~command = 'options "NOCOMMANDS";'.ooRexxShell~command~left(.ooRexxShell~command~length - 1)';call dumpResult'
                                    else .ooRexxShell~command = "call dumpResult" .ooRexxShell~command~left(.ooRexxShell~command~length - 1)
     end
-    RC = 0
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                               else drop result
     signal on syntax name interpretError
@@ -391,26 +415,11 @@ interpretCommand:
     signal off syntax
     if var("result") then .ooRexxShell~lastResult = result -- backup current result
                      else .ooRexxShell~dropLastResult
-    if RC <> 0 & .ooRexxShell~isInteractive then do
-        .color~select(.ooRexxShell~infoColor)
-        .error~say(.ooRexxShell~command)
-        .color~select(.ooRexxShell~errorColor)
-        .error~say("RC=" RC)
-        .color~select(.ooRexxShell~defaultColor)
-    end
-    options "COMMANDS" -- Commands must be re-enabled for proper execution of ooRexxShell
     signal return_to_dispatchCommand
 
     interpretError:
-    .color~select(.ooRexxShell~infoColor)
-    .error~say(.ooRexxShell~command)
-    .color~select(.ooRexxShell~errorColor)
-    .error~say(condition("O")~message)
-    .error~say(condition("O")~traceback~makearray~tostring)
+    .ooRexxShell~error = .true
     RC = condition("O")~code
-    if RC <> 0 then .error~say("RC=" RC)
-    .color~select(.ooRexxShell~defaultColor)
-    options "COMMANDS" -- Commands must be re-enabled for proper execution of ooRexxShell
     signal return_to_dispatchCommand
 
 
@@ -421,13 +430,6 @@ addressCommand:
     address value .ooRexxShell~commandInterpreter
     (.ooRexxShell~command)
     address -- restore previous
-    if RC <> 0 & .ooRexxShell~isInteractive then do
-        .color~select(.ooRexxShell~infoColor)
-        .error~say(.ooRexxShell~command)
-        .color~select(.ooRexxShell~errorColor)
-        .error~say("RC=" RC)
-        .color~select(.ooRexxShell~defaultColor)
-    end
     signal return_to_dispatchCommand
 
 
@@ -529,22 +531,24 @@ loadLibrary:
 ::class ooRexxShell
 -------------------------------------------------------------------------------
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
-::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
+::attribute error class -- Will be .true if the last command raised an error
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute inputrx class -- The current input to interpret
 ::attribute interpreter class -- One of the environments in 'interpreters' or the special value "ooRexx"
 ::attribute interpreters class -- The set of interpreters that can be activated
+::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
 ::attribute isInteractive class -- Are we in interactive mode, or are we executing a one-liner ?
-::attribute prompt class -- The prompt to display
-::attribute RC class -- Return code from the last executed command
 ::attribute lastResult class -- result's value from the last interpreted line
-::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
-::attribute securityManager class
+::attribute prompt class -- The prompt to display
 ::attribute queuePrivateName class -- Private queue for no interference with the user commands
 ::attribute queueInitialName class -- Backup the initial external queue name (probably "SESSION")
+::attribute RC class -- Return code from the last executed command
+::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
+::attribute securityManager class
+::attribute showInfos class
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
 
 ::attribute defaultColor class

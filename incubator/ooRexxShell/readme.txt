@@ -91,6 +91,13 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2011 oct 23
+
+After each command interpretation, display the elapsed duration and the number
+of coactivities.
+
+
+-----------------------------------------------
 2011 oct 13
 
 If an ooRexx command line ends with "=" then the command line is transformed
