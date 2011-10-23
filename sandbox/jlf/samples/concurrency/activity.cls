@@ -10,15 +10,16 @@ else
 
 
 --------------------------------------------------------------------------------
-::class Activity public
+::class "Activity" public
 
--- Emulate an Activity's environmement : one entry per activity, the key is the thread id. 
+-- Emulate an Activity's environmement : one entry per activity, the key is the thread id.
 -- See RFE 2868655 : "Add ThreadLocal concept".
 -- Each entry is a directory.
-::attribute directory class private
+--::attribute directory class private
 
 ::method init class
-    self~directory = .Directory~new
+    expose directory
+    directory = .Directory~new
 
 
 ::method currentThreadId class
@@ -27,10 +28,11 @@ else
 
 
 ::method local class
-    local = self~directory[self~currentThreadId]
+    expose directory
+    local = directory[self~currentThreadId]
     if local == .nil then do
         local = .Directory~new
-        self~directory[self~currentThreadId] = local
+        directory[self~currentThreadId] = local
     end
     return local
 

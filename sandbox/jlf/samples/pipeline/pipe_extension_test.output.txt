@@ -189,8 +189,8 @@ source[Coactivity#1(a Coactivity),2] : b
 
 
 -- ...ascending (default)
--- The order of options is important : a value option is impacted only by the preceding options
--- This is because several value options can be specified, and a sort is made for each.
+-- The order of options is important : a byValue option is impacted only by the preceding options
+-- This is because several byValue options can be specified, and a sort is made for each.
    .array~of(b, a, c)~pipe(.sort ascending byValue | .console)
 (an Array),2 : A
 (an Array),1 : B
@@ -205,8 +205,8 @@ source[Coactivity#1(a Coactivity),2] : b
 
 
 -- ...by index descending
--- The order of options is important : an index option is impacted only by the preceding options.
--- This is because several index options can be specified, and a sort is made for each.
+-- The order of options is important : a byIndex option is impacted only by the preceding options.
+-- This is because several byIndex options can be specified, and a sort is made for each.
    .array~of(b, a, c)~pipe(.sort descending byIndex | .console)
 (an Array),3 : C
 (an Array),2 : A
@@ -799,6 +799,7 @@ i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1                 
 i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1|(a Package),1                           activity.cls 
 i1=(a Package),1|i1,1|(a Package),3                                                               coactivity.cls 
 i1=(a Package),1|i1,1|(a Package),3|(a Package),1                                                   activity.cls 
+i1=(a Package),1|i1,1|(a Package),4                                                               array.cls 
 i1=(a Package),1|i1,2                                                                           coactivity.cls 
 i1=(a Package),1|i1,2|(a Package),1                                                               activity.cls 
 i1=(a Package),1|i1,3                                                                           pipe_extension.cls 
@@ -814,6 +815,7 @@ i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1   
 i1=(a Package),1|i1,3|(a Package),2|(a Package),2|(a Package),1|(a Package),1|(a Package),1               activity.cls 
 i1=(a Package),1|i1,3|(a Package),2|(a Package),3                                                   coactivity.cls 
 i1=(a Package),1|i1,3|(a Package),2|(a Package),3|(a Package),1                                       activity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),4                                                   array.cls 
 i1=(a Package),1|i1,4                                                                           rgf_util2_wrappers.rex 
 i1=(a Package),1|i1,4|(a Package),1                                                               rgf_util2.rex 
 
@@ -833,6 +835,7 @@ i1=(a Package),1|i1,4                                                           
 i1=(a Package),1|i1,1|(a Package),1                                                               doers.cls 
 i1=(a Package),1|i1,1|(a Package),2                                                               functionals.cls 
 i1=(a Package),1|i1,1|(a Package),3                                                               coactivity.cls 
+i1=(a Package),1|i1,1|(a Package),4                                                               array.cls 
 i1=(a Package),1|i1,2|(a Package),1                                                               activity.cls 
 i1=(a Package),1|i1,3|(a Package),1                                                               pipe.rex 
 i1=(a Package),1|i1,3|(a Package),2                                                               extensions.cls 
@@ -844,6 +847,7 @@ i1=(a Package),1|i1,3|(a Package),1|(a Package),1                               
 i1=(a Package),1|i1,3|(a Package),2|(a Package),1                                                   doers.cls 
 i1=(a Package),1|i1,3|(a Package),2|(a Package),2                                                   functionals.cls 
 i1=(a Package),1|i1,3|(a Package),2|(a Package),3                                                   coactivity.cls 
+i1=(a Package),1|i1,3|(a Package),2|(a Package),4                                                   array.cls 
 i1=(a Package),1|i1,1|(a Package),1|(a Package),1|(a Package),1                                       activity.cls 
 i1=(a Package),1|i1,1|(a Package),2|(a Package),1|(a Package),1                                       coactivity.cls 
 i1=(a Package),1|i1,3|(a Package),2|(a Package),1|(a Package),1                                       coactivity.cls 
@@ -1319,15 +1323,15 @@ source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my
                 .console~PROCESS count=9 duration=0
   .fileTree~PROCESS count=1 duration=8.953000
     .endsWith~ISEOP count=1242 duration=0
-    .endsWith~PROCESS count=621 duration=8.593000
+    .endsWith~PROCESS count=621 duration=8.655000
       .getFiles~ISEOP count=633 duration=0
-      .getFiles~PROCESS count=12 duration=8.578000
-        .words~ISEOP count=28386 duration=0.015000
-        .words~PROCESS count=14181 duration=7.628000
-          .select~ISEOP count=141387 duration=0.264000
-          .select~PROCESS count=63603 duration=3.482000
-            .take~ISEOP count=63974 duration=0.093000
-            .take~PROCESS count=371 duration=0.030000
+      .getFiles~PROCESS count=12 duration=8.624000
+        .words~ISEOP count=28386 duration=0.095000
+        .words~PROCESS count=14181 duration=7.589000
+          .select~ISEOP count=141387 duration=0.188000
+          .select~PROCESS count=63603 duration=3.072000
+            .take~ISEOP count=63974 duration=0.079000
+            .take~PROCESS count=371 duration=0.064000
               .sort~ISEOP count=380 duration=0
               .sort~PROCESS count=9 duration=0
   .fileTree~START count=1 duration=0

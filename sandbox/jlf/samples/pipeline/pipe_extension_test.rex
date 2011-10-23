@@ -153,8 +153,8 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 
 -- ...ascending (default)
--- The order of options is important : a value option is impacted only by the preceding options
--- This is because several value options can be specified, and a sort is made for each.
+-- The order of options is important : a byValue option is impacted only by the preceding options
+-- This is because several byValue options can be specified, and a sort is made for each.
 .array~of(b, a, c)~pipe(.sort ascending byValue | .console)
 
 
@@ -163,8 +163,8 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 
 -- ...by index descending
--- The order of options is important : an index option is impacted only by the preceding options.
--- This is because several index options can be specified, and a sort is made for each.
+-- The order of options is important : a byIndex option is impacted only by the preceding options.
+-- This is because several byIndex options can be specified, and a sort is made for each.
 .array~of(b, a, c)~pipe(.sort descending byIndex | .console)
 
 

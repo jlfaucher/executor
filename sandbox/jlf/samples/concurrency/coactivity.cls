@@ -12,8 +12,8 @@ asymmetric coroutines (resume + yield). All is in place to support symmetric cor
 (yield only), but the scheduler remains to implement.
 
 Coroutines are a programming language concept that allows for explicit, cooperative
-and stateful switching between subroutines. The advantage of real coroutine over 
-threads is that they do not have to be synchronized because they pass control to 
+and stateful switching between subroutines. The advantage of real coroutine over
+threads is that they do not have to be synchronized because they pass control to
 each other explicitly and deterministically.
 */
 
@@ -23,7 +23,7 @@ each other explicitly and deterministically.
 
 
 -- .yield[value] is more compact than .Coactivity~yield(value)
-::class yield public
+::class "yield" public
 ::method "[]" class unguarded
     forward message ("yield") to (.Coactivity)
 
@@ -48,18 +48,22 @@ Status transitions :
 ::attribute makeArrayLimit class -- Coactivities can generate an infinite number of values, so must put a limit...
 
 -- Instance attributes for entry point
-::attribute doer private
-::attribute object private
+-- ::attribute doer private
+-- ::attribute object private
 
 -- Instance attributes for execution
-::attribute status private
-::attribute arguments private
-::attribute yieldValue private
+-- ::attribute status private
+-- ::attribute arguments private
+-- ::attribute yieldValue private
 
 
 ::method init class
     self~table = .IdentityTable~new
     self~makeArrayLimit = 10000 -- not a constant, I think it's useful to let the end user change this value
+
+
+::method count class
+    return self~table~items
 
 
 ::method all class
@@ -86,13 +90,19 @@ Status transitions :
     /*
     The coactivity entry can be a routine, a couple (message, object) or a couple (method, object).
     The default entry is the couple ("main", self).
-    By default, the coactivity is started (the 'start' method is called) 
+    By default, the coactivity is started (the 'start' method is called)
     */
-    use strict arg action="main", start=.true, self~object=(self)
+    expose doer object status
+    use strict arg action="main", start=.true, object=(self)
 
-    self~doer = action~doer
-    self~status = .Coactivity~notStarted
+    doer = action~doer
+    status = .Coactivity~notStarted
     if start then self~start
+
+
+::method executable
+    expose doer
+    return doer
 
 
 ::method start
@@ -102,7 +112,7 @@ Status transitions :
     The arguments passed to the first 'resume' will be made available to the coactivity through the traditional 'use arg'.
     The arguments passed to the next 'resume's will be made available as an array returned by 'yield'.
     */
-    expose status
+    expose arguments doer object status
     use strict arg -- no arg
     if status <> .Coactivity~notStarted then raise syntax 93.900 array ("Only 'not started' coactivities can be started (current status is '"self~statusText"')")
     status = .Coactivity~suspended
@@ -117,8 +127,8 @@ Status transitions :
     if status == .Coactivity~running then do
         guard off
         -- arguments are coming from 'resume' (the first resume activates the coactivity)
-        if self~doer~needsObject then self~doer~doWith(self~object, self~arguments) -- object needed (message, method)
-        else self~doer~doWith(self~arguments) -- no object needed (routine)
+        if doer~needsObject then doer~doWith(object, arguments) -- object needed (message, method)
+        else doer~doWith(arguments) -- no object needed (routine)
         guard on
         if var("result") then self~yieldLast(result)
         else self~yieldLast
@@ -132,8 +142,8 @@ Status transitions :
     if self~isKilled & condition("o") <> .nil then raise propagate
 
 
-::method main abstract 
-    -- Default entry point of the coactivity, to be implemented in a subclass 
+::method main abstract
+    -- Default entry point of the coactivity, to be implemented in a subclass
     -- (The subclassing is optional. You can use any doer as entry point).
 
 
@@ -156,7 +166,7 @@ Status transitions :
 ::method yield private
     -- Can be called only from a coactivity.
     -- Returns an array which contains the arguments passed to 'resume' by the client of the coactivity.
-    expose status yieldValue
+    expose arguments status yieldValue
     drop yieldValue
     if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
     if status == .Coactivity~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
@@ -166,7 +176,7 @@ Status transitions :
     guard on when status <> .Coactivity~suspended
     if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
     if status == .Coactivity~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
-    if self~arguments~items <> 0 then return self~arguments -- returns the arguments that the coactivity's client passed to 'resume'
+    if arguments~items <> 0 then return arguments -- returns the arguments that the coactivity's client passed to 'resume'
 
 
 ::method yieldLast private
@@ -181,11 +191,11 @@ Status transitions :
 ::method resume
     -- You can pass arguments to this method.
     -- They will be passed to the coactivity, either as traditional 'use arg' if first call, or as an array returned by 'yield'.
-    expose status yieldValue
+    expose arguments status yieldValue
     if status == .Coactivity~notStarted then raise syntax 93.900 array ("Coactivity is not started")
     if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed")
     if status == .Coactivity~ended then return -- raise syntax 93.900 array ("Coactivity is ended")
-    self~arguments = arg(1, "a")
+    arguments = arg(1, "a")
     status = .Coactivity~running
     guard off
     guard on when status <> .Coactivity~running
@@ -194,44 +204,51 @@ Status transitions :
 
 
 ::method end
-    if self~status == .Coactivity~ended then return .false
-    if self~status == .Coactivity~killed then return .false
+    expose status
+    if status == .Coactivity~ended then return .false
+    if status == .Coactivity~killed then return .false
     -- A not started coactivity can be ended, to forbid its starting.
-    self~status = .Coactivity~ended
+    status = .Coactivity~ended
     return .true
 
 
 ::method kill
-    if self~status == .Coactivity~ended then return .false
-    if self~status == .Coactivity~killed then return .false
+    expose status
+    if status == .Coactivity~ended then return .false
+    if status == .Coactivity~killed then return .false
     -- A not started coactivity can be killed, to forbid its starting.
-    self~status = .Coactivity~killed
+    status = .Coactivity~killed
     return .true
 
 
 ::method isStarted
-    return self~status <> .Coactivity~notStarted
+    expose status 
+    return status <> .Coactivity~notStarted
 
 
 ::method isAlive
-    return self~status == .Coactivity~suspended | self~status == .Coactivity~running
+    expose status
+    return status == .Coactivity~suspended | status == .Coactivity~running
 
 
 ::method isEnded
-    return self~status == .Coactivity~ended
+    expose status
+    return status == .Coactivity~ended
 
 
 ::method isKilled
-    return self~status == .Coactivity~killed
+    expose status
+    return status == .Coactivity~killed
 
 
 ::method statusText
+    expose status
     select
-        when self~status == .Coactivity~notStarted then return "not started"
-        when self~status == .Coactivity~suspended then return "suspended"
-        when self~status == .Coactivity~running then return "running"
-        when self~status == .Coactivity~ended then return "ended"
-        when self~status == .Coactivity~killed then return "killed"
+        when status == .Coactivity~notStarted then return "not started"
+        when status == .Coactivity~suspended then return "suspended"
+        when status == .Coactivity~running then return "running"
+        when status == .Coactivity~ended then return "ended"
+        when status == .Coactivity~killed then return "killed"
         otherwise return "unknown"
     end
 
@@ -273,7 +290,7 @@ will have to call it each time the status is changed. Maybe later...
 
 --------------------------------------------------------------------------------
 /*
-Lazy Coactivity supplier : 
+Lazy Coactivity supplier :
 This supplier does not take a snapshot of the items remaining to generate by the coactivity.
 Instead, it calculates the next item only when the 'next' method is called.
 */

@@ -20,22 +20,65 @@ A doer can be created from :
 
 Examples :
 
-doer = {use arg name; say "hello" name}~doer
+-- By default (no tag) the executable is a routine.
+-- This routine is created by the interpreter when parsing the literal source (immediate parsing).
+source = {use strict arg name, greetings; say "hello" name || greetings}
+say source~class -- The RexxContextualSource class
+say source~executable -- a Routine
+doer = source~doer -- no cost, returns directly the executable created by the interpreter at parsing time.
 say doer~class -- The Routine class
-doer~do("John") -- hello John
+doer~do("John", ", how are you ?") -- hello John, how are you ?
 say
 
 -- Here, ::method is a tag to indicate that the executable must be a method
-doer = {::method say "hello" self}~doer
+-- The first argument passed with ~do is the object, available in self.
+-- The rest of the ~do's arguments are passed to the method as arg(1), arg(2), ...
+-- Minimal abbreviation is ::m
+doer = {::method use strict arg greetings; say "hello" self || greetings}~doer
 say doer~class -- The Method class
-doer~do("John") -- hello John
+doer~do("John", ", how are you ?") -- hello John, how are you ?
 say
 
--- Here, ::coactivity is a tag to indicate that the executable must be a coactivity
-doer = {::coactivity say "hello" arg(1) ; arg = .yield[] ; say "good bye" arg[1]}~doer
+-- Here, ::coactivity is a tag to indicate that the doer must be a coactivity (whose executable is a routine by default).
+-- Minimal abbreviation is ::c
+doer = {::coactivity
+        say "hello" arg(1) || arg(2)
+        arg = .yield[]
+        say "good bye" arg[1] || arg[2]
+       }~doer
 say doer~class -- The Coactivity class
-doer~do("John") -- hello John
-doer~do("Kathie") -- good bye Kathie
+say doer~executable -- a Routine
+doer~do("John", ", how are you ?") -- hello John, how are you ?
+doer~do("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
+doer~do("Keith") -- <nothing done, the coactivity is ended>
+say
+
+-- ::routine.coactive (coactive routine) is equivalent to ::coactivity.
+-- Minimal abbreviation is ::r.c
+doer = {::routine.coactive
+        say "hello" arg(1) || arg(2)
+        arg = .yield[]
+        say "good bye" arg[1] || arg[2]
+       }~doer
+say doer~class -- The Coactivity class
+say doer~executable -- a Routine
+doer~do("John", ", how are you ?") -- hello John, how are you ?
+doer~do("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
+doer~do("Keith") -- <nothing done, the coactivity is ended>
+say
+
+-- Here, ::method.coactive is a tag to indicate that the doer must be a coactivity whose executable is a method.
+-- The object on which the method is run is passed using the ~doer method.
+-- Minimal abbreviation is ::m.c
+doer = {::method.coactive
+        say self 'says "hello' arg(1) || arg(2)'"'
+        arg = .yield[]
+        say self 'says "good bye' arg[1] || arg[2]'"'
+       }~doer("The boss")
+say doer~class -- The Coactivity class
+say doer~executable -- A Method
+doer~do("John", ", how are you ?") -- The boss says "hello John, how are you ?"
+doer~do("Kathie", ", see you soon.") -- The boss says "good bye Kathie, see you soon."
 doer~do("Keith") -- <nothing done, the coactivity is ended>
 say
 
@@ -46,7 +89,7 @@ say doer~do("John") -- 4
 say
 
 -- If you want to use a string as source holder, then you must call sourceDoer
-doer = 'use arg name; say "hello" name'~sourceDoer
+doer = 'use strict arg name; say "hello" name'~sourceDoer
 say doer~class -- The Routine class
 doer~do("John") -- hello John
 say
@@ -60,9 +103,9 @@ say
 -- The original source
 --    x~length
 -- becomes :
---    use arg x ; options "NOCOMMANDS" ; x~length
+--    use strict arg x ; options "NOCOMMANDS" ; x~length
 --    return result
-doer = {x~length}~sourceDoer('use arg x ; options NOCOMMANDS', "return result")
+doer = {x~length}~sourceDoer('use strict arg x ; options NOCOMMANDS', "return result")
 say doer~class -- The Routine class
 say doer~do("John") -- 4
 say
@@ -71,15 +114,15 @@ say
 -- The original source
 --    ::method expose a b ; x*(a+b)
 -- becomes :
---    expose a b  ; use arg x ; options "NOCOMMANDS"; x*(a+b)
+--    expose a b  ; use strict arg x ; options "NOCOMMANDS"; x*(a+b)
 --    return result
-doer = {::method expose a b ; x*(a+b)}~sourceDoer('use arg x ; options "NOCOMMANDS"', "return result")
+doer = {::method expose a b ; x*(a+b)}~sourceDoer('use strict arg x ; options "NOCOMMANDS"', "return result")
 say doer~class -- The Method class
 say doer~source~tostring
 say
 
 -- The method functionDoer (which calls sourceDoer) takes care of the implicit return
-doer = {x~length}~functionDoer("use arg x")
+doer = {x~length}~functionDoer("use strict arg x")
 say doer~class -- The Routine class
 say doer~do("John") -- 4
 
@@ -99,26 +142,47 @@ Possible transformations :
   this clause is a "return" clause.
 */
 ::method sourceDoer
-    use strict arg clauseBefore="", clauseAfter="", context=.nil, expression=.false
+    use strict arg clauseBefore="", clauseAfter="", expression=.false, context=.nil, object = .nil
     if context == .nil then context = self~package -- lookup scope
 
     sourceArray = self~source -- always an array, even if empty or just one line
     if sourceArray~items == 0 then raise syntax 93.900 array("No source available")
     clauser = .Clauser~new(sourceArray)
 
+    -- If the first word is ::c[oactivity] then remove this word and remember it's a routine with option coactivity.
     -- If the first word is ::m[ethod] then remove this word and remember it's a method.
-    -- If the first word is ::c[oactivity] then remove this word and remember it's a coactivity.
+    -- If the first word is ::m[ethod].c[oactive] then remove this word and remember it's a coactive method.
     -- If the first word is :[:routine] then remove this word and remember it's a routine.
+    -- If the first word is :[:routine].c[oactive] then remove this word and remember it's a coactive routine.
     -- If the first word is ::[xxx] then raise an error (unknown tag)
     -- If the first word starts with ':' then remove this character and remember it's a routine
     kind = "r" -- routine by default
     if self~isA(.method) then kind = "m" -- unless self is a method
     if clauser~clauseAvailable then do
         clause = clauser~clause
-        parse var clause word rest
-        if "::method"~caselessAbbrev(word, 3)  then do ; clauser~clause = rest ; kind = "m" ; end
-        else if "::coactivity"~caselessAbbrev(word, 3) then do ; clauser~clause = rest ; kind = "c" ; end
-        else if "::routine"~caselessAbbrev(word, 1) then do ; clauser~clause = rest ; kind = "r" ; end
+        parse var clause word1 rest
+        parse var word1 word "." option
+        if "::coactivity"~caselessAbbrev(word, 3) then do
+            clauser~clause = rest
+            kind = "rc" -- routine by default
+            if option <> "" then raise syntax 93.900 array("Unknown option '"option"'")
+        end
+        else if "::method"~caselessAbbrev(word, 3)  then do
+            clauser~clause = rest
+            kind = "m"
+            if option <> "" then do
+                if "coactive"~caselessAbbrev(option, 1) then kind = "mc"
+                else raise syntax 93.900 array("Unknown option '"option"'")
+            end
+        end
+        else if "::routine"~caselessAbbrev(word, 1) then do
+            clauser~clause = rest
+            kind = "r"
+            if option <> "" then do
+                if "coactive"~caselessAbbrev(option, 1) then kind = "rc"
+                else raise syntax 93.900 array("Unknown option '"option"'")
+            end
+        end
         else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
         else if word~left(1) == ":" then do; clauser~clause = clause~substr(2) ; kind = "r" ; end
     end
@@ -173,8 +237,9 @@ Possible transformations :
 
     -- Returns the executable
     if kind == "r" then return .Routine~new("", sourceArray, context)
+    else if kind == "rc" then return .Coactivity~new(.Routine~new("", sourceArray, context), .true)
     else if kind == "m" then return .Method~new("", sourceArray, context)
-    else if kind == "c" then return .Coactivity~new(.Routine~new("", sourceArray, context))
+    else if kind == "mc" then return .Coactivity~new(.Method~new("", sourceArray, context), .true, object)
 
 
 -----------------------------------------------------------------------------
@@ -219,6 +284,7 @@ To investigate :
 The method 'run' is a private method. So can be called only from another method of object...
 "hello"~run({::method say self}~doer) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
 {::method say self}~doer~do("hello") --> No error, display "hello" (so the private method is visible ?)
+It's because the ~run method is called from the ~do method which has been added by extension. 
 */
 ::class "MethodDoer" mixinclass Object public inherit Doer
 
@@ -286,9 +352,9 @@ The method 'run' is a private method. So can be called only from another method 
 ::class "RexxContextualSourceDoer" mixinclass Object public inherit Doer
 
 ::method doer
-    use strict arg -- none
+    use strict arg object=.nil -- optional object, needed when the source is tagged ::method
     if self~executable <> .nil then return self~executable
-    return self~sourceDoer
+    return self~sourceDoer( , , , , object)
 
 -- Could be defined on DoerFactory to give access to this functionality from any doer,
 -- but that's probably a bad idea. Other doers are directly executable (except String
@@ -296,7 +362,7 @@ The method 'run' is a private method. So can be called only from another method 
 -- criteria doesn't apply to them. So they will have already the right arguments and an
 -- explicit return, if needed.
 ::method functionDoer
-    use strict arg clauseBefore="", clauseAfter=""
+    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
     clauseBefore ||= ' ; options "NOCOMMANDS"'
@@ -305,24 +371,24 @@ The method 'run' is a private method. So can be called only from another method 
     -- say {if .true then 2}~functionDoer~do 
     -- would display "IF 1 THEN 2" if the clause had been transformed to an expression.
     signal on syntax name syntax1
-    return self~sourceDoer(clauseBefore, clauseAfter)
+    return self~sourceDoer(clauseBefore, clauseAfter, , , object)
     syntax1:
     -- The source as-is can't be parsed, try surrounding with round brackets...
     -- That lets support expressions like "arg()" which is otherwise an invalid expression :
     -- Missing expression following ( of parse template
     signal on syntax name syntax2
-    return self~sourceDoer(clauseBefore, clauseAfter, , .true)
+    return self~sourceDoer(clauseBefore, clauseAfter, .true, , object)
     syntax2:
     -- The source is not a pure expression, fallback (again) to source as-is
     -- that will raise a syntax error, but this time, don't catch the error.
-    return self~sourceDoer(clauseBefore, clauseAfter)
+    return self~sourceDoer(clauseBefore, clauseAfter, , ,object)
 
 -- Same remark as above.
 ::method actionDoer
-    use strict arg clauseBefore="", clauseAfter=""
+    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
-    return self~sourceDoer(clauseBefore, clauseAfter)
+    return self~sourceDoer(clauseBefore, clauseAfter, , , object)
 
 
 -----------------------------------------------------------------------------

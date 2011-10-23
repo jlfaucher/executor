@@ -48,10 +48,10 @@ The CSV format can be useful for classic trace, because each line has the name o
 Pipes todo :
 .inject in breadthFirst mode is not limited by the ooRexx callstack size.
 Do the same for depthFirst mode.
-1~pipe(.inject {2*value} rec.869 | .console) is ok, but if you do one more recursion, 
+1~pipe(.inject {2*value} rec.869 | .take last | .console) is ok, but if you do one more recursion, 
 you get the error "Insufficient control stack space; cannot continue execution"
 No such problem in breadthFirst mode :
-1~pipe(.inject {2*value} rec.b.100000 | .console) --> last result is 1.99800307E+30103
+1~pipe(.inject {2*value} rec.b.100000 | .take last | .console) --> last result is 1.99800307E+30103
 
 Pipes todo :
 Add partition support to .stemCollector, .arrayCollector
@@ -68,6 +68,94 @@ Could fix that by returning an array of .IndexedValue.
 Coactivity todo :
 The arguments passed to the coactivity with resume should be available like traditional
 arguments (use arg...). Currently they are returned by yield as an array.
+
+Extension todo :
+Review the extension mechanisms :
+- An extension made on .Object is not available on a class.
+  There is a workaround in pipe_extensions.cls.
+- An extension made on .Object is not available on the .nil object.
+  No workaround so far.
+
+
+===============================================================================
+2011 oct 23
+
+[doers]
+
+Currently {::coactivity ...} always create a routine from the source literal.
+But a method can be also a coactivty.
+Assuming 'coactive' is like an option for the directives ::method and ::routine,
+I added the following tags :
+::routine myRoutine coactive  --> tag = ::r[outine][.c[oactive]]
+::method myMethod coactive    --> tag = ::m[ethod][.c[oactive]]
+
+The following declarations are equivalent :
+{::c[oactivity] ...}
+{::r[outine].c[oactive] ...}
+
+Example of coactive method :
+c={::m.c self~each{.yield[arg(1)]}}~doer(.array~of(1,2,3))
+c~do -- returns 1
+c~do -- returns 2
+c~do -- returns 3
+The object is the array.
+The method is {::m self~each{.yield[arg(1)]}} where self is the array.
+
+Something to think about :
+When the doer is a method, the object on which the method is applied is passed as
+first argument of ~do. And the rest of the arguments are passed to the method in
+arg(1), arg(2), ...
+    {::m say self~class ":" arg(1)}~doer~do(.array~new, "2nd arg") -- The Array class : 2nd arg
+is implemented by
+    .array~new~run(doer, "i", "2nd arg")
+When the doer is a coactive method, the object on which the method is applied is
+passed using ~doer and memorized by the coactivity. That makes sense since the method
+can yield several result, and it's the same object which is used at each resume.
+But then, the ~do method has less arguments.
+    {::m.c say self~class ":" arg(1)}~doer(.array~new)~do("1st arg") -- The Array class : 1st arg
+Internally, the call to the method is the same as a normal method, but with this test that I have
+only in coactivity (for the moment) :
+    if doer~needsObject then doer~doWith(object, arguments) -- object needed (message, method)
+    else doer~doWith(arguments) -- no object needed (routine)
+I could modify .MethodDoer~doer to pass the object with ~doer. But that breaks a lot of code.
+And I would need to do the same for StringDoer~doer (a .Message is sent to an object,
+the object is passed as first argument of ~do).
+    say "+"~doer~do(1,2) -- here, 1 is the object : 1~send("+", 2)
+Will see on usage if this difference of parameters between a method and a coactive method
+is effectively a problem or not...
+
+
+[functional]
+
+Simplification :
+I follow the same approach than for pipes, by transforming the source literals
+to add the parameters value and index.
+For reduce, three parameters are passed : accu, value, index.
+A difference with pipes, when calling the doer~do method, I pass the index only if
+~functionDoer exists on the doer. That lets use messages like "+" with reduce.
+The current pipe implementation does not support doers of type message (and will
+never do), because strings are recognized as options, not as doers.
+
+Consequence :
+reduceI, reduceCI, reduceWI, mapI, mapCI, mapWI, mapRI, mapCRI, mapWRI, eachI, eachCI, eachWI : removed
+eachII, eachCII, eachWII : renamed respectively eachI, eachCI, eachWI
+
+
+===============================================================================
+2011 oct 18
+
+I just discovered that I have a conflict on the ~doer method for .Coactivity :
+In coactivity.cls, "doer" is a private attribute
+In doers.cls, "doer" is a public method on CoactivityDoer.
+
+After thoughts, I find that using ::attribute for a private object variable is probably
+a wrong decision. With expose, no risk of such conflict.
+-->
+Now using expose.
+
+
+Added the method 'executable' to give access to the routine or method controlled by the
+coactivity.
 
 
 ===============================================================================
@@ -135,7 +223,7 @@ So far, I see these possibilities :
     1~yield.upto(10){arg(1)}   -- Current implementation, with a distinct method which creates the coactivity and delegates to ~upto which yields each value.
     1~upto(10, .true){arg(1)}  -- Pass a boolean to ask for a coactivity. The coactivity and the yield are managed by ~upto.
     1~upto(10){.yield[arg(1)]} -- The yield is done by the doer. Problem : ~upto has no way to know that a coactivity must be created...
-                               -- ...unless the doer "knows" it contains a yield, and ~upto can test that.
+                               -- ...unless the doer "knows" it contains a yield, and ~upto can test that...
 According to what I see in Python, the interpreter automatically creates a generator when a yield is in the code of a function.
 At the first call of the function, the generator object is returned.
     def countdown(n):
