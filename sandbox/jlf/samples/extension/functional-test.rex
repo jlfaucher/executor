@@ -55,11 +55,11 @@ nop
 -- A doer of type string is a message name
 
 -- Reduce
---   arg(1) : accumulated result
---   arg(2) : current item of collection
---   arg(3) : current index of collection (passed if option "indexed" is used)
--- The messages like "+" "-" etc. take two arguments, so you can't use the "indexed" option with them.
--- But you can define your own methods which support the index argument.
+--   arg(1) - accu  : accumulated result
+--   arg(2) - value : current item of collection
+--   arg(3) - index : current index of collection (passed if the action has the ~functionDoer method)
+-- The messages like "+" "-" etc. have no ~functionDoer method, and as such are called with two arguments (no index).
+-- Any doer which is created from a RexxContextualSource is called with three arguments (index).
 
 -- Ordered collection, the operation can be non-commutative
 .Array~of(1,2,3)~reduce("-")~dump -- initial value is the first item (default)
@@ -409,80 +409,80 @@ buffer~dump -- mutable buffer after mapping
 -- A literal source is a routine source by default
 
 -- Reduce :
---   arg(1) : accumulated result
---   arg(2) : current item of collection
---   arg(3) : current index of collection (passed if option "indexed" is used)
+--   arg(1) - accu  : accumulated result
+--   arg(2) - value : current item of collection
+--   arg(3) - index : current index of collection (passed if the doer has the ~functionDoer method)
 
 -- The source literal is transformed by ~reduce before creating an executable,
 -- which lets use an implicit return.
 -- See method ~functionDoer in doers.cls for more details.
 -- You can see the transformed source by running that from ooRexxShell :
---    {arg(1) + arg(2) + arg(3)}~functionDoer~source=
+--    {accu + value + index}~functionDoer("use arg accu, value, index")~source=
 -- The output is :
---    # 1: index=[1] -> item=[options "NOCOMMANDS" ; arg(1) + arg(2) + arg(3)]
+--    # 1: index=[1] -> item=[use arg accu, value, index ; options "NOCOMMANDS" ; accu + value + index]
 --    # 2: index=[2] -> item=[ ; if var("result") then return result]
 
-.Array~of(10, 20, 30)~reduce{arg(1) + arg(2) + arg(3)}~dump -- returns 10 + 20+2 + 30+3 = 65
-.Array~of(10, 20, 30)~reduce(0){arg(1) + arg(2) + arg(3)}~dump -- returns 0 + 10+1 + 20+2 + 30+3 = 66
+.Array~of(10, 20, 30)~reduce{accu + value + index}~dump -- returns 10 + 20+2 + 30+3 = 65
+.Array~of(10, 20, 30)~reduce(0){accu + value + index}~dump -- returns 0 + 10+1 + 20+2 + 30+3 = 66
 
 
 -- Remember ! In a bag, the index and the item have the same value
-.Bag~of(10 ,20 ,30)~reduce{arg(1) + arg(2) + arg(3)}~dump
-.Bag~of(10 ,20 ,30)~reduce(0){arg(1) + arg(2) + arg(3)}~dump
+.Bag~of(10 ,20 ,30)~reduce{accu + value + index}~dump
+.Bag~of(10 ,20 ,30)~reduce(0){accu + value + index}~dump
 
 
-.CircularQueue~of(10, 20, 30)~reduce{arg(1) + arg(2) + arg(3)}~dump
-.CircularQueue~of(10, 20, 30)~reduce(0){arg(1) + arg(2) + arg(3)}~dump
+.CircularQueue~of(10, 20, 30)~reduce{accu + value + index}~dump
+.CircularQueue~of(10, 20, 30)~reduce(0){accu + value + index}~dump
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.Directory~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
 -- Special case ! The index of a list starts at 0...
-.List~of(10, 20, 30)~reduce{arg(1) + arg(2) + arg(3)}~dump
-.List~of(10, 20, 30)~reduce(0){arg(1) + arg(2) + arg(3)}~dump
+.List~of(10, 20, 30)~reduce{accu + value + index}~dump
+.List~of(10, 20, 30)~reduce(0){accu + value + index}~dump
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.Properties~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
-.Queue~of(10, 20, 30)~reduce{arg(1) + arg(2) + arg(3)}~dump
-.Queue~of(10, 20, 30)~reduce(0){arg(1) + arg(2) + arg(3)}~dump
+.Queue~of(10, 20, 30)~reduce{accu + value + index}~dump
+.Queue~of(10, 20, 30)~reduce(0){accu + value + index}~dump
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.Relation~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
 -- A relation which has more than one item per index is supported
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.Relation~new~~put(10, "v1")~~put(20, "v1")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
 -- Remember ! In a set, the index and the item have the same value
-.Set~of(10 ,20 ,30)~reduce{arg(1) + arg(2) + arg(3)}~dump
-.Set~of(10 ,20 ,30)~reduce(0){arg(1) + arg(2) + arg(3)}~dump
+.Set~of(10 ,20 ,30)~reduce{accu + value + index}~dump
+.Set~of(10 ,20 ,30)~reduce(0){accu + value + index}~dump
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.Stem~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.Table~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{arg(1) + arg(2) + arg(3)~c2d}~dump
-.IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){arg(1) + arg(2) + arg(3)~c2d}~dump
+.IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce{accu + value + index~c2d}~dump
+.IdentityTable~new~~put(10, "v1")~~put(20, "v2")~~put(30, "v3")~reduce(0){accu + value + index~c2d}~dump
 
 
 -- --------------------------------------------------------------
@@ -490,19 +490,19 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- initial value is the first char (default), index passed as 3rd argument, returns 1 + 2+2 + 3+3 = 11
-123~reduceC{arg(1) + arg(2) + arg(3)}~dump
+123~reduceC{accu + value + index}~dump
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 1+1 + 2+2 + 3+3 = 12
-123~reduceC(0){arg(1) + arg(2) + arg(3)}~dump
+123~reduceC(0){accu + value + index}~dump
 
 
 -- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
-"10 20 30"~reduceW{arg(1) + arg(2) + arg(3)}~dump
+"10 20 30"~reduceW{accu + value + index}~dump
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-"10 20 30"~reduceW(0){arg(1) + arg(2) + arg(3)}~dump
+"10 20 30"~reduceW(0){accu + value + index}~dump
 
 
 -- --------------------------------------------------------------
@@ -510,19 +510,19 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- initial value is the first char (default), index passed as 3rd argument, returns 1 + 2+2 + 3+3 = 11
-.MutableBuffer~new(123)~reduceC{arg(1) + arg(2) + arg(3)}~dump
+.MutableBuffer~new(123)~reduceC{accu + value + index}~dump
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 1+1 + 2+2 + 3+3 = 12
-.MutableBuffer~new(123)~reduceC(0){arg(1) + arg(2) + arg(3)}~dump
+.MutableBuffer~new(123)~reduceC(0){accu + value + index}~dump
 
 
 -- initial value is the first word (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
-.MutableBuffer~new("10 20 30")~reduceW{arg(1) + arg(2) + arg(3)}~dump
+.MutableBuffer~new("10 20 30")~reduceW{accu + value + index}~dump
 
 
 -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-.MutableBuffer~new("10 20 30")~reduceW(0){arg(1) + arg(2) + arg(3)}~dump
+.MutableBuffer~new("10 20 30")~reduceW(0){accu + value + index}~dump
 
 
 -- --------------------------------------------------------------
@@ -530,11 +530,11 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- initial value is the first yielded item (default)
-{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce{arg(1) + arg(2) + arg(3)}~dump
+{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce{accu + value + index}~dump
 
 
 -- initial value is 0
-{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){arg(1) + arg(2) + arg(3)}~dump
+{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){accu + value + index}~dump
 
 
 -- --------------------------------------------------------------
@@ -542,28 +542,28 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- Map :
---   arg(1) : current item of collection
---   arg(2) : current index of collection (passed if option "indexed" is used)
+--   arg(1) - value : current item of collection
+--   arg(2) - index : current index of collection (passed if the action has the ~functionDoer method)
 
-.Array~of(1,2,3,4)~map{arg(1) * 2}~dump
+.Array~of(1,2,3,4)~map{value * 2}~dump
 
 
 .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-.List~of(1,2,3,4)~map{arg(1) * 2}~dump
+.List~of(1,2,3,4)~map{value * 2}~dump
 
 
 .List~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-.Queue~of(1,2,3,4)~map{arg(1) * 2}~dump
+.Queue~of(1,2,3,4)~map{value * 2}~dump
 
 
 .Queue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
-.CircularQueue~of(1,2,3,4)~map{arg(1) * 2}~dump
+.CircularQueue~of(1,2,3,4)~map{value * 2}~dump
 
 
 .CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
@@ -571,11 +571,11 @@ buffer~dump -- mutable buffer after mapping
 
 -- Filtering is not possible on collections using map (to keep the indexes unchanged).
 -- When no value is returned by ~map, then the current item is kept unchanged in the collection.
-.array~of("one", "two", "three")~map{if arg(1)~length == 3 then arg(1)}~dump
+.array~of("one", "two", "three")~map{if value~length == 3 then value}~dump
 
 
 -- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
-.Array~of(1,2,3,4)~map{::routine arg(1) * 2}~dump
+.Array~of(1,2,3,4)~map{::routine value * 2}~dump
 
 
 -- The shortest abbreviation is of "::routine" is ":"
@@ -594,18 +594,18 @@ buffer~dump -- mutable buffer after mapping
 -- Mapping a string with a routine
 -- --------------------------------------------------------------
 
-"abcdefghijklmnopqrstuvwxyz"~mapC{arg(1)~verify('aeiouy')}~dump
+"abcdefghijklmnopqrstuvwxyz"~mapC{value~verify('aeiouy')}~dump
 
 
 -- Filtering (if no result returned by the doer, then nothing appended)
-"abcdefghijklmnopqrstuvwxyz"~mapC{if arg(1)~verify('aeiouy') then arg(1)}~dump
+"abcdefghijklmnopqrstuvwxyz"~mapC{if value~verify('aeiouy') then value}~dump
 
 
-"one two three"~mapW{if arg(1)~length == 3 then arg(1)}~dump
+"one two three"~mapW{if value~length == 3 then value}~dump
 
 
 -- Reminder : index passed as 2nd argument
-"one two three"~mapW{arg(2)":"arg(1)}~dump
+"one two three"~mapW{index":"value}~dump
 
 
 -- --------------------------------------------------------------
@@ -613,16 +613,16 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- Looks like a filtering, but it's not : a value is returned for each character (can be empty string)
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if arg(1)~verify('aeiouy') == 1 then arg(1) ; else ''}~dump
+.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if value~verify('aeiouy') == 1 then value ; else ''}~dump
 
 
-.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if arg(1)~verify('aeiouy') == 1 then arg(1)}~dump
+.MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if value~verify('aeiouy') == 1 then value}~dump
 
 
 -- todo : doesn't work because the variable translation has no value when evaluating the doer : needs a closure
 -- translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
--- translation~setMethod("UNKNOWN", "arg(1)")
--- "The quick brown fox jumps over the lazy dog"~mapW{translation~arg(1)}~dump
+-- translation~setMethod("UNKNOWN", "return arg(1)")
+-- "The quick brown fox jumps over the lazy dog"~mapW{expose translation ; translation[arg(1]}~dump
 --.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{expose translation ; translation[arg(1)]}~dump
 
 
@@ -631,32 +631,32 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- No resulting array because no result returned during the iteration.
-3~times{say 2*arg(1)}
+3~times{say 2*value}
 
 
 -- ~times can act as an array generator : it collects the values returned by the doer.
-3~times{2*arg(1)}~dump
+3~times{2*value}~dump
 
 
 3~times{0}~dump
 
 
--- returns .array~of(1,2,3) because the default action is {arg(1)}
+-- returns .array~of(1,2,3) because the default action is {value}
 3~times~dump
 
 
 -- No resulting array because no result returned during the iteration.
-11~upto(13){say 2*arg(1)}
+11~upto(13){say 2*value}
 
 
 -- ~upto can act as an array generator : it collects the values returned by the doer.
-11~upto(13){2*arg(1)}~dump
+11~upto(13){2*value}~dump
 
 
 11~upto(13){0}~dump
 
 
--- returns .array~of(11,12,13) because the default action is {arg(1)}
+-- returns .array~of(11,12,13) because the default action is {value}
 11~upto(13)~dump
 
 
@@ -665,14 +665,14 @@ buffer~dump -- mutable buffer after mapping
 
 
 -- No resulting array because no result returned during the iteration
-13~downto(11){say 2*arg(1)}
+13~downto(11){say 2*value}
 
 
 -- ~downto can act as an array generator : it collects the values returned by the doer.
-13~downto(11){2*arg(1)}~dump
+13~downto(11){2*value}~dump
 
 
--- returns .array~of(13,12,11) because the default action is {arg(1)}
+-- returns .array~of(13,12,11) because the default action is {value}
 13~downto(11)~dump
 
 
@@ -686,70 +686,70 @@ buffer~dump -- mutable buffer after mapping
 -- each :
 -- The values returned by the action are collected in an array
 
-.Array~of(1,2,3)~each{2*arg(1)}~dump
-.Array~of(1,2,3)~each{2*arg(1) + arg(2)}~dump
-.Array~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Array~of(1,2,3)~each{2*value}~dump
+.Array~of(1,2,3)~each{2*value + index}~dump
+.Array~of(1,2,3)~eachI{2*value + index}~dump
 
 
-.Bag~of(1,2,3)~each{2*arg(1)}~dump
-.Bag~of(1,2,3)~each{2*arg(1) + arg(2)}~dump
-.Bag~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Bag~of(1,2,3)~each{2*value}~dump
+.Bag~of(1,2,3)~each{2*value + index}~dump
+.Bag~of(1,2,3)~eachI{2*value + index}~dump
 
 
-.CircularQueue~of(1,2,3)~each{2*arg(1)}~dump
-.CircularQueue~of(1,2,3)~each{2*arg(1) + arg(2)}~dump
-.CircularQueue~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.CircularQueue~of(1,2,3)~each{2*value}~dump
+.CircularQueue~of(1,2,3)~each{2*value + index}~dump
+.CircularQueue~of(1,2,3)~eachI{2*value + index}~dump
 
 
-.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value}~dump
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1) + arg(2)~c2d}~dump
-.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value + index~c2d}~dump
+.Directory~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*value + index~c2d}~dump
 
 
-.List~of(1,2,3)~each{2*arg(1)}~dump
-.List~of(1,2,3)~each{2*arg(1) + arg(2)}~dump
-.List~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.List~of(1,2,3)~each{2*value}~dump
+.List~of(1,2,3)~each{2*value + index}~dump
+.List~of(1,2,3)~eachI{2*value + index}~dump
 
 
-.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value}~dump
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1) + arg(2)~c2d}~dump
-.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value + index~c2d}~dump
+.Properties~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*value + index~c2d}~dump
 
 
-.Queue~of(1,2,3)~each{2*arg(1)}~dump
-.Queue~of(1,2,3)~each{2*arg(1) + arg(2)}~dump
-.Queue~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Queue~of(1,2,3)~each{2*value}~dump
+.Queue~of(1,2,3)~each{2*value + index}~dump
+.Queue~of(1,2,3)~eachI{2*value + index}~dump
 
 
-.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value}~dump
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1) + arg(2)~c2d}~dump
-.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value + index~c2d}~dump
+.Relation~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*value + index~c2d}~dump
 
 
-.Set~of(1,2,3)~each{2*arg(1)}~dump
-.Set~of(1,2,3)~each{2*arg(1) + arg(2)}~dump
-.Set~of(1,2,3)~eachI{2*arg(1) + arg(2)}~dump
+.Set~of(1,2,3)~each{2*value}~dump
+.Set~of(1,2,3)~each{2*value + index}~dump
+.Set~of(1,2,3)~eachI{2*value + index}~dump
 
 
-.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value}~dump
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1) + arg(2)~c2d}~dump
-.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value + index~c2d}~dump
+.Stem~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*value + index~c2d}~dump
 
 
-.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value}~dump
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1) + arg(2)~c2d}~dump
-.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value + index~c2d}~dump
+.Table~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*value + index~c2d}~dump
 
 
-.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1)}~dump
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value}~dump
 -- Here the index is not a number, hence the (arbitrary) use of ~c2d to derive a number from the index
-.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*arg(1) + arg(2)~c2d}~dump
-.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*arg(1) + arg(2)~c2d}~dump
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~each{2*value + index~c2d}~dump
+.IdentityTable~new~~put(1, "v1")~~put(2, "v2")~~put(3, "v3")~eachI{2*value + index~c2d}~dump
 
 
 -- --------------------------------------------------------------
@@ -757,7 +757,7 @@ buffer~dump -- mutable buffer after mapping
 -- --------------------------------------------------------------
 
 -- supplier : the collection generated by ~each is always an array
-.set~of(1,2,3)~supplier~each{2*arg(1)}~dump
+.set~of(1,2,3)~supplier~each{2*value}~dump
 
 
 -- --------------------------------------------------------------
@@ -766,14 +766,14 @@ buffer~dump -- mutable buffer after mapping
 
 -- string : the collection generated by ~each is always an array
 
-"abcdef"~eachC{arg(1)}~dump
-"abcdef"~eachC{".."~copies(arg(2))arg(1)}~dump
-"abcdef"~eachCI{".."~copies(arg(2))arg(1)}~dump
+"abcdef"~eachC{value}~dump
+"abcdef"~eachC{".."~copies(index)value}~dump
+"abcdef"~eachCI{".."~copies(index)value}~dump
 
 
-"The quick brown fox"~eachW{arg(1)}~dump
-"The quick brown fox"~eachW{".."~copies(arg(2))arg(1)}~dump
-"The quick brown fox"~eachWI{".."~copies(arg(2))arg(1)}~dump
+"The quick brown fox"~eachW{value}~dump
+"The quick brown fox"~eachW{".."~copies(index)value}~dump
+"The quick brown fox"~eachWI{".."~copies(index)value}~dump
 
 
 -- --------------------------------------------------------------
@@ -782,14 +782,14 @@ buffer~dump -- mutable buffer after mapping
 
 -- mutable buffer : the collection generated by ~each is always an array
 
-.MutableBuffer~new("abcdef")~eachC{arg(1)}~dump
-.MutableBuffer~new("abcdef")~eachC{".."~copies(arg(2))arg(1)}~dump
-.MutableBuffer~new("abcdef")~eachCI{".."~copies(arg(2))arg(1)}~dump
+.MutableBuffer~new("abcdef")~eachC{value}~dump
+.MutableBuffer~new("abcdef")~eachC{".."~copies(index)value}~dump
+.MutableBuffer~new("abcdef")~eachCI{".."~copies(index)value}~dump
 
 
-.MutableBuffer~new("The quick brown fox")~eachW{arg(1)}~dump
-.MutableBuffer~new("The quick brown fox")~eachW{".."~copies(arg(2))arg(1)}~dump
-.MutableBuffer~new("The quick brown fox")~eachWI{".."~copies(arg(2))arg(1)}~dump
+.MutableBuffer~new("The quick brown fox")~eachW{value}~dump
+.MutableBuffer~new("The quick brown fox")~eachW{".."~copies(index)value}~dump
+.MutableBuffer~new("The quick brown fox")~eachWI{".."~copies(index)value}~dump
 
 
 -- --------------------------------------------------------------
@@ -798,9 +798,9 @@ buffer~dump -- mutable buffer after mapping
 
 -- coactivity : the collection generated by ~each is always an array
 
-{::c do i=1 to 3; .yield[i]; end}~doer~each{2*arg(1)}~dump
-{::c do i=1 to 3; .yield[i]; end}~doer~each{2*arg(1) + arg(2)}~dump
-{::c do i=1 to 3; .yield[i]; end}~doer~eachI{2*arg(1) + arg(2)}~dump
+{::c do i=1 to 3; .yield[i]; end}~doer~each{2*value}~dump
+{::c do i=1 to 3; .yield[i]; end}~doer~each{2*value + index}~dump
+{::c do i=1 to 3; .yield[i]; end}~doer~eachI{2*value + index}~dump
 
 
 -- --------------------------------------------------------------
