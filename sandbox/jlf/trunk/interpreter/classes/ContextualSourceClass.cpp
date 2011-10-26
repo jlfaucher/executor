@@ -299,6 +299,7 @@ void RexxContextualSource::live(size_t liveMark)
 /* Function:  Normal garbage collection live marking                          */
 /******************************************************************************/
 {
+    memory_mark(this->objectVariables);
     memory_mark(this->sourceLiteral);
     memory_mark(this->context);
 }
@@ -308,6 +309,7 @@ void RexxContextualSource::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
+    memory_mark_general(this->objectVariables);
     memory_mark_general(this->sourceLiteral);
     memory_mark_general(this->context);
 }
@@ -319,6 +321,7 @@ void RexxContextualSource::flatten(RexxEnvelope *envelope)
 {
   setUpFlatten(RexxContextualSource)
 
+  flatten_reference(newThis->objectVariables, envelope);
   newThis->sourceLiteral = OREF_NULL; // this never should be getting flattened, so sever the connection
   newThis->context = OREF_NULL;    // idem
 
