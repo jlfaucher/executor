@@ -9,6 +9,8 @@ else
     .local~rxunixsys.loaded = .false
 
 
+::options NOMACROSPACE
+
 --------------------------------------------------------------------------------
 ::class "Activity" public
 
@@ -29,10 +31,11 @@ else
 
 ::method local class
     expose directory
-    local = directory[self~currentThreadId]
+    threadId=self~currentThreadId
+    local = directory[threadId]
     if local == .nil then do
         local = .Directory~new
-        directory[self~currentThreadId] = local
+        directory[threadId] = local
     end
     return local
 

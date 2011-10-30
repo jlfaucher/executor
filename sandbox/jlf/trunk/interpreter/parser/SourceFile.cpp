@@ -1806,6 +1806,7 @@ RexxCode *RexxSource::translate(
     form = Numerics::DEFAULT_FORM;
     fuzz = Numerics::DEFAULT_FUZZ;
     enableCommands = RexxActivation::default_enable_commands;
+    enableMacrospace = RexxActivation::default_enable_macrospace;
     traceSetting = DEFAULT_TRACE_SETTING;
     traceFlags = RexxActivation::default_trace_flags;
 
@@ -2685,6 +2686,20 @@ void RexxSource::optionsDirective()
                 {
                     refineSubclass(token, IS_SUBDIRECTIVE);
                     enableCommands = false;
+                    break;
+                }
+                // ::OPTIONS MACROSPACE
+                case SUBDIRECTIVE_MACROSPACE:
+                {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    enableMacrospace = true;
+                    break;
+                }
+                // ::OPTIONS NOCOMMANDS
+                case SUBDIRECTIVE_NOMACROSPACE:
+                {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    enableMacrospace = false;
                     break;
                 }
 

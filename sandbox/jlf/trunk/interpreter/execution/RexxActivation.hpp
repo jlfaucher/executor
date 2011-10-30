@@ -124,6 +124,7 @@ class ActivationSettings
       size_t  traceindent;                 /* trace indentation                 */
       NumericSettings numericSettings;     /* globally effective settings       */
       bool enableCommands;                 /* are commands enabled ?            */
+      bool enableMacrospace;               /* is macrospace enabled ?           */
       int64_t elapsed_time;                /* elapsed time clock                */
       RexxDateTime timestamp;              /* current timestamp                 */
       bool intermediate_trace;             /* very quick test for intermediate trace */
@@ -175,10 +176,12 @@ class ActivationSettings
    size_t            fuzz();
    bool              form();
    bool              enableCommands();
+   bool              enableMacrospace();
    void              setDigits(size_t);
    void              setFuzz(size_t);
    void              setForm(bool);
    void              enableCommands(bool);
+   void              enableMacrospace(bool);
    void              setDigits();
    void              setFuzz();
    void              setForm();
@@ -655,6 +658,7 @@ class ActivationSettings
    static const size_t trace_intermediates_flags; // flag set for trace intermediates
 
    static const bool default_enable_commands;
+   static const bool default_enable_macrospace;
 
    static const size_t single_step;         /* we are single stepping execution  */
    static const size_t single_step_nested;  /* this is a nested stepping         */

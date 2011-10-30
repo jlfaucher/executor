@@ -107,6 +107,7 @@ const size_t RexxActivation::trace_results_flags = (trace_all | trace_labels | t
 const size_t RexxActivation::trace_intermediates_flags = (trace_all | trace_labels | trace_results | trace_commands | trace_intermediates);
 
 const bool RexxActivation::default_enable_commands = true;
+const bool RexxActivation::default_enable_macrospace = true;
 
 const size_t RexxActivation::single_step         = 0x00000800; /* we are single stepping execution  */
 const size_t RexxActivation::single_step_nested  = 0x00001000; /* this is a nested stepping         */
@@ -191,6 +192,7 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     this->settings.numericSettings.form = sourceObject->getForm();
     setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
     this->settings.enableCommands = sourceObject->getEnableCommands();
+    this->settings.enableMacrospace = sourceObject->getEnableMacrospace();
 
     if (_method->isGuarded())            // make sure we set the appropriate guarded state
     {
@@ -336,6 +338,7 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
     this->settings.numericSettings.form = sourceObject->getForm();
     setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
     this->settings.enableCommands = sourceObject->getEnableCommands();
+    this->settings.enableMacrospace = sourceObject->getEnableMacrospace();
     /* save the source also              */
     this->settings.parent_code = this->code;
 
@@ -1953,6 +1956,14 @@ bool RexxActivation::enableCommands()
     return this->settings.enableCommands;
 }
 
+bool RexxActivation::enableMacrospace()
+/******************************************************************************/
+/* Function:  Return the current MACROSPACE setting                           */
+/******************************************************************************/
+{
+    return this->settings.enableMacrospace;
+}
+
 /**
  * Set the digits setting to the package-defined default
  */
@@ -2008,10 +2019,18 @@ void RexxActivation::setForm(bool formVal)
 
 void RexxActivation::enableCommands(bool status)
 /******************************************************************************/
-/* Function:  Set the new current ENABLE_COMMANDS setting                             */
+/* Function:  Set the new current COMMANDS setting                            */
 /******************************************************************************/
 {
     this->settings.enableCommands = status;
+}
+
+void RexxActivation::enableMacrospace(bool status)
+/******************************************************************************/
+/* Function:  Set the new current MACROSPACE setting                          */
+/******************************************************************************/
+{
+    this->settings.enableMacrospace = status;
 }
 
 
@@ -2582,28 +2601,31 @@ RexxObject *RexxActivation::getContextReturnStatus()
 bool RexxActivation::callMacroSpaceFunction(RexxString * target, RexxObject **_arguments,
     size_t _argcount, RexxString * calltype, int order, ProtectedObject &_result)
 {
-    unsigned short position;             /* located macro search position     */
-    const char *macroName = target->getStringData();  /* point to the string data          */
-    /* did we find this one?             */
-    if (RexxQueryMacro(macroName, &position) == 0)
+    if (this->enableMacrospace())
     {
-        /* but not at the right time?        */
-        if (order == MS_PREORDER && position == RXMACRO_SEARCH_AFTER)
+        unsigned short position;             /* located macro search position     */
+        const char *macroName = target->getStringData();  /* point to the string data          */
+        /* did we find this one?             */
+        if (RexxQueryMacro(macroName, &position) == 0)
         {
-            return false;                    /* didn't really find this           */
+            /* but not at the right time?        */
+            if (order == MS_PREORDER && position == RXMACRO_SEARCH_AFTER)
+            {
+                return false;                    /* didn't really find this           */
+            }
+            /* unflatten the method now          */
+            RoutineClass *routine = getMacroCode(target);
+            // not restoreable is a call failure
+            if (routine == OREF_NULL)
+            {
+                return false;
+            }
+            /* run as a call                     */
+            routine->call(activity, target, _arguments, _argcount, calltype, OREF_NULL, EXTERNALCALL, _result);
+            // merge (class) definitions from macro with current settings
+            getSourceObject()->mergeRequired(routine->getSourceObject());
+            return true;                       /* return success we found it flag   */
         }
-        /* unflatten the method now          */
-        RoutineClass *routine = getMacroCode(target);
-        // not restoreable is a call failure
-        if (routine == OREF_NULL)
-        {
-            return false;
-        }
-        /* run as a call                     */
-        routine->call(activity, target, _arguments, _argcount, calltype, OREF_NULL, EXTERNALCALL, _result);
-        // merge (class) definitions from macro with current settings
-        getSourceObject()->mergeRequired(routine->getSourceObject());
-        return true;                       /* return success we found it flag   */
     }
     return false;                        /* nope, nothing to find here        */
 }

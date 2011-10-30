@@ -78,6 +78,39 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 oct 30
+
+Each call to an external function (like SysXxx functions) triggers a communication 
+with the rxapi server through a socket (QUERY_MACRO, to test is the function is
+defined in the macrospace).
+This has a major impact on performance !
+Example with .yield[] which calls SysGetTid() or SysQueryProcess("TID") at each call :
+    10000 calls to .yield[] with macrospace enabled  : 2.1312
+    10000 calls to .yield[] with macrospace disabled : 0.4531
+(samples/benchmark/doers-benchmark-output.txt)
+So I decided to add an option to control the use of macrospace :
+    ::options MACROSPACE
+    ::options NOMACROSPACE
+    options "MACROSPACE"
+    options "NOMACROSPACE"
+By default, the macrospace is queried, according to the rules described in rexxref
+section "7.2.1 Search order".
+When using the option NOMACROSPACE, the macrospace is not queried.
+
+
+Yet something to investigate (no relation with rxapi) : Under WinXP, a call to a routine
+is much slower than a run of a method (sandbox or main - same results) :
+    10000 calls of an empty routine by name : 0.2422
+    10000 calls of an empty routine object  : 0.2437
+    10000 runs of an empty method           : 0.0141
+Under MacOsX, no such difference :
+    10000 calls of an empty routine by name : 0.0103
+    10000 calls of an empty routine object  : 0.0104
+    10000 runs of an empty method           : 0.0087
+(samples/benchmark/call-benchmark.rexx)
+ 
+
+===============================================================================
 2011 oct 26
 
 Fixed a crash in relation with RexxContextualSource and GC :

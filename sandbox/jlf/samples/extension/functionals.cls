@@ -3,6 +3,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 */
 
 --::options trace i
+::options NOMACROSPACE
 ::requires "extension/doers.cls"
 
 -----------------------------------------------------------------------------

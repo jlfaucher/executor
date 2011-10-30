@@ -87,13 +87,23 @@ void RexxInstructionOptions::execute(
             context->enableCommands(true);
         }
 
-        if (word->strCaselessCompare(CHAR_NOCOMMANDS))
+        else if (word->strCaselessCompare(CHAR_NOCOMMANDS))
         {
             context->enableCommands(false);
         }
 
+        else if (word->strCaselessCompare(CHAR_MACROSPACE))
+        {
+            context->enableMacrospace(true);
+        }
+
+        else if (word->strCaselessCompare(CHAR_NOMACROSPACE))
+        {
+            context->enableMacrospace(false);
+        }
+
 #ifdef _DEBUG
-        if (word->strCaselessCompare("DUMPMEMORY"))
+        else if (word->strCaselessCompare("DUMPMEMORY"))
         {
             memoryObject.dumpEnable = true;
             memoryObject.dump();

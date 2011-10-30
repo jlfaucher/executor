@@ -290,7 +290,8 @@
 #define SUBDIRECTIVE_TRACE       2521
 #define SUBDIRECTIVE_COMMANDS    2522
 #define SUBDIRECTIVE_NOCOMMANDS  2523
-
+#define SUBDIRECTIVE_MACROSPACE  2524
+#define SUBDIRECTIVE_NOMACROSPACE 2525
 
 /* condition keywords */
 #define IS_CONDITION         2600 // refined token subclass

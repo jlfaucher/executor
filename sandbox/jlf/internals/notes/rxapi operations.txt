@@ -1,3 +1,18 @@
+QUERY_MACRO
+    LocalMacroSpaceManager.cpp : LocalMacroSpaceManager::queryMacro
+            RoutineClass.cpp : RoutineClass::processInstore
+            RexxActivation.cpp : RexxActivation::callMacroSpaceFunction <-- now controlled by options MACROSPACE / NOMACROSPACE
+                ExternalFunctions.cpp : SystemInterpreter::invokeExternalFunction
+                    RexxActivation.cpp : RexxActivation::externalCall
+            PackageManager.cpp : PackageManager::loadRequires
+
+
+RexxActivation::callMacroSpaceFunction
+The query to rxapi is now controlled by the option MACROSPACE / NOMACROSPACE.
+
+
+==============================================================
+
 Operations called by the test framework
 
 [rxapi] ServiceMessage APIManager CLOSE_CONNECTION

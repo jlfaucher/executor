@@ -3,6 +3,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 */
 
 --::options trace i
+::options NOMACROSPACE
 ::requires "concurrency/coactivity.cls"
 
 
@@ -142,7 +143,7 @@ Possible transformations :
   this clause is a "return" clause.
 */
 ::method sourceDoer
-    use strict arg clauseBefore="", clauseAfter="", expression=.false, context=.nil, object = .nil
+    use strict arg clauseBefore="", clauseAfter="", expression=.false, context=.nil, objectSpecified = .false, object = .nil
     if context == .nil then context = self~package -- lookup scope
 
     sourceArray = self~source -- always an array, even if empty or just one line
@@ -239,7 +240,10 @@ Possible transformations :
     if kind == "r" then return .Routine~new("", sourceArray, context)
     else if kind == "rc" then return .Coactivity~new(.Routine~new("", sourceArray, context), .true)
     else if kind == "m" then return .Method~new("", sourceArray, context)
-    else if kind == "mc" then return .Coactivity~new(.Method~new("", sourceArray, context), .true, object)
+    else if kind == "mc" then do
+        if \objectSpecified then raise syntax 93.900 array("No object specified")
+        return .Coactivity~new(.Method~new("", sourceArray, context), .true, object)
+    end
 
 
 -----------------------------------------------------------------------------
@@ -354,7 +358,8 @@ It's because the ~run method is called from the ~do method which has been added 
 ::method doer
     use strict arg object=.nil -- optional object, needed when the source is tagged ::method
     if self~executable <> .nil then return self~executable
-    return self~sourceDoer( , , , , object)
+    objectSpecified = arg(1, "e") -- object explicitely passed ?
+    return self~sourceDoer( , , , , objectSpecified, object)
 
 -- Could be defined on DoerFactory to give access to this functionality from any doer,
 -- but that's probably a bad idea. Other doers are directly executable (except String
@@ -363,6 +368,7 @@ It's because the ~run method is called from the ~do method which has been added 
 -- explicit return, if needed.
 ::method functionDoer
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
+    objectSpecified = arg(3, "e") -- object explicitely passed ?
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
     clauseBefore ||= ' ; options "NOCOMMANDS"'
@@ -371,24 +377,24 @@ It's because the ~run method is called from the ~do method which has been added 
     -- say {if .true then 2}~functionDoer~do 
     -- would display "IF 1 THEN 2" if the clause had been transformed to an expression.
     signal on syntax name syntax1
-    return self~sourceDoer(clauseBefore, clauseAfter, , , object)
+    return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
     syntax1:
     -- The source as-is can't be parsed, try surrounding with round brackets...
     -- That lets support expressions like "arg()" which is otherwise an invalid expression :
     -- Missing expression following ( of parse template
     signal on syntax name syntax2
-    return self~sourceDoer(clauseBefore, clauseAfter, .true, , object)
+    return self~sourceDoer(clauseBefore, clauseAfter, .true, , objectSpecified, object)
     syntax2:
     -- The source is not a pure expression, fallback (again) to source as-is
     -- that will raise a syntax error, but this time, don't catch the error.
-    return self~sourceDoer(clauseBefore, clauseAfter, , ,object)
+    return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
 
 -- Same remark as above.
 ::method actionDoer
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
-    return self~sourceDoer(clauseBefore, clauseAfter, , , object)
+    return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
 
 
 -----------------------------------------------------------------------------

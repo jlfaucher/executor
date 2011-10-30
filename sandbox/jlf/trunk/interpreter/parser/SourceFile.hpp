@@ -404,6 +404,7 @@ class RexxSource : public RexxInternalObject {
     size_t         getTraceFlags() { return traceFlags; }
     RexxString    *getTrace() { return formatTraceSetting(traceSetting); }
     bool           getEnableCommands() { return enableCommands; }
+    bool           getEnableMacrospace() { return enableMacrospace; }
 
     static pbuiltin builtinTable[];      /* table of builtin function stubs   */
 
@@ -482,6 +483,7 @@ protected:
     size_t traceSetting;                 // the package trace setting
     size_t traceFlags;                   // version optimized for quick setting at startup
     bool enableCommands;                 // are commands enabled ?
+    bool enableMacrospace;               // is macrospace enabled ?
     intptr_t reserved1;                  // some reserved values for compatible expansion
     intptr_t reserved2;                  // some reserved values for compatible expansion
     intptr_t reserved3;                  // some reserved values for compatible expansion

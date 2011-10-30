@@ -19,6 +19,7 @@ each other explicitly and deterministically.
 
 
 --::options trace i
+::options NOMACROSPACE
 ::requires "concurrency/activity.cls"
 
 
