@@ -21,7 +21,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the string and combine them into one value by applying the given action to (current_value, current_char, current_char_pos)
 -- 567~reduceCI{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
 -- 567~reduceCI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
-::method reduceC
+::method reduceC unguarded
     forward message "reduce" to (self~makeArray(""))
 
 -- Iterate over the words of the string and combine them into one value by applying the given action to (current_value, current_word)
@@ -30,7 +30,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the string and combine them into one value by applying the given action to (current_value, current_word, current_word_index)
 -- "10 20 30"~reduceWI{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
 -- "10 20 30"~reduceWI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-::method reduceW
+::method reduceW unguarded
     forward message "reduce" to (self~subwords)
 
 
@@ -44,7 +44,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the mutable buffer and combine them into one value by applying the given action to (current_value, current_char, current_char_pos)
 -- .MutableBuffer~new(567)~reduceCI{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
 -- .MutableBuffer~new(567)~reduceCI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
-::method reduceC
+::method reduceC unguarded
     forward message "reduce" to (self~makeArray(""))
 
 -- Iterate over the words of the mutable buffer and combine them into one value by applying the given action to (current_value, current_word)
@@ -53,7 +53,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the mutable buffer and combine them into one value by applying the given action to (current_value, current_word, current_word_index)
 -- .MutableBuffer~new("10 20 30")~reduceWI{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
 -- .MutableBuffer~new("10 20 30")~reduceWI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-::method reduceW
+::method reduceW unguarded
     forward message "reduce" to (self~subwords)
 
 
@@ -69,7 +69,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the items of the collection and combine them into one value by applying the given action to (current_value, current_item, current_index)
 -- .array~of(10, 20, 30)~reduceI{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
 -- .array~of(10, 20, 30)~reduceI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-::method reduce
+::method reduce unguarded
     forward to (self~supplier)
 
 
@@ -83,7 +83,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the values yielded by the coactivity and combine them into one value by applying the given action to (current_value, current_yielded_value, current_yielded_index)
 -- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduceI{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
 -- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduceI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
-::method reduce
+::method reduce unguarded
     forward to (self~supplier)
 
 
@@ -93,7 +93,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the items of the supplier and combine them into one value by applying the given action to (current_value, current_item)
 -- When the action understands ~functionDoer then a third parameter current_index is passed.
-::method reduce
+::method reduce unguarded
     if arg() == 2 then do
         use strict arg initial, action
         return self~reduceImpl(action, initial)
@@ -103,7 +103,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
         return self~reduceImpl(action)
     end
 
-::method reduceImpl private
+::method reduceImpl private unguarded
     use strict arg action, initial=.nil
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg accu, value, index") ; indexed = .true ; end
@@ -140,7 +140,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "abcdefghijklmnopqrstuvwxyz"~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
 -- "abcdefghijk"~mapCI{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
-::method mapC
+::method mapC unguarded
     use strict arg action
     return .MutableBuffer~new~mapCImpl(self, action)~string
 
@@ -151,7 +151,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "one two three"~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
 -- "one two three"~mapWI{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
-::method mapW
+::method mapW unguarded
     use strict arg action
     return .MutableBuffer~new~mapWImpl(self, action)~string
 
@@ -167,7 +167,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
 -- .MutableBuffer~new("abcdefghijk")~mapCI{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
-::method mapC
+::method mapC unguarded
     use strict arg action
     return .MutableBuffer~new~mapCImpl(self, action)
 
@@ -183,7 +183,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("one two three")~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos)
 -- .MutableBuffer~new("one two three")~mapWI{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
-::method mapW
+::method mapW unguarded
     use strict arg action
     return .MutableBuffer~new~mapWImpl(self, action)
 
@@ -240,7 +240,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .array~of(1,2,3)~map{2*arg(1)} -- returns .array~of(2,4,6)
 -- Iterate over the items of a copy of the collection and apply the given action to (current_item, current_index)
 -- .array~of(1,2,3)~mapI{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
-::method map
+::method map unguarded
     use strict arg action
     return self~copy~mapImpl(self~supplier, action)
 
@@ -285,7 +285,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 3~times{say arg(1)} -- no resulting array because no result returned during the iteration
 -- 3~times{1} -- returns .array~of(1,1,1)
 -- 3~times{arg(1)} -- returns .array~of(1,2,3)
-::method times
+::method times unguarded
     use strict arg action={arg(1)}
     forward to 1 message "upto" array(self, action)
 
@@ -297,7 +297,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- say c~resume -- 1
 -- say c~resume -- 2
 -- ...
-::method times.yield
+::method times.yield unguarded
     use strict arg action={arg(1)}
     forward to 1 message "yield.upto" array(self, action)
 
@@ -307,7 +307,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 11~upto(13){2*arg(1)} -- returns .array~of(22,24,26)
 -- 11~upto(13) -- returns .array~of(11,12,13)
 -- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
-::method upto
+::method upto unguarded
     use strict arg upperLimit, action={arg(1)}
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
@@ -331,7 +331,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- say c~resume -- 11
 -- say c~resume -- 12
 -- ...
-::method yield.upto -- coactive
+::method yield.upto unguarded -- coactive
     use strict arg upperLimit, action={arg(1)}
     c = .Coactivity~new{
         -- expose self upperLimit action        -- to activate when closure supported
@@ -354,7 +354,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 13~downto(11){2*arg(1)} -- returns .array~of(26,24,22)
 -- 13~downto(11) -- returns .array~of(13,12,11)
 -- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
-::method downto
+::method downto unguarded
     use strict arg lowerLimit, action={arg(1)}
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
@@ -378,7 +378,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- say c~resume -- 1000000
 -- say c~resume -- 999999
 -- ...
-::method yield.downto -- coactive
+::method yield.downto unguarded -- coactive
     use strict arg lowerLimit, action={arg(1)}
     c = .Coactivity~new{
         -- expose self lowerLimit action        -- to activate when closure supported
@@ -411,7 +411,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the string and apply the given action to (current_char)
 -- When the action understands ~functionDoer then a second parameter current_char_pos is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method eachC
+::method eachC unguarded
     forward message "each" to (self~makeArray(""))
 
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
@@ -419,13 +419,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachCI
+::method eachCI unguarded
     forward message "eachI" to (self~makeArray(""))
 
 -- Iterate over the words of the string and apply the given action to (current_word)
 -- When the action understands ~functionDoer then a second parameter current_word_index is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method eachW
+::method eachW unguarded
     forward message "each" to (self~subwords)
 
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
@@ -433,7 +433,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachWI
+::method eachWI unguarded
     forward message "eachI" to (self~subwords)
 
 
@@ -444,7 +444,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char)
 -- When the action understands ~functionDoer then a second parameter current_char_pos is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method eachC
+::method eachC unguarded
     forward message "each" to (self~makeArray(""))
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
@@ -452,13 +452,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachCI
+::method eachCI unguarded
     forward message "eachI" to (self~makeArray(""))
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_word)
 -- When the action understands ~functionDoer then a second parameter current_word_index is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method eachW
+::method eachW unguarded
     forward message "each" to (self~subwords)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_word, current_word_index)
@@ -466,7 +466,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachWI
+::method eachWI unguarded
     forward message "eachI" to (self~subwords)
 
 
@@ -477,7 +477,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the items of the collection and apply the given action to (current_item).
 -- When the action understands ~functionDoer then a second parameter current_index is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method each
+::method each unguarded
     forward to (self~supplier)
 
 -- Iterate over the items of the collection and apply the given action to (current_item, current_index).
@@ -485,7 +485,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachI
+::method eachI unguarded
     forward to (self~supplier)
 
 
@@ -496,7 +496,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value).
 -- When the action understands ~functionDoer then a second parameter current_yielded_index is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method each
+::method each unguarded
     forward to (self~supplier)
 
 -- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value, current_yielded_index).
@@ -504,7 +504,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachI
+::method eachI unguarded
     forward to (self~supplier)
 
 
@@ -515,7 +515,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over then items of the supplier and apply the given action to (current_item).
 -- When the action understands ~functionDoer then a second parameter current_index is passed.
 -- If at least one result is returned by the action during the iteration, then an array of results is returned.
-::method each
+::method each unguarded
     use strict arg action={arg(1)}
     self~eachImpl(action, .false)
     if var("result") then return result
@@ -525,12 +525,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- result[1] == array of results
 -- result[2] == array of indexes
 -- Both arrays contains the same number of items, where result[2][n] is the origin index of result[1][n].
-::method eachI
+::method eachI unguarded
     use strict arg action={arg(1)}
     self~eachImpl(action, .true)
     if var("result") then return result
 
-::method eachImpl private
+::method eachImpl private unguarded
     use strict arg action={arg(1)}, returnIndex=.false
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg value, index") ; indexed = .true ; end

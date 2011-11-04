@@ -1,4 +1,4 @@
-/**** 
+/****
 Usage :
     tracer [-csv] [-filter] [<traceFile>]
 
@@ -20,7 +20,7 @@ Description :
     00010244 00000000 00000000  00000  Error 99.916:  Unrecognized directive instruction
 
     See RexxActivity::traceOutput
-    Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE, 
+    Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE,
                                                    Utilities::currentThreadId(),
                                                    activation,
                                                    (activation) ? activation->getVariableDictionary() : NULL,
@@ -34,8 +34,8 @@ Description :
     #else
     #define CONCURRENCY_TRACE "%8.8x %8.8x %8.8x %5.5hu%c "
     #endif
-    
-    
+
+
     The same format with human-readable ids is also supported :
     T1   A1                   >I> Routine D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
     T1   A1                   >I> Routine A_ROUTINE in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
@@ -107,7 +107,7 @@ return 0
     use strict arg string, quote='"'
     doubleQuote = quote || quote
     return quote || string~changeStr(quote, doubleQuote) || quote
-    
+
 ::method unquoted class
     -- Replace escaped double quotes by a double quote, and remove leading and trailing double quotes, if any.
     -- "a""bc""d" --> a"bc"d
@@ -214,7 +214,7 @@ return 0
     currentTrace = .nil
 
     -- Try with 64-bit pointers
-    if \self~parse64bit(rawLine) then    
+    if \self~parse64bit(rawLine) then
     do
         -- Try with 32-bit pointers
         if \self~parse32bit(rawLine) then
@@ -332,7 +332,7 @@ return 0
     stream~charout(.Utility~quoted(self~raw)) -- ; stream~charout(self~sep)
     stream~lineout("")
 
-    
+
 -------------------------------------------------------------------------------
 ::class Thread
 -------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ return 0
 ::method isHrId class
     use strict arg threadId
     return threadId~left(1) =="T" & threadId~substr(2)~dataType("9")  -- Ex : T1, T12, T123, ...
-    
+
 ::attribute id
 ::attribute hrId -- Human-readable
 
@@ -405,7 +405,7 @@ return 0
 ::method isHrId class
     use strict arg activationId
     return activationId~left(1) =="A" & activationId~substr(2)~dataType("9")  -- Ex : A1, A12, A123, ...
-    
+
 ::attribute id
 ::attribute hrId -- Human-readable
 ::attribute kind
@@ -455,7 +455,7 @@ return 0
     use strict arg varDictId
     if varDictId = "" then return .true -- special case, when parsing hr trace.
     return varDictId~left(1) =="V" & varDictId~substr(2)~dataType("9")  -- Ex : V1, V12, V123, ...
-    
+
 ::attribute id
 ::attribute hrId -- Human-readable
 
@@ -481,7 +481,7 @@ return 0
 ::method isValidPrefix class
     use strict arg prefix
     -- The last "..." is not a standard trace prefix. This is the prefix used by the debug output of SysSemaphore and SysMutex.
-    return prefix~space(0)~length == 3 & "*-* +++ >I> >>> >=> >.> >A> >C> >E> >F> >L> >M> >O> >P> >V> ..."~pos(prefix) <> 0 
+    return prefix~space(0)~length == 3 & "*-* +++ >I> >>> >=> >.> >A> >C> >E> >F> >L> >M> >O> >P> >V> ..."~pos(prefix) <> 0
 
 ::attribute rawLine
 
@@ -557,7 +557,7 @@ return 0
 
     reserveCount = self~reserveCount
     if reserveCount = 0 then reserveCount = ""
-    if reserveCount <> "" then reserveCount = reserveCount~format(.WithActivationInfo~reserveCountHrWidth) 
+    if reserveCount <> "" then reserveCount = reserveCount~format(.WithActivationInfo~reserveCountHrWidth)
 
     stream~lineOut(thread~hrId~left(.Thread~hrIdWidth),
                    activation~hrId~left(.Activation~hrIdWidth),

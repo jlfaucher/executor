@@ -9,6 +9,7 @@ else
     .local~rxunixsys.loaded = .false
 
 
+--::options trace i
 ::options NOMACROSPACE
 
 --------------------------------------------------------------------------------

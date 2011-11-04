@@ -84,7 +84,7 @@ T1   A5     V2                >E>   .COACTIVITY => "The Coactivity class"
 T1   A5     V2                >M>   "NOTSTARTED" => "0"
 T1   A5     V2                >A>   "0"
 T1   A5     V2                >>>   "0"
-T1   A5     V2             87 *-* if start 
+T1   A5     V2             87 *-* if start
 T1   A5     V2                >V>   START => "1"
 T1   A5     V2                >>>   "1"
 T1   A5     V2             87 *-*   then
@@ -93,7 +93,7 @@ T1   A5     V2                >V>       SELF => "a Coactivity"
 T1   A6     V2                >I> Method START with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T1   A6     V2      1*     97 *-* expose status
 T1   A6     V2      1*     98 *-* use strict arg -- no arg
-T1   A6     V2      1*     99 *-* if status <> .Coactivity~notStarted 
+T1   A6     V2      1*     99 *-* if status <> .Coactivity~notStarted
 T1   A6     V2      1*        >V>   STATUS => "0"
 T1   A6     V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A6     V2      1*        >M>   "NOTSTARTED" => "0"
@@ -186,7 +186,7 @@ T1   A11    V4      2*     99 *-* expose next
 T1   A11    V4      2*    100 *-* use strict arg follower
 T1   A11    V4      2*        >>>   "a CONSOLE"
 T1   A11    V4      2*        >=>   FOLLOWER <= "a CONSOLE"
-T1   A11    V4      2*    101 *-* if .nil == next 
+T1   A11    V4      2*    101 *-* if .nil == next
 T1   A11    V4      2*        >E>   .NIL => "The NIL object"
 T1   A11    V4      2*        >V>   NEXT => "The NIL object"
 T1   A11    V4      2*        >O>   "==" => "1"
@@ -244,7 +244,7 @@ T1   A15    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A15    V6      1*        >V>   COACTIVITY => "a Coactivity"
 T1   A15    V6      1*        >A>   "a Coactivity"
 T1   A15    V6      1*        >>>   "a Coactivity"
-T1   A15    V6      1*    285 *-* if \self~coactivity~isStarted 
+T1   A15    V6      1*    285 *-* if \self~coactivity~isStarted
 T1   A15    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A15    V6      1*        >M>   "COACTIVITY" => "a Coactivity"
 T1   A16    V2      1         >I> Method ISSTARTED with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
@@ -272,19 +272,19 @@ T1   A17    V6      2*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A17    V6      2*        >M>   "COACTIVITY" => "a Coactivity"
 T1   A18    V2      1         >I> Method RESUME with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T1   A18    V2      2*    176 *-* expose status yieldValue
-T1   A18    V2      2*    177 *-* if status == .Coactivity~notStarted 
+T1   A18    V2      2*    177 *-* if status == .Coactivity~notStarted
 T1   A18    V2      2*        >V>   STATUS => "1"
 T1   A18    V2      2*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      2*        >M>   "NOTSTARTED" => "0"
 T1   A18    V2      2*        >O>   "==" => "0"
 T1   A18    V2      2*        >>>   "0"
-T1   A18    V2      2*    178 *-* if status == .Coactivity~killed 
+T1   A18    V2      2*    178 *-* if status == .Coactivity~killed
 T1   A18    V2      2*        >V>   STATUS => "1"
 T1   A18    V2      2*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      2*        >M>   "KILLED" => "4"
 T1   A18    V2      2*        >O>   "==" => "0"
 T1   A18    V2      2*        >>>   "0"
-T1   A18    V2      2*    179 *-* if status == .Coactivity~ended 
+T1   A18    V2      2*    179 *-* if status == .Coactivity~ended
 T1   A18    V2      2*        >V>   STATUS => "1"
 T1   A18    V2      2*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      2*        >M>   "ENDED" => "3"
@@ -312,7 +312,7 @@ T1   A18    V2      2*        >M>   "RUNNING" => "2"
 T1   A18    V2      2*        >O>   "<>" => "0"
 T1   A18    V2      2*        >>>   "0"
 Deadlock here : both T1 and T2 are waiting...
-
+*/
 
 
 /***************************************************************
@@ -366,7 +366,7 @@ T1   A5     V2                >E>   .COACTIVITY => "The Coactivity class"
 T1   A5     V2                >M>   "NOTSTARTED" => "0"
 T1   A5     V2                >A>   "0"
 T1   A5     V2                >>>   "0"
-T1   A5     V2             87 *-* if start 
+T1   A5     V2             87 *-* if start
 T1   A5     V2                >V>   START => "1"
 T1   A5     V2                >>>   "1"
 T1   A5     V2             87 *-*   then
@@ -375,7 +375,7 @@ T1   A5     V2                >V>       SELF => "a Coactivity"
 T1   A6     V2                >I> Method START with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T1   A6     V2      1*     97 *-* expose status
 T1   A6     V2      1*     98 *-* use strict arg -- no arg
-T1   A6     V2      1*     99 *-* if status <> .Coactivity~notStarted 
+T1   A6     V2      1*     99 *-* if status <> .Coactivity~notStarted
 T1   A6     V2      1*        >V>   STATUS => "0"
 T1   A6     V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A6     V2      1*        >M>   "NOTSTARTED" => "0"
@@ -468,7 +468,7 @@ T1   A11    V4      2*     99 *-* expose next
 T1   A11    V4      2*    100 *-* use strict arg follower
 T1   A11    V4      2*        >>>   "a CONSOLE"
 T1   A11    V4      2*        >=>   FOLLOWER <= "a CONSOLE"
-T1   A11    V4      2*    101 *-* if .nil == next 
+T1   A11    V4      2*    101 *-* if .nil == next
 T1   A11    V4      2*        >E>   .NIL => "The NIL object"
 T1   A11    V4      2*        >V>   NEXT => "The NIL object"
 T1   A11    V4      2*        >O>   "==" => "1"
@@ -526,7 +526,7 @@ T1   A15    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A15    V6      1*        >V>   COACTIVITY => "a Coactivity"
 T1   A15    V6      1*        >A>   "a Coactivity"
 T1   A15    V6      1*        >>>   "a Coactivity"
-T1   A15    V6      1*    285 *-* if \self~coactivity~isStarted 
+T1   A15    V6      1*    285 *-* if \self~coactivity~isStarted
 T1   A15    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A15    V6      1*        >M>   "COACTIVITY" => "a Coactivity"
 T1   A16    V2                >I> Method ISSTARTED with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
@@ -554,19 +554,19 @@ T1   A17    V6      2*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A17    V6      2*        >M>   "COACTIVITY" => "a Coactivity"
 T1   A18    V2                >I> Method RESUME with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T1   A18    V2      1*    176 *-* expose status yieldValue
-T1   A18    V2      1*    177 *-* if status == .Coactivity~notStarted 
+T1   A18    V2      1*    177 *-* if status == .Coactivity~notStarted
 T1   A18    V2      1*        >V>   STATUS => "1"
 T1   A18    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      1*        >M>   "NOTSTARTED" => "0"
 T1   A18    V2      1*        >O>   "==" => "0"
 T1   A18    V2      1*        >>>   "0"
-T1   A18    V2      1*    178 *-* if status == .Coactivity~killed 
+T1   A18    V2      1*    178 *-* if status == .Coactivity~killed
 T1   A18    V2      1*        >V>   STATUS => "1"
 T1   A18    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      1*        >M>   "KILLED" => "4"
 T1   A18    V2      1*        >O>   "==" => "0"
 T1   A18    V2      1*        >>>   "0"
-T1   A18    V2      1*    179 *-* if status == .Coactivity~ended 
+T1   A18    V2      1*    179 *-* if status == .Coactivity~ended
 T1   A18    V2      1*        >V>   STATUS => "1"
 T1   A18    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      1*        >M>   "ENDED" => "3"
@@ -593,7 +593,7 @@ T2   A6     V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A6     V2      1*        >M>   "SUSPENDED" => "1"
 T2   A6     V2      1*        >O>   "<>" => "1"
 T2   A6     V2      1*        >>>   "1"
-T2   A6     V2      1*    109 *-* if status == .Coactivity~running 
+T2   A6     V2      1*    109 *-* if status == .Coactivity~running
 T2   A6     V2      1*        >V>   STATUS => "2"
 T2   A6     V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A6     V2      1*        >M>   "RUNNING" => "2"
@@ -602,7 +602,7 @@ T2   A6     V2      1*        >>>   "1"
 T2   A6     V2      1*    109 *-*   then
 T2   A6     V2      1*    109 *-*     do
 T2   A6     V2      1*    110 *-*       guard off
-T2   A6     V2      1     112 *-*       if self~doer~needsObject 
+T2   A6     V2      1     112 *-*       if self~doer~needsObject
 T1   A18    V2      1*        >V>   STATUS => "2"
 T2   A6     V2      1         >V>         SELF => "a Coactivity"
 T1   A18    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
@@ -626,7 +626,7 @@ T2   A19    V1                >M>   "LOCAL" => "a Directory"
 T2   A19    V1                >M>   "COACTIVITY" => "a Coactivity"
 T2   A19    V1                >>>   "a Coactivity"
 T2   A19    V1                >=>   COACTIVITY <= "a Coactivity"
-T2   A19    V1            144 *-* if coactivity == .nil 
+T2   A19    V1            144 *-* if coactivity == .nil
 T2   A19    V1                >V>   COACTIVITY => "a Coactivity"
 T2   A19    V1                >E>   .NIL => "The NIL object"
 T2   A19    V1                >O>   "==" => "0"
@@ -636,19 +636,19 @@ T2   A19    V1                >V>   COACTIVITY => "a Coactivity"
 T2   A20    V2                >I> Method YIELD with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T2   A20    V2      1*    151 *-* expose status yieldValue
 T2   A20    V2      1*    152 *-* drop yieldValue
-T2   A20    V2      1*    153 *-* if status == .Coactivity~killed 
+T2   A20    V2      1*    153 *-* if status == .Coactivity~killed
 T2   A20    V2      1*        >V>   STATUS => "2"
 T2   A20    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A20    V2      1*        >M>   "KILLED" => "4"
 T2   A20    V2      1*        >O>   "==" => "0"
 T2   A20    V2      1*        >>>   "0"
-T2   A20    V2      1*    154 *-* if status == .Coactivity~ended 
+T2   A20    V2      1*    154 *-* if status == .Coactivity~ended
 T2   A20    V2      1*        >V>   STATUS => "2"
 T2   A20    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A20    V2      1*        >M>   "ENDED" => "3"
 T2   A20    V2      1*        >O>   "==" => "0"
 T2   A20    V2      1*        >>>   "0"
-T2   A20    V2      1*    155 *-* if arg() <> 0 
+T2   A20    V2      1*    155 *-* if arg() <> 0
 T2   A20    V2      1*        >F>   ARG => "1"
 T2   A20    V2      1*        >L>   "0"
 T2   A20    V2      1*        >O>   "<>" => "1"
@@ -669,13 +669,13 @@ T1   A18    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      1*        >M>   "RUNNING" => "2"
 T1   A18    V2      1*        >O>   "<>" => "1"
 T1   A18    V2      1*        >>>   "1"
-T1   A18    V2      1*    184 *-* if status == .Coactivity~killed 
+T1   A18    V2      1*    184 *-* if status == .Coactivity~killed
 T1   A18    V2      1*        >V>   STATUS => "1"
 T1   A18    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A18    V2      1*        >M>   "KILLED" => "4"
 T1   A18    V2      1*        >O>   "==" => "0"
 T1   A18    V2      1*        >>>   "0"
-T1   A18    V2      1*    185 *-* if var("yieldValue") 
+T1   A18    V2      1*    185 *-* if var("yieldValue")
 T1   A18    V2      1*        >L>   "yieldValue"
 T1   A18    V2      1*        >A>   "yieldValue"
 T1   A18    V2      1*        >F>   VAR => "1"
@@ -688,7 +688,7 @@ T1   A17    V6      2*        >>>   "a"
 T2   A20    V2      1*        >V>   STATUS => "1"
 T1   A17    V6      2*    305 *-* drop currentItem
 T2   A20    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
-T1   A17    V6      2*    306 *-* if var("result") 
+T1   A17    V6      2*    306 *-* if var("result")
 T2   A20    V2      1*        >M>   "SUSPENDED" => "1"
 T1   A17    V6      2*        >L>   "result"
 T2   A20    V2      1*        >O>   "<>" => "0"
@@ -735,7 +735,7 @@ T1   A13    V4      2*    146 *-*   self~process(engine~item)                 --
 T1   A13    V4      2*        >V>     SELF => "an UPPER"
 T1   A13    V4      2*        >V>     ENGINE => "a LAZYCOACTIVITYSUPPLIER"
 T1   A22    V6                >I> Method ITEM with scope "The LAZYCOACTIVITYSUPPLIER class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
-T1   A22    V6      1*    299 *-* if self~isAvailable 
+T1   A22    V6      1*    299 *-* if self~isAvailable
 T1   A22    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A22    V6      1*        >M>   "ISAVAILABLE" => "1"
 T1   A22    V6      1*        >>>   "1"
@@ -760,7 +760,7 @@ T1   A24    V4      3*    156 *-* expose next
 T1   A24    V4      3*    157 *-* use strict arg data
 T1   A24    V4      3*        >>>   "A"
 T1   A24    V4      3*        >=>   DATA <= "A"
-T1   A24    V4      3*    158 *-* if .nil <> next 
+T1   A24    V4      3*    158 *-* if .nil <> next
 T1   A24    V4      3*        >E>   .NIL => "The NIL object"
 T1   A24    V4      3*        >V>   NEXT => "a CONSOLE"
 T1   A24    V4      3*        >O>   "<>" => "1"
@@ -794,7 +794,7 @@ T1   A27    V5      2*    156 *-* expose next
 T1   A27    V5      2*    157 *-* use strict arg data
 T1   A27    V5      2*        >>>   "A"
 T1   A27    V5      2*        >=>   DATA <= "A"
-T1   A27    V5      2*    158 *-* if .nil <> next 
+T1   A27    V5      2*    158 *-* if .nil <> next
 T1   A27    V5      2*        >E>   .NIL => "The NIL object"
 T1   A27    V5      2*        >V>   NEXT => "The NIL object"
 T1   A27    V5      2*        >O>   "<>" => "0"
@@ -809,19 +809,19 @@ T1   A28    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A28    V6      1*        >M>   "COACTIVITY" => "a Coactivity"
 T1   A29    V2                >I> Method RESUME with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T1   A29    V2      1*    176 *-* expose status yieldValue
-T1   A29    V2      1*    177 *-* if status == .Coactivity~notStarted 
+T1   A29    V2      1*    177 *-* if status == .Coactivity~notStarted
 T1   A29    V2      1*        >V>   STATUS => "1"
 T1   A29    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A29    V2      1*        >M>   "NOTSTARTED" => "0"
 T1   A29    V2      1*        >O>   "==" => "0"
 T1   A29    V2      1*        >>>   "0"
-T1   A29    V2      1*    178 *-* if status == .Coactivity~killed 
+T1   A29    V2      1*    178 *-* if status == .Coactivity~killed
 T1   A29    V2      1*        >V>   STATUS => "1"
 T1   A29    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A29    V2      1*        >M>   "KILLED" => "4"
 T1   A29    V2      1*        >O>   "==" => "0"
 T1   A29    V2      1*        >>>   "0"
-T1   A29    V2      1*    179 *-* if status == .Coactivity~ended 
+T1   A29    V2      1*    179 *-* if status == .Coactivity~ended
 T1   A29    V2      1*        >V>   STATUS => "1"
 T1   A29    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A29    V2      1*        >M>   "ENDED" => "3"
@@ -848,13 +848,13 @@ T2   A20    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A20    V2      1*        >M>   "SUSPENDED" => "1"
 T2   A20    V2      1*        >O>   "<>" => "1"
 T2   A20    V2      1*        >>>   "1"
-T2   A20    V2      1*    159 *-* if status == .Coactivity~killed 
+T2   A20    V2      1*    159 *-* if status == .Coactivity~killed
 T2   A20    V2      1*        >V>   STATUS => "2"
 T2   A20    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A20    V2      1*        >M>   "KILLED" => "4"
 T2   A20    V2      1*        >O>   "==" => "0"
 T2   A20    V2      1*        >>>   "0"
-T2   A20    V2      1*    160 *-* if status == .Coactivity~ended 
+T2   A20    V2      1*    160 *-* if status == .Coactivity~ended
 T2   A20    V2      1*        >V>   STATUS => "2"
 T2   A20    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A20    V2      1*        >M>   "ENDED" => "3"
@@ -876,7 +876,7 @@ T2   A30    V1                >M>   "COACTIVITY" => "a Coactivity"
 T1   A29    V2      1*        >>>   "0"
 T2   A30    V1                >>>   "a Coactivity"
 T2   A30    V1                >=>   COACTIVITY <= "a Coactivity"
-T2   A30    V1            144 *-* if coactivity == .nil 
+T2   A30    V1            144 *-* if coactivity == .nil
 T2   A30    V1                >V>   COACTIVITY => "a Coactivity"
 T2   A30    V1                >E>   .NIL => "The NIL object"
 T2   A30    V1                >O>   "==" => "0"
@@ -886,19 +886,19 @@ T2   A30    V1                >V>   COACTIVITY => "a Coactivity"
 T2   A31    V2                >I> Method YIELD with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T2   A31    V2      1*    151 *-* expose status yieldValue
 T2   A31    V2      1*    152 *-* drop yieldValue
-T2   A31    V2      1*    153 *-* if status == .Coactivity~killed 
+T2   A31    V2      1*    153 *-* if status == .Coactivity~killed
 T2   A31    V2      1*        >V>   STATUS => "2"
 T2   A31    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A31    V2      1*        >M>   "KILLED" => "4"
 T2   A31    V2      1*        >O>   "==" => "0"
 T2   A31    V2      1*        >>>   "0"
-T2   A31    V2      1*    154 *-* if status == .Coactivity~ended 
+T2   A31    V2      1*    154 *-* if status == .Coactivity~ended
 T2   A31    V2      1*        >V>   STATUS => "2"
 T2   A31    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A31    V2      1*        >M>   "ENDED" => "3"
 T2   A31    V2      1*        >O>   "==" => "0"
 T2   A31    V2      1*        >>>   "0"
-T2   A31    V2      1*    155 *-* if arg() <> 0 
+T2   A31    V2      1*    155 *-* if arg() <> 0
 T2   A31    V2      1*        >F>   ARG => "1"
 T2   A31    V2      1*        >L>   "0"
 T2   A31    V2      1*        >O>   "<>" => "1"
@@ -919,13 +919,13 @@ T1   A29    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A29    V2      1*        >M>   "RUNNING" => "2"
 T1   A29    V2      1*        >O>   "<>" => "1"
 T1   A29    V2      1*        >>>   "1"
-T1   A29    V2      1*    184 *-* if status == .Coactivity~killed 
+T1   A29    V2      1*    184 *-* if status == .Coactivity~killed
 T1   A29    V2      1*        >V>   STATUS => "1"
 T1   A29    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A29    V2      1*        >M>   "KILLED" => "4"
 T1   A29    V2      1*        >O>   "==" => "0"
 T1   A29    V2      1*        >>>   "0"
-T1   A29    V2      1*    185 *-* if var("yieldValue") 
+T1   A29    V2      1*    185 *-* if var("yieldValue")
 T1   A29    V2      1*        >L>   "yieldValue"
 T1   A29    V2      1*        >A>   "yieldValue"
 T1   A29    V2      1*        >F>   VAR => "1"
@@ -938,7 +938,7 @@ T1   A28    V6      1*        >>>   "b"
 T2   A31    V2      1*        >V>   STATUS => "1"
 T1   A28    V6      1*    305 *-* drop currentItem
 T2   A31    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
-T1   A28    V6      1*    306 *-* if var("result") 
+T1   A28    V6      1*    306 *-* if var("result")
 T2   A31    V2      1*        >M>   "SUSPENDED" => "1"
 T1   A28    V6      1*        >L>   "result"
 T2   A31    V2      1*        >O>   "<>" => "0"
@@ -981,7 +981,7 @@ T1   A13    V4      2*    146 *-*   self~process(engine~item)                 --
 T1   A13    V4      2*        >V>     SELF => "an UPPER"
 T1   A13    V4      2*        >V>     ENGINE => "a LAZYCOACTIVITYSUPPLIER"
 T1   A33    V6                >I> Method ITEM with scope "The LAZYCOACTIVITYSUPPLIER class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
-T1   A33    V6      1*    299 *-* if self~isAvailable 
+T1   A33    V6      1*    299 *-* if self~isAvailable
 T1   A33    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A33    V6      1*        >M>   "ISAVAILABLE" => "1"
 T1   A33    V6      1*        >>>   "1"
@@ -1006,7 +1006,7 @@ T1   A35    V4      3*    156 *-* expose next
 T1   A35    V4      3*    157 *-* use strict arg data
 T1   A35    V4      3*        >>>   "B"
 T1   A35    V4      3*        >=>   DATA <= "B"
-T1   A35    V4      3*    158 *-* if .nil <> next 
+T1   A35    V4      3*    158 *-* if .nil <> next
 T1   A35    V4      3*        >E>   .NIL => "The NIL object"
 T1   A35    V4      3*        >V>   NEXT => "a CONSOLE"
 T1   A35    V4      3*        >O>   "<>" => "1"
@@ -1040,7 +1040,7 @@ T1   A38    V5      2*    156 *-* expose next
 T1   A38    V5      2*    157 *-* use strict arg data
 T1   A38    V5      2*        >>>   "B"
 T1   A38    V5      2*        >=>   DATA <= "B"
-T1   A38    V5      2*    158 *-* if .nil <> next 
+T1   A38    V5      2*    158 *-* if .nil <> next
 T1   A38    V5      2*        >E>   .NIL => "The NIL object"
 T1   A38    V5      2*        >V>   NEXT => "The NIL object"
 T1   A38    V5      2*        >O>   "<>" => "0"
@@ -1055,19 +1055,19 @@ T1   A39    V6      1*        >V>   SELF => "a LAZYCOACTIVITYSUPPLIER"
 T1   A39    V6      1*        >M>   "COACTIVITY" => "a Coactivity"
 T1   A40    V2                >I> Method RESUME with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T1   A40    V2      1*    176 *-* expose status yieldValue
-T1   A40    V2      1*    177 *-* if status == .Coactivity~notStarted 
+T1   A40    V2      1*    177 *-* if status == .Coactivity~notStarted
 T1   A40    V2      1*        >V>   STATUS => "1"
 T1   A40    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A40    V2      1*        >M>   "NOTSTARTED" => "0"
 T1   A40    V2      1*        >O>   "==" => "0"
 T1   A40    V2      1*        >>>   "0"
-T1   A40    V2      1*    178 *-* if status == .Coactivity~killed 
+T1   A40    V2      1*    178 *-* if status == .Coactivity~killed
 T1   A40    V2      1*        >V>   STATUS => "1"
 T1   A40    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A40    V2      1*        >M>   "KILLED" => "4"
 T1   A40    V2      1*        >O>   "==" => "0"
 T1   A40    V2      1*        >>>   "0"
-T1   A40    V2      1*    179 *-* if status == .Coactivity~ended 
+T1   A40    V2      1*    179 *-* if status == .Coactivity~ended
 T1   A40    V2      1*        >V>   STATUS => "1"
 T1   A40    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A40    V2      1*        >M>   "ENDED" => "3"
@@ -1094,13 +1094,13 @@ T2   A31    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A31    V2      1*        >M>   "SUSPENDED" => "1"
 T2   A31    V2      1*        >O>   "<>" => "1"
 T2   A31    V2      1*        >>>   "1"
-T2   A31    V2      1*    159 *-* if status == .Coactivity~killed 
+T2   A31    V2      1*    159 *-* if status == .Coactivity~killed
 T2   A31    V2      1*        >V>   STATUS => "2"
 T2   A31    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A31    V2      1*        >M>   "KILLED" => "4"
 T2   A31    V2      1*        >O>   "==" => "0"
 T2   A31    V2      1*        >>>   "0"
-T2   A31    V2      1*    160 *-* if status == .Coactivity~ended 
+T2   A31    V2      1*    160 *-* if status == .Coactivity~ended
 T2   A31    V2      1*        >V>   STATUS => "2"
 T2   A31    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T2   A31    V2      1*        >M>   "ENDED" => "3"
@@ -1116,7 +1116,7 @@ T1   A40    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A40    V2      1*        >M>   "RUNNING" => "2"
 T1   A40    V2      1*        >O>   "<>" => "0"
 T1   A40    V2      1*        >>>   "0"
-T2   A6     V2      1*    115 *-*       if var("result") 
+T2   A6     V2      1*    115 *-*       if var("result")
 T2   A6     V2      1*        >L>         "result"
 T2   A6     V2      1*        >A>         "result"
 T2   A6     V2      1*        >F>         VAR => "0"
@@ -1127,7 +1127,7 @@ T2   A6     V2      1*        >V>             SELF => "a Coactivity"
 T2   A41    V2      1         >I> Method YIELDLAST with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T2   A41    V2      2*    168 *-* expose yieldValue
 T2   A41    V2      2*    169 *-* drop yieldValue
-T2   A41    V2      2*    170 *-* if arg() <> 0 
+T2   A41    V2      2*    170 *-* if arg() <> 0
 T2   A41    V2      2*        >F>   ARG => "0"
 T2   A41    V2      2*        >L>   "0"
 T2   A41    V2      2*        >O>   "<>" => "0"
@@ -1142,7 +1142,7 @@ T2   A6     V2      1*    119 *-* trapCondition:
 T2   A6     V2      1*    120 *-* self~kill -- maybe already killed or ended
 T2   A6     V2      1*        >V>   SELF => "a Coactivity"
 T2   A42    V2      1         >I> Method KILL with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
-T2   A42    V2      2*    197 *-* if self~status == .Coactivity~ended 
+T2   A42    V2      2*    197 *-* if self~status == .Coactivity~ended
 T2   A42    V2      2*        >V>   SELF => "a Coactivity"
 T2   A42    V2      2*        >M>   "STATUS" => "3"
 T2   A42    V2      2*        >E>   .COACTIVITY => "The Coactivity class"
@@ -1154,7 +1154,7 @@ T2   A42    V2      2*    197 *-*     return .false
 T2   A42    V2      2*        >E>       .FALSE => "0"
 T2   A42    V2      2*        >>>       "0"
 T2   A6     V2      1*        >>>   "0"
-T2   A6     V2      1*    121 *-* if self~hasMethod("onTerminate") 
+T2   A6     V2      1*    121 *-* if self~hasMethod("onTerminate")
 T2   A6     V2      1*        >V>   SELF => "a Coactivity"
 T2   A6     V2      1*        >L>   "onTerminate"
 T2   A6     V2      1*        >A>   "onTerminate"
@@ -1169,7 +1169,7 @@ T2   A6     V2      1*        >>>   "a Coactivity"
 T2   A6     V2      1*    123 *-* .Activity~local~empty
 T2   A6     V2      1*        >E>   .ACTIVITY => "The ACTIVITY class"
 T2   A6     V2      1*        >M>   "LOCAL" => "a Directory"
-T2   A6     V2      1*    124 *-* if self~isKilled & condition("o") <> .nil 
+T2   A6     V2      1*    124 *-* if self~isKilled & condition("o") <> .nil
 T2   A6     V2      1*        >V>   SELF => "a Coactivity"
 T2   A43    V2      1         >I> Method ISKILLED with scope "The Coactivity class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
 T2   A43    V2      2*    217 *-* return self~status == .Coactivity~killed
@@ -1192,19 +1192,19 @@ T1   A40    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A40    V2      1*        >M>   "RUNNING" => "2"
 T1   A40    V2      1*        >O>   "<>" => "1"
 T1   A40    V2      1*        >>>   "1"
-T1   A40    V2      1*    184 *-* if status == .Coactivity~killed 
+T1   A40    V2      1*    184 *-* if status == .Coactivity~killed
 T1   A40    V2      1*        >V>   STATUS => "3"
 T1   A40    V2      1*        >E>   .COACTIVITY => "The Coactivity class"
 T1   A40    V2      1*        >M>   "KILLED" => "4"
 T1   A40    V2      1*        >O>   "==" => "0"
 T1   A40    V2      1*        >>>   "0"
-T1   A40    V2      1*    185 *-* if var("yieldValue") 
+T1   A40    V2      1*    185 *-* if var("yieldValue")
 T1   A40    V2      1*        >L>   "yieldValue"
 T1   A40    V2      1*        >A>   "yieldValue"
 T1   A40    V2      1*        >F>   VAR => "0"
 T1   A40    V2      1*        >>>   "0"
 T1   A39    V6      1*    305 *-* drop currentItem
-T1   A39    V6      1*    306 *-* if var("result") 
+T1   A39    V6      1*    306 *-* if var("result")
 T1   A39    V6      1*        >L>   "result"
 T1   A39    V6      1*        >A>   "result"
 T1   A39    V6      1*        >F>   VAR => "0"
@@ -1229,7 +1229,7 @@ T1   A13    V4      2*    149 *-* self~eof                                    --
 T1   A13    V4      2*        >V>   SELF => "an UPPER"
 T1   A45    V4      2         >I> Method EOF with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A45    V4      3*    173 *-* expose next secondary
-T1   A45    V4      3*    174 *-* if .nil <> next 
+T1   A45    V4      3*    174 *-* if .nil <> next
 T1   A45    V4      3*        >E>   .NIL => "The NIL object"
 T1   A45    V4      3*        >V>   NEXT => "a CONSOLE"
 T1   A45    V4      3*        >O>   "<>" => "1"
@@ -1240,18 +1240,18 @@ T1   A45    V4      3*    175 *-*       next~eof                                
 T1   A45    V4      3*        >V>         NEXT => "a CONSOLE"
 T1   A46    V5                >I> Method EOF with scope "The PIPESTAGE class" in package d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex
 T1   A46    V5      1*    173 *-* expose next secondary
-T1   A46    V5      1*    174 *-* if .nil <> next 
+T1   A46    V5      1*    174 *-* if .nil <> next
 T1   A46    V5      1*        >E>   .NIL => "The NIL object"
 T1   A46    V5      1*        >V>   NEXT => "The NIL object"
 T1   A46    V5      1*        >O>   "<>" => "0"
 T1   A46    V5      1*        >>>   "0"
-T1   A46    V5      1*    177 *-* if .nil <> secondary 
+T1   A46    V5      1*    177 *-* if .nil <> secondary
 T1   A46    V5      1*        >E>   .NIL => "The NIL object"
 T1   A46    V5      1*        >V>   SECONDARY => "The NIL object"
 T1   A46    V5      1*        >O>   "<>" => "0"
 T1   A46    V5      1*        >>>   "0"
 T1   A45    V4      3*    176 *-*   end
-T1   A45    V4      3*    177 *-* if .nil <> secondary 
+T1   A45    V4      3*    177 *-* if .nil <> secondary
 T1   A45    V4      3*        >E>   .NIL => "The NIL object"
 T1   A45    V4      3*        >V>   SECONDARY => "The NIL object"
 T1   A45    V4      3*        >O>   "<>" => "0"

@@ -142,7 +142,7 @@ Possible transformations :
 - Make the first clause (other than "expose" and "use [strict] arg") a pure expression, unless
   this clause is a "return" clause.
 */
-::method sourceDoer
+::method sourceDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", expression=.false, context=.nil, objectSpecified = .false, object = .nil
     if context == .nil then context = self~package -- lookup scope
 
@@ -263,18 +263,18 @@ Possible transformations :
 
 ::class "RoutineDoer" mixinclass Object public inherit Doer
 
-::method doer
+::method doer unguarded
     use strict arg -- none
     return self
 
-::method needsObject
+::method needsObject unguarded
     return .false -- No need to pass an object as first argument when calling do or doWith
 
-::method do
+::method do unguarded
     self~callWith(arg(1,"a"))
     if var("result") then return result
 
-::method doWith
+::method doWith unguarded
     use strict arg array
     self~callWith(array)
     if var("result") then return result
@@ -288,23 +288,23 @@ To investigate :
 The method 'run' is a private method. So can be called only from another method of object...
 "hello"~run({::method say self}~doer) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
 {::method say self}~doer~do("hello") --> No error, display "hello" (so the private method is visible ?)
-It's because the ~run method is called from the ~do method which has been added by extension. 
+It's because the ~run method is called from the ~do method which has been added by extension.
 */
 ::class "MethodDoer" mixinclass Object public inherit Doer
 
-::method doer
+::method doer unguarded
     use strict arg -- none
     return self
 
-::method needsObject
+::method needsObject unguarded
     return .true -- Must pass an object as first argument when calling do or doWith
 
-::method do
+::method do unguarded
     use strict arg object, ...
     object~run(self, "a", arg(2,"a"))
     if var("result") then return result
 
-::method doWith
+::method doWith unguarded
     use strict arg object, array
     object~run(self, "a", array)
     if var("result") then return result
@@ -315,19 +315,19 @@ It's because the ~run method is called from the ~do method which has been added 
 
 ::class "StringDoer" mixinclass Object public inherit Doer
 
-::method doer
+::method doer unguarded
     use strict arg -- none
     return self -- When used as a doer factory, a string is a message
 
-::method needsObject
+::method needsObject unguarded
     return .true -- Must pass an object as first argument when calling do or doWith
 
-::method do
+::method do unguarded
     use strict arg object, ...
     object~sendWith(self, arg(2,"a"))
     if var("result") then return result
 
-::method doWith
+::method doWith unguarded
     use strict arg object, array
     object~sendWith(self, array)
     if var("result") then return result
@@ -335,7 +335,7 @@ It's because the ~run method is called from the ~do method which has been added 
 -- Using a string as source holder is no longer necessary,
 -- because RexxContextualSource is now available.
 -- But I keep the possibility, just in case...
-::method source
+::method source unguarded
     return .array~of(self)
 
 -- Needed if you want to run sourceDoer on a string.
@@ -346,7 +346,7 @@ It's because the ~run method is called from the ~do method which has been added 
 -- to do that each time.
 -- Thats's why RexxContextualSource has been added, it holds a reference to the package
 -- that defined it.
-::method package
+::method package unguarded
     return .context~package
 
 
@@ -355,7 +355,7 @@ It's because the ~run method is called from the ~do method which has been added 
 
 ::class "RexxContextualSourceDoer" mixinclass Object public inherit Doer
 
-::method doer
+::method doer unguarded
     use strict arg object=.nil -- optional object, needed when the source is tagged ::method
     if self~executable <> .nil then return self~executable
     objectSpecified = arg(1, "e") -- object explicitely passed ?
@@ -366,7 +366,7 @@ It's because the ~run method is called from the ~do method which has been added 
 -- when using sourceDoer - but that's deprecated) and I consider that the "shortest source"
 -- criteria doesn't apply to them. So they will have already the right arguments and an
 -- explicit return, if needed.
-::method functionDoer
+::method functionDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
@@ -374,7 +374,7 @@ It's because the ~run method is called from the ~do method which has been added 
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
     -- try first to parse the source as-is, because of that :
-    -- say {if .true then 2}~functionDoer~do 
+    -- say {if .true then 2}~functionDoer~do
     -- would display "IF 1 THEN 2" if the clause had been transformed to an expression.
     signal on syntax name syntax1
     return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
@@ -390,7 +390,7 @@ It's because the ~run method is called from the ~do method which has been added 
     return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
 
 -- Same remark as above.
-::method actionDoer
+::method actionDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
@@ -402,18 +402,18 @@ It's because the ~run method is called from the ~do method which has been added 
 
 ::class "CoactivityDoer" mixinclass Object public inherit Doer
 
-::method doer
+::method doer unguarded
     use strict arg -- none
     return self
 
-::method needsObject
+::method needsObject unguarded
     return .false -- No need to pass an object as first argument when calling do or doWith
 
-::method do
+::method do unguarded
     forward message ("resume")
     if var("result") then return result
 
-::method doWith
+::method doWith unguarded
     use strict arg array
     forward message ("resume") arguments (array)
     if var("result") then return result

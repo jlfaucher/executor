@@ -223,7 +223,7 @@ Status transitions :
 
 
 ::method isStarted
-    expose status 
+    expose status
     return status <> .Coactivity~notStarted
 
 
@@ -276,15 +276,15 @@ will have to call it each time the status is changed. Maybe later...
     -- A better approach would be to modify the interpreter to support : do over anySupplier ...
     use strict arg limit=(.Coactivity~makeArrayLimit)
     array = .Array~new
-    self~resume
-    do while var("result")
+    do forever
         if array~dimension(1) >= limit then do
-            self~end
-            -- raise syntax 93.900 array ("Coactivity generated more than" limit "items")
+            -- Better to not end the coactivity : makeArray is like clojure's take or like the pipestage .take
+            -- self~end
             leave
         end
-        array~append(result)
         self~resume
+        if \var("result") then leave
+        array~append(result)
     end
     return array
 

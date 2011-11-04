@@ -1276,11 +1276,6 @@ source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my
 (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) : 35091
 
 
--- From here, some methods of the pipeline classes are instrumented to let profiling.
--- The performances are impacted because the profiled methods are instrumented with an additional forward.
-   .pipeProfiler~instrument("start", "process", "eof", "isEOP")
-
-
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
 --     .take 2 {index["getFiles"]~value}
@@ -1294,6 +1289,33 @@ source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
+   call time('r') -- to see how long this takes
+   installdir()~pipe(,
+       .fileTree recursive |,
+       .endsWith[".cls"] |,
+       .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
+       .take 2 {index["getFiles"]~value} | .sort caseless | .console,
+       )
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls),250 : DeleteDesktopIcon
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls),70 : disconnectEvents
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls),71 : getSystemMetrics
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls),64 : headerLineAbsent
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\streamsocket.cls),52 : InputOutputStream
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls),94 : isAtLeastWindows7
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls),63 : originalRawHeaders
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls),71 : removeEventHandler
+'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/',1|(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls),188 : WindowsProgramManager
+   say "duration="time('e') -- elapsed duration
+duration=4.863000
+
+
+-- From here, some methods of the pipeline classes are instrumented to let profiling.
+-- The performances are impacted because the profiled methods are instrumented with an additional forward.
+   .pipeProfiler~instrument("start", "process", "eof", "isEOP")
+
+
+-- Same as above, but with profiling
+   call time('r') -- to see how long this takes
    installdir()~pipeProfile(,
        .fileTree recursive |,
        .endsWith[".cls"] |,
@@ -1321,17 +1343,17 @@ source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my
                 .console~EOF count=1 duration=0
                 .console~ISEOP count=18 duration=0
                 .console~PROCESS count=9 duration=0
-  .fileTree~PROCESS count=1 duration=8.953000
+  .fileTree~PROCESS count=1 duration=17.253000
     .endsWith~ISEOP count=1242 duration=0
-    .endsWith~PROCESS count=621 duration=8.655000
-      .getFiles~ISEOP count=633 duration=0
-      .getFiles~PROCESS count=12 duration=8.624000
-        .words~ISEOP count=28386 duration=0.095000
-        .words~PROCESS count=14181 duration=7.589000
-          .select~ISEOP count=141387 duration=0.188000
-          .select~PROCESS count=63603 duration=3.072000
-            .take~ISEOP count=63974 duration=0.079000
-            .take~PROCESS count=371 duration=0.064000
+    .endsWith~PROCESS count=621 duration=16.692000
+      .getFiles~ISEOP count=633 duration=0.015000
+      .getFiles~PROCESS count=12 duration=16.631000
+        .words~ISEOP count=28386 duration=0.063000
+        .words~PROCESS count=14181 duration=14.607000
+          .select~ISEOP count=141387 duration=0.560000
+          .select~PROCESS count=63603 duration=7.963000
+            .take~ISEOP count=63974 duration=0.094000
+            .take~PROCESS count=371 duration=0.123000
               .sort~ISEOP count=380 duration=0
               .sort~PROCESS count=9 duration=0
   .fileTree~START count=1 duration=0
@@ -1342,8 +1364,10 @@ source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|merge['my
             .take~START count=1 duration=0
               .sort~START count=1 duration=0
                 .console~START count=1 duration=0
-duration=8.953000
+duration=17.253000
 ----------------------------------------
+   say "duration="time('e') -- elapsed duration
+duration=17.550000
 
 
    say installdir() ; say

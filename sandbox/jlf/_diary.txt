@@ -78,6 +78,62 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 nov 04
+
+[coactivity]
+
+Fixed a deadlock.
+(see concurrency/deadlock3.rex for the description of the test case)
+The minimal fix was to declare .RoutineDoer~do and ~doWith unguarded.
+But I declared unguarded all the methods in doers.cls and functional.cls that don't
+modify the state of the self object. I hope this is the right strategy to follow...
+
+According to my tests, a predefined method which is declared guarded is never locked.
+But a user-defined method which is declared guarded is locked, as expected.
+See :
+concurrency/guarded_predefined_method_are_not_locked.rex
+concurrency/guarded_user-defined_method_are_locked.rex
+
+
+Changed the behaviour of ~makeArray, now working like the pipestage .take :
+c = 1000~times.yield
+c~makeArray(5)
+    # 1: index=[1] -> item=[1]
+    # 2: index=[2] -> item=[2]
+    # 3: index=[3] -> item=[3]
+    # 4: index=[4] -> item=[4]
+    # 5: index=[5] -> item=[5]
+c~makeArray(5)
+    # 1: index=[1] -> item=[6]
+    # 2: index=[2] -> item=[7]
+    # 3: index=[3] -> item=[8]
+    # 4: index=[4] -> item=[9]
+    # 5: index=[5] -> item=[10]
+etc...
+
+
+[pipes]
+I see a loss of performance (twice longer) in the profiled pipeline at the end of
+pipe_extension_test.output.txt, and I can't find why...
+    7048    20.485   dbg (ok, dbg config is slower due to semaphores tracing)
+    7078     8.281   rel
+    7086     8.781   rel
+    7112     8.531   rel
+    7139     8.265   rel
+    7154     8.828   rel
+    7172     8.953   rel
+    7246     8.953   rel
+    current 17.936   rel
+Made a rebuild of the binaries at revision 7123 : same loss of performance.
+Made a test with samples at revision 7048 : no longer adapted to current binaries
+(RexxContextualSource source is no longer a string, but an array).
+Made a test with samples at revision 7080 : same loss of performance (using current
+binaries or rev 7123).
+Added a non-profiled version of the same pipeline, with duration, to detect if a similar
+loss of performance happens in the future with non-profiled code.
+
+
+===============================================================================
 2011 oct 30
 
 Each call to an external function (like SysXxx functions) triggers a communication 
@@ -319,6 +375,7 @@ reduce : added optional initial value
 .array~of(10, 20, 30)~reduce("+")      -- initial value is the first item (default), returns 60
 .array~of(10, 20, 30)~reduce(100, "+") -- initial value is 100, returns 160
 
+(update JLF 16 oct 2011 : 'option' parameter removed)
 reduce : added option "ind[exed]"
     arg(1) : accumulated result
     arg(2) : current item of collection
@@ -331,23 +388,28 @@ reduce : added option "ind[exed]"
 map : can act as a filter.
 "one two three"~mapWord{if arg(1)~length == 3 then arg(1)} -- returns "one two"
 
+(update JLF 16 oct 2011 : 'option' parameter removed)
 map : added option "ind[exed]".
     arg(1) : current item of collection
     arg(2) : current index of collection, passed only if option "ind[exed]" is specified
 "one two three"~mapWord("ind"){arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 
+(update JLF 16 oct 2011 : no result instead of .nil when nothing returned)
+(update JLF 16 oct 2011 : no longer raise an error if no action : default is {arg(1)})
 times : now can act as an array generator.
 3~times{0}          -- returns .array~of(0,0,0)
 3~times{arg(1)}     -- returns .array~of(1,2,3)
 3~times{say arg(1)} -- returns .nil : no resulting array because no result returned during the iteration
 3~times             -- raise an error because the parameter action is mandatory
 
+(update JLF 16 oct 2011 : no result instead of .nil when nothing returned)
 upto and downto : now can act as an array generator.
 11~upto(13)             -- returns .array~of(11,12,13) because the default action is {arg(1)}
 (-1)~upto(3)            -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
 11~upto(13){2*arg(1)}   -- returns .array~of(22,24,26)
 11~upto(13){say arg(1)} -- returns .nil : no resulting array because no result returned during the iteration
 
+(update JLF 16 oct 2011 : now, ~each always return an array)
 each : can act as a collection generator and a filter.
 The type of generated collection depends on the type of itererated source :
     collection --> same type of collection

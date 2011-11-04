@@ -29,7 +29,7 @@ say i2 ; say i2~makeString(.true)
 
 
 -- Representation : the objects other than strings are surrounded by round brackets.
--- When showTags is .true then a tag class#id is inserted before the representation of objects. 
+-- When showTags is .true then a tag class#id is inserted before the representation of objects.
 -- The id is a short id (starts from 1, incremented for each new instance of the same class in the index).
 i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(22222), .file~new("my file"))
 say i3 ; say i3~makeString(.true)
@@ -48,7 +48,7 @@ say i4 ; say i4~makeString(.false, .true)
 --     localMask : which local indexes to include ("" means all). Ex : "2 3".
 --     showNested : if .false then the nested index is not included.
 -- The convenience method 'show' lets select the local indexes to include in the representation
--- while providing default values for the other parameters : 
+-- while providing default values for the other parameters :
 -- ~show(localMask) <==> ~makeString(.false, .false, localMask, .false)
 say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in show argument not significant
 
@@ -280,7 +280,7 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
 -- The index is user-defined, and it's an array : each item in the index array becomes a local index.
--- Ex: the last two lines are 
+-- Ex: the last two lines are
 -- (an Array),5|3,1,2,4 : 30
 -- (an Array),5|3,2,2,4 : 60
 -- From the 5th item of the input array (value=3), 2 values have been injected (30 with index 1, 60 with index 2).
@@ -602,11 +602,6 @@ installdir()~pipe(,
     )
 
 
--- From here, some methods of the pipeline classes are instrumented to let profiling.
--- The performances are impacted because the profiled methods are instrumented with an additional forward.
-.pipeProfiler~instrument("start", "process", "eof", "isEOP")
-
-
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
 --     .take 2 {index["getFiles"]~value}
@@ -620,12 +615,30 @@ installdir()~pipe(,
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
+call time('r') -- to see how long this takes
+installdir()~pipe(,
+    .fileTree recursive |,
+    .endsWith[".cls"] |,
+    .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
+    .take 2 {index["getFiles"]~value} | .sort caseless | .console,
+    )
+say "duration="time('e') -- elapsed duration
+
+
+-- From here, some methods of the pipeline classes are instrumented to let profiling.
+-- The performances are impacted because the profiled methods are instrumented with an additional forward.
+.pipeProfiler~instrument("start", "process", "eof", "isEOP")
+
+
+-- Same as above, but with profiling
+call time('r') -- to see how long this takes
 installdir()~pipeProfile(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
     .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
     .take 2 {index["getFiles"]~value} | .sort caseless | .console,
     )
+say "duration="time('e') -- elapsed duration
 
 
 say installdir() ; say
