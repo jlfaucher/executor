@@ -486,6 +486,7 @@ void RexxMemory::collectAndUninit(bool clearStack)
         clearSaveStack();
     }
     collect();
+    verboseMessage("Calling runUninits from RexxMemory::collectAndUninit\n");
     runUninits();
 }
 
@@ -520,16 +521,19 @@ void  RexxMemory::runUninits()
     RexxObject * zombieObj;              /* obj that needs uninit run.        */
     HashLink iterTable;                  /* iterator for table.               */
 
+    verboseMessage("Entering runUninits\n");
     /* if we're already processing this, don't try to do this */
     /* recursively. */
     if (processingUninits)
     {
+        verboseMessage("Leaving runUninits immediatly because recursive call\n");
         return;
     }
 
     /* turn on the recursion flag, and also zero out the count of */
     /* pending uninits to run */
     processingUninits = true;
+    size_t pendingUninits_onEntry = pendingUninits; // for verbose message when leaving
     pendingUninits = 0;
 
     // get the current activity for running the uninits
@@ -550,6 +554,9 @@ void  RexxMemory::runUninits()
             uninitTable->put(TheFalseObject, zombieObj);
             {
                 // run this method with appropriate error trapping
+                verboseMessage("Calling uninit for object %s:%d\n", 
+                               size_t(zombieObj->classObject()->getId()->getStringData()), // ok, bad practice, convert a const char* to size_t, but...
+                               zombieObj->identityHash());
                 UninitDispatcher dispatcher(zombieObj);
                 activity->run(dispatcher);
             }
@@ -574,6 +581,7 @@ void  RexxMemory::runUninits()
     }                                  /* now go check next object in table */
     /* make sure we remove the recursion protection */
     processingUninits = false;
+    verboseMessage("Leaving runUninits (was called when pendingUninits=%d)\n", pendingUninits_onEntry);
 }
 
 

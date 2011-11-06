@@ -238,11 +238,11 @@ Possible transformations :
 
     -- Returns the executable
     if kind == "r" then return .Routine~new("", sourceArray, context)
-    else if kind == "rc" then return .Coactivity~new(.Routine~new("", sourceArray, context), .true)
+    else if kind == "rc" then return .Coactivity~new(.Routine~new("", sourceArray, context))
     else if kind == "m" then return .Method~new("", sourceArray, context)
     else if kind == "mc" then do
         if \objectSpecified then raise syntax 93.900 array("No object specified")
-        return .Coactivity~new(.Method~new("", sourceArray, context), .true, object)
+        return .Coactivity~new(.Method~new("", sourceArray, context), , object)
     end
 
 

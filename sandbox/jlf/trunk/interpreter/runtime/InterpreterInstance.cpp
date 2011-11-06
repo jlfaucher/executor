@@ -488,6 +488,7 @@ bool InterpreterInstance::terminate()
     globalReferences->empty();
     // before we update of the data structures, make sure we process any
     // pending uninit activity.
+    memoryObject.verboseMessage("Calling runUninits through collectAndUninit from InterpreterInstance::terminate\n");
     memoryObject.collectAndUninit(Interpreter::lastInstance());
 
     // do system specific termination of an instance

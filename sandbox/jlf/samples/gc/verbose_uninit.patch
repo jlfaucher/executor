@@ -1,0 +1,118 @@
+Index: concurrency/RexxActivity.cpp
+===================================================================
+--- concurrency/RexxActivity.cpp	(revision 7260)
++++ concurrency/RexxActivity.cpp	(working copy)
+@@ -137,6 +137,7 @@
+ 
+         // make sure we get restored to the same base activation level.
+         restoreActivationLevel(activityLevel);
++        memoryObject.verboseMessage("Calling runUninits from RexxActivity::runThread\n");
+         memoryObject.runUninits();         /* run any needed UNINIT methods now */
+ 
+         this->deactivate();                // no longer an active activity
+@@ -184,6 +185,7 @@
+     // if we're inactive, try to run any pending uninits
+     if (isInactive())
+     {
++        memoryObject.verboseMessage("Calling runUninits from RexxActivity::exitCurrentThread\n");
+         memoryObject.runUninits();
+     }
+     // this activity owned the kernel semaphore before entering here...release it
+@@ -3040,6 +3042,7 @@
+     // make sure we get restored to the same base activation level.
+     restoreActivationLevel(activityLevel);
+     // give uninit objects a chance to run
++    memoryObject.verboseMessage("Calling runUninits from RexxActivity::run(ActivityDispatcher &target)\n");
+     memoryObject.runUninits();
+     // unwind to the same stack depth as the start, removing all new entries
+     unwindToDepth(startDepth);
+Index: memory/RexxMemory.cpp
+===================================================================
+--- memory/RexxMemory.cpp	(revision 7260)
++++ memory/RexxMemory.cpp	(working copy)
+@@ -485,6 +485,7 @@
+         clearSaveStack();
+     }
+     collect();
++    verboseMessage("Calling runUninits from RexxMemory::collectAndUninit\n");
+     runUninits();
+ }
+ 
+@@ -519,16 +520,19 @@
+     RexxObject * zombieObj;              /* obj that needs uninit run.        */
+     HashLink iterTable;                  /* iterator for table.               */
+ 
++    verboseMessage("Entering runUninits\n");
+     /* if we're already processing this, don't try to do this */
+     /* recursively. */
+     if (processingUninits)
+     {
++        verboseMessage("Leaving runUninits immediatly because recursive call\n");
+         return;
+     }
+ 
+     /* turn on the recursion flag, and also zero out the count of */
+     /* pending uninits to run */
+     processingUninits = true;
++    size_t pendingUninits_onEntry = pendingUninits; // for verbose message when leaving
+     pendingUninits = 0;
+ 
+     // get the current activity for running the uninits
+@@ -549,6 +553,9 @@
+             uninitTable->put(TheFalseObject, zombieObj);
+             {
+                 // run this method with appropriate error trapping
++                verboseMessage("Calling uninit for object %s:%d\n", 
++                               size_t(zombieObj->classObject()->getId()->getStringData()), // ok, bad practice, convert a const char* to size_t, but...
++                               zombieObj->identityHash());
+                 UninitDispatcher dispatcher(zombieObj);
+                 activity->run(dispatcher);
+             }
+@@ -573,6 +580,7 @@
+     }                                  /* now go check next object in table */
+     /* make sure we remove the recursion protection */
+     processingUninits = false;
++    verboseMessage("Leaving runUninits after %d calls to uninit\n", pendingUninits_onEntry);
+ }
+ 
+ 
+Index: memory/RexxMemory.hpp
+===================================================================
+--- memory/RexxMemory.hpp	(revision 7260)
++++ memory/RexxMemory.hpp	(working copy)
+@@ -197,7 +197,10 @@
+   void        removeUninitObject(RexxObject *obj);
+   void        addUninitObject(RexxObject *obj);
+   bool        isPendingUninit(RexxObject *obj);
+-  inline void checkUninitQueue() { if (pendingUninits > 0) runUninits(); }
++  inline void checkUninitQueue() { if (pendingUninits > 0) verboseMessage("Calling runUninits from checkUninitQueue (pendingUninits=%d%s)\n",
++                                                                          pendingUninits, 
++                                                                          size_t(processingUninits ? " recursive" : ""));
++                                   if (pendingUninits > 0) runUninits(); }
+ 
+   void        markObjects(void);
+   void        markObjectsMain(RexxObject *);
+Index: runtime/Interpreter.cpp
+===================================================================
+--- runtime/Interpreter.cpp	(revision 7260)
++++ runtime/Interpreter.cpp	(working copy)
+@@ -211,6 +211,7 @@
+                 // pointer out to package unloaders, if they are defined)
+                 InstanceBlock instance;
+                 // run whatever uninits we can before we start releasing the libraries
++                memoryObject.verboseMessage("Calling runUninits through lastChanceUninit from Interpreter::terminateInterpreter\n");
+                 memoryObject.lastChanceUninit();
+ 
+                 PackageManager::unload();
+Index: runtime/InterpreterInstance.cpp
+===================================================================
+--- runtime/InterpreterInstance.cpp	(revision 7260)
++++ runtime/InterpreterInstance.cpp	(working copy)
+@@ -487,6 +487,7 @@
+     globalReferences->empty();
+     // before we update of the data structures, make sure we process any
+     // pending uninit activity.
++    memoryObject.verboseMessage("Calling runUninits through collectAndUninit from InterpreterInstance::terminate\n");
+     memoryObject.collectAndUninit(Interpreter::lastInstance());
+ 
+     // do system specific termination of an instance

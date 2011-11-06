@@ -30,7 +30,7 @@ return
 say
 say "A coactivity implemented by a one-liner routine"
 c = .Coactivity~new({say "running coactivity" ; return 1}, .false)
-c~start
+c~start -- optional, the first ~resume automatically starts the coactivity, if needed
 say c~resume
 signal on syntax name trap_syntax1
 say c~resume -- Error 91.999:  Message "RESUME" did not return a result

@@ -109,18 +109,18 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg accu, value, index") ; indexed = .true ; end
                                         else do ; doer = action~doer ; indexed = .false ; end
     if \ self~available then return initial
-    if initial <> .nil then r = initial
+    if initial <> .nil then accu = initial
     else do
-        r = self~item
+        accu = self~item
         self~next
     end
     do while self~available
-        if indexed then doer~do(r, self~item, self~index)
-                   else doer~do(r, self~item)
-        if var("result") then r = result
+        if indexed then doer~do(accu, self~item, self~index)
+                   else doer~do(accu, self~item)
+        if var("result") then accu = result
         self~next
     end
-    return r
+    return accu
 
 
 -----------------------------------------------------------------------------
@@ -399,8 +399,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -----------------------------------------------------------------------------
 -- Mixins
 -- Iterator, collector, filter.
--- Whatever the object being iterated over, the ~each method returns an array
--- (if at least one value was returned by the given action during the iteration).
+-- Whatever the object being iterated over, the ~each method returns an array.
 -- If you need a result object which is of the same type as the iterated object,
 -- then use ~map.
 
@@ -410,28 +409,28 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the characters of the string and apply the given action to (current_char)
 -- When the action understands ~functionDoer then a second parameter current_char_pos is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- An array of results is returned (can be empty).
 ::method eachC unguarded
     forward message "each" to (self~makeArray(""))
 
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
 ::method eachCI unguarded
     forward message "eachI" to (self~makeArray(""))
 
 -- Iterate over the words of the string and apply the given action to (current_word)
 -- When the action understands ~functionDoer then a second parameter current_word_index is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- A array of results is returned (can be empty).
 ::method eachW unguarded
     forward message "each" to (self~subwords)
 
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
 ::method eachWI unguarded
     forward message "eachI" to (self~subwords)
@@ -443,28 +442,28 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char)
 -- When the action understands ~functionDoer then a second parameter current_char_pos is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- An array of results is returned (can be empty).
 ::method eachC unguarded
     forward message "each" to (self~makeArray(""))
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
 ::method eachCI unguarded
     forward message "eachI" to (self~makeArray(""))
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_word)
 -- When the action understands ~functionDoer then a second parameter current_word_index is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- An array of results is returned (can be empty).
 ::method eachW unguarded
     forward message "each" to (self~subwords)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_word, current_word_index)
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
 ::method eachWI unguarded
     forward message "eachI" to (self~subwords)
@@ -476,14 +475,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the items of the collection and apply the given action to (current_item).
 -- When the action understands ~functionDoer then a second parameter current_index is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- An array of results is returned (can be empty).
 ::method each unguarded
     forward to (self~supplier)
 
 -- Iterate over the items of the collection and apply the given action to (current_item, current_index).
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
 ::method eachI unguarded
     forward to (self~supplier)
@@ -495,14 +494,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value).
 -- When the action understands ~functionDoer then a second parameter current_yielded_index is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- An array of results is returned (can be empty).
 ::method each unguarded
     forward to (self~supplier)
 
 -- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value, current_yielded_index).
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
 ::method eachI unguarded
     forward to (self~supplier)
@@ -514,16 +513,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -- Iterate over then items of the supplier and apply the given action to (current_item).
 -- When the action understands ~functionDoer then a second parameter current_index is passed.
--- If at least one result is returned by the action during the iteration, then an array of results is returned.
+-- An array of results is returned (can be empty).
 ::method each unguarded
     use strict arg action={arg(1)}
     self~eachImpl(action, .false)
     if var("result") then return result
 
 -- Iterate over the items of the supplier and apply the given action to (current_item, current_index).
--- If at least one result is returned by the action during the iteration, then an array of results and indexes is returned.
--- result[1] == array of results
--- result[2] == array of indexes
+-- An array of results and indexes is returned.
+-- result[1] == array of results (can be empty)
+-- result[2] == array of indexes (can be empty)
 -- Both arrays contains the same number of items, where result[2][n] is the origin index of result[1][n].
 ::method eachI unguarded
     use strict arg action={arg(1)}
@@ -535,24 +534,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg value, index") ; indexed = .true ; end
                                         else do ; doer = action~doer ; indexed = .false ; end
-    collectedItems = .nil -- no resulting array by default
+    collectedItems = .Array~new
+    if returnIndex then collectedIndexes = .Array~new
     do while self~available
         if indexed then doer~do(self~item, self~index) -- Most of the time, we need only the item, that's why it's the first arg.
                    else doer~do(self~item)
         if var("result") then do
-            doResult = result
-            if collectedItems == .nil then do
-                -- first time we get a result, create the resulting array now
-                collectedItems = .Array~new
-                if returnIndex then collectedIndexes = .Array~new
-            end
-            collectedItems~append(doResult)
+            collectedItems~append(result)
             if returnIndex then collectedIndexes~append(self~index)
         end
         self~next
     end
-    if collectedItems <> .nil then do
-        if returnIndex then return .Array~of(collectedItems, collectedIndexes)
-        return collectedItems
-    end
+    if returnIndex then return .Array~of(collectedItems, collectedIndexes)
+    return collectedItems
 

@@ -1,0 +1,193 @@
+Combining newly allocated segment of 786432 bytes to create new segment of 1310704 bytes
+Expanding large segment set by 1048560
+Calling runUninits from RexxActivity::exitCurrentThread
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits through collectAndUninit from InterpreterInstance::terminate
+Begin collecting memory, cycle #1 after 164 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1043416, smallest block is 1043416
+End collecting memory
+Object save table contains 0 objects
+Calling runUninits from RexxMemory::collectAndUninit
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits from RexxActivity::exitCurrentThread
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+*** entering myRoutine
+*** init 1.1
+*** init 1.2 weak
+*** init 1.3
+*** init 1.4 weak
+*** ----- Creating up to 1000000  objects -----
+Begin collecting memory, cycle #2 after 297205 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #3 after 297523 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #4 after 297532 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #5 after 297496 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #6 after 297516 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #7 after 297496 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+*** ----- End of objects creation -----
+Calling runUninits from checkUninitQueue (pendingUninits=18)
+Entering runUninits
+Calling uninit for object MYCLASS:266201455
+*** uninit 1.4 weak
+Calling uninit for object MYCLASS:266201019
+*** uninit 1.2 weak
+Calling uninit for object MYCLASS:266200821
+*** uninit 1.1
+Leaving runUninits after 18 calls to uninit
+*** leaving myRoutine
+*** entering myRoutine
+*** init 2.1
+*** init 2.2 weak
+*** init 2.3
+*** init 2.4 weak
+*** ----- Creating up to 1000000  objects -----
+Begin collecting memory, cycle #8 after 297093 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #9 after 297368 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #10 after 297334 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #11 after 297350 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #12 after 297300 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #13 after 297352 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+Begin collecting memory, cycle #14 after 297298 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+End collecting memory
+Object save table contains 0 objects
+Normal segment set free memory percentage is 99
+*** ----- End of objects creation -----
+Calling runUninits from checkUninitQueue (pendingUninits=28)
+Entering runUninits
+Calling uninit for object MYCLASS:266201256
+*** uninit 1.3
+Calling uninit for object MYCLASS:266957466
+*** uninit 2.1
+Calling uninit for object MYCLASS:266958084
+*** uninit 2.4 weak
+Calling uninit for object MYCLASS:266957656
+*** uninit 2.2 weak
+Leaving runUninits after 28 calls to uninit
+*** leaving myRoutine
+*** interpreter is halting
+Calling runUninits from RexxActivity::run(ActivityDispatcher &target)
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits from RexxActivity::exitCurrentThread
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits through collectAndUninit from InterpreterInstance::terminate
+Begin collecting memory, cycle #15 after 134803 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1034200, smallest block is 1034200
+End collecting memory
+Object save table contains 0 objects
+Calling runUninits from RexxMemory::collectAndUninit
+Entering runUninits
+Calling uninit for object MYCLASS:266957889
+*** uninit 2.3
+Leaving runUninits after 1 calls to uninit
+Calling runUninits from RexxActivity::exitCurrentThread
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits through lastChanceUninit from Interpreter::terminateInterpreter
+Begin collecting memory, cycle #16 after 244 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1024984, smallest block is 18432
+End collecting memory
+Object save table contains 0 objects
+Calling runUninits from RexxMemory::collectAndUninit
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits from RexxActivity::exitCurrentThread
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits through collectAndUninit from InterpreterInstance::terminate
+Begin collecting memory, cycle #17 after 10 allocations.
+Beginning mark operation
+Mark operation completed
+Large segment sweep complete.  Largest block is 1024984, smallest block is 1024984
+End collecting memory
+Object save table contains 0 objects
+Calling runUninits from RexxMemory::collectAndUninit
+Entering runUninits
+Leaving runUninits after 0 calls to uninit
+Calling runUninits from RexxActivity::exitCurrentThread
+Entering runUninits
+Leaving runUninits after 0 calls to uninit

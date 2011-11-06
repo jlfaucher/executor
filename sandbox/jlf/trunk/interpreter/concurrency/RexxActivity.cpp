@@ -137,6 +137,7 @@ void RexxActivity::runThread()
 
         // make sure we get restored to the same base activation level.
         restoreActivationLevel(activityLevel);
+        memoryObject.verboseMessage("Calling runUninits from RexxActivity::runThread\n");
         memoryObject.runUninits();         /* run any needed UNINIT methods now */
 
         this->deactivate();                // no longer an active activity
@@ -184,6 +185,7 @@ void RexxActivity::exitCurrentThread()
     // if we're inactive, try to run any pending uninits
     if (isInactive())
     {
+        memoryObject.verboseMessage("Calling runUninits from RexxActivity::exitCurrentThread\n");
         memoryObject.runUninits();
     }
     // this activity owned the kernel semaphore before entering here...release it
@@ -3066,6 +3068,7 @@ void RexxActivity::run(ActivityDispatcher &target)
     // make sure we get restored to the same base activation level.
     restoreActivationLevel(activityLevel);
     // give uninit objects a chance to run
+    memoryObject.verboseMessage("Calling runUninits from RexxActivity::run(ActivityDispatcher &target)\n");
     memoryObject.runUninits();
     // unwind to the same stack depth as the start, removing all new entries
     unwindToDepth(startDepth);

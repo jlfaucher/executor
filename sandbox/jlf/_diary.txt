@@ -78,6 +78,66 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 nov 06
+
+[coactivity]
+
+By default, a coactivity is no longer started when created.
+Now automatically started by the first resume, if not yet started.
+
+Spent several hours for nothing, trying to use WeakReferences for the global cache
+of coactivities. I was hopping to get an automatic end of coactivity when this
+coactivity is no longer referenced by a client. But the tests demonstrated that a
+started coactivity can't be GC'ed, even if no longer referenced by a client. I suppose
+it's because of the method ~start which is running on its own thread, and the self
+variable references the coactivity, thus keeping it alive...
+
+There is a way to auto-end a coactivity : just use a wrapper object whose sole
+responsibility is to end the coactivity when itself is GC'ed. This is what is already
+doing LazyCoactivitySupplier, and that works as expected.
+Now using two distinct classes :
+- .Coactivity for the wrapper instance.
+- .CoactivityObj for the wrapped instance.
+Maybe I could use only one class (.Coactivity) to create both the wrapper and the
+wrapped instances. Will see, but for the moment, I think the code is more clear
+with two classes (despite the forwarding methods on .Coactivity).
+Examples of auto-ending coactivies (to test from ooRexxShell) :
+    .coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~makeArray(5)=
+        # 1: index=[1] -> item=[1]
+        # 2: index=[2] -> item=[2]
+        # 3: index=[3] -> item=[3]
+        # 4: index=[4] -> item=[4]
+        # 5: index=[5] -> item=[5]
+    #Coactivities: 1                -- still active but no longer reachable, not yet GC'ed
+    .coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~pipe(.take 5 | .console)
+        (a Coactivity),1 : 1
+        (a Coactivity),2 : 2
+        (a Coactivity),3 : 3
+        (a Coactivity),4 : 4
+        (a Coactivity),5 : 5
+    #Coactivities: 2                -- still active but no longer reachable, not yet GC'ed
+    do 10000 ; .object~new ; end    -- force a GC
+    #Coactivities: 0                -- both coactivities have been ended by uninit
+
+
+[GC]
+The work on WeakReferences showed that the calls to uninit methods are impacted by
+the use of a security manager (was detected from ooRexxShell which has a security
+manager) : more "reactive", i.e. the uninit methods are called during the execution
+and not just when the interpreter is halting.
+Added samples/gc/testcase1 and several outputs.
+Added internals/notes/uninit.txt (code review and various notes)
+Added some verbose messages in the interpreter to trace the calls to uninit.
+(remember : in trunk/lib/orxwin32.mak, add /DVERBOSE_GC at the end of cflags_common)
+
+
+[functional]
+Modified the ~each methods to always return an array, even if no result collected
+(in this case, the returned array is empty). This is more consistent for the caller,
+no need to test if a result was returned or not.
+
+
+===============================================================================
 2011 nov 04
 
 [coactivity]

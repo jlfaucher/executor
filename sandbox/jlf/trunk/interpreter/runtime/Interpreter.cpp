@@ -212,6 +212,7 @@ bool Interpreter::terminateInterpreter()
                 // pointer out to package unloaders, if they are defined)
                 InstanceBlock instance;
                 // run whatever uninits we can before we start releasing the libraries
+                memoryObject.verboseMessage("Calling runUninits through lastChanceUninit from Interpreter::terminateInterpreter\n");
                 memoryObject.lastChanceUninit();
 
                 PackageManager::unload();

@@ -23,6 +23,7 @@ each other explicitly and deterministically.
 ::requires "concurrency/activity.cls"
 
 
+--------------------------------------------------------------------------------
 -- .yield[value] is more compact than .Coactivity~yield(value)
 ::class "yield" public
 ::method "[]" class unguarded
@@ -30,117 +31,97 @@ each other explicitly and deterministically.
 
 
 --------------------------------------------------------------------------------
+-- This is a WeakReference which forwards the messages to its value.
+-- To move elsewhere, probably (not restricted to coactivies).
+::class "WeakProxy" public subclass WeakReference
+::method unknown
+    use arg msg, args
+    forward to (self~value) message (msg) arguments (args)
+
+
+--------------------------------------------------------------------------------
 ::class "Coactivity" mixinclass Object public
 
-/*
-Status transitions :
-    notStarted --> running | ended | killed
-    running --> suspended | ended | killed
-    suspended --> running | ended | killed
-*/
-::constant notStarted 0
-::constant suspended 1
-::constant running 2
-::constant ended 3
-::constant killed 4
-
 -- Class attributes
-::attribute table class private -- contains all the active coactivities
+--::attribute globalCache class private -- contains all the active coactivities
 ::attribute makeArrayLimit class -- Coactivities can generate an infinite number of values, so must put a limit...
-
--- Instance attributes for entry point
--- ::attribute doer private
--- ::attribute object private
-
--- Instance attributes for execution
--- ::attribute status private
--- ::attribute arguments private
--- ::attribute yieldValue private
 
 
 ::method init class
-    self~table = .IdentityTable~new
-    self~makeArrayLimit = 10000 -- not a constant, I think it's useful to let the end user change this value
+    expose globalCache
+    -- Using a Directory instead of an IdentityTable because of the experimentation with WeakReferences.
+    globalCache = .Directory~new
+    self~makeArrayLimit = 10000 -- not a constant, not a private attribute, I think it's useful to let the end user change this value
+
+
+::method register class
+    expose globalCache
+    use strict arg coactivityObj
+    -- Remember : A weak reference is useless here because only started-not-ended-killed coactivities
+    -- are referenced by this cache, and a started-not-ended-killed coactivity can't be GC'ed because
+    -- (by definition) its start method is running and the self variable references the coactivity.
+    globalCache[coactivityObj~identityHash] = coactivityObj
+
+
+::method unregister class
+    expose globalCache
+    use strict arg coactivityObj
+    globalCache~remove(coactivityObj~identityHash)
 
 
 ::method count class
-    return self~table~items
+    expose globalCache
+    return globalCache~items
 
 
 ::method all class
-    return self~table~makeArray
+    expose globalCache
+    return globalCache~allItems
 
 
 ::method endAll class
+    expose globalCache
     count = 0
-    do coactivity over self~table~allIndexes
-        if coactivity~end then count += 1
+    do coactivityObj over globalCache~allItems
+        if coactivityObj~end then count += 1
     end
     return count
 
 
 ::method killAll class
+    expose globalCache
     count = 0
-    do coactivity over self~table~allIndexes
-        if coactivity~kill then count += 1
+    do coactivityObj over globalCache~allItems
+        if coactivityObj~kill then count += 1
     end
     return count
 
 
 ::method init unguarded
-    /*
-    The coactivity entry can be a routine, a couple (message, object) or a couple (method, object).
-    The default entry is the couple ("main", self).
-    By default, the coactivity is started (the 'start' method is called)
-    */
-    expose doer object status
-    use strict arg action="main", start=.true, object=(self)
+    expose coactivityObj
+    use strict arg action="main", start=.false, object=(.WeakProxy~new(self))
+    coactivityObj = .CoactivityObj~new(action, start, object)
 
-    doer = action~doer
-    status = .Coactivity~notStarted
-    if start then self~start
+
+::method uninit
+    expose coactivityObj
+    coactivityObj~end
+
+
+--::method unknown
+    -- I don't define the unknown method because (for the moment) .Coactivity is a
+    -- mixin class. I don't think it's a good idea to inherit an unknown method from a
+    -- mixin class, knowing that it's not unusual to inherit from several mixin classes.
 
 
 ::method executable
-    expose doer
-    return doer
+    expose coactivityObj
+    forward to (coactivityObj)
 
 
 ::method start
-    /*
-    Create the activity that will control the coactivity and make it suspended.
-    Use 'resume' to start the coactivity effectively.
-    The arguments passed to the first 'resume' will be made available to the coactivity through the traditional 'use arg'.
-    The arguments passed to the next 'resume's will be made available as an array returned by 'yield'.
-    */
-    expose arguments doer object status
-    use strict arg -- no arg
-    if status <> .Coactivity~notStarted then raise syntax 93.900 array ("Only 'not started' coactivities can be started (current status is '"self~statusText"')")
-    status = .Coactivity~suspended
-    reply self
-    .Activity~local~empty
-    .Activity~local~coactivity = self
-    .Coactivity~table[self] = self
-    signal on any name trapCondition -- catch all
-    signal on syntax name trapCondition -- gives better messages
-    guard off
-    guard on when status <> .Coactivity~suspended
-    if status == .Coactivity~running then do
-        guard off
-        -- arguments are coming from 'resume' (the first resume activates the coactivity)
-        if doer~needsObject then doer~doWith(object, arguments) -- object needed (message, method)
-        else doer~doWith(arguments) -- no object needed (routine)
-        guard on
-        if var("result") then self~yieldLast(result)
-        else self~yieldLast
-        status = .Coactivity~ended
-    end
-    trapCondition:
-    self~kill -- maybe already killed or ended
-    if self~hasMethod("onTerminate") then self~onTerminate
-    .Coactivity~table~remove(self)
-    .Activity~local~empty
-    if self~isKilled & condition("o") <> .nil then raise propagate
+    expose coactivityObj
+    forward to (coactivityObj)
 
 
 ::method main abstract
@@ -159,24 +140,165 @@ Status transitions :
                 ...                    |
                     invocation : .Coactivity~yield()
     */
-    coactivity = .Activity~local~coactivity
-    if coactivity == .nil then raise syntax 93.900 array ("yield can be used only from a coactivity")
-    forward to (coactivity)
+    coactivityObj = .Activity~local~coactivityObj
+    if coactivityObj == .nil then raise syntax 93.900 array ("yield can be used only from a coactivity")
+    forward to (coactivityObj)
 
 
 ::method yield private
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method resume
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method end
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method kill
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method isStarted
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method isAlive
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method isEnded
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method isKilled
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method statusText
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method supplier unguarded
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+::method makeArray unguarded
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
+--------------------------------------------------------------------------------
+::class "CoactivityObj"
+
+/*
+Status transitions :
+    notStarted --> running | ended | killed
+    running --> suspended | ended | killed
+    suspended --> running | ended | killed
+*/
+::constant notStarted 0
+::constant suspended 1
+::constant running 2
+::constant ended 3
+::constant killed 4
+
+-- Instance attributes for entry point
+-- ::attribute doer private
+-- ::attribute object private
+
+-- Instance attributes for execution
+-- ::attribute status private
+-- ::attribute arguments private
+-- ::attribute yieldValue private
+
+
+::method init unguarded
+    /*
+    The coactivity entry can be a routine, a couple (message, object) or a couple (method, object).
+    The default entry is the couple ("main", self).
+    By default, the coactivity is not started (the 'start' method is not called)
+    */
+    expose doer object status
+    use strict arg action="main", start=.false, object=(self)
+    doer = action~doer
+    status = .CoactivityObj~notStarted
+    if start then self~start
+
+
+::method uninit
+    -- If no longer referenced, then can stop the coactivity
+    -- (but will never happen, see the comment in ~register)
+    self~end
+
+
+::method executable
+    expose doer
+    return doer
+
+
+::method start
+    /*
+    Create the activity that will control the coactivity and make it suspended.
+    Use 'resume' to start the coactivity effectively.
+    The arguments passed to the first 'resume' will be made available to the coactivity through the traditional 'use arg'.
+    The arguments passed to the next 'resume's will be made available as an array returned by 'yield'.
+    */
+    expose arguments doer object status
+    use strict arg -- no arg
+    if status <> .CoactivityObj~notStarted then return
+    status = .CoactivityObj~suspended
+    reply self
+    .Activity~local~empty
+    .Activity~local~coactivityObj = self
+    .Coactivity~register(self)
+    signal on any name trapCondition -- catch all
+    signal on syntax name trapCondition -- gives better messages
+    guard off
+    guard on when status <> .CoactivityObj~suspended
+    if status == .CoactivityObj~running then do
+        guard off
+        -- arguments are coming from 'resume' (the first resume activates the coactivity)
+        if doer~needsObject then doer~doWith(object, arguments) -- object needed (message, method)
+        else doer~doWith(arguments) -- no object needed (routine)
+        guard on
+        if var("result") then self~yieldLast(result)
+        else self~yieldLast
+        status = .CoactivityObj~ended
+    end
+    trapCondition:
+    self~kill -- maybe already killed or ended
+    if self~hasMethod("onTerminate") then self~onTerminate
+    .Coactivity~unregister(self)
+    .Activity~local~empty
+    if self~isKilled & condition("o") <> .nil then raise propagate
+
+
+::method yield --private
     -- Can be called only from a coactivity.
     -- Returns an array which contains the arguments passed to 'resume' by the client of the coactivity.
     expose arguments status yieldValue
     drop yieldValue
-    if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
-    if status == .Coactivity~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
+    if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
+    if status == .CoactivityObj~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
     if arg() <> 0 then use strict arg yieldValue -- yieldValue will be returned to the Coactivity's client by 'resume'
-    status = .Coactivity~suspended
+    status = .CoactivityObj~suspended
     guard off
-    guard on when status <> .Coactivity~suspended
-    if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
-    if status == .Coactivity~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
+    guard on when status <> .CoactivityObj~suspended
+    if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
+    if status == .CoactivityObj~ended then raise syntax 93.900 array ("Coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
     if arguments~items <> 0 then return arguments -- returns the arguments that the coactivity's client passed to 'resume'
 
 
@@ -193,63 +315,63 @@ Status transitions :
     -- You can pass arguments to this method.
     -- They will be passed to the coactivity, either as traditional 'use arg' if first call, or as an array returned by 'yield'.
     expose arguments status yieldValue
-    if status == .Coactivity~notStarted then raise syntax 93.900 array ("Coactivity is not started")
-    if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed")
-    if status == .Coactivity~ended then return -- raise syntax 93.900 array ("Coactivity is ended")
+    if status == .CoactivityObj~notStarted then self~start
+    if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed")
+    if status == .CoactivityObj~ended then return -- raise syntax 93.900 array ("Coactivity is ended")
     arguments = arg(1, "a")
-    status = .Coactivity~running
+    status = .CoactivityObj~running
     guard off
-    guard on when status <> .Coactivity~running
-    if status == .Coactivity~killed then raise syntax 93.900 array ("Coactivity is killed")
+    guard on when status <> .CoactivityObj~running
+    if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed")
     if var("yieldValue") then return yieldValue
 
 
 ::method end
     expose status
-    if status == .Coactivity~ended then return .false
-    if status == .Coactivity~killed then return .false
+    if status == .CoactivityObj~ended then return .false
+    if status == .CoactivityObj~killed then return .false
     -- A not started coactivity can be ended, to forbid its starting.
-    status = .Coactivity~ended
+    status = .CoactivityObj~ended
     return .true
 
 
 ::method kill
     expose status
-    if status == .Coactivity~ended then return .false
-    if status == .Coactivity~killed then return .false
+    if status == .CoactivityObj~ended then return .false
+    if status == .CoactivityObj~killed then return .false
     -- A not started coactivity can be killed, to forbid its starting.
-    status = .Coactivity~killed
+    status = .CoactivityObj~killed
     return .true
 
 
 ::method isStarted
     expose status
-    return status <> .Coactivity~notStarted
+    return status <> .CoactivityObj~notStarted
 
 
 ::method isAlive
     expose status
-    return status == .Coactivity~suspended | status == .Coactivity~running
+    return status == .CoactivityObj~suspended | status == .CoactivityObj~running
 
 
 ::method isEnded
     expose status
-    return status == .Coactivity~ended
+    return status == .CoactivityObj~ended
 
 
 ::method isKilled
     expose status
-    return status == .Coactivity~killed
+    return status == .CoactivityObj~killed
 
 
 ::method statusText
     expose status
     select
-        when status == .Coactivity~notStarted then return "not started"
-        when status == .Coactivity~suspended then return "suspended"
-        when status == .Coactivity~running then return "running"
-        when status == .Coactivity~ended then return "ended"
-        when status == .Coactivity~killed then return "killed"
+        when status == .CoactivityObj~notStarted then return "not started"
+        when status == .CoactivityObj~suspended then return "suspended"
+        when status == .CoactivityObj~running then return "running"
+        when status == .CoactivityObj~ended then return "ended"
+        when status == .CoactivityObj~killed then return "killed"
         otherwise return "unknown"
     end
 
@@ -297,57 +419,61 @@ Instead, it calculates the next item only when the 'next' method is called.
 */
 ::class "LazyCoactivitySupplier" subclass Supplier
 
-::attribute coactivity
-::attribute startedByMe
-::attribute currentIndex
-::attribute currentItem
-::attribute isAvailable
+--::attribute coactivity private
+--::attribute startedByMe private
+--::attribute currentIndex private
+--::attribute currentItem private
+--::attribute isAvailable private
 
 
 ::method init
+    expose coactivity startedByMe currentIndex
     use strict arg coactivity
     empty = .array~new(0) -- Lazy supplier
     self~init:super(empty, empty)
-    self~coactivity = coactivity
-    self~startedByMe = .false
-    if \self~coactivity~isStarted then do ; self~coactivity~start ; self~startedByMe = .true; end
-    self~currentIndex = 0
+    startedByMe = .false
+    if \coactivity~isStarted then do ; coactivity~start ; startedByMe = .true; end
+    currentIndex = 0
     self~next
 
 
 ::method uninit
     /*
-    I think I need the uninit method to support properly this use case :
-    .coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~pipe(.take 5 | .displayer)
+    I need the uninit method to support properly this use case :
+    .coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~pipe(.take 5 | .console)
     While the pipeline is running, the coactivity supplier is referenced by the 'source' property of the first pipe stage, and can't be GC'ed.
     The pipeline itself can't be GC'ed because the first pipe stage is referenced from the call stack, as an argument of 'pipe'.
     When 5 values have been taken (.take 5), the pipeline is stopped and the method 'pipe' returns.
     From now, the pipeline can be GC'ed, because it's no longer referenced from the call stack.
     And once the pipeline is GC'ed, there is no more reference to the coactivity supplier, which can be GC'ed.
     */
-    if self~startedByMe then self~coactivity~end
+    expose coactivity startedByMe
+    if startedByMe then coactivity~end
 
 
 ::method available
-    return self~isAvailable
+    expose isAvailable
+    return isAvailable
 
 
 ::method index
-    if self~isAvailable then return self~currentIndex
+    expose currentIndex isAvailable
+    if isAvailable then return currentIndex
 
 
 ::method item
-    if self~isAvailable then return self~currentItem
+    expose currentItem isAvailable
+    if isAvailable then return currentItem
 
 
 ::method next
-    expose currentItem
-    self~coactivity~resume
+    expose coactivity currentItem currentIndex isAvailable
+    coactivity~resume
     drop currentItem
     if var("result") then do
-        self~currentItem = result
-        self~currentIndex += 1
-        self~isAvailable = .true
+        currentItem = result
+        currentIndex += 1
+        isAvailable = .true
     end
-    else self~isAvailable = .false
+    else isAvailable = .false
 

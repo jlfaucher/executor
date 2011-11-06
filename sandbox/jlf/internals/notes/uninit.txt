@@ -1,0 +1,433 @@
+=====================================================================================================================
+Activation of GC verbose messages
+=====================================================================================================================
+
+main\trunk\lib\orxwin32.mak : add /DVERBOSE_GC
+cflags_common=/EHsc /nologo /D:_X86_ /DWIN32 $(VER_DEF) $(WARNING_FLAGS) -c $(my_cdebug) $(MK_ASM) $(RXDBG) /DNULL=0 /DVERBOSE_GC
+
+rm MemorySegment.obj
+rm RexxMemory.obj
+makeorx NODEBUG
+
+
+Examples of messages :
+    verboseMessage("Beginning mark operation\n");
+    verboseMessage("Object save table contains %d objects\n", this->saveTable->items());
+    verboseMessage("Begin collecting memory, cycle #%d after %d allocations.\n", collections, allocations);
+
+
+=====================================================================================================================
+Calls to runUninits (added verbose messages)
+=====================================================================================================================
+
+Direct calls to runUninits
+RexxActivity.cpp
+    from RexxActivity::runThread --> added trace
+    RexxActivity::exitCurrentThread --> added trace
+    RexxActivity::run(ActivityDispatcher &target) --> added trace
+RexxMemory.cpp
+    from RexxMemory::collectAndUninit --> don't trace this one, better to trace the callers
+
+Indirect calls to runUninits through checkUninitQueue
+RexxActivation.cpp
+    from RexxActivation::run --> added trace : very very verbose ! plenty of calls...
+    Better to not trace all the calls, but was very instructive to study these calls.
+
+Indirect calls to runUninits through collectAndUninit
+RexxMemory.cpp
+    from RexxMemory::lastChanceUninit --> don't trace this one, better to trace the callers
+InterpreterInstance.cpp
+    from InterpreterInstance::terminate --> added trace
+
+Indirect calls to runIninits through lastChanceUninit
+Interpreter.cpp
+    from Interpreter::terminateInterpreter --> added trace
+
+
+-----
+
+After theses changes, I see in the resulting trace that checkUninitQueue is called very very often from RexxActivation::run.
+    inline void checkUninitQueue() { if (pendingUninits > 0) runUninits(); }
+--> added verboseMessage("(pendingUninits=%d)\n", pendingUninits) in checkUninitQueue
+    rebuild after rm RexxActivation.obj
+
+Where is set pendingUninits ?
+in RexxMemory.cpp : RexxMemory::checkUninit (see below in code review)
+which is called by RexxMemory::markObjects (and ONLY by this method)
+
+From where is called markObjects ?
+from RexxMemory::collect --> search for "Begin collecting memory" in the output
+
+Does it makes sense to call checkUninitQueue like that, from RexxActivation::run ?
+Yes, because RexxMemory::markObjects can be called from anywhere, each time a memory allocation is needed.
+It's not possible to call the uninit methods just before leaving RexxMemory::collect, because the interpreter
+can be in deep internal calls.
+
+
+Something not clear, at first sight :
+    Begin collecting memory, cycle #2 after 46328 allocations.
+    Beginning mark operation
+    Mark operation completed
+    Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+    End collecting memory
+    Object save table contains 0 objects
+    Normal segment set free memory percentage is 99
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=3)
+    *** uninit 1.2 weak
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    *** uninit 1.4 weak
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    *** uninit 1.1
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    Calling runUninits through checkUninitQueue from RexxActivation::run(pendingUninits=0)
+    etc...
+In this trace excerpt, it looks like the runUninits method is called despite the fact pendingUninits=0.
+But this is not the case ! in fact, it's a recursive call from the first runUninits where pendingUninits=3.
+As soon as the method runUninits is entered, the flag RexxMemory.processingUninits is set to true (to avoid
+recursive calls), and pendingUninits is set to 0. And then an iteration over the zombies is started, to call
+their uninit methods.
+For each of the 3 uninits, there is this call :
+    UninitDispatcher dispatcher(zombieObj);
+    activity->run(dispatcher);
+which recursively calls RexxActivation::run, which itself calls checkUninitQueue, which returns immediatly
+because pendingUninits==0. And the iteration continue, hence theses calls
+    *** uninit 1.4 weak
+    *** uninit 1.1
+
+--> added some verboseMesssage in runUninits to help understand this behaviour.
+Now the excerpt is like that :
+    Begin collecting memory, cycle #2 after 46328 allocations.
+    Beginning mark operation
+    Mark operation completed
+    Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+    End collecting memory
+    Object save table contains 0 objects
+    Normal segment set free memory percentage is 99
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=3)
+    Entering runUninits
+    Calling uninit for object MYCLASS:266201232
+    *** uninit 1.2 weak
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling uninit for object MYCLASS:266202016
+    *** uninit 1.4 weak
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling uninit for object MYCLASS:266200831
+    *** uninit 1.1
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0 recursive)
+    Leaving runUninits after 3 calls to uninit
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0)
+    Calling runUninits through checkUninitQueue from RexxActivation::run (pendingUninits=0)
+    etc...
+
+[later]
+Now that I understand how is called checkUninitQueue, it's better to no longer trace all the calls
+from RexxActivation::run. The log file is 5kb instead of 3500kb...
+The excerpt is like that :
+    Begin collecting memory, cycle #2 after 46328 allocations.
+    Beginning mark operation
+    Mark operation completed
+    Large segment sweep complete.  Largest block is 1034200, smallest block is 9216
+    End collecting memory
+    Object save table contains 0 objects
+    Normal segment set free memory percentage is 99
+    Calling runUninits from checkUninitQueue (pendingUninits=3)
+    Entering runUninits
+    Calling uninit for object MYCLASS:266201232
+    *** uninit 1.2 weak
+    Calling uninit for object MYCLASS:266202016
+    *** uninit 1.4 weak
+    Calling uninit for object MYCLASS:266200831
+    *** uninit 1.1
+    Leaving runUninits after 3 calls to uninit
+
+
+
+=====================================================================================================================
+UNINIT : CODE REVIEW
+=====================================================================================================================
+
+
+ClassClass.hpp
+   inline bool         hasUninitDefined()   { return (classFlags & HAS_UNINIT) != 0; };
+   inline void         setHasUninitDefined()   { classFlags |= HAS_UNINIT; };
+   inline void         clearHasUninitDefined()   { classFlags &= ~HAS_UNINIT; };
+   inline bool         parentHasUninitDefined()   { return (classFlags & PARENT_HAS_UNINIT) != 0; };
+   inline void         setParentHasUninitDefined()   { classFlags |= PARENT_HAS_UNINIT; };
+   
+     enum
+     {
+        REXX_DEFINED      = 0x00000001,   // this class is a native rexx class
+        MIXIN             = 0x00000004,   // this is a mixin class
+        HAS_UNINIT        = 0x00000008,   // this class has an uninit method
+        META_CLASS        = 0x00000010,   // this class is a meta class
+        PRIMITIVE_CLASS   = 0x00000020,   // this is a primitive class
+        PARENT_HAS_UNINIT = 0x00000040
+     };
+
+
+RexxActivity.cpp
+void RexxActivity::runThread()
+        memoryObject.runUninits();         /* run any needed UNINIT methods now */
+
+
+RexxActivity.cpp
+void RexxActivity::exitCurrentThread()
+    // if we're inactive, try to run any pending uninits
+    if (isInactive())
+    {
+        memoryObject.runUninits();
+    }
+
+
+RexxActivity.cpp
+void RexxActivity::run(ActivityDispatcher &target)
+    // give uninit objects a chance to run
+    memoryObject.runUninits();
+
+
+RexxActivation.cpp
+RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,
+     size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+            if (this->execution_state == RETURNED)
+            {
+                /* now go run the uninit stuff       */
+                memoryObject.checkUninitQueue();
+
+
+RexxMemory.hpp
+  inline void checkUninitQueue() { if (pendingUninits > 0) runUninits(); }
+
+
+RexxMemory.cpp
+void RexxMemory::initialize(bool _restoringImage)
+    // get the initial uninit table
+    uninitTable = new_identity_table();
+
+
+RexxMemory.cpp
+void RexxMemory::checkUninit()
+{
+    /* we might not actually have a table yet, so make sure we check */
+    /* before using it. */
+    if (uninitTable == NULL)
+    {
+        return;
+    }
+
+    RexxObject *uninitObject;
+    /* table and any object is isn't   */
+    /* alive, we indicate it should be */
+    /* sent unInit.  We indiacte this  */
+    /* by setting the value to 1,      */
+    /* instead of NIL (the default)    */
+    for (HashLink i = uninitTable->first(); (uninitObject = uninitTable->index(i)) != OREF_NULL; i = uninitTable->next(i))
+    {
+        /* is this object now dead?        */
+        if (uninitObject->isObjectDead(markWord))
+        {
+            /* yes, indicate object is to be   */
+            /*  sent uninit.                   */
+            uninitTable->replace(TheTrueObject, i);
+            pendingUninits++;
+        }
+    }
+}
+
+
+RexxMemory.cpp
+/**
+ * Force a last-gasp garbage collection and running of the
+ * uninits during interpreter instance shutdown.  This is an
+ * attempt to ensure that all objects with uninit methods get
+ * a chance to clean up prior to termination.
+ */
+void RexxMemory::collectAndUninit(bool clearStack)
+{
+    // clear the save stack if we're working with a single instance
+    if (clearStack)
+    {
+        clearSaveStack();
+    }
+    collect();
+    runUninits();
+}
+
+
+RexxMemory.cpp
+/**
+ * Force a last-gasp garbage collection and running of the
+ * uninits during interpreter instance shutdown.  This is an
+ * attempt to ensure that all objects with uninit methods get
+ * a chance to clean up prior to termination.
+ */
+void RexxMemory::lastChanceUninit()
+{
+    // collect and run any uninits still pending
+    collectAndUninit(true);
+    // we're about to start releasing libraries, so it is critical
+    // we don't run any more uninits after this
+    uninitTable->empty();
+}
+
+
+RexxMemory.cpp
+void  RexxMemory::runUninits()
+/******************************************************************************/
+/* Function:  Run any UNINIT methods for this activity                        */
+/******************************************************************************/
+/* NOTE: The routine to iterate across uninit Table isn't quite right, since  */
+/*  the removal of zombieObj may move another zombieObj and then doing        */
+/*  the next will skip this zombie, we should however catch it next time      */
+/*  through.                                                                  */
+/*                                                                            */
+/******************************************************************************/
+{
+    RexxObject * zombieObj;              /* obj that needs uninit run.        */
+    HashLink iterTable;                  /* iterator for table.               */
+
+    /* if we're already processing this, don't try to do this */
+    /* recursively. */
+    if (processingUninits)
+    {
+        return;
+    }
+
+    /* turn on the recursion flag, and also zero out the count of */
+    /* pending uninits to run */
+    processingUninits = true;
+    pendingUninits = 0;
+
+    // get the current activity for running the uninits
+    RexxActivity *activity = ActivityManager::currentActivity;
+
+    /* uninitTabe exists, run UNINIT     */
+    for (iterTable = uninitTable->first();
+        (zombieObj = uninitTable->index(iterTable)) != OREF_NULL;)
+    {
+        // TODO:  Ther's a bug here.  Removing the object can cause the
+        // iterator to skip over an entry....something should be done to
+        // prevent this.
+
+        /* is this object readyfor UNINIT?   */
+        if (uninitTable->value(iterTable) == TheTrueObject)
+        {
+            /* make sure we don't recurse        */
+            uninitTable->put(TheFalseObject, zombieObj);
+            {
+                // run this method with appropriate error trapping
+                UninitDispatcher dispatcher(zombieObj);
+                activity->run(dispatcher);
+            }
+                                           /* remove zombie from uninit table   */
+            uninitTable->remove(zombieObj);
+
+
+            // because we just did a remove operation, this will effect the iteration
+            // process. There are two possibilities here.  Either A) we were at the end of the
+            // chain and this is now an empty slot or B) the removal process moved an new item
+            // into this slot.  If it is case A), then we need to search for the next item.  If
+            // it is case B) we'll just leave the index alone and process this position again.
+            if (uninitTable->index(iterTable) == OREF_NULL)
+            {
+                iterTable = uninitTable->next(iterTable);
+            }
+        }
+        else
+        {
+            iterTable = uninitTable->next(iterTable);
+        }
+    }                                  /* now go check next object in table */
+    /* make sure we remove the recursion protection */
+    processingUninits = false;
+}
+
+
+RexxMemory.cpp
+void  RexxMemory::removeUninitObject(
+    RexxObject *obj)                   /* object to remove                  */
+/******************************************************************************/
+/* Function:  Remove an object from the uninit tables                         */
+/******************************************************************************/
+{
+    // just remove this object from the table
+    uninitTable->remove(obj);
+}
+
+
+RexxMemory.cpp
+void RexxMemory::addUninitObject(
+    RexxObject *obj)                   /* object to add                     */
+/******************************************************************************/
+/* Function:  Add an object with an uninit method to the uninit table for     */
+/*            a process                                                       */
+/******************************************************************************/
+{
+                                       /* is object already in table?       */
+   if (uninitTable->get(obj) == OREF_NULL)
+   {
+                                       /* nope, add obj to uninitTable,     */
+                                       /*  initial value is NIL             */
+       uninitTable->put(TheNilObject, obj);
+   }
+
+}
+
+
+RexxMemory.cpp
+bool RexxMemory::isPendingUninit(RexxObject *obj)
+/******************************************************************************/
+/* Function:  Test if an object is going to require its uninit method run.    */
+/******************************************************************************/
+{
+    return uninitTable->get(obj) != OREF_NULL;
+}
+
+
+RexxMemory.hpp
+class RexxMemory : public RexxInternalObject
+private:
+  RexxIdentityTable  *uninitTable;       // the table of objects with uninit methods
+  size_t            pendingUninits;    // objects waiting to have uninits run
+  bool              processingUninits; // true when we are processing the uninit table
+
+
+RexxMemory.cpp
+void RexxMemory::markObjects()
+        ...
+        // now process the weak reference queue...We check this before the
+        // uninit list is processed so that the uninit list doesn't mark any of the
+        // weakly referenced items.  We don't want an object placed on the uninit queue
+        // to end up strongly referenced later.
+        checkWeakReferences();
+        this->checkUninit();               /* flag all objects about to be dead */
+
+
+Interpreter.cpp
+bool Interpreter::terminateInterpreter()
+                ...
+                // run whatever uninits we can before we start releasing the libraries
+                memoryObject.lastChanceUninit();
+
+
+InterpreterInstance.cpp
+bool InterpreterInstance::terminate()
+    ...
+    // if everything has terminated, then make sure we run the uninits before shutting down.
+    // This activity is currently the current activity.  We're going to run the
+    // uninits on this one, so reactivate it until we're done running
+    enterOnCurrentThread();
+    // release any global references we've been holding.
+    globalReferences->empty();
+    // before we update of the data structures, make sure we process any
+    // pending uninit activity.
+    memoryObject.collectAndUninit(Interpreter::lastInstance());

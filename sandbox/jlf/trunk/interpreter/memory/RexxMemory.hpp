@@ -197,7 +197,10 @@ class RexxMemory : public RexxInternalObject
   void        removeUninitObject(RexxObject *obj);
   void        addUninitObject(RexxObject *obj);
   bool        isPendingUninit(RexxObject *obj);
-  inline void checkUninitQueue() { if (pendingUninits > 0) runUninits(); }
+  inline void checkUninitQueue() { if (pendingUninits > 0) verboseMessage("Calling runUninits from checkUninitQueue (pendingUninits=%d%s)\n",
+                                                                          pendingUninits, 
+                                                                          size_t(processingUninits ? " recursive" : ""));
+                                   if (pendingUninits > 0) runUninits(); }
 
   void        markObjects(void);
   void        markObjectsMain(RexxObject *);
