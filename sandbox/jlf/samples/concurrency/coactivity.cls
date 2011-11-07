@@ -98,9 +98,15 @@ each other explicitly and deterministically.
 
 
 ::method init unguarded
+    /*
+    The coactivity entry can be a routine, a couple (message, object) or a couple (method, object).
+    The default entry is the couple ("main", self).
+    By default, the coactivity is not started (the 'start' method is not called)
+    */
     expose coactivityObj
-    use strict arg action="main", start=.false, object=(.WeakProxy~new(self))
-    coactivityObj = .CoactivityObj~new(action, start, object)
+    proxy = .WeakProxy~new(self)
+    use strict arg action="main", start=.false, object=(proxy) -- object must reference the proxy, not directly the coactivity, otherwise the coactivity will never be GC'ed
+    coactivityObj = .CoactivityObj~new(action, start, object, proxy) -- pass itself as proxy, to be stored on the wrapped coactivityObj (needed for supplier)
 
 
 ::method uninit
@@ -120,6 +126,12 @@ each other explicitly and deterministically.
 
 
 ::method start
+    /*
+    Create the activity that will control the coactivity and make it suspended.
+    Use 'resume' to start the coactivity effectively.
+    The arguments passed to the first 'resume' will be made available to the coactivity through the traditional 'use arg'.
+    The arguments passed to the next 'resume's will be made available as an array returned by 'yield'.
+    */
     expose coactivityObj
     forward to (coactivityObj)
 
@@ -146,11 +158,15 @@ each other explicitly and deterministically.
 
 
 ::method yield private
+    -- Can be called only from a coactivity.
+    -- Returns an array which contains the arguments passed to 'resume' by the client of the coactivity.
     expose coactivityObj
     forward to (coactivityObj)
 
 
 ::method resume
+    -- You can pass arguments to this method.
+    -- They will be passed to the coactivity, either as traditional 'use arg' if first call, or as an array returned by 'yield'.
     expose coactivityObj
     forward to (coactivityObj)
 
@@ -196,6 +212,9 @@ each other explicitly and deterministically.
 
 
 ::method makeArray unguarded
+    -- This is really NOT adapted to coactivities which can generate an infinite set of values  !
+    -- But this is the only way to write : do over myCoactivity ...
+    -- A better approach would be to modify the interpreter to support : do over anySupplier ...
     expose coactivityObj
     forward to (coactivityObj)
 
@@ -220,19 +239,15 @@ Status transitions :
 -- ::attribute object private
 
 -- Instance attributes for execution
+-- ::attribute proxy private
 -- ::attribute status private
 -- ::attribute arguments private
 -- ::attribute yieldValue private
 
 
 ::method init unguarded
-    /*
-    The coactivity entry can be a routine, a couple (message, object) or a couple (method, object).
-    The default entry is the couple ("main", self).
-    By default, the coactivity is not started (the 'start' method is not called)
-    */
-    expose doer object status
-    use strict arg action="main", start=.false, object=(self)
+    expose proxy doer object status
+    use strict arg action, start, object, proxy
     doer = action~doer
     status = .CoactivityObj~notStarted
     if start then self~start
@@ -250,12 +265,6 @@ Status transitions :
 
 
 ::method start
-    /*
-    Create the activity that will control the coactivity and make it suspended.
-    Use 'resume' to start the coactivity effectively.
-    The arguments passed to the first 'resume' will be made available to the coactivity through the traditional 'use arg'.
-    The arguments passed to the next 'resume's will be made available as an array returned by 'yield'.
-    */
     expose arguments doer object status
     use strict arg -- no arg
     if status <> .CoactivityObj~notStarted then return
@@ -287,8 +296,6 @@ Status transitions :
 
 
 ::method yield --private
-    -- Can be called only from a coactivity.
-    -- Returns an array which contains the arguments passed to 'resume' by the client of the coactivity.
     expose arguments status yieldValue
     drop yieldValue
     if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
@@ -312,8 +319,6 @@ Status transitions :
 
 
 ::method resume
-    -- You can pass arguments to this method.
-    -- They will be passed to the coactivity, either as traditional 'use arg' if first call, or as an array returned by 'yield'.
     expose arguments status yieldValue
     if status == .CoactivityObj~notStarted then self~start
     if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed")
@@ -389,13 +394,11 @@ will have to call it each time the status is changed. Maybe later...
 
 
 ::method supplier unguarded
-    return .LazyCoactivitySupplier~new(self)
+    expose proxy
+    return .LazyCoactivitySupplier~new(proxy~value) -- must pass the wrapping coactivity, not self, otherwise the coactivity may be GC'ed even if the supplier is running and not GC'ed
 
 
 ::method makeArray unguarded
-    -- This is really NOT adapted to coactivities which can generate an infinite set of values  !
-    -- But this is the only way to write : do over myCoactivity ...
-    -- A better approach would be to modify the interpreter to support : do over anySupplier ...
     use strict arg limit=(.Coactivity~makeArrayLimit)
     array = .Array~new
     do forever
@@ -416,39 +419,30 @@ will have to call it each time the status is changed. Maybe later...
 Lazy Coactivity supplier :
 This supplier does not take a snapshot of the items remaining to generate by the coactivity.
 Instead, it calculates the next item only when the 'next' method is called.
+
+No longer needs an uninit method to support properly this use case (the coactivity itself knows when to end automatically) :
+.coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~pipe(.take 5 | .console)
+While the pipeline is running, the coactivity supplier is referenced by the 'source' property of the first pipe stage, and can't be GC'ed.
+The pipeline itself can't be GC'ed because the first pipe stage is referenced from the call stack, as an argument of 'pipe'.
+When 5 values have been taken (.take 5), the pipeline is stopped and the method 'pipe' returns.
+From now, the pipeline can be GC'ed, because it's no longer referenced from the call stack.
+And once the pipeline is GC'ed, there is no more reference to the coactivity supplier, which can be GC'ed.
 */
 ::class "LazyCoactivitySupplier" subclass Supplier
 
 --::attribute coactivity private
---::attribute startedByMe private
 --::attribute currentIndex private
 --::attribute currentItem private
 --::attribute isAvailable private
 
 
 ::method init
-    expose coactivity startedByMe currentIndex
+    expose coactivity currentIndex
     use strict arg coactivity
     empty = .array~new(0) -- Lazy supplier
     self~init:super(empty, empty)
-    startedByMe = .false
-    if \coactivity~isStarted then do ; coactivity~start ; startedByMe = .true; end
     currentIndex = 0
     self~next
-
-
-::method uninit
-    /*
-    I need the uninit method to support properly this use case :
-    .coactivity~new{i=0; do forever; i+=1; .yield[i]; end}~pipe(.take 5 | .console)
-    While the pipeline is running, the coactivity supplier is referenced by the 'source' property of the first pipe stage, and can't be GC'ed.
-    The pipeline itself can't be GC'ed because the first pipe stage is referenced from the call stack, as an argument of 'pipe'.
-    When 5 values have been taken (.take 5), the pipeline is stopped and the method 'pipe' returns.
-    From now, the pipeline can be GC'ed, because it's no longer referenced from the call stack.
-    And once the pipeline is GC'ed, there is no more reference to the coactivity supplier, which can be GC'ed.
-    */
-    expose coactivity startedByMe
-    if startedByMe then coactivity~end
 
 
 ::method available

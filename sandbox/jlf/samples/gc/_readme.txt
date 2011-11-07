@@ -55,3 +55,20 @@ Step 2 : 7 GC during the loop, but NO uninits.
          the uninits are triggered AFTER the loop.
          pendingUninits=28 (7 GC * 4 zombies)
 Halting: The object 2.3 is GC'ed since the referencing directory no longer exists (ok).
+
+
+Info from Rick :
+uninits are only processed at important boundaries, such as return
+from method calls.  So if you have a tight loop that isn't making any
+method calls, then it is possible that these would not be processed
+until the loop completes.  The security manager changes this dynamic
+by introducing some method call boundaries.
+
+JLF
+Indeed, the code in the loop was too simple. I added a call to a 2nd routine from inside the loop and now the uninit are called.
+In fact, it seems that at least one "user-defined" procedure/routine/method must be called to trigger the calls to uninit.
+If I use only predefined functions/methods inside the loop then no uninit is called (quick tests...).
+[later]
+I confirm this observation. The script testcase2.rex has been added to cover both cases :
+step 1 : use only predefined functions/methods
+step 2 : use only user-defined procedures/routines/methods

@@ -5,7 +5,11 @@ Activation of GC verbose messages
 main\trunk\lib\orxwin32.mak : add /DVERBOSE_GC
 cflags_common=/EHsc /nologo /D:_X86_ /DWIN32 $(VER_DEF) $(WARNING_FLAGS) -c $(my_cdebug) $(MK_ASM) $(RXDBG) /DNULL=0 /DVERBOSE_GC
 
+rm Interpreter.obj
+rm InterpreterInstance.obj
 rm MemorySegment.obj
+rm RexxActivation.obj
+rm RexxActivity.obj
 rm RexxMemory.obj
 makeorx NODEBUG
 

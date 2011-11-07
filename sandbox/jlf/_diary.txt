@@ -78,6 +78,19 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 nov 07
+
+[coactivity]
+The LazyCoactivitySupplier no longer needs an unit method.
+
+
+[GC]
+Added testcase2.rex for uninit which covers both cases :
+step 1 : call only predefined functions/methods --> no uninit called during the loop
+step 2 : call only user-defined procedures/routines/methods --> uninit called during the loop
+
+
+===============================================================================
 2011 nov 06
 
 [coactivity]
