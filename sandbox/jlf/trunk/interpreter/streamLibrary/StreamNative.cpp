@@ -632,6 +632,8 @@ const char *StreamInfo::handleOpen(const char *options)
             // position at the end, and set the write position
             setPosition(size(), charWritePosition);
 
+            if (!write_only)
+            {
             char   char_buffer;
             size_t bytesRead;
             // read the last character of the buffer.
@@ -650,6 +652,7 @@ const char *StreamInfo::handleOpen(const char *options)
                 /* error on Windows so we had to put in that */
                 /* explicitly set the position       */
                 setPosition(charWritePosition, charWritePosition);
+            }
             }
         }
         lineWritePosition = 0;
@@ -793,6 +796,8 @@ void StreamInfo::implicitOpen(int type)
             // position at the end, and set the write position
             setPosition(size(), charWritePosition);
 
+            if (!write_only)
+            {
             char   char_buffer;
             size_t bytesRead;
             // read the last character of the buffer.
@@ -811,6 +816,7 @@ void StreamInfo::implicitOpen(int type)
                 /* error on Windows so we had to put in that */
                 /* explicitly set the position       */
                 setPosition(charWritePosition, charWritePosition);
+            }
             }
         }
         // set default line positioning
@@ -2384,7 +2390,8 @@ const char *StreamInfo::streamOpen(const char *options)
     {
         // if this is some sort of device, it might be output only (i.e., a
         // printer).  Try opening again write only
-        if (fileInfo.isDevice())
+        // bug 3274050 : no longer limited to device, a regular file can have write-only permissions
+        if (true /*fileInfo.isDevice()*/)
         {
             if (!open(WR_CREAT, S_IWRITE, shared))
             {
@@ -2428,6 +2435,8 @@ const char *StreamInfo::streamOpen(const char *options)
             // position at the end, and set the write position
             setPosition(size(), charWritePosition);
 
+            if (!write_only)
+            {
             char   char_buffer;
             size_t bytesRead;
             // read the last character of the buffer.
@@ -2446,6 +2455,7 @@ const char *StreamInfo::streamOpen(const char *options)
                 /* error on Windows so we had to put in that */
                 /* explicitly set the position       */
                 setPosition(charWritePosition, charWritePosition);
+            }
             }
         }
         /* set default line positioning      */
