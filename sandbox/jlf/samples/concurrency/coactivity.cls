@@ -19,7 +19,7 @@ each other explicitly and deterministically.
 
 
 --::options trace i
-::options NOMACROSPACE
+--::options NOMACROSPACE
 ::requires "concurrency/activity.cls"
 
 
@@ -125,7 +125,7 @@ each other explicitly and deterministically.
     forward to (coactivityObj)
 
 
-::method start
+::method start unguarded
     /*
     Create the activity that will control the coactivity and make it suspended.
     Use 'resume' to start the coactivity effectively.
@@ -164,7 +164,7 @@ each other explicitly and deterministically.
     forward to (coactivityObj)
 
 
-::method resume
+::method resume unguarded -- must be unguarded because can start the coactivity (so must be lock free to let the coactivityObj re-enter when calling yield)
     -- You can pass arguments to this method.
     -- They will be passed to the coactivity, either as traditional 'use arg' if first call, or as an array returned by 'yield'.
     expose coactivityObj

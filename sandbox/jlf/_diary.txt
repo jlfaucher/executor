@@ -78,6 +78,24 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 nov 12
+
+[coactivity]
+
+No longer use the directive ::OPTIONS NOMACROSPACE in coactivity.cls and activity.cls.
+That breaks oorexxShell when run with standard ooRexx.
+For me, ::OPTIONS should not raise an error in case of unknown option.
+This is the case for the instruction options : Unrecognized words in the result are
+ignored, since they are assumed to be instructions for a different language processor.
+
+Fixed a deadlock which is due to the split of .Coactivty in two distinct classes.
+The following methods must be declared unguarded because they can start the wrapped .CoactivityObj :
+.Coactivity~start
+.Coactivity~resume
+See samples/concurrency/deadlock4.rex for the details
+
+
+===============================================================================
 2011 nov 07
 
 [coactivity]

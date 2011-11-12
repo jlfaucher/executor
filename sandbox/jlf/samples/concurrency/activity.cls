@@ -10,7 +10,7 @@ else
 
 
 --::options trace i
-::options NOMACROSPACE
+--::options NOMACROSPACE
 
 --------------------------------------------------------------------------------
 ::class "Activity" public
@@ -26,6 +26,7 @@ else
 
 
 ::method currentThreadId class
+    options "nomacrospace"
     if .rxunixsys.loaded then return SysGetTid() -- Unix
     else return SysQueryProcess("TID") -- Windows
 
