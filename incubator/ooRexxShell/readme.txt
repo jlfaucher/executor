@@ -91,6 +91,13 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2011 nov 09
+
+No longer display error traceback.
+The trace back is stored in .ooRexxShell~errorTraceback, and can be inspected later.
+
+
+-----------------------------------------------
 2011 oct 23
 
 After each command interpretation, display the elapsed duration and the number

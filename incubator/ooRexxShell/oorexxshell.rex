@@ -371,7 +371,8 @@ dispatchCommand:
     if .ooRexxShell~error then do
         .color~select(.ooRexxShell~errorColor)
         .error~say(condition("O")~message)
-        .error~say(condition("O")~traceback~makearray~tostring)
+        --.error~say(condition("O")~traceback~makearray~tostring)
+        .ooRexxShell~traceback = condition("O")~traceback
         .color~select(.ooRexxShell~defaultColor)
     end
     if RC <> 0 then do
@@ -550,6 +551,7 @@ loadLibrary:
 ::attribute securityManager class
 ::attribute showInfos class
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
+::attribute traceback class -- traceback of last error
 
 ::attribute defaultColor class
 ::attribute errorColor class
