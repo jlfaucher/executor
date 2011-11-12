@@ -1,0 +1,127 @@
+=====================================================================================
+Code review for expose
+=====================================================================================
+
+RexxLocalVariables.hpp
+    #define VARIABLE_SELF    1             /* variable lookaside indices        */
+    #define VARIABLE_SUPER   2
+    #define VARIABLE_RESULT  3
+    #define VARIABLE_RC      4
+    #define VARIABLE_SIGL    5
+    #define FIRST_VARIABLE_INDEX 5         /* variable index list first slot    */
+
+
+---------------
+procedureExpose
+---------------
+    ProcedureInstruction.cpp
+        void RexxInstructionProcedure::execute(
+            RexxActivation      *context,      /* current activation context        */
+            RexxExpressionStack *stack)        /* evaluation stack                  */
+            ...
+            context->procedureExpose(variables, variableCount);
+            ...
+    RexxActivation.hpp
+        void              procedureExpose(RexxVariableBase **variables, size_t count);
+
+    RexxActivation.cpp
+        void RexxActivation::procedureExpose(RexxVariableBase **variables, size_t count)
+            activity->allocateLocalVariableFrame(&settings.local_variables);
+
+    ExpressionBaseVariable.hpp
+        class RexxVariableBase
+            virtual void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *) {;}
+
+    ExpressionCompoundVariable.hpp
+        class RexxCompoundVariable : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+
+    ExpressionCompoundVariable.cpp
+        void RexxCompoundVariable::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+
+    ExpressionStem.hpp
+        class RexxStemVariable : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+
+    ExpressionStem.cpp
+        void RexxStemVariable::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+
+    ExpressionVariable.hpp
+        class RexxParseVariable : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+    ExpressionVariable.cpp
+        void RexxParseVariable::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+
+    IndirectVariableReference.hpp
+        class RexxVariableReference : public RexxVariableBase {
+            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+
+    IndirectVariableReference.cpp
+        void RexxVariableReference::procedureExpose(
+            RexxActivation      *context,        /* current activation context        */
+            RexxActivation      *parent,         /* the parent activation context     */
+            RexxExpressionStack *stack)          /* current evaluation stack          */
+
+
+--------------------------
+allocateLocalVariableFrame
+--------------------------
+
+    RexxActivity.hpp
+       inline void allocateLocalVariableFrame(RexxLocalVariables *locals)   <-- locals = &aRexxActivation.settings.local_variables
+       {
+           locals->setFrame(frameStack.allocateFrame(locals->size));    <-- frameStack is an attribute of RexxActivity (type RexxActivationStack)
+       }
+       
+    RexxActivation.cpp
+    
+        RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+            /* allocate a frame for the local variables from activity stack */
+            settings.local_variables.init(this, code->getLocalVariableSize());
+            this->activity->allocateLocalVariableFrame(&settings.local_variables);
+            
+        RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context)
+            /* allocate a frame for the local variables from activity stack */
+            settings.local_variables.init(this, code->getLocalVariableSize());
+            this->activity->allocateLocalVariableFrame(&settings.local_variables);
+            
+        void RexxActivation::procedureExpose(
+            /* get a new  */
+            RexxVariableBase **variables, size_t count)
+            activity->allocateLocalVariableFrame(&settings.local_variables);
+            /* make sure we clear out the dictionary, otherwise we'll see the */
+            /* dynamic entries from the previous level. */
+            settings.local_variables.procedure(this);
+            
+    RexxLocalVariables.cpp
+    
+
+----------
+Data model
+----------
+
+RexxLocalVariables
+    size_t flags;                        /* dictionary control flags          */
+    size_t size;                         /* size of the expstack              */
+    RexxActivation *owner;               /* the owning activation             */
+    RexxVariable **locals;               /* the frame of local variables      */    <-- locals->setFrame(frameStack.allocateFrame(locals->size));    <-- frameStack is an attribute of RexxActivity (type RexxActivationStack)
+    RexxVariableDictionary *dictionary;  /* dictionary used for dynamic lookups */
+
+
+RexxActivation : public RexxActivationBase 
+   ActivationSettings   settings;      /* inherited REXX settings           */
+
+
+ActivationSettings
+    RexxLocalVariables local_variables;  /* the local variables for this activation */
+
+

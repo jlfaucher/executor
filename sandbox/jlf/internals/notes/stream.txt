@@ -40,6 +40,98 @@ errInfo is reset by StreamInfo::notreadyError
 ===============================================
 
 
+Bug 3274050
+
+The problem comes from
+StreamNative.cpp
+const char *StreamInfo::streamOpen(const char *options)
+When the O_WRONLY flag is set, ooRexx tries read-write first,
+but does not fallback to write-only in case of failure (limited to device)
+
+Another problem in this method, when testing if the last character is ctrl_z.
+Since the handle is write-only, the attempt to read the last character fails and notReadyError is called.
+
+ctrl_z also tested in 
+StreamInfo::implicitOpen
+StreamInfo::handleOpen
+
+--------
+
+Insert ctrl-z characters from rexx
+    say charout(file, "EOF")
+    say charout(file, "1A"x)
+or from bash
+    printf "EOF\x1A" >> write_only.txt
+
+--------
+
+Put a breakpoint in A) : 
+b BuiltinFunctions.cpp:2234     command(...)
+b BuiltinFunctions.cpp:2056     charout(file, string)
+b BuiltinFunctions.cpp:2015     lineout(file, string)
+run write_only.rex
+The breakpoint is hit
+Put a breakpoint in B) : 
+b StreamNative.cpp:2383         streamOpen
+b StreamNative.cpp:745          implicitOpen
+b StreamNative.cpp:625          handleOpen
+b StreamNative.cpp:1480         charout
+Continue the program
+
+
+A)
+BuiltinFunctions.cpp
+BUILTIN(STREAM)
+RexxString *result = (RexxString *)stream->sendMessage(OREF_COMMAND, command);
+
+
+StreamNative.cpp
+stream_open
+return stream_info->streamOpen(options);
+
+
+B)
+StreamNative.cpp
+const char *StreamInfo::streamOpen(const char *options)
+    if (!open(oflag, pmode, shared))
+
+
+#define RDWR_CREAT  (O_RDWR | O_CREAT)
+#define WR_CREAT    (O_WRONLY | O_CREAT)
+#define IREAD_IWRITE (S_IREAD | S_IWRITE)
+
+
+oflag=522   oflag |= O_WRONLY | O_CREAT | O_APPEND 
+pmode=384   pmode |= S_IWRITE
+shared=0
+
+
+    int oflag = 0;                      // no default open options
+    int pmode = 0;                      /* and the protection mode           */
+    int shared = RX_SH_DENYRW;             /* def. open is non shared           */
+
+
+        ParseAction OpenActionwrite[] = {
+            ParseAction(MEB, read_write),
+            ParseAction(MEB, read_only),
+            ParseAction(SetBool, write_only, true),
+            ParseAction(BitOr, oflag, WR_CREAT),
+            ParseAction(BitOr, pmode, S_IWRITE),
+            ParseAction()
+        };
+
+        ParseAction OpenActionappend[] = {
+            ParseAction(MEB, read_only),
+            ParseAction(ME, oflag, O_TRUNC),
+            ParseAction(SetBool, append, true),
+            ParseAction(BitOr, oflag, O_APPEND),
+            ParseAction()
+        };
+
+
+===============================================
+
+
 Les classes Stream sont déclarées dans
 interpreter\RexxClasses\StreamClasses.orx
 

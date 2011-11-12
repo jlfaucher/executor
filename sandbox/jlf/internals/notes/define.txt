@@ -1,3 +1,23 @@
+getClassMethods
+getInstanceMethods
+    ClassDirective.cpp
+    ClassDirective.hpp
+    ExtensionDirective.cpp
+    ExtensionDirective.hpp
+
+classObject->defineMethod(methodName, method);
+classObject->defineClassMethod(methodName, method);
+    ClassClass.cpp
+    ClassClass.hpp
+    CPPCode.cpp
+    ExtensionDirective.cpp
+    Setup.cpp
+
+classObject->sendMessage(OREF_INHERIT, mixin);
+
+
+================================================================
+
 CoreClasses.orx utilise !define_methods pour ajouter des méthodes sur les classes prédéfinies
 
 Implémenté par : RexxClass::defineClassMethod dans setup.cpp

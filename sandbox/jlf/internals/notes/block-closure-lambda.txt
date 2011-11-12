@@ -4,6 +4,15 @@ http://msdn.microsoft.com/en-us/library/dd293603.aspx
 http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/
 
 
+http://openjdk.java.net/jeps/126
+JEP 126: Lambda Expressions and Virtual Extension Methods
+
+http://www.jcp.org/en/jsr/detail?id=335
+JSR 335: Lambda Expressions for the JavaTM Programming Language
+
+http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-3.html
+State of the Lambda
+
 http://javac.info/
 Closures (Lambda Expressions) for the Java Programming Language
 
@@ -27,6 +36,9 @@ http://nathansjslessons.appspot.com/
 
 
 http://www.reddit.com/r/compsci/comments/isyps/closures_why_do_you_need_them/
+
+
+http://christophh.net/2011/10/26/closure-object-binding-in-php-54/
 
 
 https://wiki.php.net/rfc/closures
@@ -59,9 +71,6 @@ Comparing C++0x lambdas with Scheme: An "object" with mutable state, no classes 
 http://csharpindepth.com/Articles/Chapter5/Closures.aspx
 The Beauty of Closures
 
-
-http://www.jcp.org/en/jsr/detail?id=335
-JSR 335: Lambda Expressions for the JavaTM Programming Language
 
 http://www.infoq.com/articles/lambdas-java-analysis
 inc = #(int x) (x+1); // single expression
@@ -887,101 +896,4 @@ block = [1/0]
  	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
  	rexx.exe!mainCRTStartup()  Line 189	C
 
-
-=====================================================================================
-Code review for expose
-=====================================================================================
-
-RexxLocalVariables.hpp
-    #define VARIABLE_SELF    1             /* variable lookaside indices        */
-    #define VARIABLE_SUPER   2
-    #define VARIABLE_RESULT  3
-    #define VARIABLE_RC      4
-    #define VARIABLE_SIGL    5
-    #define FIRST_VARIABLE_INDEX 5         /* variable index list first slot    */
-
-
----------------
-procedureExpose
----------------
-    ProcedureInstruction.cpp
-        void RexxInstructionProcedure::execute(
-            RexxActivation      *context,      /* current activation context        */
-            RexxExpressionStack *stack)        /* evaluation stack                  */
-            ...
-            context->procedureExpose(variables, variableCount);
-            ...
-    RexxActivation.hpp
-        void              procedureExpose(RexxVariableBase **variables, size_t count);
-    RexxActivation.cpp
-        void RexxActivation::procedureExpose(RexxVariableBase **variables, size_t count)
-    ExpressionBaseVariable.hpp
-        class RexxVariableBase
-            virtual void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *) {;}
-    ExpressionCompoundVariable.hpp
-        class RexxCompoundVariable : public RexxVariableBase {
-            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
-    ExpressionCompoundVariable.cpp
-        void RexxCompoundVariable::procedureExpose(
-            RexxActivation      *context,        /* current activation context        */
-            RexxActivation      *parent,         /* the parent activation context     */
-            RexxExpressionStack *stack)          /* current evaluation stack          */
-    ExpressionStem.hpp
-        class RexxStemVariable : public RexxVariableBase {
-            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
-    ExpressionStem.cpp
-        void RexxStemVariable::procedureExpose(
-            RexxActivation      *context,        /* current activation context        */
-            RexxActivation      *parent,         /* the parent activation context     */
-            RexxExpressionStack *stack)          /* current evaluation stack          */
-    ExpressionVariable.hpp
-        class RexxParseVariable : public RexxVariableBase {
-            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
-    ExpressionVariable.cpp
-        void RexxParseVariable::procedureExpose(
-            RexxActivation      *context,        /* current activation context        */
-            RexxActivation      *parent,         /* the parent activation context     */
-            RexxExpressionStack *stack)          /* current evaluation stack          */
-    IndirectVariableReference.hpp
-        class RexxVariableReference : public RexxVariableBase {
-            void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
-    IndirectVariableReference.cpp
-        void RexxVariableReference::procedureExpose(
-            RexxActivation      *context,        /* current activation context        */
-            RexxActivation      *parent,         /* the parent activation context     */
-            RexxExpressionStack *stack)          /* current evaluation stack          */
-
-
---------------------------
-allocateLocalVariableFrame
---------------------------
-
-    RexxActivity.hpp
-       inline void allocateLocalVariableFrame(RexxLocalVariables *locals)
-       {
-           locals->setFrame(frameStack.allocateFrame(locals->size));
-       }
-       
-    RexxActivation.cpp
-    
-        RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
-            /* allocate a frame for the local variables from activity stack */
-            settings.local_variables.init(this, code->getLocalVariableSize());
-            this->activity->allocateLocalVariableFrame(&settings.local_variables);
-            
-        RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context)
-            /* allocate a frame for the local variables from activity stack */
-            settings.local_variables.init(this, code->getLocalVariableSize());
-            this->activity->allocateLocalVariableFrame(&settings.local_variables);
-            
-        void RexxActivation::procedureExpose(
-            /* get a new  */
-            RexxVariableBase **variables, size_t count)
-            activity->allocateLocalVariableFrame(&settings.local_variables);
-            /* make sure we clear out the dictionary, otherwise we'll see the */
-            /* dynamic entries from the previous level. */
-            settings.local_variables.procedure(this);
-            
-    RexxLocalVariables.cpp
-    
 
