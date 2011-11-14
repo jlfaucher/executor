@@ -1,4 +1,12 @@
-/******************************************************************************/
+-- To profile class methods, I need to redefine instances methods of classes.
+-- For that, must use setMethod, but setMethod is a private method.
+-- Don't know how to redefine an instance method on any class, unless doing that...
+.Object~define("setMethod1", "forward message('setMethod')") -- No effect with standard ooRexx
+
+::class Profiler public
+
+::method _description_ class
+nop
 /*
 This class is a security manager, which intercepts the messages sent for
 protected methods. A call stack, call count and duration is managed for each
@@ -52,13 +60,7 @@ Exemple of output :
 duration=0.015000
 ----------------------------------------
 */
-
--- To profile class methods, I need to redefine instances methods of classes.
--- For that, must use setMethod, but setMethod is a private method.
--- Don't know how to redefine an instance method on any class, unless doing that...
-.Object~define("setMethod1", "forward message('setMethod')") -- No effect with standard ooRexx
-
-::class Profiler public
+nop
 
 ::attribute output
 ::attribute header

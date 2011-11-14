@@ -16,3 +16,31 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator
 ::extension Supplier inherit SupplierReducer SupplierIterator
 ::extension Array inherit ArrayInitializer
+
+
+::extension Object
+
+::method help class
+use strict arg display=.true, self=(self)
+if self~hasMethod("_description_") then do
+    description = self~instanceMethod("_description_")
+    if description <> .nil then do
+        source = description~source -- an array
+        items = source~items
+        if items > 4 then do
+            -- by necessity, the comment must have an instruction before and after, to be kept in the source (bug ?)
+            -- by convention, a description is like that :
+            -- nop
+            -- /*
+            -- description (several lines)
+            -- */
+            -- nop
+            source = source~section(3, items - 4)
+        end
+        if display then say source~toString
+        return source
+    end
+end
+if display then say "no help"
+return .array~new
+

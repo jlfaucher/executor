@@ -78,6 +78,58 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 nov 14
+
+[extensions]
+
+Added a ~help method on the class .Object.
+When working from ooRexxShell, I often need to get a quick reminder of some
+functionalities, especially for pipeStages. The ~help method searches for the
+self~_description_ method. If found, the help text is extracted from the source,
+as an array of strings. The first 2 lines and last 2 lines are removed, according
+the convention described below. The array is displayed with : say array~toString
+and returned as result.
+Must follow this convention :
+    ::method _description_
+    nop
+    /*
+    <text here>
+    */
+    nop
+I use nop before and after because otherwise the comment is not stored in the method's
+source (any instruction would do the trick). Don't know if it's a bug or a feature...
+Usage :
+    .pipeStage~help
+    .pipeIndex~help
+    .fanin~help
+    .merge~help
+    ...
+
+
+[pipes]
+
+Implemented some ~help methods.
+
+Refactoring of .secondaryConnector : did not connect the wrapped pipeStage
+to its follower. Now, .secondaryConnector is a normal pipeStage, the method
+~secondaryConnector is no longer needed.
+Ex :
+    fanin = .fanin mem | .console showTags
+    fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
+    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .secondaryConnector | fanin -- bufferized until fanout1 is eof
+    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|left[i1]|lower[i2='aaa']|fanin[i2] : aaa
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|left[i1]|lower['CCC']|fanin['ccc'] : ccc
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|left[i1]|lower['eEe']|fanin['eee'] : eee
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper[i2='BBB']|fanin[i2] : BBB
+source[Array#1(an Array),1]|fanout[i1='aaaBBB']|right[i1]|upper['BBB']|fanin['my_BBB'] : my_BBB
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['DDD'] : DDD
+source[Array#1(an Array),2]|fanout[i1='CCCddd']|right[i1]|upper['ddd']|fanin['my_DDD'] : my_DDD
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['FFF'] : FFF
+source[Array#1(an Array),3]|fanout[i1='eEeFfF']|right[i1]|upper['FfF']|fanin['my_FFF'] : my_FFF
+
+
+===============================================================================
 2011 nov 12
 
 [coactivity]

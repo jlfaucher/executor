@@ -53,13 +53,65 @@
 ::requires "profiling/profiling.cls"
 
 
-/**
- * Base pipeStage class.  Most sub classes need only override the process() method to
- * implement a pipeStage.  The transformed results are passed down the pipeStage chain
- * by calling the write method.
- */
-
 ::class "pipeStage" public                  -- base pipeStage class
+
+::method _description_ class
+nop
+/*
+Base pipeStage class.  
+
+By default, a pipeStage has two inputs I1 & I2, and two ouputs O1 & O2.
+process : I1
+processSecondary : I2
+write : O1 (linked by default to follower's I1)
+writeSecondary : 02 (linked by default to follower's I1)
+
+Connectors
+'|'  connect leftPipeStage's O1 with rightPipeStage's I1 (primary follower) : 01 --> I1
+'>'  same as '|', but careful, the '>' operator has a higher precedence than '|'
+'>>' connect leftPipeStage's O2 with rightPipeStage's I1 (secondary follower) : O2 --> I1
+
+Reminder of the precedence (highest at the top) :
+(message send)         : ~ ~~ (not overloaded for pipes)
+(prefix operators)     : + - \ (not overloaded for pipes)
+(power)                : ** (not overloaded for pipes)
+(multiply and divide)  : * / % // (not overloaded for pipes)
+(add and subtract)     : + - (not overloaded for pipes)
+(blank) || (abuttal)   : (blank) is overloaded for adding options.
+(comparison operators) : > >> are overloaded for pipes, the rest is not used : = < == << \= >< <> \> \< \== \>> \<< >= >>= <= <<=
+(and operator)         : & (not overloaded for pipes).
+(or, exclusive or)     : | is overloaded, && is not used.
+
+The chain of connected pipeStages is a pipe.
+Any object can be a source of pipe :
+- When the object does not support the method ~supplier then it's injected as-is.
+  The index is 1.
+- A collection can be a source of pipe : each item of the collection is injected in the pipe.
+  The indexes are those of the collection.
+- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazily).
+  The indexes are those returned by the coactivity supplier.
+
+Most sub classes need only override the process() method to implement a pipeStage.  
+The transformed results are passed down the pipeStage chain by calling the write method.
+
+Careful to >> 
+    "hello"~pipe(.left[2] >> .upper | .console)
+Here, the result is not what you expect. You want "LLO", you get "he"...
+This is because .console is the primary follower of .left, not the primary
+follower of .upper.
+Why ? because the pipestage returned by .left[2] >> .upper is .left,
+and .console is attached to the pipestage found by starting from .left
+and walking through the 'next' references until a pipestage with no 'next'
+is found. So .upper is not walked though, because it's a secondary follower.
+
+You need additional parentheses to get the expected behavior.
+Here, .console is the primary follower of .upper.
+    "hello"~pipe(.left[2] >> ( .upper | .console ) )
+
+Note : by default, the connection is always made with follower's I1.
+See .secondaryConnector to learn how to connect to follower's I2.
+*/
+nop
 
 -- .myStep[arg1, arg2]
 ::method '[]' class                         -- create a pipeStage instance with arguments
@@ -143,8 +195,8 @@ else do
 end
 return self                                 -- we're our own return value
 
-::method appendSecondary                    -- append a to the secondary output of entire chain
-expose next secondary
+::method appendSecondary                    -- append a pipeStage to the secondary output of entire chain
+expose next
 use strict arg follower
 -- yes, must be like that ! The goal is to support that :
 -- a > b > c >> d
@@ -165,7 +217,7 @@ return self                                 -- we're our own return value
 ::method insert                             -- insert a pipeStage after this one, but before the next
 expose next
 user strict arg newpipeStage
-next~I1LinkFromO1(newpipeStage)             -- link newpipeStage primary output (O1) to next primary input (I1)
+newpipeStage~append(next)                   -- if newpipeStage has followers, then the last follower will be linked to next
 next~I1UnlinkFromO1(self)                   -- unlink self primary output (O1) to next primary input (I1)
 newpipeStage~I1LinkFromO1(self)             -- link self primary output (O1) to newpipeStage primary input (I1)
 return self                                 -- we're our own return value
@@ -332,56 +384,76 @@ if .nil <> secondary then do
     secondary~secondaryEof                  -- only forward if we have a successor
 end
 
-::method secondaryConnector                 -- retrieve a secondary connector for a pipeStage
-return .SecondaryConnector~new(self)
 
 /******************************************************************************/
-::class "SecondaryConnector" subclass pipeStage
+::class "secondaryConnector" public subclass pipeStage
 
-::method init
-expose nextPipeStage
-use strict arg nextPipeStage                -- this just hooks up
-forward class (super)                       -- forward the initialization
+::method _description_ class
+nop
+/*
+.SecondaryConnector : I1 --> I2
+A secondaryConnector SC is an adapter which is inserted between two pipeStages :
+    PS1 -->(I1) .secondaryConnector -->(I2) PS2
+- The pair (value,index) received through I1 by ~process is forwarded to the
+  secondary input of the next pipeStage (calls PS2~processSecondary).
+- The eof signal is forwarded to the secondary eof of the next pipeStage (calls
+  PS2~secondaryEof.
+Example (the secondary connector brings nothing here, because the default implementation
+of ~processSecondary is to forward to ~process):
+    ""~pipe(.inject {value "one"} | .secondaryConnector | .inject {value "two"} | .console)
+    -- display : '',1 :  one two
+See .fanin and .merge for more examples.
+*/
+nop
 
-::method I1LinkFromO1                       -- link previousPipeStage primary output (O1) to self primary input (I1)
-expose nextPipeStage
-use strict arg previousPipeStage
-previousPipeStage~next = self
-self~I1Counter += 1
-nextPipeStage~I2Counter += 1                -- because will forward to nextPipeStage secondary input (I2)
+::method append                             -- append a secondaryConnector pipeStage to the entire chain
+use strict arg follower
+if .nil == self~next then do                -- if we're the end already, just update the next
+    follower~I2LinkFromO1(self)             -- link self primary output (O1) to follower secondary input (I2)
+end
+else do
+    self~next~append(follower)              -- have our successor append it.
+end
+return self                                 -- we're our own return value
 
-::method I1UnlinkFromO1                     -- unlink previousPipeStage primary output (O1) to self primary input (I1)
-expose nextPipeStage
-use strict arg previousPipeStage
-previousPipeStage~next = .nil
-self~I1Counter -= 1
-nextPipeStage~I2Counter -= 1                -- because was forwarding to nextPipeStage secondary input (I2)
+::method appendSecondary                    -- append a secondaryConnector pipeStage to the secondary output of entire chain
+use strict arg follower
+if .nil == self~next then do                -- if we're the end already, just update the next
+    follower~I2LinkFromO2(self)             -- link self secondary output (O2) to follower primary input (I1)
+end
+else do
+    self~next~appendSecondary(follower)     -- have our successor append it.
+end
+return self                                 -- we're our own return value
 
-::method I1LinkFromO2                       -- link previousPipeStage secondary output (O2) to self primary input (I1)
-expose nextPipeStage
-use strict arg previousPipeStage
-previousPipeStage~secondary = self
-self~I1Counter += 1
-nextPipeStage~I2Counter += 1                -- because will forward to nextPipeStage secondary input (I2)
-
-::method I1UnlinkFromO2                     -- unlink previousPipeStage secondary output (O2) to self primary input (I1)
-expose nextPipeStage
-use strict arg previousPipeStage
-previousPipeStage~secondary = .nil
-self~I1Counter -= 1
-nextPipeStage~I2Counter -= 1                -- because was forwarding to nextPipeStage secondary input (I2)
+::method insert                             -- insert a pipeStage after this one, but before the next
+user strict arg newpipeStage
+newpipeStage~append(self~next)              -- if newpipeStage has followers, then the last follower will be linked to next
+self~next~I2UnlinkFromO1(self)              -- unlink self primary output (O1) to next secondary input (I2)
+newpipeStage~I2LinkFromO1(self)             -- link self primary output (O1) to newpipeStage secondary input (I2)
+return self                                 -- we're our own return value
 
 ::method process                            -- processing operations connect with nextPipeStage secondaries
-expose nextPipeStage
-forward to(nextPipeStage) message('processSecondary')
+forward to(self~next) message('processSecondary')
 
 ::method eof                                -- processing operations connect with nextPipeStage secondaries
-expose nextPipeStage
-forward to(nextPipeStage) message('secondaryEof')
+forward to(self~next) message('secondaryEof')
 
 
 /******************************************************************************/
 ::class "pipeProfiler" public subclass Profiler
+
+::method _description_ class
+nop
+/*
+A subclass of Profiler, specialized for pipes.
+The instrument method is applied to all the subclasses of PipeStage.
+Example :
+    .pipeProfiler~instrument("start", "process", "eof", "isEOP")
+    .array~of(b, a, c)~pipeProfile(.sort byValue | .console)
+See also : .Profiler
+*/
+nop
 
 ::method instrument class
 use strict arg message, ...
@@ -411,24 +483,63 @@ return 0
 
 
 /******************************************************************************/
+::class "pipeIndex" public subclass Array inherit Comparable
+
+::method _description_ class
+nop
 /*
 A pipeIndex is an array of variable length :
 array[1] : tag (generally the id of the pipeStage class, or "source" for the initial index)
 array[2] : nested pipeIndex (received from previous pipeStage)
-array[3] : optional local index1
-array[4] : optional local index2
+array[3] : optional local value1
+array[4] : optional local value2
 etc...
 When a pipeStage receives an index and a value, it applies transformations or
 filters on the value. When a value is forwarded to a following pipeStage, it is
 accompanied by a new index that will encapsulate the received index and add a
 tag and local indexes.
 Conventions followed in this pipeline implementation :
-- The received value becomes the first local index (you have a call stack with arguments).
+- The received value becomes the first local value (you have a call stack with arguments).
 - If the pipeStage generates several values from the received value, then a second
-  local index is added, which gives the position of the current generated value.
-*/
+  local value is added, which gives the position of the current generated value.
 
-::class "pipeIndex" public subclass Array inherit Comparable
+  1     2             3        4        5
++-----+-------------+--------+--------+-----+
+| tag | nestedIndex | local1 | local2 | ... |
++-----+--|----------+--------+--------+-----+
+         |            value    index
+         |
+         |  +-----+-------------+--------+--------+-----+
+         +->| tag | nestedIndex | local1 | local2 | ... |
+            +-----+--|----------+--------+--------+-----+
+                     |
+                     |  +-----+-------------+--------+--------+-----+
+                     +->| tag | nestedIndex | local1 | local2 | ... |
+                        +-----+-------------+--------+--------+-----+
+
+index~tag : returns the index's tag.
+index~nestedIndex : returns the index's nestedIndex.
+index~depth : returns the number of nested indexes.
+index~value : by convention, the first local is the processed value. Returns this value.
+index~index : by convention, the second local is the index of the processed value. Returns this index.
+index~local(n) : return the nth local value.
+index[tag, nth=1] : returns index~get(tag, 1)
+index~get(tag, nth=1) : retrieves an index by tag.
+index~makeString(showTags=.false, showPool=.false, localMask="", showNested=.true)
+    - showTags lets indicate if the tag is included.
+    - The parameter showPool lets reduce the length of the string, by inserting
+      references to previous values, instead of repeating the values.
+      Ex :
+      with showPool == .false : "my string",(a Method)|"my string",(a Method),1
+      with showPool == .true  : i1="my string",i2=(a Method)|i1,i2,1
+    - localMask lets indicate which local values to include ("" means all). Ex : "2 3".
+    - showNested lets indicate if the nested indexes must be included.
+      If showNested==.true, then the same localMask is used at all levels.
+index~show(maks="")
+    Convenience method, to show only the current level, limited to local values whose numbers are in localMask
+    Same as self~makeString(.false, .false, localMask, .false)
+*/
+nop
 
 ::method create class
 use strict arg tag, nestedIndex, ...
@@ -454,25 +565,21 @@ return self[2]
 if self~nestedIndex <> .nil then return 1 + self~nestedIndex~depth
 return 0
 
-::method firstLocalIndex
+::method firstLocalValue
 return 3
 
 ::method value
--- by convention, the first local index is the processed value
-return self[self~firstLocalIndex]
+-- by convention, the first local value is the processed value
+return self[self~firstLocalValue]
 
 ::method index
--- by convention, the second local index is the index of the processed value
-return self[self~firstLocalIndex + 1]
+-- by convention, the second local value is the index of the processed value
+return self[self~firstLocalValue + 1]
 
-::method local1
-return self[self~firstLocalIndex]
-
-::method local2
-return self[self~firstLocalIndex + 1]
-
-::method local3
-return self[self~firstLocalIndex + 2]
+::method local
+-- returns the nth local value
+use strict arg n
+return self[self~firstLocalValue + n - 1]
 
 ::method "[]"
 use strict arg index, ...
@@ -511,8 +618,8 @@ else do
     compare = nestedIndex1~compareTo(nestedIndex2)
     if compare <> 0 then return compare
 end
--- compare the local indexes
-do i = self~firstLocalIndex to self~dimension(1)
+-- compare the local values
+do i = self~firstLocalValue to self~dimension(1)
     i1 = self[i]
     i2 = other[i]
     if i1 == .nil & i2 == .nil then iterate
@@ -525,7 +632,7 @@ return 0
 
 ::method reuse
 -- Return .true if val will be displayed later
-use strict arg val, from=(self~firstLocalIndex)
+use strict arg val, from=(self~firstLocalValue)
 do i = from to self~dimension(1)
     if self[i] == val then return .true
 end
@@ -540,7 +647,7 @@ return .false
 -- with showPool == .false : "my string",(a Method)|"my string",(a Method),1
 -- with showPool == .true  : i1="my string",i2=(a Method)|i1,i2,1
 --
--- localMask lets indicate which local indexes to include ("" means all). Ex : "2 3".
+-- localMask lets indicate which local values to include ("" means all). Ex : "2 3".
 -- showNested lets indicate if the nested indexes must be included.
 -- If showNested==.true, then the same localMask is used at all levels.
 use strict arg showTags=.false, showPool=.false, localMask="", showNested=.true, pool=(.queue~new), classInstances=(.identityTable~new)
@@ -550,8 +657,8 @@ if showNested, nestedIndex <> .nil then nestedIndexString = nestedIndex~makeStri
 string = ""
 if showTags then string = self~tag"["
 separator = ""
-do i = self~firstLocalIndex to self~dimension(1)
-    if localMask <> "", localMask~wordPos(i - self~firstLocalIndex + 1) == 0 then iterate
+do i = self~firstLocalValue to self~dimension(1)
+    if localMask <> "", localMask~wordPos(i - self~firstLocalValue + 1) == 0 then iterate
     string ||= separator
     val = self[i]
     valstr = val~string
@@ -593,7 +700,7 @@ if nestedIndexString <> "" then return nestedIndexString"|"string
 return string
 
 -- Convenience method, to show only the current level,
--- limited to local indexes whose numbers are in localMask
+-- limited to local values whose numbers are in localMask
 ::method show
 use strict arg localMask=""
 return self~makeString(.false, .false, localMask, .false)
@@ -690,6 +797,17 @@ return compareStrings(s1, s2, caseless, strict)
 
 /******************************************************************************/
 ::class "sort" public subclass pipeStage    -- sort piped data
+
+::method _description_ class
+nop
+/*
+A sort pipeStage.
+primary (accumulator)
+.sort ['ascending'|'descending'] ['case'|'caseless'] ['numeric'|'strict'] ['quickSort'|'stableSort'] ['byIndex'|'byValue'|{criteria}])*
+Options :
+*/
+nop
+
 ::attribute descending
 ::attribute caseless
 ::attribute quickSort
@@ -1275,7 +1393,21 @@ self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class "merge" public subclass pipeStage   -- merge the results from primary and secondary streams
+::class "merge" public subclass pipeStage
+
+::method _description_ class
+nop
+/*
+Merge the results from primary and secondary streams.
+Example :
+    -- A merge is used to serialize the branches of the fanout.
+    -- There is no specific order (no delay).
+    merge = .merge mem | .console showTags
+    fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
+    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized
+    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+*/
+nop
 
 -- No need of specialized implementation !
 -- The default behavior of secondaryProcess is already to merge, so...
@@ -1311,6 +1443,19 @@ self~finalize                               -- will finalize if both branches fi
 
 /******************************************************************************/
 ::class "fanin" public subclass pipeStage   -- process main stream, then secondary stream
+
+::method _description_ class
+nop
+/*
+Example :
+    -- A fanin is used to serialize the branches of the fanout.
+    -- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
+    fanin = .fanin mem | .console showTags
+    fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
+    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~secondaryConnector -- bufferized until fanout1 is eof
+    .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+*/
+nop
 
 ::method init
 expose primaryEof secondaryEof array        -- need pair of EOF conditions

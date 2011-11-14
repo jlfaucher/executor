@@ -41,79 +41,151 @@ Documentation
 
 
 Connectors
-::method '|' class                          -- concatenate an instance of a pipeStage with following pipeStage 'primary follower)
-::method '>' class                          -- concatenate an instance of a pipeStage with following pipeStage (same as '|')
-::method '>>' class                         -- concatenate an instance of a pipeStage with following pipeStage (secondary follower)
+----------
+::method '|' class     -- concatenate an instance of a pipeStage with following pipeStage 'primary follower) : O1 --> I1
+::method '>' class     -- concatenate an instance of a pipeStage with following pipeStage (same as '|')
+::method '>>' class    -- concatenate an instance of a pipeStage with following pipeStage (secondary follower) : O2 --> I1
 
 
-pipeStage
-    SecondaryConnector(pipeStage)
+pipeStages
+----------
 
-    sort (['ascending'|'descending'] ['case'|'caseless'] ['numeric'|'strict'] ['quickSort'|'stableSort'] ['byIndex'|'byValue'|{criteria}])* -- primary (accumulator)
-    sortWith(comparator) ['quickSort'|'stableSort'] -- primary (accumulator)
+.SecondaryConnector : I1 --> I2 -- adapter which forwards to its follower's secondary input
 
-    reverse
-    upper
-    lower
-    changestr(old, new, count = 999999999)
-    delstr(offset, length)
-    left(length)                            -- primary, secondary
-    right(length)                           -- primary, secondary
-    insert(insert, offset)
-    overlay(overlay, offset)
+.sort : I1 --- O1 (delayed)
+    ['ascending'|'descending']
+    ['case'|'caseless']
+    ['numeric'|'strict']
+    ['quickSort'|'stableSort']
+    ['byIndex'|'byValue'|{criteria}])*
+.sortWith[comparator] : I1 --- O1 (delayed)
+    ['quickSort'|'stableSort']
 
-    dropnull
-    drop ['first'] [counter=1] [{partition}]-- primary, secondary
-    drop last [counter=1] [{partition}]     -- primary (accumulator), secondary (accumulator)
-    take ['first'] [counter=1] [{partition}]-- primary, secondary
-    take last [counter=1] [{partition}]     -- primary (accumulator), secondary (accumulator)
+.reverse : I1 --- O1
+.upper : I1 --- O1
+.lower : I1 --- O1
+.changestr[old, new, count = 999999999] : I1 --- O1
+.delstr[offset, length] : I1 --- O1
+.left[length] : I1 --- O1, O2
+.right[length] : I1 --- O1, O2
+.insert[insert, offset] : I1 --- O1
+.overlay[overlay, offset] : I1 --- O1
 
-    x2c
+.dropnull : I1 --- O1
+.drop 'first' : I1 --- O1, O2
+    [counter=1] [{partition}]
+.drop 'last' : I1 --- O1 (delayed), O2 (delayed)
+    [counter=1] [{partition}]
+.take 'first' : I1 --- O1, O2
+    [counter=1] [{partition}]
+.take 'last' : I1 --- O1 (delayed), O2 (delayed)
+    [counter=1] [{partition}]
 
-    bitbucket
+.x2c : I1 --- O1
 
-    fanout                                  -- primary, secondary. Write records to both outputs streams.
-    merge                                   -- primary, secondary. Merge the results from primary and secondary streams (no specific order : no delay).
-    fanin                                   -- primary(in out), secondary (in accumulator). Process main stream, then secondary stream.
+.bitbucket : I1 --- (no ouput)
 
-    duplicate [copies = 1]
-    console (['index'] ['value'] ['showTags'] [<any other string>] [{expression}])*
+.fanout : I1 --- O1, O2 -- Write records to both outputs streams.
+.merge : I1, I2 --- O1 -- Merge the results from primary and secondary streams (no specific order : no delay).
+.fanin : I1, I2 (accumulator) --- O1 -- Process main stream, then secondary stream.
 
-    all(patterns...) ['caseless']           -- primary, secondary (mismatches)
-    notall(patterns...) ['caseless']        -- primary, secondary (not selected)
-    startsWith(patterns...) ['caseless']      -- primary, secondary (mismatches)
-    endsWith(patterns...) ['caseless']        -- primary, secondary (mismatches)
+.duplicate : I1 --- O1
+    [copies = 1]
+.console : I1 --- O1
+    (['index'] ['value'] ['showTags'] [<any other string>] [{expression}])*
 
-    stemcollector(stem)                     -- primary (non blocking accumulator)
-    arraycollector(array)                   -- primary (non blocking accumalator)
+.all[patterns...] : I1 --- O1 (selected), O2 (not selected)
+    ['caseless']
+.notall[patterns...] : I1 --- O1 (selected), O2 (not selected)
+    ['caseless']
+.startsWith[patterns...] : I1 --- O1 (selected), O2 (not selected)
+    ['caseless']
+.endsWith[patterns...] : I1 --- O1 (selected), O2 (not selected)
+    ['caseless']
 
-    between(startString, endString) ['caseless'] -- primary, secondary (not selected)
-    after(startString) ['caseless']         -- primary, secondary (while not started)
-    before(endString) ['caseless']          -- primary, secondary (after started)
+.stemcollector[stem] : I1 (non blocking accumulator) --- O1
+.arraycollector[array] : I1 (non blocking accumalator) --- O1
 
-    buffer(count = 1, delimiter = "") [{partition}] -- primary (accumulator)
+.between[startString, endString] : I1 --- O1 (selected), O2 (not selected)
+    ['caseless']
+.after[startString] : I1 --- O1 (after started), O2 (while not started)
+    ['caseless']
+.before[endString] : I1 --- O1 (while not started), O2 (after started)
+    ['caseless']
 
-    lineCount [{partition}]
-    charCount [{partition}]
-    wordCount [{partition}]
+.buffer[count = 1, delimiter = ""] : I1 --- O1 (delayed)
+    [{partition}]
 
-    pivot(pivotvalue, next, secondary)      -- primary, secondary. If value < pivotvalue then route to next else route to secondary
-    splitter(stages...)                     -- primary (in). split the processing stream into two or more pipeStages
+.lineCount : I1 --- O1 (delayed)
+    [{partition}]
+.charCount : I1 --- O1 (delayed)
+    [{partition}]
+.wordCount : I1 --- O1 (delayed)
+    [{partition}]
 
-    getFiles
-    words
-    characters
+.pivot[pivotvalue, next, secondary] : I1 --- O1, O2 -- If value < pivotvalue then route to O1 else route to O2
+.splitter[stages...] : I1 --- O1, O2, ... -- split the processing stream into two or more pipeStages
 
-    system ["command"|{command}]
+.getFiles : I1 --- O1
+.words : I1 --- O1
+.characters : I1 --- O1
 
-    append {producer}
+.system : I1 --- O1
+    ["command"|{command}]
 
-    inject          ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
-    do              ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
-    fileTree        ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
-    superClasses    ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
-    subClasses      ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
-    methods         ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
-    instanceMethods ['after'] ['before'] ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]'] ['unique'] ['trace'] {producer}
+.append : I1 --- O1
+    {producer}
 
-    select {filter}
+.inject : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+    {producer}
+
+.do : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+    {producer}
+
+.fileTree : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+
+.superClasses : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+
+.subClasses : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+
+.methods : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+
+.instanceMethods : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+
+.select : I1 --- O1 (selected), O2 (not selected)
+    {filter}
