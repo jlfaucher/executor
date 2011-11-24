@@ -619,11 +619,10 @@ buffer~dump -- mutable buffer after mapping
 .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{if value~verify('aeiouy') == 1 then value}~dump
 
 
--- todo : doesn't work because the variable translation has no value when evaluating the doer : needs a closure
--- translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
--- translation~setMethod("UNKNOWN", "return arg(1)")
--- "The quick brown fox jumps over the lazy dog"~mapW{expose translation ; translation[arg(1]}~dump
---.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{expose translation ; translation[arg(1)]}~dump
+translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
+translation~setMethod("UNKNOWN", "return arg(1)")
+"The quick brown fox jumps over the lazy dog"~mapW{::cl expose translation ; translation[arg(1)]}~dump
+.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{::cl expose translation ; translation[arg(1)]}~dump
 
 
 -- --------------------------------------------------------------

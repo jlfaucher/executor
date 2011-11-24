@@ -100,7 +100,7 @@ public:
 
     RexxArray *getSource();
     PackageClass *getPackage();
-    RexxContext *getContext();
+    RexxObject *getVariables();
     RexxObject *getExecutable();
     RexxObject *callRexx(RexxObject **, size_t);
     RexxObject *callWithRexx(RexxArray *);
@@ -110,7 +110,7 @@ public:
 
 protected:
     RexxSourceLiteral *sourceLiteral;
-    RexxContext *context;
+    RexxDirectory *variables;
 };
 
 

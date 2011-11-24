@@ -126,7 +126,47 @@ say
 doer = {x~length}~functionDoer("use strict arg x")
 say doer~class -- The Routine class
 say doer~do("John") -- 4
+say
 
+-- closure by value
+-- Minimal abbreviation is ::cl
+-- Output is :
+--   RexxContextualSource:266663584 --> Closure:266674100 --> 1 4
+--   RexxContextualSource:266663628 --> Closure:266685776 --> 2 4
+--   RexxContextualSource:266663672 --> Closure:266697452 --> 3 4
+--   RexxContextualSource:266663716 --> Closure:266709128 --> 4 4
+-- i contains a non mutable value (different value captured at each iteration).
+-- literalSources contains a reference to a mutableValue (same value captured at each iteration).
+literalSources = .array~new
+do i=1 to 4
+    literalSources[i] = {::closure 
+                         expose literalSources i
+                         use strict arg source, doer
+                         call charout , source~class~id":"source~identityHash
+                         call charout , " --> "
+                         call charout , doer~class~id":"doer~identityHash
+                         call charout , " --> "
+                         call charout , i literalSources~items
+                         say
+                        }
+end
+do literalSource over literalSources
+    doer = literalSource~doer
+    doer~do(literalSource, doer)
+end
+say
+
+-- Coactive closure
+-- Minimal abbreviation is ::cl.c
+v = 1
+w = 2
+doer = {::closure.coactive expose v w ; .yield[v] ; .yield[w]}~doer
+say doer~class -- The Coactivity class
+say doer~executable -- a Closure
+say doer~do -- 1
+say doer~do -- 2
+doer~do -- no result
+say
 */
 
 ::class "DoerFactory" mixinclass Object public
@@ -150,7 +190,9 @@ Possible transformations :
     if sourceArray~items == 0 then raise syntax 93.900 array("No source available")
     clauser = .Clauser~new(sourceArray)
 
-    -- If the first word is ::c[oactivity] then remove this word and remember it's a routine with option coactivity.
+    -- If the first word is ::cl[osure] then remove this word and remember it's a closure
+    -- If the first word is ::cl[osure].coactive] then remove this word and remember it's a coactive closure
+    -- If the first word is ::c[oactivity] then remove this word and remember it's a coactive routine.
     -- If the first word is ::m[ethod] then remove this word and remember it's a method.
     -- If the first word is ::m[ethod].c[oactive] then remove this word and remember it's a coactive method.
     -- If the first word is :[:routine] then remove this word and remember it's a routine.
@@ -163,16 +205,24 @@ Possible transformations :
         clause = clauser~clause
         parse var clause word1 rest
         parse var word1 word "." option
-        if "::coactivity"~caselessAbbrev(word, 3) then do
+        if "::closure"~caselessAbbrev(word, 4) then do
             clauser~clause = rest
-            kind = "rc" -- routine by default
+            kind = "cl"
+            if option <> "" then do
+                if "coactive"~caselessAbbrev(option, 1) then kind = "cl.c"
+                else raise syntax 93.900 array("Unknown option '"option"'")
+            end
+        end
+        else if "::coactivity"~caselessAbbrev(word, 3) then do
+            clauser~clause = rest
+            kind = "r.c" -- routine by default
             if option <> "" then raise syntax 93.900 array("Unknown option '"option"'")
         end
         else if "::method"~caselessAbbrev(word, 3)  then do
             clauser~clause = rest
             kind = "m"
             if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 1) then kind = "mc"
+                if "coactive"~caselessAbbrev(option, 1) then kind = "m.c"
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
         end
@@ -180,7 +230,7 @@ Possible transformations :
             clauser~clause = rest
             kind = "r"
             if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 1) then kind = "rc"
+                if "coactive"~caselessAbbrev(option, 1) then kind = "r.c"
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
         end
@@ -238,12 +288,14 @@ Possible transformations :
 
     -- Returns the executable
     if kind == "r" then return .Routine~new("", sourceArray, context)
-    else if kind == "rc" then return .Coactivity~new(.Routine~new("", sourceArray, context))
+    else if kind == "r.c" then return .Coactivity~new(.Routine~new("", sourceArray, context))
     else if kind == "m" then return .Method~new("", sourceArray, context)
-    else if kind == "mc" then do
+    else if kind == "m.c" then do
         if \objectSpecified then raise syntax 93.900 array("No object specified")
         return .Coactivity~new(.Method~new("", sourceArray, context), , object)
     end
+    else if kind == "cl" then return .Closure~new(self~variables, .Method~new("do", sourceArray, context))
+    else if kind == "cl.c" then return .Coactivity~new(.Closure~new(self~variables, .Method~new("do", sourceArray, context)))
 
 
 -----------------------------------------------------------------------------
@@ -284,11 +336,11 @@ Possible transformations :
 -- Mixin.
 
 /*
-To investigate :
+Remember :
 The method 'run' is a private method. So can be called only from another method of object...
 "hello"~run({::method say self}~doer) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
 {::method say self}~doer~do("hello") --> No error, display "hello" (so the private method is visible ?)
-It's because the ~run method is called from the ~do method which has been added by extension.
+--> It's because the ~run method is called from the ~do method which has been added by extension.
 */
 ::class "MethodDoer" mixinclass Object public inherit Doer
 
@@ -348,6 +400,13 @@ It's because the ~run method is called from the ~do method which has been added 
 -- that defined it.
 ::method package unguarded
     return .context~package
+
+-- Needed if you want to run sourceDoer on a string.
+-- The directory of variables returned by this method is useless...
+-- Thats's why RexxContextualSource has been added, it holds a directory of variables built
+-- from the context that created the RexxContextualSource instance, needed for closures.
+::method variables
+    return .context~variables
 
 
 -----------------------------------------------------------------------------
@@ -417,6 +476,57 @@ It's because the ~run method is called from the ~do method which has been added 
     use strict arg array
     forward message ("resume") arguments (array)
     if var("result") then return result
+
+
+-----------------------------------------------------------------------------
+-- Closure by value : not yet a real closure
+-- good point, no risk of race conditions...
+ 
+::class "Closure" public inherit Doer
+
+::method init
+    expose !_variableNames_!
+    variables = .nil
+    action = .nil
+    if arg() == 2 then use strict arg variables, action
+    else if arg() == 1, arg(1)~isA(.doer) then use strict arg action
+    else if arg() == 1, arg(1)~isA(.directory) then use strict arg variables
+    else raise syntax 93.900 array("Closure : Invalid arguments")
+    if variables == .nil, action <> .nil,  action~isA(.RexxContextualSource) then variables = action~context~variables
+    if variables <> .nil then do
+        !_variableNames_! = ""
+        do v over variables
+            !_variableNames_! ||= " "v
+        end
+        self~initVariables(variables)
+    end
+    if action <> .nil then do
+        method = action~doer
+        self~setMethod("do", method, "Object")
+    end
+
+::method initVariables
+    expose !_variableNames_! (!_variableNames_!)
+    use strict arg variables
+    supplier = variables~supplier
+    do while supplier~available
+        call value supplier~index, supplier~item
+        supplier~next
+    end
+
+::method setMethod public -- override the private setMethod inherited from Object
+    forward class (super)
+
+::method doer unguarded
+    use strict arg -- none
+    return self
+
+::method needsObject unguarded
+    return .false -- The closure itself is the object
+
+::method doWith unguarded
+    use strict arg array
+    forward message "do" arguments (array)
 
 
 -----------------------------------------------------------------------------

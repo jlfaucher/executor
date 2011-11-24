@@ -32,6 +32,7 @@ Deferred evaluation of parameters.
 Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, ifalse)
 
 Investigate the Activation stack (reify ? closure ? continuation ?)
+--> closure by value : done
 
 Unicode ?
 --> added support for wide-chars in oodialog.
@@ -75,6 +76,113 @@ Review the extension mechanisms :
   There is a workaround in pipe_extensions.cls.
 - An extension made on .Object is not available on the .nil object.
   No workaround so far.
+
+
+===============================================================================
+2011 nov 16
+
+
+[pipes]
+
+The option 'memorizeIndex' lets specify an optional tag : memorizeIndex[.tag]
+By default, the tag is the pipeStage class id.
+Still thinking to improve this memorization, because when needing the produced value,
+the tag must be specified on the next pipeStage (which consumes the value). 
+In the example below, the tag "package" is associated to the 2nd inject, whereas
+I find it would be more natural to associate it to the 1st inject.
+todo : add ~valueIn, ~valueOut.
+Ex : List of visible packages with their public classes
+.context~package~pipe(.inject {value~importedPackages} recursive unique after |,
+                      .inject {value~publicClasses} mem.package |,
+                      .sort {value~id} {index["package"]~value~name} |,
+                      .console {.file~new(index["package"]~value~name)~name} ":" value,
+                     )
+activity.cls : The Activity class
+coactivity.cls : The Coactivity class
+coactivity.cls : The WeakProxy class
+coactivity.cls : The yield class
+array.cls : The ArrayInitializer class
+doers.cls : The Clauser class
+doers.cls : The CoactivityDoer class
+...
+
+
+[source literal]
+
+Removed RexxContextualSource::getContext (~context)
+Added RexxContextualSource::getVariables (~variables)
+The method ~variables returns a snapshot of .context~variables at the time of creation
+of the RexxContextualSource.
+
+
+[doers]
+
+Added support for closures by value.
+When a RexxSourceLiteral is evaluated, a RexxContexualSource is created, which holds
+a snapshot of the current context (directory of variables).
+The RexxContexualSource can be passed back to the caller, the directory of variables
+will remain accessible (unlike a RexxContext instance which becomes invalid once the
+RexxActivation has been popped).
+Closure by value means : Updating a variable from the closure will have no impact on the
+original context.
+
+Note : If the variable contains a mutable value then updating the mutable value from the
+closure will have an impact on the original context (if still active).
+A closure is an object whose exposed variables are created from a directory of variables.
+This directory of variables can be passed explicitely, or taken from a RexxContextualSource.
+The behavior of the closure is a user-defined method which expose the needed variables.
+This method is added to the closure, with the name "do". Ex :
+    v = 1 ; closure = .Closure~new(.context~variables){::m expose v ; say v} ; closure~do -- display 1
+    v = 1 ; closure = .Closure~new{::m expose v ; say v} ; closure~do -- display 1
+Both lines are equivalent, but in the second example, the directory of variables is taken
+from the RexxContextualSource, created when evaluating the source literal.
+
+New tags :
+    ::cl[osure]
+    ::cl[osure].c[oactive]
+
+The example above can be rewritten :
+    v = 1 ; {::closure expose v ; say v}~doer~do -- display 1
+The ~doer method returns a closure, because the tag indicates it's a closure.
+
+Can be also a coactive closure :
+    v = 1
+    w = 2
+    closure = {::cl.c expose v w ; .yield[v] ; .yield[w]}~doer
+    say closure~do -- 1
+    say closure~do -- 2
+
+The context of a closure can be a method :
+    myInstance = .myClass~new("myAttributeValue")
+    myContextualSource = myInstance~myMethod
+    say myContextualSource~class
+    say myContextualSource~source~toString
+    do v over myContextualSource~variables
+        say v
+    end
+    doer = myContextualSource~doer
+    say doer~class
+    doer~do
+    ::class myClass
+    ::method init
+        expose a1
+        use strict arg a1
+    ::method myMethod
+        expose a1
+        local = "myLocal"
+        return {::cl expose self a1 local ; say self~class ; say a1 ; say local}
+    ::requires "extension/extensions.cls"
+Output :
+    The RexxContextualSource class
+    ::cl expose self a1 local ; say self~class ; say a1 ; say local
+    SELF
+    LOCAL
+    A1
+    SUPER
+    The Closure class
+    The MYCLASS class
+    myAttributeValue
+    myLocal
 
 
 ===============================================================================
@@ -1505,6 +1613,11 @@ The directory layout is like that :
 oorexx
     build
         main
+            releases
+                4.1.0
+                    trunk
+                        gcc
+                            default : run configure here
             trunk
                 gcc
                     default : run configure here
@@ -1517,6 +1630,11 @@ oorexx
                         release : run configure here
     delivery
         main
+            releases
+                4.1.0
+                    trunk
+                        gcc
+                            default : setenv.sh to declare config variables
             trunk
                 gcc
                     default : setenv.sh to declare config variables

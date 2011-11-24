@@ -141,27 +141,28 @@ return me
 
 ---------- instance attributes / methods ----------
 
-::attribute options                         -- the options are passed one by one, accumulated here
-::attribute secondary                       -- a potential secondary attribute
-::attribute next                            -- next stage of the pipeStage
-::attribute source                          -- source of the initial data
-::attribute isEOP                           -- becomes .true if the pipeStage has finished processing the datas (see .take)
-::attribute memorizeIndex                   -- if .true then a new index is created, which wraps the previous one.
 ::attribute I1Counter                       -- number of stages whose primary/secondary output is linked to self primary input (I1)
 ::attribute I2Counter                       -- number of stages whose primary/secondary output is linked to self secondary input (I2)
+::attribute isEOP                           -- becomes .true if the pipeStage has finished processing the datas (see .take)
+::attribute memorizeIndex                   -- if .true then a new index is created, which wraps the previous one.
+::attribute next                            -- next stage of the pipeStage
+::attribute options                         -- the options are passed one by one, accumulated here
+::attribute secondary                       -- a potential secondary attribute
+::attribute tag                             -- index's tag
 
 ::method new                                -- the pipeStage chaining process
 return self                                 -- just return ourself
 
 ::method init
-expose next secondary options isEOP memorizeIndex I1Counter I2Counter
-next = .nil
-secondary = .nil                            -- all pipeStages have a secondary output potential
-options = .array~new                        -- arguments can be passed like that : .myStage~new(a1,a2) or .myStage[a1,a2] or .myStage a1 a2
-isEOP = .false                              -- indicator of End Of Process
-memorizeIndex = .false
+expose I1Counter I2Counter isEOP memorizeIndex next options secondary tag var varName
 I1Counter = 0
 I2Counter = 0
+isEOP = .false                              -- indicator of End Of Process
+memorizeIndex = .false
+next = .nil
+options = .array~new                        -- arguments can be passed like that : .myStage~new(a1,a2) or .myStage[a1,a2] or .myStage a1 a2
+secondary = .nil                            -- all pipeStages have a secondary output potential
+tag = ""
 
 ::method '|'
 use strict arg follower
@@ -263,21 +264,20 @@ previousPipeStage~secondary = .nil
 self~I2Counter -= 1
 
 ::method go                                 -- execute using a provided object
-expose source                               -- get the source supplier
 use strict arg source, profile=.false
 if profile then do
     profiler = .pipeProfiler~new
     profiler~push(self, "go")               -- the root message of the call stack
     .context~package~setSecurityManager(profiler)
 end
-self~begin                                  -- now go feed the pipeline
+self~begin(source)                          -- now go feed the pipeline
 if profile then do
     profiler~reportResults(profiler~pull)
     .context~package~setSecurityManager
 end
 
 ::method begin                              -- start pumping the pipeline
-expose source                               -- access the data and next chain
+use strict arg source
 self~start                                  -- signal that processing is starting
 if \source~hasMethod("supplier") then do
   -- Remember : similar test in .append, .inject
@@ -320,7 +320,19 @@ error = .false
 do a over arg(1, "a")
     if a~isA(.String) then do
         if a~strip == "" then iterate
-        if "memorizeIndex"~caselessAbbrev(a, 3) then do ; self~memorizeIndex = .true ; iterate ; end
+        parse var a first "." rest
+        if "memorizeIndex"~caselessAbbrev(first, 3) then do
+            -- memorizeIndex[.tag]
+            self~memorizeIndex = .true
+            do while rest <> ""
+                parse var rest first "." rest
+                if first <> "" then do
+                    if self~tag <> "" then raise syntax 93.900 array(self~class~id ": Only one tag is supported")
+                    self~tag = first
+                end
+            end
+            iterate
+        end
     end
     error = .true
     .error~lineout("Unknown option '"a"'")
@@ -345,8 +357,8 @@ if allEOP then self~isEOP = .true
 ::method process                            -- default data processing
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
-self~write(value, newIndex)                  -- send this down the line
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+self~write(value, newIndex)                 -- send this down the line
 self~checkEOP(self~next)
 
 ::method write                              -- handle the result from a process method
@@ -523,7 +535,7 @@ index~depth : returns the number of nested indexes.
 index~value : by convention, the first local is the processed value. Returns this value.
 index~index : by convention, the second local is the index of the processed value. Returns this index.
 index~local(n) : return the nth local value.
-index[tag, nth=1] : returns index~get(tag, 1)
+index[tag, nth=1] : returns index~get(tag, nth)
 index~get(tag, nth=1) : retrieves an index by tag.
 index~makeString(showTags=.false, showPool=.false, localMask="", showNested=.true)
     - showTags lets indicate if the tag is included.
@@ -543,14 +555,20 @@ nop
 
 ::method create class
 use strict arg tag, nestedIndex, ...
-if \tag~isA(.String) then raise syntax 93.900 array(self~id"~of: tag (1st arg) must be a string")
-if \nestedIndex~isA(.pipeIndex) & nestedIndex <> .nil then raise syntax 93.900 array(self~id"~of: nestedIndex (2nd arg) must be either a pipeIndex or .nil")
+if tag~isA(.pipeStage) then do
+    pipeStage = tag
+    if pipeStage~tag <> "" then tag = pipeStage~tag
+    else tag = pipeStage~class~id
+end
+else if \tag~isA(.String) then raise syntax 93.900 array(self~id"~create: tag (1st arg) must be a pipeStage or a string")
+if \nestedIndex~isA(.pipeIndex) & nestedIndex <> .nil then raise syntax 93.900 array(self~id"~create: nestedIndex (2nd arg) must be either a pipeIndex or .nil")
 pipeIndex = self~new(arg())
 pipeIndex~container = .nil
 if nestedIndex <> .nil then nestedIndex~container = pipeIndex
 do i=1 to arg()
     pipeIndex[i] = arg(i)
 end
+pipeIndex[1] = tag
 return pipeIndex
 
 ::attribute container
@@ -929,7 +947,7 @@ forward class(super)                        -- make sure we propagate the done m
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~reverse, newIndex)  -- send it along in reversed form
 self~checkEOP(self~next)
 
@@ -940,7 +958,7 @@ self~checkEOP(self~next)
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~upper, newIndex)    -- send it along in upper form
 self~checkEOP(self~next)
 
@@ -951,7 +969,7 @@ self~checkEOP(self~next)
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~lower, newIndex)    -- send it along in lower form
 self~checkEOP(self~next)
 
@@ -968,7 +986,7 @@ forward class (super)                       -- forward the initialization
 expose old new count
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~changestr(old, new, count), newIndex) -- send it along in altered form
 self~checkEOP(self~next)
 
@@ -985,7 +1003,7 @@ forward class (super)                       -- forward the initialization
 expose offset length
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~delstr(offset, length), newIndex) -- send it along in altered form
 self~checkEOP(self~next)
 
@@ -1002,7 +1020,7 @@ forward class (super)                       -- forward the initialization
 expose length
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~left(length), newIndex) -- send the left portion along the primary stream
 self~writeSecondary(value~string~substr(length + 1), newIndex) -- the secondary gets the remainder portion
 self~checkEOP(self~next, self~secondary)
@@ -1020,7 +1038,7 @@ forward class (super)                       -- forward the initialization
 expose offset length
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~right(length), newIndex) -- send the right portion along the primary stream
 remainderLength = value~string~length - length
 remainder = ""
@@ -1041,7 +1059,7 @@ forward class (super)                       -- forward the initialization
 expose insert offset
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~insert(insert, offset), newIndex) -- send the left portion along the primary stream
 self~checkEOP(self~next)
 
@@ -1058,7 +1076,7 @@ forward class (super)                       -- forward the initialization
 expose overlay offset
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~overlay(overlay, offset), newIndex) -- send the left portion along the primary stream
 self~checkEOP(self~next)
 
@@ -1070,7 +1088,7 @@ self~checkEOP(self~next)
 use strict arg value, index                 -- get the data item
 if value~string \== '' then do              -- forward along non-null records
     newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
     self~write(value, newIndex)
     self~checkEOP(self~next)
 end
@@ -1153,7 +1171,7 @@ if partitionFunction <> .nil then do
     previousPartitionValue = partitionValue
 end
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 counter += 1                                -- if we've dropped our quota, start forwarding
 if counter > count then do
     self~write(value, newIndex)
@@ -1169,7 +1187,7 @@ expose count array
 if array~items < count then do              -- didn't even receive that many items?
     loop indexedValue over array while self~secondary <> .nil, \self~secondary~isEOP
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~writeSecondary(indexedValue~value, newIndex) -- send everything down the secondary pipe
     end
 end
@@ -1178,13 +1196,13 @@ else do
     loop i = 1 to first while self~next <> .nil, \self~next~isEOP
         indexedValue = array[i]
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~write(indexedValue~value, newIndex) -- the selected go to the main pipe
     end
     loop i = first + 1 to array~items while self~secondary <> .nil, \self~secondary~isEOP
         indexedValue = array[i]
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~writeSecondary(indexedValue~value, newIndex) -- the discarded go down the secondary pipe
     end
 end
@@ -1296,7 +1314,7 @@ if partitionFunction <> .nil then do
     previousPartitionValue = partitionValue
 end
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 counter += 1                                -- if we've dropped our quota, stop forwarding
 if counter > count then do
     self~writeSecondary(value, newIndex)
@@ -1312,7 +1330,7 @@ expose count array
 if array~items < count then do          -- didn't even receive that many items?
     loop indexedValue over array while self~next <> .nil, \self~next~isEOP
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~write(indexedValue~value, newIndex) -- send everything down the main pipe
     end
 end
@@ -1321,13 +1339,13 @@ else do
     loop i = 1 to first while self~secondary <> .nil, \self~secondary~isEOP
         indexedValue = array[i]
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~writeSecondary(indexedValue~value, newIndex) -- the discarded go down the secondary pipe
     end
     loop i = first + 1 to array~items while self~next <> .nil, \self~next~isEOP
         indexedValue = array[i]
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~write(indexedValue~value, newIndex) -- the selected go to the main pipe
     end
 end
@@ -1368,7 +1386,7 @@ forward class(super)                        -- make sure we propagate the done m
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value~string~x2c, newIndex)
 self~checkEOP(self~next)
 
@@ -1386,7 +1404,7 @@ nop                                         -- do nothing with the data
 ::method process                            -- pipeStage processing item
 use strict arg value, index                 -- get the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 self~write(value, newIndex)
 self~writeSecondary(value, newIndex)
 self~checkEOP(self~next, self~secondary)
@@ -1478,7 +1496,7 @@ if primaryEof & secondaryEof then do
     loop i = 1 to array~items while self~next <> .nil, \self~next~isEOP -- need to write out the deferred items
         indexedValue = array[i]
         newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
         self~write(indexedValue~value, newIndex)
     end
     forward class (super) message('eof') continue
@@ -1516,7 +1534,7 @@ expose copies
 use strict arg value, index                 -- get the data item
 loop n=1 to copies + 1 while self~next <> .nil, \self~next~isEOP -- write this out with the duplicate count
     newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value, n)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, n)
     self~write(value, newIndex)
 end
 self~checkEOP(self~next)
@@ -1538,36 +1556,38 @@ showPool = .true
 unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
-        parse var a first "." rest
-        if "index"~caselessAbbrev(first, 1) then do
-            indexWidth = -1
-            if rest <> "" then do -- index.width
-                if rest~dataType("W") then indexWidth = rest
-                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "index". in "a)
+        if \ "memorizeIndex"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a string to display
+            parse var a first "." rest
+            if "index"~caselessAbbrev(first, 1) then do
+                indexWidth = -1
+                if rest <> "" then do -- index.width
+                    if rest~dataType("W") then indexWidth = rest
+                    else raise syntax 93.900 array(self~class~id ": Expected a whole number after "index". in "a)
+                end
+                actions~append(.array~of("displayIndex", indexWidth))
+                iterate
             end
-            actions~append(.array~of("displayIndex", indexWidth))
+            if "showTags"~caselessAbbrev(a, 1) then do ; showTags = .true ; iterate ; end
+            if "value"~caselessAbbrev(first, 1) then do
+                valueWidth = -1
+                if rest <> "" then do -- value.width
+                    if rest~dataType("W") then valueWidth = rest
+                    else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a)
+                end
+                actions~append(.array~of("displayValue", valueWidth))
+                iterate
+            end
+            actions~append(.array~of("displayString", a))
             iterate
         end
-        if "showTags"~caselessAbbrev(a, 1) then do ; showTags = .true ; iterate ; end
-        if "value"~caselessAbbrev(first, 1) then do
-            valueWidth = -1
-            if rest <> "" then do -- value.width
-                if rest~dataType("W") then valueWidth = rest
-                else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a)
-            end
-            actions~append(.array~of("displayValue", valueWidth))
-            iterate
-        end
-        actions~append(.array~of("displayString", a))
-        iterate
     end
     -- "actionDoer" not candidate here, we want a result.
-    if a~hasMethod("functionDoer") then do
+    else if a~hasMethod("functionDoer") then do
         function = a~functionDoer("use arg value, index")
         actions~append(.array~of("displayExpression", function))
         iterate
     end
-    if a~hasMethod("doer") then do
+    else if a~hasMethod("doer") then do
         function = a~doer
         actions~append(.array~of("displayExpression", function))
         iterate
@@ -1647,7 +1667,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose patterns caseless                    -- expose the pattern list
 use strict arg value, index                 -- access the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
@@ -1683,7 +1703,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose patterns caseless                    -- expose the pattern list
 use strict arg value, index                 -- access the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
@@ -1719,7 +1739,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose patterns caseless                    -- expose the pattern list
 use strict arg value, index                 -- access the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
@@ -1755,7 +1775,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose patterns caseless                    -- expose the pattern list
 use strict arg value, index                 -- access the data item
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
@@ -1837,7 +1857,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose startString endString started finished
 use strict arg value, index
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
     if caseless then started = (value~string~caselessPos(startString) > 0)
                 else started = (value~string~pos(startString) > 0)
@@ -1880,7 +1900,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose startString endString started caseless
 use strict arg value, index
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
     if caseless then started = (value~string~caselessPos(startString) > 0)
                 else started = (value~string~pos(startString) > 0)
@@ -1915,7 +1935,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 expose endString finished caseless
 use strict arg value, index
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 if \finished then do                        -- still processing?
     if caseless
         then finished = (value~string~caselessPos(endString) > 0)
@@ -1973,7 +1993,7 @@ loop i = 1 to count while self~next <> .nil, \self~next~isEOP -- now write copie
      loop j = 1 to buffer~items while self~next <> .nil, \self~next~isEOP -- and send along the buffered lines
          indexedValue = buffer[j]
          newIndex = indexedValue~index
-         if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, indexedValue~index, indexedValue~value)
+         if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
          self~write(indexedValue~value, newIndex)
      end
 end
@@ -2111,7 +2131,7 @@ use strict arg pivotvalue, self~next, self~secondary
 expose pivotvalue
 use strict arg value, index
 newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 if value~string < pivotvalue then do        -- simple split test
     self~write(value, newIndex)
 end
@@ -2185,7 +2205,7 @@ linepos = 1
 do while self~next <> .nil, \self~next~isEOP
     linetext = stream~linein
     newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value, linepos)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, linepos)
     self~write(linetext, newIndex)
     linepos += 1
 end
@@ -2203,7 +2223,7 @@ use strict arg value, index
 wordpos = 1
 do word over value~string~space~makearray(" ") while self~next <> .nil, \self~next~isEOP
     newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value, wordpos)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, wordpos)
     self~write(word, newIndex)
     wordpos += 1
 end
@@ -2219,7 +2239,7 @@ use strict arg value, index
 charpos = 1
 do char over value~string~makearray("") while self~next <> .nil, \self~next~isEOP
 newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value, charpos)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, charpos)
     self~write(char, newIndex)
     charpos += 1
 end
@@ -2248,24 +2268,27 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
-        if "memorizeIndex"~caselessAbbrev(a, 3) then do ; self~memorizeIndex = .true ; iterate ; end -- MUST detect this option here, otherwise would be taken as a command
-        if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
-        command = a
-        iterate -- do that now, otherwise you will enter in the doer section
+        if \ "memorizeIndex"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a command
+            if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+            command = a
+            iterate
+        end
     end
-    -- "actionDoer" not tested here because you don't want to run a system command from the doer.
-    -- The doer is supposed to return the command to execute.
-    if a~hasMethod("functionDoer") then do
-        if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
-        command = a
-        doer = a~functionDoer("use arg value, index")
-        iterate
-    end
-    if a~hasMethod("doer") then do
-        if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
-        command = a
-        doer = a~doer
-        iterate
+    else do
+        -- "actionDoer" not tested here because you don't want to run a system command from the doer.
+        -- The doer is supposed to return the command to execute.
+        if a~hasMethod("functionDoer") then do
+            if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+            command = a
+            doer = a~functionDoer("use arg value, index, var")
+            iterate
+        end
+        if a~hasMethod("doer") then do
+            if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+            command = a
+            doer = a~doer
+            iterate
+        end
     end
     unknown~append(a)
 end
@@ -2286,7 +2309,7 @@ linepos = 1
 do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
     line = queue~linein
     newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value, command, linepos)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, command, linepos)
     self~write(line, newIndex)
     linepos += 1
 end

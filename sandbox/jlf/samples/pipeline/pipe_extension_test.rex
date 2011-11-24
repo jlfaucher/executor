@@ -16,7 +16,7 @@ say i0 -- by default, the tags are not included in the representation string, so
 say i0~makeString(.true) -- showTags=.true
 
 
--- Any number of local indexes can be memorized.
+-- Any number of local values can be memorized.
 -- Representation : the strings (except the strings numbers) are surrounded by quotes.
 i1 = .pipeIndex~create("tag1", .nil, "a", 1, 2, 3, 4)
 say i1 ; say i1~makeString(.true)
@@ -45,9 +45,9 @@ say i4 ; say i4~makeString(.false, .true)
 
 
 -- The 'makeString' method has more arguments :
---     localMask : which local indexes to include ("" means all). Ex : "2 3".
+--     localMask : which local values to include ("" means all). Ex : "2 3".
 --     showNested : if .false then the nested index is not included.
--- The convenience method 'show' lets select the local indexes to include in the representation
+-- The convenience method 'show' lets select the local values to include in the representation
 -- while providing default values for the other parameters :
 -- ~show(localMask) <==> ~makeString(.false, .false, localMask, .false)
 say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in show argument not significant
@@ -243,7 +243,12 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 -- .do and .inject pipeStages
 -- ----------------------------------------------------------------------------
 
--- Do something for each item (no returned value).
+-- .do is action-oriented, whereas .inject is function-oriented.
+-- Both support the same options.
+-- .do {"echo" value} -- no implicit return, this is a command
+-- .inject {"echo" value} -- implicit return, commands are disabled
+
+-- Do something for each item (no returned value, so no value passed to .console).
 .array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='index} | .console)
 
 
@@ -525,14 +530,14 @@ fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .console sho
 -- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
 fanin = .fanin mem | .console showTags
 fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
-fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~secondaryConnector -- bufferized until fanout1 is eof
+fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .secondaryConnector | fanin -- bufferized until fanout1 is eof
 .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
 
 -- Here, a merge is used to serialize the branches of the fanout.
 -- There is no specific order (no delay).
 merge = .merge mem | .console showTags
 fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
-fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized
+fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .secondaryConnector | merge -- not bufferized
 .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
 
 
@@ -561,7 +566,7 @@ installdir()~pipe(,
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles memorize | .lineCount {index["getFiles"]~value} |,
+    .getFiles memorize.file | .lineCount {index["file"]~value} |,
     .console,
     )
 
@@ -579,7 +584,7 @@ installdir()~pipe(,
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles memorize | .wordCount {index["getFiles"]~value} |,
+    .getFiles memorize.file | .wordCount {index["file"]~value} |,
     .console,
     )
 
@@ -597,14 +602,14 @@ installdir()~pipe(,
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles memorize | .charCount {index["getFiles"]~value} |,
+    .getFiles memorize.file | .charCount {index["file"]~value} |,
     .console,
     )
 
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
---     .take 2 {index["getFiles"]~value}
+--     .take 2 {index["file"]~value}
 -- Here, the partition expression returns the file object processed by the pipeStage "getFiles".
 -- Exemple of result :
 -- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
@@ -619,8 +624,8 @@ call time('r') -- to see how long this takes
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index["getFiles"]~value} | .sort caseless | .console,
+    .getFiles memorize.file | .words | .select {value~datatype('a') & value~length >= 16} |,
+    .take 2 {index["file"]~value} | .sort caseless | .console,
     )
 say "duration="time('e') -- elapsed duration
 
@@ -635,8 +640,8 @@ call time('r') -- to see how long this takes
 installdir()~pipeProfile(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles memorize | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index["getFiles"]~value} | .sort caseless | .console,
+    .getFiles memorize.file | .words | .select {value~datatype('a') & value~length >= 16} |,
+    .take 2 {index["file"]~value} | .sort caseless | .console,
     )
 say "duration="time('e') -- elapsed duration
 
@@ -645,8 +650,8 @@ say installdir() ; say
 
 
 -------------------------------------------------------------------------------
-::requires "extension/extensions.cls"
-::requires "concurrency/coactivity.cls"
+--::requires "extension/extensions.cls"
+--::requires "concurrency/coactivity.cls"
 ::requires "pipeline/pipe_extension.cls"
 ::requires "rgf_util2/rgf_util2_wrappers.rex"
 

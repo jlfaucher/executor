@@ -40,6 +40,7 @@
 #include "ContextualSourceClass.hpp"
 #include "RexxActivation.hpp"
 #include "PackageClass.hpp"
+#include "DirectoryClass.hpp"
 
 
 /******************************************************************************/
@@ -189,7 +190,7 @@ void *RexxContextualSource::operator new(size_t size)
 RexxContextualSource::RexxContextualSource(RexxSourceLiteral *s, RexxContext *c)
 {
     OrefSet(this, this->sourceLiteral, s);
-    OrefSet(this, this->context, c);
+    OrefSet(this, this->variables, (RexxDirectory *)c->getVariables());
 }
 
 
@@ -237,9 +238,9 @@ PackageClass *RexxContextualSource::getPackage()
 }
 
 
-RexxContext *RexxContextualSource::getContext()
+RexxObject *RexxContextualSource::getVariables()
 {
-    return context;
+    return variables;
 }
 
 
@@ -301,7 +302,7 @@ void RexxContextualSource::live(size_t liveMark)
 {
     memory_mark(this->objectVariables);
     memory_mark(this->sourceLiteral);
-    memory_mark(this->context);
+    memory_mark(this->variables);
 }
 
 void RexxContextualSource::liveGeneral(int reason)
@@ -311,7 +312,7 @@ void RexxContextualSource::liveGeneral(int reason)
 {
     memory_mark_general(this->objectVariables);
     memory_mark_general(this->sourceLiteral);
-    memory_mark_general(this->context);
+    memory_mark_general(this->variables);
 }
 
 void RexxContextualSource::flatten(RexxEnvelope *envelope)
@@ -323,7 +324,7 @@ void RexxContextualSource::flatten(RexxEnvelope *envelope)
 
   flatten_reference(newThis->objectVariables, envelope);
   newThis->sourceLiteral = OREF_NULL; // this never should be getting flattened, so sever the connection
-  newThis->context = OREF_NULL;    // idem
+  newThis->variables = OREF_NULL;    // idem
 
   cleanUpFlatten
 }

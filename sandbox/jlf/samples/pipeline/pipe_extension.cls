@@ -213,11 +213,11 @@ self~init:super
     if trace then trace i
     use strict arg index, value, localIndex, ...
     if recursiveMemorizeIndex then do
-        newIndex = .pipeIndex~create(self~class~id, index, value)
+        newIndex = .pipeIndex~create(self, index, value)
     end
     else do
         newIndex = initialIndex
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, initialIndex, value)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, initialIndex, value)
     end
     if self~memorizeIndex then do
         do a = 3 to arg()
@@ -235,6 +235,7 @@ self~init:super
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~processDepthFirstCurrent")
     if trace then trace i
+    if self~isEOP then return
     use strict arg value, index, stack, level, previousValues
     if unique then do
         if previousValues~hasItem(value) then do
@@ -422,7 +423,7 @@ self~init:super
         -- follow the same convention as for calculated values.
         -- here, it's like getting a single result from value (result == value, index == 1)
         newIndex = initialIndex
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, initialIndex, value, 1)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, initialIndex, value, 1)
         self~write(value, newIndex)
         self~checkEOP(self~next, self~secondary)
     end
@@ -434,7 +435,7 @@ self~init:super
         -- follow the same convention as for calculated values.
         -- here, it's like getting a single result from value (result == value, index == 1)
         newIndex = initialIndex
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, initialIndex, value, 1)
+        if self~memorizeIndex then newIndex = .pipeIndex~create(self, initialIndex, value, 1)
         self~write(value, newIndex)
         self~checkEOP(self~next, self~secondary)
     end
@@ -481,7 +482,7 @@ self~init:super(.true) -- allow commands
     expose doer
     use strict arg value, index
     newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self~class~id, index, value)
+    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
     if doer~do(value, index) then do             -- apply the filter to the data item
         self~write(value, newIndex)              -- the selected items are sent
     end

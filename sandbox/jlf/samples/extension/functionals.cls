@@ -333,20 +333,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- ...
 ::method yield.upto unguarded -- coactive
     use strict arg upperLimit, action={arg(1)}
-    c = .Coactivity~new{
-        -- expose self upperLimit action        -- to activate when closure supported
-        use strict arg self, upperLimit, action -- to remove when closure supported
-        .yield[]                                -- to remove when closure supported
-        -- parse only once, before iteration
-        if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
-                                            else doer = action~doer
-        do i = self to upperLimit
-            doer~do(i)
-            if var("result") then .yield[result]
-        end
-    }
-    c~resume(self, upperLimit, action) -- to remove when closure supported
-    return c
+    return {::cl.c
+            expose self upperLimit action
+            -- parse only once, before iteration
+            if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
+                                                else doer = action~doer
+            do i = self to upperLimit
+                doer~do(i)
+                if var("result") then .yield[result]
+            end
+           }~doer
 
 -- Repeat the given action from self down to lower limit (self and lower limit are numbers).
 -- If at least one result is returned by the action during the loop, then an array of results is returned.
@@ -380,20 +376,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- ...
 ::method yield.downto unguarded -- coactive
     use strict arg lowerLimit, action={arg(1)}
-    c = .Coactivity~new{
-        -- expose self lowerLimit action        -- to activate when closure supported
-        use strict arg self, lowerLimit, action -- to remove when closure supported
-        .yield[]                                -- to remove when closure supported
-        -- parse only once, before iteration
-        if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
-                                            else doer = action~doer
-        do i = self to lowerLimit by -1
-            doer~do(i)
-            if var("result") then .yield[result]
-        end
-    }
-    c~resume(self, lowerLimit, action) -- to remove when closure supported
-    return c
+    return {::cl.c
+            expose self lowerLimit action
+            -- parse only once, before iteration
+            if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
+                                                else doer = action~doer
+            do i = self to lowerLimit by -1
+                doer~do(i)
+                if var("result") then .yield[result]
+            end
+           }~doer
 
 
 -----------------------------------------------------------------------------
