@@ -249,6 +249,7 @@ class RexxSource : public RexxInternalObject {
     size_t      argList(RexxToken *, int);
     RexxArray  *argArray(RexxToken *, int);
     RexxObject *function(RexxToken *, RexxToken *, int);
+    RexxObject *functionCallMessage(RexxToken *, RexxObject *, int);
     RexxObject *collectionMessage(RexxToken *, RexxObject *, int);
     RexxToken  *getToken(int, int);
     RexxObject *message(RexxObject *, bool, int);

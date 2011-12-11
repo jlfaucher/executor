@@ -70,6 +70,9 @@ public:
 
     RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *);
 
+    bool isDeferredParsing() { return deferredParsing; }
+    bool isClosure() { return closure; }
+
 protected:
     RexxArray *source;
     PackageClass *package;
@@ -77,6 +80,10 @@ protected:
 
 private:
     RoutineClass *makeRoutine(RexxArray *, PackageClass *, size_t);
+
+private:
+    bool deferredParsing;
+    bool closure;
 };
 
 
@@ -102,8 +109,7 @@ public:
     PackageClass *getPackage();
     RexxObject *getVariables();
     RexxObject *getExecutable();
-    RexxObject *callRexx(RexxObject **, size_t);
-    RexxObject *callWithRexx(RexxArray *);
+    RexxObject *setExecutable(RexxObject *);
 
     static void createInstance();
     static RexxClass *classInstance;   // singleton class instance
@@ -111,6 +117,7 @@ public:
 protected:
     RexxSourceLiteral *sourceLiteral;
     RexxDirectory *variables;
+    RexxObject *executable;
 };
 
 

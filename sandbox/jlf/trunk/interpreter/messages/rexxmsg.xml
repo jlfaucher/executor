@@ -2443,6 +2443,24 @@ special character (such as a parenthesis).
         <SymbolicName>Error_Invalid_expression_call</SymbolicName>
         <Text>Missing expression for calculated CALL name</Text>
       </SubMessage>
+      <SubMessage>
+        <Code>35</Code>
+        <Subcode>933</Subcode>
+        <MessageNumber>724</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Invalid_expression_after_tilde</SymbolicName>
+        <Text>String or symbol or <q>:</q> or <q>(</q> expected after tilde (~)</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>35</Code>
+        <Subcode>934</Subcode>
+        <MessageNumber>725</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Invalid_expression_message_term</SymbolicName>
+        <Text>Missing message name or argument list</Text>
+      </SubMessage>
     </Subcodes>
   </Message>
   <Message>

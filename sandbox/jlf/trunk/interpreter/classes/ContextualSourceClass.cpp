@@ -50,6 +50,31 @@
 /*                                                                            */
 /******************************************************************************/
 
+// If the 1st word of the source starts with ":" then the parsing is deferred.
+// If the 1st word of the source starts with "::cl" then assume it's a closure.
+void AnalyseSource(RexxString *s, bool &deferredParsing, bool &closure)
+{
+    deferredParsing = false;
+    closure = false;
+    codepoint_t c = 0;
+    sizeC_t i = 0;
+    sizeC_t clength = s->getCLength();
+    // Skip whitechars
+    while (i < clength)
+    {
+        c = s->getCharC(i);
+        if (c > 32) break;
+        i++;
+    }
+    if (c != ':') return;
+    deferredParsing = true; // starts with ":"
+    if (clength - i < 4) return; // Can't be "::cl" if less than 4 chars
+    c = s->getCharC(++i); if (c != ':') return; // not "::"
+    c = s->getCharC(++i); if (c != 'C' && c != 'c') return; // not "::c"
+    c = s->getCharC(++i); if (c != 'L' && c != 'l') return; // not "::cl"
+    closure = true;
+}
+
 /**
  * Allocate a new RexxSourceLiteral object
  *
@@ -106,16 +131,9 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
     OrefSet(this, this->source, sa);
     OrefSet(this, this->package, p);
     OrefSet(this, this->routine, OREF_NULL);
+    AnalyseSource(s, deferredParsing, closure);
     // If the first character > 32 is not a ':' then create an executable
-    bool colon = false;
-    for (sizeC_t i=0; i < s->getCLength(); i++)
-    {
-        codepoint_t c = s->getCharC(i);
-        if (c <= 32) continue;
-        colon = (c == ':');
-        break;
-    }
-    if (!colon)
+    if (!deferredParsing)
     {
         OrefSet(this, this->routine, this->makeRoutine(sa, p, startLine));
     }
@@ -190,7 +208,9 @@ void *RexxContextualSource::operator new(size_t size)
 RexxContextualSource::RexxContextualSource(RexxSourceLiteral *s, RexxContext *c)
 {
     OrefSet(this, this->sourceLiteral, s);
-    OrefSet(this, this->variables, (RexxDirectory *)c->getVariables());
+    OrefSet(this, this->variables, OREF_NULL);
+    if (s->isClosure()) OrefSet(this, this->variables, (RexxDirectory *)c->getVariables());
+    OrefSet(this, this->executable, OREF_NULL);
 }
 
 
@@ -240,59 +260,26 @@ PackageClass *RexxContextualSource::getPackage()
 
 RexxObject *RexxContextualSource::getVariables()
 {
-    return variables;
+    if (variables != OREF_NULL) return variables;
+    return TheNilObject;
 }
 
 
 RexxObject *RexxContextualSource::getExecutable()
 {
+    if (executable != OREF_NULL) return executable;
     RoutineClass *routine = sourceLiteral->getExecutable();
-    if (routine == OREF_NULL) return TheNilObject;
-    return routine;
+    if (routine != OREF_NULL) return routine;
+    return TheNilObject;
 }
 
 
-/**
- * Call a source literal routine from Rexx-level code.
- *
- * @param args   The call arguments.
- * @param count  The count of arguments.
- *
- * @return The call result (if any).
- */
-RexxObject *RexxContextualSource::callRexx(RexxObject **args, size_t count)
+RexxObject *RexxContextualSource::setExecutable(RexxObject *exec)
 {
-    RoutineClass *routine = sourceLiteral->getExecutable();
-    if (routine == OREF_NULL)
-    {
-        reportException(Error_Incorrect_call_user_defined, new_string("This contextual source has no executable (deferred parsing)"));
-        return TheNilObject;
-    }
-    return routine->callRexx(args, count);
+    if (exec == TheNilObject) exec = OREF_NULL; // Makes the sourceLiteral's executable visible
+    OrefSet(this, this->executable, exec);
+    return OREF_NULL; // no return value
 }
-
-
-/**
- * Call a source literal routine from Rexx-level code.
- *
- * @param args   The call arguments.
- *
- * @return The call result (if any).
- */
-RexxObject *RexxContextualSource::callWithRexx(RexxArray *args)
-{
-    // this is required and must be an array
-    args = arrayArgument(args, ARG_ONE);
-
-    RoutineClass *routine = sourceLiteral->getExecutable();
-    if (routine == OREF_NULL)
-    {
-        reportException(Error_Incorrect_call_user_defined, new_string("This contextual source has no executable (deferred parsing)"));
-        return TheNilObject;
-    }
-    return routine->callWithRexx(args);
-}
-
 
 
 void RexxContextualSource::live(size_t liveMark)
@@ -303,6 +290,7 @@ void RexxContextualSource::live(size_t liveMark)
     memory_mark(this->objectVariables);
     memory_mark(this->sourceLiteral);
     memory_mark(this->variables);
+    memory_mark(this->executable);
 }
 
 void RexxContextualSource::liveGeneral(int reason)
@@ -313,6 +301,7 @@ void RexxContextualSource::liveGeneral(int reason)
     memory_mark_general(this->objectVariables);
     memory_mark_general(this->sourceLiteral);
     memory_mark_general(this->variables);
+    memory_mark_general(this->executable);
 }
 
 void RexxContextualSource::flatten(RexxEnvelope *envelope)
@@ -325,6 +314,7 @@ void RexxContextualSource::flatten(RexxEnvelope *envelope)
   flatten_reference(newThis->objectVariables, envelope);
   newThis->sourceLiteral = OREF_NULL; // this never should be getting flattened, so sever the connection
   newThis->variables = OREF_NULL;    // idem
+  newThis->executable = OREF_NULL;    // idem
 
   cleanUpFlatten
 }

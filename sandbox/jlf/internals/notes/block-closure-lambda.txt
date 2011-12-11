@@ -243,6 +243,44 @@ https://sourceforge.net/mailarchive/message.php?msg_id=19912031
 
 
 =====================================================================
+Not retained : function-call message "()"
+=====================================================================
+
+Not retained because could be confusing for the user.
+Very close to the tilde-call message.
+Works only with RexxContextualSource.
+
+SourceFile.cpp : functionCallMessage
+
+[parser]
+
+Added support for function-call message "()".
+For legacy reasons, only a RexxContextualSource object supports this feature.
+    {my source}(arg1, arg2, ...)
+When the expression is evaluated, the RexxContextualSource receives the message "()".
+Since it's a function call, a result is mandatory.
+Ex1 :
+If the message "()" is implemented like that :
+    ::extension "RexxContextualSource"
+    ::method "()" unguarded
+    forward message "do" to (self~doer)
+then you have to explicitely return the result.
+    do i=1 to 10 ; say 1 + {return 2 * arg(1)}(i); end
+The source literal is parsed only once, when the source file is parsed (good perf).
+Ex2 :
+If the message "()" is implemented like that :
+    ::extension "RexxContextualSource"
+    ::method "()" unguarded
+    forward message "do" to (self~functionDoer)
+then you don't need to return the result (the source is transformed to return the result).
+    do i=1 to 10 ; say 1 + {2 * arg(1)}(i); end
+The source is transformed and parsed at each iteration. So here, there is room for
+improvement, probably with expression blocks instead of general-purpose source literals.
+A possible syntax could be :
+    do i=1 to 10 ; say 1 + [2 * arg(1)](i); end
+
+
+=====================================================================
 Recherche des impacts possibles de SourceLiteral
 =====================================================================
 

@@ -281,8 +281,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -------------------------------------------------
 
 -- Repeat self times the given action (self is a number).
--- If at least one result is returned by the action during the loop, then an array of results is returned.
--- 3~times{say arg(1)} -- no resulting array because no result returned during the iteration
+-- An array of results is returned (can be empty).
+-- 3~times{say arg(1)} -- returns an empty array because no result returned during the iteration
 -- 3~times{1} -- returns .array~of(1,1,1)
 -- 3~times{arg(1)} -- returns .array~of(1,2,3)
 ::method times unguarded
@@ -302,8 +302,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward to 1 message "yield.upto" array(self, action)
 
 -- Repeat the given action from self up to upper limit (self and upper limit are numbers).
--- If at least one result is returned by the action during the loop, then an array of results is returned.
--- 11~upto(13){say arg(1)} -- no resulting array because no result returned during the iteration
+-- An array of results is returned (can be empty).
+-- 11~upto(13){say arg(1)} -- returns an empty array because no result returned during the iteration
 -- 11~upto(13){2*arg(1)} -- returns .array~of(22,24,26)
 -- 11~upto(13) -- returns .array~of(11,12,13)
 -- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
@@ -312,16 +312,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
                                         else doer = action~doer
-    collectedItems = .nil -- no resulting array by default
+    collectedItems = .array~new
     do i = self to upperLimit
         doer~do(i)
-        if var("result") then do
-            doResult = result
-            if collectedItems == .nil then collectedItems = .Array~new -- first time we get a result, create the resulting array now
-            collectedItems~append(doResult)
-        end
+        if var("result") then collectedItems~append(result)
     end
-    if collectedItems <> .nil then return collectedItems
+    return collectedItems
 
 -- Lazy repeater : returns a coactivity.
 -- Repeat the given action from self up to upper limit (self and upper limit are numbers).
@@ -345,8 +341,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
            }~doer
 
 -- Repeat the given action from self down to lower limit (self and lower limit are numbers).
--- If at least one result is returned by the action during the loop, then an array of results is returned.
--- 13~downto(11){say arg(1)} -- no resulting array because no result returned during the iteration
+-- An array of results is returned (can be empty).
+-- 13~downto(11){say arg(1)} -- returns an empty array because no result returned during the iteration
 -- 13~downto(11){2*arg(1)} -- returns .array~of(26,24,22)
 -- 13~downto(11) -- returns .array~of(13,12,11)
 -- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
@@ -355,14 +351,10 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
                                         else doer = action~doer
-    collectedItems = .nil -- no resulting array by default
+    collectedItems = .array~new
     do i = self to lowerLimit by -1
         doer~do(i)
-        if var("result") then do
-            doResult = result
-            if collectedItems == .nil then collectedItems = .Array~new -- first time we get a result, create the resulting array now
-            collectedItems~append(doResult)
-        end
+        if var("result") then collectedItems~append(result)
     end
     if collectedItems <> .nil then return collectedItems
 

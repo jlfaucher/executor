@@ -1,4 +1,3 @@
-
 =================================================================
 
 J'ai un problème avec cette méthode :
@@ -43,3 +42,264 @@ int GrxWidgetShow_impl(RexxMethodContext *context, POINTER self)
 }
 
 =================================================================
+Class hierarchy
+
+gtk
+GdkEvent
+    GdkEventAny
+        GdkEventKey
+        GdkEventButton
+        GdkEventScroll
+        GdkEventMotion
+        GdkEventExpose
+        GdkEventVisibility
+        GdkEventCrossing
+        GdkEventFocus
+        GdkEventConfigure
+        GdkEventProperty
+        GdkEventSelection
+        GdkEventDND
+        GdkEventProximity
+        GdkEventClient
+        GdkEventNoExpose
+        GdkEventWindowState
+        GdkEventSetting
+        GdkEventOwnerChange
+        GdkEventGrabBroken
+GdkRectangle
+GtkWidget
+    GtkContainer
+        GtkBox
+            GtkHBox
+                GtkFileChooserButton
+                GtkStatusbar
+            GtkVBox
+        GtkAlignment
+        GtkPaned
+            GtkHPaned
+            GtkVPaned
+        GtkEventBox
+        GtkWindow
+            GtkDialog
+                GtkMessageDialog
+                GtkColorSelectionDialog
+                GtkFontSelectionDialog
+                GtkAboutDialog
+                GtkFileChooserDialog
+                GtkAssistant
+        GtkScrolledWindow
+        GtkViewport
+        GtkButton
+            GtkToggleButton
+                GtkCheckbutton
+                    GtkRadioButton
+            GtkColorButton
+            GtkFontButton
+        GtkTable
+        GtkFixed
+        GtkExpander
+        GtkHandleBox
+        GtkNotebook
+        GtkTextView
+        GtkMenuShell
+            GtkMenu
+            GtkMenuBar
+        GtkMenuItem
+            GtkImageMenuItem
+            GtkSeparatorMenuItem
+        GtkToolbar
+        GtkToolItem
+            GtkToolButton
+                GtkMenuToolButton
+            GtkSeparatorToolItem
+        GtkTreeView
+    GtkComboBox
+        GtkComboBoxText
+    GtkEntry
+        GtkSpinButton
+    GtkLabel
+    GtkRange
+        GtkScale
+            GtkHScale
+            GtkVScale
+    GtkImage
+    GtkProgressBar
+    GtkCalendar
+GtkTextBuffer
+GtkAdjustment
+GtkListStore
+GtkAccelGroup
+GtkCellRenderer
+    GtkCellRendererText
+        GtkCellRendererAccel
+        GtkCellRendererCombo
+    GtkCellRendererPixbuf
+    GtkCellRendererProgress
+    GtkCellRendererToggle
+GtkTreeRowReference
+GtkTreeViewColumn
+GtkTreeStore
+GtkTreeSelection
+GtkFileChooser (mixin)
+    GtkFileChooserButton
+    GtkFileChooserDialog
+GtkFileFilter
+GtkClipboard
+GtkTreePath
+GtkTreeModel
+GSList
+GList
+
+
+=================================================================
+(26/11/2011 restart analysis of this problem)
+
+
+The inheritance is like that (from super to subclass) :
+GtkWidget       ~show
+GtkContainer
+GtkWindow       ~new    ~init   ~set_title
+
+
+rexxgtk.cls
+::class GtkWidget public
+::METHOD show EXTERNAL "LIBRARY rexxgtk GrxWidgetShow"          --> so the scope is GtkWidget ? see below, the native call has scope GTKWIDGET
+
+
+rexxgtk.cpp
+    RexxMethodEntry gtkobject_methods[] = {
+        REXX_METHOD(GrxWidgetNew, GrxWidgetNew),
+    //    REXX_METHOD(GrxWidgetUninit, GrxWidgetUninit),
+        REXX_METHOD(GrxWidgetShow, GrxWidgetShow),
+
+
+test2-1.rexx
+    call gtk_init
+    window = .GTKWindow~new(.gtk~GTK_WINDOW_TOPLEVEL)
+    window~set_title('Hello World')
+    window~show()
+
+
+grxwindow.cpp
+    RexxMethod2(int,                       // Return type
+                GrxWindowNew,              // Object_method name
+                int, type,                 // Window type
+                OSELF, self)               // Self
+    {
+        GtkWidget *myWidget = gtk_window_new((GtkWindowType)type);
+
+        // Save ourself
+        context->SetObjectVariable("CSELF", context->NewPointer(myWidget));
+        g_object_set_data(G_OBJECT(myWidget), "OORXOBJECT", self);
+
+
+            void RexxNativeActivation::setObjectVariable(const char *name, RexxObject *value)           name=="CSELF"   value== a RexxPointer
+            {
+                RexxString *target = new_string(name);
+                ProtectedObject p1(target);
+                // get the REXX activation for the target context
+                RexxVariableBase *retriever = RexxVariableDictionary::getVariableRetriever(target);
+                ProtectedObject p2(retriever);
+                // if this didn't parse, it's an illegal name
+                // we also don't allow compound variables here because the source for
+                // resolving the tail pieces is not defined.
+                if (retriever == OREF_NULL || isString((RexxObject *)retriever) || isOfClassType(CompoundVariableTerm, retriever))
+                {
+                    return;
+                }
+                // do the assignment
+                retriever->set(methodVariables(), value);           --> assignment done here : methodVariables() returns a dictionary of variables
+            }
+
+
+                RexxVariableDictionary *RexxNativeActivation::methodVariables()
+                    (receiver is not null)
+                    RexxMethod *method = (RexxMethod *)executable;
+                    /* must be wanting the ovd set of    */
+                    /*variables                          */
+                    this->objectVariables = this->receiver->getObjectVariables(method->getScope());
+                    
+
+                    RexxVariableDictionary * RexxObject::getObjectVariables(
+                        RexxObject *scope)                 /* required dictionary scope         */      GTKWINDOW
+                            ("this" is a GTKWINDOW)
+                            (dictionary is null --> create a new one)
+                            dictionary = new_objectVariableDictionary(scope);
+                            dictionary = 0x7f26faf8 {reservingActivity=0x00000000 contents=0x7f26fb20 waitingActivities=0x00000000 ...}
+
+                    return this->objectVariables = 0x7f26faf8 {reservingActivity=0x7eee5de0 contents=0x7f26fb20 waitingActivities=0x00000000 ...}
+
+
+
+
+grxwidget.cpp
+    RexxMethod1(int,                       // Return type
+                GrxWidgetShow,             // Object_method name
+                CSELF, self)               // GTK self
+    {
+        gtk_widget_show(GTK_WIDGET(self));
+                   | 
+                   |
+                   V
+void RexxNativeActivation::run(
+    RexxMethod *_method,        executableName=="SHOW"  package=="rexxgtk"  name=="GrxWidgetShow"   scope.id=="GTKWIDGET"
+    RexxNativeMethod *_code, 
+    RexxObject  *_receiver,     behaviour.owningClass.id=="GTKWINDOW"
+    RexxString  *_msgname, 
+    RexxObject **_arglist, 
+    size_t _argcount, 
+    ProtectedObject &resultObj)
+
+
+        void RexxNativeActivation::processArguments
+            descriptors[outputIndex].value.value_POINTER = this->cself();
+
+
+            void *RexxNativeActivation::cself()
+                methodVariables()                                                           dictionary = 0x7f26fce0 {reservingActivity=0x00000000 contents=0x7f26fd08 waitingActivities=0x00000000 ...}
+                return receiver->getCSelf(((RexxMethod *)executable)->getScope());          receiver = 0x7f26f958 {objectVariables=0x7f26faf8 }
+
+
+                void *RexxObject::getCSelf(RexxObject *scope)
+                    RexxObject *C_self = getObjectVariable(OREF_CSELF, scope);
+
+
+                    RexxObject * RexxObject::getObjectVariable(
+                      RexxString * name,                   /* variable name (name object)       */      "CSELF"
+                      RexxObject * scope)                  /* target variable scope             */      RexxClass "GTKWIDGET"
+
+                        RexxVariableDictionary *ovd = this->getObjectVariables(scope);                  this.behaviour.owningclass.id=="GTKWINDOW"
+
+
+                        RexxVariableDictionary * RexxObject::getObjectVariables(
+                            RexxObject *scope)                 /* required dictionary scope         */  RexxClass "GTKWIDGET"
+
+                            while (dictionary != OREF_NULL)                                             ??? the first dictionary is at scope RexxClass "GTKWIDGET"
+                            {    /* search for a scope match          */                                but "this" has a behaviour owned by GTKWINDOW...
+                                /* if we've found a match, return it */                                 how is it possible to be already at scope GTKWIDGET ???
+                                if (dictionary->isScope(scope))
+                                {
+                                    return dictionary;
+                                }
+                                dictionary = dictionary->getNextDictionary();
+                            }
+
+
+
+But the receiver is the instance of GTKWINDOW, and I see the same dictionnary as in GTKWindow~new : the scope of the objectVariables is GTKWINDOW. So should start the search at scope GTKWIDGET, right ?
+
+
+
+RexxNativeActivation::methodVariables
+Next lines are ok ? sounds strange to cast NULL to a RexxActivation...
+        if (receiver == OREF_NULL)
+        {
+            /* retrieve the method variables     */
+            this->objectVariables = ((RexxActivation *)this->receiver)->getLocalVariables();
+        }
+
+RexxNativeActivation.cpp, rev 5103
+Change how CSELF lookups work to respect the CSELF chain
+        old     return receiver->getCSelf();
+        new     return receiver->getCSelf(((RexxMethod *)executable)->getScope());
+

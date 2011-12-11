@@ -28,3 +28,5 @@ Virtual extension methods
 http://confluence.jetbrains.net/display/Kotlin/Extension+functions
 
 http://yehudakatz.com/2010/11/30/ruby-2-0-refinements-in-practice/
+
+http://javascriptweblog.wordpress.com/2011/12/05/extending-javascript-natives/

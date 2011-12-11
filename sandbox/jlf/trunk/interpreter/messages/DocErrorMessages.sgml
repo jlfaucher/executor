@@ -1777,6 +1777,18 @@ special character (such as a parenthesis).
 <para>Missing expression for calculated CALL name</para>
 </listitem>
 </varlistentry>
+<varlistentry>
+<term>933</term>
+<listitem>
+<para>String or symbol or ":" or "(" expected after tilde (~)</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>934</term>
+<listitem>
+<para>Missing message name or argument list</para>
+</listitem>
+</varlistentry>
 </variablelist>
 </section>
 <section id="ERR36">

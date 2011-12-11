@@ -308,6 +308,8 @@ ERROR_MESSAGE Message_table[] = {      /* table of major and minor errors   */
       MINOR(Error_Invalid_expression_use_strict_default)
       MINOR(Error_Invalid_expression_parse)
       MINOR(Error_Invalid_expression_call)
+      MINOR(Error_Invalid_expression_after_tilde)
+      MINOR(Error_Invalid_expression_message_term)
   MAJOR(Error_Unmatched_parenthesis)
       MINOR(Error_Unmatched_parenthesis_user_defined)
       MINOR(Error_Unmatched_parenthesis_paren)

@@ -1015,8 +1015,7 @@ CPPM(RexxContextualSource::getSource),
 CPPM(RexxContextualSource::getPackage),
 CPPM(RexxContextualSource::getVariables),
 CPPM(RexxContextualSource::getExecutable),
-CPPM(RexxContextualSource::callRexx),
-CPPM(RexxContextualSource::callWithRexx),
+CPPM(RexxContextualSource::setExecutable),
 
 NULL                                   /* final terminating method          */
 };

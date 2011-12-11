@@ -380,6 +380,7 @@ for /F "eol=# delims== tokens=1,2,3*" %%i in (oorexx.ver) do (
 
 if not exist .svn\nul goto NOSVN
 
+set LANGUAGE=EN
 for /F "usebackq tokens=1,2,3,4*" %%i in (`svn info`) do if (%%i) == (Revision:) set SVN_REV=%%j
 
 if %SVN_REV%x == x (

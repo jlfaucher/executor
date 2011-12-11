@@ -627,6 +627,8 @@ Error_Program_unreadable    "Failure during initialization"
    Error_Incorrect_method_multi_dimension    "Method argument &1 cannot have more than a single dimension"
    Error_Unmatched_parenthesis_curly    "Curly bracket ""{"" in position &1 on line &2 requires a corresponding right curly bracket ""}"""
    Error_Unexpected_curly_bracket    "Unexpected ""}"""
+   Error_Invalid_expression_after_tilde    "String or symbol or "":"" or ""("" expected after tilde (~)"
+   Error_Invalid_expression_message_term    "Missing message name or argument list"
    
 END
 

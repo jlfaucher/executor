@@ -1,0 +1,57 @@
+The RexxContextualSource class
+a Routine
+The Routine class
+hello John, how are you ?
+
+hello John, how are you ?
+
+hello John, how are you ?
+
+The Method class
+hello John, how are you ?
+
+The Coactivity class
+a Routine
+hello John, how are you ?
+good bye Kathie, see you soon.
+
+The Coactivity class
+a Routine
+hello John, how are you ?
+good bye Kathie, see you soon.
+
+The Coactivity class
+a Method
+The boss says "hello John, how are you ?"
+The boss says "good bye Kathie, see you soon."
+
+The String class
+4
+4
+
+The Routine class
+hello John
+
+The Method class
+hello John
+
+The Routine class
+4
+
+The Method class
+expose a b;use strict arg x ; options "NOCOMMANDS" ; x*(a+b)
+return result
+
+The Routine class
+4
+
+RexxContextualSource:1 --> Closure:2 --> 1 4
+RexxContextualSource:3 --> Closure:4 --> 2 4
+RexxContextualSource:5 --> Closure:6 --> 3 4
+RexxContextualSource:7 --> Closure:8 --> 4 4
+
+The Coactivity class
+a Closure
+1
+2
+

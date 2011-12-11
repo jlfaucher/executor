@@ -20,153 +20,7 @@ A doer can be created from :
   No cost, this is for convenience, the doer is the executable itself.
 
 Examples :
-
--- By default (no tag) the executable is a routine.
--- This routine is created by the interpreter when parsing the literal source (immediate parsing).
-source = {use strict arg name, greetings; say "hello" name || greetings}
-say source~class -- The RexxContextualSource class
-say source~executable -- a Routine
-doer = source~doer -- no cost, returns directly the executable created by the interpreter at parsing time.
-say doer~class -- The Routine class
-doer~do("John", ", how are you ?") -- hello John, how are you ?
-say
-
--- Here, ::method is a tag to indicate that the executable must be a method
--- The first argument passed with ~do is the object, available in self.
--- The rest of the ~do's arguments are passed to the method as arg(1), arg(2), ...
--- Minimal abbreviation is ::m
-doer = {::method use strict arg greetings; say "hello" self || greetings}~doer
-say doer~class -- The Method class
-doer~do("John", ", how are you ?") -- hello John, how are you ?
-say
-
--- Here, ::coactivity is a tag to indicate that the doer must be a coactivity (whose executable is a routine by default).
--- Minimal abbreviation is ::c
-doer = {::coactivity
-        say "hello" arg(1) || arg(2)
-        arg = .yield[]
-        say "good bye" arg[1] || arg[2]
-       }~doer
-say doer~class -- The Coactivity class
-say doer~executable -- a Routine
-doer~do("John", ", how are you ?") -- hello John, how are you ?
-doer~do("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
-doer~do("Keith") -- <nothing done, the coactivity is ended>
-say
-
--- ::routine.coactive (coactive routine) is equivalent to ::coactivity.
--- Minimal abbreviation is ::r.c
-doer = {::routine.coactive
-        say "hello" arg(1) || arg(2)
-        arg = .yield[]
-        say "good bye" arg[1] || arg[2]
-       }~doer
-say doer~class -- The Coactivity class
-say doer~executable -- a Routine
-doer~do("John", ", how are you ?") -- hello John, how are you ?
-doer~do("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
-doer~do("Keith") -- <nothing done, the coactivity is ended>
-say
-
--- Here, ::method.coactive is a tag to indicate that the doer must be a coactivity whose executable is a method.
--- The object on which the method is run is passed using the ~doer method.
--- Minimal abbreviation is ::m.c
-doer = {::method.coactive
-        say self 'says "hello' arg(1) || arg(2)'"'
-        arg = .yield[]
-        say self 'says "good bye' arg[1] || arg[2]'"'
-       }~doer("The boss")
-say doer~class -- The Coactivity class
-say doer~executable -- A Method
-doer~do("John", ", how are you ?") -- The boss says "hello John, how are you ?"
-doer~do("Kathie", ", see you soon.") -- The boss says "good bye Kathie, see you soon."
-doer~do("Keith") -- <nothing done, the coactivity is ended>
-say
-
--- By default, a string is a message
-doer = "length"~doer
-say doer~class -- The String class
-say doer~do("John") -- 4
-say
-
--- If you want to use a string as source holder, then you must call sourceDoer
-doer = 'use strict arg name; say "hello" name'~sourceDoer
-say doer~class -- The Routine class
-doer~do("John") -- hello John
-say
-
-doer = '::method say "hello" self'~sourceDoer
-say doer~class -- The Method class
-doer~do("John") -- hello John
-say
-
--- Implicit arguments and implicit return.
--- The original source
---    x~length
--- becomes :
---    use strict arg x ; options "NOCOMMANDS" ; x~length
---    return result
-doer = {x~length}~sourceDoer('use strict arg x ; options NOCOMMANDS', "return result")
-say doer~class -- The Routine class
-say doer~do("John") -- 4
-say
-
--- The method sourceDoer takes care of the expose instruction : keep it always as first instruction
--- The original source
---    ::method expose a b ; x*(a+b)
--- becomes :
---    expose a b  ; use strict arg x ; options "NOCOMMANDS"; x*(a+b)
---    return result
-doer = {::method expose a b ; x*(a+b)}~sourceDoer('use strict arg x ; options "NOCOMMANDS"', "return result")
-say doer~class -- The Method class
-say doer~source~tostring
-say
-
--- The method functionDoer (which calls sourceDoer) takes care of the implicit return
-doer = {x~length}~functionDoer("use strict arg x")
-say doer~class -- The Routine class
-say doer~do("John") -- 4
-say
-
--- closure by value
--- Minimal abbreviation is ::cl
--- Output is :
---   RexxContextualSource:266663584 --> Closure:266674100 --> 1 4
---   RexxContextualSource:266663628 --> Closure:266685776 --> 2 4
---   RexxContextualSource:266663672 --> Closure:266697452 --> 3 4
---   RexxContextualSource:266663716 --> Closure:266709128 --> 4 4
--- i contains a non mutable value (different value captured at each iteration).
--- literalSources contains a reference to a mutableValue (same value captured at each iteration).
-literalSources = .array~new
-do i=1 to 4
-    literalSources[i] = {::closure 
-                         expose literalSources i
-                         use strict arg source, doer
-                         call charout , source~class~id":"source~identityHash
-                         call charout , " --> "
-                         call charout , doer~class~id":"doer~identityHash
-                         call charout , " --> "
-                         call charout , i literalSources~items
-                         say
-                        }
-end
-do literalSource over literalSources
-    doer = literalSource~doer
-    doer~do(literalSource, doer)
-end
-say
-
--- Coactive closure
--- Minimal abbreviation is ::cl.c
-v = 1
-w = 2
-doer = {::closure.coactive expose v w ; .yield[v] ; .yield[w]}~doer
-say doer~class -- The Coactivity class
-say doer~executable -- a Closure
-say doer~do -- 1
-say doer~do -- 2
-doer~do -- no result
-say
+See doers-samples.rex
 */
 
 ::class "DoerFactory" mixinclass Object public
@@ -309,6 +163,10 @@ Possible transformations :
 ::method do abstract
 ::method doWith abstract
 
+-- Tilde call
+::method "~()" unguarded
+    forward message "do" to (self~doer)
+
 
 -----------------------------------------------------------------------------
 -- Mixin.
@@ -415,10 +273,11 @@ The method 'run' is a private method. So can be called only from another method 
 ::class "RexxContextualSourceDoer" mixinclass Object public inherit Doer
 
 ::method doer unguarded
-    use strict arg object=.nil -- optional object, needed when the source is tagged ::method
+    use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
     if self~executable <> .nil then return self~executable
     objectSpecified = arg(1, "e") -- object explicitely passed ?
-    return self~sourceDoer( , , , , objectSpecified, object)
+    self~executable = self~sourceDoer( , , , , objectSpecified, object)
+    return self~executable
 
 -- Could be defined on DoerFactory to give access to this functionality from any doer,
 -- but that's probably a bad idea. Other doers are directly executable (except String
@@ -426,34 +285,32 @@ The method 'run' is a private method. So can be called only from another method 
 -- criteria doesn't apply to them. So they will have already the right arguments and an
 -- explicit return, if needed.
 ::method functionDoer unguarded
-    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
+    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
-    -- try first to parse the source as-is, because of that :
-    -- say {if .true then 2}~functionDoer~do
-    -- would display "IF 1 THEN 2" if the clause had been transformed to an expression.
-    signal on syntax name syntax1
-    return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
-    syntax1:
-    -- The source as-is can't be parsed, try surrounding with round brackets...
-    -- That lets support expressions like "arg()" which is otherwise an invalid expression :
-    -- Missing expression following ( of parse template
-    signal on syntax name syntax2
-    return self~sourceDoer(clauseBefore, clauseAfter, .true, , objectSpecified, object)
-    syntax2:
-    -- The source is not a pure expression, fallback (again) to source as-is
-    -- that will raise a syntax error, but this time, don't catch the error.
-    return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
+    self~executable = self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
+    return self~executable
 
 -- Same remark as above.
 ::method actionDoer unguarded
-    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method
+    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
+    objectSpecified = arg(3, "e") -- object explicitely passed ?
     -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
     -- if self~executable <> .nil then return self~executable
-    return self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
+    self~executable = self~sourceDoer(clauseBefore, clauseAfter, , , objectSpecified, object)
+    return self~executable
+
+::method needsObject unguarded
+    forward to (self~doer)
+
+::method do unguarded
+    forward to (self~doer)
+
+::method doWith unguarded
+    forward to (self~doer)
 
 
 -----------------------------------------------------------------------------
@@ -514,7 +371,7 @@ The method 'run' is a private method. So can be called only from another method 
         supplier~next
     end
 
-::method setMethod public -- override the private setMethod inherited from Object
+::method setMethod public -- override the private setMethod inherited from Object to make it public
     forward class (super)
 
 ::method doer unguarded

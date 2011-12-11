@@ -78,6 +78,167 @@ Review the extension mechanisms :
   No workaround so far.
 
 
+
+===============================================================================
+2011 dec 10
+
+[source literal]
+
+RexxContextualSource : added the native method "executable=" to let the ooRexx code
+in doers.cls store the executable on the instance of RexxContextualSource.
+That will be used both for convenience (no longer needed for the user to call ~doer)
+and performance (reuse cached executable).
+
+
+[doers]
+
+At the first call of ~doer, if an executable is not already stored by the interpreter
+on the RexxSourceLiteral (deferred parsing), then an executable is created and cached
+on the RexxContextualSource. 
+The next calls of ~doer return directly the cached executable.
+Unlike ~doer, the methods ~functionDoer and ~actionDoer will create and cache a new
+executable at each call (hiding the initial executable, if any, and replacing the previous
+cached executable). This is because these methods let transform the source before creating
+the executable.
+Assigning .nil will reset the cache and make the initial executable stored on the
+RexxSourceLiteral visible again, if any.
+
+RexxContextualSourceDoer : implemented the 3 abstract methods declared by .doer :
+    ~needsObject
+    ~do
+    ~doWith
+An implicit call to ~doer is done when calling these methods.
+Ex :
+    range = { use arg min, max ; return { ::closure expose min max ; use arg num ; return min <= num & num <= max }}
+    from5to8 = range~do(5, 8) --     each execution of range returns a different RexxContextualSource.
+    from20to30 = range~do(20, 30) -- since the RexxContextualSource is a closure's source, it holds a snapshot of the context's variables.
+    say from5to8~do(6) -- 1          first execution : the RexxContextualSource is parsed, the closure executable is created and cached.
+    say from5to8~do(9) -- 0          reuse the RexxContextualSource's cached closure executable.
+    say from20to30~do(6) -- 0        from20to30 contains a RexxContextualSource different from from5to8. first execution : the closure is parsed.
+    say from20to30~do(25) -- 1       reuse the cached executable.
+
+Big picture :
+    a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
+    a RexxSourceLiteral holds these properties, shared among all the RexxContextualSource instances created from it.
+      |  source : the text between the curly brackets {...} as an array of lines.
+      |  package : the package which contain the source literal.
+      |  routine : created at load-time if the source does not start with ":" (immediate parsing).
+      |
+      +--> a RexxContextualSource is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
+      |    Why not return directly the RexxSourceLiteral ? (after all, this is what is done for other literals :
+      |    A RexxInteger, a RexxNumberString, a RexxString  evaluate to itself)...
+      |    Because, as indicated by its name, a RexxContextualSource contains informations that depends on the evaluation context.
+      |    In particular, when a RexxContextualSource is a closure's source, it will hold a snapshot of the context's variables.
+      |        ~source : source of the RexxSourceLiteral, never changed even if ~functionDoer or ~actionDoer called.
+      |        ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::cl".
+      |        ~executable : cached executable, managed by doers.cls. If no cached value then return the RexxSourceLiteral's routine, if any.
+      |        ~executable= : routine or method or coactivity or closure. ~executable~source can be different from ~source. 
+      |
+      +--> a RexxContextualSource
+      |
+      +--> etc... (a new instance is created at each evaluation of the RexxSourceLiteral)
+
+Example, from ooRexxShell (the final '=' is used to display the result) :
+
+    cs = {"hello"} -- immediate parsing (if syntax error, will be raised when the package is loaded)
+    cs~source= -- the RexxSourceLiteral's source
+        # 1: index=[1] -> item=["hello"]
+    cs~executable= -- [a Routine id#_264298413] has been created because immediate parsing
+    cs~executable~source= 
+        # 1: index=[1] -> item=["hello"]
+    cs~do -- execute the system command "hello" --> display "Bonjour, le monde!"
+    
+    cs~functionDoer= -- [a Routine id#_267150234] created from a transformed source derived from cs~source
+    cs~executable= -- [a Routine id#_267150234] this new routine has been memorized
+    cs~executable~source= -- transformed source
+        # 1: index=[1] -> item=[options "NOCOMMANDS" ; "hello"]
+        # 2: index=[2] -> item=[ ; if var("result") then return result]
+    cs~source= -- the original source is unchanged and still available
+        # 1: index=[1] -> item=["hello"]
+    cs~do= -- [hello]
+    
+    cs~actionDoer= -- [a Routine id#_266463660] created from a source derived from cs~source (no transformation)
+    cs~executable= -- [a Routine id#_266463660] memorized
+    cs~executable~source=
+        # 1: index=[1] -> item=["hello"]
+    cs~do -- execute the system command "hello" --> display  "Bonjour, le monde!"
+    
+    cs~executable = .nil -- reset the cache
+    cs~executable= -- [a Routine id#_264298413] The initial routine is visible again
+
+An important rule to remember :
+Avoid to use source literals with deferred parsing inside loops.
+Good (duration 0.1560) :
+    f = {:return 2 * arg(1)}
+    r = 0
+    do i=1 to 10000
+        r += f~do(i)
+    end
+Good (duration 0.1880) :
+    r = 0
+    do i=1 to 10000
+        r += {return 2 * arg(1)}~do(i)
+    end
+Not good (duration 4.1090) :
+    r = 0
+    do i=1 to 10000
+        r += {:return 2 * arg(1)}~do(i)
+    end
+For more details see benchmark/doers-benchmark.output.txt
+Note : this rule is enforced by functional.csl, where the actions are always parsed before iterating.
+
+
+[parser]
+
+Added support for tilde-call message "~()".
+The message name can be omitted, but the list of parameters is mandatory (can be empty).
+    target~()
+    target~(arg1, arg2, ...)
+    target~~()
+    target~~(arg1, arg2, ...)
+When the expression is evaluated, the target receives the message "~()".
+Why not just "()" ? because I keep the possibility to have a distinct message in case of
+pure function-call (not activated, but the code is implemented and it works.
+See functionCallMessage in SourceFile.cpp).
+So now, an additional form of message term is supported :
+>>-receiver-+- ~ --+----+---------+----(--+----------------+--)--><
+            +- ~~ -+    +-:symbol-+       | +-,----------+ |
+                                          | V            | |
+                                          +---expression-+-+
+Implementation in doers.cls :
+    ::class "Doer" mixinclass Object public inherit DoerFactory
+    -- Tilde call
+    ::method "~()" unguarded
+        forward message "do" to (self~doer)
+So any doer which receives the message "~()" will execute its ~do method.
+Ex :
+    {say hello}~() -- HELLO
+    run={arg(1)~()} ; run~{say hello} -- HELLO
+    {say arg(1)}~~("hello")~~("bye") -- hello bye
+    say 1 + {return 2 * arg(1)}~(2) + 3 -- 1 + 2*2 + 3 = 8
+Ex :
+    myFunc = {return 2 * arg(1)}
+    do i=1 to 10 ; say 1 + myFunc~(i) ; end
+Ex : (already seen above, but here only tilde-calls are used, no more ~do)
+    range = { use arg min, max ; return { ::closure expose min max ; use arg num ; return min <= num & num <= max }}
+    from5to8 = range~(5, 8)
+    from20to30 = range~(20, 30)
+    say from5to8~(6) -- 1       first execution : the closure is parsed
+    say from5to8~(9) -- 0       
+    say from20to30~(6) -- 0     first execution : the closure is parsed
+    say from20to30~(25) -- 1
+
+
+[functional]
+
+Modified the following methods to always return an array, even if no result collected
+(in this case, the returned array is empty) :
+    ~times
+    ~upto
+    ~downto
+This is more consistent for the caller, no need to test if a result was returned or not.
+
+
 ===============================================================================
 2011 nov 16
 
@@ -123,11 +284,12 @@ a snapshot of the current context (directory of variables).
 The RexxContexualSource can be passed back to the caller, the directory of variables
 will remain accessible (unlike a RexxContext instance which becomes invalid once the
 RexxActivation has been popped).
+
 Closure by value means : Updating a variable from the closure will have no impact on the
 original context.
-
 Note : If the variable contains a mutable value then updating the mutable value from the
 closure will have an impact on the original context (if still active).
+
 A closure is an object whose exposed variables are created from a directory of variables.
 This directory of variables can be passed explicitely, or taken from a RexxContextualSource.
 The behavior of the closure is a user-defined method which expose the needed variables.
@@ -259,7 +421,7 @@ See samples/concurrency/deadlock4.rex for the details
 2011 nov 07
 
 [coactivity]
-The LazyCoactivitySupplier no longer needs an unit method.
+The LazyCoactivitySupplier no longer needs an uninit method.
 
 
 [GC]
@@ -1091,6 +1253,8 @@ A routine is created and attached to the source literal.
 This routine is accessible using the method RexxContextualSource~executable.
     routine = {say arg(1)+1}~executable
     routine~call(99) -- 100
+[Updated 2011 dec 08] Next method has been removed, because now it's possible to
+use directly ~do.
 For convenience, this routine is callable using the method RexxContextualSource~call.
     {say arg(1)+1}~call(99) -- 100
     say {return arg(1)+1}~call(99) -- 100
@@ -1098,9 +1262,12 @@ For convenience, this routine is callable using the method RexxContextualSource~
 A source literal starting with ':' is not parsed immediately (deferred parsing).
 In this case, no routine is attached to the source literal.
     {:say arg(1)+1}~executable -- .nil
+    [Updated 2011 dec 08] ~call has been removed
     {:say arg(1)+1}~call(99) -- Error : Incorrect call to routine
 Such a source literal can be handled by the package extensions.cls :
     {:say arg(1)+1}~doer~do(99) -- 100
+    [Updated 2011 dec 08] it's possible to use directly ~do
+    {:say arg(1)+1}~do(99) -- 100
     ::requires "extension/extensions.cls"
 
 

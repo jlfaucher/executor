@@ -5259,6 +5259,31 @@ RexxObject *RexxSource::function(
   return (RexxObject *)_function;      /* and return this to the caller     */
 }
 
+#if 0
+// It works, but not activated... Since there is also the tilde-call message
+// I prefer to keep things simple : only one way to do function calls.
+RexxObject *RexxSource::functionCallMessage(
+  RexxToken   *token,                  /* arglist start (for error reports) */
+  RexxObject  *target,                 /* target term                       */
+  int          terminators )           /* expression termination context    */
+/******************************************************************************/
+/* Function:  Process an expression term of the form "target(arg,arg)"        */
+/******************************************************************************/
+{
+  size_t     argCount;                 /* count of function arguments       */
+  RexxObject *_message;                /* new message term                  */
+
+  this->saveObject((RexxObject *)target);   /* save target until it gets connected to message */
+                                       /* process the argument list         */
+  argCount = this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
+                                       /* create a new message item        */
+  _message = (RexxObject *)new (argCount) RexxExpressionMessage(target, (RexxString *)OREF_ROUND_BRACKETS, (RexxObject *)OREF_NULL, argCount, this->subTerms, false);
+  this->holdObject(_message);          /* hold this here for a while        */
+  this->removeObj((RexxObject *)target);   /* target is now connected to message, remove from savelist without hold */
+  return _message;                     /* return the message item           */
+}
+#endif
+
 RexxObject *RexxSource::collectionMessage(
   RexxToken   *token,                  /* arglist start (for error reports) */
   RexxObject  *target,                 /* target term                       */
@@ -5273,7 +5298,7 @@ RexxObject *RexxSource::collectionMessage(
   this->saveObject((RexxObject *)target);   /* save target until it gets connected to message */
                                        /* process the argument list         */
   argCount = this->argList(token, ((terminators | TERM_SQRIGHT) & ~TERM_RIGHT));
-                                       /* create a new function item        */
+                                       /* create a new message item        */
   _message = (RexxObject *)new (argCount) RexxExpressionMessage(target, (RexxString *)OREF_BRACKETS, (RexxObject *)OREF_NULL, argCount, this->subTerms, false);
   this->holdObject(_message);          /* hold this here for a while        */
   this->removeObj((RexxObject *)target);   /* target is now connected to message, remove from savelist without hold */
@@ -5310,6 +5335,7 @@ RexxObject *RexxSource::message(
 {
     size_t        argCount;              /* list of function arguments        */
     RexxString   *messagename = OREF_NULL;  /* message name                      */
+    bool         messagenameProvided = true;
     RexxObject   *super;                 /* super class target                */
     RexxToken    *token;                 /* current working token             */
     RexxExpressionMessage *_message;     /* new message term                  */
@@ -5322,16 +5348,23 @@ RexxObject *RexxSource::message(
     /* include this in the processing. */
     this->pushTerm(target);
     /* get the next token                */
-    token = this->getToken(terminators, Error_Symbol_or_string_tilde);
+    token = this->getToken(terminators, 0 /*Error_Symbol_or_string_tilde*/);
     /* unexpected type?                  */
-    if (token->isSymbolOrLiteral())
+    if (token == OREF_NULL || token->classId == TOKEN_COLON || token->classId == TOKEN_LEFT || token->isSourceLiteral())
+    {
+        // no explicit message name, this is the implicit tilde-call
+        messagename = (RexxString *)OREF_TILDE_ROUND_BRACKETS;
+        messagenameProvided = false;
+        if (token != OREF_NULL) previousToken();
+    }
+    else if (token->isSymbolOrLiteral())
     {
         messagename = token->value;        /* get the message name              */
     }
     else
     {
         /* error!                            */
-        syntaxError(Error_Symbol_or_string_tilde);
+        syntaxError(Error_Invalid_expression_after_tilde);
     }
     /* get the next token                */
     token = this->getToken(terminators, 0);
@@ -5351,6 +5384,14 @@ RexxObject *RexxSource::message(
             super = this->addText(token);    /* get the variable retriever        */
                                              /* get the next token                */
             token = this->getToken(terminators, 0);
+        }
+    }
+    if (!messagenameProvided)
+    {
+        // Message name or argument list is mandatory
+        if (token == OREF_NULL || (token->classId != TOKEN_LEFT && !token->isSourceLiteral()))
+        {
+            syntaxError(Error_Invalid_expression_message_term);
         }
     }
     if (token != OREF_NULL)
@@ -5578,7 +5619,22 @@ RexxObject *RexxSource::subTerm(
             if (second->classId == TOKEN_LEFT || second->isSourceLiteral())
             {
                 /* process the function call         */
-                term = this->function(second, token, terminators);
+                if (token->classId == TOKEN_SOURCE_LITERAL)
+                {
+#if 0
+                    // It works but not activated... Tilde-call is more general.
+                    term = this->addText(token);
+                    term = this->functionCallMessage(second, term, terminators);
+#else
+                    // Function-call not activated. Just return the source literal.
+                    previousToken();               /* push the token back               */
+                    term = this->addText(token);   /* variable or literal access        */
+#endif
+                }
+                else
+                {
+                    term = this->function(second, token, terminators);
+                }
             }
             else
             {
