@@ -177,6 +177,8 @@ call 'StreamClasses.orx'
 
 say 'Stream methods setup'
 
+call 'Parser.orx'
+
 call 'PlatformObjects.orx'                   -- now load platform-specific builtin classes
 
 say ('Base objects created')

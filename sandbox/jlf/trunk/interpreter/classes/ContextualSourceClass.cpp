@@ -50,31 +50,6 @@
 /*                                                                            */
 /******************************************************************************/
 
-// If the 1st word of the source starts with ":" then the parsing is deferred.
-// If the 1st word of the source starts with "::cl" then assume it's a closure.
-void AnalyseSource(RexxString *s, bool &deferredParsing, bool &closure)
-{
-    deferredParsing = false;
-    closure = false;
-    codepoint_t c = 0;
-    sizeC_t i = 0;
-    sizeC_t clength = s->getCLength();
-    // Skip whitechars
-    while (i < clength)
-    {
-        c = s->getCharC(i);
-        if (c > 32) break;
-        i++;
-    }
-    if (c != ':') return;
-    deferredParsing = true; // starts with ":"
-    if (clength - i < 4) return; // Can't be "::cl" if less than 4 chars
-    c = s->getCharC(++i); if (c != ':') return; // not "::"
-    c = s->getCharC(++i); if (c != 'C' && c != 'c') return; // not "::c"
-    c = s->getCharC(++i); if (c != 'L' && c != 'l') return; // not "::cl"
-    closure = true;
-}
-
 /**
  * Allocate a new RexxSourceLiteral object
  *
@@ -96,7 +71,8 @@ void RexxSourceLiteral::live(size_t liveMark)
 {
     memory_mark(this->source);
     memory_mark(this->package);
-    memory_mark(this->routine);
+    memory_mark(this->kind);
+    memory_mark(this->rawExecutable);
 }
 
 void RexxSourceLiteral::liveGeneral(int reason)
@@ -106,7 +82,8 @@ void RexxSourceLiteral::liveGeneral(int reason)
 {
     memory_mark_general(this->source);
     memory_mark_general(this->package);
-    memory_mark_general(this->routine);
+    memory_mark_general(this->kind);
+    memory_mark_general(this->rawExecutable);
 }
 
 void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
@@ -118,7 +95,8 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 
   newThis->source = OREF_NULL;   // this never should be getting flattened, so sever the connection
   newThis->package = OREF_NULL;  // idem
-  newThis->routine = OREF_NULL;  // idem
+  newThis->kind = OREF_NULL; // idem
+  newThis->rawExecutable = OREF_NULL;  // idem
 
   cleanUpFlatten
 }
@@ -126,17 +104,19 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 
 RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t startLine)
 {
-    ProtectedObject pr(this);
+    ProtectedObject pThis(this);
     RexxArray *sa = s->makeArray(NULL); // use default separator \n
     OrefSet(this, this->source, sa);
     OrefSet(this, this->package, p);
-    OrefSet(this, this->routine, OREF_NULL);
-    AnalyseSource(s, deferredParsing, closure);
-    // If the first character > 32 is not a ':' then create an executable
-    if (!deferredParsing)
-    {
-        OrefSet(this, this->routine, this->makeRoutine(sa, p, startLine));
-    }
+    RexxArray *sourceArray = (RexxArray *)sa->copy();
+    ProtectedObject pSourceArray(sourceArray);
+    RexxObject *clauserClass = TheEnvironment->at(OREF_CLAUSER);
+    RexxObject *clauser = clauserClass->sendMessage(OREF_NEW, (RexxObject *)sourceArray); // must cast sourceArray, otherwise taken as array of arguments
+    ProtectedObject pClauser(clauser);
+    RexxObject *sourceLiteralParserClass = TheEnvironment->at(OREF_SOURCELITERALPARSER);
+    this->kind = (RexxString *)sourceLiteralParserClass->sendMessage(OREF_KIND, clauser);
+    this->rawExecutable =sourceLiteralParserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package);
+    this->closure = (0 == strncmp(this->kind->getStringData(), "cl", 2));
 }
 
 
@@ -150,21 +130,6 @@ RexxObject  *RexxSourceLiteral::evaluate(
                                        /* trace if necessary                */
     context->traceIntermediate(value, TRACE_PREFIX_LITERAL);
     return value;                      /* also return the result            */
-}
-
-
-RoutineClass *RexxSourceLiteral::makeRoutine(RexxArray *source, PackageClass *parentSource, size_t startLine)
-{
-    RoutineClass *routine = new RoutineClass(new_string(""), source, startLine);
-    ProtectedObject p(routine);
-
-    // if there is a parent source, then merge in the scope information
-    if (parentSource != OREF_NULL)
-    {
-        routine->getSourceObject()->inheritSourceContext(parentSource->getSourceObject());
-    }
-
-    return routine;
 }
 
 
@@ -208,9 +173,9 @@ void *RexxContextualSource::operator new(size_t size)
 RexxContextualSource::RexxContextualSource(RexxSourceLiteral *s, RexxContext *c)
 {
     OrefSet(this, this->sourceLiteral, s);
-    OrefSet(this, this->variables, OREF_NULL);
+    OrefSet(this, this->variables, (RexxDirectory *)TheNilObject);
     if (s->isClosure()) OrefSet(this, this->variables, (RexxDirectory *)c->getVariables());
-    OrefSet(this, this->executable, OREF_NULL);
+    OrefSet(this, this->executable, TheNilObject);
 }
 
 
@@ -246,37 +211,8 @@ RexxObject *RexxContextualSource::copyRexx()
 }
 
 
-RexxArray *RexxContextualSource::getSource()
-{
-    return (RexxArray *)(sourceLiteral->getSource()->copy());
-}
-
-
-PackageClass *RexxContextualSource::getPackage()
-{
-    return sourceLiteral->getPackage();
-}
-
-
-RexxObject *RexxContextualSource::getVariables()
-{
-    if (variables != OREF_NULL) return variables;
-    return TheNilObject;
-}
-
-
-RexxObject *RexxContextualSource::getExecutable()
-{
-    if (executable != OREF_NULL) return executable;
-    RoutineClass *routine = sourceLiteral->getExecutable();
-    if (routine != OREF_NULL) return routine;
-    return TheNilObject;
-}
-
-
 RexxObject *RexxContextualSource::setExecutable(RexxObject *exec)
 {
-    if (exec == TheNilObject) exec = OREF_NULL; // Makes the sourceLiteral's executable visible
     OrefSet(this, this->executable, exec);
     return OREF_NULL; // no return value
 }

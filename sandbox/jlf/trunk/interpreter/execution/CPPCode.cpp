@@ -1014,6 +1014,8 @@ CPPM(RexxContextualSource::copyRexx),
 CPPM(RexxContextualSource::getSource),
 CPPM(RexxContextualSource::getPackage),
 CPPM(RexxContextualSource::getVariables),
+CPPM(RexxContextualSource::getKind),
+CPPM(RexxContextualSource::getRawExecutable),
 CPPM(RexxContextualSource::getExecutable),
 CPPM(RexxContextualSource::setExecutable),
 

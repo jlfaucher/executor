@@ -80,6 +80,30 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 dec 13
+
+[source literal]
+No more deferred parsing, the parser delegates the parsing of the source literals
+to .SourceLiteralParser~rawExecutable, which creates routines or methods.
+Easy because the parser supports reentrancy (or I did not yet detect problems in
+relation with reentrancy...).
+This class SourceLiteralParser must be preloaded (part of rexx.img).
+Consequence :
+- all the source literals are parsed at load-time, syntax errors are detected immediately.
+- performances are good, even if the source literal is inside a loop.
+  see benchmark/doers-benchmark.output.txt
+
+
+[doers]
+
+Simplification of ~sourceDoer : no longer need to create a pure expression, so
+parameter expression and related code removed.
+That was done in the early days to bypass a parse error when using arg() as
+first expression. But since then, the parser has been modified to no longer raise
+an error when arg() appears as first expression.
+
+
+===============================================================================
 2011 dec 10
 
 [source literal]
@@ -92,16 +116,13 @@ and performance (reuse cached executable).
 
 [doers]
 
-At the first call of ~doer, if an executable is not already stored by the interpreter
-on the RexxSourceLiteral (deferred parsing), then an executable is created and cached
-on the RexxContextualSource. 
+(Updated 2011 dec 13)
+At the first call of ~RexxContextualSource~doer, if an executable is not already stored
+on the RexxContextualSource, then an executable is created and cached on the RexxContextualSource. 
 The next calls of ~doer return directly the cached executable.
 Unlike ~doer, the methods ~functionDoer and ~actionDoer will create and cache a new
-executable at each call (hiding the initial executable, if any, and replacing the previous
-cached executable). This is because these methods let transform the source before creating
-the executable.
-Assigning .nil will reset the cache and make the initial executable stored on the
-RexxSourceLiteral visible again, if any.
+executable at each call (replacing the previous cached executable). This is because these
+methods let transform the source before creating the executable.
 
 RexxContextualSourceDoer : implemented the 3 abstract methods declared by .doer :
     ~needsObject
@@ -117,12 +138,13 @@ Ex :
     say from20to30~do(6) -- 0        from20to30 contains a RexxContextualSource different from from5to8. first execution : the closure is parsed.
     say from20to30~do(25) -- 1       reuse the cached executable.
 
-Big picture :
+Big picture (updated 2011 dec 13) :
     a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
     a RexxSourceLiteral holds these properties, shared among all the RexxContextualSource instances created from it.
-      |  source : the text between the curly brackets {...} as an array of lines.
+      |  source : the text between the curly brackets {...} as an array of lines, including the tag :xxx if any.
       |  package : the package which contain the source literal.
-      |  routine : created at load-time if the source does not start with ":" (immediate parsing).
+      |  kind : kind of source, derived from the source's tag.
+      |  rawExecutable : routine or method created at load-time (immediate parsing).
       |
       +--> a RexxContextualSource is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
       |    Why not return directly the RexxSourceLiteral ? (after all, this is what is done for other literals :
@@ -131,7 +153,8 @@ Big picture :
       |    In particular, when a RexxContextualSource is a closure's source, it will hold a snapshot of the context's variables.
       |        ~source : source of the RexxSourceLiteral, never changed even if ~functionDoer or ~actionDoer called.
       |        ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::cl".
-      |        ~executable : cached executable, managed by doers.cls. If no cached value then return the RexxSourceLiteral's routine, if any.
+      |        ~rawExecutable : the raw executable of the RexxSourceLiteral, created at load-time (routine or method).
+      |        ~executable : cached executable, managed by doers.cls.
       |        ~executable= : routine or method or coactivity or closure. ~executable~source can be different from ~source. 
       |
       +--> a RexxContextualSource
@@ -143,10 +166,12 @@ Example, from ooRexxShell (the final '=' is used to display the result) :
     cs = {"hello"} -- immediate parsing (if syntax error, will be raised when the package is loaded)
     cs~source= -- the RexxSourceLiteral's source
         # 1: index=[1] -> item=["hello"]
-    cs~executable= -- [a Routine id#_264298413] has been created because immediate parsing
-    cs~executable~source= 
+    cs~rawExecutable= -- [a Routine id#_264298413]
+    cs~rawExecutable~source= 
         # 1: index=[1] -> item=["hello"]
+    cs~executable= -- [The NIL object id#_268001399]
     cs~do -- execute the system command "hello" --> display "Bonjour, le monde!"
+    cs~executable= -- cached executable [a Routine id#_264001464]
     
     cs~functionDoer= -- [a Routine id#_267150234] created from a transformed source derived from cs~source
     cs~executable= -- [a Routine id#_267150234] this new routine has been memorized
@@ -164,28 +189,7 @@ Example, from ooRexxShell (the final '=' is used to display the result) :
     cs~do -- execute the system command "hello" --> display  "Bonjour, le monde!"
     
     cs~executable = .nil -- reset the cache
-    cs~executable= -- [a Routine id#_264298413] The initial routine is visible again
-
-An important rule to remember :
-Avoid to use source literals with deferred parsing inside loops.
-Good (duration 0.1560) :
-    f = {:return 2 * arg(1)}
-    r = 0
-    do i=1 to 10000
-        r += f~do(i)
-    end
-Good (duration 0.1880) :
-    r = 0
-    do i=1 to 10000
-        r += {return 2 * arg(1)}~do(i)
-    end
-Not good (duration 4.1090) :
-    r = 0
-    do i=1 to 10000
-        r += {:return 2 * arg(1)}~do(i)
-    end
-For more details see benchmark/doers-benchmark.output.txt
-Note : this rule is enforced by functional.csl, where the actions are always parsed before iterating.
+    cs~executable= -- [The NIL object id#_268001399]
 
 
 [parser]

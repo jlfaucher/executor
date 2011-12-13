@@ -1395,6 +1395,8 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SOURCE        ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getSource), 0);
   defineKernelMethod(CHAR_PACKAGE       ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getPackage), 0);
   defineKernelMethod(CHAR_VARIABLES     ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getVariables), 0);
+  defineKernelMethod(CHAR_KIND          ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getKind), 0);
+  defineKernelMethod(CHAR_RAWEXECUTABLE ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getRawExecutable), 0);
   defineKernelMethod(CHAR_EXECUTABLE    ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getExecutable), 0);
   defineKernelMethod(CHAR_EXECUTABLEEQUALS ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::setExecutable), 1);
 

@@ -66,24 +66,18 @@ public:
 
     RexxArray *getSource() { return source; }
     PackageClass *getPackage() { return package; }
-    RoutineClass *getExecutable() { return routine; }
+    RexxString *getKind() { return kind; }
+    RexxObject *getRawExecutable() { return rawExecutable; }
+    bool isClosure() { return closure; }
 
     RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *);
 
-    bool isDeferredParsing() { return deferredParsing; }
-    bool isClosure() { return closure; }
-
-protected:
-    RexxArray *source;
+private:
+    RexxArray *source; // The source between curly brackets, including the tag :xxx if any
     PackageClass *package;
-    RoutineClass *routine; // A routine or null if deferred parsing
-
-private:
-    RoutineClass *makeRoutine(RexxArray *, PackageClass *, size_t);
-
-private:
-    bool deferredParsing;
-    bool closure;
+    RexxString *kind; // The kind of source : "r", "m", "cl", etc... derived from the source's tag.
+    RexxObject *rawExecutable; // A routine or method. Its source is the same as this->source, without the tag.
+    bool closure; // true if the source's tag is ::cl...
 };
 
 
@@ -105,10 +99,12 @@ public:
     RexxObject *newRexx(RexxObject **args, size_t argc);
     RexxObject *copyRexx();
 
-    RexxArray *getSource();
-    PackageClass *getPackage();
-    RexxObject *getVariables();
-    RexxObject *getExecutable();
+    RexxArray *getSource() { return (RexxArray *)(sourceLiteral->getSource()->copy()); }
+    PackageClass *getPackage() { return sourceLiteral->getPackage(); }
+    RexxObject *getVariables() { return (RexxObject *)variables; }
+    RexxString *getKind() { return sourceLiteral->getKind(); }
+    RexxObject *getRawExecutable() { return sourceLiteral->getRawExecutable(); }
+    RexxObject *getExecutable() { return executable; }
     RexxObject *setExecutable(RexxObject *);
 
     static void createInstance();

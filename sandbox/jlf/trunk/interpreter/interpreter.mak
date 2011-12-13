@@ -205,7 +205,8 @@ ORYXKOBJ= $(OKCOBJS) $(OKAOBJS) $(OKPOBJS) $(OKIOBJS) $(OKSOBJS) $(OEPOBJS)\
 
 # define files copied by the make to the test directory
 ORXFILES=$(OR_OUTDIR)\CoreClasses.orx  $(OR_OUTDIR)\StreamClasses.orx \
-	 $(OR_OUTDIR)\PlatformObjects.orx $(OR_OUTDIR)\Serializable.orx $(OR_OUTDIR)\orexxole.cls
+	 $(OR_OUTDIR)\PlatformObjects.orx $(OR_OUTDIR)\Serializable.orx $(OR_OUTDIR)\orexxole.cls \
+     $(OR_OUTDIR)\Parser.orx
 
 #define critical header files for forcing recomp
 ORXHEADERS=$(OR_APISRC)\oorexxerrors.h $(INTERPRETER_MESSAGES)\RexxErrorCodes.h $(INTERPRETER_MESSAGES)\RexxMessageNumbers.h $(INTERPRETER_MESSAGES)\RexxMessageTable.h $(INTERPRETER_RUNTIME)\RexxCore.h \

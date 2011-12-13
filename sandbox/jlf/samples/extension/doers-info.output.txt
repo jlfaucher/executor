@@ -1,0 +1,32 @@
+range = a RexxContextualSource:1 / a Routine:2 / The NIL object:3
+from5to8 = a RexxContextualSource:4 / a Method:5 / The NIL object:3
+from20to30 = a RexxContextualSource:6 / a Method:5 / The NIL object:3
+1
+from5to8 = a RexxContextualSource:4 / a Method:5 / a Closure:7
+0
+from5to8 = a RexxContextualSource:4 / a Method:5 / a Closure:7
+0
+from20to30 = a RexxContextualSource:6 / a Method:5 / a Closure:8
+1
+from20to30 = a RexxContextualSource:6 / a Method:5 / a Closure:8
+--------------------------------------
+cs1 = a RexxContextualSource:9 / a Routine:10 / The NIL object:3
+cs2 = a RexxContextualSource:11 / a Routine:12 / The NIL object:3
+"return 2 * arg(1)" = a RexxContextualSource:13 / a Routine:14 / The NIL object:3
+3
+cs1 = a RexxContextualSource:9 / a Routine:10 / The NIL object:3
+cs2 = a RexxContextualSource:15 / a Routine:12 / The NIL object:3
+"return 2 * arg(1)" = a RexxContextualSource:16 / a Routine:14 / The NIL object:3
+5
+cs1 = a RexxContextualSource:9 / a Routine:10 / The NIL object:3
+cs2 = a RexxContextualSource:17 / a Routine:12 / The NIL object:3
+"return 2 * arg(1)" = a RexxContextualSource:18 / a Routine:14 / The NIL object:3
+7
+cs1 = a RexxContextualSource:9 / a Routine:10 / The NIL object:3
+cs2 = a RexxContextualSource:19 / a Routine:12 / The NIL object:3
+"return 2 * arg(1)" = a RexxContextualSource:20 / a Routine:14 / The NIL object:3
+9
+cs1 = a RexxContextualSource:9 / a Routine:10 / The NIL object:3
+cs2 = a RexxContextualSource:21 / a Routine:12 / The NIL object:3
+"return 2 * arg(1)" = a RexxContextualSource:22 / a Routine:14 / The NIL object:3
+11
