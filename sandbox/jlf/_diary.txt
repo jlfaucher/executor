@@ -80,6 +80,79 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 dec 18
+
+[parser]
+
+Fixed a bug that I introduced in RexxSource::argList when adding support for the
+shortcut syntax f(a1,a2,...){...}.
+The end-of-clause was not tested and a token was read beyond the EOC.
+Symptom : the following piece of code displayed 1 because an argument was
+associated to the CallInstruction. That argument was the token {dummy2} from
+the previous clause...
+    {}~instancemethods({}~class) ; call dumpresult
+    return
+    dumpResult: procedure
+        say arg()
+
+
+[doers]
+
+Simplification : Only a RexxContextualSource supports the method ~sourceDoer.
+Previously, any doer supported this method, because any doer has potentially an
+associated source from which a doer can be created. But to support this feature,
+I should add the methods ~package, ~kind and ~rawExecutable to all the doers.
+That would add complexity for something not really needed.
+
+Added the method ~trampoline to Doer.
+http://en.wikipedia.org/wiki/Tail_call#Through_trampolining
+A trampoline is a technique to transform recursive calls into a sequence of calls
+to doers. Instead of returning the result, the doer returns a doer which returns
+the result. While the result returned by the doer is a doer, the result is called.
+The loop is ended when the result is not a doer.
+Ex :
+    say {say "one" ; return {say "two" ; return "three"}}~trampoline -- one two three
+Ex :
+    factorial = {
+        use strict arg n, accu=1
+        if n <= 1 then return accu
+        executable = .context~executable
+        return {::cl
+            expose n accu executable
+            return executable~(n-1, n*accu)
+        }
+    }
+    say factorial~trampoline(1000000) -- 8.26394406E+5565708
+
+Added the method ~partial to Doer
+http://en.wikipedia.org/wiki/Partial_application
+Returns a closure which remembers the arguments passed to ~partial.
+When this closure is called with the remaining arguments, a whole argument array is
+built from both argument lists (partial and remaining) and passed to the target of
+~partial.
+Ex :
+    add10 = "+"~partial(10)
+    say add10~(1) -- 11
+Ex :
+    sub10 = "-"~partial(, 10)
+    say sub10~(1) -- -9
+Ex :
+    myArguments = .context~package~findRoutine("myArguments")
+    p1 = myArguments~partial(1,,3,,5)
+    p1~()                               1:1 3:3 5:5
+    p1~(2,,6)                           1:1 2:2 3:3 5:5 6:6
+    p1~(2,4,6,,8)                       1:1 2:2 3:3 4:4 5:5 6:6 8:8
+    p2 = myArguments~partial(,,3,4)
+    p2~()                               3:3 4:4
+    p2~(2,,6)                           1:2 3:3 4:4 5:6
+    p2~(2,4,6,,8)                       1:2 2:4 3:3 4:4 5:6 7:8
+    ::routine myArguments
+        arg(1, "a")~each{say index ":" value}
+        say "-----"
+    ::requires "extension/extensions.cls"
+
+
+===============================================================================
 2011 dec 13
 
 [source literal]
@@ -690,7 +763,7 @@ Refactoring of ~reduce, ~map and ~each :
   me to have different methods names, using one letter for each option, including the
   "indexed" and "inplace" options, "inplace" being renamed "replace".
   Consequence : the parameter "options" is removed.
-- ~map allowed to update in-place, but the design decisions was not good... I limited
+- ~map allowed to update in-place, but the design decisions were not good... I limited
   this option to collections which understand ~append, because I wanted to support 
   deletion (filtering) of items. But that's a bad idea, better to not allow deletion
   and use []= for assignment. That will work with any collection, including multi-

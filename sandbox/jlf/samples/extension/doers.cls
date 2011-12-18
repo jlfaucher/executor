@@ -12,12 +12,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 /*
 A DoerFactory is an object who knows how to create a doer.
 A doer can be created from :
-- a source (String or RexxContextualSource) :
+- a RexxContextualSource :
   Can be costly since the interpreter must parse the source and create an AST.
   But you do it only once... After, you get an executable in your hands, which you can use
   as a target for the 'do' message.
 - an executable (Routine or Method) :
   No cost, this is for convenience, the doer is the executable itself.
+- a wrapper of executable (Coactivity, Closure) :
+  No cost, this is for convenience, the doer is the wrapper itself.
 
 Examples :
 See doers-samples.rex
@@ -27,73 +29,11 @@ See doers-samples.rex
 
 ::method doer abstract
 
-/*
-Helper to create a doer from a source, after transformation of the source if requested.
-Possible transformations :
-- Insert a clause at the begining (takes care of the expose instruction, keep it always as
-  first instruction).
-- Insert a clause at the end.
-*/
-::method sourceDoer unguarded
-    use strict arg clauseBefore="", clauseAfter="", context=.nil, objectSpecified = .false, object = .nil
-    if context == .nil then context = self~package -- lookup scope
-
-    kind = self~kind
-    rawExecutable = self~rawExecutable
-    if clauseBefore <> "" | clauseAfter <> "" | rawExecutable == .nil then do
-        sourceArray = self~source -- always an array, even if empty or just one line
-        if sourceArray~items == 0 then raise syntax 93.900 array("No source available")
-        clauser = .Clauser~new(sourceArray)
-        kind = .SourceLiteralParser~kind(clauser)
-        
-        -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
-        if clauser~clauseAvailable then do
-            clause = clauser~clause
-            parse lower var clause word rest
-            if word == "expose" & \ isAssignment(rest) then clauser~nextClause
-        end
-    
-        -- Insert the 'clauseBefore', if any
-        if clauseBefore <> "" then do
-            if clauser~clauseAvailable then clauser~clause = clauseBefore ";" clauser~clause
-            else sourceArray~append(clauseBefore)
-        end
-    
-        -- Insert the 'clauseAfter', if any
-        if clauseAfter <> "" then sourceArray~append(clauseAfter)
-        
-        rawExecutable = .SourceLiteralParser~rawExecutable(kind, sourceArray, context)
-    end
-
-    -- Returns the executable
-    if kind == "r" then return rawExecutable
-    else if kind == "r.c" then return .Coactivity~new(rawExecutable)
-    else if kind == "m" then return rawExecutable
-    else if kind == "m.c" then do
-        if \objectSpecified then raise syntax 93.900 array("No object specified")
-        return .Coactivity~new(rawExecutable, , object)
-    end
-    else if kind == "cl" then return .Closure~new(self~variables, rawExecutable)
-    else if kind == "cl.c" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
-    return .nil -- should never happen
-
-
-::routine isAssignment
-    use strict arg str
-    left1 = str~left(1)
-    left2 = str~left(2)
-    left3 = str~left(3)
-    if left2 == "==" then return .false
-    if left1 == "=" then return .true
-    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true
-    if "//= ||= &&="~pos(left3) <> 0 then return .true
-    return .false
-
 
 -----------------------------------------------------------------------------
 -- Mixin.
 -- A Doer is an object who knows how to execute itself (understands "do")
--- This is an abstraction of routine, method, message, coactivity.
+-- This is an abstraction of routine, method, message, coactivity, closure.
 
 ::class "Doer" mixinclass Object public inherit DoerFactory
 
@@ -103,7 +43,44 @@ Possible transformations :
 
 -- Tilde call
 ::method "~()" unguarded
-    forward message "do" to (self~doer)
+    forward message "do"
+
+::method trampoline
+    forward message "do" continue -- any number of arguments supported for the first call
+    if \var("result") then return
+    v = result
+    -- The test \v~needsObject lets eliminate the StringDoers (and the MethodDoers, but the point is on StringDoers) : 
+    -- when you return a String, you don't want the error "Not enough arguments in method; 1 expected".
+    do while v~isA(.Doer), \v~needsObject
+        v~do -- here, no args. Most of the time, v will be a closure which holds all the needed informations.
+        if \var("result") then return
+        v = result
+    end
+    return v
+
+::method partial
+    args1 = arg(1, "a")
+    return {::cl
+            expose self args1
+            args2 = arg(1, "a")
+            size2 = args2~size
+            if size2 == 0 then args = args1
+            else do
+                args = args1~copy
+                index1 = 1
+                index2 = 1
+                do while index2 <= size2
+                    do while args~hasIndex(index1)
+                        index1 += 1
+                    end
+                    if args2~hasIndex(index2) then args[index1] = args2[index2]
+                    index1 += 1
+                    index2 += 1
+                end
+            end
+            -- Must forward explicitely to (self) otherwise stack overflow because forwarded to the closure itself.
+            forward message "do" arguments (args) to (self)
+           }~doer
 
 
 -----------------------------------------------------------------------------
@@ -180,43 +157,11 @@ The method 'run' is a private method. So can be called only from another method 
     object~sendWith(self, array)
     if var("result") then return result
 
--- Using a string as source holder is no longer necessary,
--- because RexxContextualSource is now available.
--- But I keep the possibility, just in case...
-::method source unguarded
-    return .array~of(self)
-
--- Needed if you want to run sourceDoer on a string.
--- Most of the time, the package returned by this method will not answer to your
--- needs, because a routine/method created with this package as context will have
--- a lookup scope limited to the doers package. Of course, you can pass explicitely
--- another package to sourceDoer (typically the caller's package), but that's tedious
--- to do that each time.
--- Thats's why RexxContextualSource has been added, it holds a reference to the package
--- that defined it.
-::method package unguarded
-    return .context~package
-
--- Needed if you want to run sourceDoer on a string.
--- The directory of variables returned by this method is useless...
--- Thats's why RexxContextualSource has been added, it holds a directory of variables built
--- from the context that created the RexxContextualSource instance, needed for closures.
-::method variables
-    return .context~variables
-
--- Needed if you want to run sourceDoer on a string.
-::method rawExecutable
-    return .nil -- no raw executable
-
--- Needed if you want to run sourceDoer on a string
-::method kind
-    return "" -- unknown
-
 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class "RexxContextualSourceDoer" mixinclass Object public inherit Doer
+::class "RexxContextualSourceDoer" mixinclass Object public inherit DoerFactory Doer
 
 ::method doer unguarded
     use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
@@ -225,27 +170,66 @@ The method 'run' is a private method. So can be called only from another method 
     self~executable = self~sourceDoer( , , , objectSpecified, object)
     return self~executable
 
--- Could be defined on DoerFactory to give access to this functionality from any doer,
--- but that's probably a bad idea. Other doers are directly executable (except String
--- when using sourceDoer - but that's deprecated) and I consider that the "shortest source"
--- criteria doesn't apply to them. So they will have already the right arguments and an
--- explicit return, if needed.
+/*
+Helper to create a doer from a source, after transformation of the source if requested.
+Possible transformations :
+- Insert a clause at the begining (takes care of the expose instruction, keep it always as
+  first instruction).
+- Insert a clause at the end.
+*/
+::method sourceDoer unguarded
+    use strict arg clauseBefore="", clauseAfter="", context=.nil, objectSpecified = .false, object = .nil
+    if context == .nil then context = self~package -- lookup scope
+
+    kind = self~kind
+    rawExecutable = self~rawExecutable
+    if clauseBefore <> "" | clauseAfter <> "" | rawExecutable == .nil then do
+        sourceArray = self~source -- always an array, even if empty or just one line
+        clauser = .Clauser~new(sourceArray)
+        kind = .SourceLiteralParser~kind(clauser)
+        
+        -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
+        if clauser~clauseAvailable then do
+            clause = clauser~clause
+            parse lower var clause word rest
+            if word == "expose" & \ isAssignment(rest) then clauser~nextClause
+        end
+    
+        -- Insert the 'clauseBefore', if any
+        if clauseBefore <> "" then do
+            if clauser~clauseAvailable then clauser~clause = clauseBefore ";" clauser~clause
+            else sourceArray~append(clauseBefore)
+        end
+    
+        -- Insert the 'clauseAfter', if any
+        if clauseAfter <> "" then sourceArray~append(clauseAfter)
+        
+        rawExecutable = .SourceLiteralParser~rawExecutable(kind, sourceArray, context)
+    end
+
+    -- Returns the executable
+    if kind == "r" then return rawExecutable
+    else if kind == "r.c" then return .Coactivity~new(rawExecutable)
+    else if kind == "m" then return rawExecutable
+    else if kind == "m.c" then do
+        if \objectSpecified then raise syntax 93.900 array("No object specified")
+        return .Coactivity~new(rawExecutable, , object)
+    end
+    else if kind == "cl" then return .Closure~new(self~variables, rawExecutable)
+    else if kind == "cl.c" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
+    return .nil -- should never happen
+
 ::method functionDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
-    -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
-    -- if self~executable <> .nil then return self~executable
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
     self~executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
     return self~executable
 
--- Same remark as above.
 ::method actionDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
-    -- Don't activate next line ! You may have an executable because the code is parsable, but which needs transformations anyway
-    -- if self~executable <> .nil then return self~executable
     self~executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
     return self~executable
 
@@ -282,7 +266,7 @@ The method 'run' is a private method. So can be called only from another method 
 
 
 -----------------------------------------------------------------------------
--- Closure by value : not yet a real closure 
+-- Closure by value : not yet a real closure but useful anyway 
 -- (assuming that only closures by reference are real closures...)
 -- good point, no risk of race conditions...
  
@@ -331,4 +315,18 @@ The method 'run' is a private method. So can be called only from another method 
 ::method doWith unguarded
     use strict arg array
     forward message "do" arguments (array)
+
+
+-----------------------------------------------------------------------------
+::routine isAssignment
+    use strict arg str
+    left1 = str~left(1)
+    left2 = str~left(2)
+    left3 = str~left(3)
+    if left2 == "==" then return .false
+    if left1 == "=" then return .true
+    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true
+    if "//= ||= &&="~pos(left3) <> 0 then return .true
+    return .false
+
 

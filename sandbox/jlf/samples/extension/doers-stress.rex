@@ -47,13 +47,15 @@ say {
 }~(23)
 say
 
-odd = {use arg n ; call charout , n~format(5) "=" odd(n)} 
+odd = {use arg n ; call charout , n~format(5) "=" odd(n)}
+signal on syntax
 odd~duration(0)
 odd~duration(1)
 odd~duration(2)
 odd~duration(101)
 odd~duration(1000)
--- odd~duration(10001) -- control stack full
+odd~duration(10001) -- control stack full
+syntax:
 say
 
 say trampoline(1)

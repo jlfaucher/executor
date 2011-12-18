@@ -5222,15 +5222,18 @@ size_t RexxSource::argList(
         total--;                           /* reduce the total                  */
     }
 
-    /* Shortcut syntax : f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...}) */
-    token = nextToken();
-    if (token && token->isSourceLiteral())
+    if (!token->isEndOfClause())
     {
-        RexxObject *expr = this->addText(token);
-        arglist->push(expr);             /* add next argument to list         */
-        realcount++;                     /* increment the total               */
+        /* Shortcut syntax : f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...}) */
+        token = nextToken();
+        if (token && token->isSourceLiteral())
+        {
+            RexxObject *expr = this->addText(token);
+            arglist->push(expr);             /* add next argument to list         */
+            realcount++;                     /* increment the total               */
+        }
+        else previousToken();                /* put it back                       */
     }
-    else previousToken();                /* put it back                       */
 
     return realcount;                    /* return the argument count         */
 }

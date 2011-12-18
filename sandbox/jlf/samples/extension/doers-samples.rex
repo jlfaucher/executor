@@ -2,7 +2,8 @@
 -- This routine is created by the interpreter when parsing the literal source (immediate parsing).
 source = {use strict arg name, greetings; say "hello" name || greetings}
 say source~class -- The RexxContextualSource class
-say source~executable -- a Routine
+say source~rawExecutable -- a Routine
+say source~executable -- .nil, not yet cached
 doer = source~doer -- no cost, returns directly the executable created by the interpreter at parsing time.
 say doer~class -- The Routine class
 doer~do("John", ", how are you ?") -- hello John, how are you ?
@@ -73,25 +74,12 @@ doer~do("Kathie", ", see you soon.") -- The boss says "good bye Kathie, see you 
 doer~do("Keith") -- <nothing done, the coactivity is ended>
 say
 
--- By default, a string is a message
+-- When used as a doer, a string is a message
 source = "length"
 doer = source~doer
 say doer~class -- The String class
 say doer~do("John") -- 4
 say source~("John") -- 4
-say
-
--- If you want to use a string as source holder, then you must call sourceDoer
-source = 'use strict arg name; say "hello" name'
-doer = source~sourceDoer
-say doer~class -- The Routine class
-doer~do("John") -- hello John
-say
-
-source = '::method say "hello" self'
-doer = source~sourceDoer
-say doer~class -- The Method class
-doer~do("John") -- hello John
 say
 
 -- Implicit arguments and implicit return.

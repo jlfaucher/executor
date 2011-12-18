@@ -1,3 +1,4 @@
+/*
 trace A
 count = 10
 call run count, .context~package~findRoutine("emptyRoutine")
@@ -22,7 +23,22 @@ call run count, {::m.c do forever ; args = .yield[]; value = args[1] ; if value 
 call run count, .myCoactivity~new
 
 trace O
-count = 10000
+*/
+count = 200000
+
+call time('r')
+r = 0
+do i=1 to count
+    r += 2 * i
+end
+say r count "loops, no call :" time('e')~format(2,4)
+
+call time('r')
+r = 0
+do i=1 to count
+    r += double(i)
+end
+say r "routine double, called" count "times :" time('e')~format(2,4)
 
 call time('r')
 f = {return 2 * arg(1)}
@@ -108,6 +124,9 @@ say "Ended coactivities:" .Coactivity~endAll
     end
 
 ::routine emptyRoutine
+
+::routine double
+    return 2 * arg(1)
 
 ::method emptyMethod
 
