@@ -43,7 +43,7 @@
 
 !include "$(OR_LIBSRC)\ORXWIN32.MAK"
 C=cl
-OPTIONS= $(cflags_common) $(cflags_dll) $(OR_ORYXINCL)
+OPTIONS= $(cflags_common) $(cflags_dll) $(OR_ORYXINCLW)
 OR_LIB=$(OR_OUTDIR)
 
 !IFNDEF WCHAR
@@ -52,7 +52,7 @@ WCHAR=0
 
 !IF "$(WCHAR)" == "0"
 WCHAR_OPTIONS=
-OOD_OUTDIR=$(OR_OUTDIR)
+OOD_OUTDIR=$(OR_OUTDIR)\bchar
 !ELSE
 WCHAR_OPTIONS=/DUNICODE /D_UNICODE
 OOD_OUTDIR=$(OR_OUTDIR)\wchar
@@ -117,16 +117,16 @@ OODUSER_SOURCEF = $(OOD_OUTDIR)\oodPropertySheetDialog.obj $(OOD_OUTDIR)\oodUser
 #
 # *** .cpp -> .obj rules
 #
-{$(OR_OODIALOGSRC)}.cpp{$(OOD_OUTDIR)}.obj:
+{$(OR_OODIALOGSRCW)}.cpp{$(OOD_OUTDIR)}.obj:
     @ECHO .
     @ECHO Compiling $(@B).cpp
-    $(OR_CC) $(cflags_common) $(WCHAR_OPTIONS) $(cflags_dll) /Fo$(OOD_OUTDIR)\$(@B).obj $(OR_ORYXINCL)  $(OR_OODIALOGSRC)\$(@B).cpp
+    $(OR_CC) $(cflags_common) $(WCHAR_OPTIONS) $(cflags_dll) /Fo$(OOD_OUTDIR)\$(@B).obj $(OR_ORYXINCLW)  $(OR_OODIALOGSRCW)\$(@B).cpp
 
 
-{$(OR_OODIALOGSRC)}.c{$(OOD_OUTDIR)}.obj:
+{$(OR_OODIALOGSRCW)}.c{$(OOD_OUTDIR)}.obj:
     @ECHO .
     @ECHO Compiling $(@B).c
-    $(OR_CC) $(cflags_common) $(WCHAR_OPTIONS) $(cflags_dll) /Fo$(OOD_OUTDIR)\$(@B).obj $(OR_ORYXINCL)  $(OR_OODIALOGSRC)\$(@B).c
+    $(OR_CC) $(cflags_common) $(WCHAR_OPTIONS) $(cflags_dll) /Fo$(OOD_OUTDIR)\$(@B).obj $(OR_ORYXINCLW)  $(OR_OODIALOGSRCW)\$(@B).c
 
 
 $(OOD_OUTDIR)\oodialog.dll:     $(SOURCEF)
@@ -139,15 +139,15 @@ $(OOD_OUTDIR)\oodialog.dll:     $(SOURCEF)
     COMDLG32.LIB \
     COMCTL32.LIB \
     shlwapi.lib \
-    -def:$(OR_OODIALOGSRC)\ooDialog.def \
+    -def:$(OR_OODIALOGSRCW)\ooDialog.def \
     -out:$(OOD_OUTDIR)\$(@B).dll
 
 
 # Update the version information block
-$(OOD_OUTDIR)\oodialog.res: $(OR_OODIALOGSRC)\oodialog.rc
+$(OOD_OUTDIR)\oodialog.res: $(OR_OODIALOGSRCW)\oodialog.rc
     @ECHO .
     @ECHO ResourceCompiling $(@B).res
-        $(rc) $(rcflags_common) /i $(OR_OODIALOGSRC) /i $(OR_WINKERNELSRC) -r -fo$(OOD_OUTDIR)\$(@B).res $(OR_OODIALOGSRC)\$(@B).rc
+        $(rc) $(rcflags_common) /i $(OR_OODIALOGSRCW) /i $(OR_WINKERNELSRC) -r -fo$(OOD_OUTDIR)\$(@B).res $(OR_OODIALOGSRCW)\$(@B).rc
 
 # Recompile everything if the make file changes.
 $(SOURCEF) : oodialog.mak

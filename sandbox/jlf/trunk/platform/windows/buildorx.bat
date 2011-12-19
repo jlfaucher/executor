@@ -210,11 +210,20 @@ if defined component goto arounderr
 
 
 :oodialog
+REM *** oodialog
+REM
+@ECHO Building standard OODIALOG..
+CD  %OR_OODIALOGSRC%
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK %args%)
+if ERRORLEVEL 1 goto error
+if /i "%component%" == "oodialog" goto oodialogA
+if defined component goto arounderr
+
 :oodialogA
 REM *** oodialog
 REM
-@ECHO Building byte-char OODIALOG..
-CD  %OR_OODIALOGSRC%
+@ECHO Building byte-char version of OODIALOG.WCHAR..
+CD  %OR_OODIALOGSRCW%
 IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
 if ERRORLEVEL 1 goto error
 if /i "%component%" == "oodialog" goto oodialogW
@@ -223,16 +232,23 @@ if defined component goto arounderr
 :oodialogW
 REM *** oodialog
 REM
-@ECHO Building wide-char OODIALOG..
-CD  %OR_OODIALOGSRC%
+@ECHO Building wide-char version of OODIALOG.WCHAR..
+CD  %OR_OODIALOGSRCW%
 IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args%)
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
 :oodialog_classes
-ECHO Building OODIALOG classes
+ECHO Building standard OODIALOG classes
 CD %OR_OUTDIR%
 IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex )
+if ERRORLEVEL 1 goto error
+if defined component goto arounderr
+
+:oodialogW_classes
+ECHO Building OODIALOG.WCHAR classes
+CD %OR_OUTDIR%
+IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRCW%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRCW%\build_ooDialog_cls.rex )
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 

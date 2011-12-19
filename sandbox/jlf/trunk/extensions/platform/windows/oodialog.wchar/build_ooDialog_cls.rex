@@ -52,6 +52,7 @@ end
 else do
   if outdir~right(1) \== '\' then outdir ||= '\'
 end
+outdir ||= "wchar\"
 
 parse source . . progname
 inpdir = left(progname, progname~lastpos("\"))

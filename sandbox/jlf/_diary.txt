@@ -80,6 +80,16 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 dec 19
+
+Moved wide-char oodialog (now outdated) to oodialog.wchar and adapted the makefiles
+to build both standard oodialog and oodialog.wchar. The wide-char version can be
+still useful to test unicode support by the interpreter.
+
+Next step : merge from trunk.
+
+
+===============================================================================
 2011 dec 18
 
 [parser]
@@ -147,8 +157,8 @@ Ex :
     p2~(2,,6)                           1:2 3:3 4:4 5:6
     p2~(2,4,6,,8)                       1:2 2:4 3:3 4:4 5:6 7:8
     ::routine myArguments
-        arg(1, "a")~each{say index ":" value}
-        say "-----"
+        arg(1, "a")~each{call charout, index":"value" "}
+        say
     ::requires "extension/extensions.cls"
 
 
