@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -62,6 +62,8 @@
  * stand this program.
  */
 
+  .application~useGlobalConstDir('O', "rc\ticketWizard.h")
+
   -- To run correctly, this program needs to be able to find its support files.
   -- But, we allow starting the program from anywhere.  To do this we:
   -- get the directory we are executing from, switch to the directory this
@@ -90,39 +92,39 @@
   outPageSize = .Size~new(267, 193)
   inPageSize = .Size~new(267, 143)
 
-  intro = .IntroDlg~new( , "rc\ticketWizard.h", "", "ooRexx Movie Ticket Selectitron")
+  intro = .IntroDlg~new( , , "", "ooRexx Movie Ticket Selectitron")
   intro~setSize(outPageSize)
 
-  p1 = .MoviesDlg~new( , "rc\ticketWizard.h", "", "Movies")
+  p1 = .MoviesDlg~new( , , "", "Movies")
   p1~setSize(inPageSize)
   p1~headerTitle = "Select the movie(s) you want tickets for."
   p1~headerSubtitle = "When a movie is selected, information on the movie, such as director, actors, " -
                       "etc., will also be displayed."
 
-  p2 = .CinemasDlg~new( , "rc\ticketWizard.h", "", "Cinemas" )
+  p2 = .CinemasDlg~new( , , "", "Cinemas" )
   p2~setSize(inPageSize)
   p2~headerTitle = "Pick a movie theater for the movie(s)."
   p2~headerSubtitle = "Pick a theater for each movie you've selected.  Use the drop down list to switch movies.  " -
                       "Theaters in your vicinity showing the movie(s) this week are listed.  "
 
-  p3 = .DaysDlg~new( , "rc\ticketWizard.h", "", "Days" )
+  p3 = .DaysDlg~new( , , "", "Days" )
   p3~setSize(inPageSize)
   p3~headerTitle = "Choose a day to watch the movie(s)."
   p3~headerSubtitle = "Use the drop down list to switch movies.  Pick the day most suitable for the movie."
 
-  p4 = .TicketDlg~new( , "rc\ticketWizard.h", "", "Ticket Information" )
+  p4 = .TicketDlg~new( , , "", "Ticket Information" )
   p4~setSize(inPageSize)
   p4~headerTitle = "Validate your selections and indicate the time desired."
   p4~headerSubtitle = "Pick a time for each movie selected.  Ticket information for each movie can be displayed " -
                       "using the drop down list. To change any selections use the Back button."
 
-  complete = .CompletionDlg~new( , "rc\ticketWizard.h", "", "Enjoy Your Movie")
+  complete = .CompletionDlg~new( , , "", "Enjoy Your Movie")
   complete~setSize(outPageSize)
 
   pages = .array~of(intro, p1, p2, p3, p4, complete)
 
   -- Create the property sheet using the dialog pages and set its attributes.
-  wizDlg = .TicketWizard97~new(pages, "Wizard97", "Let's Go To The Movies", "rc\ticketWizard.h")
+  wizDlg = .TicketWizard97~new(pages, "Wizard97", "Let's Go To The Movies")
 
   wizDlg~header = .Image~getImage("bmp\ticketWizardTheater.bmp")
   wizDlg~watermark = .Image~getImage("bmp\ticketWizardRexxLA.bmp")
@@ -186,8 +188,8 @@
     font1 = self~createFontEx("Verdana", 12, "BOLD")  -- From the Wizard97 specification.
 
     st1 = self~newStatic(IDC_ST_INTRO_MSG)
-  st1~setFont(font1)
-  st1~setText(msg)
+    st1~setFont(font1)
+    st1~setText(msg)
 
     info = "This wizard will help you select a ticket, or tickets, for the movie(s) of your choice.  For each" -
            "ticket you will specify the theater and time for the movie you wish to see." || .endOfLine~copies(2) || -
@@ -197,6 +199,9 @@
 
     msg = "Select the Next button to continue"
     self~newStatic(IDC_ST_INTRO_LAST_MSG)~setText(msg)
+
+::method initAutoDetection
+  self~noAutoDetection
 
 
 -- MoviesDlg
@@ -530,7 +535,7 @@
 
       ans = MessageDialog(msg, propSheet~dlgHandle, title, buttons, icon, style)
 
-      if ans == self~constDir[IDYES] then return 0
+      if ans == .PlainBaseDialog~IDYES then return 0
 
       movieCombo~select(movie)
       self~setRadioButtons(movie)
@@ -729,7 +734,7 @@
 
       ans = MessageDialog(msg, propSheet~dlgHandle, title, buttons, icon, style)
 
-      if ans == self~constDir[IDYES] then return 0
+      if ans == .PlainBaseDialog~IDYES then return 0
 
       movieCombo~select(movie)
       self~setRadioButtons(movie)
@@ -1246,14 +1251,13 @@
   return self~ok:super
 
 
-2
 ::routine setFont
 
     oldFont = .directory~new
     oldFont~name = .PlainBaseDialog~getFontName
     oldFont~size = .PlainBaseDialog~getFontSize
 
-    dlg = .FontPicker~new("rc\ticketWizard.rc", IDD_FONT_PICKER, , "rc\ticketWizard.h", , 6)
+    dlg = .FontPicker~new("rc\ticketWizard.rc", IDD_FONT_PICKER, , , , 6)
     if dlg~initCode == 0 then do
         dlg~execute("SHOWTOP", IDI_DLG_OOREXX)
     end

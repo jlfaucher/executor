@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2010-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2010-2011 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -39,11 +39,15 @@
 #define IDC_STATIC (-1)
 #endif
 
+#define IDD_NEWCONTROLS_DLG                     105
 #define IDD_LISTVIEW_DLG                        106
 #define IDD_TREEVIEW_DLG                        107
 #define IDD_PROGRESSBAR_DLG                     108
 #define IDD_TAB_DLG                             109
 #define IDD_TRACKBAR_DLG                        110
+#define IDC_TAB                                 200
+#define IDC_PB_PREVIOUS                         201
+#define IDC_PB_NEXT                             202
 #define IDC_LV_MAIN                             1000
 #define IDC_TV_MAIN                             1001
 #define IDC_PBAR_PROCESSA                       1002

@@ -1,12 +1,11 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2011-2011 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.oorexx.org/license.html                                         */
+/* http://www.oorexx.org/license.html                          */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -35,41 +34,30 @@
 /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-/****************************************************************************
 
-oodlist1.rc
+#ifndef IDC_STATIC
+#define IDC_STATIC (-1)
+#endif
 
-produced by IBM Object REXX Resource Workshop
-
-*****************************************************************************/
-
-#include <windows.h>
-
-#define DIALOG_1	1
-#define ID_MALE	101
-#define ID_FEMALE	102
-#define ID_FNAME	200
-#define ID_LNAME	201
-#define ID_STREET	202
-#define ID_CITY	203
-#define ID_AGE	204
-DIALOG_1 DIALOG 9, 23, 281, 140
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "DIALOG_1"
-FONT 8, "MS Sans Serif"
-{
- AUTORADIOBUTTON "Male", ID_MALE, 58, 10, 27, 12, BS_AUTORADIOBUTTON | WS_GROUP
- AUTORADIOBUTTON "Female", ID_FEMALE, 99, 10, 41, 12
- LTEXT "First name", -1, 11, 32, 39, 8
- EDITTEXT ID_FNAME, 54, 31, 71, 12, ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP
- LTEXT "Last name", -1, 134, 32, 40, 8
- EDITTEXT ID_LNAME, 178, 31, 93, 12, ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP
- LTEXT "Street", -1, 11, 55, 38, 8
- EDITTEXT ID_STREET, 54, 54, 216, 12, WS_BORDER | WS_TABSTOP
- LTEXT "City", -1, 11, 75, 38, 8
- EDITTEXT ID_CITY, 54, 74, 216, 12, WS_BORDER | WS_TABSTOP
- LTEXT "Age", -1, 11, 98, 19, 8
- EDITTEXT ID_AGE, 54, 97, 23, 12, WS_BORDER | WS_TABSTOP
- DEFPUSHBUTTON "OK", IDOK, 143, 116, 50, 14
- PUSHBUTTON "Cancel", IDCANCEL, 209, 117, 50, 14
-}
+#define IDD_EMPLOYEES7                          206
+#define IDD_EMPLOYEE_LIST                       207
+#define IDM_MENUBAR                             208
+#define IDC_GB1                                 1000
+#define IDC_CB_CITY                             1001
+#define IDC_UPD                                 1002
+#define IDC_LB_POSITION                         1003
+#define IDC_EDIT_NAME                           1004
+#define IDC_PB_ADD                              1005
+#define IDC_RB_MALE                             1006
+#define IDC_RB_FEMALE                           1007
+#define IDC_CHK_MARRIED                         1008
+#define IDC_PB_PRINT                            1009
+#define IDC_GB2                                 1010
+#define IDC_LB_EMPLOYEES_LIST                   1010
+#define IDC_PB_LIST                             1011
+#define IDC_RB_ADD                              1014
+#define IDC_RB_BROWSE                           1015
+#define IDM_ADD                                 40000
+#define IDM_PRINT                               40001
+#define IDM_LIST                                40002
+#define IDM_ABOUT                               40003

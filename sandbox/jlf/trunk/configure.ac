@@ -34,7 +34,7 @@ dnl SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 dnl
 
 dnl Process this file with autoconf to produce a configure script
-AC_INIT(oorexx, 4.2.0)
+AC_INIT(ooRexx, 4.2.0, , ooRexx)
 AC_PREFIX_DEFAULT(/usr)
 
 PACKAGE=ooRexx
@@ -42,7 +42,7 @@ VERSION=4.2.0
 
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AM_INIT_AUTOMAKE([1.9 tar-pax])
 
 AM_CONFIG_HEADER(config.h)
 
@@ -472,6 +472,8 @@ AC_CONFIG_FILES([
         samples/windows/oodialog/controls/Makefile
         samples/windows/oodialog/examples/Makefile
         samples/windows/oodialog/examples/resources/Makefile
+        samples/windows/oodialog/menus/Makefile
+        samples/windows/oodialog/mouse/Makefile
         samples/windows/oodialog/oleinfo/Makefile
         samples/windows/oodialog/ooRexxTry/Makefile
         samples/windows/oodialog/ooRexxTry/doc/Makefile
@@ -480,6 +482,25 @@ AC_CONFIG_FILES([
         samples/windows/oodialog/simple/Makefile
         samples/windows/oodialog/sysinfo/Makefile
         samples/windows/oodialog/tutorial/Makefile
+        samples/windows/oodialog/userGuide/Makefile
+        samples/windows/oodialog/userGuide/exercises/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise02/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise03/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise04/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise05/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise05/res/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Customer/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Customer/bmp/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Order/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Order/bmp/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/OrderMgmt/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Product/Makefile
+        samples/windows/oodialog/userGuide/exercises/Exercise06/Product/res/Makefile
+        samples/windows/oodialog/userGuide/exercises/Samples/Makefile
+        samples/windows/oodialog/userGuide/exercises/Samples/DlgData/Makefile
+        samples/windows/oodialog/userGuide/exercises/Samples/DlgData/res/Makefile
+        samples/windows/oodialog/userGuide/exercises/Support/Makefile
         samples/windows/oodialog/wav/Makefile
         samples/windows/oodialog/winsystem/Makefile
         samples/windows/rexutils/Makefile

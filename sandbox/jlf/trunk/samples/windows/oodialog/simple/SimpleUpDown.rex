@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2011 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -39,10 +39,11 @@
  * A simple UserDialog with an UpDown control.
  */
 
+  .application~autoDetection(.false)
+
   dlg = .SimpleDialog~new
 
-  dlg~Execute("SHOWTOP")
-  dlg~deinstall
+  dlg~execute("SHOWTOP")
 
 return 0
 
@@ -63,8 +64,8 @@ return 0
   self~createStatic(IDC_STATIC, 20, 21, 40, 12, "TEXT RIGHT", "Spin Me:")
   self~createEdit(IDC_EDIT_BUDDY, 62, 20, 65, 12, "RIGHT NUMBER")
   self~createUpDown(IDC_UPD, 81, 26, 12, 16, "WRAP ARROWKEYS AUTOBUDDY SETBUDDYINT")
-  self~addButton(IDOK, 22, 45, 50, 14, "Ok", , "DEFAULT")
-  self~addButton(IDCANCEL, 77, 45, 50, 14, "Cancel")
+  self~createPushButton(IDOK, 22, 45, 50, 14, "DEFAULT", "Ok")
+  self~createPushButton(IDCANCEL, 77, 45, 50, 14, , "Cancel")
 
 ::method initDialog
 
@@ -78,6 +79,3 @@ return 0
   self~constDir[IDC_UPD]        = 200
   self~constDir[IDC_EDIT_BUDDY] = 205
 
-
-::method initAutoDetection
-  self~noAutoDetection

@@ -76,12 +76,11 @@ CleanUp:
 
 
 ::requires "ooDialog.cls"    /* This file contains the ooDialog classes */
-::requires "winSystm.CLS"    /* This file contains the Windows classes */
 
 
 /* ---------------------------- Directives ---------------------------------*/
 
-::class 'MyDialogClass' subclass UserDialog inherit VirtualKeyCodes
+::class 'MyDialogClass' subclass UserDialog
 
 ::method init
   use arg initStem.
@@ -211,13 +210,12 @@ CleanUp:
   use arg treeId, key
   curTree = self~newTreeView(treeId)
   /* if DELETE key is pressed, delete the selected item */
-  if self~KeyName(key) = "DELETE" then
+  if key == .VK~DELETE then
     curTree~Delete(curTree~Selected)
   else
     /* if INSERT key is pressed, simulate pressing the New button */
-    if self~KeyName(key) = "INSERT" then
+    if key == .VK~INSERT then
       self~IDC_PB_NEW
-
 
 /* Method IDC_PB_NEW is connected to item IDC_PB_NEW */
 ::method IDC_PB_NEW

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2011 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -52,3 +52,27 @@
     of arrow buttons that the user can click to increment or decrement a
     value, such as a scroll position or a number displayed in a companion
     control.
+
+    - paidHolidays.rex
+
+    Shows how to use a MonthCalendar control, including responding to the
+    GETDAYSTATE event.  Also shows how to: restrict the time span shown in
+    the calendar, resize the calendar to the optimal size, and determine
+    which months are currently displayed.
+
+    - fiscalReports.rex
+
+    Demonstrates how to use the DateTimePicker control.  This example
+    focuses on how to use call back fields in the format string for the
+    DateTimePicker control and how to respond to the FORMATQUERY, FORMAT,
+    and KEYDOWN notifications.
+
+    - userStringDTP.rex
+
+    Demonstrates how to use the DateTimePicker control.  This example
+    focuses on the USERSTRING notification.  The USERSTRING notification is
+    sent when the user finishes editing in the DTP control.  Only DTP
+    controls with the CANPARSE style send this notification.  It allows the
+    program to provide the user with the capability of typing within the DTP
+    control.  The program can then provide a custom response when the user
+    has finished typing.

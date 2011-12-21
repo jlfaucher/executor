@@ -548,6 +548,19 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\resources\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\resources\" "*.rc"
   ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\menus
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.rc"
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\mouse
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\mouse\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\mouse\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\mouse\" "*.rc"
+  ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\oleinfo
   ; Distribution files...
   ${File} "${SRCDIR}\samples\windows\oodialog\oleinfo\" "*.rex"
@@ -568,7 +581,6 @@ Section "${LONGNAME} Samples" SecDemo
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\res
   ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\res\" "*.res"
   ${File} "${SRCDIR}\samples\windows\oodialog\res\" "*.dll"
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\simple
@@ -580,9 +592,9 @@ Section "${LONGNAME} Samples" SecDemo
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\sysinfo
   ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.rc"
-  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "sysInfo.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "sysInfo.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "sysInfo.h"
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\source
   ; Distribution files...
@@ -593,7 +605,6 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "build_ooDialog_cls.rex"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "AnimatedButton.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "BaseDialog.cls"
-  ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "CategoryDialog.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "ControlDialog.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "DeprecatedClasses.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "DialogControls.cls"
@@ -602,7 +613,6 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "EventNotification.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "Menu.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "PlainBaseDialog.cls"
-  ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "PropertySheet.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "RcDialog.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "ResDialog.cls"
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "UserDialog.cls"
@@ -613,6 +623,122 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.h"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\" "ReadMe.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise02
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise02\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise03
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise03\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise04
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise05
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise05\res
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\res\" "res.mak"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\res\" "ProductView.dll"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\res\" "ProductIcon.bmp"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Customer
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Customer\bmp
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\bmp\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\bmp\" "*.ico"
+
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Order
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Order\bmp
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\bmp\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\bmp\" "*.ico"
+
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\OrderMgmt
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\OrderMgmt\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\OrderMgmt\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\OrderMgmt\" "*.rex"
+
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Product
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Product\res
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "res.mak"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.dll"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.ico"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\" "ReadMe.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples\DlgData
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\" "*rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples\DlgData\res
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\res\" "res.mak"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\res\" "ASimpleDialog.dll"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Support
+  ; Distribution files...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Support\" "*.cls"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\wav
   ; Distribution files...
@@ -763,6 +889,7 @@ Section "${LONGNAME} Documentation" SecDoc
   ${File} "${SRCDIR}\doc\" "rxsock.pdf"
   ${File} "${SRCDIR}\doc\" "rxftp.pdf"
   ${File} "${SRCDIR}\doc\" "oodialog.pdf"
+  ${File} "${SRCDIR}\doc\" "oodguide.pdf"
   ${File} "${SRCDIR}\doc\" "rexxextensions.pdf"
   ${File} "${SRCDIR}\doc\" "unixextensions.pdf"
   ${File} "${SRCDIR}\doc\" "winextensions.pdf"
@@ -779,8 +906,10 @@ Section "${LONGNAME} Documentation" SecDoc
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx TCP-IP Sockets Functions Reference.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx rxFTP Class Reference.lnk" "$INSTDIR\doc\rxftp.pdf" "" "$INSTDIR\doc\rxftp.pdf" 0
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx rxFTP Class Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDIalog Method Reference.lnk" "$INSTDIR\doc\oodialog.pdf" "" "$INSTDIR\doc\oodialog.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDIalog Method Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog Method Reference.lnk" "$INSTDIR\doc\oodialog.pdf" "" "$INSTDIR\doc\oodialog.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog Method Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog User Guide.lnk" "$INSTDIR\doc\oodguide.pdf" "" "$INSTDIR\doc\oodguide.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog User Guide.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Rexx Extensions Reference.lnk" "$INSTDIR\doc\rexxextensions.pdf" "" "$INSTDIR\doc\rexxextensions.pdf" 0
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Windows Extensions Reference.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Unix Extensions Reference.lnk" "$INSTDIR\doc\unixextensions.pdf" "" "$INSTDIR\doc\unixextensions.pdf" 0

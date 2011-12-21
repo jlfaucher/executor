@@ -84,7 +84,9 @@ use arg
   rcFile = "resources\imageButton.rc"
   symbolFile = "resources\imageButton.h"
 
-  dlg = .ImageListDlg~new(rcFile, IDD_IMAGELIST_BUTTON, , symbolFile)
+  .application~setDefaults("O", symbolFile, .false)
+
+  dlg = .ImageListDlg~new(rcFile, IDD_IMAGELIST_BUTTON)
 
   if dlg~initCode <> 0 then do
     say "The Image List Dialog was not created correctly"
@@ -507,9 +509,6 @@ return .true
   end
 
   return self~ok:super
-
-::method initAutoDetection
-   self~noAutoDetection
 
 ::method alignment2text private
   use strict arg alignment

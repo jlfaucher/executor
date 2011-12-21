@@ -87,6 +87,7 @@ to build both standard oodialog and oodialog.wchar. The wide-char version can be
 still useful to test unicode support by the interpreter.
 
 Next step : merge from trunk.
+Done.
 
 
 ===============================================================================
@@ -2662,8 +2663,14 @@ merge 6784-6976 from
     main/trunk/interpreter
     main/trunk/platform/unix
     main/trunk/rexxapi
-
-Remember todo : 
-    merge 6500-xxxx from main/trunk/extensions/platform/windows/oodialog
-    merge 6500-xxxx from main/trunk/samples
-    merge 6784-xxxx from main/trunk/platform/windows
+move oodialog to oodialog.wchar
+commit
+copy oodialog from trunk
+commit
+merge 6500-7390 from main/trunk/samples
+merge 6784-7390 from main/trunk/platform/windows
+merge 6976-7390 from main/trunk
+revert oodialog (to stay with the last copied version)
+revert oodialog.wchar (to not take into account the new oodialog)
+resolve remaining conflicts
+commit
