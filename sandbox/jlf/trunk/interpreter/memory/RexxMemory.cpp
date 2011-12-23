@@ -65,7 +65,7 @@
 #include "WeakReferenceClass.hpp"
 #include "StackFrameClass.hpp"
 #include "ExceptionClass.hpp"
-#include "ContextualSourceClass.hpp"
+#include "BlockClass.hpp"
 #include "Interpreter.hpp"
 #include "SystemInterpreter.hpp"
 #include "Interpreter.hpp"
@@ -2359,7 +2359,7 @@ void RexxMemory::restore()
     RESTORE_CLASS(WeakReference, RexxClass);
     RESTORE_CLASS(StackFrame, RexxClass);
     RESTORE_CLASS(Exception, RexxClass);
-    RESTORE_CLASS(RexxContextualSource, RexxClass);
+    RESTORE_CLASS(RexxBlock, RexxClass);
 
     memoryObject.setOldSpace();          /* Mark Memory Object as OldSpace    */
     /* initialize the tables used for garbage collection. */

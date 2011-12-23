@@ -80,6 +80,14 @@ Review the extension mechanisms :
 
 
 ===============================================================================
+2011 dec 23
+
+Renamed RexxContextualSource to RexxBlock, because it's now more than a simple
+source. Since it's close to Smalltack blocks or Ruby blocks, the name RexxBlock
+seems more appropriate.
+
+
+===============================================================================
 2011 dec 19
 
 Moved wide-char oodialog (now outdated) to oodialog.wchar and adapted the makefiles

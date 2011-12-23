@@ -12,7 +12,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Routine inherit RoutineDoer
 ::extension Method inherit MethodDoer
 ::extension Coactivity inherit CoactivityDoer CoactivityReducer CoactivityIterator
-::extension RexxContextualSource inherit RexxContextualSourceDoer
+::extension RexxBlock inherit RexxBlockDoer
 ::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator
 ::extension Supplier inherit SupplierReducer SupplierIterator
 ::extension Array inherit ArrayInitializer

@@ -208,7 +208,7 @@ classesHeaders = $(build_classes_dir)/ArrayClass.hpp \
                  $(build_classes_dir)/WeakReferenceClass.hpp \
                  $(build_classes_dir)/StackFrameClass.hpp \
                  $(build_classes_dir)/ExceptionClass.hpp\
-                 $(build_classes_dir)/ContextualSourceClass.hpp
+                 $(build_classes_dir)/BlockClass.hpp
 classesSupportHeaders = $(build_classes_support_dir)/ProgramMetaData.hpp \
                         $(build_classes_support_dir)/RexxCollection.hpp \
                         $(build_classes_support_dir)/RexxCompoundElement.hpp \
@@ -584,7 +584,7 @@ classes_sources = $(build_classes_dir)/ArrayClass.cpp \
                   $(build_classes_dir)/WeakReferenceClass.cpp \
                   $(build_classes_dir)/StackFrameClass.cpp \
                   $(build_classes_dir)/ExceptionClass.cpp \
-                  $(build_classes_dir)/ContextualSourceClass.cpp
+                  $(build_classes_dir)/BlockClass.cpp
 package_sources = $(build_package_dir)/LibraryPackage.cpp \
                   $(build_package_dir)/PackageManager.cpp
 memory_sources = $(build_memory_dir)/DeadObject.cpp \

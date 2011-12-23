@@ -19,8 +19,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 123~reduceC("+") -- initial value is the first char (default), reduce by char, returns 6
 -- 123~reduceC(100, "+") -- initial value is 100, reduce by char, returns 106
 -- Iterate over the characters of the string and combine them into one value by applying the given action to (current_value, current_char, current_char_pos)
--- 567~reduceCI{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
--- 567~reduceCI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
+-- 567~reduceC{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
+-- 567~reduceC(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
 ::method reduceC unguarded
     forward message "reduce" to (self~makeArray(""))
 
@@ -28,8 +28,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- "10 20 30"~reduceW("+") -- initial value is the first word (default), reduce by word, returns 60
 -- "10 20 30"~reduceW(100, "+") -- initial value is 100, reduce by word, returns 160
 -- Iterate over the words of the string and combine them into one value by applying the given action to (current_value, current_word, current_word_index)
--- "10 20 30"~reduceWI{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- "10 20 30"~reduceWI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+-- "10 20 30"~reduceW{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+-- "10 20 30"~reduceW(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduceW unguarded
     forward message "reduce" to (self~subwords)
 
@@ -42,8 +42,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new(123)~reduceC("+") -- initial value is the first char (default), reduce by char, returns 6
 -- .MutableBuffer~new(123)~reduceC(100, "+") -- initial value is 100, reduce by char, returns 106
 -- Iterate over the characters of the mutable buffer and combine them into one value by applying the given action to (current_value, current_char, current_char_pos)
--- .MutableBuffer~new(567)~reduceCI{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
--- .MutableBuffer~new(567)~reduceCI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
+-- .MutableBuffer~new(567)~reduceC{arg(1) + arg(2) + arg(3)} -- initial value is the first char (default), reduce by char, index passed as 3rd argument, returns 5 + 6+2 + 7+3 = 23
+-- .MutableBuffer~new(567)~reduceC(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by char, index passed as 3rd argument, returns 0 + 5+1 + 6+2 + 7+3 = 24
 ::method reduceC unguarded
     forward message "reduce" to (self~makeArray(""))
 
@@ -51,8 +51,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .MutableBuffer~new("10 20 30")~reduceW("+") -- initial value is the first word (default), reduce by word, returns 60
 -- .MutableBuffer~new("10 20 30")~reduceW(100, "+") -- initial value is 100, reduce by word, returns 160
 -- Iterate over the words of the mutable buffer and combine them into one value by applying the given action to (current_value, current_word, current_word_index)
--- .MutableBuffer~new("10 20 30")~reduceWI{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- .MutableBuffer~new("10 20 30")~reduceWI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+-- .MutableBuffer~new("10 20 30")~reduceW{arg(1) + arg(2) + arg(3)} -- initial value is the first word (default), reduce by word, index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+-- .MutableBuffer~new("10 20 30")~reduceW(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, reduce by word, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduceW unguarded
     forward message "reduce" to (self~subwords)
 
@@ -67,8 +67,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- .array~of(10, 20, 30)~reduce("+") -- initial value is the first item (default), returns 60
 -- .array~of(10, 20, 30)~reduce(100, "+") -- initial value is 100, returns 160
 -- Iterate over the items of the collection and combine them into one value by applying the given action to (current_value, current_item, current_index)
--- .array~of(10, 20, 30)~reduceI{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- .array~of(10, 20, 30)~reduceI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+-- .array~of(10, 20, 30)~reduce{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+-- .array~of(10, 20, 30)~reduce(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduce unguarded
     forward to (self~supplier)
 
@@ -81,8 +81,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce("+") -- initial value is the first item (default), returns 60
 -- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(100, "+") -- initial value is 100, returns 160
 -- Iterate over the values yielded by the coactivity and combine them into one value by applying the given action to (current_value, current_yielded_value, current_yielded_index)
--- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduceI{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduceI(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+-- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+-- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduce unguarded
     forward to (self~supplier)
 
@@ -139,7 +139,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the string and apply the given action to (current_char)
 -- "abcdefghijklmnopqrstuvwxyz"~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
--- "abcdefghijk"~mapCI{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
+-- "abcdefghijk"~mapC{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
 ::method mapC unguarded
     use strict arg action
     return .MutableBuffer~new~mapCImpl(self, action)~string
@@ -150,7 +150,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the string and apply the given action to (current_word)
 -- "one two three"~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
--- "one two three"~mapWI{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+-- "one two three"~mapW{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action
     return .MutableBuffer~new~mapWImpl(self, action)~string
@@ -166,7 +166,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char)
 -- .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapC{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- .MutableBuffer~new("abcdefghijk")~mapCI{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
+-- .MutableBuffer~new("abcdefghijk")~mapC{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
 ::method mapC unguarded
     use strict arg action
     return .MutableBuffer~new~mapCImpl(self, action)
@@ -174,7 +174,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char) in-place
 -- .MutableBuffer~new("abcdefghijklmnopqrstuvwxyz")~mapCR{arg(1)~verify('aeiouy')} -- returns "01110111011111011111011101"
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos) in-place
--- .MutableBuffer~new("abcdefghijk")~mapCRI{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
+-- .MutableBuffer~new("abcdefghijk")~mapCR{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
 ::method mapCR
     use strict arg action
     return self~mapCImpl(self~string, action)
@@ -182,7 +182,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char)
 -- .MutableBuffer~new("one two three")~mapW{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- .MutableBuffer~new("one two three")~mapWI{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+-- .MutableBuffer~new("one two three")~mapW{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
     use strict arg action
     return .MutableBuffer~new~mapWImpl(self, action)
@@ -190,7 +190,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char) in-place
 -- .MutableBuffer~new("one two three")~mapWR{if arg(1)~length > 3 then arg(1)} -- returns "three"
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos) in-place
--- .MutableBuffer~new("one two three")~mapWRI{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
+-- .MutableBuffer~new("one two three")~mapWR{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapWR
     use strict arg action
     return self~mapWImpl(self~string, action)
@@ -239,7 +239,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the items of a copy of the collection and apply the given action to (current_item)
 -- .array~of(1,2,3)~map{2*arg(1)} -- returns .array~of(2,4,6)
 -- Iterate over the items of a copy of the collection and apply the given action to (current_item, current_index)
--- .array~of(1,2,3)~mapI{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
+-- .array~of(1,2,3)~map{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
 ::method map unguarded
     use strict arg action
     return self~copy~mapImpl(self~supplier, action)
@@ -247,7 +247,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the items of the collection and apply the given action to (current_item) in-place
 -- .array~of(1,2,3)~mapR{2*arg(1)} -- returns .array~of(2,4,6)
 -- Iterate over the items of the collection and apply the given action to (current_item, current_index) in-place
--- .array~of(1,2,3)~mapRI{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
+-- .array~of(1,2,3)~mapR{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
 ::method mapR
     use strict arg action
     return self~mapImpl(self~supplier, action)

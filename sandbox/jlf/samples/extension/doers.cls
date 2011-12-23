@@ -12,7 +12,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 /*
 A DoerFactory is an object who knows how to create a doer.
 A doer can be created from :
-- a RexxContextualSource :
+- a RexxBlock :
   Can be costly since the interpreter must parse the source and create an AST.
   But you do it only once... After, you get an executable in your hands, which you can use
   as a target for the 'do' message.
@@ -45,7 +45,7 @@ See doers-samples.rex
 ::method "~()" unguarded
     forward message "do"
 
-::method trampoline
+::method trampoline unguarded
     forward message "do" continue -- any number of arguments supported for the first call
     if \var("result") then return
     v = result
@@ -58,7 +58,7 @@ See doers-samples.rex
     end
     return v
 
-::method partial
+::method partial unguarded
     args1 = arg(1, "a")
     return {::cl
             expose self args1
@@ -96,13 +96,10 @@ See doers-samples.rex
     return .false -- No need to pass an object as first argument when calling do or doWith
 
 ::method do unguarded
-    self~callWith(arg(1,"a"))
-    if var("result") then return result
+    forward message "call"
 
 ::method doWith unguarded
-    use strict arg array
-    self~callWith(array)
-    if var("result") then return result
+    forward message "callWith"
 
 
 -----------------------------------------------------------------------------
@@ -126,13 +123,11 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::method do unguarded
     use strict arg object, ...
-    object~run(self, "a", arg(2,"a"))
-    if var("result") then return result
+    forward to (object) message "run" array (self, "a", arg(2,"a"))
 
 ::method doWith unguarded
     use strict arg object, array
-    object~run(self, "a", array)
-    if var("result") then return result
+    forward to (object) message "run" array (self, "a", array) 
 
 
 -----------------------------------------------------------------------------
@@ -149,19 +144,17 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::method do unguarded
     use strict arg object, ...
-    object~sendWith(self, arg(2,"a"))
-    if var("result") then return result
+    forward to (object) message ("sendWith") array (self, arg(2,"a"))
 
 ::method doWith unguarded
     use strict arg object, array
-    object~sendWith(self, array)
-    if var("result") then return result
+    forward to (object) message "sendWith" array (self, array)
 
 
 -----------------------------------------------------------------------------
 -- Mixin.
 
-::class "RexxContextualSourceDoer" mixinclass Object public inherit DoerFactory Doer
+::class "RexxBlockDoer" mixinclass Object public inherit DoerFactory Doer
 
 ::method doer unguarded
     use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
@@ -257,12 +250,10 @@ Possible transformations :
 
 ::method do unguarded
     forward message ("resume")
-    if var("result") then return result
 
 ::method doWith unguarded
     use strict arg array
     forward message ("resume") arguments (array)
-    if var("result") then return result
 
 
 -----------------------------------------------------------------------------
@@ -272,7 +263,7 @@ Possible transformations :
  
 ::class "Closure" public inherit Doer
 
-::method init
+::method init unguarded
     expose !_variableNames_!
     variables = .nil
     action = .nil
@@ -280,7 +271,7 @@ Possible transformations :
     else if arg() == 1, arg(1)~isA(.doer) then use strict arg action
     else if arg() == 1, arg(1)~isA(.directory) then use strict arg variables
     else raise syntax 93.900 array("Closure : Invalid arguments")
-    if variables == .nil, action <> .nil,  action~isA(.RexxContextualSource) then variables = action~context~variables
+    if variables == .nil, action <> .nil,  action~isA(.RexxBlock) then variables = action~context~variables
     if variables <> .nil then do
         !_variableNames_! = ""
         do v over variables
@@ -293,7 +284,7 @@ Possible transformations :
         self~setMethod("do", method, "Object")
     end
 
-::method initVariables
+::method initVariables unguarded
     expose !_variableNames_! (!_variableNames_!)
     use strict arg variables
     supplier = variables~supplier
@@ -302,7 +293,7 @@ Possible transformations :
         supplier~next
     end
 
-::method setMethod public -- override the private setMethod inherited from Object to make it public
+::method setMethod public unguarded -- override the private setMethod inherited from Object to make it public
     forward class (super)
 
 ::method doer unguarded

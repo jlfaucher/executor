@@ -108,7 +108,7 @@ say
 
 ::routine trampoline
     use strict arg arg 
-    do while arg~isA(.RexxContextualSource)
+    do while arg~isA(.RexxBlock)
         arg = arg~()
     end
     return arg
@@ -116,7 +116,7 @@ say
 -------------------------------------------------------------------------------
 -- Helper to display duration
 
-::extension RexxContextualSource
+::extension RexxBlock
 ::method duration
     call time('r')
     self~doWith(arg(1, "a"))

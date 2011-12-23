@@ -1,7 +1,7 @@
 -- By default (no tag) the executable is a routine.
 -- This routine is created by the interpreter when parsing the literal source (immediate parsing).
 source = {use strict arg name, greetings; say "hello" name || greetings}
-say source~class -- The RexxContextualSource class
+say source~class -- The RexxBlock class
 say source~rawExecutable -- a Routine
 say source~executable -- .nil, not yet cached
 doer = source~doer -- no cost, returns directly the executable created by the interpreter at parsing time.
@@ -116,10 +116,10 @@ say
 -- closure by value
 -- Minimal abbreviation is ::cl
 -- Output is :
---    RexxContextualSource:1 --> Closure:2 --> 1 4
---    RexxContextualSource:3 --> Closure:4 --> 2 4
---    RexxContextualSource:5 --> Closure:6 --> 3 4
---    RexxContextualSource:7 --> Closure:8 --> 4 4
+--    RexxBlock:1 --> Closure:2 --> 1 4
+--    RexxBlock:3 --> Closure:4 --> 2 4
+--    RexxBlock:5 --> Closure:6 --> 3 4
+--    RexxBlock:7 --> Closure:8 --> 4 4
 -- i contains a non mutable value (different value captured at each iteration).
 -- literalSources contains a reference to a mutableValue (same value captured at each iteration).
 pool = .queue~new

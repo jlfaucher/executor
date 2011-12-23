@@ -36,7 +36,7 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /******************************************************************************/
-/* REXX Kernel                                        ContextualSource.hpp    */
+/* REXX Kernel                                              BlockClass.hpp    */
 /*                                                                            */
 /* Primitive Rexx contextual source                                           */
 /*                                                                            */
@@ -81,7 +81,7 @@ private:
 };
 
 
-class RexxContextualSource : public RexxObject
+class RexxBlock : public RexxObject
 {
 public:
     inline void *operator new(size_t, void *ptr) { return ptr; }
@@ -93,8 +93,8 @@ public:
     void liveGeneral(int reason);
     void flatten(RexxEnvelope*);
 
-    RexxContextualSource(RexxSourceLiteral *, RexxContext *);
-    inline RexxContextualSource(RESTORETYPE restoreType) { ; };
+    RexxBlock(RexxSourceLiteral *, RexxContext *);
+    inline RexxBlock(RESTORETYPE restoreType) { ; };
 
     RexxObject *newRexx(RexxObject **args, size_t argc);
     RexxObject *copyRexx();

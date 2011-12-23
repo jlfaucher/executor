@@ -78,7 +78,7 @@
 #include "IdentityTableClass.hpp"
 #include "StackFrameClass.hpp"
 #include "ExceptionClass.hpp"
-#include "ContextualSourceClass.hpp"
+#include "BlockClass.hpp"
 #include "RexxBehaviour.hpp"
 #include "SourceFile.hpp"
 #include "LibraryPackage.hpp"
@@ -332,11 +332,11 @@ void RexxMemory::buildVirtualFunctionTable()
    objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
    virtualFunctionTable[T_ExceptionClass] = getVftPointer(objectLoc);
    
-   objectPtr = new (objectLoc) RexxContextualSource(RESTOREIMAGE);
-   virtualFunctionTable[T_RexxContextualSource] = getVftPointer(objectLoc);
+   objectPtr = new (objectLoc) RexxBlock(RESTOREIMAGE);
+   virtualFunctionTable[T_RexxBlock] = getVftPointer(objectLoc);
    
    objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
-   virtualFunctionTable[T_RexxContextualSourceClass] = getVftPointer(objectLoc);
+   virtualFunctionTable[T_RexxBlockClass] = getVftPointer(objectLoc);
    
    objectPtr = new (objectLoc) RexxNilObject(RESTOREIMAGE);
    virtualFunctionTable[T_NilObject] = getVftPointer(objectLoc);

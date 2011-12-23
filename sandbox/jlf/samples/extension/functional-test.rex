@@ -59,7 +59,7 @@ nop
 --   arg(2) - value : current item of collection
 --   arg(3) - index : current index of collection (passed if the action has the ~functionDoer method)
 -- The messages like "+" "-" etc. have no ~functionDoer method, and as such are called with two arguments (no index).
--- Any doer which is created from a RexxContextualSource is called with three arguments (index).
+-- Any doer which is created from a RexxBlock is called with three arguments (index).
 
 -- Ordered collection, the operation can be non-commutative
 .Array~of(1,2,3)~reduce("-")~dump -- initial value is the first item (default)

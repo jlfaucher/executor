@@ -87,7 +87,7 @@
 #include "ContextClass.hpp"
 #include "StackFrameClass.hpp"
 #include "ExceptionClass.hpp"
-#include "ContextualSourceClass.hpp"
+#include "BlockClass.hpp"
 
 
 void RexxMemory::defineKernelMethod(
@@ -223,7 +223,7 @@ void RexxMemory::createImage()
   WeakReference::createInstance();
   StackFrameClass::createInstance();
   ExceptionClass::createInstance();
-  RexxContextualSource::createInstance();
+  RexxBlock::createInstance();
 
                                        /* build the common retriever tables */
   TheCommonRetrievers = (RexxDirectory *)new_directory();
@@ -1381,34 +1381,34 @@ void RexxMemory::createImage()
   TheExceptionClass->subClassable(false);
 
   /***************************************************************************/
-  /*           RexxContextualSource                                          */
+  /*           RexxBlock                                                     */
   /***************************************************************************/
 
                                        /* Add the NEW methods to the        */
                                        /* class behaviour                   */
-  defineKernelMethod(CHAR_NEW     ,TheRexxContextualSourceClassBehaviour, CPPM(RexxContextualSource::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW     ,TheRexxBlockClassBehaviour, CPPM(RexxBlock::newRexx), A_COUNT);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
-  TheRexxContextualSourceClassBehaviour->setMethodDictionaryScope(TheRexxContextualSourceClass);
+  TheRexxBlockClassBehaviour->setMethodDictionaryScope(TheRexxBlockClass);
 
-  defineKernelMethod(CHAR_COPY          ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::copyRexx), 0);
-  defineKernelMethod(CHAR_SOURCE        ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getSource), 0);
-  defineKernelMethod(CHAR_PACKAGE       ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getPackage), 0);
-  defineKernelMethod(CHAR_VARIABLES     ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getVariables), 0);
-  defineKernelMethod(CHAR_KIND          ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getKind), 0);
-  defineKernelMethod(CHAR_RAWEXECUTABLE ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getRawExecutable), 0);
-  defineKernelMethod(CHAR_EXECUTABLE    ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::getExecutable), 0);
-  defineKernelMethod(CHAR_EXECUTABLEEQUALS ,TheRexxContextualSourceBehaviour, CPPM(RexxContextualSource::setExecutable), 1);
+  defineKernelMethod(CHAR_COPY          ,TheRexxBlockBehaviour, CPPM(RexxBlock::copyRexx), 0);
+  defineKernelMethod(CHAR_SOURCE        ,TheRexxBlockBehaviour, CPPM(RexxBlock::getSource), 0);
+  defineKernelMethod(CHAR_PACKAGE       ,TheRexxBlockBehaviour, CPPM(RexxBlock::getPackage), 0);
+  defineKernelMethod(CHAR_VARIABLES     ,TheRexxBlockBehaviour, CPPM(RexxBlock::getVariables), 0);
+  defineKernelMethod(CHAR_KIND          ,TheRexxBlockBehaviour, CPPM(RexxBlock::getKind), 0);
+  defineKernelMethod(CHAR_RAWEXECUTABLE ,TheRexxBlockBehaviour, CPPM(RexxBlock::getRawExecutable), 0);
+  defineKernelMethod(CHAR_EXECUTABLE    ,TheRexxBlockBehaviour, CPPM(RexxBlock::getExecutable), 0);
+  defineKernelMethod(CHAR_EXECUTABLEEQUALS ,TheRexxBlockBehaviour, CPPM(RexxBlock::setExecutable), 1);
 
                                        /* Add the instance methods to the   */
                                        /* instance behaviour mdict          */
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
-  TheRexxContextualSourceBehaviour->setMethodDictionaryScope(TheRexxContextualSourceClass);
+  TheRexxBlockBehaviour->setMethodDictionaryScope(TheRexxBlockClass);
 
                                        /* Now call the class subclassable   */
                                        /* method                            */
-  TheRexxContextualSourceClass->subClassable(true);
+  TheRexxBlockClass->subClassable(true);
 
   /***************************************************************************/
   /***************************************************************************/
@@ -1431,7 +1431,7 @@ void RexxMemory::createImage()
   kernel_public(CHAR_ROUTINE          ,TheRoutineClass ,TheEnvironment);
   kernel_public(CHAR_PACKAGE          ,ThePackageClass ,TheEnvironment);
   kernel_public(CHAR_REXXCONTEXT      ,TheRexxContextClass ,TheEnvironment);
-  kernel_public(CHAR_REXXCONTEXTUALSOURCE,TheRexxContextualSourceClass ,TheEnvironment);
+  kernel_public(CHAR_REXXBLOCK        ,TheRexxBlockClass ,TheEnvironment);
   kernel_public(CHAR_NIL              ,TheNilObject    ,TheEnvironment);
   kernel_public(CHAR_OBJECT           ,TheObjectClass  ,TheEnvironment);
   kernel_public(CHAR_QUEUE            ,TheQueueClass   ,TheEnvironment);

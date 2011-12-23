@@ -1,41 +1,52 @@
-     2 *-* count = 10
-     3 *-* call run count, .context~package~findRoutine("emptyRoutine")
- 0.1560  0.1240  0.1250  0.1090  0.1410  0.2650  0.1240  0.1090  0.1250  0.1560 mean= 0.1434
-     4 *-* call run count, {/**/}
- 0.1400  0.1400  0.2030  0.1250  0.1870  0.1250  0.1550  0.1560  0.1720  0.1710 mean= 0.1574
-     5 *-* call run count, {::r}
- 0.2180  0.1720  0.1400  0.2030  0.1710  0.1410  0.1710  0.1400  0.1250  0.1400 mean= 0.1621
-     6 *-* call run count, .methods["EMPTYMETHOD"]
- 0.0320  0.0310  0.0150  0.0310  0.0630  0.0470  0.0460  0.0470  0.0470  0.0310 mean= 0.0390
-     7 *-* call run count, {::m}
- 0.0470  0.0470  0.0460  0.0320  0.0460  0.0470  0.0310  0.0470  0.0310  0.0470 mean= 0.0421
-     9 *-* call run count, {::r.c}
- 0.0780  0.0620  0.0780  0.0620  0.0780  0.0780  0.0780  0.0780  0.0780  0.0940 mean= 0.0764
-    11 *-* call run count, {::m.c}~doer(.nil)
- 0.0780  0.0620  0.0470  0.0470  0.0460  0.0470  0.0620  0.0160  0.0310  0.0310 mean= 0.0467
-    13 *-* call run count, .context~package~findRoutine("myRoutine")
-.......... 0.1410 .......... 0.1240 .......... 0.1410 .......... 0.1250 .......... 0.1400 .......... 0.1400 .......... 0.1250 .......... 0.1400 .......... 0.1250 .......... 0.1560 mean= 0.1372
-    14 *-* call run count, {if value // 1000 == 0 then call charout ,"."}
-.......... 0.1560 .......... 0.1250 .......... 0.1560 .......... 0.1240 .......... 0.1400 .......... 0.1410 .......... 0.1400 .......... 0.1250 .......... 0.1400 .......... 0.1250 mean= 0.1372
-    15 *-* call run count, {::r if value // 1000 == 0 then call charout ,"."}
-.......... 0.1400 .......... 0.1400 .......... 0.2190 .......... 0.1710 .......... 0.1400 .......... 0.1250 .......... 0.1400 .......... 0.1410 .......... 0.1550 .......... 0.1410 mean= 0.1512
-    16 *-* call run count, .methods["MYMETHOD"]
-.......... 0.0150 .......... 0.0320 .......... 0.0460 .......... 0.0310 .......... 0.0160 .......... 0.0470 .......... 0.0310 .......... 0.0310 .......... 0.0310 .......... 0.0320 mean= 0.0312
-    17 *-* call run count, {::m if self // 1000 == 0 then call charout ,"."}
-.......... 0.0310 .......... 0.0460 .......... 0.0320 .......... 0.0460 .......... 0.0320 .......... 0.0460 .......... 0.0310 .......... 0.0470 .......... 0.0470 .......... 0.0310 mean= 0.0389
-    19 *-* call run count, {::r.c do forever ; args = .yield[]; value = args[1] ; if value // 1000 == 0 then call charout ,"." ; end}
-.......... 0.5930 .......... 0.8570 .......... 0.8730 .......... 0.7480 .......... 0.7170 .......... 0.7330 .......... 0.6700 .......... 0.7480 .......... 0.8730 .......... 0.7010 mean= 0.7513
-    20 *-* call run count, {::m.c do forever ; args = .yield[]; value = args[1] ; if value // 1000 == 0 then call charout ,"." ; end}~doer(.nil)
-.......... 0.6240 .......... 0.4830 .......... 0.4370 .......... 0.3890 .......... 0.6390 .......... 0.4060 .......... 0.5140 .......... 0.5610 .......... 0.4050 .......... 0.4680 mean= 0.4926
-    22 *-* call run count, .myCoactivity~new
-.......... 0.6860 .......... 0.4990 .......... 0.4830 .......... 0.4360 .......... 0.3280 .......... 0.4670 .......... 0.4680 .......... 0.4210 .......... 0.2490 .......... 0.3430 mean= 0.4380
-    24 *-* trace O
-100010000 literal {return 2 * arg(1)} before loop, called 10000 times :  0.1560
-100010000 literal {return 2 * arg(1)} in loop, called 10000 times :  0.1870
-100010000 literal {:return 2 * arg(1)} before loop, called 10000 times :  0.1720
-100010000 literal {:return 2 * arg(1)} in loop, called 10000 times :  0.2330
-100010000 literal {::m return 2 * self} before loop, called 10000 times :  0.0780
-100010000 literal {::m return 2 * self} in loop, called 10000 times :  0.0940
-100010000 literal {::cl expose multiplier ; return multiplier * arg(1)} before loop, called 10000 times :  0.0310
-100010000 literal {::cl expose multiplier ; return multiplier * arg(1)} in loop, called 10000 times :  0.3590
+     3 *-* count = 10
+     4 *-* call run count, .context~package~findRoutine("emptyRoutine")
+ 0.1250  0.1410  0.1250  0.1250  0.1250  0.1250  0.1250  0.1250  0.1250  0.1090 mean= 0.1250
+     5 *-* call run count, {/**/}
+ 0.1720  0.1880  0.1720  0.1560  0.1410  0.1400  0.1560  0.1250  0.1250  0.1410 mean= 0.1516
+     6 *-* call run count, {::r}
+ 0.1410  0.1400  0.1250  0.1250  0.1880  0.1250  0.1250  0.1400  0.1250  0.1410 mean= 0.1375
+     7 *-* call run count, .methods["EMPTYMETHOD"]
+ 0.0160  0.0310  0.0310  0.0310  0.0160  0.0310  0.0320  0.0310  0.0310  0.0310 mean= 0.0281
+     8 *-* call run count, {::m}
+ 0.0320  0.0310  0.0310  0.0310  0.0470  0.0310  0.0320  0.0310  0.0310  0.0310 mean= 0.0328
+    10 *-* call run count, {::r.c}
+ 0.0470  0.0320  0.0460  0.0470  0.0320  0.0310  0.0470  0.0310  0.0620  0.0320 mean= 0.0407
+    12 *-* call run count, {::m.c}~doer(.nil)
+ 0.0470  0.0310  0.0310  0.0310  0.0470  0.0310  0.0320  0.0310  0.0310  0.0310 mean= 0.0343
+    14 *-* call run count, .context~package~findRoutine("myRoutine")
+.......... 0.1410 .......... 0.1250 .......... 0.1250 .......... 0.1250 .......... 0.1410 .......... 0.1400 .......... 0.1250 .......... 0.1570 .......... 0.1560 .......... 0.1400 mean= 0.1375
+    15 *-* call run count, {if value // 1000 == 0 then call charout ,"."}
+.......... 0.1410 .......... 0.1410 .......... 0.1400 .......... 0.1570 .......... 0.1560 .......... 0.1400 .......... 0.1570 .......... 0.1560 .......... 0.1560 .......... 0.1410 mean= 0.1485
+    16 *-* call run count, {::r if value // 1000 == 0 then call charout ,"."}
+.......... 0.1720 .......... 0.1400 .......... 0.1570 .......... 0.1400 .......... 0.1410 .......... 0.1400 .......... 0.1410 .......... 0.1880 .......... 0.1560 .......... 0.1400 mean= 0.1515
+    17 *-* call run count, .methods["MYMETHOD"]
+.......... 0.0470 .......... 0.0320 .......... 0.0310 .......... 0.0310 .......... 0.0310 .......... 0.0320 .......... 0.0310 .......... 0.0470 .......... 0.0310 .......... 0.0310 mean= 0.0344
+    18 *-* call run count, {::m if self // 1000 == 0 then call charout ,"."}
+.......... 0.0310 .......... 0.0470 .......... 0.0470 .......... 0.0470 .......... 0.0470 .......... 0.0310 .......... 0.0470 .......... 0.0310 .......... 0.0470 .......... 0.0470 mean= 0.0422
+    20 *-* call run count, {::r.c do forever ; args = .yield[]; value = args[1] ; if value // 1000 == 0 then call charout ,"." ; end}
+.......... 0.5470 .......... 0.4220 .......... 0.5150 .......... 0.5160 .......... 0.5000 .......... 0.4380 .......... 0.5150 .......... 0.4380 .......... 0.5150 .......... 0.4690 mean= 0.4875
+    21 *-* call run count, {::m.c do forever ; args = .yield[]; value = args[1] ; if value // 1000 == 0 then call charout ,"." ; end}~doer(.nil)
+.......... 0.5310 .......... 0.5000 .......... 0.5000 .......... 0.4850 .......... 0.5150 .......... 0.5000 .......... 0.5160 .......... 0.4840 .......... 0.5160 .......... 0.5160 mean= 0.5063
+    23 *-* call run count, .myCoactivity~new
+.......... 0.3280 .......... 0.2970 .......... 0.2960 .......... 0.2970 .......... 0.2970 .......... 0.3130 .......... 0.2970 .......... 0.2960 .......... 0.2970 .......... 0.2970 mean= 0.3015
+    25 *-* trace O
+4.00003000E+10 200000 loops, no call :  0.1250
+4.00003000E+10 routine double, called 200000 times :  2.3910
+4.00003000E+10 literal {return 2 * arg(1)}~doer before loop, called with ~do 200000 times :  2.8120
+4.00003000E+10 literal {return 2 * arg(1)} before loop, called with ~do 200000 times :  3.1720
+4.00003000E+10 literal {return 2 * arg(1)} before loop, called with ~() 200000 times :  3.2500
+4.00003000E+10 literal {return 2 * arg(1)} in loop, called with ~do 200000 times :  3.8750
+4.00003000E+10 literal {return 2 * arg(1)} in loop, called with ~() 200000 times :  3.9690
+4.00003000E+10 literal {:return 2 * arg(1)} before loop, called with ~do 200000 times :  3.0780
+4.00003000E+10 literal {:return 2 * arg(1)} before loop, called with ~() 200000 times :  3.4220
+4.00003000E+10 literal {:return 2 * arg(1)} in loop, called with ~do 200000 times :  3.7340
+4.00003000E+10 literal {:return 2 * arg(1)} in loop, called with ~() 200000 times :  3.7350
+4.00003000E+10 literal {::m return 2 * self} before loop, called with ~do 200000 times :  0.9530
+4.00003000E+10 literal {::m return 2 * self} before loop, called with ~() 200000 times :  1.1090
+4.00003000E+10 literal {::m return 2 * self} in loop, called with ~do 200000 times :  1.7500
+4.00003000E+10 literal {::m return 2 * self} in loop, called with ~() 200000 times :  1.8280
+4.00003000E+10 literal {::cl expose multiplier ; return multiplier * arg(1)} before loop, called with ~do 200000 times :  0.6720
+4.00003000E+10 literal {::cl expose multiplier ; return multiplier * arg(1)} before loop, called with ~() 200000 times :  0.8280
+4.00003000E+10 literal {::cl expose multiplier ; return multiplier * arg(1)} in loop, called with ~do 200000 times :  6.4070
+4.00003000E+10 literal {::cl expose multiplier ; return multiplier * arg(1)} in loop, called with ~() 200000 times :  6.3900
 Ended coactivities: 1

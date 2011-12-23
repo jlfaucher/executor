@@ -1,5 +1,5 @@
-/*
 trace A
+
 count = 10
 call run count, .context~package~findRoutine("emptyRoutine")
 call run count, {/**/}
@@ -23,7 +23,9 @@ call run count, {::m.c do forever ; args = .yield[]; value = args[1] ; if value 
 call run count, .myCoactivity~new
 
 trace O
-*/
+
+--===========================================================================--
+
 count = 200000
 
 call time('r')
@@ -33,6 +35,8 @@ do i=1 to count
 end
 say r count "loops, no call :" time('e')~format(2,4)
 
+-------------------------------------------------------------------------------
+
 call time('r')
 r = 0
 do i=1 to count
@@ -40,21 +44,57 @@ do i=1 to count
 end
 say r "routine double, called" count "times :" time('e')~format(2,4)
 
+-------------------------------------------------------------------------------
+
+call time('r')
+f = {return 2 * arg(1)}~doer
+r = 0
+do i=1 to count
+    r += f~do(i)
+end
+say r "literal {return 2 * arg(1)}~doer before loop, called with ~do" count "times :" time('e')~format(2,4)
+
+call time('r')
+f = {return 2 * arg(1)}
+r = 0
+do i=1 to count
+    r += f~do(i)
+end
+say r "literal {return 2 * arg(1)} before loop, called with ~do" count "times :" time('e')~format(2,4)
+
 call time('r')
 f = {return 2 * arg(1)}
 r = 0
 do i=1 to count
     r += f~(i)
 end
-say r "literal {return 2 * arg(1)} before loop, called" count "times :" time('e')~format(2,4)
+say r "literal {return 2 * arg(1)} before loop, called with ~()" count "times :" time('e')~format(2,4)
 
--- With immediate parsing, there is no loss of performance when the literal is in the loop
+-------------------------------------------------------------------------------
+
+call time('r')
+r = 0
+do i=1 to count
+    r += {return 2 * arg(1)}~do(i)
+end
+say r "literal {return 2 * arg(1)} in loop, called with ~do" count "times :" time('e')~format(2,4)
+
 call time('r')
 r = 0
 do i=1 to count
     r += {return 2 * arg(1)}~(i)
 end
-say r "literal {return 2 * arg(1)} in loop, called" count "times :" time('e')~format(2,4)
+say r "literal {return 2 * arg(1)} in loop, called with ~()" count "times :" time('e')~format(2,4)
+
+-------------------------------------------------------------------------------
+
+call time('r')
+f = {:return 2 * arg(1)}
+r = 0
+do i=1 to count
+    r += f~do(i)
+end
+say r "literal {:return 2 * arg(1)} before loop, called with ~do" count "times :" time('e')~format(2,4)
 
 call time('r')
 f = {:return 2 * arg(1)}
@@ -62,15 +102,33 @@ r = 0
 do i=1 to count
     r += f~(i)
 end
-say r "literal {:return 2 * arg(1)} before loop, called" count "times :" time('e')~format(2,4)
+say r "literal {:return 2 * arg(1)} before loop, called with ~()" count "times :" time('e')~format(2,4)
 
--- With deferred parsing, there is a big loss of performance when the literal is in the loop
+-------------------------------------------------------------------------------
+
+call time('r')
+r = 0
+do i=1 to count
+    r += {:return 2 * arg(1)}~do(i)
+end
+say r "literal {:return 2 * arg(1)} in loop, called with ~do" count "times :" time('e')~format(2,4)
+
 call time('r')
 r = 0
 do i=1 to count
     r += {:return 2 * arg(1)}~(i)
 end
-say r "literal {:return 2 * arg(1)} in loop, called" count "times :" time('e')~format(2,4)
+say r "literal {:return 2 * arg(1)} in loop, called with ~()" count "times :" time('e')~format(2,4)
+
+-------------------------------------------------------------------------------
+
+call time('r')
+f = {::m return 2 * self}
+r = 0
+do i=1 to count
+    r += f~do(i)
+end
+say r "literal {::m return 2 * self} before loop, called with ~do" count "times :" time('e')~format(2,4)
 
 call time('r')
 f = {::m return 2 * self}
@@ -78,15 +136,25 @@ r = 0
 do i=1 to count
     r += f~(i)
 end
-say r "literal {::m return 2 * self} before loop, called" count "times :" time('e')~format(2,4)
+say r "literal {::m return 2 * self} before loop, called with ~()" count "times :" time('e')~format(2,4)
 
--- With deferred parsing, there is a big loss of performance when the literal is in the loop
+-------------------------------------------------------------------------------
+
+call time('r')
+r = 0
+do i=1 to count
+    r += {::m return 2 * self}~do(i)
+end
+say r "literal {::m return 2 * self} in loop, called with ~do" count "times :" time('e')~format(2,4)
+
 call time('r')
 r = 0
 do i=1 to count
     r += {::m return 2 * self}~(i)
 end
-say r "literal {::m return 2 * self} in loop, called" count "times :" time('e')~format(2,4)
+say r "literal {::m return 2 * self} in loop, called with ~()" count "times :" time('e')~format(2,4)
+
+-------------------------------------------------------------------------------
 
 multiplier = 2
 
@@ -94,19 +162,35 @@ call time('r')
 f = {::cl expose multiplier ; return multiplier * arg(1)}
 r = 0
 do i=1 to count
+    r += f~do(i)
+end
+say r "literal {::cl expose multiplier ; return multiplier * arg(1)} before loop, called with ~do" count "times :" time('e')~format(2,4)
+
+call time('r')
+f = {::cl expose multiplier ; return multiplier * arg(1)}
+r = 0
+do i=1 to count
     r += f~(i)
 end
-say r "literal {::cl expose multiplier ; return multiplier * arg(1)} before loop, called" count "times :" time('e')~format(2,4)
+say r "literal {::cl expose multiplier ; return multiplier * arg(1)} before loop, called with ~()" count "times :" time('e')~format(2,4)
 
--- With deferred parsing, there is a big loss of performance when the literal is in the loop
+call time('r')
+r = 0
+do i=1 to count
+    r += {::cl expose multiplier ; return multiplier * arg(1)}~do(i)
+end
+say r "literal {::cl expose multiplier ; return multiplier * arg(1)} in loop, called with ~do" count "times :" time('e')~format(2,4)
+
 call time('r')
 r = 0
 do i=1 to count
     r += {::cl expose multiplier ; return multiplier * arg(1)}~(i)
 end
-say r "literal {::cl expose multiplier ; return multiplier * arg(1)} in loop, called" count "times :" time('e')~format(2,4)
+say r "literal {::cl expose multiplier ; return multiplier * arg(1)} in loop, called with ~()" count "times :" time('e')~format(2,4)
 
 say "Ended coactivities:" .Coactivity~endAll
+
+-------------------------------------------------------------------------------
 
 ::routine run
     use strict arg count, doer

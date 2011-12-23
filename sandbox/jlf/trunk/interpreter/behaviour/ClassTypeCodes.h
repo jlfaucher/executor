@@ -104,8 +104,8 @@ typedef enum
     T_StackFrameClass = 47,
     T_Exception = 48,
     T_ExceptionClass = 49,
-    T_RexxContextualSource = 50,
-    T_RexxContextualSourceClass = 51,
+    T_RexxBlock = 50,
+    T_RexxBlockClass = 51,
 
     T_Last_Exported_Class = 51,
     

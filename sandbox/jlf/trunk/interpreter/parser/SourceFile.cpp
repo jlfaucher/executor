@@ -89,7 +89,7 @@
 #include "RoutineClass.hpp"
 #include "ActivationFrame.hpp"
 #include "StackFrameClass.hpp"
-#include "ContextualSourceClass.hpp"
+#include "BlockClass.hpp"
 
 #define HOLDSIZE         60            /* room for 60 temporaries           */
 

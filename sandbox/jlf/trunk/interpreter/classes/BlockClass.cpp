@@ -37,7 +37,7 @@
 /*----------------------------------------------------------------------------*/
 
 #include "RexxCore.h"
-#include "ContextualSourceClass.hpp"
+#include "BlockClass.hpp"
 #include "RexxActivation.hpp"
 #include "PackageClass.hpp"
 #include "DirectoryClass.hpp"
@@ -125,7 +125,7 @@ RexxObject  *RexxSourceLiteral::evaluate(
     RexxExpressionStack *stack )       /* evaluation stack                  */
 {
     RexxContext *rexxContext = (RexxContext *)context->getContextObject();
-    RexxObject *value = new RexxContextualSource(this, rexxContext);
+    RexxObject *value = new RexxBlock(this, rexxContext);
     stack->push(value);                /* place on the evaluation stack     */
                                        /* trace if necessary                */
     context->traceIntermediate(value, TRACE_PREFIX_LITERAL);
@@ -140,37 +140,37 @@ RexxObject  *RexxSourceLiteral::evaluate(
 /*                                                                            */
 /******************************************************************************/
 
-RexxClass *RexxContextualSource::classInstance = OREF_NULL;   // singleton class instance
+RexxClass *RexxBlock::classInstance = OREF_NULL;   // singleton class instance
 
 /**
  * Create initial bootstrap objects
  */
-void RexxContextualSource::createInstance()
+void RexxBlock::createInstance()
 {
-    CLASS_CREATE(RexxContextualSource, "RexxContextualSource", RexxClass);
+    CLASS_CREATE(RexxBlock, "RexxBlock", RexxClass);
 }
 
 
 /**
- * Allocate a new RexxContextualSource object
+ * Allocate a new RexxBlock object
  *
  * @param size   The size of the object.
  *
  * @return The newly allocated object.
  */
-void *RexxContextualSource::operator new(size_t size)
+void *RexxBlock::operator new(size_t size)
 {
     /* Get new object                    */
-    return new_object(size, T_RexxContextualSource);
+    return new_object(size, T_RexxBlock);
 }
 
 
 /**
- * Constructor for a RexxContextualSource object.
+ * Constructor for a RexxBlock object.
  *
  * @param p      The package class.
  */
-RexxContextualSource::RexxContextualSource(RexxSourceLiteral *s, RexxContext *c)
+RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
 {
     OrefSet(this, this->sourceLiteral, s);
     OrefSet(this, this->variables, (RexxDirectory *)TheNilObject);
@@ -181,7 +181,7 @@ RexxContextualSource::RexxContextualSource(RexxSourceLiteral *s, RexxContext *c)
 
 /**
  * The Rexx accessible class NEW method.  This raises an
- * error because RexxContextualSource objects can only be created
+ * error because RexxBlock objects can only be created
  * by the internal interpreter.
  *
  * @param args   The NEW args
@@ -189,7 +189,7 @@ RexxContextualSource::RexxContextualSource(RexxSourceLiteral *s, RexxContext *c)
  *
  * @return Never returns.
  */
-RexxObject *RexxContextualSource::newRexx(RexxObject **args, size_t argc)
+RexxObject *RexxBlock::newRexx(RexxObject **args, size_t argc)
 {
     // we do not allow these to be allocated from Rexx code...
     reportException(Error_Unsupported_new_method, ((RexxClass *)this)->getId());
@@ -198,12 +198,12 @@ RexxObject *RexxContextualSource::newRexx(RexxObject **args, size_t argc)
 
 
 /**
- * An override for the copy method to keep RexxContextualSource
+ * An override for the copy method to keep RexxBlock
  * objects from being copied.
  *
  * @return Never returns.
  */
-RexxObject *RexxContextualSource::copyRexx()
+RexxObject *RexxBlock::copyRexx()
 {
     // we do not allow these to be allocated from Rexx code...
     reportException(Error_Unsupported_copy_method, this);
@@ -211,14 +211,14 @@ RexxObject *RexxContextualSource::copyRexx()
 }
 
 
-RexxObject *RexxContextualSource::setExecutable(RexxObject *exec)
+RexxObject *RexxBlock::setExecutable(RexxObject *exec)
 {
     OrefSet(this, this->executable, exec);
     return OREF_NULL; // no return value
 }
 
 
-void RexxContextualSource::live(size_t liveMark)
+void RexxBlock::live(size_t liveMark)
 /******************************************************************************/
 /* Function:  Normal garbage collection live marking                          */
 /******************************************************************************/
@@ -229,7 +229,7 @@ void RexxContextualSource::live(size_t liveMark)
     memory_mark(this->executable);
 }
 
-void RexxContextualSource::liveGeneral(int reason)
+void RexxBlock::liveGeneral(int reason)
 /******************************************************************************/
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
@@ -240,12 +240,12 @@ void RexxContextualSource::liveGeneral(int reason)
     memory_mark_general(this->executable);
 }
 
-void RexxContextualSource::flatten(RexxEnvelope *envelope)
+void RexxBlock::flatten(RexxEnvelope *envelope)
 /******************************************************************************/
 /* Function:  Flatten an object                                               */
 /******************************************************************************/
 {
-  setUpFlatten(RexxContextualSource)
+  setUpFlatten(RexxBlock)
 
   flatten_reference(newThis->objectVariables, envelope);
   newThis->sourceLiteral = OREF_NULL; // this never should be getting flattened, so sever the connection
