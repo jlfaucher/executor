@@ -385,9 +385,9 @@ typedef struct RxTreeData {
     SHVBLOCK shvb;                     /* Request block for RxVar    */
     size_t stemlen;                    /* Length of stem             */
     size_t vlen;                       /* Length of variable value   */
-    char TargetSpec[MAX+1];            /* Target filespec            */
-    char truefile[MAX+1];              /* expanded file name         */
-    char Temp[MAX+80];                 /* buffer for returned values */
+    char TargetSpec[PATH_MAX+1];       /* Target filespec            */
+    char truefile[PATH_MAX+1];         /* expanded file name         */
+    char Temp[PATH_MAX+80];            /* buffer for returned values */
     char varname[MAX];                 /* Buffer for variable name   */
     size_t nattrib;                    /* New attrib, diff for each  */
 } RXTREEDATA;
@@ -1282,7 +1282,7 @@ int  RecursiveFindFile(
   size_t       options )               /* Search and output format   */
                                        /* options                    */
 {
-  char  tempfile[MAX+1];               /* Used to hold temp file name*/
+  char  tempfile[PATH_MAX+1];          /* Used to hold temp file name*/
   DIR *dir_handle;                     /* Directory handle           */
   struct stat finfo;                   /* file information           */
   char * filename;
