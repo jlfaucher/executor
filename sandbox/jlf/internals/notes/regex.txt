@@ -1,2 +1,5 @@
 Introduction to Perl 6 Regex
 https://github.com/perlpilot/perl6-docs/blob/master/intro/p6-regex-intro.pod
+
+Regular Expression Flavor Comparison
+http://www.regular-expressions.info/refflavors.html

@@ -1,4 +1,4 @@
-http://msdn.microsoft.com/en-us/library/dd293603.aspx
+http://gafter.blogspot.com/2007/01/definition-of-closures.html
 
 
 http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/
@@ -108,8 +108,6 @@ http://math.andrej.com/2009/04/09/pythons-lambda-is-broken/
 
 http://www.reddit.com/r/programming/comments/ghlbs/immutability_and_blocks_lambdas_and_closures/
 
-http://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-this/4199355#4199355
-
 http://python-history.blogspot.com/2010/06/from-list-comprehensions-to-generator.html
 
 https://developer.mozilla.org/en/new_in_javascript_1.7
@@ -136,6 +134,12 @@ Closing over the loop variable considered harmful
 http://blogs.msdn.com/b/nativeconcurrency/archive/2011/02/21/the-concurrency-runtime-and-visual-c-2010-lambda-expressions.aspx
 The Concurrency Runtime and Visual C++ 2010: Lambda Expressions
 
+http://msdn.microsoft.com/en-us/library/dd293603.aspx
+
+http://blogs.msdn.com/b/ericlippert/archive/2009/11/12/closing-over-the-loop-variable-considered-harmful.aspx
+Closing over the loop variable considered harmful
+
+
 http://groovy.codehaus.org/JN2515-Closures
 http://groovy.codehaus.org/api/groovy/lang/Closure.html
 Trampoline :
@@ -149,11 +153,13 @@ Once a non-closure value is returned, the trampoline stops and returns the value
 
 http://jrdodds.blogs.com/blog/2006/05/javascript_clos.html
 
-http://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture-in-python
-
 http://www.psg.com/~dlamkins/sl/chapter11.html
 
+
 http://www.newlisp.org/index.cgi?Closures
+
+http://common-lisp.net/project/bknr/static/lmman/fd-clo.xml
+
 
 http://gleichmann.wordpress.com/2010/11/15/functional-scala-closures/
 
@@ -161,7 +167,18 @@ http://letoverlambda.com/textmode.cl/guest/chap2.html
 
 http://perfectionkills.com/a-closer-look-at-expression-closures/
 
+
+http://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture-in-python
+
+http://stackoverflow.com/questions/4198906/python-list-comprehension-rebind-names-even-after-scope-of-comprehension-is-this/4199355#4199355
+
 http://stackoverflow.com/questions/3329368/how-can-i-use-php-5-3-closures-like-we-use-blocks-in-ruby
+
+http://stackoverflow.com/questions/8898925/is-there-a-reason-for-cs-reuse-of-the-variable-in-a-foreach
+
+http://stackoverflow.com/questions/8793309/closures-over-values-vs-context
+Closures over values vs context
+
 
 http://mark-story.com/posts/view/picking-up-javascript-closures-and-lexical-scoping
 

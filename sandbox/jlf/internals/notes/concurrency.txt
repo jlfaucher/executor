@@ -1,7 +1,11 @@
 ===================================================================================
 
 
+http://herbsutter.com/welcome-to-the-jungle/
+
+
 http://soniacodes.wordpress.com/2011/03/15/concurrency-review/
+
 
 http://threadingbuildingblocks.org/
 

@@ -1,6 +1,17 @@
+This file is not limited to co-routines. Also covers iterators, generators.
+
+http://www.cs.arizona.edu/icon/docs/ipd266.htm
+Icon generators
+
+http://www.icsi.berkeley.edu/~sather/Documentation/LanguageDescription/webmaker/DescriptionX2Eiterators-chapte-1.html#HEADING1-19
+Sather iterators
+
 http://www.python.org/dev/peps/pep-3152/	cofunctions
 
 http://www.python.org/dev/peps/pep-0380/	Syntax for Delegating to a Subgenerator
+
+http://codespeak.net/py/0.9.2/greenlet.html
+Python
 
 http://yinsochen.com/flapjax-functional-reactive-programming-in-javascrip/
 

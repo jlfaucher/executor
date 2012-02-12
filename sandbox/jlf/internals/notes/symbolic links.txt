@@ -1,0 +1,84 @@
+==============
+Symbolic links
+==============
+
+
+SysFileTree for Unix does not dereference symbolic links, which is good because it's possible to create recursive paths.
+I have this case on my Mac :
+/System/Library/Java/Support/Deploy.bundle/Contents/Resources/JavaPlugin2_NPAPI.plugin/Contents
+    Resources -> ../../../Resources
+
+SysFileTree for Windows dereferences the symbolic links (tested with a junction), but does not crash with recursive paths.
+The buffers are allocated on the heap if needed, and I think FindFirstFile returns a NULL handle when the path becomes too long, which stops the recursion.
+
+File~listFiles dereferences the symbolic links...
+So MUST test SysIsFileLink when recursively walking through the directories.
+Otherwise internal buffer overflow.
+
+
+Symbolic link
+    http://en.wikipedia.org/wiki/Symbolic_link
+    
+Windows :
+    junction.exe
+        http://technet.microsoft.com/en-us/sysinternals/bb896768
+    Reparse Points
+        http://msdn.microsoft.com/en-us/library/Aa365503
+    Determining Whether a Directory Is a Mounted Folder
+        http://msdn.microsoft.com/en-us/library/aa363940
+    Reparse Points and File Operations
+        http://msdn.microsoft.com/en-us/library/aa365505
+    Programming Considerations
+        http://msdn.microsoft.com/en-us/library/aa365460
+    Hard Links and Junctions
+        http://msdn.microsoft.com/en-us/library/aa365006
+    Creating Symbolic Links
+        http://msdn.microsoft.com/en-us/library/aa363878
+
+
+
+-------------------------------------------------------------------------------------------
+Usage of stat functions family in ooRexx sources.
+Searched for "stat(", "stat64", "stati64"
+
+lstat : does not dereference symbolic links
+all others : dereference
+
+
+extensions/rexxutil/platform/unix/rexxutil.cpp
+    LinFindNextFile : lstat
+    LinFindNextDir : lstat
+    OpenFile : stat64
+    SysGetFileDateTime : stat64
+    SysSetFileDateTime : stat64
+    CopyFile_DereferenceSymbolicLinks : stat64
+    CopyFile_DontDereferenceSymbolicLinks : lstat64
+    SysIsFile : stat64
+    SysIsFileDirectory : stat64
+    SysIsFileLink : lstat64
+    SysFileExists : stat64
+extensions/platform/unix/rxunixsys/rxunixsys.cpp
+    SysStat : stat64
+common/platform/unix/SysFile.cpp
+    SysFile::getSize(int64_t &size) : fstat64
+    SysFile::getSize(const char *name, int64_t &size) : stat64
+    SysFile::getTimeStamp(const char *&time) : fstat64
+    SysFile::getTimeStamp(const char *name, const char *&time) : stat64
+    SysFile::getStreamTypeInfo() : fstat64
+common/platform/windows/SysFile.cpp
+    SysFile::getSize(int64_t &size) : _fstati64
+    SysFile::getSize(const char *name, int64_t &size) : _stati64
+    SysFile::getTimeStamp(const char *&time) : _fstati64
+    SysFile::getTimeStamp(const char *name, const char *&time) : _stati64
+    SysFile::getStreamTypeInfo() : _fstati64
+interpreter/platform/unix/SysFileSystem.cpp
+    SysFileSystem::fileExists(const char * fname) : stat64
+    SysFileSystem::checkCurrentFile(const char *name, char *resolvedName) : stat64
+    SysFileSystem::searchPath(const char *name, const char *path, char *resolvedName) : stat64
+    SysFileSystem::isDirectory(const char *name) : stat64
+    SysFileSystem::isFile(const char *name) : stat64
+    SysFileSystem::exists(const char *name) : stat64
+    SysFileSystem::getLastModifiedDate(const char *name) : stat64
+    SysFileSystem::getFileLength(const char *name) : stat64
+    SysFileSystem::setLastModifiedDate : stat64
+    SysFileSystem::setFileReadOnly(const char *name) : stat64

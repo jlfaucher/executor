@@ -1,3 +1,9 @@
+http://www.balisage.net/Proceedings/vol3/print/Kay01/BalisageVol3-Kay01.html
+
+http://www.yesodweb.com/book/conduit
+
+http://www.yesodweb.com/blog/2012/01/conduit-versus-enumerator
+
 http://ayende.com/blog/4435/map-reduce-a-visual-explanation
 
 http://michaelnielsen.org/blog/write-your-first-mapreduce-program-in-20-minutes/
