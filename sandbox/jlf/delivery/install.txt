@@ -1,0 +1,47 @@
+ooRexx sandbox/jlf for experimental work.
+http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/
+
+
+=====================================================================================
+Windows
+=====================================================================================
+
+Open a console.
+Unzip the file oorexx-sandbox-jlf-win32.zip
+Go to the directory oorexx-sandbox-jlf.
+call setenv_oorexx.bat (to execute each time you open a new console)
+
+From now, you can run scripts : rexx myscript
+or launch the ooRexxShell : oorexxshell
+
+
+=====================================================================================
+Puppy Linux
+=====================================================================================
+
+Open a terminal.
+Untar the file oorexx-sandbox-jlf-puppyLinux.taz
+Go to the directory oorexx-sandbox-jlf.
+. ./setenv_oorexx (to execute each time you open a new terminal).
+
+From now, you can run scripts : rexx myscript
+or launch the ooRexxShell : oorexxshell
+
+
+=====================================================================================
+MacOsX
+=====================================================================================
+
+Open a terminal.
+Untar the file oorexx-sandbox-jlf-macosx.taz
+Go to the directory oorexx-sandbox-jlf.
+. ./setenv_oorexx (to execute each time you open a new terminal).
+
+From now, you can run scripts : rexx myscript
+or launch the ooRexxShell : oorexxshell
+
+If you need to run ooRexx in superuser mode, then you must execute setenv_oorexx when
+in superuser mode, otherwise the dynamic libraries won't be found :
+sudo bash
+Go to the directory oorexx-sandbox-jlf.
+. ./setenv_oorexx

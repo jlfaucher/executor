@@ -281,6 +281,7 @@ instructionsHeaders = $(build_instructions_dir)/AddressInstruction.hpp \
                       $(build_instructions_dir)/EndInstruction.hpp \
                       $(build_instructions_dir)/ExitInstruction.hpp \
                       $(build_instructions_dir)/ExposeInstruction.hpp \
+                      $(build_instructions_dir)/ExtensionDirective.hpp \
                       $(build_instructions_dir)/ForwardInstruction.hpp \
                       $(build_instructions_dir)/GuardInstruction.hpp \
                       $(build_instructions_dir)/IfInstruction.hpp \
@@ -382,13 +383,13 @@ hostemuHeaders = $(build_extensions_hostemu_dir)/hostemu.h
 # Platform specific files
 windowsMiscFiles =
 unixMiscFiles = $(interpreter_unix_dir)/*.cat \
-                $(rexxapi_server_unix_dir)/rxapid \
+                rexxapi/server/platform/unix/rxapid \
                 $(build_messages_dir)/gencat.inp \
                 $(build_os_platform_dir)/rexx.sh \
                 $(build_os_platform_dir)/rexx.csh \
                 $(build_os_platform_dir)/*.1 \
-                $(build_os_platform_dir)/oorexx.spec \
-                $(build_os_platform_dir)/oorexx-config
+                platform/unix/oorexx.spec \
+                platform/unix/oorexx-config
 commonMiscFiles = $(top_srcdir)/CPLv1.0.txt \
                   $(top_srcdir)/CHANGES \
                   $(top_srcdir)/ReleaseNotes \
@@ -415,6 +416,9 @@ commonMiscFiles = $(top_srcdir)/CPLv1.0.txt \
                   $(behaviourHeaders) \
                   $(classesHeaders) \
                   $(classesSupportHeaders) \
+                  $(m17nHeaders) \
+                  $(m17nCharsetHeaders) \
+                  $(m17nEncodingHeaders) \
                   $(concurrencyHeaders) \
                   $(executionHeaders) \
                   $(expressionHeaders) \
@@ -1117,6 +1121,7 @@ install-exec-local:
 	else \
 		$(install_sh_SCRIPT) rexx.cat $(DESTDIR)$(catdir)/rexx.cat; \
 	fi
+# JLF : bypass an install problem when building from outside the source tree (I do that...)
 	$(install_sh_SCRIPT) platform/unix/oorexx-config $(DESTDIR)$(prefix)/bin/oorexx-config
 	$(install_sh_SCRIPT) $(build_extensions_rxregexp_dir)/rxregexp.cls $(DESTDIR)$(prefix)/bin/rxregexp.cls
 	$(install_sh_SCRIPT) $(build_extensions_rxftp_dir)/rxftp.cls $(DESTDIR)$(prefix)/bin/rxftp.cls
@@ -1125,8 +1130,9 @@ install-exec-local:
 	$(install_sh_SCRIPT) $(build_extensions_rxsock_dir)/streamsocket.cls $(DESTDIR)$(prefix)/bin/streamsocket.cls
 	$(install_sh_SCRIPT) $(build_extensions_rxsock_dir)/mime.cls $(DESTDIR)$(prefix)/bin/mime.cls
 	$(install_sh_SCRIPT) $(build_extensions_rxsock_dir)/smtp.cls $(DESTDIR)$(prefix)/bin/smtp.cls
+# JLF : bypass an install problem when building from outside the source tree (I do that...)
 	if test "$(ORX_SYS_STR)" != "AIX" -a "$(ORX_SYS_STR)" != "MACOSX"; then \
-		$(install_sh_SCRIPT) $(rexxapi_server_unix_dir)/rxapid $(DESTDIR)$(prefix)/bin/rxapid; \
+		$(install_sh_SCRIPT) rexxapi/server/platform/unix/rxapid $(DESTDIR)$(prefix)/bin/rxapid; \
 	fi
 
 	if test "$(ORX_SYS_STR)" = "MACOSX"; then \

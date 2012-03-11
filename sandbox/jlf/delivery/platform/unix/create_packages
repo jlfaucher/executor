@@ -1,0 +1,148 @@
+#!/bin/sh
+
+# This script must be run from delivery.
+# It gathers various files from samples and incubator, to create a "packages" directory in delivery.
+# Can be run as many times as needed, but you have to remove the existing "packages" directory, if any (otherwise the script stops).
+#
+# Usage : ./platform/unix/create_packages.sh
+#
+# Note : this script can be used under Windows, from the Cygwin shell.
+
+check_dir()
+{
+    dir=$1
+    if ! test -e $dir
+    then
+        echo "$dir not found."
+        check_ok=0
+    fi
+}
+
+check_preconditions()
+{
+    if ! test `basename "$PWD"` = "delivery"
+    then
+        echo "Must be run from delivery."
+        return 1
+    fi
+    check_ok=1
+    check_dir "../../../incubator/ooRexxShell"
+    check_dir "../../../incubator/regex"
+    check_dir "../samples"
+    if test $check_ok = 0
+    then
+        echo "Some required directories are not found (see above)."
+        return 1
+    fi
+    if test -e packages
+    then
+        echo "The \"packages\" directory already exists. Remove it before running this script."
+        return 1
+    fi
+    return 0
+}
+
+copy_file()
+{
+    source=$1
+    file=`basename "$source"`
+    EXTRA_DIST="$EXTRA_DIST $file"
+    mkdir -p "packages/$DEST"
+    echo cp "$source" "packages/$DEST" || ERROR=1
+    cp "$source" "packages/$DEST" || ERROR=1
+}
+
+create_Makefile_am()
+{
+    return # not needed for the moment
+    
+    subdirs=$1
+    makefile_am="packages/$DEST/Makefile.am"
+    echo "" > "$makefile_am"
+    echo SUBDIRS=$subdirs >> "$makefile_am"
+    echo DIST_SUBDIRS=$subdirs >> "$makefile_am"
+    echo EXTRA_DIST=$EXTRA_DIST >> "$makefile_am"
+    echo MAINTAINERCLEANFILES=Makefile.in >> "$makefile_am"
+}
+
+create_Packages()
+{
+    ERROR=0
+    DEST=.
+    EXTRA_DIST=
+    copy_file ../../../incubator/ooRexxShell/oorexxshell
+    copy_file ../../../incubator/ooRexxShell/oorexxshell.bat
+    copy_file ../../../incubator/ooRexxShell/oorexxshell.rex
+    create_Makefile_am "_samples concurrency extension pipeline profiling regex rgf_util2 trace"
+
+    DEST=regex
+    EXTRA_DIST=
+    copy_file ../../../incubator/regex/regex.cls
+    create_Makefile_am ""
+
+    DEST=concurrency
+    EXTRA_DIST=
+    copy_file ../samples/concurrency/activity.cls
+    copy_file ../samples/concurrency/coactivity.cls
+    create_Makefile_am ""
+
+    DEST=extension
+    EXTRA_DIST=
+    copy_file ../samples/extension/array.cls
+    copy_file ../samples/extension/doers.cls
+    copy_file ../samples/extension/extensions.cls
+    copy_file ../samples/extension/functionals.cls
+    create_Makefile_am ""
+
+    DEST=pipeline
+    EXTRA_DIST=
+    copy_file ../samples/pipeline/pipe_extension.cls
+    copy_file ../samples/pipeline/pipe_readme.txt
+    copy_file ../samples/pipeline/pipe.rex
+    create_Makefile_am ""
+
+    DEST=profiling
+    EXTRA_DIST=
+    copy_file ../samples/profiling/profiling.cls
+    create_Makefile_am ""
+
+    DEST=rgf_util2
+    EXTRA_DIST=
+    copy_file ../samples/rgf_util2/rgf_util2_wrappers.rex
+    copy_file ../samples/rgf_util2/rgf_util2.rex
+    create_Makefile_am ""
+
+    DEST=trace
+    EXTRA_DIST=
+    copy_file ../samples/trace/tracer.rex
+    create_Makefile_am ""
+
+    DEST=_samples
+    EXTRA_DIST=
+    copy_file ../samples/benchmark/doers-benchmark.rex
+    copy_file ../samples/concurrency/binary_tree.cls
+    copy_file ../samples/concurrency/busy.cls
+    copy_file ../samples/concurrency/coactivity-test.rex
+    copy_file ../samples/concurrency/multiplier.cls
+    copy_file ../samples/extension/doers-info.rex
+    copy_file ../samples/extension/doers-samples.rex
+    copy_file ../samples/extension/doers-stress.rex
+    copy_file ../samples/extension/functional-test.rex
+    copy_file ../samples/pipeline/grep_sources.rex
+    #copy_file ../samples/pipeline/one-liners.rex
+    copy_file ../samples/pipeline/pipe_extension_test.rex
+    copy_file ../samples/pipeline/trailing_whitespaces.rex
+    create_Makefile_am ""
+
+    if [ $ERROR -ne 0 ]
+    then echo "Got errors while copying"
+    else echo The directory packages has been created.
+    fi
+    
+    return $ERROR
+}
+
+if ! check_preconditions 
+then false
+else create_Packages
+fi

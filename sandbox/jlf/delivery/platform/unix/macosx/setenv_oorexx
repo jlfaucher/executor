@@ -1,0 +1,35 @@
+#!/bin/bash
+
+version="ooRexx sandbox-jlf"
+echo Setting environment for running $version
+
+# add to front of path
+prepend_path()
+{
+  if eval test -z "\"\$$1\"" || ! eval test -z "\"\${$1##*:$2:*}\"" -o -z "\"\${$1%%*:$2}\"" -o -z "\"\${$1##$2:*}\"" -o -z "\"\${$1##$2}\"" ; then
+    eval "$1=$2:\$$1"
+  fi
+}
+
+me=$(readlink -f ${BASH_SOURCE[0]})
+export oorexx_delivery=`dirname "$me"`
+
+echo -n -e "\033]0;$version\007"
+
+export PATH
+export DYLD_FALLBACK_LIBRARY_PATH
+export CPLUS_INCLUDE_PATH
+export LIBRARY_PATH
+
+prepend_path PATH $oorexx_delivery/bin
+prepend_path PATH $oorexx_delivery/packages
+prepend_path DYLD_FALLBACK_LIBRARY_PATH $oorexx_delivery/lib
+prepend_path CPLUS_INCLUDE_PATH $oorexx_delivery/include
+prepend_path LIBRARY_PATH $oorexx_delivery/lib
+
+## If the rxapi server is not running then launch it in a separate terminal
+#rxapi_pid=`ps -ef | grep rxapi | grep -v grep | awk '{print $2}'`
+#if test -z "$rxapi_pid"
+#then
+#    open -a terminal "$oorexx_delivery/bin/rxapi"
+#fi

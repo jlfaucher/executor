@@ -226,16 +226,25 @@ void APIServer::processMessages(SysServerConnection *connection)
         {
             // an error here is likely caused by the client closing the connection.
             // delete both the exception and the connection and terminate the thread.
-			fprintf(stderr, "[rxapi %05i] ServiceException caught\n", rxapiCounter);
+#ifdef _DEBUG
+            if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+			dbgprintf("(rxapi) %05i ServiceException caught\n", rxapiCounter);
+#endif
             delete e;
             delete connection;
             return;
         }
 
-        fprintf(stderr, "[rxapi %05i] ServiceMessage %s %s\n", rxapiCounter, ServerManagerText(message.messageTarget), ServerOperationText(message.operation));
-        fprintf(stderr, "[rxapi %05i] session=%i\n", rxapiCounter, message.session);
-        fprintf(stderr, "[rxapi %05i] nameArg=%s\n", rxapiCounter, message.nameArg);
-        fprintf(stderr, "[rxapi %05i] userid=%s\n", rxapiCounter, message.userid);
+#ifdef _DEBUG
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(rxapi) %05i ServiceMessage %s %s\n", rxapiCounter, ServerManagerText(message.messageTarget), ServerOperationText(message.operation));
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(rxapi) %05i session=%i\n", rxapiCounter, message.session);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(rxapi) %05i nameArg=%s\n", rxapiCounter, message.nameArg);
+        if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
+        dbgprintf("(rxapi) %05i userid=%s\n", rxapiCounter, message.userid);
+#endif
         message.result = MESSAGE_OK;     // unconditionally zero the result
         try
         {
