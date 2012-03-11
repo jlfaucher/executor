@@ -131,7 +131,7 @@ my_cdebug = $(Z_FLAGS) -O2 /Gr /DNDEBUG /Gs #Gs added by IH
 #added by IH for the NT queue pull problem
 cflags_noopt=/nologo /D:_X86_ /DWIN32 $(WARNING_FLAGS) -c /Ox /Gf /Gr /DNDEBUG /Gs /DNULL=0
 !ELSE
-my_cdebug = -Zi /Od /Gr /D_DEBUG /DEBUGTYPE:CV
+my_cdebug = -Zi /Od /Gr /D_DEBUG /DEBUGTYPE:CV /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
 #added by IH for the NT queue pull problem
 cflags_noopt=/nologo /D:_X86_ /DWIN32 $(WARNING_FLAGS) -c $(my_cdebug) /DNULL=0
 !ENDIF

@@ -357,18 +357,11 @@ class MemorySegmentSet {
       MemorySegment *getSegment(size_t requestLength, size_t minimumLength);
       void activateEmptySegments();
 
-      inline void validateObject(size_t bytes)
-      {
-      #ifdef CHECKOREFS
-          /* is object invalid size?           */
-          if (!IsValidSize(bytes)) {
-              /* Yes, this is not good.  Exit      */
-              /* Critical Section and report       */
-              /* unrecoverable error.              */
-              Interpreter::logicError("Bad object detected during Garbage Collection, unable to continue");
-          }
-      #endif
-      }
+#ifndef CHECKOREFS
+      inline void validateObject(size_t bytes) {};
+#else
+      void validateObject(size_t bytes); // Must be moved to .cpp file because compile error with Interpreter::logicError
+#endif
 
 
 

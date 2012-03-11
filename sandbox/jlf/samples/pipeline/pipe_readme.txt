@@ -1,16 +1,4 @@
 =========================================
-Possible integration in oorexxshell
-=========================================
-
-Currently the input line is assumed to be in totality either ooRexx syntax or 'address' syntax (cmd, bash, hostemu, 'the')
-A command line can start with an interpreter name (oorexx, cmd, bash) and the rest of the line will be processed by the corresponding interpreter.
-If the input line can be splitted in different syntaxes, then the following command line becomes possible :
-    cmd[dir *.exe] | lineCount
-Here, cmd[...] is both a syntax annotation and a pipeStage
-If the stdout of the command is sent to a Rexx queue then it should be possible to make it enter in a pipeline.
-
-
-=========================================
 Notes about pipes
 =========================================
 
@@ -19,10 +7,10 @@ fanout : forward eof to self~next and self~secondary, but not to super
 merge : send a 'done' message
 
 console : process does forward class (super) --> why needed here, and not in other classes ?
-answer : because .console does not transform the values, it just displays them. So it can
-forward to class (super) which will take care of sending the value & index to next pipestage.
-The other classes transform the values, and write themselves the new value. If they forwarded
-to class (super) then the unchanged value would be also sent to the next pipeStage.
+answer : because .console does not transform the items, it just displays them. So it can
+forward to class (super) which will take care of sending the item & index to next pipestage.
+The other classes transform the items, and write themselves the new item. If they forwarded
+to class (super) then the unchanged item would be also sent to the next pipeStage.
 
 
 http://freshmeat.net/projects/pv
@@ -53,13 +41,13 @@ pipeStages
 .SecondaryConnector : I1 --> I2 -- adapter which forwards to its follower's secondary input
 
 .sort : I1 --- O1 (delayed)
-    ['ascending'|'descending']
-    ['case'|'caseless']
-    ['numeric'|'strict']
-    ['quickSort'|'stableSort']
-    ['byIndex'|'byValue'|{criteria}])*
+    ['ascending'|'descending']              -- default : 'ascending'
+    ['case'|'caseless']                     -- default : 'case'
+    ['numeric'|'strict']                    -- default : 'numeric'
+    ['quickSort'|'stableSort']              -- default : 'stableSort'
+    ['byIndex'|'byItem'|<criteria-doer>])*  -- default : 'byItem'
 .sortWith[comparator] : I1 --- O1 (delayed)
-    ['quickSort'|'stableSort']
+    ['quickSort'|'stableSort']              -- default : 'stableSort'
 
 .reverse : I1 --- O1
 .upper : I1 --- O1
@@ -73,13 +61,13 @@ pipeStages
 
 .dropnull : I1 --- O1
 .drop 'first' : I1 --- O1, O2
-    [counter=1] [{partition}]
+    [counter=1] [<partition-doer>]
 .drop 'last' : I1 --- O1 (delayed), O2 (delayed)
-    [counter=1] [{partition}]
+    [counter=1] [<partition-doer>]
 .take 'first' : I1 --- O1, O2
-    [counter=1] [{partition}]
+    [counter=1] [<partition-doer>]
 .take 'last' : I1 --- O1 (delayed), O2 (delayed)
-    [counter=1] [{partition}]
+    [counter=1] [<partition-doer>]
 
 .x2c : I1 --- O1
 
@@ -92,7 +80,7 @@ pipeStages
 .duplicate : I1 --- O1
     [copies = 1]
 .console : I1 --- O1
-    (['index'] ['value'] ['showTags'] [<any other string>] [{expression}])*
+    (['index'] ['item'] [<any other string>] [<expression-doer>])*
 
 .all[patterns...] : I1 --- O1 (selected), O2 (not selected)
     ['caseless']
@@ -114,27 +102,27 @@ pipeStages
     ['caseless']
 
 .buffer[count = 1, delimiter = ""] : I1 --- O1 (delayed)
-    [{partition}]
+    [<partition-doer>]
 
 .lineCount : I1 --- O1 (delayed)
-    [{partition}]
+    [<partition-doer>]
 .charCount : I1 --- O1 (delayed)
-    [{partition}]
+    [<partition-doer>]
 .wordCount : I1 --- O1 (delayed)
-    [{partition}]
+    [<partition-doer>]
 
-.pivot[pivotvalue, next, secondary] : I1 --- O1, O2 -- If value < pivotvalue then route to O1 else route to O2
+.pivot[pivotItem, next, secondary] : I1 --- O1, O2 -- If item < pivotItem then route to O1 else route to O2
 .splitter[stages...] : I1 --- O1, O2, ... -- split the processing stream into two or more pipeStages
 
-.getFiles : I1 --- O1
+.fileLines : I1 --- O1
 .words : I1 --- O1
 .characters : I1 --- O1
 
 .system : I1 --- O1
-    ["command"|{command}]
+    ["<command>"|<command-doer>]
 
 .append : I1 --- O1
-    {producer}
+    <producer-doer>
 
 .inject : I1 --- O1
     ['after']
@@ -142,7 +130,7 @@ pipeStages
     ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
     ['unique']
     ['trace']
-    {producer}
+    <producer-doer>
 
 .do : I1 --- O1
     ['after']
@@ -150,7 +138,7 @@ pipeStages
     ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
     ['unique']
     ['trace']
-    {producer}
+    <producer-doer>
 
 .fileTree : I1 --- O1
     ['after']
@@ -187,5 +175,12 @@ pipeStages
     ['unique']
     ['trace']
 
+.importedPackages : I1 --- O1
+    ['after']
+    ['before']
+    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
+    ['unique']
+    ['trace']
+
 .select : I1 --- O1 (selected), O2 (not selected)
-    {filter}
+    <filter-doer>

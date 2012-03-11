@@ -184,12 +184,12 @@ void SysSemaphore::wait(const char *ds, int di)
     
     if (this->postedCount == 0)                      // Has it been posted?
     {
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
         dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
         rc = pthread_cond_wait(&(this->semCond), &(this->semMutex)); // Nope, then wait on it.
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
         dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_wait(0x%x, 0x%x) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
@@ -211,13 +211,13 @@ bool SysSemaphore::wait(const char *ds, int di, uint32_t t)           // takes a
     pthread_mutex_lock(&(this->semMutex));    // Lock access to semaphore
     if (!this->postedCount)                   // Has it been posted?
     {
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
         dbgprintf("(SysSemaphore)%s.wait : before pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif
                                               // wait with timeout
         result = pthread_cond_timedwait(&(this->semCond),&(this->semMutex),&timestruct);
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
         dbgprintf("(SysSemaphore)%s.wait : after pthread_cond_timedwait(0x%x, 0x%x, &timestruct) from %s (0x%x)\n", semVariable, &(this->semCond), &(this->semMutex), ds, di);
 #endif

@@ -293,6 +293,7 @@ RexxDirectory *ExceptionClass::getCondition()
     if (condition == OREF_NULL)
     {
         condition = new_directory();
+        ProtectedObject p(condition);
         // the type is the condition type.
         condition->put(type, OREF_CONDITION);
         condition->put(message, OREF_NAME_MESSAGE);

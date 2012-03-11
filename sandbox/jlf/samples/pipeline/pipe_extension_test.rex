@@ -1,4 +1,6 @@
 call evaluate "demonstration"
+say
+say "Ended coactivities:" .Coactivity~endAll
 
 --::options trace i
 ::routine demonstration
@@ -7,50 +9,49 @@ call evaluate "demonstration"
 nop
 
 -- ----------------------------------------------------------------------------
--- Overview of pipe indexes
+-- Overview of dataflows
 -- ----------------------------------------------------------------------------
+--   1          2     3       4
+-- +----------+-----+-------+------+
+-- | previous | tag | index | item |<--+
+-- +----------+-----+-------+------+   |
+--                                     |
+--       +----------+-----+-------+------+
+--       | previous | tag | index | item |<--+
+--       +----------+-----+-------+------+   |
+--                                           |
+--                                          etc...
 
--- A minimal pipe index is created from a tag and a nested pipe index (which can be .nil).
-i0 = .pipeIndex~create("tag0", .nil)
-say i0 -- by default, the tags are not included in the representation string, so nothing visible.
-say i0~makeString(.true) -- showTags=.true
 
-
--- Any number of local values can be memorized.
+-- A dataflow is created from a tag, a pair of (item, index), and a previous dataflow (which can be .nil).
 -- Representation : the strings (except the strings numbers) are surrounded by quotes.
-i1 = .pipeIndex~create("tag1", .nil, "a", 1, 2, 3, 4)
-say i1 ; say i1~makeString(.true)
+df1 = .dataflow~create(.nil, "tag1", "item1", "index1")
+say df1 -- by default, all the fields are included in the representation string.
+say df1~makeString(2) -- show tag
+say df1~makeString(23) -- show tag, index
+say df1~makeString(234) -- show tag, index, item
 
 
--- Nested pipe indexes are used when memorizing intermediate calculations.
--- Representation : the pipe indexes are separated by |
-i2 = .pipeIndex~create("tag2", i1, "a", 1, 2)
-say i2 ; say i2~makeString(.true)
+-- A dataflow can be linked to a previous dataflow.
+-- Representation : the dataflows are separated by |
+df2 = .dataflow~create(df1, "tag2", "item2", "index2")
+say df2
 
 
 -- Representation : the objects other than strings are surrounded by round brackets.
--- When showTags is .true then a tag class#id is inserted before the representation of objects.
--- The id is a short id (starts from 1, incremented for each new instance of the same class in the index).
-i3 = .pipeIndex~create("tag3", i2, .mutableBuffer~new(22222), .file~new("my file"))
-say i3 ; say i3~makeString(.true)
+df3 = .dataflow~create(df2, "tag3", .mutableBuffer~new(22222), .file~new("my file"))
+say df3
 
 
--- showPool=.true : when a value (other than numbers) appears several times then it is replaced by a reference to the first occurence of the value.
--- The references are named i1, i2, etc... (no relation with the variables i1, i2, i3 used so far, this is just a naming convention).
+-- showPool=.true : when an item (other than a number) appears several times then it is replaced by a reference to the first occurence of the item.
+-- The references are named v1, v2, etc...
 -- The operator == is used for the comparison.
+-- Example :
 -- "a" and .file~new("my file" are entered in the pool, because there is more than one occurence of them.
 -- .mutableBuffer~new(22222) is not entered in the pool, because two distincts instances are never equal, even if their string representation is the same.
-i4 = .pipeIndex~create("tag4", i3, .file~new("my file"), .mutableBuffer~new(22222))
-say i4 ; say i4~makeString(.false, .true)
-
-
--- The 'makeString' method has more arguments :
---     localMask : which local values to include ("" means all). Ex : "2 3".
---     showNested : if .false then the nested index is not included.
--- The convenience method 'show' lets select the local values to include in the representation
--- while providing default values for the other parameters :
--- ~show(localMask) <==> ~makeString(.false, .false, localMask, .false)
-say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in show argument not significant
+df4 = .dataflow~create(df3, "tag4", .file~new("my file"), "a")
+df5 = .dataflow~create(df4, "tag5", .mutableBuffer~new(22222), "a")
+say df5 ; say df5~makeString(1234, .true)
 
 
 -- ----------------------------------------------------------------------------
@@ -63,27 +64,25 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 "hello"~pipe(.console)
 
 
--- By default, the tags are not shown, use the option showTags.
--- showTags is interpreted as the string "SHOWTAGS" because no value assigned.
--- If showTags was a variable with an assigned value, then you should use explicitely the string "showTags" (caseless).
--- Other options supported by .console : index, value
--- The string "INDEX" (caseless) is replaced by the result of {index~makeString).
--- The string "VALUE" (caseless) is replaced by the result of {value~string}.
-"hello"~pipe(.console showTags)
+-- By default, the dataflows are not shown, use the option dataflow.
+-- dataflow is interpreted as the string "DATAFLOW" because no value assigned.
+-- If dataflow was a variable with an assigned value, then you should use explicitely the string "dataflow" (caseless).
+-- Other options supported by .console : index, item
+"hello"~pipe(.console dataflow)
 
 
 -- A collection can be a source of pipe : each item of the collection is injected in the pipe.
 -- The indexes are those of the collection.
 .array~of(10,20,30)~pipe(.console)
-.array~of(10,20,30)~pipe(.console showTags)
+.array~of(10,20,30)~pipe(.console dataflow)
 
 
--- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazy).
+-- A coactivty can be a source of pipe : each yielded item is injected in the pipe.
 -- Example :
 -- This coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .console).
-{::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
-{::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console showTags)
+{::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+{::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console dataflow)
 
 
 -- ----------------------------------------------------------------------------
@@ -144,8 +143,8 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 -- Overview of the sorting facilities
 -- ----------------------------------------------------------------------------
 
--- A collection can be sorted by value (default)
-.array~of(b, a, c)~pipe(.sort byValue | .console)
+-- A collection can be sorted by item (default)
+.array~of(b, a, c)~pipe(.sort byItem | .console)
 
 
 -- ...or by index
@@ -153,13 +152,13 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 
 -- ...ascending (default)
--- The order of options is important : a byValue option is impacted only by the preceding options
--- This is because several byValue options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort ascending byValue | .console)
+-- The order of options is important : a byItem option is impacted only by the preceding options
+-- This is because several byItem options can be specified, and a sort is made for each.
+.array~of(b, a, c)~pipe(.sort ascending byItem | .console)
 
 
 -- ...descending
-.array~of(b, a, c)~pipe(.sort descending byValue | .console)
+.array~of(b, a, c)~pipe(.sort descending byItem | .console)
 
 
 -- ...by index descending
@@ -169,7 +168,7 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 
 -- ...caseless (stable by default)
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byValue | .console)
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless byItem | .console)
 
 
 -- ...caseless quickSort (unstable)
@@ -180,11 +179,11 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 --  defineKernelMethod(CHAR_SORTWITH     ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
 --  defineKernelMethod(CHAR_STABLESORT   ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
 --  defineKernelMethod(CHAR_STABLESORTWITH ,TheArrayBehaviour, CPPM(RexxArray::stableSortWithRexx), 1);
-.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byValue | .console)
+.array~of("bb", "AA", "bB", "Aa", "Bb", "aA", "BB", "aa")~pipe(.sort caseless quickSort byItem | .console)
 
 
 -- Sort descending with a comparator.
--- The DescendingComparator use the default CompareTo, which is made on values.
+-- The DescendingComparator use the default CompareTo, which is made on items.
 .array~of(b, a, c)~pipe(.sortWith[.DescendingComparator~new] | .console)
 
 
@@ -197,46 +196,46 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 
 -- ----------------------------------------------------------------------------
--- Options available on any pipeStage : memorizeIndex
+-- Options available on any pipeStage : memorize
 -- ----------------------------------------------------------------------------
 
-"aaaBBBcccDDDeee"~pipe(.reverse mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.reverse memorize | .console dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.upper mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.upper memorize | .console dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.lower mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.lower memorize | .console dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.changeStr["B", "b", 2] mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.changeStr["B", "b", 2] memorize | .console dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.delStr[4, 9] mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.delStr[4, 9] memorize | .console dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.left[3] mem >> .console showTags "secondary :" index ":" value | .console showTags "primary:" index ":" value)
+"aaaBBBcccDDDeee"~pipe(.left[3] memorize >> .console "secondary :" dataflow | .console "primary:" dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.right[3] mem >> .console showTags "secondary :" index ":" value | .console showTags "primary:" index ":" value)
+"aaaBBBcccDDDeee"~pipe(.right[3] memorize >> .console "secondary :" dataflow | .console "primary:" dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.insert["---", 3] mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.insert["---", 3] memorize | .console dataflow)
 
 
-"aaaBBBcccDDDeee"~pipe(.overlay["---", 3] mem | .console showTags)
+"aaaBBBcccDDDeee"~pipe(.overlay["---", 3] memorize | .console dataflow)
 
 
-"48656c6c6f"~pipe(.x2c mem | .console showTags)
+"48656c6c6f"~pipe(.x2c memorize | .console dataflow)
 
 
-.array~of("a", "", "b", , "c", , "", "d")~pipe(.dropNull mem | .console showTags)
+.array~of("a", "", "b", , "c", , "", "d")~pipe(.dropNull memorize | .console dataflow)
 
 
 .array~of("header", 1, 2 ,3 , "footer")~pipe(,
-    .drop first mem >> .console showTags "secondary of drop first :" index ":" value |,
-    .drop last mem >> .console showTags "secondary of drop last :" index ":" value |,
-    .console showTags "primary:" index ":" value) -- Remove header and footer
+    .drop first memorize >> .console "secondary of drop first :" dataflow |,
+    .drop last memorize >> .console "secondary of drop last :" dataflow |,
+    .console "primary:" dataflow) -- Remove header and footer
 
 
 -- ----------------------------------------------------------------------------
@@ -245,77 +244,45 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 
 -- .do is action-oriented, whereas .inject is function-oriented.
 -- Both support the same options.
--- .do {"echo" value} -- no implicit return, this is a command
--- .inject {"echo" value} -- implicit return, commands are disabled
+-- .do {"echo" item} -- no implicit return, this is a command
+-- .inject {"echo" item} -- implicit return, commands are disabled
 
 -- Do something for each item (no returned value, so no value passed to .console).
-.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='index} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow} | .console)
 
 
 -- Do something for each item (the returned result replaces the item's value).
--- Note : the index created by .do is a pair (value, resultIndex) where
---     value is the processed value.
---     resultIndex is the index of the current result calculated with value.
--- Here, only one result is calculated for a value, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.do {return 2*value} mem | .console)
+-- Here, only one result is calculated for an item, so resultIndex is always 1.
+.array~of(1, , 2, , 3)~pipe(.do {return 2*item} memorize | .console)
 
 
--- Inject a value for each item (the returned value is injected after the input value).
--- Use the default index.
--- Index, 1st part : index of the values in the array on entry (1, 3, 5)
--- Index, 2nd part : pair (value, resultIndex)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} memorize after | .console)
-
-
--- Inject a value for each item (the returned value is injected after the input value).
--- The index is user-defined.
--- Two helpers are available for user-defined indexes :
--- .index_value : the first arg is the index, the second arg is the value.
--- .value_index : the first arg is the value, the second arg is the index.
--- Note : This user-defined index is used only for the values calculated by .inject (10, 20, 30).
---        The input values always have an index equal to 1 (1st line, 3rd line, 5th line).
---        It's like getting a single result from the input value (result == value, index == 1).
-.array~of(1, , 2, , 3)~pipe(.inject {.index_value~of(value, value*10)} memorize after | .console)
+-- Inject a value for each item (the returned value is injected after the input item).
+.array~of(1, , 2, , 3)~pipe(.inject after {item*10} memorize | .console dataflow)
 
 
 -- Inject two values for each item (each item of the returned collection is written in the pipe).
--- Use the default index.
-.array~of(1, , 2, , 3)~pipe(.inject {.array~of(value*10, value*20)} memorize after | .console)
-
-
--- Inject two values for each item (each item of the returned collection is written in the pipe).
--- The index is user-defined, and it's an array : each item in the index array becomes a local index.
--- Ex: the last two lines are
--- (an Array),5|3,1,2,4 : 30
--- (an Array),5|3,2,2,4 : 60
--- From the 5th item of the input array (value=3), 2 values have been injected (30 with index 1, 60 with index 2).
--- A user-defined index has been appended to the default index : (2,4) which is (value-1, value+1).
-.array~of(1, , 2, , 3)~pipe(.inject {
-    .index_value~of(                              -
-        .array~of(value-1, value+1),    /*index : made of several values, each value being a local index*/ -
-        .array~of(value*10, value*20)   /*values : two values will be injected*/ -
-        )
-    } memorize after | .console)
+-- Note the "iterateAfter" option : using this option, when the result of .inject is an object which
+-- understands "supplier" then each pair (item, index) returned by the supplier is injected in the pipe.
+.array~of(1, , 2, , 3)~pipe(.inject after {.array~of(item*10, item*20)} iterateAfter memorize | .console dataflow)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
--- The options 'before' and 'after' are not used, so the initial value is discarded.
--- Use the default index.
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0 | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1 | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2 | .console)
+-- The options 'before' and 'after' are not used, so the initial item is discarded.
+.array~of(1, , 2, , 3)~pipe(.inject {item*10} recursive.0 | .console dataflow "item =" item)
+.array~of(1, , 2, , 3)~pipe(.inject {item*20} recursive.1 | .console dataflow "item =" item)
+.array~of(1, , 2, , 3)~pipe(.inject {item*30} recursive.2 | .console dataflow "item =" item)
 
 
 -- Same as previous example, but here, the recursive.memorize option is used.
--- The index is like a call stack : you get one pair (value, resultIndex) for each level of recursion.
+-- The dataflow is like a call stack.
 -- Ex : the last line is
--- (an Array),5|3,1|90,1|2700,1 : 81000
--- The item at index 5 in input array has generated 3 intermediate pairs by recursion : (3,1) then (90,1) then (2700,1)
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0.memorize | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1.memorize | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2.memorize | .console)
+-- source:5,3 | inject:1,90 | inject:1,2700 | inject:1,81000 item = 81000 
+-- The item at index 5 in input array has injected 3 "inject" dataflows by recursion.
+.array~of(1, , 2, , 3)~pipe(.inject {item*10} recursive.0.memorize | .console dataflow "item =" item)
+.array~of(1, , 2, , 3)~pipe(.inject {item*20} recursive.1.memorize | .console dataflow "item =" item)
+.array~of(1, , 2, , 3)~pipe(.inject {item*30} recursive.2.memorize | .console dataflow "item =" item)
 
 
 -- Factorial, no value injected for -1
@@ -323,7 +290,26 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
     use arg n
     if n < 0 then return
     if n == 0 then return 1
-    return n * .context~executable~call(n - 1)} | .console)
+    return n * .context~executable~call(n - 1)} | .console dataflow item)
+
+
+-- Another illustration of the "iterateAfter" option.
+10~pipe(.inject {item~times} | .console)
+10~pipe(.inject {item~times} iterateAfter | .console)
+10~pipe(.inject {item~times.generate} | .console)
+10~pipe(.inject {item~times.generate} iterateAfter | .console)
+
+
+-- Another illustration of the "iterateAfter" option.
+-- In this example, the block passed to .inject returns another block whose doer is a coactivity. 
+-- The option "iterateAfter" force to check if the returned value has the "supplier" method.
+-- If yes, then .inject iterates over the items returned by the supplier and sends them to the next pipeStage.
+-- A block has no "supplier" method, but its doer may have one. This is the case in this example.
+-- The method "hasMethod" has been redefined on RexxBlock to return .true if the doer has the method "supplier".
+-- The method "supplier" has been defined on RexxBlock to forward to its doer.
+-- Note :
+-- The pipeStage .take is mandatory because the generator passed to .inject will generate an infinite sequence of numbers.
+1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
 
 
 -- ----------------------------------------------------------------------------
@@ -331,27 +317,27 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 -- ----------------------------------------------------------------------------
 
 -- Select files in the installation directory, whose path contains "math" , sorted by file size.
--- The "length" message is sent to the value and the returned result is used as a key for sorting.
+-- The "length" message is sent to the item and the returned result is used as a key for sorting.
 .file~new(installdir())~listFiles~pipe(,
     .all["math"] caseless |,
     .sortWith[.MessageComparator~new("length/N")] |,
-    .console index ":" value {"length="value~length},
+    .console dataflow {"length="item~length},
     )
 
 
 -- Same as above, but simpler... You can sort directly by length, no need of MessageComparator
 .file~new(installdir())~listFiles~pipe(,
     .all["math"] caseless |,
-    .sort {value~length} |,
-    .console index ":" value {"length="value~length},
+    .sort {item~length} |,
+    .console dataflow {"length="item~length},
     )
 
 
 -- Sort by file size, then by file extension (with only one .sort pipestage)
 .file~new(installdir())~listFiles~pipe(,
     .all["math"] caseless |,
-    .sort {value~length} {filespec('e', value~name)} |,
-    .console,
+    .sort {item~length} {filespec('e', item~name)} |,
+    .console dataflow {"length="item~length},
     )
 
 
@@ -361,13 +347,13 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 -- ----------------------------------------------------------------------------
 
 -- All instance methods of the context.
--- Notice that the default sort by value is useless here... Must sort by index.
+-- Notice that the default sort by item is useless here... Must sort by index.
 .context~instanceMethods~pipe(.sort byIndex | .console)
 
 
 -- All private methods of the context.
 .context~instanceMethods~pipe(,
-    .select {value~isPrivate} |,
+    .select {item~isPrivate} |,
     .sort byIndex |,
     .console,
     )
@@ -376,37 +362,33 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 -- Instance methods of the specified classes (not including those inherited).
 -- Each class is written in the pipeline, followed by the returned methods (option 'after').
 .array~of(.RexxContext, .Package, .Method)~pipe(,
-    .inject {value~instanceMethods(value~class)} after memorize |,
-    .sort byIndex |,
-    .console,
+    .inject after {item~instanceMethods(item~class)} iterateAfter memorize |,
+    .sort byIndex {dataflow["source"]~item} |,
+    .console dataflow,
     )
 
 
 -- Methods (not inherited) of all the classes whose id starts with "R".
 .environment~pipe(,
-    .select {value~isA(.class)} |,
-    .select {value~id~caselessAbbrev('R') <> 0} |,
-    .inject {value~methods(value)} after memorize |,
-    .sort byIndex |,
-    .console,
+    .select {item~isA(.class)} |,
+    .select {item~id~caselessAbbrev('R') <> 0} |,
+    .inject after {item~methods(item)} iterateAfter memorize |,
+    .sort byIndex {dataflow["source"]~item} |,
+    .console dataflow,
     )
 
 
 -- All packages that are visible from current context, including the current package (source of the pipeline).
 .context~package~pipe(,
-    .inject {value~importedPackages} recursive.memorize after |,
-    .console index.92,
-             {'  '~copies(index~depth)},
-             {.file~new(value~name)~name},
+    .inject after {item~importedPackages} iterateAfter recursive.memorize.cycle |,
+    .console {'  '~copies(dataflow~length)} {.file~new(item~name)~name},
     )
 
 
 -- Same as above, but in breadth-first order
 .context~package~pipe(,
-    .inject {value~importedPackages} recursive.breadthFirst.memorize after |,
-    .console index.92,
-             {'  '~copies(index~depth)},
-             {.file~new(value~name)~name},
+    .inject after {item~importedPackages} iterateAfter recursive.breadthFirst.memorize.cycle |,
+    .console {'  '~copies(dataflow~length)} {.file~new(item~name)~name},
     )
 
 
@@ -418,10 +400,10 @@ say i4 ; say i4~makestring(.true) ; say i4~get("tag2")~show("1 3") -- order in s
 -- has been reached, whatever its position in the pipeline.
 -- Note the "" at the end of the first .console. This is an indicator to not insert a newline.
 supplier = .array~of(1,2,3,4,5,6,7,8,9)~supplier
-supplier~pipe(.console "2*" value "=" "" | .do {return 2*value} | .take 2 | .console value)
+supplier~pipe(.console "2*" item "=" "" | .do {return 2*item} | .take 2 | .console item)
 say supplier~index -- this is the index of the last processed item
 supplier~next -- skip the last processed item
-supplier~pipe(.console "4*" value "=" "" | .do {return 4*value} | .take 4 | .console value)
+supplier~pipe(.console "4*" item "=" "" | .do {return 4*item} | .take 4 | .console item)
 say supplier~index
 
 
@@ -435,10 +417,10 @@ say supplier~index
 
 -- Select files in the installation directory, whose name contains "rexx".
 -- Note : the .select is not equivalent to .all["rexx"], because .select tests only the name,
--- whereas .all tests the string representation of the value, which is the absolute path.
+-- whereas .all tests the string representation of the item, which is the absolute path.
 -- Take the 15 firsts.
 .file~new(installdir())~listFiles~pipe(,
-    .select {value~name~caselessPos('rexx') <> 0} |,
+    .select {item~name~caselessPos('rexx') <> 0} |,
     .take 15 |,
     .console,
     )
@@ -451,8 +433,8 @@ say supplier~index
 -- The .append pipeStage copies items from its primary input to its primary output, and then invokes
 -- the producer passed as argument and writes the items produced by that producer to its primary output.
 -- If the producer is a doer, then the producer is executed to get the effective producer.
--- If the effective producer understands the message "supplier" then each pair (value, index) returned
--- by the supplier is appended.
+-- If the effective producer understands the message "supplier" then each pair (item, index)
+-- returned by the supplier is appended.
 -- Otherwise, the effective producer is appended as-is (single object) with local index 1.
 supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
@@ -472,20 +454,20 @@ say supplier2~index
 -- pipeStages which support partitions
 -- ----------------------------------------------------------------------------
 
--- Drop the first value
+-- Drop the first item
 .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop | .console)
 
 
--- Drop the first value of each partition
-.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop {value} | .console)
+-- Drop the first item of each partition
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop {item} | .console)
 
 
--- Drop the last value
+-- Drop the last item
 .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last | .console)
 
 
--- Drop the last value of each partition
-.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {value} | .console)
+-- Drop the last item of each partition
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {item} | .console)
 
 
 datas = .directory~new
@@ -495,19 +477,19 @@ datas["key3"] = .array~of("header", 4, 6, 5, "footer")
 
 
 -- The whole datas, including headers and footers
-datas~pipe(.inject {value} mem | .console)
+datas~pipe(.inject {item} iterateBefore memorize | .console)
 
 
 -- The datas without the headers and footers
-datas~pipe(.inject {value} memorize | .drop first {index["inject"]~value } | .drop last {index["inject"]~value } | .console)
+datas~pipe(.inject {item} iterateBefore memorize | .drop first {dataflow["source"]~item } | .drop last {dataflow["source"]~item } | .console)
 
 
 -- No partition here, so the whole set of words is written twice, separated by "==="
 .array~of("one two three","un deux trois")~pipe(.words | .buffer[2, "==="] | .console)
 
 
--- There is a partition on the strings received by .words, so there is a separator "===" between each set of words extracted from each string
-.array~of("one two three","un deux trois")~pipe(.words mem | .buffer[2, "==="] {index["words"]~value} | .console)
+-- There is a partition on the source items, so there is a separator "===" between each set of words extracted from each string
+.array~of("one two three","un deux trois")~pipe(.words memorize | .buffer[2, "==="] {dataflow["source"]~item} | .console)
 
 
 -- ----------------------------------------------------------------------------
@@ -515,30 +497,30 @@ datas~pipe(.inject {value} memorize | .drop first {index["inject"]~value } | .dr
 -- ----------------------------------------------------------------------------
 
 -- Here, only the output from fanout1 is sent to console.
-fanout1 = .left[3]  mem | .lower mem
-fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after
-.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1 | .console showTags)
+fanout1 = .left[3]  memorize | .lower memorize
+fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item}
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1 | .console dataflow item)
 
 
 -- Here, each branch of the fanout remains separated. Each branch has its own console.
-fanout1 = .left[3]  mem | .lower mem | .console showTags
-fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .console showTags
-.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+fanout1 = .left[3]  memorize | .lower memorize | .console dataflow item
+fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .console dataflow item
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
 
 
 -- Here, a fanin is used to serialize the branches of the fanout.
 -- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
-fanin = .fanin mem | .console showTags
-fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
-fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .secondaryConnector | fanin -- bufferized until fanout1 is eof
-.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+fanin = .fanin memorize | .console dataflow item
+fanout1 = .left[3]  memorize | .lower memorize | fanin  -- not bufferized
+fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .secondaryConnector | fanin -- bufferized until fanout1 is eof
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
 
 -- Here, a merge is used to serialize the branches of the fanout.
 -- There is no specific order (no delay).
-merge = .merge mem | .console showTags
-fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
-fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | .secondaryConnector | merge -- not bufferized
-.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
+merge = .merge memorize | .console dataflow item
+fanout1 = .left[3]  memorize | .lower memorize | merge  -- not bufferized
+fanout2 = .right[3] memorize | .upper memorize | .inject after {"my_"item} | .secondaryConnector | merge -- not bufferized
+.array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout memorize >> fanout2 > fanout1)
 
 
 -- ----------------------------------------------------------------------------
@@ -557,16 +539,16 @@ installdir()~pipe(,
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles | .lineCount |,
+    .fileLines | .lineCount |,
     .console,
     )
 
 
 -- Number of lines in each *.cls files of ooRexx
 installdir()~pipe(,
-    .fileTree recursive |,
+    .fileTree recursive memorize.file |,
     .endsWith[".cls"] |,
-    .getFiles memorize.file | .lineCount {index["file"]~value} |,
+    .fileLines | .lineCount {dataflow["file"]~item} |,
     .console,
     )
 
@@ -575,16 +557,16 @@ installdir()~pipe(,
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles | .wordCount |,
+    .fileLines | .wordCount |,
     .console,
     )
 
 
 -- Number of words in each *.cls files of ooRexx
 installdir()~pipe(,
-    .fileTree recursive |,
+    .fileTree recursive memorize.file |,
     .endsWith[".cls"] |,
-    .getFiles memorize.file | .wordCount {index["file"]~value} |,
+    .fileLines | .wordCount {dataflow["file"]~item} |,
     .console,
     )
 
@@ -593,39 +575,39 @@ installdir()~pipe(,
 installdir()~pipe(,
     .fileTree recursive |,
     .endsWith[".cls"] |,
-    .getFiles | .charCount |,
+    .fileLines | .charCount |,
     .console,
     )
 
 
 -- Number of characters in each *.cls files of ooRexx (not counting the newline characters)
 installdir()~pipe(,
-    .fileTree recursive |,
+    .fileTree recursive memorize.file |,
     .endsWith[".cls"] |,
-    .getFiles memorize.file | .charCount {index["file"]~value} |,
+    .fileLines | .charCount {dataflow["file"]~item} |,
     .console,
     )
 
 
 -- Alphanumeric words of 16+ chars found in the *.cls files of ooRexx.
 -- Only the first two words per file are taken :
---     .take 2 {index["file"]~value}
--- Here, the partition expression returns the file object processed by the pipeStage "getFiles".
+--     .take 2 {dataflow["file"]~item}
+-- Here, the partition expression returns the current file object produced by the pipeStage "fileTree".
 -- Exemple of result :
--- d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/|336|d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls|250|2 : DeleteDesktopIcon
+-- source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
 -- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
 -- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
--- which is the 336th file/directory of the directory
+-- which is the 338th file/directory of the directory
 -- "d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/"
 --
 -- To investigate : I get sometimes a crash in the sort.
 --
 call time('r') -- to see how long this takes
 installdir()~pipe(,
-    .fileTree recursive |,
+    .fileTree recursive memorize.file |,
     .endsWith[".cls"] |,
-    .getFiles memorize.file | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index["file"]~value} | .sort caseless | .console,
+    .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
+    .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
     )
 say "duration="time('e') -- elapsed duration
 
@@ -638,10 +620,10 @@ say "duration="time('e') -- elapsed duration
 -- Same as above, but with profiling
 call time('r') -- to see how long this takes
 installdir()~pipeProfile(,
-    .fileTree recursive |,
+    .fileTree recursive memorize.file |,
     .endsWith[".cls"] |,
-    .getFiles memorize.file | .words | .select {value~datatype('a') & value~length >= 16} |,
-    .take 2 {index["file"]~value} | .sort caseless | .console,
+    .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
+    .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
     )
 say "duration="time('e') -- elapsed duration
 

@@ -109,6 +109,8 @@ void RexxInstructionForward::execute(
     size_t      i;                       /* loop counter                      */
     RexxObject **_arguments;
 
+    ProtectedObject p_message;
+    
     context->traceInstruction(this);     /* trace if necessary                */
     if (!context->inMethod())            /* is this a method clause?          */
     {
@@ -130,7 +132,9 @@ void RexxInstructionForward::execute(
         /* get the expression value          */
         temp = this->message->evaluate(context, stack);
         _message = REQUEST_STRING(temp);    /* get the string version            */
+        p_message = _message;
         _message = _message->upper();       /* and force to uppercase            */
+        p_message = _message;
     }
     if (this->superClass != OREF_NULL)   /* overriding the super class?       */
     {

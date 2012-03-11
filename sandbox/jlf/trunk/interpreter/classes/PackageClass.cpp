@@ -368,6 +368,7 @@ PackageClass *PackageClass::loadPackage(RexxString *name, RexxArray *s)
     else
     {
         s = arrayArgument(s, "source");
+        ProtectedObject p(s);
         return source->loadRequires(ActivityManager::currentActivity, name, s);
     }
 }
@@ -569,9 +570,11 @@ PackageClass *PackageClass::newRexx(
     {
         // add this to the instance context
         RexxArray *sourceArray = arrayArgument(_source, "source");
+        ProtectedObject p(sourceArray);
         package = instance->loadRequires(activity, nameString, sourceArray);
     }
 
+    ProtectedObject p(package);
     /* Give new object its behaviour     */
     package->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     if (((RexxClass *)this)->hasUninitDefined())

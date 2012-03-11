@@ -657,9 +657,11 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_DIGITS        ,TheRexxContextBehaviour, CPPM(RexxContext::getDigits), 0);
   defineKernelMethod(CHAR_VARIABLES     ,TheRexxContextBehaviour, CPPM(RexxContext::getVariables), 0);
   defineKernelMethod(CHAR_ARGS          ,TheRexxContextBehaviour, CPPM(RexxContext::getArgs), 0);
+  defineKernelMethod(CHAR_ARGSEQUALS    ,TheRexxContextBehaviour, CPPM(RexxContext::setArgs), 1);
   defineKernelMethod(CHAR_CONDITION     ,TheRexxContextBehaviour, CPPM(RexxContext::getCondition), 0);
   defineKernelMethod("LINE"             ,TheRexxContextBehaviour, CPPM(RexxContext::getLine), 0);
   defineKernelMethod("RS"               ,TheRexxContextBehaviour, CPPM(RexxContext::getRS), 0);
+  defineKernelMethod(CHAR_PARENTCONTEXT ,TheRexxContextBehaviour, CPPM(RexxContext::getParentContextObject), 0);
 
                                        /* Add the instance methods to the   */
                                        /* instance behaviour mdict          */

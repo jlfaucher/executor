@@ -1,4 +1,4 @@
-The RexxContextualSource class
+The RexxBlock class
 a Routine
 The NIL object
 The Routine class
@@ -40,10 +40,10 @@ return result
 The Routine class
 4
 
-RexxContextualSource:1 --> Closure:2 --> 1 4
-RexxContextualSource:3 --> Closure:4 --> 2 4
-RexxContextualSource:5 --> Closure:6 --> 3 4
-RexxContextualSource:7 --> Closure:8 --> 4 4
+RexxBlock:1 --> Closure:2 --> 1 4
+RexxBlock:3 --> Closure:4 --> 2 4
+RexxBlock:5 --> Closure:6 --> 3 4
+RexxBlock:7 --> Closure:8 --> 4 4
 
 The Coactivity class
 a Closure

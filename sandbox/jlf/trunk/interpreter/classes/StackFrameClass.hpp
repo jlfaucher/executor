@@ -56,11 +56,13 @@
 #define FRAME_PROGRAM "PROGRAM"
 
 class RexxSource;
+class ProtectedObject;
 
 class StackFrameClass : public RexxObject
 {
 public:
     void *operator new(size_t);
+    void *operator new(size_t, ProtectedObject &);
     inline void *operator new(size_t size, void *ptr) { return ptr; };
     StackFrameClass(const char *type, RexxString *name, BaseExecutable *p, RexxObject *target, RexxArray *arguments, RexxString *t, size_t l);
     inline StackFrameClass(RESTORETYPE restoreType) { ; };

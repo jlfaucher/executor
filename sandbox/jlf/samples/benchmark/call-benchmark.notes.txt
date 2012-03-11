@@ -12,6 +12,11 @@ Each section has 3 parts :
 - the sequence of calls to analyze : why a routine call is so slow compared to a method call ?
 - the rest of the call stack (identical in the 4 test cases)
 
+[later]
+why a routine call is so slow compared to a method call ?
+--> problem identified and fixed : it's because of the environment variable 'RXTRACE' which is read at each call of routine.
+
+
 internal call
 
  	rexx.dll!RexxActivity::createExceptionObject(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 809	C++

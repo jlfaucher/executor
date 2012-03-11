@@ -89,7 +89,6 @@ public:
     void exitCurrentThread();
     RexxActivity *findActivity(thread_id_t threadId);
     RexxActivity *findActivity();
-    RexxDirectory *getLocalEnvironment();
     void copyExits(ExitHandler *target);
     void activityDeactivated(RexxActivity *activity);
     void addGlobalReference(RexxObject *o);

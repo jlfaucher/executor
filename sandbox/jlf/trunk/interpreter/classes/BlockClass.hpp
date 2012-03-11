@@ -117,4 +117,26 @@ protected:
 };
 
 
+class RexxClosure : public RexxObject
+{
+public:
+    inline void *operator new(size_t, void *ptr) { return ptr; }
+    inline void  operator delete(void *, void *) { ; }
+    void *operator new(size_t);
+    inline void  operator delete(void *) { ; }
+
+    void live(size_t);
+    void liveGeneral(int reason);
+    void flatten(RexxEnvelope*);
+
+    RexxClosure(RexxSourceLiteral *, RexxContext *);
+    inline RexxClosure(RESTORETYPE restoreType) { ; };
+
+    RexxObject *newRexx(RexxObject **args, size_t argc);
+    RexxObject *copyRexx();
+
+    static void createInstance();
+    static RexxClass *classInstance;   // singleton class instance
+};
+
 #endif

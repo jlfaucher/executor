@@ -1,0 +1,314 @@
+Notes taken while searching how to implement RFE 2868655 (.threadLocal)
+
+
+Changes made in sandbox :
+
+RexxActivity.hpp
+ class RexxActivity : public RexxInternalObject {
+   ...
+   RexxDirectory *getThreadLocal();
+   ...
+   RexxDirectory      *threadLocalEnvironment;   // the directory of thread's local variables
+
+
+RexxActivity.cpp
+RexxActivity::RexxActivity(bool createThread)
+    this->threadLocalEnvironment = new_directory();
+
+
+RexxActivity.cpp
+void RexxActivity::live(size_t liveMark)
+  memory_mark(this->threadLocalEnvironment);
+
+
+RexxActivity.cpp
+void RexxActivity::liveGeneral(int reason)
+  memory_mark_general(this->threadLocalEnvironment);
+
+
+RexxActivity.cpp
+RexxDirectory *RexxActivity::getThreadLocal()
+/******************************************************************************/
+/* Function:  Retrive the directory of thread's local variables               */
+/******************************************************************************/
+{
+  return this->threadLocalEnvironment;
+}
+
+
+RexxActivatin.hpp
+ class RexxActivation : public RexxActivationBase {
+   ...
+   RexxDirectory    *getThreadLocal();
+
+RexxActivation.cpp
+RexxObject * RexxActivation::rexxVariable(   /* retrieve a program entry          */
+     RexxString * name )                     /* target program entry name         */
+    ...
+    else if (name->strCompare(CHAR_THREADLOCAL))  /* current thread variables */
+    {
+        return this->getThreadLocal();
+    }
+
+
+RexxActivation.cpp
+/**
+ * @return The directory of thread's local variables.
+ */
+RexxDirectory *RexxActivation::getThreadLocal()
+{
+    return activity->getThreadLocal();
+}
+
+
+RexxConstants.hpp
+CHARCONSTANT(THREADLOCAL, "THREADLOCAL");
+
+
+
+===================================================================
+
+-----
+ThreadContextStubs.cpp
+-----
+
+RexxDirectoryObject RexxEntry GetLocalEnvironment(RexxThreadContext *c)
+{
+    ApiContext context(c);
+    try
+    {
+        return (RexxDirectoryObject)context.activity->getLocal();
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+    return NULLOBJECT;
+}
+
+RexxDirectoryObject RexxEntry GetGlobalEnvironment(RexxThreadContext *c)
+{
+    ApiContext context(c);
+    try
+    {
+        return (RexxDirectoryObject)TheEnvironment;
+    }
+    catch (RexxNativeActivation *)
+    {
+
+    }
+    return NULLOBJECT;
+}
+
+
+RexxThreadInterface RexxActivity::threadContextFunctions =
+    GetLocalEnvironment,
+    GetGlobalEnvironment,
+
+
+-----
+InterpreterInstance
+-----
+
+
+class InterpreterInstance
+    RexxDirectory *getLocalEnvironment(); --> to drop
+    RexxObject *getLocalEnvironment(RexxString *);
+    inline RexxDirectory *getLocal() { return localEnvironment; }
+protected:
+    RexxDirectory       *localEnvironment;   // the current local environment
+
+
+void InterpreterInstance::live(size_t liveMark)
+    memory_mark(localEnvironment);
+
+
+void InterpreterInstance::liveGeneral(int reason)
+    memory_mark_general(localEnvironment);
+
+
+void InterpreterInstance::initialize(RexxActivity *activity, RexxOption *options)
+    // create a local environment
+    localEnvironment = new_directory();
+
+
+RexxObject *InterpreterInstance::getLocalEnvironment(RexxString *name)
+{
+    if (localEnvironment == OREF_NULL)
+    {
+        return TheNilObject;
+    }
+    return localEnvironment->at(name);
+}
+
+
+-----
+ActivtyManager
+-----
+
+
+class ActivityManager
+    static RexxObject *getLocalEnvironment(RexxString *name);
+    static RexxDirectory *getLocal();
+
+
+RexxObject *ActivityManager::getLocalEnvironment(RexxString *name)
+{
+    if (currentActivity == OREF_NULL)
+    {
+        return TheNilObject;
+    }
+    return currentActivity->getLocalEnvironment(name);
+}
+
+
+RexxDirectory *ActivityManager::getLocal()
+{
+    if (currentActivity == OREF_NULL)
+    {
+        return OREF_NULL;
+    }
+    return currentActivity->getLocal();
+}
+
+
+-----
+RexxActivity
+-----
+
+
+class RexxActivity
+   RexxObject *getLocalEnvironment(RexxString *name);
+   RexxDirectory *getLocal();
+
+
+RexxObject *RexxActivity::getLocalEnvironment(RexxString *name)
+{
+    return instance->getLocalEnvironment(name);
+}
+
+
+RexxDirectory *RexxActivity::getLocal()
+{
+  return instance->getLocal();              // just return the .local directory
+}
+
+
+-----
+RexxActivation
+-----
+
+
+class RexxActivation
+   RexxObject       *getLocalEnvironment(RexxString *name);
+
+
+RexxObject *RexxActivation::getLocalEnvironment(RexxString *name)
+{
+    return activity->getLocalEnvironment(name);
+}
+
+
+RexxObject * RexxActivation::rexxVariable
+Retrouve : .methods, .routines, .rs, .line, .context
+
+
+RexxObject *RexxActivation::resolveDotVariable(RexxString *name)
+{
+    // if not an interpret, then resolve directly.
+    if (activation_context != INTERPRET)
+    {
+        return getSourceObject()->findClass(name);
+    }
+    else
+    {
+        // otherwise, send this up the call chain and resolve in the
+        // original source context
+        return parent->resolveDotVariable(name);
+    }
+}
+
+-----
+SourceFile.cpp
+-----
+
+RexxClass *RexxSource::findClass(RexxString *className)
+{
+    RexxString *internalName = className->upper();   /* upper case it                     */
+    // check for a directly defined one in the source context chain
+    RexxClass *classObject = findInstalledClass(internalName);
+    // return if we got one
+    if (classObject != OREF_NULL)
+    {
+        return classObject;
+    }
+    // now try for public classes we pulled in from other contexts
+    classObject = findPublicClass(internalName);
+    // return if we got one
+    if (classObject != OREF_NULL)
+    {
+        return classObject;
+    }
+
+    // give the security manager a go
+    if (this->securityManager != OREF_NULL)
+    {
+        classObject = (RexxClass *)securityManager->checkLocalAccess(internalName);
+        if (classObject != OREF_NULL)
+        {
+            return classObject;
+        }
+    }
+
+    /* send message to .local            */
+    classObject = (RexxClass *)(ActivityManager::getLocalEnvironment(internalName));
+    if (classObject != OREF_NULL)
+    {
+        return classObject;
+    }
+
+    /* normal execution?                 */
+    if (this->securityManager != OREF_NULL)
+    {
+        classObject = (RexxClass *)securityManager->checkEnvironmentAccess(internalName);
+        if (classObject != OREF_NULL)
+        {
+            return classObject;
+        }
+    }
+
+    /* last chance, try the environment  */
+    return(RexxClass *)(TheEnvironment->at(internalName));
+}
+
+
+-----
+Interpreter.cpp
+-----
+
+RexxClass *Interpreter::findClass(RexxString *className)
+{
+    RexxString *internalName = className->upper();   /* upper case it                     */
+    /* send message to .local            */
+    RexxClass *classObject = (RexxClass *)(ActivityManager::getLocalEnvironment(internalName));
+    if (classObject != OREF_NULL)
+    {
+        return classObject;
+    }
+
+    /* last chance, try the environment  */
+    return(RexxClass *)(TheEnvironment->at(internalName));
+}
+
+
+-----
+ExpressionDotVariable
+-----
+
+RexxObject * RexxDotVariable::evaluate
+    /* get this from the source          */
+    RexxObject *result = context->resolveDotVariable(this->variableName);
+    if (result == OREF_NULL)             /* not there?                        */
+    {
+        /* try for a REXX defined name       */
+        result = context->rexxVariable(this->variableName);
+    }

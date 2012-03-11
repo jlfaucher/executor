@@ -12,18 +12,17 @@ call run count, {::r.c}
 call run count, {::m.c}~doer(.nil)
 
 call run count, .context~package~findRoutine("myRoutine")
-call run count, {if value // 1000 == 0 then call charout ,"."}
-call run count, {::r if value // 1000 == 0 then call charout ,"."}
+call run count, {if item // 1000 == 0 then call charout ,"."}
+call run count, {::r if item // 1000 == 0 then call charout ,"."}
 call run count, .methods["MYMETHOD"]
 call run count, {::m if self // 1000 == 0 then call charout ,"."}
 -- Current implementation of yield is very costly !
-call run count, {::r.c do forever ; args = .yield[]; value = args[1] ; if value // 1000 == 0 then call charout ,"." ; end}
-call run count, {::m.c do forever ; args = .yield[]; value = args[1] ; if value // 1000 == 0 then call charout ,"." ; end}~doer(.nil)
+call run count, {::r.c do forever ; .yield[]; item = arg(1) ; if item // 1000 == 0 then call charout ,"." ; end}
+call run count, {::m.c do forever ; .yield[]; item = arg(1) ; if item // 1000 == 0 then call charout ,"." ; end}~doer(.nil)
 -- 4 times faster when using self~yield
 call run count, .myCoactivity~new
 
 trace O
-
 --===========================================================================--
 
 count = 200000
@@ -215,8 +214,8 @@ say "Ended coactivities:" .Coactivity~endAll
 ::method emptyMethod
 
 ::routine myRoutine
-    use strict arg value
-    if value // 1000 == 0 then call charout ,"."
+    use strict arg item
+    if item // 1000 == 0 then call charout ,"."
 
 ::method myMethod
     if self // 1000 == 0 then call charout ,"."
@@ -225,9 +224,9 @@ say "Ended coactivities:" .Coactivity~endAll
 ::method main -- entry point
     -- Here, self is the coactivity.
     do forever
-        args = self~yield -- More efficient than .yield[], because no need to search for the current coactivity : it's self.
-        value = args[1]
-        if value // 1000 == 0 then call charout ,"."
+        self~yield -- More efficient than .yield[], because no need to search for the current coactivity : it's self.
+        item = arg(1)
+        if item // 1000 == 0 then call charout ,"."
     end
 
 ::options NOMACROSPACE

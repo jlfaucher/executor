@@ -270,6 +270,7 @@ RexxMethod *RexxObject::instanceMethod(RexxString  *method_name)
 {
     // the name must be a string...and we use it in upper case
     method_name = stringArgument(method_name, ARG_ONE)->upper();
+    ProtectedObject p(method_name);
     // retrieve the method from the dictionary
     RexxMethod *method_object = (RexxMethod *)this->behaviour->getMethodDictionary()->stringGet(method_name);
     // this is an error if it doesn't exist
@@ -1088,6 +1089,7 @@ void RexxObject::copyIntoTail(RexxCompoundTail *tail)
 {
                                        /* get our string value              */
     RexxString *value = REQUEST_STRING(this);
+    ProtectedObject p(value);
     value->copyIntoTail(tail);         /* pass this on to the string value  */
 }
 
@@ -1565,6 +1567,7 @@ RexxObject  *RexxObject::setMethod(
 {
     /* get the message name as a string  */
     msgname = stringArgument(msgname, ARG_ONE)->upper();
+    ProtectedObject p(msgname);
     if (option)
     {
         option = stringArgument(option, ARG_THREE);
@@ -1605,6 +1608,7 @@ RexxObject  *RexxObject::unsetMethod(
 {
                                        /* get the message name as a string  */
   msgname = stringArgument(msgname, ARG_ONE)->upper();
+  ProtectedObject p(msgname);
                                        /* now just go remove this           */
   this->behaviour->removeMethod(msgname);
   return OREF_NULL;                    /* no return value                   */
@@ -1619,7 +1623,9 @@ RexxObject  *RexxObject::requestRexx(
 {
                                          /* Verify we have a string parm      */
     className = stringArgument(className, ARG_ONE)->upper();
+    ProtectedObject p_className(className);
     RexxString *class_id = this->id()->upper();      /* get the class name in uppercase   */
+    ProtectedObject p_class_id(class_id);
                                          /* of the same class?                */
     if (className->strictEqual(class_id) == TheTrueObject)
     {
@@ -1657,7 +1663,10 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments)
     RexxObject *startScope;
     // decode and validate the message input
     decodeMessageName(this, message, messageName, startScope);
+    ProtectedObject m(messageName);
+    
     arguments = arrayArgument(arguments, ARG_TWO);
+    ProtectedObject p(arguments);
 
     ProtectedObject r;
     if (startScope == OREF_NULL)
@@ -1695,6 +1704,7 @@ RexxObject *RexxObject::send(RexxObject **arguments, size_t argCount)
     RexxObject *startScope;
     // decode and validate the message input
     decodeMessageName(this, arguments[0], messageName, startScope);
+    ProtectedObject m(messageName);
 
     ProtectedObject r;
     if (startScope == OREF_NULL)
@@ -1725,6 +1735,7 @@ RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments)
     requiredArgument(message, ARG_ONE);
     // this is required and must be an array
     arguments = arrayArgument(arguments, ARG_TWO);
+    ProtectedObject p(arguments);
     // the rest is handled by code common to startWith();
     return startCommon(message, arguments->data(), arguments->size());
 }
@@ -1771,6 +1782,7 @@ RexxMessage *RexxObject::startCommon(RexxObject *message, RexxObject **arguments
     RexxObject *startScope;
     // decode and validate the message input
     decodeMessageName(this, message, messageName, startScope);
+    ProtectedObject m(messageName);
 
     /* Create the new message object.    */
     RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, new (argCount, arguments) RexxArray);
@@ -1801,6 +1813,7 @@ void RexxObject::decodeMessageName(RexxObject *target, RexxObject *message, Rexx
     {
         // this must be an array
         RexxArray *messageArray = arrayArgument(message, ARG_ONE);
+        ProtectedObject p(messageArray);
 
         // must be single dimension with two arguments
         if (messageArray->getDimension() != 1 || messageArray->size() != 2)
@@ -1976,6 +1989,7 @@ RexxObject  *RexxObject::defMethods(
         /* Get the name for this method      */
         RexxString *name = (RexxString *)methods->index(i);
         name = name->upper();              /* make sure the name is upperCase.  */
+        ProtectedObject p(name);
                                            /* add this method to the object's   */
                                            /* behaviour                         */
         this->behaviour->define(name, method);
@@ -1996,6 +2010,7 @@ RexxObject  *RexxObject::defMethod(
     RexxClass  *targetClass = (RexxClass*) TheNilObject;
 
     msgname = msgname->upper();          /* add this as an uppercase name     */
+    ProtectedObject p(msgname);
     if (methobj != TheNilObject)         /* not a removal?                    */
     {
         /* got an option? */
@@ -2420,6 +2435,7 @@ void *RexxObject::operator new(size_t size, RexxClass *classObject, RexxObject *
 RexxString *RexxObject::concatRexx(RexxObject *otherObj)
 {
     RexxString *alias = (RexxString *)REQUEST_STRING(this);
+    ProtectedObject p(alias);
     return alias->concatRexx(otherObj);
 }
 
@@ -2436,6 +2452,7 @@ RexxString *RexxObject::concatRexx(RexxObject *otherObj)
 RexxString *RexxObject::concatBlank(RexxObject *otherObj)
 {
     RexxString *alias = (RexxString *)REQUEST_STRING(this);
+    ProtectedObject p(alias);
     return alias->concatBlank(otherObj);
 }
 

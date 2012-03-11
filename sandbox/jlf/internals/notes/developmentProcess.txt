@@ -1,0 +1,45 @@
+========================================================================
+From Mark
+https://mail.google.com/mail/?shva=1#inbox/13588b08b92a1a33
+
+
+I've been assuming the release will be 4.1.1, seems to make the most
+sense to me.
+
+As far as the logistics of using the bug fix branch goes, I believe it
+would be like this:
+
+1.) Build the 4.1.1 beta from:
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/branches/4.1/trunk
+
+2.) Apply bug fixes found in the beta stage to:
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/branches/4.1/trunk
+
+and
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/trunk
+
+3.) Repeat for as many betas as we do.
+
+4.) When we think 4.1.1 is ready for release, copy
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/branches/4.1/trunk
+
+to
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/releases/4.1.1/trunk
+
+5.) Leave
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/branches/4.1/trunk
+
+as is, but update the release number to 4.1.2.  Apply bug fixes found
+after release to:
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/branches/4.1/trunk
+
+and
+
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/trunk

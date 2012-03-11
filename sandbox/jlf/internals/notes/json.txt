@@ -1,0 +1,4 @@
+http://www.rhinocerus.net/forum/lang-rexx/588763-does-anyone-know-any-rexx-json-support.html
+
+
+https://github.com/kazuho/picojson

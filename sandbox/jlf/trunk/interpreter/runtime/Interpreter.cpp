@@ -525,6 +525,7 @@ void Interpreter::decodeConditionData(RexxDirectory *conditionObj, RexxCondition
 RexxClass *Interpreter::findClass(RexxString *className)
 {
     RexxString *internalName = className->upper();   /* upper case it                     */
+    ProtectedObject p(internalName);
     /* send message to .local            */
     RexxClass *classObject = (RexxClass *)(ActivityManager::getLocalEnvironment(internalName));
     if (classObject != OREF_NULL)

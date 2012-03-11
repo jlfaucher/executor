@@ -1666,7 +1666,9 @@ BUILTIN(VALUE)
         if (result == OREF_NULL)           /* not in the environment?           */
         {
             /* turn into ".VARIABLE" as value    */
-            result = ((RexxString *)OREF_PERIOD)->concat(variable->upper());
+            variable = variable->upper();
+            ProtectedObject p(variable);
+            result = ((RexxString *)OREF_PERIOD)->concat(variable);
         }
         if (newvalue != OREF_NULL)         /* have a new value?                 */
         {

@@ -65,6 +65,7 @@ void  RexxInstructionSay::execute(
 /******************************************************************************/
 {
     RexxString *value;                   /* string version of output value    */
+    ProtectedObject p_value;
 
     context->traceInstruction(this);     /* trace if necessary                */
     if (this->expression != OREF_NULL) /* have an expression value?         */
@@ -72,6 +73,7 @@ void  RexxInstructionSay::execute(
         /* get the expression value          */
         RexxObject *result = this->expression->evaluate(context, stack);
         value = REQUEST_STRING(result);    /* get the string version            */
+        p_value = value;
     }
     else
     {

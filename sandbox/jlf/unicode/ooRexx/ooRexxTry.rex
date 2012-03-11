@@ -94,33 +94,33 @@ exit
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
 -- Remember : don't implement that as a procedure or routine or method !
-LoadOptionalComponents:
+loadOptionalComponents:
     if .platform~is("windows") then do
         call loadPackage("oodialog.cls")
         call loadPackage("winsystm.cls")
+    end
+    if \.platform~is("windows") then do
+        call loadLibrary("rxunixsys")
     end
     call loadLibrary("hostemu")
     call loadPackage("mime.cls")
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
+    call loadPackage("regex/regex.cls")
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
-    call loadPackage("pipeline/pipe.rex")
-    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
-    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx 
+    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     call loadPackage("concurrency/coactivity.cls")
-    
-    -- See doers.cls for more details, but in summary, the one-liner routines/methods have a default
-    -- lookup scope which is limited to the doers package. With next line, I dynamically extend the
-    -- lookup scope of the doers package.
-    call Doers.AddVisibilityFrom(.context)
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("pipeline/pipe_extension.cls") -- requires jlf sandbox ooRexx
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
 
     return
     
@@ -145,7 +145,7 @@ loadLibrary:
     signal on syntax name loadLibraryError
     if .context~package~loadLibrary(filename) then do
         say "loadLibrary OK for" filename
-        return
+        return .true
     end
     loadLibraryError:
     say "loadLibrary KO for" filename

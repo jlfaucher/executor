@@ -85,10 +85,8 @@ public:
 
     static thread_id_t queryThreadID();
     // the following os a NOP on unix platforms
-    static inline void yield()
-    {
-        sched_yield();
-    }
+    static void yield();
+    static wholenumber_t yieldCounter();
 
 protected:
     pthread_t     threadId;         // the thread identifier

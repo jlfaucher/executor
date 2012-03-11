@@ -483,6 +483,7 @@ RexxObject *RexxStem::request(
     ProtectedObject result;
     /* Verify we have a string parm      */
     makeclass = stringArgument(makeclass, ARG_ONE)->upper();
+    ProtectedObject p(makeclass);
     /* array request?                    */
     if (makeclass->strCompare(CHAR_ARRAY))
     {
@@ -515,6 +516,7 @@ RexxObject *RexxStem::newRexx(
                                          /* break up the arguments            */
     RexxClass::processNewArgs(init_args, argCount, &init_args, &argCount, 1, (RexxObject **)&name, NULL);
     newObj = new RexxStem ((RexxString *)name);   /* get a new stem                    */
+    ProtectedObject p(newObj);
     newObj->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     /* does object have an UNINT method  */
     if (((RexxClass *)this)->hasUninitDefined())

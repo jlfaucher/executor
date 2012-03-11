@@ -1,0 +1,243 @@
+Notes taken while investigating the performance problem of routine call under window
+
+Rick's fix :
+
+Now the test is fast : just testing a boolean variable externalTraceEnabled.
+This boolean variable is initialized then the interpreter instance is created.
+activity->getInstance()->setupProgram(this);
+    InterpreterInstance::setupProgram
+        SysInterpreterInstance::setupProgram
+                if (externalTraceEnabled) activation->enableExternalTrace();
+
+
+RexxActivation.cpp
+                //SystemInterpreter::setupProgram(this);         /* do any system specific setup      */
+                activity->getInstance()->setupProgram(this);         /* do any system specific setup      */ JLF : getInstance returns the interpreter instance
+
+InterpreterInstance.hpp
+class InterpreterInstance : public RexxInternalObject
+    inline void   setupProgram(RexxActivation *activation)
+    {
+        sysInstance.setupProgram(activation);
+    }
+    ...
+    SysInterpreterInstance sysInstance;      // our platform specific helper
+
+
+Windows
+SysInterpreterInstance.hpp
+class SysInterpreterInstance
+    void setupProgram(RexxActivation *activation);
+protected:
+    bool  externalTraceEnabled;   // are we started with external trace on
+
+
+Windows
+SysInterpreterInstance.cpp
+void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
+{
+    externalTraceEnabled = false;    // off by default
+    TCHAR rxTraceBuf[8];
+
+    /* scan current environment,         */
+    if (GetEnvironmentVariable("RXTRACE", rxTraceBuf, 8))
+    {
+        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        {
+            externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
+        }
+    }
+
+
+Windows
+SysInterpreterInstance.cpp
+void SysInterpreterInstance::setupProgram(RexxActivation *activation)
+{
+    // trace this activation if turned on externally when the instance was started
+    if (externalTraceEnabled)
+    {
+        activation->enableExternalTrace();
+    }
+}
+
+
+Windows
+SystemInterpreter.hpp
+remove declaration of :
+    static void setupProgram(RexxActivation *activation);
+
+
+Windows
+MiscSystem.cpp
+remove implementation of :
+void SystemInterpreter::setupProgram(RexxActivation *activation)
+
+
+Unix
+SysInterpreterInstance.hpp
+class SysInterpreterInstance
+    void setupProgram(RexxActivation *activation);
+    bool  externalTraceEnabled;   // are we started with external trace on
+
+
+Unix
+SysInterpreterInstance.cpp
+    externalTraceEnabled = false;    // off by default
+    /* scan current environment,         */
+    const char *rxTraceBuf = getenv("RXTRACE");
+    if (rxTraceBuf != NULL)
+    {
+        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        {
+            externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
+        }
+    }
+
+
+Unix
+SystemInterpreter.hpp
+remove declaration of :
+    static void setupProgram(RexxActivation *activation);
+
+
+Unix
+MiscSystem.cpp
+remove implementation of :
+void SystemInterpreter::setupProgram(RexxActivation *activation)
+
+
+=================================================================
+Activation.cpp
+RexxActivation::RexxActivation()
+RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+    this->activation_context = METHODCALL;  // the context is a method call
+RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent, RexxCode *_code, int context)
+    this->activation_context = context;  /* save the context                  */
+RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context)
+    this->activation_context = context;  /* save the context                  */
+
+
+=================================================================
+Entry point
+message name = <none>
+type of context = PROGRAMCALL (passed when creating the activation)
+
+void RoutineClass::runProgram(
+    code->call(activity, this, OREF_NONE, arguments, argCount, calltype, environment, PROGRAMCALL, result);
+        RexxCode.cpp
+        void RexxCode::call(
+
+
+=================================================================
+Method call
+
+MessageInstruction.cpp
+void RexxInstructionMessage::execute (
+    stack->send(this->name, argcount, result);
+        ObjectClass.cpp
+        void RexxObject::messageSend(
+            method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);
+                MethodClass.cpp
+                void RexxMethod::run(
+                    code->run(activity, this, receiver, msgname, argPtr, count, result);
+                        RexxCode.cpp
+                        void RexxCode::run(
+                            newacta->run(receiver, msgname, argPtr, argcount, OREF_NULL, result);
+                                RexxActivation.cpp
+                                RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist, size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+                                    if (this->isTopLevelCall()) --> yes
+                                    if (this->isProgramLevelCall()) --> no (unlike routine call) --> the performance problem is here (read RXTRACE environment variable)
+
+
+
+=================================================================
+Routine call
+
+CallInstruction.cpp
+void RexxInstructionCall::execute(
+    case call_external:              /* need to call externally           */
+        /* go process the external call      */
+        context->externalCall(_name, argcount, stack, OREF_ROUTINENAME, result);
+            RexxActivation.cpp
+            RexxObject *RexxActivation::externalCall(RexxString *target, size_t _argcount, RexxExpressionStack *_stack, RexxString *calltype, ProtectedObject &resultObj)
+                routine->call(this->activity, target, _arguments, _argcount, calltype, OREF_NULL, EXTERNALCALL, resultObj);
+                    RoutineClass.cpp
+                    void RoutineClass::call(...
+                        code->call(activity, this, msgname, argPtr, argcount, calltype, environment, context, result);
+                            RexxCode.cpp
+                            void RexxCode::call(...
+                                newacta->run(OREF_NULL, msgname, argPtr, argcount, OREF_NULL, result);
+                                    RexActivation.cpp
+                                    RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,  size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+
+
+===================================================================
+How a routine is found
+
+RexxActivation.cpp
+RexxActivation::externalCall
+    // Step 1:  Check the global functions directory
+    // this is actually considered part of the built-in functions, but these are
+    // written in ooRexx.  The names are also case sensitive
+    RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get(target);
+    ...
+    // Step 2:  Check for a ::ROUTINE definition in the local context
+    routine = this->settings.parent_code->findRoutine(target);
+        RoutineClass *RexxSource::findRoutine(RexxString *routineName)
+            RoutineClass *routineObject = findLocalRoutine(upperName);
+                RoutineClass *RexxSource::findLocalRoutine(RexxString *name)
+                    search in this->routines        JLF : contains the routines defined in current source
+            ...
+            // now try for one pulled in from ::REQUIRES objects
+            return findPublicRoutine(upperName);
+    // Step 2a:  See if the function call exit fields this one
+    if (!activity->callObjectFunctionExit(this, target, calltype, resultObj, _arguments, _argcount)) return(RexxObject *)resultObj;
+    // Step 2b:  See if the function call exit fields this one
+    if (!activity->callFunctionExit(this, target, calltype, resultObj, _arguments, _argcount)) return(RexxObject *)resultObj;
+    // Step 3:  Perform all platform-specific searches
+    if (SystemInterpreter::invokeExternalFunction(this, this->activity, target, _arguments, _argcount, calltype, resultObj)) return(RexxObject *)resultObj;
+    // Step 4:  Check scripting exit, which is after most of the checks
+    if (!activity->callScriptingExit(this, target, calltype, resultObj, _arguments, _argcount)) return(RexxObject *)resultObj;
+    // if it's made it through all of these steps without finding anything, we
+    // finally have a routine non found situation
+    reportException(Error_Routine_not_found_name, target);
+
+
+=======================================================================
+TheFunctionsDirectory : seems not filled, but a search is made inside
+
+RexxActivation.cpp
+RexxObject *RexxActivation::externalCall(RexxString *target, size_t _argcount, RexxExpressionStack *_stack,
+    RexxString *calltype, ProtectedObject &resultObj)
+{
+    // Step 1:  Check the global functions directory
+    // this is actually considered part of the built-in functions, but these are
+    // written in ooRexx.  The names are also case sensitive
+    RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get(target);
+
+
+RexxMemory.cpp
+RexxDirectory *RexxMemory::functionsDir = OREF_NULL;      // statically defined requires
+
+
+RexxMemory.cpp
+void RexxMemory::restoreImage()
+    TheFunctionsDirectory = (RexxDirectory *)saveArray->get(saveArray_FUNCTIONS);
+
+
+RexxMemory.cpp
+void RexxMemory::saveImage(void)
+    saveArray->put((RexxObject *)TheFunctionsDirectory,  saveArray_FUNCTIONS);
+
+
+Setup.cpp
+void RexxMemory::createImage()
+  TheFunctionsDirectory = new_directory();
+  ...
+  kernel_public(CHAR_FUNCTIONS        ,TheFunctionsDirectory  ,TheKernel);
+
+
+RexxCore.h
+#define TheFunctionsDirectory RexxMemory::functionsDir
+
+

@@ -126,7 +126,8 @@ RexxCompoundElement *RexxCompoundTable::findEntry(
         return OREF_NULL;                /* return var not found       */
     }
     /* create a new compound variable */
-    anchor = new_compoundElement(tail->makeString());
+    ProtectedObject p_tailString(tail->makeString());
+    anchor = new_compoundElement(p_tailString);
 
     if (!previous)
     {                   /* if first insertion         */

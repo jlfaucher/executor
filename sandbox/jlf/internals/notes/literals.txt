@@ -1,0 +1,27 @@
+For the parser, a string literal is a token (always monoline).
+A source literal is also seen as a token, at least during the first pass. 
+It can be multiline, like a comment /* */ can be multiline. 
+It is source oriented because the end delimiter } is searched by skiping whole tokens. 
+Any } in a string or comment is properly ignored. 
+The line continuations are supported correctly. 
+When the end delimiter has been reached, you have a multiline string surrounded by {}. 
+The parser sees only one token. 
+From here, it's easy to build an array of lines from the token's text, and pass it to the appropriate service to create a routine or a method (the raw executable).
+This is possible because the parser is reentrant (at least I think so... got no problem so far).
+
+
+We could imagine other literals : XML, JSON, multiline strings, etc...
+That brings the question of the syntax. 
+The curly brackets are not easy to read, difficult to distinguish them from round brackets.
+I did not investigate a lot, but a syntax like #(...)# or #[...]# or #do...end# should be possible.
+The idea is to use a (currently) invalid character to detect the start/end of a literal.
+An XML literal could be #<...>#
+A JSON literal could be #JSON...JSON#
+A multiline string could be #"..."#
+
+In Clojure, the notation #(..) is a reader macro.
+Reader macros are provided for a few extremely common tasks, and they can’t be defined by users.
+The rationale behind this limitation is that overuse of reader macros makes code impossible to read unless the reader is very familiar with the macro in question.
+No such thing in ooRexx, but could be... The parsing of a literal may need some user-defined code.
+This is the case for the source literals, whose tags ::xxx are analyzed by parser.orx.
+The call to the user-defined code is hardcoded in the parser (not good, but...).

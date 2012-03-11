@@ -990,7 +990,8 @@ void RexxSource::nextClause()
  */
 StackFrameClass *RexxSource::createStackFrame()
 {
-    return new StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceBack(clauseLocation, 0, true), clauseLocation.getLineNumber());
+    ProtectedObject p;
+    return new (p) StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceBack(clauseLocation, 0, true), clauseLocation.getLineNumber());
 }
 
 
@@ -1053,8 +1054,7 @@ RexxString *RexxSource::extract(
 /* Extrace a line from the source using the given location information        */
 /******************************************************************************/
 {
-    RexxString *line = OREF_NULLSTRING;  /* returned source line              */
-    ProtectedObject pline(line);
+    /* RexxString * */ ProtectedObject line = OREF_NULLSTRING;  /* returned source line              */
     RexxString *source_line;             /* current extracting line           */
     size_t  counter;                     /* line counter                      */
 
@@ -1084,12 +1084,12 @@ RexxString *RexxSource::extract(
         for (counter = location.getLineNumber() + 1 - this->line_adjust; counter < location.getEndLine(); counter++)
         {
             /* concatenate the next line on      */
-            if (newline) line = line->concatWith(this->get(counter), '\n');
-            else line = line->concat(this->get(counter));
+            if (newline) line = ((RexxString*)line)->concatWith(this->get(counter), '\n');
+            else line = ((RexxString*)line)->concat(this->get(counter));
         }
         /* now add on the last part          */
-        if (newline) line = line->concatWith(this->get(counter)->extractB(0, location.getEndOffset()), '\n');
-        else line = line->concat(this->get(counter)->extractB(0, location.getEndOffset()));
+        if (newline) line = ((RexxString*)line)->concatWith(this->get(counter)->extractB(0, location.getEndOffset()), '\n');
+        else line = ((RexxString*)line)->concat(this->get(counter)->extractB(0, location.getEndOffset()));
     }
     return line;                         /* return the extracted line         */
 }
@@ -1654,6 +1654,7 @@ RexxClass *RexxSource::findPublicClass(RexxString *name)
 RexxClass *RexxSource::findClass(RexxString *className)
 {
     RexxString *internalName = className->upper();   /* upper case it                     */
+    ProtectedObject p(internalName);
     // check for a directly defined one in the source context chain
     RexxClass *classObject = findInstalledClass(internalName);
     // return if we got one
@@ -1987,6 +1988,7 @@ void RexxSource::classDirective()
     RexxString *name = token->value;             /* get the routine name              */
                                      /* get the exposed name version      */
     RexxString *public_name = this->commonString(name->upper());
+    ProtectedObject p(public_name);
     /* does this already exist?          */
     if (this->class_dependencies->entry(public_name) != OREF_NULL)
     {
@@ -2148,6 +2150,7 @@ void RexxSource::extensionDirective()
     RexxString *name = token->value;             /* get the class name              */
                                      /* get the exposed name version      */
     RexxString *public_name = this->commonString(name->upper());
+    ProtectedObject p(public_name);
     /* create a dependencies list        */
     this->flags |= _install;         /* have information to install       */
 
@@ -2305,6 +2308,7 @@ void RexxSource::methodDirective()
     RexxString *name = token->value; /* get the string name               */
                                      /* and the name form also            */
     RexxString *internalname = this->commonString(name->upper());
+    ProtectedObject p(internalname);
     for (;;)
     {                       /* now loop on the option keywords   */
         token = nextReal();            /* get the next token                */
@@ -2479,6 +2483,8 @@ void RexxSource::methodDirective()
             RexxString *library = OREF_NULL;
             RexxString *procedure = OREF_NULL;
             decodeExternalMethod(internalname, externalname, library, procedure);
+            ProtectedObject p_library(library);
+            ProtectedObject p_procedure(procedure);
             // now create both getter and setting methods from the information.
             _method = createNativeMethod(internalname, library, procedure->concatToCstring("GET"));
             _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
@@ -2805,6 +2811,7 @@ void RexxSource::attributeDirective()
     RexxString *name = token->value; /* get the string name               */
                                      /* and the name form also            */
     RexxString *internalname = this->commonString(name->upper());
+    ProtectedObject p(internalname);
     RexxString *externalname = OREF_NULL;
 
     for (;;)
@@ -2967,6 +2974,8 @@ void RexxSource::attributeDirective()
                 RexxString *library = OREF_NULL;
                 RexxString *procedure = OREF_NULL;
                 decodeExternalMethod(internalname, externalname, library, procedure);
+                ProtectedObject p_library(library);
+                ProtectedObject p_procedure(procedure);
                 // now create both getter and setting methods from the information.
                 RexxMethod *_method = createNativeMethod(internalname, library, procedure->concatToCstring("GET"));
                 _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
@@ -3001,10 +3010,13 @@ void RexxSource::attributeDirective()
                 RexxString *library = OREF_NULL;
                 RexxString *procedure = OREF_NULL;
                 decodeExternalMethod(internalname, externalname, library, procedure);
+                ProtectedObject p_library(library);
+                ProtectedObject p_procedure(procedure);
                 // if there was no procedure explicitly given, create one using the GET/SET convention
                 if (internalname == procedure)
                 {
                     procedure = procedure->concatToCstring("GET");
+                    p_procedure = procedure;
                 }
                 // now create both getter and setting methods from the information.
                 RexxMethod *_method = createNativeMethod(internalname, library, procedure);
@@ -3041,10 +3053,13 @@ void RexxSource::attributeDirective()
                 RexxString *library = OREF_NULL;
                 RexxString *procedure = OREF_NULL;
                 decodeExternalMethod(internalname, externalname, library, procedure);
+                ProtectedObject p_library(library);
+                ProtectedObject p_procedure(procedure);
                 // if there was no procedure explicitly given, create one using the GET/SET convention
                 if (internalname == procedure)
                 {
                     procedure = procedure->concatToCstring("SET");
+                    p_procedure = procedure;
                 }
                 // now create both getter and setting methods from the information.
                 RexxMethod *_method = createNativeMethod(setterName, library, procedure);
@@ -3086,6 +3101,7 @@ void RexxSource::constantDirective()
     RexxString *name = token->value; /* get the string name               */
                                      /* and the name form also            */
     RexxString *internalname = this->commonString(name->upper());
+    ProtectedObject p(internalname);
 
     // we only expect just a single value token here
     token = nextReal();                /* get the next token                */
@@ -4081,11 +4097,13 @@ RexxInstruction *RexxSource::instruction()
             {
                 return this->messageNew((RexxExpressionMessage *)term);
             }
+#if 0 // JLF : I want to support ~select{index~left(1) == "S"}
             else if (second->subclass == OPERATOR_STRICT_EQUAL)
             {
                 // messageterm == something is an invalid assignment
                 syntaxError(Error_Invalid_expression_general, second);
             }
+#endif
             // messageterm = something is a pseudo assignment
             else if (second->subclass == OPERATOR_EQUAL)
             {
@@ -4534,6 +4552,7 @@ RexxString *RexxSource::commonString(
 /*            a single, common set of strings.                                */
 /******************************************************************************/
 {
+    ProtectedObject p(string); // JLF I see a lot of calls where string is a not protected object
     /* check the global table first      */
     RexxString *result = (RexxString *)this->strings->fastAt(string);
     /* not in the table                  */
@@ -5768,6 +5787,7 @@ RexxArray  *RexxSource::words(
     wordlist = this->subTerms;           /* use the subterms list             */
                                          /* get the first word                */
     word = ((RexxString *)(string->word(IntegerOne)))->upper();
+    ProtectedObject p(word);
     word = this->commonString(word);     /* get the common version of this    */
     wordlist->push(word);                /* add to the word list              */
     count = 1;                           /* one word so far                   */

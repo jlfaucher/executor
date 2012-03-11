@@ -444,7 +444,9 @@ RoutineClass *PackageManager::createRegisteredRoutine(RexxString *function)
 
     // create a code handler and add to the cache
     RoutineClass *func = new RoutineClass(function, new RegisteredRoutine(function, (RexxRoutineHandler *)entry));
-    registeredRoutines->put(func, function->upper());
+    function = function->upper();
+    ProtectedObject p(function);
+    registeredRoutines->put(func, function);
     // we got this
     return func;
 }
@@ -567,6 +569,7 @@ RexxObject *PackageManager::dropRegisteredRoutine(RexxString *name)
     // we register this using the uppercase name, so make sure we uppercase it
     // before looking in the tables.
     name = name->upper();
+    ProtectedObject p(name);
     // remove this from the local cache, then remove it from the global function
     // registration.
     registeredRoutines->remove(name);
@@ -599,6 +602,7 @@ RexxObject *PackageManager::queryRegisteredRoutine(RexxString *name)
     // we register this using the uppercase name, so make sure we uppercase it
     // before looking in the tables.
     name = name->upper();
+    ProtectedObject p(name);
     // does this name exist in our table?
     if (getLoadedRoutine(name) != OREF_NULL)
     {
@@ -655,6 +659,7 @@ bool PackageManager::callNativeRoutine(RexxActivity *activity, RexxString *name,
 {
     // all of our tables use uppercase names...make this a case-insensitive lookup
     name = name->upper();
+    ProtectedObject p(name);
 
     // package functions come first
     RoutineClass *function = (RoutineClass *)packageRoutines->at(name);

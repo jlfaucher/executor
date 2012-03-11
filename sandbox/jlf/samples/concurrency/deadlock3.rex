@@ -12,7 +12,7 @@ entering in a guarded method defined by the user.
 It seems that the predefined methods do not trigger this locking, even if declared
 guarded (to confirm, I could be wrong here... [later] I confirm).
 
-~times.yield forwards to ~yield.downto.
+~times.generate forwards to ~generate.downto.
 The shared routine instance is created from the source literal {...}.
 ::method yield.downto --unguarded -- coactive
     use strict arg lowerLimit, action={arg(1)}
@@ -42,8 +42,8 @@ In theory, only ~do and ~doWith had to be declared unguarded, but it doesn't hur
 
 */
 
-c = 1000~times.yield
-c = 1000~times.yield
+c = 1000~times.generate
+c = 1000~times.generate
 say "Ended coactivities:" .Coactivity~endAll
 
 ::requires "extension/extensions.cls"

@@ -1,0 +1,147 @@
+Collection                      makeArray
+    MapCollection               putAll, makeArray <--
+        Directory               makeArray
+            Properties
+        IdentityTable           makeArray
+        Relation                makeArray
+            Bag *               putAll
+        Stem                    makeArray
+        Table                   makeArray
+            Set *               putAll
+    OrderedCollection
+        Array                   makeArray
+        List                    makeArray
+        Queue                   makeArray
+            CircularQueue       makeArray
+    SetCollection
+        Bag *
+        Set *
+
+
+The class with * appear at several places in the hierarchy : Bag, Set
+
+
+The description of mapCollection :
+    <<
+    The MapCollection class is a MIXIN class that defines the basic set of methods implemented by all
+    collections that use create a mapping from an index object to a value.
+    >>
+could be also applied to Array, List
+so, something is missing in this description.
+
+
+The definition of putAll on mapCollection looks too restrictive...
+   ...The item indexes from the source collection must be strings...
+because IdentityTable, Relation, Bag, Table and Set can have indexes of any type.
+
+
+=======================================================================================
+Smalltalk
+=======================================================================================
+ANSI Smalltalk standard
+http://wiki.squeak.org/squeak/172
+
+---------------------------------------------------------------------------------------
+Collection
+
+allSatisfy: discriminator 
+Return true if the discriminator evaluates to true for every element of the receiver. Otherwise 
+return false.    
+
+
+anySatisfy: discriminator 
+Return true if the discriminator evaluates to true for any element of the receiver. Otherwise 
+return false. 
+
+
+collect: transformer 
+Synopsis 
+Answer a new collection constructed by gathering the results of evaluating transformer with 
+each element of the receiver. 
+Definition: <collection> 
+For each element of the receiver, transformer is evaluated with the element as the parameter. 
+The results of these evaluations are collected into a new collection. 
+The elements are traversed in the same order as they would be if the message #do: had been 
+sent to the receiver. 
+Unless specifically refined, this message is defined to answer an object conforming to the same 
+protocol as the receiver. 
+
+
+detect: discriminator 
+Return the first element of the receiver which causes discriminator to evaluate to true when 
+the element is used as the argument. 
+
+
+do: operation 
+Synopsis 
+Evaluate operation with each element of the receiver. 
+Definition: <collection> 
+For each element of the receiver, operation is evaluated with the element as the parameter. 
+Unless specifically refined, the elements are not traversed in a particular order. Each element is 
+visited exactly once. Conformant protocols may refine this message to specify a particular ordering.
+
+
+do: operation separatedBy: separator 
+Synopsis 
+Evaluate operation with each element of the receiver interspersed by evaluation of separator. 
+Definition: <collection> 
+For each element of the receiver, operation is evaluated with the element as the parameter. 
+Before evaluating operation the second and subsequent times evaluate separator. 
+Separator is not evaluated if there are less than two elements nor after the last element. 
+
+
+includes: target 
+Synopsis 
+Answer true if an element of the receiver is equivalent to target. Answer false otherwise. 
+Definition: <collection> 
+This message is used to test an object for inclusion among the receiver's elements. Answer true if 
+at least one of the receiver's elements is equivalent to target. Answer false otherwise. 
+
+
+inject: initialValue into: operation NCITS J20 DRAFT  December, 1997  163 
+of ANSI Smalltalk Standard  revision 1.9 
+Answer the final result of evaluating operation using each element of the receiver and the 
+previous evaluation result as the parameters. 
+Definition: <collection> 
+The first evaluation of operation is performed with initialValue as the first parameter, and 
+the first element of the receiver as the second parameter. Subsequent evaluations are done with 
+the result of the previous evaluation as the first parameter, and the next element as the second 
+parameter. The result of the last evaluation is answered. 
+The elements are traversed in the same order as they would be if the message #do: had been 
+sent to the receiver. 
+
+
+occurrencesOf: target 
+Synopsis 
+Answer the number of elements of the receiver which are equivalent to target.
+
+
+reject: discriminator 
+Synopsis 
+Answer a new collection which includes only the elements in the receiver which cause 
+discriminator to evaluate to false. 
+Definition: <collection> 
+For each element of the receiver, discriminator is evaluated with the element as the 
+parameter. Each element which causes discriminator to evaluate to false is included in the 
+new collection. 
+The elements are traversed in the same order as they would be if the message #do: had been 
+sent to the receiver. 
+Unless specifically refined, this message is defined to answer an object conforming to the same 
+protocol as the receiver. If both the receiver and the result maintain an ordering of their elements, 
+the elements of the result will be in the same relative order as the elements of the receiver. 
+
+
+select: discriminator 
+Synopsis 
+Answer a new collection which contains only the elements in the receiver which cause 
+discriminator to evaluate to true.
+Definition: <collection> 
+For each element of the receiver, discriminator is evaluated with the element as the 
+parameter. Each element which causes discriminator to evaluate to true is included in the new 
+collection. 
+The elements are traversed in the same order as they would be if the message #do: had been 
+sent to the receiver. 
+Unless specifically refined, this message is defined to answer an object conforming to the same 
+protocol as the receiver. If both the receiver and the result maintain an ordering of their elements, 
+the elements of the result will be in the same relative order as the elements of the receiver. 
+

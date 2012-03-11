@@ -83,7 +83,7 @@ say 'Items selected by all are'
 
 index = valueArray1~first
 do while index <> .nil
-   say index "#" indexArray1[index][1] ":" valueArray1[index]
+   say index "#" indexArray1[index] ":" valueArray1[index]
    index = valueArray1~next(index)
 end
 
@@ -92,7 +92,7 @@ say 'Items not selected by all are'
 
 index = valueArray2~first
 do while index <> .nil
-   say index "#" indexArray2[index][1] ":" valueArray2[index]
+   say index "#" indexArray2[index] ":" valueArray2[index]
    index = valueArray2~next(index)
 end
 
@@ -105,7 +105,7 @@ pipe~go(info)                                  /* Run it                      */
 Do i = 1 To a.0                                /* Show stem values            */
   --Say a.i.index ":" a.i.value
   -- index is 'The NIL object' here. Don't know why a.i.'INDEX' doesn't work...
-  Say a.[i, 'INDEX'][1] ":" a.i.value
+  Say a.[i, 'INDEX'] ":" a.i.value
 End
 
 say '-----------------------------------'
@@ -125,7 +125,7 @@ say 'Items less than pivot' pivot 'are'
 
 index = valueArray1~first
 do while index <> .nil
-   say index "#" indexArray1[index][1] ":" valueArray1[index]
+   say index "#" indexArray1[index] ":" valueArray1[index]
    index = valueArray1~next(index)
 end
 
@@ -134,7 +134,7 @@ say 'Items greater than or equal to pivot' pivot 'are'
 
 index = valueArray2~first
 do while index <> .nil
-   say index "#" indexArray2[index][1] ":" valueArray2[index]
+   say index "#" indexArray2[index] ":" valueArray2[index]
    index = valueArray2~next(index)
 end
 

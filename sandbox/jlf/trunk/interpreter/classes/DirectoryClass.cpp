@@ -388,6 +388,7 @@ RexxObject *RexxDirectory::setEntry(
 {
     /* get as a string parameter         */
     entryname = stringArgument(entryname, ARG_ONE)->upper();
+    ProtectedObject p(entryname);
     if (entryobj != OREF_NULL)
     {         /* have a new value?                 */
               /* try to place in existing hashtab  */
@@ -499,6 +500,7 @@ RexxObject *RexxDirectory::setMethod(
 {
     /* get as a string parameter         */
     entryname = stringArgument(entryname, ARG_ONE)->upper();
+    ProtectedObject p(entryname);
     if (methodobj != OREF_NULL)          /* have a method object?             */
     {
         if (!isOfClass(Method, methodobj))     /* given as a string?                */
@@ -787,6 +789,7 @@ RexxObject *RexxDirectory::newRexx(
     /* object might actually be for a    */
     /* subclass                          */
     RexxDirectory *newDirectory = new_directory();
+    ProtectedObject p(newDirectory);
     newDirectory->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     /* does object have an UNINT method  */
     if (((RexxClass *)this)->hasUninitDefined())

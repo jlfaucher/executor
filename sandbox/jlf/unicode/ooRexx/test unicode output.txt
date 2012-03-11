@@ -42,5 +42,5 @@ Où seras-tu vendredi (le jour du vendredi) ?
 s = "aé…"
 say s  --> aé…
 say s~length --> 6
-say s~mapchar('return arg(1)~c2x" "') --> 61 C3 A9 E2 80 A6 
-say s~mapchar('return arg(1)~c2x~x2b" "') --> 01100001 11000011 10101001 11100010 10000000 10100110 
+say s~mapC{return arg(1)~c2x" "} --> 61 C3 A9 E2 80 A6 
+say s~mapC{return arg(1)~c2x~x2b" "} --> 01100001 11000011 10101001 11100010 10000000 10100110 

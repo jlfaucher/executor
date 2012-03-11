@@ -40,6 +40,17 @@ See doers-samples.rex
 ::method needsObject abstract
 ::method do abstract
 ::method doWith abstract
+::method source abstract
+
+-- Used by higher-order functions, to decide which arguments to pass
+::method arity
+    expose arity
+    if arg() <> 0 then do
+        use strict arg arity -- store the arity
+        return self -- for convenience, return the doer itself
+    end
+    else if \var("arity") then return -1 -- unknown arity
+    else return arity
 
 -- Tilde call
 ::method "~()" unguarded
@@ -60,8 +71,8 @@ See doers-samples.rex
 
 ::method partial unguarded
     args1 = arg(1, "a")
-    return {::cl
-            expose self args1
+    return {::closure
+            expose args1 self
             args2 = arg(1, "a")
             size2 = args2~size
             if size2 == 0 then args = args1
@@ -150,6 +161,9 @@ The method 'run' is a private method. So can be called only from another method 
     use strict arg object, array
     forward to (object) message "sendWith" array (self, array)
 
+::method source unguarded
+    return self -- When used as a doer, a string is a message. Assume the message is the source.
+
 
 -----------------------------------------------------------------------------
 -- Mixin.
@@ -226,14 +240,50 @@ Possible transformations :
     self~executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
     return self~executable
 
+-- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method needsObject unguarded
     forward to (self~doer)
 
+-- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method do unguarded
     forward to (self~doer)
 
+-- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method doWith unguarded
     forward to (self~doer)
+
+/*
+I want to support that (no ~doer in the following expression) :
+                                                                                                ****
+    1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
+                                                                                                ****
+In this example, the block passed to .inject returns another block whose doer is a coactivity. 
+The option "iterateAfter" checks if the current item has the "supplier" method. If yes, then it iterates over the items returned by the supplier.
+A RexxBlock has no "supplier" method, but its doer may have one. This is the case in this example. 
+Without this redefinition, I should write :
+                                                                                                ****
+    1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
+                                                                                                ****
+*/
+::method hasMethod
+    use strict arg methodName
+    if self~hasMethod:super(methodName) then return .true
+    /*if methodName~caselessEquals("SUPPLIER") then*/ forward to (self~doer)
+    return .false
+
+::method supplier unguarded
+    forward to (self~doer)
+
+/*
+Normally, it's not a good idea to define an "unknown" method on a mixin class...
+But here, I think it's ok to do that...
+I find more natural to support directly blocks in the following samples (no need to send the message ~doer to the block) : 
+{::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~take(5)~iterator~each{say item}
+{::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~select{item//2 == 0}~take(5)~iterator~each{say item}
+*/
+::method unknown
+    use arg msg, args
+    forward message (msg) arguments (args) to (self~doer)
 
 
 -----------------------------------------------------------------------------
@@ -255,6 +305,9 @@ Possible transformations :
     use strict arg array
     forward message ("resume") arguments (array)
 
+::method source unguarded
+    return self~executable~source
+
 
 -----------------------------------------------------------------------------
 -- Closure by value : not yet a real closure but useful anyway 
@@ -263,19 +316,19 @@ Possible transformations :
  
 ::class "Closure" public inherit Doer
 
-::method init unguarded
-    expose !_variableNames_!
+::method init
+    expose !_closure.variableNames_!
     variables = .nil
     action = .nil
     if arg() == 2 then use strict arg variables, action
     else if arg() == 1, arg(1)~isA(.doer) then use strict arg action
     else if arg() == 1, arg(1)~isA(.directory) then use strict arg variables
     else raise syntax 93.900 array("Closure : Invalid arguments")
-    if variables == .nil, action <> .nil,  action~isA(.RexxBlock) then variables = action~context~variables
+    if variables == .nil, action <> .nil,  action~isA(.RexxBlock) then variables = action~variables
     if variables <> .nil then do
-        !_variableNames_! = ""
+        !_closure.variableNames_! = ""
         do v over variables
-            !_variableNames_! ||= " "v
+            !_closure.variableNames_! ||= " "v
         end
         self~initVariables(variables)
     end
@@ -284,13 +337,14 @@ Possible transformations :
         self~setMethod("do", method, "Object")
     end
 
-::method initVariables unguarded
-    expose !_variableNames_! (!_variableNames_!)
-    use strict arg variables
-    supplier = variables~supplier
-    do while supplier~available
-        call value supplier~index, supplier~item
-        supplier~next
+::method initVariables
+    expose !_closure.variableNames_! (!_closure.variableNames_!)
+    -- Must use variable names that will not collide with user-defined variables
+    use strict arg !_closure.variables_!
+    !_closure.supplier_! = !_closure.variables_!~supplier
+    do while !_closure.supplier_!~available
+        call value !_closure.supplier_!~index, !_closure.supplier_!~item
+        !_closure.supplier_!~next
     end
 
 ::method setMethod public unguarded -- override the private setMethod inherited from Object to make it public
@@ -306,6 +360,11 @@ Possible transformations :
 ::method doWith unguarded
     use strict arg array
     forward message "do" arguments (array)
+
+::method source unguarded
+    doMethod = self~instanceMethod("do")
+    if doMethod == .nil then return .nil
+    return doMethod~source
 
 
 -----------------------------------------------------------------------------

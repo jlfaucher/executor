@@ -11,6 +11,7 @@ Allow extension of the predefined ooRexx classes to get something similar to C# 
                                  +-INHERIT--iclasses-+
 
 Add the "in" keyword to the DO repetitor : Similar to "over" but calls the method "supplier" instead of "makearray".
+todo...
 
 See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...
 --> done with .Coactivity
@@ -18,6 +19,7 @@ See if a thread could return more than one result and become a generator when sy
 Export the classes instantiated by the parser and make expression instances available from an ooRexx script. 
 Inspired by C# LINQ and the expression tree API.
 See if that can be used to write macros (i.e. transform expression tree), user directives, DSL...
+todo...
 
 Named parameters (by opposition to positional parameters). 
 In C#, they say it's useful for calling COM services. 
@@ -30,17 +32,19 @@ So, I give up...
 
 Deferred evaluation of parameters. 
 Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, ifalse)
+todo...
 
 Investigate the Activation stack (reify ? closure ? continuation ?)
 --> closure by value : done
 
 Unicode ?
---> added support for wide-chars in oodialog.
+--> added support for wide-chars in oodialog. [now deprecated]
 --> in progress : m17n (but this is not the way proposed by Rick)
 
 Extension of the message term : keyword and multiple dispatch.
 http://atomo-lang.org/
 http://slatelanguage.org/
+todo...
 
 Tracer todo :
 Add support for classic trace (without multithread infos).
@@ -49,10 +53,10 @@ The CSV format can be useful for classic trace, because each line has the name o
 Pipes todo :
 .inject in breadthFirst mode is not limited by the ooRexx callstack size.
 Do the same for depthFirst mode.
-1~pipe(.inject {2*value} rec.869 | .take last | .console) is ok, but if you do one more recursion, 
+1~pipe(.inject {2*item} rec.506 | .take last | .console) is ok, but if you do one more recursion, 
 you get the error "Insufficient control stack space; cannot continue execution"
 No such problem in breadthFirst mode :
-1~pipe(.inject {2*value} rec.b.100000 | .take last | .console) --> last result is 1.99800307E+30103
+1~pipe(.inject {2*item} rec.b.100000 | .take last | .console) --> last result is 1.99800307E+30103
 
 Pipes todo :
 Add partition support to .stemCollector, .arrayCollector
@@ -60,23 +64,897 @@ For .arrayCollector, the collected values will be arrays.
 For .stemCollector, I don't know.
 Is .stemCollector really needed ? I don't see the added value, compared to .arrayCollector
 
-Pipes todo (maybe)
-.index_value~of and .value_index~of returns a table of user-defined indexed values.
-But a table is not an ordered collection, so the indexed values injected in the pipeline are
-not necessarily in the order given by the user. 
-Could fix that by returning an array of .IndexedValue.
-
-Coactivity todo :
-The arguments passed to the coactivity with resume should be available like traditional
-arguments (use arg...). Currently they are returned by yield as an array.
-
 Extension todo :
 Review the extension mechanisms :
 - An extension made on .Object is not available on a class.
   There is a workaround in pipe_extensions.cls.
 - An extension made on .Object is not available on the .nil object.
   No workaround so far.
+- The class .stream doesn't have the methods ~pipe, ~generate.
+  Problem of propagation ?
+    ----- Generate the list of all classes and the list of classes having the method ~pipe
+    allClasses = .object~generate("subClasses")~iterateAfter~recursive~once
+    classesWithPipe = .object~generate("subClasses")~iterateAfter~recursive~once~select{item~hasMethod("pipe")}
+    ----- Print difference between the two lists
+    set1 = allClasses~reduce(.set~new, "put")
+    set2 = classesWithPipe~reduce(.set~new, "put")
+    difference = set1~difference(set2)
+    difference~pipe(.sort caseless | .console item)
+    -----
+    Result :
+        (The CircularQueue class)
+        (The CoactivitySupplierForGeneration class)
+        (The CoactivitySupplierForGenerationFilter class)
+        (The CoactivitySupplierForGenerationIterator class)
+        (The DescendingComparator class)
+        (The do class)
+        (The lineCount class)
+        (The OrderedCollection class)
+        (The pipeProfiler class)
+        (The Properties class)
+        (The secondaryConnector class)
+        (The Set class)
+        (The Stream class)
+        (The StreamSupplier class)
+        (The WeakProxy class)
+    What's the problem with these classes ???
+- Similar problem with the ~help method, but the list of classes is different.
+  The pipeStage classes don't have the problem of missing method ~help, why ?
+  This method ~help is not redefined in the pipe framework...
+        (The CircularQueue class)
+        (The Class class)
+        (The CoactivitySupplierForGeneration class)
+        (The CoactivitySupplierForGenerationFilter class)
+        (The CoactivitySupplierForGenerationIterator class)
+        (The DescendingComparator class)
+        (The OrderedCollection class)
+        (The Properties class)
+        (The Set class)
+        (The Stream class)
+        (The StreamSupplier class)
+        (The WeakProxy class)
 
+Profiler todo :
+Error "does not understand message XXX_UNPROTECTED" when the method XXX is private.
+
+
+===============================================================================
+2012 mar 06
+
+Another GC crash
+ 	rexx.dll!RexxMemory::markObjectsMain(RexxObject * rootObject)  Line 373 + 0xc bytes	C++
+ 	rexx.dll!RexxMemory::markObjects()  Line 653	C++
+ 	rexx.dll!RexxMemory::collect()  Line 1030	C++
+ 	rexx.dll!NormalSegmentSet::handleAllocationFailure(unsigned int allocationLength)  Line 1272	C++
+ 	rexx.dll!RexxMemory::newObject(unsigned int requestLength, unsigned int type)  Line 1110 + 0x12 bytes	C++
+ 	rexx.dll!new_object(unsigned int s, unsigned int t)  Line 426 + 0x1e bytes	C++
+ 	rexx.dll!RexxListTable::operator new(unsigned int size, unsigned int initialSize)  Line 94 + 0x16 bytes	C++
+ 	rexx.dll!RexxList::getFree()  Line 123 + 0x12 bytes	C++
+ 	rexx.dll!RexxList::insert(RexxObject * _value, RexxObject * _index)  Line 556 + 0x8 bytes	C++
+ 	rexx.dll!RexxList::append(RexxObject * _value)  Line 542	C++
+ 	rexx.dll!RexxActivity::generateProgramInformation(RexxDirectory * exobj)  Line 941	C++
+ 	rexx.dll!RexxActivity::createExceptionObject(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 894	C++
+ 	rexx.dll!RexxActivity::raiseException(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 774 + 0x18 bytes	C++
+ 	rexx.dll!RexxActivation::raise(RexxString * condition, RexxObject * rc, RexxString * description, RexxObject * additional, RexxObject * resultObj, RexxDirectory * conditionobj)  Line 1639	C++
+ 	rexx.dll!RexxActivation::raiseExit(RexxString * condition, RexxObject * rc, RexxString * description, RexxObject * additional, RexxObject * resultObj, RexxDirectory * conditionobj)  Line 1544	C++
+>	rexx.dll!RexxInstructionRaise::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 280	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+----------
+Review of RexxInstructionRaise::execute
+    _result to protect (done)
+    _description to protect (done)
+    _additional to protect (done)
+Review of RexxActivation::raise
+    _conditionObj to protect if not a propagation, because new directory created (done)
+
+
+Previous protection are not enough... Crash again.
+Now using /DCHECKOREFS
+ 	rexx.dll!RexxInternalObject::getObjectTypeNumber()  Line 2045 + 0x3 bytes	C++
+ 	rexx.dll!RexxInternalObject::isObjectType(unsigned int t)  Line 263 + 0xf bytes	C++
+ 	rexx.dll!RexxMemory::objectReferenceOK(RexxObject * o)  Line 339 + 0xa bytes	C++
+ 	rexx.dll!RexxMemory::orphanCheckMark(RexxObject * markObject, RexxObject * * pMarkObject)  Line 1565 + 0xc bytes	C++
+ 	rexx.dll!RexxMemory::markGeneral(void * obj)  Line 1471	C++
+ 	rexx.dll!StackFrameClass::liveGeneral(int reason)  Line 143	C++
+ 	rexx.dll!RexxMemory::killOrphans(RexxObject * rootObject)  Line 440	C++
+ 	rexx.dll!RexxMemory::markObjects()  Line 641	C++
+ 	rexx.dll!RexxMemory::collect()  Line 1030	C++
+ 	rexx.dll!NormalSegmentSet::handleAllocationFailure(unsigned int allocationLength)  Line 1272	C++
+ 	rexx.dll!RexxMemory::newObject(unsigned int requestLength, unsigned int type)  Line 1110 + 0x12 bytes	C++
+ 	rexx.dll!new_object(unsigned int s, unsigned int t)  Line 426 + 0x1e bytes	C++
+ 	rexx.dll!RexxListTable::operator new(unsigned int size, unsigned int initialSize)  Line 94 + 0x16 bytes	C++
+ 	rexx.dll!RexxList::getFree()  Line 123 + 0x12 bytes	C++
+ 	rexx.dll!RexxList::insert(RexxObject * _value, RexxObject * _index)  Line 556 + 0x8 bytes	C++
+ 	rexx.dll!RexxList::append(RexxObject * _value)  Line 542	C++
+ 	rexx.dll!RexxActivity::generateProgramInformation(RexxDirectory * exobj)  Line 941	C++
+ 	rexx.dll!RexxActivity::createExceptionObject(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 894	C++
+ 	rexx.dll!RexxActivity::raiseException(long errcode, RexxString * description, RexxArray * additional, RexxObject * result)  Line 774 + 0x18 bytes	C++
+ 	rexx.dll!RexxActivation::raise(RexxString * condition, RexxObject * rc, RexxString * description, RexxObject * additional, RexxObject * resultObj, RexxDirectory * conditionobj)  Line 1641	C++
+ 	rexx.dll!RexxActivation::raiseExit(RexxString * condition, RexxObject * rc, RexxString * description, RexxObject * additional, RexxObject * resultObj, RexxDirectory * conditionobj)  Line 1544	C++
+ 	rexx.dll!RexxInstructionRaise::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 289	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+>	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 793	C++             // JLF : "yield"
+----------
+objectReferenceOK :
+o = 0x7f23f050 {objectVariables=0x00000000 operatorMethods=0x00558920 classInstance=0x7fcc0a50 }
+    objectSize = 6
+    instanceClass.id = "Object"
+    RexxBehaviour *type = o->getObjectType();       // JLF : NULL
+StackFrameClass::liveGeneral :
+    memory_mark_general(this->name);                // JLF this->name = 0x7f23f050
+        this = 0x7de6d440 {type=0x0052ee64 "METHOD" name=0x7f23f050 executable=0x7fcc2e90 ...}
+So we have a problem with the argument 'name' passed to the StackFrameClass constructor.
+RexxActivation::createStackFrame
+    pass getMessageName() : I don't see a problem here, because returns this->settings.msgname which is protected.
+    The name stored in settings.msgname comes from the method RexActivation::run, I don't think there is a problem here.
+    But I see a potential problem with the local variable 'arguments' : receives a new array returned by getArguments() --> must be protected (done)
+RexxNativeActivation::createStackFrame
+    pass getMessageName() : I don't see a problem here, because returns this->msgname which is protected.
+    The names comes from :
+        RexxNativeActivation::run : _msgname
+        RexxNativeActivation::callNativeRoutine : functionName
+            RexxNativeRoutine::call : functionName
+        RexxNativeActivation::callRegisteredRoutine : functionName
+            RegisteredRoutine::call : functionName
+RexxSource::createStackFrame
+    pass programName : I don't see a problem here
+    The programName comes from :
+        RexxSource::RexxSource
+PackageManager::callNativeRoutine
+    Maybe a problem here : name = name->upper(); --> to protect (done)
+SystemInterpreter::invokeExternalFunction : target
+    RexxActivation::externalCall : target
+        RexxInstructionCall::execute --> I see a problem here : _name = REQUEST_STRING(result) --> to protect (done)
+RexxActivation::callExternalRexx : target
+
+
+review of risky code :
+->upper
+    RexxBehaviour::methodObject : no risk ?
+    RexxClass::defineMethod : done
+    RexxClass::defineClassMethod : done
+    RexxClass::deleteMethod : done
+    RexxClass::method : done
+    RexxClass::methodDictionaryCreate : done
+    RexxDirectory::setEntry : done
+    RexxDirectory::remove : no risk ?
+    RexxDirectory::setMethod : done
+    RexxObject::instanceMethod : to protect because of reportException (done)
+    RexxObject::setMethod : done
+    RexxObject::unsetMethod : done
+    RexxObject::requestRexx : two variables to protect (done)
+    RexxObject::decodeMessageName : no risk ?
+    RexxObject::defMethods : done
+    RexxObject::defMethod : done
+    RexxStem::request : done
+    RexxNativeActivation::stemSort : incomplete protection (fixed)
+    RexxVariableDictionary::getVariableRetriever : done
+    BUILTIN(VALUE) : to protect (done, the code has been slightly rewritten)
+    RexxInstructionForward::execute : done
+    PackageManager::createRegisteredRoutine : done
+    PackageManager::dropRegisteredRoutine : done
+    PackageManager::queryRegisteredRoutine : done
+    PackageManager::callNativeRoutine : done
+    RexxSource::findClass : done
+    RexxSource::classDirective : done
+    RexxSource::extensionDirective : done
+    RexxSource::methodDirective : done
+    RexxSource::attributeDirective : done
+    RexxSource::constantDirective : done
+    RexxSource::words : done
+    Interpreter::findClass : I think it must be protected because a method could be attached to the environment, no ? (done)
+    InterpreterInstance::resolveCommandHandler : done
+    SystemInterpreter::valueFunction : no risk, I think
+    SystemInterpreter::valueFunction : I think it's ok, SystemInterpreter::allocateResultMemory has no relation with GC
+REQUEST_STRING (requestString)
+    RexxClass::methodDictionaryMerge : done
+    RexxClass::methodDictionaryCreate : already done
+    RexxInteger::concatBlank : to protect, I think (done)
+    RexxInteger::concat : to protect, I think (done)
+    RexxObject::copyIntoTail : done
+    RexxObject::concatRexx : done
+    RexxObject::concatBlank : done
+    RexxStem::sort : is there a risk of GC in array->put(nextValue, j + bounds) ? (NOT done)
+    StringClass.cpp : I hope it's ok ! did not investigate
+    RexxActivity::display : done, but really not sure if I need to do that
+    RexxActivity::displayDebug :  done, but really not sure if I need to do that
+    RexxActivity::callFunctionExit : nothing done, I don't understand the code with temp
+    RexxInstructionDo::execute : done
+    RexxInstructionDo::controlSetup : done
+    RexxInstructionForward::execute : done
+    RexxInstructionInterpret::execute : done
+    RexxInstructionOptions::execute : done
+    RexxInstructionQueue::execute : done
+    RexxInstructionRaise::execute : done
+    RexxInstructionSay::execute : done
+    RexxInstructionSignal::execute : done
+    RexxInstructionTrace::execute : done
+requestString
+    RexxMethod::newRexx : I think protection is needed (done)
+    RexxNativeActivation::processArguments : is ok, according to the comment
+    RexxExpressionStack::requiredStringArg : done
+    RexxExpressionStack::optionalStringArg : done
+makeString
+    RexxMethod::newMethodObject : done
+    RoutineClass::newRoutineObject : done
+    RoutineClass::newRoutineObject : done
+    RexxCompoundTable::findEntry : done
+arrayArgument (requestArray)
+    RexxObject::sendWith : for me, protection is needed, no ? (done)
+    RexxObject::startWith : for me, protection is needed, no ? (done)
+    RexxObject::decodeMessageName : for me, protection is needed, no ? (done)
+    PackageClass::loadPackage : for me, protection is needed, no ? (done)
+    PackageClass::newRexx :  for me, protection is needed, no ? (done)
+    RoutineClass::callWithRexx : for me, protection is needed, no ? (done)
+    RexxNativeActivation::processArguments : is ok, according to the comment
+    RexxNativeActivation::objectToValue : is ok, according to the comment
+requestArray (makeArray)
+    RexxMethod::newMethodObject : already protected
+    RoutineClass::newRoutineObject : already protected
+makeArray
+    RexxArray::toString : already protected
+    RexxList::supplier : done
+    RexxQueue::supplier : done
+    RexxActivity::display : already protected
+    RexxInstructionDo::execute : is ok, assigned to this
+    RexxSource::getGuard : is ok, assigned to this
+->request
+    Nothing new to protect (requestString and requestArray already reviewed)
+required_string (macro, requiredStringArg)
+    requiredStringArg already reviewed
+optional_string (macro, optionalStringArg)
+    optionalStringArg already reviewed
+decodeMessageName : the string returned in messageName is not protected, see what's done by the caller
+    RexxObject::sendWith : for me, protection needed, no ? (done)
+    RexxObject::send : for me, protection needed, no ? (done)
+    RexxObject::startCommon : for me, protection needed, no ? (done)
+    RexxMessage::newRexx : for me, protection needed, no ? (done)
+->concat
+    RexxObject::requestRexx : I think it's ok, methodLookup should not trigger a GC, right ?
+    RexxActivity::messageSubstitution : done
+    RexxActivity::traceOutput : done
+    RexxSource::commonString : no "->concat" inside, but while looking for "->concat", I saw a lot of calls to commonString where the passed parameter is not protected. Now the parameter string is protected.
+    RexxSource::callNew : done
+    RexxSource::raiseNew : done
+    RexxSource::signalNew : done
+    RexxSource::extract : done
+    RexxSource::methodDirective : done
+    RexxSource::attributeDirective : done
+->evaluate
+    RexxActivation::evaluateLocalCompoundVariable : done
+    <to continue...>
+decodeExternalMethod
+    <todo>
+
+
+===============================================================================
+2012 mar 04
+
+Fixed a GC crash.
+RexxActivity::generateProgramInformation calls createStackFrame.
+In RexxActivation::createStackFrame, the last line is
+    return new StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, getTraceBack(), getContextLineNumber());
+The operator 'new' of StackFrameClass is overloaded and returns a new object before the constructor is called.
+This object is not protected.
+The call to getTraceBack triggered a GC and the new object was put on the list of dead objects.
+The object is returned to generateProgramInformation which puts it in the stackFrames list.
+Later, crash because the behaviour pointer of the stack frame is NULL.
+Fixed by passing a ProtectedObject to the 'new' operator of StackFrameClass.
+Applied the same fix to :
+RexxSource::createStackFrame
+RexxNativeActivation::createStackFrame
+
+
+Fixed another GC crash, but less sure I identified the real problem...
+A crash occured while searching the method ~available on a supplier. The behaviour was NULL.
+I have a subclass of Supplier (CoactivitySupplier) whose init method creates an empty array.
+That could explain the problem : in case of GC during init, the supplier is put on the list of dead objects.
+After modifying RexxSupplierClass::newRexx to protect newObj before sending the message "init",
+no more crash (for the moment).
+
+
+Remember : 
+Fix done in RexxSupplierClass::newRexx also done in :
+(search for OREF_INIT in interpreter source files)
+RexxDirectory::newRexx
+RexxIdentityTable::newRexx
+RexxList::newRexx
+RexxMessage::newRexx
+PackageClass::newRexx
+RexxQueue::newRexx
+RexxRelation::newRexx
+RexxStem::newRexx
+RexxString::newRexx
+RexxSupplierClass::newRexx
+RexxTable::newRexx
+WeakReference::newRexx
+
+
+ContextClass : mark this->objectVariables.
+It's an exported class, so better to do that... (done)
+
+
+Remember :
+To activate the GC diagnostics, add these definitions in RexxCore.h :
+    #define CHECKOREFS
+    #define MEMPROFILE
+    #define VERBOSE_GC
+or better : could be added in lib/orxwin32.mak to my_cdebug, when debug mode.
+    /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
+
+
+Remember :
+A conditional break "newObj == 0x7eeff200" on the last line of RexxMemory::newObject (RexxMemory.cpp)
+lets stop the execution when the object is created. If too long, then modify the source :
+    if (newObj == (RexxObject*)0x7eeff200)
+    {
+        int dummy=0;    //  <-- put breakpoint here
+    }
+    return newObj;
+Then put a data breakpoint to detect when the attribute 'behavior' is overwritten.
+
+
+===============================================================================
+2012 feb 18
+
+Implementation of this Coactivity todo :
+<<
+The arguments passed to the coactivity with resume should be available like traditional
+arguments (use arg...). Currently they are returned by yield as an array.
+>>
+Implemented by adding support for :
+    context = .context~parentContext : let retrieve the context of the yield's caller.
+    .context~args=<an array of arguments> : let store the arguments passed to resume.
+Now, the method ~yield no longer return a value.
+
+
+A routine-version of yield is available : "call yield value" where value is optional.
+
+
+Changed the search order in RexxDotVariable::evaluate :
+Try first context->rexxVariable : .methods, .routines, .rs, .line, .context
+then try context->resolveDotVariable :  getSourceObject()->findClass(name)
+    findInstalledClass(internalName)
+    findPublicClass(internalName)
+    ActivityManager::getLocalEnvironment(internalName) controlled by security manager
+    TheEnvironment->at(internalName)                   controlled by security manager
+The use of .context becomes prominent with coactivities, the goal of this change is
+to find the value of .context as fast as possible.
+Tested from ooRexxShell where more than 700 classes are loaded :
+do i=1 to 100000; v=.context ; end
+    5 runs : 0.032 0.047 0.078 0.063 0.078
+.environment~my.var=1
+do i=1 to 100000; v=.my.var ; end
+    5 runs : 0.703 0.625 0.593 0.594 0.672
+
+
+Implemented RFE 2868655.
+Done by adding support for variable ".threadLocal" in RexxActivation::rexxVariable.
+This implementation is faster than the previous implementation with .activity.
+Note 1 : 
+I did not modify RexxDotVariable to search in .threadLocal. Maybe should be done,
+but I find that the search made by RexxDotVariable is already slow enough.
+Note 2 :
+Seems faster to do that :
+do i=1 to 100000; v=.threadlocal["MY.VAR"] ; end
+    5 runs : 0.078 0.109 0.109 0.046 0.046
+rather than that :
+do i=1 to 100000; v=.threadlocal~my.var ; end
+    5 runs : 0.140 0.141 0.156 0.140 0.141
+
+
+coactivity.cls is no longer compatible with standard ooRexx, because depends on :
+.context~args = <array>
+.threadLocal
+
+
+interpreter\platform\windows\SysActivity.hpp
+interpreter\platform\unix\SysActivity.hpp
+Moved SysActivity::yield to the .cpp file to reduce the amount of recompilation when
+experimenting various settings. For the moment, sleep(0) under Windows works fine for me,
+and is quit faster than sleep(1) used in standard ooRexx.
+sleep(0) : rexx coactivity-stress.rex 100 --> global duration=1.671, duration per consumer=0.01671
+sleep(1) : rexx coactivity-stress.rex 100 --> global duration=24.625, duration per consumer=0.24625
+
+
+Added counters for monitoring interpreter activities :
+.yieldCounter :              how much times SysActivity::yield has been called since the begining
+.addWaitingActivityCounter : how much times ActivityManager::addWaitingActivity has been called since the begining
+.relinquishCounter :         how much times ActivityManager::relinquish has been called since the begining
+.requestAccessCounter :      how much times RexxActivity::requestAccess has been called since the begining
+See samples/concurrency/coactivity-stress.rex
+
+
+===============================================================================
+2012 feb 16
+
+[parser]
+Fixed a bug in .Clauser.
+When parsing a source literal embedded into another source literal, the ';' were removed.
+Ex :
+    block = {return {::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}}
+    block~source~each{say item}
+Output before fix:
+    return {::closure.coactive expose item  do forever  .yield[item]  item += 1  end}
+Output after fix :
+    return {::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}
+
+
+[pipes]
+
+The implicit argument 'value' has been renamed 'item'.
+
+New convenience method ~pipe.generate to let yield the values produced by the pipe, one by one :
+    .object~pipe.generate(.subClasses recursive once | .do {.yield[item]})
+is equivalent to
+    {::coactivity .object~pipe(.subClasses recursive once | .do {.yield[item]})}
+
+New pipeStage :
+.importedPackages : equivalent to .inject {item~importedPackages} iterateAfter
+
+.console pipeStage :
+The option "showTags" has been removed : the tags are now always included in the string representation.
+
+.inject pipeStage :
+The option "unique" has been renamed "once", to follow the same naming convention as coactivities.
+New options "iterateBefore", "iterateAfter" : no longer need the helpers index_item and index_item (removed).
+
+Gradually, the pipeIndex class evolved from a simple index to a whole data flow. 
+So renamed pipeIndex : now dataflow.
+The index parameter is now only the index generated by the previous pipeStage.
+A third parameter "dataflow" is passed to the process methods.
+The option "memorizeIndex" has been renamed "memorize". It's used to indicate which stages
+to memorize in the dataflow.
+
+As written in the 2011 nov 16 entry, I find more natural to retrieve the produced item from
+the producing stage, rather than from the next stage.
+A stage's dataflow contains the produced item and index. 
+New methods :
+    ~index
+    ~item
+
+Ex : "hello"~pipe(.console dataflow)
+source:1,'hello'
+       |    |
+       |    +-> this is the produced item.
+       |
+       +-> this is the index of the produced item.
+           Here, only one value is produced.
+        
+
+Ex : .array~of(10,20,30)~pipe(.console dataflow)
+source:1,10
+source:2,20
+source:3,30
+       |  |
+       |  +-> produced item
+       |
+       +-> this item is the 3rd produced from the source.
+
+
+Ex : List of visible packages with their public classes.
+Compare with entry 2011 nov 16, the option "mem.package" has been moved to the producing stage).
+Other difference : must specify explicitely "iterateAfter".
+    packageName = {.file~new(dataflow["package"]~item~name)~name}
+    .context~package~pipe(.inject once after {item~importedPackages} iterateAfter recursive mem.package |,
+                          .inject {item~publicClasses} iterateAfter |,
+                          .sort {item~id} packageName |,
+                          .console packageName ":" item,
+                         )
+
+
+[array]
+New extension ArrayPrettyPrinter which defines the method ~ppRepresentation.
+This method is used by ooRexxShell to display arrays in condensed form.
+
+
+[file]
+Added extension method listFilesIfNotSymbolicLink, which is a convenience method to support the generation of files, even in case of recursive paths :
+    g=.file~new("C:\Program Files\ooRexx")~generate("listFilesIfNotSymbolicLink")~iterateAfter~recursive
+Reminder : 
+    - SysFileTree for Unix does not dereference symbolic links, which is good because it's possible to create recursive paths.
+    - SysFileTree for Windows dereferences the symbolic links (tested with a junction), but does not crash with recursive paths.
+      The recursion is stopped when the path becomes too long.
+    - File~listFiles dereferences the symbolic links : if File is a symbolic link to a directory, then ~listFiles returns the list of files of the target directory.
+      MUST test SysIsFileLink when recursively walking through the directories, otherwise internal buffer overflow.
+
+
+===============================================================================
+2012 jan 31
+
+[parser]
+
+Parsing problem with
+    .environment~select{index~left(1) == "S"}
+because == not recognized as equality operator.
+Modified SourceFile.cpp, RexxSource::instruction
+Now, this example is ok :
+    xrange("A", "Z")~eachC{use arg letter ; .environment~select{::closure expose letter ; left(index, 1) == letter}~dump2}
+
+
+[functional]
+
+The implicit argument 'value' has been renamed 'item'.
+
+Modified the result returned by the methods xxxI (eachI, eachCI, eachWI, etc...)
+Was an array of two arrays (array of items and array of indexes).
+Now it's an array of pairs (item, index), which is more appropriate for yielding.
+
+New methods available on .String and .MutableBuffer :
+Characters :
+    ~dropC(count=1)
+    ~dropCI(count=1)
+    ~dropLastC(count=1)
+    ~dropLastCI(count=1)
+    ~dropUntilC(predicate)
+    ~dropUntilCI(predicate)
+    ~dropWhileC(predicate)
+    ~dropWhileCI(predicate)
+    ~rejectC(predicate)
+    ~rejectCI(predicate)
+    ~selectC(predicate)
+    ~selectCI(predicate)
+    ~takeC(count=1)
+    ~takeCI(count=1)
+    ~takeLastC(count=1)
+    ~takeLastCI(count=1)
+    ~untilC(predicate)
+    ~untilCI(predicate)
+    ~whileC(predicate)
+    ~whileCI(predicate)
+Words :
+    ~dropW(count=1)
+    ~dropWI(count=1)
+    ~dropLastW(count=1)
+    ~dropLastWI(count=1)
+    ~dropUntilW(predicate)
+    ~dropUntilWI(predicate)
+    ~dropWhileW(predicate)
+    ~dropWhileWI(predicate)
+    ~rejectW(predicate)
+    ~rejectWI(predicate)
+    ~selectW(predicate)
+    ~selectWI(predicate)
+    ~takeW(count=1)
+    ~takeWI(count=1)
+    ~takeLastW(count=1)
+    ~takeLastWI(count=1)
+    ~untilW(predicate)
+    ~untilWI(predicate)
+    ~whileW(predicate)
+    ~whileWI(predicate)
+
+New methods available on .Collection :
+    ~reject(predicate)
+    ~rejectI(predicate)
+    ~select(predicate)
+    ~selectI(predicate)
+
+New methods available on .OrderedCollection :
+    ~drop(count=1)
+    ~dropI(count=1)
+    ~dropLast(count=1)
+    ~dropLastI(count=1)
+    ~dropUntil(predicate)
+    ~dropUntilI(predicate)
+    ~dropWhile(predicate)
+    ~dropWhileI(predicate)
+    ~take(count=1)
+    ~takeI(count=1)
+    ~takeLast(count=1)
+    ~takeLastI(count=1)
+    ~until(predicate)
+    ~untilI(predicate)
+    ~while(predicate)
+    ~whileI(predicate)
+
+New methods available on .Supplier :
+    ~drop(count=1)
+    ~dropI(count=1)
+    ~dropLast(count=1)
+    ~dropLastI(count=1)
+    ~dropUntil(predicate)
+    ~dropUntilI(predicate)
+    ~dropWhile(predicate)
+    ~dropWhileI(predicate)
+    ~reject(predicate)
+    ~rejectI(predicate)
+    ~select(predicate)
+    ~selectI(predicate)
+    ~take(count=1)
+    ~takeI(count=1)
+    ~takeLast(count=1)
+    ~takeLastI(count=1)
+    ~until(predicate)
+    ~untilI(predicate)
+    ~while(predicate)
+    ~whileI(predicate)
+
+[coactivity]
+
+~resume must be guarded otherwise the same value can be returned to different consumers
+running concurrently (detected when running coactivity-stress.rex).
+So, the fix for deadlock4 was not good... It's not ~resume that must be unguarded, it's ~yield.
+
+"LazyCoactivitySupplier" renamed "CoactivitySupplier".
+
+The class CoactivitySupplier was not lazy enough : the first item was calculated
+by the ~init method, to know if an item would be available or not. Now, the first item
+is calculated when really needed by the following methods : ~available, ~index, ~item.
+
+The behaviour of CoactivitySupplier has been changed :
+No longer ends when no result returned. Instead, returns item=.nil and index=.nil
+
+Two subclasses have been added to CoactivitySupplier :
+- CoactivitySupplierForGeneration : the services are specialized for generation, where items
+  are yielded one by one. This kind of supplier is returned by default for coactivities.
+- CoactivitySupplierForIteration : the services are specialized for iteration, where all items
+  are consumed in one loop. This kind of supplier is returned by the method ~iterator.
+Example :
+    {::coactivity do i=1 to 10; .yield[i]; end}~each{say item}= -- return a Coactivity, nothing displayed
+    {::coactivity do i=1 to 10; .yield[i]; end}~iterator~each{say item}= -- display 1 2 3 4 5 6 7 8 9 10 and return an empty array
+
+New methods available on .Coactivity and .CoactivitySupplier :
+    ~drop(count=1) : drop the 'count' first items
+    ~dropI(count=1) : like drop, but yield pairs (item, index)
+    ~dropLast(count=1) : drop the 'count' last items
+    ~dropLastI(count=1) : like dropLast, but yield pairs (item, index)
+    ~dropUntil(predicate) : drop the first items, until the predicate is true
+    ~dropUntilI(predicate) : like until, but yield pairs (item, index)
+    ~dropWhile(predicate) : drop the first items, while the predicate is true
+    ~dropWhileI(predicate) : like while, but yield pairs (item, index)
+    ~reject(predicate) : yield all the items but those for which the predicate is true
+    ~rejectI(predicate) : like reject, but yield pairs (item, index)
+    ~select(predicate) : yield all the items for which the predicate is true
+    ~selectI(predicate) : like select, but yield pairs (item, index)
+    ~take(count=1) : yield the 'count' first items
+    ~takeI(count=1) : like take, but yield pairs (item, index)
+    ~takeLast(count=1) : yield the 'count' last items
+    ~takeLastI(count=1) : like takeLast, but yield pairs (item, index)
+    ~until(predicate) : yield the first items, until the predicate is true
+    ~untilI(predicate) : like until, but yield pairs (item, index)
+    ~while(predicate) : yield the first items, while the predicate is true
+    ~whileI(predicate) : like while, but yield pairs (item, index)
+
+New class .Generator which is somewhat equivalent to the pipeStage .inject.
+The .Generator class supports a doer of type message (.inject does not support messages because a string
+is always interpreted as an option, not as a doer).
+The options are passed by calling methods :
+~action(action) :
+    The action to execute on each item. The default action is {use arg item ; return item}.
+    An action of type message (string) is supported. For convenience, the message is sent only
+    if the receiver understands it (i.e. ~hasMethod returns .true). In case of recursive execution,
+    the recursion is automatically stopped if the current item does not understand the message.
+    Ex : the method .File~listFiles returns .nil if the item is not a directory. Since .nil does
+    not understand ~listFiles, the recursion is stopped.
+    This method returns the generator (self), to let chaining other methods.
+~allowCommands :
+    To allow execution of system commands from a RexxBlock.
+    By default, the message ~functionDoer is sent to the RexxBlock. The source is transformed to
+    support implicit return, which implies the NOCOMMANDS option.
+    When this option is specified, the message ~actionDoer is sent to the RexxBlock. There is no
+    implicit return, and the NOCOMMANDS option is not injected in the source.
+    This method returns the generator (self), to let chaining other methods.
+~iterateBefore :
+    If the current item has the method "supplier", then apply the doer on each item returned by the supplier.
+    This method returns the generator (self), to let chaining other methods.
+~iterateAfter :
+    If the current result has the method "supplier", then yield each item returned by the supplier.
+    In case of recursive execution, each item is used as input value for the next recursive call.
+    This method returns the generator (self), to let chaining other methods.
+~once : 
+    To remember all the processed items from the start, and process an item only once.
+    This option encompasses the option ~recursive("cycles") which is limited to the call stack.
+    This method returns the generator (self), to let chaining other methods.
+~recursive(options="") :
+    To execute the action recursively on the returned values.
+    The default algorithm is depthFirst.
+    Options can be ([limit|depthFirst|breadthFirst|cycles][.])*
+    Ex :
+    ~recursive(0) : limit=0, execute the action on each item, no recursive call
+    ~recursive(1) : limit=1, execute the action on each item and reexecute the action on each resulting item (1 level of recursion)
+    ~recursive("depthFirst") : http://en.wikipedia.org/wiki/Depth-first_search
+    ~recursive("breadthFirst") : http://en.wikipedia.org/wiki/Breadth-first_search
+    ~recursive("cycles") : detect cycles, to not reprocess an item already processed in the call stack.
+    ~recursive("10.breadthFirst.cycles") : combination of several options.
+    This method returns the generator (self), to let chaining other methods.
+~returnIndex :
+    To yield .array~of(item, index).
+    If the generation is recursive then yield .array~of(item, index, depth) where depth is the number of nested calls.
+    This method returns the generator (self), to let chaining other methods.
+~trace :
+    To activate internal trace.
+    This method returns the generator (self), to let chaining other methods.
+
+New methods :
+    .Object~generate(action) : returns .Generator~new(self)~action(action)
+    .Object~generateI(action) : returns .Generator~new(self)~action(action)~returnIndex
+    .String~generateC(action) : returns .Generator~new(self~makeArray(""))~action(action)
+    .String~generateCI(action) : returns .Generator~new(self~makeArray(""))~action(action)~returnIndex
+    .String~generateW(action) : returns .Generator~new(self~subwords)~action(action)
+    .String~generateWI(action) : returns .Generator~new(self~subwords)~action(action)~returnIndex
+    .MutableBuffer~generateC(action) : returns .Generator~new(self~makeArray(""))~action(action)
+    .MutableBuffer~generateCI(action) : returns .Generator~new(self~makeArray(""))~action(action)~returnIndex
+    .MutableBuffer~generateW(action) : returns .Generator~new(self~subwords)~action(action)
+    .MutableBuffer~generateWI(action) : returns .Generator~new(self~subwords)~action(action)~returnIndex
+    .Collection~generate(action) : returns .Generator~new(self)~iterateBefore~action(action)
+    .Collection~generateI(action) : returns .Generator~new(self)~iterateBefore~action(action)~returnIndex
+    .Supplier~generate(action) : returns .Generator~new(self)~iterateBefore~action(action)
+    .Supplier~generateI(action) : returns .Generator~new(self)~iterateBefore~action(action)~returnIndex
+    .Coactivity~generate(action) : returns .Generator~new(self)~iterateBefore~action(action)
+    .Coactivity~generateI(action) : returns .Generator~new(self)~iterateBefore~action(action)~returnIndex
+
+~times.yield renamed ~times.generate
+~yield~upto renamed ~generate~upto
+~yield~downto renamed ~generate~downto
+Careful :
+100000~times~generate{2*item} -- Collect all items in an array and then generate each array's item one by one (you don't get the first item immediatly)
+100000~times.generate{2*item} -- Generate directly each item one by one (you get the first item immediatly)
+The duration is roughly the same for the two lines.
+
+Examples :
+-- All items in .environment
+    g=.environment~generate
+    g~do= -- [The OLEObject class id#_268012703]
+    g~do= -- [The InvertingComparator class id#_268059180]
+    ...
+
+-- All pairs of index,item in .environment
+    g=.environment~generateI
+    g~do= -- [(The OLEObject class),'OLEOBJECT']
+    g~do= -- [(The InvertingComparator class),'INVERTINGCOMPARATOR']
+    ...
+
+-- Illustration of depthFirst (default) vs breadthFirst
+   "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive~makeArray=
+        ['one','ne','e','','two','wo','o','','three','hree','ree','ee','e','']
+   "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive("breadthFirst")~makeArray=
+        ['one','two','three','ne','wo','hree','e','o','ree','','','ee','e','']
+
+-- All the files and directories in the ooRexx directory
+    g=.file~new("C:\Program Files\ooRexx")~generate("listFiles")~iterateAfter~recursive
+    t=g~take(4) -- The 4 first results returned by ~listFiles, one by one
+    t~do= -- C:\Program Files\ooRexx\api
+    t~do= -- C:\Program Files\ooRexx\api\oorexxapi.h
+    t~do= -- The NIL object -- ~listFiles returns .nil when the target is not a directory
+    t~do= -- C:\Program Files\ooRexx\api\oorexxerrors.h
+    t~do= -- no result -- The take coactivity is ended, but not the listFiles coactivity...
+    g~makeArray(4)~dump2 -- The next 4 results returned by ~listFiles, as an array.
+        # 1: index=[1] -> item=[The NIL object id#_268001399]
+        # 2: index=[2] -> item=[C:\Program Files\ooRexx\api\rexx.h id#_263525300]
+        # 3: index=[3] -> item=[The NIL object id#_268001399]
+        # 4: index=[4] -> item=[C:\Program Files\ooRexx\api\rexx.lib id#_263525874]
+    t=g~reject{item == .nil}~take(5) -- Add a constraint to no longer get the .nil results and take only 5 results.
+    t~do= -- C:\Program Files\ooRexx\api\rexxapi.lib
+    t~do= -- C:\Program Files\ooRexx\api\rexxapidefs.h
+    t~do= -- C:\Program Files\ooRexx\api\rexxapitypes.h
+    t~do= -- C:\Program Files\ooRexx\api\rexxplatformapis.h
+    t~do= -- C:\Program Files\ooRexx\api\rexxplatformdefs.h
+    t~do= -- no result
+
+-- All the imported packages, with an indented view of the dependencies
+    g = .context~package~generateI("importedPackages")~iterateAfter~recursive("cycles")
+    -- Next line :
+    -- item[1] is the package
+    -- item[3] is the depth of recursivity, can be used to indent.
+    g~iterator~each{say "   "~copies(item[3]) || item[1]~name}
+    Output :
+        ...
+        C:\Program Files\BSF4ooRexx\BSF.CLS
+        C:\Program Files\BSF4ooRexx\UNO.CLS
+           C:\Program Files\BSF4ooRexx\BSF.CLS
+           C:\Program Files\BSF4ooRexx\UNO_XINTERFACES.RXO
+           C:\Program Files\BSF4ooRexx\rgf_util2.rex
+        d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls
+           d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls
+              d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls
+                 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\activity.cls
+        ...
+
+-- Generation of all natural numbers : 1 2 3 ...
+    g=0~generate{item+1}~recursive
+
+-- Factorial
+    1~times.generate~reduce("*")= -- 1
+    2~times.generate~reduce("*")= -- 2
+    3~times.generate~reduce("*")= -- 6
+    ...
+    100~times.generate~reduce("*")= -- 9.33262137E+157
+    ...
+    1000000~times.generate~reduce("*")= -- 8.26394715E+5565708
+    
+-- *NAIVE* generation of factorials from 0! :
+    g=(-1)~generate{item+1}~recursive~each{.array~of(item~times.generate~reduce(1, "*"), item)}
+    g~take(10)~iterator~each{say item[2]"! =" item[1]}
+        0! = 1
+        1! = 1
+        2! = 2
+        3! = 6
+        4! = 24
+        5! = 120
+        6! = 720
+        7! = 5040
+        8! = 40320
+        9! = 362880
+
+-- Less naive generation of factorials from 0! :
+    g=0~generateI{if item == 0 then 1; else stack[1] * depth}~recursive
+    g~take(10)~iterator~each{say item[3]"! =" item[1]}
+        0! = 1
+        1! = 1
+        2! = 2
+        3! = 6
+        4! = 24
+        5! = 120
+        6! = 720
+        7! = 5040
+        8! = 40320
+        9! = 362880
+
+[doers]
+
+Added the method ~arity to Doers, which lets higher-order functions to decide which arguments to pass.
+Usage :
+myDoer~arity -- returns the arity of myDoer (number of supported arguments). -1 if unknown (default).
+myDoer~arity(3) -- set the arity to 3, return myDoer.
+
+Fixed a problem of variable name collision in .Closure~initVariables :
+If there was a variable 'supplier' in the outer environment, then when doing
+'call value "supplier", supplierValue', the iteration over the variables was impacted,
+because the variable 'supplier' was used in ~initVariables.
+
+Added the method ~unknown to RexxBlock : any unknown message is forwarded to the implicit doer.
+Ex :
+The methods ~take and ~select are not defined on .RexxBlock, but they are defined on .Coactivity.
+{::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~take(5)~iterator~each{say item}
+{::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~select{item//2 == 0}~take(5)~iterator~each{say item}
+
+
+[Summary of extension methods]
+
+                                 -----------------------------------------------------------------------------
+                                  |        |           |        generateC    generateW   |       |    generate
+                                 -|--------|-----------|-----------|------------|--------|-------|--------|---
+                                  |     reduce         |        reduceC      reduceW     |       |        |
+                                 -|--------|-----------|-----------|------------|--------|-------|--------|---
+                                 map       |           |        mapC         mapW        |       |        |   
+                                 mapR      |           |           |            |      mapCR   mapWR      |   
+                                 -|--------|-----------|-----------|------------|--------|-------|--------|---
+                                  |     each           |        eachC        eachW       |       |        |   
+                                  |     eachI          |        eachCI       eachWI      |       |        |     
+                                 -|--------|-----------|-----------|------------|--------|-------|--------|---
+                                  |        |        drop        dropC        dropW       |       |        |   
+                                  |        |        dropI       dropCI       dropWI      |       |        |   
+                                  |        |        dropLast    dropLastC    dropLastW   |       |        |   
+                                  |        |        dropLastI   dropLastCI   dropLastWI  |       |        |   
+                                  |        |        dropUntil   dropUntilC   dropUntilW  |       |        |   
+                                  |        |        dropUntilI  dropUntilCI  dropUntilWI |       |        |   
+                                  |        |        dropWhile   dropWhileC   dropWhileW  |       |        |   
+                                  |        |        dropWhileI  dropWhileCI  dropWhileWI |       |        |   
+                                  |     reject         |        rejectC      rejectW     |       |        |   
+                                  |     rejectI        |        rejectCI     rejectWI    |       |        |   
+                                  |     select         |        selectC      selectW     |       |        |   
+                                  |     selectI        |        selectCI     selectWI    |       |        |   
+                                  |        |        take        takeC        takeW       |       |        |   
+                                  |        |        takeI       takeCI       takeWI      |       |        |   
+                                  |        |        takeLast    takeLastC    takeLastW   |       |        |   
+                                  |        |        takeLastI   takeLastCI   takeLastWI  |       |        |   
+                                  |        |        until       untilC       untilW      |       |        |   
+                                  |        |        untilI      untilCI      untilWI     |       |        |   
+                                  |        |        while       whileC       whileW      |       |        |   
+                                  |        |        whileI      whileCI      whileWI     |       |        |   
+--------------------------------------------------------------------------------------------------------------
+.Object ..................................................................................................X...
+.String ...........................................................X............X.............................
+.MutableBuffer ....................................................X............X........X.......X............
+.Collection.......................X........X..............................................................X...
+.OrderedCollection................X........X...........X..................................................X...
+.Supplier .................................X...........X..................................................X...
+.Coactivity ...............................X...........X..................................................X...
+.CoactivitySupplierForGeneration ..........X...........X..................................................X...
+.CoactivitySupplierForIteration ...........X...........X..................................................X...
 
 
 ===============================================================================
@@ -851,7 +1729,7 @@ In the case of ~upto, the loop and the yield are not in the same routine.
 ===============================================================================
 2011 oct 02
 
-{ooRexx parser]
+[parser]
 
 For good or bad reason, arg(1) at the begining of a clause is recognized as an
 instruction, because arg is a keyword instruction.
@@ -1162,14 +2040,20 @@ in the list of dead objects.
 Remember2:
 ----------
 Occurences of new_directory, not protected (no crash so far, except for createConditionObject) :
-DirectoryClass.cpp, RexxDirectory::newRexx
-ExceptionClass.cpp, ExceptionClass::getCondition
-RexxActivation.cpp, RexxActivation::raise
+DirectoryClass.cpp, RexxDirectory::newRexx (05/03/2012 : done when fixing OREF_INIT)
+ExceptionClass.cpp, ExceptionClass::getCondition (05/03/2012 : done)
+RexxActivation.cpp, RexxActivation::raise  : here, the conditionObj is passed by argument.
+                                             BUT there is one case where conditionObj is created. To protect !
+    called by RexxActivation::raiseExit --> the directory conditionobj is passed by argument, no need of protect here.
+        called by RexxInstructionRaise::execute --> the directory conditionobj is created here, seems ok because comes from context->getConditionObj()
+                                                    [06/03/2012] Got a GC crash where RexxInstructionRaise::execute is in the call stack...
+                                                                 After a new review, I think that following variables must be protected : _result, _additional
+    called by RexxInstructionRaise::execute --> the directory is created here, seems ok because comes from context->getConditionObj().
 RexxActivity.cpp, RexxActivity::createConditionObject (fixed in sandbox)
 
 Other potential problems. A fresh created object is not protected, and some calls are made that could trigger GC.
-RexxBehaviour.cpp, RexxBehaviour::copy : newBehaviour is not protected.
-RexxBehaviour.cpp, RexxBehaviour::addScope : this->scopes->allAt(TheNilObject) creates an object which is not protected.
+RexxBehaviour.cpp, RexxBehaviour::copy : newBehaviour is not protected. (05/03/2012 : done)
+RexxBehaviour.cpp, RexxBehaviour::addScope : this->scopes->allAt(TheNilObject) creates an object which is not protected. (05/03/2012 : added to this->scopes, so seems protected)
 RexxCollection.cpp, RexxHashTableCollection::copy : newObj is not protected. 
     Should be protected only if ActivityManager::currentActivity != NULL, otherwise crash in implementation of ProtectedObject's methods 
     (RexxHashTableCollection::copy is called during interpreter initialization, and at this time, ActivityManager::currentActivity == NULL).

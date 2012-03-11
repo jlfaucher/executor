@@ -799,6 +799,7 @@ CommandHandler *InterpreterInstance::resolveCommandHandler(RexxString *name)
 {
     // all names in the cache are in upper case
     RexxString *upperName = name->upper();
+    ProtectedObject p(upperName);
     CommandHandler *handler = (CommandHandler *)commandHandlers->at(upperName);
     if (handler == OREF_NULL)
     {

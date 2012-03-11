@@ -169,6 +169,10 @@ void RexxInstructionRaise::execute(
     size_t  count;                       /* count of array expressions        */
     size_t  i;                           /* loop counter                      */
     wholenumber_t  msgNum;               /* message number                    */
+    
+    ProtectedObject p_result;
+    ProtectedObject p_description;
+    ProtectedObject p_additional;
 
     context->traceInstruction(this);     /* trace if necessary                */
     _additional = OREF_NULL;             /* no object yet                     */
@@ -185,9 +189,11 @@ void RexxInstructionRaise::execute(
     if (this->condition->strCompare(CHAR_SYNTAX))
     {
         _additional = TheNullArray->copy(); /* change default additional info    */
+        p_additional = _additional;
         /* and the default description       */
         _description = OREF_NULLSTRING;
         errorcode = REQUEST_STRING(rc);    /* get the string version            */
+        ProtectedObject p(errorcode);
         if (errorcode == TheNilObject)     /* didn't convert?                   */
         {
                                            /* raise an error                    */
@@ -202,6 +208,7 @@ void RexxInstructionRaise::execute(
     {
                                          /* get the expression value          */
         _description = (RexxString *)this->description->evaluate(context, stack);
+        p_description = _description;
     }
     if (instructionFlags&raise_array)  /* array form of additional?         */
     {
@@ -223,11 +230,13 @@ void RexxInstructionRaise::execute(
     {
         /* get the expression value          */
         _additional = this->additional[0]->evaluate(context, stack);
+        p_additional = _additional;
     }
     if (this->result != OREF_NULL)       /* given a result value?             */
     {
                                          /* get the expression value          */
         _result = this->result->evaluate(context, stack);
+        p_result = _result;
     }
     /* set default condition object      */
     conditionobj = (RexxDirectory *)TheNilObject;
@@ -258,6 +267,7 @@ void RexxInstructionRaise::execute(
         {
             /* get the array version             */
             _additional = REQUEST_ARRAY(_additional);
+            p_additional = _additional;
             /* not an array item or a multiple   */
             /* dimension one?                    */
             if (_additional == TheNilObject || ((RexxArray *)_additional)->getDimension() != 1)

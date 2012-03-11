@@ -43,6 +43,7 @@
 /******************************************************************************/
 #include "RexxCore.h"
 #include "StackFrameClass.hpp"
+#include "ProtectedObject.hpp"
 
 RexxClass *StackFrameClass::classInstance = OREF_NULL;   // singleton class instance
 
@@ -56,7 +57,7 @@ void StackFrameClass::createInstance()
 
 
 /**
- * Allocate a new RexxContext object
+ * Allocate a new StackFrame object
  *
  * @param size   The size of the object.
  *
@@ -70,7 +71,23 @@ void *StackFrameClass::operator new(size_t size)
 
 
 /**
- * Constructor for a RexxContext object.
+ * Allocate a new GC-protected StackFrame object
+ *
+ * @param size   The size of the object.
+ * @param p      The protected object
+ *
+ * @return The newly allocated object.
+ */
+void *StackFrameClass::operator new(size_t size, ProtectedObject &p)
+{
+    /* Get new object                    */
+    p = new_object(size, T_StackFrame);
+    return p;
+}
+
+
+/**
+ * Constructor for a StackFrame object.
  *
  * @param a      The activation we're attached to.
  */

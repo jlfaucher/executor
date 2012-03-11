@@ -972,6 +972,7 @@ void RexxActivation::live(size_t liveMark)
     memory_mark(this->settings.streams);
     memory_mark(this->settings.halt_description);
     memory_mark(this->contextObject);
+    memory_mark(this->arguments); // arguments can be user-redefined (ex : yield), must be marked
 
     /* We're hold a pointer back to our arguments directly where they */
     /* are created.  Since in some places, this argument list comes */
@@ -1023,6 +1024,7 @@ void RexxActivation::liveGeneral(int reason)
     memory_mark_general(this->settings.streams);
     memory_mark_general(this->settings.halt_description);
     memory_mark_general(this->contextObject);
+    memory_mark_general(this->arguments); // arguments can be user-redefined (ex : yield), must be marked
 
     /* We're hold a pointer back to our arguments directly where they */
     /* are created.  Since in some places, this argument list comes */
@@ -1575,6 +1577,7 @@ void RexxActivation::raise(
 /* Function:  Raise a give REXX condition                                     */
 /******************************************************************************/
 {
+    ProtectedObject p_conditionobj;
     bool            propagated;          /* propagated syntax condition       */
 
                                          /* propagating an existing condition?*/
@@ -1593,6 +1596,7 @@ void RexxActivation::raise(
     else
     {                               /* build a condition object          */
         conditionobj = new_directory();    /* get a new directory               */
+        p_conditionobj = conditionobj;
                                            /* put in the condition name         */
         conditionobj->put(condition, OREF_CONDITION);
         /* fill in default description       */
@@ -2504,6 +2508,28 @@ RexxObject * RexxActivation::rexxVariable(   /* retrieve a program entry        
             return getContextObject();
         }
     }
+    else if (name->strCompare(CHAR_THREADLOCAL))  /* current thread variables */
+    {
+        return this->getThreadLocal();
+    }
+#if 1 // Monitoring (temporary)
+    else if (name->strCompare("YIELDCOUNTER"))
+    {
+        return new_integer(ActivityManager::yieldCounter());
+    }
+    else if (name->strCompare("ADDWAITINGACTIVITYCOUNTER"))
+    {
+        return new_integer(ActivityManager::addWaitingActivityCounter());
+    }
+    else if (name->strCompare("RELINQUISHCOUNTER"))
+    {
+        return new_integer(ActivityManager::relinquishCounter());
+    }
+    else if (name->strCompare("REQUESTACCESSCOUNTER"))
+    {
+        return new_integer(RexxActivity::requestAccessCounter());
+    }
+#endif
     return OREF_NULL;                    // not recognized
 }
 
@@ -2583,6 +2609,19 @@ RexxObject *RexxActivation::getContextReturnStatus()
     {
         return TheNilObject;
     }
+}
+
+
+/**
+ * Get the context object for the parent of this activation.
+ *
+ * @return The created context object.
+ */
+RexxObject *RexxActivation::getParentContextObject()
+{
+    RexxActivation *parentActivation = this->senderActivation();
+    if (parentActivation == OREF_NULL) return TheNilObject;
+    return parentActivation->getContextObject();
 }
 
 
@@ -4190,6 +4229,7 @@ RexxObject *RexxActivation::evaluateLocalCompoundVariable(RexxString *stemName, 
     /* need to trace?                    */
     if (tracingIntermediates())
     {
+        ProtectedObject p(stem_table);
         traceCompoundName(stemName, tail, tailCount, &resolved_tail);
         /* trace variable value              */
         traceCompound(stemName, tail, tailCount, value);
@@ -4331,6 +4371,15 @@ RexxObject *RexxActivation::getLocalEnvironment(RexxString *name)
 
 
 /**
+ * @return The directory of thread's local variables.
+ */
+RexxDirectory *RexxActivation::getThreadLocal()
+{
+    return activity->getThreadLocal();
+}
+
+
+/**
  * Create a stack frame for exception tracebacks.
  *
  * @return A StackFrame instance for this activation.
@@ -4367,5 +4416,20 @@ StackFrameClass *RexxActivation::createStackFrame()
         arguments = getArguments();
     }
 
-    return new StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, getTraceBack(), getContextLineNumber());
+    ProtectedObject p_arguments(arguments); // getArguments() returns a new array, so must be protected
+    ProtectedObject p;
+    return new (p) StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, getTraceBack(), getContextLineNumber());
 }
+
+
+/**
+ * Store user-redefined arguments.
+ */
+void RexxActivation::setArguments(RexxArray *arguments) 
+{
+    this->arguments = arguments; // Protect against GC before doing a copy 
+    this->arguments = (RexxArray *)arguments->copy() ;  // Get a copy and protect it
+    this->arglist = this->arguments->data(); 
+    this->argcount = this->arguments->size(); 
+}
+

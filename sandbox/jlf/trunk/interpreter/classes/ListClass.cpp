@@ -1102,7 +1102,9 @@ RexxSupplier *RexxList::supplier(void)
 
                                          /* and all of the indices            */
     indices = this->makeArrayIndices();
+    ProtectedObject p_indices(indices);
     values = this->makeArray();          /* get the list values               */
+    ProtectedObject p_values(values);
                                          /* return the supplier values        */
     return(RexxSupplier *)new_supplier(values, indices);
 }
@@ -1187,6 +1189,7 @@ RexxList *RexxList::newRexx(
     /* object might actually be for a    */
     /* subclass                          */
     RexxList *newList = new RexxList;
+    ProtectedObject p(newList);
     /* Give new object its behaviour     */
     newList->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     if (((RexxClass *)this)->hasUninitDefined())

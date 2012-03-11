@@ -46,6 +46,8 @@
 #include "StringClass.hpp"
 #include "ExpressionStack.hpp"
 #include "ActivityManager.hpp"
+#include "ProtectedObject.hpp"
+
 
 void RexxExpressionStack::live(size_t liveMark)
 /******************************************************************************/
@@ -161,6 +163,7 @@ RexxString *RexxExpressionStack::requiredStringArg(
                                           /* get the string form, raising a    */
                                           /* NOSTRING condition if necessary   */
     RexxString *newStr = argument->requestString();
+    ProtectedObject p(newStr);
     this->replace(position, newStr);     /* replace the argument              */
     return newStr;                       /* return the replacement value      */
 }
@@ -184,6 +187,7 @@ RexxString *RexxExpressionStack::optionalStringArg(
                                           /* get the string form, raising a    */
                                           /* NOSTRING condition if necessary   */
     RexxString *newStr = argument->requestString();
+    ProtectedObject p(newStr);
     this->replace(position, newStr);     /* replace the argument              */
     return newStr;                       /* return the replacement value      */
 }

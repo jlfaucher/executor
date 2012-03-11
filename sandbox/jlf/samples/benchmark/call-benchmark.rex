@@ -1,8 +1,9 @@
 /*
 Repeat 10 times a piece of code which calls 10000 times a procedure / routine by name / .routine / class method / instance method
 Why is a .routine call slower than a method call (undex WinXP - almost no difference under MacOsX)?
+Problem identified and fixed : it's because the environment variable RXTRACE is read at each call.
 
-Under WinXP
+Under WinXP (before fix of performance problem)
     34 *-* count = 10
     35 *-* call run count, "p"     -- procedure
  0.0150  0.0000  0.0160  0.0000  0.0160  0.0160  0.0150  0.0160  0.0160  0.0000 mean= 0.0125
@@ -15,7 +16,7 @@ Under WinXP
     39 *-* call run count, "im"    -- instance method
  0.0150  0.0160  0.0160  0.0150  0.0160  0.0160  0.0000  0.0150  0.0160  0.0150 mean= 0.0140
  
-Under MacOsX
+Under MacOsX (before fix of performance problem)
     34 *-* count = 10
     35 *-* call run count, "p"     -- procedure
  0.0113  0.0139  0.0257  0.0064  0.0066  0.0104  0.0079  0.0058  0.0103  0.0063 mean= 0.0110

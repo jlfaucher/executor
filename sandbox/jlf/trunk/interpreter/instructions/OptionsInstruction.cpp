@@ -72,6 +72,7 @@ void RexxInstructionOptions::execute(
                                          /* get the expression value          */
     value = this->expression->evaluate(context, stack);
     stringVal = REQUEST_STRING(value);   /* get the string version            */
+    ProtectedObject p(stringVal);
     context->traceResult(value);         /* trace the output value            */
     for (i = 1; ;i++)                  /* now process each word             */
     {

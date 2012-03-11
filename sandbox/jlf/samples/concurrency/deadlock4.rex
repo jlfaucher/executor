@@ -29,7 +29,9 @@ T1	A10	V3	1	*	method	The CoactivityObj class	RESUME	      	>>>	  "0"
 To avoid this deadlock, must declare unguarded all the methods of .Coactivity which could start the coactivity :
 start
 resume
-
+[later...]
+Bad decision ! the ~resume method MUST be guarded, otherwise the same value can be returned to several concurrent clients.
+So the good way to fix this deadlock is to declare ~yield unguarded.
 
 Todo : 
 It's not obvious from the trace output that V2 is currently locked by another activity

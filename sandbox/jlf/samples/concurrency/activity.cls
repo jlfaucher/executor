@@ -15,6 +15,7 @@ else
 --------------------------------------------------------------------------------
 ::class "Activity" public
 
+-- No longer needed : now .threadLocal supported by the interpreter.
 -- Emulate an Activity's environmement : one entry per activity, the key is the thread id.
 -- See RFE 2868655 : "Add ThreadLocal concept".
 -- Each entry is a directory.

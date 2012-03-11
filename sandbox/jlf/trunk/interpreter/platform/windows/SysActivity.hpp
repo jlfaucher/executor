@@ -65,11 +65,8 @@ public:
     inline thread_id_t getThreadID() { return threadId; }
 
     static thread_id_t queryThreadID();
-    static inline void yield()
-    {
-        // just give up the time slice
-        Sleep(1);
-    }
+    static void yield();
+    static wholenumber_t yieldCounter();
 
 protected:
     thread_id_t   threadId;         // the thread identifier

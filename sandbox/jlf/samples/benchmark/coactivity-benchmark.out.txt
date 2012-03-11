@@ -1,0 +1,19 @@
+
+loop 1000
+3.875 (generator vs iterator ungarded)
+0 (iterator vs iterator unguarded)
+
+loop 10000
+14.625 (generator vs iterator)
+15.0967742 (generator vs iterator ungarded)
+1.03225806 (iterator vs iterator unguarded)
+
+loop 100000
+10.7162162 (generator vs iterator)
+15.5490196 (generator vs iterator ungarded)
+1.45098039 (iterator vs iterator unguarded)
+
+loop 1000000
+18.6981797 (generator vs iterator)
+16.6979549 (generator vs iterator ungarded)
+0.893025695 (iterator vs iterator unguarded)

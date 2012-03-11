@@ -2,24 +2,33 @@
 This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
 */
 
+::requires "extension/array.cls"
+::requires "extension/file.cls"
+::requires "extension/string.cls"
 ::requires "extension/doers.cls"
 ::requires "extension/functionals.cls"
 ::requires "concurrency/coactivity.cls"
-::requires "extension/array.cls"
+::requires "concurrency/generator.cls"
 
-::extension String inherit StringDoer StringReducer StringMapper StringRepeater StringIterator
-::extension MutableBuffer inherit MutableBufferReducer MutableBufferMapper MutableBufferIterator
+::extension String inherit StringHelpers StringDoer StringReducer StringMapper RepeaterCollector RepeaterGenerator StringIterator StringFilter StringGenerator
+::extension MutableBuffer inherit StringHelpers MutableBufferReducer MutableBufferMapper MutableBufferIterator MutableBufferFilter MutableBufferGenerator
 ::extension Routine inherit RoutineDoer
 ::extension Method inherit MethodDoer
-::extension Coactivity inherit CoactivityDoer CoactivityReducer CoactivityIterator
+::extension Coactivity inherit CoactivityDoer CoactivityReducer CoactivityIterator CoactivityFilter CoactivityGenerator
 ::extension RexxBlock inherit RexxBlockDoer
-::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator
-::extension Supplier inherit SupplierReducer SupplierIterator
-::extension Array inherit ArrayInitializer
+::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator CollectionFilter CollectionGenerator
+::extension OrderedCollection inherit OrderedCollectionFilter
+::extension Supplier inherit SupplierReducer SupplierIterator SupplierFilter SupplierGenerator
+::extension CoactivitySupplierForGeneration inherit CoactivitySupplierForGenerationIterator CoactivitySupplierForGenerationFilter
+::extension Array inherit ArrayInitializer ArrayPrettyPrinter
+::extension File inherit FileExtension
 
 
+-------------------------------------------------------------------------------
+-- Can't inherit from a mixinclass (would raise "cannot inherit from itself")
 ::extension Object
 
+-- Display and return the comment stored in the source of the method _description_, if any.
 ::method help class
     use strict arg display=.true, self=(self)
     if self~hasMethod("_description_") then do
@@ -44,10 +53,19 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if display then say "no help"
     return .array~new
 
+::method generate class
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)
 
-::extension String
+::method generateI class
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)~returnIndex
 
-::method quoted
-    use strict arg quote='"'
-    return quote || self || quote
+::method generate
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)
+
+::method generateI
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)~returnIndex
 

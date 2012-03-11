@@ -215,7 +215,7 @@ void RexxInstructionDo::execute(
 /******************************************************************************/
 {
     RexxDoBlock  *doblock = OREF_NULL;   /* active DO block                   */
-    RexxObject   *result;                /* expression evaluation result      */
+    /*RexxObject * */ ProtectedObject result; /* expression evaluation result      */
     RexxArray    *array;                 /* converted collection object       */
     wholenumber_t count;                 /* count for repetitive or FOR loops */
     RexxObject   *object;                /* result object (for error)*/
@@ -241,7 +241,7 @@ void RexxInstructionDo::execute(
                 doblock->setTo(result);        /* Anchor result in doBlock to keep  */
                                                /*  from GC.                         */
                 context->traceResult(result);  /* trace if necessary                */
-                if (isOfClass(Array, result))      /* already an array item?            */
+                if (isOfClass(Array, (RexxObject*)result))      /* already an array item?            */
                 {
                     /* get the non-sparse version        */
                     array = ((RexxArray *)result)->makeArray();
@@ -254,7 +254,7 @@ void RexxInstructionDo::execute(
                     if (array == TheNilObject || !isOfClass(Array, array) )
                     {
                         /* raise an error                    */
-                        reportException(Error_Execution_noarray, result);
+                        reportException(Error_Execution_noarray, (RexxObject*)result);
                     }
                 }
                 doblock->setTo(array);         /* save this as the "TO" value       */
@@ -273,7 +273,7 @@ void RexxInstructionDo::execute(
                 /* Anchor result in doBlock to keep  */
                 doblock->setTo(result);        /*  from GC.                         */
                 context->traceResult(result);  /* trace if necessary                */
-                if (isOfClass(Array, result))      /* already an array item?            */
+                if (isOfClass(Array, (RexxObject*)result))      /* already an array item?            */
                 {
                     /* get the non-sparse version        */
                     array = ((RexxArray *)result)->makeArray();
@@ -286,7 +286,7 @@ void RexxInstructionDo::execute(
                     if (array == TheNilObject || !isOfClass(Array, array) )
                     {
                         /* raise an error                    */
-                        reportException(Error_Execution_noarray, result);
+                        reportException(Error_Execution_noarray, (RexxObject*)result);
                     }
                 }
                 doblock->setTo(array);         /* save this as the "TO" value       */
@@ -307,10 +307,10 @@ void RexxInstructionDo::execute(
                                                /* an integer value already, and     */
                                                /* we're dealing with a "normal      */
                                                /* NUMERIC DIGITS setting            */
-                if (isOfClass(Integer, result) && context->digits() >= Numerics::DEFAULT_DIGITS)
+                if (isOfClass(Integer, (RexxObject*)result) && context->digits() >= Numerics::DEFAULT_DIGITS)
                 {
                     /* get the value directly            */
-                    count = ((RexxInteger *)result)->getValue();
+                    count = ((RexxInteger *)(RexxObject*)result)->getValue();
                     context->traceResult(result);/* trace if necessary                */
                 }
                 else
@@ -323,7 +323,7 @@ void RexxInstructionDo::execute(
                     result = callOperatorMethod(result, OPERATOR_PLUS, OREF_NULL);
                     context->traceResult(result);/* trace if necessary                */
                                                  /* convert the value                 */
-                    if (!result->requestNumber(count, number_digits()))
+                    if (!((RexxObject*)result)->requestNumber(count, number_digits()))
                     {
                         /* report an exception               */
                         reportException(Error_Invalid_whole_number_repeat, object);
@@ -350,10 +350,10 @@ void RexxInstructionDo::execute(
                                                /* an integer value already, and     */
                                                /* we're dealing with a "normal      */
                                                /* NUMERIC DIGITS setting            */
-                if (isOfClass(Integer, result) && context->digits() >= Numerics::DEFAULT_DIGITS)
+                if (isOfClass(Integer, (RexxObject*)result) && context->digits() >= Numerics::DEFAULT_DIGITS)
                 {
                     /* get the value directly            */
-                    count = ((RexxInteger *)result)->getValue();
+                    count = ((RexxInteger *)(RexxObject*)result)->getValue();
                     context->traceResult(result);/* trace if necessary                */
                 }
                 else
@@ -366,7 +366,7 @@ void RexxInstructionDo::execute(
                     result = callOperatorMethod(result, OPERATOR_PLUS, OREF_NULL);
                     context->traceResult(result);/* trace if necessary                */
                                                  /* convert the value                 */
-                    if (!result->requestNumber(count, number_digits()))
+                    if (!((RexxObject*)result)->requestNumber(count, number_digits()))
                     {
                         /* report an exception               */
                         reportException(Error_Invalid_whole_number_repeat, object);
@@ -460,7 +460,7 @@ void RexxInstructionDo::controlSetup(
 /******************************************************************************/
 {
     size_t      i;                       /* loop control variable             */
-    RexxObject *result;                  /* expression result                 */
+    /*RexxObject * */ ProtectedObject result; /* expression result                 */
     RexxObject *_initial;                /* initial variable value            */
     RexxObject *object;                  /* original result object (for error)*/
     wholenumber_t count;                 /* for count                         */
@@ -483,7 +483,7 @@ void RexxInstructionDo::controlSetup(
                     /* if the result is a string, see if we can convert this to */
                     /* an integer value.  This is very common in loops, and can */
                     /* save us a lot of processing on each loop iteration. */
-                    RexxObject *temp = result->integerValue(number_digits());
+                    RexxObject *temp = ((RexxObject*)result)->integerValue(number_digits());
                     if (temp != TheNilObject)
                     {
                         result = temp;
@@ -520,10 +520,10 @@ void RexxInstructionDo::controlSetup(
                                                /* an integer value already, and     */
                                                /* we're dealing with a "normal      */
                                                /* NUMERIC DIGITS setting            */
-                if (isOfClass(Integer, result) && context->digits() >= Numerics::DEFAULT_DIGITS)
+                if (isOfClass(Integer, (RexxObject*)result) && context->digits() >= Numerics::DEFAULT_DIGITS)
                 {
                     /* get the value directly            */
-                    count = ((RexxInteger *)result)->getValue();
+                    count = ((RexxInteger *)(RexxObject*)result)->getValue();
                     context->traceResult(result);/* trace if necessary                */
                 }
                 else
@@ -536,7 +536,7 @@ void RexxInstructionDo::controlSetup(
                     result = callOperatorMethod(result, OPERATOR_PLUS, OREF_NULL);
                     context->traceResult(result);/* trace if necessary                */
                                                  /* convert the value                 */
-                    if (!result->requestNumber(count, number_digits()))
+                    if (!((RexxObject*)result)->requestNumber(count, number_digits()))
                     {
                         /* report an exception               */
                         reportException(Error_Invalid_whole_number_for, object);

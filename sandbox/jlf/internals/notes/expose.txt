@@ -1,5 +1,37 @@
+Some notes taken while thinking about closures.
+
+
 =====================================================================================
-Code review for expose
+Abandoned : add support for expose in routines (now using a method)
+=====================================================================================
+
+RexxActivation.hpp
+(after procedureExpose)
+   void              routineExpose(RexxVariableBase **variables, size_t count);
+
+
+RexxActivation.cpp
+void RexxActivation::routineExpose(
+    RexxVariableBase **variables, size_t count)
+/******************************************************************************/
+/* Function:  Expose variables for a routine                                  */
+/******************************************************************************/
+{
+    /* get a new  */
+    activity->allocateLocalVariableFrame(&settings.local_variables);
+    /* make sure we clear out the dictionary, otherwise we'll see the */
+    /* dynamic entries from the previous level. */
+    settings.local_variables.procedure(this);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        variables[i]->procedureExpose(this, parent, &stack);
+    }
+}
+
+
+=====================================================================================
+Variables
 =====================================================================================
 
 RexxLocalVariables.hpp
@@ -10,6 +42,168 @@ RexxLocalVariables.hpp
     #define VARIABLE_SIGL    5
     #define FIRST_VARIABLE_INDEX 5         /* variable index list first slot    */
 
+
+----------
+Data model
+----------
+
+RexxLocalVariables
+    size_t flags;                        /* dictionary control flags          */
+    size_t size;                         /* size of the expstack              */
+    RexxActivation *owner;               /* the owning activation             */
+    RexxVariable **locals;               /* the frame of local variables      */    <-- locals->setFrame(frameStack.allocateFrame(locals->size));    <-- frameStack is an attribute of RexxActivity (type RexxActivationStack)
+    RexxVariableDictionary *dictionary;  /* dictionary used for dynamic lookups */
+
+
+RexxActivation : public RexxActivationBase 
+   ActivationSettings   settings;      /* inherited REXX settings           */
+
+
+ActivationSettings
+    RexxLocalVariables local_variables;  /* the local variables for this activation */
+
+
+=====================================================================================
+Code review for method expose
+=====================================================================================
+
+ExposeInstruction.cpp
+class RexxInstructionExpose : public RexxInstruction {
+  size_t            variableCount;     // number of variables to expose
+  RexxVariableBase *variables[1];      // list of variables for EXPOSE
+
+
+void RexxInstructionExpose::execute(
+            RexxActivation      *context,      /* current activation context        */
+            RexxExpressionStack *stack)        /* evaluation stack                  */
+    context->expose(variables, variableCount);
+
+
+void RexxActivation::expose(RexxVariableBase **variables, size_t count)
+{
+    /* get the variable set for this object */
+    RexxVariableDictionary * object_variables = getObjectVariables();
+
+    /* now expose each individual variable */
+    for (size_t i = 0; i < count; i++)
+    {
+        variables[i]->expose(this, &stack, object_variables);
+    }
+}
+
+
+ExpressionBaseVariable.hpp
+class RexxVariableBase : public RexxInternalObject {
+  virtual void expose(RexxActivation *, RexxExpressionStack *, RexxVariableDictionary *) {;}
+
+Subclasses of RexxVariableVase :
+    RexxCompoundVariable (ExpressionCompoundVariable)
+    RexxDotVariable (ExpressionDotVariable.hpp) --> no expose
+    RexxExpressionMessage (ExpressionMessage.hpp) --> no expose
+    RexxStemVariable (ExpressionStem.hpp)
+    RexxParseVariable (ExpressionVariable.hpp)
+    RexxVariableReference (IndirectVariableReference.hpp)
+    
+
+ExpressionVariable.cpp
+void RexxParseVariable::expose(
+  RexxActivation      *context,        /* current activation context        */
+  RexxExpressionStack *stack,          /* current evaluation stack          */
+                                       /* variable scope we're exposing from*/
+  RexxVariableDictionary *object_dictionary)
+{
+    /* get the old variable entry        */
+    RexxVariable *old_variable = object_dictionary->getVariable(variableName);
+    /* set the entry in the new table    */
+    context->putLocalVariable(old_variable, index);
+}
+
+
+ExpressionCompoundVariable.cpp
+void RexxCompoundVariable::expose(
+  RexxActivation      *context,        /* current activation context        */
+  RexxExpressionStack *stack,          /* current evaluation stack          */
+                                       /* variable scope we're exposing from*/
+  RexxVariableDictionary *object_dictionary)
+{
+    /* get the stem in the source dictionary */
+    RexxStem *source_stem = object_dictionary->getStem(stemName);
+                                          /* new tail for compound             */
+    RexxCompoundTail resolved_tail(context, &tails[0], tailCount);
+    /* first get (and possible create) the compound variable in the */
+    /* object context. */
+    RexxCompoundElement *variable = source_stem->exposeCompoundVariable(&resolved_tail);
+    /* get the stem index from the current level.  This may end up */
+    /* creating the stem that holds the exposed value. */
+    RexxStem *stem_table = context->getLocalStem(stemName, index);
+    /* have the stem expose this */
+    stem_table->expose(variable);
+    /* tracing intermediate values?      */
+    if (context->tracingIntermediates()) {
+        /* trace resolved compound name */
+        context->traceCompoundName(stemName, (RexxObject **)&tails[0], tailCount, variable->getName());
+    }
+}
+
+
+StemClass.cpp
+void RexxStem::expose( RexxCompoundElement *old_variable) /* the parent compound variable     */
+{
+    /* create the equivalent in this stem */
+    RexxCompoundElement *new_variable = tails.findEntry(old_variable->getName(), true);
+    new_variable->expose(old_variable);  /* make the association between the two */
+}
+
+
+InstructionParser.cpp
+RexxInstruction *RexxSource::exposeNew()
+{
+    this->isExposeValid();               /* validate the placement            */
+                                         /* go process the list               */
+    size_t variableCount = this->processVariableList(KEYWORD_EXPOSE);
+    /* Get new object                    */
+    RexxInstruction *newObject = new_variable_instruction(EXPOSE, Expose, sizeof(RexxInstructionExpose) + (variableCount - 1) * sizeof(RexxObject *));
+    /* Initialize this new method        */
+    new ((void *)newObject) RexxInstructionExpose(variableCount, this->subTerms);
+    return newObject; /* done, return this                 */
+}
+
+
+SourceFile.cpp
+size_t RexxSource::processVariableList(
+    Iterator over the tokens :
+       if the token is a variable name
+            retriever = this->addText(token);/* get a retriever for this          */
+            this->subTerms->push(retriever); /* add to the variable list          */
+            if (type == KEYWORD_EXPOSE)      /* this an expose operation?         */
+            {
+                this->expose(token->value);    /* add to the expose list too        */
+            }
+            list_count++;                    /* record the variable               */
+       else if the token is a variable reference
+            retriever = this->addText(token);/* get a retriever for this          */
+                                             /* make this an indirect reference   */
+            retriever = (RexxObject *)new RexxVariableReference((RexxVariableBase *)retriever);
+            this->subTerms->queue(retriever);/* add to the variable list          */
+            this->currentstack++;            /* account for the varlists          */
+       else error
+
+
+SourceFile.cpp
+RexxInstruction *RexxSource::instruction()
+                case KEYWORD_EXPOSE:       /* EXPOSE instruction                */
+                    refineSubclass(_first, IS_KEYWORD);
+                    /* interpreted?                      */
+                    if (this->flags&_interpret)
+                        syntaxError(Error_Translation_expose_interpret);
+                    /* add the instruction to the parse  */
+                    _instruction = this->exposeNew();
+                    break;
+
+
+=====================================================================================
+Code review for procedure expose
+=====================================================================================
 
 ---------------
 procedureExpose
@@ -104,24 +298,4 @@ allocateLocalVariableFrame
             
     RexxLocalVariables.cpp
     
-
-----------
-Data model
-----------
-
-RexxLocalVariables
-    size_t flags;                        /* dictionary control flags          */
-    size_t size;                         /* size of the expstack              */
-    RexxActivation *owner;               /* the owning activation             */
-    RexxVariable **locals;               /* the frame of local variables      */    <-- locals->setFrame(frameStack.allocateFrame(locals->size));    <-- frameStack is an attribute of RexxActivity (type RexxActivationStack)
-    RexxVariableDictionary *dictionary;  /* dictionary used for dynamic lookups */
-
-
-RexxActivation : public RexxActivationBase 
-   ActivationSettings   settings;      /* inherited REXX settings           */
-
-
-ActivationSettings
-    RexxLocalVariables local_variables;  /* the local variables for this activation */
-
 

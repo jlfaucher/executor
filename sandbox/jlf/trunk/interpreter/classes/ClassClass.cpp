@@ -371,11 +371,11 @@ RexxString *RexxClass::defaultName()
 /* Function:  retrieve a classes default name value                           */
 /******************************************************************************/
 {
-    RexxString *defaultname = this->id;  /* use the id directly               */
+    /*RexxString * */ ProtectedObject defaultname = this->id;  /* use the id directly               */
                                          /* prefix with "The"                 */
-    defaultname = defaultname->concatToCstring("The ");
+    defaultname = ((RexxString*)defaultname)->concatToCstring("The ");
     /* add on "class"                    */
-    defaultname = defaultname->concatWithCstring(" class");
+    defaultname = ((RexxString*)defaultname)->concatWithCstring(" class");
     return defaultname;                  /* return that value                 */
 }
 
@@ -633,6 +633,7 @@ RexxObject *RexxClass::defineMethod(
     /* make sure there is at least one   */
     /* parameter                         */
     method_name = stringArgument(method_name, ARG_ONE)->upper();
+    ProtectedObject p(method_name);
     if ( OREF_NULL == method_object)     /* 2nd arg omitted?                  */
     {
         /* Yes, remove all message with this */
@@ -726,6 +727,7 @@ RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *ne
 {
     // validate the arguments
     method_name = stringArgument(method_name, ARG_ONE)->upper();
+    ProtectedObject p(method_name);
     requiredArgument(newMethod, ARG_TWO);
     newMethod->newScope(this);        // change the scope to the class // JLF newScope instead of setScope
     /* now add this to the behaviour     */
@@ -775,6 +777,7 @@ RexxObject *RexxClass::deleteMethod(
     }
     /* and that it can be a string        */
     method_name = stringArgument(method_name, ARG_ONE)->upper();
+    ProtectedObject p(method_name);
     /* make a copy of the instance        */
     /* behaviour so any previous objects  */
     /* aren't enhanced                    */
@@ -798,6 +801,7 @@ RexxMethod *RexxClass::method(
 {
     /* make sure we have a proper name    */
     method_name = stringArgument(method_name, ARG_ONE)->upper();
+    ProtectedObject p(method_name);
     RexxMethod *method_object = (RexxMethod *)this->instanceBehaviour->getMethodDictionary()->stringGet(method_name);
     /* check if it is in the mdict        */
     if ( OREF_NULL == method_object)
@@ -1066,6 +1070,7 @@ void RexxClass::methodDictionaryMerge(
     {
         /* get the method name               */
         RexxString *method_name = REQUEST_STRING(source_mdict->index(i));
+        ProtectedObject p(method_name);
         /* get the method                    */
         RexxMethod *method_instance = (RexxMethod *)source_mdict->value(i);
         /* add the method to the target mdict */
@@ -1100,6 +1105,7 @@ RexxTable *RexxClass::methodDictionaryCreate(
     {
         /* get the method name (uppercased)  */
         RexxString *method_name = REQUEST_STRING(supplier->index())->upper();
+        ProtectedObject p(method_name);
         /* get the method                    */
         RexxMethod *newMethod = (RexxMethod *)supplier->value();
         /* if the method is not TheNilObject */

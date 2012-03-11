@@ -85,36 +85,36 @@ public:
      void close();
      inline void request(const char *ds, int di) 
      {
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
          if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
          dbgprintf("(SysMutex)%s.request : before pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
 #endif
          pthread_mutex_lock(&mutexMutex); 
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
          if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
          dbgprintf("(SysMutex)%s.request : after pthread_mutex_lock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
 #endif
      }
      inline void release(const char *ds, int di) 
      {
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
          if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
          dbgprintf("(SysMutex)%s.release : before pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
 #endif
          pthread_mutex_unlock(&mutexMutex); 
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
          if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
          dbgprintf("(SysMutex)%s.release : after pthread_mutex_unlock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
 #endif
      }
      inline bool requestImmediate(const char *ds, int di) 
      { 
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
          if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
          dbgprintf("(SysMutex)%s.requestImmediate : before pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
 #endif
          bool result = pthread_mutex_trylock(&mutexMutex) == 0;
-#ifdef _DEBUG
+#ifdef CONCURRENCY_DEBUG
          if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
          dbgprintf("(SysMutex)%s.requestImmediate : after pthread_mutex_trylock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
 #endif

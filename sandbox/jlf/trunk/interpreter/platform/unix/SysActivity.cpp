@@ -165,3 +165,18 @@ char *SysActivity::getStackBase(size_t stackSize)
     size_t temp;
     return (char *)&temp - stackSize;
 }
+
+
+wholenumber_t yieldCount = 0; // Monitoring
+
+void SysActivity::yield()
+{
+    yieldCount += 1;
+    sched_yield();
+}
+
+
+wholenumber_t SysActivity::yieldCounter()
+{
+    return yieldCount;
+}

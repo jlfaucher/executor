@@ -94,12 +94,12 @@ say
 ::routine t_odd
     use strict arg n
     if n == 0 then return .false
-    return {::cl expose n ; return t_even(n-1)}
+    return {::closure expose n ; return t_even(n-1)}
 
 ::routine t_even
     use strict arg n
     if n == 0 then return .true
-    return {::cl expose n ; return t_odd(n-1)}
+    return {::closure expose n ; return t_odd(n-1)}
 
 -------------------------------------------------------------------------------
 -- The trampoline function

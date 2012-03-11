@@ -172,6 +172,7 @@ RexxObject *RexxBehaviour::copy()
 
     /* first, clone the existing object  */
     RexxBehaviour *newBehaviour = (RexxBehaviour *)this->clone();
+    ProtectedObject p(newBehaviour);
     /* have an method dictionary         */
     if (this->methodDictionary != OREF_NULL)
     {

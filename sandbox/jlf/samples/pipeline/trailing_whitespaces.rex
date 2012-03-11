@@ -1,23 +1,23 @@
 /*
-Description :
-    For each source file found in the current directory and its subdirectories (recursively),
-    list the lines with trailing whitespaces and give the name of the author to blame.
-Usage :
-    cd <the root directory of the source files"
-    rexx pipeline/trailing_whitespaces
 Example of output :
-    'svn blame "D:\local\Rexx\ooRexx\svn\main\trunk\extensions\rxmath\rxmath.cpp"',608 :   5206   XXXXX /*                      of range, e.g., RxCalcSin(1.1) -> nan       */   
+'svn blame "D:\local\Rexx\ooRexx\svn\main\trunk\extensions\rxmath\rxmath.cpp"',608 :   5206   XXXXX /*                      of range, e.g., RxCalcSin(1.1) -> nan       */'   
 */
 
-"."~pipe(.fileTree recursive |,
-         .select {isSourceFile(value)} |,
-         .getFiles mem |,
-         .select {hasTrailingWhitespace(value)} | .take 1 {index~get("getFiles")~value} |, -- one line per file, to get the filename once
-         .system {"svn blame" '"'index~get("getFiles")~value~absolutePath'"'} mem |, -- memorize to get the line number
-         .select {hasTrailingWhitespace(value, .true)} |,
-         .console {index~get("system")~show("2 3")} ":" value ) 
-         -- display the 2nd and 3rd fields of the index created by .system (filepath and linenum),
-         -- followed by the current value (the line with trailing space)
+if arg() <> 1 then do ; call help ; return ; end
+if \ .file~new(arg(1))~isDirectory then do
+    say "Not a directory:" arg(1)
+    return
+end
+
+arg(1)~pipe(.fileTree recursive mem |,
+         .select {isSourceFile(item)} |,
+         .fileLines |,
+         .select {hasTrailingWhitespace(item)} | .take 1 {dataflow["fileTree"]~item} |, -- one line per file, to get the filename once
+         .system {"svn blame" '"'dataflow["fileTree"]~item~absolutePath'"'} mem |, -- memorize to get the line number
+         .select {hasTrailingWhitespace(item, .true)} |,
+         .console {dataflow["system"]~index~ppRepresentation} ":" item ) 
+         -- display the index created by .system (array~of(command, linenum)),
+         -- followed by the current item (the line with trailing space)
 
 
 ::routine isSourceFile
@@ -43,5 +43,11 @@ Example of output :
     if length == 0 then return .false
     return line~right(1) == " "
 
+::routine help
+    say 'Description :'
+    say '    For each source file found in <directory> and its subdirectories (recursively),'
+    say '    list the lines with trailing whitespaces and give the name of the author to blame.'
+    say 'Usage :'
+    say '    rexx pipeline/trailing_whitespaces <directory>'
 
 ::requires "pipeline/pipe_extension.cls"

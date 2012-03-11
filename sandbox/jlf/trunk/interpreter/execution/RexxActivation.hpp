@@ -260,7 +260,6 @@ class ActivationSettings
    RexxDateTime      getTime();
    RexxInteger     * random(RexxInteger *, RexxInteger *, RexxInteger *);
    size_t            currentLine();
-   void              arguments(RexxObject *);
    void              traceValue(RexxObject *, int);
    void              traceCompoundValue(int prefix, RexxString *stemName, RexxObject **tails, size_t tailCount, RexxCompoundTail *tail);
    void              traceCompoundValue(int prefix, RexxString *stem, RexxObject **tails, size_t tailCount, const char *marker, RexxObject * value);
@@ -332,6 +331,7 @@ class ActivationSettings
    }
    PackageClass     *getPackage();
    RexxObject       *getLocalEnvironment(RexxString *name);
+   RexxDirectory    *getThreadLocal();
    void              setReturnStatus(int status);
 
    inline void              setCallType(RexxString *type) {this->settings.calltype = type; }
@@ -428,7 +428,6 @@ class ActivationSettings
    inline void              setElapsedTimerInvalid() { this->settings.flags |= elapsed_reset; }
    inline void              setElapsedTimerValid() { this->settings.flags &= ~elapsed_reset; }
 
-
    inline RexxObject     ** getMethodArgumentList() {return this->arglist;};
    inline size_t            getMethodArgumentCount() { return argcount; }
    inline RexxObject *      getMethodArgument(size_t position) {
@@ -440,6 +439,7 @@ class ActivationSettings
        }
    }
 
+   void                     setArguments(RexxArray *arguments);
    inline RexxArray        *getArguments() { return new_array(argcount, arglist); }
 
    inline RexxObject      **getProgramArgumentlist() {return this->settings.parent_arglist;};
@@ -458,6 +458,7 @@ class ActivationSettings
    RexxObject *getContextLine();
    size_t      getContextLineNumber();
    RexxObject *getContextReturnStatus();
+   RexxObject *getParentContextObject();
    StackFrameClass *createStackFrame();
 
    inline RexxVariableDictionary *getLocalVariables()
@@ -612,6 +613,7 @@ class ActivationSettings
    RexxObject          *receiver;      /* target of a message invocation    */
    RexxActivity        *activity;      /* current running activation        */
    RexxActivation      *parent;        // previous running activation for internal call/interpret
+   RexxArray           *arguments;     /* user-redefined, GC protected      */
    RexxObject         **arglist;       /* activity argument list            */
    size_t               argcount;      /* the count of arguments            */
    RexxDoBlock         *dostack;       /* stack of DO loops                 */

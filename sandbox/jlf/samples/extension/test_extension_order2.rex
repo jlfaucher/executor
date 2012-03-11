@@ -27,7 +27,9 @@ say "----- routine_test_myPublicClass2 -----"
 ::class myPublicClass public
 ::method m1
     say "m1 from test_extension_order2"
-    
+::method m2
+    say "m2 from test_extension_order1"
+
 ::class myPrivateClass
 
 ::requires "test_extension_order3.rex"

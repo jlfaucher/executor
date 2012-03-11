@@ -220,7 +220,7 @@ RexxInstruction *RexxSource::callNew()
 {
     size_t _flags = 0;                          /* clear the flags                   */
     size_t builtin_index = 0;                   /* clear the builtin index           */
-    RexxString *_condition = OREF_NULL;              /* clear the condition               */
+    /* RexxString * */ ProtectedObject _condition = (RexxObject*)OREF_NULL; /* clear the condition               */
     RexxObject *name = OREF_NULL;                    /* no name yet                       */
     size_t argCount = 0;                        /* no arguments yet                  */
 
@@ -278,7 +278,7 @@ RexxInstruction *RexxSource::callNew()
                 _condition = token->value;     /* get the token string value        */
                 name = _condition;             /* set the default target            */
                                                /* condition name is "USER condition"*/
-                _condition = _condition->concatToCstring(CHAR_USER_BLANK);
+                _condition = ((RexxString*)_condition)->concatToCstring(CHAR_USER_BLANK);
                 /* save the condition name           */
                 _condition = this->commonString(_condition);
             }
@@ -366,7 +366,7 @@ RexxInstruction *RexxSource::callNew()
                 }
                 _condition = token->value;      /* get the token string value        */
                 /* condition name is "USER condition"*/
-                _condition = _condition->concatToCstring(CHAR_USER_BLANK);
+                _condition = ((RexxString*)_condition)->concatToCstring(CHAR_USER_BLANK);
                 /* save the condition name           */
                 _condition = this->commonString(_condition);
             }
@@ -1826,7 +1826,7 @@ RexxInstruction *RexxSource::raiseNew()
         /* this is an error                  */
         syntaxError(Error_Symbol_expected_raise);
     }
-    RexxString *_condition = token->value;           /* use the condition string value    */
+    /* RexxString * */ ProtectedObject _condition = token->value;           /* use the condition string value    */
     saveQueue->push(_condition);         /* save the condition name           */
     int _keyword = this->condition(token);   /* check for the subkeywords         */
     if (_keyword != 0) refineSubclass(token, IS_CONDITION);
@@ -1857,7 +1857,7 @@ RexxInstruction *RexxSource::raiseNew()
             }
             _condition = token->value;        /* get the token string value        */
             /* condition name is "USER condition"*/
-            _condition = _condition->concatToCstring(CHAR_USER_BLANK);
+            _condition = ((RexxString*)_condition)->concatToCstring(CHAR_USER_BLANK);
             /* get the common version            */
             _condition = this->commonString(_condition);
             saveQueue->queue(_condition);    /* save the condition                */
@@ -2097,7 +2097,7 @@ RexxInstruction *RexxSource::signalNew()
     bool signalOff = false;                   /* not a SIGNAL OFF instruction      */
     RexxObject *_expression = OREF_NULL;              /* no expression yet                 */
     RexxString *name = OREF_NULL;                    /* no name                           */
-    RexxString *_condition = OREF_NULL;               /* and no condition                  */
+    /* RexxString * */ ProtectedObject _condition = (RexxString*)OREF_NULL; /* and no condition                  */
     size_t _flags = 0;                           /* no flags                          */
     RexxToken *token = nextReal();                  /* get the next token                */
 
@@ -2231,7 +2231,7 @@ RexxInstruction *RexxSource::signalNew()
                     }
                     _condition = token->value;    /* get the token string value        */
                     /* condition name is "USER condition"*/
-                    _condition = _condition->concatToCstring(CHAR_USER_BLANK);
+                    _condition = ((RexxString*)_condition)->concatToCstring(CHAR_USER_BLANK);
                     /* save the condition name           */
                     _condition = this->commonString(_condition);
                 }

@@ -93,12 +93,12 @@ RexxObject * RexxDotVariable::evaluate(
 /* Function:  Evaluate a REXX dot variable                                  */
 /****************************************************************************/
 {
-    /* get this from the source          */
-    RexxObject *result = context->resolveDotVariable(this->variableName);
+    /* try for a REXX defined name       */
+    RexxObject *result = context->rexxVariable(this->variableName);
     if (result == OREF_NULL)             /* not there?                        */
     {
-        /* try for a REXX defined name       */
-        result = context->rexxVariable(this->variableName);
+        /* get this from the source          */
+        result = context->resolveDotVariable(this->variableName);
     }
     if (result == OREF_NULL)             /* not there?                        */
     {

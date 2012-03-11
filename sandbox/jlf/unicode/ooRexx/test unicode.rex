@@ -53,14 +53,15 @@ say "    あさきゆめみじ　ゑひもせず"
 say
 
 call interpret "multiByte"
+call setCodePage 65001 -- UTF-8
 call infodialog "éèöô alors ?"
 
 ::routine multiByte
 s = "aé…"
 say s 
 say s~length
-say s~mapchar('return arg(1)~c2x" "')
-say s~mapchar('return arg(1)~c2x~x2b" "')
+say s~mapC{return arg(1)~c2x" "}
+say s~mapC{return arg(1)~c2x~x2b" "}
 
 ::routine interpret
     use strict arg routineName
@@ -77,5 +78,5 @@ say s~mapchar('return arg(1)~c2x~x2b" "')
         end
     end
     
-::requires "../../samples/extension/functional.rex"
+::requires "extension/extensions.cls"
 ::requires "oodialog.cls"

@@ -520,6 +520,7 @@ RexxObject *RexxMessage::newRexx(
     RexxObject *_startScope;
     // decode the message argument into name and scope
     RexxObject::decodeMessageName(_target, _message, msgName, _startScope);
+    ProtectedObject m(msgName);
 
     /* are there arguments to be sent    */
     /*with the message?                  */
@@ -594,6 +595,7 @@ RexxObject *RexxMessage::newRexx(
     /* actually a subclassed item?       */
     if (((RexxClass *)this)->isPrimitive())
     {
+        ProtectedObject p(newMessage);
         /* Give new object its behaviour     */
         newMessage->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
         newMessage->sendMessage(OREF_INIT);/* call any rexx inits               */

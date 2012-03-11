@@ -132,7 +132,9 @@ void RexxInstructionTrace::execute(
     {
         /* get the expression value          */
         result = this->expression->evaluate(context, stack);
+        ProtectedObject p_result(result);
         value = REQUEST_STRING(result);    /* force to string form              */
+        ProtectedObject p_value(value);
         context->traceResult(result);      /* trace if necessary                */
         if (!context->inDebug())           /* not in debug mode?                */
         {

@@ -5,13 +5,13 @@
 /*
 An example of generator (recursive method).
 
-The binary tree stores values in nodes.
-Each node holds a value.
+The binary tree stores items in nodes.
+Each node holds a item.
 Each node has a reference to a node on the left and a reference to a node on the right.
-Values smaller than current node's value are stored in the left-side subtree, and larger values are stored in the right-side subtree.
+Items smaller than current node's item are stored in the left-side subtree, and larger items are stored in the right-side subtree.
 
 myBinaryTree = .BinaryTree~of(4, 6, 2, 7, 5, 3, 1)
-do o over myBinaryTree~ascendingValues
+do o over myBinaryTree~ascendingItems
     say o
 end
 -- display 1, 2, 3, 4, 5, 6, 7
@@ -22,46 +22,46 @@ end
 
 ::attribute leftNode
 ::attribute rightNode
-::attribute value
+::attribute item
 
 ::method init
     self~leftNode = .nil
     self~rightNode = .nil
-    self~value = .nil
+    self~item = .nil
 
 ::method insert
-    use strict arg value
+    use strict arg item
     select
-        when self~value == .nil then do
-            self~value = value
+        when self~item == .nil then do
+            self~item = item
         end
-        when value < self~value then do
-            if self~leftNode == .nil then self~leftNode = .Node~new
-            self~leftNode~insert(value)
+        when item < self~item then do
+            if self~leftNode == .nil then self~leftNode = self~class~new
+            self~leftNode~insert(item)
         end
         otherwise do
-            if self~rightNode == .nil then self~rightNode = .Node~new
-            self~rightNode~insert(value)
+            if self~rightNode == .nil then self~rightNode = self~class~new
+            self~rightNode~insert(item)
         end
     end
-    
+
 ::method visitAscending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
     if self~leftNode <> .nil then self~leftNode~visitAscending
-    .yield[self~value]
+    .yield[self~item]
     if self~rightNode <> .nil then self~rightNode~visitAscending
 
 ::method visitDescending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
     if self~rightNode <> .nil then self~rightNode~visitDescending
-    .yield[self~value]
+    .yield[self~item]
     if self~leftNode <> .nil then self~leftNode~visitDescending
 
 
 ::class BinaryTree public
 
 ::method of class
-    use strict arg value, ...
+    use strict arg item, ...
     binaryTree = .BinaryTree~new
     do i = 1 to arg()
         binaryTree~insert(arg(i))
@@ -74,16 +74,93 @@ end
     self~rootNode = .Node~new
 
 ::method insert
-    use strict arg value
-    self~rootNode~insert(value)
+    forward to (self~rootNode)
 
-::method ascendingValues
+::method ascendingItems
     return .Coactivity~new("visitAscending", , self~rootNode)
 
-::method descendingValues
+::method descendingItems
     return .Coactivity~new("visitDescending", , self~rootNode)
 
 
+--------------------------------------------------------------------------------
+/*
+Same example as above, but using a block.
+No need of .Node~visitAscending, .Node~visitDescending.
+
+myBinaryTree = .BinaryTree2~of(4, 6, 2, 7, 5, 3, 1)
+do o over myBinaryTree~ascendingItems
+    say o
+end
+-- display 1, 2, 3, 4, 5, 6, 7
+*/
+
+::class Node2 private
+
+::attribute leftNode
+::attribute rightNode
+::attribute item
+
+::method init
+    self~leftNode = .nil
+    self~rightNode = .nil
+    self~item = .nil
+
+::method insert
+    use strict arg item
+    select
+        when self~item == .nil then do
+            self~item = item
+        end
+        when item < self~item then do
+            if self~leftNode == .nil then self~leftNode = self~class~new
+            self~leftNode~insert(item)
+        end
+        otherwise do
+            if self~rightNode == .nil then self~rightNode = self~class~new
+            self~rightNode~insert(item)
+        end
+    end
+
+
+::class BinaryTree2 public
+
+::method of class
+    use strict arg item, ...
+    binaryTree = self~new
+    do i = 1 to arg()
+        binaryTree~insert(arg(i))
+    end
+    return binaryTree
+
+::attribute rootNode
+
+::method init
+    self~rootNode = .Node2~new
+
+::method insert
+    forward to (self~rootNode)
+
+::method ascendingItems
+    return {::method.coactive
+            -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
+            -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself 
+            if self~leftNode <> .nil then .context~executable~(self~leftNode)
+            .yield[self~item]
+            if self~rightNode <> .nil then .context~executable~(self~rightNode)
+           }~doer(self~rootNode)
+
+::method descendingItems
+    return {::method.coactive
+            -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
+            -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself 
+            if self~rightNode <> .nil then .context~executable~(self~rightNode)
+            .yield[self~item]
+            if self~leftNode <> .nil then .context~executable~(self~leftNode)
+           }~doer(self~rootNode)
+
+
+--------------------------------------------------------------------------------
 /*
 To illustrate the difference between a stackful coroutine and the limited support in Python
 (can yield only to its immediate caller).

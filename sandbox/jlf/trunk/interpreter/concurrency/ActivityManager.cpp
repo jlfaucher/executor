@@ -116,6 +116,13 @@ void ActivityManager::liveGeneral(int reason)
 }
 
 
+wholenumber_t addWaitingActivityCount = 0; // Monitoring
+
+wholenumber_t ActivityManager::addWaitingActivityCounter()
+{
+    return addWaitingActivityCount;
+}
+
 /**
  * Add a waiting activity to the waiting queue.
  *
@@ -125,6 +132,7 @@ void ActivityManager::liveGeneral(int reason)
 void ActivityManager::addWaitingActivity(RexxActivity *waitingAct, bool release )
 {
     ResourceSection lock("ActivityManager::addWaitingActivity", 0);                // need the control block locks
+    addWaitingActivityCount += 1;
 
     // nobody waiting yet?  If the release flag is true, we already have the
     // kernel lock, but nobody is waiting.  In theory, this can't really
@@ -497,6 +505,12 @@ void ActivityManager::yieldCurrentActivity()
 }
 
 
+wholenumber_t ActivityManager::yieldCounter()
+{
+    return SysActivity::yieldCounter();
+}
+
+
 RexxActivity *ActivityManager::findActivity(thread_id_t threadId)
 /******************************************************************************/
 /* Function:  Locate the activity associated with a thread                    */
@@ -789,6 +803,13 @@ RexxActivity *ActivityManager::getActivity()
 }
 
 
+wholenumber_t relinquishCount = 0; // Monitoring
+
+wholenumber_t ActivityManager::relinquishCounter()
+{
+    return relinquishCount;
+}
+
 /**
  * Switch the active activity if there are other activities
  * waiting to run.
@@ -797,6 +818,7 @@ RexxActivity *ActivityManager::getActivity()
  */
 void ActivityManager::relinquish(RexxActivity *activity)
 {
+    relinquishCount += 1;
     // if we have waiting activities, then let one of them
     // in next.
     if (hasWaiters())

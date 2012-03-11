@@ -462,6 +462,7 @@ RexxString *RexxInteger::concatBlank(
 {
   requiredArgument(other, ARG_ONE);            /* this is required                  */
   other = REQUEST_STRING(other);       /* ensure a string value             */
+  ProtectedObject p(other);
                                        /* do the concatenate                */
   return this->stringValue()->concatWith(other, ' ');
 }
@@ -474,6 +475,7 @@ RexxString *RexxInteger::concat(
 {
   requiredArgument(other, ARG_ONE);            /* this is required                  */
   other = REQUEST_STRING(other);       /* ensure a string value             */
+  ProtectedObject p(other);
                                        /* do the concatenate                */
   return this->stringValue()->concat(other);
 }

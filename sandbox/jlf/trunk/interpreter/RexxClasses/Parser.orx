@@ -425,6 +425,7 @@ Iterate over the clauses of the modified source :
 -- So a clause is always monoline, even if it's distributed on several lines in the source.
 ::method sourceNextToken
     expose sourceLine lineNum lineOffset lineLength clauseEndLine clauseEndOffset buffer
+    use strict arg skipSourceLiteral=.false
     do forever
         inch = self~locateToken
         if inch == self~CLAUSEEND_EOF then return .nil
@@ -473,12 +474,13 @@ Iterate over the clauses of the modified source :
                             buffer~append('}')
                             leave
                         end
-                        if self~sourceNextToken == .nil then do
+                        if self~sourceNextToken(.true) == .nil then do
                             raise syntax 93.900 array("Curly bracket { requires a corresponding right curly bracket }")
                         end
                     end
                 end
                 else if inch == ';' then do
+                    if skipSourceLiteral then buffer~append(inch)
                     clauseEndLine = lineNum
                     clauseEndOffset = lineOffset - 2 -- the offset of the character before ';'
                     return self~TOKEN_EOC

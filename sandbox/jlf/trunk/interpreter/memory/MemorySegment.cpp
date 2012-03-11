@@ -1806,3 +1806,17 @@ void OldSpaceSegmentSet::markOldSpaceObjects()
     }
 }
 
+
+#ifdef CHECKOREFS
+void MemorySegmentSet::validateObject(size_t bytes)
+{
+  /* is object invalid size?           */
+  if (!IsValidSize(bytes)) {
+      /* Yes, this is not good.  Exit      */
+      /* Critical Section and report       */
+      /* unrecoverable error.              */
+      Interpreter::logicError("Bad object detected during Garbage Collection, unable to continue");
+  }
+}
+#endif
+

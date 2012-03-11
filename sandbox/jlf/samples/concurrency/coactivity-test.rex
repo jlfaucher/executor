@@ -18,7 +18,7 @@ say
 say "Ended coactivities:" .Coactivity~endAll
 return
 
-
+--::options trace i
 ::requires "extension/extensions.cls"
 ::requires "concurrency/busy.cls"
 ::requires "concurrency/multiplier.cls"
@@ -72,12 +72,6 @@ c = .Coactivity~new{i = 1 ; do forever ; .yield[i] ; i += 1 ; end}
 do v over c~makeArray(15)
     say v
 end
-say "Global limit setting (default is ".Coactivity~makeArrayLimit")"
-.Coactivity~makeArrayLimit = 15
-c = .Coactivity~new{i = 1 ; do forever ; .yield[i] ; i += 1 ; end}
-do v over c
-    say v
-end
 
 
 say
@@ -109,14 +103,33 @@ say
 say "A coactivity whose entry point is a method of .BinaryTree (which is not subclass of .Coactivity)"
 say "Ascending order"
 btree = .BinaryTree~of(4, 6, 2, 7, 5, 3, 1)
-c = btree~ascendingValues
+c = btree~ascendingItems
 c~resume
 do while var("result")
     say result
     c~resume
 end
 say "Descending order"
-c = btree~descendingValues
+c = btree~descendingItems
+c~resume
+do while var("result")
+    say result
+    c~resume
+end
+
+
+say
+say ".BinaryTree2 (a variation of .BinaryTree) using blocks"
+say "Ascending order"
+btree = .BinaryTree2~of(4, 6, 2, 7, 5, 3, 1)
+c = btree~ascendingItems
+c~resume
+do while var("result")
+    say result
+    c~resume
+end
+say "Descending order"
+c = btree~descendingItems
 c~resume
 do while var("result")
     say result

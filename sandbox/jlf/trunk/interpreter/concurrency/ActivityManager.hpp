@@ -53,6 +53,7 @@ public:
     static void liveGeneral(int reason);
 
     static void addWaitingActivity(RexxActivity *a, bool release);
+    static wholenumber_t addWaitingActivityCounter(); // Monitoring
     static inline bool hasWaiters() { return !waitingActivities.empty(); }
     static RexxActivity *findActivity();
     static RexxActivity *findActivity(thread_id_t);
@@ -84,8 +85,10 @@ public:
     static bool poolActivity(RexxActivity *activity);
     static bool haltActivity(thread_id_t thread_id, RexxString * description);
     static void yieldCurrentActivity();
+    static wholenumber_t yieldCounter(); // Monitoring
     static void exit(int retcode);
     static void relinquish(RexxActivity *activity);
+    static wholenumber_t relinquishCounter(); // Monitoring
     static RexxActivity *getRootActivity();
     static void returnRootActivity(RexxActivity *activity);
     static RexxActivity *attachThread();

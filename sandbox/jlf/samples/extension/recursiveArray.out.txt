@@ -1,0 +1,29 @@
+1 : string1
+2 : string2
+3 : an Array ['string2',['string1','string2',*1,*0]]
+    1 : string2
+    2 : an Array ['string1','string2',['string2',*1],*0]
+4 : an Array ['string1','string2',['string2',*1],*0]
+    1 : string1
+    2 : string2
+    3 : an Array ['string2',['string1','string2',*1,*0]]
+    4 : an Array ['string1','string2',['string2',*1],*0]
+-----
+['string1','string2',['string2',*1],*0]
+-----
+source:1,'string1' 
+source:2,'string2' 
+source:3,[v1='string2',['string1',v1,*1,*0]] 
+source:4,['string1',v1='string2',[v1,*1],*0] 
+-----
+source:1,v1='string1' | inject:1,v1 
+source:2,v1='string2' | inject:2,v1 
+source:3,[v1='string2',['string1',v1,*1,*0]] | inject:1,v1 
+source:3,[v1='string2',[v2='string1',v1,*1,*0]] | inject:2,[v2,v1,[v1,*1],*0] 
+source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,v1 
+source:4,['string1',v1='string2',[v1,*1],*0] | inject:2,v1 
+source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:3,[v2,[v1,v2,*1,*0]] 
+source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0] 
+-----
+['a',['b',['c',['d',*3]]]]
+-----

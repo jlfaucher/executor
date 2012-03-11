@@ -106,6 +106,7 @@ void RexxContext::live(size_t liveMark)
 /* Function:  Normal garbage collection live marking                          */
 /******************************************************************************/
 {
+    memory_mark(this->objectVariables);
     memory_mark(this->activation);
 }
 
@@ -114,6 +115,7 @@ void RexxContext::liveGeneral(int reason)
 /* Function:  Generalized object marking                                      */
 /******************************************************************************/
 {
+    memory_mark_general(this->objectVariables);
     memory_mark_general(this->activation);
 }
 
@@ -124,6 +126,7 @@ void RexxContext::flatten(RexxEnvelope *envelope)
 {
   setUpFlatten(RexxContext)
 
+  flatten_reference(newThis->objectVariables, envelope);
   newThis->activation = OREF_NULL;   // this never should be getting flattened, so sever the connection
 
   cleanUpFlatten
@@ -231,9 +234,9 @@ RexxObject *RexxContext::getExecutable()
 
 
 /**
- * Return the executable backing the current context
+ * Return the arguments used to invoke the current context
  *
- * @return The executable object (either a method or routine)
+ * @return The array of arguments
  */
 RexxObject *RexxContext::getArgs()
 {
@@ -241,6 +244,19 @@ RexxObject *RexxContext::getArgs()
     RexxObject **arglist = activation->getMethodArgumentList();
     size_t size = activation->getMethodArgumentCount();
     return new (size, arglist) RexxArray;
+}
+
+
+/**
+ * Set the arguments used to invoke the current context
+ */
+RexxObject *RexxContext::setArgs(RexxObject *arguments)
+{
+    checkValid();
+    // this is required and must be an array
+    RexxArray *argumentsArray = arrayArgument(arguments, ARG_ONE);
+    activation->setArguments(argumentsArray);
+    return OREF_NULL; // no return value
 }
 
 
@@ -280,3 +296,14 @@ RexxObject *RexxContext::getRS()
     checkValid();
     return activation->getContextReturnStatus();
 }
+
+
+/**
+ * @return The parent's context.
+ */
+RexxObject *RexxContext::getParentContextObject()
+{
+    checkValid();
+    return activation->getParentContextObject();
+}
+

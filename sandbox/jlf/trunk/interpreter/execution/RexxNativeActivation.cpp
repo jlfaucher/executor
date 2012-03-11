@@ -1590,7 +1590,6 @@ void RexxNativeActivation::run(CallbackDispatcher &dispatcher)
         dispatcher.setContext(activity, this);
         activity->releaseAccess();           /* force this to "safe" mode         */
         dispatcher.run();
-        dbgprintf("after dispatcher.run\n");
         activity->requestAccess();           /* now in unsafe mode again          */
     }
     catch (ActivityException)
@@ -3209,7 +3208,7 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
         }
 
         RexxString *tail = OREF_NULLSTRING ;
-        ProtectedObject p2(tail);
+        ProtectedObject p2(tail); // JLF useless here !
 
         if (isOfClass(CompoundVariableTerm, retriever))
         {
@@ -3225,6 +3224,7 @@ int RexxNativeActivation::stemSort(const char *stemname, int order, int type, si
             length--;                            /* adjust the length                 */
             tail = variable->extractC(position, length);
             tail = tail->upper();
+            p2 = tail; // JLF here, it's useful
         }
 
         return retriever->sort(activation, tail, order, type, start, end, firstcol, lastcol);
@@ -3284,7 +3284,8 @@ StackFrameClass *RexxNativeActivation::createStackFrame()
     {
         const char *type = FRAME_ROUTINE;
     }
-    return new StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), receiver, getArguments(), new_string(COMPILED_MARKER), SIZE_MAX);
+    ProtectedObject p;
+    return new (p) StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), receiver, getArguments(), new_string(COMPILED_MARKER), SIZE_MAX);
 }
 
 

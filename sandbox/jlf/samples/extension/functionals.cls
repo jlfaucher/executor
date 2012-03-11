@@ -78,11 +78,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ----------------------------------------------------
 
 -- Iterate over the values yielded by the coactivity and combine them into one value by applying the given action to (current_value, current_yielded_value)
--- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce("+") -- initial value is the first item (default), returns 60
--- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(100, "+") -- initial value is 100, returns 160
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("+") -- initial value is the first item (default), returns 60
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce(100, "+") -- initial value is 100, returns 160
 -- Iterate over the values yielded by the coactivity and combine them into one value by applying the given action to (current_value, current_yielded_value, current_yielded_index)
--- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- {::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduce unguarded
     forward to (self~supplier)
 
@@ -106,8 +106,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method reduceImpl private unguarded
     use strict arg action, initial=.nil
     -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg accu, value, index") ; indexed = .true ; end
-                                        else do ; doer = action~doer ; indexed = .false ; end
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg accu, item, index")~arity(3)
+                                        else doer = action~doer
     if \ self~available then return initial
     if initial <> .nil then accu = initial
     else do
@@ -115,8 +115,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
         self~next
     end
     do while self~available
-        if indexed then doer~do(accu, self~item, self~index)
-                   else doer~do(accu, self~item)
+        if doer~arity >=3 then doer~do(accu, self~item, self~index)
+                          else doer~do(accu, self~item)
         if var("result") then accu = result
         self~next
     end
@@ -198,13 +198,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method mapCImpl -- not private because called by String~map
     use strict arg source, action
     -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg value, index") ; indexed = .true ; end
-                                        else do ; doer = action~doer ; indexed = .false ; end
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
     self~delete(1)
     supplier = source~makearray("")~supplier -- really not optimized but...
     do while supplier~available
-        if indexed then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                   else doer~do(supplier~item)
+        if doer~arity >= 3 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                           else doer~do(supplier~item)
         if var("result") then self~append(result)
         supplier~next
     end
@@ -213,14 +213,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method mapWImpl -- not private because called by String~map
     use strict arg source, action
     -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg value, index") ; indexed = .true ; end
-                                        else do ; doer = action~doer ; indexed = .false ; end
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
     self~delete(1)
     supplier = source~subwords~supplier -- really not optimized but...
     first = .true
     do while supplier~available
-        if indexed then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                   else doer~do(supplier~item)
+        if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                           else doer~do(supplier~item)
         if var("result") then do
             doResult = result
             if \first then self~append(" ")
@@ -257,13 +257,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method mapImpl private
     use strict arg supplier, action
     -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg value, index") ; indexed = .true ; end
-                                        else do ; doer = action~doer ; indexed = .false ; end
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
     if self~isA(.SetCollection) | self~isA(.Relation) then self~empty
     do while supplier~available
         newItem = supplier~item
-        if indexed then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                   else doer~do(supplier~item)
+        if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                           else doer~do(supplier~item)
         if var("result") then newItem = result
         if self~isA(.SetCollection) then self[newItem] = newItem -- special constraint : index and item must be the same object
                                     else self[supplier~index] = newItem
@@ -274,118 +274,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -----------------------------------------------------------------------------
 -- Mixins
--- Repeater, collector, filter.
-
--------------------------------------------------
-::class "StringRepeater" mixinclass Object public
--------------------------------------------------
-
--- Repeat self times the given action (self is a number).
--- An array of results is returned (can be empty).
--- 3~times{say arg(1)} -- returns an empty array because no result returned during the iteration
--- 3~times{1} -- returns .array~of(1,1,1)
--- 3~times{arg(1)} -- returns .array~of(1,2,3)
-::method times unguarded
-    use strict arg action={arg(1)}
-    forward to 1 message "upto" array(self, action)
-
--- Lazy repeater : returns a coactivity.
--- Repeat self times the given action (self is a number).
--- When the action returns a result during the loop, this result is yielded.
--- The next result will be calculated only when requested.
--- c = 1000000~times.yield
--- say c~resume -- 1
--- say c~resume -- 2
--- ...
-::method times.yield unguarded
-    use strict arg action={arg(1)}
-    forward to 1 message "yield.upto" array(self, action)
-
--- Repeat the given action from self up to upper limit (self and upper limit are numbers).
--- An array of results is returned (can be empty).
--- 11~upto(13){say arg(1)} -- returns an empty array because no result returned during the iteration
--- 11~upto(13){2*arg(1)} -- returns .array~of(22,24,26)
--- 11~upto(13) -- returns .array~of(11,12,13)
--- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
-::method upto unguarded
-    use strict arg upperLimit, action={arg(1)}
-    -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
-                                        else doer = action~doer
-    collectedItems = .array~new
-    do i = self to upperLimit
-        doer~do(i)
-        if var("result") then collectedItems~append(result)
-    end
-    return collectedItems
-
--- Lazy repeater : returns a coactivity.
--- Repeat the given action from self up to upper limit (self and upper limit are numbers).
--- When the action returns a result during the loop, this result is yielded.
--- The next result will be calculated only when requested.
--- c = 11~yield.upto(1000000)
--- say c~resume -- 11
--- say c~resume -- 12
--- ...
-::method yield.upto unguarded -- coactive
-    use strict arg upperLimit, action={arg(1)}
-    return {::cl.c
-            expose self upperLimit action
-            -- parse only once, before iteration
-            if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
-                                                else doer = action~doer
-            do i = self to upperLimit
-                doer~do(i)
-                if var("result") then .yield[result]
-            end
-           }~doer
-
--- Repeat the given action from self down to lower limit (self and lower limit are numbers).
--- An array of results is returned (can be empty).
--- 13~downto(11){say arg(1)} -- returns an empty array because no result returned during the iteration
--- 13~downto(11){2*arg(1)} -- returns .array~of(26,24,22)
--- 13~downto(11) -- returns .array~of(13,12,11)
--- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
-::method downto unguarded
-    use strict arg lowerLimit, action={arg(1)}
-    -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
-                                        else doer = action~doer
-    collectedItems = .array~new
-    do i = self to lowerLimit by -1
-        doer~do(i)
-        if var("result") then collectedItems~append(result)
-    end
-    if collectedItems <> .nil then return collectedItems
-
--- Lazy repeater : returns a coactivity.
--- Repeat the given action from self down to lower limit (self and lower limit are numbers).
--- When the action returns a result during the loop, this result is yielded.
--- The next result will be calculated only when requested.
--- c = 1000000~yield.downto(11)
--- say c~resume -- 1000000
--- say c~resume -- 999999
--- ...
-::method yield.downto unguarded -- coactive
-    use strict arg lowerLimit, action={arg(1)}
-    return {::cl.c
-            expose self lowerLimit action
-            -- parse only once, before iteration
-            if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg value")
-                                                else doer = action~doer
-            do i = self to lowerLimit by -1
-                doer~do(i)
-                if var("result") then .yield[result]
-            end
-           }~doer
-
-
------------------------------------------------------------------------------
--- Mixins
 -- Iterator, collector, filter.
--- Whatever the object being iterated over, the ~each method returns an array.
--- If you need a result object which is of the same type as the iterated object,
--- then use ~map.
+-- These methods iterate over the items of the target object and apply an action to each item.
+-- These methods returns an array. If you need a result object which is of the same type as the iterated object, then use ~map.
 
 -------------------------------------------------
 ::class "StringIterator" mixinclass Object public
@@ -398,10 +289,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "each" to (self~makeArray(""))
 
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
+-- An array of pairs (result, index) is returned (can be empty).
 ::method eachCI unguarded
     forward message "eachI" to (self~makeArray(""))
 
@@ -412,10 +300,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "each" to (self~subwords)
 
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
+-- An array of pairs (result, index) is returned (can be empty).
 ::method eachWI unguarded
     forward message "eachI" to (self~subwords)
 
@@ -431,10 +316,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "each" to (self~makeArray(""))
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
+-- An array of pairs (result, index) is returned (can be empty).
 ::method eachCI unguarded
     forward message "eachI" to (self~makeArray(""))
 
@@ -445,10 +327,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "each" to (self~subwords)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_word, current_word_index)
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
+-- An array of pairs (result, word_index) is returned (can be empty).
 ::method eachWI unguarded
     forward message "eachI" to (self~subwords)
 
@@ -464,29 +343,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward to (self~supplier)
 
 -- Iterate over the items of the collection and apply the given action to (current_item, current_index).
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
-::method eachI unguarded
-    forward to (self~supplier)
-
-
------------------------------------------------------
-::class "CoactivityIterator" mixinclass Object public
------------------------------------------------------
-
--- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value).
--- When the action understands ~functionDoer then a second parameter current_yielded_index is passed.
--- An array of results is returned (can be empty).
-::method each unguarded
-    forward to (self~supplier)
-
--- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value, current_yielded_index).
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the index of result[1][n].
+-- An array of pairs (result, index) is returned (can be empty).
 ::method eachI unguarded
     forward to (self~supplier)
 
@@ -495,40 +352,758 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class "SupplierIterator" mixinclass Object public
 ---------------------------------------------------
 
--- Iterate over then items of the supplier and apply the given action to (current_item).
+-- Iterate over the items of the supplier and apply the given action to (current_item).
 -- When the action understands ~functionDoer then a second parameter current_index is passed.
 -- An array of results is returned (can be empty).
 ::method each unguarded
     use strict arg action={arg(1)}
-    self~eachImpl(action, .false)
-    if var("result") then return result
+    return self~eachImpl(action, .false)
 
 -- Iterate over the items of the supplier and apply the given action to (current_item, current_index).
--- An array of results and indexes is returned.
--- result[1] == array of results (can be empty)
--- result[2] == array of indexes (can be empty)
--- Both arrays contains the same number of items, where result[2][n] is the origin index of result[1][n].
+-- An array of pairs (result, index) is returned (can be empty).
 ::method eachI unguarded
     use strict arg action={arg(1)}
-    self~eachImpl(action, .true)
-    if var("result") then return result
+    return self~eachImpl(action, .true)
 
 ::method eachImpl private unguarded
-    use strict arg action={arg(1)}, returnIndex=.false
+    use strict arg action, returnIndex=.false
     -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then do ; doer = action~functionDoer("use arg value, index") ; indexed = .true ; end
-                                        else do ; doer = action~doer ; indexed = .false ; end
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
     collectedItems = .Array~new
-    if returnIndex then collectedIndexes = .Array~new
     do while self~available
-        if indexed then doer~do(self~item, self~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                   else doer~do(self~item)
+        item = self~item
+        index = self~index
+        if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                           else doer~do(item)
         if var("result") then do
-            collectedItems~append(result)
-            if returnIndex then collectedIndexes~append(self~index)
+            doResult = result
+            if returnIndex then newItem = .array~of(doResult, index)
+                           else newItem = doResult
+            collectedItems~append(newItem)
         end
         self~next
     end
-    if returnIndex then return .Array~of(collectedItems, collectedIndexes)
     return collectedItems
+
+
+-----------------------------------------------------------------------------
+-- Mixins
+-- Filter.
+
+-----------------------------------------------
+::class "StringFilter" mixinclass Object public
+-----------------------------------------------
+
+::method dropC unguarded
+    forward message "drop" to (self~makeArray(""))
+
+::method dropCI unguarded
+    forward message "dropI" to (self~makeArray(""))
+
+::method dropLastC unguarded
+    forward message "dropLast" to (self~makeArray(""))
+
+::method dropLastCI unguarded
+    forward message "dropLastI" to (self~makeArray(""))
+
+::method dropUntilC unguarded
+    forward message "dropUntil" to (self~makeArray(""))
+
+::method dropUntilCI unguarded
+    forward message "dropUntilI" to (self~makeArray(""))
+
+::method dropWhileC unguarded
+    forward message "dropWhile" to (self~makeArray(""))
+
+::method dropWhileCI unguarded
+    forward message "dropWhileI" to (self~makeArray(""))
+
+-- Iterate over the characters of the string and reject the characters for which the given filter applied to (current_char) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
+-- An array of not rejected characters is returned (can be empty).
+::method rejectC unguarded
+    forward message "reject" to (self~makeArray(""))
+
+-- Iterate over the characters of the string and reject the characters for which the given filter applied to (current_char, current_char_pos) returns true.
+-- An array of pairs (not rejected character, char_pos) is returned (can be empty).
+::method rejectCI unguarded
+    forward message "rejectI" to (self~makeArray(""))
+
+-- Iterate over the characters of the string and select the characters for which the given filter applied to (current_char) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
+-- An array of selected characters is returned (can be empty).
+::method selectC unguarded
+    forward message "select" to (self~makeArray(""))
+
+-- Iterate over the characters of the string and select the characters for which the given filter applied to (current_char, current_char_pos) returns true.
+-- An array of pairs (selected character, char_pos) is returned (can be empty).
+::method selectCI unguarded
+    forward message "selectI" to (self~makeArray(""))
+
+::method takeC unguarded
+    forward message "take" to (self~makeArray(""))
+
+::method takeCI unguarded
+    forward message "takeI" to (self~makeArray(""))
+
+::method takeLastC unguarded
+    forward message "takeLast" to (self~makeArray(""))
+
+::method takeLastCI unguarded
+    forward message "takeLastI" to (self~makeArray(""))
+
+::method untilC unguarded
+    forward message "until" to (self~makeArray(""))
+
+::method untilCI unguarded
+    forward message "untilI" to (self~makeArray(""))
+
+::method whileC unguarded
+    forward message "while" to (self~makeArray(""))
+
+::method whileCI unguarded
+    forward message "whileI" to (self~makeArray(""))
+
+::method dropW unguarded
+    forward message "drop" to (self~subwords)
+
+::method dropWI unguarded
+    forward message "dropI" to (self~subwords)
+
+::method dropLastW unguarded
+    forward message "dropLast" to (self~subwords)
+
+::method dropLastWI unguarded
+    forward message "dropLastI" to (self~subwords)
+
+::method dropUntilW unguarded
+    forward message "dropUntil" to (self~subwords)
+
+::method dropUntilWI unguarded
+    forward message "dropUntilI" to (self~subwords)
+
+::method dropWhileW unguarded
+    forward message "dropWhile" to (self~subwords)
+
+::method dropWhileWI unguarded
+    forward message "dropWhileI" to (self~subwords)
+
+-- Iterate over the words of the string and reject the words for which the given filter applied to (current_word) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
+-- An array of not rejected words is returned (can be empty).
+::method rejectW unguarded
+    forward message "reject" to (self~subwords)
+
+-- Iterate over the words of the string and reject the words for which the given filter applied to (current_word, current_word_index) returns true.
+-- An array of pairs (not rejected word, word_index) is returned (can be empty).
+::method rejectWI unguarded
+    forward message "rejectI" to (self~subwords)
+
+-- Iterate over the words of the string and select the words for which the given filter applied to (current_word) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
+-- An array of selected words is returned (can be empty).
+::method selectW unguarded
+    forward message "select" to (self~subwords)
+
+-- Iterate over the words of the string and select the words for which the given filter applied to (current_word, current_word_index) returns true.
+-- An array of pairs (selected word, word_index) is returned (can be empty).
+::method selectWI unguarded
+    forward message "selectI" to (self~subwords)
+
+::method takeW unguarded
+    forward message "take" to (self~subwords)
+
+::method takeWI unguarded
+    forward message "takeI" to (self~subwords)
+
+::method takeLastW unguarded
+    forward message "takeLast" to (self~subwords)
+
+::method takeLastWI unguarded
+    forward message "takeLastI" to (self~subwords)
+
+::method untilW unguarded
+    forward message "until" to (self~subwords)
+
+::method untilWI unguarded
+    forward message "untilI" to (self~subwords)
+
+::method whileW unguarded
+    forward message "while" to (self~subwords)
+
+::method whileWI unguarded
+    forward message "whileI" to (self~subwords)
+
+
+------------------------------------------------------
+::class "MutableBufferFilter" mixinclass Object public
+------------------------------------------------------
+
+::method dropC unguarded
+    forward message "drop" to (self~makeArray(""))
+
+::method dropCI unguarded
+    forward message "dropI" to (self~makeArray(""))
+
+::method dropLastC unguarded
+    forward message "dropLast" to (self~makeArray(""))
+
+::method dropLastCI unguarded
+    forward message "dropLastI" to (self~makeArray(""))
+
+::method dropUntilC unguarded
+    forward message "dropUntil" to (self~makeArray(""))
+
+::method dropUntilCI unguarded
+    forward message "dropUntilI" to (self~makeArray(""))
+
+::method dropWhileC unguarded
+    forward message "dropWhile" to (self~makeArray(""))
+
+::method dropWhileCI unguarded
+    forward message "dropWhileI" to (self~makeArray(""))
+
+-- Iterate over the characters of the mutable buffer and reject the characters for which the given filter applied to (current_char) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
+-- An array of not rejected characters is returned (can be empty).
+::method rejectC unguarded
+    forward message "reject" to (self~makeArray(""))
+
+-- Iterate over the characters of the mutable buffer and reject the characters for which the given filter applied to (current_char, current_char_pos) returns true.
+-- An array of pairs (not rejected character, char_pos) is returned (can be empty).
+::method rejectCI unguarded
+    forward message "rejectI" to (self~makeArray(""))
+
+-- Iterate over the characters of the mutable buffer and select the characters for which the given filter applied to (current_char) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
+-- An array of selected characters is returned (can be empty).
+::method selectC unguarded
+    forward message "select" to (self~makeArray(""))
+
+-- Iterate over the characters of the mutable buffer and select the characters for which the given filter applied to (current_char, current_char_pos) returns true.
+-- An array of pairs (selected character, char_pos) is returned (can be empty).
+::method selectCI unguarded
+    forward message "selectI" to (self~makeArray(""))
+
+::method takeC unguarded
+    forward message "take" to (self~makeArray(""))
+
+::method takeCI unguarded
+    forward message "takeI" to (self~makeArray(""))
+
+::method takeLastC unguarded
+    forward message "takeLast" to (self~makeArray(""))
+
+::method takeLastCI unguarded
+    forward message "takeLastI" to (self~makeArray(""))
+
+::method untilC unguarded
+    forward message "until" to (self~makeArray(""))
+
+::method untilCI unguarded
+    forward message "untilI" to (self~makeArray(""))
+
+::method whileC unguarded
+    forward message "while" to (self~makeArray(""))
+
+::method whileCI unguarded
+    forward message "whileI" to (self~makeArray(""))
+
+::method dropW unguarded
+    forward message "drop" to (self~subwords)
+
+::method dropWI unguarded
+    forward message "dropI" to (self~subwords)
+
+::method dropLastW unguarded
+    forward message "dropLast" to (self~subwords)
+
+::method dropLastWI unguarded
+    forward message "dropLastI" to (self~subwords)
+
+::method dropUntilW unguarded
+    forward message "dropUntil" to (self~subwords)
+
+::method dropUntilWI unguarded
+    forward message "dropUntilI" to (self~subwords)
+
+::method dropWhileW unguarded
+    forward message "dropWhile" to (self~subwords)
+
+::method dropWhileWI unguarded
+    forward message "dropWhileI" to (self~subwords)
+
+-- Iterate over the words of the mutable buffer and reject the words for which the given filter applied to (current_word) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
+-- An array of not rejected words is returned (can be empty).
+::method rejectW unguarded
+    forward message "reject" to (self~subwords)
+
+-- Iterate over the words of the mutable buffer and reject the words for which the given filter applied to (current_word, current_word_index) returns true.
+-- An array of pairs (not rejected word, word_index) is returned (can be empty).
+::method rejectWI unguarded
+    forward message "rejectI" to (self~subwords)
+
+-- Iterate over the words of the mutable buffer and select the words for which the given filter applied to (current_word) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
+-- An array of selected words is returned (can be empty).
+::method selectW unguarded
+    forward message "select" to (self~subwords)
+
+-- Iterate over the words of the mutable buffer and select the words for which the given filter applied to (current_word, current_word_index) returns true.
+-- An array of pairs (selected word, word_index) is returned (can be empty).
+::method selectWI unguarded
+    forward message "selectI" to (self~subwords)
+
+::method takeW unguarded
+    forward message "take" to (self~subwords)
+
+::method takeWI unguarded
+    forward message "takeI" to (self~subwords)
+
+::method takeLastW unguarded
+    forward message "takeLast" to (self~subwords)
+
+::method takeLastWI unguarded
+    forward message "takeLastI" to (self~subwords)
+
+::method untilW unguarded
+    forward message "until" to (self~subwords)
+
+::method untilWI unguarded
+    forward message "untilI" to (self~subwords)
+
+::method whileW unguarded
+    forward message "while" to (self~subwords)
+
+::method whileWI unguarded
+    forward message "whileI" to (self~subwords)
+
+
+---------------------------------------------------
+::class "CollectionFilter" mixinclass Object public
+---------------------------------------------------
+
+-- Iterate over the items of the collection and reject the items for which the given filter applied to (current_item) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_index is passed.
+-- An array of not rejected items is returned (can be empty).
+::method reject unguarded
+    forward to (self~supplier)
+
+-- Iterate over the items of the collection and reject the items for which the given filter applied to (current_item, current_index) returns true.
+-- An array of pairs (not rejected item, index) is returned (can be empty).
+::method rejectI unguarded
+    forward to (self~supplier)
+
+-- Iterate over the items of the collection and select the items for which the given filter applied to (current_item) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_index is passed.
+-- An array of selected items is returned (can be empty).
+::method select unguarded
+    forward to (self~supplier)
+
+-- Iterate over the items of the collection and select the items for which the given filter applied to (current_item, current_index) returns true.
+-- An array of pairs (selected item, index) is returned (can be empty).
+::method selectI unguarded
+    forward to (self~supplier)
+
+
+---------------------------------------------------
+::class "OrderedCollectionFilter" mixinclass Object public
+---------------------------------------------------
+-- If you really want to apply this kind of filters on not ordered collections
+-- then do : myNotOrderedCollection~supplier~<filter>
+
+::method drop unguarded
+    forward to (self~supplier)
+
+::method dropI unguarded
+    forward to (self~supplier)
+
+::method dropLast unguarded
+    forward to (self~supplier)
+
+::method dropLastI unguarded
+    forward to (self~supplier)
+
+::method dropUntil unguarded
+    forward to (self~supplier)
+
+::method dropUntilI unguarded
+    forward to (self~supplier)
+
+::method dropWhile unguarded
+    forward to (self~supplier)
+
+::method dropWhileI unguarded
+    forward to (self~supplier)
+
+::method take unguarded
+    forward to (self~supplier)
+
+::method takeI unguarded
+    forward to (self~supplier)
+
+::method takeLast unguarded
+    forward to (self~supplier)
+
+::method takeLastI unguarded
+    forward to (self~supplier)
+
+::method until unguarded
+    forward to (self~supplier)
+
+::method untilI unguarded
+    forward to (self~supplier)
+
+::method while unguarded
+    forward to (self~supplier)
+
+::method whileI unguarded
+    forward to (self~supplier)
+
+
+-------------------------------------------------
+::class "SupplierFilter" mixinclass Object public
+-------------------------------------------------
+-- No distinction between ordered and not ordered...
+-- By definition, the items returned by a supplier are ordered.
+
+::method drop unguarded
+    use strict arg count=1
+    return self~dropFirstImpl(count, .false)
+
+::method dropI unguarded
+    use strict arg count=1
+    return self~dropFirstImpl(count, .true)
+
+::method dropLast unguarded
+    use strict arg count=1
+    return self~dropLastImpl(count, .false)
+
+::method dropLastI unguarded
+    use strict arg count=1
+    return self~dropLastImpl(count, .true)
+
+::method dropUntil unguarded
+    use strict arg predicate
+    return self~dropUntilImpl(predicate, .false)
+
+::method dropUntilI unguarded
+    use strict arg predicate
+    return self~dropUntilImpl(predicate, .true)
+
+::method dropWhile unguarded
+    use strict arg predicate
+    return self~dropWhileImpl(predicate, .false)
+
+::method dropWhileI unguarded
+    use strict arg predicate
+    return self~dropWhileImpl(predicate, .true)
+
+-- Iterate over the items of the supplier and reject the items for which the given filter applied to (current_item) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_index is passed.
+-- An array of not rejected items is returned (can be empty).
+::method reject unguarded
+    use strict arg predicate
+    return self~rejectImpl(predicate, .false)
+
+-- Iterate over the items of the supplier and reject the items for which the given filter applied to (current_item, current_index) returns true.
+-- An array of pairs (not rejected item, index) is returned (can be empty).
+::method rejectI unguarded
+    use strict arg predicate
+    return self~rejectImpl(predicate, .true)
+
+-- Iterate over the items of the supplier and select the items for which the given filter applied to (current_item) returns true.
+-- When the filter understands ~functionDoer then a second parameter current_index is passed.
+-- An array of selected items is returned (can be empty).
+::method select unguarded
+    use strict arg predicate
+    return self~selectImpl(predicate, .false)
+
+-- Iterate over the items of the supplier and select the items for which the given filter applied to (current_item, current_index) returns true.
+-- An array of pairs (selected item, index) is returned (can be empty).
+::method selectI unguarded
+    use strict arg predicate
+    return self~selectImpl(predicate, .true)
+
+::method take unguarded
+    use strict arg count=1
+    return self~takeFirstImpl(count, .false)
+
+::method takeI unguarded
+    use strict arg count=1
+    return self~takeFirstImpl(count, .true)
+
+::method takeLast unguarded
+    use strict arg count=1
+    return self~takeLastImpl(count, .false)
+
+::method takeLastI unguarded
+    use strict arg count=1
+    return self~takeLastImpl(count, .true)
+
+::method until unguarded
+    use strict arg predicate
+    return self~takeUntilImpl(predicate, .false)
+
+::method untilI unguarded
+    use strict arg predicate
+    return self~takeUntilImpl(predicate, .true)
+
+::method while unguarded
+    use strict arg predicate
+    return self~takeWhileImpl(predicate, .false)
+
+::method whileI unguarded
+    use strict arg predicate
+    return self~takeWhileImpl(predicate, .true)
+
+::method dropFirstImpl private unguarded
+    use strict arg count, returnIndex
+    collectedItems = .Array~new
+    do while count > 0, self~available
+        count -= 1
+        self~next
+    end
+    do while self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        collectedItems~append(newItem)
+        self~next
+    end
+    return collectedItems
+
+::method dropLastImpl private unguarded
+    use strict arg count, returnIndex
+    collectedItems = .Array~new
+    buffer = .circularQueue~new(count)
+    do while self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        if buffer~items == count then collectedItems~append(buffer~queue(newItem))
+                                 else buffer~queue(newItem)
+        self~next
+    end
+    return collectedItems
+
+::method dropUntilImpl private unguarded
+    use strict arg predicate, returnIndex
+    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+                                           else doer = predicate~doer
+    collectedItems = .Array~new
+    do while self~available
+        item = self~item
+        index = self~index
+        self~next -- do it before testing the predicate
+        if doer~arity >= 2 then logicalValue = doer~do(item, index)
+                           else logicalValue = doer~do(item)
+        if logicalValue then leave
+    end
+    do while self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        collectedItems~append(newItem)
+        self~next
+    end
+    return collectedItems
+
+::method dropWhileImpl private unguarded
+    use strict arg predicate, returnIndex
+    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+                                           else doer = predicate~doer
+    collectedItems = .Array~new
+    do while self~available
+        item = self~item
+        index = self~index
+        if doer~arity >= 2 then logicalValue = doer~do(item, index)
+                           else logicalValue = doer~do(item)
+        if \ logicalValue then leave
+        self~next
+    end
+    do while self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        collectedItems~append(newItem)
+        self~next
+    end
+    return collectedItems
+
+::method rejectImpl private unguarded
+    use strict arg action, returnIndex=.false
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
+    collectedItems = .Array~new
+    do while self~available
+        item = self~item
+        index = self~index
+        if doer~arity >=2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                          else doer~do(item)
+        if var("result") then do
+            doResult = result
+            if \doResult then do
+                if returnIndex then newItem = .array~of(item, index)
+                               else newItem = item
+                collectedItems~append(newItem)
+            end
+        end
+        self~next
+    end
+    return collectedItems
+
+::method selectImpl private unguarded
+    use strict arg action, returnIndex=.false
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
+    collectedItems = .Array~new
+    do while self~available
+        item = self~item
+        index = self~index
+        if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                           else doer~do(item)
+        if var("result") then do
+            doResult = result
+            if doResult then do
+                if returnIndex then newItem = .array~of(item, index)
+                               else newItem = item
+                collectedItems~append(newItem)
+            end
+        end
+        self~next
+    end
+    return collectedItems
+
+::method takeFirstImpl private unguarded
+    use strict arg count, returnIndex
+    collectedItems = .Array~new
+    do while count > 0, self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        collectedItems~append(newItem)
+        count -= 1
+        if count == 0 then leave -- stop now, to not consume datas if the count has been reached
+        self~next
+    end
+    return collectedItems
+
+::method takeLastImpl private unguarded
+    use strict arg count, returnIndex
+    buffer = .circularQueue~new(count)
+    do while self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        buffer~queue(newItem)
+        self~next
+    end
+    return buffer~makeArray
+
+::method takeUntilImpl private unguarded
+    use strict arg predicate, returnIndex
+    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+                                           else doer = predicate~doer
+    collectedItems = .Array~new
+    do while self~available
+        item = self~item
+        index = self~index
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        collectedItems~append(newItem)
+        if doer~arity >=2 then logicalValue = doer~do(item, index)
+                          else logicalValue = doer~do(item)
+        if logicalValue then leave
+        self~next
+    end
+    return collectedItems
+
+::method takeWhileImpl private unguarded
+    use strict arg predicate, returnIndex
+    if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
+                                           else doer = predicate~doer
+    collectedItems = .Array~new
+    do while self~available
+        item = self~item
+        index = self~index
+        if doer~arity >= 2 then logicalValue = doer~do(item, index)
+                           else logicalValue = doer~do(item)
+        if \ logicalValue then leave
+        if returnIndex then newItem = .array~of(item, index)
+                       else newItem = item
+        collectedItems~append(newItem)
+        self~next
+    end
+    return collectedItems
+
+
+-----------------------------------------------------------------------------
+-- Mixins
+-- Repeater
+
+-------------------------------------------------
+::class "RepeaterCollector" mixinclass Object public
+-------------------------------------------------
+
+-- Repeat self times the given action (self is a number).
+-- An array of results is returned (can be empty).
+-- 3~times{say arg(1)} -- returns an empty array because no result returned during the iteration
+-- 3~times{1} -- returns .array~of(1,1,1)
+-- 3~times{arg(1)} -- returns .array~of(1,2,3)
+::method times unguarded
+    use strict arg action={arg(1)}
+    if \ self~dataType("W") then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
+    if \ (self >= 0) then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
+    forward to 1 message "upto" array(self, action)
+
+-- Repeat the given action from self up to upper limit (self and upper limit are numbers).
+-- An array of results is returned (can be empty).
+-- 11~upto(13){say arg(1)} -- returns an empty array because no result returned during the iteration
+-- 11~upto(13){2*arg(1)} -- returns .array~of(22,24,26)
+-- 11~upto(13) -- returns .array~of(11,12,13)
+-- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
+::method upto unguarded
+    use strict arg upperLimit, action={arg(1)}
+    if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
+    if \ upperLimit~dataType("N") then raise syntax 93.900 array ("upperLimit must be a number; found" upperLimit)
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
+                                        else doer = action~doer
+    collectedItems = .array~new
+    do i = self to upperLimit
+        doer~do(i)
+        if var("result") then collectedItems~append(result)
+    end
+    return collectedItems
+
+-- Repeat the given action from self down to lower limit (self and lower limit are numbers).
+-- An array of results is returned (can be empty).
+-- 13~downto(11){say arg(1)} -- returns an empty array because no result returned during the iteration
+-- 13~downto(11){2*arg(1)} -- returns .array~of(26,24,22)
+-- 13~downto(11) -- returns .array~of(13,12,11)
+-- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
+::method downto unguarded
+    use strict arg lowerLimit, action={arg(1)}
+    if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
+    if \ lowerLimit~dataType("N") then raise syntax 93.900 array ("lowerLimit must be a number; found" lowerLimit)
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
+                                        else doer = action~doer
+    collectedItems = .array~new
+    do i = self to lowerLimit by -1
+        doer~do(i)
+        if var("result") then collectedItems~append(result)
+    end
+    if collectedItems <> .nil then return collectedItems
 

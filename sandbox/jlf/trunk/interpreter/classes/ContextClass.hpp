@@ -72,9 +72,11 @@ public:
     RexxObject *getVariables();
     RexxObject *getExecutable();
     RexxObject *getArgs();
+    RexxObject *setArgs(RexxObject *);
     RexxObject *getCondition();
     RexxObject *getLine();
     RexxObject *getRS();
+    RexxObject *getParentContextObject();
     RexxObject *copyRexx();
 
     RexxObject *newRexx(RexxObject **args, size_t argc);

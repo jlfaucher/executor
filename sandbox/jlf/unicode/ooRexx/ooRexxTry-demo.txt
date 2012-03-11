@@ -33,5 +33,5 @@ say "# French: Les naïfs ægithales hâtifs pondant à Noël où il gèle sont 
 say "# Esperanto: Eĥoŝanĝo ĉiuĵaŭde."
 say "# Hebrew: זה כיף סתם לשמוע איך תנצח קרפד עץ טוב בגן."
 say "# Japanese (Hiragana): あさきゆめみじ　ゑひもせず"
-say "あさきゆめみじ　ゑひもせず"~mapchar('return arg(1)~c2x" "')
+say "あさきゆめみじ　ゑひもせず"~mapC{return arg(1)~c2x" "}
 return "あさきゆめみじ　ゑひもせず"~left(7) -- todo : utf8 not (yet) supported : return 7 bytes, not 7 characters, and this is displayed as 2 graphemes

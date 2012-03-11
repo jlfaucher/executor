@@ -106,16 +106,16 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
 {
     ProtectedObject pThis(this);
     RexxArray *sa = s->makeArray(NULL); // use default separator \n
-    OrefSet(this, this->source, sa);
-    OrefSet(this, this->package, p);
+    this->source = sa; // transient, no need of OrefSet
+    this->package = p; // transient, no need of OrefSet
     RexxArray *sourceArray = (RexxArray *)sa->copy();
     ProtectedObject pSourceArray(sourceArray);
     RexxObject *clauserClass = TheEnvironment->at(OREF_CLAUSER);
     RexxObject *clauser = clauserClass->sendMessage(OREF_NEW, (RexxObject *)sourceArray); // must cast sourceArray, otherwise taken as array of arguments
     ProtectedObject pClauser(clauser);
     RexxObject *sourceLiteralParserClass = TheEnvironment->at(OREF_SOURCELITERALPARSER);
-    this->kind = (RexxString *)sourceLiteralParserClass->sendMessage(OREF_KIND, clauser);
-    this->rawExecutable =sourceLiteralParserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package);
+    this->kind = (RexxString *)sourceLiteralParserClass->sendMessage(OREF_KIND, clauser); // transient, no need of OrefSet
+    this->rawExecutable =sourceLiteralParserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package); // transient, no need of OrefSet
     this->closure = (0 == strncmp(this->kind->getStringData(), "cl", 2));
 }
 

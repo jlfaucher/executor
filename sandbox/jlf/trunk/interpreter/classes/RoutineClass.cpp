@@ -281,6 +281,7 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args)
 {
     // this is required and must be an array
     args = arrayArgument(args, ARG_ONE);
+    ProtectedObject p(args);
 
     ProtectedObject result;
 
@@ -424,6 +425,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
     {
         /* get the string representation     */
         RexxString *sourceString = source->makeString();
+        ProtectedObject p(sourceString);
         /* got back .nil?                    */
         if (sourceString == (RexxString *)TheNilObject)
         {
@@ -449,6 +451,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
         {
             /* Get element as string object      */
             RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            ProtectedObject p(sourceString);
             /* Did it convert?                   */
             if (sourceString == (RexxString *)TheNilObject)
             {
@@ -529,6 +532,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *sou
         {
             /* Get element as string object      */
             RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            ProtectedObject p(sourceString);
             /* Did it convert?                   */
             if (sourceString == (RexxString *)TheNilObject)
             {

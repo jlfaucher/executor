@@ -69,6 +69,7 @@ void RexxInstructionInterpret::execute(
     RexxObject *result = this->expression->evaluate(context, stack);
     /* get the string version            */
     RexxString *interpretString = REQUEST_STRING(result);
+    ProtectedObject p(interpretString);
     /* trace if necessary                */
     context->traceResult(interpretString);
     /* no re-execute requested?          */

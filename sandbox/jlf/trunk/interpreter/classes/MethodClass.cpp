@@ -509,6 +509,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
     {
         /* get the string representation     */
         RexxString *sourceString = source->makeString();
+        ProtectedObject p(sourceString);
         /* got back .nil?                    */
         if (sourceString == (RexxString *)TheNilObject)
         {
@@ -534,6 +535,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
         {
             /* Get element as string object      */
             RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            ProtectedObject p(sourceString);
             /* Did it convert?                   */
             if (sourceString == (RexxString *)TheNilObject)
             {
@@ -613,6 +615,7 @@ RexxMethod *RexxMethod::newRexx(
         {
             // this must be a string (or convertable) and have a specific value
             option = option->requestString();
+            ProtectedObject p(option);
             if (option == TheNilObject)
             {
                 reportException(Error_Incorrect_method_argType, IntegerThree, "Method, Routine, Package, or String object");

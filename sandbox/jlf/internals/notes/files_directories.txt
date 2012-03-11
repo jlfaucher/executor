@@ -1,0 +1,4 @@
+http://codingjunkie.net/java-7-copy-move/
+http://codingjunkie.net/java-7-watchservice/
+https://github.com/bbejeck/Java-7/blob/master/src/main/java/bbejeck/nio/files/directory/event/DirectoryEventWatcherImpl.java
+

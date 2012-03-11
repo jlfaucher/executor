@@ -165,6 +165,7 @@ void RexxInstructionSignal::execute(
             result = this->expression->evaluate(context, stack);
             /* force to a string value           */
             stringResult = REQUEST_STRING(result);
+            ProtectedObject p(stringResult);
             context->traceResult(result);    /* trace if necessary                */
                                              /* tell the activation to perform    */
                                              /* the signal                        */

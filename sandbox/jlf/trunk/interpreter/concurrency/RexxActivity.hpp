@@ -207,6 +207,7 @@ typedef enum
    void        yield();
    void        releaseAccess();
    void        requestAccess();
+   static      wholenumber_t requestAccessCounter(); // Monitoring
    void        checkStackSpace();
    void        cleanupActivityResources();
    void        terminatePoolActivity();
@@ -326,6 +327,7 @@ typedef enum
    void createExitContext(ExitContext &context, RexxNativeActivation *owner);
    RexxObject *getLocalEnvironment(RexxString *name);
    RexxDirectory *getLocal();
+   RexxDirectory *getThreadLocal();
    CommandHandler *resolveCommandHandler(RexxString *);
 
    static void initializeThreadContext();
@@ -368,6 +370,7 @@ typedef enum
    SysSemaphore        runsem;         /* activity run control semaphore    */
    SysSemaphore        guardsem;       /* guard expression semaphore        */
    SysActivity currentThread;            /* descriptor for this thread        */
+   RexxDirectory      *threadLocalEnvironment;   // the directory of thread's local variables
    NumericSettings *numericSettings;   /* current activation setting values */
 
    bool     stackcheck;                /* stack space is to be checked      */

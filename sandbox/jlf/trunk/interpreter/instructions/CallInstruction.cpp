@@ -180,6 +180,8 @@ void RexxInstructionCall::execute(
     RexxString       *_name;              /* resolved function name            */
     RexxDirectory    *labels;            /* labels table                      */
 
+    ProtectedObject p_name;
+    
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
     context->traceInstruction(this);     /* trace if necessary                */
     if (this->condition != OREF_NULL)  /* is this the ON/OFF form?          */
@@ -203,6 +205,7 @@ void RexxInstructionCall::execute(
             result = this->name->evaluate(context, stack);
             stack->toss();                   /* toss the top item                 */
             _name = REQUEST_STRING(result);   /* force to string form              */
+            p_name = _name;
             context->traceResult(name);      /* trace if necessary                */
                                              /* resolve potential builtins        */
             builtin_index = RexxSource::resolveBuiltin(_name);

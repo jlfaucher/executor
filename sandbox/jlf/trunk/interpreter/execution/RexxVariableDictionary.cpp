@@ -593,6 +593,7 @@ RexxVariableBase  *RexxVariableDictionary::getVariableRetriever(
 /******************************************************************************/
 {
     variable = variable->upper();        /* upper case the variable           */
+    ProtectedObject p(variable);
     int type = variable->isSymbol();         /* validate the symbol               */
     /* create a retriever object         */
     switch (type)

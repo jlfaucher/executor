@@ -73,12 +73,15 @@ void RexxInstructionQueue::execute(
     RexxObject *result;                  /* expression result                 */
     RexxString *value;                   /* output value                      */
 
+    ProtectedObject p_value;
+    
     context->traceInstruction(this);     /* trace if necessary                */
     if (this->expression != OREF_NULL) /* have an expression value?         */
     {
         /* get the expression value          */
         result = this->expression->evaluate(context, stack);
         value = REQUEST_STRING(result);    /* get the string version            */
+        p_value = value;
     }
     else
     {

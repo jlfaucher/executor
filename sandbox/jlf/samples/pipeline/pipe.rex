@@ -88,7 +88,7 @@ Any object can be a source of pipe :
   The index is 1.
 - A collection can be a source of pipe : each item of the collection is injected in the pipe.
   The indexes are those of the collection.
-- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazily).
+- A coactivty can be a source of pipe : each yielded item is injected in the pipe (lazily).
   The indexes are those returned by the coactivity supplier.
 
 Most sub classes need only override the process() method to implement a pipeStage.  
@@ -144,23 +144,23 @@ return me
 ::attribute I1Counter                       -- number of stages whose primary/secondary output is linked to self primary input (I1)
 ::attribute I2Counter                       -- number of stages whose primary/secondary output is linked to self secondary input (I2)
 ::attribute isEOP                           -- becomes .true if the pipeStage has finished processing the datas (see .take)
-::attribute memorizeIndex                   -- if .true then a new index is created, which wraps the previous one.
+::attribute memorize                        -- if .true then a new dataflow is created, which is linked to the previous one.
 ::attribute next                            -- next stage of the pipeStage
 ::attribute options                         -- the options are passed one by one, accumulated here
 ::attribute secondary                       -- a potential secondary attribute
-::attribute tag                             -- index's tag
+::attribute tag                             -- dataflow's tag
 
 ::method new                                -- the pipeStage chaining process
 return self                                 -- just return ourself
 
 ::method init
-expose I1Counter I2Counter isEOP memorizeIndex next options secondary tag var varName
+expose I1Counter I2Counter isEOP memorize next options secondary tag var varName
 I1Counter = 0
 I2Counter = 0
 isEOP = .false                              -- indicator of End Of Process
-memorizeIndex = .false
+memorize = .false
 next = .nil
-options = .array~new                        -- arguments can be passed like that : .myStage~new(a1,a2) or .myStage[a1,a2] or .myStage a1 a2
+options = .array~new                        -- options are passed like that : .myStage opt1 opt2 ...
 secondary = .nil                            -- all pipeStages have a secondary output potential
 tag = ""
 
@@ -179,9 +179,9 @@ use strict arg follower
 follower = follower~new                     -- make sure this is an instance
 return self~appendSecondary(follower)       -- do the chain append logic
 
-::method " "                                -- the 2nd argument and next are passed one by one
+::method " "                                -- the options are passed one by one
 expose options
-use strict arg arg                          -- to the instance
+use strict arg arg
 options~append(arg)
 return self                                 -- by returning self, let chain the blank operators
 
@@ -281,16 +281,16 @@ use strict arg source
 self~start                                  -- signal that processing is starting
 if \source~hasMethod("supplier") then do
   -- Remember : similar test in .append, .inject
-  -- Initial index, each following pipeStage will create an enclosing pipeIndex, when requested.
-  index = .pipeIndex~create("source", .nil, source, 1)
-  self~process(source, index)               -- pump this down the pipe
+  -- Initial dataflow, each following pipeStage will create an enclosing dataflow, when requested.
+  dataflow = .dataflow~create(.nil, "source", source, 1)
+  self~process(source, 1, dataflow)         -- pump this down the pipe
 end
 else do
     supplier = source~supplier              -- get a data supplier
     do while supplier~available, \self~isEOP-- while more data
-      -- Initial index, each following pipeStage will create an enclosing pipeIndex, when requested.
-      index = .pipeIndex~create("source", .nil, source, supplier~index)
-      self~process(supplier~item, index)    -- pump this down the pipe
+      -- Initial dataflow, each following pipeStage will create an enclosing dataflow, when requested.
+      dataflow = .dataflow~create(.nil, "source", supplier~item, supplier~index)
+      self~process(supplier~item, supplier~index, dataflow) -- pump this down the pipe
       -- Matter of choice : should I stay on current item or get the next item before leaving ?
       -- Current choice works good for coactivities : no lost item when piping directly the coactivity
       -- to several pipes. But if you pass the same supplier to several pipes then you have to call
@@ -304,7 +304,7 @@ end
 self~eof                                    -- signal that processing is finished
 
 ::method start                              -- process "start-of-pipe" condition
-expose next secondary options
+expose next options secondary
 forward continue arguments (options) message "initOptions" -- now we have all the options, lets process them
 if .nil <> next then do
     next~start                              -- only forward if we have a successor
@@ -321,9 +321,9 @@ do a over arg(1, "a")
     if a~isA(.String) then do
         if a~strip == "" then iterate
         parse var a first "." rest
-        if "memorizeIndex"~caselessAbbrev(first, 3) then do
-            -- memorizeIndex[.tag]
-            self~memorizeIndex = .true
+        if "memorize"~caselessAbbrev(first, 3) then do
+            -- memorize[.tag]
+            self~memorize = .true
             do while rest <> ""
                 parse var rest first "." rest
                 if first <> "" then do
@@ -355,25 +355,36 @@ if allNIL then return
 if allEOP then self~isEOP = .true
 
 ::method process                            -- default data processing
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value, newIndex)                 -- send this down the line
+use strict arg item, index, dataflow        -- get the data item
+self~write(item, index, dataflow)           -- send this down the line
 self~checkEOP(self~next)
+
+::method newDataflow
+-- Can be redefined by subclasses (ex : .inject)
+use strict arg previousDataflow, item, index
+return .dataflow~create(previousDataflow, self, item, index)
 
 ::method write                              -- handle the result from a process method
 expose next
-use strict arg data, index
+use strict arg item, index, dataflow
 if .nil <> next, \next~isEOP then do
-    next~process(data, index)               -- only forward if we have an active successor
+    newDataflow = dataflow
+    if self~memorize then newDataflow = self~newDataflow(dataflow, item, index)
+    next~process(item, index, newDataflow)  -- only forward if we have an active successor
+    return newDataflow
 end
+return .nil
 
 ::method writeSecondary                     -- handle a secondary output result from a process method
 expose secondary
-use strict arg data, index
+use strict arg item, index, dataflow
 if .nil <> secondary, \secondary~isEOP then do
-    secondary~process(data, index)          -- only forward if we have an active successor
+    newDataflow = dataflow
+    if self~memorize then newDataflow = self~newDataflow(dataflow, item, index)
+    secondary~process(item, index, newDataflow)-- only forward if we have an active successor
+    return newDataflow
 end
+return .nil
 
 ::method processSecondary                   -- handle a secondary input result from a process method
 forward message('PROCESS')                  -- this by default is a merge operation
@@ -406,14 +417,14 @@ nop
 .SecondaryConnector : I1 --> I2
 A secondaryConnector SC is an adapter which is inserted between two pipeStages :
     PS1 -->(I1) .secondaryConnector -->(I2) PS2
-- The pair (value,index) received through I1 by ~process is forwarded to the
+- The triplet (item, index, dataflow) received through I1 by ~process is forwarded to the
   secondary input of the next pipeStage (calls PS2~processSecondary).
 - The eof signal is forwarded to the secondary eof of the next pipeStage (calls
   PS2~secondaryEof.
 Example (the secondary connector brings nothing here, because the default implementation
 of ~processSecondary is to forward to ~process):
-    ""~pipe(.inject {value "one"} | .secondaryConnector | .inject {value "two"} | .console)
-    -- display : '',1 :  one two
+    "X"~pipe(.inject {item "one"} | .secondaryConnector | .inject {item "two"} | .console)
+    -- display : 1 : 'X one two'
 See .fanin and .merge for more examples.
 */
 nop
@@ -462,21 +473,47 @@ A subclass of Profiler, specialized for pipes.
 The instrument method is applied to all the subclasses of PipeStage.
 Example :
     .pipeProfiler~instrument("start", "process", "eof", "isEOP")
-    .array~of(b, a, c)~pipeProfile(.sort byValue | .console)
+    .array~of(b, a, c)~pipeProfile(.sort byItem | .console)
 See also : .Profiler
 */
 nop
 
+::method instrumentClass class
+use strict arg class, messages
+self~instrumentMethods(class, messages)
+do class over class~subclasses
+    self~instrumentClass(class, messages) -- recursively instrument this class and its subclasses
+end
+
 ::method instrument class
 use strict arg message, ...
 messages = arg(1, "a")
-self~instrumentMethods(.pipeStage, messages)
-do class over .pipeStage~subclasses
-    self~instrumentMethods(class, messages)
-end
+self~instrumentClass(.pipeStage, messages)
 
 
 /******************************************************************************/
+::routine compareObjects
+use strict arg o1, o2, caseless, strict
+-- special support for arrays : compare item by item
+if o1~isA(.array) & o2~isA(.array) then do
+    s1 = o1~supplier
+    s2 = o2~supplier
+    do while s1~available & s2~available
+        item1 = s1~item
+        item2 = s2~item
+        compare = compareObjects(item1, item2, caseless, strict)
+        if compare <> 0 then return compare
+        s1~next
+        s2~next
+    end
+    if s1~available then return 1 -- longer > shorter
+    if s2~available then return -1 -- shorter < longer
+    return 0
+end
+if o1~isA(.array) then return 1 -- array > notArray
+if o2~isA(.array) then return -1 -- notArray < array
+return compareStrings(o1~string, o2~string, caseless, strict)
+
 ::routine compareStrings
 use strict arg s1, s2, caseless, strict
 if caseless then do
@@ -495,256 +532,292 @@ return 0
 
 
 /******************************************************************************/
-::class "pipeIndex" public subclass Array inherit Comparable
+::class "dataflow" public subclass Array inherit Comparable
+
+/*
+Remember 1 : no reference to the next dataflow ! A dataflow can have several followers.
+Remember 2 : the internal structure is an array because it's easy to store additional informations
+             and manage them in a generic way (iterate from index 3 up to ~items). 
+*/
 
 ::method _description_ class
 nop
 /*
-A pipeIndex is an array of variable length :
-array[1] : tag (generally the id of the pipeStage class, or "source" for the initial index)
-array[2] : nested pipeIndex (received from previous pipeStage)
-array[3] : optional local value1
-array[4] : optional local value2
-etc...
-When a pipeStage receives an index and a value, it applies transformations or
-filters on the value. When a value is forwarded to a following pipeStage, it is
-accompanied by a new index that will encapsulate the received index and add a
-tag and local indexes.
-Conventions followed in this pipeline implementation :
-- The received value becomes the first local value (you have a call stack with arguments).
-- If the pipeStage generates several values from the received value, then a second
-  local value is added, which gives the position of the current generated value.
+A dataflow is an array :
+  array[1] : link to previous dataflow (received from previous pipeStage).
+  array[2] : tag (generally the id of the pipeStage class, or "source" for the initial dataflow).
+  array[3] : index of produced item.
+  array[4] : produced item.
 
-  1     2             3        4        5
-+-----+-------------+--------+--------+-----+
-| tag | nestedIndex | local1 | local2 | ... |
-+-----+--|----------+--------+--------+-----+
-         |            value    index
-         |
-         |  +-----+-------------+--------+--------+-----+
-         +->| tag | nestedIndex | local1 | local2 | ... |
-            +-----+--|----------+--------+--------+-----+
-                     |
-                     |  +-----+-------------+--------+--------+-----+
-                     +->| tag | nestedIndex | local1 | local2 | ... |
-                        +-----+-------------+--------+--------+-----+
+  1          2     3       4
++----------+-----+-------+------+
+| previous | tag | index | item |<--+
++----------+-----+-------+------+   |
+                                    |
+      +----------+-----+-------+------+
+      | previous | tag | index | item |<--+
+      +----------+-----+-------+------+   |
+                                          |
+                                         etc...
 
-index~tag : returns the index's tag.
-index~nestedIndex : returns the index's nestedIndex.
-index~depth : returns the number of nested indexes.
-index~value : by convention, the first local is the processed value. Returns this value.
-index~index : by convention, the second local is the index of the processed value. Returns this index.
-index~local(n) : return the nth local value.
-index[tag, nth=1] : returns index~get(tag, nth)
-index~get(tag, nth=1) : retrieves an index by tag.
-index~makeString(showTags=.false, showPool=.false, localMask="", showNested=.true)
-    - showTags lets indicate if the tag is included.
-    - The parameter showPool lets reduce the length of the string, by inserting
-      references to previous values, instead of repeating the values.
+A pipeStage receives a triplet (item, index, dataflow). It applies transformations or filters
+on this triplet. When a pipeStage forwards an item to a following pipeStage, it forwards the
+received dataflow unchanged, unless the option "memorize" has been used. In this case, a new
+dataFlow is created, with the structure described above.
+
+dataflow[tag, nth=1]
+    Returns dataflow~get(tag, nth).
+dataflow~get(tag, nth=1)
+    Retrieves a dataflow by tag, from most recent to oldest. If several dataflows
+    have the same tag, then the argument 'nth' lets specify which one to return.
+    tag can be a negative number. In this case, a relative dataflow is returned.
+dataflow~index
+    Returns the index of the produced item.
+dataflow~length
+    Returns the number of linked dataflows, including the current one ( >= 1 ).
+dataflow~makeString
+    Returns a string representation of the dataflow.
+    - mask lets indicate which fields to include.
+      if previous is included, then the same mask is used everywhere.
+    - the parameter showPool lets reduce the length of the string, by inserting
+      references to previous items, instead of repeating the items.
       Ex :
-      with showPool == .false : "my string",(a Method)|"my string",(a Method),1
-      with showPool == .true  : i1="my string",i2=(a Method)|i1,i2,1
-    - localMask lets indicate which local values to include ("" means all). Ex : "2 3".
-    - showNested lets indicate if the nested indexes must be included.
-      If showNested==.true, then the same localMask is used at all levels.
-index~show(maks="")
-    Convenience method, to show only the current level, limited to local values whose numbers are in localMask
-    Same as self~makeString(.false, .false, localMask, .false)
+      with showPool == .false : "my string",(a Method)|"my string",(a Method)
+      with showPool == .true  : i1="my string",i2=(a Method)|i1,i2
+dataflow~previous
+    Returns the previous dataflow.
+dataflow~tag
+    Returns the dataflow's tag.
+dataflow~item
+    Returns the produced item.
 */
 nop
 
+::constant arrayPrintMaxSize 9 -- single-dimension arrays whose number of items is <= to this number will be printed item by item
+
+::constant firstIndexPoolManaged 3 -- The items from this index up to the end of the dataflow's array are impacted by showPool.
+
 ::method create class
-use strict arg tag, nestedIndex, ...
+use strict arg previous, tag, item, index -- follow the order convention used everywhere : item first, then index 
+dataflow = self~new(4)
 if tag~isA(.pipeStage) then do
     pipeStage = tag
     if pipeStage~tag <> "" then tag = pipeStage~tag
     else tag = pipeStage~class~id
 end
-else if \tag~isA(.String) then raise syntax 93.900 array(self~id"~create: tag (1st arg) must be a pipeStage or a string")
-if \nestedIndex~isA(.pipeIndex) & nestedIndex <> .nil then raise syntax 93.900 array(self~id"~create: nestedIndex (2nd arg) must be either a pipeIndex or .nil")
-pipeIndex = self~new(arg())
-pipeIndex~container = .nil
-if nestedIndex <> .nil then nestedIndex~container = pipeIndex
-do i=1 to arg()
-    pipeIndex[i] = arg(i)
-end
-pipeIndex[1] = tag
-return pipeIndex
+else if \tag~isA(.String) then raise syntax 93.900 array(self~id"~create: 'tag' must be a pipeStage or a string")
+dataflow~tag = tag
+if previous <> .nil, \ previous~isA(.dataflow) then raise syntax 93.900 array(self~id"~create: 'previous' must be either a dataflow or .nil")
+dataflow~previous = previous
+dataflow~index = index
+dataflow~item = item
+return dataflow
 
-::attribute container
+::method "previous="
+use strict arg previous
+self[1] = previous
 
-::method tag
+::method previous
 return self[1]
 
-::method nestedIndex
+::method "tag="
+use strict arg tag
+self[2] = tag
+
+::method tag
 return self[2]
 
-::method depth
-if self~nestedIndex <> .nil then return 1 + self~nestedIndex~depth
-return 0
-
-::method firstLocalValue
-return 3
-
-::method value
--- by convention, the first local value is the processed value
-return self[self~firstLocalValue]
+::method "index="
+use strict arg index
+self[3] = index
 
 ::method index
--- by convention, the second local value is the index of the processed value
-return self[self~firstLocalValue + 1]
+return self[3]
 
-::method local
--- returns the nth local value
-use strict arg n
-return self[self~firstLocalValue + n - 1]
+::method "item="
+use strict arg item
+self[4] = item
+
+::method item
+return self[4]
+
+::method length
+if self~previous <> .nil then return 1 + self~previous~length
+return 1
 
 ::method "[]"
 use strict arg index, ...
 if index~isA(.String), index~dataType("W"), index > 0 then forward class (super)
-use strict arg index, nth=1
-return self~get(index, nth)
+forward message "get"
 
 ::method get
--- Retrieve an index by tag
-use strict arg name, nth=1
-count = 1
-current = self
-do while current <> .nil
-    if current~tag~caselessEquals(name) then do
-        if count == nth then return current
+-- Retrieve a dataflow by tag. Start from self, and go to previous dataflows.
+use strict arg tag, nth=1
+if tag~isA(.String), tag~dataType("W"), tag < 0 then do
+    -- tag is a negative whole number : search for relative dataflows. Here nth is not used.
+    use strict arg count
+    do until current == .nil
+        current = self~previous
         count += 1
+        if count == 0 then return current
     end
-    current = current~nestedIndex
+end
+else do
+    -- tag is used as a key. Here nth is used to decide which dataflow to return if the same key is used several times.
+    count = 1
+    current = self
+    do while current <> .nil
+        if current~tag~caselessEquals(tag) then do
+            if count == nth then return current
+            count += 1
+        end
+        current = current~previous
+    end
 end
 return .nil -- not found
 
 ::method compareTo
 use strict arg other, caseless=.false, strict=.false
 -- compare the tags
-tag1 = self~tag
-tag2 = other~tag
-compare = compareStrings(tag1, tag2, caseless, strict)
+compare = compareStrings(self~tag, other~tag, caseless, strict)
 if compare <> 0 then return compare
--- compare the nested indexes
-nestedIndex1 = self~nestedIndex
-nestedIndex2 = other~nestedIndex
-if nestedIndex1 == .nil & nestedIndex2 == .nil then nop
-else if nestedIndex1 == .nil then return -1
-else if nestedIndex2 == .nil then return 1
-else do
-    compare = nestedIndex1~compareTo(nestedIndex2)
-    if compare <> 0 then return compare
-end
--- compare the local values
-do i = self~firstLocalValue to self~dimension(1)
-    i1 = self[i]
-    i2 = other[i]
-    if i1 == .nil & i2 == .nil then iterate
-    if i1 == .nil then return -1
-    if i2 == .nil then return 1
-    compare = compareStrings(i1~string, i2~string, caseless, strict)
-    if compare <> 0 then return compare
-end
-return 0
-
-::method reuse
--- Return .true if val will be displayed later
-use strict arg val, from=(self~firstLocalValue)
-do i = from to self~dimension(1)
-    if self[i] == val then return .true
-end
-if self~container <> .nil then return self~container~reuse(val)
-return .false
+-- compare the index
+compare = compareObjects(self~index, other~index, caseless, strict)
+if compare <> 0 then return compare
+-- compare the item
+compare = compareObjects(self~item, other~item, caseless, strict)
+if compare <> 0 then return compare
+-- compare the previous dataflows
+previousDataflow1 = self~previous
+previousDataflow2 = other~previous
+if previousDataflow1 == .nil & previousDataflow2 == .nil then return 0
+else if previousDataflow1 == .nil then return -1 -- nil < nonNil
+else if previousDataflow2 == .nil then return 1 -- nonNil > nil
+return previousDataflow1~compareTo(previousDataflow2)
 
 ::method makeString
--- A pipeIndex can generate a long string.
--- The parameter showPool lets reduce the length of the string, by inserting
--- references to previous values, instead of repeating the values.
--- Ex :
--- with showPool == .false : "my string",(a Method)|"my string",(a Method),1
--- with showPool == .true  : i1="my string",i2=(a Method)|i1,i2,1
+-- mask lets indicate which fields to include.
+-- If previous is included, then the same mask is used everywhere.
 --
--- localMask lets indicate which local values to include ("" means all). Ex : "2 3".
--- showNested lets indicate if the nested indexes must be included.
--- If showNested==.true, then the same localMask is used at all levels.
-use strict arg showTags=.false, showPool=.false, localMask="", showNested=.true, pool=(.queue~new), classInstances=(.identityTable~new)
-nestedIndex = self~nestedIndex
-nestedIndexString = ""
-if showNested, nestedIndex <> .nil then nestedIndexString = nestedIndex~makeString(showTags, showPool, localMask, .true, pool, classInstances)
+-- A dataflow can generate a long string.
+-- The parameter showPool lets reduce the length of the string, by inserting
+-- references to previous items, instead of repeating the items.
+-- Ex :
+-- with showPool == .false : "my string",(a Method)|"my string",(a Method)
+-- with showPool == .true  : v1="my string",v2=(a Method)|v1,v2
+use strict arg mask="1234", showPool=.false, pool=(.queue~new), values=(.table~new)
+if showPool then do
+    do index = self~firstIndexPoolManaged to self~dimension(1)
+        if mask~pos(index) == 0 then iterate
+        call dataflow_value self[index], values
+    end
+end
+previous = self~previous
 string = ""
-if showTags then string = self~tag"["
+if mask~pos(1) <> 0, previous <> .nil then string = previous~makeString(mask, showPool, pool, values)" | "
+if mask~pos(2) <> 0 then string ||= self~tag":"
 separator = ""
-do i = self~firstLocalValue to self~dimension(1)
-    if localMask <> "", localMask~wordPos(i - self~firstLocalValue + 1) == 0 then iterate
-    string ||= separator
-    val = self[i]
+do index = self~firstIndexPoolManaged to self~dimension(1)
+    if mask~pos(index) == 0 then iterate
+    string ||= separator || dataflow_representation(self[index], showPool, pool, values)
+    separator = ","
+end
+return string
+
+::routine dataflow_value
+-- 'values' is a collection which remembers the values inserted in the dataflow representation.
+-- The goal is to know if a given value appears more than once in the representation (count > 1) : shared value.
+-- If reused and showPool==.true, then a compacted representation will be used (see dataflow_representation).
+use strict arg val, values, stack=(.queue~new)
+if val~isA(.array), val~dimension() == 1, val~items <= .dataflow~arrayPrintMaxSize then do
+    -- each item of the array will be inserted in the representation.
+    if stack~index(val) <> .nil then return -- recursive array
+    stack~push(val)
+    do v over val
+        call dataflow_value v, values, stack
+    end
+    stack~pull
+end
+else do
+    isnum = .false
+    if val~isA(.String) then do
+        isnum = val~dataType("N")
+    end
+    if isnum then return -- numbers are not managed by pool
+    count = values[val]
+    if count == .nil then count = 0
+    values[val] = count+1
+end
+
+::routine dataflow_representation
+-- 'pool' is a collection which remembers the shared values (count > 1) already inserted in the representation.
+-- The first occurence of a shared value is represented by vN=<shared value representation>
+-- The next occurences of this shared value is just vN.
+use strict arg val, showPool, pool, values, stack=(.queue~new)
+if val~isA(.array), val~dimension() == 1, val~items <= .dataflow~arrayPrintMaxSize then do
+    -- each item of the array is inserted.
+    -- special care for recursive arrays
+    level = stack~index(val)
+    if level <> .nil then return "*"level-1
+    stack~push(val)
+    valstr = "["
+    separator = ""
+    do v over val
+        valstr ||= separator || dataflow_representation(v, showPool, pool, values, stack)
+        separator = ","
+    end
+    valstr ||= "]"
+    stack~pull
+    return valstr
+end
+else do
     valstr = val~string
     if val~isA(.String) then do
-        isnum = valstr~dataType("N")
+        isnum = val~dataType("N")
         if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
     end
     else do
         isnum = .false
         valstr = "("valstr")" -- to make a distinction between a real string and other objects
-        if showTags then do
-            -- Insert class#id in front of valstr, where id is a short unique identifier of the instance in val (1,2, ...)
-            instances = classInstances[val~class]
-            if instances = .nil then do
-                instances = .array~new
-                classInstances[val~class] = instances
-            end
-            instanceId = instances~index(val)
-            if instanceId == .nil then instanceId = instances~append(val)
-            valstr = val~class~id"#"instanceId || valstr
-        end
     end
-    if isnum | \showPool then string ||= valstr
+    if isnum | \showPool then return valstr
     else do
         num = pool~index(val)
         if num == .nil then do
-            if self~reuse(val, i+1) then do
+            count = values[val]
+            if count <> .nil, count > 1 then do
                 num = pool~append(val)
-                string ||= "i"num"="valstr
+                return "v"num"="valstr
             end
-            else string ||= valstr
+            else return valstr
         end
-        else string ||= "i"num
+        else return "v"num
     end
-    separator = ","
 end
-if showTags then string ||= "]"
-if nestedIndexString <> "" then return nestedIndexString"|"string
-return string
-
--- Convenience method, to show only the current level,
--- limited to local values whose numbers are in localMask
-::method show
-use strict arg localMask=""
-return self~makeString(.false, .false, localMask, .false)
 
 
 /******************************************************************************/
-::class "indexedValue" inherit Comparable
-::attribute index -- always a pipeIndex
-::attribute value -- any type
+::class "indexedItem" inherit Comparable
+::attribute index -- any type
+::attribute item -- any type
+::attribute dataflow -- always a .dataflow
 
 ::method init
-expose value index
-use strict arg value, index
+expose dataflow index item
+use strict arg item, index, dataflow
 
 ::method compareTo
 use strict arg other, start=1, length=(-1), caseless=.false
 -- This method is called by ooRexx 'sort' framework, when appropriate.
--- So it's a bad idea to compare the indexes,  only the values must be compared.
+-- So it's a bad idea to compare the indexes,  only the items must be compared.
 -- This method is not used by the pipeline services, which offers specialized comparators.
 -- To let use the standard ColumnComparator, I added the optional parameters start and length.
 /*
-comparator = .indexedValueComparator~new(caseless,,"index")
+comparator = .indexedItemComparator~new(caseless,,"index")
 comparison = comparator~compare(self, other)
 if comparison <> 0 then return comparison
 */
-comparator = .indexedValueComparator~new(caseless)
+comparator = .indexedItemComparator~new(caseless)
 comparison = comparator~compareTo(self, other, start, length)
 return comparison
 
@@ -753,62 +826,62 @@ use strict arg other, start=1, length=(-1)
 return self~compareTo(other, start, length, .true)
 
 -- Remember : compareTo and caselessCompareTo above are still necessary because the
--- 'other' argument is of type indexedValue. The unknown method below unboxes the
--- value of self, but not the value of other.
+-- 'other' argument is of type indexedItem. The unknown method below unboxes the
+-- item of self, but not the item of other.
 ::method unknown
 use strict arg msg, args
-forward to (self~value) message (msg) arguments (args)
+forward to (self~item) message (msg) arguments (args)
 
 
 /******************************************************************************/
-::class "indexedValueComparator" public inherit Comparator
+::class "indexedItemComparator" public inherit Comparator
 
 ::method init
-expose caseless strict criterion
-use strict arg caseless=.false, strict=.false, criterion="value"
+expose caseless criterion strict
+use strict arg caseless=.false, strict=.false, criterion="item"
 
 ::method compareIndexes
 expose caseless strict
 use strict arg first, second
 index1 = first~index
 index2 = second~index
-return index1~compareTo(index2, caseless, strict)
+return compareObjects(index1, index2, caseless, strict)
 
-::method compareValues
+::method compareItems
 expose caseless strict
 use strict arg first, second
-value1 = first~value
-value2 = second~value
-return compareStrings(value1~string, value2~string, caseless, strict)
+item1 = first~item
+item2 = second~item
+return compareObjects(item1, item2, caseless, strict)
 
 ::method compareExpressions
-expose caseless strict criterion
+expose caseless criterion strict
 use strict arg first, second
-result1 = criterion~do(first~value, first~index)
-result2 = criterion~do(second~value, second~index)
-return compareStrings(result1~string, result2~string, caseless, strict)
+result1 = criterion~do(first~item, first~index, first~dataflow)
+result2 = criterion~do(second~item, second~index, second~dataflow)
+return compareObjects(result1, result2, caseless, strict)
 
 ::method compare
 expose criterion
 use strict arg first, second
 if criterion~string == "index" then return self~compareIndexes(first, second)
-if criterion~string == "value" then return self~compareValues(first, second)
+if criterion~string == "item" then return self~compareItems(first, second)
 return self~compareExpressions(first, second)
 
 -- For convenience, add support for .ColumnComparator.
--- The comparison is by value.
+-- The comparison is by item.
 ::method compareTo
 expose caseless strict
 use strict arg first, second, start=1, length=(-1)
-value1 = first~value
-value2 = second~value
+item1 = first~item
+item2 = second~item
 if length == -1 then do
-    s1 = value1~string~substr(start)
-    s2 = value2~string~substr(start)
+    s1 = item1~string~substr(start)
+    s2 = item2~string~substr(start)
 end
 else do
-    s1 = value1~string~substr(start, length)
-    s2 = value2~string~substr(start, length)
+    s1 = item1~string~substr(start, length)
+    s2 = item2~string~substr(start, length)
 end
 return compareStrings(s1, s2, caseless, strict)
 
@@ -821,7 +894,7 @@ nop
 /*
 A sort pipeStage.
 primary (accumulator)
-.sort ['ascending'|'descending'] ['case'|'caseless'] ['numeric'|'strict'] ['quickSort'|'stableSort'] ['byIndex'|'byValue'|{criteria}])*
+.sort ['ascending'|'descending'] ['case'|'caseless'] ['numeric'|'strict'] ['quickSort'|'stableSort'] ['byIndex'|'byItem'|<criteria-doer>])*
 Options :
 */
 nop
@@ -838,7 +911,7 @@ items = .array~new                          -- create a new list
 forward class (super)
 
 ::method initOptions
-expose descending caseless quickSort strict criteria
+expose caseless criteria descending quickSort strict
 descending = .false
 caseless = .false
 quickSort = .false -- use a stable sort by default
@@ -849,7 +922,7 @@ do a over arg(1, "a")
     if a~isA(.String) then do
         if "ascending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .false)) ; iterate ; end
         if "byIndex"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "index")) ; iterate ; end
-        if "byValue"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "value")) ; iterate ; end
+        if "byItem"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("sortBy", "item")) ; iterate ; end
         if "caseless"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("caseless=", .true)) ; iterate ; end
         if "\caseless"~caselessAbbrev(a, 2) then do ; criteria~append(.array~of("caseless=", .false)) ; iterate ; end -- needed to let reset when several sort keys
         if "descending"~caselessAbbrev(a, 1) then do ; criteria~append(.array~of("descending=", .true)) ; iterate ; end
@@ -858,47 +931,49 @@ do a over arg(1, "a")
         if "stableSort"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("quickSort=", .false)) ; iterate ; end
         if "strict"~caselessAbbrev(a, 3) then do ; criteria~append(.array~of("strict=", .true)) ; iterate ; end
     end
-    -- "actionDoer" not candidate here, we want a result.
-    if a~hasMethod("functionDoer") then do
-        function = a~functionDoer("use arg value, index")
-        criteria~append(.array~of("sortBy", function))
-        iterate
-    end
-    if a~hasMethod("doer") then do
-        function = a~doer
-        criteria~append(.array~of("sortBy", function))
-        iterate
+    else do
+        -- "actionDoer" not candidate here, we want a result.
+        if a~hasMethod("functionDoer") then do
+            function = a~functionDoer("use arg item, index, dataflow")~arity(3)
+            criteria~append(.array~of("sortBy", function))
+            iterate
+        end
+        if a~hasMethod("doer") then do
+            function = a~doer
+            criteria~append(.array~of("sortBy", function))
+            iterate
+        end
     end
     unknown~append(a)
 end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
 ::method sortBy
-expose items descending caseless quickSort strict
+expose caseless descending items quickSort strict
 use strict arg criterion
-comparator = .indexedValueComparator~new(caseless, strict, criterion)
+comparator = .indexedItemComparator~new(caseless, strict, criterion)
 if descending then comparator = .InvertingComparator~new(comparator)
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
-use strict arg value, index                 -- access the passed value
-items~append(.indexedValue~new(value, index))
+use strict arg item, index, dataflow        -- access the passed item
+items~append(.indexedItem~new(item, index, dataflow))
 
 ::method eof                                -- process the "end-of-pipe"
-expose items criteria
+expose criteria items
 message = ""
 do criterion over criteria                  -- apply each criterion
     message = criterion[1]
     argument = criterion[2]
     self~send(message, argument)
 end
--- if the last criterion is not a "sortBy", then do a sortBy value.
-if message <> "sortBy" then self~sortBy("value")
+-- if the last criterion is not a "sortBy", then do a sortBy item.
+if message <> "sortBy" then self~sortBy("item")
 do i = 1 to items~items while self~next <> .nil, \self~next~isEOP -- copy all sorted items to the primary stream
-   indexedValue = items[i]
-   self~write(indexedValue~value, indexedValue~index)
+   indexedItem = items[i]
+   self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
 end
 forward class(super)                        -- make sure we propagate the done message
 
@@ -907,7 +982,7 @@ forward class(super)                        -- make sure we propagate the done m
 ::class "sortWith" public subclass pipeStage-- sort piped data
 
 ::method init
-expose items comparator                     -- list of sorted items
+expose comparator items                     -- list of sorted items
 use strict arg comparator                   -- get the comparator
 items = .array~new                          -- create a new list
 forward class (super)                       -- forward the initialization
@@ -927,16 +1002,16 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- process sorter piped data item
 expose items                                -- access internal state data
-use strict arg value, index                 -- access the passed value
-items~append(.indexedValue~new(value, index)) -- append the value to the accumulator array
+use strict arg item, index, dataflow        -- access the passed item
+items~append(.indexedItem~new(item, index, dataflow)) -- append the item to the accumulator array
 
 ::method eof                                -- process the "end-of-pipe"
-expose items comparator quickSort
+expose comparator items quickSort
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
 do i = 1 to items~items while self~next <> .nil, \self~next~isEOP -- copy all sorted items to the primary stream
-   indexedValue = items[i]
-   self~write(indexedValue~value, indexedValue~index)
+   indexedItem = items[i]
+   self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
 end
 forward class(super)                        -- make sure we propagate the done message
 
@@ -945,10 +1020,9 @@ forward class(super)                        -- make sure we propagate the done m
 ::class "reverse" public subclass pipeStage -- a string reversal pipeStage
 
 ::method process                            -- pipeStage processing item
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~reverse, newIndex)  -- send it along in reversed form
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~reverse
+self~write(newItem, 1, dataflow)            -- send it along in reversed form
 self~checkEOP(self~next)
 
 
@@ -956,10 +1030,9 @@ self~checkEOP(self~next)
 ::class "upper" public subclass pipeStage   -- a uppercasing pipeStage
 
 ::method process                            -- pipeStage processing item
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~upper, newIndex)    -- send it along in upper form
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~upper
+self~write(newItem, 1, dataflow)            -- send it along in upper form
 self~checkEOP(self~next)
 
 
@@ -967,10 +1040,9 @@ self~checkEOP(self~next)
 ::class "lower" public subclass pipeStage   -- a lowercasing pipeStage
 
 ::method process                            -- pipeStage processing item
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~lower, newIndex)    -- send it along in lower form
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~lower
+self~write(newItem, 1, dataflow)            -- send it along in lower form
 self~checkEOP(self~next)
 
 
@@ -978,16 +1050,15 @@ self~checkEOP(self~next)
 ::class "changeStr" public subclass pipeStage-- a string replacement pipeStage
 
 ::method init
-expose old new count
-use strict arg old, new, count = 999999999  -- old and new are required, default count is max value
+expose count new old
+use strict arg old, new, count = 999999999  -- old and new are required, default count is max item
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
-expose old new count
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~changestr(old, new, count), newIndex) -- send it along in altered form
+expose count new old
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~changestr(old, new, count)
+self~write(newItem, 1, dataflow)            -- send it along in altered form
 self~checkEOP(self~next)
 
 
@@ -995,16 +1066,15 @@ self~checkEOP(self~next)
 ::class "delStr" public subclass pipeStage  -- a string deletion pipeStage
 
 ::method init
-expose offset length
+expose length offset
 use strict arg offset, length               -- both are required.
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
-expose offset length
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~delstr(offset, length), newIndex) -- send it along in altered form
+expose length offset
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~delstr(offset, length)
+self~write(newItem, 1, dataflow)            -- send it along in altered form
 self~checkEOP(self~next)
 
 
@@ -1018,11 +1088,11 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose length
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~left(length), newIndex) -- send the left portion along the primary stream
-self~writeSecondary(value~string~substr(length + 1), newIndex) -- the secondary gets the remainder portion
+use strict arg item, index, dataflow        -- get the data item
+newItem1 = item~string~left(length)
+newItem2 = item~string~substr(length + 1)
+self~write(newItem1, 1, dataflow)           -- send the left portion along the primary stream
+self~writeSecondary(newItem2, 1, dataflow)  -- the secondary gets the remainder portion
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1035,15 +1105,15 @@ use strict arg length                       -- the length is the right part
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
-expose offset length
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~right(length), newIndex) -- send the right portion along the primary stream
-remainderLength = value~string~length - length
+expose length offset
+use strict arg item, index, dataflow        -- get the data item
+newItem1 = item~string~right(length)
+remainderLength = item~string~length - length
 remainder = ""
-if remainderLength > 0 then remainder = value~string~left(remainderLength)
-self~writeSecondary(remainder, newIndex) -- the secondary gets the remainder portion
+if remainderLength > 0 then remainder = item~string~left(remainderLength)
+newItem2 = remainder
+self~write(newItem1, 1, dataflow)             -- send the right portion along the primary stream
+self~writeSecondary(newItem2, 1, dataflow)    -- the secondary gets the remainder portion
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1057,10 +1127,9 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
 expose insert offset
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~insert(insert, offset), newIndex) -- send the left portion along the primary stream
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~insert(insert, offset)
+self~write(newItem, 1, dataflow)            -- send the left portion along the primary stream
 self~checkEOP(self~next)
 
 
@@ -1068,16 +1137,15 @@ self~checkEOP(self~next)
 ::class "overlay" public subclass pipeStage -- overlay a string into each line
 
 ::method init
-expose overlay offset
+expose offset overlay
 use strict arg overlay, offset              -- we need an offset and an insertion string
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- pipeStage processing item
-expose overlay offset
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~overlay(overlay, offset), newIndex) -- send the left portion along the primary stream
+expose offset overlay
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~overlay(overlay, offset)
+self~write(newItem, 1, dataflow)            -- send the left portion along the primary stream
 self~checkEOP(self~next)
 
 
@@ -1085,11 +1153,9 @@ self~checkEOP(self~next)
 ::class "dropNull" public subclass pipeStage-- drop null records
 
 ::method process                            -- pipeStage processing item
-use strict arg value, index                 -- get the data item
-if value~string \== '' then do              -- forward along non-null records
-    newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-    self~write(value, newIndex)
+use strict arg item, index, dataflow        -- get the data item
+if item~string \== '' then do               -- forward along non-null records
+    self~write(item, index, dataflow)
     self~checkEOP(self~next)
 end
 
@@ -1099,15 +1165,15 @@ end
 -- .drop ['first' | 'last'] [count=1] [partition]
 
 ::method init
-expose counter array partitionCount previousPartitionValue
+expose array counter partitionCount previousPartitionItem
 counter = 0                                 -- if first, we need to count the processed items
 array = .array~new                          -- if last, we need to accumulate these until the end
 partitionCount = 0
-previousPartitionValue = .nil
+previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
 ::method initOptions
-expose first count partitionFunction
+expose count first partitionFunction
 first = .true                               -- selects items from the begining by default
 count = 1                                   -- number of items to be selected by default
 firstSpecified = .false
@@ -1143,7 +1209,7 @@ do a over arg(1, "a")
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg value, index")
+        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
@@ -1156,80 +1222,72 @@ end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
 ::method processFirst
-expose count counter partitionFunction partitionCount previousPartitionValue
-use strict arg value, index
+expose count counter partitionCount partitionFunction previousPartitionItem
+use strict arg item, index, dataflow
 if partitionFunction <> .nil then do
-    partitionValue = partitionFunction~do(value, index)
+    partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
-        previousPartitionValue = partitionValue
+        previousPartitionItem = partitionItem
     end
-    if previousPartitionValue <> partitionValue then do
+    if previousPartitionItem <> partitionItem then do
         counter = 0
         partitionCount += 1
     end
-    previousPartitionValue = partitionValue
+    previousPartitionItem = partitionItem
 end
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 counter += 1                                -- if we've dropped our quota, start forwarding
 if counter > count then do
-    self~write(value, newIndex)
+    self~write(item, index, dataflow)
 end
 else do
-    self~writeSecondary(value, newIndex)    -- non-selected records go down the secondary stream
+    self~writeSecondary(item, index, dataflow) -- non-selected records go down the secondary stream
 end
 self~checkEOP(self~next, self~secondary)
 if counter >= count & self~next == .nil & partitionFunction == .nil then self~isEOP = .true
 
 ::method endOfPartition
-expose count array
+expose array count
 if array~items < count then do              -- didn't even receive that many items?
-    loop indexedValue over array while self~secondary <> .nil, \self~secondary~isEOP
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~writeSecondary(indexedValue~value, newIndex) -- send everything down the secondary pipe
+    loop indexedItem over array while self~secondary <> .nil, \self~secondary~isEOP
+        self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- send everything down the secondary pipe
     end
 end
 else do
     first = array~items - count             -- this is the count of selected items
     loop i = 1 to first while self~next <> .nil, \self~next~isEOP
-        indexedValue = array[i]
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~write(indexedValue~value, newIndex) -- the selected go to the main pipe
+        indexedItem = array[i]
+        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)-- the selected go to the main pipe
     end
     loop i = first + 1 to array~items while self~secondary <> .nil, \self~secondary~isEOP
-        indexedValue = array[i]
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~writeSecondary(indexedValue~value, newIndex) -- the discarded go down the secondary pipe
+        indexedItem = array[i]
+        self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the discarded go down the secondary pipe
     end
 end
 
 ::method processLast
-expose array partitionFunction partitionCount previousPartitionValue
-use strict arg value, index
+expose array partitionCount partitionFunction previousPartitionItem
+use strict arg item, index, dataflow
 if partitionFunction <> .nil then do
-    partitionValue = partitionFunction~do(value, index)
+    partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
-        previousPartitionValue = partitionValue
+        previousPartitionItem = partitionItem
     end
-    if previousPartitionValue <> partitionValue then do
+    if previousPartitionItem <> partitionItem then do
         self~endOfPartition
         array~empty
         partitionCount += 1
     end
-    previousPartitionValue = partitionValue
+    previousPartitionItem = partitionItem
 end
-array~append(.indexedValue~new(value, index)) -- just add to the accumulator
+array~append(.indexedItem~new(item, index, dataflow)) -- just add to the accumulator
 
 ::method process
 expose first
-use strict arg value, index
-if first then self~processFirst(value, index)
-         else self~processLast(value, index)
+use strict arg item, index, dataflow
+if first then self~processFirst(item, index, dataflow)
+         else self~processLast(item, index, dataflow)
 
 ::method eof
 expose first
@@ -1242,15 +1300,15 @@ forward class(super)                        -- make sure we propagate the done m
 -- .take ['first' | 'last'] [counter=1] [partition]
 
 ::method init
-expose counter array partitionCount previousPartitionValue
+expose array counter partitionCount previousPartitionItem
 counter = 0                                 -- if first, we need to count the processed items
 array = .array~new                          -- if last, we need to accumulate these until the end
 partitionCount = 0
-previousPartitionValue = .nil
+previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
 ::method initOptions
-expose first count partitionFunction
+expose count first partitionFunction
 first = .true                               -- selects items from the begining by default
 count = 1                                   -- number of items to be selected by default
 firstSpecified = .false
@@ -1286,7 +1344,7 @@ do a over arg(1, "a")
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg value, index")
+        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
@@ -1299,80 +1357,72 @@ end
 forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
 
 ::method processFirst
-expose count counter partitionFunction partitionCount previousPartitionValue
-use strict arg value, index
+expose count counter partitionCount partitionFunction previousPartitionItem
+use strict arg item, index, dataflow
 if partitionFunction <> .nil then do
-    partitionValue = partitionFunction~do(value, index)
+    partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
-        previousPartitionValue = partitionValue
+        previousPartitionItem = partitionItem
     end
-    if previousPartitionValue <> partitionValue then do
+    if previousPartitionItem <> partitionItem then do
         counter = 0
         partitionCount += 1
     end
-    previousPartitionValue = partitionValue
+    previousPartitionItem = partitionItem
 end
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
 counter += 1                                -- if we've dropped our quota, stop forwarding
 if counter > count then do
-    self~writeSecondary(value, newIndex)
+    self~writeSecondary(item, index, dataflow)
 end
 else do
-    self~write(value, newIndex)             -- still in the first bunch, send to main pipe
+    self~write(item, index, dataflow)       -- still in the first bunch, send to main pipe
 end
 self~checkEOP(self~next, self~secondary)
 if counter >= count & self~secondary == .nil & partitionFunction == .nil then self~isEOP = .true
 
 :: method endOfPartition
-expose count array
+expose array count
 if array~items < count then do          -- didn't even receive that many items?
-    loop indexedValue over array while self~next <> .nil, \self~next~isEOP
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~write(indexedValue~value, newIndex) -- send everything down the main pipe
+    loop indexedItem over array while self~next <> .nil, \self~next~isEOP
+        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- send everything down the main pipe
     end
 end
 else do
     first = array~items - count         -- this is the count of discarded items
     loop i = 1 to first while self~secondary <> .nil, \self~secondary~isEOP
-        indexedValue = array[i]
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~writeSecondary(indexedValue~value, newIndex) -- the discarded go down the secondary pipe
+        indexedItem = array[i]
+        self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the discarded go down the secondary pipe
     end
     loop i = first + 1 to array~items while self~next <> .nil, \self~next~isEOP
-        indexedValue = array[i]
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~write(indexedValue~value, newIndex) -- the selected go to the main pipe
+        indexedItem = array[i]
+        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the selected go to the main pipe
     end
 end
 
 ::method processLast
-expose array partitionFunction partitionCount previousPartitionValue
-use strict arg value, index
+expose array partitionCount partitionFunction previousPartitionItem
+use strict arg item, index, dataflow
 if partitionFunction <> .nil then do
-    partitionValue = partitionFunction~do(value, index)
+    partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
-        previousPartitionValue = partitionValue
+        previousPartitionItem = partitionItem
     end
-    if previousPartitionValue <> partitionValue then do
+    if previousPartitionItem <> partitionItem then do
         self~endOfPartition
         array~empty
         partitionCount += 1
     end
-    previousPartitionValue = partitionValue
+    previousPartitionItem = partitionItem
 end
-array~append(.indexedValue~new(value, index)) -- just add to the accumulator
+array~append(.indexedItem~new(item, index, dataflow))-- just add to the accumulator
 
 ::method process
 expose first
-use strict arg value, index
-if first then self~processFirst(value, index)
-         else self~processLast(value, index)
+use strict arg item, index, dataflow
+if first then self~processFirst(item, index, dataflow)
+         else self~processLast(item, index, dataflow)
 
 ::method eof
 expose first
@@ -1384,10 +1434,9 @@ forward class(super)                        -- make sure we propagate the done m
 ::class "x2c" public subclass pipeStage     -- translate records to hex characters
 
 ::method process                            -- pipeStage processing item
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value~string~x2c, newIndex)
+use strict arg item, index, dataflow        -- get the data item
+newItem = item~string~x2c
+self~write(newItem, 1, dataflow)
 self~checkEOP(self~next)
 
 
@@ -1402,11 +1451,9 @@ nop                                         -- do nothing with the data
 ::class "fanout" public subclass pipeStage  -- write records to both output streams
 
 ::method process                            -- pipeStage processing item
-use strict arg value, index                 -- get the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-self~write(value, newIndex)
-self~writeSecondary(value, newIndex)
+use strict arg item, index, dataflow        -- get the data item
+self~write(item, index, dataflow)
+self~writeSecondary(item, index, dataflow)
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1420,43 +1467,15 @@ Merge the results from primary and secondary streams.
 Example :
     -- A merge is used to serialize the branches of the fanout.
     -- There is no specific order (no delay).
-    merge = .merge mem | .console showTags
+    merge = .merge mem | .console
     fanout1 = .left[3]  mem | .lower mem | merge  -- not bufferized
-    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | (merge)~secondaryConnector -- not bufferized
+    fanout2 = .right[3] mem | .upper mem | .inject {"my_"item} after | .secondaryConnector | merge -- not bufferized
     .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
 */
 nop
 
 -- No need of specialized implementation !
 -- The default behavior of secondaryProcess is already to merge, so...
-
-/*
-::method init
-expose primaryEof secondaryEof              -- need pair of EOF conditions
-use strict arg -- none
-primaryEof = .false
-secondaryEof = .false
-forward class (super)                       -- forward the initialization
-
-::method finalize
-expose primaryEof secondaryEof
-if self~I1Counter == 0 then primaryEof = .true
-if self~I2Counter == 0 then secondaryEof = .true
-if primaryEof & secondaryEof then do
-    forward class (super) message('eof') continue
-    forward class (super) message('secondaryEof') continue
-end
-
-::method eof
-expose primaryEof
-primaryEof = .true                          -- mark this branch as finished.
-self~finalize                               -- will finalize if the other input hit EOF already
-
-::method secondaryEof                       -- eof on the secondary input
-expose secondaryEof
-secondaryEof = .true                        -- mark ourselves finished
-self~finalize                               -- will finalize if both branches finished
-*/
 
 
 /******************************************************************************/
@@ -1468,9 +1487,9 @@ nop
 Example :
     -- A fanin is used to serialize the branches of the fanout.
     -- The output from fanout1 is sent to console, then the output from fanout2 (delayed)
-    fanin = .fanin mem | .console showTags
+    fanin = .fanin mem | .console
     fanout1 = .left[3]  mem | .lower mem | fanin  -- not bufferized
-    fanout2 = .right[3] mem | .upper mem | .inject {"my_"value} after | fanin~secondaryConnector -- bufferized until fanout1 is eof
+    fanout2 = .right[3] mem | .upper mem | .inject {"my_"item} after | .secondaryConnector | fanin -- bufferized until fanout1 is eof
     .array~of("aaaBBB", "CCCddd", "eEeFfF")~pipe(.fanout mem >> fanout2 > fanout1)
 */
 nop
@@ -1485,8 +1504,8 @@ forward class (super)                       -- forward the initialization
 
 ::method processSecondary                   -- handle the secondary input
 expose array
-use strict arg value, index
-array~append(.indexedValue~new(value, index)) -- just append to the end of the array
+use strict arg item, index, dataflow
+array~append(.indexedItem~new(item, index, dataflow)) -- just append to the end of the array
 
 ::method finalize
 expose primaryEof secondaryEof array
@@ -1494,10 +1513,8 @@ if self~I1Counter == 0 then primaryEof = .true
 if self~I2Counter == 0 then secondaryEof = .true
 if primaryEof & secondaryEof then do
     loop i = 1 to array~items while self~next <> .nil, \self~next~isEOP -- need to write out the deferred items
-        indexedValue = array[i]
-        newIndex = indexedValue~index
-        if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-        self~write(indexedValue~value, newIndex)
+        indexedItem = array[i]
+        self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
     end
     forward class (super) message('eof') continue
     forward class (super) message('secondaryEof') continue
@@ -1531,11 +1548,9 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method process                            -- pipeStage processing item
 expose copies
-use strict arg value, index                 -- get the data item
+use strict arg item, index, dataflow        -- get the data item
 loop n=1 to copies + 1 while self~next <> .nil, \self~next~isEOP -- write this out with the duplicate count
-    newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, n)
-    self~write(value, newIndex)
+    self~write(item, n, dataflow)
 end
 self~checkEOP(self~next)
 
@@ -1549,15 +1564,24 @@ use strict arg -- none
 forward class (super)
 
 ::method initOptions
-expose actions showTags showPool
+expose actions showPool showTags
 actions = .array~new
-showTags = .false
+showTags = .true
 showPool = .true
 unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
-        if \ "memorizeIndex"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a string to display
+        if \ "memorize"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a string to display
             parse var a first "." rest
+            if "dataflow"~caselessAbbrev(first, 1) then do
+                dataflowWidth = -1
+                if rest <> "" then do -- dataflow.width
+                    if rest~dataType("W") then dataflowWidth = rest
+                    else raise syntax 93.900 array(self~class~id ": Expected a whole number after "dataflow". in "a)
+                end
+                actions~append(.array~of("displayDataflow", dataflowWidth))
+                iterate
+            end
             if "index"~caselessAbbrev(first, 1) then do
                 indexWidth = -1
                 if rest <> "" then do -- index.width
@@ -1567,14 +1591,13 @@ do a over arg(1, "a")
                 actions~append(.array~of("displayIndex", indexWidth))
                 iterate
             end
-            if "showTags"~caselessAbbrev(a, 1) then do ; showTags = .true ; iterate ; end
-            if "value"~caselessAbbrev(first, 1) then do
-                valueWidth = -1
-                if rest <> "" then do -- value.width
-                    if rest~dataType("W") then valueWidth = rest
-                    else raise syntax 93.900 array(self~class~id ": Expected a whole number after "value". in "a)
+            if "item"~caselessAbbrev(first, 1) then do
+                itemWidth = -1
+                if rest <> "" then do -- item.width
+                    if rest~dataType("W") then itemWidth = rest
+                    else raise syntax 93.900 array(self~class~id ": Expected a whole number after "item". in "a)
                 end
-                actions~append(.array~of("displayValue", valueWidth))
+                actions~append(.array~of("displayItem", itemWidth))
                 iterate
             end
             actions~append(.array~of("displayString", a))
@@ -1583,7 +1606,7 @@ do a over arg(1, "a")
     end
     -- "actionDoer" not candidate here, we want a result.
     else if a~hasMethod("functionDoer") then do
-        function = a~functionDoer("use arg value, index")
+        function = a~functionDoer("use arg item, index, dataflow")~arity(3)
         actions~append(.array~of("displayExpression", function))
         iterate
     end
@@ -1596,47 +1619,81 @@ do a over arg(1, "a")
 end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
-::method displayIndex
-expose showTags showPool
-use strict arg width, value, index
-if width == -1 then .output~charout(index~makeString(showTags, showPool))
-               else .output~charout(index~makeString(showTags, showPool)~left(width))
+::method representation
+use strict arg val
+if val~isA(.array) then do
+    -- each item of the array is inserted.
+    valstr = "["
+    separator = ""
+    do v over val
+        valstr ||= separator || self~representation(v)
+        separator = ","
+    end
+    valstr ||= "]"
+    return valstr
+end
+else do
+    valstr = val~string
+    if val~isA(.String) then do
+        isnum = valstr~dataType("N")
+        if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
+    end
+    else do
+        isnum = .false
+        valstr = "("valstr")" -- to make a distinction between a real string and other objects
+    end
+    return valstr
+end
+
+::method displayDataflow -- private (in comment otherwise error "does not understand message DISPLAYDATAFLOW_UNPROTECTED when profiling)
+expose showPool showTags
+if showTags then mask=1234567
+else mask = 124567
+use strict arg width, item, index, dataflow
+if width == -1 then .output~charout(dataflow~makeString(mask, showPool))
+               else .output~charout(dataflow~makeString(mask, showPool)~left(width))
 .output~charout(" ")
 
-::method displayValue
-use strict arg width, value, index
-if width == -1 then .output~charout(value~string)
-               else .output~charout(value~string~left(width))
+::method displayIndex -- private (in comment otherwise error "does not understand message DISPLAY_INDEX_UNPROTECTED when profiling)
+use strict arg width, item, index, dataflow
+if width == -1 then .output~charout(self~representation(index))
+               else .output~charout(self~representation(index)~left(width))
 .output~charout(" ")
 
-::method displayString
+::method displayItem -- private (in comment otherwise error "does not understand message DISPLAYITEM_UNPROTECTED when profiling)
+use strict arg width, item, index, dataflow
+if width == -1 then .output~charout(self~representation(item))
+               else .output~charout(self~representation(item)~left(width))
+.output~charout(" ")
+
+::method displayString -- private (in comment otherwise error "does not understand message DISPLAYSTRING_UNPROTECTED when profiling)
 expose isEmptyString
-use strict arg string, value, index
+use strict arg string, item, index, dataflow
 isEmptyString = (string == "")
 .output~charout(string)
 .output~charout(" ")
 
-::method displayExpression
-use strict arg expression, value, index
-val = expression~do(value, index)
+::method displayExpression -- private (in comment otherwise error "does not understand message DISPLAYEXPRESSION_UNPROTECTED when profiling)
+use strict arg expression, item, index, dataflow
+val = expression~do(item, index, dataflow)
 .output~charout(val~string)
 .output~charout(" ")
 
 ::method process                            -- process a data item
-expose actions showTags showPool isEmptyString
-use strict arg value, index                 -- get the data value
+expose actions isEmptyString showPool
+use strict arg item, index, dataflow        -- get the data item
 if actions~items == 0 then do
     -- default display
-    indexStr = index~makeString(showTags, showPool)
+    indexStr = self~representation(index)
     if indexStr <> "" then .output~charout(indexStr" : ")
-    .output~lineout(value~string)
+    .output~lineout(self~representation(item))
 end
 else do
     do action over actions                 -- do each action
         message = action[1]
         argument = action[2]
         isEmptyString = .false
-        self~send(message, argument, value, index)
+        self~send(message, argument, item, index, dataflow)
     end
     if \isEmptyString then .output~lineout("") -- newline
 end
@@ -1664,18 +1721,16 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- process a selection pipeStage
-expose patterns caseless                    -- expose the pattern list
-use strict arg value, index                 -- access the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose caseless patterns                    -- expose the pattern list
+use strict arg item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
-    if caseless then selected = (value~string~caselessPos(patterns[i]) <> 0)
-                else selected = (value~string~pos(patterns[i]) <> 0)
+    if caseless then selected = (item~string~caselessPos(patterns[i]) <> 0)
+                else selected = (item~string~pos(patterns[i]) <> 0)
 end
-if selected then self~write(value, newIndex) -- send it along
-            else self~writeSecondary(value, newIndex) -- send all mismatches down the other branch, if there
+if selected then self~write(item, index, dataflow) -- send it along
+            else self~writeSecondary(item, index, dataflow) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1700,18 +1755,16 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- process a selection pipeStage
-expose patterns caseless                    -- expose the pattern list
-use strict arg value, index                 -- access the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose caseless patterns                    -- expose the pattern list
+use strict arg item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
-    if caseless then selected = (value~string~caselessPos(patterns[i]) <> 0)
-                else selected = (value~string~pos(patterns[i]) <> 0)
-    if selected then self~writeSecondary(value, newIndex) -- send it along the secondary...don't want this one
+    if caseless then selected = (item~string~caselessPos(patterns[i]) <> 0)
+                else selected = (item~string~pos(patterns[i]) <> 0)
+    if selected then self~writeSecondary(item, index, dataflow) -- send it along the secondary...don't want this one
 end
-if \selected then self~write(value, newIndex)  -- send all mismatches down the main branch
+if \selected then self~write(item, index, dataflow)  -- send all mismatches down the main branch
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1736,18 +1789,16 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- process a selection pipeStage
-expose patterns caseless                    -- expose the pattern list
-use strict arg value, index                 -- access the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose caseless patterns                    -- expose the pattern list
+use strict arg item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
-    if caseless then selected = (value~string~caselessPos(patterns[i]) == 1)
-                else selected = (value~string~pos(patterns[i]) == 1)
+    if caseless then selected = (item~string~caselessPos(patterns[i]) == 1)
+                else selected = (item~string~pos(patterns[i]) == 1)
 end
-if selected then self~write(value, newIndex) -- send it along
-            else self~writeSecondary(value, newIndex) -- send all mismatches down the other branch, if there
+if selected then self~write(item, index, dataflow) -- send it along
+            else self~writeSecondary(item, index, dataflow) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1772,25 +1823,23 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process                            -- process a selection pipeStage
-expose patterns caseless                    -- expose the pattern list
-use strict arg value, index                 -- access the data item
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose caseless patterns                    -- expose the pattern list
+use strict arg item, index, dataflow        -- access the data item
 selected = .false
 do i = 1 to patterns~size while \selected   -- loop through all the patterns
                                             -- this pattern in the data?
-    valueString = value~string
-    valueStringLength = valueString~length
+    itemString = item~string
+    itemStringLength = itemString~length
     pattern = patterns[i]
     patternLength = pattern~length
-    if patternLength <= valueStringLength then do
-        right = value~string~right(patternLength)
+    if patternLength <= itemStringLength then do
+        right = item~string~right(patternLength)
         if caseless then selected = (right~caselessEquals(pattern))
                     else selected = (right == pattern)
     end
 end
-if selected then self~write(value, newIndex) -- send it along
-            else self~writeSecondary(value, newIndex) -- send all mismatches down the other branch, if there
+if selected then self~write(item, index, dataflow) -- send it along
+            else self~writeSecondary(item, index, dataflow) -- send all mismatches down the other branch, if there
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1806,36 +1855,39 @@ forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
 expose stem.                                -- expose the stem
-use strict arg value, index                 -- get the data item
+use strict arg item, index, dataflow        -- get the data item
 stem.0 = stem.0 + 1                         -- stem the item count
-stem.[stem.0, 'VALUE'] = value              -- save the value
+stem.[stem.0, 'VALUE'] = item               -- save the item
 stem.[stem.0, 'INDEX'] = index              -- save the index
+stem.[stem.0, 'DATAFLOW'] = dataflow        -- save the dataflow
 forward class(super)
 
 /******************************************************************************/
 ::class "arrayCollector" subclass pipeStage public-- collect items in an array
 
 ::method init                               -- initialize a collector
-expose valueArray indexArray idx            -- expose target array
-use strict arg valueArray, indexArray=.nil  -- get the array variable target
-valueArray~empty
+expose dataflowArray idx indexArray itemArray -- expose target array
+use strict arg itemArray, indexArray=.nil, dataflowArray=.nil -- get the array variable target
+itemArray~empty
 if indexArray <> .nil then indexArray~empty
+if dataflowArray <> .nil then dataflowArray~empty
 idx = 0
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
-expose valueArray indexArray idx            -- expose the array
-use strict arg value, index                 -- get the data item
+expose dataflowArray idx indexArray itemArray -- expose the array
+use strict arg item, index, dataflow        -- get the data item
 idx = idx + 1
-valueArray[idx] = value                     -- save the value
+itemArray[idx] = item                       -- save the item
 if indexArray <> .nil then indexArray[idx] = index -- save the index
+if dataflowArray <> .nil then dataflowArray[idx] = dataflow -- save the dataflow
 forward class(super)                        -- allow superclass to send down pipe
 
 /******************************************************************************/
 ::class "between" subclass pipeStage public -- write only records from first trigger record
                                             -- up to a matching record
 ::method init
-expose startString endString started finished
+expose endString finished started startString
 use strict arg startString, endString
 started = .false                            -- not processing any lines yet
 finished = .false
@@ -1854,23 +1906,21 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process
-expose startString endString started finished
-use strict arg value, index
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose endString finished started startString
+use strict arg item, index, dataflow
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
-    if caseless then started = (value~string~caselessPos(startString) > 0)
-                else started = (value~string~pos(startString) > 0)
-    if started then self~write(value, newIndex) -- pass along
-               else self~writeSecondary(value, newIndex) -- non-selected lines go to the secondary bucket
+    if caseless then started = (item~string~caselessPos(startString) > 0)
+                else started = (item~string~pos(startString) > 0)
+    if started then self~write(item, index, dataflow) -- pass along
+               else self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 else if \finished then do                   -- still processing?
-    if caseless then finished = (value~string~caselessPos(endString) > 0)
-                else finished = (value~string~pos(endString) > 0)
-    self~write(value, newIndex)             -- pass along
+    if caseless then finished = (item~string~caselessPos(endString) > 0)
+                else finished = (item~string~pos(endString) > 0)
+    self~write(item, index, dataflow)    -- pass along
 end
 else do
-    self~writeSecondary(value, newIndex)    -- non-selected lines go to the secondary bucket
+    self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 self~checkEOP(self~next, self~secondary)
 
@@ -1879,7 +1929,7 @@ self~checkEOP(self~next, self~secondary)
 ::class "after" subclass pipeStage public   -- write only records from first trigger record
 
 ::method init
-expose startString started
+expose started startString
 use strict arg startString
 started = .false                            -- not processing any lines yet
 forward class (super)                       -- forward the initialization
@@ -1897,16 +1947,14 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process
-expose startString endString started caseless
-use strict arg value, index
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose caseless endString started startString
+use strict arg item, index, dataflow
 if \started then do                         -- not turned on yet?  see if we've hit the trigger
-    if caseless then started = (value~string~caselessPos(startString) > 0)
-                else started = (value~string~pos(startString) > 0)
-    if \started then self~writeSecondary(value, newIndex) -- pass along the secondary stream
+    if caseless then started = (item~string~caselessPos(startString) > 0)
+                else started = (item~string~pos(startString) > 0)
+    if \started then self~writeSecondary(item, index, dataflow) -- pass along the secondary stream
 end
-else self~write(value, newIndex)            -- pass along
+else self~write(item, index, dataflow)      -- pass along
 self~checkEOP(self~next, self~secondary)
 
 
@@ -1932,35 +1980,33 @@ end
 forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process
-expose endString finished caseless
-use strict arg value, index
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
+expose caseless endString finished
+use strict arg item, index, dataflow
 if \finished then do                        -- still processing?
     if caseless
-        then finished = (value~string~caselessPos(endString) > 0)
-        else finished = (value~string~pos(endString) > 0)
-    self~write(value, newIndex)             -- pass along
+        then finished = (item~string~caselessPos(endString) > 0)
+        else finished = (item~string~pos(endString) > 0)
+    self~write(item, index, dataflow)   -- pass along
 end
 else do
-    self~writeSecondary(value, newIndex)    -- non-selected lines go to the secondary bucket
+    self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 self~checkEOP(self~next, self~secondary)
 
 
 /******************************************************************************/
-::class "buffer" subclass pipeStage public  -- write only records before first trigger record
+::class "buffer" subclass pipeStage public  -- accumulate all the records, send them <count> times when eof
 
 ::method init
-expose buffer count delimiter partitionCount previousPartitionValue
+expose buffer count delimiter partitionCount previousPartitionItem
 use strict arg count = 1, delimiter = ("")
 buffer = .array~new
 partitionCount = 0
-previousPartitionValue = .nil
+previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
 ::method initOptions
-expose first count partitionFunction
+expose count first partitionFunction
 partitionFunction = .nil
 unknown = .array~new
 do a over arg(1, "a")
@@ -1971,7 +2017,7 @@ do a over arg(1, "a")
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg value, index")
+        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
@@ -1987,34 +2033,31 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 expose buffer count delimiter partitionCount
 loop i = 1 to count while self~next <> .nil, \self~next~isEOP -- now write copies of the set to the stream
      if partitionCount > 1 | i > 1 then do
-         newIndex = .pipeIndex~create(self~class~id, .nil)
-         self~write(delimiter, newIndex) -- put a delimiter between the sets
+         self~write(delimiter, 1, .nil) -- put a delimiter between the sets
      end
      loop j = 1 to buffer~items while self~next <> .nil, \self~next~isEOP -- and send along the buffered lines
-         indexedValue = buffer[j]
-         newIndex = indexedValue~index
-         if self~memorizeIndex then newIndex = .pipeIndex~create(self, indexedValue~index, indexedValue~value)
-         self~write(indexedValue~value, newIndex)
+         indexedItem = buffer[j]
+         self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
      end
 end
 
 ::method process
-expose buffer partitionFunction partitionCount previousPartitionValue
-use strict arg value, index
+expose buffer partitionCount partitionFunction previousPartitionItem
+use strict arg item, index, dataflow
 if partitionFunction <> .nil then do
-    partitionValue = partitionFunction~do(value, index)
+    partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
-        previousPartitionValue = partitionValue
+        previousPartitionItem = partitionItem
     end
-    if previousPartitionValue <> partitionValue then do
+    if previousPartitionItem <> partitionItem then do
         self~endOfPartition
         buffer~empty
         partitionCount += 1
     end
-    previousPartitionValue = partitionValue
+    previousPartitionItem = partitionItem
 end
-buffer~append(.indexedValue~new(value, index)) -- just accumulate the value
+buffer~append(.indexedItem~new(item, index, dataflow)) -- just accumulate the item
 
 ::method eof
 self~endOfPartition
@@ -2025,11 +2068,11 @@ forward class(super)                        -- and send the done message along
 ::class "partitionedCounter" subclass pipeStage public -- abstract
 
 ::method init
-expose counter partitionCount previousPartitionValue
+expose counter partitionCount previousPartitionItem
 use strict arg -- none
 counter = 0
 partitionCount = 0
-previousPartitionValue = .nil
+previousPartitionItem = .nil
 forward class (super)                       -- forward the initialization
 
 ::method initOptions
@@ -2044,7 +2087,7 @@ do a over arg(1, "a")
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
         if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
-        partitionFunction = a~functionDoer("use arg value, index")
+        partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
@@ -2054,33 +2097,31 @@ do a over arg(1, "a")
     end
     unknown~append(a)
 end
-forward class (super) arguments (unknown)    -- forward the initialization to super to process the unknown options
+forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method endOfPartition
-expose counter partitionCount previousPartitionValue
-if partitionCount > 0 then newIndex = .pipeIndex~create(self~class~id, .nil, previousPartitionValue) -- always created (no alternative to forward)
-                      else newIndex = .pipeIndex~create(self~class~id, .nil) -- always created (no alternative to forward)
-self~write(counter, newIndex);              -- write out the counter message
+expose counter partitionCount previousPartitionItem
+self~write(counter, 1, .nil);               -- write out the counter message
 
 ::method count abstract
 
 ::method process
-expose counter partitionFunction partitionCount previousPartitionValue
-use strict arg value, index
+expose counter partitionCount partitionFunction previousPartitionItem
+use strict arg item, index, dataflow
 if partitionFunction <> .nil then do
-    partitionValue = partitionFunction~do(value, index)
+    partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
-        previousPartitionValue = partitionValue
+        previousPartitionItem = partitionItem
     end
-    if previousPartitionValue <> partitionValue then do
+    if previousPartitionItem <> partitionItem then do
         self~endOfPartition
         counter = 0
         partitionCount += 1
     end
-    previousPartitionValue = partitionValue
+    previousPartitionItem = partitionItem
 end
-counter += self~count(value, index)
+counter += self~count(item, index, dataflow)
 
 ::method eof
 self~endOfPartition
@@ -2091,7 +2132,7 @@ forward class(super)                        -- and send the done message along
 ::class "lineCount" subclass partitionedCounter public-- count number of records passed through the pipeStage
 
 ::method count
-use strict arg value, index
+use strict arg item, index, dataflow
 return 1                                    -- just bump the counter on each record
 
 
@@ -2099,44 +2140,42 @@ return 1                                    -- just bump the counter on each rec
 ::class "charCount" subclass partitionedCounter public-- count number of characters passed through the pipeStage
 
 ::method count
-use strict arg value, index
-return value~string~length                  -- just bump the counter for the length of each record
+use strict arg item, index, dataflow
+return item~string~length                   -- just bump the counter for the length of each record
 
 
 /******************************************************************************/
 ::class "wordCount" subclass partitionedCounter public-- count number of words passed through the pipeStage
 
 ::method count
-use strict arg value, index
-return value~string~words                   -- just bump the counter for the number of words
+use strict arg item, index, dataflow
+return item~string~words                    -- just bump the counter for the number of words
 
 
 /******************************************************************************/
 /**
- * A simple splitter sample that splits the stream based on a pivot value.
- * strings that compare < the pivot value are routed to pipeStage 1.  All other
+ * A simple splitter sample that splits the stream based on a pivot item.
+ * strings that compare < the pivot item are routed to pipeStage 1.  All other
  * strings are routed to pipeStage 2
  */
 
 ::class "pivot" subclass pipeStage public
 
 ::method init
-expose pivotvalue
+expose pivotItem
 forward class (super) continue              -- forward the initialization
 -- we did the initialization first, as we're about to override the pipeStages
--- store the pipeStage value and hook up the two output streams
-use strict arg pivotvalue, self~next, self~secondary
+-- store the pipeStage item and hook up the two output streams
+use strict arg pivotItem, self~next, self~secondary
 
 ::method process                            -- process the split
-expose pivotvalue
-use strict arg value, index
-newIndex = index
-if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value)
-if value~string < pivotvalue then do        -- simple split test
-    self~write(value, newIndex)
+expose pivotItem
+use strict arg item, index, dataflow
+if item~string < pivotItem then do         -- simple split test
+    self~write(item, index, dataflow)
 end
 else do
-    self~writeSecondary(value, newIndex)
+    self~writeSecondary(item, index, dataflow)
 end
 self~checkEOP(self~next, self~secondary)
 
@@ -2147,7 +2186,7 @@ self~checkEOP(self~next, self~secondary)
  * pipeStages.  The default behavior is to broadcast each line down all of the branches.
  * To customize, override process() and route the transformed lines down the
  * appropriate branch(es) using result with a target index specified.  If you wish
- * to use the default broadcast behavior, just call self~process:super(newValue) to
+ * to use the default broadcast behavior, just call self~process:super(newItem) to
  * perform the broadcast.
  */
 
@@ -2170,9 +2209,9 @@ raise syntax 93.963                         -- Can't do this, so raise an unsupp
 
 ::method write                              -- broadcast a result to a particular filter
 expose stages
-use strict arg which, value, index          -- which is the fiter index, value is the result
+use strict arg which, item, index, dataflow -- which is the fiter index, item is the result
 stage = stages[which]
-if \stage~isEOP then stage~process(value, index); -- have the filter handle this
+if \stage~isEOP then stage~process(item, index, dataflow); -- have the filter handle this
 
 ::method eof                                -- broadcast a done message down all of the branches
 expose stages
@@ -2183,30 +2222,29 @@ end
 
 ::method process                            -- process the stage stream
 expose stages
-use strict arg value, index
+use strict arg item, index, dataflow
 do stage over stages                        -- send this down all of the branches
-    stage~process(value, index)
+    stage~process(item, index, dataflow)
 end
 forward message ("checkEOP") arguments (stages)
 
 
 /******************************************************************************/
--- A 'getFiles' pipeStage to get the contents of a list of files line by line.
--- The input value can be a string (used as a path) or a .File instance.
-::class "getFiles" public subclass pipeStage
+-- A 'fileLines' pipeStage to get the contents of a text file line by line.
+-- The input item can be a string (used as a path) or a .File instance.
+-- In CMS pipelines, this stage is named "getFiles", but I prefer "fileLines"... 
+::class "fileLines" public subclass pipeStage
 
 ::method process
-use strict arg value, index
-if \value~isA(.File) then value = .File~new(value~string)
-stream = .Stream~new(value~absolutePath)
+use strict arg item, index, dataflow
+if \item~isA(.File) then item = .File~new(item~string)
+stream = .Stream~new(item~absolutePath)
 signal on notready
 stream~open("read")
 linepos = 1
 do while self~next <> .nil, \self~next~isEOP
     linetext = stream~linein
-    newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, linepos)
-    self~write(linetext, newIndex)
+    self~write(linetext, linepos, dataflow)
     linepos += 1
 end
 notready:
@@ -2215,32 +2253,28 @@ stream~close
 
 
 /******************************************************************************/
--- A 'words' pipeStage to get the words of the current value.
+-- A 'words' pipeStage to get the words of the current item.
 ::class "words" public subclass pipeStage
 
 ::method process
-use strict arg value, index
+use strict arg item, index, dataflow
 wordpos = 1
-do word over value~string~space~makearray(" ") while self~next <> .nil, \self~next~isEOP
-    newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, wordpos)
-    self~write(word, newIndex)
+do word over item~string~space~makearray(" ") while self~next <> .nil, \self~next~isEOP
+    self~write(word, wordpos, dataflow)
     wordpos += 1
 end
 self~checkEOP(self~next)
 
 
 /******************************************************************************/
--- A 'characters' pipeStage to get the characters of the current value.
+-- A 'characters' pipeStage to get the characters of the current item.
 ::class "characters" public subclass pipeStage
 
 ::method process
-use strict arg value, index
+use strict arg item, index, dataflow
 charpos = 1
-do char over value~string~makearray("") while self~next <> .nil, \self~next~isEOP
-newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, charpos)
-    self~write(char, newIndex)
+do char over item~string~makearray("") while self~next <> .nil, \self~next~isEOP
+    self~write(char, charpos, dataflow)
     charpos += 1
 end
 self~checkEOP(self~next)
@@ -2252,10 +2286,10 @@ A 'system' pipeStage to execute a system command and get the contents of its std
 To investigate : is it possible to get its stderr ? Don't see how to do that with just one queue.
 I can merge stdout and stderr before piping to rxqueue but then how to separate the lines ?
 Usage :
-    .system [command]           (where command is a string or a source literal)
+    .system ["<command>"|<command-doer>
 Example :
-    "*.log"~pipe(.system {"ls" value} | .console)
-    .array~of("ls", "hello", "dummy")~pipe(.system {value} | .console)
+    "*.log"~pipe(.system {"ls" item} | .console)
+    .array~of("ls", "hello", "dummy")~pipe(.system {item} | .console)
 */
 ::class "system" public subclass pipeStage
 
@@ -2268,7 +2302,7 @@ unknown = .array~new
 do a over arg(1, "a")
     if a~isA(.String) then do
         if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
-        if \ "memorizeIndex"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a command
+        if \ "memorize"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a command
             if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
             command = a
             iterate
@@ -2280,7 +2314,7 @@ do a over arg(1, "a")
         if a~hasMethod("functionDoer") then do
             if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
             command = a
-            doer = a~functionDoer("use arg value, index, var")
+            doer = a~functionDoer("use arg item, index, dataflow")~arity(3)
             iterate
         end
         if a~hasMethod("doer") then do
@@ -2300,17 +2334,15 @@ expose command doer trace
 -- not a block do...end, to not see the 'end' in the trace output
 if trace then .traceOutput~say("       >I> Method .system~process")
 if trace then trace i
-use strict arg value, index
-if command == .nil then command = value
-else if doer <> .nil then command = doer~do(value, index)
+use strict arg item, index, dataflow
+if doer <> .nil then command = doer~do(item, index, dataflow)
 queue = .RexxQueue~new(.RexxQueue~create)
 command '| rxqueue "'queue~get'"'
 linepos = 1
 do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
     line = queue~linein
-    newIndex = index
-    if self~memorizeIndex then newIndex = .pipeIndex~create(self, index, value, command, linepos)
-    self~write(line, newIndex)
+    newIndex = .array~of(command, linepos)
+    self~write(line, newIndex, dataflow)
     linepos += 1
 end
 queue~delete
