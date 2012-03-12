@@ -1,4 +1,8 @@
-/*    author:     Rony G. Flatscher, copyright 2008, all rights reserved
+/*
+      url to documentation and reference card (as of 2010-05-14):
+                  http://wi.wu.ac.at/rgf/rexx/orx20/
+
+      author:     Rony G. Flatscher, copyright 2008-2011, all rights reserved
       date:       2007-06-01 - 2007-06-02; 2007-07-30; 2007-08-02, 2007-08-07, 2007-08-15,
                   2007-10-20, 2007-10-23
                   2007-12-30 - made NumberComparator more flexible, allows to use
@@ -74,7 +78,19 @@
                   2009-12-28: - .StringOfWords:
                                 - delWord(): do not edit string in place, return an edited copy
                   2010-01-16, change "rgf.numbers" to "rgf.digits" (thanks to Walter Pachl!)
+                  2010-08-15, .NumberComparator ignored second argument (order) in constructor,
+                              if first argument was set to .true (thanks to Glenn Knickerbocker
+                              on comp.lang.rexx)
+                  2011-05-30, - fix error not allowing suppliers to be shown in dump2(); this
+                                follows Jean-Louis fix in his ooRexx sandbox as of 2011-05-30;
+                                also changed sequence of argument checking to follow sequence
+                                of arguments as seen in Jean-Louis' version of rgf_util2.rex
+                  2011-06-08, - new routine ppCondition2(co[,bShowPackage=.false [,indent1="09"x [,indent2="0909"x [,indent3="090909"x [,lf=.endOfLine]]]]]]):
+                                returns a string rendering of the supplied condition object "co"
 
+                              - new routine ppPackage2(package[,indent1=""[, indent2="09"x[, lf==.endOfLine]]):
+                                returns a string rendering of the supplied package object
+                  2011-08-03, - ppCondition2(): make sure that length is only calculated, if a string in hand
 
 
       purpose:    set of 3.2 utilities to ease programming of 3.2.0, e.g. offer sort2()- and
@@ -92,7 +108,7 @@
       license:    Choice of
                   ASF 2.0, <http://www.apache.org/licenses/LICENSE-2.0>:
                   --------------- cut here ----------------
-                     Copyright 2009 Rony G. Flatscher
+                     Copyright 2008-2011 Rony G. Flatscher
 
                      Licensed under the Apache License, Version 2.0 (the "License");
                      you may not use this file except in compliance with the License.
@@ -111,7 +127,7 @@
 
                   LGPL 3.0, <http://www.fsf.org/licensing/licenses/lgpl.html> (as of: 2008-02-17)
 
-      version:    1.0.4
+      version:    1.0.6
 */
 
 .local~rgf.non.printable=xrange("00"x,"1F"x)||"FF"x
@@ -1743,7 +1759,11 @@ syntax:              -- propagate condition
 
 
   if coll~isA(.supplier) then
+  do
      s=coll
+     len=5  -- define an arbitrary high width
+     say title
+  end
   else if \coll~isA(.Collection) then   -- make sure we have a Collection else
   do
      if arg(2,"E") then    -- title omitted !
@@ -1755,16 +1775,14 @@ syntax:              -- propagate condition
      -- .ArgUtil~validateClass("collection", coll, .Collection) -- must be of type Collection
      return
   end
-
-
-  if coll~isA(.Collection) then
+  else      -- a collection in hand
   do
-      say title": ("coll~items "items)"
-      say
+     say title": ("coll~items "items)"
      len=length(coll~items)
   end
-  else len = 5 -- Arbitrary big enough value
 
+  say
+  count=0
 
 
   if coll~isA(.Collection) then
@@ -2229,7 +2247,7 @@ syntax:     -- propagate syntax exception, if any
 */
 ::class "NumberComparator" mixinclass Comparator
 ::method init
-  expose stringComparator
+  expose stringComparator order
   use arg bIgnoreNonNumbers=.true, order="A", case="I"
 
   if bIgnoreNonNumbers=.false then
@@ -2241,6 +2259,7 @@ syntax:     -- propagate syntax exception, if any
   order=order~strip~left(1)~translate
   if pos(order, "AD")=0 then
      raise syntax 93.914 array ("# 2 (order)", "A, D", arg(2))
+
 
   case=case~strip~left(1)~translate
   if pos(case, "CI")=0 then
@@ -2260,10 +2279,12 @@ syntax:     -- propagate syntax exception, if any
 
    -- number only version, if non-number let runtime raise the syntax error
 ::method compare
+  expose order
   use strict arg left, right
 
   numeric digits 40        -- allow to deal with numbers up to 2**128
-  return (left-right)~sign -- returns -1 (left<right), +1 (left>right), 0 (left=right)
+  if order="A" then return (left-right)~sign    -- returns -1 (left<right), +1 (left>right), 0 (left=right)
+               else return -((left-right)~sign) -- descending: invert comparison results
 
 ::method stringComparator           -- getter
   expose stringComparator
@@ -3212,4 +3233,92 @@ syntax: raise propagate
    - DateTime2: alle "toXXX", updateable, epochable
    - Class ConstantGroup
 */
+
+
+/* create and return a string rendering of the supplied condition object
+   rgf, 2011-06-08
+*/
+::routine ppCondition2 public
+  use strict arg co, bShowPackageInfo=.false, indent1="09"x, lf=.endOfLine
+
+  indent2=indent1~copies(2)
+  indent3=indent1~copies(3)
+
+  maxWidth=0            -- determine length of widest index
+  do idx over co
+     if idx~isA(.string) then maxWidth=max(maxWidth,idx~length)
+  end
+  maxWidth+=2           -- add square brackets
+
+  mb=.MutableBuffer~new
+
+  do idx over co~allindexes~sort
+     entry=co[idx]
+     mb~~append(indent1) ~~append(pp2(idx)~left(maxWidth)) ~~append("=") ~~append(pp2(entry)) ~~append(lf)
+     if entry~isA(.collection) then
+     do val over entry
+        mb ~~append(indent2) ~~append(pp2(val)) ~~append(lf)
+     end
+     else if entry~isA(.package), bShowPackageInfo=.true then
+     do
+        mb ~~append(ppPackage2(entry, indent2, indent3, lf))
+     end
+
+  end
+
+  return mb~string
+
+
+/* Create and return a string rendering of the package information.
+   rgf, 2011-06-08
+*/
+::routine ppPackage2 public
+  use strict arg package, indent1="", indent2="09"x, lf=.endOfLine
+
+  width=20
+  mb = .MutableBuffer~new
+  mb ~~append(indent1) ~~append(pp2("name")~left(width, ".")) ~~append(pp2(package~name)) ~~append(lf)
+  mb ~~append(indent1) ~~append(pp2("size")~left(width, ".")) ~~append(pp2(package~sourceSize)) ~~append( " line(s)")~~append(lf)
+  mb ~~append(indent1) ~~append("---") ~~append(lf)
+
+  mb ~~append(indent1) ~~append(pp2("definedMethods")~left(width, ".")) ~~append(listCollection(package~definedMethods, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append("---") ~~append(lf)
+
+  mb ~~append(indent1) ~~append(pp2("defined classes")~left(width, ".")) ~~append(listCollection(package~classes, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append(pp2("publicClasses")~left(width, ".")) ~~append(listCollection(package~publicClasses, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append(pp2("importedClasses")~left(width, ".")) ~~append(listCollection(package~importedClasses, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append("---") ~~append(lf)
+
+  mb ~~append(indent1) ~~append(pp2("defined routines")~left(width, ".")) ~~append(listCollection(package~routines, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append(pp2("publicRoutines")~left(width, ".")) ~~append(listCollection(package~publicRoutines, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append(pp2("importedRoutines")~left(width, ".")) ~~append(listCollection(package~importedRoutines, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append("---") ~~append(lf)
+
+  mb ~~append(indent1) ~~append(pp2("importedPackages")~left(width, ".")) ~~append(listCollection(package~importedPackages, indent2, lf)) ~~append(lf)
+  mb ~~append(indent1) ~~append("---") ~~append(lf)
+  return mb~string
+
+
+listCollection: procedure
+  use strict arg coll, indent, lf
+  mb=.MutableBuffer~new
+  mb~~append(pp2(coll)) ~~append(lf)
+
+  if coll~isA(.MapCollection) then
+  do
+     if coll~isA(.Directory) then   -- index is a string, comparisons are o.k.
+        workColl=coll~allIndexes~sort
+     else                           -- else make sure we get a string value to sort on
+        workColl=sort2(coll~allIndexes, "Message", "string")
+  end
+  else   -- do not sort
+      workColl=coll~allItems
+
+  do idx over workColl  -- iterate over
+     if idx~isA(.package) then
+        mb~~append(indent) ~~append(pp2(idx~name)) ~~append(lf)
+     else
+        mb~~append(indent) ~~append(pp2(idx)) ~~append(lf)
+  end
+  return mb~string
 

@@ -1,9 +1,9 @@
 /*
 rgf_util2 wrappers to make the services available as methods on predefined classes.
 Quickly implemented, but could be more efficient...
-obj~method2(args) --> routine(obj, reworked_args) --> obj~method(re_reworked_args) 
+obj~method2(args) --> routine(obj, reworked_args) --> obj~method(re_reworked_args)
 
-For a real library of methods, an rgf_util2_oo.rex should be written to use the variable 
+For a real library of methods, an rgf_util2_oo.rex should be written to use the variable
 "self" where appropriate, instead of passing the object as first parameter.
 obj~method2(args) --> obj~method(reworked_args)
 */
@@ -18,8 +18,21 @@ obj~method2(args) --> obj~method(reworked_args)
 -- but sometimes in second position (like changeStr2).
 
 ::extension Object
+-- Beware ! .nil is somewhat bizarre and can't be extended, i.e. .nil~pp2 will raise "does not understand"
 ::method pp2 ; return pp2~call(self, .context~args)
 ::method ppIndex2 ; return ppIndex2~call(self, .context~args)
+-- Sometimes I want the maximum of details, whatever the object. Will be redefined for collections.
+::method dump2 ; say pp2~call(self, .context~args) ; return self
+
+
+::routine dump public
+    -- .nil can't be extended, so must find a way to dump *ANY* object with all the details, including .nil
+    -- Since a method can't do that, a routine will do !
+    use strict arg object
+    if object == .nil then say pp2(object)
+    else if object~class == .class then say pp2(object)
+    else object~dump2
+    return object
 
 
 ::extension String
@@ -49,7 +62,7 @@ obj~method2(args) --> obj~method(reworked_args)
 
 
 ::extension Collection
-::method dump2 ; dump2~call(self, .context~args)
+::method dump2 ; dump2~call(self, .context~args) ; return self
 ::method makeRelation2 ; return makeRelation2~call(self, .context~args)
 
 
@@ -59,7 +72,7 @@ obj~method2(args) --> obj~method(reworked_args)
 
 
 ::extension Supplier
-::method dump2 ; dump2~call(self, .context~args)
+::method dump2 ; dump2~call(self, .context~args) ; return self
 
 
 ::extension Method
@@ -91,7 +104,7 @@ obj~method2(args) --> obj~method(reworked_args)
    self[index2] = item1
    return self
 
-    
+
 ::extension String
 ::method call
     -- Here, the string (self) is the name of a routine
