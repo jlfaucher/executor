@@ -138,9 +138,9 @@ end
 
 return 0
 
-::requires 'string2args.rex'
-::requires 'help.rex'
-::requires 'directory.rex'
+::requires 'string2args.cls'
+::requires 'help.cls'
+::requires 'directory.cls'
 
 -------------------------------------------------------------------------------
 ::class Arguments subclass Directory

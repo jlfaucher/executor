@@ -7,9 +7,11 @@
 
   <cfg:saveOptions xmlns="" 
       cdataSectionElements="programlisting"
-      indent="none"
       maxLineLength="80"
       saveCharsAsEntityRefs="true"
   />
+  <!--
+      indent="none"
+  -->
 
 </configuration>

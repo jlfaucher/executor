@@ -158,8 +158,8 @@ else say "Done."
 return 0
 
 ::requires 'arguments.cls'
-::requires 'help.rex'
-::requires 'directory.rex'
+::requires 'help.cls'
+::requires 'directory.cls'
 
 -------------------------------------------------------------------------------
 ::class Arguments subclass CommonArguments

@@ -1,4 +1,53 @@
 ===============================================================================
+2012 mar 05
+
+Renamed files :
+    directory.rex --> directory.cls
+    help.rex --> help.cls
+    string2args.rex --> string2args.cls
+because help.rex was executed instead of help.exe when entering 'help' in ooRexxShell.
+
+
+===============================================================================
+2012 feb 04
+
+Fix a bug in the XML parser : must not manage nested entities inside comments,
+and must detect properly the end of the comment.
+Symptom 1 : The parser raises "[error] Error line 41: EOF within an XML tag"
+while parsing the rev 7467 of oodguide/Chapter06.xml.
+Symptom 2 : After the fix for symptom 1, the parser raises 
+"[error] Error line 112 column 31: Invalid tag name"
+Extract :
+    line  41 : <!-- Chapter06 - List Views, Re-Sizing, and PopUps 
+    line 112 :      6.6    Utility Dialogs - <- ??? <What's this??> ...
+    line 121 : -->
+
+
+===============================================================================
+2011 oct 16
+
+todo :
+oodialog/utilityclasses.xml
+
+in <section id="mthPlus">, the syntax diagram
+>>--"+"--point2----------------------------------><
+can't be parsed. The "+" should be " + " to escape the plus character,
+but then this is not conform to the initial intent.
+
+
+in <section id="mthMinus">, the syntax diagram
+>>--"-"--point2----------------------------------><
+is parsed without error, but the result is not good :
+The "-" is parsed like a normal line, instead of a minus character.
+Should be " - " but then this is not conform to the initial intent.
+
+So, in both cases, the problem is to recognize the quoted string as an escaped string...
+[later]
+No ! there is NO problem : the generated syntax diagram looks good, because the spaces
+around the escaped character are removed.
+
+
+===============================================================================
 2011 august 20
 
 Directory "makevalidxml" renamed to "transformxml".

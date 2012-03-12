@@ -1,4 +1,4 @@
-::requires 'string2args.rex'
+::requires 'string2args.cls'
 
 ::class CommonArguments public subclass Directory
 ::attribute argIndex    -- current arg index during parsing

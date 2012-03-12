@@ -280,9 +280,10 @@ do i=0 to 7
    buffer2~append(self~currentchar(i))
 end
 iscdata = (buffer2~string == "![CDATA[")
+iscomment = (buffer2~string~left(3) == "!--")
 buffer3 = .MutableBuffer~new
 do while eof = .false
-   if \iscdata & buffer3~substr(1, 1) = '!' then do
+   if \iscdata & \iscomment & buffer3~substr(1, 1) = '!' then do
       -- It is possible for tags to be contained within other tags in XML
       -- processing tags. The next two IF statements take care of that nesting
       -- possibility. It will be up to the user to parse out the contained
@@ -297,6 +298,9 @@ do while eof = .false
    if self~currentchar() = '>' then do
       if iscdata then do
          if self~currentchar(-2) || self~currentchar(-1) == "]]" then leave
+         end
+      else if iscomment then do
+         if self~currentchar(-2) || self~currentchar(-1) == "--" then leave
          end
       else if nestlevel = 0 then leave
       end

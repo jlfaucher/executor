@@ -156,11 +156,11 @@ syntax: -- In fact, it's an abort, not a syntax error...
     return 1
 
 ::requires 'arguments.cls'
-::requires 'help.rex'
+::requires 'help.cls'
 ::requires "indentedstream.cls"
 ::requires 'myxmlparser.cls'
 ::requires 'rxregexp.cls'
-::requires 'sdbnfizer.cls'
+--::requires 'sdbnfizer.cls' -- to reactivate if needed
 ::requires 'sdtokenizer.cls'
 ::requires 'sdparser.cls'
 ::requires 'sdxmlizer.cls'
