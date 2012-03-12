@@ -91,6 +91,16 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2012 jan 22
+
+New command "tb", to display the trace back after an error.
+
+Arrays are pretty printed in condensed form.
+Ex : 
+.array~of("a", 1, .array~of("b", 2), "c")= -- ['a',1,['b',2],'c']
+
+
+-----------------------------------------------
 2011 nov 09
 
 No longer display error traceback.

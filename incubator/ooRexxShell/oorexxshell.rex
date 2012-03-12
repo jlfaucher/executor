@@ -164,6 +164,8 @@ main: procedure
                 .ooRexxShell~debug = .true
             when .ooRexxShell~inputrx~caselessEquals("debugoff") then
                 .ooRexxShell~debug = .false
+            when .ooRexxShell~inputrx~caselessEquals("tb") then
+                .error~say(.ooRexxShell~traceback~makearray~tostring)
             when .ooRexxShell~inputrx~caselessEquals("reload") then do
                 -- Often, I modify some packages that are loaded by ooRexxShell at startup.
                 -- To benefit from the changes, I have to reload the components.
@@ -203,7 +205,7 @@ intro: procedure
     say version
     .ooRexxShell~sayInterpreters
     say "? : to invoke ooRexx documentation."
-    say "Other commands : exit interpreters reload traceoff traceon."
+    say "Other commands : exit interpreters reload tb traceoff traceon."
     .color~select(.ooRexxShell~defaultColor)
     return
 
@@ -304,6 +306,9 @@ help: procedure
         end
         when .platform~is("aix") | .platform~is("linux") | .platform~is("sunos") then do
             'acroread /opt/oorexx/doc/rexxref.pdf&'
+        end
+        when .platform~is("macosx") then do
+            'open "http://www.oorexx.org/docs/"' -- not perfect : switch to Safari but the new window is not visible (at least on my machine).
         end
         otherwise do
             .error~say(.platform~name "has no online help for ooRexx.")
@@ -442,7 +447,9 @@ dumpResult: procedure expose result
     end
     else do
         use strict arg object=(result)
-        if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
+        if object~isA(.CoactivitySupplier) then say pp2(object) -- must not consume the datas
+        else if object~isA(.array) then say object~ppRepresentation -- condensed output
+        else if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
         else say pp2(object)
         return object -- To get this value in the variable RESULT
     end
@@ -568,6 +575,7 @@ loadLibrary:
     self~isExtended = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
+    self~traceback = .array~new
     self~debug = .false
 
 
