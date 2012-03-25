@@ -143,7 +143,8 @@ int main (int argc, char **argv) {
     else {
         RexxCreateInterpreter(&pgmInst, &pgmThrdInst, NULL);
         // configure the traditional single argument string
-        rxargs = pgmThrdInst->NewArray(1);
+        // Initial size must be zero, because in CallProgramDispatcher::run, size will be tested, not items
+        rxargs = pgmThrdInst->NewArray(0); // Will be extended if needed
         if (argCount > 0) {
             pgmThrdInst->ArrayPut(rxargs,
                                   pgmThrdInst->NewStringFromAsciiz(arg_buffer), 1);
