@@ -220,7 +220,7 @@ RexxInstruction *RexxSource::callNew()
 {
     size_t _flags = 0;                          /* clear the flags                   */
     size_t builtin_index = 0;                   /* clear the builtin index           */
-    /* RexxString * */ ProtectedObject _condition = (RexxObject*)OREF_NULL; /* clear the condition               */
+    /* RexxString * */ ProtectedObject _condition((RexxObject*)OREF_NULL); /* clear the condition               */
     RexxObject *name = OREF_NULL;                    /* no name yet                       */
     size_t argCount = 0;                        /* no arguments yet                  */
 
@@ -1826,7 +1826,7 @@ RexxInstruction *RexxSource::raiseNew()
         /* this is an error                  */
         syntaxError(Error_Symbol_expected_raise);
     }
-    /* RexxString * */ ProtectedObject _condition = token->value;           /* use the condition string value    */
+    /* RexxString * */ ProtectedObject _condition(token->value);           /* use the condition string value    */
     saveQueue->push(_condition);         /* save the condition name           */
     int _keyword = this->condition(token);   /* check for the subkeywords         */
     if (_keyword != 0) refineSubclass(token, IS_CONDITION);
@@ -2097,7 +2097,7 @@ RexxInstruction *RexxSource::signalNew()
     bool signalOff = false;                   /* not a SIGNAL OFF instruction      */
     RexxObject *_expression = OREF_NULL;              /* no expression yet                 */
     RexxString *name = OREF_NULL;                    /* no name                           */
-    /* RexxString * */ ProtectedObject _condition = (RexxString*)OREF_NULL; /* and no condition                  */
+    /* RexxString * */ ProtectedObject _condition((RexxString*)OREF_NULL); /* and no condition                  */
     size_t _flags = 0;                           /* no flags                          */
     RexxToken *token = nextReal();                  /* get the next token                */
 

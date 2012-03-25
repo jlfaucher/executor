@@ -993,7 +993,7 @@ $ Error_No_result_object_message
 429 Message "&1" did not return a result
 
 $ Error_Incorrect_method_minarg
-431 Not enough arguments in method; &1 expected
+431 Not enough arguments for method; &1 expected
 
 $ Error_Incorrect_method_maxarg
 432 Too many arguments in invocation of method; &1 expected
@@ -1769,11 +1769,20 @@ $ Error_Incorrect_method_multi_dimension
 $ Error_Unmatched_parenthesis_curly
 722 Curly bracket "{" in position &1 on line &2 requires a corresponding right curly bracket "}"
 
+$ Message_Translations_compiled_method_invocation
+722        *-* Compiled method &1 with scope "&2"
+
 $ Error_Unexpected_curly_bracket
 723 Unexpected "}"
 
+$ Message_Translations_compiled_routine_invocation
+723        *-* Compiled routine &1
+
 $ Error_Invalid_expression_after_tilde
 724 String or symbol or ":" or "(" expected after tilde (~)
+
+$ Message_Translations_no_source_available
+724 Package "&1" (no source available)
 
 $ Error_Invalid_expression_message_term
 725 Missing message name or argument list

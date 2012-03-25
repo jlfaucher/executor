@@ -2416,7 +2416,7 @@ void *RexxObject::operator new(size_t size, RexxClass *classObject, RexxObject *
 /******************************************************************************/
 {
     /* create a new object               */
-    ProtectedObject newObject = new (classObject) RexxObject;
+    ProtectedObject newObject(new (classObject) RexxObject);
     /* now drive the user INIT           */
     ((RexxObject *)newObject)->sendMessage(OREF_INIT, args, argCount);
     return(RexxObject *)newObject;      /* and returnthe new object          */

@@ -371,7 +371,7 @@ RexxString *RexxClass::defaultName()
 /* Function:  retrieve a classes default name value                           */
 /******************************************************************************/
 {
-    /*RexxString * */ ProtectedObject defaultname = this->id;  /* use the id directly               */
+    /*RexxString * */ ProtectedObject defaultname(this->id);  /* use the id directly               */
                                          /* prefix with "The"                 */
     defaultname = ((RexxString*)defaultname)->concatToCstring("The ");
     /* add on "class"                    */

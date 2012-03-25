@@ -1056,7 +1056,7 @@ RexxString *RexxSource::extract(
 /* Extrace a line from the source using the given location information        */
 /******************************************************************************/
 {
-    /* RexxString * */ ProtectedObject line = OREF_NULLSTRING;  /* returned source line              */
+    /* RexxString * */ ProtectedObject line(OREF_NULLSTRING);  /* returned source line              */
     RexxString *source_line;             /* current extracting line           */
     size_t  counter;                     /* line counter                      */
 
