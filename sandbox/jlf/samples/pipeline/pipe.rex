@@ -551,14 +551,15 @@ A dataflow is an array :
 
   1          2     3       4
 +----------+-----+-------+------+
-| previous | tag | index | item |<--+
-+----------+-----+-------+------+   |
-                                    |
+| previous | tag | index | item |
++----------+-----+-------+------+
+   ^
+   |  +----------+-----+-------+------+
+   +--| previous | tag | index | item |
       +----------+-----+-------+------+
-      | previous | tag | index | item |<--+
-      +----------+-----+-------+------+   |
-                                          |
-                                         etc...
+         ^
+         |
+         +-- etc...
 
 A pipeStage receives a triplet (item, index, dataflow). It applies transformations or filters
 on this triplet. When a pipeStage forwards an item to a following pipeStage, it forwards the

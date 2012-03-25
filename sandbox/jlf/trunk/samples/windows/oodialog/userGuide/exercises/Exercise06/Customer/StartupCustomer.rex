@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2011-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2011-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -36,16 +36,19 @@
 /*----------------------------------------------------------------------------*/
 /* ooDialog User Guide
    Exercise06: 		Stand-alone startup for CustomerView
-   startupCustomer.rex 						  v01-00 12Sep11
+   startupCustomer.rex 						  v01-01 11Feb12
 
    Contains: 	   Startup code.
    Pre-requisites: Must be run from the parent folder of the Customer folder.
 
    Changes:
    v01-00 12Sep11: First Version
+   v01-01 11Feb12: Add .application~setDefaults to this file.
 
    Outstanding Problems: None reported.
 *******************************************************************************/
+
+.Application~setDefaults("O", , .false)
 
 .local~my.idCustomerData  = .CustomerData~new	-- create Customer Data instance
 .local~my.idCustomerModel = .CustomerModel~new	-- create Customer Model instance

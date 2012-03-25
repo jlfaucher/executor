@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -39,8 +39,8 @@
 #include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
 #include <stdio.h>
 #include <dlgs.h>
-#include <malloc.h>
 #include <limits.h>
+#include <shlwapi.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
 #include "oodMessaging.hpp"
@@ -61,7 +61,7 @@
  * then setting the appropriate error code.
  *
  * DO raise exceptions for any invalid Rexx arguments, bad resouce ID, item ID,
- * wrong type, wrong ranges, etc..
+ * wrong object type, wrong ranges, etc..
  *
  * Users can check for valid menu handles using isValid(), getHandle(), etc.
  *
@@ -170,6 +170,52 @@ inline BOOL _connectSysItem(pCEventNotification pcen, RexxMethodContext *c, uint
 {
     uint32_t tag = TAG_DIALOG | TAG_SYSMENUCOMMAND;
     return addMiscMessage(pcen, c, WM_SYSCOMMAND, UINT32_MAX, id, 0x0000FFF0, 0, 0, msg, tag) ? 0 : ERROR_NOT_ENOUGH_MEMORY;
+}
+
+
+/**
+ * Checks if CppMenu::attachToDlg() would succeed with the specified object.
+ *
+ * @param c
+ * @param dlg
+ * @param argPos
+ *
+ * @return true if attachToDlg() is expected to succeed, otherwise false.
+ *
+ * @note If false is returned, an exception has been raised.
+ */
+static bool validAttachTo(RexxMethodContext *c, RexxObjectPtr dlg, size_t argPos)
+{
+    TCHAR buf[256];
+
+    if ( ! c->IsOfType(dlg, "PLAINBASEDIALOG") )
+    {
+        _snprintf(buf, sizeof(buf), "can not attach menu unless arg %d 'attachTo' is a dialog object", argPos);
+        userDefinedMsgException(c, buf);
+        return false;
+    }
+
+    // The underlying dialog needs to exist, and it can not already have a menu
+    // bar attached.
+    pCPlainBaseDialog pcpbd = dlgToCSelf(c, dlg);
+
+    if ( ! pcpbd->isDlgHwndSet )
+    {
+        _snprintf(buf, sizeof(buf), "can not attach menu when the underlying arg %d 'attachTo' dialog does not exist",
+                  argPos);
+        userDefinedMsgException(c, buf);
+        return false;
+    }
+
+    if ( c->SendMessage0(dlg, "HASMENUBAR") == TheTrueObj )
+    {
+        _snprintf(buf, sizeof(buf), "can not attach menu when the arg %d 'attachTo' dialog already has a menu bar",
+                  argPos);
+        userDefinedMsgException(c, buf);
+        return false;
+    }
+
+    return true;
 }
 
 /**
@@ -393,8 +439,8 @@ logical_t CppMenu::addTemplatePopup(RexxObjectPtr rxID, CSTRING text, CSTRING op
             goto done_out;
         }
 
-        DWORD dwState = getPopupStateOpts(upperOpts, 0);
-        DWORD dwType = getPopupTypeOpts(upperOpts, MFT_STRING);
+        dwState = getPopupStateOpts(upperOpts, 0);
+        dwType = getPopupTypeOpts(upperOpts, MFT_STRING);
         if ( strstr(upperOpts, "END") )
         {
             resInfo |= MFR_END;
@@ -776,8 +822,8 @@ done_out:
 
 
 /**
- * Adds a menu command item to the connection que so that the command event can
- * be connected to a dialog at a later time.
+ * Adds a menu command item to the connection queue so that the command event
+ * can be connected to a dialog at a later time.
  *
  * @param id
  * @param methodName
@@ -1020,6 +1066,51 @@ BOOL CppMenu::detach(bool skipChecks)
 
 done_out:
     return success;
+}
+
+/**
+ * Replaces this menu bar attached to its owner dialog with a new menu bar.
+ *
+ * @param  newMenuBar  The replacement menu bar.
+ *
+ * @return The old menu bar on success, or .nil on error
+ *
+ * @note Resets .SystemErrorCode.
+ */
+RexxObjectPtr CppMenu::replace(RexxObjectPtr newMenuBar)
+{
+    oodResetSysErrCode(c->threadContext);
+    RexxObjectPtr oldMenuBar = TheNilObj;
+
+    if ( ! c->IsOfType(newMenuBar, "MENUBAR") )
+    {
+        wrongClassException(c->threadContext, 1, "MenuBar");
+        goto done_out;
+    }
+
+    if ( ! isAttached() )
+    {
+        oodSetSysErrCode(c->threadContext, ERROR_INVALID_FUNCTION);
+        goto done_out;
+    }
+
+    CppMenu *cMenubar = (CppMenu *)c->ObjectToCSelf(newMenuBar);
+
+    if ( SetMenu(dlgHwnd, cMenubar->getHMenu()) == 0 )
+    {
+        oodSetSysErrCode(c->threadContext);
+        goto done_out;
+    }
+
+    oldMenuBar = c->SendMessage1(dlg, "LINKMENU", cMenubar->getSelf());
+    maybeRedraw(false);
+
+    pCEventNotification pcen = dlgToEventNotificationCSelf(c, dlg);
+
+    cMenubar->checkAutoConnect(pcen);
+
+done_out:
+    return oldMenuBar;
 }
 
 /**
@@ -1312,7 +1403,10 @@ logical_t CppMenu::connectSomeCommandEvents(RexxObjectPtr rxItemIds, CSTRING met
         goto done_out;
     }
 
-    if ( *method == '\0' )
+    // The 'method' argument is optional in the Rexx method, so NULL is okay.
+    // But, if the user does supply a method name, it can not be the emptry
+    // strin.
+    if ( method != NULL && *method == '\0' )
     {
         oodSetSysErrCode(c->threadContext, ERROR_INVALID_PARAMETER);
         goto done_out;
@@ -1617,6 +1711,12 @@ void CppMenu::setAutoConnection(logical_t on, CSTRING methodName)
  *           set up a TRACKPOP structure to pass on the parameters that
  *           TrackPopupEx() needs.
  *
+ *           NOTE that currently the Rexx event handler method is invoked using
+ *           invokeDispatch(), so the event handler *is* running in a different
+ *           thread.  If that should change for some reason, then we need to
+ *           check here for the thread ID and determine whether or not to use
+ *           SendMessage().
+ *
  *           TrackPopupEx expects screen coordinates, be sure to document that
  *           and how to use dlg~clientToScreen() to get the right values.  Also
  *           note that MS doc on WM_CONTEXTMENU is wrong.  x value is in low
@@ -1679,15 +1779,10 @@ RexxObjectPtr CppMenu::trackPopup(RexxObjectPtr location, RexxObjectPtr _dlg, CS
     tp.hMenu = hMenu;
     tp.hWnd = ownerWindow;
 
-    UINT flags = 0;
+    uint32_t flags = 0;
     if ( opts != NULL )
     {
         flags = getTrackFlags(opts);
-        if ( flags == ERROR_OUTOFMEMORY )
-        {
-            outOfMemoryException(c->threadContext);
-            goto done_out;
-        }
     }
     else
     {
@@ -2713,6 +2808,13 @@ static uint32_t deleteSeparatorByID(HMENU hMenu, uint32_t id)
     return 0;
 }
 
+
+/**
+ *  Methods for the .Menu mixin class.
+ */
+#define MENU_CLASS       "Menu"
+
+
 /** Menu::connectCommandEvent() [class]
  *
  * This class method connects a menu command item event with a method in the
@@ -3734,8 +3836,9 @@ done_out:
  *           enhancement could add support for that.
  *
  *           Note to myself, I have tested this several times, setting a
- *           submenu's state to checked does nothing, and setting it to default
- *           does work.
+ *           submenu's state to checked does nothing. I've tested all other
+ *           keywords, MENUBARBREAK, MENUBREAK, RIGHTJUSTIFY, RIGHTORDER,
+ *           DEFAULT, DISABLED, GRAYED, and HILITE all work.
  */
 RexxMethod8(logical_t, menu_insertPopup, RexxObjectPtr, rxBefore, RexxObjectPtr, rxID, RexxObjectPtr, popup, CSTRING, text,
             OPTIONAL_CSTRING, stateOpts, OPTIONAL_CSTRING, typeOpts, OPTIONAL_logical_t, byPosition, CSELF, cMenuPtr)
@@ -4505,6 +4608,13 @@ RexxMethod1(RexxObjectPtr, menu_getAutoConnectStatus, CSELF, cMenuPtr)
 RexxMethod2(RexxStringObject, menu_itemTextToMethodName, CSTRING, text, OSELF, self)
 {
     RexxStringObject result = NULLOBJECT;
+
+    if ( strlen(text) == 0 )
+    {
+        nullStringMethodException(context, 1);
+        return result;
+    }
+
     char *name = strdup_2methodName(text);
     if ( name != NULL )
     {
@@ -4702,6 +4812,99 @@ RexxMethod5(logical_t, menu_connectSomeCommandEvents, RexxObjectPtr, rxItemIDs, 
 }
 
 
+/**
+ *  Methods for the .MenuBar mixin class.
+ */
+#define MENUBAR_CLASS       "MenuBar"
+
+
+/** MenuBar::attachTo()
+ *
+ * Attaches this menu bar to the specified dialog window.
+ *
+ * A menu bar can only be attached to one dialog and a dialog can only have one
+ * menu bar attached to it.  If either the menu bar is already attached to a
+ * dialog, or the dialog already has a menu bar attached to it, this method
+ * fails.
+ *
+ * If the menu bar is already attached to a dialog, first use the
+ * .MenuBar~detach() method to detach it.
+ *
+ * If the dialog already has a menu bar attached to it and you want to attach
+ * this menu bar to that dialog, get a reference to the dialog's current menu
+ * bar and use the replace() method.
+ *
+ *  @param  dlg  The dialog to attach to.
+ *
+ *  @return  True on success, false on failure.
+ *
+ *  @note  Sets .SystemErrorCode on failure.  In addition to error codes set by
+ *         the operating system, the following error codes may be set by
+ *         ooDialog:
+ *
+ *            ERROR_INVALID_FUNCTION (1) this menu is already attached to a dlg
+ *
+ *            ERROR_NOT_ENOUGH_MEMORY (8) some menu items were not connected
+ *            because the message table is full.
+ *
+ *            ERROR_INVALID_WINDOW_HANDLE (1400) dlg has no underlying Windows
+ *            dialog
+ *
+ *            ERROR_INVALID_MENU_HANDLE (1401) this menu has been destroyed
+ *
+ *            ERROR_WINDOW_NOT_DIALOG (1420) dlg is not a .PlainBaseDialog
+ *
+ *            ERROR_INVALID_WINDOW_STYLE (2002) dlg already attached to a menu
+ *            bar
+ *
+ *         When this method returns false, the menu is not attached to a dialog,
+ *         except in one circumstance.  If the .SystemErrorCode is
+ *         ERROR_NOT_ENOUGH_MEMORY, then the menu is attached to the dialog, but
+ *         some menu items were not connected.
+ */
+RexxMethod2(logical_t, menuBar_attachTo, RexxObjectPtr, dlg, CSELF, cMenuPtr)
+{
+    CppMenu *cMenu = (CppMenu *)cMenuPtr;
+    cMenu->setContext(context, TheFalseObj);
+
+    return cMenu->attachToDlg(dlg);
+}
+
+/** MenuBar::detach()
+ *
+ *  Detaches this menu from its assigned dialog.
+ *
+ *  @return  True on success, false on failure.
+ *
+ *  @note  Sets .SystemErrorCode on failure.  In addition to codes set by the
+ *         operating system, the following error code indicates that this menu
+ *         bar is not attached to a dialog:
+ *
+ *         ERROR_INVALID_FUNCTION (1) -> Not attached to a dialog.
+ */
+RexxMethod1(logical_t, menuBar_detach, CSELF, cMenuPtr)
+{
+    CppMenu *cMenu = (CppMenu *)cMenuPtr;
+    cMenu->setContext(context, TheFalseObj);
+
+    return cMenu->detach(false);
+}
+
+/** MenuBar::isAttached()
+ *
+ * Determines if this menu bar is currently attached to a dialog.
+ *
+ * @return  True if attached, false if not attached.
+ */
+RexxMethod1(logical_t, menuBar_isAttached, CSELF, cMenuPtr)
+{
+    CppMenu *cMenu = (CppMenu *)cMenuPtr;
+    cMenu->setContext(context, TheFalseObj);
+    oodResetSysErrCode(context->threadContext);
+    return cMenu->isAttached();
+}
+
+
 /** MenuBar::redraw()
  *
  *  Tells the dialog this menu bar is attached to, to redraw the menu.
@@ -4724,11 +4927,14 @@ RexxMethod1(logical_t, menuBar_redraw, CSELF, cMenuPtr)
 }
 
 
-/** MenuBar::detach()
+/** MenuBar::replace()
  *
- *  Detaches this menu from its assigned dialog.
+ *  If this menubar is attached to a dialog, the menubar for the dialog is
+ *  replaced by the specified menubar.
  *
- *  @return  True on success, false on failure.
+ *  @param   newMenu  The new menu bar to attach to this menu bar's dialog.
+ *
+ *  @return  The existing menu bar, if there is one, otherwise .ni
  *
  *  @note  Sets .SystemErrorCode on failure.  In addition to codes set by the
  *         operating system, the following error code indicates that this menu
@@ -4736,84 +4942,19 @@ RexxMethod1(logical_t, menuBar_redraw, CSELF, cMenuPtr)
  *
  *         ERROR_INVALID_FUNCTION (1) -> Not attached to a dialog.
  */
-RexxMethod1(logical_t, menuBar_detach, CSELF, cMenuPtr)
+RexxMethod2(RexxObjectPtr, menuBar_replace, RexxObjectPtr, newMenu, CSELF, cMenuPtr)
 {
     CppMenu *cMenu = (CppMenu *)cMenuPtr;
     cMenu->setContext(context, TheFalseObj);
 
-    return cMenu->detach(false);
+    return cMenu->replace(newMenu);
 }
 
-/** MenuBar::attachTo()
- *
- * Attaches this menu bar to the specified dialog window.
- *
- * A menu bar can only be attached to one dialog and a dialog can only have one
- * menu bar attached to it.  If either the menu bar is already attached to a
- * dialog, or the dialog already has a menu bar attached to it, this method
- * fails.
- *
- * If the menu bar is already attached to a dialog, first use the
- * .MenuBar~detach() method to detach it.
- *
- * If the dialog already has a menu bar attached to it and you want to attach a
- * different menu bar, you have two options:
- *
- * 1.) Use the .MenuBar~replace() method
- *
- * 2a.) If you have a reference to the menu bar it is attached to, simply use
- * the detach() method.  Otherwise, use the .PlainBaseDialog~getMenuBar() method
- * to get a reference to the attached menu bar, then use detach().
- *
- *  @param  dlg  The dialog to attach to.
- *
- *  @return  True on success, false on failure.
- *
- *  @note  Sets .SystemErrorCode on failure.  In addition to error codes set by
- *         the operating system, the following error codes may be set by
- *         ooDialog:
- *
- *            ERROR_INVALID_MENU_HANDLE (1401) this menu has been destroyed
- *
- *            ERROR_INVALID_FUNCTION (1) this menu is already attached to a dlg
- *
- *            ERROR_WINDOW_NOT_DIALOG (1420) dlg is not a .PlainBaseDialog
- *
- *            ERROR_INVALID_WINDOW_HANDLE (1400) dlg has no underlying Windows
- *            dialog
- *
- *            ERROR_INVALID_WINDOW_STYLE (2002) dlg already attached to a menu
- *            bar
- *
- *            ERROR_NOT_ENOUGH_MEMORY (8) some menu items were not connected
- *            because the message table is full.
- *
- *         When this method returns false, the menu is not attached to a dialog,
- *         except in one circumstance.  If the .SystemErrorCode is
- *         ERROR_NOT_ENOUGH_MEMORY, then the menu is attached to the dialog, but
- *         some menu items were not connected.
+
+/**
+ *  Methods for the .Menu mixin class.
  */
-RexxMethod2(logical_t, menuBar_attachTo, RexxObjectPtr, dlg, CSELF, cMenuPtr)
-{
-    CppMenu *cMenu = (CppMenu *)cMenuPtr;
-    cMenu->setContext(context, TheFalseObj);
-
-    return cMenu->attachToDlg(dlg);
-}
-
-/** MenuBar::isAttached()
- *
- * Determines if this menu bar is currently attached to a dialog.
- *
- * @return  True if attached, false if not attached.
- */
-RexxMethod1(logical_t, menuBar_isAttached, CSELF, cMenuPtr)
-{
-    CppMenu *cMenu = (CppMenu *)cMenuPtr;
-    cMenu->setContext(context, TheFalseObj);
-    oodResetSysErrCode(context->threadContext);
-    return cMenu->isAttached();
-}
+#define MENUTEMPLATE_CLASS       "MenuTemplate"
 
 
 /** MenuTemplate::addPopup()
@@ -4853,12 +4994,13 @@ RexxMethod1(logical_t, menuBar_isAttached, CSELF, cMenuPtr)
  *        Additional keyword: END  This keyword is required to indicate the
  *        popup menu is the last item at the current level of the menu.
  *
+ * @remarks  Note to myself. I have tested this with DEFAULT, DISABLED, GRAYED,
+ *           HILITE, MENUBARBREAK, MENUBREAK, RIGHTJUSTIFY, and RIGHTORDER. They
+ *           all work.
  */
 RexxMethod5(logical_t, menuTemplate_addPopup, RexxObjectPtr, rxID, CSTRING, text,
             OPTIONAL_CSTRING, opts, OPTIONAL_RexxObjectPtr, rxHelpID, OSELF, self)
 {
-    RexxMethodContext *c = context;
-
     CppMenu *cMenu = menuToCSelf(context, self);
     cMenu->setContext(context, TheFalseObj);
 
@@ -4877,7 +5019,7 @@ RexxMethod5(logical_t, menuTemplate_addPopup, RexxObjectPtr, rxID, CSTRING, text
  * @param opts    [optional]  A string of 0 or more, blank seperated, keywords
  *                indicating additional options for the menu item.  The keywords
  *                set the state and type of the of the item, and specify when
- *                the itme is the last item at the current level in the menu.
+ *                the item is the last item at the current level in the menu.
  *
  * @param method  [optional]  A method name to connect the item to.  The default
  *                is to not connect the menu command item. If this argument is
@@ -4931,9 +5073,6 @@ RexxMethod5(logical_t, menuTemplate_addItem, RexxObjectPtr, rxID, CSTRING, text,
  *                separator and can indicate that the separator is the last item
  *                at the current level in the menu.
  *
- * @param method  [optional]  A method name to connect the item to.  The default
- *                is to not connect the menu command item.
- *
  * @return  True on success, false on error.
  *
  * @note  Sets .SystemErrorCode on error.
@@ -4944,11 +5083,15 @@ RexxMethod5(logical_t, menuTemplate_addItem, RexxObjectPtr, rxID, CSTRING, text,
  *        ERROR_INVALID_FUNCTION (1) -> The .UserMenu has already been
  *        completed.
  *
- * @note  Type keywords: MENUBARBREAK MENUBREAK RIGHTJUSTIFY RADIO ????.  By
- *        default no special type is set.
+ * @note  Type keywords: MENUBARBREAK MENUBREAK RIGHTJUSTIFY.  By default no
+ *        special type is set.
  *
  *        Additional keyword: END  This keyword is required to indicate the menu
  *        command item is the last item at the current level of the menu.
+ *
+ * @remarks  Although MSDN says separators can not be used in a menu bar, on
+ *           Windows 7 at least they can. Not sure if that is because of using
+ *           the extended menu template, or a Windows 7 thing only
  *
  */
 RexxMethod3(logical_t, menuTemplate_addSeparator, RexxObjectPtr, rxID, OPTIONAL_CSTRING, opts, OSELF, self)
@@ -4979,6 +5122,11 @@ RexxMethod1(logical_t, menuTemplate_isComplete, OSELF, self)
     return cMenu->templateIsComplete();
 }
 
+
+/**
+ *  Methods for the .BinaryMenuBar class.
+ */
+#define BINARYMENUBAR_CLASS       "Menu"
 
 /** BinaryMenuBar::init()
  *
@@ -5050,6 +5198,16 @@ RexxMethod7(RexxObjectPtr, binMenu_init, OPTIONAL_RexxObjectPtr, src, OPTIONAL_R
         dwHelpID = tmp;
     }
 
+    // We check here, before we go any farther, if the attachTo argument is
+    // valid and attachToDlg() is not going fail later:
+    if ( argumentExists(4) )
+    {
+        if ( ! validAttachTo(context, attachTo, 4) )
+        {
+            goto done_out;
+        }
+    }
+
     HMENU hMenu = NULL;
     bool isResDialog = false;
     bool isPointer = false;
@@ -5059,7 +5217,7 @@ RexxMethod7(RexxObjectPtr, binMenu_init, OPTIONAL_RexxObjectPtr, src, OPTIONAL_R
         hMenu = CreateMenu();
         if ( hMenu == NULL )
         {
-            systemServiceExceptionCode(context->threadContext, API_FAILED_MSG, "LoadMenu");
+            systemServiceExceptionCode(context->threadContext, API_FAILED_MSG, "CreateMenu");
             goto done_out;
         }
     }
@@ -5122,8 +5280,6 @@ RexxMethod7(RexxObjectPtr, binMenu_init, OPTIONAL_RexxObjectPtr, src, OPTIONAL_R
         }
     }
 
-    // Okay, from this point on we need to go to err_out on an exception to
-    // clean up hMenu.
     cMenu->setHMenu(hMenu);
 
     if ( dwHelpID != 0 )
@@ -5142,11 +5298,6 @@ RexxMethod7(RexxObjectPtr, binMenu_init, OPTIONAL_RexxObjectPtr, src, OPTIONAL_R
 
     if ( argumentExists(4) )
     {
-        if ( ! c->IsOfType(attachTo, "PLAINBASEDIALOG") )
-        {
-            userDefinedMsgException(context->threadContext, CAN_NOT_ATTACH_ON_INIT_MSG);
-            goto err_out;
-        }
         cMenu->attachToDlg(attachTo);
     }
 
@@ -5154,15 +5305,13 @@ RexxMethod7(RexxObjectPtr, binMenu_init, OPTIONAL_RexxObjectPtr, src, OPTIONAL_R
 
 done_out:
     return NULLOBJECT;
-
-err_out:
-  if ( hMenu && ! isPointer )
-  {
-      DestroyMenu(hMenu);
-  }
-  cMenu->setHMenu(NULL);
-  return NULLOBJECT;
 }
+
+
+/**
+ *  Methods for the .SystemMenu class.
+ */
+#define SYSTEMMENU_CLASS       "SystemMenu"
 
 
 /** SystemMenu::init()
@@ -5233,6 +5382,12 @@ RexxMethod1(logical_t, sysMenu_revert, CSELF, cMenuPtr)
 
     return cMenu->revertSysMenu();
 }
+
+
+/**
+ *  Methods for the .PopupMenu class.
+ */
+#define POPUPMENU_CLASS       "PopupMenu"
 
 
 /** PopupMenu::connectContextMenu() [class]
@@ -5312,6 +5467,14 @@ done_out:
  *                       underlying menu of this .PopupMenu.  When omitted or
  *                       null, a new empty menu is created as the underlying
  *                       menu.
+ *
+ *                       TODO - don't document this argument at this time.  The
+ *                       user has no way of getting a menu handle, except
+ *                       through a menu object.  If the user gets a submenu from
+ *                       a menu bar, or other menu, to get its handle, it is
+ *                       easier just to use the submenu object itself.  So,
+ *                       there seems to be no use for this argument, at this
+ *                       time.
  *
  *  @return  No return.
  *
@@ -5597,6 +5760,12 @@ RexxMethod6(RexxObjectPtr, popMenu_show, RexxObjectPtr, location, OPTIONAL_RexxO
 }
 
 
+/**
+ *  Methods for the .ScriptMenuBar class.
+ */
+#define SCRIPTMENUBAR_CLASS       "ScriptMenuBar"
+
+
 /** ScriptMenuBar::init()
  *
  *  Initializes a .ScriptMenuBar object.  The underlying menu object is created
@@ -5616,10 +5785,10 @@ RexxMethod6(RexxObjectPtr, popMenu_show, RexxObjectPtr, location, OPTIONAL_RexxO
  *                       default if omitted is 100.
  *
  *  @param  connect      [optional]  If true, each menu command item in the menu
- *                       is connected to a method.  The name of the method is
- *                       composed from the menu item text.  This uses the
- *                       connectionRequested method of connecting menu items.
- *                       The default is false.
+ *                       is connected to a method in a Rexx dialog.  The name of
+ *                       the method is composed from the menu item text.  This
+ *                       uses the connection requested method of connecting menu
+ *                       items. The default is false.
  *
  *  @param  attachTo     [optional]  If specified attach this menu to the
  *                       dialog.  If specified, attachTo has to be a
@@ -5683,9 +5852,9 @@ RexxMethod7(RexxObjectPtr, scriptMenu_init, RexxStringObject, rcFile, OPTIONAL_R
 
     if ( argumentExists(6) )
     {
-        if ( ! context->IsOfType(attachTo, "PLAINBASEDIALOG") )
+        // We make sure here, that attachToDlg() later will not fail.
+        if ( ! validAttachTo(context, attachTo, 6) )
         {
-            wrongClassException(context->threadContext, 6, "PlainBaseDialog");
             goto done_out;
         }
     }
@@ -5734,6 +5903,12 @@ RexxMethod7(RexxObjectPtr, scriptMenu_init, RexxStringObject, rcFile, OPTIONAL_R
 done_out:
     return NULLOBJECT;
 }
+
+
+/**
+ *  Methods for the .UserMenuBar class.
+ */
+#define USERMENUBAR_CLASS       "UserMenuBar"
 
 
 /** UserMenuBar::init()
@@ -6005,10 +6180,10 @@ static UINT getItemTypeOpts(const char *opts, UINT type)
  * Parses an option string to determine a separtor's type flags.
  *
  * @param opts Keywords signaling the different MFT_* flags.  These are the
- *             valid keywords: MENUBARBREAK MENUBREAK RIGHTORDER
+ *             valid keywords: MENUBARBREAK MENUBREAK RIGHTJUSTIFY
  *
  *             To remove these types from an existing separator, use NOT, i.e.
- *             NOTMENUBARBREAK will remvoe the MFT_MENUBARBREAK flag from a menu
+ *             NOTMENUBARBREAK will remove the MFT_MENUBARBREAK flag from a menu
  *             separator.
  *
  * @return The combined MFT_* flags for a menu separtor.
@@ -6033,16 +6208,14 @@ static UINT getSeparatorTypeOpts(const char *opts, UINT type)
         type |= MFT_MENUBREAK;
     }
 
-    // TODO test if RIGHTORDER is valid for a separator, I don't think it is.
-    if ( strstr(opts, "NOTRIGHTORDER") != NULL )
+    if ( strstr(opts, "NOTRIGHTJUSTIFY") != NULL )
     {
-        type &= ~MFT_RIGHTORDER;
+        type &= ~MFT_RIGHTJUSTIFY;
     }
-    else if ( strstr(opts, "RIGHTORDER") != NULL )
+    else if ( strstr(opts, "RIGHTJUSTIFY") != NULL )
     {
-        type |= MFT_RIGHTORDER;
+        type |= MFT_RIGHTJUSTIFY;
     }
-
     return type;
 }
 
@@ -6077,19 +6250,13 @@ static UINT getItemStateOpts(const char *opts, UINT state)
 
 static UINT getTrackFlags(const char *opt)
 {
-    UINT flag = 0;
+    uint32_t flag = 0;
 
-    char *upperStr = strdupupr(opt);
-    if ( upperStr == NULL )
-    {
-        return ERROR_OUTOFMEMORY;
-    }
-
-    if ( strstr(upperStr, "LEFT") != NULL )
+    if ( StrStrI(opt, "LEFT") != NULL )
     {
         flag = TPM_LEFTALIGN;
     }
-    else if ( strstr(upperStr, "HCENTER") != NULL )
+    else if ( StrStrI(opt, "HCENTER") != NULL )
     {
         flag = TPM_CENTERALIGN;
     }
@@ -6098,11 +6265,11 @@ static UINT getTrackFlags(const char *opt)
         flag = TPM_RIGHTALIGN;
     }
 
-    if ( strstr(upperStr, "TOP") != NULL )
+    if ( StrStrI(opt, "TOP") != NULL )
     {
         flag |= TPM_TOPALIGN;
     }
-    else if ( strstr(upperStr, "VCENTER") != NULL )
+    else if ( StrStrI(opt, "VCENTER") != NULL )
     {
         flag |= TPM_VCENTERALIGN;
     }
@@ -6111,47 +6278,46 @@ static UINT getTrackFlags(const char *opt)
         flag |= TPM_BOTTOMALIGN;
     }
 
-    if ( strstr(upperStr, "HORNEGANIMATION") != NULL )
+    if ( StrStrI(opt, "HORNEGANIMATION") != NULL )
     {
         flag |= TPM_HORNEGANIMATION;
     }
-    if ( strstr(upperStr, "HORPOSANIMATION") != NULL )
+    if ( StrStrI(opt, "HORPOSANIMATION") != NULL )
     {
         flag |= TPM_HORPOSANIMATION;
     }
-    if ( strstr(upperStr, "NOANIMATION") != NULL )
+    if ( StrStrI(opt, "NOANIMATION") != NULL )
     {
         flag |= TPM_NOANIMATION;
     }
-    if ( strstr(upperStr, "VERNEGANIMATION") != NULL )
+    if ( StrStrI(opt, "VERNEGANIMATION") != NULL )
     {
         flag |= TPM_VERNEGANIMATION;
     }
-    if ( strstr(upperStr, "VERPOSANIMATION") != NULL )
+    if ( StrStrI(opt, "VERPOSANIMATION") != NULL )
     {
         flag |= TPM_VERPOSANIMATION;
     }
-    if ( strstr(upperStr, "HORIZONTAL") != NULL )
+    if ( StrStrI(opt, "HORIZONTAL") != NULL )
     {
         flag |= TPM_HORIZONTAL;
     }
-    if ( strstr(upperStr, "VERTICAL") != NULL )
+    if ( StrStrI(opt, "VERTICAL") != NULL )
     {
         flag |= TPM_VERTICAL;
     }
-    if ( strstr(upperStr, "RECURSE") != NULL )
+    if ( StrStrI(opt, "RECURSE") != NULL )
     {
         flag |= TPM_RECURSE;
     }
     if ( ComCtl32Version >= COMCTL32_6_0 )
     {
-        if ( strstr(upperStr, "LAYOUTRTL") != NULL )
+        if ( StrStrI(opt, "LAYOUTRTL") != NULL )
         {
             flag |= TPM_LAYOUTRTL;
         }
     }
 
-    safeFree(upperStr);
     return flag;
 }
 

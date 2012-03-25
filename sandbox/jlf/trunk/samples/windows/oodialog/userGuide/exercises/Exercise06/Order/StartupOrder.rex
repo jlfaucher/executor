@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2011-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2011-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -36,19 +36,20 @@
 /*----------------------------------------------------------------------------*/
 /* ooDialog User Guide
    Exercise06: 		Stand-alone startup for OrderForm
-   startupOrderForm.rex						  v01-00 12Sep11
+   startupOrder.rex						  v01-01 11Feb12
 
    Contains: 	   Startup code.
    Pre-requisites: Must be run from the parent folder of the Order folder.
 
    Changes:
-   v01-00 12Sep11: First Version
+   v01-00 28Sep11: First Version
+   v01-01 11Feb12: Add .application~setDefaults to this file.
 
    Outstanding Problems: None reported.
 *******************************************************************************/
 
+.Application~setDefaults("O", , .false)
 
+.OrderView~newInstance("SA")
 
-.OrderFormView~newInstance("SA")
-
-::REQUIRES "Order\OrderFormView.rex"
+::REQUIRES "Order\OrderView.rex"

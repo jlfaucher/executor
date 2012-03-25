@@ -10,18 +10,18 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::requires "concurrency/coactivity.cls"
 ::requires "concurrency/generator.cls"
 
-::extension String inherit StringHelpers StringDoer StringReducer StringMapper RepeaterCollector RepeaterGenerator StringIterator StringFilter StringGenerator
-::extension MutableBuffer inherit StringHelpers MutableBufferReducer MutableBufferMapper MutableBufferIterator MutableBufferFilter MutableBufferGenerator
-::extension Routine inherit RoutineDoer
-::extension Method inherit MethodDoer
-::extension Coactivity inherit CoactivityDoer CoactivityReducer CoactivityIterator CoactivityFilter CoactivityGenerator
-::extension RexxBlock inherit RexxBlockDoer
-::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator CollectionFilter CollectionGenerator
-::extension OrderedCollection inherit OrderedCollectionFilter
-::extension Supplier inherit SupplierReducer SupplierIterator SupplierFilter SupplierGenerator
-::extension CoactivitySupplierForGeneration inherit CoactivitySupplierForGenerationIterator CoactivitySupplierForGenerationFilter
-::extension Array inherit ArrayInitializer ArrayPrettyPrinter
-::extension File inherit FileExtension
+::extension Routine                         inherit RoutineDoer
+::extension Method                          inherit MethodDoer
+::extension RexxBlock                       inherit RexxBlockDoer
+::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers RepeaterCollector RepeaterGenerator 
+::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper StringHelpers
+::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper
+::extension OrderedCollection               inherit                OrderedCollectionFilter
+::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
+::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator
+::extension Array                           inherit ArrayInitializer ArrayPrettyPrinter
+::extension File                            inherit FileExtension
 
 
 -------------------------------------------------------------------------------

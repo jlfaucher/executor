@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -48,6 +48,7 @@
 
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
+#include "oodMessaging.hpp"
 #include "oodControl.hpp"
 #include "oodResources.hpp"
 
@@ -453,7 +454,10 @@ static RexxStringObject mcStyle2String(RexxMethodContext *c, uint32_t style)
     if ( style & MCS_SHORTDAYSOFWEEK )  strcat(buf, "SHORTDAYS "  );
     if ( style & MCS_NOSELCHANGEONNAV ) strcat(buf, "NOSELCHANGE ");
 
-    *(buf + strlen(buf)) = '\0';
+    if ( *buf != '\0' )
+    {
+        *(buf + strlen(buf) - 1) = '\0';
+    }
     return c->String(buf);
 }
 
@@ -958,13 +962,13 @@ inline bool isGridPart(LRESULT hit)
 
 static int32_t dayName2day(CSTRING day)
 {
-    if (      StrStrI(day, "MONDAY"   ) != NULL ) return 0;
-    else if ( StrStrI(day, "TUESDAY"  ) != NULL ) return 1;
-    else if ( StrStrI(day, "WEDNESDAY") != NULL ) return 2;
-    else if ( StrStrI(day, "THURSDAY" ) != NULL ) return 3;
-    else if ( StrStrI(day, "FRIDAY"   ) != NULL ) return 4;
-    else if ( StrStrI(day, "SATURDAY" ) != NULL ) return 5;
-    else if ( StrStrI(day, "SUNDAY"   ) != NULL ) return 6;
+    if (      StrCmpI(day, "MONDAY"   ) == 0 ) return 0;
+    else if ( StrCmpI(day, "TUESDAY"  ) == 0 ) return 1;
+    else if ( StrCmpI(day, "WEDNESDAY") == 0 ) return 2;
+    else if ( StrCmpI(day, "THURSDAY" ) == 0 ) return 3;
+    else if ( StrCmpI(day, "FRIDAY"   ) == 0 ) return 4;
+    else if ( StrCmpI(day, "SATURDAY" ) == 0 ) return 5;
+    else if ( StrCmpI(day, "SUNDAY"   ) == 0 ) return 6;
     else return -1;
 }
 
@@ -2043,7 +2047,7 @@ RexxMethod2(RexxObjectPtr, mc_setFirstDayOfWeek, RexxObjectPtr, firstDay, CSELF,
 
     if ( iDay < 0 || iDay > 6 )
     {
-        return wrongArgValueException(context->threadContext, 1, "name of the day or a nubmer from 0 to 6", firstDay);
+        return wrongArgValueException(context->threadContext, 1, "name of the day or a number from 0 to 6", firstDay);
     }
 
     uint32_t ret = (uint32_t)MonthCal_SetFirstDayOfWeek(hMC, iDay);
@@ -2208,6 +2212,7 @@ done_out:
 #define LVSTATE_ATTRIBUTE         "LV!STATEIMAGELIST"
 #define LVSMALL_ATTRIBUTE         "LV!SMALLIMAGELIST"
 #define LVNORMAL_ATTRIBUTE        "LV!NORMALIMAGELIST"
+#define LVITEM_TEXT_MAX           260
 
 inline bool hasCheckBoxes(HWND hList)
 {
@@ -2439,6 +2444,57 @@ static int getColumnWidthArg(RexxMethodContext *context, RexxObjectPtr _width, s
 
     return width;
 }
+
+
+/**
+ * A list view item sort callback function that works by invoking a method in
+ * the Rexx dialog that does the actual comparison.
+ *
+ * @param lParam1
+ * @param lParam2
+ * @param lParamSort
+ *
+ * @return int32_t
+ *
+ * @remarks  The Rexx programmer will have had to set the lParam user data field
+ *           for each list view item of this to work.  If either lParam1 or
+ *           lParam2 is null, indicating the user did not set a data value for
+ *           the item, we simpley return 0.
+ *
+ *           Testing shows that this call back is always invoked on the dialog's
+ *           window message processing thread, so we do no need to worry about
+ *           doing an AttachThread(), with its subsequent problems of how to do
+ *           a DetachThread().
+ */
+int32_t CALLBACK LvRexxCompareFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+    if ( lParam1 == NULL || lParam2 == NULL )
+    {
+        return 0;
+    }
+
+    pCRexxSort pcrs = (pCRexxSort)lParamSort;
+    RexxThreadContext *c = pcrs->threadContext;
+
+    RexxArrayObject args = c->ArrayOfThree((RexxObjectPtr)lParam1, (RexxObjectPtr)lParam2, pcrs->param);
+
+    RexxObjectPtr reply = c->SendMessage(pcrs->rexxDlg, pcrs->method, args);
+    if ( msgReplyIsGood(c, pcrs->pcpbd, reply, pcrs->method, false) )
+    {
+        int32_t answer;
+        if ( c->Int32(reply, &answer) )
+        {
+            return answer;
+        }
+
+        // Not sure what raising a condition here will do ...
+        wrongReplyListException(c, pcrs->method, "-1, 0, or 1", reply);
+    }
+
+    // There was some error if we are here ...
+    return 0;
+}
+
 
 
 /**
@@ -2727,6 +2783,30 @@ RexxMethod3(int32_t, lv_getNextItem, OPTIONAL_int32_t, startItem, NAME, method, 
     return ListView_GetNextItem(getDChCtrl(pCSelf), startItem, flag);
 }
 
+/** ListView::deselectAll()
+ *
+ *
+ */
+RexxMethod1(uint32_t, lv_deselectAll, CSELF, pCSelf)
+{
+    int32_t  nextItem = -1;
+    uint32_t flag     = LVNI_SELECTED;
+    uint32_t count    = 0;
+    HWND     hLV      = getDChCtrl(pCSelf);
+
+    while ( TRUE )
+    {
+        nextItem = ListView_GetNextItem(hLV, nextItem, flag);
+        if ( nextItem == -1 )
+        {
+            break;
+        }
+        ListView_SetItemState(hLV, nextItem, 0, LVIS_SELECTED);
+        count++;
+    }
+    return count;
+}
+
 /** ListView::selected()
  *  ListView::focused()
  *  ListView::dropHighlighted()
@@ -2832,10 +2912,10 @@ RexxMethod2(int32_t, lv_findNearestXY, ARGLIST, args, CSELF, pCSelf)
         RexxObjectPtr _direction = context->ArrayAt(args, argsUsed + 1);
         CSTRING direction = context->ObjectToStringValue(_direction);
 
-        if ( StrStrI(direction,      "UP")    != NULL ) finfo.vkDirection = VK_UP;
-        else if ( StrStrI(direction, "LEFT")  != NULL ) finfo.vkDirection  = VK_LEFT;
-        else if ( StrStrI(direction, "RIGHT") != NULL ) finfo.vkDirection  = VK_RIGHT;
-        else if ( StrStrI(direction, "DOWN")  != NULL ) finfo.vkDirection  = VK_DOWN;
+        if ( StrCmpI(direction,      "UP")    == 0 ) finfo.vkDirection = VK_UP;
+        else if ( StrCmpI(direction, "LEFT")  == 0 ) finfo.vkDirection  = VK_LEFT;
+        else if ( StrCmpI(direction, "RIGHT") == 0 ) finfo.vkDirection  = VK_RIGHT;
+        else if ( StrCmpI(direction, "DOWN")  == 0 ) finfo.vkDirection  = VK_DOWN;
         else
         {
             wrongArgValueException(context->threadContext, argsUsed + 1, "DOWN, UP, LEFT, or RIGHT", _direction);
@@ -2851,10 +2931,118 @@ err_out:
     return -1;
 }
 
-RexxMethod4(RexxObjectPtr, lv_setItemText, uint32_t, index, OPTIONAL_uint32_t, subitem, CSTRING, text, CSELF, pCSelf)
+
+/** ListView::sortItems()
+ *
+ *
+ */
+RexxMethod3(logical_t, lv_sortItems, CSTRING, method, OPTIONAL_RexxObjectPtr, param, CSELF, pCSelf)
 {
-    ListView_SetItemText(getDChCtrl(pCSelf), index, subitem, (LPSTR)text);
-    return TheZeroObj;
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        return FALSE;
+    }
+
+    pCRexxSort pcrs = pcdc->pcrs;
+    if ( pcrs == NULL )
+    {
+        pcrs = (pCRexxSort)LocalAlloc(LPTR, sizeof(CRexxSort));
+        if ( pcrs == NULL )
+        {
+            outOfMemoryException(context->threadContext);
+            return FALSE;
+        }
+        pcdc->pcrs = pcrs;
+    }
+
+    safeLocalFree(pcrs->method);
+    memset(pcrs, 0, sizeof(CRexxSort));
+
+    pcrs->method = (char *)LocalAlloc(LPTR, strlen(method) + 1);
+    if ( pcrs->method == NULL )
+    {
+        outOfMemoryException(context->threadContext);
+        return FALSE;
+    }
+
+    strcpy(pcrs->method, method);
+    pcrs->pcpbd         = pcdc->pcpbd;
+    pcrs->rexxDlg       = pcdc->pcpbd->rexxSelf;
+    pcrs->rexxLV        = pcdc->rexxSelf;
+    pcrs->threadContext = pcdc->pcpbd->dlgProcContext;
+    pcrs->param         = (argumentExists(2) ? param : TheNilObj);
+
+    return ListView_SortItems(pcdc->hCtrl, LvRexxCompareFunc, pcrs);
+}
+
+RexxMethod2(RexxObjectPtr, lv_getItemData, uint32_t, index, CSELF, pCSelf)
+{
+    LVITEM        lvi    = {LVIF_PARAM, index};
+    RexxObjectPtr result = TheNilObj;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        return result;
+    }
+    if ( ListView_GetItem(pcdc->hCtrl, &lvi) != 0 && lvi.lParam != 0 )
+    {
+        result = (RexxObjectPtr)lvi.lParam;
+    }
+    return result;
+}
+
+RexxMethod2(RexxObjectPtr, lv_removeItemData, uint32_t, index, CSELF, pCSelf)
+{
+    LVITEM        lvi    = {LVIF_PARAM, index};
+    RexxObjectPtr result = TheNilObj;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        return result;
+    }
+    if ( ListView_GetItem(pcdc->hCtrl, &lvi) != 0 && lvi.lParam != 0 )
+    {
+        result = (RexxObjectPtr)lvi.lParam;
+
+        lvi.lParam = 0;
+        ListView_SetItem(pcdc->hCtrl, &lvi);
+
+        if ( pcdc->rexxBag != NULL )
+        {
+            context->SendMessage1(pcdc->rexxBag, "REMOVE", result);
+        }
+    }
+    return result;
+}
+
+RexxMethod3(RexxObjectPtr, lv_setItemData, uint32_t, index, RexxObjectPtr, data, CSELF, pCSelf)
+{
+    LVITEM        lvi = {LVIF_PARAM, index};
+    RexxObjectPtr result = TheNilObj;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        return TheFalseObj;
+    }
+
+    lvi.lParam = (LPARAM)data;
+    if ( ListView_SetItem(pcdc->hCtrl, &lvi) != 0 )
+    {
+        if ( pcdc->rexxBag == NULL )
+        {
+            context->SendMessage1(pcdc->rexxSelf, "PUTINBAG", data);
+        }
+        else
+        {
+            context->SendMessage1(pcdc->rexxBag, "PUT", data);
+        }
+        return TheTrueObj;
+    }
+    return TheFalseObj;
 }
 
 RexxMethod3(RexxStringObject, lv_itemText, uint32_t, index, OPTIONAL_uint32_t, subitem, CSELF, pCSelf)
@@ -2862,6 +3050,12 @@ RexxMethod3(RexxStringObject, lv_itemText, uint32_t, index, OPTIONAL_uint32_t, s
     char buf[256];
     ListView_GetItemText(getDChCtrl(pCSelf), index, subitem, buf, sizeof(buf));
     return context->String(buf);
+}
+
+RexxMethod4(RexxObjectPtr, lv_setItemText, uint32_t, index, OPTIONAL_uint32_t, subitem, CSTRING, text, CSELF, pCSelf)
+{
+    ListView_SetItemText(getDChCtrl(pCSelf), index, subitem, (LPSTR)text);
+    return TheZeroObj;
 }
 
 RexxMethod2(RexxStringObject, lv_itemState, uint32_t, index, CSELF, pCSelf)
@@ -3288,6 +3482,25 @@ RexxMethod3(RexxObjectPtr, lv_getColumnInfo, uint32_t, index, RexxObjectPtr, _d,
     return TheTrueObj;
 }
 
+RexxMethod2(RexxStringObject, lv_getColumnText, uint32_t, index, CSELF, pCSelf)
+{
+    HWND hList = getDChCtrl(pCSelf);
+
+    LVCOLUMN lvi;
+    char buf[256];
+
+    lvi.mask = LVCF_TEXT;
+    lvi.pszText = buf;
+    lvi.cchTextMax = 255;
+
+    if ( ! ListView_GetColumn(hList, index, &lvi) )
+    {
+        buf[0] = '\0';
+    }
+
+    return context->String(buf);
+}
+
 RexxMethod3(RexxObjectPtr, lv_setColumnWidthPx, uint32_t, index, OPTIONAL_RexxObjectPtr, _width, CSELF, pCSelf)
 {
     HWND hList = getDChCtrl(pCSelf);
@@ -3335,9 +3548,9 @@ RexxMethod5(RexxObjectPtr, lv_modifyColumnPx, uint32_t, index, OPTIONAL_CSTRING,
     }
     if ( argumentExists(4) && *align != '\0' )
     {
-        if ( StrStrI(align, "CENTER")     != NULL ) lvi.fmt = LVCFMT_CENTER;
-        else if ( StrStrI(align, "RIGHT") != NULL ) lvi.fmt = LVCFMT_RIGHT;
-        else if ( StrStrI(align, "LEFT")  != NULL ) lvi.fmt = LVCFMT_LEFT;
+        if ( StrCmpI(align, "CENTER")     == 0 ) lvi.fmt = LVCFMT_CENTER;
+        else if ( StrCmpI(align, "RIGHT") == 0 ) lvi.fmt = LVCFMT_RIGHT;
+        else if ( StrCmpI(align, "LEFT")  == 0 ) lvi.fmt = LVCFMT_LEFT;
         else
         {
             wrongArgValueException(context->threadContext, 4, "LEFT, RIGHT, or CENTER", align);
@@ -3526,89 +3739,185 @@ RexxMethod2(int, lv_stringWidthPx, CSTRING, text, CSELF, pCSelf)
     return ListView_GetStringWidth(getDChCtrl(pCSelf), text);
 }
 
-// TODO Review Implementation before release.  Maybe add / use a .ListViewItem or .LVItem
-RexxMethod5(int32_t, lv_addFullRow, CSTRING, text, OPTIONAL_int32_t, itemIndex, OPTIONAL_int32_t, imageIndex,
-            OPTIONAL_RexxObjectPtr, subItems, CSELF, pCSelf)
+// We've added a LvFullRow class, but the details are not fully sorted out.  So
+// do not document for 4.2.0.
+RexxMethod2(int32_t, lv_addFullRow, RexxObjectPtr, row, CSELF, pCSelf)
 {
-    HWND hwnd = getDChCtrl(pCSelf);
+    RexxMethodContext *c = context;
+    pCDialogControl pcdc      = validateDCCSelf(context, pCSelf);
+    HWND            hwnd      = pcdc->hCtrl;
+    int32_t         itemIndex = -1;
 
-    if ( argumentOmitted(2) )
+    if ( ! c->IsOfType(row, "LVFULLROW") )
     {
-        itemIndex = getDCinsertIndex(pCSelf);
-    }
-    if ( argumentOmitted(3) )
-    {
-        imageIndex = -1;
-    }
-
-    LVITEM lvi;
-    lvi.mask = LVIF_TEXT;
-
-    lvi.iItem = itemIndex;
-    lvi.iSubItem = 0;
-    lvi.pszText = (LPSTR)text;
-
-    if ( imageIndex > -1 )
-    {
-        lvi.iImage = imageIndex;
-        lvi.mask |= LVIF_IMAGE;
+        wrongClassException(context->threadContext, 1, "LvFullRow");
+        goto done_out;
     }
 
-    itemIndex = ListView_InsertItem(hwnd, &lvi);
+    pCLvFullRow pclvfr = (pCLvFullRow)c->ObjectToCSelf(row);
+
+    itemIndex = ListView_InsertItem(hwnd, pclvfr->subItems[0]);
 
     if ( itemIndex == -1 )
     {
         goto done_out;
     }
-    ((pCDialogControl)pCSelf)->lastItem = itemIndex;
+    pcdc->lastItem = itemIndex;
 
-    if ( argumentOmitted(4) )
-    {
-        goto done_out;
-    }
-    if ( ! context->IsArray(subItems) )
-    {
-        wrongClassException(context->threadContext, 4, "Array");
-        goto done_out;
-    }
-
-    size_t count = context->ArrayItems((RexxArrayObject)subItems);
+    size_t count = pclvfr->subItemCount;
     for ( size_t i = 1; i <= count; i++)
     {
-        RexxDirectoryObject subItem = (RexxDirectoryObject)context->ArrayAt((RexxArrayObject)subItems, i);
-        if ( subItem == NULLOBJECT || ! context->IsDirectory(subItem) )
-        {
-            wrongObjInArrayException(context->threadContext, 4, i, "a Directory object");
-            goto done_out;
-        }
-
-        RexxObjectPtr subItemText = context->DirectoryAt(subItem, "TEXT");
-        if ( subItemText == NULLOBJECT )
-        {
-            missingIndexInDirectoryException(context->threadContext, 4, "TEXT");
-            goto done_out;
-        }
-        imageIndex = -1;
-        if ( ! rxIntFromDirectory(context, subItem, "ICON", &imageIndex, 4, false) )
-        {
-            goto done_out;
-        }
-
-        lvi.mask = LVIF_TEXT;
-        lvi.iSubItem = (int)i;
-        lvi.pszText = (LPSTR)context->ObjectToStringValue(subItemText);
-
-        if ( imageIndex > -1 )
-        {
-            lvi.iImage = imageIndex;
-            lvi.mask |= LVIF_IMAGE;
-        }
-
-        ListView_SetItem(hwnd, &lvi);
+        ListView_SetItem(hwnd, pclvfr->subItems[i]);
     }
 
 done_out:
     return itemIndex;
+}
+
+
+/** ListView::hitTestInfo()
+ *
+ *  Determine the location of a point relative to the list-view control.
+ *
+ *  @param  pt  [required]  The position, x and y co-ordinates of the point to
+ *              test. This can be specified in two forms.
+ *
+ *      Form 1:  arg 1 is a .Point object.
+ *      Form 2:  arg 1 is the x co-ordinate and arg2 is the y co-ordinate.
+ *
+ *  @param  info  [optional in/out]  A directory object in which all hit info is
+ *                returned.  If the directory is supplied, on return the
+ *                directory will have these indexes:
+ *
+ *                info    Keywords concerning the location of the point.
+ *
+ *                infoEx  Extended keywords concerning the location of the
+ *                        point.  Vista and later.
+ *
+ *                item    Same value as the return.  The item index if the point
+ *                        hits an item, otherwise -1.  (Because list-views are 0
+ *                        based indexes in ooDialog.)
+ *
+ *                subItem The subitem index if the point hits a subitem.
+ *
+ *                group   Vista and later.  Group index of the item hit (read
+ *                        only). Valid only for owner data. If the point is
+ *                        within an item that is displayed in multiple groups
+ *                        then group will specify the group index of the item.
+ *
+ *  @return  The index of the item hit, or -1 if the point does not hit an item.
+ *
+ *  @note    Sometimes the returned index of the hit spot is all that is needed.
+ *           In these cases, there is no need to supply the optional directory
+ *           object.  However, other times the complete hit test information may
+ *           be desired.
+ *
+ *           Any x, y coordinates will work.  I.e. -6000, -7000 will work. The
+ *           item will be -1 and location will be "ABOVE TOLEFT"
+ */
+RexxMethod2(int32_t, lv_hitTestInfo, ARGLIST, args, CSELF, pCSelf)
+{
+    int32_t result = -1;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        goto done_out;
+    }
+    HWND hwnd = pcdc->hCtrl;
+
+    size_t sizeArray;
+    size_t argsUsed;
+    POINT  point;
+    if ( ! getPointFromArglist(context, args, &point, 1, 3, &sizeArray, &argsUsed) )
+    {
+        goto done_out;
+    }
+
+    bool haveDirectory = (sizeArray > argsUsed) ? true : false;
+    RexxDirectoryObject info;
+
+    // Check arg count against expected.
+    if ( sizeArray > (haveDirectory ? argsUsed + 1 : argsUsed) )
+    {
+        tooManyArgsException(context->threadContext, (haveDirectory ? argsUsed + 1 : argsUsed));
+        goto done_out;
+    }
+
+    if ( haveDirectory )
+    {
+        RexxObjectPtr _info = context->ArrayAt(args, argsUsed + 1);
+        if ( _info == NULLOBJECT || ! context->IsDirectory(_info) )
+        {
+            wrongClassException(context->threadContext, argsUsed + 1, "Directory");
+            goto done_out;
+        }
+
+        info = (RexxDirectoryObject)_info;
+    }
+
+    LVHITTESTINFO hti;
+    hti.pt = point;
+
+    char buf[128];
+    *buf = '\0';
+
+    if ( _isAtLeastVista() )
+    {
+        result = ListView_HitTestEx(hwnd, &hti);
+
+        if ( haveDirectory )
+        {
+            context->DirectoryPut(info, context->Int32(hti.iGroup), "GROUP");
+
+            if ( hti.flags & LVHT_EX_FOOTER          ) strcat(buf, "Footer ");
+            if ( hti.flags & LVHT_EX_GROUP           ) strcat(buf, "Group ");
+            if ( hti.flags & LVHT_EX_GROUP_BACKGROUND) strcat(buf, "GroupBackground ");
+            if ( hti.flags & LVHT_EX_GROUP_COLLAPSE  ) strcat(buf, "GroupCollapse ");
+            if ( hti.flags & LVHT_EX_GROUP_FOOTER    ) strcat(buf, "GroupFooter ");
+            if ( hti.flags & LVHT_EX_GROUP_HEADER    ) strcat(buf, "GroupHeader ");
+            if ( hti.flags & LVHT_EX_GROUP_STATEICON ) strcat(buf, "GroupStateIcon ");
+            if ( hti.flags & LVHT_EX_GROUP_SUBSETLINK) strcat(buf, "GroupSubsetLink ");
+            if ( hti.flags & LVHT_EX_ONCONTENTS      ) strcat(buf, "OnContents ");
+
+            if ( *buf != '\0' )
+            {
+                *(buf + strlen(buf) - 1) = '\0';
+            }
+            context->DirectoryPut(info, context->String(buf), "INFOEX");
+        }
+    }
+    else
+    {
+        result = ListView_HitTest(hwnd, &hti);
+    }
+
+    if ( haveDirectory )
+    {
+        context->DirectoryPut(info, context->Int32(hti.iItem), "ITEM");
+        context->DirectoryPut(info, context->Int32(hti.iSubItem), "SUBITEM");
+
+        *buf = '\0';
+
+        if ( hti.flags & LVHT_ABOVE          ) strcat(buf, "Above ");
+        if ( hti.flags & LVHT_BELOW          ) strcat(buf, "Below ");
+        if ( hti.flags & LVHT_TORIGHT        ) strcat(buf, "ToRight ");
+        if ( hti.flags & LVHT_TOLEFT         ) strcat(buf, "ToLeft ");
+        if ( hti.flags & LVHT_NOWHERE        ) strcat(buf, "NoWhere ");
+        if ( hti.flags & LVHT_ONITEMICON     ) strcat(buf, "OnIcon ");
+        if ( hti.flags & LVHT_ONITEMLABEL    ) strcat(buf, "OnLabel ");
+        if ( hti.flags & LVHT_ONITEMSTATEICON) strcat(buf, "OnStateIcon ");
+        if ( hti.flags & LVHT_ONITEM         ) strcat(buf, "OnItem ");
+
+        if ( *buf != '\0' )
+        {
+            *(buf + strlen(buf) - 1) = '\0';
+        }
+        context->DirectoryPut(info, context->String(buf), "INFO");
+    }
+
+done_out:
+    return result;
 }
 
 
@@ -3725,10 +4034,17 @@ RexxMethod4(RexxObjectPtr, lv_setItemPos, uint32_t, index, OPTIONAL_RexxObjectPt
  *         image determines the number of images.  The image list is created
  *         using the ILC_COLOR8 flag, only.  No mask can be used.  No room is
  *         reserved for adding more images to the image list, etc..
+ *
+ *  @remarks  It is possible for this method to fail, without an exception
+ *            raised.  Therefore returning NULLOBJECT on all errors is not
+ *            viable.  The question is whether to return .nil on error, or 0.
+ *            For now, 0 is returned for an error.
  */
 RexxMethod5(RexxObjectPtr, lv_setImageList, RexxObjectPtr, ilSrc,
             OPTIONAL_int32_t, width, OPTIONAL_int32_t, height, OPTIONAL_int32_t, ilType, CSELF, pCSelf)
 {
+    RexxObjectPtr result = TheNilObj;
+
     HWND hwnd = getDChCtrl(pCSelf);
     oodResetSysErrCode(context->threadContext);
 
@@ -3763,6 +4079,7 @@ RexxMethod5(RexxObjectPtr, lv_setImageList, RexxObjectPtr, ilSrc,
         imageList = oodILFromBMP(context, &himl, ilSrc, width, height, hwnd);
         if ( imageList == NULLOBJECT )
         {
+            result = TheZeroObj;
             goto err_out;
         }
 
@@ -3782,7 +4099,7 @@ RexxMethod5(RexxObjectPtr, lv_setImageList, RexxObjectPtr, ilSrc,
     return rxSetObjVar(context, getLVAttributeName(type), imageList);
 
 err_out:
-    return NULLOBJECT;
+    return result;
 }
 
 /** ListView::getImageList()
@@ -3814,6 +4131,841 @@ RexxMethod2(RexxObjectPtr, lv_getImageList, OPTIONAL_uint8_t, type, OSELF, self)
     return result;
 }
 
+
+/**
+ *  Methods for the .LvItem class.
+ */
+#define LVITEM_CLASS            "LvItem"
+
+/**
+ * Converts a string of keywords to the proper LVIF_* flag.
+ *
+ * @param flags
+ *
+ * @return uint32_t
+ */
+uint32_t keyword2lvif(CSTRING flags)
+{
+    uint32_t val = 0;
+
+    if ( StrStrI(flags, "COLFMT")      != NULL ) val |= LVIF_COLFMT;
+    if ( StrStrI(flags, "COLUMNS")     != NULL ) val |= LVIF_COLUMNS;
+    if ( StrStrI(flags, "DI_SETITEM")  != NULL ) val |= LVIF_DI_SETITEM;
+    if ( StrStrI(flags, "GROUPID")     != NULL ) val |= LVIF_GROUPID;
+    if ( StrStrI(flags, "IMAGE")       != NULL ) val |= LVIF_IMAGE;
+    if ( StrStrI(flags, "INDENT")      != NULL ) val |= LVIF_INDENT;
+    if ( StrStrI(flags, "NORECOMPUTE") != NULL ) val |= LVIF_NORECOMPUTE;
+    if ( StrStrI(flags, "PARAM")       != NULL ) val |= LVIF_PARAM;
+    if ( StrStrI(flags, "STATE")       != NULL ) val |= LVIF_STATE;
+    if ( StrStrI(flags, "TEXT")        != NULL ) val |= LVIF_TEXT;
+
+    return val;
+}
+
+
+/**
+ * Converts a set of LVIF_* flags to their keyword string.
+ *
+ * @param c
+ * @param flags
+ *
+ * @return A Rexx string object.
+ */
+ RexxStringObject lvif2keyword(RexxMethodContext *c, uint32_t flags)
+{
+    char buf[256];
+    *buf = '\0';
+
+    if ( flags & LVIF_COLFMT      ) strcat(buf, "COLFMT ");
+    if ( flags & LVIF_COLUMNS     ) strcat(buf, "COLUMNS ");
+    if ( flags & LVIF_DI_SETITEM  ) strcat(buf, "DI_SETITEM ");
+    if ( flags & LVIF_GROUPID     ) strcat(buf, "GROUPID ");
+    if ( flags & LVIF_IMAGE       ) strcat(buf, "IMAGE ");
+    if ( flags & LVIF_INDENT      ) strcat(buf, "INDENT ");
+    if ( flags & LVIF_NORECOMPUTE ) strcat(buf, "NORECOMPUTE ");
+    if ( flags & LVIF_PARAM       ) strcat(buf, "PARAM ");
+    if ( flags & LVIF_STATE       ) strcat(buf, "STATE ");
+    if ( flags & LVIF_TEXT        ) strcat(buf, "TEXT ");
+
+    if ( *buf != '\0' )
+    {
+        *(buf + strlen(buf) - 1) = '\0';
+    }
+    return c->String(buf);
+}
+
+/**
+ * Converts a string of keywords to the proper LVIS_* flag.
+ *
+ * Note that activating and glow are included.  LVIS_ACTIVATING is documented as
+ * not implemented and LVIS_GLOW is not documented period.
+ *
+ * @param flags
+ *
+ * @return uint32_t
+ */
+uint32_t keyword2lvis(CSTRING flags)
+{
+    uint32_t val = 0;
+
+    if ( StrStrI(flags, "FOCUSED")        != NULL ) val |= LVIS_FOCUSED;
+    if ( StrStrI(flags, "SELECTED")       != NULL ) val |= LVIS_SELECTED;
+    if ( StrStrI(flags, "CUT")            != NULL ) val |= LVIS_CUT;
+    if ( StrStrI(flags, "DROPHILITED")    != NULL ) val |= LVIS_DROPHILITED;
+    if ( StrStrI(flags, "GLOW")           != NULL ) val |= LVIS_GLOW;
+    if ( StrStrI(flags, "ACTIVATING")     != NULL ) val |= LVIS_ACTIVATING;
+    if ( StrStrI(flags, "OVERLAYMASK")    != NULL ) val |= LVIS_OVERLAYMASK;
+    if ( StrStrI(flags, "STATEIMAGEMASK") != NULL ) val |= LVIS_STATEIMAGEMASK;
+
+    return val;
+}
+
+
+/**
+ * Converts a set of LVIS_* flags to their keyword string.
+ *
+ * Note that activating and glow are included.  LVIS_ACTIVATING is documented as
+ * not implemented and LVIS_GLOW is not documented period.
+ *
+ * @param c
+ * @param flags
+ *
+ * @return A Rexx string object.
+ */
+ RexxStringObject lvis2keyword(RexxMethodContext *c, uint32_t flags)
+{
+    char buf[256];
+    *buf = '\0';
+
+    if ( flags & LVIS_FOCUSED       ) strcat(buf, "FOCUSED ");
+    if ( flags & LVIS_SELECTED      ) strcat(buf, "SELECTED ");
+    if ( flags & LVIS_CUT           ) strcat(buf, "CUT ");
+    if ( flags & LVIS_DROPHILITED   ) strcat(buf, "DROPHILITED ");
+    if ( flags & LVIS_GLOW          ) strcat(buf, "GLOW ");
+    if ( flags & LVIS_ACTIVATING    ) strcat(buf, "ACTIVATING ");
+    if ( flags & LVIS_OVERLAYMASK   ) strcat(buf, "OVERLAYMASK ");
+    if ( flags & LVIS_STATEIMAGEMASK) strcat(buf, "STATEIMAGEMASK ");
+
+    if ( *buf != '\0' )
+    {
+        *(buf + strlen(buf) - 1) = '\0';
+    }
+    return c->String(buf);
+}
+
+RexxStringObject getLviText(RexxMethodContext *c, LPLVITEM pLVI)
+{
+    return c->String(pLVI->pszText);
+}
+
+/**
+ * Sets the text for the list view item.
+ *
+ * If the LvItem is used to receive information, the pszText member has to point
+ * to a buffer to recieve the text.  It seems that there should be a way for the
+ * user to remove the text of this attribute.  Only needed if the user is
+ * re-using a LvItem object.  So, for a convention, we say if text == the empty
+ * string then we allocate a buffer to recieve the item text.
+ *
+ * Also, the MSDN docs say that although the user can set the text to any
+ * length, only the first 260 TCHARS are displayed.  So, to keep things a little
+ * simplier, we only allow the Rexx programmer to use a string up to 260 TCHARS.
+ * This is only enforced here, not currently enforced in the ListView class.
+ *
+ * @param c
+ * @param pLVI
+ * @param text
+ *
+ * @return bool
+ */
+bool setLviText(RexxMethodContext *c, LPLVITEM pLVI, CSTRING text, size_t argPos)
+{
+    size_t len = strlen(text);
+
+    bool removing = len == 0 ? true : false;
+
+    if ( len > LVITEM_TEXT_MAX )
+    {
+        stringTooLongException(c->threadContext, argPos, LVITEM_TEXT_MAX, len);
+        return false;
+    }
+
+    safeLocalFree(pLVI->pszText);
+    pLVI->pszText = NULL;
+
+    if ( removing )
+    {
+        len = LVITEM_TEXT_MAX;
+    }
+
+    pLVI->pszText = (char *)LocalAlloc(LPTR, len + 1);
+    if ( pLVI->pszText == NULL )
+    {
+        outOfMemoryException(c->threadContext);
+        return false;
+    }
+
+    if ( ! removing )
+    {
+        strcpy(pLVI->pszText, text);
+        pLVI->mask |= LVIF_TEXT;
+    }
+
+    pLVI->cchTextMax = (int)(len + 1);
+
+    return true;
+}
+
+int32_t getLviGroupID(RexxMethodContext *c, LPLVITEM pLVI)
+{
+    if ( ! requiredComCtl32Version(c, "LvItem::groupID", COMCTL32_6_0) )
+    {
+        return 0;
+    }
+    return pLVI->iGroupId;
+}
+
+RexxObjectPtr setLviGroupID(RexxMethodContext *c, LPLVITEM pLVI, int32_t id)
+{
+    if ( ! requiredComCtl32Version(c, "LvItem::groupID", COMCTL32_6_0) )
+    {
+        return NULLOBJECT;
+    }
+
+    pLVI->iGroupId = id;
+    pLVI->mask |= LVIF_GROUPID;
+
+    return NULLOBJECT;
+}
+
+RexxArrayObject getLviColumns(RexxMethodContext *c, LPLVITEM pLVI)
+{
+    if ( ! requiredComCtl32Version(c, "LvItem::columns", COMCTL32_6_0) )
+    {
+        return NULLOBJECT;
+    }
+
+    uint32_t  count    = pLVI->cColumns;
+    uint32_t *pColumns = pLVI->puColumns;
+
+    RexxArrayObject columns = c->NewArray(count);
+    for ( uint32_t i = 0; i < count; i++)
+    {
+        c->ArrayPut(columns, c->UnsignedInt32(pColumns[i]), i + 1);
+    }
+
+    return columns;
+}
+
+RexxObjectPtr setLviColumns(RexxMethodContext *c, LPLVITEM pLVI, RexxArrayObject _columns, size_t argPos)
+{
+    if ( ! requiredComCtl32Version(c, "LvItem::columns", COMCTL32_6_0) )
+    {
+        goto done_out;
+    }
+
+    size_t    items   = c->ArrayItems(_columns);
+    logical_t success = FALSE;
+
+    if ( items < 1 || items > 20 )
+    {
+        userDefinedMsgException(c->threadContext, "the number of items in the columns array must be greater than 0 and less than 21");
+        goto done_out;
+    }
+
+    uint32_t *pColumns = (uint32_t *)malloc(items * sizeof(uint32_t));
+    if ( pColumns != NULL )
+    {
+        RexxObjectPtr item;
+        uint32_t column;
+
+        for ( size_t i = 0; i < items; i++)
+        {
+            item = c->ArrayAt(_columns, i + 1);
+            if ( item == NULLOBJECT )
+            {
+                sparseArrayException(c->threadContext, argPos, i + 1);
+                goto done_out;
+            }
+            if ( ! c->ObjectToUnsignedInt32(item, &column) || column < 1)
+            {
+                wrongObjInArrayException(c->threadContext, argPos, i + 1, "a valid column number", item);
+                goto done_out;
+            }
+
+            pColumns[i] = column;
+        }
+
+        pLVI->cColumns   = (uint32_t)items;
+        pLVI->puColumns  = pColumns;
+        pLVI->mask      |= LVIF_COLUMNS;
+    }
+    else
+    {
+        outOfMemoryException(c->threadContext);
+    }
+
+done_out:
+    return NULLOBJECT;
+}
+
+
+/** LvItem::uninit()
+ *
+ */
+RexxMethod1(RexxObjectPtr, lvi_unInit, CSELF, pCSelf)
+{
+#if 1
+    printf("In lvi_unInit() pCSelf=%p\n", pCSelf);
+#endif
+
+    if ( pCSelf != NULLOBJECT )
+    {
+        LPLVITEM pLVI = (LPLVITEM)pCSelf;
+
+#if 0
+    printf("In lvi_unInit() pszText=%p\n", pLVI->pszText);
+#endif
+        safeLocalFree(pLVI->pszText);
+        safeLocalFree(pLVI->puColumns);
+    }
+    return NULLOBJECT;
+}
+
+
+/** LvItem::init()
+ *
+ *
+ */
+RexxMethod10(RexxObjectPtr, lvi_init, OPTIONAL_RexxObjectPtr, _index, OPTIONAL_CSTRING, mask, OPTIONAL_CSTRING, text,
+             OPTIONAL_int32_t, imageIndex, OPTIONAL_RexxObjectPtr, userData, OPTIONAL_CSTRING, itemState,
+             OPTIONAL_CSTRING, itemStateMask, OPTIONAL_uint32_t, indent, OPTIONAL_int32_t, groupID,
+             OPTIONAL_RexxArrayObject, columns)
+{
+    if ( argumentExists(1) && context->IsBuffer(_index) )
+    {
+        context->SetObjectVariable("CSELF", _index);
+        return NULLOBJECT;
+    }
+
+    RexxMethodContext *c = context;
+    RexxBufferObject obj = context->NewBuffer(sizeof(LVITEM));
+    context->SetObjectVariable("CSELF", obj);
+
+    LPLVITEM lvi = (LPLVITEM)context->BufferData(obj);
+    memset(lvi, 0, sizeof(LVITEM));
+
+    if ( argumentExists(1) )
+    {
+        int32_t index;
+        if ( ! context->Int32(_index, &index) )
+        {
+            wrongRangeException(context->threadContext, 1, INT_MIN, INT_MAX, _index);
+            return NULLOBJECT;
+        }
+
+        lvi->iItem = index;
+    }
+    else
+    {
+        lvi->iItem = -1;
+    }
+
+    if ( argumentExists(2) )
+    {
+        uint32_t flags = keyword2lvif(mask);
+        if ( flags == (uint32_t)-1 )
+        {
+            return NULLOBJECT;
+        }
+        lvi->mask = flags;
+    }
+
+    if ( ! argumentExists(3) )
+    {
+        // Sending setLviText the empty string will cause it to set up the
+        // buffer to receive information.
+        text = "";
+    }
+    if ( ! setLviText(context, lvi, text, 3) )
+    {
+        return NULLOBJECT;
+    }
+
+
+    if ( argumentExists(4) )
+    {
+        lvi->iImage = imageIndex;
+        lvi->mask |= LVIF_IMAGE;
+    }
+
+    if ( argumentExists(5) )
+    {
+        lvi->lParam = (LPARAM)userData;
+        lvi->mask |= LVIF_PARAM;
+    }
+
+    if ( argumentExists(6) )
+    {
+        lvi->state = keyword2lvis(itemState);
+        lvi->mask |= LVIF_STATE;
+    }
+
+    if ( argumentExists(7) )
+    {
+        // The stateMask uses the exact same flags as the item state, and the
+        // mask member does not need to be set for this.
+        lvi->stateMask = keyword2lvis(itemStateMask);
+    }
+
+    if ( argumentExists(8) )
+    {
+        lvi->iIndent = indent;
+        lvi->mask |= LVIF_INDENT;
+    }
+
+    if ( argumentExists(9) )
+    {
+        setLviGroupID(context, lvi, groupID);
+    }
+
+    if ( argumentExists(10) )
+    {
+        setLviColumns(context, lvi, columns, 10);
+    }
+
+    return NULLOBJECT;
+}
+
+/** LvItem::index    [attribute]
+ */
+RexxMethod1(int32_t, lvi_index, CSELF, pLVI)
+{
+    return ((LPLVITEM)pLVI)->iItem;
+}
+RexxMethod2(RexxObjectPtr, lvi_setIndex, int32_t, index, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->iItem = index;
+    return NULLOBJECT;
+}
+
+/** LvItem::mask    [attribute]
+ */
+RexxMethod1(RexxStringObject, lvi_mask, CSELF, pLVI)
+{
+    return lvif2keyword(context, ((LPLVITEM)pLVI)->mask);
+}
+RexxMethod2(RexxObjectPtr, lvi_setMask, CSTRING, mask, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->mask = keyword2lvif(mask);
+    return NULLOBJECT;
+}
+
+/** LvItem::text    [attribute]
+ */
+RexxMethod1(RexxStringObject, lvi_text, CSELF, pLVI)
+{
+    return getLviText(context, (LPLVITEM)pLVI);
+}
+RexxMethod2(RexxObjectPtr, lvi_setText, CSTRING, text, CSELF, pLVI)
+{
+    setLviText(context, (LPLVITEM)pLVI, text, 1);
+    return NULLOBJECT;
+}
+
+/** LvItem::imageIndex    [attribute]
+ */
+RexxMethod1(int32_t, lvi_imageIndex, CSELF, pLVI)
+{
+    return ((LPLVITEM)pLVI)->iImage;
+}
+RexxMethod2(RexxObjectPtr, lvi_setImageIndex, int32_t, imageIndex, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->iImage  = imageIndex;
+    ((LPLVITEM)pLVI)->mask   |= LVIF_IMAGE;
+    return NULLOBJECT;
+}
+
+/** LvItem::userData    [attribute]
+ */
+RexxMethod1(RexxObjectPtr, lvi_userData, CSELF, pLVI)
+{
+    return (RexxObjectPtr)((LPLVITEM)pLVI)->lParam;
+}
+RexxMethod2(RexxObjectPtr, lvi_setUserData, RexxObjectPtr, userData, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->lParam  = (LPARAM)userData;
+    ((LPLVITEM)pLVI)->mask   |= LVIF_PARAM;
+    return NULLOBJECT;
+}
+
+/** LvItem::itemState    [attribute]
+ */
+RexxMethod1(RexxStringObject, lvi_itemState, CSELF, pLVI)
+{
+    return lvis2keyword(context, ((LPLVITEM)pLVI)->state);
+}
+RexxMethod2(RexxObjectPtr, lvi_setItemState, CSTRING, itemState, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->state  = keyword2lvis(itemState);
+    ((LPLVITEM)pLVI)->mask  |= LVIF_STATE;
+    return NULLOBJECT;
+}
+
+/** LvItem::itemStateMask    [attribute]
+ */
+RexxMethod1(RexxStringObject, lvi_itemStateMask, CSELF, pLVI)
+{
+    return lvis2keyword(context, ((LPLVITEM)pLVI)->stateMask);
+}
+RexxMethod2(RexxObjectPtr, lvi_setItemStateMask, CSTRING, itemStateMask, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->stateMask = keyword2lvis(itemStateMask);
+    return NULLOBJECT;
+}
+
+/** LvItem::indent    [attribute]
+ */
+RexxMethod1(int32_t, lvi_indent, CSELF, pLVI)
+{
+    return ((LPLVITEM)pLVI)->iIndent;
+}
+RexxMethod2(RexxObjectPtr, lvi_setIndent, int32_t, indent, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->iIndent  = indent;
+    ((LPLVITEM)pLVI)->mask    |= LVIF_INDENT;
+    return NULLOBJECT;
+}
+
+/** LvItem::groupID    [attribute]
+ */
+RexxMethod1(int32_t, lvi_groupID, CSELF, pLVI)
+{
+    return getLviGroupID(context, (LPLVITEM)pLVI);
+}
+RexxMethod2(RexxObjectPtr, lvi_setGroupID, int32_t, id, CSELF, pLVI)
+{
+    return setLviGroupID(context, (LPLVITEM)pLVI, id);
+}
+
+/** LvItem::columns    [attribute]
+ */
+RexxMethod1(RexxArrayObject, lvi_columns, CSELF, pLVI)
+{
+    return getLviColumns(context, (LPLVITEM)pLVI);
+}
+RexxMethod2(RexxObjectPtr, lvi_setColumns, RexxArrayObject, _columns, CSELF, pLVI)
+{
+    return setLviColumns(context, (LPLVITEM)pLVI, _columns, 1);
+}
+
+
+/**
+ *  Methods for the .LvSubItem class.
+ */
+#define LVSUBITEM_CLASS            "LvSubItem"
+
+
+uint32_t keyword2lvifSub(CSTRING flags)
+{
+    uint32_t val = 0;
+
+    if ( StrStrI(flags, "IMAGE")       != NULL ) val |= LVIF_IMAGE;
+    if ( StrStrI(flags, "TEXT")        != NULL ) val |= LVIF_TEXT;
+
+    return val;
+}
+
+ RexxStringObject lvifSub2keyword(RexxMethodContext *c, uint32_t flags)
+{
+    char buf[256];
+    *buf = '\0';
+
+    if ( flags & LVIF_IMAGE) strcat(buf, "IMAGE ");
+    if ( flags & LVIF_TEXT ) strcat(buf, "TEXT ");
+
+    if ( *buf != '\0' )
+    {
+        *(buf + strlen(buf) - 1) = '\0';
+    }
+    return c->String(buf);
+}
+
+/** LvSubItem::uninit()
+ *
+ */
+RexxMethod1(RexxObjectPtr, lvsi_unInit, CSELF, pCSelf)
+{
+#if 1
+    printf("In lvsi_unInit() pCSelf=%p\n", pCSelf);
+#endif
+
+    if ( pCSelf != NULLOBJECT )
+    {
+        LPLVITEM pLVI = (LPLVITEM)pCSelf;
+
+#if 0
+    printf("In lvsi_unInit() pszText=%p\n", pLVI->pszText);
+#endif
+        safeLocalFree(pLVI->pszText);
+    }
+    return NULLOBJECT;
+}
+
+
+/** LvSubItem::init()
+ *
+ *
+ */
+RexxMethod5(RexxObjectPtr, lvsi_init, RexxObjectPtr, _item, uint32_t, subItem, OPTIONAL_CSTRING, text,
+             OPTIONAL_int32_t, imageIndex, OPTIONAL_CSTRING, mask)
+{
+    if ( context->IsBuffer(_item) )
+    {
+        context->SetObjectVariable("CSELF", _item);
+        return NULLOBJECT;
+    }
+
+    RexxMethodContext *c = context;
+    RexxBufferObject obj = context->NewBuffer(sizeof(LVITEM));
+    context->SetObjectVariable("CSELF", obj);
+
+    LPLVITEM lvi = (LPLVITEM)context->BufferData(obj);
+    memset(lvi, 0, sizeof(LVITEM));
+
+    uint32_t item;
+    if ( ! c->UnsignedInt32(_item, &item) )
+    {
+        wrongRangeException(context->threadContext, 1, 0, INT_MAX, _item);
+        return NULLOBJECT;
+    }
+
+    lvi->iItem    = item;
+    lvi->iSubItem = subItem;
+
+    if ( ! argumentExists(3) )
+    {
+        // Sending setLviText the empty string will cause it to set up the
+        // buffer to receive information.
+        text = "";
+    }
+    if ( ! setLviText(context, lvi, text, 3) )
+    {
+        return NULLOBJECT;
+    }
+
+    if ( argumentExists(4) )
+    {
+        lvi->iImage = imageIndex;
+        lvi->mask |= LVIF_IMAGE;
+    }
+
+    if ( argumentExists(5) )
+    {
+        lvi->mask = keyword2lvifSub(mask);
+    }
+
+    return NULLOBJECT;
+}
+
+/** LvSubItem::item    [attribute]
+ */
+RexxMethod1(int32_t, lvsi_item, CSELF, pLVI)
+{
+    return ((LPLVITEM)pLVI)->iItem;
+}
+RexxMethod2(RexxObjectPtr, lvsi_setItem, int32_t, item, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->iItem = item;
+    return NULLOBJECT;
+}
+
+/** LvSubItem::subItem    [attribute]
+ */
+RexxMethod1(int32_t, lvsi_subItem, CSELF, pLVI)
+{
+    return ((LPLVITEM)pLVI)->iSubItem;
+}
+RexxMethod2(RexxObjectPtr, lvsi_setSubItem, int32_t, subItem, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->iSubItem = subItem;
+    return NULLOBJECT;
+}
+
+/** LvSubItem::text    [attribute]
+ */
+RexxMethod1(RexxStringObject, lvsi_text, CSELF, pLVI)
+{
+    return getLviText(context, (LPLVITEM)pLVI);
+}
+RexxMethod2(RexxObjectPtr, lvsi_setText, CSTRING, text, CSELF, pLVI)
+{
+    setLviText(context, (LPLVITEM)pLVI, text, 1);
+    return NULLOBJECT;
+}
+
+/** LvSubItem::imageIndex    [attribute]
+ */
+RexxMethod1(int32_t, lvsi_imageIndex, CSELF, pLVI)
+{
+    return ((LPLVITEM)pLVI)->iImage;
+}
+RexxMethod2(RexxObjectPtr, lvsi_setImageIndex, int32_t, imageIndex, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->iImage  = imageIndex;
+    ((LPLVITEM)pLVI)->mask   |= LVIF_IMAGE;
+    return NULLOBJECT;
+}
+
+/** LvSubItem::mask    [attribute]
+ */
+RexxMethod1(RexxStringObject, lvsi_mask, CSELF, pLVI)
+{
+    return lvifSub2keyword(context, ((LPLVITEM)pLVI)->mask);
+}
+RexxMethod2(RexxObjectPtr, lvsi_setMask, CSTRING, mask, CSELF, pLVI)
+{
+    ((LPLVITEM)pLVI)->mask = keyword2lvifSub(mask);
+    return NULLOBJECT;
+}
+
+
+/**
+ *  Methods for the .LvFullRow class.
+ */
+#define LVFULLROW_CLASS            "LvFullRow"
+
+
+
+/** LvFullRow::uninit()
+ *
+ */
+RexxMethod1(RexxObjectPtr, lvfr_unInit, CSELF, pCSelf)
+{
+#if 1
+    printf("In lvfr_unInit() pCSelf=%p\n", pCSelf);
+#endif
+
+    if ( pCSelf != NULL )
+    {
+        pCLvFullRow pclvfr = (pCLvFullRow)pCSelf;
+
+#if 0
+    printf("In lvfr_unInit() subItems=%p\n", pclvfr->subItems);
+#endif
+        safeLocalFree(pclvfr->subItems);
+        safeLocalFree(pclvfr->rxSubItems);
+    }
+    return NULLOBJECT;
+}
+
+
+/** LvFullRow::init()
+ *
+ *
+ */
+RexxMethod2(RexxObjectPtr, lvfr_init, ARGLIST, args, OSELF, self)
+{
+    RexxMethodContext *c = context;
+    pCLvFullRow pclvfr;
+    LPLVITEM    lvi;
+    size_t      argCount = context->ArraySize(args);
+
+    for ( size_t i = 1; i <= argCount; i++ )
+    {
+        RexxObjectPtr obj = context->ArrayAt(args, i);
+        if ( obj == NULLOBJECT )
+        {
+            context->RaiseException(Rexx_Error_Incorrect_method_noarg, context->ArrayOfOne(context->WholeNumber(i)));
+            goto done;
+        }
+
+        if ( i == 1 )
+        {
+            if ( context->IsBuffer(obj) )
+            {
+                context->SetObjectVariable("CSELF", obj);
+                return NULLOBJECT;
+            }
+
+            if ( ! c->IsOfType(obj, "LVITEM") )
+            {
+                wrongClassException(context->threadContext, 1, "LvItem");
+                goto done;
+            }
+
+            RexxBufferObject buf = context->NewBuffer(sizeof(CLvFullRow));
+            context->SetObjectVariable("CSELF", buf);
+
+            pclvfr = (pCLvFullRow)context->BufferData(buf);
+            memset(pclvfr, 0, sizeof(CLvFullRow));
+
+            size_t size = LVFULLROW_DEF_SUBITEMS;
+            if ( argCount >= size )
+            {
+                size = 2 * argCount;
+            }
+
+            pclvfr->subItems   = (LPLVITEM *)LocalAlloc(LPTR, size * sizeof(LPLVITEM *));
+            pclvfr->rxSubItems = (RexxObjectPtr *)LocalAlloc(LPTR, size * sizeof(RexxObjectPtr *));
+            if ( pclvfr->subItems == NULL )
+            {
+                outOfMemoryException(context->threadContext);
+                goto done;
+            }
+
+            pclvfr->rxSubItems = (RexxObjectPtr *)LocalAlloc(LPTR, size * sizeof(RexxObjectPtr *));
+            if ( pclvfr->rxSubItems == NULL )
+            {
+                LocalFree(pclvfr->subItems);
+                outOfMemoryException(context->threadContext);
+                goto done;
+            }
+
+            lvi = (LPLVITEM)c->ObjectToCSelf(obj);
+            //printf("Got full row arg 1 CSelf=%p\n", lvi);
+
+            pclvfr->rexxSelf      = self;
+            pclvfr->magic         = LVFULLROW_MAGIC;
+            pclvfr->size          = (uint32_t)size;
+            pclvfr->subItems[0]   = lvi;
+            pclvfr->rxSubItems[0] = obj;
+            pclvfr->subItemCount  = 1;
+
+            continue;
+        }
+
+        // All objects after the first one have to be a LvSubItem object, except
+        // the last one can be true or false to enable internal sorting.
+        if ( i == argCount )
+        {
+            if ( obj == TheTrueObj || obj == TheFalseObj )
+            {
+                if ( obj == TheTrueObj )
+                {
+                    pclvfr->subItems[0]->lParam = (LPARAM)pclvfr;
+                }
+                goto done;
+            }
+        }
+
+        if ( ! c->IsOfType(obj, "LVSUBITEM") )
+        {
+            wrongClassException(context->threadContext, i, "LvSubItem");
+            goto done;
+        }
+
+        lvi = (LPLVITEM)c->ObjectToCSelf(obj);
+        //printf("Got full row arg %d CSelf=%p\n", i, lvi);
+
+        pclvfr->subItems[i - 1]   = lvi;
+        pclvfr->rxSubItems[i - 1] = obj;
+        pclvfr->subItemCount++;
+    }
+
+done:
+    return NULLOBJECT;
+}
 
 /**
  *  Methods for the .TreeView class.

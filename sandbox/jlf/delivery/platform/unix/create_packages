@@ -84,6 +84,7 @@ create_Packages()
     EXTRA_DIST=
     copy_file ../samples/concurrency/activity.cls
     copy_file ../samples/concurrency/coactivity.cls
+    copy_file ../samples/concurrency/generator.cls
     create_Makefile_am ""
 
     DEST=extension
@@ -91,7 +92,9 @@ create_Packages()
     copy_file ../samples/extension/array.cls
     copy_file ../samples/extension/doers.cls
     copy_file ../samples/extension/extensions.cls
+    copy_file ../samples/extension/file.cls
     copy_file ../samples/extension/functionals.cls
+    copy_file ../samples/extension/string.cls
     create_Makefile_am ""
 
     DEST=pipeline
@@ -120,18 +123,26 @@ create_Packages()
     DEST=_samples
     EXTRA_DIST=
     copy_file ../samples/benchmark/doers-benchmark.rex
-    copy_file ../samples/concurrency/binary_tree.cls
-    copy_file ../samples/concurrency/busy.cls
+    copy_file ../samples/concurrency/backtrack.rex
+    copy_file ../samples/concurrency/coactivity-stress.rex
     copy_file ../samples/concurrency/coactivity-test.rex
-    copy_file ../samples/concurrency/multiplier.cls
+    copy_file ../samples/concurrency/factorials_generators.rex
     copy_file ../samples/extension/doers-info.rex
     copy_file ../samples/extension/doers-samples.rex
     copy_file ../samples/extension/doers-stress.rex
     copy_file ../samples/extension/functional-test.rex
+    copy_file ../samples/extension/recursiveArray.rex
     copy_file ../samples/pipeline/grep_sources.rex
-    #copy_file ../samples/pipeline/one-liners.rex
+    copy_file ../samples/pipeline/one-liners.rex
     copy_file ../samples/pipeline/pipe_extension_test.rex
     copy_file ../samples/pipeline/trailing_whitespaces.rex
+    create_Makefile_am ""
+
+    DEST=_samples/concurrency
+    EXTRA_DIST=
+    copy_file ../samples/concurrency/binary_tree.cls
+    copy_file ../samples/concurrency/busy.cls
+    copy_file ../samples/concurrency/multiplier.cls
     create_Makefile_am ""
 
     if [ $ERROR -ne 0 ]

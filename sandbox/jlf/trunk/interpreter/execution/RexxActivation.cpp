@@ -434,7 +434,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
             {
                 /* run initialization exit           */
                 activity->callInitializationExit(this);
-                SystemInterpreter::setupProgram(this);         /* do any system specific setup      */
+                activity->getInstance()->setupProgram(this);         /* do any system specific setup      */
             }
             else
             {
@@ -3232,7 +3232,7 @@ void RexxActivation::traceEntry()
 
     if (isMethod())
     {
-        info = new_array(getMessageName(), scope, getPackage()->getName());
+        info = new_array(getMessageName(), scope->getId(), getPackage()->getName());
     }
     else
     {
@@ -4229,7 +4229,6 @@ RexxObject *RexxActivation::evaluateLocalCompoundVariable(RexxString *stemName, 
     /* need to trace?                    */
     if (tracingIntermediates())
     {
-        ProtectedObject p(stem_table);
         traceCompoundName(stemName, tail, tailCount, &resolved_tail);
         /* trace variable value              */
         traceCompound(stemName, tail, tailCount, value);

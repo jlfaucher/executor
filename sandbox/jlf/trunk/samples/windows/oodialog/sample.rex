@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -37,30 +37,30 @@
 /*----------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
-/* ooDialog\Samples\sample.rex    ooDialog Samples - Main                   */
+/* samples\ooDialog\sample.rex    ooDialog Samples - Main                   */
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
 
 
-  curdir = directory()
-  parse source . . me
-  mydir = me~left(me~lastpos('\')-1)             /* where is code     */
-  mydir = directory(mydir)                       /* current is "my"   */
-  env = 'ENVIRONMENT'
-  win = value('WINDIR',,env)
-  sp = value('SOUNDPATH',,env)
-  sp = value('SOUNDPATH',win';'mydir'\WAV;'sp,env)
+  -- A directory manager saves the current directory and can later go back to
+  -- that directory.  It also sets up the environment we need.  The class
+  -- itself is located in samplesSetup.rex
+  mgr = .DirectoryManager~new()
 
   d = .SampleDlg~new("rc\sample.rc", 100)
-  if d~initCode <> 0 then return 99
+  if d~initCode <> 0 then do
+     mgr~goBack
+     return 99
+  end
   d~execute("SHOWTOP")
-  ret = directory(curdir)
+  mgr~goBack
   return 0
 
 
 /*---------------------------- requires ------------------------------*/
 
 ::requires "ooDialog.cls"
+::requires 'samplesSetup.rex'
 
 /*---------------------------- main dialog ---------------------------*/
 
@@ -85,7 +85,7 @@
    self~loadApp("oovideo.rex")
 
 ::method pet
-   self~loadApp("oopet.rex", 3000)
+   self~loadApp("AnimalGame.rex", 3000)
 
 ::method phil
    self~loadApp("oophil.rex")

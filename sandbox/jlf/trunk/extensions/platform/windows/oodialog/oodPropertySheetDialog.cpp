@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -640,7 +640,7 @@ static void initializePropSheet(HWND hPropSheet)
         setFontAttrib(c, pcpbd);
 
         pcpbd->onTheTop = true;
-        pcpbd->threadID = GetCurrentThreadId();
+        pcpbd->dlgProcThreadID = GetCurrentThreadId();
 
         // Do we have a modal dialog?  TODO need to check this for modeless property sheet.
         checkModal((pCPlainBaseDialog)pcpbd->previous, pcpsd->modeless);
@@ -1065,20 +1065,23 @@ static int doPSMessage(pCPropertySheetPage pcpsp, pCPlainBaseDialog pcpbd, uint3
         {
             if ( pcpsp->wantAccelerators )
             {
-            LPMSG    pMsg  = (LPMSG)((LPPSHNOTIFY)lParam)->lParam;
-            uint32_t reply = PSNRET_NOERROR;
+                LPMSG    pMsg  = (LPMSG)((LPPSHNOTIFY)lParam)->lParam;
+                uint32_t reply = PSNRET_NOERROR;
 
-            RexxArrayObject args = getTranslateAccelatorArgs(c, pMsg->message, pMsg->wParam, pMsg->lParam, pcpsd->rexxSelf);
-            RexxObjectPtr result = c->SendMessage(pcpsp->rexxSelf, TRANSLATEACCELERATOR_MSG, args);
+                RexxArrayObject args = getTranslateAccelatorArgs(c, pMsg->message, pMsg->wParam, pMsg->lParam,
+                                                                 pcpsd->rexxSelf);
+                RexxObjectPtr result = c->SendMessage(pcpsp->rexxSelf, TRANSLATEACCELERATOR_MSG, args);
 
-            if ( goodReply(c, pcpsd->pcpbd, result, TRANSLATEACCELERATOR_MSG) )
-            {
-                if ( ! c->UnsignedInt32(result, &reply) || (reply != PSNRET_NOERROR && reply != PSNRET_MESSAGEHANDLED) )
+                if ( goodReply(c, pcpsd->pcpbd, result, TRANSLATEACCELERATOR_MSG) )
                 {
-                    tcInvalidReturnListException(c, TRANSLATEACCELERATOR_MSG, VALID_PSNRET_MSG_LIST, result, pcpsd->pcpbd);
+                    if ( ! c->UnsignedInt32(result, &reply) ||
+                         (reply != PSNRET_NOERROR && reply != PSNRET_MESSAGEHANDLED) )
+                    {
+                        tcInvalidReturnListException(c, TRANSLATEACCELERATOR_MSG, VALID_PSNRET_MSG_LIST, result,
+                                                     pcpsd->pcpbd);
+                    }
                 }
-            }
-            setWindowPtr(hPage, DWLP_MSGRESULT, reply);
+                setWindowPtr(hPage, DWLP_MSGRESULT, reply);
             }
             break;
         }
@@ -1137,7 +1140,8 @@ DWORD WINAPI PropSheetLoopThread(void *arg)
 
     RexxSetProcessMessages(FALSE);
     pcpbd->dlgProcContext = c;
-    assignPSDThreadContext(pcpsd, c);
+    pcpbd->dlgProcThreadID = GetCurrentThreadId();
+    assignPSDThreadContext(pcpsd, c, pcpbd->dlgProcThreadID);
 
     HWND hPropSheet = NULL;
 
@@ -1388,38 +1392,51 @@ LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, L
             ReplyMessage((LRESULT)GetFocus());
             return TRUE;
 
-        case WM_USER_GETSETCAPTURE:
-            if ( wParam == 0 )
+        case WM_USER_MOUSE_MISC:
+        {
+            switch ( wParam )
             {
-                ReplyMessage((LRESULT)GetCapture());
-            }
-            else if ( wParam == 2 )
-            {
-                uint32_t rc = 0;
-                if ( ReleaseCapture() == 0 )
+                case MF_RELEASECAPTURE :
                 {
-                    rc = GetLastError();
+                    uint32_t rc = 0;
+                    if ( ReleaseCapture() == 0 )
+                    {
+                        rc = GetLastError();
+                    }
+                    ReplyMessage((LRESULT)rc);
+                    break;
                 }
-                ReplyMessage((LRESULT)rc);
-            }
-            else
-            {
-                ReplyMessage((LRESULT)SetCapture((HWND)lParam));
-            }
-            return TRUE;
 
-        case WM_USER_GETKEYSTATE:
-            ReplyMessage((LRESULT)GetAsyncKeyState((int)wParam));
+                case MF_GETCAPTURE :
+                    ReplyMessage((LRESULT)GetCapture());
+                    break;
+
+                case MF_SETCAPTURE :
+                    ReplyMessage((LRESULT)SetCapture((HWND)lParam));
+                    break;
+
+                case MF_BUTTONDOWN :
+                    ReplyMessage((LRESULT)GetAsyncKeyState((int)lParam));
+                    break;
+
+                case MF_SHOWCURSOR :
+                    ReplyMessage((LRESULT)ShowCursor((BOOL)lParam));
+                    break;
+
+                default :
+                    // Maybe we should raise an internal exception here.  But,
+                    // as long as the internal code is consistent, we can not
+                    // get here.
+                    break;
+            }
             return TRUE;
+        }
 
         case WM_USER_SUBCLASS:
         {
-            SUBCLASSDATA *pData = (SUBCLASSDATA *)lParam;
+            pSubClassData pData = (pSubClassData)lParam;
 
-            pData->dlgProcContext = pcpbd->dlgProcContext;
-            pData->rexxDialog = pcpbd->rexxSelf;
-
-            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->uID, (DWORD_PTR)pData);
+            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->id, (DWORD_PTR)pData);
 
             ReplyMessage((LRESULT)success);
             return TRUE;
@@ -1705,7 +1722,7 @@ err_out:
  */
 static HWND checkPropSheetOwner(RexxMethodContext *c, RexxObjectPtr owner, size_t argPos)
 {
-    pCPlainBaseDialog pcpbdOwner = requiredDlgCSelf(c, owner, oodPlainBaseDialog, argPos);
+    pCPlainBaseDialog pcpbdOwner = requiredDlgCSelf(c, owner, oodPlainBaseDialog, argPos, NULL);
     if ( pcpbdOwner == NULL )
     {
         return NULL;
@@ -1727,15 +1744,18 @@ static HWND checkPropSheetOwner(RexxMethodContext *c, RexxObjectPtr owner, size_
 }
 
 
-void assignPSDThreadContext(pCPropertySheetDialog pcpsd, RexxThreadContext *c)
+void assignPSDThreadContext(pCPropertySheetDialog pcpsd, RexxThreadContext *c, uint32_t threadID)
 {
     pcpsd->dlgProcContext = c;
+    pcpsd->dlgProcThreadID = threadID;
 
     uint32_t count = pcpsd->pageCount;
     for ( uint32_t i = 0; i < count; i++ )
     {
         pcpsd->cppPages[i]->dlgProcContext = c;
+        pcpsd->cppPages[i]->dlgProcThreadID = threadID;
         pcpsd->cppPages[i]->pcpbd->dlgProcContext = c;
+        pcpsd->cppPages[i]->pcpbd->dlgProcThreadID = threadID;
     }
 }
 
@@ -2495,7 +2515,7 @@ RexxMethod2(RexxObjectPtr, psdlg_execute, OPTIONAL_RexxObjectPtr, owner, CSELF, 
     INT_PTR ret;
     if ( hParent == NULL )
     {
-        assignPSDThreadContext(pcpsd, context->threadContext);
+        assignPSDThreadContext(pcpsd, context->threadContext, GetCurrentThreadId());
 
         if ( setPropSheetHook(pcpsd) )
         {
@@ -2573,6 +2593,9 @@ RexxMethod2(RexxObjectPtr, psdlg_popup, NAME, methodName, CSELF, pCSelf)
     }
     LeaveCriticalSection(&crit_sec);
 
+    // Note we do not need to set pcpbd->dlgProcThreadID here.  It is set in
+    // PropSheetLoopThread because that function also sets dlgProcContext and
+    // dlgProcThreadID for all the property sheet page dialogs.
     if ( pcpbd->hDlgProcThread != NULL )
     {
         return TheTrueObj;
@@ -2672,7 +2695,8 @@ void updatePageCSelf(pCPropertySheetDialog pcpsd, pCPropertySheetPage pcpsp, uin
     pcpsp->cppPropSheet = pcpsd;
     pcpsp->isWizardPage = ! pcpsd->isNotWizard;
 
-    pcpsp->dlgProcContext = pcpsd->dlgProcContext;
+    pcpsp->dlgProcContext  = pcpsd->dlgProcContext;
+    pcpsp->dlgProcThreadID = pcpsd->dlgProcThreadID;
     pcpsp->pcpbd->dlgProcContext = pcpsd->dlgProcContext;
 }
 
@@ -4728,14 +4752,29 @@ DLGTEMPLATEEX *getTemplate(RexxThreadContext *c, pCControlDialog pccd)
     return pDlg;
 }
 
+/**
+ *  Create Managed Tab Page dialog.  Creates the control dialog that serves as a
+ *  page of tab control in a TabOwner dialog.  This function is executing in the
+ *  same thread as the tab owner dialog's window message processing function.
+ *
+ *
+ * @param c
+ * @param pccd
+ * @param pTemplate
+ * @param pcpbdOwner
+ *
+ * @return HWND
+ */
 HWND createMTPageDlg(RexxThreadContext *c, pCControlDialog pccd, DLGTEMPLATEEX *pTemplate, pCPlainBaseDialog pcpbdOwner)
 {
     printf("Enter createMTPageDlg() dlg=%s\n", c->ObjectToStringValue(pccd->rexxSelf));
 
     pCPlainBaseDialog pcpbd = pccd->pcpbd;
 
-    /* Set the thread context because it is not done in RexxChildDlgProc. */
+    /* Set the thread context and ID because it is not done in RexxChildDlgProc.
+     */
     pcpbd->dlgProcContext = c;
+    pcpbd->dlgProcThreadID = GetCurrentThreadId();
 
     HWND hPage = CreateDialogIndirectParam(MyInstance, (LPCDLGTEMPLATE)pTemplate, pcpbd->hOwnerDlg,
                                            (DLGPROC)RexxChildDlgProc, (LPARAM)pcpbd);
@@ -4747,9 +4786,10 @@ HWND createMTPageDlg(RexxThreadContext *c, pCControlDialog pccd, DLGTEMPLATEEX *
         pccd->activated = true;
 
         // I don't think this whole childDlg thing is used anymore.  It is a
-        // hold over from the CategoryDialog implementation.
+        // hold over from the CategoryDialog implementation.  TODO we need to
+        // do away with this.
         pcpbd->childDlg[0] = hPage;
-        if ( pccd->pageNumber > MAXCHILDDIALOGS )
+        if ( pccd->pageNumber < MAXCHILDDIALOGS )
         {
             pcpbdOwner->childDlg[pccd->pageNumber + 1] = hPage;
         }
@@ -5394,7 +5434,7 @@ LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
         {
             pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)lParam;
 
-            assignPSDThreadContext(pcpsd, pcpbd->dlgProcContext);
+            assignPSDThreadContext(pcpsd, pcpbd->dlgProcContext, GetCurrentThreadId());
 
             if ( setPropSheetHook(pcpsd) )
             {
@@ -5418,38 +5458,51 @@ LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
             ReplyMessage((LRESULT)GetFocus());
             return TRUE;
 
-        case WM_USER_GETSETCAPTURE:
-            if ( wParam == 0 )
+        case WM_USER_MOUSE_MISC:
+        {
+            switch ( wParam )
             {
-                ReplyMessage((LRESULT)GetCapture());
-            }
-            else if ( wParam == 2 )
-            {
-                uint32_t rc = 0;
-                if ( ReleaseCapture() == 0 )
+                case MF_RELEASECAPTURE :
                 {
-                    rc = GetLastError();
+                    uint32_t rc = 0;
+                    if ( ReleaseCapture() == 0 )
+                    {
+                        rc = GetLastError();
+                    }
+                    ReplyMessage((LRESULT)rc);
+                    break;
                 }
-                ReplyMessage((LRESULT)rc);
-            }
-            else
-            {
-                ReplyMessage((LRESULT)SetCapture((HWND)lParam));
-            }
-            return TRUE;
 
-        case WM_USER_GETKEYSTATE:
-            ReplyMessage((LRESULT)GetAsyncKeyState((int)wParam));
+                case MF_GETCAPTURE :
+                    ReplyMessage((LRESULT)GetCapture());
+                    break;
+
+                case MF_SETCAPTURE :
+                    ReplyMessage((LRESULT)SetCapture((HWND)lParam));
+                    break;
+
+                case MF_BUTTONDOWN :
+                    ReplyMessage((LRESULT)GetAsyncKeyState((int)lParam));
+                    break;
+
+                case MF_SHOWCURSOR :
+                    ReplyMessage((LRESULT)ShowCursor((BOOL)lParam));
+                    break;
+
+                default :
+                    // Maybe we should raise an internal exception here.  But,
+                    // as long as the internal code is consistent, we can not
+                    // get here.
+                    break;
+            }
             return TRUE;
+        }
 
         case WM_USER_SUBCLASS:
         {
-            SUBCLASSDATA *pData = (SUBCLASSDATA *)lParam;
+            pSubClassData pData = (pSubClassData)lParam;
 
-            pData->dlgProcContext = pcpbd->dlgProcContext;
-            pData->rexxDialog = pcpbd->rexxSelf;
-
-            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->uID, (DWORD_PTR)pData);
+            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->id, (DWORD_PTR)pData);
 
             ReplyMessage((LRESULT)success);
             return TRUE;
@@ -5461,11 +5514,6 @@ LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
 
         case WM_USER_HOOK:
         {
-            SUBCLASSDATA *pData = (SUBCLASSDATA *)lParam;
-
-            pData->dlgProcContext = pcpbd->dlgProcContext;
-            pData->rexxDialog = pcpbd->rexxSelf;
-
             ReplyMessage((LRESULT)SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)wParam, NULL, GetCurrentThreadId()));
             return TRUE;
         }

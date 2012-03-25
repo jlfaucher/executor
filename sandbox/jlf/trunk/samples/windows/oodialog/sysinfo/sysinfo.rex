@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -191,14 +191,16 @@ return 0
 
 
 ::method showHourGlass private
-  expose lb oldCursorPosition oldCursorShape
+  expose lb oldCursorPosition oldCursor
   use strict arg show = .true
+
+  mouse = .Mouse~new(lb)
 
   if show then do
     -- Save the current cursor position.  Change the list box's cursor shape to
     -- the hour glass and save the old shape.
-    oldCursorPosition = self~getCursorPos
-    oldCursorShape = lb~cursor_wait
+    oldCursorPosition = mouse~getCursorPos
+    oldCursor = mouse~wait
 
     -- Get the current size and position of the list box.
     p = lb~getRealPos
@@ -207,10 +209,10 @@ return 0
     -- Set the point object to the midpoint of the list box and position the
     -- cursor at that posiiion
     p~incr(s~width % 2, s~height % 2)
-    lb~setCursorPos(p)
+    mouse~setCursorPos(p)
   end
   else do
-    lb~restoreCursorShape(oldCursorShape)
-    self~setCursorPos(oldCursorPosition)
+    mouse~restoreCursor(oldCursor)
+    mouse~setCursorPos(oldCursorPosition)
   end
 

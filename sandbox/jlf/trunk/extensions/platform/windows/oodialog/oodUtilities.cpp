@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -580,7 +580,7 @@ RexxMethod2(uint32_t, app_initAutoDetection, RexxObjectPtr, dlg, CSELF, pCSelf)
 {
     pCApplicationManager pcam  = (pCApplicationManager)pCSelf;
 
-    pCPlainBaseDialog pcpbd = requiredDlgCSelf(context, dlg, oodPlainBaseDialog, 1);
+    pCPlainBaseDialog pcpbd = requiredDlgCSelf(context, dlg, oodPlainBaseDialog, 1, NULL);
     if ( pcpbd != NULL )
     {
         pcpbd->autoDetect = pcam->autoDetect;
@@ -705,6 +705,21 @@ done_out:
  * Defines, structs, and methods for the DlgUtil class.
  */
 #define DLGUTIL_CLASS      "DlgUtil"
+
+
+RexxObjectPtr SPI_getWorkArea(RexxMethodContext *c)
+{
+    oodResetSysErrCode(c->threadContext);
+
+    RECT r = {0};
+    if ( ! SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0) )
+    {
+        oodSetSysErrCode(c->threadContext);
+    }
+
+    return rxNewRect(c, &r);
+}
+
 
 /** DlgUtil::init() [class method]
  *
@@ -1053,19 +1068,6 @@ done_out:
     return result;
 }
 
-RexxObjectPtr SPI_getWorkArea(RexxMethodContext *c)
-{
-    oodResetSysErrCode(c->threadContext);
-
-    RECT r = {0};
-    if ( ! SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0) )
-    {
-        oodSetSysErrCode(c->threadContext);
-    }
-
-    return rxNewRect(c, &r);
-}
-
 /** DlgUtil::screenArea()  [class method]
  *
  *  Gets the usable screen area (work area.) on the primary display monitor. The
@@ -1103,6 +1105,21 @@ RexxMethod0(uint32_t, dlgutil_threadID_cls)
     return GetCurrentThreadId();
 }
 
+
+/** DlgUtil::windowFromPoint()  [class method]
+ *
+ *
+ */
+RexxMethod1(RexxStringObject, dlgutil_windowFromPoint_cls, RexxObjectPtr, pt)
+{
+    PPOINT p = rxGetPoint(context, pt, 1);
+    if ( p != NULL )
+    {
+        return pointer2string(context, WindowFromPoint(*p));
+    }
+    return NULLOBJECT;
+}
+
 /** DlgUtil::test()  [class method]
  *
  *  Simple method to use for testing.
@@ -1131,6 +1148,204 @@ RexxMethod1(RexxObjectPtr, spi_init_cls, OSELF, self)
     pCSpi spi = (pCSpi)context->BufferData(obj);
     spi->fWinIni = 0;
 
+    return NULLOBJECT;
+}
+
+/** SPI::dragHeight  [class attribute get]
+ *
+ *  @remarks  SystemParametersInfo() can not be used to get the drag height or
+ *            width.  So originally the attribute was going to be a set only
+ *            attribute.  But, on reflection this seems silly, there is no
+ *            reason the SPI class has to *only* use SystemParametersInfo().  We
+ *            can just use GetSystemMetrics().
+ */
+RexxMethod0(uint32_t, spi_getDragHeight_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+    return (uint32_t)GetSystemMetrics(SM_CYDRAG);
+}
+
+/** SPI::dragHeight  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setDragHeight_cls, uint32_t, pixels, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ! SystemParametersInfo(SPI_SETDRAGHEIGHT, pixels, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return NULLOBJECT;
+}
+
+/** SPI::dragWidth  [class attribute get]
+ *
+ *  @remarks  SystemParametersInfo() can not be used to get the drag height or
+ *            width.  So originally the attribute was going to be a set only
+ *            attribute.  But, on reflection this seems silly, there is no
+ *            reason the SPI class has to *only* use SystemParametersInfo().  We
+ *            can just use GetSystemMetrics().
+ */
+RexxMethod0(uint32_t, spi_getDragWidth_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+    return (uint32_t)GetSystemMetrics(SM_CXDRAG);
+}
+
+/** SPI::dragWidth  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setDragWidth_cls, uint32_t, pixels, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ! SystemParametersInfo(SPI_SETDRAGWIDTH, pixels, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return NULLOBJECT;
+}
+
+
+/** SPI::menuAnimation  [class attribute get]
+ */
+RexxMethod0(logical_t, spi_getMenuAnimation_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    logical_t on = FALSE;
+    if ( ! SystemParametersInfo(SPI_GETMENUANIMATION, 0, &on, 0) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return on;
+}
+
+/** SPI::menuAnimation  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setMenuAnimation_cls, logical_t, on, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ! SystemParametersInfo(SPI_SETMENUANIMATION, (uint32_t)on, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return NULLOBJECT;
+}
+
+
+/** SPI::menuFade  [class attribute get]
+ */
+RexxMethod0(logical_t, spi_getMenuFade_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    logical_t on = FALSE;
+    if ( ! SystemParametersInfo(SPI_GETMENUFADE, 0, &on, 0) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return on;
+}
+
+/** SPI::menuFade  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setMenuFade_cls, logical_t, on, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ! SystemParametersInfo(SPI_SETMENUFADE, (uint32_t)on, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return NULLOBJECT;
+}
+
+
+/** SPI::mouseHoverHeight  [class attribute get]
+ */
+RexxMethod0(uint32_t, spi_getMouseHoverHeight_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    uint32_t height = 0;
+    if ( ! SystemParametersInfo(SPI_GETMOUSEHOVERHEIGHT, 0, &height, 0) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return height;
+}
+
+/** SPI::mouseHoverHeight  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setMouseHoverHeight_cls, uint32_t, pixels, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ! SystemParametersInfo(SPI_SETMOUSEHOVERHEIGHT, pixels, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return NULLOBJECT;
+}
+
+
+/** SPI::mouseHoverTime  [class attribute get]
+ */
+RexxMethod0(uint32_t, spi_getMouseHoverTime_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    uint32_t ms = 0;
+    if ( ! SystemParametersInfo(SPI_GETMOUSEHOVERTIME, 0, &ms, 0) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return ms;
+}
+
+/** SPI::mouseHoverTime  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setMouseHoverTime_cls, uint32_t, ms, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ms < USER_TIMER_MINIMUM || ms > USER_TIMER_MAXIMUM )
+    {
+        wrongRangeException(context->threadContext, 1, USER_TIMER_MINIMUM, USER_TIMER_MAXIMUM, ms);
+    }
+    else if ( ! SystemParametersInfo(SPI_SETMOUSEHOVERTIME, ms, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return NULLOBJECT;
+}
+
+
+/** SPI::mouseHoverWidth  [class attribute get]
+ */
+RexxMethod0(uint32_t, spi_getMouseHoverWidth_cls)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    uint32_t width = 0;
+    if ( ! SystemParametersInfo(SPI_GETMOUSEHOVERWIDTH, 0, &width, 0) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
+    return width;
+}
+
+/** SPI::mouseHoverWidth  [class attribute set]
+ */
+RexxMethod2(RexxObjectPtr, spi_setMouseHoverWidth_cls, uint32_t, pixels, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    if ( ! SystemParametersInfo(SPI_SETMOUSEHOVERWIDTH, pixels, NULL, ((pCSpi)pCSelf)->fWinIni) )
+    {
+        oodSetSysErrCode(context->threadContext);
+    }
     return NULLOBJECT;
 }
 
@@ -1236,10 +1451,8 @@ RexxMethod0(uint32_t, spi_getWheelScrollLines_cls)
 RexxMethod2(RexxObjectPtr, spi_setWheelScrollLines_cls, uint32_t, lines, CSELF, pCSelf)
 {
     oodResetSysErrCode(context->threadContext);
-    uint32_t fWinIni = ((pCSpi)pCSelf)->fWinIni;
-    fWinIni = SPIF_SENDCHANGE | SPIF_UPDATEINIFILE;
 
-    if ( ! SystemParametersInfo(SPI_SETWHEELSCROLLLINES, lines, NULL, fWinIni) )
+    if ( ! SystemParametersInfo(SPI_SETWHEELSCROLLLINES, lines, NULL, ((pCSpi)pCSelf)->fWinIni) )
     {
         oodSetSysErrCode(context->threadContext);
     }
@@ -1264,6 +1477,10 @@ RexxMethod0(int32_t, sm_cxCursor_cls)
 {
     return GetSystemMetrics(SM_CXCURSOR);
 }
+RexxMethod0(int32_t, sm_cxDrag_cls)
+{
+    return GetSystemMetrics(SM_CXDRAG);
+}
 RexxMethod0(int32_t, sm_cxFixedFrame_cls)
 {
     return GetSystemMetrics(SM_CXFIXEDFRAME);
@@ -1284,6 +1501,10 @@ RexxMethod0(int32_t, sm_cyCursor_cls)
 {
     return GetSystemMetrics(SM_CYCURSOR);
 }
+RexxMethod0(int32_t, sm_cyDrag_cls)
+{
+    return GetSystemMetrics(SM_CYDRAG);
+}
 RexxMethod0(int32_t, sm_cyFixedFrame_cls)
 {
     return GetSystemMetrics(SM_CYFIXEDFRAME);
@@ -1295,6 +1516,10 @@ RexxMethod0(int32_t, sm_cyHScroll_cls)
 RexxMethod0(int32_t, sm_cyScreen_cls)
 {
     return GetSystemMetrics(SM_CYSCREEN);
+}
+RexxMethod0(int32_t, sm_menuDropAlignment_cls)
+{
+    return GetSystemMetrics(SM_MENUDROPALIGNMENT);
 }
 
 /**
@@ -1515,7 +1740,6 @@ RexxMethod2(RexxObjectPtr, point_init, OPTIONAL_int32_t,  x, OPTIONAL_int32_t, y
     context->SetObjectVariable("CSELF", obj);
 
     POINT *p = (POINT *)context->BufferData(obj);
-
     p->x = argumentExists(1) ? x : 0;
     p->y = argumentExists(2) ? y : p->x;
 
@@ -1526,6 +1750,17 @@ RexxMethod1(int32_t, point_x, CSELF, p) { return ((POINT *)p)->x; }
 RexxMethod1(int32_t, point_y, CSELF, p) { return ((POINT *)p)->y; }
 RexxMethod2(RexxObjectPtr, point_setX, CSELF, p, int32_t, x) { ((POINT *)p)->x = x; return NULLOBJECT; }
 RexxMethod2(RexxObjectPtr, point_setY, CSELF, p, int32_t, y) { ((POINT *)p)->y = y; return NULLOBJECT; }
+
+/** Point::copy()
+ *
+ *  Returns a new point object that is a copy of this point.
+ *
+ */
+RexxMethod1(RexxObjectPtr, point_copy, CSELF, p)
+{
+    POINT *_p = (POINT *)p;
+    return rxNewPoint(context, _p->x, _p->y);
+}
 
 /** Point::+
  *
@@ -1982,4 +2217,38 @@ RexxMethod3(RexxObjectPtr, dss_quickDayStateBuffer, RexxObjectPtr, _ds1, RexxObj
     return makeQuickDayStateBuffer(context, _ds1, _ds2, _ds3, NULL);
 }
 
+
+/**
+ * Methods for the ooDialog .TimedMessage class.
+ */
+#define TIMEDMESSAGE_CLASS  "TimedMessage"
+
+
+RexxMethod7(RexxObjectPtr, timedmsg_init, RexxStringObject, msg, RexxStringObject, title, int32_t, duration,
+            OPTIONAL_logical_t, earlyReply, OPTIONAL_RexxObjectPtr, pos, SUPER, super, OSELF, self)
+{
+    if ( argumentExists(5) )
+    {
+        if ( pos != TheNilObj && ! context->IsOfType(pos, "POINT"))
+        {
+            wrongArgValueException(context->threadContext, 5, "a Point object or the Nil object", pos);
+            return NULLOBJECT;
+        }
+        context->SetObjectVariable("POS", pos);
+    }
+    else
+    {
+        context->SetObjectVariable("POS", TheNilObj);
+    }
+
+    RexxArrayObject args = context->NewArray(0);
+    RexxObjectPtr result = context->ForwardMessage(NULL, NULL, super, args);
+
+    context->SetObjectVariable("MESSAGE", msg);
+    context->SetObjectVariable("TITLE", title);
+    context->SetObjectVariable("SLEEPING", context->Int32(duration));
+    context->SetObjectVariable("EARLYREPLY", context->Logical(earlyReply));
+
+    return TheZeroObj;
+}
 

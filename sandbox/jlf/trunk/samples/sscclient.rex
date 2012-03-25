@@ -1,11 +1,14 @@
+#!/usr/bin/rexx
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2011-2011 Rexx Language Association. All rights reserved.    */
+/* Description: Simple socket client using streamsocket class                 */
+/*                                                                            */
+/* Copyright (c) 2007-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.oorexx.org/license.html                                         */
+/* http://www.ibm.com/developerworks/oss/CPLv1.0.htm                          */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -33,56 +36,59 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
 /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
 /*                                                                            */
+/* Author: adapted from scclient.rex by David Ruggles by Jon Wolfers          */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/* This script can be used in conjunction with scserver.rex                   */
+/*                                                                            */
+/* It is a rewriting of scclient that demonstrates using the streamsocket     */
+/* class instead of the socket class to simplify socket interaction.          */
+/*                                                                            */
 /*----------------------------------------------------------------------------*/
 
-#include <windows.h>
-#include <commctrl.h>
-#include <richedit.h>
-#include "OrderMgmtBaseView.h"
+/*  instantiate an instance of the streamsocket class
+    with the host information of the server we will
+    contact: localhost and port 726578
+    we use the "gethostid" class method of the socket
+    class to determine the localhost address  */
+    ssock = .streamsocket~new(.socket~gethostid(), '726578')
 
+/*  open the connection  */
+    ret = ssock~open
+    if ret \= 'READY:'
+    then do
+        say 'Connection Failed:' ret
+        EXIT
+    end
 
+    say 'type "X" to exit'
+    do forever
+        call charout , 'Send To Server: '
+        parse pull message
 
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDR_ORDMGMT_MENU MENU
-{
-    POPUP "Orders"
-    {
-        MENUITEM "New Order...", IDM_ORDMGMT_NEWORDER
-        MENUITEM "Order List...", IDM_ORDMGMT_ORDERLIST
-        MENUITEM "Order Search...", IDM_ORDMGMT_ORDERSEARCH
-    }
-    POPUP "Customers"
-    {
-        MENUITEM "Customer List...", IDM_ORDMGMT_CUSTLIST
-        MENUITEM "Customer Search...", IDM_ORDMGMT_CUSTSEARCH
-    }
-    POPUP "Products"
-    {
-        MENUITEM "Product List...", IDM_ORDMGMT_PRODLIST
-        MENUITEM SEPARATOR
-        MENUITEM "Product Search...", IDM_ORDMGMT_PRODSEARCH
-    }
-    POPUP "New"
-    {
-        MENUITEM "Product...", IDM_ORDMGMT_PRODNEW
-        MENUITEM "Customer...", IDM_ORDMGMT_CUSTNEW
-        MENUITEM "Order...", IDM_ORDMGMT_ORDERNEW
-    }
-    POPUP "Help"
-    {
-        MENUITEM "About", IDM_ORDMGMT_ABOUT
-    }
-}
+        if message~upper() = 'X' then leave
 
+        /*  send message to server  */
+        if ssock~lineout(message) < 0
+        then do
+            say 'Send Failed'
+            leave
+        end
 
+        /*  get message from server  */
+        ret = ssock~linein
+        if ssock~description = 'READY:'
+        then say 'Server Responded:' ret
+        else do
+           say 'Recv Failed:' ssock~description
+           LEAVE
+        end /* DO */
 
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-IDD_ORDMGMT DIALOG 0, 0, 310, 220
-STYLE DS_3DLOOK | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_POPUP | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "Ms Shell Dlg"
-{
-    PUSHBUTTON      "Exit Application", IDC_ORDMGMT_EXIT, 253, 183, 53, 14
-    PUSHBUTTON      "Reset Icons", IDC_ORDMGMT_RESET, 5, 183, 43, 14
-    CONTROL         "", IDC_ORDMGMT_ICONS, WC_LISTVIEW, WS_TABSTOP | WS_BORDER | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_ICON, 5, 5, 300, 175
-}
+    end
+
+/*  close the socket connection  */
+    if ssock~close() \= 'READY:'
+    then say 'SockClose Failed' ssock~description
+
+::requires 'streamsocket.cls'

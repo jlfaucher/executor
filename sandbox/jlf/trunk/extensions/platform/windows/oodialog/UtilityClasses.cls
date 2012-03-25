@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -184,32 +184,50 @@
 
 ::class 'DlgUtil' public
 ::method init class external "LIBRARY oodialog dlgutil_init_cls"
-::method version class external "LIBRARY oodialog dlgutil_version_cls"
-::method comctl32Version class external "LIBRARY oodialog dlgutil_comctl32Version_cls"
-::method hiWord class external "LIBRARY oodialog dlgutil_hiWord_cls"
-::method loWord class external "LIBRARY oodialog dlgutil_loWord_cls"
-::method sHiWord class external "LIBRARY oodialog dlgutil_shiWord_cls"
-::method sLoWord class external "LIBRARY oodialog dlgutil_sloWord_cls"
-::method makeWParam class external "LIBRARY oodialog dlgutil_makeWPARAM_cls"
-::method makeLParam class external "LIBRARY oodialog dlgutil_makeLPARAM_cls"
-::method unsigned class external "LIBRARY oodialog dlgutil_unsigned_cls"
-::method signed class external "LIBRARY oodialog dlgutil_signed_cls"
 ::method and class external "LIBRARY oodialog dlgutil_and_cls"
-::method or class external "LIBRARY oodialog dlgutil_or_cls"
-::method shiftLeft class external "LIBRARY oodialog dlgutil_shiftLeft_cls"
-::method shiftRight class external "LIBRARY oodialog dlgutil_shiftRight_cls"
-::method sShiftLeft class external "LIBRARY oodialog dlgutil_sShiftLeft_cls"
-::method sShiftRight class external "LIBRARY oodialog dlgutil_sShiftRight_cls"
-::method screenSize class external "LIBRARY oodialog dlgutil_screenSize_cls"
-::method screenArea class external "LIBRARY oodialog dlgutil_screenArea_cls"
+::method comctl32Version class external "LIBRARY oodialog dlgutil_comctl32Version_cls"
 ::method getSystemMetrics class external "LIBRARY oodialog dlgutil_getSystemMetrics_cls"
 ::method handleToPointer class external "LIBRARY oodialog dlgutil_handleToPointer_cls"
+::method hiWord class external "LIBRARY oodialog dlgutil_hiWord_cls"
+::method loWord class external "LIBRARY oodialog dlgutil_loWord_cls"
+::method makeLParam class external "LIBRARY oodialog dlgutil_makeLPARAM_cls"
+::method makeWParam class external "LIBRARY oodialog dlgutil_makeWPARAM_cls"
+::method or class external "LIBRARY oodialog dlgutil_or_cls"
+::method screenArea class external "LIBRARY oodialog dlgutil_screenArea_cls"
+::method screenSize class external "LIBRARY oodialog dlgutil_screenSize_cls"
+::method shiftLeft class external "LIBRARY oodialog dlgutil_shiftLeft_cls"
+::method shiftRight class external "LIBRARY oodialog dlgutil_shiftRight_cls"
+::method sHiWord class external "LIBRARY oodialog dlgutil_shiWord_cls"
+::method signed class external "LIBRARY oodialog dlgutil_signed_cls"
+::method sLoWord class external "LIBRARY oodialog dlgutil_sloWord_cls"
+::method sShiftLeft class external "LIBRARY oodialog dlgutil_sShiftLeft_cls"
+::method sShiftRight class external "LIBRARY oodialog dlgutil_sShiftRight_cls"
 ::method threadID class external "LIBRARY oodialog dlgutil_threadID_cls"
+::method unsigned class external "LIBRARY oodialog dlgutil_unsigned_cls"
+::method version class external "LIBRARY oodialog dlgutil_version_cls"
+::method windowFromPoint class external "LIBRARY oodialog dlgutil_windowFromPoint_cls"
+
 ::method test class external "LIBRARY oodialog dlgutil_test_cls"
 
 ::class 'SPI' public
 ::constant WHEEL_PAGESCROLL   4294267295
 ::method init class external "LIBRARY oodialog spi_init_cls"
+
+::attribute dragHeight get class external "LIBRARY oodialog spi_getDragHeight_cls"
+::attribute dragHeight set class external "LIBRARY oodialog spi_setDragHeight_cls"
+::attribute dragWidth get class external "LIBRARY oodialog spi_getDragWidth_cls"
+::attribute dragWidth set class external "LIBRARY oodialog spi_setDragWidth_cls"
+::attribute menuAnimation get class external "LIBRARY oodialog spi_getMenuAnimation_cls"
+::attribute menuAnimation set class external "LIBRARY oodialog spi_setMenuAnimation_cls"
+::attribute menuFade get class external "LIBRARY oodialog spi_getMenuFade_cls"
+::attribute menuFade set class external "LIBRARY oodialog spi_setMenuFade_cls"
+::attribute mouseHoverHeight get class external "LIBRARY oodialog spi_getMouseHoverHeight_cls"
+::attribute mouseHoverHeight set class external "LIBRARY oodialog spi_getMouseHoverHeight_cls"
+::attribute mouseHoverTime get class external "LIBRARY oodialog spi_getMouseHoverTime_cls"
+::attribute mouseHoverTime set class external "LIBRARY oodialog spi_getMouseHoverTime_cls"
+::attribute mouseHoverWidth get class external "LIBRARY oodialog spi_getMouseHoverWidth_cls"
+::attribute mouseHoverWidth set class external "LIBRARY oodialog spi_getMouseHoverWidth_cls"
+
 ::attribute updateFlag get class external "LIBRARY oodialog spi_getUpdateFlag_cls"
 ::attribute updateFlag set class external "LIBRARY oodialog spi_setUpdateFlag_cls"
 
@@ -221,14 +239,17 @@
 ::class 'SM' public
 ::attribute cMouseButtons get class external "LIBRARY oodialog sm_cMouseButtons_cls"
 ::attribute cxCursor get class external      "LIBRARY oodialog sm_cxCursor_cls"
-::attribute cxFixedFrame get class external      "LIBRARY oodialog sm_cxFixedFrame_cls"
+::attribute cxDrag get class external        "LIBRARY oodialog sm_cyDrag_cls"
+::attribute cxFixedFrame get class external  "LIBRARY oodialog sm_cxFixedFrame_cls"
 ::attribute cxScreen get class external      "LIBRARY oodialog sm_cxScreen_cls"
 ::attribute cxVscroll get class external     "LIBRARY oodialog sm_cxVScroll_cls"
 ::attribute cyCaption get class external     "LIBRARY oodialog sm_cyCaption_cls"
 ::attribute cyCursor get class external      "LIBRARY oodialog sm_cyCursor_cls"
-::attribute cyFixedFrame get class external      "LIBRARY oodialog sm_cyFixedFrame_cls"
+::attribute cyDrag get class external        "LIBRARY oodialog sm_cyDrag_cls"
+::attribute cyFixedFrame get class external  "LIBRARY oodialog sm_cyFixedFrame_cls"
 ::attribute cyHscroll get class external     "LIBRARY oodialog sm_cyHScroll_cls"
 ::attribute cyScreen get class external      "LIBRARY oodialog sm_cyScreen_cls"
+::attribute menuDropAlignment get class external "LIBRARY oodialog sm_menuDropAlignment_cls"
 
 ::class 'OS' public
 ::method is64bit class external "LIBRARY oodialog os_is64bit"
@@ -270,6 +291,7 @@
 ::attribute x set external "LIBRARY oodialog point_setX"
 ::attribute y get external "LIBRARY oodialog point_y"
 ::attribute y set external "LIBRARY oodialog point_setY"
+::method copy external "LIBRARY oodialog point_copy"
 ::method '+' external "LIBRARY oodialog point_add"
 ::method '-' external "LIBRARY oodialog point_subtract"
 ::method incr external "LIBRARY oodialog point_incr"
@@ -302,15 +324,39 @@
 
 
 ::class 'Mouse' public
+::constant HOVER_DEFAULT           4294967295
+
 ::method new class external "LIBRARY oodialog mouse_new_cls"
 ::method init external "LIBRARY oodialog mouse_init"
-::method uninit external "LIBRARY oodialog mouse_uninit"
-::method trackEvent external "LIBRARY oodialog mouse_trackEvent"
-::method dragDetect external "LIBRARY oodialog mouse_dragDetect"
+
+::method doubleClickTime class external "LIBRARY oodialog mouse_doubleClickTime_cls"
+::method loadCursor class external "LIBRARY oodialog mouse_loadCursor_cls"
+::method loadCursorFromFile class external "LIBRARY oodialog mouse_loadCursorFromFile_cls"
+::method setDoubleClickTime class external "LIBRARY oodialog mouse_setDoubleClickTime_cls"
+::method swapButton class external "LIBRARY oodialog mouse_swapButton_cls"
+
+::method appStarting external "LIBRARY oodialog mouse_setCursor"
+::method arrow external "LIBRARY oodialog mouse_setCursor"
 ::method capture external "LIBRARY oodialog mouse_capture"
-::method getCapture external "LIBRARY oodialog mouse_get_release_capture"
-::method releaseCapture external "LIBRARY oodialog mouse_get_release_capture"
+::method clipCursor external "LIBRARY oodialog mouse_clipCursor"
 ::method connectEvent external "LIBRARY oodialog mouse_connectEvent"
+::method cross external "LIBRARY oodialog mouse_setCursor"
+::method dragDetect external "LIBRARY oodialog mouse_dragDetect"
+::method getCapture external "LIBRARY oodialog mouse_get_release_capture"
+::method getClipCursor external "LIBRARY oodialog mouse_getClipCursor"
+::method getCursorPos external "LIBRARY oodialog mouse_getCursorPos"
+::method isButtonDown external "LIBRARY oodialog mouse_isButtonDown"
+::method no external "LIBRARY oodialog mouse_setCursor"
+::method releaseCapture external "LIBRARY oodialog mouse_get_release_capture"
+::method releaseClipCursor external "LIBRARY oodialog mouse_releaseClipCursor"
+::method restoreCursor external "LIBRARY oodialog mouse_restoreCursor"
+::method setCursor external "LIBRARY oodialog mouse_setCursor"
+::method setCursorPos external "LIBRARY oodialog mouse_setCursorPos"
+::method showCursor external "LIBRARY oodialog mouse_showCursor"
+::method trackEvent external "LIBRARY oodialog mouse_trackEvent"
+::method wait external "LIBRARY oodialog mouse_setCursor"
+
+::method test external "LIBRARY oodialog mouse_test"
 
 
 ::class 'DayState' public
@@ -681,7 +727,7 @@
 ::method key2name       external "LIBRARY oodialog vk_key2name"
 
 
-::class 'OEM' mixinclass Object public
+::class 'OEM' mixinclass Object public                                                 -- Do not document for 4.2.0
 
 ::constant OBM_CLOSE           32754
 ::constant OBM_UPARROW         32753
@@ -704,19 +750,11 @@
 ::constant OBM_DNARROWI        32736
 ::constant OBM_RGARROWI        32735
 ::constant OBM_LFARROWI        32734
-::constant OBM_OLD_CLOSE       32767
 ::constant OBM_SIZE            32766
-::constant OBM_OLD_UPARROW     32765
-::constant OBM_OLD_DNARROW     32764
-::constant OBM_OLD_RGARROW     32763
-::constant OBM_OLD_LFARROW     32762
 ::constant OBM_BTSIZE          32761
 ::constant OBM_CHECK           32760
 ::constant OBM_CHECKBOXES      32759
 ::constant OBM_BTNCORNERS      32758
-::constant OBM_OLD_REDUCE      32757
-::constant OBM_OLD_ZOOM        32756
-::constant OBM_OLD_RESTORE     32755
 
 ::constant OCR_NORMAL          32512
 ::constant OCR_IBEAM           32513
@@ -754,12 +792,7 @@
 -- This class shows a message window for a defined duration
 ::class 'TimedMessage' subclass UserDialog public
 
-::method init
-   expose message title sleeping earlyReply
-   use arg message, title, sleeping, earlyReply = .false
-   if \ earlyReply~datatype('O') then earlyReply = .false
-   if \ sleeping~datatype('W') then sleeping = 0
-   self~init:super("")
+::method init public external "LIBRARY oodialog timedmsg_init"
 
 ::method defineDialog
    expose message sx sy
@@ -769,13 +802,14 @@
    self~noAutoDetection
 
 ::method execute
-   expose message title sleeping earlyReply sx sy
+   expose message title sleeping earlyReply sx sy pos
 
    s = self~getTextSizeDu(message)
    sx = s~width
    sy = s~height
    self~createCenter(sx+20, sy + 20, title,"NOMENU", , , , 1)
    self~startIt
+   if pos \== .nil then self~moveTo(pos)
    self~show("SHOWTOP")
    if sleeping >= 0 then do
       if earlyReply then reply
@@ -1313,10 +1347,10 @@
 /*-------------------------- shortcut routines -------------------------------*/
 
 ::routine TimedMessage public
-   use arg msg, title, duration, earlyReply = .false
+   use arg msg, title, duration, earlyReply = .false, pos = .nil
    if \ duration~datatype('W') then return -1
    if \ earlyReply~datatype('O') then earlyReply = .false
-   dlg = .TimedMessage~new(msg,title,duration, earlyReply)
+   dlg = .TimedMessage~new(msg,title,duration, earlyReply, pos)
    dlg~execute
    if duration < 0 then return dlg
    if \ earlyReply then drop dlg
@@ -1374,7 +1408,8 @@
    dlg = .ListChoice~new(msg, title, lst., lx, ly, predev)
    res = dlg~execute
    drop dlg
-   return res
+   if res = '' then return .nil
+   else return res
 
 ::routine MultiListChoice public
    use arg msg, title, list, lx, ly, predev

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -49,7 +49,6 @@ typedef enum
     PBSS_DISABLED  = 4,
     PBSS_DEFAULTED  = 5,
 } PUSHBUTTON_STATES;
-
 
 extern uint32_t      parseShowOptions(CSTRING options);
 extern RexxObjectPtr oodGetClientRect(RexxMethodContext *, HWND hwnd, PRECT);

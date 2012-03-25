@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/;
 /*                                                                            */;
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */;
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */;
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */;
 /*                                                                            */;
 /* This program and the accompanying materials are made available under       */;
 /* the terms of the Common Public License v1.0 which accompanies this         */;
@@ -84,12 +84,16 @@ extern void  sparseArrayException(RexxThreadContext *c, size_t argPos, size_t in
 extern void  nullObjectException(RexxThreadContext *c, CSTRING name, size_t pos);
 extern void  nullObjectException(RexxThreadContext *c, CSTRING name);
 extern void  nullPointerException(RexxThreadContext *c, int pos);
+extern void  nullStringMethodException(RexxMethodContext *c, size_t pos);
 
 extern RexxObjectPtr wrongClassException(RexxThreadContext *c, size_t pos, const char *n);
 extern RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, RexxObjectPtr actual);
 extern RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, const char *actual);
+extern RexxObjectPtr wrongArgKeywordsException(RexxThreadContext *c, size_t pos, CSTRING list, CSTRING actual);
+extern RexxObjectPtr wrongArgKeywordsException(RexxThreadContext *c, size_t pos, CSTRING list, RexxObjectPtr actual);
 extern RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int max, RexxObjectPtr actual);
 extern RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int max, int actual);
+extern RexxObjectPtr wrongRangeException(RexxMethodContext *c, size_t pos, uint32_t min, uint32_t max, uint32_t actual);
 extern RexxObjectPtr notBooleanException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual);
 extern RexxObjectPtr wrongArgOptionException(RexxThreadContext *c, size_t pos, CSTRING list, RexxObjectPtr actual);
 extern RexxObjectPtr wrongArgOptionException(RexxThreadContext *c, size_t pos, CSTRING list, CSTRING actual);
@@ -273,6 +277,11 @@ inline RexxObjectPtr rxNewList(RexxMethodContext *c)
 inline RexxObjectPtr rxNewQueue(RexxMethodContext *c)
 {
     return rxNewBuiltinObject(c, "QUEUE");
+}
+
+inline RexxObjectPtr rxNewSet(RexxMethodContext *c)
+{
+    return rxNewBuiltinObject(c, "SET");
 }
 
 

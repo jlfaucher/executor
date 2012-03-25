@@ -171,3 +171,98 @@ void freeArguments(const char *program, PCONSTRXSTRING arguments)
    if (arguments->strptr) GlobalFree((HGLOBAL)arguments->strptr);
    if (program) GlobalFree((HGLOBAL)program);
 }
+
+// Utility to parse out a command line string into the unix-style
+// argv/argc format.  Used for setting the array of arguments
+// in .local
+
+PCHAR* CommandLineToArgvA(PCHAR CmdLine, int32_t* _argc)
+{
+    char     **argv;
+    char      *_argv;
+    size_t    len;
+    int32_t   argc;
+    char      a;
+    size_t    i, j;
+
+    BOOLEAN  in_QM;
+    BOOLEAN  in_TEXT;
+    BOOLEAN  in_SPACE;
+
+    len = strlen(CmdLine);
+    i = ((len+2)/2)*sizeof(void *) + sizeof(void *);
+
+    argv = (char**)GlobalAlloc(GMEM_FIXED,
+                               i + (len+2)*sizeof(char));
+
+    _argv = (PCHAR)(((PUCHAR)argv)+i);
+
+    argc = 0;
+    argv[argc] = _argv;
+    in_QM = FALSE;
+    in_TEXT = FALSE;
+    in_SPACE = TRUE;
+    i = 0;
+    j = 0;
+
+    while ( a = CmdLine[i] )
+    {
+        if (in_QM)
+        {
+            if (a == '\"')
+            {
+                in_QM = FALSE;
+            }
+            else
+            {
+                _argv[j] = a;
+                j++;
+            }
+        }
+        else
+        {
+            switch (a)
+            {
+                case '\"':
+                    in_QM = TRUE;
+                    in_TEXT = TRUE;
+                    if (in_SPACE)
+                    {
+                        argv[argc] = _argv+j;
+                        argc++;
+                    }
+                    in_SPACE = FALSE;
+                    break;
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\r':
+                    if (in_TEXT)
+                    {
+                        _argv[j] = '\0';
+                        j++;
+                    }
+                    in_TEXT = FALSE;
+                    in_SPACE = TRUE;
+                    break;
+                default:
+                    in_TEXT = TRUE;
+                    if (in_SPACE)
+                    {
+                        argv[argc] = _argv+j;
+                        argc++;
+                    }
+                    _argv[j] = a;
+                    j++;
+                    in_SPACE = FALSE;
+                    break;
+            }
+        }
+        i++;
+    }
+    _argv[j] = '\0';
+    argv[argc] = NULL;
+
+    (*_argc) = argc;
+    return argv;
+}

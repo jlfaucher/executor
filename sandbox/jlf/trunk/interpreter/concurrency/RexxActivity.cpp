@@ -341,16 +341,8 @@ wholenumber_t RexxActivity::error()
         this->popStackFrame(false);
     }
 
-    wholenumber_t rc = Error_Interpretation/1000;      /* set default return code           */
-    /* did we get a condtion object?     */
-    if (this->conditionobj != OREF_NULL)
-    {
-        /* force it to display               */
-        this->display(this->conditionobj);
-        // try to convert.  Leaves unchanged if not value
-        this->conditionobj->at(OREF_RC)->numberValue(rc);
-    }
-    return rc;                           /* return the error code             */
+    // go display
+    return displayCondition(this->conditionobj);
 }
 
 
@@ -375,15 +367,39 @@ wholenumber_t RexxActivity::error(RexxActivationBase *activation, RexxDirectory 
         this->popStackFrame(false);
     }
 
-    wholenumber_t rc = Error_Interpretation/1000;      /* set default return code           */
-    /* did we get a condtion object?     */
-    if (errorInfo != OREF_NULL)
+    // go display
+    return displayCondition(errorInfo);
+}
+
+/**
+ * Display error information and traceback lines for a
+ * Syntax condition.
+ *
+ * @param errorInfo The condition object with the error information
+ *
+ * @return The major error code for the syntax error, if this is
+ *         indeed a syntax conditon.
+ */
+wholenumber_t RexxActivity::displayCondition(RexxDirectory *errorInfo)
+{
+    // no condition object?  This is a nop
+    if (errorInfo == OREF_NULL)
     {
-        /* force it to display               */
-        this->display(errorInfo);
-        // try to convert.  Leaves unchanged if not value
-        errorInfo->at(OREF_RC)->numberValue(rc);
+        return 0;   // no error condition to return
     }
+
+    RexxString *condition = (RexxString *)errorInfo->at(OREF_CONDITION);
+    // we only display syntax conditions
+    if (condition == OREF_NULL || !condition->isEqual(OREF_SYNTAX))
+    {
+        return 0;   // no error condition to return
+    }
+    // display the information
+    this->display(errorInfo);
+
+    wholenumber_t rc = Error_Interpretation/1000;      /* set default return code           */
+    // try to convert.  Leaves unchanged if not value
+    errorInfo->at(OREF_RC)->numberValue(rc);
     return rc;                           /* return the error code             */
 }
 
@@ -1039,9 +1055,11 @@ RexxString *RexxActivity::messageSubstitution(
             break;                           /* get outta here...                 */
         }
                                              /* get the leading part              */
-        /* RexxString * */ ProtectedObject front = message->extractC(0, subposition - 1);
+        /* RexxString * */ ProtectedObject front;
+        front = message->extractC(0, subposition - 1);
         /* pull off the remainder            */
-        /* RexxString * */ ProtectedObject back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
+        /* RexxString * */ ProtectedObject back;
+        back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
         /* get the descriptor position       */
         codepoint_t selector = message->getCharC(subposition);
         /* not a good number?                */
@@ -1086,7 +1104,8 @@ RexxString *RexxActivity::messageSubstitution(
             }
         }
         /* accumulate the front part         */
-        ProtectedObject front_stringVal = ((RexxString*)front)->concat(stringVal);
+        ProtectedObject front_stringVal;
+        front_stringVal = ((RexxString*)front)->concat(stringVal);
         newmessage = ((RexxString*)newmessage)->concat(front_stringVal);
         message = back;                    /* replace with the remainder        */
     }
@@ -1209,7 +1228,8 @@ RexxObject *RexxActivity::display(RexxDirectory *exobj)
     /* get the message number            */
     wholenumber_t errorCode = Interpreter::messageNumber((RexxString *)rc);
     /* get the header                    */
-    /* RexxString * */ ProtectedObject text = SystemInterpreter::getMessageHeader(errorCode);
+    /* RexxString * */ ProtectedObject text;
+    text = SystemInterpreter::getMessageHeader(errorCode);
     if (text == OREF_NULL)               /* no header available?              */
     {
         /* get the leading part              */
@@ -1222,7 +1242,8 @@ RexxObject *RexxActivity::display(RexxDirectory *exobj)
     /* get the name of the program       */
     RexxString *programname = (RexxString *)exobj->at(OREF_PROGRAM);
     /* add on the error number           */
-    ProtectedObject rcString = REQUEST_STRING(rc);
+    ProtectedObject rcString;
+    rcString = REQUEST_STRING(rc);
     text = ((RexxString*)text)->concatWith(rcString, ' ');
     /* if program exists, add the name   */
     /* of the program to the message     */
@@ -1239,7 +1260,8 @@ RexxObject *RexxActivity::display(RexxDirectory *exobj)
             /* Yes, add on the "line" part       */
             text = ((RexxString*)text)->concatWith(SystemInterpreter::getMessageText(Message_Translations_line), ' ');
             /* add on the line number            */
-            ProtectedObject positionString = REQUEST_STRING(position);
+            ProtectedObject positionString;
+            positionString = REQUEST_STRING(position);
             text = ((RexxString*)text)->concatWith(positionString, ' ');
             /* add on the ":  "                  */
         }
@@ -1293,7 +1315,8 @@ RexxObject *RexxActivity::displayDebug(RexxDirectory *exobj)
                                        /* get the leading part              */
   text = SystemInterpreter::getMessageText(Message_Translations_debug_error);
                                        /* add on the error number           */
-  ProtectedObject rcString = REQUEST_STRING(exobj->at(OREF_RC));
+  ProtectedObject rcString;
+  rcString = REQUEST_STRING(exobj->at(OREF_RC));
   text = ((RexxString*)text)->concatWith(rcString, ' ');
                                        /* add on the ":  "                  */
   text = ((RexxString*)text)->concatWithCstring(":  ");
@@ -2834,7 +2857,8 @@ void  RexxActivity::traceOutput(       /* write a line of trace information */
 /* Function:  Write a line of trace output to the .ERROR stream               */
 /******************************************************************************/
 {
-    ProtectedObject p_line = line->stringTrace(); /* get traceable form of this        */
+    ProtectedObject p_line;
+    p_line = line->stringTrace(); /* get traceable form of this        */
                                          /* if exit declines the call         */
 
     if (Utilities::traceConcurrency())

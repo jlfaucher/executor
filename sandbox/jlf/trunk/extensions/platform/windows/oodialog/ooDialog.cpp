@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -738,6 +738,27 @@ static HWND wbSetUp(RexxMethodContext *c, void *pCSelf)
     }
 
     return hwnd;
+}
+
+
+#define CWP_KEYWORDS    "SKIPDISABLED, SKIPINVISIBLE, SKIPTRANSPARENT, or ALL"
+
+uint32_t flags2cwp(CSTRING flags)
+{
+    uint32_t opts = 0xFFFFFFFF;
+
+    if ( StrStrI(flags, "ALL") )
+    {
+        opts = CWP_ALL;
+    }
+    else
+    {
+        opts = 0;
+        if ( StrStrI(flags, "SKIPDISABLED"   ) ) opts |= CWP_SKIPDISABLED;
+        if ( StrStrI(flags, "SKIPINVISIBLE"  ) ) opts |= CWP_SKIPINVISIBLE;
+        if ( StrStrI(flags, "SKIPTRANSPARENT") ) opts |= CWP_SKIPTRANSPARENT;
+    }
+    return opts;
 }
 
 
@@ -1842,6 +1863,41 @@ RexxMethod2(RexxObjectPtr, wb_windowRect, OPTIONAL_POINTERSTRING, _hwnd, CSELF, 
 }
 
 
+/** WindowBse::childWindowFromPoint()
+ *
+ *
+ */
+RexxMethod3(RexxStringObject, wb_childWindowFromPoint, RexxObjectPtr, pt, OPTIONAL_CSTRING, _flags, CSELF, pCSelf)
+{
+    HWND hwnd = wbSetUp(context, pCSelf);
+    if ( hwnd == NULL )
+    {
+        goto err_out;
+    }
+
+    PPOINT p = rxGetPoint(context, pt, 1);
+    if ( p == NULL )
+    {
+        goto err_out;
+    }
+
+    uint32_t flags = CWP_SKIPINVISIBLE | CWP_SKIPDISABLED | CWP_SKIPTRANSPARENT;
+    if ( argumentExists(2) )
+    {
+        flags = flags2cwp(_flags);
+        if ( flags == 0xFFFFFFFF )
+        {
+            wrongArgKeywordsException(context->threadContext, 2, CWP_KEYWORDS, _flags);
+            goto err_out;
+        }
+    }
+
+    return pointer2string(context, ChildWindowFromPointEx(hwnd, *p, flags));
+
+err_out:
+    return NULLOBJECT;
+}
+
 /** WindowBase::clientRect()
  *
  *  Retrieves the coordinates of a window's client area.  The coordinates are in
@@ -2490,6 +2546,66 @@ done_out:
     return success;
 }
 
+
+/** WindowBase:: mapWindowPoints()
+ *
+ *
+ */
+RexxMethod3(logical_t, wb_mapWindowPoints, POINTERSTRING, hwndTo, RexxObjectPtr, points, CSELF, pCSelf)
+{
+    BOOL result = FALSE;
+
+    HWND hwndFrom = wbSetUp(context, pCSelf);
+    if ( hwndFrom != NULL )
+    {
+        PPOINT pts;
+        uint32_t count = 1;
+
+        RexxMethodContext *c = context;
+        if ( c->IsOfType(points, "POINT") )
+        {
+            pts = rxGetPoint(context, points, 1);
+            if ( pts == NULL )
+            {
+                goto done_out;
+            }
+        }
+        else if ( c->IsOfType(points, "RECT") )
+        {
+            RECT *r = rxGetRect(context, points, 1);
+            if ( r == NULL )
+            {
+                goto done_out;
+            }
+            pts = (LPPOINT)r;
+            count = 2;
+        }
+        else
+        {
+            wrongArgValueException(context->threadContext, 1, "Point or Rect", points);
+        }
+
+        SetLastError(0);
+        uint32_t rc = 0;
+
+        MapWindowPoints(hwndFrom, (HWND)hwndTo, pts, count);
+
+        rc = GetLastError();
+        if ( rc == 0 )
+        {
+            result = TRUE;
+        }
+        else
+        {
+            oodSetSysErrCode(context->threadContext, rc);
+        }
+    }
+
+done_out:
+    return result;
+}
+
+
 /** WindowBase::getWindowLong()  [private]
  *
  *  Retrieves information about this window.  Specifically, the information
@@ -2628,17 +2744,26 @@ void setDlgHandle(RexxThreadContext *c, pCPlainBaseDialog pcpbd)
 /**
  * Gets the window handle of the dialog control that has the focus.  The call to
  * GetFocus() needs to run in the window thread of the dialog to ensure that the
- * correct handle is obtained.
+ * correct handle is obtained. However, we could executing on that thread.
  *
- * @param c       Method context we are operating in.
- * @param hDlg    Handle to the dialog of interest.
+ * @param c                Method context we are operating in.
+ * @param hDlg             Handle to the dialog of interest.
+ * @param isDlgProcThread  Is this the dialog message processing thread?
  *
  * @return  The window handle of the dialog control with the focus, or 0 on
  *          failure.
  */
-RexxObjectPtr oodGetFocus(RexxMethodContext *c, HWND hDlg)
+RexxObjectPtr oodGetFocus(RexxMethodContext *c, HWND hDlg, bool isDlgProcThread)
 {
-   HWND hwndFocus = (HWND)SendMessage(hDlg, WM_USER_GETFOCUS, 0,0);
+   HWND hwndFocus;
+   if ( isDlgProcThread )
+   {
+       hwndFocus = GetFocus();
+   }
+   else
+   {
+       hwndFocus = (HWND)SendMessage(hDlg, WM_USER_GETFOCUS, 0, 0);
+   }
    return pointer2string(c, hwndFocus);
 }
 
@@ -2709,7 +2834,7 @@ static bool checkDlgType(RexxMethodContext *c, RexxObjectPtr self, pCPlainBaseDi
         {
             if ( c->IsOfType(ownerData, "PLAINBASEDIALOG") )
             {
-                pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(c, ownerData, oodPlainBaseDialog, 5);
+                pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(c, ownerData, oodPlainBaseDialog, 5, NULL);
                 if ( ownerPcpbd == NULL )
                 {
                     goto err_out;
@@ -3044,7 +3169,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_unInit, CSELF, pCSelf)
     {
         pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
 
-#if 1
+#if 0
         printf("PlainBaseDialog::uninit() hDlg=%p isAllocated=%d  Dialog is a ", pcpbd->hDlg, pcpbd->dlgAllocated);
         dbgPrintClassID(context, pcpbd->rexxSelf);
 #endif
@@ -3230,7 +3355,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_setOwnerDialog, RexxObjectPtr, owner, CSELF, pC
         return NULLOBJECT;
     }
 
-    pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(context, owner, oodPlainBaseDialog, 1);
+    pCPlainBaseDialog ownerPcpbd = requiredDlgCSelf(context, owner, oodPlainBaseDialog, 1, NULL);
     if ( ownerPcpbd != NULL )
     {
         if ( ! isValidOwner(ownerPcpbd) )
@@ -3835,7 +3960,7 @@ RexxMethod3(RexxObjectPtr, pbdlg_center, OPTIONAL_CSTRING, options, OPTIONAL_log
     oodResetSysErrCode(context->threadContext);
 
     HWND hwnd = getPBDWindow(context, pCSelf);
-    if ( hwnd = NULL )
+    if ( hwnd == NULL )
     {
         return TheFalseObj;
     }
@@ -3931,7 +4056,7 @@ RexxMethod2(wholenumber_t, pbdlg_setWindowText, POINTERSTRING, hwnd, CSTRING, te
 RexxMethod1(RexxObjectPtr, pbdlg_toTheTop, CSELF, pCSelf)
 {
     HWND hwnd = getPBDWindow(context, pCSelf);
-    if ( hwnd = NULL )
+    if ( hwnd == NULL )
     {
         return TheZeroObj;
     }
@@ -3947,11 +4072,11 @@ RexxMethod1(RexxObjectPtr, pbdlg_toTheTop, CSELF, pCSelf)
 RexxMethod1(RexxObjectPtr, pbdlg_getFocus, CSELF, pCSelf)
 {
     HWND hwnd = getPBDWindow(context, pCSelf);
-    if ( hwnd = NULL )
+    if ( hwnd == NULL )
     {
         return TheZeroObj;
     }
-    return oodGetFocus(context, hwnd);
+    return oodGetFocus(context, hwnd, isDlgThread((pCPlainBaseDialog)pCSelf));
 }
 
 /** PlainBaseDialog::setFocus()
@@ -3990,7 +4115,7 @@ RexxMethod3(RexxObjectPtr, pbdlg_setFocus, RexxStringObject, hwnd, NAME, method,
         return TheNegativeOneObj;
     }
 
-    RexxObjectPtr previousFocus = oodGetFocus(context, hDlg);
+    RexxObjectPtr previousFocus = oodGetFocus(context, hDlg, isDlgThread((pCPlainBaseDialog)pCSelf));
     if ( strlen(method) > 7 )
     {
         if ( oodSetForegroundWindow(context, focusNext) == TheZeroObj )
@@ -4033,7 +4158,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_tabTo, NAME, method, CSELF, pCSelf)
         return TheNegativeOneObj;
     }
 
-    RexxObjectPtr previousFocus = oodGetFocus(context, hDlg);
+    RexxObjectPtr previousFocus = oodGetFocus(context, hDlg, isDlgThread((pCPlainBaseDialog)pCSelf));
     if ( method[5] == 'N' )
     {
         SendMessage(hDlg, WM_NEXTDLGCTL, 0, FALSE);
@@ -4888,6 +5013,63 @@ RexxMethod5(RexxObjectPtr, pbdlg_newControl, RexxObjectPtr, rxID, OPTIONAL_uint3
     }
 
     result = createRexxControl(context->threadContext, hControl, hDlg, id, controlType, self, controlCls, isCategoryDlg, true);
+
+out:
+    return result;
+}
+
+/** PlainBaseDialog::getNewControl()
+ *
+ *  Returns an instantiated dialog control object from the specified resoure ID.
+ *
+ *  @param  Dialog control resource ID, may be symbolic or numeric.
+ *
+ *  @return The Rexx dialog control object, or .nil on error.  However, a
+ *          condition is raised for *all* errors.
+ *
+ *  @remarks  The method is written for use by the ooDialog framework in certain
+ *            special circumstances.  Currently the only special circumstance is
+ *            to provide backward compatibility for deprecated methods.  It may,
+ *            or may not, be documented for the user.  Not decided yet.
+ */
+RexxMethod3(RexxObjectPtr, pbdlg_getNewControl, RexxObjectPtr, rxID, OSELF, self, CSELF, pCSelf)
+{
+    RexxMethodContext *c = context;
+    RexxObjectPtr result = TheNilObj;
+
+    HWND hDlg = getPBDWindow(context, pCSelf);
+    if ( hDlg == NULL )
+    {
+        goto out;
+    }
+
+    int32_t id = oodResolveSymbolicID(context, self, rxID, -1, 1, true);
+    if ( id == OOD_ID_EXCEPTION )
+    {
+        goto out;
+    }
+
+    HWND hControl = GetDlgItem(hDlg, (int)id);
+    if ( hControl == NULL )
+    {
+        noSuchControlException(context, id, self, 1);
+        goto out;
+    }
+
+    oodControl_t controlType = control2controlType(hControl);
+    if ( controlType == winUnknown )
+    {
+        controlNotSupportedException(context, rxID, self, 1, controlWindow2rexxString(context, hControl));
+        goto out;
+    }
+
+    RexxClassObject controlCls = oodClass4controlType(controlType, context);
+    if ( controlCls == NULLOBJECT )
+    {
+        goto out;
+    }
+
+    result = createRexxControl(context->threadContext, hControl, hDlg, id, controlType, self, controlCls, false, true);
 
 out:
     return result;

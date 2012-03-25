@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -50,6 +50,15 @@
 ::class 'UserDialog' subclass PlainBaseDialog public inherit DynamicDialog
 
 ::method init external "LIBRARY oodialog userdlg_init"
+
+-- Called from createStaticText() in oodUser.cpp
+::method setStaticTextAttribute                       -- Internal use only, do not document
+  use arg id, text
+
+  atrName = self~dataConnection[id]
+  if atrName \== .nil then self~sendWith(atrName || '=', .array~of(text))
+
+  if self~useStem then self~dlgData[id] = text
 
 ::method test external "LIBRARY oodialog userdlg_test"
 

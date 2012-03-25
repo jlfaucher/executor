@@ -65,6 +65,17 @@ For .stemCollector, I don't know.
 Is .stemCollector really needed ? I don't see the added value, compared to .arrayCollector
 
 Extension todo :
+During parsing, the extensions methods of an ::extension directive are accumulated in a table.
+Must use an ordered collection because the order of declaration is important. 
+
+Extension todo :
+Forbids to replace a predefined method. The goal is to extend, not to alter the behavior.
+Maybe not so easy to do for 'inherit'.
+
+Extension todo :
+Add the parameters "unlock=.false, propagate=.false" to the methods .class~define and .class~inherit.
+
+Extension todo :
 Review the extension mechanisms :
 - An extension made on .Object is not available on a class.
   There is a workaround in pipe_extensions.cls.
@@ -116,6 +127,30 @@ Review the extension mechanisms :
 
 Profiler todo :
 Error "does not understand message XXX_UNPROTECTED" when the method XXX is private.
+
+
+===============================================================================
+2012 mar 23
+
+merge 7390-7647 from main/trunk
+merge 7647-7688 from main/trunk
+merge 7688-7691 from main/trunk
+
+Remember :
+GC crash while running functional-test.rex :
+The list of protected objects was corrupted, because of that :
+In RexxExpressionMessage::evaluate (ExpressionMessage.cpp), I declared _target as a protected object.
+The assignment result = _target, which was supposed to store the RexxObject target in the protected
+object result, corrupted the list of protected objects because the default operator= stored a copy of
+all the attributes of _target onto the protected object result, overwriting the next attribute.
+Fixed by declaring these methods private :
+    ProtectedObject(const ProtectedObject&);
+    ProtectedObject &operator=(const ProtectedObject&);
+Now the compiler forces to cast like that :
+result = (RexxObject*)_target
+[later]
+I think I don't need to protect the intermediate objects returned by ->evaluate, because they should
+be protected by the stack. I keep the changes made to ProtectedObject.
 
 
 ===============================================================================
@@ -323,10 +358,11 @@ decodeMessageName : the string returned in messageName is not protected, see wha
     RexxSource::methodDirective : done
     RexxSource::attributeDirective : done
 ->evaluate
-    RexxActivation::evaluateLocalCompoundVariable : done
-    <to continue...>
+    RexxActivation::evaluateLocalCompoundVariable : done --> cancelled
+    <to continue...> --> not needed, the objects should be protected by the stack
 decodeExternalMethod
-    <todo>
+    RexxSource::methodDirective
+    RexxSource::attributeDirective
 
 
 ===============================================================================
@@ -947,8 +983,8 @@ The methods ~take and ~select are not defined on .RexxBlock, but they are define
                                   |        |        whileI      whileCI      whileWI     |       |        |   
 --------------------------------------------------------------------------------------------------------------
 .Object ..................................................................................................X...
-.String ...........................................................X............X.............................
-.MutableBuffer ....................................................X............X........X.......X............
+.String ...........................................................X............X.........................X...
+.MutableBuffer ....................................................X............X........X.......X........X...
 .Collection.......................X........X..............................................................X...
 .OrderedCollection................X........X...........X..................................................X...
 .Supplier .................................X...........X..................................................X...
@@ -1269,9 +1305,6 @@ This directory of variables can be passed explicitely, or taken from a RexxConte
 The behavior of the closure is a user-defined method which expose the needed variables.
 This method is added to the closure, with the name "do". Ex :
     v = 1 ; closure = .Closure~new(.context~variables){::m expose v ; say v} ; closure~do -- display 1
-    v = 1 ; closure = .Closure~new{::m expose v ; say v} ; closure~do -- display 1
-Both lines are equivalent, but in the second example, the directory of variables is taken
-from the RexxContextualSource, created when evaluating the source literal.
 
 New tags :
     ::cl[osure]
@@ -3539,12 +3572,14 @@ merge 5988-6048 from main/trunk
 merge 6048-6142 from main/trunk
 merge 6142-6189 from main/trunk
 merge 6189-6500 from main/trunk
+
 merge 6500-6784 from
     main/trunk/api
     main/trunk/extension/hostemu
     main/trunk/interpreter
     main/trunk/platform
     main/trunk/rexxapi
+
 merge 6784-6976 from
     main/trunk/configure.ac (except oodialog)
     main/trunk/Makefile.am
@@ -3555,6 +3590,7 @@ merge 6784-6976 from
     main/trunk/interpreter
     main/trunk/platform/unix
     main/trunk/rexxapi
+
 move oodialog to oodialog.wchar
 commit
 copy oodialog from trunk
@@ -3566,3 +3602,16 @@ revert oodialog (to stay with the last copied version)
 revert oodialog.wchar (to not take into account the new oodialog)
 resolve remaining conflicts
 commit
+
+merge 7390-7647 from main/trunk
+revert oodialog.wchar (to not take into account the new oodialog)
+Strange, when comparing after merge oodialog in my sandbox with trunk, I get a lot of differences
+after the merge, whereas I should have zero difference. Not sure it's a good decision, but to fix that,
+I made a copy-paste of the whole oodialog from trunk to my sandbox...
+Same problem with samples/windows/oodialog (first level) : fixed by copy
+Same problem with samples/windows/oodialog/examples (first level) : fixed by copy
+Same problem with samples/windows/oodialog/examples/resources (first level) : fixed by copy
+
+merge 7647-7688 from main/trunk
+
+merge 7688-7691 from main/trunk

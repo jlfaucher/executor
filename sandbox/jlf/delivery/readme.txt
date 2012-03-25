@@ -85,15 +85,34 @@ Same need for ooRexx... Hence the ::extension directive
 
 
 Extensions in current delivery :
-::extension String inherit StringDoer StringReducer StringMapper StringRepeater StringIterator
-::extension MutableBuffer inherit MutableBufferReducer MutableBufferMapper MutableBufferIterator
-::extension Routine inherit RoutineDoer
-::extension Method inherit MethodDoer
-::extension Coactivity inherit CoactivityDoer CoactivityReducer CoactivityIterator
-::extension RexxBlock inherit RexxBlockDoer
-::extension Collection inherit CollectionReducer CollectionMapper CollectionIterator
-::extension Supplier inherit SupplierReducer SupplierIterator
-::extension Array inherit ArrayInitializer
+::extension Routine                         inherit RoutineDoer
+::extension Method                          inherit MethodDoer
+::extension RexxBlock                       inherit RexxBlockDoer
+::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers RepeaterCollector RepeaterGenerator 
+::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper StringHelpers
+::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper
+::extension OrderedCollection               inherit                OrderedCollectionFilter
+::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
+::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator
+::extension Array                           inherit ArrayInitializer ArrayPrettyPrinter
+::extension File                            inherit FileExtension
+
+
+Implementation notes :
+
+This directive delegates to the methods .class~define and .class~inherit.
+The changes are allowed on predefined classes, and are propagated to existing instances.
+
+If the same method appears several times in a given::extension directive, this is an error (because it's like that with ::class).
+It's possible to extend a class several times in a same package.
+It's possible to extend a class in different packages.
+If the same method appears in several ::extension directives for the same class, there is no error (because ~inherit has rules to manage that).
+
+When the extensions of a package are installed, the extension methods and the inherit declarations of each ::extension are processed in the order of declaration.
+If the same method appears in several ::extension directives, then the most recent replaces the older (because 'define' works like that).
+Each package is installed separately, this is the standard behaviour. 
+The visibility rules for classes are also standard, nothing special for extensions. Each package has its own visibility on classes.
 
 
 =====================================================================================
@@ -169,6 +188,8 @@ This has a major impact on performance !
 Example with .yield[] which calls SysGetTid() or SysQueryProcess("TID") at each call :
     10000 calls to .yield[] with macrospace enabled  : 2.1312
     10000 calls to .yield[] with macrospace disabled : 0.4531
+(JLF 2012 mar 23 : .yield[] no longer depends on SysXXX functions, now depends on 
+.threadLocal --> faster)
 (samples/benchmark/doers-benchmark-output.txt)
 The following options control the use of macrospace :
     ::options MACROSPACE
@@ -214,6 +235,7 @@ IS_BUILTIN
 For the moment, there is no access to the clauses/tokens from an ooRexx script.
 If the environment variable RXTRACE_PARSING=ON then the clauses and tokens are
 dumped to the debug output (Windows) or the log (Unix) using dbgprintf.
+Works only with a debug version of ooRexx.
 
 
 =====================================================================================
@@ -232,16 +254,17 @@ symbol is a keyword instruction.
 Parser : = ==
 =====================================================================================
 
-With implicit return, such an expression is quite common when filtering : value==1
-    .array~of(1,2,1)~pipe(.select {value==1} | .console)
+With implicit return, such an expression is quite common when filtering : item==1
+    .array~of(1,2,1)~pipe(.select {item==1} | .console)
 but the parser raises an error to protect the user against a potential typo error,
-assuming the user wanted to enter : value=1.
+assuming the user wanted to enter : item=1.
 I deactivated this control, now the expression above is ok.
+
 Yes, it remains a problem (no syntax error, but it's an assignment, not a test) : 
-    .array~of(1,2,1)~pipe(.select {value=1} | .console)
+    .array~of(1,2,1)~pipe(.select {item=1} | .console)
 good point, the lack of returned value is detected, must surround by parentheses
 to make it a real expression.
-    .array~of(1,2,1)~pipe(.select {(value=1)} | .console)
+    .array~of(1,2,1)~pipe(.select {(item=1)} | .console)
 (an Array),1 : 1
 (an Array),3 : 1
 
@@ -266,15 +289,24 @@ When the expression is evaluated, the target receives the message "~()".
 
 
 =====================================================================================
-Blocks (source literals) & doers
+Doers
 =====================================================================================
-
-A RexxBlock is a piece of source code surrounded by curly brackets.
-
 
 A Doer is an object who knows how to execute itself (understands "do")
 This is an abstraction of routine, method, message, coactivity, closure.
 
+When used as a doer, a string is a message.
+This abstraction is useful with the ~reduce method.
+Ex :
+say "length"~("John") -- 4 ("John"~"length")
+
+Each doer has its own "do" method, and knows what to do with the arguments.
+routine : forward message "call"
+method : use strict arg object, ... ; forward to (object) message "run" array (self, "a", arg(2,"a"))
+message : use strict arg object, ... ; forward to (object) message ("sendWith") array (self, arg(2,"a"))
+coactivity : forward message ("resume")
+closure : user-defined source literal
+block : forward to (self~doer)
 
 A DoerFactory is an object who knows how to create a doer.
 A doer can be created from :
@@ -291,6 +323,13 @@ Exception : the doer of a coactive method must be created explicitely, because t
 object must be passed as argument.
 
 
+=====================================================================================
+Blocks (source literals)
+=====================================================================================
+
+A RexxBlock is a piece of source code surrounded by curly brackets.
+
+
 Big picture :
     a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
     a RexxSourceLiteral holds the following properties, shared among all the RexxBlock instances created from it :
@@ -303,10 +342,9 @@ Big picture :
       |    a RexxBlock contains informations that depends on the evaluation context.
       |    In particular, when a RexxBlock is a closure's source, it will hold a snapshot of the context's variables :
       |        ~source : source of the RexxSourceLiteral, never changed even if ~functionDoer or ~actionDoer called.
-      |        ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::cl".
+      |        ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::closure".
       |        ~rawExecutable : the raw executable of the RexxSourceLiteral, created at load-time (routine or method).
-      |        ~executable : cached executable, managed by doers.cls.
-      |        ~executable= : routine or method or coactivity or closure. ~executable~source can be different from ~source. 
+      |        ~executable : cached executable, managed by doers.cls. ~executable~source can be different from ~source.
       |
       +--> a RexxBlock
       |
@@ -342,18 +380,12 @@ Minimal abbreviation is ::m.c
 Ex : See section coactivity.
 
 
-When used as a doer, a string is a message.
-This abstraction is useful with the ~reduce method.
-Ex :
-say "length"~("John") -- 4 ("John"~"length")
-
-
-Closure by value.
+::closure (closure by value)
 Minimal abbreviation is ::cl
 Ex : See section closure.
 
 
-Coactive closure
+::closure.coactive (coactive closure)
 Minimal abbreviation is ::cl.c
 Ex : See section closure.
 
@@ -365,11 +397,25 @@ Coactivity
 Emulation of coroutine, named "coactivity" to follow the ooRexx vocabulary.
 This is not a "real" coroutine implementation, because it's based on ooRexx threads and synchronization.
 But at least you have all the functionalities of a stackful asymmetric coroutine (resume + yield).
+A coactivity remembers its internal state. It can be called several times, the execution is resumed after
+the last .yield[].
+
+Producer/consumer problems can often be implemented elegantly with coactivities.
+The consumer can pass arguments : producerResult = aCoactivity~resume(args...)
+.yield[result] lets the producer (aCoactivity) return an optional result to the consumer.
+Coactivities also provide an easy way to inverse recursive algorithms into iterative ones.
+
+A coactivity supports the method ~supplier, so it can be seen as a collection. 
+Unlike a collection's supplier which builds a snapshot of the collection, a coactivity's supplier does not
+create a snapshot of the values generated by the coactivity. It's a lazy supplier, which resumes the
+coactivity only when needed (i.e. when aSupplier~next is called).
+When no result returned by the coactivity then the supplier returns item=.nil and index=.nil.
+
 
 block = {::coactivity
          say "hello" arg(1) || arg(2)
-         arg = .yield[]
-         say "good bye" arg[1] || arg[2]
+         .yield[]
+         say "good bye" arg(1) || arg(2)
         }
 block~("John", ", how are you ?") -- hello John, how are you ?
 block~("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
@@ -378,8 +424,8 @@ block~("Keith") -- <nothing done, the coactivity is ended>
 
 block = {::method.coactive
          say self 'says "hello' arg(1) || arg(2)'"'
-         arg = .yield[]
-         say self 'says "good bye' arg[1] || arg[2]'"'
+         .yield[]
+         say self 'says "good bye' arg(1) || arg(2)'"'
         }
 doer = block~doer("The boss")
 doer~("John", ", how are you ?") -- The boss says "hello John, how are you ?"
@@ -391,31 +437,25 @@ doer~("Keith") -- <nothing done, the coactivity is ended>
 Closures by value.
 =====================================================================================
 
-Closure by value means : Updating a variable from the closure will have no impact on the
-original context.
-Note : If the variable contains a mutable value then updating the mutable value from the
-closure will have an impact on the original context (if still active).
-
-
-A closure is an object whose exposed variables are created from a directory of variables.
-This directory of variables can be passed explicitely, or taken from a RexxBlock.
-The behavior of the closure is a user-defined method which expose the needed variables.
-This method is added to the closure, with the name "do". Ex :
-    v = 1 ; closure = .Closure~new(.context~variables){::m expose v ; say v} ; closure~do -- display 1
-    v = 1 ; closure = .Closure~new{::m expose v ; say v} ; closure~do -- display 1
-Both lines are equivalent, but in the second example, the directory of variables is taken
-from the RexxBlock, created when evaluating the source literal.
-
-
-Tags :
+A closure is an object, created from a block with one of these tags
     ::cl[osure]
     ::cl[osure].c[oactive]
 
-The example above can be rewritten :
-    v = 1 ; {::closure expose v ; say v}~doer~do -- display 1
+A closure remembers the values of the variables defined in the outer environment of the block.
+The behaviour of the closure is a method generated from the block, which is attached to
+the closure under the name "do". The values of the captured variables are accessible from
+this method "do" using expose. Updating a variable from the closure will have no impact on
+the original context (hence the name "closure by value").
+A closure can be passed as argument, or returned as result.
 
 
-Closure :
+Examples :
+    v = 1                                -- captured, belongs to the outer environment of the following blocks
+    {::closure expose v ; say v}~doer~do -- display 1
+    {::closure expose v ; say v}~do      -- display 1 (implicit call to ~doer)
+    {::closure expose v ; say v}~()      -- display 1 (alternative notation, more functional)
+
+
     range = { use arg min, max ; return { ::closure expose min max ; use arg num ; return min <= num & num <= max }}
     from5to8 = range~(5, 8)
     from20to30 = range~(20, 30)
@@ -425,15 +465,22 @@ Closure :
     say from20to30~(25) -- 1
 
 
-Coactive closure :
+A coactive closure is both a closure and a coactivity :
+- as a closure, it remembers its outer environment.
+- as a coactivity, it remembers its internal state. 
+It can be called several times, the execution is resumed after the last .yield[]
+
+Examples :
     v = 1
     w = 2
-    closure = {::cl.c expose v w ; .yield[v] ; .yield[w]}~doer
+    closure = {::closure.coactive expose v w ; .yield[v] ; .yield[w]}~doer
     say closure~do -- 1
     say closure~do -- 2
 
 
-The context of a closure can be a method :
+The context of a closure can be a method. In this case, the outer environment contains
+the variables exposed by the method, as well as the SELF and SUPER variables. If the
+closure needs access to the SELF variable, it must expose it, as any other variable.
     myInstance = .myClass~new("myAttributeValue")
     myContextualSource = myInstance~myMethod
     say myContextualSource~class
@@ -451,11 +498,11 @@ The context of a closure can be a method :
     ::method myMethod
         expose a1
         local = "myLocal"
-        return {::cl expose self a1 local ; say self~class ; say a1 ; say local}
+        return {::closure expose self a1 local ; say self~class ; say a1 ; say local}
     ::requires "extension/extensions.cls"
 Output :
     The RexxBlock class
-    ::cl expose self a1 local ; say self~class ; say a1 ; say local
+    ::closure expose self a1 local ; say self~class ; say a1 ; say local
     SELF
     LOCAL
     A1
@@ -484,7 +531,7 @@ Ex :
         use strict arg n, accu=1
         if n <= 1 then return accu
         executable = .context~executable
-        return {::cl
+        return {::closure
             expose n accu executable
             return executable~(n-1, n*accu)
         }
@@ -513,42 +560,22 @@ Ex :
 Ex :
     myArguments = .context~package~findRoutine("myArguments")
     p1 = myArguments~partial(1,,3,,5)
-    p1~()                               1:1 3:3 5:5
-    p1~(2,,6)                           1:1 2:2 3:3 5:5 6:6
-    p1~(2,4,6,,8)                       1:1 2:2 3:3 4:4 5:5 6:6 8:8
+    p1~()                               -- 1:1 3:3 5:5
+    p1~(2,,6)                           -- 1:1 2:2 3:3 5:5 6:6
+    p1~(2,4,6,,8)                       -- 1:1 2:2 3:3 4:4 5:5 6:6 8:8
     p2 = myArguments~partial(,,3,4)
-    p2~()                               3:3 4:4
-    p2~(2,,6)                           1:2 3:3 4:4 5:6
-    p2~(2,4,6,,8)                       1:2 2:4 3:3 4:4 5:6 7:8
+    p2~()                               -- 3:3 4:4
+    p2~(2,,6)                           -- 1:2 3:3 4:4 5:6
+    p2~(2,4,6,,8)                       -- 1:2 2:4 3:3 4:4 5:6 7:8
     ::routine myArguments
-        arg(1, "a")~each{call charout, index":"value" "}
+        arg(1, "a")~each{call charout, index":"item" "}
         say
     ::requires "extension/extensions.cls"
 
 
 =====================================================================================
-Higher-order functions
+Higher-order methods
 =====================================================================================
-
-                reduce   reduceC   reduceW   map   mapC   mapW   mapR   mapCR   mapWR   each    eachC    eachW
-                                                                                        eachI   eachCI   eachWI
-.String         ............X.........X..............X......X......................................X........X...
-.MutableBuffer  ............X.........X..............X......X.............X.......X................X........X...
-.Array          ...X..........................X....................X......................X.....................
-.Bag            ...X..........................X....................X......................X.....................
-.CircularQueue  ...X..........................X....................X......................X.....................
-.Directory      ...X..........................X....................X......................X.....................
-.List           ...X..........................X....................X......................X.....................
-.Properties     ...X..........................X....................X......................X.....................
-.Queue          ...X..........................X....................X......................X.....................
-.Relation       ...X..........................X....................X......................X.....................
-.Set            ...X..........................X....................X......................X.....................
-.Stem           ...X..........................X....................X......................X.....................
-.Table          ...X..........................X....................X......................X.....................
-.IdentityTable  ...X..........................X....................X......................X.....................
-.Supplier       ...X......................................................................X.....................
-.Coactivity     ...X......................................................................X.....................
-
 
 -- Reduce
 -- http://en.wikipedia.org/wiki/Fold_(higher-order_function)
@@ -557,7 +584,7 @@ Higher-order functions
 -- BEWARE ! the ~reduce method is available on all the collections, but only ordered collections can be reduced using non-commutative operations.
 -- Ex : "+" can be used on any collection, but "-" should be used only on ordered collections.
 .array~of(10, 20, 30)~reduce("+") -- initial value is the first item (default), returns 60
-{::c .yield[10]; .yield[20]; .yield[30]}~doer~reduce("+") -- initial value is the first item (default), returns 60
+{::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("+") -- initial value is the first item (default), returns 60
 
 
 -- Map
@@ -575,10 +602,24 @@ Higher-order functions
 -- Iterator, collector, filter.
 -- Whatever the object being iterated over, the ~each method returns an array.
 -- If you need a result object which is of the same type as the iterated object then use ~map.
-.set~of(1,2,3)~supplier~each{2*value}
-"abcdef"~eachC{value}
-{::c do i=1 to 3; .yield[i]; end}~doer~each{2*value}
+.set~of(1,2,3)~supplier~each{2*item}
+"abcdef"~eachC{item}
+{::coactivity do i=1 to 3; .yield[i]; end}~doer~each{2*item}
 
+
+-- Filter on any sequence
+reject(predicate)
+select(predicate)
+
+-- Filter on ordered sequences
+drop(count=1)
+dropLast(count=1)
+dropUntil(predicate)
+dropWhile(predicate)
+take(count=1)
+takeLast(count=1)
+until(predicate)
+while(predicate)
 
 -- Repeat self times the given action (self is a number).
 -- An array of results is returned (can be empty).
@@ -591,10 +632,119 @@ Higher-order functions
 -- Repeat self times the given action (self is a number).
 -- When the action returns a result during the loop, this result is yielded.
 -- The next result will be calculated only when requested.
-c = 1000000~times.yield
+c = 1000000~times.generate
 say c~resume -- 1
 say c~resume -- 2
 ...
+
+
+=====================================================================================
+Generators
+=====================================================================================
+
+When applied to a coactivity, the higher-order methods return a new coactivity instead
+of an array or results. The results are returned one by one.
+Sometimes, you want to iterate over all the values produced by a coactivity. In this case,
+use the method ~iterator which returns a supplier specialized for iteration, where all items
+are consumed in one loop.
+Example :
+    {::coactivity do i=1 to 10; .yield[i]; end}~each{say item}= -- return a Coactivity, nothing displayed
+    {::coactivity do i=1 to 10; .yield[i]; end}~iterator~each{say item}= -- display 1 2 3 4 5 6 7 8 9 10 and return an empty array
+
+
+The .Generator class is a Coactivity which applies an action to a source (any object)
+and yields the results one by one. The following options can be specified :
+~action(action) :
+    The action to execute on each item. The default action is {use arg item ; return item}.
+    An action of type message (string) is supported. For convenience, the message is sent only
+    if the receiver understands it (i.e. ~hasMethod returns .true). In case of recursive execution,
+    the recursion is automatically stopped if the current item does not understand the message.
+    Ex : the method .File~listFiles returns .nil if the item is not a directory. Since .nil does
+    not understand ~listFiles, the recursion is stopped.
+    This method returns the generator (self), to let chaining other methods.
+~allowCommands :
+    To allow execution of system commands from a RexxBlock.
+    By default, the message ~functionDoer is sent to the RexxBlock. The source is transformed to
+    support implicit return, which implies the NOCOMMANDS option.
+    When this option is specified, the message ~actionDoer is sent to the RexxBlock. There is no
+    implicit return, and the NOCOMMANDS option is not injected in the source.
+    This method returns the generator (self), to let chaining other methods.
+~iterateBefore :
+    If the current item has the method "supplier", then apply the doer on each item returned by the supplier.
+    This method returns the generator (self), to let chaining other methods.
+~iterateAfter :
+    If the current result has the method "supplier", then yield each item returned by the supplier.
+    In case of recursive execution, each item is used as input value for the next recursive call.
+    This method returns the generator (self), to let chaining other methods.
+~once : 
+    To remember all the processed items from the start, and process an item only once.
+    This option encompasses the option ~recursive("cycles") which is limited to the call stack.
+    This method returns the generator (self), to let chaining other methods.
+~recursive(options="") :
+    To execute the action recursively on the returned values.
+    The default algorithm is depthFirst.
+    Options can be ([limit|depthFirst|breadthFirst|cycles][.])*
+    Ex :
+    ~recursive(0) : limit=0, execute the action on each item, no recursive call
+    ~recursive(1) : limit=1, execute the action on each item and reexecute the action on each resulting item (1 level of recursion)
+    ~recursive("depthFirst") : http://en.wikipedia.org/wiki/Depth-first_search
+    ~recursive("breadthFirst") : http://en.wikipedia.org/wiki/Breadth-first_search
+    ~recursive("cycles") : detect cycles, to not reprocess an item already processed in the call stack.
+    ~recursive("10.breadthFirst.cycles") : combination of several options.
+    This method returns the generator (self), to let chaining other methods.
+~returnIndex :
+    To yield .array~of(item, index).
+    If the generation is recursive then yield .array~of(item, index, depth) where depth is the number of nested calls.
+    This method returns the generator (self), to let chaining other methods.
+~trace :
+    To activate internal trace.
+    This method returns the generator (self), to let chaining other methods.
+
+
+Convenience methods :
+    .Object~generate(action) : returns .Generator~new(self)~action(action)
+    .Object~generateI(action) : returns .Generator~new(self)~action(action)~returnIndex
+    .String~generateC(action) : returns .Generator~new(self~makeArray(""))~action(action)
+    .String~generateCI(action) : returns .Generator~new(self~makeArray(""))~action(action)~returnIndex
+    .String~generateW(action) : returns .Generator~new(self~subwords)~action(action)
+    .String~generateWI(action) : returns .Generator~new(self~subwords)~action(action)~returnIndex
+    .MutableBuffer~generateC(action) : returns .Generator~new(self~makeArray(""))~action(action)
+    .MutableBuffer~generateCI(action) : returns .Generator~new(self~makeArray(""))~action(action)~returnIndex
+    .MutableBuffer~generateW(action) : returns .Generator~new(self~subwords)~action(action)
+    .MutableBuffer~generateWI(action) : returns .Generator~new(self~subwords)~action(action)~returnIndex
+    .Collection~generate(action) : returns .Generator~new(self)~iterateBefore~action(action)
+    .Collection~generateI(action) : returns .Generator~new(self)~iterateBefore~action(action)~returnIndex
+    .Supplier~generate(action) : returns .Generator~new(self)~iterateBefore~action(action)
+    .Supplier~generateI(action) : returns .Generator~new(self)~iterateBefore~action(action)~returnIndex
+    .Coactivity~generate(action) : returns .Generator~new(self)~iterateBefore~action(action)
+    .Coactivity~generateI(action) : returns .Generator~new(self)~iterateBefore~action(action)~returnIndex
+
+
+Examples :
+-- All items in .environment
+    g=.environment~generate
+    g~do= -- [The OLEObject class id#_268012703]
+    g~do= -- [The InvertingComparator class id#_268059180]
+    ...
+
+-- All pairs of index,item in .environment
+    g=.environment~generateI
+    g~do= -- [(The OLEObject class),'OLEOBJECT']
+    g~do= -- [(The InvertingComparator class),'INVERTINGCOMPARATOR']
+    ...
+
+-- Illustration of depthFirst (default) vs breadthFirst
+   "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive~makeArray=
+        ['one','ne','e','','two','wo','o','','three','hree','ree','ee','e','']
+   "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive("breadthFirst")~makeArray=
+        ['one','two','three','ne','wo','hree','e','o','ree','','','ee','e','']
+
+-- Generation of all natural numbers : 1 2 3 ...
+    g=0~generate{item+1}~recursive
+
+-- Careful :
+    1000000~times~generate{2*item} -- Collect all items in an array and then generate each array's item one by one (you don't get the first item immediatly)
+    1000000~times.generate{2*item} -- Generate directly each item one by one (you get the first item immediatly)
 
 
 =====================================================================================
@@ -614,18 +764,8 @@ Connectors
 '>>' connect leftPipeStage's O2 with rightPipeStage's I1 (secondary follower) : O2 --> I1
 
 
-The chain of connected pipeStages is a pipe.
-Any object can be a source of pipe :
-- When the object does not support the method ~supplier then it's injected as-is.
-  The index is 1.
-- A collection can be a source of pipe : each item of the collection is injected in the pipe.
-  The indexes are those of the collection.
-- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazily).
-  The indexes are those returned by the coactivity supplier.
-
-
-Most sub classes need only override the process() method to implement a pipeStage.  
-The transformed results are passed down the pipeStage chain by calling the write method.
+Note : by default, the connection is always made with follower's I1.
+See .secondaryConnector to learn how to connect to follower's I2.
 
 
 Careful to >> 
@@ -633,19 +773,43 @@ Careful to >>
 Here, the result is not what you expect. You want "LLO", you get "he"...
 This is because .console is the primary follower of .left, not the primary
 follower of .upper.
-Why ? because the pipestage returned by .left[2] >> .upper is .left,
-and .console is attached to the pipestage found by starting from .left
-and walking through the 'next' references until a pipestage with no 'next'
-is found. So .upper is not walked though, because it's a secondary follower.
-
-
 You need additional parentheses to get the expected behavior.
 Here, .console is the primary follower of .upper.
     "hello"~pipe(.left[2] >> ( .upper | .console ) )
 
 
-Note : by default, the connection is always made with follower's I1.
-See .secondaryConnector to learn how to connect to follower's I2.
+The chain of connected pipeStages is a pipe.
+Any object can be a source of pipe :
+- When the object does not support the method ~supplier then it's injected as-is.
+  The index is 1.
+- A collection can be a source of pipe : each item of the collection is injected in the pipe.
+  The indexes are those of the collection.
+- A coactivty can be a source of pipe : each yielded value is injected in the pipe.
+  The indexes are those returned by the coactivity supplier.
+
+
+A pipeStage receives a triplet (item, index, dataflow). It applies transformations or filters
+on this triplet. When a pipeStage forwards an item to a following pipeStage, it forwards the
+received dataflow unchanged, unless the option "memorize" has been used. In this case, a new
+dataFlow is created.
+
+A dataflow is an array :
+  array[1] : link to previous dataflow (received from previous pipeStage).
+  array[2] : tag (generally the id of the pipeStage class, or "source" for the initial dataflow).
+  array[3] : index of produced item.
+  array[4] : produced item.
+
+          1          2     3       4
+        +----------+-----+-------+------+
+        | previous | tag | index | item |
+        +----------+-----+-------+------+
+           ^
+           |  +----------+-----+-------+------+
+           +--| previous | tag | index | item |
+              +----------+-----+-------+------+
+                 ^
+                 |
+                 +-- etc...
 
 
 -- Any object can be a source of pipe.
@@ -659,15 +823,15 @@ See .secondaryConnector to learn how to connect to follower's I2.
 .array~of(10,20,30)~pipe(.console)
 
 
--- A coactivty can be a source of pipe : each yielded value is injected in the pipe (lazy).
+-- A coactivty can be a source of pipe : each yielded value is injected in the pipe.
 -- Example :
 -- This coactivity yields two results.
 -- The hello outputs are not in the pipeline flow (not displayed by the .console).
-{::c echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+{::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
 
 
--- A collection can be sorted by value (default)
-.array~of(b, a, c)~pipe(.sort byValue | .console)
+-- A collection can be sorted by item (default)
+.array~of(b, a, c)~pipe(.sort byItem | .console)
 
 
 -- ...or by index
@@ -675,13 +839,13 @@ See .secondaryConnector to learn how to connect to follower's I2.
 
 
 -- ...ascending (default)
--- The order of options is important : a byValue option is impacted only by the preceding options
--- This is because several byValue options can be specified, and a sort is made for each.
-.array~of(b, a, c)~pipe(.sort ascending byValue | .console)
+-- The order of options is important : a byItem option is impacted only by the preceding options
+-- This is because several byItem options can be specified, and a sort is made for each.
+.array~of(b, a, c)~pipe(.sort ascending byItem | .console)
 
 
 -- ...descending
-.array~of(b, a, c)~pipe(.sort descending byValue | .console)
+.array~of(b, a, c)~pipe(.sort descending byItem | .console)
 
 
 -- ...by index descending
@@ -691,32 +855,29 @@ See .secondaryConnector to learn how to connect to follower's I2.
 
 
 -- Do something for each item (no returned value, so no value passed to .console).
-.array~of(1, , 2, , 3)~pipe(.do {say 'value='value 'index='index} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'index='index} | .console)
 
 
 -- Do something for each item (the returned result replaces the item's value).
--- Note : the index created by .do is a pair (value, resultIndex) where
---     value is the processed value.
---     resultIndex is the index of the current result calculated with value.
--- Here, only one result is calculated for a value, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.do {return 2*value} mem | .console)
+-- Here, only one result is calculated for an item, so resultIndex is always 1.
+.array~of(1, , 2, , 3)~pipe(.do {return 2*item} mem | .console)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
 -- The default order is depth-first.
 -- If the recursion is infinite, must specify a limit (here 0, 1 and 2).
--- The options 'before' and 'after' are not used, so the initial value is discarded.
+-- The options 'before' and 'after' are not used, so the initial item is discarded.
 -- Use the default index.
-.array~of(1, , 2, , 3)~pipe(.inject {value*10} recursive.0 | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*20} recursive.1 | .console)
-.array~of(1, , 2, , 3)~pipe(.inject {value*30} recursive.2 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {item*10} recursive.0 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {item*20} recursive.1 | .console)
+.array~of(1, , 2, , 3)~pipe(.inject {item*30} recursive.2 | .console)
 
 
 -- Methods (not inherited) of all the classes whose id starts with "R".
 .environment~pipe(,
-    .select {value~isA(.class)} |,
-    .select {value~id~caselessAbbrev('R') <> 0} |,
-    .inject {value~methods(value)} after memorize |,
+    .select {item~isA(.class)} |,
+    .select {item~id~caselessAbbrev('R') <> 0} |,
+    .inject {item~methods(item)} after memorize |,
     .sort byIndex |,
     .console,
     )
@@ -730,18 +891,89 @@ See .secondaryConnector to learn how to connect to follower's I2.
 .array~of(5, 8, 1, 3, 6, 2)~pipe(.take 4 | .sort | .console)
 
 
--- Drop the first value
+-- Drop the first item
 .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop | .console)
 
 
--- Drop the first value of each partition
-.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop {value} | .console)
+-- Drop the first item of each partition
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop {item} | .console)
 
 
--- Drop the last value
+-- Drop the last item
 .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last | .console)
 
 
--- Drop the last value of each partition
-.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {value} | .console)
+-- Drop the last item of each partition
+.array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {item} | .console)
 
+
+-- convenience method ~pipe.generate to let yield the values produced by the pipe, one by one :
+g = .object~pipe.generate(.subClasses recursive once | .do {.yield[item]})
+subclass = g~do
+subclass = g~do
+...
+
+
+-- The 50 first files and directories in the /tmp directory
+"/tmp"~pipe(.fileTree recursive.memorize | .take 50 | .console dataflow)
+
+
+-- Public classes by package
+.context~package~pipe(.importedPackages recursive once after memorize.package | .inject {item~publicClasses} iterateAfter | .sort {item~id} {dataflow["package"]~item~name} | .console {.file~new(dataflow["package"]~item~name)~name} ":" item)
+
+
+=====================================================================================
+Summary of extension methods
+=====================================================================================
+
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |     reduce         |        reduceC      reduceW     |       |       |              |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                 map       |           |        mapC         mapW        |       |       |              |              
+                                 mapR      |           |           |            |      mapCR   mapWR     |              |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |     each           |        eachC        eachW       |       |       |              |           
+                                  |     eachI          |        eachCI       eachWI      |       |       |              |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |        |        drop        dropC        dropW       |       |       |              |           
+                                  |        |        dropI       dropCI       dropWI      |       |       |              |           
+                                  |        |        dropLast    dropLastC    dropLastW   |       |       |              |           
+                                  |        |        dropLastI   dropLastCI   dropLastWI  |       |       |              |           
+                                  |        |        dropUntil   dropUntilC   dropUntilW  |       |       |              |           
+                                  |        |        dropUntilI  dropUntilCI  dropUntilWI |       |       |              |           
+                                  |        |        dropWhile   dropWhileC   dropWhileW  |       |       |              |           
+                                  |        |        dropWhileI  dropWhileCI  dropWhileWI |       |       |              |           
+                                  |     reject         |        rejectC      rejectW     |       |       |              |           
+                                  |     rejectI        |        rejectCI     rejectWI    |       |       |              |           
+                                  |     select         |        selectC      selectW     |       |       |              |           
+                                  |     selectI        |        selectCI     selectWI    |       |       |              |           
+                                  |        |        take        takeC        takeW       |       |       |              |           
+                                  |        |        takeI       takeCI       takeWI      |       |       |              |           
+                                  |        |        takeLast    takeLastC    takeLastW   |       |       |              |           
+                                  |        |        takeLastI   takeLastCI   takeLastWI  |       |       |              |           
+                                  |        |        until       untilC       untilW      |       |       |              |           
+                                  |        |        untilI      untilCI      untilWI     |       |       |              |           
+                                  |        |        while       whileC       whileW      |       |       |              |           
+                                  |        |        whileI      whileCI      whileWI     |       |       |              |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |        |           |        generateC    generateW   |       |    generate          |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |        |           |           |            |        |       |    pipe              |           
+                                  |        |           |           |            |        |       |    pipe.generate     |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |        |           |           |            |        |       |       |           times          
+                                  |        |           |           |            |        |       |       |           times.generate 
+                                  |        |           |           |            |        |       |       |           upto           
+                                  |        |           |           |            |        |       |       |           generate.upto  
+                                  |        |           |           |            |        |       |       |           downto         
+                                  |        |           |           |            |        |       |       |           generate.downto
+----------------------------------|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+.Object .................................................................................................X..........................
+.String ...........................................................X............X........................X..............X...........
+.MutableBuffer ....................................................X............X........X.......X.......X..........................
+.Collection.......................X........X.............................................................X..........................
+.OrderedCollection................X........X...........X.................................................X..........................
+.Supplier .................................X...........X.................................................X..........................
+.Coactivity ...............................X...........X.................................................X..........................
+.CoactivitySupplierForGeneration ..........X...........X.................................................X..........................
+.CoactivitySupplierForIteration ...........X...........X.................................................X..........................

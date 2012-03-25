@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -51,6 +51,7 @@
 #include "oodMessaging.hpp"
 #include "oodDeviceGraphics.hpp"
 #include "oodData.hpp"
+#include "oodMouse.hpp"
 #include "oodControl.hpp"
 
 const char *controlType2winName(oodControl_t control)
@@ -156,6 +157,18 @@ oodControl_t control2controlType(HWND hControl)
     return type;
 }
 
+RexxStringObject controlWindow2rexxString(RexxMethodContext *c, HWND hControl)
+{
+    RexxStringObject result = c->NullString();
+
+    TCHAR buf[512];
+    if ( RealGetWindowClass(hControl, buf, sizeof(buf)) == 0)
+    {
+        _snprintf(buf, sizeof(buf), "Unknown control System Error Code: %d\n", GetLastError());
+    }
+    return c->String(buf);
+}
+
 /**
  * Determine if a dialog control belongs to the specified dialog control class.
  *
@@ -244,6 +257,15 @@ oodControl_t oodName2controlType(CSTRING name)
     else return winUnknown;
 }
 
+/**
+ * Returns the Rexx control class for the specified ooDialog control type and
+ * does not raise an exception on error.
+ *
+ * @param c             Method context we are executing in.
+ * @param controlType   ooDialog control type
+ *
+ * @return  The Rexx class object on success and NULLOBJECT on error.
+ */
 RexxClassObject oodClass4controlType(RexxMethodContext *c, oodControl_t controlType)
 {
     RexxClassObject controlClass = NULLOBJECT;
@@ -259,6 +281,34 @@ RexxClassObject oodClass4controlType(RexxMethodContext *c, oodControl_t controlT
 }
 
 
+/**
+ * Returns the Rexx control class for the specified ooDialog control type and
+ * raises an exception on error.
+ *
+ * @param controlType   ooDialog control type
+ * @param c             Method context we are executing in.
+ *
+ * @return  The Rexx class object on success and NULLOBJECT on error.
+ */
+RexxClassObject oodClass4controlType(oodControl_t controlType, RexxMethodContext *c)
+{
+    const char *className = controlType2className(controlType);
+    return rxGetContextClass(c, className);
+}
+
+
+/**
+ * Returns the Rexx control class for the specified ooDialog control type and
+ * does not raise an exception on error.
+ *
+ * This function is for use from a thread context because the FindContextClass()
+ * API is not available.
+ *
+ * @param c             Thread context we are executing in.
+ * @param controlType   ooDialog control type
+ *
+ * @return  The Rexx class object on success and NULLOBJECT on error.
+ */
 RexxClassObject oodClass4controlType(RexxThreadContext *c, oodControl_t controlType)
 {
     RexxClassObject controlClass = NULLOBJECT;
@@ -372,12 +422,13 @@ RexxObjectPtr createRexxControl(RexxThreadContext *c, HWND hControl, HWND hDlg, 
         goto out;
     }
 
-    pArgs->isCatDlg = isCategoryDlg;
+    pCPlainBaseDialog pcpbd = dlgToCSelf(c, self);
+
+    pArgs->isCatDlg    = isCategoryDlg;
     pArgs->controlType = controlType;
-    pArgs->hwnd = hControl;
-    pArgs->hwndDlg = hDlg;
-    pArgs->id = id;
-    pArgs->parentDlg = self;
+    pArgs->hwnd        = hControl;
+    pArgs->pcpbd       = pcpbd;
+    pArgs->id          = id;
 
     rxControl = c->SendMessage1(controlCls, "NEW", c->NewPointer(pArgs));
     free(pArgs);
@@ -567,40 +618,464 @@ done_out:
 #define DIALOGCONTROL_CLASS        "DialogControl"
 
 /**
- * Validates that the CSelf pointer for a DialogControl object is not null.
+ * Tests if the key code is considered an extended key for the purposes of
+ * connectCharEvent().
+ *
+ * Note that PageUp is VK_PRIOR and PageDown is VK_NEXT.
+ *
+ *
+ * @param wParam
+ *
+ * @return bool
  */
-inline pCDialogControl validateDCCSelf(RexxMethodContext *c, void *pcdc)
+static inline bool isExtendedKeyEvent(WPARAM wParam)
 {
-    if ( pcdc == NULL )
-    {
-        baseClassIntializationException(c);
-    }
-    return (pCDialogControl)pcdc;
+    return (wParam >= VK_PRIOR && wParam <= VK_DOWN) || wParam == VK_INSERT || wParam == VK_DELETE;
 }
 
-
-
 /**
- * Free subclass data for the CharEventProc subclass.
+ * Free the subclass data used for the ControlSubclassProc().
  *
- * @assumes  The caller passed in a proper SUBCLASSDATA pointer, i.e., that
- *           pData->pData points to a CHAREVENTDATA struct.
+ * @param pData  Struct to free.
  */
-void freeCharEventData(SUBCLASSDATA *p)
+void freeSubclassData(pSubClassData p)
 {
     if ( p != NULL )
     {
-        if ( p->pData != NULL )
+        if ( p->pData != NULL && p->pfn != NULL )
         {
-            CHAREVENTDATA *pCharEvent = (CHAREVENTDATA *)p->pData;
-            if ( pCharEvent->method != NULL )
-            {
-                free(pCharEvent->method);
-            }
-            LocalFree(pCharEvent);
+            pfnFreeSubclassData extraFree = (pfnFreeSubclassData)p->pfn;
+            extraFree(p);
         }
+
+        size_t i;
+
+        for ( i = 0; i < p->mNextIndex; i++ )
+        {
+            safeLocalFree(p->msgs[i].rexxMethod);
+        }
+
+        LocalFree(p->msgs);
+        p->msgs = NULL;
+        p->mSize = 0;
+        p->mNextIndex = 0;
+        if ( p->pcdc != NULL )
+        {
+            p->pcdc->pscd = NULL;
+        }
+
         LocalFree(p);
     }
+}
+
+/**
+ * Parses options used for subclassing a dialog control and connecting an event
+ * notification to a method in the Rexx dialog.  These options allow some,
+ * small, control over how the subclass window procedure handles the a window
+ * message.
+ *
+ * An exception is raised if the keyword string does not contain any recognized
+ * keyword.
+ *
+ * @param c
+ * @param opts
+ * @param tag
+ * @param argPos
+ *
+ * @return True on succes, false if an exception has been raised.
+ */
+bool parseTagOpts(RexxThreadContext *c, CSTRING opts, uint32_t *pTag, size_t argPos)
+{
+    bool     foundKeyWord = true;
+    uint32_t tag      = *pTag;
+
+    if ( StrCmpI(opts, "SENDTODLG" ) == 0 )
+    {
+        tag |= CTRLTAG_SENDTODLG;
+        foundKeyWord = true;
+    }
+    else if ( StrCmpI(opts, "SENDTOCONTROL" ) == 0 )
+    {
+        tag |= CTRLTAG_SENDTOCONTROL;
+        foundKeyWord = true;
+    }
+    else if ( StrCmpI(opts, "REPLYZERO" ) == 0 )
+    {
+        tag |= CTRLTAG_REPLYZERO;
+        foundKeyWord = true;
+    }
+    else if ( StrCmpI(opts, "REPLYTRUE" ) == 0 )
+    {
+        tag |= CTRLTAG_REPLYTRUE;
+        foundKeyWord = true;
+    }
+    else if ( StrCmpI(opts, "REPLYFALSE" ) == 0 )
+    {
+        tag |= CTRLTAG_REPLYFALSE;
+        foundKeyWord = true;
+    }
+    else if ( StrCmpI(opts, "DEFWINPROC" ) == 0 )
+    {
+        tag |= CTRLTAG_SENDTODEFWINDOWPROC;
+        foundKeyWord = true;
+    }
+
+    if ( StrCmpI(opts, "NOWAIT" ) == 0 )
+    {
+        tag &= ~CTRLTAG_REPLYFROMREXX;
+        foundKeyWord = true;
+    }
+
+    // That's all we have for now, more possibilities may be added in the
+    // future.
+    if ( foundKeyWord )
+    {
+        *pTag = tag;
+    }
+    else
+    {
+        wrongArgValueException(c, argPos, SUBCLASS_TAG_KEYWORDS, opts);
+    }
+
+    return foundKeyWord;
+}
+
+static LRESULT charReply(pSubClassData pData, char *method, RexxArrayObject args,
+                         HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
+{
+    RexxThreadContext *c = pData->pcpbd->dlgProcContext;
+
+    RexxObjectPtr reply = c->SendMessage(pData->pcpbd->rexxSelf, method, args);
+    if ( ! checkForCondition(c, false) && reply != NULLOBJECT )
+    {
+        if ( reply == TheFalseObj )
+        {
+            // Swallow the message.
+            return 0;
+        }
+        else if ( reply == TheTrueObj )
+        {
+            return DefSubclassProc(hwnd, msg, wParam, lParam);
+        }
+        else
+        {
+            // When it is neither true or false, the reply should be a charcter
+            // that replaces the char with the char sent back to us.
+            uint32_t chr;
+            if ( c->UnsignedInt32(reply, &chr) )
+            {
+                return DefSubclassProc(hwnd, msg, (WPARAM)chr, lParam);
+            }
+        }
+    }
+
+    // On errors:
+    return DefSubclassProc(hwnd, msg, wParam, lParam);
+}
+
+/**
+ * Process a window message to a subclassed dialog control.  The message passed
+ * the filters used to connect a message to a Rexx method in the dialog.
+ *
+ * @param msg
+ * @param wParam
+ * @param lParam
+ * @param pData
+ * @param method
+ * @param tag
+ *
+ * @return LRESULT
+ */
+static LRESULT processControlMsg(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam,
+                                 pSubClassData pData, char *method, uint32_t tag)
+{
+    RexxThreadContext *c = pData->pcpbd->dlgProcContext;
+
+    switch ( tag & CTRLTAG_MASK )
+    {
+        case CTRLTAG_NOTHING :
+            break;
+
+        case CTRLTAG_CONTROL :
+        {
+            if ( msg == WM_KEYDOWN )
+            {
+                if ( tag & CTRLTAG_ISOLATE )
+                {
+                    if ( isExtendedKeyEvent(wParam) )
+                    {
+                        RexxArrayObject args  = getKeyEventRexxArgs(c, wParam, true, pData->pcdc->rexxSelf);
+                        return charReply(pData, method, args, hwnd, msg, wParam, lParam);
+                    }
+                    return DefSubclassProc(hwnd, msg, wParam, lParam);
+                }
+            }
+            else if ( msg == WM_CHAR )
+            {
+                RexxArrayObject args  = getKeyEventRexxArgs(c, wParam, false, pData->pcdc->rexxSelf);
+                return charReply(pData, method, args, hwnd, msg, wParam, lParam);
+            }
+
+            break;
+        }
+
+        case CTRLTAG_MOUSE :
+        {
+            return processMouseMsg(c, method, tag, msg, hwnd, wParam, lParam, pData->pcdc);
+        }
+
+        case CTRLTAG_DIALOG :
+        {
+            if ( msg == WM_CONTEXTMENU )
+            {
+                return DefWindowProc(hwnd, msg, wParam, lParam);
+            }
+            else if ( msg == WM_SIZE )
+            {
+                return 0;
+            }
+
+            break;
+        }
+
+        default :
+            break;
+    }
+
+    // We dropped through without processing the message, but this message did
+    // match an entry in the message table.
+    if ( tag & CTRLTAG_REPLYTRUE )
+    {
+        // Note that I'm not sure it is correct to reply true ??
+        return TRUE;
+    }
+    else if ( tag & CTRLTAG_REPLYZERO )
+    {
+        return 0;
+    }
+    else if ( tag & CTRLTAG_SENDTODEFWINDOWPROC )
+    {
+        return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+    else
+    {
+        // Note that here, if we use invokeDispatch(), we drop through and
+        // DefSubclassProc() is invoked.  If we invoke the method directly and
+        // wait for the reply, if there is no condition and if the reply is 0,
+        // we return 0, which means the message was processed for most messages.
+        // Oherwise we again drop through and DefSubclassProc() is invoked.
+
+        RexxArrayObject args = c->ArrayOfThree(c->Uintptr(wParam), c->Intptr(lParam), pData->pcdc->rexxSelf);
+
+        if ( tag & CTRLTAG_REPLYFROMREXX )
+        {
+            RexxObjectPtr reply = c->SendMessage(pData->pcpbd->rexxSelf, method, args);
+            if ( ! checkForCondition(c, false) && reply != NULLOBJECT )
+            {
+                if ( isInt(0, reply, c) )
+                {
+                    // Swallow the message.
+                    return 0;
+                }
+            }
+        }
+        else
+        {
+            invokeDispatch(c, pData->pcpbd->rexxSelf, c->String(method), args);
+        }
+    }
+
+    return DefSubclassProc(hwnd, msg, wParam, lParam);
+}
+
+/**
+ * Generic subclass window procedure for all dialog controls.
+ *
+ * This is based, loosely, on the existing dialog mechanism for connecting
+ * window messages to a method in the Rexx dialog.
+ *
+ * Normally, a multi-line edit control processes the WM_MOUSEWHEEL and scrolls
+ * the text appropriately.  This prevents the Rexx programmer from doing any
+ * custom handling of the message.  The message never makes it to the dialog
+ * procedure.
+ *
+ * Here, we prevent the edit window from receiving the message by either passing
+ * the message on to DefWindowProc() or returning TRUE.
+ *
+ * When the message is passed on to DefWindowProc(), it gets sent on to the
+ * dialog window procedure.  However, if the Rexx programmer specified an event
+ * handler, (by specifying the event handler method,) we inovke the Rexx dialog
+ * method directly using mouseWheelNotify()
+ *
+ * Note that mouseWheelNotify() returns true for success and false if a
+ * condition was raised in the Rexx event handler.  If a condition was raised,
+ * the condition message is printed to the screen, but not, at this time,
+ * cleared.  For now we just ignore the return from mouseWheelNotify().
+ */
+LRESULT CALLBACK ControlSubclassProc(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR dwData)
+{
+    pSubClassData pData = (pSubClassData)dwData;
+
+    MESSAGETABLEENTRY *m = pData->msgs;
+    if ( m == NULL )
+    {
+        return DefSubclassProc(hwnd, msg, wParam, lParam);
+    }
+
+    size_t tableSize = pData->mNextIndex;
+    register size_t i = 0;
+
+    for ( i = 0; i < tableSize; i++ )
+    {
+        if ( (msg    & m[i].msgFilter) == m[i].msg    &&
+             (wParam & m[i].wpFilter)  == m[i].wParam &&
+             (lParam & m[i].lpfilter)  == m[i].lParam )
+        {
+            return processControlMsg(hwnd, msg, wParam, lParam, pData, m[i].rexxMethod, m[i].tag);
+        }
+    }
+
+    if ( msg == WM_NCDESTROY )
+    {
+        /* The window is being destroyed, remove the subclass, clean up memory.
+         * Note that with the current ooDialog architecture, this message never
+         * gets here.  Freeing the subclass data struct has to be done in the
+         * dialog control uninit().
+         */
+        RemoveWindowSubclass(hwnd, ControlSubclassProc, pData->id);
+        freeSubclassData(pData);
+    }
+
+    return DefSubclassProc(hwnd, msg, wParam, lParam);
+}
+
+
+/**
+ * Sets the generic control subclass procedure for the specified control.
+ *
+ * @param c
+ * @param pcdc
+ *
+ * @return True on success, false on failure.
+ *
+ * @assumes  The generic control subclass has not be set for this control.
+ */
+bool setControlSubclass(RexxMethodContext *c, pCDialogControl pcdc)
+{
+    pSubClassData pSCData = (pSubClassData)LocalAlloc(LPTR, sizeof(SubClassData));
+    if ( pSCData == NULL )
+    {
+        outOfMemoryException(c->threadContext);
+        return false;
+    }
+
+    pSCData->pcpbd          = pcdc->pcpbd;
+    pSCData->pcdc           = pcdc;
+    pSCData->hCtrl          = pcdc->hCtrl;
+    pSCData->id             = pcdc->id;
+
+    BOOL success;
+    if ( isDlgThread(pcdc->pcpbd) )
+    {
+        success = SetWindowSubclass(pcdc->hCtrl, ControlSubclassProc, pcdc->id, (DWORD_PTR)pSCData);
+    }
+    else
+    {
+        success = (BOOL)SendMessage(pcdc->pcpbd->hDlg, WM_USER_SUBCLASS, (WPARAM)ControlSubclassProc, (LPARAM)pSCData);
+    }
+
+    if ( ! success )
+    {
+        LocalFree(pSCData);
+        systemServiceExceptionCode(c->threadContext, API_FAILED_MSG, "SetWindowSubclass");
+        return false;
+    }
+
+    pcdc->pscd = pSCData;
+
+    return true;
+}
+
+/**
+ * Adds an event connection to the dialog control's subclass message table,
+ * setting the controls subclass procedure if needed..
+ *
+ * @param c          Rexx method context we are operating in.
+ * @param pcdc       The dialog control's C Self.
+ * @param pwmf
+ *
+ * @return True on success, false on error.  On error an exception has been
+ *         raised.
+ *
+ * @remarks  Caller must ensure that 'method' is not an empty string and that
+ *           winMsg, wParam, lParam are not all 0.
+ *
+ *           See remarks in addCommandMessages() for some relevant information.
+ */
+bool addSubclassMessage(RexxMethodContext *c, pCDialogControl pcdc, pWinMessageFilter pwmf)
+{
+    if ( pcdc->pscd == NULL )
+    {
+        if ( ! setControlSubclass(c, pcdc) )
+        {
+            return false;
+        }
+    }
+
+    pSubClassData pscd = (pSubClassData)pcdc->pscd;
+
+    pscd->pData = pwmf->pData;
+    pscd->pfn   = pwmf->pfn;
+
+    if ( pscd->msgs == NULL )
+    {
+        pscd->msgs = (MESSAGETABLEENTRY *)LocalAlloc(LPTR, sizeof(MESSAGETABLEENTRY) * DEF_CONTROL_MSGS);
+        if ( pscd->msgs == NULL )
+        {
+            outOfMemoryException(c->threadContext);
+            return false;
+        }
+        pscd->mNextIndex = 0;
+        pscd->mSize      = DEF_CONTROL_MSGS;
+    }
+
+    size_t index = pscd->mNextIndex;
+
+    if ( index >= pscd->mSize )
+    {
+        HLOCAL temp = LocalReAlloc(pscd->msgs, sizeof(MESSAGETABLEENTRY) * pscd->mSize * 2, LMEM_ZEROINIT | LMEM_MOVEABLE);
+        if ( temp == NULL )
+        {
+            MessageBox(0, "Dialog control message connections have exceeded the maximum\n"
+                          "number of allocated table entries, and the table could not\n"
+                          "be expanded.\n\n"
+                          "No more dialog control message connections can be added.\n",
+                       "Error", MB_OK | MB_ICONHAND);
+            return false;
+        }
+
+        pscd->mSize *= 2;
+        pscd->msgs = (MESSAGETABLEENTRY *)temp;
+    }
+
+    pscd->msgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(pwmf->method) + 1);
+    if ( pscd->msgs[index].rexxMethod == NULL )
+    {
+        outOfMemoryException(c->threadContext);
+        return false;
+    }
+    strcpy(pscd->msgs[index].rexxMethod, pwmf->method);
+
+    pscd->msgs[index].msg       = pwmf->wm;
+    pscd->msgs[index].msgFilter = pwmf->wmFilter;
+    pscd->msgs[index].wParam    = pwmf->wp;
+    pscd->msgs[index].wpFilter  = pwmf->wpFilter;
+    pscd->msgs[index].lParam    = pwmf->lp;
+    pscd->msgs[index].lpfilter  = pwmf->lpFilter;
+    pscd->msgs[index].tag       = pwmf->tag;
+
+    pscd->mNextIndex++;
+    return true;
 }
 
 
@@ -613,33 +1088,33 @@ void freeCharEventData(SUBCLASSDATA *p)
  * processKeyPress() is used to actually decipher the key press data and set
  * up the ooDialog method invocation.  That function documents what is sent on
  * to the ooDialog method.
+ *
+ * @remarks  The connect key press functions were introduced, and documented,
+ *           well before the generic ControlSubclassProc() was implemented.  The
+ *           connect key press implementation is sufficiently different from the
+ *           generic control subclass implementation to dictate that it remain
+ *           distinct.  It does however use the same SubClassData structure.
  */
 LRESULT CALLBACK KeyPressSubclassProc(HWND hwnd, UINT msg, WPARAM wParam,
   LPARAM lParam, UINT_PTR id, DWORD_PTR dwData)
 {
-    SUBCLASSDATA *pSubclassData = (SUBCLASSDATA *)dwData;
-    if ( ! pSubclassData )
+    pSubClassData pSCData = (pSubClassData)dwData;
+    if ( ! pSCData )
     {
         return DefSubclassProc(hwnd, msg, wParam, lParam);
     }
 
-    KEYPRESSDATA *pKeyData = (KEYPRESSDATA *)pSubclassData->pData;
+    KEYPRESSDATA *pKeyData = (KEYPRESSDATA *)pSCData->pData;
 
     switch ( msg )
     {
-        case WM_GETDLGCODE:
-            /* Don't do anything for now. This message has some interesting
-             * uses, perhaps a future enhancement.
-             */
-            break;
-
         case WM_SYSKEYDOWN:
             /* Sent when the alt key is down.  We need both WM_SYSKEYDOWN and
              * WM_KEYDOWN to catch everything that a keyboard hook catches.
              */
             if (  pKeyData->key[wParam] && !(lParam & KEY_RELEASED) && !(lParam & KEY_WASDOWN) )
             {
-                processKeyPress(pSubclassData, wParam, lParam);
+                processKeyPress(pSCData, wParam, lParam);
             }
             break;
 
@@ -647,16 +1122,18 @@ LRESULT CALLBACK KeyPressSubclassProc(HWND hwnd, UINT msg, WPARAM wParam,
             /* WM_KEYDOWN will never have KEY_RELEASED set. */
             if (  pKeyData->key[wParam] && !(lParam & KEY_WASDOWN) )
             {
-                processKeyPress(pSubclassData, wParam, lParam);
+                processKeyPress(pSCData, wParam, lParam);
             }
             break;
 
         case WM_NCDESTROY:
-            /* The window is being destroyed, remove the subclass, clean up
-             * memory.
+            /* The window is being destroyed, remove the subclass, clean up memory.
+             * Note that with the current ooDialog architecture, this message never
+             * gets here.  Freeing the subclass data struct has to be done in the
+             * dialog control uninit().
              */
             RemoveWindowSubclass(hwnd, KeyPressSubclassProc, id);
-            freeKeyPressData(pSubclassData);
+            freeKeyPressData(pSCData);
             break;
     }
     return DefSubclassProc(hwnd, msg, wParam, lParam);
@@ -668,8 +1145,13 @@ LRESULT CALLBACK KeyPressSubclassProc(HWND hwnd, UINT msg, WPARAM wParam,
  *
  * If for some reason remvoing the subclass fails, we can not free the memory
  * because the subclass procedure may (will) still acess it.
+ *
+ * @remarks  Note that the return from SendMessage is invalid if we are running
+ *           in the same thread as the dialog's message processing loop.
+ *           Currently, that is unlikely to happen, but it is a possible source
+ *           of an error here.
  */
-static BOOL removeKeyPressSubclass(SUBCLASSDATA *pData, HWND hDlg, INT id)
+static BOOL removeKeyPressSubclass(pSubClassData pData, HWND hDlg, INT id)
 {
     BOOL success = SendMessage(hDlg, WM_USER_SUBCLASS_REMOVE, (WPARAM)&KeyPressSubclassProc, (LPARAM)id) != 0;
     if ( success )
@@ -680,6 +1162,22 @@ static BOOL removeKeyPressSubclass(SUBCLASSDATA *pData, HWND hDlg, INT id)
 }
 
 
+/**
+ *
+ *
+ * @param c
+ * @param methodName
+ * @param keys
+ * @param filter
+ * @param pcdc
+ *
+ * @return keyPressErr_t
+ *
+ * @remarks  Note that the return from SendMessage is invalid if we are running
+ *           in the same thread as the dialog's message processing loop.
+ *           Currently, that is unlikely to happen, but it is a possible source
+ *           of an error here.
+ */
 static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRING methodName, CSTRING keys, CSTRING filter,
                                              pCDialogControl pcdc)
 {
@@ -699,16 +1197,15 @@ static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRING metho
         goto done_out;
     }
 
-    SUBCLASSDATA *pSubclassData = NULL;
-    BOOL success = GetWindowSubclass(pcdc->hCtrl, KeyPressSubclassProc, pcdc->id, (DWORD_PTR *)&pSubclassData);
+    pSubClassData pSCData = (pSubClassData)pcdc->pKeyPress;
 
-    // If pSubclassData is null, the subclass is not installed.  The data block needs to
-    // be allocated and then install the subclass.  Otherwise, just update the
-    // data block.
-    if ( pSubclassData == NULL )
+    // If pSCData is null, the subclass is not installed.  The data block needs
+    // to be allocated and then install the subclass.  Otherwise, just update
+    // the data block.
+    if ( pSCData == NULL )
     {
-        pSubclassData = (SUBCLASSDATA *)LocalAlloc(LPTR, sizeof(SUBCLASSDATA));
-        if ( pSubclassData == NULL )
+        pSCData = (pSubClassData)LocalAlloc(LPTR, sizeof(SubClassData));
+        if ( pSCData == NULL )
         {
             result = memoryErr;
             goto done_out;
@@ -717,156 +1214,60 @@ static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRING metho
         KEYPRESSDATA *pKeyPressData = (KEYPRESSDATA *)LocalAlloc(LPTR, sizeof(KEYPRESSDATA));
         if ( pKeyPressData == NULL )
         {
-            LocalFree(pSubclassData);
+            LocalFree(pSCData);
             result = memoryErr;
             goto done_out;
         }
 
-        pSubclassData->rexxControl = pcdc->rexxSelf;
-        pSubclassData->hCtrl = pcdc->hCtrl;
-        pSubclassData->uID = pcdc->id;
-        pSubclassData->pData = pKeyPressData;
+        pSCData->hCtrl = pcdc->hCtrl;
+        pSCData->id    = pcdc->id;
+        pSCData->pData = pKeyPressData;
+        pSCData->pcdc  = pcdc;
+        pSCData->pcpbd = pcdc->pcpbd;
 
         // The subclass is not installed, abort and clean up if there is any
         // error in setKeyPressData()
         result = setKeyPressData(pKeyPressData, methodName, keys, filter);
-        if ( result == noErr )
+        if ( result != noErr )
         {
-            if ( SendMessage(pcdc->hDlg, WM_USER_SUBCLASS, (WPARAM)KeyPressSubclassProc, (LPARAM)pSubclassData) == 0 )
-            {
-                // Subclassing failed, we need to clean up memory, or else it
-                // will leak.
-                freeKeyPressData(pSubclassData);
-                result = winAPIErr;
-            }
+            freeKeyPressData(pSCData);
+            goto done_out;
+        }
+
+        BOOL success;
+
+        if ( isDlgThread(pcdc->pcpbd) )
+        {
+            success = SetWindowSubclass(pSCData->hCtrl, KeyPressSubclassProc, pSCData->id, (DWORD_PTR)pSCData);
         }
         else
         {
-            freeKeyPressData(pSubclassData);
+            success = (BOOL)SendMessage(pcdc->hDlg, WM_USER_SUBCLASS, (WPARAM)KeyPressSubclassProc, (LPARAM)pSCData);
+        }
+
+        if ( success )
+        {
+            pcdc->pKeyPress = pSCData;
+        }
+        else
+        {
+            // Subclassing failed, clean up memory and report the error.
+            freeKeyPressData(pSCData);
+            result = winAPIErr;
         }
     }
     else
     {
-        // The subclass is installed, it has a valid key press data table.  If
-        // there are any errors, the error is reported, but the existing data
-        // table is left alone.
-        if ( success )
-        {
-            result = setKeyPressData((KEYPRESSDATA *)pSubclassData->pData, methodName, keys, filter);
-        }
-        else
-        {
-            result = winAPIErr;
-        }
+        // The subclass is already installed, it has a valid key press data
+        // table. If there are any errors in setKeyPressData(), the error is
+        // reported, but the existing data table is left alone.
+        result = setKeyPressData((KEYPRESSDATA *)pSCData->pData, methodName, keys, filter);
     }
 
 done_out:
     return result;
 }
 
-
-/**
- * Tests if the key code is considered an extended key for the purposes of
- * connectCharEvent().
- *
- * Note that PageUp is VK_PRIOR and PageDown is VK_NEXT.
- *
- *
- * @param wParam
- *
- * @return bool
- */
-static inline bool isExtendedKeyEvent(WPARAM wParam)
-{
-    return (wParam >= VK_PRIOR && wParam <= VK_DOWN) || wParam == VK_INSERT || wParam == VK_DELETE;
-}
-
-/**
- * Subclass procedure for any dialog control that uses connectCharEvent().
- *
- * Some what experimental for now.  To begin with, this is kept minimal to allow
- * for future expansion.
- *
- * When connected, (which would be the only time this subclass procedure is in
- * use,) all WM_CHAR messages are sent to the Rexx method.  The method can reply
- * false to NOT send the message on to the subclassed control, reply true to
- * pass the message on unchanged, and reply with a character key code which
- * replaces the actual character key code.
- *
- * Replacing the character is no implemented yet.
- *
- * In addition, the extended key codes HOME END INS DEL PAGEUP PAGEDOWN and the
- * arrow keys are sent to the Rexx method.  For these, for now, the user can
- * reply false to suppress the message being sent to the subclassed control.
- * And true to send it on to the subclassed control, but actually, anything
- * other than false is treated as true.
- *
- * @remarks  We know, or think we know, that this function is running in the
- *           thread of the dialog message loop.  So, for a thread context, we
- *           just grab it from the pCPlainBaseDialg.
- */
-LRESULT CALLBACK CharEventProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR dwData)
-{
-    SUBCLASSDATA *pSubclassData = (SUBCLASSDATA *)dwData;
-    if ( ! pSubclassData )
-    {
-        return DefSubclassProc(hwnd, msg, wParam, lParam);
-    }
-    CHAREVENTDATA *pCharEvent = (CHAREVENTDATA *)pSubclassData->pData;
-
-    switch ( msg )
-    {
-        case WM_KEYDOWN:
-            if ( lParam & KEY_ISEXTENDED && isExtendedKeyEvent(wParam) )
-            {
-                RexxThreadContext *c = pSubclassData->dlgProcContext;
-                RexxArrayObject args = getKeyEventRexxArgs(c, wParam, true, pSubclassData->rexxControl);
-
-                RexxObjectPtr reply = c->SendMessage(pSubclassData->rexxDialog, pCharEvent->method, args);
-
-                if ( ! checkForCondition(c, false) && reply == TheFalseObj )
-                {
-                    return TRUE;
-                }
-            }
-            break;
-
-        case WM_CHAR:
-        {
-            RexxThreadContext *c = pSubclassData->dlgProcContext;
-            RexxArrayObject args = getKeyEventRexxArgs(c, wParam, false, pSubclassData->rexxControl);
-
-            RexxObjectPtr reply = c->SendMessage(pSubclassData->rexxDialog, pCharEvent->method, args);
-
-            if ( ! checkForCondition(c, false) && reply != NULLOBJECT )
-            {
-                if ( reply == TheFalseObj )
-                {
-                    return TRUE;
-                }
-                else if ( reply != TheTrueObj )
-                {
-                    // TheTrueObj just means don't do anything, so DefSubClassProc() handles it.
-                    uint32_t chr;
-                    if ( c->UnsignedInt32(reply, &chr) )
-                    {
-                        return DefSubclassProc(hwnd, msg, (WPARAM)chr, lParam);
-                    }
-                }
-            }
-            break;
-        }
-
-        case WM_NCDESTROY:
-            /* The window is being destroyed, remove the subclass, clean up
-             * memory.
-             */
-            RemoveWindowSubclass(hwnd, CharEventProc, id);
-            freeCharEventData(pSubclassData);
-            break;
-    }
-    return DefSubclassProc(hwnd, msg, wParam, lParam);
-}
 
 RexxMethod1(RexxObjectPtr, dlgctrl_init_cls, OSELF, self)
 {
@@ -946,21 +1347,22 @@ RexxMethod2(uint32_t, dlgctrl_init, OPTIONAL_POINTER, args, OSELF, self)
     pCDialogControl cdcCSelf = (pCDialogControl)c->BufferData(cdcBuf);
     memset(cdcCSelf, 0, sizeof(CDialogControl));
 
-    cdcCSelf->controlType = params->controlType;
-    cdcCSelf->lastItem = -1;
-    cdcCSelf->wndBase = wbCSelf;
-    cdcCSelf->rexxSelf = self;
-    cdcCSelf->hCtrl = params->hwnd;
-    cdcCSelf->id = params->id;
-    cdcCSelf->hDlg = params->hwndDlg;
-    cdcCSelf->oDlg = params->parentDlg;
+    cdcCSelf->controlType     = params->controlType;
+    cdcCSelf->hCtrl           = params->hwnd;
+    cdcCSelf->hDlg            = params->pcpbd->hDlg;
+    cdcCSelf->id              = params->id;
     cdcCSelf->isInCategoryDlg = params->isCatDlg;
+    cdcCSelf->lastItem        = -1;
+    cdcCSelf->oDlg            = params->pcpbd->rexxSelf;
+    cdcCSelf->pcpbd           = params->pcpbd;
+    cdcCSelf->rexxSelf        = self;
+    cdcCSelf->wndBase         = wbCSelf;
 
     context->SetObjectVariable("CSELF", cdcBuf);
 
-    context->SetObjectVariable("ID", c->UnsignedInt32(params->id));
-    context->SetObjectVariable("HDLG", pointer2string(context, params->hwndDlg));
-    context->SetObjectVariable("ODLG", params->parentDlg);
+    context->SetObjectVariable("ID", c->UnsignedInt32(cdcCSelf->id));
+    context->SetObjectVariable("HDLG", pointer2string(context, cdcCSelf->pcpbd->hDlg));
+    context->SetObjectVariable("ODLG", cdcCSelf->oDlg);
     result = 0;
 
 done_out:
@@ -969,20 +1371,55 @@ done_out:
 
 /** DialogControl::unInit()
  *
- *  Release the global reference for CWindowBase::rexxHwnd.
+ *  Release the global reference for CWindowBase::rexxHwnd and free any subclass
+ *  data structures.
  *
+ *  @remarks  Because the current architecture of ooDialog closes the window
+ *            message processing loop before it does a DestroyWindow(), no
+ *            WM_DESTROY or WM_NCDESTROY messages make it to any dialog or
+ *            dialog control windows.  This prevents freeing the subclass data
+ *            structures in any subclass window procedure.  Instead the pointer
+ *            to the struct is placed in the dialog control CSelf and freed here
+ *            in uninit().
  */
 RexxMethod1(RexxObjectPtr, dlgctrl_unInit, CSELF, pCSelf)
 {
+#if 0
+    printf("In dlgctrl_unInit() pCSelf=%p\n", pCSelf);
+#endif
+
     if ( pCSelf != NULLOBJECT )
     {
+        pCDialogControl pcdc = (pCDialogControl)pCSelf;
+
+#if 0
+    printf("In dlgctrl_unInit() hCtrl=%p pscd=%p rexxSelf=%p\n", pcdc->hCtrl, pcdc->pscd, pcdc->rexxSelf);
+#endif
+        if ( pcdc->pscd != NULL )
+        {
+            freeSubclassData((pSubClassData)pcdc->pscd);
+        }
+
+        if ( pcdc->pKeyPress != NULL )
+        {
+            freeKeyPressData((pSubClassData)pcdc->pscd);
+        }
+
+        if ( pcdc->pcrs != NULL )
+        {
+            safeLocalFree(pcdc->pcrs->method);
+            LocalFree(pcdc->pcrs);
+            pcdc->pcrs = NULL;
+        }
+
         pCWindowBase pcwb = ((pCDialogControl)pCSelf)->wndBase;
         if ( pcwb->rexxHwnd != TheZeroObj )
         {
             context->ReleaseGlobalReference(pcwb->rexxHwnd);
             pcwb->rexxHwnd = TheZeroObj;
         }
-    } return NULLOBJECT;
+    }
+    return NULLOBJECT;
 }
 
 RexxMethod1(RexxObjectPtr, dlgctrl_assignFocus, CSELF, pCSelf)
@@ -991,82 +1428,96 @@ RexxMethod1(RexxObjectPtr, dlgctrl_assignFocus, CSELF, pCSelf)
     return TheZeroObj;
 }
 
-/** DialogControl::connectCharEvent()
+/** DialogControl::connectEvent()
  *
- *  Connects a WM_CHAR message to a method in the Rexx dialog.
+ *  Subclasses the dialog control and adds default subclass procedure message
+ *  processing for the event specified.
  *
+ *  @param  event       [required ] Event keyword.
+ *  @param  methodName  [optional]  Method name to use.
  *
  *  @return True for success, false for error
  *
+ *  @remarks  Note that we have to use a method name or addSubclassMessage()
+ *            will crash.  We use 'NOOP'.  Originally, it was intended for NOOP
+ *            to signal some special processing, but that was never followed
+ *            through on.
  *
  */
-RexxMethod2(RexxObjectPtr, dlgctrl_connectCharEvent, CSTRING, methodName, CSELF, pCSelf)
+RexxMethod3(RexxObjectPtr, dlgctrl_connectEvent, CSTRING, event, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
-    oodResetSysErrCode(context->threadContext);
-
     RexxObjectPtr result = TheFalseObj;
-    if ( ! requiredComCtl32Version(context, "connectCharEvent", COMCTL32_6_0) )
+
+    WinMessageFilter wmf = {0};
+    wmf.method = "NOOP";
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
     {
         goto done_out;
     }
-    if ( *methodName == '\0' )
+
+    if ( ! requiredComCtl32Version(context, "connectEvent", COMCTL32_6_0) )
     {
-        context->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
         goto done_out;
     }
 
-    pCDialogControl pcdc = (pCDialogControl)pCSelf;
-
-    SUBCLASSDATA *pData = NULL;
-    BOOL success = GetWindowSubclass(pcdc->hCtrl, CharEventProc, pcdc->id, (DWORD_PTR *)&pData);
-
-    // Nothing fancy yet, we could allow removing the subclass.
-
-    if ( pData != NULL )
+    if ( StrCmpI(event, "CONTEXTMENU") == 0 )
     {
-        // The subclass is already installed, we call this an error.
-        oodSetSysErrCode(context->threadContext, ERROR_NOT_SUPPORTED);
+        wmf.wm       = WM_CONTEXTMENU;
+        wmf.wmFilter = 0xFFFFFFFF;
+        wmf.tag      = CTRLTAG_DIALOG;
+
+        if ( addSubclassMessage(context, pcdc, &wmf) )
+        {
+            result = TheTrueObj;
+        }
         goto done_out;
     }
-
-    pData = (SUBCLASSDATA *)LocalAlloc(LPTR, sizeof(SUBCLASSDATA));
-    if ( pData == NULL )
+    else if ( StrCmpI(event, "CHAR") == 0 )
     {
-        outOfMemoryException(context->threadContext);
+        if ( argumentOmitted(2) )
+        {
+            methodName = "onChar";
+        }
+
+        wmf.wm       = WM_KEYDOWN;
+        wmf.wmFilter = 0xFFFFFFFF;
+        wmf.lp       = KEY_ISEXTENDED;
+        wmf.lpFilter = KEY_ISEXTENDED;
+        wmf.method   = methodName;
+        wmf.tag      = CTRLTAG_CONTROL | CTRLTAG_ISOLATE;
+
+        if ( ! addSubclassMessage(context, pcdc, &wmf) )
+        {
+            goto done_out;
+        }
+
+        wmf.wm       = WM_CHAR;
+        wmf.wmFilter = 0xFFFFFFFF;
+        wmf.lp       = 0;
+        wmf.lpFilter = 0;
+        wmf.method   = methodName;
+        wmf.tag      = CTRLTAG_CONTROL;
+
+        if ( addSubclassMessage(context, pcdc, &wmf) )
+        {
+            result = TheTrueObj;
+        }
         goto done_out;
     }
-
-    CHAREVENTDATA *pKeyEventData = (CHAREVENTDATA *)LocalAlloc(LPTR, sizeof(CHAREVENTDATA));
-    if ( pKeyEventData == NULL )
+    else if ( StrCmpI(event, "WM_SIZE") == 0 )
     {
-        LocalFree(pData);
-        outOfMemoryException(context->threadContext);
+        wmf.wm       = WM_SIZE;
+        wmf.wmFilter = 0xFFFFFFFF;
+        wmf.tag      = CTRLTAG_DIALOG | CTRLTAG_REPLYZERO;
+
+        if ( addSubclassMessage(context, pcdc, &wmf) )
+        {
+            result = TheTrueObj;
+        }
         goto done_out;
     }
-
-    pKeyEventData->method = (char *)malloc(strlen(methodName) + 1);
-    if ( pKeyEventData->method == NULL )
-    {
-        freeCharEventData(pData);
-        outOfMemoryException(context->threadContext);
-        goto done_out;
-    }
-    strcpy(pKeyEventData->method, methodName);
-
-    pData->rexxControl = pcdc->rexxSelf;
-    pData->hCtrl = pcdc->hCtrl;
-    pData->uID = pcdc->id;
-    pData->pData = pKeyEventData;
-
-    if ( SendMessage(pcdc->hDlg, WM_USER_SUBCLASS, (WPARAM)CharEventProc, (LPARAM)pData) == 0 )
-    {
-        // The subclass was not installed, free memeory, set error code.
-        freeCharEventData(pData);
-        oodSetSysErrCode(context->threadContext, ERROR_SIGNAL_REFUSED);
-        goto done_out;
-    }
-
-    result = TheTrueObj;
 
 done_out:
     return result;
@@ -1093,6 +1544,13 @@ RexxMethod2(int32_t, dlgctrl_connectFKeyPress, CSTRING, methodName, CSELF, pCSel
     return -(int32_t)result;
 }
 
+/**
+ *
+ * @remarks  Note that the return from SendMessage is invalid if we are running
+ *           in the same thread as the dialog's message processing loop.
+ *           Currently, that is unlikely to happen, but it is a possible source
+ *           of an error here.
+ */
 RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
     char *tmpName = NULL;
@@ -1105,12 +1563,12 @@ RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, C
 
     pCDialogControl pcdc = (pCDialogControl)pCSelf;
 
-    SUBCLASSDATA *pSubclassData = NULL;
-    GetWindowSubclass(pcdc->hCtrl, KeyPressSubclassProc, pcdc->id, (DWORD_PTR *)&pSubclassData);
+    pSubClassData pSCData = NULL;
+    GetWindowSubclass(pcdc->hCtrl, KeyPressSubclassProc, pcdc->id, (DWORD_PTR *)&pSCData);
 
-    // If pSubclassData is null, the subclass has already been removed, (or
+    // If pSCData is null, the subclass has already been removed, (or
     // never existed.)
-    if ( pSubclassData == NULL )
+    if ( pSCData == NULL )
     {
         result = nameErr;
         goto done_out;
@@ -1119,7 +1577,7 @@ RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, C
     // If no method name, remove the whole thing.
     if ( argumentOmitted(1) )
     {
-        result = (removeKeyPressSubclass(pSubclassData, pcdc->hDlg, pcdc->id) ? noErr : winAPIErr);
+        result = (removeKeyPressSubclass(pSCData, pcdc->hDlg, pcdc->id) ? noErr : winAPIErr);
         goto done_out;
     }
 
@@ -1132,7 +1590,7 @@ RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, C
         goto done_out;
     }
 
-    KEYPRESSDATA *pKeyPressData = (KEYPRESSDATA *)pSubclassData->pData;
+    KEYPRESSDATA *pKeyPressData = (KEYPRESSDATA *)pSCData->pData;
 
     uint32_t index = seekKeyPressMethod(pKeyPressData, tmpName);
     if ( index == 0 )
@@ -1147,21 +1605,21 @@ RexxMethod2(int32_t, dlgctrl_disconnectKeyPress, OPTIONAL_CSTRING, methodName, C
     BOOL success = FALSE;
     if ( pKeyPressData->usedMethods == 1 )
     {
-        success = removeKeyPressSubclass(pSubclassData, pcdc->hDlg, pcdc->id);
+        success = removeKeyPressSubclass(pSCData, pcdc->hDlg, pcdc->id);
     }
     else
     {
         if ( SendMessage(pcdc->hDlg, WM_USER_SUBCLASS_REMOVE, (WPARAM)KeyPressSubclassProc, (LPARAM)pcdc->id) )
         {
             removeKeyPressMethod(pKeyPressData, index);
-            success = (BOOL)SendMessage(pcdc->hDlg, WM_USER_SUBCLASS, (WPARAM)KeyPressSubclassProc, (LPARAM)pSubclassData);
+            success = (BOOL)SendMessage(pcdc->hDlg, WM_USER_SUBCLASS, (WPARAM)KeyPressSubclassProc, (LPARAM)pSCData);
 
             // If not success, then the subclass procedure is no longer
             // installed, (even though it was originally,) and the memory
             // will never be cleaned up, so clean it up now.
             if ( ! success )
             {
-                freeKeyPressData(pSubclassData);
+                freeKeyPressData(pSCData);
             }
         }
     }
@@ -1180,7 +1638,7 @@ RexxMethod2(logical_t, dlgctrl_hasKeyPressConnection, OPTIONAL_CSTRING, methodNa
 
     pCDialogControl pcdc = (pCDialogControl)pCSelf;
 
-    SUBCLASSDATA *pData = NULL;
+    pSubClassData pData = NULL;
     if ( ! GetWindowSubclass(pcdc->hCtrl, KeyPressSubclassProc, pcdc->id, (DWORD_PTR *)&pData) )
     {
         return FALSE;
@@ -1440,24 +1898,24 @@ RexxMethod4(int32_t, dlgctrl_setColor, RexxObjectPtr, rxBG, OPTIONAL_RexxObjectP
         return 0;
     }
 
-    bool    useSysColor = (method[10] == 'S');
+    bool    useSysColor = (method[3] == 'S');
     int32_t bkColor = 0;
     int32_t fgColor = -1;
 
     if ( useSysColor )
     {
-        if ( ! getSystemColor(context, rxBG, &bkColor, 2) )
+        if ( ! getSystemColor(context, rxBG, &bkColor, 1) )
         {
             return -1;
         }
-        if ( argumentExists(3) && ! getSystemColor(context, rxFG, &fgColor, 3) )
+        if ( argumentExists(2) && ! getSystemColor(context, rxFG, &fgColor, 2) )
         {
             return -1;
         }
     }
     else
     {
-        if ( ! context->Int32(rxBG, &bkColor) || (argumentExists(3) && ! context->Int32(rxBG, &fgColor)) )
+        if ( ! context->Int32(rxBG, &bkColor) || (argumentExists(2) && ! context->Int32(rxFG, &fgColor)) )
         {
             return -1;
         }
@@ -1508,4 +1966,136 @@ RexxMethod2(RexxObjectPtr, dlgctrl_dataEquals, CSTRING, data, CSELF, pCSelf)
     return NULLOBJECT;
 }
 
+/** DialogControl::addUserSubclass()
+ *
+ *  Subclasses the dialog control, if needed, and sdds a message to the message
+ *  table for the subclass.
+ *
+ *  This performs a very similar function as does the addUserMessage() method of
+ *  the dialog ojbect.
+ *
+ *  In general, each entry in the subclass message table connects a dialog
+ *  control window message to a method in a Rexx dialog.  The fields for the
+ *  entry consist of the window message, the WPARAM and LPARAM for the message,
+ *  a filter for the message and its parameters, and the method name. Using the
+ *  proper filters for the window message and its parameters allows the mapping
+ *  of a very specific window message to the named method.
+ *
+ *  However, unlike the addUserMessage, the addUserSubclass allows a few more
+ *  possiblitilies than just invoking a method.  The programmer can also specify
+ *  that the window message delievery to the dialog control be surpressed, or
+ *  that the window message be sent straight to the dialog message queue
+ *  instead.  More possibilities may be added in the future.
+ *
+ *  @param  methodName   [required]  The method name to be connected.
+ *  @param  wm           [required]  The Windows event message
+ *  @param  _wmFilter    [optional]  Filter applied to the Windows message.  If
+ *                       omitted the filter is 0xFFFFFFFF.
+ *  @param  wp           [optional]  WPARAM for the message
+ *  @param  _wpFilter    [optional]  Filter applied to the WPARAM.  If omitted a
+ *                       filter of all hex Fs is applied
+ *  @param  lp           [optional]  LPARAM for the message.
+ *  @param  _lpFilter    [optional]  Filter applied to LPARAM.  If omitted the
+ *                       filter is all hex Fs.
+ *  @param  _tag         [optional]  A tag that allows a further differentiation
+ *                       between messages.  Some, but perhaps not all of the
+ *                       possible values will be documented publicly.
+ *
+ *  @return  True on success, false on failure.
+ *
+ *  @note     Method name can not be the empty string, but it can be 'NOOP' when
+ *            the subclass will not invoke a method. The Window message, WPARAM,
+ *            and LPARAM arguments can not all be 0.
+ *
+ *            If incorrect arguments are detected a syntax condition is raised.
+ */
+RexxMethod9(logical_t, dlgctrl_addUserSubclass, CSTRING, methodName, CSTRING, wm, OPTIONAL_CSTRING, _wmFilter,
+            OPTIONAL_RexxObjectPtr, wp, OPTIONAL_CSTRING, _wpFilter, OPTIONAL_RexxObjectPtr, lp,
+            OPTIONAL_CSTRING, _lpFilter, OPTIONAL_CSTRING, _tag, CSELF, pCSelf)
+{
+    WinMessageFilter wmf    = {0};
+    logical_t        result = FALSE;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        goto done_out;
+    }
+    if ( ! requiredComCtl32Version(context, "addUserSubclass", COMCTL32_6_0) )
+    {
+        goto done_out;
+    }
+
+    wmf.method    = methodName;
+    wmf._wm       = wm;
+    wmf._wmFilter = _wmFilter;
+    wmf._wp       = wp;
+    wmf._wpFilter = _wpFilter;
+    wmf._lp       = lp;
+    wmf._lpFilter = _lpFilter;
+
+    if ( ! parseWinMessageFilter(context, &wmf) )
+    {
+        goto done_out;
+    }
+
+    uint32_t tag = CTRLTAG_REPLYFROMREXX;
+    if ( argumentExists(8) )
+    {
+        uint64_t number;
+        if ( rxStr2Number(context, _tag, &number, 8) )
+        {
+            tag = (uint32_t)number;
+        }
+        else
+        {
+            // _tag was not in 0xffff format, so we'll check for one of the
+            // modifying keywords. But if there are none, then we will raise a
+            // syntax error.
+            context->ClearCondition();
+
+            if ( ! parseTagOpts(context->threadContext, _tag, &tag, 8) )
+            {
+                context->ClearCondition();
+                wrongArgValueException(context->threadContext, 8, USERSUBCLASS_TAG_KEYWORDS, _tag);
+            }
+        }
+    }
+    wmf.tag = tag;
+
+    if ( addSubclassMessage(context, pcdc, &wmf) )
+    {
+        result = TRUE;
+    }
+
+done_out:
+    return result;
+}
+
+
+/**
+ * Put a Rexx object in this dialog control's 'bag.'  This saves a reference to
+ * the object in a context variable of this dialog control.  Which should
+ * prevent the object from being garbage collected.
+ *
+ * Although we call it a 'bag' it is really a set so that only one reference to
+ * any single object is added.
+ */
+RexxMethod2(RexxObjectPtr, dlgctrl_putInBag, RexxObjectPtr, object, CSELF, pCSelf)
+{
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+
+    if ( pcdc != NULL )
+    {
+        if ( pcdc->rexxBag == NULL )
+        {
+            RexxObjectPtr bag = rxNewSet(context);
+            context->SetObjectVariable(DIALOGCONTROL_BAG_ATTRIBUTE, bag);
+            pcdc->rexxBag = bag;
+        }
+        context->SendMessage1(pcdc->rexxBag, "PUT", object);
+    }
+
+    return TheNilObj;
+}
 

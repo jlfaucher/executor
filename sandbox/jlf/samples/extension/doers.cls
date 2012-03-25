@@ -318,13 +318,7 @@ I find more natural to support directly blocks in the following samples (no need
 
 ::method init
     expose !_closure.variableNames_!
-    variables = .nil
-    action = .nil
-    if arg() == 2 then use strict arg variables, action
-    else if arg() == 1, arg(1)~isA(.doer) then use strict arg action
-    else if arg() == 1, arg(1)~isA(.directory) then use strict arg variables
-    else raise syntax 93.900 array("Closure : Invalid arguments")
-    if variables == .nil, action <> .nil,  action~isA(.RexxBlock) then variables = action~variables
+    use strict arg variables=.nil, action=.nil
     if variables <> .nil then do
         !_closure.variableNames_! = ""
         do v over variables

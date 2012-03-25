@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -912,41 +912,6 @@ static bool hasCenterFlag(CSTRING opts)
 }
 
 
-/**
- * Gets the attribute name for a dialog control from the dataConnection array
- * for the specified ID.
- *
- *
- * @param c
- * @param pcpbd
- * @param id
- * @param name
- * @param bufLength
- *
- * @return bool
- */
-bool getAttributeName(RexxMethodContext *c, pCPlainBaseDialog pcpbd, int32_t id, char *name, size_t bufLength)
-{
-    if ( id > 0 )
-    {
-        RexxArrayObject dataConnection = (RexxArrayObject)c->SendMessage0(pcpbd->rexxSelf, "DATACONNECTION");
-        if ( dataConnection != NULLOBJECT )
-        {
-            RexxObjectPtr rxName = c->ArrayAt(dataConnection, (size_t)id);
-            if ( rxName!= NULLOBJECT )
-            {
-                CSTRING cName = c->ObjectToStringValue(rxName);
-                if ( strlen(cName) < bufLength )
-                {
-                    strcpy(name, cName);
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
 int32_t connectCreatedControl(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxObjectPtr rxID, int32_t id,
                               CSTRING attributeName, oodControl_t ctrl)
 {
@@ -1045,11 +1010,16 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
     // However, this has the potential of breaking old programs because
     // originally no static control was added to the data table.  Now, by adding
     // it, the text will get set to "" if auto detection is on and the attribute
-    // is not set to some text. (Which it will be in old programs.) The only
-    // certain way to know the attribute name is to fetch it from the
-    // dataConnection attribute of dialog, after addAttribute() has executed. On
-    // return, we fetch the newly created attribute name, and set the attribute
-    // to the text of the control.
+    // is not set to some text. (Which it will be in old programs.)  Not only
+    // that, but if the user is using the dialog data stem, the dialog data stem
+    // will set the static text to "".
+    //
+    // We actually need to do several things here, get the attribute name and
+    // set it to the text of static control, check if the dialog data attribute
+    // is being used, and if so set the stem at id (i.e. dlgData.2008) to the
+    // text. This is a case where it is actually eaiser done in Rexx code.  So,
+    // we have an internal use only method, setStaticTextAttribute() of the
+    // UserDialog, and let it do the work.
     //
     // This also makes auto detection work more consistently.
 
@@ -1058,15 +1028,7 @@ int32_t createStaticText(RexxMethodContext *c, RexxObjectPtr rxID, int x, int y,
         result = connectCreatedControl(c, pcpbd, rxID, id, NULL, winStatic);
         if ( result == OOD_NO_ERROR )
         {
-            char name[256];
-
-            if ( ! getAttributeName(c, pcpbd, id, name, 256) )
-            {
-                return -1;
-            }
-
-            strcat(name, "=");
-            c->SendMessage1(pcpbd->rexxSelf, name, c->String(text));
+            c->SendMessage2(pcpbd->rexxSelf, "SETSTATICTEXTATTRIBUTE", c->Int32(id), c->String(text));
         }
     }
     return result;
@@ -1518,7 +1480,7 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
         // Set the thread priority higher for faster drawing.
         SetThreadPriority(pcpbd->hDlgProcThread, THREAD_PRIORITY_ABOVE_NORMAL);
         pcpbd->onTheTop = true;
-        pcpbd->threadID = thID;
+        pcpbd->dlgProcThreadID = thID;
 
         // Do we have a modal dialog?
         checkModal((pCPlainBaseDialog)pcpbd->previous, modeless);
@@ -1566,7 +1528,10 @@ RexxMethod3(logical_t, dyndlg_startParentDialog, uint32_t, iconID, logical_t, mo
  *
  *  @return  The handle of the underlying Windows dialog, 0 on error.
  *
- *  @remarks  The child dialog needs to be created in the window procedure
+ *  @remarks  TODO these comments need to be rewritten, they are very out of
+ *            date and inaccurate.
+ *
+ *            The child dialog needs to be created in the window procedure
  *            thread of the parent.  SendMessage() is used to send a user
  *            message to the message loop thread.  The child dialog is then
  *            created in that thread and the dialog handle returned.  On error,
@@ -1812,6 +1777,29 @@ inline bool needButtonConnect(CSTRING opts, oodControl_t ctrl)
     return false;
 }
 
+/**
+ * Determines if one of the keyword options for loading the dialog template from
+ * a .rc file is contained in the specified string
+ *
+ * @param opts
+ *
+ * @return bool
+ */
+inline bool isRcLoadItemsArg(CSTRING opts)
+{
+    if ( opts != NULL )
+    {
+        if ( StrStrI(opts, "CENTER")         != NULL ||
+             StrStrI(opts, "CONNECTBUTTONS") != NULL ||
+             StrStrI(opts, "CONNECTCHECKS")  != NULL ||
+             StrStrI(opts, "CONNECTRADIOS")  != NULL )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /** DynamicDialog::createPushButton()
  *
  */
@@ -1865,7 +1853,7 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
     {
         methName = strdup_2methodName(label);
     }
-    else if ( argumentExists(8) )
+    else if ( argumentExists(8) && ! isRcLoadItemsArg(loadOptions) )
     {
         methName = strdup_nospace(msgToRaise);
     }
@@ -1881,6 +1869,16 @@ RexxMethod10(int32_t, dyndlg_createPushButton, RexxObjectPtr, rxID, int, x, int,
 
 
 /** DynamicDialog::createRadioButton() / DynamicDialog::createCheckBox()
+ *
+ *  @remarks  The loadOptions() argument comes from the parsing of a .rc file
+ *            and would be CONNECTCHECKS or CONNECTRADIOS. However the argument
+ *            exists whether the dialog is a RcDialog or an UserDialog. The
+ *            original thinking was to document the argument so that users could
+ *            invoke createCheckBox() or createRadioButton() in a UserDialog and
+ *            automatically have the clicked event connected in the same way as
+ *            push buttons are.  We allow the users to specify their own method
+ *            name when using a UserDialog, but for a RcDialog the code needs to
+ *            remain the same if the argument is CONNECTCHECKS or CONNECTRADIOS.
  *
  *  @remarks  The code for both createRadioButton() and createCheckBox() is so
  *            parallel it just doesn't make sense to have 2 separate native
@@ -1964,27 +1962,35 @@ RexxMethod10(int32_t, dyndlg_createRadioButton, RexxObjectPtr, rxID, int, x, int
 
     int32_t result = 0;
 
-    if ( needButtonConnect(loadOptions, ctrl) )
+    if ( argumentExists(9) && *loadOptions != '\0' )
     {
-        CSTRING methName = strdup_2methodName(label);
-        if ( methName == NULL )
+        if ( needButtonConnect(loadOptions, ctrl) )
         {
-            outOfMemoryException(context->threadContext);
-            return -2;
-        }
+            CSTRING methName = strdup_2methodName(label);
+            if ( methName == NULL )
+            {
+                outOfMemoryException(context->threadContext);
+                return -2;
+            }
 
-        char *finalName = (char *)malloc(strlen(methName) + 3);
-        if ( finalName == NULL )
+            char *finalName = (char *)malloc(strlen(methName) + 3);
+            if ( finalName == NULL )
+            {
+                outOfMemoryException(context->threadContext);
+                free((void *)methName);
+                return -2;
+            }
+            strcpy(finalName, "ID");
+            strcat(finalName, methName);
+
+            result = addCommandMessage(pcpbd->enCSelf, context, id, UINTPTR_MAX, 0, 0, finalName, 0) ? 0 : 1;
+            free((void *)methName);
+            free((void *)finalName);
+        }
+        else if ( ! isRcLoadItemsArg(loadOptions) )
         {
-            outOfMemoryException(context->threadContext);
-            return -2;
+            result = addCommandMessage(pcpbd->enCSelf, context, id, UINTPTR_MAX, 0, 0, loadOptions, 0) ? 0 : 1;
         }
-        strcpy(finalName, "ID");
-        strcat(finalName, methName);
-
-        result = addCommandMessage(pcpbd->enCSelf, context, id, UINTPTR_MAX, 0, 0, finalName, 0) ? 0 : 1;
-        free((void *)methName);
-        free((void *)finalName);
     }
 
     // Connect the data attribute if we need to.

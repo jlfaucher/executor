@@ -71,6 +71,12 @@
 %if %(if grep -q "release 6.0" /etc/redhat-release; then echo 1; else echo 0; fi;)
 %define build_version 60
 %endif
+%if %(if grep -q "release 6.1" /etc/redhat-release; then echo 1; else echo 0; fi;)
+%define build_version 61
+%endif
+%if %(if grep -q "release 6.2" /etc/redhat-release; then echo 1; else echo 0; fi;)
+%define build_version 62
+%endif
 %define _osdistname %{build_distro}%{build_version}
 %define _unknownos 0
 %endif
@@ -260,6 +266,7 @@ else
    # else, try good old chkconfig
    chkconfig --add rxapid
 fi
+echo %{_libdir}/ooRexx > /etc/ld.so.conf.d/ooRexx.conf
 ldconfig
 service rxapid start
 
@@ -283,6 +290,7 @@ rm -f %{_bindir}/rexxtry.rex
 #******************************************************************************
 %postun
 #******************************************************************************
+rm -f /etc/ld.so.conf.d/ooRexx.conf
 ldconfig
 
 #******************************************************************************

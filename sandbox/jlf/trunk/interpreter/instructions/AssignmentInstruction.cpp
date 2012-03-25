@@ -106,11 +106,12 @@ void RexxInstructionAssignment::execute(
 /*            heavily executed instruction.                                   */
 /******************************************************************************/
 {
+    /*RexxObject * */ ProtectedObject result;
+    result = this->expression->evaluate(context, stack);
     if (context->tracingInstructions())/* tracing?                          */
     {
         context->traceInstruction(this);   /* trace if necessary                */
                                            /* get the expression value          */
-        RexxObject *result = this->expression->evaluate(context, stack);
         context->traceResult(result);      /* trace if necessary                */
                                            /* do the assignment                 */
         this->variable->assign(context, stack, result);
@@ -119,7 +120,7 @@ void RexxInstructionAssignment::execute(
     else                                 /* non-traced execution              */
     {
                                          /* do the assignment                 */
-        this->variable->assign(context, stack, this->expression->evaluate(context, stack));
+        this->variable->assign(context, stack, result);
     }
 }
 

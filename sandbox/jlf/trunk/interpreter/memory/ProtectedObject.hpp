@@ -160,6 +160,14 @@ public:
         return (void *)protectedObject;
     }
 
+// To let the compiler tell you it's forbidden !
+// You want to assign a rexx object, not an other protected object.
+// The list of protected objects is broken if such an assignement is done.
+private:
+    ProtectedObject(const ProtectedObject&);
+    ProtectedObject &operator=(const ProtectedObject&);
+
+
 protected:
     RexxObject *protectedObject;       // next in the chain of protected object
     ProtectedObject *next;             // the pointer protected by the object

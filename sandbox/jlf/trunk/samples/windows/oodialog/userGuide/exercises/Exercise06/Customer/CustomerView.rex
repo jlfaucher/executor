@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2011-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2011-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -35,7 +35,7 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /* ooDialog User Guide
-   Exercise 06: The CustomerView component             		  v02-02 10Oct11
+   Exercise 06: The CustomerView component             		  v02-05 19Feb12
 
    Contains: 	   class "CustomerView";  routine "startCustomerView".
    Pre-requisites: CustomerView.rc, CustomerView.h.
@@ -48,7 +48,18 @@
    v02-00 06Sep11.
    v02-01 18Sep11: Corrected stand-alone invocation.
    v02-02 10Oct11: Corrected msgbox text when select "Show Cust List".
+   v02-02 21Jan12: Added HRS class.
+   v02-03 28Jan12: Changed class HRS to HRScv to allow for possible future
+   		   packaging of all classes in a single "application" file.
+   v02-04 11Feb12: Changed CustomerView
+
+   v02-05 19Feb12: CustomerView: moved .Application~ stmt to top of file.
+
 ------------------------------------------------------------------------------*/
+
+
+.Application~addToConstDir("Customer\CustomerView.h")
+
 
 ::requires "ooDialog.cls"
 ::requires "CustomerModelData.rex"
@@ -56,7 +67,7 @@
 
 /*//////////////////////////////////////////////////////////////////////////////
   ==============================================================================
-  CustomerView							  v00-09 04Oct11
+  CustomerView							  v02-05 19Feb12
   -------------
   The "view" (or "gui") part of the Customer component - part of the sample
   Order Management application.
@@ -68,9 +79,17 @@
 	    dlg~new statement in starter.rex.
     v00-04: Took out the OK method - include that in Exercise05.
     v00-05: Modified to use CustomerData and CustomerModel classes.
-    v00-07: Added "newInstance" class method - removed routine "StartCustomerView".
-    v00-08 19Sep11: Corrected for stand-alone invocation.
-    v00-09 04Oct11: Added msgbox for unimplemented menu item.
+    Mods after Exercise04:
+    v02-00: Added "newInstance" class method - removed routine "StartCustomerView".
+    v02-01 19Sep11: Corrected for stand-alone invocation.
+    v02-02 04Oct11: Added msgbox for unimplemented menu item.
+    v02-03 28Jan12: Changed class name HRS to HRSclv to allow for multiple
+     		    HRS classes in same file at some future time.
+    v02-04 11Feb12: moved .application~setDefaults() to app startup file.
+                    changed to .application~addToConstDir() here.
+    v02-05 19Feb12: Moved .Application~addToConstDir statement from newInstance
+                    method to top of file - just before ::requires statement(s).
+
 
   [interface (idl format)]
   = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -82,14 +101,13 @@
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   ::METHOD newInstance CLASS PUBLIC UNGUARDED
-    expose hasParent							--Rel2StartupDir.
+    expose hasParent
     -- ADDED FOR EXERCISE06. Statements in the old "StartCustomerView" Routine
     -- have been moved here. The ~activate statement has also changed.
     use arg rootDlg, customerNo
     --say ".CustomerView-newInstance-01: Start."
-    .Application~setDefaults("O", "Customer\CustomerView.h", .false)		--Rel2StartupDir.
     -- Create an instance of CustomerView and show it:
-    dlg = .CustomerView~new("Customer\CustomerView.rc", "IDD_CUST_DIALOG")	--Rel2StartupDir.
+    dlg = .CustomerView~new("Customer\CustomerView.rc", "IDD_CUST_DIALOG")
     --say ".CustomerView-newInstance-02: root =" rootDlg
     dlg~activate(rootDlg, customerNo)
 
@@ -152,9 +170,13 @@
     -- Define event handler methods for push-buttons:
     self~connectButtonEvent("IDC_CUST_BTN_RECORDCHANGES","CLICKED",recordChanges)
     self~connectButtonEvent("IDC_CUST_BTN_SHOWLASTORDER","CLICKED",showLastOrder)
+
+    self~setTitle(.HRScv~dlgTitle)		-- set dialog title.
+
     -- Get app data and then show it:
     self~getData
     self~showData
+
   /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 
@@ -166,8 +188,7 @@
     New Customer... Not fully implemented - merely tells user to use the
                     Customer List object.           		            --*/
   ::METHOD newCustomer unguarded
-    msg = "You must use the Customer List to create a new Customer."
-    answer = MessageDialog(msg, self~hwnd,"Create New Customer","INFORMATION")
+    answer = MessageDialog(.HRScv~useList, self~hwnd,.HRScv~useListCap,"INFORMATION")
 
 
   /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -199,7 +220,7 @@
     Print - Not implemented yet                                             --*/
   ::METHOD print unguarded
     msg = "The 'Print...' menu item is not yet implemented."
-    ret = MessageDialog(msg, self~hwnd, '*CustomerName*', 'WARNING')
+    ret = MessageDialog(.HRScv~noPrint, self~hwnd, .HRScv~noPrintCap, 'WARNING')
 
 
   /*----------------------------------------------------------------------------
@@ -320,9 +341,9 @@
     end
     -- If no changes after all, display message box:
     if \changed then do
-      msg = "CustomerView-checkForChanges-01: Nothing was changed! Update not done."
+      msg = .HRScv~nilChanged
       hwnd = self~dlgHandle
-      answer = MessageDialog(msg,hwnd,"Update Customer","OK","WARNING","DEFBUTTON2 APPLMODAL")
+      answer = MessageDialog(msg,hwnd,.HRScv~nilChangedCap,"OK","WARNING","DEFBUTTON2 APPLMODAL")
       end
     else do
       say "CustomerView-checkForChanges-02: changed =" changed
@@ -330,5 +351,23 @@
     end
     return changed
 
+/*============================================================================*/
+
+
+/*//////////////////////////////////////////////////////////////////////////////
+  ==============================================================================
+  Human-Readable Strings (HRScv)				  v02-03 28Jan12
+  --------
+   This class provides constant character strings for user-visible messages.
+  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+::CLASS HRScv PRIVATE		-- Human-Readable Strings
+  ::CONSTANT nilChanged    "Nothing was changed! Update not done."
+  ::CONSTANT nilChangedCap "Update Customer"
+  ::CONSTANT noPrint       "The 'Print...' menu item is not yet implemented."
+  ::CONSTANT noPrintCap    "*Customer Name*"
+  ::CONSTANT dlgTitle	   "*Customer*"
+  ::CONSTANT useList       "You must use the Customer List to create a new Customer."
+  ::CONSTANT useListCap    "Create New Customer"
 /*============================================================================*/
 

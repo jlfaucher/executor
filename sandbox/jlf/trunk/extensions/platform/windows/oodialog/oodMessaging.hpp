@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/;
 /*                                                                            */;
-/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */;
+/* Copyright (c) 2009-2012 Rexx Language Association. All rights reserved.    */;
 /*                                                                            */;
 /* This program and the accompanying materials are made available under       */;
 /* the terms of the Common Public License v1.0 which accompanies this         */;
@@ -56,7 +56,9 @@ extern BOOL    APIENTRY RexxSetProcessMessages(BOOL onoff);
 extern LRESULT CALLBACK RexxDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK RexxChildDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern BOOL             endDialogPremature(pCPlainBaseDialog, HWND, DlgProcErrType);
+
+extern bool parseWinMessageFilter(RexxMethodContext *context, pWinMessageFilter pwmf);
+extern BOOL endDialogPremature(pCPlainBaseDialog, HWND, DlgProcErrType);
 
 extern LRESULT       paletteMessage(pCPlainBaseDialog, HWND, UINT, WPARAM, LPARAM);
 extern MsgReplyType  searchMessageTables(ULONG message, WPARAM param, LPARAM lparam, pCPlainBaseDialog);
@@ -69,13 +71,14 @@ extern bool          addMiscMessage(pCEventNotification, RexxMethodContext *, ui
 // Shared functions for keyboard hooks, key press and key event subclassing.
 extern void            removeKBHook(pCEventNotification);
 extern keyPressErr_t   setKeyPressData(KEYPRESSDATA *, CSTRING, CSTRING, CSTRING);
-extern void            processKeyPress(SUBCLASSDATA *, WPARAM, LPARAM);
-extern void            freeKeyPressData(SUBCLASSDATA *);
+extern void            processKeyPress(pSubClassData, WPARAM, LPARAM);
+extern void            freeKeyPressData(pSubClassData);
 extern uint32_t        seekKeyPressMethod(KEYPRESSDATA *, CSTRING);
 extern void            removeKeyPressMethod(KEYPRESSDATA *, uint32_t);
 extern RexxArrayObject getKeyEventRexxArgs(RexxThreadContext *c, WPARAM wParam, bool isExtended, RexxObjectPtr rexxControl);
 
 extern bool         invokeDirect(RexxThreadContext *c, pCPlainBaseDialog pcpbd, CSTRING methodName, RexxArrayObject args);
 extern MsgReplyType invokeDispatch(RexxThreadContext *c, RexxObjectPtr obj, RexxStringObject method, RexxArrayObject args);
+extern bool         msgReplyIsGood(RexxThreadContext *c, pCPlainBaseDialog pcpbd, RexxObjectPtr reply, CSTRING methodName, bool clear);
 
 #endif

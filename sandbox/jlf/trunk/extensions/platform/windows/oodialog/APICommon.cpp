@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -499,6 +499,13 @@ void nullObjectException(RexxThreadContext *c, CSTRING name, size_t pos)
     userDefinedMsgException(c, buffer);
 }
 
+void nullStringMethodException(RexxMethodContext *c, size_t pos)
+{
+    TCHAR buffer[256];
+    _snprintf(buffer, sizeof(buffer), "Argument %d, must not be the empty string", pos);
+    c->RaiseException1(Rexx_Error_Incorrect_method_user_defined, c->String(buffer));
+}
+
 void nullObjectException(RexxThreadContext *c, CSTRING name)
 {
     nullObjectException(c, name, 0);
@@ -531,6 +538,16 @@ RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int
     return wrongRangeException(c, pos, min, max, c->WholeNumber(actual));
 }
 
+RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, uint32_t min, uint32_t max, uint32_t actual)
+{
+    c->RaiseException(Rexx_Error_Invalid_argument_range,
+                      c->ArrayOfFour(c->StringSize(pos),
+                                     c->UnsignedInt32(min),
+                                     c->UnsignedInt32(max),
+                                     c->UnsignedInt32(actual)));
+    return NULLOBJECT;
+}
+
 RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, RexxObjectPtr actual)
 {
     c->RaiseException(Rexx_Error_Invalid_argument_list,
@@ -541,6 +558,36 @@ RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const cha
 RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, const char *actual)
 {
     return wrongArgValueException(c, pos, list, c->String(actual));
+}
+
+/**
+ * Similar to 93.914
+ *
+ * Method argument <pos>, must contain one or more of <list>; found "<actual>"
+ *
+ * Method argument 2 must contain one or more of SKIPINVISIBLE, SKIPDISABLED,
+ * SKIPTRANSPARENT, or ALL; found "BOGUS NOTVISIBLE"
+ *
+ * @param c       Thread context
+ * @param pos
+ * @param list
+ * @param actual
+ *
+ * @return RexxObjectPtr
+ */
+RexxObjectPtr wrongArgKeywordsException(RexxThreadContext *c, size_t pos, CSTRING list, CSTRING actual)
+{
+
+    TCHAR buffer[512];
+    _snprintf(buffer, sizeof(buffer), "Method argument %d, must contain one or more of %s; found \"%s\"",
+              pos, list, actual);
+    userDefinedMsgException(c, buffer);
+    return NULLOBJECT;
+}
+
+RexxObjectPtr wrongArgKeywordsException(RexxThreadContext *c, size_t pos, CSTRING list, RexxObjectPtr actual)
+{
+    return wrongArgOptionException(c, pos, list, c->ObjectToStringValue(actual));
 }
 
 /**

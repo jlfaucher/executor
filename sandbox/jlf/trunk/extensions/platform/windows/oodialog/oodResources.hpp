@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -66,7 +66,9 @@ typedef struct _RESOURCEIMAGE
 
 
 extern POODIMAGE     rxGetOodImage(RexxMethodContext *, RexxObjectPtr, size_t);
+extern RexxObjectPtr rxNewValidImage(RexxMethodContext *, HANDLE, uint8_t, PSIZE, uint32_t, bool);
 extern POODIMAGE     rxGetImageIcon(RexxMethodContext *, RexxObjectPtr, size_t);
+extern POODIMAGE     rxGetImageCursor(RexxMethodContext *c, RexxObjectPtr o, size_t pos);
 extern RexxObjectPtr oodGetImageAttribute(RexxMethodContext *, RexxObjectPtr, CSTRING, UINT, WPARAM, uint8_t, oodControl_t);
 extern RexxObjectPtr oodSetImageAttribute(RexxMethodContext *, CSTRING, RexxObjectPtr, HWND, HANDLE, uint8_t, oodControl_t);
 extern CSTRING       getImageTypeName(uint8_t);

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -424,6 +424,12 @@ UINT_PTR CALLBACK  OFNSetForegroundHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam
  *
  *  @return  The selected file name(s) on success, 0 if the user cancelled or on
  *           error.
+ *
+ *  @remarks  For the Default file extension.  Previous to 4.2.0, .txt was
+ *            always used unless  the user specified something else.  There is
+ *            no way for the Rexx programmer to specify no extension.  Now, if
+ *            the argument is used, but the empty string the programmer can
+ *            specify no extension.
  */
 RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
             OPTIONAL_CSTRING, preselected, OPTIONAL_CSTRING, _hwndOwner, OPTIONAL_RexxStringObject, fileFilter,
@@ -476,6 +482,7 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
 
     char *filterBuf = NULL;
     OpenFileName.lpstrFilter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+    OpenFileName.nFilterIndex = 1L;
 
     if ( argumentExists(3) )
     {
@@ -496,8 +503,12 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
 
             OpenFileName.lpstrFilter = filterBuf;
         }
+        else
+        {
+            OpenFileName.lpstrFilter = NULL;
+            OpenFileName.nFilterIndex = 0;
+        }
     }
-    OpenFileName.nFilterIndex = 1L;
 
     // Open or save file dialog.  Allow mutiple file selection on open, or not.
     bool open = true;
@@ -530,7 +541,14 @@ RexxRoutine8(RexxObjectPtr, fileNameDlg_rtn,
     }
 
     // Default file extension.
-    OpenFileName.lpstrDefExt = (argumentExists(6) && *_defExt != '\0') ? _defExt : "txt";
+    if ( argumentExists(6) )
+    {
+        OpenFileName.lpstrDefExt = *_defExt != '\0' ? _defExt : NULL;
+    }
+    else
+    {
+        OpenFileName.lpstrDefExt = "txt";
+    }
 
     // Hook procedure to bring dialog to the foreground.
     OpenFileName.lpfnHook = OFNSetForegroundHookProc;

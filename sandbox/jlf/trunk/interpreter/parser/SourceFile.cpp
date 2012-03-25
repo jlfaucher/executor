@@ -1017,7 +1017,9 @@ RexxString *RexxSource::traceBack(
                                          /* trace instruction format?         */
     if (line == OREF_NULLSTRING)
     {
-        line = new_string(NO_SOURCE_MARKER);
+        RexxArray *args = new_array(this->programName);
+        ProtectedObject p(args);
+        line = ActivityManager::currentActivity->buildMessage(Message_Translations_no_source_available, args);
     }
 
     if (indent < 0)                      /* possible negative indentation?    */
@@ -2538,6 +2540,8 @@ void RexxSource::methodDirective()
         RexxString *library = OREF_NULL;
         RexxString *procedure = OREF_NULL;
         decodeExternalMethod(internalname, externalname, library, procedure);
+        ProtectedObject p_library(library);
+        ProtectedObject p_procedure(procedure);
 
         /* go check the next clause to make  */
         this->checkDirective();

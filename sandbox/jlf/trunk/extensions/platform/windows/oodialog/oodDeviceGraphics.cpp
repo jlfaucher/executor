@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -47,7 +47,6 @@
  * are only partially concerned with GDI.
  */
 #include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
-#include "oodControl.hpp"
 
 #include <stdio.h>
 #include <dlgs.h>
@@ -67,6 +66,7 @@
 
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
+#include "oodControl.hpp"
 #include "oodMessaging.hpp"
 #include "oodDeviceGraphics.hpp"
 
@@ -77,6 +77,21 @@ static HWND      RedrawScrollingButton = NULL;
 static HANDLE    TimerEvent = NULL;
 static uint32_t  TimerCount = 0;
 static ULONG_PTR Timer = 0;
+
+
+inline BitmapButtonBMPType getBMPType(bool inMemory, bool isIntResource)
+{
+    BitmapButtonBMPType t = FromFileBmp;
+    if ( inMemory )
+    {
+        t = InMemoryBmp;
+    }
+    else if ( isIntResource )
+    {
+        t = IntResourceBmp;
+    }
+    return t;
+}
 
 /**
  * Modify a palette to have the system colors in the first and last 10
@@ -1460,15 +1475,6 @@ BOOL drawBackgroundBmp(pCPlainBaseDialog pcpbd, HWND hDlg)
    return EndPaint(hDlg, &ps);
 }
 
-inline bool isIntResource(CSTRING bmp)
-{
-    if ( ! isPointerString(bmp) && (atoi(bmp) || bmp[0] == '0' || bmp[0] == '\0') )
-    {
-        return true;
-    }
-    return false;
-}
-
 /**
  * Retrieves the system color index number from a Rexx object that may be the
  * actual number or the color keyword.
@@ -1542,24 +1548,68 @@ bool getSystemColor(RexxMethodContext *c, RexxObjectPtr clr, int32_t *color, siz
     return true;
 }
 
-void assignBitmap(pCPlainBaseDialog pcpbd, size_t index, CSTRING bmp, PUSHBUTTON_STATES type, bool isInMemory)
+static bool getIdOrName(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxObjectPtr rxBmp, int32_t *id, CSTRING *bmp)
+{
+    if ( oodSafeResolveID(id, c, pcpbd->rexxSelf, rxBmp, -1, 1, true) )
+    {
+        return true;
+    }
+    else
+    {
+        // If the global .constDir is *only* being used, there could be a
+        // condition raised even when oodSaveResolveID() is used.
+        if ( c->CheckCondition() )
+        {
+            c->ClearCondition();
+        }
+
+        *bmp = c->ObjectToStringValue(rxBmp);
+    }
+
+    return false;
+}
+
+void assignBitmap(pCPlainBaseDialog pcpbd, size_t index, CSTRING bmp, int32_t bmpID, PUSHBUTTON_STATES type,
+                  bool isInMemory, bool isIntResource)
 {
     HBITMAP hBmp = NULL;
     BITMAPTABLEENTRY *bitmapEntry = pcpbd->BmpTab + index;
 
     if ( isInMemory )
     {
-        bitmapEntry->loaded = 2;
         hBmp = (HBITMAP)string2pointer(bmp);
+        if ( hBmp != NULL )
+        {
+            bitmapEntry->loaded = 2;
+        }
     }
-    else if ( isIntResource(bmp) )
+    else if ( isIntResource )
     {
-        hBmp = LoadBitmap(pcpbd->hInstance, MAKEINTRESOURCE(atoi(bmp)));
+        hBmp = LoadBitmap(pcpbd->hInstance, MAKEINTRESOURCE(bmpID));
     }
     else
     {
-        bitmapEntry->loaded = 1;
-        hBmp = (HBITMAP)loadDIB(bmp, NULL);
+        if ( strlen(bmp) < 2 && (bmp[0] == '0' || bmp[0] == '\0') )
+        {
+            // Purposefully do nothing.  IBM Object Rexx whould check for a
+            // bitmap name of 0 (zero) or the empty string and then use loadDIB
+            // on it. Which in turn set the bitmapID field to NULL.  This
+            // ultimately had the effect of no bitmap being drawn for that
+            // button state. At least one of the example programs depended on
+            // that.
+            //
+            // Since hBmp is already NULL, we don't do anything.
+            ;
+        }
+        else
+        {
+            hBmp = (HBITMAP)loadDIB(bmp, NULL);
+        }
+
+        if ( hBmp != NULL )
+        {
+            bitmapEntry->loaded = 1;
+        }
     }
 
     switch ( type )
@@ -1589,7 +1639,7 @@ pCPlainBaseDialog dlgExtSetup(RexxMethodContext *c, RexxObjectPtr dlg)
 {
     oodResetSysErrCode(c->threadContext);
 
-    pCPlainBaseDialog pcpbd = requiredDlgCSelf(c, dlg, oodPlainBaseDialog, 0);
+    pCPlainBaseDialog pcpbd = requiredDlgCSelf(c, dlg, oodPlainBaseDialog, 0, NULL);
     if ( pcpbd == NULL )
     {
         return (pCPlainBaseDialog)baseClassIntializationException(c);
@@ -2139,16 +2189,23 @@ RexxMethod3(RexxObjectPtr, dlgext_redrawControl, RexxObjectPtr, rxID, OPTIONAL_l
  *           message table is skipped.
  *
  * @remarks  Note that the dialog does not need to yet be created for some
- *           variations of this method.  But if any of the bitmap CSTRINGs are a
- *           number, so that the bitmap is to be loaded from a resource DLL,
- *           then the dialog does need to be created.  We want to raise the no
- *           windows dialog exception, *only* for that one condition.
+ *           variations of this method.  But if any of the bitmap source
+ *           arguments are a number, so that the bitmap is to be loaded from a
+ *           resource DLL, then the dialog does need to be created.  We want to
+ *           raise the no windows dialog exception, *only* for that one
+ *           condition.
+ *
+ *           The bitmap sources must all be from the same sources, all from a
+ *           file name, or all from from a bitmap handle already loaded in
+ *           memory, or all loaded from the resource DLL of a ResDialog. In
+ *           particular, if one is loaded from a resource DLL and others loaded
+ *           from a file, delDialog() will crash trying to free the bitmaps.
  *
  *           These old bitmap methods are too error-prone.
  */
 RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTIONAL_CSTRING, msgToRaise,
-            CSTRING, bmpNormal, OPTIONAL_CSTRING, bmpFocused, OPTIONAL_CSTRING, bmpSelected, OPTIONAL_CSTRING, bmpDisabled,
-            OPTIONAL_CSTRING, style, OSELF, self)
+            RexxObjectPtr, bmpNormal, OPTIONAL_RexxObjectPtr, bmpFocused, OPTIONAL_RexxObjectPtr, bmpSelected,
+            OPTIONAL_RexxObjectPtr, bmpDisabled, OPTIONAL_CSTRING, style, OSELF, self)
 {
     pCPlainBaseDialog pcpbd;
     uint32_t id;
@@ -2160,7 +2217,12 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
     }
 
     bool noUnderlyingDlg = pcpbd->hDlg == NULL ? true : false;
-    if ( isIntResource(bmpNormal) && noUnderlyingDlg )
+
+    int32_t bmpID = -1;
+    CSTRING bmp   = "";
+
+    bool isIntResource = getIdOrName(context, pcpbd, bmpNormal, &bmpID, &bmp);
+    if ( isIntResource && noUnderlyingDlg )
     {
         noWindowsDialogException(context, self);
         return TheOneObj;
@@ -2212,34 +2274,63 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
     pcpbd->BmpTab[index].buttonID = id;
     pcpbd->BmpTab[index].frame  = frame;
 
-    assignBitmap(pcpbd, index, bmpNormal, PBSS_NORMAL, inMemory);
+    BitmapButtonBMPType normal = getBMPType(inMemory, isIntResource);
 
-    if ( argumentExists(4) && ! isEmptyString(bmpFocused) )
+    assignBitmap(pcpbd, index, bmp, bmpID, PBSS_NORMAL, inMemory, isIntResource);
+
+    if ( argumentExists(4) )
     {
-        if ( isIntResource(bmpFocused) && noUnderlyingDlg )
+        isIntResource = getIdOrName(context, pcpbd, bmpFocused, &bmpID, &bmp);
+        if ( isIntResource && noUnderlyingDlg )
         {
             noWindowsDialogException(context, self);
             return TheOneObj;
         }
-        assignBitmap(pcpbd, index, bmpFocused, PBSS_DEFAULTED, inMemory);
+
+        BitmapButtonBMPType focused = getBMPType(inMemory, isIntResource);
+        if ( focused != normal )
+        {
+            bitmapTypeMismatchException(context, normal, focused, 4);
+            return TheOneObj;
+        }
+
+        assignBitmap(pcpbd, index, bmp, bmpID, PBSS_DEFAULTED, inMemory, isIntResource);
     }
-    if ( argumentExists(5) && ! isEmptyString(bmpSelected) )
+    if ( argumentExists(5) )
     {
-        if ( isIntResource(bmpSelected) && noUnderlyingDlg )
+        isIntResource = getIdOrName(context, pcpbd, bmpSelected, &bmpID, &bmp);
+        if ( isIntResource && noUnderlyingDlg )
         {
             noWindowsDialogException(context, self);
             return TheOneObj;
         }
-        assignBitmap(pcpbd, index, bmpSelected, PBSS_PRESSED, inMemory);
+
+        BitmapButtonBMPType selected = getBMPType(inMemory, isIntResource);
+        if ( selected != normal )
+        {
+            bitmapTypeMismatchException(context, normal, selected, 5);
+            return TheOneObj;
+        }
+
+        assignBitmap(pcpbd, index, bmp, bmpID, PBSS_PRESSED, inMemory, isIntResource);
     }
-    if ( argumentExists(6) && ! isEmptyString(bmpDisabled) )
+    if ( argumentExists(6) )
     {
-        if ( isIntResource(bmpDisabled) && noUnderlyingDlg )
+        isIntResource = getIdOrName(context, pcpbd, bmpDisabled, &bmpID, &bmp);
+        if ( isIntResource && noUnderlyingDlg )
         {
             noWindowsDialogException(context, self);
             return TheOneObj;
         }
-        assignBitmap(pcpbd, index, bmpDisabled, PBSS_DISABLED, inMemory);
+
+        BitmapButtonBMPType disabled = getBMPType(inMemory, isIntResource);
+        if ( disabled != normal )
+        {
+            bitmapTypeMismatchException(context, normal, disabled, 6);
+            return TheOneObj;
+        }
+
+        assignBitmap(pcpbd, index, bmp, bmpID, PBSS_DISABLED, inMemory, isIntResource);
     }
 
     if ( stretch && pcpbd->BmpTab[index].loaded )
@@ -2305,9 +2396,9 @@ RexxMethod8(RexxObjectPtr, dlgext_installBitmapButton, RexxObjectPtr, rxID, OPTI
  * @return  0 on success, -1 if the resource ID could not be resolved, and 1 for
  *          other errors.
  */
-RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, CSTRING, bmpNormal,
-            OPTIONAL_CSTRING, bmpFocused, OPTIONAL_CSTRING, bmpSelected, OPTIONAL_CSTRING, bmpDisabled,
-            OPTIONAL_CSTRING, style, OSELF, self)
+RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, RexxObjectPtr, bmpNormal,
+            OPTIONAL_RexxObjectPtr, bmpFocused, OPTIONAL_RexxObjectPtr, bmpSelected,
+            OPTIONAL_RexxObjectPtr, bmpDisabled, OPTIONAL_CSTRING, style, OSELF, self)
 {
     pCPlainBaseDialog pcpbd;
     uint32_t id;
@@ -2316,7 +2407,8 @@ RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, CSTRI
     bool draw = (argumentExists(6) && StrStrI(style, "NODRAW") == NULL);
 
     // Note that the dialog does not need to yet be created for this method,
-    // unless we are going to draw the button.
+    // unless we are going to draw the button, or the BMP args are resource IDs
+    // in the resource DLL of the dialog.
     RexxObjectPtr result;
     if ( draw )
     {
@@ -2331,6 +2423,8 @@ RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, CSTRI
     {
         return result;
     }
+
+    bool noUnderlyingDlg = pcpbd->hDlg == NULL ? true : false;
 
     size_t i;
     if ( findBmpForID(pcpbd, id, &i) )
@@ -2370,19 +2464,73 @@ RexxMethod7(RexxObjectPtr, dlgext_changeBitmapButton, RexxObjectPtr, rxID, CSTRI
         pcpbd->BmpTab[i].frame  = frame;
         pcpbd->BmpTab[i].loaded = 0;
 
-        assignBitmap(pcpbd, i, bmpNormal, PBSS_NORMAL, inMemory);
+        int32_t bmpID = -1;
+        CSTRING bmp   = "";
+
+        bool isIntResource = getIdOrName(context, pcpbd, bmpNormal, &bmpID, &bmp);
+        if ( isIntResource && noUnderlyingDlg )
+        {
+            noWindowsDialogException(context, self);
+            return TheOneObj;
+        }
+
+        BitmapButtonBMPType normal = getBMPType(inMemory, isIntResource);
+
+        assignBitmap(pcpbd, i, bmp, bmpID, PBSS_NORMAL, inMemory, isIntResource);
 
         if ( argumentExists(3) )
         {
-            assignBitmap(pcpbd, i, bmpFocused, PBSS_DEFAULTED, inMemory);
+            isIntResource = getIdOrName(context, pcpbd, bmpFocused, &bmpID, &bmp);
+            if ( isIntResource && noUnderlyingDlg )
+            {
+                noWindowsDialogException(context, self);
+                return TheOneObj;
+            }
+
+            BitmapButtonBMPType focused = getBMPType(inMemory, isIntResource);
+            if ( focused != normal )
+            {
+                bitmapTypeMismatchException(context, normal, focused, 3);
+                return TheOneObj;
+            }
+
+            assignBitmap(pcpbd, i, bmp, bmpID, PBSS_DEFAULTED, inMemory, isIntResource);
         }
         if ( argumentExists(4) )
         {
-            assignBitmap(pcpbd, i, bmpSelected, PBSS_PRESSED, inMemory);
+            isIntResource = getIdOrName(context, pcpbd, bmpSelected, &bmpID, &bmp);
+            if ( isIntResource && noUnderlyingDlg )
+            {
+                noWindowsDialogException(context, self);
+                return TheOneObj;
+            }
+
+            BitmapButtonBMPType selected = getBMPType(inMemory, isIntResource);
+            if ( selected != normal )
+            {
+                bitmapTypeMismatchException(context, normal, selected, 4);
+                return TheOneObj;
+            }
+
+            assignBitmap(pcpbd, i, bmp, bmpID, PBSS_PRESSED, inMemory, isIntResource);
         }
         if ( argumentExists(5) )
         {
-            assignBitmap(pcpbd, i, bmpDisabled, PBSS_DISABLED, inMemory);
+            isIntResource = getIdOrName(context, pcpbd, bmpDisabled, &bmpID, &bmp);
+            if ( isIntResource && noUnderlyingDlg )
+            {
+                noWindowsDialogException(context, self);
+                return TheOneObj;
+            }
+
+            BitmapButtonBMPType disabled = getBMPType(inMemory, isIntResource);
+            if ( disabled != normal )
+            {
+                bitmapTypeMismatchException(context, normal, disabled, 5);
+                return TheOneObj;
+            }
+
+            assignBitmap(pcpbd, i, bmp, bmpID, PBSS_DISABLED, inMemory, isIntResource);
         }
 
         if ( stretch && pcpbd->BmpTab[i].loaded )
@@ -2954,173 +3102,6 @@ RexxMethod3(POINTERSTRING, dlgext_createBrush, OPTIONAL_uint32_t, color, OPTIONA
 
 done_out:
     return hBrush;
-}
-
-
-/** DialogExtensions::getMouseCapture()
- *
- *  Retrieves a handle to the window (if any) that has captured the mouse.
- *
- *  Only one window at a time can capture the mouse; this window receives mouse
- *  input whether or not the cursor is within its borders.
- *
- *  @return  The handle of the window, in this thread, that had previously
- *           captured the mouse, or 0 if no window previosly had the capture.  A
- *           0 (NULL) return value means the current thread has not captured the
- *           mouse. However, it is possible that another thread or process has
- *           captured the mouse.
- *
- *  DialogExtensions::releaseMouseCapture()
- *
- *  Releases the mouse capture from a window in the current thread and restores
- *  normal mouse input processing.
- *
- *  @return  0 on success, 1 on error.
- *
- *  @note  Sets the .SystemErrorCode, but that only has meaning for
- *         releaseMouseCapture().
- *
- *  @remarks  GetCapture() and ReleaseCapture() need to run on the same thread
- *            as the dialog's message loop.  So we use SendMessage with one of
- *            the custom window messages.
- *
- */
-RexxMethod2(RexxObjectPtr, dlgext_mouseCapture, NAME, method, OSELF, self)
-{
-    oodResetSysErrCode(context->threadContext);
-    RexxObjectPtr result = NULLOBJECT;
-
-    pCPlainBaseDialog pcpbd = dlgExtSetup(context, self);
-    if ( pcpbd != NULL )
-    {
-        if ( *method == 'G' )
-        {
-            HWND hwnd = (HWND)SendMessage(pcpbd->hDlg, WM_USER_GETSETCAPTURE, 0, 0);
-            result = pointer2string(context, hwnd);
-        }
-        else
-        {
-            RexxMethodContext *c = context;
-            uint32_t rc = (uint32_t)SendMessage(pcpbd->hDlg, WM_USER_GETSETCAPTURE, 2,0);
-            if ( rc == 0 )
-            {
-                result = TheZeroObj;
-            }
-            else
-            {
-                result = TheOneObj;
-                oodSetSysErrCode(context->threadContext, rc);
-            }
-        }
-    }
-    return result;
-}
-
-/** DialogExtensions::captureMouse
- *
- *  Sets the mouse capture to this dialog window, or optionally the dialog
- *  control window specified.
- *
- *  captureMouse() captures mouse input either when the mouse is over the
- *  window, or when the mouse button was pressed while the mouse was over the
- *  window and the button is still down. Only one window at a time can capture
- *  the mouse.
- *
- *  If the mouse cursor is over a window created by another thread, the system
- *  will direct mouse input to the specified window only if a mouse button is
- *  down.
- *
- *  @param   rxID  [optional] The resource ID of the dialog control whose window
- *                 should capture the mouse.
- *
- *  @return  On success, the window handle of the window that previously had
- *           captured the mouse, or 0 if there was no such window. On error, -1.
- *
- *  @note  Sets the .SystemErrorCode,
- */
-RexxMethod2(RexxObjectPtr, dlgext_captureMouse, OPTIONAL_RexxObjectPtr, rxID, OSELF, self)
-{
-    RexxObjectPtr result = TheNegativeOneObj;
-
-    pCPlainBaseDialog pcpbd = dlgExtSetup(context, self);
-    if ( pcpbd != NULL )
-    {
-        HWND hwnd = pcpbd->hDlg;
-
-        if ( argumentExists(1) )
-        {
-            int32_t id;
-            if ( ! oodSafeResolveID(&id, context, pcpbd->rexxSelf, rxID, -1, 1, true) )
-            {
-                oodSetSysErrCode(context->threadContext, ERROR_INVALID_WINDOW_HANDLE);
-                goto done_out;
-            }
-
-            hwnd = GetDlgItem(pcpbd->hDlg, id);
-            if ( hwnd == NULL )
-            {
-                goto done_out;
-            }
-        }
-
-        HWND oldCapture = (HWND)SendMessage(pcpbd->hDlg, WM_USER_GETSETCAPTURE, 1, (LPARAM)hwnd);
-        result = pointer2string(context, oldCapture);
-    }
-
-done_out:
-    return result;
-}
-
-
-/** DialogExtensions::isMouseButtonDown()
- *
- *  Determines if one of the mouse buttons is down.
- *
- *  @param  whichButton  [OPTIONAL]  Keyword indicating which mouse button
- *                       should be queried. By default it is the left button
- *                       that is queried.
- *
- *  @return  True if the specified mouse button was down, otherwise false
- *
- *  @note  Sets the .SystemErrorCode, but there is nothing that would change it
- *         to not zero.
- *
- *  @remarks  The key state must be handled in the window thread, so
- *            SendMessage() has to be used.
- */
-RexxMethod2(RexxObjectPtr, dlgext_isMouseButtonDown, OPTIONAL_CSTRING, whichButton, OSELF, self)
-{
-    pCPlainBaseDialog pcpbd = dlgExtSetup(context, self);
-    if ( pcpbd == NULL )
-    {
-        return NULLOBJECT;
-    }
-
-    int mb = VK_LBUTTON;
-    if ( argumentExists(1) )
-    {
-        if ( StrCmpI(whichButton, "LEFT"       ) == 0 ) mb = VK_LBUTTON;
-        else if ( StrCmpI(whichButton, "RIGHT" ) == 0 ) mb = VK_RBUTTON;
-        else if ( StrCmpI(whichButton, "MIDDLE") == 0 ) mb = VK_MBUTTON;
-        else
-        {
-            return wrongArgValueException(context->threadContext, 1, "LEFT, RIGHT, MIDDLE", whichButton);
-        }
-    }
-
-    if ( GetSystemMetrics(SM_SWAPBUTTON) )
-    {
-        if ( mb == VK_LBUTTON )
-        {
-            mb = VK_RBUTTON;
-        }
-        else if ( mb == VK_RBUTTON )
-        {
-            mb = VK_LBUTTON;
-        }
-    }
-
-    return ((short)SendMessage(pcpbd->hDlg, WM_USER_GETKEYSTATE, mb, 0) & ISDOWN) ? TheTrueObj : TheFalseObj;
 }
 
 /** DialogExtensions::setForegroundWindow()

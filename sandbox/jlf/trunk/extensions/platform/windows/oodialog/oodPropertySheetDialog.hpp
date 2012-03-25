@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2009-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -99,7 +99,7 @@ extern size_t             CountPropSheetHooks;
 
 extern bool setPropSheetHook(pCPropertySheetDialog);
 
-extern void assignPSDThreadContext(pCPropertySheetDialog pcpsd, RexxThreadContext *c);
+extern void assignPSDThreadContext(pCPropertySheetDialog pcpsd, RexxThreadContext *c, uint32_t threadID);
 
 extern LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK PropSheetCBTProc(int nCode, WPARAM wParam, LPARAM lParam);

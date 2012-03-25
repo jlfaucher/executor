@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -57,8 +57,10 @@
 
 -- WM_SIZE
 ::method connectResize
-   use strict arg msgToRise = 'onResize'
-   return self~addUserMsg(msgToRise, 0x00000005, 0xFFFFFFFF, 0, 0, 0, 0)
+   use strict arg msgToRise = 'onResize', sync = .true
+   tag = 0
+   if sync then tag = 0x08000000
+   return self~addUserMsg(msgToRise, 0x00000005, 0xFFFFFFFF, 0, 0, 0, 0, tag)
 
 -- WM_SIZING
 ::method connectResizing
@@ -81,13 +83,6 @@
    tag = 0
    if willReply then tag = 0x02000000
    return self~addUserMsg(msgToRise, "0x00000232", "0xFFFFFFFF", 0, 0, 0, 0, tag)
-
--- WM_MOUSEWHEEL
-::method connectMouseWheel
-   use strict arg msgToRise = 'onMouseWheel', willReply = .true
-   tag = 0x00000002
-   if willReply then tag = 0x02000002
-   return self~addUserMsg(msgToRise, "0x0000020a", "0xFFFFFFFF", 0, 0, 0, 0, tag)
 
 -- WM_WINDOWPOSCHANGED
 ::method connectPosChanged

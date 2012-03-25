@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2010 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -40,6 +40,10 @@
  *  oophil.rex  An ooDialog demonstration of the Philosopher's Forks
  */
 
+  -- A directory manager saves the current directory and can later go back to
+  -- that directory.  It also sets up the environment we need.  The class
+  -- itself is located in samplesSetup.rex
+  mgr = .DirectoryManager~new()
 
   curdir = directory()
   parse source . . me
@@ -110,13 +114,14 @@
   setUpDlg = .SetUpDialog~new(parms., v., vb.)
   setUpDlg~execute("SHOWTOP")
 
-  ret = directory(curdir)
+  mgr~goBack
   return
 
 
 /*---------------------- requires ooDialog ----------------------------*/
 
 ::requires 'ooDialog.cls'
+::requires 'samplesSetup.rex'
 
 
 /*---------------------- setup dialog ---------------------------------*/

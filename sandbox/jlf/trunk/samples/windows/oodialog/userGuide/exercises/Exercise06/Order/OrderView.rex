@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2011-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2011-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -35,7 +35,7 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /* ooDialog User Guide
-   Exercise 06: The OrderView class				  v00-03 28Sep11
+   Exercise 06: The OrderView class				  v00-05 19Feb12
    OrderFormView.rex
 
    Contains: class "OrderView".
@@ -51,18 +51,29 @@
    v00-01 25Aug11.
    v00-02 19Sep11: Corrected standalone invocation.
    v00-03 28Sep11: Minor mod to comment.
+   v00-04 11Feb12: OrderView - Changed .application()
+   v00-05 19Feb12: OrderView: moved .Application~ stmt to top of file.
 
 ------------------------------------------------------------------------------*/
+
+
+.Application~addToConstDir("Order\OrderView.h")
+
 
 ::REQUIRES "ooDialog.cls"
 ::REQUIRES "Order\OrderModelData.rex"
 
 
 /*==============================================================================
-  OrderFormView							  v00-02 19Sep11
+  OrderView							  v00-05 19Feb12
   -------------
   The "view" (or "gui") part of the Order component - part of the sample
   Order Management application.
+
+  v00-04 11Feb12: Moved .application~setDefaults() to app startup file.
+                   changed to .application~addToConstDir() here.
+  v00-05 19Feb12: Moved .Application~addToConstDir statement from newInstance
+                   method to top of file - just before ::requires statement(s).
 
   interface iOrderView {
     void new();
@@ -76,7 +87,6 @@
     expose rootDlg
     use arg rootDlg, orderNo
     say ".OrderView-newInstance: rootDlg =" rootDlg
-    .Application~useGlobalConstDir("O","Order\OrderView.h")
     dlg = self~new("Order\OrderView.rc", "IDD_ORDER_DIALOG")
     dlg~activate(rootDlg, orderNo)
 
@@ -127,3 +137,47 @@
     menuBar~attachTo(self)
 
     return
+
+  /*----------------------------------------------------------------------------
+    Event-Handler Methods - Menu Events
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  ::METHOD anAction UNGUARDED
+    self~noMenuFunction(.HRSov~anAction)
+
+  /*- - Help - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  ::METHOD about UNGUARDED
+    self~noMenuFunction(.HRSov~HelpAbout)
+
+  /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  ::METHOD noMenuFunction UNGUARDED
+    use arg title
+    ret = MessageDialog(.HRSov~NoMenu, self~hwnd, title, 'WARNING')
+
+  /*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+    -- "Cancel" - This method over-rides the default Windows action of
+    -- 'cancel window' for an Escape key.
+  ::METHOD cancel
+    response = askDialog(.HRSov~QExit, "N")
+    if response = 1 then forward class (super)
+    return
+
+/*============================================================================*/
+
+
+/*//////////////////////////////////////////////////////////////////////////////
+  ==============================================================================
+  Human-Readable Strings (HRSov)				  v00-01 11Feb12
+  --------
+   The HRSofv class provides constant character strings for user-visible messages.
+  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+::CLASS HRSov PRIVATE	   -- Human-Readable Strings
+  ::CONSTANT anAction    "An Action"
+  ::CONSTANT NoMenu      "This menu item is not implemented."
+  ::CONSTANT QExit       "Are you sure you want to cancel this Order View?"
+  ::CONSTANT HelpAbout   "About Sales Order"
+
+/*============================================================================*/
+

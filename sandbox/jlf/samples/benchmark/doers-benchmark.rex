@@ -16,10 +16,10 @@ call run count, {if item // 1000 == 0 then call charout ,"."}
 call run count, {::r if item // 1000 == 0 then call charout ,"."}
 call run count, .methods["MYMETHOD"]
 call run count, {::m if self // 1000 == 0 then call charout ,"."}
--- Current implementation of yield is very costly !
+-- Current implementation of yield is very costly !  (JLF 2012 mar 23 : with .threadLocal, no longer costly...)
 call run count, {::r.c do forever ; .yield[]; item = arg(1) ; if item // 1000 == 0 then call charout ,"." ; end}
 call run count, {::m.c do forever ; .yield[]; item = arg(1) ; if item // 1000 == 0 then call charout ,"." ; end}~doer(.nil)
--- 4 times faster when using self~yield
+-- 4 times faster when using self~yield (JLF 2012 mar 23 : no longer 4 times faster, because .yield[] now uses .threadLocal...)
 call run count, .myCoactivity~new
 
 trace O

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -96,13 +96,14 @@ extern void              pointer2string(char *, void *pointer);
 extern RexxStringObject  pointer2string(RexxMethodContext *, void *);
 extern RexxStringObject  pointer2string(RexxThreadContext *c, void *pointer);
 extern RexxStringObject  dword2string(RexxMethodContext *, uint32_t);
+extern RexxObjectPtr     convertToTrueOrFalse(RexxThreadContext *c, RexxObjectPtr obj);
 extern char *            strdupupr(const char *str);
 extern char *            strdupupr_nospace(const char *str);
 extern char *            strdup_nospace(const char *str);
 extern char *            strdup_2methodName(const char *str);
 extern void              checkModal(pCPlainBaseDialog previous, logical_t modeless);
 
-extern pCPlainBaseDialog requiredDlgCSelf(RexxMethodContext *c, RexxObjectPtr self, oodClass_t type, size_t argPos);
+extern pCPlainBaseDialog requiredDlgCSelf(RexxMethodContext *c, RexxObjectPtr self, oodClass_t type, size_t argPos, pCDialogControl *ppcdc);
 
 extern oodClass_t    oodClass(RexxMethodContext *, RexxObjectPtr, oodClass_t *, size_t);
 extern DWORD         oodGetSysErrCode(RexxThreadContext *);
@@ -282,6 +283,11 @@ inline bool isEmptyString(const char * s)
     return s != NULL && *s == '\0';
 }
 
+inline RexxObjectPtr convertToTrueOrFalse(RexxMethodContext *c, RexxObjectPtr obj)
+{
+    return convertToTrueOrFalse(c->threadContext, obj);
+}
+
 inline const char *comctl32VersionName(DWORD id)
 {
     return comctl32VersionPart(id, COMCTL32_FULL_PART);
@@ -296,6 +302,17 @@ inline bool hasStyle(HWND hwnd, LONG style)
     return false;
 }
 
+/**
+ * Determines if the currently executing thread is the same thread as the
+ * dialog's message processing loop thread.
+ *
+ * @param pcpbd
+ * @return bool
+ */
+inline bool isDlgThread(pCPlainBaseDialog pcpbd)
+{
+    return pcpbd->dlgProcThreadID == GetCurrentThreadId();
+}
 
 extern void           ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
 extern void          *baseClassIntializationException(RexxMethodContext *c);
@@ -304,11 +321,15 @@ extern RexxObjectPtr  noSuchPageException(RexxMethodContext *c, RexxObjectPtr pa
 extern RexxObjectPtr  noWindowsPageException(RexxMethodContext *c, size_t pageID, size_t pos);
 extern RexxObjectPtr  noSuchPageException(RexxMethodContext *c, int32_t id, uint32_t index);
 extern void          *noWindowsPageDlgException(RexxMethodContext *c, size_t pos);
+extern RexxObjectPtr  noSuchControlException(RexxMethodContext *c, int32_t id, RexxObjectPtr rxDlg, size_t pos);
+extern RexxObjectPtr  controlNotSupportedException(RexxMethodContext *c, RexxObjectPtr rxID, RexxObjectPtr rxDlg, size_t pos, RexxStringObject controlName);
 extern void          *wrongClassReplyException(RexxThreadContext *c, const char *mName, const char *n);
 extern void          *wrongReplyListException(RexxThreadContext *c, const char *mName, const char *list, RexxObjectPtr actual);
 extern void          *wrongReplyMsgException(RexxThreadContext *c, const char *mName, const char *msg);
+extern void          *wrongReplyNotBooleanException(RexxThreadContext *c, const char *mName, RexxObjectPtr actual);
 extern void           controlFailedException(RexxThreadContext *, CSTRING, CSTRING, CSTRING);
 extern void           wrongWindowStyleException(RexxMethodContext *c, CSTRING, CSTRING);
+extern void           bitmapTypeMismatchException(RexxMethodContext *c, BitmapButtonBMPType orig, BitmapButtonBMPType found, size_t pos);
 extern RexxObjectPtr  methodCanNotBeInvokedException(RexxMethodContext *c, CSTRING methodName, RexxObjectPtr rxDlg, CSTRING msg);
 extern RexxObjectPtr  methodCanNotBeInvokedException(RexxMethodContext *c, CSTRING methodName, CSTRING msg, RexxObjectPtr rxDlg);
 extern RexxObjectPtr  invalidAttributeException(RexxMethodContext *c, RexxObjectPtr rxDlg);
@@ -578,9 +599,13 @@ inline HWND dlgToHDlg(RexxMethodContext *c, RexxObjectPtr dlg)
  * @assumes  The caller has ensured ctrl is in fact a ooDialog Rexx dialog
  *           control object.
  */
-inline pCDialogControl controlToCSelf(RexxMethodContext *c, RexxObjectPtr ctrl)
+inline pCDialogControl controlToCSelf(RexxThreadContext *c, RexxObjectPtr ctrl)
 {
     return (pCDialogControl)c->ObjectToCSelf(ctrl, TheDialogControlClass);
+}
+inline pCDialogControl controlToCSelf(RexxMethodContext *c, RexxObjectPtr ctrl)
+{
+    return controlToCSelf(c->threadContext, ctrl);
 }
 
 /**
