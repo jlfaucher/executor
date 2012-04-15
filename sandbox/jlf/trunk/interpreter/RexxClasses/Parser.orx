@@ -430,6 +430,7 @@ Iterate over the clauses of the modified source :
         inch = self~locateToken
         if inch == self~CLAUSEEND_EOF then return .nil
         else if inch == self~CLAUSEEND_EOL then do
+            if skipSourceLiteral then buffer~append(";")
             clauseEndLine = lineNum
             clauseEndOffset = lineLength
             self~gotoNextLine

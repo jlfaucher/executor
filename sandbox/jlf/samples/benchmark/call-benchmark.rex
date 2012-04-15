@@ -1,5 +1,5 @@
 /*
-Repeat 10 times a piece of code which calls 10000 times a procedure / routine by name / .routine / class method / instance method
+Repeat 10 times a piece of code which calls 1000000 times a procedure / routine by name / .routine / class method / instance method
 Why is a .routine call slower than a method call (undex WinXP - almost no difference under MacOsX)?
 Problem identified and fixed : it's because the environment variable RXTRACE is read at each call.
 
@@ -55,7 +55,7 @@ call run count, "im"    -- instance method
     use strict arg count
     do count
         call time('r')
-        do value=1 to 10000
+        do value=1 to 1000000
             call myProcedure value
         end
         call charout ,time('e')~format(2,4)" "
@@ -64,13 +64,13 @@ call run count, "im"    -- instance method
 
 myProcedure: procedure
     use strict arg value
-    return
+    return value
 
 ::routine runRoutineByNameN
     use strict arg count
     do count
         call time('r')
-        do value=1 to 10000
+        do value=1 to 1000000
             call myRoutine value
         end
         call charout ,time('e')~format(2,4)" "
@@ -81,7 +81,7 @@ myProcedure: procedure
     use strict arg count, routine
     do count
         call time('r')
-        do value=1 to 10000
+        do value=1 to 1000000
             routine~call(value)
         end
         call charout ,time('e')~format(2,4)" "
@@ -92,7 +92,7 @@ myProcedure: procedure
     use strict arg count, object
     do count
         call time('r')
-        do value=1 to 10000
+        do value=1 to 1000000
             object~myMethod(value)
         end
         call charout ,time('e')~format(2,4)" "
@@ -101,13 +101,13 @@ myProcedure: procedure
 
 ::routine myRoutine
     use strict arg value
-    return
+    return value
 
 ::class myClass
 ::method myMethod class
     use strict arg value
-    return
+    return value
 ::method myMethod
     use strict arg value
-    return
+    return value
 

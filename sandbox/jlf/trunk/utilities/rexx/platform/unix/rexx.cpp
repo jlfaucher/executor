@@ -143,15 +143,23 @@ int main (int argc, char **argv) {
     else {
         RexxCreateInterpreter(&pgmInst, &pgmThrdInst, NULL);
         // configure the traditional single argument string
-        // Initial size must be zero, because in CallProgramDispatcher::run, size will be tested, not items
-        rxargs = pgmThrdInst->NewArray(0); // Will be extended if needed
         if (argCount > 0) {
+            rxargs = pgmThrdInst->NewArray(1);
             pgmThrdInst->ArrayPut(rxargs,
                                   pgmThrdInst->NewStringFromAsciiz(arg_buffer), 1);
+        } else {
+            rxargs = pgmThrdInst->NewArray(0);
         }
         // set up the C args into the .local environment
         dir = (RexxDirectoryObject)pgmThrdInst->GetLocalEnvironment();
-        rxcargs = pgmThrdInst->NewArray(1);
+        if ( argc > 2 )
+        {
+            rxcargs = pgmThrdInst->NewArray(argc - 2);
+        }
+        else
+        {
+            rxcargs = pgmThrdInst->NewArray(0);
+        }
         for (i = 2; i < argc; i++) {
             pgmThrdInst->ArrayPut(rxcargs,
                                   pgmThrdInst->NewStringFromAsciiz(argv[i]),

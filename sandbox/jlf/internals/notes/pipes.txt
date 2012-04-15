@@ -107,4 +107,29 @@ Running on Linux AMD64 (Ubuntu 10.04 lucid Kernel 2.6.32-28-generic)
 Open Object Rexx Version 4.1.0
 Build date: Dec  3 2010
 Addressing Mode: 64 
+
+
 ============================================================================
+Notes about pipe.rex
+
+fanout : forward eof to self~next and self~secondary, but not to super
+
+merge : send a 'done' message
+
+console : process does forward class (super) --> why needed here, and not in other classes ?
+answer : because .console does not transform the items, it just displays them. So it can
+forward to class (super) which will take care of sending the item & index to next pipestage.
+The other classes transform the items, and write themselves the new item. If they forwarded
+to class (super) then the unchanged item would be also sent to the next pipeStage.
+
+
+http://freshmeat.net/projects/pv
+pv (Pipe Viewer) is a terminal-based tool for monitoring the progress of data through a pipeline.
+It can be inserted into any normal pipeline between two processes to give a visual indication of
+how quickly data is passing through, how long it has taken, how near to completion it is, and an
+estimate of how long it will be until completion.
+
+
+http://www.softpanorama.org/Scripting/Shellorama/Control_structures/pipes_in_loops.shtml
+
+

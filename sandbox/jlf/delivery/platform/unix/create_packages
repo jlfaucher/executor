@@ -4,7 +4,7 @@
 # It gathers various files from samples and incubator, to create a "packages" directory in delivery.
 # Can be run as many times as needed, but you have to remove the existing "packages" directory, if any (otherwise the script stops).
 #
-# Usage : ./platform/unix/create_packages.sh
+# Usage : ./platform/unix/create_packages
 #
 # Note : this script can be used under Windows, from the Cygwin shell.
 
@@ -73,6 +73,7 @@ create_Packages()
     copy_file ../../../incubator/ooRexxShell/oorexxshell
     copy_file ../../../incubator/ooRexxShell/oorexxshell.bat
     copy_file ../../../incubator/ooRexxShell/oorexxshell.rex
+    copy_file ../samples/ooRexxTry/ooRexxTry.rxj
     create_Makefile_am "_samples concurrency extension pipeline profiling regex rgf_util2 trace"
 
     DEST=regex

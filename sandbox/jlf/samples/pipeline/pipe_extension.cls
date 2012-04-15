@@ -18,14 +18,14 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::extension Class
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe class
+::method pipe class unguarded
     use strict arg pipe, profile=.false
     if pipe~isa(.class) then pipe = pipe~new
     pipe~go(self, profile)
     return pipe
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe.generate class
+::method pipe.generate class unguarded
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
@@ -35,38 +35,38 @@ So I added the 'pipe' method which injects the object in the pipe :
 ::extension Object
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe class
+::method pipe class unguarded
     use strict arg pipe, profile=.false
     if pipe~isa(.class) then pipe = pipe~new
     pipe~go(self, profile)
     return pipe
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe.generate class
+::method pipe.generate class unguarded
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
             self~pipe(pipe, profile)
            }~doer
 
-::method pipe
+::method pipe unguarded
     use strict arg pipe, profile=.false
     if pipe~isa(.class) then pipe = pipe~new
     pipe~go(self, profile)
     return pipe
 
-::method pipe.generate
+::method pipe.generate unguarded
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
             self~pipe(pipe, profile)
            }~doer
 
-::method pipeProfile
+::method pipeProfile unguarded
     use strict arg pipe
     return self~pipe(pipe, .true)
 
-::method pipeProfile.generate
+::method pipeProfile.generate unguarded
     use strict arg pipe
     return {::closure.coactive
             expose pipe self
@@ -266,7 +266,7 @@ self~init:super
 ::method processDepthFirst.2 private
     expose doer iterateAfter passIndex trace
     -- not a block do...end, to not see the 'end' in the trace output
-    if trace then .traceOutput~say("       >I> Method .Generator~processDepthFirst.2")
+    if trace then .traceOutput~say("       >I> Method .inject~processDepthFirst.2")
     if trace then trace i
     if self~isEOP then return
     use strict arg item, index, dataflow, previousItems, stack, depth

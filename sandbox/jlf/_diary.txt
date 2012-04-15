@@ -128,6 +128,55 @@ Review the extension mechanisms :
 Profiler todo :
 Error "does not understand message XXX_UNPROTECTED" when the method XXX is private.
 
+Clauser todo :
+Keep the multi-line source literals as-is (multi-line), for better error report.
+That makes the transformation of clauses more difficult, since a clause can be
+multi-line.
+Remember : a multi-line source literal is flattened only if a transformation is
+made on the clause which contains it.
+
+
+===============================================================================
+2012 mar 23
+
+merge 7691-7736 from main/trunk
+
+
+Adaptation of ooRexxTry.rxj :
+Preloads all the main components (math, ftp, socket, bsf, hostemu, ...).
+The '=' shortcut is managed at the end of each clause.
+Now, it's possible to write that :
+    dir;rc=;unknown;rc=
+The transformed command is :
+    dir;
+    options "NOCOMMANDS";
+    rc ;
+    if var("result") then call dumpResult(result); 
+    options "COMMANDS";
+    unknown;
+    options "NOCOMMANDS";
+    rc ;
+    if var("result") then call dumpResult(result); 
+    options "COMMANDS"
+
+
+[pipes]
+Fixed a deadlock.
+The methods ~pipe, ~pipe.generate, pipeProfile and pipeProfile.generate must be unguarded.
+
+
+[coactivity]
+Added support for onStart and onTerminate at the class level.
+Needed to attach/detach properly to/from the Java thread in ooRexxTry.rxj.
+
+
+[parser]
+Fixed a bug in .Clauser.
+When parsing a multi-line source literal, a single line is created by concatenating each line.
+A ';' was missing to delimitate the clauses.
+Probably to rework : should keep the source literal as-is (multi-line) to have good line numbers
+in case of error.
+
 
 ===============================================================================
 2012 mar 23
@@ -361,8 +410,8 @@ decodeMessageName : the string returned in messageName is not protected, see wha
     RexxActivation::evaluateLocalCompoundVariable : done --> cancelled
     <to continue...> --> not needed, the objects should be protected by the stack
 decodeExternalMethod
-    RexxSource::methodDirective
-    RexxSource::attributeDirective
+    RexxSource::methodDirective : done
+    RexxSource::attributeDirective : done
 
 
 ===============================================================================
@@ -3615,3 +3664,5 @@ Same problem with samples/windows/oodialog/examples/resources (first level) : fi
 merge 7647-7688 from main/trunk
 
 merge 7688-7691 from main/trunk
+
+merge 7691-7736 from main/trunk

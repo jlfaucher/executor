@@ -519,22 +519,22 @@
 --------------------------------------------------
 
 -- Yield each character one by one
-::method generateC
+::method generateC unguarded
     use strict arg action={item}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
 
 -- Yield each character one by one, as a pair (char, char_pos)
-::method generateCI
+::method generateCI unguarded
     use strict arg action={item}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
 
 -- Yield each word one by one
-::method generateW
+::method generateW unguarded
     use strict arg action={item}
     return .Generator~new(self~subwords)~iterateBefore~action(action)
 
 -- Yield each word one by one, as a pair (word, word_index)
-::method generateWI
+::method generateWI unguarded
     use strict arg action={item}
     return .Generator~new(self~subwords)~iterateBefore~action(action)~returnIndex
 
@@ -544,22 +544,22 @@
 ---------------------------------------------------------
 
 -- Yield each character one by one
-::method generateC
+::method generateC unguarded
     use strict arg action={item}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
 
 -- Yield each character one by one, as a pair (char, char_pos)
-::method generateCI
+::method generateCI unguarded
     use strict arg action={item}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
 
 -- Yield each word one by one
-::method generateW
+::method generateW unguarded
     use strict arg action={item}
     return .Generator~new(self~subwords)~iterateBefore~action(action)
 
 -- Yield each word one by one, as a pair (word, word_index)
-::method generateWI
+::method generateWI unguarded
     use strict arg action={item}
     return .Generator~new(self~subwords)~iterateBefore~action(action)~returnIndex
 
@@ -569,11 +569,11 @@
 ------------------------------------------------------
 
 -- Yield each item one by one
-::method generate
+::method generate unguarded
     forward to (self~supplier)
 
 -- Yield each item one by one, as a pair (item, index)
-::method generateI
+::method generateI unguarded
     forward to (self~supplier)
 
 
@@ -582,12 +582,12 @@
 ----------------------------------------------------
 
 -- Yield each item one by one
-::method generate
+::method generate unguarded
     use strict arg action={item}
     return .Generator~new(self)~iterateBefore~action(action)
 
 -- Yield each item one by one, as a pair (item, index)
-::method generateI
+::method generateI unguarded
     use strict arg action={item}
     return .Generator~new(self)~iterateBefore~action(action)~returnIndex
 
@@ -596,10 +596,10 @@
 ::class "CoactivityGenerator" mixinclass Object public
 ------------------------------------------------------
 
-::method generate
+::method generate unguarded
     forward to (self~supplier)
 
-::method generateI
+::method generateI unguarded
     forward to (self~supplier)
 
 

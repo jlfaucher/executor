@@ -143,7 +143,7 @@ public:
     }
 
     RexxDirectoryObject autoConnectionStatus();
-    void setAutoConnection(logical_t on, CSTRING methodName);
+    bool setAutoConnection(logical_t on, CSTRING methodName);
     BOOL maybeConnectItem(uint32_t id, CSTRING text, logical_t connect, CSTRING methodName);
     logical_t attachToDlg(RexxObjectPtr dialog);
     RexxObjectPtr replace(RexxObjectPtr newMenu);
@@ -151,6 +151,7 @@ public:
     bool addToConnectionQ(uint32_t id, CSTRING methodName);
     BOOL checkPendingConnections();
     BOOL checkAutoConnect(pCEventNotification pcen);
+    void uninitMenu();
     void releaseConnectionQ();
     BOOL detach(bool skipChecks);
     BOOL destroy();
@@ -187,7 +188,7 @@ protected:
    RexxObjectPtr dlg;
    HWND dlgHwnd;
 
-   HANDLE hTemplateMemory;        // Handle to allocated template memory. ("MEMHANDLE")
+   DWORD *hTemplateMemory;        // Handle to allocated template memory. ("MEMHANDLE")
    DWORD *pTemplate;              // Pointer to aligned, start of template. ("BASEPTR")
    DWORD *pCurrentTemplatePos;    // Pointer template offset for next item addition.  ("CURRENTPTR")
    byte  *endOfTemplate;          // Last allocated byte of template memory
@@ -199,8 +200,8 @@ protected:
    size_t connectionQSize;
    size_t connectionQIndex;
 
-   CSTRING connectionMethod;
-   bool autoConnect;
+   char *connectionMethod;
+   bool  autoConnect;
 };
 
 inline CppMenu *menuToCSelf(RexxMethodContext *c, RexxObjectPtr self)

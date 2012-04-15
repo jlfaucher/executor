@@ -55,14 +55,38 @@ Ex (Windows) :
 Good point : the history of commands is kept.
 
 
-If an ooRexx command line ends with "=" then the command line is transformed
-to display the result :
-'1+2=' becomes 'options "NOCOMMANDS";1+2;call dumpResult'
+If an ooRexx clause ends with "=" then the command line is transformed to display the result :
+'1+2=' becomes 'command= options "NOCOMMANDS"; 1+2 ;if var("result") then call dumpResult(result); options "COMMANDS"'
 '=' alone displays the current value of the variable RESULT.
 
 
 Command 'exit'.
 To leave the ooRexxShell.
+
+
+=====================================================================================
+ooRexxTry.rxj
+=====================================================================================
+
+Adaptation of ooRexxTry.rxj (http://sourceforge.net/projects/bsf4oorexx) :
+Load all the packages/libraries delivered in the snapshot.
+If an ooRexx clause ends with "=" then the command line is transformed to display the result.
+
+Unlike ooRexxShell, ooRexxTry lets enter multiline code.
+Example taken from GetJavaSystemProperties.rxj :
+Get the Java System Properties from java.lang.System using the services set up by BSF.CLS.
+    c= {::coactivity
+        properties=.bsf4rexx ~System.class ~getProperties  -- get the System properties
+        enum=properties~propertyNames    -- get an enumeration of the property names
+
+        do while enum~hasMoreElements    -- loop over enumeration
+            key=enum~nextElement          -- get next element
+            value = properties~getProperty(key)
+        .yield[.array~of(key, value)]
+        end
+       }
+    c~do=   -- ['java.runtime.name','Java(TM) SE Runtime Environment']
+    c~do=   -- ['sun.boot.library.path','C:\Program Files\Java\jre6\bin']
 
 
 =====================================================================================
@@ -296,16 +320,18 @@ A Doer is an object who knows how to execute itself (understands "do")
 This is an abstraction of routine, method, message, coactivity, closure.
 
 When used as a doer, a string is a message.
-This abstraction is useful with the ~reduce method.
+This abstraction is useful with the higher-order methods.
 Ex :
 say "length"~("John") -- 4 ("John"~"length")
+say "length of each word"~mapW("length") -- A string "6 2 4 4"
+say "length of each word"~eachW("length") -- An array [6,2,4,4]
 
 Each doer has its own "do" method, and knows what to do with the arguments.
 routine : forward message "call"
 method : use strict arg object, ... ; forward to (object) message "run" array (self, "a", arg(2,"a"))
 message : use strict arg object, ... ; forward to (object) message ("sendWith") array (self, arg(2,"a"))
 coactivity : forward message ("resume")
-closure : user-defined source literal
+closure : user-defined method
 block : forward to (self~doer)
 
 A DoerFactory is an object who knows how to create a doer.
@@ -604,7 +630,7 @@ Higher-order methods
 -- If you need a result object which is of the same type as the iterated object then use ~map.
 .set~of(1,2,3)~supplier~each{2*item}
 "abcdef"~eachC{item}
-{::coactivity do i=1 to 3; .yield[i]; end}~doer~each{2*item}
+{::coactivity do i=1 to 3; .yield[i]; end}~doer~iterator~each{2*item}
 
 
 -- Filter on any sequence
@@ -643,8 +669,8 @@ Generators
 =====================================================================================
 
 When applied to a coactivity, the higher-order methods return a new coactivity instead
-of an array or results. The results are returned one by one.
-Sometimes, you want to iterate over all the values produced by a coactivity. In this case,
+of an array or items. The items are returned one by one.
+Sometimes, you want to iterate over all the items produced by a coactivity. In this case,
 use the method ~iterator which returns a supplier specialized for iteration, where all items
 are consumed in one loop.
 Example :
@@ -653,7 +679,12 @@ Example :
 
 
 The .Generator class is a Coactivity which applies an action to a source (any object)
-and yields the results one by one. The following options can be specified :
+and yields the results one by one. 
+    generator = .Generator~new(source)~option1~option2...
+    r1 = generator~do
+    r2 = generator~do
+    ...
+The following options can be specified :
 ~action(action) :
     The action to execute on each item. The default action is {use arg item ; return item}.
     An action of type message (string) is supported. For convenience, the message is sent only
@@ -735,9 +766,9 @@ Examples :
 
 -- Illustration of depthFirst (default) vs breadthFirst
    "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive~makeArray=
-        ['one','ne','e','','two','wo','o','','three','hree','ree','ee','e','']
+        -- ['one','ne','e','','two','wo','o','','three','hree','ree','ee','e','']
    "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive("breadthFirst")~makeArray=
-        ['one','two','three','ne','wo','hree','e','o','ree','','','ee','e','']
+        -- ['one','two','three','ne','wo','hree','e','o','ree','','','ee','e','']
 
 -- Generation of all natural numbers : 1 2 3 ...
     g=0~generate{item+1}~recursive
@@ -825,9 +856,7 @@ A dataflow is an array :
 
 -- A coactivty can be a source of pipe : each yielded value is injected in the pipe.
 -- Example :
--- This coactivity yields two results.
--- The hello outputs are not in the pipeline flow (not displayed by the .console).
-{::coactivity echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+{::coactivity .yield["a"] ; .yield["b"] }~doer~pipe(.console)
 
 
 -- A collection can be sorted by item (default)
@@ -860,7 +889,7 @@ A dataflow is an array :
 
 -- Do something for each item (the returned result replaces the item's value).
 -- Here, only one result is calculated for an item, so resultIndex is always 1.
-.array~of(1, , 2, , 3)~pipe(.do {return 2*item} mem | .console)
+.array~of(1, , 2, , 3)~pipe(.do {return 2*item} | .console)
 
 
 -- Each injected value can be used as input to inject a new value, recursively.
@@ -871,16 +900,6 @@ A dataflow is an array :
 .array~of(1, , 2, , 3)~pipe(.inject {item*10} recursive.0 | .console)
 .array~of(1, , 2, , 3)~pipe(.inject {item*20} recursive.1 | .console)
 .array~of(1, , 2, , 3)~pipe(.inject {item*30} recursive.2 | .console)
-
-
--- Methods (not inherited) of all the classes whose id starts with "R".
-.environment~pipe(,
-    .select {item~isA(.class)} |,
-    .select {item~id~caselessAbbrev('R') <> 0} |,
-    .inject {item~methods(item)} after memorize |,
-    .sort byIndex |,
-    .console,
-    )
 
 
 -- Display the 4 first sorted items
@@ -918,8 +937,23 @@ subclass = g~do
 "/tmp"~pipe(.fileTree recursive.memorize | .take 50 | .console dataflow)
 
 
+-- Methods (not inherited) of all the classes whose id starts with "R".
+.environment~pipe(,
+    .select {item~isA(.class)} memorize.class |,
+    .select {item~id~caselessAbbrev('R') <> 0} |,
+    .inject {item~methods(item)} iterateAfter |,
+    .sort {index} {dataflow["class"]~item~id} |,
+    .console {dataflow["class"]~item~id} {index},
+    )
+
+
 -- Public classes by package
-.context~package~pipe(.importedPackages recursive once after memorize.package | .inject {item~publicClasses} iterateAfter | .sort {item~id} {dataflow["package"]~item~name} | .console {.file~new(dataflow["package"]~item~name)~name} ":" item)
+.context~package~pipe(,
+    .importedPackages recursive once after memorize.package |,
+    .inject {item~publicClasses} iterateAfter |,
+    .sort {item~id} {dataflow["package"]~item~name} |,
+    .console {.file~new(dataflow["package"]~item~name)~name} ":" item,
+    )
 
 
 =====================================================================================
@@ -935,6 +969,11 @@ Summary of extension methods
                                   |     each           |        eachC        eachW       |       |       |              |           
                                   |     eachI          |        eachCI       eachWI      |       |       |              |           
                                  -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
+                                  |     reject         |        rejectC      rejectW     |       |       |              |           
+                                  |     rejectI        |        rejectCI     rejectWI    |       |       |              |           
+                                  |     select         |        selectC      selectW     |       |       |              |           
+                                  |     selectI        |        selectCI     selectWI    |       |       |              |           
+                                 -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
                                   |        |        drop        dropC        dropW       |       |       |              |           
                                   |        |        dropI       dropCI       dropWI      |       |       |              |           
                                   |        |        dropLast    dropLastC    dropLastW   |       |       |              |           
@@ -943,10 +982,6 @@ Summary of extension methods
                                   |        |        dropUntilI  dropUntilCI  dropUntilWI |       |       |              |           
                                   |        |        dropWhile   dropWhileC   dropWhileW  |       |       |              |           
                                   |        |        dropWhileI  dropWhileCI  dropWhileWI |       |       |              |           
-                                  |     reject         |        rejectC      rejectW     |       |       |              |           
-                                  |     rejectI        |        rejectCI     rejectWI    |       |       |              |           
-                                  |     select         |        selectC      selectW     |       |       |              |           
-                                  |     selectI        |        selectCI     selectWI    |       |       |              |           
                                   |        |        take        takeC        takeW       |       |       |              |           
                                   |        |        takeI       takeCI       takeWI      |       |       |              |           
                                   |        |        takeLast    takeLastC    takeLastW   |       |       |              |           

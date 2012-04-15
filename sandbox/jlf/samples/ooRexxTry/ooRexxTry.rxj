@@ -1,0 +1,3103 @@
+#!/usr/bin/rexx
+/* Name:    ooRexxTry.rxj
+   Purpose: GUI supported testing of ooRexx and Bsf4ooRexx enhanced Java support
+   Author:  Markus Moldaschl
+
+   Version: 1.1
+   Changes: 2011-02-20, Rony G. Flatscher:
+                        - removed MacOSX-related change to name of menu "Exit"
+                          to "Quit" as MacOSX has its own application
+                          "Quit" menu at all times
+                        - using "VK_E" instead of "VK_X" for "Exit" button
+            2011-02-21 Rony G. Flatscher
+                        - make sure to act upon the Apple application quit event
+                        - adding icon image to JFrame
+                        - make sure that a bsf.exit() is not carried out, if the RexxAndJava
+                          version is capable of doing that
+            2011-02-23 Rony G. Flatscher
+                        - renamed class "CreateSocket" to "CreateServerSocket"
+                        - added logic to allow new ooRexxTry.rxj instances to be
+                          created, even if the port is already taken (ask user
+                          for another new portnumber)
+                        - use new BSF-subfunction "carryOutSystemExit"
+                        - use SysTempFileName() to create unique temporary filenames
+            2011-02-28 Rony G. Flatscher
+                        - usability improvement: add Rexx and BSF version to title bar
+            2011-03-19 Rony G. Flatscher
+                        - display help-PDF, take different operating systems into account
+                        - edit font-picker code (added "Courier 10 Pitch", "FreeMno",
+                          special handling of font "Monospace" which Java guarantees to
+                          be mappable
+                        - make sure that it can be run on older versions that do not
+                          have "carryOutSystemExit" implemented
+            2012-02-23 Rony G. Fltascher
+                        - fix for bug 3434228 not working on some Linux distributions
+                          due to not having write permissions to its directory: now
+                          using "user.home" as working and temporary directory, returned
+                          by new routine getHomeDir()
+                        - fixed a bug referring to .preferred_path instead of .mm.dir~preferredPath
+                        - accustomed for Java 1.4 swing forcing to use "getContentPane" before
+                          adding a component to a JFrame or JDialog
+
+            2012-03-27 Jean-Louis Faucher
+                        - Fix bug 3512053
+
+            2012-03-29 Rony G. Flatscher
+                        - make sure that .input, .output and .error GUI interface can be used,
+                          even if Rexx code is run on a separate thread; quick fix, experimental
+
+            2012-04-03 Rony G. Flatscher
+                        - fix bug ID: 3514658
+                        - Java classes are now stored in .local by there fully qualified name;
+                          this way there should be no interference with any other class (JLF
+                          reported a name clash with .file, which is defined as an ooRexx class
+                          and which was offset by java.io.File that was saved in .local as .file)
+
+            2012-04-05 JLF
+                        - Convert the result to a string before displaying in returnsArea
+                        - Support empty arguments : arg(N, "e") returns 1 if line N is empty in argsArea.
+                        - The temporary file ooRexxTry_test was created with a path in home directory,
+                          but then only the filename part was kept. Now keeps the whole path.
+                        - The path to ooRexxTry_test is surrounded by quotes to support whitespaces.
+                        - The file ooRexxTry.rc is saved in the home directory.
+                        - No longer accumulate text in say_stg and error_stg, better to use the method
+                          append of JTextArea.
+
+            2012-04-12 JLF (functionalities available only in JLF sandbox)
+                        - Preloads all the main components (math, ftp, socket, bsf, hostemu, ...).
+                        - Display the elapsed duration and number of coactivities after each run.
+                        - Manage the '=' shortcut at the end of each clause.
+                          Ex : dir;rc=;unknown;rc=
+*/
+
+/*----------------------------------------------------------------------------*/
+/*  Copyright 2011 Markus Moldaschl, 2011-2012 Rony G. Flatscher              */
+/*								                                                      */
+/*  Licensed under the Apache License, Version 2.0 (the "License");           */
+/*  you may not use this file except in compliance with the License.          */
+/*  You may obtain a copy of the License at				      */
+/*									      */
+/*       http://www.apache.org/licenses/LICENSE-2.0			      */
+/*									      */
+/*  Unless required by applicable law or agreed to in writing, software       */
+/*  distributed under the License is distributed on an "AS IS" BASIS,         */
+/*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  */
+/*  See the License for the specific language governing permissions and       */
+/*  limitations under the License.				              */
+/*----------------------------------------------------------------------------*/
+
+
+
+/*Based on ooRexxTry.rex and code samples from Lee Peedin and Dr. Rony G. Flatscher*/
+/*----------------------------------------------------------------------------*/
+/*                                                                            */
+/* Copyright (c) 2007-2009 Rexx Language Association. All rights reserved.    */
+/*                                                                            */
+/* This program and the accompanying materials are made available under       */
+/* the terms of the Common Public License v1.0 which accompanies this         */
+/* distribution. A copy is also available at the following address:           */
+/* http://www.oorexx.org/license.html                                         */
+/*                                                                            */
+/* Redistribution and use in source and binary forms, with or                 */
+/* without modification, are permitted provided that the following            */
+/* conditions are met:                                                        */
+/*                                                                            */
+/* Redistributions of source code must retain the above copyright             */
+/* notice, this list of conditions and the following disclaimer.              */
+/* Redistributions in binary form must reproduce the above copyright          */
+/* notice, this list of conditions and the following disclaimer in            */
+/* the documentation and/or other materials provided with the distribution.   */
+/*                                                                            */
+/* Neither the name of Rexx Language Association nor the names                */
+/* of its contributors may be used to endorse or promote products             */
+/* derived from this software without specific prior written permission.      */
+/*                                                                            */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS        */
+/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT          */
+/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS          */
+/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   */
+/* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,      */
+/* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,        */
+/* OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY     */
+/* OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING    */
+/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS         */
+/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+
+
+userData = .directory~new                   -- Directory to certain objects
+.local~mm.dir = .directory~new			-- locally accessable directory
+						-- holds frequently used key variables
+.mm.dir~start.tid=BSFGetTID()    -- get this instance's thread id
+parse arg isDefault
+
+.mm.dir~useDefault = .false			-- use default settings
+if isDefault~translate = 'DEFAULT' then
+    .mm.dir~useDefault = .true
+
+parse source . . s
+pngFn=filespec("Location",s) || .bsf4rexx~file.separator || 'ooRexxTry.png'
+.mm.dir~ooRexxTry.png=pngFn   -- save path to image
+.mm.dir~ooRexxTry.pdf=filespec("Location",s) || .bsf4rexx~file.separator || 'ooRexxTry.pdf'
+
+if .bsf4rexx~opsys="MACOSX" then  -- on MacOSX display the standard ooRexx4OOo logo
+do
+-- frame~setIconImage(.bsf~new("javax.swing.ImageIcon", pngFn)~getImage)
+ .bsf4rexx~apple_application~setDockIconImage(.bsf~new("javax.swing.ImageIcon",pngFn)~getImage)
+
+end
+
+
+say
+say "*-----------------------------------------------------------------------------*"
+say "| This console is only used for input regarding the Rexx Utility SysGetKey(). |"
+say '| Please use the area named "Input" on the GUI as your primary input device.  |'
+say "*-----------------------------------------------------------------------------*"
+say
+call dontBSFExit                            -- do not carry out a bsf.exit as this would abort this program as well
+call importClasses			    -- Import all utilized java classes
+.mm.dir~mainPackage = .context~package      -- Will be used when creating a method to run code
+call LoadEnvironment                        -- Set up the environment to work with
+.platform~initialize
+call LoadOptionalComponents
+.traceOutput~destination(.stdout)
+.mm.dir~storage = .Store~new		    -- Instance, later on used to store code executions
+.mm.dir~storage~makeQueue(5)
+gui = .GUI~new(userData)                    -- Create the basic GUI elements and draw the GUI
+
+
+/*Change the destination of the .input, .output and .error monitor
+  from the standard stream to a custom GUI stream or file stream.
+  No need for command prompt!*/
+if .mm.dir~inputMonitorDestination~equals('GUIInputStream') then
+  do
+    .local~mm.dir~guiInputStream = .GUIInputStream~new('STDIN')
+    .input~destination(.mm.dir~guiInputStream)
+  end
+else
+  do
+    .mm.dir~infilestream = .stream~new(.mm.dir~inputMonitorDestination)
+    .input~destination(.mm.dir~infilestream)
+  end
+
+if .mm.dir~outputMonitorDestination~equals('GUIOutputStream') then
+  do
+    .local~mm.dir~guiOutputStream = .GUIOutputStream~new('STDOUT')
+    .output~destination(.mm.dir~guiOutputStream)
+  end
+else
+  do
+    .mm.dir~outfilestream = .stream~new(.mm.dir~outputMonitorDestination)
+    .output~destination(.mm.dir~outfilestream)
+  end
+
+if .mm.dir~errorMonitorDestination~equals('GUIErrorStream') then
+  do
+    .local~mm.dir~guiErrorStream = .GUIErrorStream~new('STDERR')
+    .error~destination(.mm.dir~guiErrorStream)
+  end
+else
+  do
+    if \.mm.dir~errorMonitorDestination~equals(.mm.dir~outputMonitorDestination)
+       then .mm.dir~errfilestream = .stream~new(.mm.dir~errorMonitorDestination)
+    else .mm.dir~errfilestream = .mm.dir~outfilestream
+    .error~destination(.mm.dir~errfilestream)
+  end
+
+.CreateServerSocket~new~~run 		-- setup up a server socket
+
+userData~rexxCloseEH~waitforExit   -- wait until we are allowed to end the program
+
+call SysSleep .3          -- let Java's RexxProxy finalizations find a running Rexx instance
+return
+
+-------------------------------------------------------------------------------
+-- Load optional packages/libraries
+-- Remember : don't implement that as a procedure or routine or method !
+loadOptionalComponents:
+    if .platform~is("windows") then do
+        call loadPackage("oodialog.cls")
+        call loadPackage("winsystm.cls")
+    end
+    if \.platform~is("windows") then do
+        call loadLibrary("rxunixsys")
+    end
+    call loadLibrary("hostemu")
+    call loadPackage("mime.cls")
+    call loadPackage("rxftp.cls")
+    call loadLibrary("rxmath")
+    call loadPackage("rxregexp.cls")
+    call loadPackage("regex/regex.cls")
+    call loadPackage("smtp.cls")
+    call loadPackage("socket.cls")
+    call loadPackage("streamsocket.cls")
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    call loadPackage("BSF.CLS")
+    call loadPackage("UNO.CLS")
+    .local~mm.dir~ooRexx.isExtended = .true
+    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
+        .local~mm.dir~ooRexx.isExtended = .false
+        call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
+    end
+    if .local~mm.dir~ooRexx.isExtended then do
+        call loadPackage("concurrency/coactivity.cls")
+        call loadPackage("pipeline/pipe_extension.cls")
+        call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
+       .Coactivity~setMethod('onStart', .array~of(,
+           'use strict arg coactivity;',
+           'signal on syntax;',
+           'call BsfAttachToTid .mm.dir~start.tid;',
+           'coactivity~setMethod("onTerminate", "call BsfDetach");',
+           'syntax:'))
+    end
+
+    return
+    
+
+-------------------------------------------------------------------------------
+-- Remember : don't implement that as a procedure or routine or method !
+loadPackage:
+    use strict arg filename
+    signal on syntax name loadPackageError
+    .context~package~loadPackage(filename)
+    say "loadPackage OK for" filename
+    return .true
+    loadPackageError:
+    say "loadPackage KO for" filename
+    return .false
+
+    
+-------------------------------------------------------------------------------
+-- Remember : don't implement that as a procedure or routine or method !
+loadLibrary:
+    use strict arg filename
+    signal on syntax name loadLibraryError
+    if .context~package~loadLibrary(filename) then do
+        say "loadLibrary OK for" filename
+        return .true
+    end
+    loadLibraryError:
+    say "loadLibrary KO for" filename
+    return .false
+
+    
+-------------------------------------------------------------------------------
+
+--::options trace i
+
+/*Creates a dialog, providing some meta data and a link to the documentation .pdf.*/
+::class AboutDialog
+::method actionPerformed
+    use arg , slotDir
+
+    mainframe = .mm.dir~frame
+    adialog = .javax.swing.JDialog~new(mainframe, 'About')
+    adialog~setResizable(.false)
+    contentpane = adialog~getContentPane
+    gridbag = .java.awt.GridBagLayout~new
+    c = .java.awt.GridBagConstraints~new
+    contentpane~setLayout(gridbag)
+    verpanel = .javax.swing.JPanel~new
+    verpanel~~setBackground(.java.awt.Color~magenta)~~add(.javax.swing.JLabel~new("Version"))
+    version = .javax.swing.JPanel~new
+    version~add(.javax.swing.JLabel~new(.mm.dir~version))
+    atpanel = .javax.swing.JPanel~new
+    atpanel~~setBackground(.java.awt.Color~magenta)~~add(.javax.swing.JLabel~new("Author"))
+    author = .javax.swing.JPanel~new
+    author~add(.javax.swing.JLabel~new("Markus Moldaschl"))
+    docpanel = .javax.swing.JPanel~new
+    docpanel~~setBackground(.java.awt.Color~magenta)~~add(.javax.swing.JLabel~new("Documentation"))
+    doc = .javax.swing.JPanel~new
+    docbutton = .javax.swing.JButton~new("PDF")
+    rexxDocEH = .Doc~new
+    rpDocEH = BsfCreateRexxProxy(rexxDocEH, slotDir~userData, .java.awt.event.ActionListener)
+    docbutton~addActionListener(rpDocEH)
+    doc~add(docbutton)
+    c~fill = .java.awt.GridBagConstraints~horizontal
+    c~weightx = 1.0
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(2,3,0,3)
+    gridbag~setConstraints(verpanel, c)
+    gridbag~setConstraints(version, c)
+    gridbag~setConstraints(atpanel, c)
+    gridbag~setConstraints(author, c)
+    gridbag~setConstraints(docpanel, c)
+    gridbag~setConstraints(doc, c)
+    contentpane~~add(verpanel)~~add(version)~~add(atpanel)~~add(author)~~add(docpanel)~~add(doc)
+    adialog~pack
+    adialog~setBounds((mainframe~getX+mainframe~getWidth/3)~format(,0), (mainframe~getY+mainframe~getHeight/3)~format(,0), 200, 210)
+    adialog~~show~~tofront
+
+
+/*Custom list cell renderer; renders the elements from the listmodel with seperate JTextAreas in a JList on the screen.*/
+::class CellRenderer
+::method getListCellRendererComponent
+	use arg list, value, index, isSelected, cellHasFocus, slotDir
+
+    listarea = .javax.swing.JTextArea~new
+    listarea~setFont(.java.awt.Font~new(.mm.dir~fontname, .java.awt.Font~plain, "12"))
+    listarea~setText(value~makeString)
+    listarea~setLineWrap(.true)
+
+    if isSelected then
+        do
+            listarea~setBackground(listarea~getSelectionColor)
+            listarea~setForeground(.java.awt.Color~white)
+            slotDir~userData~restorebutton~setEnabled(.true)
+        end
+    laScrollPane = .javax.swing.JScrollPane~new(listarea, .javax.swing.JScrollPane~vertical_scrollbar_as_needed, .javax.swing.JScrollPane~horizontal_scrollbar_never)
+    return laScrollPane
+
+
+/*Clear all text from appropriate input and output areas according to the menu item clicked on.*/
+::class ClearData
+::method actionPerformed
+	use arg eventObject, slotDir
+
+    argsCl = slotDir~userData~clearSubMenu~getItem(0)
+    codeCl = slotDir~userData~clearSubMenu~getItem(1)
+    saysCl = slotDir~userData~clearSubMenu~getItem(2)
+    returnsCl = slotDir~userData~clearSubMenu~getItem(3)
+    errorsCl = slotDir~userData~clearSubMenu~getItem(4)
+    historyCl = slotDir~userData~clearSubMenu~getItem(5)
+    allCl = slotDir~userData~clearSubMenu~getItem(6)
+    source = eventObject~getSource
+
+    select
+        when source~equals(argsCl) then
+                .mm.dir~argsArea~setText('')
+
+        when source~equals(codeCl) then
+                .mm.dir~codeArea~setText('')
+
+        when source~equals(saysCl) then
+                .mm.dir~saysArea~setText('')
+
+        when source~equals(returnsCl) then
+                .mm.dir~returnsArea~setText('')
+
+        when source~equals(errorsCl) then
+                .mm.dir~errorsArea~setText('')
+
+        when source~equals(historyCl) then
+            do
+                .mm.dir~storage~circq = .circularQueue~new(.mm.dir~historySize)
+                .mm.dir~listmodel~clear
+            end
+
+        when source~equals(allCl) | source~equals(slotDir~userData~fileMenu~getItem(0)) then
+            do
+                .mm.dir~argsArea~setText('')
+                .mm.dir~codeArea~setText('')
+                .mm.dir~saysArea~setText('')
+                .mm.dir~returnsArea~setText('')
+                .mm.dir~errorsArea~setText('')
+                .mm.dir~storage~circq = .circularQueue~new(.mm.dir~historySize)
+                .mm.dir~listmodel~clear
+            end
+        otherwise
+            nop
+    end
+
+    .mm.dir~codeArea~requestFocus
+
+
+/*Copies certain data from the input and output areas to the system clipboard.*/
+::class CopyToClipboard
+::method actionPerformed
+	use arg eventObject, slotDir
+
+    argsCo = slotDir~userData~copySubMenu~getItem(0)
+    codeCo = slotDir~userData~copySubMenu~getItem(1)
+    saysCo = slotDir~userData~copySubMenu~getItem(2)
+    returnsCo = slotDir~userData~copySubMenu~getItem(3)
+    errorsCo = slotDir~userData~copySubMenu~getItem(4)
+    allCo = slotDir~userData~copySubMenu~getItem(5)
+    source = eventObject~getSource
+    codeArea = .mm.dir~codeArea
+    cursorpos = codeArea~getCaretPosition
+
+    select
+        when source~equals(argsCo) then
+            do
+                cp_content  = .mm.dir~argsArea~getText
+		cp_string = .java.awt.datatransfer.StringSelection~new(cp_content)
+                self~toClipboard(cp_string)
+                .local~mm.dir~imsg = 'Arguments Are On ClipBoard'
+            end
+        when source~equals(codeCo) then
+            do
+                cp_content  = codeArea~getText
+		cp_string = .java.awt.datatransfer.StringSelection~new(cp_content)
+                self~toClipboard(cp_string)
+                .local~mm.dir~imsg = 'Code Is On ClipBoard'
+            end
+        when source~equals(saysCo) then
+            do
+                cp_content  = .mm.dir~saysArea~getText
+		cp_string = .java.awt.datatransfer.StringSelection~new(cp_content)
+                self~toClipboard(cp_string)
+                .local~mm.dir~imsg = 'Says Are On ClipBoard'
+            end
+        when source~equals(returnsCo) then
+            do
+                cp_content  = .mm.dir~returnsArea~getText
+		cp_string = .java.awt.datatransfer.StringSelection~new(cp_content)
+                self~toClipboard(cp_string)
+                .local~mm.dir~imsg = 'Returns Are On ClipBoard'
+            end
+        when source~equals(errorsCo) then
+            do
+                cp_content  = .mm.dir~errorsArea~getText
+		cp_string = .java.awt.datatransfer.StringSelection~new(cp_content)
+                self~toClipboard(cp_string)
+                .local~mm.dir~imsg = 'Errors Are On ClipBoard'
+            end
+        when source~equals(allCo) then
+            do
+                allData = 'The Following Output Was Generated With ooRexxTry'.endOfLine||.endOfLine
+                cp_content  = .mm.dir~argsArea~getText
+                allData = alldata||'Arguments'||.endOfLine||cp_content||.endOfLine||'-'~copies(20)||.endOfLine
+
+                cp_content  = codeArea~getText
+                allData = allData||'Code'||.endOfLine||cp_content||.endOfLine||'-'~copies(20)||.endOfLine
+
+                cp_content  = .mm.dir~saysArea~getText
+                allData = allData||'Says'||.endOfLine||cp_content||.endOfLine||'-'~copies(20)||.endOfLine
+
+                cp_content  = .mm.dir~returnsArea~getText
+                allData = allData||'Results'||.endOfLine||cp_content||.endOfLine||'-'~copies(20)||.endOfLine
+
+                cp_content  = .mm.dir~errorsArea~getText
+                allData = allData||'Errors/Information'||.endOfLine||cp_content||.endOfLine||'-'~copies(20)||.endOfLine
+		allData = .java.awt.datatransfer.StringSelection~new(allData)
+                self~toClipboard(allData)
+                .local~mm.dir~imsg = 'All Data Is On ClipBoard'
+            end
+        otherwise
+            nop
+    end
+    .mm.dir~errorsArea~setText(.mm.dir~imsg)
+    codeArea~requestFocus
+
+::method toClipboard
+	use arg data
+
+    systemClip = .java.awt.Toolkit~getDefaultToolkit~getSystemClipboard
+    systemClip~setContents(data, .nil)
+
+
+/*Create a server socket. While flagged for listening, start accepting client
+  connections and manage them in a separate thread.*/
+::class CreateServerSocket
+::method run
+    newSocket=create_socket(.mm.dir~port) -- try to create a server socket
+    if newSocket=.nil then -- force abort
+    do
+        RAISE SYNTAX 40.900 array ("CreateServerSocket::run - cannot create the server socket")
+    end
+
+    -- .mm.dir~srvSock = .bsf~new("java.net.ServerSocket", .mm.dir~port)
+    .mm.dir~srvSock = newSocket
+    .mm.dir~listening = .true
+    do while .mm.dir~listening = .true
+        runnableSocket = BsfCreateRexxProxy(.SocketConnection~new, ,.java.lang.Runnable)
+        .java.lang.Thread~new(runnableSocket)~~bsf.dispatch("start")
+    end
+    .mm.dir~srvSock~close
+
+
+   -- if the server port is not available, ask user for a different one, once!
+::routine create_socket -- rgf, 2011-02-23
+  parse arg port
+
+  signal on syntax name syntax1
+  return .bsf~new("java.net.ServerSocket", port)
+
+syntax1:    -- port probably taken!
+  co1=condition('o') -- fetch condition object
+  signal on syntax name syntax2
+  newPort=.bsf.dialog~inputBox( makeErrorText(co1) -
+            "Please enter a free port number to which the server socket should listen to (1024-65535)", -
+            "Problem: cannot create server socket on port" pp(port)"!",          -
+            "error")
+  if newPort=.nil then return .nil
+
+  if newPort<1024 | newPort>65535 then
+  do
+     res=.bsf.dialog~messageBox(pp(newPort)": is not in the range of '1024' to '65535', aborting!", -
+                            "Invalid port number!", -
+                            "error")
+     return .nil
+  end
+  .mm.dir~port=newPort
+  return .bsf~new("java.net.ServerSocket", newPort)
+
+
+syntax2:
+  co2=condition('o') -- fetch condition object
+  res=.bsf.dialog~messageBox( makeErrorText(co2) , -     -- show (Java-originated) error message
+                            "Could not create server socket!", -
+                            "error")
+  return .nil
+
+::routine makeErrorText
+  use arg co
+  lf="0a"x
+  tmp=""
+  do i over co~traceback
+     if tmp="" then tmp=i
+               else tmp=tmp lf || i
+  end
+  if tmp<>"" then tmp=tmp lf
+  tmp=tmp || "Error" co~rc      co~errortext lf
+  tmp=tmp || "Error" co~code":" co~message lf
+  return tmp lf
+
+
+::class DestinationSwitch
+
+/*Whenever settings in the the monitor option dialog gets approved the method configures the monitors according
+  to the choosen configuration.*/
+::method actionPerformed
+    expose source
+    use arg eventObject, slotDir
+
+    mdialog = slotDir~userData~mdialog
+
+    if eventObject~getSource~equals(slotDir~userData~monitorOkButton) then
+      do
+        incmd = slotDir~userData~ingroup~getSelection~getActionCommand
+        if incmd~equals("indefault") then
+          do
+            .input~destination(.mm.dir~guiInputStream)
+            .mm.dir~inputMonitorDestination = 'GUIInputStream'
+          end
+        else
+          do
+             -- Create a new stream to use a file as the primary source for input arguments
+             filename = slotDir~userData~infiletf~getText
+             .mm.dir~infilestream = .stream~new(filename)
+             .input~destination(.mm.dir~infilestream)
+             .mm.dir~inputMonitorDestination = filename
+          end
+        outcmd = slotDir~userData~outgroup~getSelection~getActionCommand
+        if outcmd~equals("outdefault") then
+          do
+            .output~destination(.mm.dir~guiOutputStream)
+            .mm.dir~outputMonitorDestination = 'GUIOutputStream'
+          end
+        else
+          do
+             -- Create a new stream to write output arguments to a file
+             filename = slotDir~userData~outfiletf~getText
+             if \filename~equals(slotDir~userData~errfiletf~getText) then .mm.dir~outfilestream = .stream~new(filename)
+             else
+               do
+                 if .mm.dir~errfilestream = .nil then .mm.dir~outfilestream = .stream~new(filename)
+                 else .mm.dir~outfilestream = .mm.dir~errfilestream
+               end
+             .output~destination(.mm.dir~outfilestream)
+             .mm.dir~outputMonitorDestination = filename
+          end
+        errcmd = slotDir~userData~errgroup~getSelection~getActionCommand
+        if errcmd~equals("errdefault") then
+          do
+            .error~destination(.mm.dir~guiErrorStream)
+            .mm.dir~errorMonitorDestination = 'GUIErrorStream'
+          end
+        else
+          do
+             -- Write error data to a file
+             filename = slotDir~userData~errfiletf~getText
+             if \filename~equals(slotDir~userData~errfiletf~getText) then .mm.dir~errfilestream = .stream~new(filename)
+             else
+               do
+                 if .mm.dir~outfilestream = .nil then .mm.dir~errfilestream = .stream~new(filename)
+                 else .mm.dir~errfilestream = .mm.dir~outfilestream
+               end
+             .error~destination(.mm.dir~errfilestream)
+             .mm.dir~errorMonitorDestination = filename
+          end
+        source = "ok"
+        mdialog~hide
+      end
+   else
+     do
+       source = "cancel"
+       mdialog~hide
+     end
+
+-- remember previously approved settings
+::method windowActivated
+    expose inputSelection outputSelection errorSelection source
+    use arg , slotDir
+
+    source = ''
+    if slotDir~userData~indefaultrb~isSelected then inputSelection = "default"
+    else inputSelection = "file"
+    if slotDir~userData~outdefaultrb~isSelected then outputSelection = "default"
+    else outputSelection = "file"
+    if slotDir~userData~errdefaultrb~isSelected then errorSelection = "default"
+    else errorSelection = "file"
+
+::method windowDeactivated
+    expose source
+    use arg , slotDir
+
+    if source~equals("ok") then nop
+    else self~resetSelection(slotDir~userData)
+
+-- restore currently approved settings in case of canceled dialog
+::method resetSelection
+    expose inputSelection outputSelection errorSelection
+    use arg userData
+
+    rexxRadioButtonH = userData~rexxRadioButtonH
+    if inputSelection~equals("default") then
+      do
+        userData~indefaultrb~setSelected(.true)
+        userData~infiletf~setText('')
+      end
+    else userData~infilerb~setSelected(.true)
+    if outputSelection~equals("default") then
+      do
+        userData~outdefaultrb~setSelected(.true)
+        userData~outfiletf~setText('')
+      end
+    else userData~outfilerb~setSelected(.true)
+    if errorSelection~equals("default") then
+      do
+        userData~errdefaultrb~setSelected(.true)
+        userData~errfiletf~setText('')
+      end
+    else userData~errfilerb~setSelected(.true)
+
+    rexxRadioButtonH~changeTextFieldState(userData)
+
+::method unknown
+
+
+/* Enables code restoration via double click on the history list and resets
+   the selection color of the code area if necessary */
+::class ClickHandler
+::method mouseClicked
+    use arg eventObject, slotDir
+
+    userData = slotDir~userData
+    comp = eventObject~getComponent
+    if comp~equals(userData~hlist) then
+      do
+        if eventObject~getClickCount == 2 then userData~rexxRestore~restoreData(userData)
+        return
+      end
+    if comp~equals(.mm.dir~codeArea) then if .mm.dir~codeArea~getSelectionColor~equals(.java.awt.Color~red) -
+    then self~resetSelectionColor
+
+::method mousePressed
+    use arg eventObject, slotDir
+
+    comp = eventObject~getComponent
+    if comp~equals(.mm.dir~codeArea) then if .mm.dir~codeArea~getSelectionColor~equals(.java.awt.Color~red) -
+    then self~resetSelectionColor
+
+::method resetSelectionColor
+
+    basicSelectionColor = .mm.dir~inputArea~getSelectionColor
+    .mm.dir~codeArea~setSelectionColor(basicSelectionColor)
+
+::method unknown
+
+
+/* Rexx proxy used to specialize the Java class java.awt.Dimension in ooRexx.*/
+::class Dimensioning
+::method setSize
+    use arg wdivider, hdivider, slotDir		-- slotDir: directory, which is attached to every call of
+						-- a Java method implemented in ooRexx.
+                                                -- Holds information about the method and the java object itself.
+						-- javaObject: messages addressed to the Java super class are sent to this object.
+
+/*Invoke the method in the Java super class.*/
+slotDir~javaObject~setSize_forwardToSuper((.mm.dir~frame~getWidth/wdivider)~format(,0), (.mm.dir~frame~getHeight/hdivider)~format(,0))
+
+
+::class Doc
+::method actionPerformed
+    use arg , slotDir
+/* Check the parent directory of ooRexxTry.rxj for the help document. If not found an error dialog is shown.*/
+
+    if \SysFileExists(.mm.dir~ooRexxTry.pdf) then do
+        msg = "The ooRexxTry.pdf help documentation could not be located." || '0a0a'x -
+              "Tried:" .mm.dir~ooRexxTry.pdf       || '0a0a'x -
+              "Sorry, no help is available."
+        errordialog = .javax.swing.JDialog~new(.mm.dir~frame, "Error")
+        errordialog~setResizable(.false)
+        mainframe = .mm.dir~frame
+        errordialog~setBounds((mainframe~getX+mainframe~getWidth/3)~format(,0), (mainframe~getY+mainframe~getHeight/3)~format(,0), 200, 150)
+        errorpanel = .javax.swing.JPanel~new
+        errorarea = .javax.swing.JTextArea~new(msg)
+        errorarea~setEditable(.false)
+        errorarea~setOpaque(.false)
+        errorpanel~add(errorarea)
+        errordialog~add(errorpanel)
+        errordialog~pack
+        errordialog~~show~~tofront
+        return
+    end
+
+    if .bsf4rexx~opsys3="MAC" then
+       'open' .mm.dir~ooRexxTry.pdf
+    else if .bsf4rexx~opsys3="WIN" then
+       'start "ooRexxTry Online Documentation"' '"'.mm.dir~ooRexxTry.pdf'"'
+    else if .bsf4rexx~opsys3="LIN" then   -- assume some Linux with xdg-open available
+       'xdg-open' .mm.dir~ooRexxTry.pdf
+    else -- unknown/unsupported operating system, just beep
+       .java.awt.Toolkit~getDefaultToolkit~beep
+
+-- Class that dynamically creates a method to take the arguments and execute the code.
+::class executor public
+::method init
+    expose rt_method userData
+    use arg method_name,code, userData
+    .local~mm.dir~Error? = .false
+    signal on syntax name ExecSyntax
+    rt_method = .method~new(method_name, code, .mm.dir~mainPackage)
+return
+
+-- Syntax trap similiar to rexxc.exe
+ExecSynTax:
+    call ppCondition condition("o")
+
+    .java.awt.Toolkit~getDefaultToolkit~beep
+    .local~mm.dir~Error? = .true
+
+    if .mm.dir~infilestream \= .nil then .mm.dir~infilestream~close
+    if .mm.dir~outfilestream \= .nil then .mm.dir~outfilestream~close
+    if \.mm.dir~errorMonitorDestination~equals('GUIErrorStream') then
+      do
+        .mm.dir~errorsArea~setText("An Execution error occurred. Please see "||userData~errfiletf~getText||" for further details.")
+        .mm.dir~errfilestream~close
+     end
+
+return
+
+-- Method that actually runs our code
+::method run
+    expose rt_method say_string userData
+    signal on syntax name RunSyntax
+    .local~mm.dir~run_results = .directory~new
+
+    my_result = ''
+    if \.mm.dir~Error? then
+        do
+            -- Run the Code
+            args = arg(1)
+            call time('r') -- to see how long this takes
+            self~run:super(rt_method, 'a', args)
+
+            -- Test if there was anything returned by the code
+            if symbol('result') = 'VAR' then my_result = result
+            -- Load the says and returns into environment variables for updating the dialog areas
+            .local~mm.dir~run_results['returns'] = my_result
+            .mm.dir~errorsArea~setText("Code Execution Complete")
+            .mm.dir~errorsArea~append(.endOfLine || "Duration:" time('e'))
+            if .local~mm.dir~ooRexx.isExtended then .mm.dir~errorsArea~append(.endOfLine || "#Coactivities: " || .Coactivity~count)
+        end
+
+    .mm.dir~storage~storeData(.mm.dir~code_string)
+
+    if .nil \= .mm.dir~run_results['returns'] then
+        .mm.dir~returnsArea~setText(.mm.dir~run_results['returns'])~string
+
+    if \.mm.dir~silent then        -- Let the user know when code execution is complete
+        .java.awt.Toolkit~getDefaultToolkit~beep
+    .mm.dir~frame~setCursor(.java.awt.Cursor~getDefaultCursor)
+    .mm.dir~codeArea~requestFocus   -- Return the focus to the code input area
+
+    -- Close the file streams after the run or when an error occurred. Allow to immediate (re)view file code or alternate it.
+    if .mm.dir~infilestream \= .nil then .mm.dir~infilestream~close
+    if .mm.dir~outfilestream \= .nil then .mm.dir~outfilestream~close
+    if .mm.dir~errfilestream \= .nil then .mm.dir~errfilestream~close
+
+return
+
+-- Syntax trap for errors in the code
+RunSyntax:
+    call ppCondition condition("o")
+
+     if \.mm.dir~silent then        -- Let the user know when code execution is complete
+        .java.awt.Toolkit~getDefaultToolkit~beep
+    .mm.dir~frame~setCursor(.java.awt.Cursor~getDefaultCursor)
+
+     -- Close the file streams after the run or when an error occurred. Allow to immediate (re)view file code or alternate it.
+    if .mm.dir~infilestream \= .nil then .mm.dir~infilestream~close
+    if .mm.dir~outfilestream \= .nil then .mm.dir~outfilestream~close
+    if \.mm.dir~errorMonitorDestination~equals('GUIErrorStream') then
+      do
+        .mm.dir~errorsArea~setText("A Run error occurred. Please see "||userData~errfiletf~getText||" for further details.")
+        .mm.dir~errfilestream~close
+      end
+    return
+
+/*Runnable, allows code execution to take place in a separate thread.
+  Prevents GUI from being unresponsive while running computationally intensive code.*/
+::class ExecuteThread
+::method init
+   expose name code_array arg_array userData
+   use arg name, code_array, arg_array, userData
+
+::method run
+   expose name code_array arg_array userData
+   exec = .executor~new(name, code_array, userData)
+   exec~run(arg_array)
+   if SysFileExists(.mm.dir~tempFile) then call SysFileDelete .mm.dir~tempFile 		-- Delete temporal code storage if present.
+   return
+
+
+/* Shown when the user wishes to open a file or save data to a file.*/
+::class FileDialog
+::method actionPerformed
+    use arg eventObject, slotDir
+    errorsArea = .mm.dir~errorsArea
+    codeArea = .mm.dir~codeArea
+    source = eventObject~getSource
+    saveAs = slotDir~userData~fileMenu~getItem(2)
+    open = slotDir~userData~fileMenu~getItem(1)
+    frame = .mm.dir~frame
+    fc = .javax.swing.JFileChooser~new
+    fc~setCurrentDirectory( .bsf~new("java.io.File", .mm.dir~preferred_path))
+    -- Create an instance of the Rexx FileFilter class to filter the file list
+     rexxFilter=.RexxFileFilter~new("*.rex;*.rxj;*.rxo;*.txt", .set~of('rex', 'rxj', 'rxo', 'txt'))
+     /* create a RexxProxy, supply the Rexx FileFilter object and demand it to be used as
+        an implemenation of the abstract Java class "javax.swing.filechooser.FileFilter" */
+     rpFilter=BsfCreateRexxProxy(rexxFilter, , .javax.swing.filechooser.FileFilter)
+    fc~setFileFilter(rpFilter)  -- set JFileChooser to use the filter
+    if source~equals(saveAs) then
+        do
+            code_string = codeArea~getText
+            fc~setDialogTitle('ooRexx File Save')
+            returnVal = fc~showSaveDialog(frame)
+
+        end
+    else
+        do
+            fc~setDialogTitle('ooRexx File Open')
+            returnVal = fc~showOpenDialog(frame)
+        end
+
+    /* Confirming the opening/saving process in the dialog, creates a stream and writes/reads,
+       depending on the chosen option, data to/from an external file*/
+    if returnVal == .javax.swing.JFileChooser~approve_option then
+        do
+	    a_file = fc~getSelectedFile
+            filename = a_file~getName
+            ostream = .stream~new(filename)
+            if source~equals(saveAs) then
+                do
+                    ostream~open('Write Replace')
+                    ostream~lineout(codeArea~getText)
+                    ostream~close
+                    .local~imsg        = 'Code Saved As' filename
+                    errorsArea~setText(.mm.dir~imsg)
+                end
+            else
+                do
+                    oarray = ostream~charin(,ostream~chars)~makearray
+                    ostream~close
+                    mycode = ''
+                    do i = 1 to oarray~items
+                        mycode = mycode||oarray[i]
+                        if i < oarray~items then
+                            mycode = mycode||.endOfLine
+                    end
+                    codeArea~setText(mycode)
+
+                    .local~imsg        = 'Code From' filename 'In Code Dialog'
+                    errorsArea~setText(.mm.dir~imsg)
+                end
+        end
+
+
+::class FontManager
+-- This method sets the appropriate font menu item check state.  Checked for selected
+-- and unchecked for unselected.
+::method setFontMenuChecks
+    expose fontMenuIDs userData
+    use arg userData
+
+    -- Iterate over all items in the table unchecking each menu item.  Brute force,
+    -- but easy, and there are not many items. The alternative is to keep track of
+    -- which items are checked and uncheck / check the correct ones.
+    do id over fontMenuIDs~allItems
+        id~setSelected(.false)
+    end
+
+    -- Now check the menu item that matches what font name and size is currently in use.
+    fontMenuIDs[.mm.dir~fontname]~setSelected(.true)
+    fontMenuIDs[.mm.dir~fontsize]~setSelected(.true)
+    self~ReDraw
+
+-- A private help method that sets up things to make working with the font menu easier
+::method fontMenuHelper
+    expose fontMenuIDs userData
+    use arg userData
+
+    -- Create a table that maps menu item IDs to the matching font setting.  Since
+    -- the Table class has the index() method, the mapping works both ways.
+    fontMenuIDs = .Table~new
+
+    i = 0
+    do name over .mm.dir~availableFonts~allItems
+      fontMenuIDs[name]    = userData~fontNameSubMenu~getItem(i)
+      i = i+1
+    end
+
+    fontMenuIDs[8] = userData~fontSizeSubMenu~getItem(0)
+    fontMenuIDs[10] = userData~fontSizeSubMenu~getItem(1)
+    fontMenuIDs[12] = userData~fontSizeSubMenu~getItem(2)
+    fontMenuIDs[14] = userData~fontSizeSubMenu~getItem(3)
+    fontMenuIDs[16] = userData~fontSizeSubMenu~getItem(4)
+    fontMenuIDs[18] = userData~fontSizeSubMenu~getItem(5)
+
+-- Called every time the font is switched
+::method ReDraw
+
+    currentfont = .java.awt.Font~new(.mm.dir~fontname, .java.awt.Font~plain, .mm.dir~fontsize)
+    .mm.dir~argsArea~setFont(currentfont)
+    .mm.dir~codeArea~setFont(currentfont)
+    .mm.dir~inputArea~setFont(currentfont)
+    .mm.dir~saysArea~setFont(currentfont)
+    .mm.dir~returnsArea~setFont(currentfont)
+    .mm.dir~errorsArea~setFont(currentfont)
+
+::method actionPerformed
+    expose fontMenuIDs
+    use arg eventObject, slotDir
+
+    source = eventObject~getSource
+    id = source~getText
+    items = fontMenuIDs~items-6
+    do i = 0 to items-1
+    if source~equals(slotDir~userData~fontNameSubMenu~getItem(i)) then
+      do
+        .local~mm.dir~fontname = id
+        -- Reset the menu item check marks and redraw in the new font.
+        self~setFontMenuChecks(slotDir~userData)
+        return
+      end
+    end
+
+    .local~mm.dir~fontsize = id
+
+    -- Reset the menu item check marks and redraw in the new font.
+    self~setFontMenuChecks(slotDir~userData)
+
+
+--Responsible for building the GUI
+::class GUI
+::method init
+    expose userData
+    use arg userData
+
+    self~setUpProxies
+    self~drawGUI
+
+/*Sets up RexxProxies for the implementation of Java Listener interfaces*/
+::method setUpProxies
+    expose userData
+
+    --Create a Java RexxProxy for controlling the closing of the application
+    rexxCloseEH =.RexxCloseAppEventHandler~new  -- Rexx event handler
+    -- Create Java RexxProxy for the Rexx event handler
+    if .bsf4rexx~opsys="MACOSX" then
+    do
+         -- create a RexxProxy for our Rexx event handler
+       rpCloseEH=BsfCreateRexxProxy(rexxCloseEH, , .java.awt.event.ActionListener, "java.awt.event.WindowListener", "com.apple.eawt.ApplicationListener")
+       .bsf4rexx~apple_application~addApplicationListener(rpCloseEH) -- CMD-Quit-callback (Apple)
+    end
+    else  -- not running under Apple
+    do
+       rpCloseEH=BsfCreateRexxProxy(rexxCloseEH, userData, .java.awt.event.ActionListener, "java.awt.event.WindowListener" )
+    end
+
+    userData~rexxCloseEH=rexxCloseEH   -- save Rexx event handler for later use
+    userData~rpCloseEH=rpCloseEH       -- save RexxProxy for Rexx event handler for later use
+
+    rexxRunEH = .RunIt~new
+    rpRunEH = BsfCreateRexxProxy(rexxRunEH, userData, .java.awt.event.ActionListener)
+    userData~rpRunEH = rpRunEH
+
+    rexxFileDialogEH = .FileDialog~new
+    rpFileDialogEH = BsfCreateRexxProxy(rexxFileDialogEH, userData, .java.awt.event.ActionListener)
+    userData~rpFileDialogEH = rpFileDialogEH
+
+    fontmanager = .FontManager~new
+    userData~fontmanager = fontmanager
+    rpFontManagerEH = BsfCreateRexxProxy(fontmanager, userData, .java.awt.event.ActionListener)
+    userData~rpFontManagerEH = rpFontManagerEH
+
+    rexxCopySubMenuEH = .CopyToClipboard~new
+    rpCopySubMenuEH = BsfCreateRexxProxy(rexxCopySubMenuEH, userData, .java.awt.event.ActionListener)
+    userData~rexxCopySubMenu = rexxCopySubMenuEH
+    userData~rpCopySubMenuEH = rpCopySubMenuEH
+
+    rexxClearEH = .ClearData~new
+    rpClearEH = BsfCreateRexxProxy(rexxClearEH, userData, .java.awt.event.ActionListener)
+    userData~rexxClearEH = rexxClearEH
+    userData~rpClearEH = rpClearEH
+
+    rexxSilentSubMenuEH = .Silence~new
+    rpSilentSubMenuEH = BsfCreateRexxProxy(rexxSilentSubMenuEH, userData, .java.awt.event.ActionListener)
+    userData~rpSilentSubMenuEH = rpSilentSubMenuEH
+
+    savesettings = .SaveSettings~new
+    userData~savesettings = savesettings
+    rpSaveSettingsEH = BsfCreateRexxProxy(savesettings, , .java.awt.event.ActionListener)
+    userData~rpSaveSettingsEH = rpSaveSettingsEH
+
+    settingsdialog = .SettingsDialog~new
+    rpSettingsDialogEH = BsfCreateRexxProxy(settingsdialog, , .java.awt.event.ActionListener)
+    userData~rpSettingsDialogEH = rpSettingsDialogEH
+
+    aboutdialog = .AboutDialog~new
+    rpAboutDialogEH = BsfCreateRexxProxy(aboutdialog, userData, .java.awt.event.ActionListener)
+    userData~rpAboutDialogEH = rpAboutDialogEH
+
+    rpKeyEH = BsfCreateRexxProxy(.KeyObserver~new, userData, .java.awt.event.KeyListener)
+    userData~rpKeyEH = rpKeyEH
+
+::method drawGUI
+    expose userData
+
+    -- Get and leverage the system look and feel if expected to be used and if it is available
+    if .mm.dir~useSystemLookAndFeel then
+        do
+            systemLookAndFeelClassName = .javax.swing.UIManager~getSystemLookAndFeelClassName
+            if systemLookAndFeelClassName \= .nil then .javax.swing.UIManager~setLookAndFeel(systemLookAndFeelClassName)
+            else .mm.dir~useSystemLookAndFeel = .false
+        end
+    -- Create the frame window
+    frame = .javax.swing.JFrame~new(.mm.dir~title)
+
+    if .bsf4rexx~hasEntry("bsf4oorexx_048") then	-- rgf, 2011-02-21
+    do
+-- say "... ooRexxTry.rxj: about to do a 'frame~setIconImage(...)'"
+       frame~setIconImage(.bsf~new("javax.swing.ImageIcon", .bsf4rexx~bsf4oorexx_048)~getImage)
+    end
+
+
+    frame~setIconImage(.bsf~new("javax.swing.ImageIcon", .mm.dir~ooRexxTry.png)~getImage)
+
+
+    gridbag = .java.awt.GridBagLayout~new
+    c = .java.awt.GridBagConstraints~new
+    contentPane = frame~getContentPane
+    contentPane~setLayout(.java.awt.BorderLayout~new)
+    frame~addWindowListener(userData~rpCloseEH) -- add Rexx event handler supplying the RexxProxy of it
+
+
+/*Build the menu bar*/
+/*===============================================*/
+    menuBar = .javax.swing.JMenuBar~new
+    mainpanel = .javax.swing.JPanel~new(gridbag)
+    fileMenu = .javax.swing.JMenu~new('File')
+    fileMenu~setMnemonic(.java.awt.event.KeyEvent~VK_F)
+    	newMenuItem = .javax.swing.JMenuItem~new('New')
+        newMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_N)
+        newMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_N, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+        openMenuItem = .javax.swing.JMenuItem~new('Open ...')
+        openMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_O)
+        openMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_O, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+    	saveAsMenuItem = .javax.swing.JMenuItem~new('Save As ...')
+        saveAsMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_S)
+        saveAsMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_S, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+        runMenuItem = .javax.swing.JMenuItem~new('Run')
+        runMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_R)
+        runMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_R, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+    	exitMenuItem = .javax.swing.JMenuItem~new
+/* rgf, 2011-02-20: let the original "E"xit menu item be used on MacOSX as well; the "Q"uit app menu item gets automatically
+                    added by Apple's Java support for JFRame menus
+        if .mm.dir~opSys = "M" then
+          do
+            exitMenuItem~setLabel("Quit")
+            exitMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_Q)
+            exitMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_Q, .Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+          end
+        else
+*/
+          do
+            exitMenuItem~setLabel("Exit")
+            --JLF disable ctrl-E, too easy to leave the application by mistake.
+            --JLF exitMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_E)
+            --JLF exitMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_E, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+          end
+        newMenuItem~addActionListener(userData~rpClearEH)
+    	runMenuItem~addActionListener(userData~rpRunEH)
+    	saveAsMenuItem~addActionListener(userData~rpFileDialogEH)
+    	openMenuItem~addActionListener(userData~rpFileDialogEH)
+    	exitMenuItem~addActionListener(userData~rpCloseEH)
+    fileMenu~~insert(newMenuItem, 0)~~insert(openMenuItem, 1)~~insert(saveAsMenuItem, 2)~~insert(runMenuItem, 3)~~insert(exitMenuItem, 4)
+    userData~fileMenu = fileMenu
+
+    editMenu = .javax.swing.JMenu~new("Edit")
+    editMenu~setMnemonic(.java.awt.event.KeyEvent~VK_E)
+        copySubMenu = .javax.swing.JMenu~new("Copy")
+        copySubMenu~setMnemonic(.java.awt.event.KeyEvent~VK_C)
+		argsCoMenuItem = .javax.swing.JMenuItem~new("Args")
+		argsCoMenuItem~~addActionListener(userData~rpCopySubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_G)
+		codeCoMenuItem = .javax.swing.JMenuItem~new("Code")
+		codeCoMenuItem~~addActionListener(userData~rpCopySubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_C)
+		saysCoMenuItem = .javax.swing.JMenuItem~new("Says")
+		saysCoMenuItem~~addActionListener(userData~rpCopySubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_S)
+		returnsCoMenuItem = .javax.swing.JMenuItem~new("Returns")
+		returnsCoMenuItem~~addActionListener(userData~rpCopySubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_R)
+		errorsCoMenuItem = .javax.swing.JMenuItem~new("Errors")
+		errorsCoMenuItem~~addActionListener(userData~rpCopySubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_E)
+		allCoMenuItem = .javax.swing.JMenuItem~new("All")
+		allCoMenuItem~~addActionListener(userData~rpCopySubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_A)
+	copySubMenu~~insert(argsCoMenuItem, 0)~~insert(codeCoMenuItem, 1)~~insert(saysCoMenuItem, 2)~~insert(returnsCoMenuItem, 3)~~insert(errorsCoMenuItem, 4) -
+	~~insert(allCoMenuItem, 5)
+        userData~copySubMenu = copySubMenu
+	clearSubMenu = .javax.swing.JMenu~new("Clear")
+        clearSubMenu~setMnemonic(.java.awt.event.KeyEvent~VK_L)
+		argsClMenuItem = .javax.swing.JMenuItem~new("Args")
+		argsClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_G)
+		codeClMenuItem = .javax.swing.JMenuItem~new("Code")
+		codeClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_C)
+		saysClMenuItem = .javax.swing.JMenuItem~new("Says")
+		saysClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_S)
+		returnsClMenuItem = .javax.swing.JMenuItem~new("Returns")
+		returnsClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_R)
+		errorsClMenuItem = .javax.swing.JMenuItem~new("Errors")
+		errorsClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_E)
+                historyClMenuItem = .javax.swing.JMenuItem~new("History")
+		historyClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_H)
+		allClMenuItem = .javax.swing.JMenuItem~new("All")
+		allClMenuItem~~addActionListener(userData~rpClearEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_A)
+	clearSubMenu~~insert(argsClMenuItem, 0)~~insert(codeClMenuItem, 1)~~insert(saysClMenuItem, 2)~~insert(returnsClMenuItem, 3)~~insert(errorsClMenuItem, 4) -
+	~~insert(historyClMenuItem, 5)~~insert(allClMenuItem, 6)
+	userData~clearSubMenu = clearSubMenu
+
+    editMenu~~add(copySubMenu)~~add(clearSubMenu)
+
+    settingsMenu = .javax.swing.JMenu~new("Settings")
+    settingsMenu~setMnemonic(.java.awt.event.KeyEvent~VK_S)
+        fontNameSubMenu = .javax.swing.JMenu~new("FontName")
+        fontNameSubMenu~setMnemonic(.java.awt.event.KeyEvent~VK_F)
+
+        i = 0
+        do name over .mm.dir~availableFonts~allItems
+         menuItem = .javax.swing.JCheckBoxMenuItem~new(name)
+         menuItem~addActionListener(userData~rpFontManagerEH)
+         fontNameSubMenu~insert(menuItem, i)
+         i = i+1
+        end
+
+	userData~fontNameSubMenu = fontNameSubMenu
+    	fontSizeSubMenu = .javax.swing.JMenu~new("FontSize")
+        fontSizeSubMenu~setMnemonic(.java.awt.event.KeyEvent~VK_N)
+    		fontSize1CheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("8")
+                fontSize1CheckBoxMenuItem~addActionListener(userData~rpFontManagerEH)
+		fontSize2CheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("10")
+                fontSize2CheckBoxMenuItem~addActionListener(userData~rpFontManagerEH)
+    		fontSize3CheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("12")
+                fontSize3CheckBoxMenuItem~addActionListener(userData~rpFontManagerEH)
+    		fontSize4CheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("14")
+                fontSize4CheckBoxMenuItem~addActionListener(userData~rpFontManagerEH)
+    		fontSize5CheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("16")
+                fontSize5CheckBoxMenuItem~addActionListener(userData~rpFontManagerEH)
+    		fontSize6CheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("18")
+                fontSize6CheckBoxMenuItem~addActionListener(userData~rpFontManagerEH)
+    	fontSizeSubMenu~~insert(fontSize1CheckBoxMenuItem, 0)~~insert(fontSize2CheckBoxMenuItem, 1)~~insert(fontSize3CheckBoxMenuItem, 2) -
+    	~~insert(fontSize4CheckBoxMenuItem, 3)~~insert(fontSize5CheckBoxMenuItem, 4)~~insert(fontSize6CheckBoxMenuItem, 5)
+	userData~fontSizeSubMenu = fontSizeSubMenu
+        monitorMenuItem = .javax.swing.JMenuItem~new("Set Monitors ...")
+        monitorMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_M)
+        socketMenuItem = .javax.swing.JMenuItem~new("Socket Config ...")
+        socketMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_O)
+        historyMenuItem = .javax.swing.JMenuItem~new("Set History Capacity ...")
+        historyMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_H)
+	silentSubMenu = .javax.swing.JMenu~new("Silent")
+        silentSubMenu~setMnemonic(.java.awt.event.KeyEvent~VK_I)
+		silentNoCheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("No")
+		silentNoCheckBoxMenuItem~~addActionListener(userData~rpSilentSubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_N)
+		silentYesCheckBoxMenuItem = .javax.swing.JCheckBoxMenuItem~new("Yes")
+		silentYesCheckBoxMenuItem~~addActionListener(userData~rpSilentSubMenuEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_Y)
+	silentSubMenu~~insert(silentNoCheckBoxMenuItem, 0)~~insert(silentYesCheckBoxMenuItem, 1)
+	userData~silentSubMenu = silentSubMenu
+        saveSettingsMenuItem = .javax.swing.JMenuItem~new("Save Settings")
+        saveSettingsMenuItem~~addActionListener(userData~rpSaveSettingsEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_S)
+        currentSettingsMenuItem = .javax.swing.JMenuItem~new("Current Settings ...")
+        currentSettingsMenuItem~~addActionListener(userData~rpSettingsDialogEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_C)
+    settingsMenu~~add(fontNameSubMenu)~~add(fontSizeSubMenu)~~addSeparator~~add(silentSubMenu)~~addSeparator~~add(historyMenuItem) -
+    ~~add(monitorMenuItem)~~add(socketMenuItem)~~addSeparator~~add(saveSettingsMenuItem)~~add(currentSettingsMenuItem)
+
+    helpMenu = .javax.swing.JMenu~new("Help")
+    helpMenu~setMnemonic(.java.awt.event.KeyEvent~VK_P)
+	aboutMenuItem = .javax.swing.JMenuItem~new("About ...")
+        aboutMenuItem~~addActionListener(userData~rpAboutDialogEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_A)
+    helpMenu~add(aboutMenuItem)
+
+    menuBar~add(fileMenu)
+    menuBar~add(editMenu)
+    menuBar~add(settingsMenu)
+    menuBar~add(helpMenu)
+/*===============================================*/
+
+
+/*Text input and output area units*/
+/*===============================================*/
+    codepanel = self~createFrameComponent("Code", "white", "blue", "code")
+    codeScrollPane = .javax.swing.JScrollPane~new(.mm.dir~codeArea, .javax.swing.JScrollPane~vertical_scrollbar_always, .javax.swing.JScrollPane~horizontal_scrollbar_always)
+    .mm.dir~codeArea~addMouseListener(BsfCreateRexxProxy(.ClickHandler~new, userData, .java.awt.event.MouseListener))
+
+    inputpanel = self~createFrameComponent("Input", "black", "cyan", "input")
+    inputScrollPane = .javax.swing.JScrollPane~new(.mm.dir~inputArea, .javax.swing.JScrollPane~vertical_scrollbar_always, .javax.swing.JScrollPane~horizontal_scrollbar_always)
+    .mm.dir~inputArea~addKeyListener(userData~rpKeyEH)
+
+    argspanel = self~createFrameComponent("Arguments", "white", "magenta", "args")
+    argsScrollPane = .javax.swing.JScrollPane~new(.mm.dir~argsArea, .javax.swing.JScrollPane~vertical_scrollbar_always, .javax.swing.JScrollPane~horizontal_scrollbar_always)
+
+    returnspanel = self~createFrameComponent("Returns", "black", "green", "returns")
+    returnsScrollPane = .javax.swing.JScrollPane~new(.mm.dir~returnsArea, .javax.swing.JScrollPane~vertical_scrollbar_always, .javax.swing.JScrollPane~horizontal_scrollbar_always)
+
+    sayspanel = self~createFrameComponent("Output/Says", "black", "yellow", "says")
+    saysScrollPane = .javax.swing.JScrollPane~new(.mm.dir~saysArea, .javax.swing.JScrollPane~vertical_scrollbar_always, .javax.swing.JScrollPane~horizontal_scrollbar_always)
+    .mm.dir~saysArea~~setWrapStyleWord(.true)~~setText("This area will receive the output of your commands." "Try 'say hello world' for example.")
+
+    errorspanel = self~createFrameComponent("Errors/Information", "white", "red", "errors")
+    errorsScrollPane = .javax.swing.JScrollPane~new(.mm.dir~errorsArea, .javax.swing.JScrollPane~vertical_scrollbar_always, .javax.swing.JScrollPane~horizontal_scrollbar_always)
+/*===============================================*/
+
+    runButton = .javax.swing.JButton~new("Run")			-- Start code execution
+    runButton~~addActionListener(userData~rpRunEH)~~setMnemonic(.java.awt.event.KeyEvent~VK_R)
+
+    exitButton = .javax.swing.JButton~new			-- Close the application
+    exitButton~~addActionListener(userData~rpCloseEH)
+    exitButton~~setLabel("Exit")~~setMnemonic(.java.awt.event.KeyEvent~VK_E)
+
+    historybutton = .javax.swing.JButton~new('Get History')		-- Retrieve the code execution history
+    historybutton~~setEnabled(.false)~~setMnemonic(.java.awt.event.KeyEvent~VK_H)
+    userData~historybutton = historybutton
+    .local~mm.dir~historybutton = historybutton
+
+    buttonpanel = .javax.swing.JPanel~new
+    buttonpanel~~add(runButton)~~add(historybutton)~~add(exitButton)
+
+
+/*Define the layout of the GUI main components*/
+/*===============================================*/
+    c~fill = .java.awt.GridBagConstraints~both
+    c~weightx = 1.0
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(3,3,0,3)
+    gridbag~setConstraints(codepanel, c)
+    c~weighty = 0.7
+    c~insets = .java.awt.Insets~new(5,10,10,10)
+    gridbag~setConstraints(codeScrollPane, c)
+    c~gridwidth = .java.awt.GridBagConstraints~relative
+    c~weighty = 0.0
+    c~insets = .java.awt.Insets~new(0,3,5,5)
+    gridbag~setConstraints(inputpanel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(0,3,5,3)
+    gridbag~setConstraints(argspanel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~relative
+    c~weighty = 0.2
+    c~insets = .java.awt.Insets~new(0,10,10,12)
+    c~gridheight = 3
+    gridbag~setConstraints(inputScrollPane, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~weighty = 0.2
+    c~insets = .java.awt.Insets~new(0,10,10,10)
+    c~gridheight = 1
+    gridbag~setConstraints(argsScrollPane, c)
+    c~weighty = 0.0
+    c~insets = .java.awt.Insets~new(0,3,0,3)
+    gridbag~setConstraints(returnspanel, c)
+    c~insets = .java.awt.Insets~new(5,10,10,10)
+    c~weighty = 0.2
+    gridbag~setConstraints(returnsScrollPane, c)
+    c~weighty = 0.0
+    c~insets = .java.awt.Insets~new(0,3,0,3)
+    gridbag~setConstraints(sayspanel, c)
+    c~weighty = 0.5
+    c~insets = .java.awt.Insets~new(5,10,5,10)
+    gridbag~setConstraints(saysScrollPane, c)
+    c~insets = .java.awt.Insets~new(5,3,0,3)
+    c~weighty = 0.0
+    gridbag~setConstraints(errorspanel, c)
+    c~weighty = 0.3
+    c~insets = .java.awt.Insets~new(5,10,0,10)
+    gridbag~setConstraints(errorsScrollPane, c)
+    c~fill = .java.awt.GridBagConstraints~none
+    c~weighty = 0.0
+    mainpanel~~add(codepanel)~~add(codeScrollPane)~~add(inputpanel)~~add(argspanel)~~add(inputScrollPane)~~add(argsScrollPane) -
+    ~~add(returnspanel)~~add(returnsScrollPane)~~add(sayspanel)~~add(saysScrollPane)~~add(errorspanel)~~add(errorsScrollPane)
+    c~insets = .java.awt.Insets~new(10,10,10,10)
+    gridbag~setConstraints(buttonpanel, c)
+    mainpanel~add(buttonpanel)
+/*===============================================*/
+
+    frame~getContentPane~add(mainpanel)
+    frame~setJMenuBar(menuBar)
+    .local~mm.dir~frame = frame
+    rexxMonitorEH = .MonitorDialog~new(userData)
+    rpMonitorEH = BsfCreateRexxProxy(rexxMonitorEH, , .java.awt.event.ActionListener)
+    userData~rpMonitorEH = rpMonitorEH
+    monitorMenuItem~addActionListener(userData~rpMonitorEH)
+    rpSocketEH = BsfCreateRexxProxy(.SocketDialog~new(userData), , .java.awt.event.ActionListener)
+    socketMenuItem~addActionListener(rpSocketEH)
+    rpHistoryConfigEH = BsfCreateRexxProxy(.HistoryConfigDialog~new(userData), , .java.awt.event.ActionListener)
+    historyMenuItem~addActionListener(rpHistoryConfigEH)
+    rexxHistoryEH = .HistoryDialog~new(userData)
+    rpHistoryEH = BsfCreateRexxProxy(rexxHistoryEH, userData, .java.awt.event.ActionListener)
+    historybutton~addActionListener(rpHistoryEH)
+    userData~fontmanager~fontMenuHelper(userData)
+    userData~fontmanager~setFontMenuChecks(userData)
+    if \.mm.dir~silent then silentNoCheckBoxMenuItem~setSelected(.true)
+    else silentYesCheckBoxMenuItem~setSelected(.true)
+    frame~pack
+
+    if \.mm.dir~useDefault then
+        do
+            props = .mm.dir~props
+            -- Read oorexxtry.rc position & size the dialog based on its values
+            xpos = props~getProperty("Xpos")
+            ypos = props~getProperty("Ypos")
+            width = props~getProperty("Width")
+            height = props~getProperty("Height")
+            if xpos = 'ERROR:' | xpos = .nil | ypos = 'ERROR:' | ypos = .nil | width = 'ERROR:' | width = .nil | height = 'ERROR:' | height = .nil then
+                frame~setBounds(.mm.dir~xpos, .mm.dir~ypos, .mm.dir~width, .mm.dir~height)
+            else
+                frame~setBounds(xpos, ypos, width, height)
+        end
+    else
+            frame~setBounds(.mm.dir~xpos, .mm.dir~ypos, .mm.dir~width, .mm.dir~height)
+    .mm.dir~frame = frame
+
+/*Define the minimum and preferred sizes of the main visiual components of the GUI.
+  Although the gridbag layout constraints meet most of the layout design requirements,
+  the following code block ensures smoother resizing.*/
+/*===============================================*/
+
+    /*Rexx proxy class for Java class spezialization in ooRexx;
+      first argument: Java super class
+      second argument: optional new class name, .nil for default
+      third argument: list of methods to specialize*/
+    dimpc = bsf.createProxyClass("java.awt.Dimension", .nil, "setSize")
+    dimrp = BsfCreateRexxProxy(.Dimensioning~new)		-- Proxy object, receives method call
+
+    /*Create an instance of the proxy class by supplying the proxy object as first argument followed by
+      all other necessary arguments the Java constructor would take.*/
+    dim = dimpc~new(dimrp)~~setSize(1, 40)
+    codepanel~~setPreferredSize(dim)~~setMinimumSize(dim)
+    sayspanel~~setPreferredSize(dim)~~setMinimumSize(dim)
+    errorspanel~~setPreferredSize(dim)~~setMinimumSize(dim)
+    dim2 = dimpc~new(dimrp)~~setSize(1, 4)
+    codeScrollPane~~setPreferredSize(dim2)~~setMinimumSize(dim2)
+    dim3 = dimpc~new(dimrp)~~setSize(3, 40)
+    inputpanel~~setPreferredSize(dim3)~~setMinimumSize(dim3)
+    argspanel~~setPreferredSize(dim3)~~setMinimumSize(dim3)
+    returnspanel~~setPreferredSize(dim3)~~setMinimumSize(dim3)
+    dim4 = dimpc~new(dimrp)~~setSize(3, 6)
+    inputScrollPane~~setPreferredSize(dim4)~~setMinimumSize(dim4)
+    dim5 = dimpc~new(dimrp)~~setSize(3, 12)
+    argsScrollPane~~setPreferredSize(dim5)~~setMinimumSize(dim5)
+    returnsScrollPane~~setPreferredSize(dim5)~~setMinimumSize(dim5)
+    dim6 = dimpc~new(dimrp)~~setSize(1, 6)
+    saysScrollPane~~setPreferredSize(dim6)~~setMinimumSize(dim6)
+    errorsScrollPane~~setPreferredSize(dim6)~~setMinimumSize(dim6)
+/*===============================================*/
+
+    .mm.dir~codeArea~requestFocus
+    .mm.dir~frame~~show~~tofront
+
+
+-- Custom panel building procedure
+::method createFrameComponent
+    use arg text, fgcolor, bgcolor, type
+
+    panel = .javax.swing.JPanel~new(.java.awt.BorderLayout~new)
+    label = .javax.swing.JLabel~new(text)
+    label~setHorizontalAlignment(.javax.swing.JLabel~center)
+    interpret "label~setForeground(.java.awt.Color~"||fgcolor||")"
+    interpret "panel~setBackground(.java.awt.Color~"||bgcolor||")"
+    panel~add(label, .java.awt.BorderLayout~north)
+    area = .javax.swing.JTextArea~new
+    if type \= "args" & type \= "code" then area~setEditable(.false)
+    area~setLineWrap(.true)
+    interpret ".local~mm.dir~"||type||"Area" "= area"
+    return panel
+
+
+/*Implements keyPressed method from Java KeyListener.
+  Listens for pressed Enter keys on the "input" area.
+  When pressed the control variable of the GUIInputStream is set to .true
+  and program execution is no longer stopped.
+  Also enhances arrow key navigation on the history list.*/
+::class KeyObserver
+::method keyPressed
+    use arg eventObject, slotDir
+
+    userData = slotDir~userData
+    comp = eventObject~getComponent
+    key = eventObject~getKeyCode
+    if key == .java.awt.event.KeyEvent~VK_ENTER then
+      do
+        if comp~equals(.mm.dir~inputArea) then
+          do
+            eventObject~consume
+            .mm.dir~guiInputStream~setControlVar(.true)
+          end
+        if comp~equals(userData~hlist) then userData~rexxRestore~restoreData(userData)
+      end
+
+   if comp~equals(userData~hlist) then
+     do
+       hlist = userData~hlist
+       index = hlist~getSelectedIndex
+       listSize = hlist~getModel~getSize
+       if (key == .java.awt.event.KeyEvent~VK_DOWN | key == .java.awt.event.KeyEvent~VK_RIGHT) & index == (listSize-1) then
+         do
+           eventObject~consume
+           hlist~~setSelectedIndex(0)~~ensureIndexIsVisible(0)
+         end
+       if (key == .java.awt.event.KeyEvent~VK_UP | key == .java.awt.event.KeyEvent~VK_LEFT) & index == 0 then
+         do
+           eventObject~consume
+           hlist~~setSelectedIndex(listSize-1)~~ensureIndexIsVisible(listSize-1)
+         end
+     end
+
+::method unknown
+
+
+/* Try to attach to Java with the thread that has an established connection from Rexx to Java.
+   If already attached a syntax error will be raised. Returns .true if an attach was carried out,
+   .false else.
+*/
+::routine attach2java public
+  signal on syntax
+  call BsfAttachToTid .mm.dir~start.tid
+  return .true
+syntax:
+  return .false
+
+
+/* Move error related output from the command prompt to the "errors" area of the GUI*/
+::class GUIErrorStream subclass stream
+::method lineout
+    use arg output
+
+    call attach2java       -- make sure we can interact with Java on this thread
+
+    .mm.dir~errorsArea~append(output)
+    .mm.dir~errorsArea~append(.endOfLine)
+    .mm.dir~errorsArea~setCaretPosition(.mm.dir~errorsArea~getDocument~getLength)
+    if .mm.dir~enableErrorSocket & .mm.dir~clientConnected then .mm.dir~out~println("[.ERROR] "||output)
+    return 0
+
+
+/* A stream that simulates the behavior of the standard input stream and thus substitutes it
+   as destination object of the .input monitor.
+   Allows to gather keyboard input at the "input" area of the GUI instead of the command prompt.*/
+::class GUIInputStream subclass stream
+::method init
+   expose vk_enterPressed		-- control variable; set to .true when the Return key was pressed
+   vk_enterPressed = .false
+
+::method setControlVar
+   expose vk_enterPressed
+   use arg cv
+
+   vk_enterPressed = cv
+
+::method charIn
+    expose vk_enterPressed
+    use arg start, length
+
+    call attach2java       -- make sure we can interact with Java on this thread
+
+    -- look for bad arguments
+    if \start~equals('START') then raise syntax 93.958
+    if length == 0 then return '0a'x
+    if length < 0 then raise syntax 88.907 array (2, 0, 4294967295, length)
+    inputArea = .mm.dir~inputArea
+    if .mm.dir~clientConnected & .mm.dir~enableInputSocket then
+        do
+          .mm.dir~socketInputRequired = .true
+          guard on when vk_enterPressed \= .false
+          charString = inputArea~getText
+          inputArea~setText('')
+          .mm.dir~socketInputRequired = .false
+          self~setControlVar(.false)
+        end
+    else if inputArea~getText~length > 0 then charString = inputArea~getText
+    else
+      do
+        inputArea~~setEditable(.true)~~requestFocus		-- Move the focus for keyboard input to the "input" area
+        guard on when vk_enterPressed \= .false			-- Halt program flow until control variable is set to .true
+        charString = inputArea~getText				-- Read the text content from the "input" area
+        self~setControlVar(.false)
+        inputArea~setEditable(.false)
+      end
+    if \length~equals('LENGTH') then
+      do
+        input = charString~substr(1, length)
+        if \.mm.dir~clientConnected & \ .mm.dir~enableInputSocket then inputArea~setText(charString~substr(length+1))
+      end
+    else
+      do
+        input = charString~subchar(1)
+        if \.mm.dir~clientConnected & \.mm.dir~enableInputSocket then inputArea~setText(charString~substr(2))
+      end
+    return input
+
+::method lineIn
+    expose vk_enterPressed
+    use arg line, count
+
+    call attach2java       -- make sure we can interact with Java on this thread
+
+    -- look for bad arguments
+    if \line~equals('LINE') then raise syntax 93.958
+    if count == 0 then return '0a'x
+    if count < 0 then raise syntax 88.907 array (2, 0, 4294967295, count)
+    inputArea = .mm.dir~inputArea
+    if count == 1 | count~equals('COUNT') then
+      if .mm.dir~clientConnected & .mm.dir~enableInputSocket then
+        do
+          .mm.dir~socketInputRequired = .true
+          guard on when vk_enterPressed \= .false
+          input = inputArea~getText
+          inputArea~setText('')
+          .mm.dir~socketInputRequired = .false
+          self~setControlVar(.false)
+          return input
+        end
+      else
+        do
+          text = inputArea~getText
+          if text~length > 0 then
+            do
+              input = text
+              inputArea~setText('')
+              return input
+            end
+          else
+            do
+              inputArea~~setEditable(.true)~~requestFocus		-- move the focus for keyboard input to the "input" area
+              guard on when vk_enterPressed \= .false		-- Halt program flow until control variable is set to .true
+              input = inputArea~getText				-- Read the text content from the "input" area
+              inputArea~setText('')
+              self~setControlVar(.false)
+              inputArea~setEditable(.false)
+              return input
+           end
+        end
+   else raise syntax 93.0
+
+
+/*Substitues the standard output stream of the .output monitor.
+  Say, charout and lineout have to be overwritten to reflect .stdout functionality.*/
+::class GUIOutputStream subclass stream
+::method say
+    use arg output
+
+    call attach2java       -- make sure we can interact with Java on this thread
+
+    .mm.dir~saysArea~append(output)
+    .mm.dir~saysArea~append(.endOfLine)
+    .mm.dir~saysArea~setCaretPosition(.mm.dir~saysArea~getDocument~getLength)
+    if .mm.dir~enableOutputSocket & .mm.dir~clientConnected
+    then .mm.dir~out~println("[.OUTPUT] "||output)		        	-- Write output data also to client
+		                                                                      	-- connected via socket in case of
+											-- enabled direct output.
+    return 0
+
+::method charout
+    use arg output, start
+
+    call attach2java       -- make sure we can interact with Java on this thread
+
+    if \start~equals('START') then raise syntax 93.958
+    if output~equals('OUTPUT') then
+      do
+        .error~lineout("Please specify a character to write.")
+        return 0
+      end
+    .mm.dir~saysArea~append(output)
+    .mm.dir~saysArea~setCaretPosition(.mm.dir~saysArea~getDocument~getLength)
+    if .mm.dir~enableOutputSocket & .mm.dir~clientConnected -
+    then .mm.dir~out~println("[.OUTPUT] "||output)
+
+    return 0
+
+::method lineout
+    use arg output, line
+
+    call attach2java       -- make sure we can interact with Java on this thread
+
+    if output~equals('OUTPUT') then
+      do
+        .error~lineout("Please specify a string to write.")
+        return 0
+      end
+    if \line~equals('LINE') then raise syntax 93.958
+    .mm.dir~saysArea~append(output)
+    .mm.dir~saysArea~append(.endOfLine)
+    .mm.dir~saysArea~setCaretPosition(.mm.dir~saysArea~getDocument~getLength)
+    if .mm.dir~enableOutputSocket & .mm.dir~clientConnected -
+    then .mm.dir~out~println("[.OUTPUT] "||output)
+
+    return 0
+
+
+::class HistoryConfig
+
+/*Resize the circular queue to be able to contain items of the new size.*/
+::method actionPerformed
+    expose source
+    use arg eventObject, slotDir
+
+    hcdialog = slotDir~userData~hcdialog
+    if eventObject~getSource~equals(slotDir~userData~historyOkButton) then
+      do
+        ordercmd = slotDir~userData~ordergroup~getSelection~getActionCommand
+        newSize = slotDir~userData~newSizetf~getText
+        if \newSize~equals('') then
+          do
+            if ordercmd~equals("fifo") then .mm.dir~storage~makeQueue(newSize, F)
+            else .mm.dir~storage~makeQueue(newSize, L)
+
+            .mm.dir~historySize = newSize
+
+            source = "ok"
+         end
+       hcdialog~hide
+    end
+    else
+      do
+        source = "cancel"
+        hcdialog~hide
+      end
+
+::method unknown
+
+-- remember previously approved settings
+::method windowActivated
+    expose orderSelection source
+    use arg , slotDir
+
+    source = ''
+    if slotDir~userData~fiforb~isSelected then orderSelection = "fifo"
+    else orderSelection = "lifo"
+    slotDir~userData~currentSizetf~setText(.mm.dir~historySize)
+
+::method windowDeactivated
+    expose source
+    use arg , slotDir
+
+    if source~equals("ok") then slotDir~userData~newSizetf~setText('')
+    else self~resetSelection(slotDir~userData)
+
+-- restore currently approved settings in case of canceled dialog
+::method resetSelection
+    expose orderSelection
+    use arg userData
+
+    if orderSelection~equals("fifo") then userData~fiforb~setSelected(.true)
+    else userData~liforb~setSelected(.true)
+    userData~currentSizetf~setText(.mm.dir~historySize)
+    userData~newSizetf~setText('')
+
+
+/* Draw the dialog for the configuration of the history*/
+::class HistoryConfigDialog
+::method init
+    expose hcdialog
+    use arg userData
+
+    .mm.dir~isEnabled = .false
+
+    mainframe = .mm.dir~frame
+    hcdialog = .javax.swing.JDialog~new(mainframe, 'History Capacity Configuration')
+    rpHCEH = BsfCreateRexxProxy(.HistoryConfig~new, userData, "java.awt.event.WindowListener", .java.awt.event.ActionListener)
+    hcdialog~addWindowListener(rpHCEH)
+    hcdialog~setResizable(.false)
+    contentpane = hcdialog~getContentPane
+    gridbag = .java.awt.GridBagLayout~new
+    c = .java.awt.GridBagConstraints~new
+    contentpane~setLayout(gridbag)
+    desarea = .javax.swing.JTextArea~new("Decrease or increase the amount of items the code execution history can hold. If the previous size" -
+                              " was larger than the new size, any extra items are removed in the specified order."||'0a'x '0a'x|| -
+                              'Select "Fifo" to keep the most recently added items or "Lifo" to remove them.')
+    desarea~~setOpaque(.false)~~setEditable(.false)~~setLineWrap(.true)~~setWrapStyleWord(.true)~~setFont(.java.awt.Font~new(.mm.dir~fontname, .java.awt.Font~plain, 12))
+    currentSizeLabel = .javax.swing.JLabel~new("Current Size")
+    currentSizetf = .javax.swing.JTextField~new(.mm.dir~historySize, 5)
+    currentSizetf~setEditable(.false)
+    userData~currentSizetf = currentSizetf
+    newSizeLabel = .javax.swing.JLabel~new("New Size")
+    newSizetf = .javax.swing.JTextField~new('', 5)
+    userData~newSizetf = newSizetf
+    orderlabel = .javax.swing.JLabel~new("Resize Order")
+    ordergroup = .javax.swing.ButtonGroup~new
+    fiforb = .javax.swing.JRadioButton~new('Fifo')
+    fiforb~~setActionCommand("fifo")~~setSelected(.true)
+    userData~fiforb = fiforb
+    liforb = .javax.swing.JRadioButton~new('Lifo')
+    liforb~setActionCommand("lifo")
+    userData~liforb = liforb
+    ordergroup~~add(fiforb)~~add(liforb)
+    orderpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    orderpanel~~add(fiforb)~~add(liforb)
+    okbutton = .javax.swing.JButton~new('OK')
+    okbutton~addActionListener(rpHCEH)
+    cancelbutton = .javax.swing.JButton~new('Cancel')
+    cancelbutton~addActionListener(rpHCEH)
+    userData~historyOkButton = okbutton
+    userData~historyCancelButton = cancelbutton
+    buttonpanel = .javax.swing.JPanel~new
+    buttonpanel~~add(okbutton)~~add(cancelbutton)
+    userData~hcdialog = hcdialog
+
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~fill = .java.awt.GridBagConstraints~horizontal
+    c~insets = .java.awt.Insets~new(5,0,10,5)
+    gridbag~setConstraints(desarea, c)
+    c~fill = .java.awt.GridBagConstraints~none
+    c~anchor = .java.awt.GridBagConstraints~west
+    c~gridwidth = 1
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    gridbag~setConstraints(currentSizeLabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    gridbag~setConstraints(currentSizetf, c)
+    c~gridwidth = 1
+    c~insets = .java.awt.Insets~new(5,0,0,0)
+    gridbag~setConstraints(newSizeLabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(10,0,0,210)
+    gridbag~setConstraints(newSizetf, c)
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    c~gridwidth = 1
+    gridbag~setConstraints(orderlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    gridbag~setConstraints(orderpanel, c)
+    c~anchor = .java.awt.GridBagConstraints~center
+    c~insets = .java.awt.Insets~new(10,0,0,0)
+    gridbag~setConstraints(buttonpanel, c)
+
+    contentpane~~add(desarea)~~add(currentSizeLabel)~~add(currentSizetf)~~add(newSizeLabel)~~add(newSizetf)~~add(orderlabel)~~add(orderpanel)~~add(buttonpanel)
+    userData~ordergroup = ordergroup
+    hcdialog~pack
+
+::method actionPerformed
+    expose hcdialog
+    use arg , slotDir
+
+    mainframe = .mm.dir~frame
+    hcdialog~setBounds((mainframe~getX+mainframe~getWidth/3)~format(,0), (mainframe~getY+mainframe~getHeight/3)~format(,0), 370, 310)
+    hcdialog~~show~~tofront
+
+
+/*Draws the code execution history dialog*/
+::class HistoryDialog
+::method init
+    expose hdialog
+    use arg userData
+
+    mainframe = .mm.dir~frame
+    hdialog = .javax.swing.JDialog~new(mainframe, 'Code Execution History')
+    contentpane = hdialog~getContentPane
+    gridbag = .java.awt.GridBagLayout~new
+    c = .java.awt.GridBagConstraints~new
+    contentpane~setLayout(gridbag)
+
+    historypanel = .javax.swing.JPanel~new
+    historylabel = .javax.swing.JLabel~new('History')
+    historylabel~setHorizontalTextPosition(.javax.swing.JLabel~center)
+    historylabel~setForeground(.java.awt.Color~black)
+    historypanel~setBackground(.java.awt.Color~orange)
+    historypanel~add(historylabel)
+
+    listmodel = .javax.swing.DefaultListModel~new
+    userData~listmodel = listmodel
+    .local~mm.dir~listmodel = listmodel
+
+    lcrRexxProxy = BsfCreateRexxProxy(.CellRenderer~new, userData, "javax.swing.ListCellRenderer") -- implement interface
+    hlist = .javax.swing.JList~new(listmodel)
+    hlist~setCellRenderer(lcrRexxProxy)			-- assign custom cell renderer
+    hlist~setSelectionMode(.javax.swing.ListSelectionModel~single_selection)
+    hlist~setLayoutOrientation(.javax.swing.JList~vertical)
+    hlist~setVisibleRowCount(-1)
+    hlist~addMouseListener(BsfCreateRexxProxy(.ClickHandler~new, userData, .java.awt.event.MouseListener))
+    hlist~addKeyListener(BsfCreateRexxProxy(.KeyObserver~new, userData, .java.awt.event.KeyListener))
+    hScrollPane = .javax.swing.JScrollPane~new(hlist, .javax.swing.JScrollPane~vertical_scrollbar_as_needed, .javax.swing.JScrollPane~horizontal_scrollbar_never)
+    im = hlist~getInputMap(.javax.swing.JComponent~WHEN_FOCUSED)
+    im~put(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_RIGHT, 0), "selectNextRow")
+    im~put(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_LEFT, 0), "selectPreviousRow")
+    hlist~setInputMap(.javax.swing.JComponent~WHEN_FOCUSED, im)
+    userData~hlist = hlist
+
+    restorebutton = .javax.swing.JButton~new("Restore")
+    rexxRestore = .Restore~new
+    userData~rexxRestore = rexxRestore
+    restorebutton~addActionListener(BsfCreateRexxProxy(rexxRestore, userData, .java.awt.event.ActionListener))
+    restorebutton~setEnabled(.false)
+    restorebutton~setMnemonic(.java.awt.event.KeyEvent~VK_E)
+    userData~restorebutton = restorebutton
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~weightx = 1.0
+    c~fill = .java.awt.GridBagConstraints~both
+    c~insets = .java.awt.Insets~new(5,2,0,2)
+    gridbag~setConstraints(historypanel, c)
+    c~weighty = 0.9
+    c~insets = .java.awt.Insets~new(10,10,5,10)
+    gridbag~setConstraints(hScrollPane, c)
+    c~weighty = 0.0
+    c~fill = .java.awt.GridBagConstraints~none
+    c~insets = .java.awt.Insets~new(0,0,5,0)
+    gridbag~setConstraints(restorebutton, c)
+    contentpane~~add(historypanel)~~add(hScrollPane)~~add(restorebutton)
+    hdialog~pack
+
+::method actionPerformed
+    expose hdialog
+    use arg , slotDir
+
+    if \hdialog~isShowing then
+      do
+        mainframe = .mm.dir~frame
+        hdialog~setBounds(mainframe~getX+mainframe~getWidth, mainframe~getY, ((mainframe~getWidth)/5*4)~format(,0), mainframe~getHeight)
+        hdialog~~show~~tofront
+        .mm.dir~hdialog = hdialog
+        slotDir~userData~restorebutton~setEnabled(.false)
+      end
+
+
+/* Draw the dialog for the configuration of the three monitors in ooRexx*/
+::class MonitorDialog
+::method init
+    expose mdialog
+    use arg userData
+
+    mainframe = .mm.dir~frame
+    mdialog = .javax.swing.JDialog~new(mainframe, 'Monitor Destination Configuration')
+    rpDSEH = BsfCreateRexxProxy(.DestinationSwitch~new, userData, "java.awt.event.WindowListener", .java.awt.event.ActionListener)
+    rexxRadioButtonH = .RadioButtonHandler~new
+    userData~rexxRadioButtonH = rexxRadioButtonH
+    rpRBEH = BsfCreateRexxProxy(rexxRadioButtonH, userData, .java.awt.event.ActionListener)
+    mdialog~setResizable(.false)
+    mdialog~addWindowListener(rpDSEH)
+    contentpane = mdialog~getContentPane
+    gridbag = .java.awt.GridBagLayout~new
+    c = .java.awt.GridBagConstraints~new
+    mainpanel = .javax.swing.JPanel~new
+    mainpanel~setBorder(.javax.swing.border.EmptyBorder~new(15,15,15,15))
+    mainpanel~setLayout(gridbag)
+    inlabel = .javax.swing.JLabel~new("Select the destination of the Input Monitor: ")
+    ingroup = .javax.swing.ButtonGroup~new
+    indefaultrb = .javax.swing.JRadioButton~new('Default')
+    indefaultrb~~setActionCommand("indefault")~~addActionListener(rpRBEH)
+    userData~indefaultrb = indefaultrb
+    infilerb = .javax.swing.JRadioButton~new('File')
+    infilerb~~setActionCommand("infile")~~addActionListener(rpRBEH)
+    userData~infilerb = infilerb
+    infiletf = .javax.swing.JTextField~new('', 10)
+    infiletf~setEnabled(.false)
+    if .mm.dir~inputMonitorDestination~equals('GUIInputStream') then indefaultrb~setSelected(.true)
+    else
+      do
+        infilerb~setSelected(.true)
+        infiletf~~setText(.mm.dir~inputMonitorDestination)~~setEnabled(.true)
+      end
+    userData~infiletf = infiletf
+    ingroup~~add(indefaultrb)~~add(infilerb)
+    userData~ingroup = ingroup
+    inpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    inpanel~~add(indefaultrb)~~add(infilerb)
+    outlabel = .javax.swing.JLabel~new("Select the destination of the Output Monitor: ")
+    outgroup = .javax.swing.ButtonGroup~new
+    outdefaultrb = .javax.swing.JRadioButton~new('Default')
+    outdefaultrb~~setActionCommand("outdefault")~~addActionListener(rpRBEH)
+    userData~outdefaultrb = outdefaultrb
+    outfilerb = .javax.swing.JRadioButton~new('File')
+    outfilerb~~setActionCommand("outfile")~~addActionListener(rpRBEH)
+    userData~outfilerb = outfilerb
+    outfiletf = .javax.swing.JTextField~new('', 10)
+    outfiletf~setEnabled(.false)
+    if .mm.dir~outputMonitorDestination~equals('GUIOutputStream') then outdefaultrb~setSelected(.true)
+    else
+      do
+        outfilerb~setSelected(.true)
+        outfiletf~~setText(.mm.dir~outputMonitorDestination)~~setEnabled(.true)
+      end
+    userData~outfiletf = outfiletf
+    outgroup~~add(outdefaultrb)~~add(outfilerb)
+    userData~outgroup = outgroup
+    outpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    outpanel~~add(outdefaultrb)~~add(outfilerb)
+    errlabel = .javax.swing.JLabel~new("Select the destination of the Error Monitor: ")
+    errgroup = .javax.swing.ButtonGroup~new
+    errdefaultrb = .javax.swing.JRadioButton~new('Default')
+    errdefaultrb~~setActionCommand("errdefault")~~addActionListener(rpRBEH)
+    userData~errdefaultrb = errdefaultrb
+    errfilerb = .javax.swing.JRadioButton~new('File')
+    errfilerb~~setActionCommand("errfile")~~addActionListener(rpRBEH)
+    userData~errfilerb = errfilerb
+    errfiletf = .javax.swing.JTextField~new('', 10)
+    errfiletf~setEnabled(.false)
+    if .mm.dir~errorMonitorDestination~equals('GUIErrorStream') then errdefaultrb~setSelected(.true)
+    else
+      do
+        errfilerb~setSelected(.true)
+        errfiletf~~setText(.mm.dir~errorMonitorDestination)~~setEnabled(.true)
+      end
+    userData~errfiletf = errfiletf
+    errgroup~~add(errdefaultrb)~~add(errfilerb)
+    userData~errgroup = errgroup
+    errpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    errpanel~~add(errdefaultrb)~~add(errfilerb)
+    okbutton = .javax.swing.JButton~new('OK')
+    okbutton~addActionListener(rpDSEH)
+    cancelbutton = .javax.swing.JButton~new('Cancel')
+    cancelbutton~addActionListener(rpDSEH)
+    userData~monitorOkButton = okbutton
+    userData~monitorCancelButton = cancelbutton
+    buttonpanel = .javax.swing.JPanel~new
+    buttonpanel~~add(okbutton)~~add(cancelbutton)
+    userData~mdialog = mdialog
+
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~fill = .java.awt.GridBagConstraints~horizontal
+    c~anchor = .java.awt.GridBagConstraints~west
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    gridbag~setConstraints(inlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~relative
+    gridbag~setConstraints(inpanel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    gridbag~setConstraints(infiletf, c)
+    c~insets = .java.awt.Insets~new(15,0,0,0)
+    gridbag~setConstraints(outlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~relative
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    gridbag~setConstraints(outpanel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    gridbag~setConstraints(outfiletf, c)
+    c~insets = .java.awt.Insets~new(15,0,0,0)
+    gridbag~setConstraints(errlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~relative
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    gridbag~setConstraints(errpanel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    gridbag~setConstraints(errfiletf, c)
+    c~anchor = .java.awt.GridBagConstraints~center
+    c~insets = .java.awt.Insets~new(10,0,0,0)
+    gridbag~setConstraints(buttonpanel, c)
+
+    mainpanel~~add(inlabel)~~add(inpanel)~~add(infiletf)~~add(outlabel) -
+    ~~add(outpanel)~~add(outfiletf)~~add(errlabel)~~add(errpanel)~~add(errfiletf)~~add(buttonpanel)
+    userData~ingroup = ingroup
+    userData~outgroup = outgroup
+    userData~errgroup = errgroup
+    userData~outfiletf = outfiletf
+    userData~errfiletf = errfiletf
+    mdialog~getContentPane~add(mainpanel)
+    mdialog~pack
+
+::method actionPerformed
+    expose mdialog
+
+    mainframe = .mm.dir~frame
+    mdialog~setLocation((mainframe~getX+mainframe~getWidth/3)~format(,0), (mainframe~getY+mainframe~getHeight/3)~format(,0))
+    mdialog~~show~~tofront
+
+
+::class RadioButtonHandler
+::method actionPerformed
+    use arg eventObject, slotDir
+
+    userData = slotdir~userData
+    self~changeTextFieldState(userData)
+
+/*Enables and disables the text fields in case of a file stream selected.*/
+::method changeTextFieldState
+    use arg userData
+
+    infiletf = userData~infiletf
+    outfiletf = userData~outfiletf
+    errfiletf = userData~errfiletf
+
+    if userData~ingroup~getSelection~equals(userData~infilerb~getModel) then infiletf~setEnabled(.true)
+    else infiletf~setEnabled(.false)
+    if userData~outgroup~getSelection~equals(userData~outfilerb~getModel) then outfiletf~setEnabled(.true)
+    else outfiletf~setEnabled(.false)
+    if userData~errgroup~getSelection~equals(userData~errfilerb~getModel) then errfiletf~setEnabled(.true)
+    else errfiletf~setEnabled(.false)
+
+
+/*Retrieve code fragments from the execution histroy and display them at the code input area again.*/
+::class Restore
+::method actionPerformed
+    use arg , slotDir
+
+    self~restoreData(slotDir~userData)
+
+::method restoreData
+    use arg userData
+
+    hlist = userData~hlist
+    listitem = hlist~getSelectedValue
+    strippeditem = listitem~strip(, '=')
+    timestamp = strippeditem~substr(1,8)
+    .mm.dir~frame~setTitle(.mm.dir~title||" - Code Version as of "||timestamp)		-- Modify the title bar to reflect the version currently working with
+    code_string = strippeditem~substr(51)
+    code_string_alt = code_string~substr(1, code_string~length-1)
+    .mm.dir~codeArea~setText(code_string_alt)
+    .mm.dir~errorsArea~setText("Previous Code Restored")
+
+::class RexxCloseAppEventHandler
+::method init        /* constructor */
+  expose closeApp
+  closeApp  = .false   -- if set to .true, then it is safe to close the app
+
+::attribute closeApp          -- indicates whether app should be closed
+
+::method unknown              -- intercept unhandled events, do nothing
+
+::method actionPerformed      -- event method (from ActionListener)
+  expose closeApp
+
+  call KillConnection
+  closeApp=.true              -- indicate that the app should close
+
+::method windowClosing        -- event method (from WindowListener)
+  expose closeApp
+
+  call KillConnection
+  closeApp=.true              -- indicate that the app should close
+
+::method waitForExit          -- method blocks until attribute is set to .true
+  expose closeApp
+  guard on when closeApp=.true
+
+
+::method handleQuit           -- rgf, 2011-02-21: handle Apple's ApplicationListener event
+  expose closeApp
+  use arg applicationEvent
+
+  call KillConnection
+  closeApp=.true              -- indicate that the app should close
+  -- .stdout~say( "... handleQuit ..." )
+  applicationEvent~setHandled(.true)  -- indicate to MacOSX that quitting is o.k.
+
+::method handlePreferences    -- rgf, 2011-02-21: handle Apple's ApplicationListener event
+  expose closeApp
+  use arg applicationEvent
+  -- .stdout~say( "... handlePreferences ..." )
+  applicationEvent~setHandled(.true)  -- indicate to MacOSX that quitting is o.k.
+
+::method handleOpenApplication    -- rgf, 2011-02-21: if using an ApplicationListener we need at least removePreferencesMenuItem (maybe a bug in Apple's Application)
+  expose closeApp
+  use arg applicationEvent
+  -- .stdout~say( "... handleOpenApplication ..." )
+
+  app=.bsf4rexx~apple_application     -- retrieve this Apple application object
+  app~removeAboutMenuItem             -- just remove again (done originally in BSF.CLS)
+  app~removePreferencesMenuItem       -- just remove again (done originally in BSF.CLS)
+  applicationEvent~setHandled(.true)  -- indicate to MacOSX that quitting is o.k.
+
+
+
+
+
+::class RexxFileFilter
+::method init
+  expose description filter bIgnoreCase
+  use arg description, filter=(.set~new), bIgnoreCase=.false
+
+::attribute description    -- description for the files we allow, a string that is shown in the GUI
+
+::attribute filter         -- a collection of filetypes, e.g. .array~of(".rex", ".javax.swing.JRexx", ".java")
+::attribute bIgnoreCase    -- ignore case when checking filetype, set to .false
+
+-- implementations of the abstract Java methods
+::method getDescription    -- implementation for the abstract Java method
+  expose description
+  return description
+
+::method accept            -- implementation for the abstract Java method
+  expose  filter bIgnoreCase
+  use arg file
+
+  if file~isDirectory then return .true   -- accept (include) directories in any case!
+
+   -- create explicitly a Java String object (makes the Java String methods available to us)
+  strRef=.bsf~new("java.lang.String", file~getName)
+  if bIgnoreCase then strRef=strRef~upper
+
+  do elem over filter        -- iterate over all file types
+      if bIgnoreCase then
+         res=strRef~endsWith(elem~upper)
+      else
+         res=strRef~endsWith(elem)
+
+      if res then return .true
+  end
+  return .false
+
+
+-- Initialize code execution
+::class RunIt
+::method actionPerformed
+    expose slotDir
+    use arg , slotDir
+    self~runCode
+
+::method runCode
+    expose slotDir
+
+    frame = .mm.dir~frame
+    codeArea = .mm.dir~codeArea
+    returnsArea = .mm.dir~returnsArea
+    errorsArea = .mm.dir~errorsArea
+    saysArea = .mm.dir~saysArea
+    cursorpos = codeArea~getCaretPosition
+    frame~setTitle(.mm.dir~title)
+    frame~setCursor(.java.awt.Cursor~getPredefinedCursor(.java.awt.Cursor~wait_cursor))
+    argsArea = .mm.dir~argsArea
+    if .mm.dir~hdialog \= .nil then if .mm.dir~hdialog~isShowing then .mm.dir~hdialog~hide
+
+    arg_array = .array~new
+    arg_string = argsArea~getText
+    arg_array = arg_string~makeArray('0a'x)
+
+    .local~mm.dir~code_string = codeArea~getSelectedText
+
+    -- Clear any previous say data
+    saysArea~setText('')
+
+    -- Clear any previous returns data
+    returnsArea~setText('')
+
+    .local~mm.dir~emsg = ''
+    .local~mm.dir~imsg = ''
+
+    errorsArea~setText('Code Is Executing')
+
+    .local~mm.dir~Error? = .false
+    .local~mm.dir~badarg = ''
+    -- Interpret each argument so that expressions can be used
+    signal on syntax name ArgSyntax
+    do i = 1 to arg_array~items
+        .local~mm.dir~badarg = i arg_array[i]
+        if arg_array[i]~strip == "" then arg_array~remove(i)
+        else interpret 'arg_array['i'] =' arg_array[i]
+    end
+    signal off syntax
+    -- Run the code in a dynamically created method
+
+    found_cc = .false
+    if .mm.dir~code_string \= .nil then
+        do
+            code_array = .array~new
+            code_array = .mm.dir~code_string~makeArray('0a'x)
+        end
+    else
+        do
+            .mm.dir~code_string = codeArea~getText
+            code_array = .mm.dir~code_string~makeArray('0a'x)
+        end
+    if .local~mm.dir~ooRexx.isExtended then call transformSource code_array
+    do ca = 1 to code_array~items
+        a_ca = code_array[ca]~strip()
+        if a_ca~pos('::') = 1 then
+            do
+                found_cc = .true
+                leave ca
+            end
+    end
+
+    if \found_cc then
+        do
+            runnable = BsfCreateRexxProxy(.ExecuteThread~new('oorexxtry.code', code_array, arg_array, slotDir~userData), ,.java.lang.Runnable)
+            .java.lang.Thread~new(runnable)~~bsf.dispatch("start")		-- Run code in separate thread
+        end
+    else
+        do
+            /*Temporary code storage*/
+            -- .local~mm.dir~tempFile = 'ooRexxTry_test9999.rex'
+            -- rgf, make sure, we get unique file names
+            -- .mm.dir~tempFile = filespec("N",SysTempFileName(directory() || .bsf4rexx~file.separator || "ooRexxTry_test????.rex"))
+            .mm.dir~tempFile = SysTempFileName(getHomeDir() || .bsf4rexx~file.separator || "ooRexxTry_test????.rex")
+
+            c_stream = .stream~new(.mm.dir~tempFile)
+            c_stream~open('Write Replace')
+            do ca = 1 to code_array~items
+                c_stream~lineout(code_array[ca])
+            end
+            c_stream~close
+            arg_string = ''
+            do ca = 1 to arg_array~items
+                arg_ca = '"'arg_array[ca]'"'
+                arg_string = arg_string','arg_ca
+            end
+            arg_string = arg_string~strip('b',',')
+
+            -- runnable = BsfCreateRexxProxy(.ExecuteThread~new('oorexxtry.code','call ooRexxTry_test9999.rex' arg_string, arg_array, slotDir~userData), ,.java.lang.Runnable)
+            runnable = BsfCreateRexxProxy(.ExecuteThread~new('oorexxtry.code','call' quoted(.mm.dir~tempFile) arg_string, arg_array, slotDir~userData), ,.java.lang.Runnable)
+            .java.lang.Thread~new(runnable)~~bsf.dispatch("start")		-- Run code in separate thread
+        end
+
+return
+
+quoted:
+    use strict arg string, quote='"'
+    return quote || string~changeStr(quote, quote||quote)  || quote
+
+transformSource: procedure
+    use strict arg sourceArray
+    clauser = .Clauser~new(sourceArray)
+    
+    do while clauser~clauseAvailable
+        clause = clauser~clause~strip
+        if clause~left(2) == "::" then leave -- don't transform code inside directives
+        if clause~right(1) == "=" then do
+            clause = clause~left(clause~length - 1)
+            -- Remember : when assigning a value to current clause, sourceArray is impacted 
+            clauser~clause = 'options "NOCOMMANDS";' clause ';if var("result") then call dumpResult(result); options "COMMANDS"'
+        end
+        clauser~nextClause
+    end
+    return
+
+ArgSyntax:
+    errorarg = .mm.dir~badarg~subword(2)
+
+    call ppCondition condition("o")
+
+    if \.mm.dir~silent then
+        .java.awt.Toolkit~getDefaultToolkit~beep
+    returnsArea~setText('')
+
+    argsArea~requestFocus
+    argsArea~select(arg_string~wordPos(errorarg),arg_string~wordPos(errorarg)+errorarg~length)
+    frame~setCursor(.java.awt.Cursor~getDefaultCursor)
+
+    -- Close the file streams after the run or when an error occurred. Allow to immediate (re)view file code or alternate it.
+    if .mm.dir~infilestream \= .nil then .mm.dir~infilestream~close
+    if .mm.dir~outfilestream \= .nil then .mm.dir~outfilestream~close
+    if \.mm.dir~errorMonitorDestination~equals('GUIErrorStream') then
+      do
+        .mm.dir~errorsArea~setText("An Arguments error occurred. Please see "||slotDir~userData~errfiletf~getText||" for further details.")
+        .mm.dir~errfilestream~close
+      end
+return
+
+
+::routine dumpResult public
+    use strict arg object
+    if object~isA(.CoactivitySupplier) then say pp2(object) -- must not consume the datas
+    else if object~isA(.array) then say object~ppRepresentation -- condensed output
+    else if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
+    else say pp2(object)
+    return
+
+
+::class SaveSettings
+::method actionPerformed
+
+    self~saveSettings
+
+::method saveSettings
+
+    -- Write out the configuration data like size,position,fontname,fontsize, & silent to the .rc file
+    frame = .mm.dir~frame
+    props = .mm.dir~props
+    if frame~getExtendedState \= .java.awt.Frame~iconified & frame~getExtendedState \= .java.awt.Frame~maximized_both then
+        do
+            props~setProperty("Xpos",frame~getX)
+            props~setProperty("Ypos",frame~getY)
+            props~setProperty("Width",frame~getWidth)
+            props~setProperty("Height",frame~getHeight)
+        end
+    props~setProperty("FontName",.mm.dir~fontname)
+    props~setProperty("FontSize",.mm.dir~fontsize)
+    props~setProperty("HistorySize",.mm.dir~historySize)
+    props~setProperty("Input_Monitor_Destination",.mm.dir~inputMonitorDestination)
+    props~setProperty("Output_Monitor_Destination",.mm.dir~outputMonitorDestination)
+    props~setProperty("Error_Monitor_Destination",.mm.dir~errorMonitorDestination)
+    props~setProperty("Host",.mm.dir~host)
+    props~setProperty("Port",.mm.dir~port)
+    if .mm.dir~enableInputSocket then props~setProperty("Enable_Input_Stream_On_Socket","yes")
+    else props~setProperty("Enable_Input_Stream_On_Socket","no")
+    if .mm.dir~enableOutputSocket then props~setProperty("Enable_Output_Stream_On_Socket","yes")
+    else props~setProperty("Enable_Output_Stream_On_Socket","no")
+    if .mm.dir~enableErrorSocket then props~setProperty("Enable_Error_Stream_On_Socket","yes")
+    else props~setProperty("Enable_Error_Stream_On_Socket","no")
+    if .mm.dir~useSystemLookAndFeel then props~setProperty("Use_System_Look_And_Feel","yes")
+    else props~setProperty("Use_System_Look_And_Feel","no")
+    if .mm.dir~silent then props~setProperty("silentMode","yes")
+    else props~setProperty("silentMode","no")
+    props~save(.local~mm.dir~ooRexxTry.rc)
+    .mm.dir~errorsArea~setText("Settings Saved To" .local~mm.dir~ooRexxTry.rc)
+    return
+
+
+/*JDialog which displays the current settings like font name, font size and the silent mode status*/
+::class SettingsDialog
+::method actionPerformed
+
+    mainframe = .mm.dir~frame
+    sdialog = .javax.swing.JDialog~new(mainframe, 'Settings')
+    sdialog~setResizable(.false)
+    contentpane = sdialog~getContentPane
+    tabbedPane = .javax.swing.JTabbedPane~new(.javax.swing.JTabbedPane~left)
+
+    fontGridBag = .java.awt.GridBagLayout~new
+    fontc = .java.awt.GridBagConstraints~new
+    fontPanel = .javax.swing.JPanel~new(fontGridBag)
+    fontNameLabel1 = .javax.swing.JLabel~new("Font Name: ")
+    fontNameLabel2 = .javax.swing.JLabel~new(.mm.dir~fontname)
+    fontSizeLabel1 = .javax.swing.JLabel~new("Font Size: ")
+    fontSizeLabel2 = .javax.swing.JLabel~new(.mm.dir~fontsize)
+
+    fontc~fill = .java.awt.GridBagConstraints~horizontal
+    fontc~insets = .java.awt.Insets~new(0,0,5,0)
+    fontc~gridwidth = 1
+    fontGridBag~setConstraints(fontNameLabel1, fontc)
+    fontc~gridwidth = .java.awt.GridBagConstraints~remainder
+    fontGridBag~setConstraints(fontNameLabel2, fontc)
+    fontc~gridwidth = 1
+    fontGridBag~setConstraints(fontSizeLabel1, fontc)
+    fontc~gridwidth = .java.awt.GridBagConstraints~remainder
+    fontGridBag~setConstraints(fontSizeLabel2, fontc)
+
+    fontPanel~~add(fontNameLabel1)~~add(fontNameLabel2)~~add(fontSizeLabel1)~~add(fontSizeLabel2)
+
+    historyPanel = .javax.swing.JPanel~new(.java.awt.BorderLayout~new)
+    historyLabel = .javax.swing.JLabel~new("History Size: "||.mm.dir~historySize, 0)
+    historyPanel~add(historyLabel, .java.awt.BorderLayout~center)
+
+    lAndFPanel = .javax.swing.JPanel~new(.java.awt.BorderLayout~new)
+    if .mm.dir~useSystemLookAndFeel then slaf = "yes"
+    else slaf = "no"
+    lAndFLabel = .javax.swing.JLabel~new("Use System Look And Feel: "||slaf, 0)
+    lAndFPanel~add(lAndFLabel, .java.awt.BorderLayout~center)
+
+    monGridBag = .java.awt.GridBagLayout~new
+    monc = .java.awt.GridBagConstraints~new
+    monitorPanel = .javax.swing.JPanel~new(monGridBag)
+    inMonitorLabel1 = .javax.swing.JLabel~new("Input Monitor Destination: ")
+    inMonitorLabel2 = .javax.swing.JLabel~new(.mm.dir~inputMonitorDestination)
+    outMonitorLabel1 = .javax.swing.JLabel~new("Output Monitor Destination: ")
+    outMonitorLabel2 = .javax.swing.JLabel~new(.mm.dir~outputMonitorDestination)
+    errMonitorLabel1 = .javax.swing.JLabel~new("Error Monitor Destination: ")
+    errMonitorLabel2 = .javax.swing.JLabel~new(.mm.dir~errorMonitorDestination)
+
+    monc~fill = .java.awt.GridBagConstraints~horizontal
+    monc~insets = .java.awt.Insets~new(0,0,5,0)
+    monc~gridwidth = 1
+    monGridBag~setConstraints(inMonitorLabel1, monc)
+    monc~gridwidth = .java.awt.GridBagConstraints~remainder
+    monGridBag~setConstraints(inMonitorLabel2, monc)
+    monc~gridwidth = 1
+    monGridBag~setConstraints(outMonitorLabel1, monc)
+    monc~gridwidth = .java.awt.GridBagConstraints~remainder
+    monGridBag~setConstraints(outMonitorLabel2, monc)
+    monc~gridwidth = 1
+    monGridBag~setConstraints(errMonitorLabel1, monc)
+    monc~gridwidth = .java.awt.GridBagConstraints~remainder
+    monGridBag~setConstraints(errMonitorLabel2, monc)
+
+    monitorPanel~~add(inMonitorLabel1)~~add(inMonitorLabel2)~~add(outMonitorLabel1)~~add(outMonitorLabel2) -
+    ~~add(errMonitorLabel1)~~add(errMonitorLabel2)
+
+    posGridBag = .java.awt.GridBagLayout~new
+    posc = .java.awt.GridBagConstraints~new
+    posPanel = .javax.swing.JPanel~new(posGridBag)
+    xPosLabel1 = .javax.swing.JLabel~new("XPos: ")
+    xPosLabel2 = .javax.swing.JLabel~new(.mm.dir~xpos)
+    yPosLabel1 = .javax.swing.JLabel~new("YPos: ")
+    yPosLabel2 = .javax.swing.JLabel~new(.mm.dir~ypos)
+    widthLabel1 = .javax.swing.JLabel~new("Width: ")
+    widthLabel2 = .javax.swing.JLabel~new(.mm.dir~width)
+    heightLabel1 = .javax.swing.JLabel~new("Height: ")
+    heightLabel2 = .javax.swing.JLabel~new(.mm.dir~height)
+
+    posc~fill = .java.awt.GridBagConstraints~horizontal
+    posc~insets = .java.awt.Insets~new(0,0,5,0)
+    posc~gridwidth = 1
+    posGridBag~setConstraints(xPosLabel1, posc)
+    posc~gridwidth = .java.awt.GridBagConstraints~remainder
+    posGridBag~setConstraints(xPosLabel2, posc)
+    posc~gridwidth = 1
+    posGridBag~setConstraints(yPosLabel1, posc)
+    posc~gridwidth = .java.awt.GridBagConstraints~remainder
+    posGridBag~setConstraints(yPosLabel2, posc)
+    posc~gridwidth = 1
+    posGridBag~setConstraints(widthLabel1, posc)
+    posc~gridwidth = .java.awt.GridBagConstraints~remainder
+    posGridBag~setConstraints(widthLabel2, posc)
+    posc~gridwidth = 1
+    posGridBag~setConstraints(heightLabel1, posc)
+    posc~gridwidth = .java.awt.GridBagConstraints~remainder
+    posGridBag~setConstraints(heightLabel2, posc)
+
+    posPanel~~add(xPosLabel1)~~add(xPosLabel2)~~add(yPosLabel1)~~add(yPosLabel2)~~add(widthLabel1)~~add(widthLabel2)~~add(heightLabel1)~~add(heightLabel2)
+
+    socketGridBag = .java.awt.GridBagLayout~new
+    socketc = .java.awt.GridBagConstraints~new
+    socketPanel = .javax.swing.JPanel~new(socketGridBag)
+    hostLabel1 = .javax.swing.JLabel~new("Host: ")
+    hostLabel2 = .javax.swing.JLabel~new(.mm.dir~host)
+    portLabel1 = .javax.swing.JLabel~new("Port: ")
+    portLabel2 = .javax.swing.JLabel~new(.mm.dir~port)
+    inputSocketLabel1 = .javax.swing.JLabel~new("Enable Input Stream On Socket: ")
+    if .mm.dir~enableInputSocket then InputSocket = "yes"
+    else InputSocket = "no"
+    inputSocketLabel2 = .javax.swing.JLabel~new(inputSocket)
+    outputSocketLabel1 = .javax.swing.JLabel~new("Enable Output Stream On Socket: ")
+    if .mm.dir~enableOutputSocket then outputSocket = "yes"
+    else outputSocket = "no"
+    outputSocketLabel2 = .javax.swing.JLabel~new(outputSocket)
+    errorSocketLabel1 = .javax.swing.JLabel~new("Enable Error Stream On Socket: ")
+    if .mm.dir~enableErrorSocket then errorSocket = "yes"
+    else errorSocket = "no"
+    errorSocketLabel2 = .javax.swing.JLabel~new(errorSocket)
+
+    socketc~fill = .java.awt.GridBagConstraints~horizontal
+    socketc~insets = .java.awt.Insets~new(0,0,5,0)
+    socketc~gridwidth = 1
+    socketGridBag~setConstraints(hostLabel1, socketc)
+    socketc~gridwidth = .java.awt.GridBagConstraints~remainder
+    socketGridBag~setConstraints(hostLabel2, socketc)
+    socketc~gridwidth = 1
+    socketGridBag~setConstraints(portLabel1, socketc)
+    socketc~gridwidth = .java.awt.GridBagConstraints~remainder
+    socketGridBag~setConstraints(portLabel2, socketc)
+    socketc~gridwidth = 1
+    socketGridBag~setConstraints(inputSocketLabel1, socketc)
+    socketc~gridwidth = .java.awt.GridBagConstraints~remainder
+    socketGridBag~setConstraints(inputSocketLabel2, socketc)
+    socketc~gridwidth = 1
+    socketGridBag~setConstraints(outputSocketLabel1, socketc)
+    socketc~gridwidth = .java.awt.GridBagConstraints~remainder
+    socketGridBag~setConstraints(outputSocketLabel2, socketc)
+    socketc~gridwidth = 1
+    socketGridBag~setConstraints(errorSocketLabel1, socketc)
+    socketc~gridwidth = .java.awt.GridBagConstraints~remainder
+    socketGridBag~setConstraints(errorSocketLabel2, socketc)
+
+    socketPanel~~add(hostLabel1)~~add(hostLabel2)~~add(portLabel1)~~add(portLabel2)~~add(inputSocketLabel1)~~add(inputSocketLabel2) -
+    ~~add(outputSocketLabel1)~~add(outputSocketLabel2)~~add(errorSocketLabel1)~~add(errorSocketLabel2)
+
+    silentPanel = .javax.swing.JPanel~new(.java.awt.BorderLayout~new)
+    if .mm.dir~silent then silent = "yes"
+    else silent = "no"
+    silentLabel = .javax.swing.JLabel~new("Silent Mode: "||silent, 0)
+    silentPanel~add(silentLabel, .java.awt.BorderLayout~center)
+
+    tabbedPane~~addTab("Font", fontPanel)~~addTab("History", historyPanel)~~addTab("Look & Feel", lAndFpanel)~~addTab("Monitor", monitorPanel) -
+    ~~addTab("Position", posPanel)~~addTab("Socket", socketPanel)~~addTab("Sound Notification", silentPanel)
+
+    contentpane~add(tabbedPane)
+    sdialog~pack
+    sdialog~setBounds((mainframe~getX+mainframe~getWidth/3)~format(,0), (mainframe~getY+mainframe~getHeight/3)~format(,0), 440, 190)
+    sdialog~~show~~tofront
+
+
+/*Switches silent status. If set to false, the user does not hear a signal noise, when code execution is completed.*/
+::class Silence
+::method actionPerformed
+    use arg eventObject, slotDir
+
+    silentNo = slotDir~userData~silentSubMenu~getItem(0)
+    silentYes = slotDir~userData~silentSubMenu~getItem(1)
+    codeArea = .mm.dir~codeArea
+    curpos = codeArea~getCaretPosition
+    source = eventObject~getSource
+    select
+        when source~equals(silentNo) then do
+            .local~mm.dir~silent = .false
+            silentNo~setSelected(.true)
+            silentYes~setSelected(.false)
+        end
+        when source~equals(silentYes) then do
+            .local~mm.dir~silent = .true
+            silentYes~setSelected(.true)
+            silentNo~setSelected(.false)
+        end
+        otherwise
+            nop
+    end
+    codeArea~requestFocus
+
+
+::class SocketConfig
+
+/*Dynamically configure the port the program listens on and disable and enable direct
+  input and output from active socket connections.*/
+::method actionPerformed
+    expose source
+    use arg eventObject, slotDir
+
+    sdialog = slotDir~userData~sdialog
+    if eventObject~getSource~equals(slotDir~userData~socketOkButton) then
+      do
+        incmd = slotDir~userData~insogroup~getSelection~getActionCommand
+        if incmd~equals("indisabled") then .mm.dir~enableInputSocket = .false
+        else .mm.dir~enableInputSocket = .true
+
+        outcmd = slotDir~userData~outsogroup~getSelection~getActionCommand
+        if outcmd~equals("outdisabled") then .mm.dir~enableOutputSocket = .false
+        else .mm.dir~enableOutputSocket = .true
+
+        errcmd = slotDir~userData~errsogroup~getSelection~getActionCommand
+        if errcmd~equals("errdisabled") then .mm.dir~enableErrorSocket = .false
+        else .mm.dir~enableErrorSocket = .true
+
+        port = slotDir~userData~porttf~getText
+        host = slotDir~userData~hosttf~getText
+        if port \= .mm.dir~port | host \= .mm.dir~host then
+        do
+           call KillConnection
+           .mm.dir~host = host
+           .mm.dir~port = port
+           runnableSocket = BsfCreateRexxProxy(.CreateServerSocket~new, ,.java.lang.Runnable)
+           .java.lang.Thread~new(runnableSocket)~~bsf.dispatch("start")
+        end
+        source = "ok"
+        sdialog~hide
+    end
+    else
+      do
+        source = "cancel"
+        sdialog~hide
+      end
+
+::method unknown
+
+-- remember previously approved settings
+::method windowActivated
+    expose inputSelection outputSelection errorSelection source
+    use arg , slotDir
+
+    source = ''
+    if slotDir~userData~indisabledrb~isSelected then inputSelection = "disabled"
+    else inputSelection = "enabled"
+    if slotDir~userData~outdisabledrb~isSelected then outputSelection = "disabled"
+    else outputSelection = "enabled"
+    if slotDir~userData~errdisabledrb~isSelected then errorSelection = "disabled"
+    else errorSelection = "enabled"
+
+::method windowDeactivated
+    expose source
+    use arg , slotDir
+
+    if source~equals("ok") then nop
+    else self~resetSelection(slotDir~userData)
+
+-- restore currently approved settings in case of canceled dialog
+::method resetSelection
+    expose inputSelection outputSelection errorSelection
+    use arg userData
+
+    if inputSelection~equals("disabled") then userData~indisabledrb~setSelected(.true)
+    else userData~inenabledrb~setSelected(.true)
+    if outputSelection~equals("disabled") then userData~outdisabledrb~setSelected(.true)
+    else userData~outenabledrb~setSelected(.true)
+    if errorSelection~equals("disabled") then userData~errdisabledrb~setSelected(.true)
+    else userData~errenabledrb~setSelected(.true)
+    userData~hosttf~setText(.mm.dir~host)
+    userData~porttf~setText(.mm.dir~port)
+
+
+/*Tap the server socket to listen for a incoming connection*/
+::class SocketConnection
+::method init
+   .local~mm.dir~clientConnected = .false
+   .local~mm.dir~socketInputRequired = .false
+   self~socket = .mm.dir~srvSock~accept
+
+::method socket attribute
+
+::method run
+    if \.mm.dir~listening then return
+    .local~mm.dir~out = .java.io.PrintWriter~new(self~socket~getOutputStream, .true)		-- Writer for outband data
+    .local~mm.dir~in = .java.io.BufferedReader~new(.java.io.InputStreamReader~new(self~socket~getInputStream))		-- reader for inbound data
+    .mm.dir~out~println("Hello from Server. Type 'Exit' to quit connection.")
+    .mm.dir~errorsArea~setText("Client connected.")
+    .mm.dir~clientConnected = .true
+    do while inputLine \= .nil
+       if inputLine~caselessEquals("Exit") then			-- command that signals session end
+       do
+           .mm.dir~out~println("Exit")
+           .mm.dir~errorsArea~setText("Client disconnected.")
+           .mm.dir~clientConnected = .false
+           leave
+       end
+       inputLine = .mm.dir~in~readLine
+       if .mm.dir~enableInputSocket then
+         do
+           if .mm.dir~socketInputRequired then
+             do
+               .mm.dir~inputArea~setText(inputLine)
+               .mm.dir~guiInputStream~setControlVar(.true)
+             end
+           else .mm.dir~codeArea~setText(inputLine)
+         end
+    end
+
+-- Close writer and reader and terminate connection
+    .mm.dir~out~close
+    .mm.dir~in~close
+    self~socket~close
+
+
+/* Draw the dialog for the configuration of socket connections*/
+::class SocketDialog
+::method init
+    expose sdialog
+    use arg userData
+
+    .mm.dir~isEnabled = .false
+
+    mainframe = .mm.dir~frame
+    sdialog = .javax.swing.JDialog~new(mainframe, 'Socket Connection Configuration')
+    rpSCEH = BsfCreateRexxProxy(.SocketConfig~new, userData, "java.awt.event.WindowListener", .java.awt.event.ActionListener)
+    sdialog~addWindowListener(rpSCEH)
+    sdialog~setResizable(.false)
+    contentpane = sdialog~getContentPane
+    gridbag = .java.awt.GridBagLayout~new
+    c = .java.awt.GridBagConstraints~new
+    mainpanel = .javax.swing.JPanel~new
+    mainpanel~setLayout(gridbag)
+    mainpanel~setBorder(.javax.swing.border.EmptyBorder~new(15,15,15,15))
+    hostlabel = .javax.swing.JLabel~new("Specifiy the remote host: ")
+    hosttf = .javax.swing.JTextField~new(.mm.dir~host, 10)
+    portlabel = .javax.swing.JLabel~new("Specify the port number to listen on: ")
+    porttf = .javax.swing.JTextField~new(.mm.dir~port, 5)
+    inlabel = .javax.swing.JLabel~new("Parse keyboard instructions from the client and append her/his input to the Code Area.")
+    insogroup = .javax.swing.ButtonGroup~new
+    indisabledrb = .javax.swing.JRadioButton~new('Disabled')
+    indisabledrb~setActionCommand("indisabled")
+    userData~indisabledrb = indisabledrb
+    inenabledrb = .javax.swing.JRadioButton~new('Enabled')
+    inenabledrb~setActionCommand("inenabled")
+    if .mm.dir~enableInputSocket then inenabledrb~setSelected(.true)
+    else indisabledrb~setSelected(.true)
+    userData~inenabledrb = inenabledrb
+    insogroup~~add(indisabledrb)~~add(inenabledrb)
+    inpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    inpanel~~add(indisabledrb)~~add(inenabledrb)
+    outlabel = .javax.swing.JLabel~new("Write any OUTPUT data to client (in addition to monitor destination).")
+    outsogroup = .javax.swing.ButtonGroup~new
+    outdisabledrb = .javax.swing.JRadioButton~new('Disabled')
+    outdisabledrb~setActionCommand("outdisabled")
+    userData~outdisabledrb = outdisabledrb
+    outenabledrb = .javax.swing.JRadioButton~new('Enabled')
+    outenabledrb~setActionCommand("outenabled")
+    if .mm.dir~enableOutputSocket then outenabledrb~setSelected(.true)
+    else outdisabledrb~setSelected(.true)
+    userData~outenabledrb = outenabledrb
+    outsogroup~~add(outdisabledrb)~~add(outenabledrb)
+    outpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    outpanel~~add(outdisabledrb)~~add(outenabledrb)
+    errlabel = .javax.swing.JLabel~new("Write any ERROR data to client (in addition to monitor destination).")
+    errsogroup = .javax.swing.ButtonGroup~new
+    errdisabledrb = .javax.swing.JRadioButton~new('Disabled')
+    errdisabledrb~setActionCommand("errdisabled")
+    userData~errdisabledrb = errdisabledrb
+    errenabledrb = .javax.swing.JRadioButton~new('Enabled')
+    errenabledrb~setActionCommand("errenabled")
+    if .mm.dir~enableErrorSocket then errenabledrb~setSelected(.true)
+    else errdisabledrb~setSelected(.true)
+    userData~errenabledrb = errenabledrb
+    errsogroup~~add(errdisabledrb)~~add(errenabledrb)
+    errpanel = .javax.swing.JPanel~new(.java.awt.FlowLayout~new)
+    errpanel~~add(errdisabledrb)~~add(errenabledrb)
+    okbutton = .javax.swing.JButton~new('OK')
+    okbutton~addActionListener(rpSCEH)
+    cancelbutton = .javax.swing.JButton~new('Cancel')
+    cancelbutton~addActionListener(rpSCEH)
+    userData~socketOkButton = okbutton
+    userData~socketCancelButton = cancelbutton
+    buttonpanel = .javax.swing.JPanel~new
+    buttonpanel~~add(okbutton)~~add(cancelbutton)
+    userData~sdialog = sdialog
+
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~anchor = .java.awt.GridBagConstraints~west
+    c~gridwidth = 1
+    c~insets = .java.awt.Insets~new(0,0,0,10)
+    gridbag~setConstraints(hostlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(0,10,0,0)
+    gridbag~setConstraints(portlabel, c)
+    c~gridwidth = 1
+    c~insets = .java.awt.Insets~new(5,0,20,10)
+    gridbag~setConstraints(hosttf, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(5,10,20,0)
+    gridbag~setConstraints(porttf, c)
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    gridbag~setConstraints(inlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(0,0,10,0)
+    gridbag~setConstraints(inpanel, c)
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    gridbag~setConstraints(outlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(0,0,10,0)
+    gridbag~setConstraints(outpanel, c)
+    c~insets = .java.awt.Insets~new(0,0,0,0)
+    gridbag~setConstraints(errlabel, c)
+    c~gridwidth = .java.awt.GridBagConstraints~remainder
+    c~insets = .java.awt.Insets~new(0,0,10,0)
+    gridbag~setConstraints(errpanel, c)
+    c~anchor = .java.awt.GridBagConstraints~center
+    c~insets = .java.awt.Insets~new(5,0,0,0)
+    gridbag~setConstraints(buttonpanel, c)
+
+    mainpanel~~add(hostlabel)~~add(portlabel)~~add(hosttf)~~add(porttf)~~add(inlabel) -
+    ~~add(inpanel)~~add(outlabel)~~add(outpanel)~~add(errlabel)~~add(errpanel)~~add(buttonpanel)
+    userData~hosttf = hosttf
+    userData~porttf = porttf
+    userData~insogroup = insogroup
+    userData~outsogroup = outsogroup
+    userData~errsogroup = errsogroup
+    sdialog~getContentPane~add(mainpanel)
+    sdialog~pack
+
+::method actionPerformed
+    expose sdialog
+    use arg , slotDir
+
+    mainframe = .mm.dir~frame
+    sdialog~setLocation((mainframe~getX+mainframe~getWidth/3)~format(,0), (mainframe~getY+mainframe~getHeight/3)~format(,0))
+    sdialog~~show~~tofront
+
+
+/*Creates a circular queue and stores code execution data from the JList's list model in it.*/
+::class Store
+::method makeQueue
+   use arg items, order
+
+   if \self~circq~isInstanceOf(.circularQueue) then  self~circq = .circularQueue~new(items)	-- Storing object for x elements (modifiable at any time); newly items get
+                                                                                                -- inserted at the end of the queue and replace earlier entries
+   else
+     do
+       listmodel = .mm.dir~listmodel
+       listmodel~clear
+       self~circq~resize(items, order)			-- Resize storing object according to new settings
+       circqarray = self~circq~makeArray('F')
+       do i=1 to circqarray~size
+          listmodel~addElement(circqarray~at(i))
+       end
+     end
+
+::method circq attribute
+
+::method storeData
+    use arg data
+
+    listmodel = .mm.dir~listmodel
+    item = time()||'0a'x||'-'~copies(40)||'0a'x||data||'0a'x||'='~copies(40)		-- time stamp
+    self~circq~queue(item)			-- Adds item at the end of the queue
+    circqarray = self~circq~makeArray('F')	-- Creates an array out of the queue elements
+
+    /* Clear list model and fill it with the current items of the circular queue*/
+    listmodel~clear
+    do i=1 to circqarray~size
+        listmodel~addElement(circqarray~at(i))
+    end
+    .mm.dir~historybutton~setEnabled(.true)
+
+
+/*Imports all necessary java classes so that they can be referred to
+  by a dot an the specific class name without the package.*/
+::routine importClasses
+    list=.list~new
+    list ~ append( 'java.awt.BorderLayout'              )
+    list ~ append( 'java.awt.Color'                     )
+    list ~ append( 'java.awt.Cursor'                    )
+    list ~ append( 'java.awt.Dimension'                 )
+    list ~ append( 'java.awt.FlowLayout'                )
+    list ~ append( 'java.awt.Font'                      )
+    list ~ append( 'java.awt.Frame'                     )
+    list ~ append( 'java.awt.GridBagConstraints'        )
+    list ~ append( 'java.awt.GridBagLayout'             )
+    list ~ append( 'java.awt.Insets'                    )
+    list ~ append( 'java.awt.Toolkit'                   )
+    list ~ append( 'java.awt.datatransfer.StringSelection' )
+    list ~ append( 'java.awt.event.ActionListener'      )
+    list ~ append( 'java.awt.event.KeyEvent'            )
+    list ~ append( 'java.awt.event.KeyListener'         )
+    list ~ append( 'java.awt.event.MouseListener'       )
+    list ~ append( 'java.io.BufferedReader'             )
+--    list ~ append( 'java.io.File'                       )-- rgf, 2012-04-04, not used
+    list ~ append( 'java.io.InputStreamReader'          )
+    list ~ append( 'java.io.PrintWriter'                )
+    list ~ append( 'java.lang.Runnable'                 )
+    list ~ append( 'java.lang.Thread'                   )
+    list ~ append( 'javax.swing.ButtonGroup'            )
+    list ~ append( 'javax.swing.DefaultListModel'       )
+    list ~ append( 'javax.swing.JButton'                )
+    list ~ append( 'javax.swing.JCheckBoxMenuItem'      )
+    list ~ append( 'javax.swing.JComponent'             )
+    list ~ append( 'javax.swing.JDialog'                )
+    list ~ append( 'javax.swing.JFileChooser'           )
+    list ~ append( 'javax.swing.JFrame'                 )
+    list ~ append( 'javax.swing.JLabel'                 )
+    list ~ append( 'javax.swing.JList'                  )
+    list ~ append( 'javax.swing.JMenu'                  )
+    list ~ append( 'javax.swing.JMenuBar'               )
+    list ~ append( 'javax.swing.JMenuItem'              )
+    list ~ append( 'javax.swing.JPanel'                 )
+    list ~ append( 'javax.swing.JRadioButton'           )
+    list ~ append( 'javax.swing.JScrollPane'            )
+    list ~ append( 'javax.swing.JTabbedPane'            )
+    list ~ append( 'javax.swing.JTextArea'              )
+    list ~ append( 'javax.swing.JTextField'             )
+    list ~ append( 'javax.swing.KeyStroke'              )
+    list ~ append( 'javax.swing.ListSelectionModel'     )
+    list ~ append( 'javax.swing.UIManager'              )
+    list ~ append( 'javax.swing.border.EmptyBorder'     )
+    list ~ append( 'javax.swing.filechooser.FileFilter' )
+
+    do clz over list
+       call bsf.importClass clz
+    end
+
+return
+
+/*Establishes a socket connection one more time to get the server socket out of the
+  listening mode.*/
+::routine KillConnection
+    .local~mm.dir~listening = .false
+    socket2server=.bsf~new('java.net.Socket', .mm.dir~host, .mm.dir~port) -- connect to server
+return
+
+--Highlights the code line where a syntax condition was raised
+::routine HighlightSyntax
+   use arg line
+
+   codeArea = .mm.dir~codeArea
+   rootElement = codeArea~getDocument~getDefaultRootElement
+   lineElement = rootElement~getElement(line)
+   if lineElement \= .nil then
+     do
+       startOff = lineElement~getStartOffset
+       endoff = lineElement~getEndOffset
+       oldcolor = codeArea~getSelectionColor
+       codeArea~setSelectionColor(.java.awt.Color~red)
+       codeArea~~requestFocus~~select(startOff, endOff-1)
+     end
+   return
+
+
+::routine ppCondition public
+  use strict arg co, indent=(" "~copies(4)), s = .error
+
+  do index over co~allIndexes~sortWith(.caselessComparator~new)
+     value=co[index]    -- get associated item
+     tmpStr=indent || pp(index)~right(15)":"
+     if value~isA(.collection) then
+     do
+        s~say(tmpStr pp(value~items) "item(s)")
+        do entry over value
+           s~say(indent~copies(6) pp(entry))
+        end
+     end
+     else
+        s~say(tmpStr pp(value))
+  end
+
+  call HighlightSyntax(co['POSITION']-1)
+
+::routine pp public
+  return "["arg(1)"]"
+
+
+::routine LoadEnvironment
+    toolkit = .java.awt.Toolkit~getDefaultToolkit
+    dimension = toolkit~getScreenSize
+-- Establish frame sizes based of the user's screen resolution - will only be used for the first
+-- execution - from then on data is retrieved from the .rc file, unless user specifies default as an
+-- execution argument from the command line
+    .local~mm.dir~xpos = 0
+    .local~mm.dir~ypos = 0
+    dw = dimension~width
+    dh = dimension~height
+    ratio = dw/dh
+/* Ensures correct scaling*/
+    select
+        when ratio = (4/3) then
+            do
+                .local~mm.dir~width = (dw*0.48)~format(,0)
+                .local~mm.dir~height = (dh*0.8)~format(,0)
+            end
+        when ratio = (16/9) | ratio = (16/10) then
+            do
+                .local~mm.dir~width = (dw*0.4)~format(,0)
+                .local~mm.dir~height = (dh*0.8)~format(,0)
+            end
+        otherwise
+            do
+                .local~mm.dir~width = 500
+                .local~mm.dir~height = 650
+            end
+    end
+
+-- Need a few generic variables
+    .local~mm.dir~version        = '2.0'             -- Internal version control
+
+
+       /* Default starting path for Save As dialog - will be either
+          the folder ooRexxTry is executed from or the last folder that
+          was accessed using the Windows File Dialog: */
+    -- .local~mm.dir~preferred_path = '.'
+    .local~mm.dir~preferred_path = getHomeDir()
+
+--    .local~mm.dir~title          = 'ooRexxTry'       -- Title to use for the dialogs
+    parse version "-" name "_" ver "("
+    .mm.dir~title='ooRexxTry' pp(name ver", BSF" .bsf4rexx~version)
+
+
+    PARSE SOURCE version +1			-- Get the first letter of operation system name
+    .local~mm.dir~opSys = version
+
+-- List of fonts; each OS features at least a subset
+    fonts = .array~of("Andale Mono", "Courier", "Courier New", "Courier 10 Pitch", -
+                      "DejaVu Sans Mono", "FreeMono", "Liberation Mono", "Lucida Console", -
+                      "Menlo", "Monaco", "Monospace", "Nimbus Mono L")
+    .local~mm.dir~availableFonts = .array~new			-- list of fonts available on current OS
+    do name over fonts~allItems
+      font = .java.awt.Font~decode(name)
+      if  name="Monospace" | font~getFamily~equals(name) then
+      do
+          .mm.dir~availableFonts~append(name)	-- If a font is installed append it to the list of fonts
+												            -- offered by the program later on
+      end
+    end
+
+-- Load configuration data from the .rc file if present
+
+    if .mm.dir~useDefault then
+      do
+          if .mm.dir~opSys="W" then .local~mm.dir~fontname = 'Lucida Console'
+          else if .mm.dir~opSys="L" then  .local~mm.dir~fontname = 'Monospace'
+          else if .mm.dir~opSys="M" then .local~mm.dir~fontname = 'Monaco'
+          else .local~mm.dir~fontname = 'Courier'
+          .local~mm.dir~fontsize = 12
+          .local~mm.dir~historySize = 20
+          .local~mm.dir~inputMonitorDestination = 'GUIInputStream'
+          .local~mm.dir~outputMonitorDestination = 'GUIOutputStream'
+          .local~mm.dir~errorMonitorDestination = 'GUIErrorStream'
+          .local~mm.dir~host = 'localhost'
+          .local~mm.dir~port = 8888
+          .local~mm.dir~enableInputSocket = .false
+          .local~mm.dir~enableOutputSocket = .false
+          .local~mm.dir~enableErrorSocket = .false
+          .local~mm.dir~useSystemLookAndFeel = .false
+          .local~mm.dir~silent = .false
+          return
+      end
+
+    .local~mm.dir~ooRexxTry.rc = getHomeDir() || .bsf4rexx~file.separator || "ooRexxTry.rc"
+    .local~mm.dir~props = .properties~load(.local~mm.dir~ooRexxTry.rc)
+    props = .mm.dir~props
+    .local~mm.dir~fontname = props~getProperty("FontName")
+    if .mm.dir~fontname == .nil | \.mm.dir~availableFonts~hasItem(.mm.dir~fontname) then
+      do
+          if .mm.dir~opSys="W" then .local~mm.dir~fontname = 'Lucida Console'
+          else if .mm.dir~opSys="L" then  .local~mm.dir~fontname = 'Monospace'
+          else if .mm.dir~opSys="M" then .local~mm.dir~fontname = 'Monaco'
+          else .local~mm.dir~fontname = 'Courier'
+      end
+    .local~mm.dir~fontsize = props~getProperty("FontSize", 12)
+    .local~mm.dir~historySize = props~getProperty("HistorySize", 20)
+    .local~mm.dir~inputMonitorDestination = props~getProperty("Input_Monitor_Destination", 'GUIInputStream')
+    .local~mm.dir~outputMonitorDestination = props~getProperty("Output_Monitor_Destination", 'GUIOutputStream' )
+    .local~mm.dir~errorMonitorDestination = props~getProperty("Error_Monitor_Destination", 'GUIErrorStream')
+    .local~mm.dir~host = props~getProperty("Host", 'localhost')
+    .local~mm.dir~port = props~getProperty("Port", 8888)
+    .local~mm.dir~enableInputSocket = props~getProperty("Enable_Input_Stream_On_Socket", .false)
+    .local~mm.dir~enableOutputSocket = props~getProperty("Enable_Output_Stream_On_Socket", .false)
+    .local~mm.dir~enableErrorSocket = props~getProperty("Enable_Error_Stream_On_Socket", .false)
+    .local~mm.dir~useSystemLookAndFeel = props~getProperty("Use_System_Look_And_Feel", .false)
+    .local~mm.dir~silent = props~getProperty("silentMode", .false)
+
+   if .mm.dir~enableInputSocket~equals("no") then .local~mm.dir~enableInputSocket = .false
+   if .mm.dir~enableInputSocket~equals("yes") then .local~mm.dir~enableInputSocket = .true
+   if .mm.dir~enableOutputSocket~equals("no") then .local~mm.dir~enableOutputSocket = .false
+   if .mm.dir~enableOutputSocket~equals("yes") then .local~mm.dir~enableOutputSocket = .true
+   if .mm.dir~enableErrorSocket~equals("no") then .local~mm.dir~enableErrorSocket = .false
+   if .mm.dir~enableErrorSocket~equals("yes") then .local~mm.dir~enableErrorSocket = .true
+   if .mm.dir~useSystemLookAndFeel~equals("no") then .local~mm.dir~useSystemLookAndFeel = .false
+   if .mm.dir~useSystemLookAndFeel~equals("yes") then .local~mm.dir~useSystemLookAndFeel = .true
+   if .mm.dir~silent~equals("no") then .local~mm.dir~silent = .false
+   if .mm.dir~silent~equals("yes") then .local~mm.dir~silent = .true
+
+   return						-- -to point of invokation
+
+::requires bsf.cls
+
+
+::routine dontBSFExit    -- rgf, 2011-02-21: RexxAndJava should not carry out "System.exit()" subcommand
+--  val   =bsf.wrap(bsf("carryOutSystemExit"))
+  signal on any   -- make sure that this program works on older versions as well
+  newVal=bsf.wrap(bsf("carryOutSystemExit", .false))  -- set and fetch new value
+-- .stdout~say("dontBSFExit: 'carryOutSystemExit' was: ["val"], now set to: ["newVal"]")
+any:
+  return
+
+::routine getHomeDir
+  path=.java.lang.System~getProperty("user.home")
+  return path
+
+-------------------------------------------------------------------------------
+::class platform
+-------------------------------------------------------------------------------
+
+-- Class level
+
+::attribute current class -- the current platform is a singleton
+
+
+::method initialize class -- init not supported (can't instantiate itself or subclass from init)
+    use strict arg -- none
+    parse source sysrx .
+    select
+        when sysrx~caselessAbbrev("windows") then self~current = self~new("windows")
+        when sysrx~caselessAbbrev("aix") then self~current = self~new("aix")
+        when sysrx~caselessAbbrev("sunos") then self~current = self~new("sunos")
+        when sysrx~caselessAbbrev("linux") then self~current = self~new("linux")
+        otherwise self~current = self~new(sysrx~word(1)~lower)
+    end
+
+
+::method is class
+    use strict arg name
+    return self~name~caselessEquals(name)
+    
+    
+::method unknown class -- delegates to the singleton
+    use strict arg msg, args
+    forward to (self~current) message (msg) arguments (args)
+
+
+-- Instance level
+
+::attribute name
+
+
+::method init
+    use strict arg name
+    self~name = name
+

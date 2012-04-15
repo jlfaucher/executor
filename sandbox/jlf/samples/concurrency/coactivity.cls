@@ -106,7 +106,20 @@ each other explicitly and deterministically.
     expose coactivityObj
     proxy = .WeakProxy~new(self)
     use strict arg action="main", start=.false, object=(proxy) -- object must reference the proxy, not directly the coactivity, otherwise the coactivity will never be GC'ed
-    coactivityObj = .CoactivityObj~new(action, start, object, proxy) -- pass itself as proxy, to be stored on the wrapped coactivityObj (needed for supplier)
+    
+    -- The following methods, if defined, will be attached to the instance of CoactivityObj
+    -- Must do that, because when calling "onTerminate", the instance of Coactivity may be already garbage collected.
+    -- In this case, proxy~value is .nil, and you can't run a method on it.
+    -- This problem don't occur for "onStart" but I prefer to use a consistent way for handling these events.
+    -- Probably to rework : must search from .coactivity explicitely, not from self~class because method not found when subclassing.
+    instanceOnStart = .nil ; if self~hasMethod("onStart") then instanceOnStart = self~instanceMethod("onStart")
+    classOnStart = .nil ; if /*self~class*/ .Coactivity~hasMethod("onStart") then classOnStart = /*self~class*/ .Coactivity~instanceMethod("onStart")
+    instanceOnTerminate = .nil ; if self~hasMethod("onTerminate") then instanceOnTerminate = self~instanceMethod("onTerminate")
+    classOnTerminate = .nil ; if /*self~class*/ .Coactivity~hasMethod("onTerminate") then classOnTerminate = /*self~class*/ .Coactivity~instanceMethod("onTerminate")
+
+    -- pass itself as proxy, to be stored on the wrapped coactivityObj (needed for supplier)
+    coactivityObj = .CoactivityObj~new(action, start, object, proxy,,
+                                       instanceOnStart, classOnStart, instanceOnTerminate, classOnTerminate)
 
 
 ::method uninit
@@ -230,6 +243,10 @@ each other explicitly and deterministically.
     forward to (coactivityObj)
 
 
+::method setMethod class public unguarded -- override the private setMethod inherited from Object to make it public
+    forward class (super)
+
+
 --------------------------------------------------------------------------------
 ::class "CoactivityObj"
 
@@ -259,10 +276,14 @@ Status transitions :
 
 ::method init unguarded
     expose doer object proxy status yieldIndex
-    use strict arg action, start, object, proxy
+    use strict arg action, start, object, proxy, instanceOnStart, classOnStart, instanceOnTerminate, classOnTerminate
     doer = action~doer
     status = .CoactivityObj~notStarted
     yieldIndex = 0
+    if instanceOnStart <> .nil then self~setMethod("onStart", instanceOnStart)
+    if classOnStart <> .nil then self~class~setMethod("onStart", classOnStart)
+    if instanceOnTerminate <> .nil then self~setMethod("onTerminate", instanceOnTerminate)
+    if classOnTerminate <> .nil then self~class~setMethod("onTerminate", classOnTerminate)
     if start then self~start
 
 
@@ -287,6 +308,8 @@ Status transitions :
     .Coactivity~register(self)
     signal on any name trapCondition -- catch all
     signal on syntax name trapCondition -- gives better messages
+    if self~class~hasMethod("onStart") then self~class~onStart(self)
+    if self~hasMethod("onStart") then self~onStart
     guard off
     guard on when status <> .CoactivityObj~suspended
     if status == .CoactivityObj~running then do
@@ -302,6 +325,7 @@ Status transitions :
     trapCondition:
     self~kill -- maybe already killed or ended
     if self~hasMethod("onTerminate") then self~onTerminate
+    if self~class~hasMethod("onTerminate") then self~class~onTerminate(self)
     .Coactivity~unregister(self)
     if self~isKilled & condition("o") <> .nil then raise propagate
 
