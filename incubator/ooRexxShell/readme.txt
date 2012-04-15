@@ -91,6 +91,29 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2012 apr 04
+
+With extended ooRexx, the '=' shortcut is managed at the end of each clause.
+Now, it's possible to write that :
+    dir;rc=;unknown;rc=
+The transformed command is :
+    dir;
+    options "NOCOMMANDS";
+    rc ;
+    if var("result") then call dumpResult(result); 
+    options "COMMANDS";
+    unknown;
+    options "NOCOMMANDS";
+    rc ;
+    if var("result") then call dumpResult(result); 
+    options "COMMANDS"
+
+With standard ooRexx :
+The '=' shortcut is managed at the end of line only (no change, was like that before).
+Coactivities are no longer available, so no longer display the number of coactivities.
+
+
+-----------------------------------------------
 2012 jan 22
 
 New command "tb", to display the trace back after an error.

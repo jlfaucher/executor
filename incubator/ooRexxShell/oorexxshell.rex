@@ -82,7 +82,7 @@ signal on any name error
 shell~call(arg(1), address())
 
 error:
-endCount = .Coactivity~endAll
+if .ooRexxShell~isExtended then .Coactivity~endAll
 
 if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 
@@ -393,7 +393,7 @@ dispatchCommand:
     if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
         .color~select(.ooRexxShell~infoColor)
         say "Duration:" time('e') -- elapsed duration
-        say "#Coactivities:" .Coactivity~count -- counter of coactivities
+        if .ooRexxShell~isExtended then say "#Coactivities:" .Coactivity~count -- counter of coactivities
         .color~select(.ooRexxShell~defaultColor)
     end
     signal CONTINUE_REPL
@@ -405,17 +405,14 @@ dispatchCommand:
 -- because not created in the same context.
 -- Moreover don't call it, you must jump to (signal) it...
 interpretCommand:
+    .ooRexxShell~command =  transformSource(.ooRexxShell~command)
     if .ooRexxShell~traceDispatchCommand then do
         .color~select(.ooRexxShell~traceColor)
         .traceOutput~say("[interpret] command=" .ooRexxShell~command)
         .color~select(.ooRexxShell~defaultColor)
     end
-    if .ooRexxShell~command~right(1) == "=" then do
-        if .ooRexxShell~isExtended then .ooRexxShell~command = 'options "NOCOMMANDS";'.ooRexxShell~command~left(.ooRexxShell~command~length - 1)';call dumpResult'
-                                   else .ooRexxShell~command = "call dumpResult" .ooRexxShell~command~left(.ooRexxShell~command~length - 1)
-    end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
-                              else drop result
+                                  else drop result
     signal on syntax name interpretError
     interpret .ooRexxShell~command
     signal off syntax
@@ -427,6 +424,32 @@ interpretCommand:
     .ooRexxShell~error = .true
     RC = condition("O")~code
     signal return_to_dispatchCommand
+
+
+-------------------------------------------------------------------------------
+transformSource: procedure
+    use strict arg command
+    
+    if .ooRexxShell~isExtended then do
+        -- Manage the "=" shortcut at the end of each clause
+        sourceArray = .array~of(command)
+        clauser = .Clauser~new(sourceArray)
+        do while clauser~clauseAvailable
+            clause = clauser~clause~strip
+            if clause~right(1) == "=" then do
+                clause = clause~left(clause~length - 1)
+                clauser~clause = 'options "NOCOMMANDS";' clause ';if var("result") then call dumpResult(result); options "COMMANDS"'
+            end
+            clauser~nextClause
+        end
+        command = sourceArray[1]
+    end
+    else do
+        -- Manage the "=" shortcut at the end of the command (.clauser not available)
+        command = command~strip
+        if command~right(1) == "=" then command = "call dumpResult" command~left(command~length - 1)
+    end
+    return command
 
 
 -------------------------------------------------------------------------------
@@ -480,6 +503,8 @@ loadOptionalComponents:
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     call loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     .ooRexxShell~isExtended = .true
@@ -487,11 +512,11 @@ loadOptionalComponents:
         .ooRexxShell~isExtended = .false
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
-    call loadPackage("concurrency/coactivity.cls")
-    call loadPackage("pipeline/pipe.rex")
-    call loadPackage("pipeline/pipe_extension.cls") -- requires jlf sandbox ooRexx
-    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
+    if .ooRexxShell~isExtended then do
+        call loadPackage("concurrency/coactivity.cls")
+        call loadPackage("pipeline/pipe_extension.cls")
+        call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
+    end
 
     return
 
