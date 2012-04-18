@@ -56,7 +56,7 @@ Good point : the history of commands is kept.
 
 
 If an ooRexx clause ends with "=" then the command line is transformed to display the result :
-'1+2=' becomes 'command= options "NOCOMMANDS"; 1+2 ;if var("result") then call dumpResult(result); options "COMMANDS"'
+'1+2=' becomes 'options "NOCOMMANDS"; 1+2 ;if var("result") then call dumpResult(result); options "COMMANDS"'
 '=' alone displays the current value of the variable RESULT.
 
 
@@ -67,6 +67,8 @@ To leave the ooRexxShell.
 =====================================================================================
 ooRexxTry.rxj
 =====================================================================================
+
+Prerequisite : BSF4ooRexx is installed (not part of the sandbox snapshot).
 
 Adaptation of ooRexxTry.rxj (http://sourceforge.net/projects/bsf4oorexx) :
 Load all the packages/libraries delivered in the snapshot.
@@ -359,7 +361,7 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 Big picture :
     a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
     a RexxSourceLiteral holds the following properties, shared among all the RexxBlock instances created from it :
-      |  source : the text between the curly brackets {...} as an array of lines, including the tag :xxx if any.
+      |  source : the text between the curly brackets {...} as an array of lines, including the tag ::xxx if any.
       |  package : the package which contain the source literal.
       |  kind : kind of source, derived from the source's tag.
       |  rawExecutable : routine or method created at load-time (immediate parsing).
@@ -652,16 +654,7 @@ while(predicate)
 3~times{say arg(1)} -- returns an empty array because no result returned during the iteration
 3~times{1} -- returns .array~of(1,1,1)
 3~times{arg(1)} -- returns .array~of(1,2,3)
-
-
--- Lazy repeater : returns a coactivity.
--- Repeat self times the given action (self is a number).
--- When the action returns a result during the loop, this result is yielded.
--- The next result will be calculated only when requested.
-c = 1000000~times.generate
-say c~resume -- 1
-say c~resume -- 2
-...
+3~times -- returns .array~of(1,2,3) because the default action is {arg(1)}
 
 
 =====================================================================================
@@ -686,7 +679,7 @@ and yields the results one by one.
     ...
 The following options can be specified :
 ~action(action) :
-    The action to execute on each item. The default action is {use arg item ; return item}.
+    The action to execute on each item. The default action is {arg(1)} where arg(1) is the item.
     An action of type message (string) is supported. For convenience, the message is sent only
     if the receiver understands it (i.e. ~hasMethod returns .true). In case of recursive execution,
     the recursion is automatically stopped if the current item does not understand the message.
@@ -772,6 +765,15 @@ Examples :
 
 -- Generation of all natural numbers : 1 2 3 ...
     g=0~generate{item+1}~recursive
+
+-- Lazy repeater : returns a coactivity.
+-- Repeat self times the given action (self is a number).
+-- When the action returns a result during the loop, this result is yielded.
+-- The next result will be calculated only when requested.
+    c = 1000000~times.generate
+    say c~resume -- 1
+    say c~resume -- 2
+    ...
 
 -- Careful :
     1000000~times~generate{2*item} -- Collect all items in an array and then generate each array's item one by one (you don't get the first item immediatly)

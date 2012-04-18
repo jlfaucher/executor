@@ -520,22 +520,22 @@
 
 -- Yield each character one by one
 ::method generateC unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
 
 -- Yield each character one by one, as a pair (char, char_pos)
 ::method generateCI unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
 
 -- Yield each word one by one
 ::method generateW unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~subwords)~iterateBefore~action(action)
 
 -- Yield each word one by one, as a pair (word, word_index)
 ::method generateWI unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~subwords)~iterateBefore~action(action)~returnIndex
 
 
@@ -545,22 +545,22 @@
 
 -- Yield each character one by one
 ::method generateC unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)
 
 -- Yield each character one by one, as a pair (char, char_pos)
 ::method generateCI unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~makeArray(""))~iterateBefore~action(action)~returnIndex
 
 -- Yield each word one by one
 ::method generateW unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~subwords)~iterateBefore~action(action)
 
 -- Yield each word one by one, as a pair (word, word_index)
 ::method generateWI unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self~subwords)~iterateBefore~action(action)~returnIndex
 
 
@@ -583,12 +583,12 @@
 
 -- Yield each item one by one
 ::method generate unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self)~iterateBefore~action(action)
 
 -- Yield each item one by one, as a pair (item, index)
 ::method generateI unguarded
-    use strict arg action={item}
+    use strict arg action={arg(1)}
     return .Generator~new(self)~iterateBefore~action(action)~returnIndex
 
 
@@ -850,7 +850,7 @@
     expose allowCommands trace
     if trace then trace i
     use strict arg action
-    if action == .nil then return .nil
+    if action == .nil then action = {arg(1)}
     if allowCommands, action~hasMethod("actionDoer") then do
         doer = action~actionDoer("use arg item, index, depth, stack")~arity(4)
         return doer
@@ -868,9 +868,7 @@
 ::method main
     expose action depthFirst detectCycles doer once recursive source trace
     use strict arg -- none
-    -- Dont use a RexxBlock, to let load this package with standard ooRexx
     doer = self~action2doer(action)
-    if doer == .nil then doer = {item}
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~main")
     if trace then do -- additional info

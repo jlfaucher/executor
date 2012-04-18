@@ -243,7 +243,6 @@ loadOptionalComponents:
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     if .local~mm.dir~ooRexx.isExtended then do
-        call loadPackage("concurrency/coactivity.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
        .Coactivity~setMethod('onStart', .array~of(,
