@@ -91,6 +91,35 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2012 apr 18
+
+To properly support BSF4ooRexx, the coactivities must call BsfAttachToTID and BsfDetach.
+Same adaptation as ooRexxTry.rxj : Methods 'onStart' and 'onTerminate' are dynamically
+defined on the .Coactivity class by ooRexxShell.
+
+Now, this mono-line script works correctly under ooRexxShell :
+    c= {::coactivity properties=.bsf4rexx ~System.class ~getProperties; enum=properties~propertyNames;do while enum~hasMoreElements;key=enum~nextElement;value = properties~getProperty(key); .yield[.array~of(key, value)]; end}
+    c~do=   -- ['java.runtime.name','Java(TM) SE Runtime Environment']
+    c~do=   -- ['sun.boot.library.path','C:\Program Files\Java\jre6\bin']
+    etc...
+
+For convenience, here is the mult-lines version of the script above :
+    c= {::coactivity
+        properties=.bsf4rexx ~System.class ~getProperties  -- get the System properties
+        enum=properties~propertyNames    -- get an enumeration of the property names
+
+        do while enum~hasMoreElements    -- loop over enumeration
+            key=enum~nextElement          -- get next element
+            value = properties~getProperty(key)
+        .yield[.array~of(key, value)]
+        end
+       }
+    c~do=   -- ['java.runtime.name','Java(TM) SE Runtime Environment']
+    c~do=   -- ['sun.boot.library.path','C:\Program Files\Java\jre6\bin']
+You can run this script as-is from sandbox/jlf/samples/ooRexxTry/ooRexxTry.rxj
+
+
+-----------------------------------------------
 2012 apr 04
 
 With extended ooRexx, the '=' shortcut is managed at the end of each clause.

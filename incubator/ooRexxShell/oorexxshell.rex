@@ -505,7 +505,7 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
     call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("BSF.CLS")
+    .ooRexxShell~hasBSF = loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     .ooRexxShell~isExtended = .true
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
@@ -513,9 +513,18 @@ loadOptionalComponents:
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     if .ooRexxShell~isExtended then do
-        call loadPackage("concurrency/coactivity.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
+        if .ooRexxShell~hasBSF then do
+            -- Remember : BsfGetTID returns the current thread id, not the java thread id.
+            -- So must be called now and stored in the source, not called when running 'onStart'
+           .Coactivity~setMethod('onStart', .array~of(,
+               'use strict arg coactivity;',
+               'signal on syntax;',
+               'call BsfAttachToTid' BsfGetTID() ';',
+               'coactivity~setMethod("onTerminate", "call BsfDetach");',
+               'syntax:'))
+        end
     end
 
     return
@@ -567,6 +576,7 @@ loadLibrary:
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
+::attribute hasBSF class -- Will be .true if BSF.cls has been loaded
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute inputrx class -- The current input to interpret
@@ -597,6 +607,7 @@ loadLibrary:
 ::attribute debug class
 
 ::method init class
+    self~hasBSF = .false
     self~isExtended = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
