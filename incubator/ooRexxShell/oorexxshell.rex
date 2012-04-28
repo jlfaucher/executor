@@ -438,7 +438,7 @@ transformSource: procedure
             clause = clauser~clause~strip
             if clause~right(1) == "=" then do
                 clause = clause~left(clause~length - 1)
-                clauser~clause = 'options "NOCOMMANDS";' clause ';if var("result") then call dumpResult(result); options "COMMANDS"'
+                clauser~clause = 'options "NOCOMMANDS";' clause '; call dumpResult result; options "COMMANDS"'
             end
             clauser~nextClause
         end
@@ -505,7 +505,7 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
     call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    .ooRexxShell~hasBSF = loadPackage("BSF.CLS")
+    .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     .ooRexxShell~isExtended = .true
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
@@ -515,15 +515,16 @@ loadOptionalComponents:
     if .ooRexxShell~isExtended then do
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        if .ooRexxShell~hasBSF then do
-            -- Remember : BsfGetTID returns the current thread id, not the java thread id.
-            -- So must be called now and stored in the source, not called when running 'onStart'
-           .Coactivity~setMethod('onStart', .array~of(,
-               'use strict arg coactivity;',
-               'signal on syntax;',
-               'call BsfAttachToTid' BsfGetTID() ';',
-               'coactivity~setMethod("onTerminate", "call BsfDetach");',
-               'syntax:'))
+        if .ooRexxShell~hasBsf then do
+            .ooRexxShell~BsfJavaThreadId = BsfGetTid()
+            onStartSource = .array~of(,
+                'use strict arg coactivity;',
+                'signal on syntax;',
+                'call BsfAttachToTid .ooRexxShell~BsfJavaThreadId;',
+                'coactivity~setMethod("onTerminate", "call BsfDetach");',
+                'syntax:')
+            onStartMethod = .method~new("", onStartSource) -- When explictely creating a method like that, then .ooRexxShell is visible when running the method...
+            .Coactivity~setMethod('onStart', onStartMethod) -- If passing onStartSource here, then .ooRexxShell is not visible when running the method...
         end
     end
 
@@ -573,10 +574,11 @@ loadLibrary:
 ::class ooRexxShell
 -------------------------------------------------------------------------------
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
+::attribute BsfJavaThreadId class -- The thread id of the thread which loaded BSF.cls
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
-::attribute hasBSF class -- Will be .true if BSF.cls has been loaded
+::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute inputrx class -- The current input to interpret
@@ -607,7 +609,8 @@ loadLibrary:
 ::attribute debug class
 
 ::method init class
-    self~hasBSF = .false
+    self~BsfJavaThreadId = 0
+    self~hasBsf = .false
     self~isExtended = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
