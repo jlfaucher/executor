@@ -1,7 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2012-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -35,33 +34,23 @@
 /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-/****************************************************************************
 
-persdata.rc
+::class 'DirectoryManager' public
 
-produced by VisualAge Resource Workshop
+::method init
+  expose originalDirectory
 
-*****************************************************************************/
+  -- Save our current directory.
+  originalDirectory = directory()
 
-#define DIALOG_1	1
+  -- Get the full path to this program file.
+  parse source . . pgmFile
 
-100 DIALOG 6, 15, 242, 130
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Employees"
-FONT 8, "System"
-{
- CONTROL "Name", 21, "EDIT", WS_BORDER | WS_TABSTOP, 50, 11, 177, 12
- CONTROL "City", 22, "COMBOBOX", CBS_DROPDOWNLIST | WS_TABSTOP, 50, 30, 174, 55
- CONTROL "Profession", 23, "LISTBOX", LBS_STANDARD, 73, 52, 156, 50
- AUTORADIOBUTTON "&Male", 31, 12, 71, 28, 12
- AUTOCHECKBOX "M&arried", 41, 12, 99, 37, 12
- DEFPUSHBUTTON "OK", IDOK, 76, 111, 50, 14
- PUSHBUTTON "Cancel", IDCANCEL, 132, 111, 50, 14
- PUSHBUTTON "Help", IDHELP, 187, 111, 50, 14
- LTEXT "Person:", -1, 10, 12, 34, 8
- LTEXT "City:", -1, 10, 32, 34, 8
- LTEXT "Profession:", -1, 10, 53, 42, 8
- CONTROL "", -1, "static", SS_BLACKFRAME | WS_CHILD | WS_VISIBLE, 9, 68, 47, 45
- AUTORADIOBUTTON "&Female", 32, 12, 84, 39, 12
-}
+  -- Get the directory this program file is located in, and then cd to it.
+  pgmDir = pgmFile~left(pgmFile~lastpos('\') - 1)
+  pgmDir = directory(pgmDir)
 
+
+::method goBack
+  expose originalDirectory
+  ret = directory(originalDirectory)

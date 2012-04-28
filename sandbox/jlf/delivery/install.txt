@@ -13,6 +13,8 @@ call setenv_oorexx.bat (to execute each time you open a new console)
 
 From now, you can run scripts : rexx myscript
 or launch the ooRexxShell : oorexxshell
+or launch the oodialog version of ooRexxTry : rexx ooRexxTry
+or launch the java version of ooRexxTry : rexx ooRexxTry.rxj
 
 
 =====================================================================================
@@ -26,6 +28,8 @@ Go to the directory oorexx-sandbox-jlf.
 
 From now, you can run scripts : rexx myscript
 or launch the ooRexxShell : oorexxshell
+or launch the oodialog version of ooRexxTry : rexx ooRexxTry
+or launch the java version of ooRexxTry : rexx ooRexxTry.rxj
 
 
 =====================================================================================
@@ -39,9 +43,29 @@ Go to the directory oorexx-sandbox-jlf.
 
 From now, you can run scripts : rexx myscript
 or launch the ooRexxShell : oorexxshell
+or launch the oodialog version of ooRexxTry : rexx ooRexxTry
+or launch the java version of ooRexxTry : rexx ooRexxTry.rxj
 
 If you need to run ooRexx in superuser mode, then you must execute setenv_oorexx when
 in superuser mode, otherwise the dynamic libraries won't be found :
 sudo bash
 Go to the directory oorexx-sandbox-jlf.
 . ./setenv_oorexx
+
+
+=====================================================================================
+BSF4ooRexx for all platfomrs
+=====================================================================================
+
+A minimal distribution of BSF4ooRexx is included in the snapshot :
+- Full support for Java, which lets test ooRexxTry.rxj on all platforms, or call java
+  from oorexxshell.rex, ooRexxTry.rex
+- Does not include support for OpenOffice.
+- Does not include the documentation and examples.
+
+This minimal distribution demonstrates that BSF4ooRexx is a light extension, which
+supports a no-install configuration.
+
+If you are interested by BSF4ooRexx, then you should install the normal delivery from
+    http://sourceforge.net/projects/bsf4oorexx
+

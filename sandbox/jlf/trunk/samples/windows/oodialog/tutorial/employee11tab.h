@@ -1,6 +1,5 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
 /* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
@@ -35,45 +34,49 @@
 /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-/****************************************************************************
+#ifndef IDC_STATIC
+#define IDC_STATIC (-1)
+#endif
 
-em_categ.rc
-
-produced by VisualAge Resource Workshop
-
-*****************************************************************************/
-
-#include <windows.h>
-
-100 DIALOG 6, 15, 271, 123
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Employees"
-FONT 8, "System"
-{
- CONTROL "Name", 21, "EDIT", WS_BORDER | WS_TABSTOP, 42, 9, 167, 12
- CONTROL "City", 22, "COMBOBOX", CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 32, 30, 167, 56
- CONTROL "Profession", 23, "LISTBOX", LBS_STANDARD, 73, 52, 135, 65
- AUTORADIOBUTTON "&Male", 31, 12, 71, 26, 12
- AUTORADIOBUTTON "&Female", 32, 12, 84, 34, 12
- AUTOCHECKBOX "M&arried", 41, 12, 99, 37, 12
- PUSHBUTTON "&Add", 42, 214, 28, 50, 14
- PUSHBUTTON "&Print", 40, 215, 95, 50, 14
- LTEXT "Person:", -1, 10, 10, 27, 8
- LTEXT "City:", -1, 10, 32, 16, 8
- LTEXT "Profession:", -1, 10, 53, 39, 8
- CONTROL "", -1, "static", SS_BLACKFRAME | WS_CHILD | WS_VISIBLE, 9, 68, 47, 45
- SCROLLBAR 44, 219, 6, 9, 17, SBS_VERT
-}
-
-
-101 DIALOG 6, 15, 278, 126
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "List of Employees"
-FONT 8, "System"
-{
- CONTROL "List", 101, "LISTBOX", LBS_NOTIFY | WS_BORDER | LBS_USETABSTOPS | LBS_MULTICOLUMN | WS_BORDER | WS_VSCROLL, 3, 16, 272, 105
- LTEXT "Name", -1, 5, 7, 26, 8
- LTEXT "Profession", -1, 101, 7, 60, 8
- LTEXT "City", -1, 201, 7, 60, 8
-}
-
+#define IDD_EMPLOYEES_LIST                      207
+#define IDD_EMPLOYEES_BROWSE                    208
+#define IDD_EMPLOYEES_ADD                       209
+#define IDD_EMPLOYEES_EDIT                      210
+#define IDM_CONTEXT_MENUBAR                     212
+#define IDC_GB1                                 1000
+#define IDC_LV_EMPLOYEES                        1001
+#define IDC_PB_PRINT_A                          1001
+#define IDC_PB_PRINT_E                          1002
+#define IDC_UPD                                 1002
+#define IDC_PB_ADD_A                            1003
+#define IDC_PB_PRINT_B                          1003
+#define IDC_PB_RESET_E                          1003
+#define IDC_PB_SAVE_E                           1004
+#define IDC_EDIT_NAME_B                         1005
+#define IDC_CB_CITY_B                           1009
+#define IDC_LB_POSITION_B                       1011
+#define IDC_RB_MALE_B                           1012
+#define IDC_RB_FEMALE_B                         1013
+#define IDC_CHK_MARRIED_B                       1014
+#define IDC_CHK_FULLTIME_B                      1015
+#define IDC_EDIT_NAME_A                         1016
+#define IDC_CB_CITY_A                           1017
+#define IDC_LB_POSITION_A                       1018
+#define IDC_RB_MALE_A                           1019
+#define IDC_RB_FEMALE_A                         1020
+#define IDC_CHK_MARRIED_A                       1021
+#define IDC_CHK_FULLTIME_A                      1022
+#define IDC_EDIT_NAME_E                         1023
+#define IDC_CB_CITY_E                           1024
+#define IDC_LB_POSITION_E                       1025
+#define IDC_RB_MALE_E                           1026
+#define IDC_RB_FEMALE_E                         1027
+#define IDC_CHK_MARRIED_E                       1028
+#define IDC_CHK_FULLTIME_E                      1029
+#define IDM_POP_CONTEXT                         40000
+#define IDM_EDIT                                40001
+#define IDM_ADD                                 40002
+#define IDM_BROWSE                              40003
+#define IDM_DELETE                              40004
+#define IDM_SEP1                                40005
+#define IDM_SEP2                                40006

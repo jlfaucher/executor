@@ -35,47 +35,48 @@
 /* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
-/****************************************************************************/
-/* Name: EMPVALID.REX                                                       */
-/* Type: Object REXX Script                                                 */
-/*                                                                          */
-/****************************************************************************/
+
+/**
+ * Name: textScroll.rex
+ * Type: Open Object REXX Script
+ *
+ * Description:  Scrolling text example.
+ */
+
+signal on any name CleanUp
+
+dlg = .MyDialogClass~new("textScroll.rc", 100)
+if dlg~initCode <> 0 then return 99
+dlg~execute("SHOWTOP")
+
+return 0
 
 
-dlg = .MyDialogClass~new
-if dlg~InitCode <> 0 then exit
-if dlg~Load("EMPLOYE2.RC", 100) \= 0 then exit
-dlg~Execute("SHOWTOP")
-dlg~deinstall
 ::requires "ooDialog.cls"
 
-::class MyDialogClass subclass UserDialog
-::method InitDialog
-    self~City = "New York"
-    self~Male = 1
-    self~Female = 0
-    self~AddComboEntry(22, "Munich")
-    self~AddComboEntry(22, "New York")
-    self~AddComboEntry(22, "San Francisco")
-    self~AddComboEntry(22, "Stuttgart")
-    self~AddListEntry(23, "Business Manager")
-    self~AddListEntry(23, "Software Developer")
-    self~AddListEntry(23, "Broker")
-    self~AddListEntry(23, "Police Man")
-    self~AddListEntry(23, "Lawyer")
-    self~connectButtonEvent(10, "CLICKED", "Print")   /* connect button 10 with a method */
+::class 'MyDialogClass' subclass RcDialog
 
-::method Print
-    self~GetData
-    if self~Male = 1 then title = "Mr."; else title = "Ms."
-    if self~Married = 1 then addition = " (married) "; else addition = ""
-    call infoDialog title self~Name addition || "A"x || "City:" self~City || "A"x ||,
-                     "Profession:" self~Profession
+::method init
 
-::method Validate
-    if self~getControlData(21)~strip = "" then
-    do
-        call infoDialog "An unnamed employee is not accepted!"
-        return 0       /* dialog annot be closed */
-    end; else
-        return 1       /* dialog can be closed */
+    forward class (super) continue
+    if self~initCode <> 0 then return self~initCode
+
+    self~data13 = "Arial"
+    self~text = "This is a goofy scrolling text demonstration"
+    self~data14 = 24
+    self~connectButtonEvent(11, "CLICKED", "Display")
+
+    return self~initCode
+
+
+::method initDialog
+
+   -- Set the background color of the button to the backgroud color of a button.
+   COLOR_BTNFACE = 15
+   self~setControlSysColor(10, COLOR_BTNFACE)
+
+
+::method display
+    self~getData
+    self~scrollInControl(10, self~text, self~data13, self~data14, "BOLD")
+

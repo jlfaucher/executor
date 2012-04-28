@@ -1,5 +1,9 @@
-ooRexx sandbox/jlf for experimental work.
+﻿ooRexx sandbox/jlf for experimental work.
 http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/
+
+Note :
+This file is encoded in UTF-8, because it contains strings in Greek, Russian,
+Hebrew and Japanese in the ooRexxTry.rex section.
 
 
 =====================================================================================
@@ -26,11 +30,11 @@ When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.
 
 Example (Windows) :
-ooRexx[CMD] 'dir oorexx | find ".dll"'              you need to surround by quotes
-ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd
+ooRexx[CMD] 'dir bin | find ".dll"'                 you need to surround by quotes
+ooRexx[CMD] cmd dir bin | find ".dll"               unless you temporarily select cmd
 ooRexx[CMD] say 1+2                                 3
 ooRexx[CMD] cmd                                     switch to the cmd interpreter
-CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
+CMD> dir bin | find ".dll"                          raw command, no need of surrounding quotes
 CMD> cd c:\program files
 CMD> say 1+2                                        error, the ooRexx interpreter is not active here
 CMD> oorexx say 1+2                                 you can temporarily select the ooRexx interpreter
@@ -55,8 +59,8 @@ Ex (Windows) :
 Good point : the history of commands is kept.
 
 
-If an ooRexx clause ends with "=" then the command line is transformed to display the result :
-'1+2=' becomes 'options "NOCOMMANDS"; 1+2 ;if var("result") then call dumpResult(result); options "COMMANDS"'
+If an ooRexx clause ends with "=" then the clause is transformed to display the result :
+'1+2=' becomes 'options "NOCOMMANDS"; 1+2 ; call dumpResult; options "COMMANDS"'
 '=' alone displays the current value of the variable RESULT.
 
 
@@ -65,30 +69,69 @@ To leave the ooRexxShell.
 
 
 =====================================================================================
-ooRexxTry.rxj
+ooRexxTry.rex
 =====================================================================================
 
-Prerequisite : BSF4ooRexx is installed (not part of the sandbox snapshot).
+Adaptation of ooRexxTry.rex delivered with ooRexx.
+Load all the packages/libraries delivered in the snapshot.
+If an ooRexx clause ends with "=" then the clause is transformed to display the result.
+
+Unlike ooRexxShell, ooRexxTry lets enter multiline code.
+Example taken from GetJavaSystemProperties.rxj in the BSF4ooRexx distribution :
+Get the Java System Properties from java.lang.System using the services set up by BSF.CLS.
+    properties=.bsf4rexx ~System.class ~getProperties  -- get the System properties
+    enum=properties~propertyNames    -- get an enumeration of the property names
+
+    do while enum~hasMoreElements    -- loop over enumeration
+        key=enum~nextElement          -- get next element
+        value = properties~getProperty(key)
+        say enquote2(key) "=" enquote2(value)
+    end
+
+A wide-char version of ooDialog is delivered in the snapshot.
+Warning : this wide-char version is derived from an older version of ooDialog (april 2010)
+and is no longer in sync with ooDialog 4.2.0 (the byte-char version).
+Internally, the strings are UTF-16. At the boundary of ooDialog, the strings coming from /
+going to the interpreter are converted from / to the code page specified by the routine
+setCodePage. ooRexxTry is configured to use UTF-8 (call setCodePage 65001).
+You can use the wide-char version by starting the command line with wchar (the path is
+temporarily updated to put the wide-char files in front of the path).
+Ex :
+wchar rexx ooRexxTry
+
+You can copy-paste the following lines (UTF-8 encoding) to the Code area of ooRexxTry,
+and see the difference between byte-char and wide-char versions of ooDialog (you can run
+both at the same time, just use two different consoles).
+---------------
+say "# Greek (monotonic): ξεσκεπάζω την ψυχοφθόρα βδελυγμία"
+say "# Russian: Съешь же ещё этих мягких французских булок да выпей чаю."
+say "# Hebrew: זה כיף סתם לשמוע איך תנצח קרפד עץ טוב בגן."
+say "# Japanese (Hiragana): あさきゆめみじ　ゑひもせず"
+say "あさきゆめみじ　ゑひもせず"~mapC{return arg(1)~c2x" "}
+-- utf8 not (yet) supported by the String class:
+-- returns 9 bytes, not 9 characters, and this is displayed as 3 graphemes
+return "あさきゆめみじ　ゑひもせず"~left(9) -- E3 81 82 E3 81 95 E3 81 8D
+---------------
+
+If the text is not displayed properly, then select the font "Arial Unicode MS" in
+Settings/FontName (if available).
+
+
+=====================================================================================
+ooRexxTry.rxj
+=====================================================================================
 
 Adaptation of ooRexxTry.rxj (http://sourceforge.net/projects/bsf4oorexx) :
 Load all the packages/libraries delivered in the snapshot.
 If an ooRexx clause ends with "=" then the command line is transformed to display the result.
 
-Unlike ooRexxShell, ooRexxTry lets enter multiline code.
-Example taken from GetJavaSystemProperties.rxj :
-Get the Java System Properties from java.lang.System using the services set up by BSF.CLS.
-    c= {::coactivity
-        properties=.bsf4rexx ~System.class ~getProperties  -- get the System properties
-        enum=properties~propertyNames    -- get an enumeration of the property names
+In this snapshot, java is configured to use UTF-8 as default encoding for external strings,
+using this declaration in bsf4oorexx/install/setEnvironment4BSF.cmd :
+    set BSF4Rexx_JavaStartupOptions=-Dsun.jnu.encoding=UTF-8 -Dfile.encoding=UTF-8
 
-        do while enum~hasMoreElements    -- loop over enumeration
-            key=enum~nextElement          -- get next element
-            value = properties~getProperty(key)
-        .yield[.array~of(key, value)]
-        end
-       }
-    c~do=   -- ['java.runtime.name','Java(TM) SE Runtime Environment']
-    c~do=   -- ['sun.boot.library.path','C:\Program Files\Java\jre6\bin']
+You can copy-paste the Greek/Russian/Hebrew/Japanese lines from the ooRexxTry.rex section
+and see what happens. If the text is not displayed properly, then select the font
+"Arial Unicode MS" in Settings/FontName (if available).
 
 
 =====================================================================================
@@ -961,6 +1004,7 @@ subclass = g~do
 =====================================================================================
 Summary of extension methods
 =====================================================================================
+
 
                                  -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
                                   |     reduce         |        reduceC      reduceW     |       |       |              |           

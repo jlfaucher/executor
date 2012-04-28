@@ -60,11 +60,16 @@ See documentation for version control
     if isDefault~translate = 'DEFAULT' then
         .local~useDefault = .true
 
+    -- Default code page UTF-8 when using wide-char oodialog (i.e if setCodePage available)
     -- To investigate : if I change the code page to 65001 from the "Code" area then at the next
     -- run, some characters like russian or japanese are not displayed correctly.
     -- At the second run, everything is ok...
     -- By setting the code page here, I'm sure it works always.
-    call setCodePage 65001 -- UTF-8
+    .local~ooRexx.wcharOOdialog = .false
+    signal on any name after.setCodePage
+    call setCodePage 65001 -- UTF-8 -- This routine is available only with wide-char ooDialog
+    .local~ooRexx.wcharOOdialog = .true
+    after.setCodePage:
     
     call LoadEnvironment                        -- Set up the environment to work with
     .platform~initialize
@@ -86,7 +91,7 @@ See documentation for version control
     code~Execute('ShowTop')                     -- Execute the dialog
     
     error:
-    say "Ended coactivities:" .Coactivity~endAll
+    if .local~ooRexx.isExtended then .Coactivity~endAll
     
     code~DeInstall                              -- Finished, so deInstall
 exit
@@ -95,13 +100,6 @@ exit
 -- Load optional packages/libraries
 -- Remember : don't implement that as a procedure or routine or method !
 loadOptionalComponents:
-    if .platform~is("windows") then do
-        call loadPackage("oodialog.cls")
-        call loadPackage("winsystm.cls")
-    end
-    if \.platform~is("windows") then do
-        call loadLibrary("rxunixsys")
-    end
     call loadLibrary("hostemu")
     call loadPackage("mime.cls")
     call loadPackage("rxftp.cls")
@@ -111,16 +109,30 @@ loadOptionalComponents:
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
-    call loadPackage("BSF.CLS")
+    call loadPackage("pipeline/pipe.rex")
+    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    .local~ooRexx.hasBsf = loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
+    .local~ooRexx.isExtended = .true
     if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
+        .local~ooRexx.isExtended = .false
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
-    call loadPackage("concurrency/coactivity.cls")
-    call loadPackage("pipeline/pipe.rex")
-    call loadPackage("pipeline/pipe_extension.cls") -- requires jlf sandbox ooRexx
-    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
-    call loadPackage("rgf_util2/rgf_util2_wrappers.rex") -- requires jlf sandbox ooRexx
+    if .local~ooRexx.isExtended then do
+        call loadPackage("pipeline/pipe_extension.cls")
+        call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
+        if .local~ooRexx.hasBsf then do
+            .local~ooRexx.BsfJavaThreadId = BsfGetTid()
+            onStartSource = .array~of(,
+                'use strict arg coactivity;',
+                'signal on syntax;',
+                'call BsfAttachToTid .local~ooRexx~BsfJavaThreadId;',
+                'coactivity~setMethod("onTerminate", "call BsfDetach");',
+                'syntax:')
+            onStartMethod = .method~new("", onStartSource) -- When explictely creating a method like that, then .ooRexxShell is visible when running the method...
+            .Coactivity~setMethod('onStart', onStartMethod) -- If passing onStartSource here, then .ooRexxShell is not visible when running the method...
+        end
+    end
 
     return
     
@@ -315,7 +327,7 @@ loadLibrary:
     ch1 = code_input~Cursor_Wait
     parse value self~CursorPos with preCX preCY
     code_input~SetCursorPos((siX+(siW/2))*self~FactorX,(siY+(siH/2))*self~FactorY)
-    arg_array = self~getText(args_input,.true)
+    arg_array = self~getText(args_input,.false) -- JLF don't strip, an empty line is an omitted argument
     .local~si = say_input
     w1 = code_input~selected~word(1)
     w2 = code_input~selected~word(2)
@@ -327,6 +339,7 @@ loadLibrary:
             code_string = code_array~makeString
             code_array  = code_string~substr(w1,w2-w1)~makearray
         end
+    if .local~ooRexx.isExtended then call transformSource code_array
 
     -- Clear any previous error data
     self~error_data    = ''
@@ -352,7 +365,8 @@ loadLibrary:
     signal on syntax name ArgSyntax
     do i = 1 to arg_array~items
         .local~badarg = i arg_array[i]
-        interpret 'arg_array['i'] =' arg_array[i]
+        if arg_array[i]~strip == "" then arg_array~remove(i)
+        else interpret 'arg_array['i'] =' arg_array[i]
     end
     signal off syntax
 
@@ -368,6 +382,10 @@ loadLibrary:
             end
     end
 
+    -- The thread is different at each run (thread created by ooDialog)
+    say "RunIt :" BsfGetTID()
+    if .local~ooRexx.hasBsf then call BsfAttachToTid .local~ooRexx.BsfJavaThreadId
+    call time('r') -- to see how long this takes
     if \found_cc then
         do
             exec = .executor~new('oorexxtry.code',code_array)
@@ -392,6 +410,8 @@ loadLibrary:
             exec~run(arg_array)
             rv = SysFileDelete(tempFile)
         end
+    duration = time('e')
+    if .local~ooRexx.hasBsf then call BsfDetach
 
     if .emsg \= '' then
         do
@@ -405,6 +425,8 @@ loadLibrary:
     else
         do
             self~error_data  = 'Code Execution Complete'
+            self~error_data ||= .endOfLine || "Duration:" duration
+            if .local~ooRexx.isExtended then self~error_data ||= .endOfLine || "#Coactivities: " || .Coactivity~count
             errors_input~title = self~error_data
         end
 
@@ -419,6 +441,22 @@ loadLibrary:
     self~SetCursorPos(preCX,preCY)
     self~ReturnFocus
 return
+
+transformSource: procedure
+    use strict arg sourceArray
+    clauser = .Clauser~new(sourceArray)
+    
+    do while clauser~clauseAvailable
+        clause = clauser~clause~strip
+        if clause~left(2) == "::" then leave -- don't transform code inside directives
+        if clause~right(1) == "=" then do
+            clause = clause~left(clause~length - 1)
+            -- Remember : when assigning a value to current clause, sourceArray is impacted 
+            clauser~clause = 'options "NOCOMMANDS";' clause ';if var("result") then call dumpResult(result); options "COMMANDS"'
+        end
+        clauser~nextClause
+    end
+    return
 
 ArgSyntax:
     msg = 'Trapped In'~right(11)'..: ArgSyntax'
@@ -440,6 +478,15 @@ ArgSyntax:
     code_input~RestoreCursorShape(ch1)
     self~SetCursorPos(preCX,preCY)
 return
+
+::routine dumpResult public
+    use strict arg object
+    if object~isA(.CoactivitySupplier) then say pp2(object) -- must not consume the datas
+    else if object~isA(.array) then say object~ppRepresentation -- condensed output
+    else if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
+    else say pp2(object)
+    return
+
 
 ::method Cancel
     handle = self~getSelf
@@ -1034,6 +1081,8 @@ return 0
                                                 -- the folder ooRexxTry is executed from or the last folder that
                                                 -- was accessed using the Windows File Dialog
     .local~title          = 'ooRexxTry'       -- Title to use for the dialogs
+    if .local~ooRexx.wcharOOdialog then .local~title ||= " (wide-char ooDialog)"
+                                   else .local~title ||= " (byte-char ooDialog)"
 
 -- If the .ini file is present, use it for font/silent variables
     .local~fontname = SysIni('oorexxtry.ini','oorexxtry','fn')

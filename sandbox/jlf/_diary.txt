@@ -137,6 +137,22 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2012 apr 22
+
+merge 7736-7771 from main/trunk
+
+Adaptation of ooRexxTry.rex :
+- set default code page to UTF-8 when using wide-char oodialog.
+- support omitted arguments.
+- display elapsed time.
+- when using extended ooRexx :
+    manage the '=' shortcut at the end of each clause.
+    display the number of coactivities.
+
+Prepare files for a new delivery in my dropbox.
+
+
+===============================================================================
 2012 mar 23
 
 merge 7691-7736 from main/trunk
@@ -151,12 +167,12 @@ The transformed command is :
     dir;
     options "NOCOMMANDS";
     rc ;
-    if var("result") then call dumpResult(result); 
+    call dumpResult; 
     options "COMMANDS";
     unknown;
     options "NOCOMMANDS";
     rc ;
-    if var("result") then call dumpResult(result); 
+    call dumpResult; 
     options "COMMANDS"
 
 
@@ -3666,3 +3682,5 @@ merge 7647-7688 from main/trunk
 merge 7688-7691 from main/trunk
 
 merge 7691-7736 from main/trunk
+
+merge 7736-7771 from main/trunk

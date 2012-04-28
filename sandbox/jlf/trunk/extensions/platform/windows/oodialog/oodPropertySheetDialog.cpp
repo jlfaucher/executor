@@ -630,6 +630,7 @@ static void initializePropSheet(HWND hPropSheet)
         pcpbd->hDlg = hPropSheet;
 
         // Not sure about using the whole top dialog thing for property sheets.
+        // There is no pcpbd->previous set.
         installNecessaryStuff(pcpbd, NULL);
 
         pcpbd->hDlg = hPropSheet;
@@ -642,7 +643,8 @@ static void initializePropSheet(HWND hPropSheet)
         pcpbd->onTheTop = true;
         pcpbd->dlgProcThreadID = GetCurrentThreadId();
 
-        // Do we have a modal dialog?  TODO need to check this for modeless property sheet.
+        // Do we have a modal dialog?  TODO this check is worthless because
+        // there is no pcpbd->previous set.
         checkModal((pCPlainBaseDialog)pcpbd->previous, pcpsd->modeless);
 
         c->SendMessage0(pcpsd->rexxSelf, "INITDIALOG");
@@ -969,7 +971,16 @@ static int doPSMessage(pCPropertySheetPage pcpsp, pCPlainBaseDialog pcpbd, uint3
             uint32_t reply           = PSNRET_NOERROR;
             RexxObjectPtr isOkButton = lppsn->lParam ? TheTrueObj : TheFalseObj;
 
-            RexxObjectPtr result = c->SendMessage2(pcpsp->rexxSelf, APPLY_MSG, isOkButton, pcpsd->rexxSelf);
+            // We want to get the Rexx property sheet page that had the focus when the Apply button was presse.
+            int32_t i = PropSheet_HwndToIndex(pcpsd->hDlg, PropSheet_GetCurrentPageHwnd(pcpsd->hDlg));
+            pCPropertySheetPage current = pcpsd->cppPages[i];
+
+            // Index to Rexx is one-based.
+            i++;
+
+            RexxArrayObject args = c->ArrayOfFour(isOkButton, c->Int32(i), current->rexxSelf, pcpsd->rexxSelf);
+
+            RexxObjectPtr result = c->SendMessage(pcpsp->rexxSelf, APPLY_MSG, args);
 
             if ( goodReply(c, pcpsd->pcpbd, result, APPLY_MSG) )
             {
@@ -978,6 +989,7 @@ static int doPSMessage(pCPropertySheetPage pcpsp, pCPlainBaseDialog pcpbd, uint3
                     tcInvalidReturnListException(c, APPLY_MSG, VALID_PSNRET_LIST, result, pcpsd->pcpbd);
                 }
             }
+
             setWindowPtr(hPage, DWLP_MSGRESULT, (LPARAM)reply);
             break;
         }
@@ -1002,8 +1014,8 @@ static int doPSMessage(pCPropertySheetPage pcpsp, pCPlainBaseDialog pcpbd, uint3
 
         case PSN_KILLACTIVE :
         {
-            // Send TRUE to *cancel* the page change.  The Rexx programmer
-            // should send .false to cancel.
+            // Reply TRUE to Windows to *cancel* the page change.  The Rexx
+            // programmer should send .false to cancel the change.
             long reply = FALSE;
 
             RexxObjectPtr result = c->SendMessage1(pcpsp->rexxSelf, KILLACTIVE_MSG, pcpsd->rexxSelf);
@@ -1019,6 +1031,7 @@ static int doPSMessage(pCPropertySheetPage pcpsp, pCPlainBaseDialog pcpbd, uint3
                     reply = TRUE;
                 }
             }
+
             setWindowPtr(hPage, DWLP_MSGRESULT, (LPARAM)reply);
             break;
         }
@@ -1174,7 +1187,7 @@ DWORD WINAPI PropSheetLoopThread(void *arg)
         }
         if ( PropSheet_GetCurrentPageHwnd(hPropSheet) == NULL )
         {
-            pcpsd->getResultValue = (int)PropSheet_GetResult(hPropSheet);
+            pcpsd->getResultValue = PropSheet_GetResult(hPropSheet);
             break;
         }
     }
@@ -1188,6 +1201,8 @@ done_out:
     {
         ret = delDialog(pcpbd, pcpbd->dlgProcContext);
         pcpbd->hDlgProcThread = NULL;
+
+        c->SendMessage0(pcpbd->rexxSelf, "LEAVING");
     }
     LeaveCriticalSection(&crit_sec);
 
@@ -2484,6 +2499,9 @@ RexxMethod2(RexxObjectPtr, psdlg_execute, OPTIONAL_RexxObjectPtr, owner, CSELF, 
     RexxObjectPtr   result = TheNegativeOneObj;
     HWND            hParent = NULL;
 
+    pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)pCSelf;
+    pcpsd->getResultValue = -1;
+
     PROPSHEETPAGE *psp = NULL;
     PROPSHEETHEADER *psh = NULL;
 
@@ -2495,8 +2513,6 @@ RexxMethod2(RexxObjectPtr, psdlg_execute, OPTIONAL_RexxObjectPtr, owner, CSELF, 
             goto done_out;
         }
     }
-
-    pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)pCSelf;
 
     psp = initPropSheetPages(context, pcpsd);
     if ( psp == NULL )
@@ -2512,7 +2528,7 @@ RexxMethod2(RexxObjectPtr, psdlg_execute, OPTIONAL_RexxObjectPtr, owner, CSELF, 
         goto done_out;
     }
 
-    INT_PTR ret;
+    intptr_t ret;
     if ( hParent == NULL )
     {
         assignPSDThreadContext(pcpsd, context->threadContext, GetCurrentThreadId());
@@ -2528,8 +2544,14 @@ RexxMethod2(RexxObjectPtr, psdlg_execute, OPTIONAL_RexxObjectPtr, owner, CSELF, 
     }
     else
     {
-        ret = (INT_PTR)SendMessage(hParent, WM_USER_CREATEPROPSHEET_DLG, (WPARAM)psh, (LPARAM)pcpsd);
+        ret = (intptr_t)SendMessage(hParent, WM_USER_CREATEPROPSHEET_DLG, (WPARAM)psh, (LPARAM)pcpsd);
     }
+
+    pcpsd->getResultValue = ret;
+
+    // Call leaving now, but note that the underlying Windows property sheet
+    // dialog is now destroyed
+    context->SendMessage0(pcpsd->rexxSelf, "LEAVING");
 
     result = context->WholeNumber(ret);
 
@@ -3130,34 +3152,44 @@ RexxMethod1(RexxObjectPtr, psdlg_getCurrentPageHwnd, CSELF, pCSelf)
 
 /** PropertySheetDialog::getResult()
  *
- *  Used by modeless property sheets to retrieve the same information returned
- *  to modal property sheets.
+ *  Returns the result of executing the PropertySheetDialog.
+ *
+ *  Originally this was intended to be  used by modeless property sheets to
+ *  retrieve the same information returned to modal property sheets. Now howver,
+ *  the getResultValue is set for modeless on modal dialogs.
  *
  */
 RexxMethod1(RexxObjectPtr, psdlg_getResult, CSELF, pCSelf)
 {
     pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)pCSelf;
 
-    RexxObjectPtr result;
+    char *result;
+
     switch ( pcpsd->getResultValue )
     {
+        case OOD_NO_VALUE :
+            result = "NOTFINISHED";
+            break;
         case -1 :
-            result = TheNegativeOneObj;
+            result = "EXECUTIONERR";
             break;
         case ID_PSRESTARTWINDOWS :
-            result = context->String("RESTARTWINDOWS");
+            result = "RESTARTWINDOWS";
             break;
         case ID_PSREBOOTSYSTEM :
-            result = context->String("REBOOTSYSTEM");
+            result = "REBOOTSYSTEM";
             break;
         case 0 :
-            result = TheZeroObj;
+            result = "CLOSEDCANCEL";
+            break;
+        case 1 :
+            result = "CLOSEDOK";
             break;
         default :
-            result = TheNilObj;
+            result = "UNKNOWN";
             break;
     }
-    return result;
+    return context->String(result);
 }
 
 
@@ -6274,7 +6306,18 @@ RexxMethod2(RexxObjectPtr, cd_controlDlgInit, POINTER, cpbd, OSELF, self)
         pccd->pcdd = (pCDynamicDialog)context->ObjectToCSelf(self, TheDynamicDialogClass);
     }
 
-    int32_t resID = oodResolveSymbolicID(context->threadContext, self, pcpbd->resourceID, -1, 2, true);
+    // For a UserControlDialog, the resource ID can be 0, but for the other
+    // types, we want a valid resource ID.
+    int32_t resID;
+    if ( pccd->pageType == oodUserControlDialog )
+    {
+        resID = oodResolveSymbolicID(context->threadContext, self, pcpbd->resourceID, -1, 2, false);
+    }
+    else
+    {
+        resID = oodResolveSymbolicID(context->threadContext, self, pcpbd->resourceID, -1, 2, true);
+    }
+
     if ( resID == OOD_ID_EXCEPTION )
     {
         pcpbd->wndBase->initCode = 1;

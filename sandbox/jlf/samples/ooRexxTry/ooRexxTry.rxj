@@ -55,7 +55,7 @@
 
             2012-04-05 JLF
                         - Convert the result to a string before displaying in returnsArea
-                        - Support empty arguments : arg(N, "e") returns 1 if line N is empty in argsArea.
+                        - Support empty arguments : arg(N, "o") returns 1 if line N is empty in argsArea.
                         - The temporary file ooRexxTry_test was created with a path in home directory,
                           but then only the filename part was kept. Now keeps the whole path.
                         - The path to ooRexxTry_test is surrounded by quotes to support whitespaces.
@@ -2248,15 +2248,11 @@ syntax:
             arg_string = arg_string~strip('b',',')
 
             -- runnable = BsfCreateRexxProxy(.ExecuteThread~new('oorexxtry.code','call ooRexxTry_test9999.rex' arg_string, arg_array, slotDir~userData), ,.java.lang.Runnable)
-            runnable = BsfCreateRexxProxy(.ExecuteThread~new('oorexxtry.code','call' quoted(.mm.dir~tempFile) arg_string, arg_array, slotDir~userData), ,.java.lang.Runnable)
+            runnable = BsfCreateRexxProxy(.ExecuteThread~new('oorexxtry.code','call' enquote2(.mm.dir~tempFile) arg_string, arg_array, slotDir~userData), ,.java.lang.Runnable)
             .java.lang.Thread~new(runnable)~~bsf.dispatch("start")		-- Run code in separate thread
         end
 
 return
-
-quoted:
-    use strict arg string, quote='"'
-    return quote || string~changeStr(quote, quote||quote)  || quote
 
 transformSource: procedure
     use strict arg sourceArray
@@ -2972,7 +2968,7 @@ return
     .local~mm.dir~opSys = version
 
 -- List of fonts; each OS features at least a subset
-    fonts = .array~of("Andale Mono", "Courier", "Courier New", "Courier 10 Pitch", -
+    fonts = .array~of("Arial Unicode MS", "Andale Mono", "Courier", "Courier New", "Courier 10 Pitch", -
                       "DejaVu Sans Mono", "FreeMono", "Liberation Mono", "Lucida Console", -
                       "Menlo", "Monaco", "Monospace", "Nimbus Mono L")
     .local~mm.dir~availableFonts = .array~new			-- list of fonts available on current OS

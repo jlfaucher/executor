@@ -73,6 +73,7 @@ create_Packages()
     copy_file ../../../incubator/ooRexxShell/oorexxshell
     copy_file ../../../incubator/ooRexxShell/oorexxshell.bat
     copy_file ../../../incubator/ooRexxShell/oorexxshell.rex
+    copy_file ../unicode/ooRexx/ooRexxTry.rex
     copy_file ../samples/ooRexxTry/ooRexxTry.rxj
     create_Makefile_am "_samples concurrency extension pipeline profiling regex rgf_util2 trace"
 
