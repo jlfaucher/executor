@@ -12,24 +12,23 @@ prepend_path()
 }
 
 me=$(readlink -f ${BASH_SOURCE[0]})
-export oorexx_delivery=`dirname "$me"`
+export OOREXX_HOME=`dirname "$me"`
 
 echo -n -e "\033]0;$version\007"
 
 export PATH
+export DYLD_LIBRARY_PATH
 export DYLD_FALLBACK_LIBRARY_PATH
+export NLSPATH
 export CPLUS_INCLUDE_PATH
 export LIBRARY_PATH
 
-prepend_path PATH $oorexx_delivery/bin
-prepend_path PATH $oorexx_delivery/packages
-prepend_path DYLD_FALLBACK_LIBRARY_PATH $oorexx_delivery/lib
-prepend_path CPLUS_INCLUDE_PATH $oorexx_delivery/include
-prepend_path LIBRARY_PATH $oorexx_delivery/lib
+prepend_path PATH $OOREXX_HOME/bin
+prepend_path PATH $OOREXX_HOME/packages
+prepend_path DYLD_LIBRARY_PATH $OOREXX_HOME/lib
+prepend_path DYLD_FALLBACK_LIBRARY_PATH $OOREXX_HOME/lib
+prepend_path NLSPATH $OOREXX_HOME/bin/rexx.cat
+prepend_path CPLUS_INCLUDE_PATH $OOREXX_HOME/include
+prepend_path LIBRARY_PATH $OOREXX_HOME/lib
 
-## If the rxapi server is not running then launch it in a separate terminal
-#rxapi_pid=`ps -ef | grep rxapi | grep -v grep | awk '{print $2}'`
-#if test -z "$rxapi_pid"
-#then
-#    open -a terminal "$oorexx_delivery/bin/rxapi"
-#fi
+source $OOREXX_HOME/bsf4oorexx/install/setEnvironment4BSF.sh

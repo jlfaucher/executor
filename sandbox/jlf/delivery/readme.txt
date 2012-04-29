@@ -1,4 +1,4 @@
-﻿ooRexx sandbox/jlf for experimental work.
+ooRexx sandbox/jlf for experimental work.
 http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/
 
 Note :
@@ -7,7 +7,7 @@ Hebrew and Japanese in the ooRexxTry.rex section.
 
 
 =====================================================================================
-ooRexxShell
+ooRexxShell (all platforms)
 =====================================================================================
 
 Command history (up-down arrows), filename completion (tab).
@@ -15,13 +15,14 @@ Command history (up-down arrows), filename completion (tab).
 Warning : ctrl-c not working as expected.
 
 Load all the packages/libraries delivered in the snapshot.
-bsf.cls and uno.cls are not part of the snapshot, but are loaded anyway, assuming you
-have installed them. It's not a problem is bsf.cls or uno.cls fail to load, nothing in
-ooRexxshell depends on them. You just won't have access to their functionalities.
+uno.cls is not part of the snapshot, but is loaded anyway, assuming you have installed it.
+It's not a problem if uno.cls fails to load, nothing in ooRexxshell depends on it.
+You just won't have access to its functionalities.
 
 This shell supports several interpreters :
 - ooRexx itself
 - the system address (cmd under Windows, bash under Linux)
+- hostemu
 - any other external environment (you need to modify this script, search for hostemu for an example).
 The prompt indicates which interpreter is active.
 By default the shell is in ooRexx mode.
@@ -64,12 +65,28 @@ If an ooRexx clause ends with "=" then the clause is transformed to display the 
 '=' alone displays the current value of the variable RESULT.
 
 
+You have access to Java from ooRexxShell.
+Ex :
+    props = .bsf4rexx~System.class~getProperties
+    enum=props~propertyNames
+    do while enum~hasMoreElements; key=enum~nextElement; value = props~getProperty(key); say enquote2(key) "=" enquote2(value); end
+Under MacOSX, if you want to use awt or swing classes then you must launch ooRexxShell like that :
+    rexxj2.sh $OOREXX_HOME/packages/oorexxshell.rex
+otherwise you will have a java.awt.HeadlessException raised. 
+Example of code which depends on awt :
+    call bsf.importClass "java.awt.Toolkit"
+    toolkit = .java.awt.Toolkit~getDefaultToolkit
+    dimension = toolkit~getScreenSize
+    dimension~width=
+    dimension~height=
+
+
 Command 'exit'.
 To leave the ooRexxShell.
 
 
 =====================================================================================
-ooRexxTry.rex
+ooRexxTry.rex (Windows only)
 =====================================================================================
 
 Adaptation of ooRexxTry.rex delivered with ooRexx.
@@ -81,7 +98,6 @@ Example taken from GetJavaSystemProperties.rxj in the BSF4ooRexx distribution :
 Get the Java System Properties from java.lang.System using the services set up by BSF.CLS.
     properties=.bsf4rexx ~System.class ~getProperties  -- get the System properties
     enum=properties~propertyNames    -- get an enumeration of the property names
-
     do while enum~hasMoreElements    -- loop over enumeration
         key=enum~nextElement          -- get next element
         value = properties~getProperty(key)
@@ -118,8 +134,11 @@ Settings/FontName (if available).
 
 
 =====================================================================================
-ooRexxTry.rxj
+ooRexxTry.rxj (all platforms)
 =====================================================================================
+
+Under MacOSX : rexxj2.sh $OOREXX_HOME/packages/ooRexxTry.rxj
+Other platforms : rexx ooRexxTry.rxj
 
 Adaptation of ooRexxTry.rxj (http://sourceforge.net/projects/bsf4oorexx) :
 Load all the packages/libraries delivered in the snapshot.

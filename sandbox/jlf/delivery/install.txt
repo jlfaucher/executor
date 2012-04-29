@@ -28,7 +28,6 @@ Go to the directory oorexx-sandbox-jlf.
 
 From now, you can run scripts : rexx myscript
 or launch the ooRexxShell : oorexxshell
-or launch the oodialog version of ooRexxTry : rexx ooRexxTry
 or launch the java version of ooRexxTry : rexx ooRexxTry.rxj
 
 
@@ -43,14 +42,8 @@ Go to the directory oorexx-sandbox-jlf.
 
 From now, you can run scripts : rexx myscript
 or launch the ooRexxShell : oorexxshell
-or launch the oodialog version of ooRexxTry : rexx ooRexxTry
-or launch the java version of ooRexxTry : rexx ooRexxTry.rxj
-
-If you need to run ooRexx in superuser mode, then you must execute setenv_oorexx when
-in superuser mode, otherwise the dynamic libraries won't be found :
-sudo bash
-Go to the directory oorexx-sandbox-jlf.
-. ./setenv_oorexx
+or launch the java version of ooRexxTry : rexxj2.sh $OOREXX_HOME/packages/ooRexxTry.rxj
+(must use rexxj2.sh, not rexx, because of restrictions on MacOSX)
 
 
 =====================================================================================
@@ -66,6 +59,11 @@ A minimal distribution of BSF4ooRexx is included in the snapshot :
 This minimal distribution demonstrates that BSF4ooRexx is a light extension, which
 supports a no-install configuration.
 
+Restrictions on MacOSX:
+    - Run awt/swing-applications with "rexxj2.sh" only.
+    - Using the executable "rexx" will load and start Java in "headless" mode,
+      which means that no awt event dispatch thread can be created.
+      This is due to some pecularities of MacOSX.
+
 If you are interested by BSF4ooRexx, then you should install the normal delivery from
     http://sourceforge.net/projects/bsf4oorexx
-
