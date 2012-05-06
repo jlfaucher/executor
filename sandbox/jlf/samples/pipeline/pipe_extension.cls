@@ -25,7 +25,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     return pipe
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe.generate class unguarded
+::method coactivePipe class unguarded
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
@@ -42,7 +42,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     return pipe
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
-::method pipe.generate class unguarded
+::method coactivePipe class unguarded
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
@@ -55,7 +55,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     pipe~go(self, profile)
     return pipe
 
-::method pipe.generate unguarded
+::method coactivePipe unguarded
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
@@ -66,7 +66,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe
     return self~pipe(pipe, .true)
 
-::method pipeProfile.generate unguarded
+::method coactivePipeProfile unguarded
     use strict arg pipe
     return {::closure.coactive
             expose pipe self

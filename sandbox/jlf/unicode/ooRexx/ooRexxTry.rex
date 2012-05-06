@@ -383,7 +383,6 @@ loadLibrary:
     end
 
     -- The thread is different at each run (thread created by ooDialog)
-    say "RunIt :" BsfGetTID()
     if .local~ooRexx.hasBsf then call BsfAttachToTid .local~ooRexx.BsfJavaThreadId
     call time('r') -- to see how long this takes
     if \found_cc then
@@ -396,6 +395,7 @@ loadLibrary:
             tempFile = '.\ooRexxTry_test9999.rex'
             c_stream = .stream~new(tempFile)
             c_stream~open('Write Replace')
+            c_stream~lineout('.context~parentContext~package~findRoutine("updatePackageEnvironment")~call(.context~package, .context~parentContext~package)')
             do ca = 1 to code_array~items
                 c_stream~lineout(code_array[ca])
             end
@@ -406,7 +406,7 @@ loadLibrary:
                 arg_string = arg_string','arg_ca
             end
             arg_string = arg_string~strip('b',',')
-            exec = .executor~new('oorexxtry.code','call ooRexxTry_test9999.rex' arg_string)
+            exec = .executor~new('oorexxtry.code','call "'tempFile'"' arg_string)
             exec~run(arg_array)
             rv = SysFileDelete(tempFile)
         end
@@ -452,7 +452,7 @@ transformSource: procedure
         if clause~right(1) == "=" then do
             clause = clause~left(clause~length - 1)
             -- Remember : when assigning a value to current clause, sourceArray is impacted 
-            clauser~clause = 'options "NOCOMMANDS";' clause ';if var("result") then call dumpResult(result); options "COMMANDS"'
+            clauser~clause = 'options "NOCOMMANDS";' clause ';call dumpResult var("result"), result; options "COMMANDS"'
         end
         clauser~nextClause
     end
@@ -479,13 +479,34 @@ ArgSyntax:
     self~SetCursorPos(preCX,preCY)
 return
 
+
+::routine updatePackageEnvironment public
+    use strict arg package, referencePackage
+    -- Add visibility on the routine dumpResult
+    dumpResult = referencePackage~findRoutine("dumpResult")
+    package~addPublicRoutine("dumpResult", dumpResult)
+    -- Make visible (via ~importedPackages) all the packages imported in the reference package
+    -- Note :
+    -- These packages are already in the search path, thanks to the default "PROGRAMSCOPE" context used when creating the executor's method.
+    -- I make them explicitely visible to have the same results under oorexxshell and oorexxtry when calling .context~package~importedPackages.
+    do p over referencePackage~importedPackages
+        package~addPackage(p)
+    end
+
+    
 ::routine dumpResult public
-    use strict arg object
-    if object~isA(.CoactivitySupplier) then say pp2(object) -- must not consume the datas
-    else if object~isA(.array) then say object~ppRepresentation -- condensed output
-    else if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
-    else say pp2(object)
-    return
+    use strict arg hasValue, value
+    if \hasValue then do
+        say "[no result]"
+        return
+    end
+    else do
+        if value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
+        else if value~isA(.array) then say value~ppRepresentation -- condensed output
+        else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
+        else say pp2(value)
+        return value -- To get this value in the variable RESULT
+    end
 
 
 ::method Cancel
@@ -885,6 +906,7 @@ return iarray
     .local~Error? = .false
     signal on syntax name ExecSyntax
     rt_method = .method~new(method_name, code)
+    call updatePackageEnvironment rt_method~package, .context~package
 return
 
 -- Syntax trap similiar to rexxc.exe

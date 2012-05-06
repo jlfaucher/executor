@@ -423,7 +423,8 @@ Status transitions :
 
 ::method isEnded unguarded
     expose status
-    return status == .CoactivityObj~ended
+    -- For convenience, test also killed. After all, a killed coactivity is ended...
+    return status == .CoactivityObj~ended | status == .CoactivityObj~killed
 
 
 ::method isKilled unguarded

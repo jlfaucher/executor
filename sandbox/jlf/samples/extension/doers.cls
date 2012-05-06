@@ -155,7 +155,7 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::method do unguarded
     use strict arg object, ...
-    forward to (object) message ("sendWith") array (self, arg(2,"a"))
+    forward to (object) message "sendWith" array (self, arg(2,"a"))
 
 ::method doWith unguarded
     use strict arg object, array
@@ -299,11 +299,11 @@ I find more natural to support directly blocks in the following samples (no need
     return .false -- No need to pass an object as first argument when calling do or doWith
 
 ::method do unguarded
-    forward message ("resume")
+    forward message "resume"
 
 ::method doWith unguarded
     use strict arg array
-    forward message ("resume") arguments (array)
+    forward message "resume" arguments (array)
 
 ::method source unguarded
     return self~executable~source

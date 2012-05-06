@@ -97,64 +97,80 @@ pipeStages
     ["<command>"|<command-doer>]
 
 .append : I1 --- O1
-    <producer-doer>
+    <producer-doerFactory>
 
 .inject : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
-    <producer-doer>
+    <producer-doerFactory>
 
 .do : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
-    <producer-doer>
+    <producer-doerFactory>
 
 .fileTree : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
 .superClasses : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
 .subClasses : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
 .methods : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
 .instanceMethods : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
 .importedPackages : I1 --- O1
     ['after']
     ['before']
-    ['recursive[.breadthFirst|.depthFirst][.cycles][.memorizeIndex]']
-    ['unique']
+    [iterateAfter]
+    [iterateBefore]
+    ['once']
+    ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
 .select : I1 --- O1 (selected), O2 (not selected)

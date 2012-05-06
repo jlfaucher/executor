@@ -512,7 +512,7 @@ source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp) leng
 source:248,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib) length=1728 
 source:250,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj) length=22859 
 source:122,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj) length=53776 
-source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=56014 
+source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=55813 
 source:249,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map) length=76043 
 source:246,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) length=139776 
 
@@ -527,7 +527,7 @@ source:247,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.exp) leng
 source:248,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib) length=1728 
 source:250,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj) length=22859 
 source:122,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj) length=53776 
-source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=56014 
+source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=55813 
 source:249,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map) length=76043 
 source:246,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.dll) length=139776 
 
@@ -544,7 +544,7 @@ source:248,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.lib) leng
 source:249,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.map) length=76043 
 source:250,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\rxmath.obj) length=22859 
 source:122,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath2.obj) length=53776 
-source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=56014 
+source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath.obj) length=55813 
 
 
 -- ----------------------------------------------------------------------------
@@ -564,6 +564,8 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 'ARGS' : (a Method)
 'ARGS=' : (a Method)
 'CLASS' : (a Method)
+'COACTIVEPIPE' : (a Method)
+'COACTIVEPIPEPROFILE' : (a Method)
 'CONDITION' : (a Method)
 'COPY' : (a Method)
 'COPY' : (a Method)
@@ -589,9 +591,7 @@ source:121,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\NumberStringMath
 'PACKAGE' : (a Method)
 'PARENTCONTEXT' : (a Method)
 'PIPE' : (a Method)
-'PIPE.GENERATE' : (a Method)
 'PIPEPROFILE' : (a Method)
-'PIPEPROFILE.GENERATE' : (a Method)
 'PP2' : (a Method)
 'PPINDEX2' : (a Method)
 'REQUEST' : (a Method)
@@ -1172,7 +1172,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
 9 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls)
 19 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodPlain.cls)
 26 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\oodWin32.cls)
-337 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls)
+338 : (d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls)
 
 
 -- Total number of lines in the *.cls files of ooRexx
@@ -1182,7 +1182,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .lineCount |,
        .console,
        )
-1 : 23605
+1 : 23622
 
 
 -- Number of lines in each *.cls files of ooRexx
@@ -1194,7 +1194,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        )
 1 : 490
 1 : 236
-1 : 9343
+1 : 9360
 1 : 39
 1 : 39
 1 : 208
@@ -1216,7 +1216,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .wordCount |,
        .console,
        )
-1 : 106320
+1 : 106424
 
 
 -- Number of words in each *.cls files of ooRexx
@@ -1228,7 +1228,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        )
 1 : 2105
 1 : 955
-1 : 42038
+1 : 42142
 1 : 337
 1 : 337
 1 : 875
@@ -1250,7 +1250,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines | .charCount |,
        .console,
        )
-1 : 887774
+1 : 888476
 
 
 -- Number of characters in each *.cls files of ooRexx (not counting the newline characters)
@@ -1262,7 +1262,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        )
 1 : 24470
 1 : 11208
-1 : 346535
+1 : 347237
 1 : 2985
 1 : 2985
 1 : 7948
@@ -1297,7 +1297,7 @@ source:3,v1='eEeFfF' | fanout:3,v1 | right:1,'FfF' | upper:1,'FFF' | merge:1,'my
        .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
        .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
        )
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:337,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
+source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:70,'::METHOD disconnectEvents EXTERNAL "LIBRARY OREXXOLE OLEObject_disconnectEvents"' | words:2,'disconnectEvents' 'disconnectEvents' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:9,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) | fileLines:71,'::method getSystemMetrics class external "LIBRARY oodialog dlgutil_getSystemMetrics_cls"' | words:2,'getSystemMetrics' 'getSystemMetrics' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
@@ -1307,9 +1307,9 @@ source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\lo
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:68,'::method parseIncludeFile' | words:2,'parseIncludeFile' 'parseIncludeFile' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:71,'::METHOD removeEventHandler EXTERNAL "LIBRARY OREXXOLE OLEObject_removeEventHandler"' | words:2,'removeEventHandler' 'removeEventHandler' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:109,'::method skipThroughIfDefs private' | words:2,'skipThroughIfDefs' 'skipThroughIfDefs' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:337,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
+source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
    say "duration="time('e') -- elapsed duration
-duration=4.969000
+duration=4.844000
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -1325,7 +1325,7 @@ duration=4.969000
        .fileLines memorize | .words memorize | .select {item~datatype('a') & item~length >= 16} |,
        .take 2 {dataflow["file"]~item} | .sort caseless | .console dataflow item,
        )
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:337,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
+source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:70,'::METHOD disconnectEvents EXTERNAL "LIBRARY OREXXOLE OLEObject_disconnectEvents"' | words:2,'disconnectEvents' 'disconnectEvents' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:9,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\wchar\ooDialog.cls) | fileLines:71,'::method getSystemMetrics class external "LIBRARY oodialog dlgutil_getSystemMetrics_cls"' | words:2,'getSystemMetrics' 'getSystemMetrics' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\csvStream.cls) | fileLines:64,'::Attribute headerLineAbsent      private -- headersexist but absent' | words:2,'headerLineAbsent' 'headerLineAbsent' 
@@ -1335,31 +1335,31 @@ source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:33,(d:\lo
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:68,'::method parseIncludeFile' | words:2,'parseIncludeFile' 'parseIncludeFile' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\orexxole.cls) | fileLines:71,'::METHOD removeEventHandler EXTERNAL "LIBRARY OREXXOLE OLEObject_removeEventHandler"' | words:2,'removeEventHandler' 'removeEventHandler' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:109,'::method skipThroughIfDefs private' | words:2,'skipThroughIfDefs' 'skipThroughIfDefs' 
-source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:337,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
+source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
 ----------------------------------------
 .fileTree~go
-  .fileTree~EOF count=1 duration=0.047000
-    .endsWith~EOF count=1 duration=0.047000
-      .fileLines~EOF count=1 duration=0.047000
-        .words~EOF count=1 duration=0.047000
-          .select~EOF count=1 duration=0.047000
-            .take~EOF count=1 duration=0.047000
-              .sort~EOF count=1 duration=0.047000
+  .fileTree~EOF count=1 duration=0.015000
+    .endsWith~EOF count=1 duration=0.015000
+      .fileLines~EOF count=1 duration=0.015000
+        .words~EOF count=1 duration=0.015000
+          .select~EOF count=1 duration=0.015000
+            .take~EOF count=1 duration=0.015000
+              .sort~EOF count=1 duration=0.015000
                 .console~EOF count=1 duration=0
                 .console~ISEOP count=22 duration=0
-                .console~PROCESS count=11 duration=0.031000
-  .fileTree~PROCESS count=1 duration=22.140000
-    .endsWith~ISEOP count=1300 duration=0
-    .endsWith~PROCESS count=650 duration=21.282000
-      .fileLines~ISEOP count=665 duration=0
-      .fileLines~PROCESS count=15 duration=21.251000
-        .words~ISEOP count=47240 duration=0.031000
-        .words~PROCESS count=23605 duration=19.273000
-          .select~ISEOP count=236245 duration=0.235000
-          .select~PROCESS count=106320 duration=8.920000
-            .take~ISEOP count=107073 duration=0.172000
-            .take~PROCESS count=753 duration=0.125000
-              .sort~ISEOP count=764 duration=0
+                .console~PROCESS count=11 duration=0.015000
+  .fileTree~PROCESS count=1 duration=19.657000
+    .endsWith~ISEOP count=1302 duration=0
+    .endsWith~PROCESS count=651 duration=18.873000
+      .fileLines~ISEOP count=666 duration=0
+      .fileLines~PROCESS count=15 duration=18.827000
+        .words~ISEOP count=47274 duration=0.063000
+        .words~PROCESS count=23622 duration=15.988000
+          .select~ISEOP count=236470 duration=0.482000
+          .select~PROCESS count=106424 duration=6.542000
+            .take~ISEOP count=107177 duration=0.218000
+            .take~PROCESS count=753 duration=0.093000
+              .sort~ISEOP count=764 duration=0.031000
               .sort~PROCESS count=11 duration=0
   .fileTree~START count=1 duration=0
     .endsWith~START count=1 duration=0
@@ -1369,10 +1369,10 @@ source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:337,(d:\l
             .take~START count=1 duration=0
               .sort~START count=1 duration=0
                 .console~START count=1 duration=0
-duration=22.187000
+duration=19.672000
 ----------------------------------------
    say "duration="time('e') -- elapsed duration
-duration=22.469000
+duration=19.938000
 
 
    say installdir() ; say

@@ -31,20 +31,17 @@ When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.
 
 Example (Windows) :
-ooRexx[CMD] 'dir bin | find ".dll"'                 you need to surround by quotes
-ooRexx[CMD] cmd dir bin | find ".dll"               unless you temporarily select cmd
-ooRexx[CMD] say 1+2                                 3
-ooRexx[CMD] cmd                                     switch to the cmd interpreter
-CMD> dir bin | find ".dll"                          raw command, no need of surrounding quotes
-CMD> cd c:\program files
-CMD> say 1+2                                        error, the ooRexx interpreter is not active here
-CMD> oorexx say 1+2                                 you can temporarily select the ooRexx interpreter
-CMD> oorexx                                         switch to the ooRexx interpreter
-ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
-ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
-ooRexx[MYHANDLER] myhandler                         switch to the MYHANDLER interpreter
-MYHANDLER> myCommand myArg                          an hypothetic command, no need of quotes
-MYHANDLER> exit                                     the exit command is supported whatever the interpreter
+ooRexx[CMD] 'dir bin | find ".dll"'                    you need to surround by quotes
+ooRexx[CMD] cmd dir bin | find ".dll"                  unless you temporarily select cmd
+ooRexx[CMD] say 1+2                                    3
+ooRexx[CMD] cmd                                        switch to the cmd interpreter
+CMD> dir bin | find ".dll"                             raw command, no need of surrounding quotes
+CMD> say 1+2                                           error, the ooRexx interpreter is not active here
+CMD> oorexx say 1+2                                    you can temporarily select the ooRexx interpreter
+CMD> hostemu                                           switch to the hostemu interpreter
+HostEmu> execio * diskr "install.txt" (finis stem in.  store the contents of the file "install.txt" in the stem in.
+HostEmu> oorexx in.=                                   temporarily switch to ooRexx to display the stem
+HostEmu> exit                                          the exit command is supported whatever the interpreter
 
 
 Command 'reload'.
@@ -195,10 +192,9 @@ The changes are allowed on predefined classes, and are propagated to existing in
 If the same method appears several times in a given::extension directive, this is an error (because it's like that with ::class).
 It's possible to extend a class several times in a same package.
 It's possible to extend a class in different packages.
-If the same method appears in several ::extension directives for the same class, there is no error (because ~inherit has rules to manage that).
+If the same method appears in several ::extension directives, there is no error : the most recent replaces the older (because 'define' works like that).
 
 When the extensions of a package are installed, the extension methods and the inherit declarations of each ::extension are processed in the order of declaration.
-If the same method appears in several ::extension directives, then the most recent replaces the older (because 'define' works like that).
 Each package is installed separately, this is the standard behaviour. 
 The visibility rules for classes are also standard, nothing special for extensions. Each package has its own visibility on classes.
 
@@ -488,7 +484,7 @@ Emulation of coroutine, named "coactivity" to follow the ooRexx vocabulary.
 This is not a "real" coroutine implementation, because it's based on ooRexx threads and synchronization.
 But at least you have all the functionalities of a stackful asymmetric coroutine (resume + yield).
 A coactivity remembers its internal state. It can be called several times, the execution is resumed after
-the last .yield[].
+the last executed .yield[].
 
 Producer/consumer problems can often be implemented elegantly with coactivities.
 The consumer can pass arguments : producerResult = aCoactivity~resume(args...)
@@ -509,7 +505,7 @@ block = {::coactivity
         }
 block~("John", ", how are you ?") -- hello John, how are you ?
 block~("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
-block~("Keith") -- <nothing done, the coactivity is ended>
+block~("Keith", ", bye") -- <nothing done, the coactivity is ended>
 
 
 block = {::method.coactive
@@ -520,7 +516,7 @@ block = {::method.coactive
 doer = block~doer("The boss")
 doer~("John", ", how are you ?") -- The boss says "hello John, how are you ?"
 doer~("Kathie", ", see you soon.") -- The boss says "good bye Kathie, see you soon."
-doer~("Keith") -- <nothing done, the coactivity is ended>
+doer~("Keith", ", bye") -- <nothing done, the coactivity is ended>
 
 
 =====================================================================================
@@ -886,11 +882,11 @@ Any object can be a source of pipe :
 A pipeStage receives a triplet (item, index, dataflow). It applies transformations or filters
 on this triplet. When a pipeStage forwards an item to a following pipeStage, it forwards the
 received dataflow unchanged, unless the option "memorize" has been used. In this case, a new
-dataFlow is created.
+datapacket is added to the dataflow, which memorizes the produced item and index.
 
-A dataflow is an array :
-  array[1] : link to previous dataflow (received from previous pipeStage).
-  array[2] : tag (generally the id of the pipeStage class, or "source" for the initial dataflow).
+A datapacket is an array :
+  array[1] : link to previous datapacket (received from previous pipeStage).
+  array[2] : tag (generally the id of the pipeStage class, or "source" for the initial datapacket).
   array[3] : index of produced item.
   array[4] : produced item.
 
@@ -990,10 +986,10 @@ A dataflow is an array :
 .array~of(1,1,1,2,2,2,3,3,3,1,1,1)~pipe(.drop last {item} | .console)
 
 
--- convenience method ~pipe.generate to let yield the values produced by the pipe, one by one :
-g = .object~pipe.generate(.subClasses recursive once | .do {.yield[item]})
-subclass = g~do
-subclass = g~do
+-- convenience method ~coactivePipe to let yield the values produced by the pipe, one by one :
+g = .object~coactivePipe(.subClasses recursive once | .do {.yield[item]})
+g~do=
+g~do=
 ...
 
 
@@ -1059,7 +1055,7 @@ Summary of extension methods
                                   |        |           |        generateC    generateW   |       |    generate          |           
                                  -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
                                   |        |           |           |            |        |       |    pipe              |           
-                                  |        |           |           |            |        |       |    pipe.generate     |           
+                                  |        |           |           |            |        |       |    coactivePipe      |           
                                  -|--------|-----------|-----------|------------|--------|-------|-------|--------------|-----------
                                   |        |           |           |            |        |       |       |           times          
                                   |        |           |           |            |        |       |       |           times.generate 

@@ -137,6 +137,25 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2012 may 05
+
+[pipes]
+Method pipe.generate renamed coactivePipe.
+Method pipeProfile.generate renamed coactivePipeProfile.
+The old names were not good, because a generator takes in charge the yields.
+This is not the case here, where the yields must be explicitely inserted in the pipe.
+
+
+[coactivity]
+For convenience, ~isEnded returns .true when the coactivity has been killed.
+
+
+[ooRexxTry.rex & ooRexxTry.rxj]
+Added the routine updatePackageEnvironment which creates the same environment as
+oorexxshell (list of imported packages).
+
+
+===============================================================================
 2012 apr 22
 
 merge 7736-7771 from main/trunk

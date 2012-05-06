@@ -203,7 +203,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     self~delete(1)
     supplier = source~makearray("")~supplier -- really not optimized but...
     do while supplier~available
-        if doer~arity >= 3 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+        if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
                            else doer~do(supplier~item)
         if var("result") then self~append(result)
         supplier~next

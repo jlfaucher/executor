@@ -26,10 +26,7 @@ c = c~each{
 }
 
 say c~statusText -- not started
--- Here the coactivity chain is not started.
--- So, if you do "while c~isAlive" then the loop is ended immediately.
--- Hence the "until c~isEnded | c~isKilled".
-do until c~isEnded | c~isKilled
+do until c~isEnded
     say
     say "-----"
     say "c~do"
