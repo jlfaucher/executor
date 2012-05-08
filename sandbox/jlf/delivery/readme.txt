@@ -719,6 +719,18 @@ while(predicate)
 Generators
 =====================================================================================
 
+Generators are methods which return a coactivity.
+So generators can produce a sequence of results instead of a single value...
+But this is not mandatory. The main goal of generators is to decompose an iterative
+execution into a sequence of steps, separated by .yield[]. A step does not necessarily
+return a result. When a step is achieved, the next one will be started only on demand.
+
+
+When you pass an action to a generator, your action should not use .yield[] because the
+sequencing is taken in charge by the generator itself. Your action can return an optional
+result, which will be yielded by the generator.
+
+
 When applied to a coactivity, the higher-order methods return a new coactivity instead
 of an array or items. The items are returned one by one.
 Sometimes, you want to iterate over all the items produced by a coactivity. In this case,
@@ -807,13 +819,13 @@ Examples :
     g=.environment~generate
     g~do= -- [The OLEObject class id#_268012703]
     g~do= -- [The InvertingComparator class id#_268059180]
-    ...
+    -- ...
 
 -- All pairs of index,item in .environment
     g=.environment~generateI
     g~do= -- [(The OLEObject class),'OLEOBJECT']
     g~do= -- [(The InvertingComparator class),'INVERTINGCOMPARATOR']
-    ...
+    -- ...
 
 -- Illustration of depthFirst (default) vs breadthFirst
    "one two three"~generateW{if depth == 0 then item; else if item <> "" then item~substr(2)}~recursive~makeArray=
@@ -831,7 +843,7 @@ Examples :
     c = 1000000~times.generate
     say c~resume -- 1
     say c~resume -- 2
-    ...
+    -- ...
 
 -- Careful :
     1000000~times~generate{2*item} -- Collect all items in an array and then generate each array's item one by one (you don't get the first item immediatly)
@@ -990,7 +1002,7 @@ A datapacket is an array :
 g = .object~coactivePipe(.subClasses recursive once | .do {.yield[item]})
 g~do=
 g~do=
-...
+-- ...
 
 
 -- The 50 first files and directories in the /tmp directory
@@ -1014,6 +1026,15 @@ g~do=
     .sort {item~id} {dataflow["package"]~item~name} |,
     .console {.file~new(dataflow["package"]~item~name)~name} ":" item,
     )
+
+
+-- The method ~coactivePipe returns a coactivity which wraps the pipe's flow of execution.
+-- It's up to you to insert .yield[] instructions in the pipeline.
+.environment~coactivePipe(.console)~()
+.environment~coactivePipe(.do {.yield[item]} | .console)~()=
+.environment~coactivePipe(.do {.yield[item]; return item} | .console)~()=
+.environment~coactivePipe(.do {.yield[item]; return item} | .console)~take(2)~iterator~each=
+.environment~coactivePipe(.console | .do {.yield[item]; return item})~take(2)~iterator~each=
 
 
 =====================================================================================
