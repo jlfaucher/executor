@@ -430,6 +430,7 @@ interpretCommand:
 transformSource: procedure
     use strict arg command
     
+    signal on syntax name transformSourceError -- the clauser can raise an error
     if .ooRexxShell~isExtended then do
         -- Manage the "=" shortcut at the end of each clause
         sourceArray = .array~of(command)
@@ -449,6 +450,7 @@ transformSource: procedure
         command = command~strip
         if command~right(1) == "=" then command = "call dumpResult" command~left(command~length - 1)
     end
+    transformSourceError: -- in case of error, just return the original command : an error will be raised by interpret, and caught.
     return command
 
 

@@ -17,4 +17,4 @@ set INCLUDE=%OOREXX_HOME%\include
 
 set LIB=%OOREXX_HOME%\lib
 
-call %OOREXX_HOME%\bsf4oorexx\install\setEnvironment4BSF.cmd
+call "%OOREXX_HOME%\bsf4oorexx\install\setEnvironment4BSF.cmd"

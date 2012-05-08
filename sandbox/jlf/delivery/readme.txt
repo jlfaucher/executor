@@ -376,7 +376,7 @@ When the expression is evaluated, the target receives the message "~()".
 Doers
 =====================================================================================
 
-A Doer is an object who knows how to execute itself (understands "do")
+A Doer is an object which knows how to execute itself (understands "do")
 This is an abstraction of routine, method, message, coactivity, closure.
 
 When used as a doer, a string is a message.
@@ -394,7 +394,7 @@ coactivity : forward message ("resume")
 closure : user-defined method
 block : forward to (self~doer)
 
-A DoerFactory is an object who knows how to create a doer.
+A DoerFactory is an object which knows how to create a doer.
 A doer can be created from :
 - a RexxBlock :
   Can be costly since the interpreter must parse the source and create an AST.
@@ -524,8 +524,8 @@ Closures by value.
 =====================================================================================
 
 A closure is an object, created from a block with one of these tags
-    ::cl[osure]
-    ::cl[osure].c[oactive]
+    ::closure
+    ::closure.coactive
 
 A closure remembers the values of the variables defined in the outer environment of the block.
 The behaviour of the closure is a method generated from the block, which is attached to

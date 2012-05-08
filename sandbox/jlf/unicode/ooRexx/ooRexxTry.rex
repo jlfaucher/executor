@@ -444,8 +444,8 @@ return
 
 transformSource: procedure
     use strict arg sourceArray
+    signal on syntax name transformSourceError -- the clauser can raise an error
     clauser = .Clauser~new(sourceArray)
-    
     do while clauser~clauseAvailable
         clause = clauser~clause~strip
         if clause~left(2) == "::" then leave -- don't transform code inside directives
@@ -456,6 +456,7 @@ transformSource: procedure
         end
         clauser~nextClause
     end
+    transformSourceError: -- in case of error, just return : an error will be raised by the interpreter, and caught.
     return
 
 ArgSyntax:
