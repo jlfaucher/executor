@@ -125,6 +125,7 @@ each other explicitly and deterministically.
 ::method uninit
     expose coactivityObj
     coactivityObj~end
+    coactivityObj = .nil -- strange !!!! Without this assignment, I *NEVER* see a call to CoactivityObj~uninit
 
 
 --::method unknown
@@ -327,6 +328,11 @@ Status transitions :
     if self~hasMethod("onTerminate") then self~onTerminate
     if self~class~hasMethod("onTerminate") then self~class~onTerminate(self)
     .Coactivity~unregister(self)
+    -- Fighting against objects which are not GC'ed...
+    -- Should be done in uninit, but uninit rarely called by the interpreter...
+    arguments = .nil
+    doer = .nil
+    object = .nil
     if self~isKilled & condition("o") <> .nil then raise propagate
 
 

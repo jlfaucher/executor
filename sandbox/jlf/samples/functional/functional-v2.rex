@@ -12,7 +12,7 @@ Routine and Method are directly doers : RoutineCaller and MethodRunner no longer
 -----------------------------------------------------------------------------
 -- Extends the behavior of predefined classes
 
--- A Doer is an object who knows how to execute itself (understands "do")
+-- A Doer is an object which knows how to execute itself (understands "do")
 .Routine~define("do", 'return self~callWith(arg(1,"a"))')
 .Method~define("do", 'use strict arg object, ... ; return object~run(self, "a", arg(2,"a"))')
 -- Note : a Message can't be a Doer directly, must use an intermediate class MessageNameSender

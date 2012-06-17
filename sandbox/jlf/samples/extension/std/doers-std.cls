@@ -41,7 +41,7 @@ https://sourceforge.net/mailarchive/message.php?msg_id=19912031
     
 -----------------------------------------------------------------------------
 -- Mixins.
--- A Doer is an object who knows how to execute itself (understands "do")
+-- A Doer is an object which knows how to execute itself (understands "do")
 
 ::class RoutineDoer mixinclass Object public
 

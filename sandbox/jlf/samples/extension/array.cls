@@ -21,47 +21,144 @@ If there is only one argument, and this argument has the method ~supplier then e
     4 5 6
 
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
-The index of the current cell is passed as argument to the doer.
+Implicit arguments :
+    arg(1) : integerIndex : position of the current cell, from 1 to size.
+    arg(2) : arrayIndex : position of the current cell, in each dimension. Always an array, even if the number of dimensions = 1
 The value returned by the doer is the item for the current cell.
-    .array~new(2,3)~of{10*arg(1)}
+    .array~new(2,3)~of{10*integerIndex}
     10 20 30
     40 50 60
 
-Otherwise each argument is an item as-is.
+Otherwise, when more than one argument, each argument is an item as-is.
     .array~new(2,3)~of(1,2,3,4,5,6)
     1 2 3
     4 5 6
+
+If some arguments are omitted, then the corresponding item in the initialized arrat remains non-assigned.
+    .array~new(2,3)~of(1,,3,,5,6)
+    1 . 3
+    . 5 6
+
+For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
+    .array~new(2,3)~of(1,,3,,5,)
+    1 . 3
+    . 5 1
+I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
+    1 . 3
+    . 5 .
 
 The items are a list of values that must be assigned to the cells of the array.
 Rules inspired by APL :
 If there are too many items, the extra items are ignored.
 If there are fewer items than implied by the dimensions, the list of items is reused as 
 many times as necessary to fill the array.
-    .array~new(2,3)~of(1)
-    1 1 1
-    1 1 1
+    .array~new(2,3)~of(1,2)
+    1 2 1
+    2 1 2
 */
 
 ::method of
-    if arg() == 0 then args = .array~of(.nil)
-    else if arg() == 1, arg(1)~isA(.String) then args = arg(1)~subwords
-    else args = arg(1, "a")
-    argsCount = args~items
+    use strict arg arg1, ... -- at least one argument
+
+    if self~dimension == 0 then raise syntax 93.900 array("Unknown number of dimensions")
+
+    -- Only one of the following variable will be used
+    arrayIn = .nil
+    doer = .nil
+    supplier = .nil
     
-    dim = self~dimension
-    if dim == 0 then dim = 1 -- assumes it's a vector
-    index = dim~times{1} -- Initializes all indexes at 1
+    if arg() == 1 then do
+        if arg(1)~isA(.String) then arrayIn = arg(1)~subwords -- APL-like
+        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex")~arity(2)
+        else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
+        else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
+        else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
+        else arrayIn = arg(1, "a")
+    end
+    else arrayIn = arg(1, "a")
+    
+    if arrayIn <> .nil then do
+        arrayInIndex = 1
+        arrayInSize = arrayIn~size
+    end
 
-    -- to continue...
+    selfIntegerIndex = 1
+    selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+
+    sourceEnd = 0
+    selfReuseIntegerIndex = 1
+    selfReuseArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+
+    do while selfIntegerIndex <= self~size
+        if sourceEnd == 0 then do
+            -- if initialization with an array (covers the case of several arguments passed to the method)
+            if arrayIn <> .nil then do
+                if arrayInIndex > arrayInSize then sourceEnd = selfIntegerIndex
+                else do
+                    if arrayIn~hasIndex(arrayInIndex) then self~put(arrayIn[arrayInIndex], selfArrayIndex)
+                    arrayInIndex += 1
+                end
+            end
+            
+            -- if initialization with a doer
+            else if doer <> .nil then do
+                -- next line is not really needed because when a coactivity is ended, there is not returned result
+                -- and this case is managed by the second test doer~isEnded below.
+                if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
+                else do
+                    if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
+                    else if doer~arity == 1 then doer~do(selfIntegerIndex)
+                    else doer~do
+                    if var("result") then self~put(result, selfArrayIndex)
+                    -- next line is needed to offer the same behaviour for
+                    -- .array~new(2,3)~of(1~upto(5))
+                    -- .array~new(2,3)~of(1~generate.upto(5))
+                    else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
+                end
+            end
+            
+            -- if initialization with a supplier
+            else if supplier <> .nil then do
+                if \supplier~available then sourceEnd = selfIntegerIndex
+                else do
+                    self~put(supplier~item, selfArrayIndex)
+                    supplier~next
+                end
+            end
+        end
+        if sourceEnd <> 0 then do -- APL-like : If there are fewer items than implied by the dimensions, the list of items is reused as  many times as necessary to fill the array.
+            if sourceEnd == 1 then leave -- can stop now because nothing to reuse (happens when you pass an empty provider)
+            if selfReuseIntegerIndex == sourceEnd then do
+                selfReuseIntegerIndex = 1 -- rewind
+                selfReuseArrayIndex~mapR{1} -- rewind all indexes to 1
+            end
+            if self~hasIndex(selfReuseArrayIndex) then self~put(self[selfReuseArrayIndex], selfArrayIndex)
+            selfReuseIntegerIndex += 1
+            self~incrementIndex(selfReuseArrayIndex)
+        end
+        selfIntegerIndex += 1
+        self~incrementIndex(selfArrayIndex)
+    end
+    return self
 
 
--- The shape of an array is an array which gives the size of each dimension.
+-- The shape of an array is an array which gives the size of each dimension (APL).
 ::method shape
     shape = .array~new(self~dimension)
     do i=1 to self~dimension
         shape[i] = self~dimension(i)
     end
     return shape
+
+
+::method incrementIndex
+    use strict arg arrayIndex -- updated in place
+    do i=self~dimension to 1 by -1
+        arrayIndex[i] += 1
+        if arrayIndex[i] <= self~dimension(i) then leave
+        arrayIndex[i] = 1
+    end
+    return arrayIndex -- for convenience
 
 
 /******************************************************************************/
@@ -116,7 +213,8 @@ many times as necessary to fill the array.
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
 */
     use strict arg separator=",", val=(self), stack=(.queue~new) 
-    if val~isA(.array) then do
+    if val~isA(.array) /*, val~dimension == 1*/ then do
+        -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
         level = stack~index(val)
         if level <> .nil then return "*"level-1
         stack~push(val)

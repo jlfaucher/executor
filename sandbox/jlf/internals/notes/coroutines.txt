@@ -37,3 +37,14 @@ http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/11960
 
 http://classparser.blogspot.com/
 
+http://en.wikipedia.org/wiki/Coroutine#Coroutines_and_generators
+
+http://en.wikipedia.org/wiki/Fiber_%28computer_science%29
+
+http://msdn.microsoft.com/en-us/magazine/cc164086.aspx
+Implementing Coroutines for .NET by Wrapping the Unmanaged Fiber API
+Editor's Update - 9/16/2005: 
+The solution described in this article relies on undocumented functionality that is not supported by Microsoft at this time.
+This article is intended for informational purposes only, and its contents should not be used to create production code.
+
+http://www.crystalclearsoftware.com/soc/coroutine/coroutine/fibers.html

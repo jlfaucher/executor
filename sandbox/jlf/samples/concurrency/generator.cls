@@ -45,6 +45,7 @@
     use strict arg action, returnIndex=.false
     return {::closure.coactive
             expose action returnIndex self
+            use strict arg -- none
             -- parse only once, before iteration
             if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                                 else doer = action~doer
@@ -60,6 +61,7 @@
                     .yield[newItem]
                 end
                 else .yield[]
+                use strict arg -- none
                 self~next
             end
            }~doer
@@ -242,6 +244,7 @@
     use strict arg count, returnIndex
     return {::closure.coactive
             expose count returnIndex self
+            use strict arg -- none
             do while count > 0, self~available
                 count -= 1
                 self~next
@@ -252,6 +255,7 @@
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
+                use strict arg -- none
                 self~next
             end
            }~doer
@@ -260,14 +264,18 @@
     use strict arg count, returnIndex
     return {::closure.coactive
             expose count returnIndex self
+            use strict arg -- none
             buffer = .circularQueue~new(count)
             do while self~available
                 item = self~item
                 index = self~index
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
-                if buffer~items == count then .yield[buffer~queue(newItem)]
-                                         else buffer~queue(newItem)
+                if buffer~items == count then do
+                    .yield[buffer~queue(newItem)]
+                    use strict arg -- none
+                end
+                else buffer~queue(newItem)
                 self~next
             end
            }~doer
@@ -278,6 +286,7 @@
                                            else doer = predicate~doer
     return {::closure.coactive
             expose doer returnIndex self
+            use strict arg -- none
             do while self~available
                 item = self~item
                 index = self~index
@@ -292,6 +301,7 @@
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
+                use strict arg -- none
                 self~next
             end
            }~doer
@@ -302,6 +312,7 @@
                                            else doer = predicate~doer
     return {::closure.coactive
             expose doer returnIndex self
+            use strict arg -- none
             do while self~available
                 item = self~item
                 index = self~index
@@ -316,6 +327,7 @@
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
+                use strict arg -- none
                 self~next
             end
            }~doer
@@ -324,6 +336,7 @@
     use strict arg predicate, returnIndex=.false
     return {::closure.coactive
             expose predicate returnIndex self
+            use strict arg -- none
             -- parse only once, before iteration
             if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                                    else doer = predicate~doer
@@ -338,6 +351,7 @@
                         if returnIndex then newItem = .array~of(item, index)
                                        else newItem = item
                         .yield[newItem]
+                        use strict arg -- none
                     end
                 end
                 self~next
@@ -348,6 +362,7 @@
     use strict arg predicate, returnIndex=.false
     return {::closure.coactive
             expose predicate returnIndex self
+            use strict arg -- none
             -- parse only once, before iteration
             if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                                    else doer = predicate~doer
@@ -362,6 +377,7 @@
                         if returnIndex then newItem = .array~of(item, index)
                                        else newItem = item
                         .yield[newItem]
+                        use strict arg -- none
                     end
                 end
                 self~next
@@ -372,12 +388,14 @@
     use strict arg count, returnIndex
     return {::closure.coactive
             expose count returnIndex self
+            use strict arg -- none
             do while count > 0, self~available
                 item = self~item
                 index = self~index
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
+                use strict arg -- none
                 count -= 1
                 if count == 0 then leave -- stop now, to not consume datas if the count has been reached
                 self~next
@@ -388,6 +406,7 @@
     use strict arg count, returnIndex
     return {::closure.coactive
             expose count returnIndex self
+            use strict arg -- none
             buffer = .circularQueue~new(count)
             do while self~available
                 item = self~item
@@ -400,6 +419,7 @@
             s = buffer~supplier
             do while s~available
                 .yield[s~item]
+                use strict arg -- none
                 s~next
             end
            }~doer
@@ -410,12 +430,14 @@
                                            else doer = predicate~doer
     return {::closure.coactive
             expose doer returnIndex self
+            use strict arg -- none
             do while self~available
                 item = self~item
                 index = self~index
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
+                use strict arg -- none
                 if doer~arity >= 2 then logicalValue = doer~do(item, index)
                                    else logicalValue = doer~do(item)
                 if logicalValue then leave
@@ -429,6 +451,7 @@
                                            else doer = predicate~doer
     return {::closure.coactive
             expose doer returnIndex self
+            use strict arg -- none
             do while self~available
                 item = self~item
                 index = self~index
@@ -438,6 +461,7 @@
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
+                use strict arg -- none
                 self~next
             end
            }~doer
@@ -481,9 +505,11 @@
                                         else doer = action~doer
     return {::closure.coactive
             expose doer upperLimit self
+            use strict arg -- none
             do i = self to upperLimit
                 doer~do(i)
                 if var("result") then .yield[result] ; else .yield[]
+                use strict arg -- none
             end
            }~doer
 
@@ -503,9 +529,11 @@
                                         else doer = action~doer
     return {::closure.coactive
             expose doer lowerLimit self
+            use strict arg -- none
             do i = self to lowerLimit by -1
                 doer~do(i)
                 if var("result") then .yield[result] ; else .yield[]
+                use strict arg -- none
             end
            }~doer
 
@@ -704,6 +732,7 @@
     if returnIndex & recursive then self~yield(.array~of(item, index, depth, stack))
     else if returnIndex then self~yield(.array~of(item, index))
     else self~yield(item)
+    use strict arg -- none
 
 ::method processDepthFirst.3 private
     expose detectCycles limit once recursive trace
@@ -740,6 +769,7 @@
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
         self~yield
+        use strict arg -- none
         return
     end
     doResult = result
@@ -807,6 +837,7 @@
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
         self~yield
+        use strict arg -- none
         return
     end
     doResult = result

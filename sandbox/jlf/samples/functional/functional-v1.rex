@@ -13,7 +13,7 @@ See version v2 where Routine and Method are directly doers : RoutineCaller and M
 -----------------------------------------------------------------------------
 -- Extends the behavior of predefined classes
 
--- A Doer is an object who knows how to execute itself (understands "do")
+-- A Doer is an object which knows how to execute itself (understands "do")
 -- These methods returns a Doer object.
 .Routine~define("doer", "return .RoutineCaller~new(self)")
 .Method~define("doer", "return .MethodRunner~new(self)")

@@ -129,6 +129,9 @@ return "あさきゆめみじ　ゑひもせず"~left(9) -- E3 81 82 E3 81 95 E3
 If the text is not displayed properly, then select the font "Arial Unicode MS" in
 Settings/FontName (if available).
 
+Some notes about Unicode and m17n :
+http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/unicode/_readme.odt?view=log
+
 
 =====================================================================================
 ooRexxTry.rxj (all platforms)
@@ -483,6 +486,17 @@ Coactivity
 Emulation of coroutine, named "coactivity" to follow the ooRexx vocabulary.
 This is not a "real" coroutine implementation, because it's based on ooRexx threads and synchronization.
 But at least you have all the functionalities of a stackful asymmetric coroutine (resume + yield).
+
+A stackful coroutine is a coroutine able to suspend its execution from within nested calls.
+That's why .threadLocal is needed. 
+The goal is to retrieve the coactivity instance from any invocation and send it the message yield
+(this instance is at the origin of the invocations stack, but is not passed as a parameter to the invocations).
+myCoactivity~start  <--------------+
+    invocation                     |
+        invocation                 |
+            ...                    |
+                invocation : .Coactivity~yield()
+
 A coactivity remembers its internal state. It can be called several times, the execution is resumed after
 the last executed .yield[].
 
@@ -519,6 +533,29 @@ doer~("Kathie", ", see you soon.") -- The boss says "good bye Kathie, see you so
 doer~("Keith", ", bye") -- <nothing done, the coactivity is ended>
 
 
+/*
+Coactivities are implemented using threads.
+So we have the problem of thread termination...
+
+Automatic termination of gc'ed coactivities :
+When a coactivity is garbage-collected, then its uninit method is called, which ends the coactivity.
+You can see by yourself the automatic ending of coactivities.
+In the following example, a non-terminating coactivity is created at each iteration and we take one value.
+Since no variable keeps a reference to the coactivity, it will be gc'ed and automatically ended.
+*/
+do 100
+    {::coactivity do forever ; .yield[1] ; end}~take(1)~()
+    say .Coactivity~count -- number of started-not-(ended-killed) coactivities
+end
+/*
+The automatic termination works only if the coactivity can be gc'ed.
+We can have coactivities still running when reaching the end of a script, not candidate to GC.
+To ensure that a script will terminate, then
+    .Coactivity~endAll
+must be called at the end of the script.
+*/
+
+
 =====================================================================================
 Closures by value.
 =====================================================================================
@@ -549,6 +586,17 @@ Examples :
     say from5to8~(9) -- 0       
     say from20to30~(6) -- 0
     say from20to30~(25) -- 1
+
+    /*
+    The first block can be rewritten as a routine, no more nested blocks, but the code is less compact,
+    and the order less natural (you discover the definition of the routine after the place from where it's called).
+    The inner block is an object (RexxBlock) returned by the routine.
+    */
+    from5to8 = range(5, 8) -- function call, here no tilde
+    say from5to8~(6) -- from5to8 is a RexxBlock to which the message "~()" is sent
+    ::routine range
+    use arg min, max
+    return { ::closure expose min max ; use arg num ; return min <= num & num <= max }
 
 
 A coactive closure is both a closure and a coactivity :
@@ -640,8 +688,43 @@ Ex :
     say add10~(1) -- 11
 
 Ex :
+    /*
+    The ~partial method takes care of the omitted arguments.
+    In this example, "-"~partial(, 10), a partial array is created, which keeps the first arg omitted :
+    +---+----+
+    |   | 10 |
+    +---+----+
+    When you do sub10~(1) then 1 goes into the first free cell :
+    +---+----+
+    | 1 | 10 |
+    +---+----+
+    */
+
     sub10 = "-"~partial(, 10)
     say sub10~(1) -- -9
+    
+    /*
+    That's the same principle with more omitted arguments :
+    - any omitted argument when calling ~partial will create an empty cell.
+    - any omitted argument when calling a partial closure (returned by ~partial) will remain an omitted argument :
+      the first free cell remains empty and the next empty cell becomes the first free cell.
+    - a non empty cell is always skipped.
+    */
+        block = {do a over arg(1, "a") ; .output~charout(a" ") ; end; say}
+        partial1 = block~partial( , , 3, , , 6, , , 9)
+        -- +---+---+---+---+---+---+---+---+---+
+        -- |   |   | 3 |   |   | 6 |   |   | 9 |
+        -- +---+---+---+---+---+---+---+---+---+
+        partial1~() -- 3 6 9
+        partial2 = partial1~partial( , 2, , 5, , 8, , 11)
+        -- +---+---+---+---+---+---+---+---+---+----+----+
+        -- |   | 2 | 3 |   | 5 | 6 |   | 8 | 9 |    | 11 |
+        -- +---+---+---+---+---+---+---+---+---+----+----+
+        partial2~() -- 2 3 5 6 8 9 11
+        partial2~(1, 4, 7, 10, 12) -- 1 2 3 4 5 6 7 8 9 10 11 12
+        -- +---+---+---+---+---+---+---+---+---+----+----+----+
+        -- | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+        -- +---+---+---+---+---+---+---+---+---+----+----+----+
 
 Ex :
     myArguments = .context~package~findRoutine("myArguments")
@@ -1028,13 +1111,34 @@ g~do=
     )
 
 
--- The method ~coactivePipe returns a coactivity which wraps the pipe's flow of execution.
--- It's up to you to insert .yield[] instructions in the pipeline.
+/*
+Generators, like pipe stages of a pipeline, can be combined to form a chain of loose-coupled "processors".
+In a chain of pipe stages (a pipeline), the control flow is driven by the producers.
+    p1 --write--> p2 --write--> p3 ...
+In a chain of generators, the control flow is driven by the consumers.
+    g1 <--resume-- g2 <--resume-- g3 ...
+It's possible to mix both techniques, using a coactive pipeline.
+A coactive pipeline is an ordinary pipeline running in the flow of control of a coactivity.
+By yielding values, a coactive pipe can produce values which go "outside" the pipe.
+*/
 .environment~coactivePipe(.console)~()
 .environment~coactivePipe(.do {.yield[item]} | .console)~()=
 .environment~coactivePipe(.do {.yield[item]; return item} | .console)~()=
 .environment~coactivePipe(.do {.yield[item]; return item} | .console)~take(2)~iterator~each=
 .environment~coactivePipe(.console | .do {.yield[item]; return item})~take(2)~iterator~each=
+
+co_pipe = .array~of(10,20)~coactivePipe(,
+    .inject {10*item} |,
+    .do {.yield[item] ; return item} |,  -- the item is yielded "outside" the pipe, and then returned to be forwarded to the next pipe stage
+    .inject {10+item} |,
+    .do {.yield[item] ; return item} |,
+    .console)
+-- the pipe has not yet started
+say co_pipe~()    -- 100
+say co_pipe~()    -- 110
+say co_pipe~()    -- The pipe displays 1 : 110 and yields the next value : 200
+say co_pipe~()    -- 210
+co_pipe~resume    -- another resume is needed to let the pipe display 2 : 210
 
 
 =====================================================================================

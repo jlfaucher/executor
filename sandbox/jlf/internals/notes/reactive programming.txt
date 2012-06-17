@@ -1,0 +1,8 @@
+http://stackoverflow.com/questions/1028250/what-is-functional-reactive-programming
+
+
+http://msdn.microsoft.com/en-us/data/gg577609
+The Reactive Extensions (Rx) is a library to compose asynchronous and event-based programs using observable collections and LINQ-style query operators.
+
+
+http://pypi.python.org/pypi/Trellis

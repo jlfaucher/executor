@@ -927,7 +927,7 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
    supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
 -- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
-   supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
+   supplier1~pipe(.take 2 | .append supplier2 iterate | .take 5 | .console)
 1 : 1
 2 : 2
 1 : 10
@@ -939,7 +939,7 @@ source:'ROUTINE',(The Routine class) | inject:'SOURCE',(a Method)
 3
    supplier1~next
    supplier2~next
-   supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
+   supplier1~pipe(.take 4 | .append supplier2 iterate | .take 9 | .console)
 3 : 3
 4 : 4
 5 : 5
@@ -1309,7 +1309,7 @@ source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:154,(d:\l
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\ooDialog.cls) | fileLines:109,'::method skipThroughIfDefs private' | words:2,'skipThroughIfDefs' 'skipThroughIfDefs' 
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
    say "duration="time('e') -- elapsed duration
-duration=4.844000
+duration=5.359000
 
 
 -- From here, some methods of the pipeline classes are instrumented to let profiling.
@@ -1338,41 +1338,41 @@ source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:134,(d:\l
 source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:188,'/*********************************** WindowsProgramManager ****************************************/' | words:2,'WindowsProgramManager' 'WindowsProgramManager' 
 ----------------------------------------
 .fileTree~go
-  .fileTree~EOF count=1 duration=0.015000
-    .endsWith~EOF count=1 duration=0.015000
-      .fileLines~EOF count=1 duration=0.015000
-        .words~EOF count=1 duration=0.015000
-          .select~EOF count=1 duration=0.015000
-            .take~EOF count=1 duration=0.015000
-              .sort~EOF count=1 duration=0.015000
+  .fileTree~EOF count=1 duration=0.016000
+    .endsWith~EOF count=1 duration=0.016000
+      .fileLines~EOF count=1 duration=0.016000
+        .words~EOF count=1 duration=0.016000
+          .select~EOF count=1 duration=0.016000
+            .take~EOF count=1 duration=0.016000
+              .sort~EOF count=1 duration=0.016000
                 .console~EOF count=1 duration=0
                 .console~ISEOP count=22 duration=0
-                .console~PROCESS count=11 duration=0.015000
-  .fileTree~PROCESS count=1 duration=19.657000
+                .console~PROCESS count=11 duration=0.016000
+  .fileTree~PROCESS count=1 duration=23.125000
     .endsWith~ISEOP count=1302 duration=0
-    .endsWith~PROCESS count=651 duration=18.873000
+    .endsWith~PROCESS count=651 duration=22.656000
       .fileLines~ISEOP count=666 duration=0
-      .fileLines~PROCESS count=15 duration=18.827000
-        .words~ISEOP count=47274 duration=0.063000
-        .words~PROCESS count=23622 duration=15.988000
-          .select~ISEOP count=236470 duration=0.482000
-          .select~PROCESS count=106424 duration=6.542000
-            .take~ISEOP count=107177 duration=0.218000
-            .take~PROCESS count=753 duration=0.093000
-              .sort~ISEOP count=764 duration=0.031000
+      .fileLines~PROCESS count=15 duration=22.517000
+        .words~ISEOP count=47274 duration=0.031000
+        .words~PROCESS count=23622 duration=19.022000
+          .select~ISEOP count=236470 duration=0.470000
+          .select~PROCESS count=106424 duration=9.032000
+            .take~ISEOP count=107177 duration=0.126000
+            .take~PROCESS count=753 duration=0.094000
+              .sort~ISEOP count=764 duration=0
               .sort~PROCESS count=11 duration=0
-  .fileTree~START count=1 duration=0
-    .endsWith~START count=1 duration=0
-      .fileLines~START count=1 duration=0
-        .words~START count=1 duration=0
+  .fileTree~START count=1 duration=0.015000
+    .endsWith~START count=1 duration=0.015000
+      .fileLines~START count=1 duration=0.015000
+        .words~START count=1 duration=0.015000
           .select~START count=1 duration=0
             .take~START count=1 duration=0
               .sort~START count=1 duration=0
                 .console~START count=1 duration=0
-duration=19.672000
+duration=23.156000
 ----------------------------------------
    say "duration="time('e') -- elapsed duration
-duration=19.938000
+duration=23.344000
 
 
    say installdir() ; say

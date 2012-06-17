@@ -29,7 +29,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
-            self~pipe(pipe, profile)
+            return self~pipe(pipe, profile)
            }~doer
 
 ::extension Object
@@ -46,7 +46,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
-            self~pipe(pipe, profile)
+            return self~pipe(pipe, profile)
            }~doer
 
 ::method pipe unguarded
@@ -59,7 +59,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe, profile=.false
     return {::closure.coactive
             expose pipe profile self
-            self~pipe(pipe, profile)
+            return self~pipe(pipe, profile)
            }~doer
 
 ::method pipeProfile unguarded
@@ -70,7 +70,7 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg pipe
     return {::closure.coactive
             expose pipe self
-            self~pipeProfile(pipe)
+            return self~pipeProfile(pipe)
            }~doer
     
 /******************************************************************************/
@@ -78,14 +78,28 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- and then invoke the producer passed as argument and write the items produced by
 -- that producer to its primary output.
 
+/*
+Unlike .inject, there is no input value for .append, so iterateBefore is not needed.
+The option iterate (no need of 'After') is automatically activated when the producer is a coactivity :
+1~pipe(.append {::coactivity i=10; do 5; .yield[i]; i+=1; end} | .console)
+    1 : 1
+    1 : 10
+    2 : 11
+    3 : 12
+    4 : 13
+    5 : 14
+*/
 ::class "append" public subclass pipeStage
 
 ::method initOptions
-    expose producer
+    expose iterate producer
+    iterate = .false
     producer = .nil    
     unknown = .array~new
     do a over arg(1, "a")
-        if a~isA(.String) then nop
+        if a~isA(.String) then do
+            if "iterate"~caselessAbbrev(a, 1) then do ; iterate = .true ; iterate ; end
+        end
         else do
             if producer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
             -- if doer then parse now, to detect possible errors before running the pipe.
@@ -103,13 +117,14 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 
 ::method eof
-    expose producer
-    if producer~hasMethod("do") then producer = producer~do
+    expose iterate producer
+    if producer~isA(.coactivity) then iterate = .true
+    else if producer~hasMethod("do") then do
+            producer~do
+            if var("result") then producer = result
+        end
     -- Similar to .pipeStage~begin :
-    if \producer~hasMethod("supplier") then do
-        self~process(producer, 1, .nil)
-    end
-    else do
+    if iterate, producer~hasMethod("supplier") then do
         supplier = producer~supplier
         do while supplier~available, \self~isEOP
             self~process(supplier~item, supplier~index, .nil)
@@ -121,6 +136,9 @@ So I added the 'pipe' method which injects the object in the pipe :
             if self~isEOP then leave
             supplier~next -- get the next data item
         end
+    end
+    else do
+        self~process(producer, 1, .nil)
     end
     forward class(super) -- make sure we propagate the done message
 

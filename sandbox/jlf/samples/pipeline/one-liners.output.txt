@@ -7,12 +7,12 @@ Object's methods with their identity hash
 "=="                            :  268010874 
 "><"                            :  268010869 
 "CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266673499 
-"COACTIVEPIPEPROFILE"           :  266696283 
+"COACTIVEPIPE"                  :  266673766 
+"COACTIVEPIPEPROFILE"           :  266696642 
 "COPY"                          :  268010831 
 "DEFAULTNAME"                   :  268010967 
-"GENERATE"                      :  267167716 
-"GENERATEI"                     :  267175998 
+"GENERATE"                      :  267167743 
+"GENERATEI"                     :  267176025 
 "HASHCODE"                      :  268010754 
 "HASMETHOD"                     :  268010979 
 "IDENTITYHASH"                  :  268010925 
@@ -23,14 +23,14 @@ Object's methods with their identity hash
 "ISINSTANCEOF"                  :  268010796 
 "OBJECTNAME"                    :  268010617 
 "OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266650820 
-"PIPEPROFILE"                   :  266673805 
+"PIPE"                          :  266650998 
+"PIPEPROFILE"                   :  266674072 
 "REQUEST"                       :  268010950 
 "RUN"                           :  268010819 
 "SEND"                          :  268010864 
 "SENDWITH"                      :  268010962 
 "SETMETHOD"                     :  268010722 
-"SETMETHOD1"                    :  266965577 
+"SETMETHOD1"                    :  266965604 
 "START"                         :  268010472 
 "STARTWITH"                     :  268010717 
 "STRING"                        :  268010688 
@@ -53,19 +53,19 @@ Object's instance methods with their identity hash
 "><"                            :  268010869 
 "BASECLASS"                     :  268010629 
 "CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266650339 
+"COACTIVEPIPE"                  :  266650517 
 "COPY"                          :  268010831 
 "DEFAULTNAME"                   :  268010501 
 "DEFAULTNAME"                   :  268010967 
 "DEFINE"                        :  268010884 
 "DELETE"                        :  268010449 
 "ENHANCED"                      :  268010444 
-"GENERATE"                      :  267151097 
-"GENERATEI"                     :  267159393 
+"GENERATE"                      :  267151124 
+"GENERATEI"                     :  267159420 
 "HASHCODE"                      :  268010671 
 "HASHCODE"                      :  268010754 
 "HASMETHOD"                     :  268010979 
-"HELP"                          :  267142803 
+"HELP"                          :  267142830 
 "ID"                            :  268010565 
 "IDENTITYHASH"                  :  268010925 
 "INHERIT"                       :  268010570 
@@ -82,7 +82,7 @@ Object's instance methods with their identity hash
 "NEW"                           :  268010738 
 "OBJECTNAME"                    :  268010617 
 "OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266627660 
+"PIPE"                          :  266627749 
 "QUERYMIXINCLASS"               :  268010767 
 "REQUEST"                       :  268010950 
 "RUN"                           :  268010819 
@@ -121,16 +121,16 @@ Class' methods with their identity hash
 "><"                            :  268010869 
 "BASECLASS"                     :  268010629 
 "CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266673499 
-"COACTIVEPIPEPROFILE"           :  266696283 
+"COACTIVEPIPE"                  :  266673766 
+"COACTIVEPIPEPROFILE"           :  266696642 
 "COPY"                          :  268010831 
 "DEFAULTNAME"                   :  268010501 
 "DEFAULTNAME"                   :  268010967 
 "DEFINE"                        :  268010884 
 "DELETE"                        :  268010449 
 "ENHANCED"                      :  268010444 
-"GENERATE"                      :  267167716 
-"GENERATEI"                     :  267175998 
+"GENERATE"                      :  267167743 
+"GENERATEI"                     :  267176025 
 "HASHCODE"                      :  268010671 
 "HASHCODE"                      :  268010754 
 "HASMETHOD"                     :  268010979 
@@ -149,15 +149,15 @@ Class' methods with their identity hash
 "MIXINCLASS"                    :  268010808 
 "OBJECTNAME"                    :  268010617 
 "OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266650820 
-"PIPEPROFILE"                   :  266673805 
+"PIPE"                          :  266650998 
+"PIPEPROFILE"                   :  266674072 
 "QUERYMIXINCLASS"               :  268010767 
 "REQUEST"                       :  268010950 
 "RUN"                           :  268010819 
 "SEND"                          :  268010864 
 "SENDWITH"                      :  268010962 
 "SETMETHOD"                     :  268010722 
-"SETMETHOD1"                    :  266965577 
+"SETMETHOD1"                    :  266965604 
 "START"                         :  268010472 
 "STARTWITH"                     :  268010717 
 "STRING"                        :  268010688 
@@ -190,7 +190,7 @@ Class' instance methods with their identity hash
 "><"                            :  268010869 
 "BASECLASS"                     :  268010629 
 "CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266627136 
+"COACTIVEPIPE"                  :  266627225 
 "COPY"                          :  268010831 
 "DEFAULTNAME"                   :  268010501 
 "DEFAULTNAME"                   :  268010967 
@@ -625,13 +625,13 @@ source:1,'/tmp' | fileTree:3,(D:\tmp\Achats Logiciels.xls)
 source:1,'/tmp' | fileTree:4,(D:\tmp\ActiveRoles_MgmtShellForAD_10_AdminGuide_English_4.pdf) 
 source:1,'/tmp' | fileTree:5,(D:\tmp\demo.txt) 
 source:1,'/tmp' | fileTree:6,(D:\tmp\doclist.txt) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) | fileTree:1,(D:\tmp\from FF\Addison Wesley - Essential Xml Quick Reference (xml, Xpath, Xslt, Xml Schema, Soap And More).pdf) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) | fileTree:2,(D:\tmp\from FF\An Introduction To Soap,Wsdl,And Uddi.pdf) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) | fileTree:3,(D:\tmp\from FF\O'Reilly - Java and XSLT.pdf) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) | fileTree:4,(D:\tmp\from FF\O'Reilly - Learning XSLT.chm) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) | fileTree:5,(D:\tmp\from FF\O'Reilly - XML Schema.pdf) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\from FF) | fileTree:6,(D:\tmp\from FF\The XML Schema Complete Reference [Addison-Wesley 2002].pdf) 
+source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) 
+source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) | fileTree:1,(D:\tmp\GTDev\DomExt_xpath.pdf) 
+source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) | fileTree:2,(D:\tmp\GTDev\IPE.V1.0.FR.ppt) 
+source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) | fileTree:3,(D:\tmp\GTDev\XML Query & Transforming using dom.find & dom.set.doc) 
+source:1,'/tmp' | fileTree:8,(D:\tmp\iffe1205583635) 
+source:1,'/tmp' | fileTree:9,(D:\tmp\Local) 
+source:1,'/tmp' | fileTree:9,(D:\tmp\Local) | fileTree:1,(D:\tmp\Local\dbdita) 
 --------------------------------------------------------------------------------
 Count the files and directories in the /tmp directory
-1 : 24649
+1 : 24639

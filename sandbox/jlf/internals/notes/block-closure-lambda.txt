@@ -1,3 +1,10 @@
+http://jcp.org/aboutJava/communityprocess/edr/jsr335/index.html
+Lambda Expressions for the JavaTM Programming Language 
+
+http://www.jcp.org/en/jsr/detail?id=335
+JSR 335: Lambda Expressions for the JavaTM Programming Language
+
+
 http://gafter.blogspot.com/2007/01/definition-of-closures.html
 
 
@@ -6,9 +13,6 @@ http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/
 
 http://openjdk.java.net/jeps/126
 JEP 126: Lambda Expressions and Virtual Extension Methods
-
-http://www.jcp.org/en/jsr/detail?id=335
-JSR 335: Lambda Expressions for the JavaTM Programming Language
 
 http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-3.html
 State of the Lambda

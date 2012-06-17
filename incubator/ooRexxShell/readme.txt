@@ -91,6 +91,12 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2012 May 31
+
+Preload ooSQLite.
+
+
+-----------------------------------------------
 2012 apr 18
 
 To properly support BSF4ooRexx, the coactivities must call BsfAttachToTID and BsfDetach.

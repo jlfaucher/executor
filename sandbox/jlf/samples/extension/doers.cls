@@ -10,7 +10,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -----------------------------------------------------------------------------
 -- Mixin.
 /*
-A DoerFactory is an object who knows how to create a doer.
+A DoerFactory is an object which knows how to create a doer.
 A doer can be created from :
 - a RexxBlock :
   Can be costly since the interpreter must parse the source and create an AST.
@@ -32,7 +32,7 @@ See doers-samples.rex
 
 -----------------------------------------------------------------------------
 -- Mixin.
--- A Doer is an object who knows how to execute itself (understands "do")
+-- A Doer is an object which knows how to execute itself (understands "do")
 -- This is an abstraction of routine, method, message, coactivity, closure.
 
 ::class "Doer" mixinclass Object public inherit DoerFactory

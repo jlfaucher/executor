@@ -441,12 +441,12 @@ supplier1 = .array~of(1,2,3,4,5,6,7,8,9)~supplier
 supplier2 = .array~of(10,11,12,13,14,15,16,17,18,19)~supplier
 -- The first .take limits supplier1 to 2 items.
 -- The second .take sees the two items produced by supplier1, so only 3 items are accepted from supplier2.
-supplier1~pipe(.take 2 | .append supplier2 | .take 5 | .console)
+supplier1~pipe(.take 2 | .append supplier2 iterate | .take 5 | .console)
 say supplier1~index
 say supplier2~index
 supplier1~next
 supplier2~next
-supplier1~pipe(.take 4 | .append supplier2 | .take 9 | .console)
+supplier1~pipe(.take 4 | .append supplier2 iterate | .take 9 | .console)
 say supplier1~index
 say supplier2~index
 

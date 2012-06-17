@@ -129,11 +129,11 @@ create_Packages()
     copy_file ../samples/concurrency/coactivity-stress.rex
     copy_file ../samples/concurrency/coactivity-test.rex
     copy_file ../samples/concurrency/factorials_generators.rex
+    copy_file ../samples/extension/array-test.rex
     copy_file ../samples/extension/doers-info.rex
     copy_file ../samples/extension/doers-samples.rex
     copy_file ../samples/extension/doers-stress.rex
     copy_file ../samples/extension/functional-test.rex
-    copy_file ../samples/extension/recursiveArray.rex
     copy_file ../samples/pipeline/grep_sources.rex
     copy_file ../samples/pipeline/one-liners.rex
     copy_file ../samples/pipeline/pipe_extension_test.rex

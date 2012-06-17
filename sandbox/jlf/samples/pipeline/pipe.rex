@@ -53,7 +53,7 @@
 ::requires "profiling/profiling.cls"
 
 
-::class "pipeStage" public                  -- base pipeStage class
+::class "pipeStage" mixinclass Object public                  -- base pipeStage class
 
 ::method _description_ class
 nop
@@ -594,7 +594,7 @@ dataflow~item
 */
 nop
 
-::constant arrayPrintMaxSize 9 -- single-dimension arrays whose number of items is <= to this number will be printed item by item
+::constant arrayPrintMaxSize 100 -- single-dimension arrays whose number of items is <= to this number will be printed item by item
 
 ::constant firstIndexPoolManaged 3 -- The items from this index up to the end of the dataflow's array are impacted by showPool.
 
@@ -730,7 +730,7 @@ return string
 -- The goal is to know if a given value appears more than once in the representation (count > 1) : shared value.
 -- If reused and showPool==.true, then a compacted representation will be used (see dataflow_representation).
 use strict arg val, values, stack=(.queue~new)
-if val~isA(.array), val~dimension() == 1, val~items <= .dataflow~arrayPrintMaxSize then do
+if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMaxSize then do
     -- each item of the array will be inserted in the representation.
     if stack~index(val) <> .nil then return -- recursive array
     stack~push(val)
@@ -755,7 +755,13 @@ end
 -- The first occurence of a shared value is represented by vN=<shared value representation>
 -- The next occurences of this shared value is just vN.
 use strict arg val, showPool, pool, values, stack=(.queue~new)
-if val~isA(.array), val~dimension() == 1, val~items <= .dataflow~arrayPrintMaxSize then do
+if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMaxSize then do
+    -- Remember : this part of code is a duplication of .array~ppRepresentation.
+    -- Must find a way to avoid this duplication...
+    -- One difference is the call to dataflow_representation instead of ppRepresentation,
+    -- but the problem is that additional parameters are passed : showPool, pool, values.
+    -- Other difference : I use a condensed output even if multi-dimensional array.
+    
     -- each item of the array is inserted.
     -- special care for recursive arrays
     level = stack~index(val)
@@ -1622,29 +1628,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method representation
 use strict arg val
-if val~isA(.array) then do
-    -- each item of the array is inserted.
-    valstr = "["
-    separator = ""
-    do v over val
-        valstr ||= separator || self~representation(v)
-        separator = ","
-    end
-    valstr ||= "]"
-    return valstr
-end
-else do
-    valstr = val~string
-    if val~isA(.String) then do
-        isnum = valstr~dataType("N")
-        if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
-    end
-    else do
-        isnum = .false
-        valstr = "("valstr")" -- to make a distinction between a real string and other objects
-    end
-    return valstr
-end
+return dataflow_representation(val, .false, .nil, .nil) -- showPool=.false, pool=.nil, values=.nil
 
 ::method displayDataflow -- private (in comment otherwise error "does not understand message DISPLAYDATAFLOW_UNPROTECTED when profiling)
 expose showPool showTags

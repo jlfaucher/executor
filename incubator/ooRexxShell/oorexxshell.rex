@@ -439,7 +439,7 @@ transformSource: procedure
             clause = clauser~clause~strip
             if clause~right(1) == "=" then do
                 clause = clause~left(clause~length - 1)
-                clauser~clause = 'options "NOCOMMANDS";' clause '; call dumpResult result; options "COMMANDS"'
+                clauser~clause = 'options "NOCOMMANDS";' clause '; call dumpResult var("result"), result; options "COMMANDS"'
             end
             clauser~nextClause
         end
@@ -448,7 +448,7 @@ transformSource: procedure
     else do
         -- Manage the "=" shortcut at the end of the command (.clauser not available)
         command = command~strip
-        if command~right(1) == "=" then command = "call dumpResult" command~left(command~length - 1)
+        if command~right(1) == "=" then command = "call dumpResult .true," command~left(command~length - 1)
     end
     transformSourceError: -- in case of error, just return the original command : an error will be raised by interpret, and caught.
     return command
@@ -465,18 +465,18 @@ addressCommand:
 
 
 -------------------------------------------------------------------------------
-dumpResult: procedure expose result
-    if arg() == 0 & \var("result") then do
+dumpResult: procedure
+    use strict arg hasValue, value
+    if \hasValue then do
         say "[no result]"
         return
     end
     else do
-        use strict arg object=(result)
-        if object~isA(.CoactivitySupplier) then say pp2(object) -- must not consume the datas
-        else if object~isA(.array) then say object~ppRepresentation -- condensed output
-        else if object~isA(.Collection) | object~isA(.Supplier) then call dump2 object
-        else say pp2(object)
-        return object -- To get this value in the variable RESULT
+        if value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
+        else if value~isA(.array), value~dimension == 1 then say value~ppRepresentation -- condensed output
+        else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
+        else say pp2(value)
+        return value -- To get this value in the variable RESULT
     end
 
 
@@ -506,6 +506,7 @@ loadOptionalComponents:
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
+    call loadPackage("ooSQLite.cls")
     call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
