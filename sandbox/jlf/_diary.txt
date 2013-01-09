@@ -138,6 +138,24 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2012 aug 01
+
+Now I have win7 and can build a 64bits version for Windows.
+But I don't like how the build is managed :
+- no separate destination for 32 and 64 bits
+- wrong detection of the compiler when a french localized version is installed
+
+Modified makeorx.bat and orxdb.bat to manage correctly the bitness of the compiler.
+The detection of the compiler bitness is done by compiling a small cpp file and
+parsing its output. The choice of compiler is done by launching the appropriate shell.
+Now I can have at the same time these directories :
+Win32Dbg
+Win32Rel
+Win64Dbg
+Win64Rel
+
+
+===============================================================================
 2012 june 30
 
 [doers]

@@ -39,6 +39,10 @@ REM Note: This batch file will not work if command extensions are disabled.
 REM       Command extensions are enabled by default in W2K, XP, W2K3, and Vista
 REM       They are probably enabled in NT.
 
+REM  Figure out the compiler and if this is a 64-bit build.
+goto DETERMINE_COMPILER
+:DETERMINE_C0MPILER_DONE
+
 REM  No sense in starting if SRC_DIR and SRC_DRV are not set.
 IF %SRC_DRV%x == x GOTO HELP_SRC_DRV
 IF %SRC_DIR%x == x GOTO HELP_SRC_DRV
@@ -66,10 +70,6 @@ goto HELP
 
 :BUILD_CHECK_DONE
 
-REM  Figure out the compiler and if this is a 64-bit build.
-goto DETERMINE_COMPILER
-:DETERMINE_C0MPILER_DONE
-
 REM  Print out the args and environment variables to help with debug if the
 REM  build does not complete.
 goto PRINT_OUT_VARS
@@ -87,9 +87,9 @@ goto GENERATE_VERSION_FILE
 IF %MKNODEBUG% == 0 GOTO BLDDEBUG
 
 if %USELOGFILE% EQU 1 (
-  ECHO Building Open Object REXX for Windows - Non-Debug Version >>%OR_ERRLOG%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version >>%OR_ERRLOG%
 ) else (
-  ECHO Building Open Object REXX for Windows - Non-Debug Version
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version
 )
 
 SET MKASM=1
@@ -99,14 +99,14 @@ GOTO STARTBUILD
 REM  If we are building BOTH, we need to reset the log name and API output
 REM  directory.  We just set them unconditionally.
 :BLDDEBUG
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win32Dbg
-set OR_OUTDIR_API=%SRC_DRV%%SRC_DIR%\Win32Dbg\api
-set OR_ERRLOG=%OR_OUTDIR%\Win32Dbg.log
+set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
+set OR_OUTDIR_API=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg\api
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg.log
 
 if %USELOGFILE% EQU 1 (
-  ECHO Building Open Object REXX for Windows - Debug Version >>%OR_ERRLOG%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version >>%OR_ERRLOG%
 ) else (
-  ECHO Building Open Object REXX for Windows - Debug Version
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version
 )
 
 SET MKASM=0
@@ -145,11 +145,11 @@ SET CPUDEF=/DCPU=%CPUNAME%
 REM  If not making the debug version skip to packaging the release version
 IF %PACKAGE_DBG% == 0 GOTO PACKAGE_RELEASE
 
-SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win32Dbg
+SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
 cd platform\windows\install
 makensis %DOTVER% %NODOTVER% %SRCDIR% %BINDIR% %CPUDEF% oorexx.nsi
 
-REM  Rename the deug package so it is not overwritten if the release package
+REM  Rename the debug package so it is not overwritten if the release package
 REM  is created.
 ren ooRexx%NODOTS%-%CPUNAME%.exe ooRexx%NODOTS%-%CPUNAME%-debug.exe
 move ooRexx%NODOTS%-%CPUNAME%-debug.exe ..\..\..\
@@ -159,7 +159,7 @@ REM  If not making the release version skip to environment variables clean up.
 IF %PACKAGE_REL% == 0 GOTO ENV_VARS_CLEANUP
 
 :PACKAGE_RELEASE
-SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win32Rel
+SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
 cd platform\windows\install
 makensis %DOTVER% %NODOTVER% %SRCDIR% %BINDIR% %CPUDEF% oorexx.nsi
 move ooRexx%NODOTS%-%CPUNAME%.exe ..\..\..\
@@ -188,6 +188,7 @@ SET OR_OUTDIR_API=
 SET OR_ERRLOG=
 SET DOCOMPONENT=
 SET DOCOMPONENT_ARGS=
+SET OR_BITNESS=
 
 GOTO END
 
@@ -409,7 +410,7 @@ for /F "delims== tokens=1,2,3*" %%i in (oorexx.ver) do (
    )
  )
 )
-echo SVN_REVSION=%SVN_REV%>> oorexx.ver.incl
+echo SVN_REVISION=%SVN_REV%>> oorexx.ver.incl
 goto GENERATE_VERSION_FILE_DONE
 
 :NOSVN
@@ -421,7 +422,7 @@ if exist oorexx.ver.incl (
 ) else (
   copy oorexx.ver oorexx.ver.incl 1>nul 2>&1
   set SVN_REV=%BLD_NUM%
-  echo SVN_REVSION=%SVN_REV%>> oorexx.ver.incl
+  echo SVN_REVISION=%SVN_REV%>> oorexx.ver.incl
 )
 
 goto GENERATE_VERSION_FILE_DONE
@@ -512,9 +513,9 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 set MKNODEBUG=1
 set MKDEBUG=0
 IF %DOPACKAGE% == 1 SET PACKAGE_REL=1
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win32Rel
+set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
 set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%OR_OUTDIR%\Win32Rel.log
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
 GOTO BUILD_CHECK_DONE
@@ -529,9 +530,9 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 set MKNODEBUG=0
 set MKDEBUG=1
 IF %DOPACKAGE% == 1 SET PACKAGE_DBG=1
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win32Dbg
+set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
 set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%OR_OUTDIR%\Win32Dbg.log
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
 GOTO BUILD_CHECK_DONE
@@ -551,13 +552,13 @@ IF %DOPACKAGE% == 1 (
  set PACKAGE_REL=1
  set PACKAGE_DBG=1
 )
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win32Rel
+set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
 set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%SRC_DRV%%SRC_DIR%\Win32Rel\Win32Rel.log
+set OR_ERRLOG=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel\Win%OR_BITNESS%Rel.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
-if not exist %SRC_DRV%%SRC_DIR%\Win32Dbg md %SRC_DRV%%SRC_DIR%\Win32Dbg
-if not exist %SRC_DRV%%SRC_DIR%\Win32Dbg\api md %SRC_DRV%%SRC_DIR%\Win32Dbg\api
+if not exist %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg md %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
+if not exist %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg\api md %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg\api
 GOTO BUILD_CHECK_DONE
 
 
@@ -573,37 +574,14 @@ REM    defaulting to X86.  If CPU comes out wrong, the builder will have to deal
 REM    with it at that time.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :DETERMINE_COMPILER
-cl > temp.txt.okayToDelete 2>&1
-
-for /F "tokens=1,3,6-10,11" %%i in (temp.txt.okayToDelete) do (
-  if %%i == Microsoft (
-    if %%j == C/C++ (
-      if %%l GTR 15.0 set MSVCVER=9.0
-      if %%l GTR 14.0 (if %%l LSS 15 set MSVCVER=8.0)
-      if %%l GTR 13.0 (if %%l LSS 14 set MSVCVER=7.0)
-      if %%l GTR 12.0 (if %%l LSS 13 set MSVCVER=6.0)
-
-      if %%n EQU 80x86 (set CPU=X86) else (
-        if %%n EQU x64 (set CPU=X64) else (
-          if %%n EQU AMD64 (set CPU=X64) else (set CPU=X86)
-        )
-      )
-    ) else (
-      if %%m GTR 15.0 set MSVCVER=9.0
-      if %%m GTR 14.0 (if %%m LSS 15 set MSVCVER=8.0)
-      if %%m GTR 13.0 (if %%m LSS 14 set MSVCVER=7.0)
-      if %%m GTR 12.0 (if %%m LSS 13 set MSVCVER=6.0)
-
-      if %%o EQU 80x86 (set CPU=X86) else (
-        if %%o EQU x64 (set CPU=X64) else (
-          if %%o EQU AMD64 (set CPU=X64) else (set CPU=X86)
-        )
-      )
-    )
-  )
+set cl_infos=%TEMP%\cl_infos
+del /F "%cl_infos%.exe" 1>nul 2>&1
+cl /nologo /Fo"%cl_infos%.obj" /Fe"%cl_infos%.exe" cl_infos.cpp 1>nul
+for /f "usebackq tokens=1,2,3" %%i in (`"%cl_infos%.exe"`) do (
+    set MSCVER=%%i
+    set CPU=%%j
+    set OR_BITNESS=%%k
 )
-
-del /F temp.txt.okayToDelete 1>nul 2>&1
 
 goto DETERMINE_C0MPILER_DONE
 
@@ -619,8 +597,8 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM  Need to be sure some of the vars are set.  By default the log name and
 REM  build directory will be set to release if they are not already set.
 if %USELOGFILE%x == x set USELOGFILE=1
-if %OR_OUTDIR%x == x  set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win32Rel
-if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win32Rel.log
+if %OR_OUTDIR%x == x  set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
+if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 
 REM  First echo to the screen the help, no matter what. So that someone building
