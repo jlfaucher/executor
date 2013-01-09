@@ -42,6 +42,16 @@ each other explicitly and deterministically.
 
 
 --------------------------------------------------------------------------------
+/*
+To let a coactivity's thread be stopped when the coactivity is GC'ed, must use two separated objects :
+- An instance of Coactivity, visible by the end-user.
+  Wrapper of a CoactivityObj instance.
+  Runs in the thread of the end-user.
+  Forwards almost all its messages to the wrapped CoactivityObj instance.
+- An instance of CoactivityObj, hidden from the end-user. 
+  The methods of this instance run on a separate thread.
+  This thread is automatically stopped when the wrapping Coactivity is GC'ed.
+*/
 ::class "Coactivity" mixinclass Object public
 
 -- Class attributes
@@ -143,8 +153,7 @@ each other explicitly and deterministically.
     /*
     Create the activity that will control the coactivity and make it suspended.
     Use 'resume' to start the coactivity effectively.
-    The arguments passed to the first 'resume' will be made available to the coactivity through the traditional 'use arg'.
-    The arguments passed to the next 'resume's will be made available as an array returned by 'yield'.
+    The arguments passed to 'resume' will be made available to the coactivity through 'use arg'.
     */
     expose coactivityObj
     forward to (coactivityObj)
@@ -173,7 +182,7 @@ each other explicitly and deterministically.
 
 ::method yield private unguarded -- unguarded because of deadlock4
     -- Can be called only from a coactivity.
-    -- Returns an array which contains the arguments passed to 'resume' by the client of the coactivity.
+    -- Update the arguments of the caller's context with the arguments passed to 'resume' by the client of the coactivity.
     expose coactivityObj
     forward to (coactivityObj)
 
@@ -181,7 +190,8 @@ each other explicitly and deterministically.
 ::method resume -- MUST be guarded ! If unguarded then the same value could be returned to different concurrent clients
                 -- Remember : Was declared unguarded to fix deadlock4 but that was a bad decision. Now, yield is unguarded.
     -- You can pass arguments to this method.
-    -- They will be passed to the coactivity, either as traditional 'use arg' if first call, or as an array returned by 'yield'.
+    -- They will be passed to the coactivity, which can retrieve them with 'use arg'.
+    -- Returns the value yielded by the coactivity.
     expose coactivityObj
     forward to (coactivityObj)
 
@@ -331,7 +341,8 @@ Status transitions :
     -- Fighting against objects which are not GC'ed...
     -- Should be done in uninit, but uninit rarely called by the interpreter...
     arguments = .nil
-    doer = .nil
+    doer = .nil -- I was surprised to get .nil when doing myBlock~executable~executable after the end of {::cl.co}
+                -- but no choice... If I don't do this assignment, some coactivities are never GC'ed.
     object = .nil
     if self~isKilled & condition("o") <> .nil then raise propagate
 
