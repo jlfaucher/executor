@@ -44,19 +44,21 @@ return
 ::class stats
 
 ::method init
-    expose ident duration yieldCounter addWaitingActivityCounter relinquishCounter requestAccessCounter
+    expose ident duration yieldCounter addWaitingActivityCounter relinquishCounter requestAccessCounter getAPIManagerCounter
     use strict arg ident, duration
     -- Following variables are monitoring counters added to the interpreter 
     yieldCounter = .yieldCounter
     addWaitingActivityCounter = .addWaitingActivityCounter
     relinquishCounter = .relinquishCounter
     requestAccessCounter = .requestAccessCounter
+    getAPIManagerCounter = .getAPIManagerCounter
 
 ::method display
-    expose ident duration yieldCounter addWaitingActivityCounter relinquishCounter requestAccessCounter
+    expose ident duration yieldCounter addWaitingActivityCounter relinquishCounter requestAccessCounter getAPIManagerCounter
     say ident "duration="duration
     say ident "yieldCounter="yieldCounter
     say ident "addWaitingActivityCounter="addWaitingActivityCounter
     say ident "relinquishCounter="relinquishCounter
     say ident "requestAccessCounter="requestAccessCounter
+    say ident "getAPIManagerCounter="getAPIManagerCounter
 

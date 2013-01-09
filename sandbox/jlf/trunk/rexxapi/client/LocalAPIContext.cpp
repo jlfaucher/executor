@@ -41,6 +41,13 @@
 #include "rexx.h"
 
 
+static wholenumber_t getAPIManagerCount = 0; // Monitoring
+
+wholenumber_t RexxEntry getAPIManagerCounter()
+{
+    return getAPIManagerCount;
+}
+
 LocalAPIContext::LocalAPIContext(ServerManager t)
 {
     localManager = NULL;
@@ -51,6 +58,7 @@ LocalAPIContext::LocalAPIContext(ServerManager t)
 
 LocalAPIManager *LocalAPIContext::getAPIManager()
 {
+	getAPIManagerCount++;
     localManager = LocalAPIManager::getInstance();
     contextInitialized = true;
     return localManager;

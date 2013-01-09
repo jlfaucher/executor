@@ -703,11 +703,13 @@ sleep(1) : rexx coactivity-stress.rex 100 --> global duration=24.625, duration p
 
 
 Added counters for monitoring interpreter activities :
-.yieldCounter :              how much times SysActivity::yield has been called since the begining
-.addWaitingActivityCounter : how much times ActivityManager::addWaitingActivity has been called since the begining
-.relinquishCounter :         how much times ActivityManager::relinquish has been called since the begining
-.requestAccessCounter :      how much times RexxActivity::requestAccess has been called since the begining
+.yieldCounter :              how many times SysActivity::yield has been called since the begining
+.addWaitingActivityCounter : how many times ActivityManager::addWaitingActivity has been called since the begining
+.relinquishCounter :         how many times ActivityManager::relinquish has been called since the begining
+.requestAccessCounter :      how many times RexxActivity::requestAccess has been called since the begining
+.getAPIManagerCounter :      how many times LocalAPIContext::getAPIManager has been called since the begining
 See samples/concurrency/coactivity-stress.rex
+See samples/concurrency/factorials_generators.rex
 
 
 ===============================================================================

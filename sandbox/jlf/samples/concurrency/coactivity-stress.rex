@@ -1,6 +1,7 @@
 --trace i
 /*
 Under WinXP 2Go, works good with 3500 consumers.
+Under Win7 6Go, works good with 5000 consumers.
 
 Under MacOs 4Go, failure in system service at 1280 nth consumer.
 Maybe some system parameters must be changed, did not investigate.
@@ -56,6 +57,7 @@ say "yieldCounter=".yieldCounter
 say "addWaitingActivityCounter=".addWaitingActivityCounter
 say "relinquishCounter=".relinquishCounter
 say "requestAccessCounter=".requestAccessCounter
+say "getAPIManagerCounter=".getAPIManagerCounter
 return
 
 

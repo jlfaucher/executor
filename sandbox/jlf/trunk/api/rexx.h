@@ -1076,6 +1076,12 @@ RexxReturnCode REXXENTRY RexxFreeMemory(
 typedef RexxReturnCode (REXXENTRY *PFNREXXFREEMEMORY)(void *);
 
 
+/*----------------------------------------------------------------------------*/
+/***    Monitoring                                                            */
+/*----------------------------------------------------------------------------*/
+
+wholenumber_t REXXENTRY getAPIManagerCounter();
+
 END_EXTERN_C()
 
 #endif /* REXXSAA_INCLUDED */

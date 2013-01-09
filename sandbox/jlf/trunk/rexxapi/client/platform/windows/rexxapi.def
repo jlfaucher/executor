@@ -77,3 +77,4 @@ EXPORTS
      RexxDeleteSessionQueue
      RexxCreateSessionQueue
      RexxShutDownAPI
+	 getAPIManagerCounter

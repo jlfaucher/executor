@@ -2529,6 +2529,10 @@ RexxObject * RexxActivation::rexxVariable(   /* retrieve a program entry        
     {
         return new_integer(RexxActivity::requestAccessCounter());
     }
+    else if (name->strCompare("GETAPIMANAGERCOUNTER"))
+    {
+        return new_integer(getAPIManagerCounter());
+    }
 #endif
     return OREF_NULL;                    // not recognized
 }
