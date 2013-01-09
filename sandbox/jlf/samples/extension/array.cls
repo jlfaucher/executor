@@ -34,7 +34,7 @@ Otherwise, when more than one argument, each argument is an item as-is.
     1 2 3
     4 5 6
 
-If some arguments are omitted, then the corresponding item in the initialized arrat remains non-assigned.
+If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
     .array~new(2,3)~of(1,,3,,5,6)
     1 . 3
     . 5 6
@@ -144,6 +144,7 @@ many times as necessary to fill the array.
 
 -- The shape of an array is an array which gives the size of each dimension (APL).
 ::method shape
+    -- return self~dimension~times{::closure expose self;self~dimension(item)}
     shape = .array~new(self~dimension)
     do i=1 to self~dimension
         shape[i] = self~dimension(i)
@@ -212,18 +213,25 @@ many times as necessary to fill the array.
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
 */
-    use strict arg separator=",", val=(self), stack=(.queue~new) 
+    use strict arg maxItems=(-1), ellipsis="...", separator=",", val=(self), stack=(.queue~new)
     if val~isA(.array) /*, val~dimension == 1*/ then do
         -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
         level = stack~index(val)
         if level <> .nil then return "*"level-1
         stack~push(val)
         -- each item of the array is inserted.
+        items = 0 -- Not global. Each item being an array will have maxItems items inserted.
+                  -- Maybe a global count could be useful... Will see on usage.
         valstr = "["
         sep = ""
-        do v over val
-            valstr ||= sep || self~ppRepresentation(separator, v, stack)
+        do v over val -- not well adapted to multi-dimension arrays : converted into a non-sparse single dimension array
+            if maxItems >= 0, items >= maxItems then do
+                valstr ||= sep || ellipsis
+                leave
+            end
+            valstr ||= sep || self~ppRepresentation(maxItems, ellipsis, separator, v, stack)
             sep = separator
+            items += 1
         end
         valstr ||= "]"
         stack~pull
