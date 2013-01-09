@@ -204,12 +204,23 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::class "RexxBlockDoer" mixinclass Object public inherit DoerFactory Doer
 
+::method init
+    -- Careful ! If another method 'init' is defined later (typically by another extension), then this one won't be executed...
+    -- See .class~define : Using the define method replaces any existing definition for methodname in the receiver class.
+    expose executable
+    executable = .nil
+
 ::method doer unguarded
+    expose executable
     use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
-    if self~executable <> .nil then return self~executable
+    if executable <> .nil then return executable
     objectSpecified = arg(1, "e") -- object explicitely passed ?
-    self~executable = self~sourceDoer( , , , objectSpecified, object)
-    return self~executable
+    executable = self~sourceDoer( , , , objectSpecified, object)
+    return executable
+
+::method executable unguarded
+    expose executable
+    return executable
 
 /*
 Helper to create a doer from a source, after transformation of the source if requested.
@@ -261,18 +272,20 @@ Possible transformations :
     return .nil -- should never happen
 
 ::method functionDoer unguarded
+    expose executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
-    self~executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
-    return self~executable
+    executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
+    return executable
 
 ::method actionDoer unguarded
+    expose executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
-    self~executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
-    return self~executable
+    executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
+    return executable
 
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract
 ::method needsObject unguarded

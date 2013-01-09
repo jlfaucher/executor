@@ -1018,8 +1018,6 @@ CPPM(RexxBlock::getPackage),
 CPPM(RexxBlock::getVariables),
 CPPM(RexxBlock::getKind),
 CPPM(RexxBlock::getRawExecutable),
-CPPM(RexxBlock::getExecutable),
-CPPM(RexxBlock::setExecutable),
 
 NULL                                   /* final terminating method          */
 };

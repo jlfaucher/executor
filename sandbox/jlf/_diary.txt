@@ -141,6 +141,28 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2012 dec 09
+
+RexxBlock :
+Removed the native method "executable" implemented by RexxBlock::getExecutable,
+and "executable=" implemented by RexxBlock::setExecutable.
+Can be implemented in RexxBlockDoer using a private variable.
+Impacted files :
+BlockClass.cpp, BlockClass.hpp, CPPCode.cpp, Setup.cpp,RexxConstants.hpp
+
+After first tests, I see I need to initialize the variable "executable" added by extension.
+For that, I send the message INIT from native RexxBlock code. But the pattern is not really
+standard... Normally this message should be sent from RexxBlock::newRexx, but this method
+which implements .RexxBlock~new is not allowed from Rexx code (my decision). 
+I send the message INIT from RexxBlock::RexxBlock, but I had to do that :
+	RexxBehaviour *behaviour = ((RexxClass *)this)->getInstanceBehaviour();
+    if (behaviour != NULL) this->setBehaviour(behaviour);
+instead of that in the standard pattern :
+    this->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
+because the behaviour returned by getInstanceBehaviour is NULL.
+
+
+===============================================================================
 2012 sept 30
 
 [logical]
@@ -1303,6 +1325,8 @@ RexxContextualSource : added the native method "executable=" to let the ooRexx c
 in doers.cls store the executable on the instance of RexxContextualSource.
 That will be used both for convenience (no longer needed for the user to call ~doer)
 and performance (reuse cached executable).
+JLF 2012 dec 09 : native implementation of "executable=" not needed.
+Better to expose an internal variable "executable".
 
 
 [doers]
@@ -1346,7 +1370,7 @@ Big picture (updated 2011 dec 13) :
       |        ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::cl".
       |        ~rawExecutable : the raw executable of the RexxSourceLiteral, created at load-time (routine or method).
       |        ~executable : cached executable, managed by doers.cls.
-      |        ~executable= : routine or method or coactivity or closure. ~executable~source can be different from ~source. 
+      |                      routine or method or coactivity or closure. ~executable~source can be different from ~source. 
       |
       +--> a RexxContextualSource
       |

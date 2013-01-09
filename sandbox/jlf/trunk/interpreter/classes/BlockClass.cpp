@@ -105,7 +105,7 @@ void RexxSourceLiteral::flatten(RexxEnvelope *envelope)
 RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t startLine)
 {
     ProtectedObject pThis(this);
-    RexxArray *sa = s->makeArray(NULL); // use default separator \n
+    RexxArray *sa = s->makeArrayRexx(NULL); // use default separator \n
     this->source = sa; // transient, no need of OrefSet
     this->package = p; // transient, no need of OrefSet
     RexxArray *sourceArray = (RexxArray *)sa->copy();
@@ -174,8 +174,25 @@ RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
 {
     OrefSet(this, this->sourceLiteral, s);
     OrefSet(this, this->variables, (RexxDirectory *)TheNilObject);
+
+	// c->getVariables will create a directory : see RexxVariableDictionary::getAllVariables
+	// So a GC may happen, must protect this.
+	ProtectedObject p(this);
     if (s->isClosure()) OrefSet(this, this->variables, (RexxDirectory *)c->getVariables());
-    OrefSet(this, this->executable, TheNilObject);
+
+	// Normally, next lines are done from RexxBlock::newRexx
+	// But I don't allow to create a new block from Rexx code.
+	// On the other hand, I want to extend the RexxBlock class and initialize some variables,
+	// hence the sendMessage OREF_INIT.
+
+	// override the behaviour in case this is a subclass
+	RexxBehaviour *behaviour = ((RexxClass *)this)->getInstanceBehaviour();
+    if (behaviour != NULL) this->setBehaviour(behaviour);
+    if (((RexxClass *)this)->hasUninitDefined())
+    {
+        this->hasUninit();
+    }
+    this->sendMessage(OREF_INIT, (RexxArray *)TheNullArray->copy(), 0);
 }
 
 
@@ -211,13 +228,6 @@ RexxObject *RexxBlock::copyRexx()
 }
 
 
-RexxObject *RexxBlock::setExecutable(RexxObject *exec)
-{
-    OrefSet(this, this->executable, exec);
-    return OREF_NULL; // no return value
-}
-
-
 void RexxBlock::live(size_t liveMark)
 /******************************************************************************/
 /* Function:  Normal garbage collection live marking                          */
@@ -226,7 +236,6 @@ void RexxBlock::live(size_t liveMark)
     memory_mark(this->objectVariables);
     memory_mark(this->sourceLiteral);
     memory_mark(this->variables);
-    memory_mark(this->executable);
 }
 
 void RexxBlock::liveGeneral(int reason)
@@ -237,7 +246,6 @@ void RexxBlock::liveGeneral(int reason)
     memory_mark_general(this->objectVariables);
     memory_mark_general(this->sourceLiteral);
     memory_mark_general(this->variables);
-    memory_mark_general(this->executable);
 }
 
 void RexxBlock::flatten(RexxEnvelope *envelope)
@@ -250,7 +258,6 @@ void RexxBlock::flatten(RexxEnvelope *envelope)
   flatten_reference(newThis->objectVariables, envelope);
   newThis->sourceLiteral = OREF_NULL; // this never should be getting flattened, so sever the connection
   newThis->variables = OREF_NULL;    // idem
-  newThis->executable = OREF_NULL;    // idem
 
   cleanUpFlatten
 }

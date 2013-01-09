@@ -104,8 +104,6 @@ public:
     RexxObject *getVariables() { return (RexxObject *)variables; }
     RexxString *getKind() { return sourceLiteral->getKind(); }
     RexxObject *getRawExecutable() { return sourceLiteral->getRawExecutable(); }
-    RexxObject *getExecutable() { return executable; }
-    RexxObject *setExecutable(RexxObject *);
 
     static void createInstance();
     static RexxClass *classInstance;   // singleton class instance
@@ -113,7 +111,6 @@ public:
 protected:
     RexxSourceLiteral *sourceLiteral;
     RexxDirectory *variables;
-    RexxObject *executable;
 };
 
 

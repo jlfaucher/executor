@@ -1399,8 +1399,6 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_VARIABLES     ,TheRexxBlockBehaviour, CPPM(RexxBlock::getVariables), 0);
   defineKernelMethod(CHAR_KIND          ,TheRexxBlockBehaviour, CPPM(RexxBlock::getKind), 0);
   defineKernelMethod(CHAR_RAWEXECUTABLE ,TheRexxBlockBehaviour, CPPM(RexxBlock::getRawExecutable), 0);
-  defineKernelMethod(CHAR_EXECUTABLE    ,TheRexxBlockBehaviour, CPPM(RexxBlock::getExecutable), 0);
-  defineKernelMethod(CHAR_EXECUTABLEEQUALS ,TheRexxBlockBehaviour, CPPM(RexxBlock::setExecutable), 1);
 
                                        /* Add the instance methods to the   */
                                        /* instance behaviour mdict          */
