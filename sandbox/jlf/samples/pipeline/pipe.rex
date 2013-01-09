@@ -494,6 +494,7 @@ self~instrumentClass(.pipeStage, messages)
 /******************************************************************************/
 ::routine compareObjects
 use strict arg o1, o2, caseless, strict
+/*
 -- special support for arrays : compare item by item
 if o1~isA(.array) & o2~isA(.array) then do
     s1 = o1~supplier
@@ -512,6 +513,7 @@ if o1~isA(.array) & o2~isA(.array) then do
 end
 if o1~isA(.array) then return 1 -- array > notArray
 if o2~isA(.array) then return -1 -- notArray < array
+*/
 return compareStrings(o1~string, o2~string, caseless, strict)
 
 ::routine compareStrings
@@ -761,6 +763,7 @@ if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMa
     -- One difference is the call to dataflow_representation instead of ppRepresentation,
     -- but the problem is that additional parameters are passed : showPool, pool, values.
     -- Other difference : I use a condensed output even if multi-dimensional array.
+    -- Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
     
     -- each item of the array is inserted.
     -- special care for recursive arrays
@@ -804,7 +807,7 @@ end
 
 
 /******************************************************************************/
-::class "indexedItem" inherit Comparable
+::class "indexedItem" public inherit Comparable -- declared public to let profile
 ::attribute index -- any type
 ::attribute item -- any type
 ::attribute dataflow -- always a .dataflow
@@ -2086,7 +2089,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method endOfPartition
 expose counter partitionCount previousPartitionItem
-self~write(counter, 1, .nil);               -- write out the counter message
+self~write(counter, previousPartitionItem, .nil); -- write out the counter message
 
 ::method count abstract
 
@@ -2268,10 +2271,11 @@ self~checkEOP(self~next)
 /******************************************************************************/
 /*
 A 'system' pipeStage to execute a system command and get the contents of its stdout line by line.
-To investigate : is it possible to get its stderr ? Don't see how to do that with just one queue.
-I can merge stdout and stderr before piping to rxqueue but then how to separate the lines ?
+To investigate : is it possible to get its stderr ?
+Maybe with bash : cmd > >(cmd1) 2> >(cmd2) Send stdout of cmd to cmd1 and stderr of cmd to cmd2.
 Usage :
-    .system ["<command>"|<command-doer>
+    .system ["<command>"|<command-doer>]
+    if no command specified then use current item as command
 Example :
     "*.log"~pipe(.system {"ls" item} | .console)
     .array~of("ls", "hello", "dummy")~pipe(.system {item} | .console)
@@ -2311,7 +2315,7 @@ do a over arg(1, "a")
     end
     unknown~append(a)
 end
-if command == .nil then raise syntax 93.900 array(self~class~id ": No command specified")
+if command == .nil then doer = {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
 forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process

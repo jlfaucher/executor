@@ -22,7 +22,7 @@ say "Class' instance methods with their identity hash"
 
 say separator
 say "RexxBlock' methods, with their defining class"
-.RexxBlock~pipe(.superClasses recursive once mem.class | .methods | .sort byIndex | .console {index~left(30)} {dataflow["class"]~item~id})
+.RexxBlock~pipe(.superClasses recursive once mem.class | .class.instanceMethods | .sort byIndex | .console {index~left(30)} {dataflow["class"]~item~id})
 
 
 say separator

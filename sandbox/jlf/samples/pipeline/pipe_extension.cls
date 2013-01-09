@@ -551,11 +551,12 @@ self~init:super(.true) -- allow commands
 
 
 /******************************************************************************/
--- A 'methods' pipeStage to get the methods of the current item.
+-- A 'class.instanceMethods' pipeStage to get the methods of the current item.
 -- The input item must be a .Class instance.
 -- Returns only the instance methods defined by the item.
 
-::class "methods" public subclass inject
+-- The initial name was "methods" but this class name hidded the .methods environment symbol.
+::class "class.instanceMethods" public subclass inject
 
 ::method initOptions
     producer = {use arg item ; return item~methods(.nil)}~doer -- get the doer now, to avoid application of functionDoer later

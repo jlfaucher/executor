@@ -67,7 +67,7 @@ pipeStages
     ['caseless']
 
 .stemcollector[stem] : I1 (non blocking accumulator) --- O1
-.arraycollector[array] : I1 (non blocking accumalator) --- O1
+.arraycollector[array] : I1 (non blocking accumulator) --- O1
 
 .between[startString, endString] : I1 --- O1 (selected), O2 (not selected)
     ['caseless']
@@ -146,7 +146,7 @@ pipeStages
     ['recursive[.<limit>][.breadthFirst|.depthFirst][.cycles][.memorize]']
     ['trace']
 
-.methods : I1 --- O1
+.class.instanceMethods : I1 --- O1
     ['after']
     ['before']
     [iterateAfter]
