@@ -32,8 +32,11 @@ Moreover, named arguments can be passed in any order, and that's a problem with 
 So, I give up...
 
 Deferred evaluation of parameters. 
-Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, ifalse)
-todo...
+Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, iffalse)
+todo
+--> See routine if(aLogical, whenTrue, whenFalse).
+    It's up to the caller to freeze the evaluation, by passing explicitely a doer.
+    So the goal is not reached... I want the callee to have full control of the evaluation.
 
 Investigate the Activation stack (reify ? closure ? continuation ?)
 --> closure by value : done
@@ -135,6 +138,16 @@ That makes the transformation of clauses more difficult, since a clause can be
 multi-line.
 Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
+
+
+===============================================================================
+2012 sept 30
+
+[logical]
+Routine if(aLogical, whenTrue, whenFalse)
+Method aLogical~ifTrue(whenTrue[, whenFalse])
+Method aLogical~ifFalse(whenFalse[, whenTrue])
+When passing a doer for whenTrue and/or whenFalse, the evaluation is done only when needed.
 
 
 ===============================================================================
