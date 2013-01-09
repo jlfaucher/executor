@@ -1652,7 +1652,7 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
         return this;                     /* return the buffer unaltered       */
     }
     // get the deletion point as an offset
-    sizeB_t deletePosition = _word - this->getStringData();
+    sizeB_t deletePosition = sizeB_v(_word - this->getStringData());
     while (--count > 0 && _wordLength != 0)
     {  /* loop until we reach tArget        */
         _word = nextSite;              /* copy the start pointer            */
