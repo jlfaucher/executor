@@ -537,6 +537,8 @@ syntax: -- In fact, it's an abort, not a syntax error...
     
 ::method make_xslt_compliant
     use strict arg chunk
+    return .false -- no longer needed since publican adaptation
+    
     if chunk~text~left(6) == "<?xml " then do
         self~output~lineout('<?xml version="1.0" standalone="no"?>')
         return .true
