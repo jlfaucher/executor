@@ -965,13 +965,6 @@ Here, .console is the primary follower of .upper.
 
 
 The chain of connected pipeStages is a pipe.
-Any object can be a source of pipe :
-- When the object does not support the method ~supplier then it's injected as-is.
-  The index is 1.
-- A collection can be a source of pipe : each item of the collection is injected in the pipe.
-  The indexes are those of the collection.
-- A coactivty can be a source of pipe : each yielded value is injected in the pipe.
-  The indexes are those returned by the coactivity supplier.
 
 
 A pipeStage receives a triplet (item, index, dataflow). It applies transformations or filters
