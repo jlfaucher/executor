@@ -52,7 +52,18 @@ typedef map<string, int, less<string> > String2Int;
 #define DLLGETVERSION_FUNCTION       "DllGetVersion"
 #define COMMON_CONTROL_DLL           "comctl32.dll"
 
-#define NO_COMMCTRL_MSG              "failed to initialize %s; OS error code %d"
+#define NO_COMMCTRL_MSG           "failed to initialize %s; OS error code %d"
+#define NO_HMODULE_MSG            "failed to obtain %s module handle; OS error code %d"
+#define NO_PROC_MSG               "failed to get procedeure adddress for %s(); OS error code %d"
+#define API_FAILED_MSG            "system API %s() failed; OS error code %d"
+#define COM_API_FAILED_MSG        "system API %s() failed; COM code 0x%08x"
+#define FUNC_WINCTRL_FAILED_MSG   "the '%s'() function of the Windows '%s' control failed"
+#define MSG_WINCTRL_FAILED_MSG    "the '%s' message of the Windows '%s' control failed"
+#define NO_LOCAL_ENVIRONMENT_MSG  "the .local environment was not found"
+#define NO_SIZE_CLASS_MSG         "the .Size class was not found"
+#define BAD_APPLICATION_MSG       "the .Application object already exists"
+
+
 #define COMCTL32_FULL_PART           0
 #define COMCTL32_NUMBER_PART         1
 #define COMCTL32_OS_PART             2
@@ -121,6 +132,7 @@ extern int32_t    oodResolveSymbolicID(RexxThreadContext *, RexxObjectPtr, RexxO
 extern bool       oodSafeResolveID(int32_t *, RexxMethodContext *, RexxObjectPtr, RexxObjectPtr, int, size_t, bool);
 extern int32_t    resolveResourceID(RexxMethodContext *c, RexxObjectPtr rxID, RexxObjectPtr self);
 extern int32_t    resolveIconID(RexxMethodContext *c, RexxObjectPtr rxIconID, RexxObjectPtr self);
+extern HICON      getOORexxIcon(uint32_t id);
 
 extern bool       requiredOS(RexxMethodContext *context, const char *method, const char *osName, os_name_t os);
 extern bool       requiredOS(RexxMethodContext *context, os_name_t os, const char *msg, const char *osName);
@@ -315,7 +327,8 @@ inline bool isDlgThread(pCPlainBaseDialog pcpbd)
 }
 
 extern void           ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
-extern void          *baseClassIntializationException(RexxMethodContext *c);
+extern void           systemServiceExceptionCode(RexxThreadContext *context, const char *msg, const char *arg1);
+extern void           systemServiceExceptionComCode(RexxThreadContext *context, const char *msg, const char *arg1, HRESULT hr);
 extern RexxObjectPtr  invalidCategoryPageException(RexxMethodContext *c, int, int);
 extern RexxObjectPtr  noSuchPageException(RexxMethodContext *c, RexxObjectPtr page, size_t pos);
 extern RexxObjectPtr  noWindowsPageException(RexxMethodContext *c, size_t pageID, size_t pos);

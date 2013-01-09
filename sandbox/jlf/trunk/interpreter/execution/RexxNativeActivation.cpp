@@ -1144,10 +1144,10 @@ void RexxNativeActivation::createLocalReference(RexxObject *objr)
         if (this->savelist == OREF_NULL)     /* first saved object?               */
         {
             /* create the save list now          */
-            this->savelist = new_list();
+            this->savelist = new_identity_table();
         }
         /* add to the save table             */
-        this->savelist->append(objr);
+        this->savelist->put(objr, objr);
     }
 }
 
@@ -1165,7 +1165,10 @@ void RexxNativeActivation::removeLocalReference(RexxObject *objr)
       // make sure we have a savelist before trying to remove this
       if (savelist != OREF_NULL)
       {
-          savelist->removeItem(objr);
+          // NB...this is a special remove that functions using the object
+          // identify to avoid false positives or potential exceptions caused
+          // by calling EQUALS methods.
+          savelist->remove(objr);
       }
   }
 }
@@ -1438,7 +1441,7 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
         enableVariablepool();                // enable the variable pool interface here
         activity->releaseAccess();           /* force this to "safe" mode         */
         // now process the function call
-        functionrc = (*methp)(functionName->getStringData(), count, argPtr, queuename, &funcresult);
+        functionrc = (int)(*methp)(functionName->getStringData(), count, argPtr, queuename, &funcresult);
         activity->requestAccess();           /* now in unsafe mode again          */
     }
     catch (RexxActivation *)

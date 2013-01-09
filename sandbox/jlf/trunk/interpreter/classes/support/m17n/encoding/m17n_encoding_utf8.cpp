@@ -266,7 +266,7 @@ ENCODING_UTF8::iter_get(IRexxString *str, String_iter *i, sizeC_t offset)
         u8ptr = (const utf8_t *)utf8_skip_forward(u8ptr, offset);
     }
     else if (offset < 0) {
-        u8ptr = (const utf8_t *)utf8_skip_backward(u8ptr, -ssize_v(offset));
+        u8ptr = (const utf8_t *)utf8_skip_backward(u8ptr, offset);
     }
 
     return utf8_decode(u8ptr);
@@ -292,7 +292,7 @@ ENCODING_UTF8::iter_skip(IRexxString *str, String_iter *i, sizeC_t skip)
         u8ptr = (const utf8_t *)utf8_skip_forward(u8ptr, skip);
     }
     else if (skip < 0) {
-        u8ptr = (const utf8_t *)utf8_skip_backward(u8ptr, -ssize_v(skip));
+        u8ptr = (const utf8_t *)utf8_skip_backward(u8ptr, skip);
     }
 
     i->charpos += skip;

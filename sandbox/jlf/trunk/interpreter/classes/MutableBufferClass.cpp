@@ -666,6 +666,30 @@ RexxString *RexxMutableBuffer::makeString()
     return new_string(this->data->getData(), this->dataBLength, this->dataCLength, this->getCharset(), this->getEncoding());
 }
 
+/**
+ * Baseclass optimization for handling request array calls.
+ *
+ * @return The string object converted to an array using default arguments.
+ */
+RexxArray  *RexxMutableBuffer::makeArray()
+{
+    // forward to the Rexx version with default arguments
+    return this->makeArrayRexx(OREF_NULL);
+}
+
+/**
+ * Handle the primitive class makeString optimization.  This
+ * is required because MutableBuffer implements a
+ * STRING method.
+ *
+ * @return The string value of the buffer
+ */
+RexxString *RexxMutableBuffer::primitiveMakeString()
+{
+    // go straight to the string handler
+    return this->makeString();
+}
+
 
 /******************************************************************************/
 /* Arguments:  String position for substr                                     */
@@ -786,7 +810,7 @@ RexxString *RexxMutableBuffer::subchar(RexxInteger *positionArg)
 
 
 // in behaviour
-RexxArray *RexxMutableBuffer::makearray(RexxString *div)
+RexxArray *RexxMutableBuffer::makeArrayRexx(RexxString *div)
 /******************************************************************************/
 /* Function:  Split string into an array                                      */
 /******************************************************************************/
@@ -1671,4 +1695,124 @@ RexxMutableBuffer *RexxMutableBuffer::delWord(RexxInteger *position, RexxInteger
     this->setBLength(dataBLength - gapSize);
     // todo m17n : dataCLength
     return this;
+}
+
+
+/**
+* Do an inplace space() operation on a mutable buffer.
+*
+* @param space_count    The number of pad characters between
+*                       each word
+* @param pad            The pad character
+*
+* @return               The target MutableBuffer
+*/
+RexxMutableBuffer *RexxMutableBuffer::space(RexxInteger *space_count, RexxString *pad)
+{
+    size_t count = 0;                      /* count word interstices in buffer*/
+
+                                           /* get the spacing count           */
+    const size_t padLength = optionalLengthArgument(space_count, 1, ARG_ONE);
+    /* get the pad character           */
+    const char   padChar   = optionalPadArgument(pad, ' ', ARG_TWO);
+
+    // an inplace update has complications, depending on whether the new string
+    // is shorter or longer than the original.
+    // first execute padC with padLength == 0,1; later expand padC to padLength
+    const char   padC = ' ';               /* intermediate pad: single space  */
+    const sizeB_t padL = 1;                 /* intermediate pad length: 1      */
+
+    // With padC the new string is not longer, so we can just overlay in place.
+    // Set write position to start of buffer
+    // Find first word: start position and length
+    // While a word is found:
+    //     Copy word to write position
+    //     update write position
+    //     Find next word: start position and length
+    //     if no next word exists then leave
+    //     select spacing count:
+    //         when = 1 then append padChar and update write position
+    //         when = 0 then don't pad
+    //         otherwise append padC and update write position
+    //     increment word interstice count
+    //     iterate
+    // adjust string dataLength to write position
+    sizeB_t      writePos = 0;               /* offset current write position  */
+    const char *_word    = getStringData(); /* point to the start of string   */
+    const char *nextSite = NULL;            /* start of the next word         */
+    sizeB_t        length = getBLength();     /* get string data length         */
+
+                                            /* get the first word             */
+    sizeB_t _wordLength = StringUtil::nextWord(&_word, &length, &nextSite);
+
+    while (_wordLength != 0)
+    {
+        /* copy first word to writePos    */
+        copyData(writePos, _word, _wordLength);
+        writePos += _wordLength;            /* update writePos for next word  */
+        _word = nextSite;                   /* set start pointer to next word */
+                                            /* get the next word              */
+        _wordLength = StringUtil::nextWord(&_word, &length, &nextSite);
+        if (_wordLength == 0)               /* is there no next word coming ? */
+        {
+            break;                          /* don't pad or count last word   */
+        }
+        switch (padLength)                  /* handle different padLength     */
+        {
+            case 1:                             /* more frequent case goes first  */
+                setData(writePos, padChar, padLength); /* write pad character     */
+                writePos += padLength;         /* move write position one byte    */
+                break;
+            case 0:
+                break;                         /* don't write pad character       */
+            default:                           /* padLength > 1                   */
+                setData(writePos, padC, padL); /* write padC pad character        */
+                writePos += padL;              /* move write position one byte    */
+        }
+        count++;                           /* increment the word count        */
+    }
+    this->dataBLength = writePos;           /* set data length in buffer       */
+
+    if ( padLength > 1 )                   /* do we need to expand padC ?     */
+    {
+        sizeB_t growth = count * (padLength-1); /* data grows by so many bytes */
+        ensureCapacity(growth);            /* make sure we have room for this */
+
+        // As the string gets longer, we need to shift all data to the end and
+        // then pull the pieces back in as we go.
+        length = getBLength();              /* get current string data length  */
+        openGap(0, growth, length);        /* shift towards end of the buffer */
+        writePos = 0;
+        while (growth>0)
+        {
+            setData(writePos, padC, padL); /* fill gap with whitespace        */
+            writePos++;
+            growth--;
+        }
+        dataBLength = getBLength() + count * (padLength-1);/*adjust data to size*/
+
+        // Now we do the last loop over, using padChar and padLength
+        writePos = 0;                      /* offset current write position   */
+        const char *_word    = getStringData(); /*point to the start of string*/
+        const char *nextSite = NULL;       /* start of the next word          */
+        length = this->dataBLength;         /* get current string data length  */
+                                           /* get the first word              */
+        _wordLength = StringUtil::nextWord(&_word, &length, &nextSite);
+
+        while (_wordLength != 0)           /* while there is a word ...       */
+        {
+            /* copy first word to writePos     */
+            copyData(writePos, _word, _wordLength);
+            writePos += _wordLength;       /* update writePos for next word   */
+            _word = nextSite;              /* set start pointer to next word  */
+                                           /* get the next word               */
+            _wordLength = StringUtil::nextWord(&_word, &length, &nextSite);
+            if (_wordLength != 0)          /* except for the last word        */
+            {
+                setData(writePos, padChar, padLength); /* write padChar chars */
+                writePos += padLength;     /* update writePos for next word   */
+            }
+        }
+    }
+    return this;                           /* return the mutable buffer       */
 }

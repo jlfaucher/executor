@@ -254,7 +254,7 @@ RexxObject *RexxObject::isInstanceOfRexx(RexxClass *other)
  */
 RexxMethod *RexxInternalObject::instanceMethod(RexxString  *method_name)
 {
-    return OREF_NULL;
+    return (RexxMethod *)TheNilObject;
 }
 
 
@@ -273,10 +273,10 @@ RexxMethod *RexxObject::instanceMethod(RexxString  *method_name)
     ProtectedObject p(method_name);
     // retrieve the method from the dictionary
     RexxMethod *method_object = (RexxMethod *)this->behaviour->getMethodDictionary()->stringGet(method_name);
-    // this is an error if it doesn't exist
+    // We return .nil if the method doesn't exist.
     if (method_object == OREF_NULL)
     {
-        reportException(Error_No_method_name, this, method_name);
+        return (RexxMethod *)TheNilObject;
     }
     return method_object;    // got a live one
 }
@@ -1157,6 +1157,24 @@ RexxString *RexxObject::requestString()
         {/* didn't convert?                   */
          /* get the final string value        */
             this->sendMessage(OREF_STRINGSYM, string_value);
+            // we're really dependent upon the program respecting the protocol
+            // here and returning a value.  It is possible there is a
+            // problem, so how to handle this.  We could just raise an error, but this
+            // isn't the most ideal message since the error is raised at the
+            // line where the string value is required, but this is a rare
+            // situation.  As a fallback, use the default object STRING method,
+            // then raise an error if we still don't get anything.  This at least
+            // keeps the interpreter from crashing, there's a good chance the
+            // program will run.  Frankly, there's something seriously wrong
+            // if this error ever gets issued.
+            if (string_value == OREF_NULL)
+            {
+                string_value = RexxObject::stringValue();
+                if (string_value == OREF_NULL)
+                {
+                    reportException(Error_No_result_object_message, OREF_STRINGSYM);
+                }
+            }
             // The returned value might be an Integer or NumberString value.  We need to
             // force this to be a real string value.
             string_value = ((RexxObject *)string_value)->primitiveMakeString();

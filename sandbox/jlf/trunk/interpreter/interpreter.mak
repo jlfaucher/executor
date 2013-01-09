@@ -57,7 +57,7 @@ ICU_LIBS=icudt.lib icuuc.lib
 # Main (default) target:
 # -------------------------------------------------------------------------
 # CHM moved target definition to top
-all : ORXGENERATED $(OR_OUTDIR)\rexx.dll  \
+all : ORXGENERATED ORXDOCFILES $(OR_OUTDIR)\rexx.dll  \
       COPYORXFILES COPYAPIFILES
     @ECHO ...
     @ECHO All done ....
@@ -212,6 +212,9 @@ ORXFILES=$(OR_OUTDIR)\CoreClasses.orx  $(OR_OUTDIR)\StreamClasses.orx \
 ORXHEADERS=$(OR_APISRC)\oorexxerrors.h $(INTERPRETER_MESSAGES)\RexxErrorCodes.h $(INTERPRETER_MESSAGES)\RexxMessageNumbers.h $(INTERPRETER_MESSAGES)\RexxMessageTable.h $(INTERPRETER_RUNTIME)\RexxCore.h \
     $(BEHAVIOUR)\PrimitiveBehaviourNames.h $(BEHAVIOUR)\ClassTypeCodes.h
 
+ORXDOCFILES=$(INTERPRETER_MESSAGES)\errnums.xml $(INTERPRETER_MESSAGES)\errnumsrxqueue.xml $(INTERPRETER_MESSAGES)\errnumssubcom.xml \
+    $(INTERPRETER_MESSAGES)\errnumsrexxc.xml
+
 ORXGENERATED=$(ORXHEADERS) $(BEHAVIOUR)\PrimitiveBehaviours.cpp $(BEHAVIOUR)\VirtualFunctionTable.cpp 
 
 # All the files needed to compile and link an external program using the native
@@ -314,6 +317,26 @@ $(OR_APISRC)\oorexxerrors.h: $(INTERPRETER_MESSAGES)\ApiErrorCodes.xsl $(INTERPR
     @ECHO Generating $(@)
     xalan -o $(@) $(INTERPRETER_MESSAGES)\rexxmsg.xml $(INTERPRETER_MESSAGES)\ApiErrorCodes.xsl
 
+$(INTERPRETER_MESSAGES)\errnums.xml: $(INTERPRETER_MESSAGES)\errnums.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    @ECHO.
+    @ECHO Generating $(@)
+    xalan -o $(@) $(INTERPRETER_MESSAGES)\rexxmsg.xml $(INTERPRETER_MESSAGES)\errnums.xsl
+
+$(INTERPRETER_MESSAGES)\errnumsrxqueue.xml: $(INTERPRETER_MESSAGES)\errnumsrxqueue.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    @ECHO.
+    @ECHO Generating $(@)
+    xalan -o $(@) $(INTERPRETER_MESSAGES)\rexxmsg.xml $(INTERPRETER_MESSAGES)\errnumsrxqueue.xsl
+
+$(INTERPRETER_MESSAGES)\errnumssubcom.xml: $(INTERPRETER_MESSAGES)\errnumssubcom.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    @ECHO.
+    @ECHO Generating $(@)
+    xalan -o $(@) $(INTERPRETER_MESSAGES)\rexxmsg.xml $(INTERPRETER_MESSAGES)\errnumssubcom.xsl
+
+$(INTERPRETER_MESSAGES)\errnumsrexxc.xml: $(INTERPRETER_MESSAGES)\errnumsrexxc.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    @ECHO.
+    @ECHO Generating $(@)
+    xalan -o $(@) $(INTERPRETER_MESSAGES)\rexxmsg.xml $(INTERPRETER_MESSAGES)\errnumsrexxc.xsl
+
 $(BEHAVIOUR)\PrimitiveBehaviourNames.h: $(BEHAVIOUR)\PrimitiveBehaviourNames.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
     @ECHO.
     @ECHO Generating $(@)
@@ -363,6 +386,12 @@ COPYAPIFILES: $(APIFILES)
 # *** Make sure headers are generated
 #
 ORXGENERATED: $(ORXGENERATED)
+
+#
+#
+# *** Make sure error number docfiles are generated
+#
+ORXDOCFILES: $(ORXDOCFILES)
 
 #
 # *** Inference Rule for Rexx Class files

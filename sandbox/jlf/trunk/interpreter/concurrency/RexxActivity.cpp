@@ -93,6 +93,10 @@ void RexxActivity::runThread()
         // save the actitivation level in case there's an error unwind for an unhandled
         // exception;
         size_t activityLevel = 0;
+        // the thread might have terminated for a control stack issue
+        // so make sure checking is turned back on before trying to run
+        // anything
+        this->stackcheck = true;
 
         try
         {
@@ -817,11 +821,8 @@ void RexxActivity::raiseException(wholenumber_t  errcode, RexxString *descriptio
  *
  * @return The created exception dictionary.
  */
-RexxDirectory *RexxActivity::createExceptionObject(
-    wholenumber_t  errcode,            /* REXX error code                   */
-    RexxString    *description,        /* descriptive information           */
-    RexxArray     *additional,         /* substitution information          */
-    RexxObject    *result )            /* result information                */
+RexxDirectory *RexxActivity::createExceptionObject(wholenumber_t  errcode,
+    RexxString *description, RexxArray *additional, RexxObject *result )
 /******************************************************************************/
 /* This routine is used for SYNTAX conditions only.                           */
 /*                                                                            */
@@ -829,13 +830,12 @@ RexxDirectory *RexxActivity::createExceptionObject(
 /* convenient for the calling code in the two cases where this facility       */
 /* is used.                                                                   */
 /*                                                                            */
-/* NOTE: The building of the excepption obejct (EXOBJ)  has been re-arranged  */
+/* NOTE: The building of the exception obejct (EXOBJ) has been re-arranged    */
 /*  so that a garbage collection in the middle of building traceBack/etc      */
 /*  doesn't clean up the newly built objects.  SO we create exobj early on    */
-/*  save it, and add newlly built objects to exobj as we go.                  */
+/*  save it, and add newly built objects to exobj as we go.                   */
 /******************************************************************************/
 {
-
     /* All error detection done. we can  */
     /*  build and save exobj now.        */
     /* get an exception directory        */
@@ -1099,7 +1099,7 @@ RexxString *RexxActivity::messageSubstitution(
                     restoreActivationLevel(activityLevel);
                     /* we're safe again                  */
                     this->requestingString = false;
-                    this->stackcheck = true;     /* disable the checking              */
+                    this->stackcheck = true;     // reenable the checking
                 }
             }
         }
@@ -2001,10 +2001,10 @@ void RexxActivity::checkStackSpace()
 /******************************************************************************/
 {
 #ifdef STACKCHECK
-  size_t temp;                          /* if checking and there isn't room  */
+  size_t temp;                          // if checking and there isn't room
   if (((char *)&temp - (char *)this->stackBase) < MIN_C_STACK && this->stackcheck == true)
   {
-                                       /* go raise an exception             */
+                                        // go raise an exception
       reportException(Error_Control_stack_full);
   }
 #endif

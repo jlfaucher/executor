@@ -101,6 +101,7 @@
 #define Error_Incomplete_do_then                           14003
 #define Error_Incomplete_do_else                           14004
 #define Error_Incomplete_do_otherwise                      14901
+#define Error_Incomplete_do_loop                           14005
 #define Error_Invalid_hex                                  15000
 #define Error_Invalid_hex_hexblank                         15001
 #define Error_Invalid_hex_binblank                         15002
@@ -215,6 +216,7 @@
 #define Error_Invalid_subkeyword_message                   25922
 #define Error_Invalid_subkeyword_select                    25923
 #define Error_Invalid_subkeyword_options                   25924
+#define Error_Invalid_subkeyword_attribute                 25925
 #define Error_Invalid_whole_number                         26000
 #define Error_Invalid_whole_number_power                   26008
 #define Error_Invalid_whole_number_repeat                  26002
@@ -591,6 +593,14 @@
 #define Error_Translation_use_strict_ellipsis              99930
 #define Error_Translation_duplicate_attribute              99931
 #define Error_Translation_duplicate_constant               99932
+#define Error_Translation_abstract_method                  99933
+#define Error_Translation_attribute_method                 99934
+#define Error_Translation_external_attribute               99935
+#define Error_Translation_external_method                  99936
+#define Error_Translation_body_error                       99937
+#define Error_Translation_constant_body                    99938
+#define Error_Translation_external_routine                 99939
+#define Error_Translation_abstract_attribute               99940
 #define Error_at_line                                      101000
 #define Message_Translations_error                         101001
 #define Message_Translations_running                       101002

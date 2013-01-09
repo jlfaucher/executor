@@ -457,7 +457,7 @@ RexxInstruction *RexxSource::doNew()
 /* Function:  Create a new DO translator object                             */
 /****************************************************************************/
 {
-    RexxInstruction *newObject = createLoop();
+    RexxInstruction *newObject = createDoLoop();
                                        /* now complete the parsing          */
     return this->createDoLoop((RexxInstructionDo *)newObject, false);
 }
@@ -474,14 +474,28 @@ RexxInstruction *RexxSource::loopNew()
 
 
 /**
- * Create a LOOP/DO instruction instance.
+ * Create a DO instruction instance.
+ *
+ * @return
+ */
+RexxInstruction *RexxSource::createDoLoop()
+{
+    // NOTE:  we create a DO instruction for both DO and LOOP
+    RexxInstruction *newObject = new_instruction(DO, Do); /* create a new translator object    */
+    new((void *)newObject) RexxInstructionDo;
+    return newObject;
+}
+
+
+/**
+ * Create a LOOP instruction instance.
  *
  * @return
  */
 RexxInstruction *RexxSource::createLoop()
 {
     // NOTE:  we create a DO instruction for both DO and LOOP
-    RexxInstruction *newObject = new_instruction(DO, Do); /* create a new translator object    */
+    RexxInstruction *newObject = new_instruction(LOOP, Do); /* create a new translator object    */
     new((void *)newObject) RexxInstructionDo;
     return newObject;
 }

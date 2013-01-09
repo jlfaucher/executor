@@ -43,6 +43,7 @@ Name "${LONGNAME} ${VERSION}"
 
 ; Docs for the string functions say they need to be declared before use:
 ${StrTok}
+${StrCase}
 ${UnStrTok}
 
 !define MUI_ICON "${SRCDIR}\platform\windows\rexx.ico"
@@ -507,12 +508,8 @@ Section "${LONGNAME} Samples" SecDemo
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Date.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Time.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\qtime.rex"' "$INSTDIR\rexx.exe"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Time.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Event Log.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\oodialog\winsystem\eventlog.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Event Log.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Drive Info.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\drives.rex"' "$INSTDIR\rexx.exe"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Drive Info.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Windows Manager.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\winsystem\usewmgr.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Windows Manager.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\MS Access.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\ole\apps\MSAccessDemo.rex"' "$INSTDIR\rexx.exe"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\MS Access.lnk"
   ;
@@ -671,7 +668,6 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabs\" "UserTabDemo.rex"
   ${SetOutPath} $INSTDIR\samples\oodialog\propertySheet.tabs\rc
   ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabs\rc\" ""
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabs\rc\" "oodListViews1.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabs\rc\" "oodListViews2.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabs\rc\" "oodListViews.h"
@@ -764,11 +760,6 @@ Section "${LONGNAME} Samples" SecDemo
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide
   ; Distribution files...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\" "ReadMe.txt"
-
-  ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise02
@@ -896,14 +887,18 @@ Section "${LONGNAME} Samples" SecDemo
   ; Create start menu shortcuts
   SetOutPath $INSTDIR\samples\oodialog
   ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\sample.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Calculator.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\calculator.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Calculator.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Change Editor.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\editrex.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Change Editor.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Display Event Log.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\oodialog\winsystem\eventlog.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Display Event Log.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\FTYPE Changer.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\ftyperex.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\FTYPE Changer.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\sample.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Windows Manager.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\winsystem\usewmgr.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Windows Manager.lnk"
 SectionEnd
 
 ;------------------------------------------------------------------------
@@ -1049,10 +1044,10 @@ Section "${LONGNAME} Documentation" SecDoc
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx TCP-IP Sockets Functions Reference.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx rxFTP Class Reference.lnk" "$INSTDIR\doc\rxftp.pdf" "" "$INSTDIR\doc\rxftp.pdf" 0
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx rxFTP Class Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog Method Reference.lnk" "$INSTDIR\doc\oodialog.pdf" "" "$INSTDIR\doc\oodialog.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog Method Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog User Guide.lnk" "$INSTDIR\doc\oodguide.pdf" "" "$INSTDIR\doc\oodguide.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ooDialog User Guide.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog Reference.lnk" "$INSTDIR\doc\oodialog.pdf" "" "$INSTDIR\doc\oodialog.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog User Guide.lnk" "$INSTDIR\doc\oodguide.pdf" "" "$INSTDIR\doc\oodguide.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog User Guide.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Rexx Extensions Reference.lnk" "$INSTDIR\doc\rexxextensions.pdf" "" "$INSTDIR\doc\rexxextensions.pdf" 0
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Windows Extensions Reference.lnk"
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Unix Extensions Reference.lnk" "$INSTDIR\doc\unixextensions.pdf" "" "$INSTDIR\doc\unixextensions.pdf" 0
@@ -1877,7 +1872,7 @@ Function SendTo_Items_page
     Rexx executables will execute your program.$\n$\n\
     Rather than create a file association for rexxhide.exe and rexxpaws.exe you may wish to create a \
     'Send To' item for those executables.  Or create both a file association and 'Send To' items for \
-    those executabls.  Usually a file association is created for rexx.exe and not a 'Send To' item."
+    those executables.  Usually a file association is created for rexx.exe and not a 'Send To' item."
 
   Pop $Label_One
 
@@ -1989,17 +1984,17 @@ Function Associate_rexx_page
   ${NSD_SetState} $Associate_rexx_CK $Associate_rexx_CK_state
 
   ; Extension line
-  ${NSD_CreateLabel}     16u  116u  36u  8u "Extension:"
+  ${NSD_CreateLabel}     16u  116u  75u  8u "Extension (no spaces):"
   Pop $0  ; Discarded
 
-  ${NSD_CreateText}      52u  114u  46u 12u $Rexx_ext_text
+  ${NSD_CreateText}      91u  114u  36u 12u $Rexx_ext_text
   Pop $Rexx_ext_EDIT
 
   ; File type line
-  ${NSD_CreateLabel}     120u 116u  52u  8u "File type name:"
+  ${NSD_CreateLabel}     137u 116u  90u  8u "File type name (no spaces):"
   Pop $0  ; Discarded
 
-  ${NSD_CreateText}      173u 114u  46u 12u $Rexx_ftype_text
+  ${NSD_CreateText}      228u 114u  46u 12u $Rexx_ftype_text
   Pop $Rexx_ftype_EDIT
 
   ${NSD_SetState} $Associate_rexx_CK $Associate_rexx_CK_state
@@ -2066,7 +2061,31 @@ Function Associate_rexx_leave
       SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ext_EDIT 1
       Abort
     ${endif}
+
+    ; Check that the user did not include any spaces in either field. If so abort
+    push $0
+    call CheckForSpaces
+    pop $2
+    push $1
+    call CheckForSpaces
+    pop $3
+
+    ${if} $2 > 0
+    ${orif} $3 > 0
+      MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "Neither the file extension field nor the file$\n\
+        type name field can contain a space."
+
+      ${if} $2 > 0
+        SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ext_EDIT 1
+      ${else}
+        SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ftype_EDIT 1
+      ${endif}
+      Abort
+    ${endif}
+
   ${endif}
+
 
   ; Okay text fields are okay.  If editor field is blank, it is just not used.
   ${NSD_GetText} $Rexx_ext_EDIT $Rexx_ext_text
@@ -2162,17 +2181,17 @@ Function Associate_otherExes_page
   ${NSD_SetState} $Associate_rexxhide_CK $Associate_rexxhide_CK_state
 
   ; Extension line
-  ${NSD_CreateLabel}     16u  38u  36u  8u "Extension:"
+  ${NSD_CreateLabel}     16u  38u   75u  8u "Extension (no spaces):"
   Pop $0  ; Discarded
 
-  ${NSD_CreateText}      52u  36u  46u 12u $RexxHide_ext_text
+  ${NSD_CreateText}      91u  36u  36u 12u $RexxHide_ext_text
   Pop $RexxHide_ext_EDIT
 
   ; File type line
-  ${NSD_CreateLabel}     120u 38u  52u  8u "File type name:"
+  ${NSD_CreateLabel}     137u 38u   90u  8u "File type name (no spaces):"
   Pop $0  ; Discarded
 
-  ${NSD_CreateText}      173u 36u  46u 12u $RexxHide_ftype_text
+  ${NSD_CreateText}      228u 36u  46u 12u $RexxHide_ftype_text
   Pop $RexxHide_ftype_EDIT
 
 
@@ -2192,17 +2211,17 @@ Function Associate_otherExes_page
   ${NSD_SetState} $Associate_rexxpaws_CK $Associate_rexxpaws_CK_state
 
   ; Extension line
-  ${NSD_CreateLabel}     16u  118u  36u  8u "Extension:"
+  ${NSD_CreateLabel}     16u  118u  75u  8u "Extension (no spaces):"
   Pop $0  ; Discarded
 
-  ${NSD_CreateText}      52u  116u  46u 12u $RexxPaws_ext_text
+  ${NSD_CreateText}      91u  116u  36u 12u $RexxPaws_ext_text
   Pop $RexxPaws_ext_EDIT
 
   ; File type line
-  ${NSD_CreateLabel}     120u 118u  52u  8u "File type name:"
+  ${NSD_CreateLabel}     137u 118u  90u  8u "File type name (no spaces):"
   Pop $0  ; Discarded
 
-  ${NSD_CreateText}      173u 116u  46u 12u $RexxPaws_ftype_text
+  ${NSD_CreateText}      228u 116u  46u 12u $RexxPaws_ftype_text
   Pop $RexxPaws_ftype_EDIT
 
   ${if} $DoUpgrade == 'true'
@@ -2278,6 +2297,30 @@ Function Associate_otherExes_leave
       SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ext_EDIT 1
       Abort
     ${endif}
+
+    ; Check that the user did not include any spaces in either field. If so abort
+    push $0
+    call CheckForSpaces
+    pop $2
+    push $1
+    call CheckForSpaces
+    pop $3
+
+    ${if} $2 > 0
+    ${orif} $3 > 0
+      MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "Neither the file extension field nor the file$\n\
+        type name field can contain a space."
+
+      ${if} $2 > 0
+        SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ext_EDIT 1
+      ${else}
+        SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ftype_EDIT 1
+      ${endif}
+      Abort
+    ${endif}
+
+
   ${endif}
 
   /* Check the Rexx Paws controls */
@@ -2312,6 +2355,29 @@ Function Associate_otherExes_leave
       SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ext_EDIT 1
       Abort
     ${endif}
+
+    ; Check that the user did not include any spaces in either field. If so abort
+    push $0
+    call CheckForSpaces
+    pop $2
+    push $1
+    call CheckForSpaces
+    pop $3
+
+    ${if} $2 > 0
+    ${orif} $3 > 0
+      MessageBox MB_OK|MB_ICONEXCLAMATION \
+        "Neither the file extension field nor the file$\n\
+        type name field can contain a space."
+
+      ${if} $2 > 0
+        SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ext_EDIT 1
+      ${else}
+        SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ftype_EDIT 1
+      ${endif}
+      Abort
+    ${endif}
+
   ${endif}
 
   ; Okay text fields are okay.
@@ -2590,17 +2656,17 @@ Function AssociateExtensionWithExe
   ${if} $AssociationProgramName == 'rexx.exe'
     ${StrTok} $0 $RegVal_rexxAssociation " " "0" "0"
     ${StrTok} $1 $RegVal_rexxAssociation " " "1" "0"
-    StrCpy $AssociationText "ooRexx Rexx Progam"
+    StrCpy $AssociationText "ooRexx Rexx Program"
     StrCpy $AssociationEditor '$RegVal_rexxEditor'
   ${elseif} $AssociationProgramName == 'rexxhide.exe'
     ${StrTok} $0 $RegVal_rexxHideAssociation " " "0" "0"
     ${StrTok} $1 $RegVal_rexxHideAssociation " " "1" "0"
-    StrCpy $AssociationText "ooRexx Rexx GUI Progam"
+    StrCpy $AssociationText "ooRexx Rexx GUI Program"
     StrCpy $AssociationEditor '$RegVal_rexxEditor'
   ${elseif} $AssociationProgramName == 'rexxpaws.exe'
     ${StrTok} $0 $RegVal_rexxPawsAssociation " " "0" "0"
     ${StrTok} $1 $RegVal_rexxPawsAssociation " " "1" "0"
-    StrCpy $AssociationText "ooRexx Rexx pausing Progam"
+    StrCpy $AssociationText "ooRexx Rexx pausing Program"
     StrCpy $AssociationEditor "$RegVal_rexxEditor"
   ${else}
     DetailPrint "Unrecoverable ERROR. The ftype association executable: $AssociationProgramName is not recognized."
@@ -2828,12 +2894,56 @@ Function CheckInstalledStatus
 
 FunctionEnd
 
+
+/** CheckForSpaces()
+ *
+ * This function checks for spaces in a string.  It is taken from the NSIS
+ * examples provided on the NSIS site.
+ *
+ * It should be used this way:
+ *
+ * push <str>
+ * call CheckForSpaces
+ * pop $R0
+ *
+ * $R0 will contain the number of spaces.  When using the LogicLib, a check like
+ * this can be done
+ *
+ * ${if} $R0 > 0
+ *   <do something>
+ * ${endif}
+ *
+ */
+Function CheckForSpaces
+   Exch $R0
+   Push $R1
+   Push $R2
+   Push $R3
+
+   StrCpy $R1 -1
+   StrCpy $R3 $R0
+   StrCpy $R0 0
+   loop:
+     StrCpy $R2 $R3 1 $R1
+     IntOp $R1 $R1 - 1
+     StrCmp $R2 "" done
+     StrCmp $R2 " " 0 loop
+     IntOp $R0 $R0 + 1
+   Goto loop
+   done:
+
+   Pop $R3
+   Pop $R2
+   Pop $R1
+   Exch $R0
+FunctionEnd
+
 /** AddToPathExt()
  *
  * Adds the file extension(s) associated with the ooRexx executables to PATHEXT.
  *
- * Right now the user can not specifies these, but a future enhancement will add
- * that feature.
+ * We upper case the extension so that it matches what is commonly seen on
+ * Windows.
  *
  * @notes - This could be done for a single-user install, but remember that
  *          the user specific PATHEXT *replaces* the system wide PATHEXT, so
@@ -2847,22 +2957,25 @@ Function AddToPathExt
   ${endif}
 
   ${StrTok} $0 $RegVal_rexxAssociation " " "0" "0"
-  DetailPrint "Adding the $0 extension to PATHEXT"
-  Push $0
+  ${StrCase} $1 $0 "U"
+  DetailPrint "Adding the $1 extension to PATHEXT"
+  Push $1
   Push $IsAdminUser      ; should only be "true" at this point
   Push "PATHEXT"
   Call AddToPath
 
   ${StrTok} $0 $RegVal_rexxHideAssociation " " "0" "0"
-  DetailPrint "Adding the $0 extension to PATHEXT"
-  Push $0
+  ${StrCase} $1 $0 "U"
+  DetailPrint "Adding the $1 extension to PATHEXT"
+  Push $1
   Push $IsAdminUser      ; should only be "true" at this point
   Push "PATHEXT"
   Call AddToPath
 
   ${StrTok} $0 $RegVal_rexxPawsAssociation " " "0" "0"
-  DetailPrint "Adding the $0 extension to PATHEXT"
-  Push $0
+  ${StrCase} $1 $0 "U"
+  DetailPrint "Adding the $1 extension to PATHEXT"
+  Push $1
   Push $IsAdminUser      ; should only be "true" at this point
   Push "PATHEXT"
   Call AddToPath
@@ -3293,13 +3406,13 @@ Function un.Uninstall_By_Log_page
     ${NSD_Check} $Delete_ooRexx_Tree_CK
     EnableWindow $Delete_ooRexx_Tree_CK 0
   ${else}
-    ${NSD_CreateLabel} 0 0 100% 64u $0
+    ${NSD_CreateLabel} 0 0 100% 80u $0
     Pop $Label_One
 
-    ${NSD_CreateLabel} 0 80u 100% 16u "To DELETE the entire $INSTDIR directory tree, check the check box."
+    ${NSD_CreateLabel} 0 100u 100% 16u "To DELETE the entire $INSTDIR directory tree, check the check box."
     Pop $Label_Two
 
-    ${NSD_CreateCheckBox} 0 100u 100% 8u "Delete entire directory tree"
+    ${NSD_CreateCheckBox} 0 120u 100% 8u "Delete entire directory tree"
     Pop $Delete_ooRexx_Tree_CK
   ${endif}
 

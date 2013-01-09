@@ -212,6 +212,17 @@ RexxString  *RexxString::makeString()
     }
 }
 
+/**
+ * Baseclass optimization for handling request array calls.
+ *
+ * @return The string object converted to an array using default arguments.
+ */
+RexxArray  *RexxString::makeArray()
+{
+    // forward to the Rexx version with default arguments
+    return this->makeArrayRexx(OREF_NULL);
+}
+
 
 void RexxString::copyIntoTail(RexxCompoundTail *tail)
 /******************************************************************************/
@@ -477,9 +488,6 @@ bool RexxString::isEqual(
 /*            only strict equality, not greater or less than values.          */
 /******************************************************************************/
 {
-    sizeB_t  otherLen;                    /* length of the other string        */
-    RexxString *other;                   /* converted string object           */
-
     requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
     if (!this->isBaseClass())            /* not a primitive?                  */
     {
@@ -487,8 +495,13 @@ bool RexxString::isEqual(
         return this->sendMessage(OREF_STRICT_EQUAL, otherObj)->truthValue(Error_Logical_value_method);
     }
 
-    other = REQUEST_STRING(otherObj);    /* force into string form            */
-    otherLen = other->getBLength();            /* get length of second string.      */
+    if (otherObj == TheNilObject)        // strings never compare equal to the NIL object
+    {
+        return false;
+    }
+
+    RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
+    sizeB_t otherLen = other->getBLength();     /* get length of second string.      */
     if (otherLen != this->getBLength())        /* lengths different?                */
     {
         return false;                      /* also unequal                      */
@@ -504,17 +517,14 @@ bool RexxString::primitiveIsEqual(
 /*            only strict equality, not greater or less than values.          */
 /******************************************************************************/
 {
-    sizeB_t  otherLen;                    /* length of the other string        */
-    RexxString *other;                   /* converted string object           */
-
     requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
     if (otherObj == TheNilObject)        // strings never compare equal to the NIL object
     {
         return false;
     }
 
-    other = REQUEST_STRING(otherObj);    /* force into string form            */
-    otherLen = other->getBLength();            /* get length of second string.      */
+    RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
+    sizeB_t otherLen = other->getBLength();            /* get length of second string.      */
     if (otherLen != this->getBLength())        /* lengths different?                */
     {
         return false;                      /* also unequal                      */
@@ -535,6 +545,10 @@ bool RexxString::primitiveCaselessIsEqual(RexxObject *otherObj)
 {
     // we have one required string object
     requiredArgument(otherObj, ARG_ONE);
+    if (otherObj == TheNilObject)        // strings never compare equal to the NIL object
+    {
+        return false;
+    }
     RexxString *other = REQUEST_STRING(otherObj);
     stringsizeB_t otherLen = other->getBLength();
     // can't compare equal if different lengths
@@ -601,6 +615,10 @@ wholenumber_t RexxString::comp(RexxObject *other)
                                          /* call to NumberString succeeds or  */
                                          /* we will get into a loop.          */
     requiredArgument(other, ARG_ONE);            /* make sure we have a real argument */
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return false;
+    }
                                          /* try and convert both numbers      */
     if (((firstNum = this->fastNumberString()) != OREF_NULL) && ((secondNum = other->numberString()) != OREF_NULL ))
     {
@@ -690,15 +708,12 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj)
 /*             a value > 0 when this is larger than other                     */
 /******************************************************************************/
 {
-    const char *otherData;               /* the other character data          */
-    sizeB_t otherLen;                     /* length of the other string        */
     wholenumber_t result;                /* compare result                    */
-    RexxString *other;                   /* converted string value            */
 
     requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
-    other = REQUEST_STRING(otherObj);    /* force into string form            */
-    otherLen = other->getBLength();       /* get length of second string.      */
-    otherData = other->getStringData();  /* get pointer to start of data.     */
+    RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
+    sizeB_t otherLen = other->getBLength();       /* get length of second string.      */
+    const char *otherData = other->getStringData();  /* get pointer to start of data.     */
 
     if (this->getBLength() >= otherLen)
     {      /* determine the longer string.      */
@@ -932,6 +947,60 @@ RexxObject *RexxString::trunc(RexxInteger *decimals)
     return numstr->trunc(decimals);      /* have numberstring do this         */
 }
 
+/**
+ * The String class version of the floor method.
+ *
+ * @return The formatted numeric version.
+ */
+RexxObject *RexxString::floor()
+{
+    RexxNumberString *numstr;            /* converted number string           */
+
+                                         /* non-numeric?                      */
+    if ((numstr = this->fastNumberString()) == OREF_NULL)
+    {
+        /* this is a conversion error        */
+        reportException(Error_Incorrect_method_string_nonumber, "FLOOR", this);
+    }
+    return numstr->floor();      /* have numberstring do this         */
+}
+
+/**
+ * The String class version of the ceiling method.
+ *
+ * @return The formatted numeric version.
+ */
+RexxObject *RexxString::ceiling()
+{
+    RexxNumberString *numstr;            /* converted number string           */
+
+                                         /* non-numeric?                      */
+    if ((numstr = this->fastNumberString()) == OREF_NULL)
+    {
+        /* this is a conversion error        */
+        reportException(Error_Incorrect_method_string_nonumber, "CEILING", this);
+    }
+    return numstr->ceiling();      /* have numberstring do this         */
+}
+
+/**
+ * The String class version of the round method.
+ *
+ * @return The formatted numeric version.
+ */
+RexxObject *RexxString::round()
+{
+    RexxNumberString *numstr;            /* converted number string           */
+
+                                         /* non-numeric?                      */
+    if ((numstr = this->fastNumberString()) == OREF_NULL)
+    {
+        /* this is a conversion error        */
+        reportException(Error_Incorrect_method_string_nonumber, "ROUND", this);
+    }
+    return numstr->round();      /* have numberstring do this         */
+}
+
 // in behaviour
 RexxObject *RexxString::format(RexxObject *Integers, RexxObject *Decimals, RexxObject *MathExp, RexxObject *ExpTrigger)
 /******************************************************************************/
@@ -996,7 +1065,7 @@ RexxInteger *RexxString::strictNotEqual(RexxObject *other)
 /* Function:  Strict ("\==") inequality operator                              */
 /******************************************************************************/
 {
-  return !this->primitiveIsEqual(other) ? TheTrueObject : TheFalseObject;
+    return !this->primitiveIsEqual(other) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1005,12 +1074,11 @@ RexxInteger *RexxString::equal(RexxObject *other)
 /* Function:  Non-strict ("=") string equality operator                       */
 /******************************************************************************/
 {
-  // Strings never compare equal to the .nil object
-  if (other == TheNilObject)
-  {
-      return TheFalseObject;
-  }
-  return ((this->comp(other) == 0) ? TheTrueObject : TheFalseObject);
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return ((this->comp(other) == 0) ? TheTrueObject : TheFalseObject);
 }
 
 // in behaviour
@@ -1019,12 +1087,11 @@ RexxInteger *RexxString::notEqual(RexxObject *other)
 /* Function:  Non-Strict ("\=") string inequality operator                    */
 /******************************************************************************/
 {
-  // Strings never compare equal to the .nil object
-  if (other == TheNilObject)
-  {
-      return TheTrueObject;
-  }
-  return ((this->comp(other) != 0) ? TheTrueObject : TheFalseObject);
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheTrueObject;
+    }
+    return ((this->comp(other) != 0) ? TheTrueObject : TheFalseObject);
 }
 
 // in behaviour
@@ -1033,7 +1100,11 @@ RexxInteger *RexxString::isGreaterThan(RexxObject *other)
 /* Function:  Non-strict greater than operator (">")                          */
 /******************************************************************************/
 {
-  return ((this->comp(other) > 0) ? TheTrueObject : TheFalseObject);
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return ((this->comp(other) > 0) ? TheTrueObject : TheFalseObject);
 }
 
 // in behaviour
@@ -1042,7 +1113,11 @@ RexxInteger *RexxString::isLessThan(RexxObject *other)
 /* Function:  Non-strict less than operatore ("<")                            */
 /******************************************************************************/
 {
-  return ((this->comp(other) < 0) ? TheTrueObject : TheFalseObject);
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return ((this->comp(other) < 0) ? TheTrueObject : TheFalseObject);
 }
 
 // in behaviour
@@ -1051,7 +1126,11 @@ RexxInteger *RexxString::isGreaterOrEqual(RexxObject *other)
 /* Function:  Non-strict greater than or equal operator (">=" or "\<")        */
 /******************************************************************************/
 {
-  return ((this->comp(other) >= 0) ? TheTrueObject : TheFalseObject);
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return ((this->comp(other) >= 0) ? TheTrueObject : TheFalseObject);
 }
 
 // in behaviour
@@ -1060,7 +1139,11 @@ RexxInteger *RexxString::isLessOrEqual(RexxObject *other)
 /* Function:  Non-strict less than or equal operator ("<=" or "\>")           */
 /******************************************************************************/
 {
-  return ((this->comp(other) <= 0) ? TheTrueObject : TheFalseObject);
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return ((this->comp(other) <= 0) ? TheTrueObject : TheFalseObject);
 }
 
 // in behaviour
@@ -1069,7 +1152,11 @@ RexxInteger *RexxString::strictGreaterThan(RexxObject *other)
 /* Function:  Strict greater than comparison (">>")                           */
 /******************************************************************************/
 {
-  return (this->strictComp(other) > 0) ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return (this->strictComp(other) > 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1078,7 +1165,11 @@ RexxInteger *RexxString::strictLessThan(RexxObject *other)
 /* Function:  Strict less than comparison ("<<")                              */
 /******************************************************************************/
 {
-  return (this->strictComp(other) < 0) ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return (this->strictComp(other) < 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1087,7 +1178,11 @@ RexxInteger *RexxString::strictGreaterOrEqual(RexxObject *other)
 /* Function:  Strict greater than or equal to comparison (">>=" or "\<<")     */
 /******************************************************************************/
 {
-  return (this->strictComp(other) >= 0) ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return (this->strictComp(other) >= 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1096,7 +1191,11 @@ RexxInteger *RexxString::strictLessOrEqual(RexxObject *other)
 /* Function:  Strict less than or equal to operatore ("<<=" or "\>>")         */
 /******************************************************************************/
 {
-  return (this->strictComp(other) <= 0) ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return (this->strictComp(other) <= 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxString *RexxString::concat(RexxString *other)
@@ -1841,7 +1940,7 @@ RexxObject *RexxString::xorOp(RexxObject *other)
 }
 
 // in behaviour
-RexxArray *RexxString::makeArray(RexxString *div)
+RexxArray *RexxString::makeArrayRexx(RexxString *div)
 /******************************************************************************/
 /* Function:  Split string into an array                                      */
 /******************************************************************************/

@@ -435,7 +435,7 @@ m17n_byte_index(IRexxString *base,
     /* find the next position of the first character in the search string
      * ooRexx strings can have NULLs, so strchr() won't work here */
     while ((search_pos = (const char *)memchr(str_pos, *search_str, len_remain))) {
-        const sizeB_t offset = search_pos - str_start;
+        const sizeB_t offset = sizeB_v(search_pos - str_start);
 
         /* now look for the entire string */
         if (memcmp(search_pos, search_str, search_len) == 0)

@@ -363,6 +363,7 @@ rexxapiClientHeaders = $(build_rexxapi_client_dir)/ClientMessage.hpp \
                  $(build_rexxapi_client_platform_dir)/SysLocalAPIManager.hpp
 rexxapiCommonHeaders = $(build_rexxapi_common_dir)/Encodings.hpp \
                  $(build_rexxapi_common_dir)/Rxstring.hpp \
+                 $(build_rexxapi_common_dir)/RegistrationTable.hpp \
                  $(build_rexxapi_common_dir)/ServiceException.hpp \
                  $(build_rexxapi_common_dir)/ServiceMessage.hpp \
                  $(build_rexxapi_common_platform_dir)/SysAPIManager.hpp \
@@ -445,7 +446,8 @@ commonMiscFiles = $(top_srcdir)/CPLv1.0.txt \
 # These error message files are built BEFORE any other target
 #
 BUILT_SOURCES = $(errorHeaders) \
-                rexx.img @REXXCAT@ ooTest $(build_messages_dir)/DocErrorMessages.sgml
+                rexx.img @REXXCAT@ ooTest $(build_messages_dir)/errnums.xml $(build_messages_dir)/errnumsrexxc.xml \
+                $(build_messages_dir)/errnumsrxqueue.xml $(build_messages_dir)/errnumssubcom.xml
 #
 # Binary targets
 #
@@ -495,6 +497,7 @@ librexxapi_la_SOURCES = $(build_rexxapi_client_dir)/ClientMessage.cpp \
                         $(build_rexxapi_client_dir)/RegistrationAPI.cpp \
                         $(build_rexxapi_client_dir)/platform/unix/SysLegacyAPI.cpp \
                         $(build_rexxapi_client_dir)/platform/unix/SysLocalAPIManager.cpp \
+                        $(build_rexxapi_common_dir)/RegistrationTable.cpp \
                         $(build_rexxapi_common_dir)/ServiceMessage.cpp \
                         $(build_rexxapi_common_platform_dir)/SysAPIManager.cpp \
                         $(build_rexxapi_common_platform_dir)/SysCSStream.cpp \
@@ -783,6 +786,7 @@ rxapi_SOURCES = $(build_rexxapi_server_dir)/APIServer.cpp \
                 $(build_rexxapi_server_dir)/RegistrationManager.cpp \
                 $(build_rexxapi_server_dir)/platform/unix/$(ORX_PLATFORM_SPEC_DIR)/APIService.cpp \
                 $(build_rexxapi_common_dir)/ServiceMessage.cpp \
+                $(build_rexxapi_common_dir)/RegistrationTable.cpp \
                 $(build_rexxapi_common_platform_dir)/SysAPIManager.cpp \
                 $(build_rexxapi_common_platform_dir)/SysCSStream.cpp \
                 $(build_rexxapi_common_platform_dir)/SysProcess.cpp \
@@ -1040,6 +1044,18 @@ $(build_api_dir)/oorexxerrors.h: $(build_messages_dir)/ApiErrorCodes.xsl $(messa
 
 $(build_messages_dir)/RexxMessageTable.h: $(build_messages_dir)/RexxMessageTable.xsl $(messageXML)
 	sh ./xsl.sh $(@) $(messageXML) $(build_messages_dir)/RexxMessageTable.xsl
+
+$(build_messages_dir)/errnums.xml: $(build_messages_dir)/errnums.xsl $(messageXML)
+	sh ./xsl.sh $(@) $(messageXML) $(build_messages_dir)/errnums.xsl
+
+$(build_messages_dir)/errnumsrexxc.xml: $(build_messages_dir)/errnumsrexxc.xsl $(messageXML)
+	sh ./xsl.sh $(@) $(messageXML) $(build_messages_dir)/errnumsrexxc.xsl
+
+$(build_messages_dir)/errnumssubcom.xml: $(build_messages_dir)/errnumssubcom.xsl $(messageXML)
+	sh ./xsl.sh $(@) $(messageXML) $(build_messages_dir)/errnumssubcom.xsl
+
+$(build_messages_dir)/errnumsrxqueue.xml: $(build_messages_dir)/errnumsrxqueue.xsl $(messageXML)
+	sh ./xsl.sh $(@) $(messageXML) $(build_messages_dir)/errnumsrxqueue.xsl
 
 $(build_messages_dir)/gencat.inp: $(build_interpreter_platform_dir)/UnixGencat.xsl $(messageXML)
 	sh ./xsl.sh $(@) $(messageXML) $(build_interpreter_platform_dir)/UnixGencat.xsl

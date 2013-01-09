@@ -351,7 +351,7 @@ bool Interpreter::terminateInterpreterInstance(InterpreterInstance *instance)
 /**
  * Tell the interpreter to have all of the instances halt its activities.
  */
-bool Interpreter::haltAllActivities()
+bool Interpreter::haltAllActivities(RexxString *name)
 {
     ResourceSection lock("Interpreter::haltAllActivities", 0);
     bool result = true;
@@ -364,7 +364,7 @@ bool Interpreter::haltAllActivities()
                                          /*process                            */
         InterpreterInstance *instance = (InterpreterInstance *)interpreterInstances->getValue(listIndex);
         // halt every thing
-        result = result && instance->haltAllActivities();
+        result = result && instance->haltAllActivities(name);
     }
     return result;
 }
@@ -574,7 +574,7 @@ wholenumber_t Interpreter::messageNumber(
     const char *decimalPoint;            /* location of decimalPoint in errorcode*/
     wholenumber_t  primary = 0;          /* Primary part of error code, major */
     wholenumber_t  secondary = 0;        /* Secondary protion (minor code)    */
-    wholenumber_t  count;
+    sizeB_t  count;
 
     /* make sure we get errorcode as str */
     errorcode = (RexxString *)errorcode->stringValue();

@@ -713,6 +713,10 @@ RexxInteger *RexxInteger::strictEqual(
 /*            value processing.                                               */
 /******************************************************************************/
 {
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
     return this->strictComp(other) == 0 ? TheTrueObject : TheFalseObject;
 }
 
@@ -723,8 +727,12 @@ RexxInteger *RexxInteger::strictNotEqual(
 /* Function:  Strict inequality operation                                     */
 /******************************************************************************/
 {
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheTrueObject;
+    }
                                        /* return strict compare result      */
-  return (this->strictComp(other) != 0) ? TheTrueObject : TheFalseObject;
+    return (this->strictComp(other) != 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::equal(
@@ -733,7 +741,11 @@ RexxInteger *RexxInteger::equal(
 /* Function:  non-strict "=" operator                                         */
 /******************************************************************************/
 {
-  return this->comp(other) == 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->comp(other) == 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::notEqual(
@@ -742,7 +754,11 @@ RexxInteger *RexxInteger::notEqual(
 /* Function:  non-strict "\=" operator                                        */
 /******************************************************************************/
 {
-  return this->comp(other) != 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheTrueObject;
+    }
+    return this->comp(other) != 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isGreaterThan(
@@ -751,7 +767,11 @@ RexxInteger *RexxInteger::isGreaterThan(
 /* Function:  non-strict ">" operator                                         */
 /******************************************************************************/
 {
-  return this->comp(other) > 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->comp(other) > 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isLessThan(
@@ -760,7 +780,11 @@ RexxInteger *RexxInteger::isLessThan(
 /* Function:  non-strict "<" operator                                         */
 /******************************************************************************/
 {
-  return this->comp(other) < 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->comp(other) < 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isGreaterOrEqual(
@@ -769,7 +793,11 @@ RexxInteger *RexxInteger::isGreaterOrEqual(
 /* Function:  non-strict ">=" operator                                        */
 /******************************************************************************/
 {
-  return this->comp(other) >= 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->comp(other) >= 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isLessOrEqual(
@@ -778,7 +806,11 @@ RexxInteger *RexxInteger::isLessOrEqual(
 /* Function:  non-strict "<=" operator                                        */
 /******************************************************************************/
 {
-  return this->comp(other) <= 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->comp(other) <= 0 ? TheTrueObject : TheFalseObject;
 }
 
 
@@ -788,7 +820,11 @@ RexxInteger *RexxInteger::strictGreaterThan(
 /* Function:  strict ">>" operator                                            */
 /******************************************************************************/
 {
-  return this->strictComp(other) > 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->strictComp(other) > 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::strictLessThan(
@@ -797,7 +833,11 @@ RexxInteger *RexxInteger::strictLessThan(
 /* Function:  strict "<<" operator                                            */
 /******************************************************************************/
 {
-  return this->strictComp(other) < 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->strictComp(other) < 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::strictGreaterOrEqual(
@@ -806,7 +846,11 @@ RexxInteger *RexxInteger::strictGreaterOrEqual(
 /* Function:  strict ">>=" operator                                           */
 /******************************************************************************/
 {
-  return this->strictComp(other) >= 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->strictComp(other) >= 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::strictLessOrEqual(
@@ -815,7 +859,11 @@ RexxInteger *RexxInteger::strictLessOrEqual(
 /* Function:  strict "<<=" operator                                           */
 /******************************************************************************/
 {
-  return this->strictComp(other) <= 0 ? TheTrueObject : TheFalseObject;
+    if (other == TheNilObject)           // all conditionals return .false when compared to .nil
+    {
+        return TheFalseObject;
+    }
+    return this->strictComp(other) <= 0 ? TheTrueObject : TheFalseObject;
 }
 
 RexxObject *RexxInteger::notOp()
@@ -1020,6 +1068,39 @@ RexxObject *RexxInteger::trunc(
 {
                                        /* just forward to numberstring      */
   return this->numberString()->trunc(decimals);
+}
+
+/**
+ * Calculate the floor value for a numeric value
+ *
+ * @return The floor value.
+ */
+RexxObject *RexxInteger::floor()
+{
+    // the floor of an integer is always the same value
+    return this;
+}
+
+/**
+ * Calculate the ceiling value for a numeric value
+ *
+ * @return The ceiling value.
+ */
+RexxObject *RexxInteger::ceiling()
+{
+    // the ceiling of an integer is always the same value
+    return this;
+}
+
+/**
+ * Calculate the round value for a numeric value
+ *
+ * @return The round value.
+ */
+RexxObject *RexxInteger::round()
+{
+    // the rounding of an integer is always the same value
+    return this;
 }
 
 RexxObject *RexxInteger::format(

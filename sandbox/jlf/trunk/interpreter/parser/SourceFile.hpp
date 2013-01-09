@@ -185,7 +185,7 @@ class RexxSource : public RexxInternalObject {
     RexxCode   *generateCode(bool isMethod);
     RexxCode   *interpretMethod(RexxDirectory *, RexxActivation *);
     RexxCode   *interpret(RexxString *, RexxDirectory *, size_t, RexxActivation *);
-    void        checkDirective();
+    void        checkDirective(int errorCode);
     bool        hasBody();
     RexxObject *toss(RexxObject *);
     void        cleanup();
@@ -222,6 +222,7 @@ class RexxSource : public RexxInternalObject {
     void        createAttributeGetterMethod(RexxString *name, RexxVariableBase *retriever, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
     void        createAttributeSetterMethod(RexxString *name, RexxVariableBase *retriever, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
     void        createConstantGetterMethod(RexxString *name, RexxObject *value);
+    void        createAbstractMethod(RexxString *name, bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod);
     void        checkDuplicateMethod(RexxString *name, bool classMethod, int errorMsg);
     void        addMethod(RexxString *name, RexxMethod *method, bool classMethod);
     void        flushControl(RexxInstruction *);
@@ -318,7 +319,7 @@ class RexxSource : public RexxInternalObject {
     inline void        syntaxError(int errorcode, RexxObject *a1, RexxObject *a2, RexxObject *a3) { this->error(errorcode, a1, a2, a3); }
     inline void        syntaxError(int errorcode, RexxToken *token) { this->errorToken(errorcode, token); }
     inline void        syntaxError(int errorcode) { this->error(errorcode); }
-           StackFrameClass *createStackFrame();
+    StackFrameClass *createStackFrame();
 
     RexxInstruction *addressNew();
     RexxInstruction *assignmentNew(RexxToken *);
@@ -328,6 +329,7 @@ class RexxSource : public RexxInternalObject {
     RexxInstruction *doNew();
     RexxInstruction *loopNew();
     RexxInstruction *createLoop();
+    RexxInstruction *createDoLoop();
     RexxInstruction *createDoLoop(RexxInstructionDo *, bool);
     RexxInstruction *dropNew();
     RexxInstruction *elseNew(RexxToken *);

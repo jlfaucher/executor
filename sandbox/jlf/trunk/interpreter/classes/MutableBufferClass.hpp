@@ -97,8 +97,10 @@ class RexxMutableBufferClass : public RexxClass {
 
    RexxInteger       *getBufferSize() { return new_integer(bufferLength); } // in behaviour
    RexxObject        *setBufferSize(RexxInteger*); // in behaviour
-   RexxArray         *makearray(RexxString *div); // in behaviour
+   RexxArray         *makeArrayRexx(RexxString *div); // in behaviour
+   RexxArray         *makeArray();
    RexxString        *makeString();
+   RexxString        *primitiveMakeString();
    RexxInteger       *countStrRexx(RexxString *needle); // in behaviour
    RexxInteger       *caselessCountStrRexx(RexxString *needle); // in behaviour
    RexxMutableBuffer *changeStr(RexxString *needle, RexxString *newNeedle, RexxInteger *countArg); // in behaviour
@@ -122,6 +124,7 @@ class RexxMutableBufferClass : public RexxClass {
    RexxInteger *wordPos(RexxString *, RexxInteger *); // in behaviour
    RexxInteger *caselessWordPos(RexxString *, RexxInteger *); // in behaviour
    RexxMutableBuffer *delWord(RexxInteger *position, RexxInteger *plength); // in behaviour
+   RexxMutableBuffer *space(RexxInteger *space_count, RexxString  *pad);
 
    inline CHARSET *getCharset() { return m17n_get_charset(this->charset); }
    inline void setCharset(CHARSET *c) { this->charset = c ? (int8_t) c->number : -1; }

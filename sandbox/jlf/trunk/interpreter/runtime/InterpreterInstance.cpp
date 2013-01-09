@@ -538,7 +538,7 @@ void InterpreterInstance::removeGlobalReference(RexxObject *o)
 /**
  * Raise a halt condition on all running activities.
  */
-bool InterpreterInstance::haltAllActivities()
+bool InterpreterInstance::haltAllActivities(RexxString *name)
 {
     // make sure we lock this, since it is possible the table can get updated
     // as a result of setting these flags
@@ -632,7 +632,7 @@ bool InterpreterInstance::processOptions(RexxOption *options)
                     delim = extEnd;
                 }
                 // make this into a string value and append
-                RexxString *ext = new_string(extStart, delim - extStart);
+                RexxString *ext = new_string(extStart, sizeB_v(delim - extStart));
                 searchExtensions->append(ext);
 
                 // step past the delimiter and loop
@@ -929,7 +929,7 @@ PackageClass *InterpreterInstance::loadRequires(RexxActivity *activity, RexxStri
     // name and the fullName (if it was resolved)
     addRequiresFile(shortName, fullName, package);
     // for any requires file loaded to this instance, we run the prolog within the instance.
-    runRequires(activity, shortName, requiresFile);
+    runRequires(activity, fullName != OREF_NULL ? fullName : shortName, requiresFile);
 
     return package;
 }

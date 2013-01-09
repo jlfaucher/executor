@@ -141,6 +141,28 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2012 dec 14
+
+merge 7771-8678 from main/trunk
+
+
+SourceFile.cpp, RexxSource::processInstall
+I see a change when processing classes :
+Each installed class is stored in an array createdClasses.
+When all classes have been installed, iterate over createdClasses and send the
+message OREF_ACTIVATE.
+Should I do the same for extensions ? No... 
+But maybe a message ACTIVATE_EXTENSION could be useful.
+See previous entry : I send the message INIT from native RexxBlock, but this is
+not a standard pattern. Moreover, I have no way to intialize each extension separately.
+
+
+doers-stress.rex : Stack overflow, despite the fix made in trunk...
+The crash also occurs in trunk.
+If 'signal on syntax' is not used then no crash.
+
+
+===============================================================================
 2012 dec 09
 
 RexxBlock :
@@ -3830,3 +3852,5 @@ merge 7688-7691 from main/trunk
 merge 7691-7736 from main/trunk
 
 merge 7736-7771 from main/trunk
+
+merge 7771-8678 from main/trunk

@@ -1287,7 +1287,7 @@ RexxCode *RexxSource::interpret(
   return source->interpretMethod(_labels, activation);
 }
 
-void RexxSource::checkDirective()
+void RexxSource::checkDirective(int errorCode)
 /******************************************************************************/
 /* Function:  Verify that no code follows a directive except for more         */
 /*            directive instructions.                                         */
@@ -1306,7 +1306,7 @@ void RexxSource::checkDirective()
         if (token->classId != TOKEN_DCOLON)
         {
             /* this is an error                  */
-            syntaxError(Error_Translation_bad_directive);
+            syntaxError(errorCode);
         }
         firstToken();                      /* reset to the first token          */
         this->reclaimClause();             /* give back to the source object    */
@@ -1776,11 +1776,24 @@ void RexxSource::processInstall(
         OrefSet(this, this->installed_classes, new_directory());
         /* and the public classes            */
         OrefSet(this, this->installed_public_classes, new_directory());
+        RexxArray *createdClasses = new_array(classes->items());
+
+        ProtectedObject p(createdClasses);
+        size_t index = 1;       // used for keeping track of install order
         for (size_t i = classes->firstIndex(); i != LIST_END; i = classes->nextIndex(i))
         {
             /* get the class info                */
             ClassDirective *current_class = (ClassDirective *)this->classes->getValue(i);
-            current_class->install(this, activation);
+            // save the newly created class in our array so we can send the activate
+            // message at the end
+            RexxClass *newClass = current_class->install(this, activation);
+            createdClasses->put(newClass, index++);
+        }
+        // now send an activate message to each of these classes
+        for (size_t j = 1; j < index; j++)
+        {
+            RexxClass *clz = (RexxClass *)createdClasses->get(j);
+            clz->sendMessage(OREF_ACTIVATE);
         }
     }
 
@@ -1913,6 +1926,9 @@ void RexxSource::resolveDependencies()
             }
             if (next_install == OREF_NULL)   /* nothing located?                  */
             {
+                // directive line where we can give as the source of the error
+                ClassDirective *error_class = (ClassDirective *)(classes->getValue(classes->firstIndex()));
+                clauseLocation = error_class->getLocation();
                 /* raise an error                    */
                 syntaxError(Error_Execution_cyclic, this->programName);
             }
@@ -2351,7 +2367,7 @@ void RexxSource::methodDirective()
                     }
                     token = nextReal();      /* get the next token                */
                                              /* not a string?                     */
-                    if (!token->isSymbolOrLiteral())
+                    if (!token->isLiteral())
                     {
                         /* report an error                   */
                         syntaxError(Error_Symbol_or_string_external, token);
@@ -2478,7 +2494,7 @@ void RexxSource::methodDirective()
         checkDuplicateMethod(setterName, Class, Error_Translation_duplicate_method);
 
                                        /* Go check the next clause to make  */
-        this->checkDirective();        /* sure that no code follows         */
+        this->checkDirective(Error_Translation_attribute_method);        /* sure that no code follows         */
         // this might be externally defined setters and getters.
         if (externalname != OREF_NULL)
         {
@@ -2515,7 +2531,7 @@ void RexxSource::methodDirective()
     else if (abstractMethod)
     {
                                        /* Go check the next clause to make  */
-        this->checkDirective();        /* sure that no code follows         */
+        this->checkDirective(Error_Translation_abstract_method);        /* sure that no code follows         */
         // this uses a special code block
         BaseCode *code = new AbstractCode();
         _method = new RexxMethod(name, code);
@@ -2544,7 +2560,7 @@ void RexxSource::methodDirective()
         ProtectedObject p_procedure(procedure);
 
         /* go check the next clause to make  */
-        this->checkDirective();
+        this->checkDirective(Error_Translation_external_method);
         // and make this into a method object.
         _method = createNativeMethod(name, library, procedure);
     }
@@ -2804,6 +2820,7 @@ void RexxSource::attributeDirective()
     int  guard = DEFAULT_GUARD;       /* default is guarding               */
     int  style = ATTRIBUTE_BOTH;      // by default, we create both methods for the attribute.
     bool Class = false;              /* default is an instance method     */
+    bool abstractMethod = false;     // by default, creating a concrete method
     RexxToken *token = nextReal();   /* get the next token                */
 
                                      /* not a symbol or a string          */
@@ -2830,7 +2847,7 @@ void RexxSource::attributeDirective()
         else if (!token->isSymbol())
         {
             /* report an error                   */
-            syntaxError(Error_Invalid_subkeyword_method, token);
+            syntaxError(Error_Invalid_subkeyword_attribute, token);
         }
         else
         {                         /* have some sort of option keyword  */
@@ -2842,7 +2859,7 @@ void RexxSource::attributeDirective()
                     // only one of GET/SET allowed
                     if (style != ATTRIBUTE_BOTH)
                     {
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     style = ATTRIBUTE_GET;
                     break;
@@ -2852,7 +2869,7 @@ void RexxSource::attributeDirective()
                     // only one of GET/SET allowed
                     if (style != ATTRIBUTE_BOTH)
                     {
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     style = ATTRIBUTE_SET;
                     break;
@@ -2864,7 +2881,7 @@ void RexxSource::attributeDirective()
                     if (Class)               /* had one of these already?         */
                     {
                                              /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     Class = true;            /* flag this for later processing    */
                     break;
@@ -2873,7 +2890,7 @@ void RexxSource::attributeDirective()
                     if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     Private = PRIVATE_SCOPE;           /* flag for later processing         */
                     break;
@@ -2883,7 +2900,7 @@ void RexxSource::attributeDirective()
                     if (Private != DEFAULT_ACCESS_SCOPE)   /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     Private = PUBLIC_SCOPE;        /* flag for later processing         */
                     break;
@@ -2893,7 +2910,7 @@ void RexxSource::attributeDirective()
                     if (Protected != DEFAULT_PROTECTION)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     Protected = PROTECTED_METHOD;        /* flag for later processing         */
                     break;
@@ -2902,7 +2919,7 @@ void RexxSource::attributeDirective()
                     if (Protected != DEFAULT_PROTECTION)           /* already seen one of these?        */
                     {
                                              /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     Protected = UNPROTECTED_METHOD;      /* flag for later processing         */
                     break;
@@ -2913,7 +2930,7 @@ void RexxSource::attributeDirective()
                     if (guard != DEFAULT_GUARD)
                     {
                         /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     guard = UNGUARDED_METHOD;/* flag for later processing         */
                     break;
@@ -2924,7 +2941,7 @@ void RexxSource::attributeDirective()
                     if (guard != DEFAULT_GUARD)
                     {
                         /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     guard = GUARDED_METHOD;  /* flag for later processing         */
                     break;
@@ -2932,25 +2949,34 @@ void RexxSource::attributeDirective()
                 case SUBDIRECTIVE_EXTERNAL:
                     refineSubclass(token, IS_SUBDIRECTIVE);
                     /* already had an external?          */
-                    if (externalname != OREF_NULL)
+                    if (externalname != OREF_NULL || abstractMethod)
                     {
                         /* duplicates are invalid            */
-                        syntaxError(Error_Invalid_subkeyword_method, token);
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
                     }
                     token = nextReal();      /* get the next token                */
                                              /* not a string?                     */
-                    if (!token->isSymbolOrLiteral())
+                    if (!token->isLiteral())
                     {
                         /* report an error                   */
                         syntaxError(Error_Symbol_or_string_external, token);
                     }
                     externalname = token->value;
                     break;
+                                           /* ::METHOD name ABSTRACT            */
+                case SUBDIRECTIVE_ABSTRACT:
+
+                    if (abstractMethod || externalname != OREF_NULL)
+                    {
+                        syntaxError(Error_Invalid_subkeyword_attribute, token);
+                    }
+                    abstractMethod = true;   /* flag for later processing         */
+                    break;
 
 
                 default:                   /* invalid keyword                   */
                     /* this is an error                  */
-                    syntaxError(Error_Invalid_subkeyword_method, token);
+                    syntaxError(Error_Invalid_subkeyword_attribute, token);
                     break;
             }
         }
@@ -2972,7 +2998,7 @@ void RexxSource::attributeDirective()
             checkDuplicateMethod(setterName, Class, Error_Translation_duplicate_attribute);
 
             // no code can follow the automatically generated methods
-            this->checkDirective();
+            this->checkDirective(Error_Translation_body_error);
             if (externalname != OREF_NULL)
             {
                 RexxString *library = OREF_NULL;
@@ -2990,6 +3016,15 @@ void RexxSource::attributeDirective()
                 _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
                 // add to the compilation
                 addMethod(setterName, _method, Class);
+            }
+            // abstract method?
+            else if (abstractMethod)
+            {
+                // create the method pair and quit.
+                createAbstractMethod(internalname, Class, Private == PRIVATE_SCOPE,
+                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
+                createAbstractMethod(setterName, Class, Private == PRIVATE_SCOPE,
+                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
             }
             else
             {
@@ -3010,7 +3045,7 @@ void RexxSource::attributeDirective()
             if (externalname != OREF_NULL)
             {
                 // no code can follow external methods
-                this->checkDirective();
+                this->checkDirective(Error_Translation_external_attribute);
                 RexxString *library = OREF_NULL;
                 RexxString *procedure = OREF_NULL;
                 decodeExternalMethod(internalname, externalname, library, procedure);
@@ -3027,6 +3062,15 @@ void RexxSource::attributeDirective()
                 _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
                 // add to the compilation
                 addMethod(internalname, _method, Class);
+            }
+            // abstract method?
+            else if (abstractMethod)
+            {
+                // no code can follow abstract methods
+                this->checkDirective(Error_Translation_abstract_attribute);
+                // create the method pair and quit.
+                createAbstractMethod(internalname, Class, Private == PRIVATE_SCOPE,
+                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
             }
             // either written in ooRexx or is automatically generated.
             else {
@@ -3053,7 +3097,7 @@ void RexxSource::attributeDirective()
             if (externalname != OREF_NULL)
             {
                 // no code can follow external methods
-                this->checkDirective();
+                this->checkDirective(Error_Translation_external_attribute);
                 RexxString *library = OREF_NULL;
                 RexxString *procedure = OREF_NULL;
                 decodeExternalMethod(internalname, externalname, library, procedure);
@@ -3070,6 +3114,15 @@ void RexxSource::attributeDirective()
                 _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
                 // add to the compilation
                 addMethod(setterName, _method, Class);
+            }
+            // abstract method?
+            else if (abstractMethod)
+            {
+                // no code can follow abstract methods
+                this->checkDirective(Error_Translation_abstract_attribute);
+                // create the method pair and quit.
+                createAbstractMethod(setterName, Class, Private == PRIVATE_SCOPE,
+                    Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
             }
             else
             {
@@ -3150,7 +3203,7 @@ void RexxSource::constantDirective()
         syntaxError(Error_Invalid_data_constant_dir, token);
     }
     // this directive does not allow a body
-    this->checkDirective();
+    this->checkDirective(Error_Translation_constant_body);
 
     // check for duplicates.  We only do the class duplicate check if there
     // is an active class, otherwise we'll get a syntax error
@@ -3250,6 +3303,32 @@ void RexxSource::createAttributeSetterMethod(RexxString *name, RexxVariableBase 
 
 
 /**
+ * Create an abstract method.
+ *
+ * @param name   The name of the method.
+ * @param classMethod
+ *                  Indicates we're adding a class or instance method.
+ * @param privateMethod
+ *               The method's private attribute.
+ * @param protectedMethod
+ *               The method's protected attribute.
+ * @param guardedMethod
+ *               The method's guarded attribute.
+ */
+void RexxSource::createAbstractMethod(RexxString *name,
+    bool classMethod, bool privateMethod, bool protectedMethod, bool guardedMethod)
+{
+    // create the kernel method for the accessor
+    // this uses a special code block
+    BaseCode *code = new AbstractCode();
+    RexxMethod * _method = new RexxMethod(name, code);
+    _method->setAttributes(privateMethod, protectedMethod, guardedMethod);
+    // add this to the target
+    addMethod(name, _method, classMethod);
+}
+
+
+/**
  * Create a CONSTANT "get" method.
  *
  * @param target The target method directory.
@@ -3326,7 +3405,7 @@ void RexxSource::routineDirective()
                 }
                 token = nextReal();        /* get the next token                */
                 /* not a string?                     */
-                if (!token->isSymbolOrLiteral())
+                if (!token->isLiteral())
                 {
                     /* report an error                   */
                     syntaxError(Error_Symbol_or_string_requires, token);
@@ -3394,7 +3473,7 @@ void RexxSource::routineDirective()
                 }
 
                 /* go check the next clause to make  */
-                this->checkDirective();      /* sure no code follows              */
+                this->checkDirective(Error_Translation_external_routine);      /* sure no code follows              */
                                              /* create a new native method        */
                 RoutineClass *routine = PackageManager::resolveRoutine(library, entry);
                 // raise an exception if this entry point is not found.
@@ -3437,7 +3516,7 @@ void RexxSource::routineDirective()
                 }
 
                 /* go check the next clause to make  */
-                this->checkDirective();      /* sure no code follows              */
+                this->checkDirective(Error_Translation_external_routine);      /* sure no code follows              */
                                              /* create a new native method        */
                 RoutineClass *routine = PackageManager::resolveRoutine(name, library, entry);
                 // raise an exception if this entry point is not found.
@@ -3772,7 +3851,7 @@ RexxCode *RexxSource::translateBlock(
                 controltype = this->topDo()->getType();
             }
         }
-        if (type == KEYWORD_IF || type == KEYWORD_SELECT || type == KEYWORD_DO)
+        if (type == KEYWORD_IF || type == KEYWORD_SELECT || type == KEYWORD_DO || type == KEYWORD_LOOP)
         {
             this->addClause(_instruction);   /* add to instruction heap           */
         }
@@ -3929,7 +4008,7 @@ RexxCode *RexxSource::translateBlock(
                 second = this->popDo();        /* get the top of the queue          */
                 type = second->getType();      /* get the instruction type          */
                                                /* not working on a block?           */
-                if (type != KEYWORD_SELECT && type != KEYWORD_OTHERWISE && type != KEYWORD_DO)
+                if (type != KEYWORD_SELECT && type != KEYWORD_OTHERWISE && type != KEYWORD_DO && type != KEYWORD_LOOP)
                 {
                     if (type == KEYWORD_ELSE)    /* on an else?                       */
                     {
@@ -3966,6 +4045,7 @@ RexxCode *RexxSource::translateBlock(
                 break;
 
             case  KEYWORD_DO:                // start of new DO group (also picks up LOOP instruction)
+            case  KEYWORD_LOOP:
                 this->pushDo(_instruction);    /* add this to the control queue     */
                 break;
 
@@ -4152,7 +4232,8 @@ RexxInstruction *RexxSource::instruction()
                                        /* is first a symbol that matches a  */
                                        /* defined REXX keyword?             */
                                        /* Not a keyword if the symbol is followed by a left paren (it's a function call) */
-        if (_first->isSymbol() && (second->classId != TOKEN_LEFT) && (_keyword = this->keyword(_first)))
+                                       /* [jlf] Not a keyword if the symbol is followed by a source literal (abbreviated syntax of a block passed as last argument) */
+        if (_first->isSymbol() && (second->classId != TOKEN_LEFT) && (second->classId != TOKEN_SOURCE_LITERAL) && (_keyword = this->keyword(_first)))
         {
 
             switch (_keyword)
@@ -4495,7 +4576,7 @@ RexxCompoundVariable *RexxSource::addCompound(
         _position++;                       /* step to the next character        */
     }
     /* get the stem string               */
-    stemName = new_string(start, _position - start + 1);
+    stemName = new_string(start, sizeB_v(_position - start + 1));
     stemRetriever = this->addStem(stemName); /* get a retriever item for this     */
 
     tailCount = 0;                       /* no tails yet                      */
@@ -4517,7 +4598,7 @@ RexxCompoundVariable *RexxSource::addCompound(
             _position++;                   // continue looking
         }
         /* extract the tail piece            */
-        tail = new_string(start, _position - start);
+        tail = new_string(start, sizeB_v(_position - start));
         /* have a null tail piece or         */
         /* section begin with a digit?       */
         if (!(tail->getBLength() == 0 || (*start >= '0' && *start <= '9')))
@@ -5936,7 +6017,7 @@ void RexxSource::errorToken(
     {                                        /* multi-line value, display only the first line*/
         const char *string = value->getStringData();
         const char *newline = strchr(string, '\n');
-        if (newline) value = new_string(string, newline - string);
+        if (newline) value = new_string(string, sizeB_v(newline - string));
         this->clauseLocation.setLimitedTrace(true);
     }
     this->errorCleanup();                /* release any saved objects         */
@@ -5997,6 +6078,10 @@ void RexxSource::blockError(
         case KEYWORD_DO:                   /* incomplete DO                     */
             /* raise an error                    */
             syntaxError(Error_Incomplete_do_do, _instruction);
+            break;
+        case KEYWORD_LOOP:                   /* incomplete LOOP                     */
+            /* raise an error                    */
+            syntaxError(Error_Incomplete_do_loop, _instruction);
             break;
 
         case KEYWORD_SELECT:               /* incomplete SELECT                 */

@@ -242,14 +242,14 @@ Say NOT EQUALS
 <para>
 <emphasis role="bold">Explanation:</emphasis>
 </para>
-<para>More ENDs were found in your program than DO or SELECT instructions, or the ENDs did not match the DO or SELECT instructions. This message also occurs if you try to transfer control into the middle of a loop using SIGNAL. In this case, the language processor does not expect the END because it did not process the previous DO instruction. Remember also that SIGNAL deactivates any current loops, so it cannot transfer control from one place inside a loop to another.</para>
-<para>Another cause for this message is placing an END immediately after a THEN or ELSE subkeyword or specifying a name on the END keyword that does not match the name following DO. Putting the name of the control variable on ENDs that close repetitive loops can also help locate this kind of error.</para>
+<para>More ENDs were found in your program than DO, LOOP, or SELECT instructions, or the ENDs did not match the DO, LOOP, or SELECT instructions. This message also occurs if you try to transfer control into the middle of a loop using SIGNAL. In this case, the language processor does not expect the END because it did not process the previous DO instruction. Remember also that SIGNAL deactivates any current loops, so it cannot transfer control from one place inside a loop to another.</para>
+<para>Another cause for this message is placing an END immediately after a THEN or ELSE subkeyword or specifying a name on the END keyword that does not match the name following DO or LOOP. Putting the name of the control variable on ENDs that close repetitive loops can also help locate this kind of error.</para>
 <para>The associated subcodes are: </para>
 <variablelist>
 <varlistentry>
 <term>001</term>
 <listitem>
-<para>END has no corresponding DO or SELECT</para>
+<para>END has no corresponding DO, LOOP, or SELECT</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -346,11 +346,11 @@ Say NOT EQUALS
 </variablelist>
 </section>
 <section id="ERR14">
-<title>Error 14 - Incomplete DO/SELECT/IF</title>
+<title>Error 14 - Incomplete DO/LOOP/SELECT/IF</title>
 <para>
 <emphasis role="bold">Explanation:</emphasis>
 </para>
-<para>At the end of the program or the string for an INTERPRET instruction, a DO or SELECT instruction was found without a matching END or an IF clause that is not followed by a THEN clause.  Putting the name of the control variable on each END closing a controlled loop can help locate this kind of error.</para>
+<para>At the end of the program or the string for an INTERPRET instruction, a DO, LOOP, or SELECT instruction was found without a matching END or an IF clause that is not followed by a THEN clause.  Putting the name of the control variable on each END closing a controlled loop can help locate this kind of error.</para>
 <para>The associated subcodes are: </para>
 <variablelist>
 <varlistentry>
@@ -375,6 +375,12 @@ Say NOT EQUALS
 <term>004</term>
 <listitem>
 <para>ELSE on line <emphasis role="italic">line_number</emphasis> must be followed by an instruction</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>005</term>
+<listitem>
+<para>LOOP instruction on line <emphasis role="italic">line_number</emphasis> requires matching END</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -577,7 +583,7 @@ special character (such as a parenthesis).
 <varlistentry>
 <term>905</term>
 <listitem>
-<para>String or symbol expected after EXTERNAL keyword</para>
+<para>String expected after EXTERNAL keyword</para>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -1149,6 +1155,12 @@ special character (such as a parenthesis).
 <term>924</term>
 <listitem>
 <para>Unknown keyword on ::OPTIONS directive; found "<emphasis role="italic">word</emphasis>"</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>925</term>
+<listitem>
+<para>Unknown keyword on ::ATTRIBUTE directive; found "<emphasis role="italic">word</emphasis>"</para>
 </listitem>
 </varlistentry>
 </variablelist>
@@ -3689,6 +3701,54 @@ special character (such as a parenthesis).
 <term>932</term>
 <listitem>
 <para>Duplicate ::CONSTANT directive instruction</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>933</term>
+<listitem>
+<para>Abstract methods cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>934</term>
+<listitem>
+<para>Attribute methods cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>935</term>
+<listitem>
+<para>External attributes cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>936</term>
+<listitem>
+<para>External methods cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>937</term>
+<listitem>
+<para>Attribute methods without a SET or GET designation cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>938</term>
+<listitem>
+<para>Constant methods cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>939</term>
+<listitem>
+<para>External routines cannot have a method body</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>940</term>
+<listitem>
+<para>Abstract attributes cannot have a method body</para>
 </listitem>
 </varlistentry>
 </variablelist>

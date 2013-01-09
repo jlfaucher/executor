@@ -288,6 +288,8 @@ void RexxMemory::createImage()
   // this is explicitly inserted into the class behaviour because it gets used
   // prior to the instance behavior merges.
   defineKernelMethod(CHAR_HASHCODE               ,TheClassBehaviour, CPPM(RexxObject::hashCode), 0);
+  // this is a NOP by default, so we'll just use the object init method as a fill in.
+  defineKernelMethod(CHAR_ACTIVATE               ,TheClassBehaviour, CPPM(RexxObject::init), 0);
 
                                        /* set the scope of the methods to   */
                                        /* the CLASS scope                   */
@@ -374,7 +376,9 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SIZE         ,TheArrayBehaviour, CPPM(RexxArray::sizeRexx), 0);
   defineKernelMethod(CHAR_SUPPLIER     ,TheArrayBehaviour, CPPM(RexxArray::supplier), 0);
   defineKernelMethod(CHAR_FIRST        ,TheArrayBehaviour, CPPM(RexxArray::firstRexx), 0);
+  defineKernelMethod(CHAR_FIRSTITEM    ,TheArrayBehaviour, CPPM(RexxArray::firstItem), 0);
   defineKernelMethod(CHAR_LAST         ,TheArrayBehaviour, CPPM(RexxArray::lastRexx), 0);
+  defineKernelMethod(CHAR_LASTITEM     ,TheArrayBehaviour, CPPM(RexxArray::lastItem), 0);
   defineKernelMethod(CHAR_NEXT         ,TheArrayBehaviour, CPPM(RexxArray::nextRexx), A_COUNT);
   defineKernelMethod(CHAR_PREVIOUS     ,TheArrayBehaviour, CPPM(RexxArray::previousRexx), A_COUNT);
   defineKernelMethod(CHAR_APPEND       ,TheArrayBehaviour, CPPM(RexxArray::appendRexx), 1);
@@ -661,6 +665,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_CONDITION     ,TheRexxContextBehaviour, CPPM(RexxContext::getCondition), 0);
   defineKernelMethod("LINE"             ,TheRexxContextBehaviour, CPPM(RexxContext::getLine), 0);
   defineKernelMethod("RS"               ,TheRexxContextBehaviour, CPPM(RexxContext::getRS), 0);
+  defineKernelMethod(CHAR_NAME          ,TheRexxContextBehaviour, CPPM(RexxContext::getName), 0);
   defineKernelMethod(CHAR_PARENTCONTEXT ,TheRexxContextBehaviour, CPPM(RexxContext::getParentContextObject), 0);
 
                                        /* Add the instance methods to the   */
@@ -713,7 +718,9 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_HASITEM       ,TheQueueBehaviour, CPPM(RexxList::hasItem), 1);
   defineKernelMethod(CHAR_REMOVEITEM    ,TheQueueBehaviour, CPPM(RexxList::removeItem), 1);
   defineKernelMethod(CHAR_FIRST         ,TheQueueBehaviour, CPPM(RexxQueue::firstRexx), 0);
+  defineKernelMethod(CHAR_FIRSTITEM     ,TheQueueBehaviour, CPPM(RexxList::firstItem), 0);
   defineKernelMethod(CHAR_LAST          ,TheQueueBehaviour, CPPM(RexxQueue::lastRexx), 0);
+  defineKernelMethod(CHAR_LASTITEM      ,TheQueueBehaviour, CPPM(RexxList::lastItem), 0);
   defineKernelMethod(CHAR_NEXT          ,TheQueueBehaviour, CPPM(RexxQueue::next), 1);
   defineKernelMethod(CHAR_PREVIOUS      ,TheQueueBehaviour, CPPM(RexxQueue::previous), 1);
   defineKernelMethod(CHAR_INSERT        ,TheQueueBehaviour, CPPM(RexxQueue::insert), 2);
@@ -757,6 +764,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SUPPLIER     , TheRelationBehaviour, CPPM(RexxRelation::supplier), 1);
   defineKernelMethod(CHAR_ALLITEMS     , TheRelationBehaviour, CPPM(RexxHashTableCollection::allItems), 0);
   defineKernelMethod(CHAR_ALLINDEXES   , TheRelationBehaviour, CPPM(RexxHashTableCollection::allIndexes), 0);
+  defineKernelMethod("UNIQUEINDEXES"   , TheRelationBehaviour, CPPM(RexxHashTableCollection::uniqueIndexes), 0);
   defineKernelMethod(CHAR_EMPTY        , TheRelationBehaviour, CPPM(RexxHashTableCollection::empty), 0);
   defineKernelMethod(CHAR_ISEMPTY      , TheRelationBehaviour, CPPM(RexxHashTableCollection::isEmpty), 0);
   defineKernelMethod("REMOVEALL"       , TheRelationBehaviour, CPPM(RexxRelation::removeAll), 1);
@@ -856,6 +864,9 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SPACE                        ,TheStringBehaviour, CPPM(RexxString::space), 2);
   defineKernelMethod(CHAR_SUBWORD                      ,TheStringBehaviour, CPPM(RexxString::subWord), 2);
   defineKernelMethod("SUBWORDS"                        ,TheStringBehaviour, CPPM(RexxString::subWords), 2);
+  defineKernelMethod("FLOOR"                           ,TheStringBehaviour, CPPM(RexxString::floor), 0);
+  defineKernelMethod("CEILING"                         ,TheStringBehaviour, CPPM(RexxString::ceiling), 0);
+  defineKernelMethod("ROUND"                           ,TheStringBehaviour, CPPM(RexxString::round), 0);
   defineKernelMethod(CHAR_TRUNC                        ,TheStringBehaviour, CPPM(RexxString::trunc), 1);
   defineKernelMethod(CHAR_WORD                         ,TheStringBehaviour, CPPM(RexxString::word), 1);
   defineKernelMethod(CHAR_WORDINDEX                    ,TheStringBehaviour, CPPM(RexxString::wordIndex), 1);
@@ -925,7 +936,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_AND                          ,TheStringBehaviour, CPPM(RexxString::andOp), 1);
   defineKernelMethod(CHAR_OR                           ,TheStringBehaviour, CPPM(RexxString::orOp), 1);
   defineKernelMethod(CHAR_XOR                          ,TheStringBehaviour, CPPM(RexxString::xorOp), 1);
-  defineKernelMethod(CHAR_MAKEARRAY                    ,TheStringBehaviour, CPPM(RexxString::makeArray), 1);
+  defineKernelMethod(CHAR_MAKEARRAY                    ,TheStringBehaviour, CPPM(RexxString::makeArrayRexx), 1);
   defineKernelMethod(CHAR_LOWER                        ,TheStringBehaviour, CPPM(RexxString::lowerRexx), 2);
   defineKernelMethod(CHAR_UPPER                        ,TheStringBehaviour, CPPM(RexxString::upperRexx), 2);
   defineKernelMethod(CHAR_MATCH                        ,TheStringBehaviour, CPPM(RexxString::match), 4);
@@ -975,7 +986,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SETBUFFERSIZE                ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::setBufferSize), 1);
 
   defineKernelMethod(CHAR_LENGTH                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::lengthRexx), 0);
-  defineKernelMethod(CHAR_MAKEARRAY                    ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::makearray), 1);
+  defineKernelMethod(CHAR_MAKEARRAY                    ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::makeArrayRexx), 1);
   defineKernelMethod(CHAR_STRING                       ,TheMutableBufferBehaviour, CPPM(RexxObject::makeStringRexx), 0);
   defineKernelMethod(CHAR_COUNTSTR                     ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::countStrRexx), 1);
   defineKernelMethod(CHAR_CASELESSCOUNTSTR             ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::caselessCountStrRexx), 1);
@@ -989,6 +1000,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_MATCHCHAR                    ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::matchChar), 2);
   defineKernelMethod(CHAR_CASELESSMATCHCHAR            ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::caselessMatchChar), 2);
   defineKernelMethod(CHAR_VERIFY                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::verify), 4);
+  defineKernelMethod(CHAR_SPACE                        ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::space), 2);
   defineKernelMethod(CHAR_SUBWORD                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::subWord), 2);
   defineKernelMethod("SUBWORDS"                        ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::subWords), 2);
   defineKernelMethod(CHAR_WORD                         ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::word), 1);
@@ -1062,6 +1074,9 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_MAKESTRING                   ,TheIntegerBehaviour, CPPM(RexxObject::makeStringRexx), 0);
   defineKernelMethod(CHAR_FORMAT                       ,TheIntegerBehaviour, CPPM(RexxInteger::format), 4);
   defineKernelMethod(CHAR_TRUNC                        ,TheIntegerBehaviour, CPPM(RexxInteger::trunc), 1);
+  defineKernelMethod("FLOOR"                           ,TheIntegerBehaviour, CPPM(RexxInteger::floor), 0);
+  defineKernelMethod("CEILING"                         ,TheIntegerBehaviour, CPPM(RexxInteger::ceiling), 0);
+  defineKernelMethod("ROUND"                           ,TheIntegerBehaviour, CPPM(RexxInteger::round), 0);
   defineKernelMethod(CHAR_CLASS                        ,TheIntegerBehaviour, CPPM(RexxInteger::classObject), 0);
 
                                        /* set the scope of the methods to   */
@@ -1128,6 +1143,9 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_MAKESTRING                   ,TheNumberStringBehaviour, CPPM(RexxObject::makeStringRexx), 0);
   defineKernelMethod(CHAR_FORMAT                       ,TheNumberStringBehaviour, CPPM(RexxNumberString::formatRexx), 4);
   defineKernelMethod(CHAR_TRUNC                        ,TheNumberStringBehaviour, CPPM(RexxNumberString::trunc), 1);
+  defineKernelMethod("FLOOR"                           ,TheNumberStringBehaviour, CPPM(RexxNumberString::floor), 0);
+  defineKernelMethod("CEILING"                         ,TheNumberStringBehaviour, CPPM(RexxNumberString::ceiling), 0);
+  defineKernelMethod("ROUND"                           ,TheNumberStringBehaviour, CPPM(RexxNumberString::round), 0);
   defineKernelMethod(CHAR_CLASS                        ,TheNumberStringBehaviour, CPPM(RexxNumberString::classObject), 0);
 
                                        /* set the scope of the methods to   */

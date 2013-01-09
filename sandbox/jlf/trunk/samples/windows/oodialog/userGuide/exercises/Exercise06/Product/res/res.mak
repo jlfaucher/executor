@@ -40,7 +40,7 @@
 all:  ProductView.dll
 
 ProductView.dll: ProductView.res
-    link $(@B).res /NOENTRY /DLL /MACHINE:X86 /OUT:$(@B).dll
+    link /NOLOGO $(@B).res /NOENTRY /DLL /MACHINE:$(MACHINE) /OUT:$(@B).dll
 
 # Create .res from .rc
 ProductView.res: ..\ProductView.rc

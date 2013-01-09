@@ -303,7 +303,7 @@ void RoutineClass::runProgram(
 /****************************************************************************/
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
-    code->call(activity, this, OREF_NONE, arguments, argCount, calltype, environment, PROGRAMCALL, result);
+    code->call(activity, this, executableName, arguments, argCount, calltype, environment, PROGRAMCALL, result);
 }
 
 
@@ -317,7 +317,7 @@ void RoutineClass::runProgram(
 /****************************************************************************/
 {
     ProtectedObject p(this);           // belt-and-braces to make sure this is protected
-    code->call(activity, this, OREF_NONE, arguments, argCount, OREF_COMMAND, activity->getInstance()->getDefaultEnvironment(), PROGRAMCALL, result);
+    code->call(activity, this, executableName, arguments, argCount, OREF_COMMAND, activity->getInstance()->getDefaultEnvironment(), PROGRAMCALL, result);
 }
 
 

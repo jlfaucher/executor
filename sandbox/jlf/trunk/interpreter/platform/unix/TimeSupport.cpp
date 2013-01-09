@@ -103,7 +103,7 @@ RexxMethod2(int, alarm_startTimer,
                      wholenumber_t, numdays,
                      wholenumber_t, alarmtime)
 {
-    SysSemaphore sem("alarm_startTimer : sem");                    /* Event-semaphore                   */
+    SysSemaphore sem("alarm_startTimer : sem", true); /* Event-semaphore                   */
     int  msecInADay = 86400000;          /* number of milliseconds in a day   */
 
     /* set the state variables           */

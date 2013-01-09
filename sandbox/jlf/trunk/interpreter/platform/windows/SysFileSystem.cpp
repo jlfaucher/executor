@@ -238,7 +238,7 @@ RexxString *SysFileSystem::extractDirectory(RexxString *file)
         {
             // extract the directory information, including the final delimiter
             // and return as a string object.
-            return new_string(pathName, endPtr - pathName + 1);
+            return new_string(pathName, sizeB_v(endPtr - pathName + 1));
         }
         endPtr--;
     }

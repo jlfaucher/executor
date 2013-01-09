@@ -93,6 +93,13 @@ to get the kind of executable to store on the RexxSourceLiteral.
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
         end
+        else if "::tokens"~caselessAbbrev(word, 3) then do
+            clauser~clause = rest
+            kind = "t"
+            if option <> "" then do
+                raise syntax 93.900 array("Unknown option '"option"'")
+            end
+        end
         else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
         else if word~left(1) == ":" then do; clauser~clause = clause~substr(2) ; kind = "r" ; end
     end

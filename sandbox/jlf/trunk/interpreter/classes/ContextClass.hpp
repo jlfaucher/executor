@@ -78,6 +78,7 @@ public:
     RexxObject *getRS();
     RexxObject *getParentContextObject();
     RexxObject *copyRexx();
+    RexxObject *getName();
 
     RexxObject *newRexx(RexxObject **args, size_t argc);
 

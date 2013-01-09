@@ -84,7 +84,7 @@ $ Error_Invalid_character
 13 Invalid character in program
 
 $ Error_Incomplete_do
-14 Incomplete DO/SELECT/IF
+14 Incomplete DO/LOOP/SELECT/IF
 
 $ Error_Invalid_hex
 15 Invalid hexadecimal or binary string
@@ -345,7 +345,7 @@ $ Error_Unexpected_when_otherwise
 211 OTHERWISE has no corresponding SELECT
 
 $ Error_Unexpected_end_nodo
-212 END has no corresponding DO or SELECT
+212 END has no corresponding DO, LOOP, or SELECT
 
 $ Error_Unexpected_end_control
 213 Symbol following END ("&1") must match block specification name ("&2") on line &3 or be omitted
@@ -444,7 +444,7 @@ $ Error_Symbol_or_string_requires
 244 String or symbol expected after ::REQUIRES keyword
 
 $ Error_Symbol_or_string_external
-245 String or symbol expected after EXTERNAL keyword
+245 String expected after EXTERNAL keyword
 
 $ Error_Symbol_or_string_metaclass
 246 String or symbol expected after METACLASS keyword
@@ -1766,26 +1766,56 @@ $ Message_Translations_method_invocation
 $ Error_Incorrect_method_multi_dimension
 721 Method argument &1 cannot have more than a single dimension
 
-$ Error_Unmatched_parenthesis_curly
-722 Curly bracket "{" in position &1 on line &2 requires a corresponding right curly bracket "}"
-
 $ Message_Translations_compiled_method_invocation
 722        *-* Compiled method &1 with scope "&2"
-
-$ Error_Unexpected_curly_bracket
-723 Unexpected "}"
 
 $ Message_Translations_compiled_routine_invocation
 723        *-* Compiled routine &1
 
-$ Error_Invalid_expression_after_tilde
-724 String or symbol or ":" or "(" expected after tilde (~)
-
 $ Message_Translations_no_source_available
 724 Package "&1" (no source available)
 
+$ Error_Incomplete_do_loop
+725 LOOP instruction on line &1 requires matching END
+
 $ Error_Invalid_expression_message_term
 725 Missing message name or argument list
+
+$ Error_Invalid_subkeyword_attribute
+726 Unknown keyword on ::ATTRIBUTE directive; found "&1"
+
+$ Error_Translation_abstract_method
+727 Abstract methods cannot have a method body
+
+$ Error_Translation_attribute_method
+728 Attribute methods cannot have a method body
+
+$ Error_Translation_external_attribute
+729 External attributes cannot have a method body
+
+$ Error_Translation_external_method
+730 External methods cannot have a method body
+
+$ Error_Translation_body_error
+731 Attribute methods without a SET or GET designation cannot have a method body
+
+$ Error_Translation_constant_body
+732 Constant methods cannot have a method body
+
+$ Error_Translation_external_routine
+733 External routines cannot have a method body
+
+$ Error_Translation_abstract_attribute
+734 Abstract attributes cannot have a method body
+
+$ Error_Unmatched_parenthesis_curly
+735 Curly bracket "{" in position &1 on line &2 requires a corresponding right curly bracket "}"
+
+$ Error_Unexpected_curly_bracket
+736 Unexpected "}"
+
+$ Error_Invalid_expression_after_tilde
+737 String or symbol or ":" or "(" expected after tilde (~)
 
 
 $ * -------------------------------------------------------------------------- */

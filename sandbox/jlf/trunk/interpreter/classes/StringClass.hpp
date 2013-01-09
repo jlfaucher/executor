@@ -161,6 +161,7 @@ inline char IntToHexDigit(int n)
    RexxNumberString *numberString();
    RexxInteger *integerValue(size_t precision);
    RexxString  *makeString();
+   RexxArray   *makeArray();
    RexxString  *primitiveMakeString();
    void         copyIntoTail(RexxCompoundTail *buffer);
    RexxString  *stringValue();
@@ -223,6 +224,9 @@ inline char IntToHexDigit(int n)
    RexxObject *Max(RexxObject **args, size_t argCount); // in behaviour
    RexxObject *Min(RexxObject **args, size_t argCount); // in behaviour
    RexxObject *trunc(RexxInteger *decimals); // in behaviour
+   RexxObject *floor();
+   RexxObject *ceiling();
+   RexxObject *round();
    RexxObject *format(RexxObject *Integers, RexxObject *Decimals, RexxObject *MathExp, RexxObject *ExpTrigger); // in behaviour
    RexxObject *isInteger();
    RexxObject *logicalOperation(RexxObject *, RexxObject *, unsigned int);
@@ -323,7 +327,7 @@ inline char IntToHexDigit(int n)
    RexxInteger *equals(RexxString *other); // in behaviour
    RexxInteger *caselessEquals(RexxString *other); // in behaviour
 
-   RexxArray   *makeArray(RexxString *); // in behaviour
+   RexxArray   *makeArrayRexx(RexxString *); // in behaviour
 
 /****************************************************************************/
 /*                                                                          */

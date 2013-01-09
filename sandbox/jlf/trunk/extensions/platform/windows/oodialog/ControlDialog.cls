@@ -78,6 +78,8 @@
 
 
 ::constant MAXPROPPAGES                 100
+::constant ID_PSRESTARTWINDOWS            2
+::constant ID_PSREBOOTSYSTEM              3  -- (ID_PSRESTARTWINDOWS | 0x1)
 
 -- The application icon for the property sheet dialog
 ::attribute appIcon get unguarded
@@ -112,6 +114,7 @@
 ::method apply unguarded external "LIBRARY oodialog psdlg_apply"
 ::method cancelToClose unguarded external "LIBRARY oodialog psdlg_cancelToClose"
 ::method changed unguarded external "LIBRARY oodialog psdlg_changed"
+::method enableWizButtons external "LIBRARY oodialog psdlg_enableWizButtons"
 ::method execute external "LIBRARY oodialog psdlg_execute"
 ::method getCurrentPageHwnd unguarded external "LIBRARY oodialog psdlg_getCurrentPageHwnd"
 ::method getPage unguarded external "LIBRARY oodialog psdlg_getPage"
@@ -146,10 +149,11 @@
 ::method removePage unguarded external "LIBRARY oodialog psdlg_removePage"
 ::method setCurSel unguarded external "LIBRARY oodialog psdlg_setCurSel"
 ::method setCurSelByID unguarded external "LIBRARY oodialog psdlg_setCurSelByID"
-::method setFinishText unguarded external "LIBRARY oodialog psdlg_setButtonText"
+::method setButtonText unguarded external "LIBRARY oodialog psdlg_setButtonText"
+::method setFinishText unguarded external "LIBRARY oodialog psdlg_setFinishText"
 ::method setHeaderSubTitle unguarded external "LIBRARY oodialog psdlg_resetPageText"
 ::method setHeaderTitle unguarded external "LIBRARY oodialog psdlg_resetPageText"
-::method setNextText unguarded external "LIBRARY oodialog psdlg_setButtonText"
+::method setNextText unguarded external "LIBRARY oodialog psdlg_setNextText"
 ::method setTitle unguarded external "LIBRARY oodialog psdlg_setTitle"
 ::method setWizButtons unguarded external "LIBRARY oodialog psdlg_setWizButtons"
 ::method showWizButtons unguarded external "LIBRARY oodialog psdlg_showWizButtons"
@@ -164,6 +168,12 @@
 ::constant PSNRET_INVALID                     1
 ::constant PSNRET_INVALID_NOCHANGEPAGE        2
 ::constant PSNRET_MESSAGEHANDLED              3
+::constant PROP_SM_CXDLG                      212
+::constant PROP_SM_CYDLG                      188
+::constant PROP_MED_CXDLG                     227
+::constant PROP_MED_CYDLG                     215
+::constant PROP_LG_CXDLG                      252
+::constant PROP_LG_CYDLG                      218
 
 ::method init class external "LIBRARY oodialog psp_init_cls"                                    -- Not to be documented
 
@@ -193,13 +203,13 @@
 ::attribute tabIcon get unguarded
 ::attribute tabIcon set external "LIBRARY oodialog psp_setTabIcon_atr"
 
-::attribute wasActivated get external "LIBRARY oodialog psp_wasActivated_atr"
-
 ::attribute wantAccelerators get external "LIBRARY oodialog psp_getWantNotification"
 ::attribute wantAccelerators set external "LIBRARY oodialog psp_setWantNotification"
 
 ::attribute wantGetObject get external "LIBRARY oodialog psp_getWantNotification"
 ::attribute wantGetObject set external "LIBRARY oodialog psp_setWantNotification"
+
+::attribute wasActivated get external "LIBRARY oodialog psp_wasActivated_atr"
 
 
 ::method endExecute unguarded                                                                   -- Not to be documented
@@ -232,8 +242,10 @@
     use strict arg psDlg
 
     self~initCode = 1
-    if self~useStem then self~getDataStem(dlgData.)
+
+    if self~useStem then self~getDataStem(self~dlgData)
     self~getData
+
     psDlg~unchanged(self)
     return self~PSNRET_NOERROR
 
@@ -249,7 +261,7 @@
     return self~validatePage(psDlg)
 
 ::method pageCreate unguarded
-    use strict arg
+    use strict arg psDlg
     return .true
 
 ::method queryCancel unguarded

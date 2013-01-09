@@ -78,6 +78,9 @@
 SysSemaphore::SysSemaphore(const char *variable, bool createSem)
 {
     semVariable = variable;
+    postedCount = 0;
+    created = false;
+
     if (createSem)
     {
         create();

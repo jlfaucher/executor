@@ -313,8 +313,8 @@ Say NOT EQUALS
     <Severity>Warning</Severity>
     <SymbolicName>Error_Unexpected_end</SymbolicName>
     <Text>Unexpected or unmatched END</Text>
-    <Explanation><para>More ENDs were found in your program than DO or SELECT instructions, or the ENDs did not match the DO or SELECT instructions. This message also occurs if you try to transfer control into the middle of a loop using SIGNAL. In this case, the language processor does not expect the END because it did not process the previous DO instruction. Remember also that SIGNAL deactivates any current loops, so it cannot transfer control from one place inside a loop to another.</para>
-    <para>Another cause for this message is placing an END immediately after a THEN or ELSE subkeyword or specifying a name on the END keyword that does not match the name following DO. Putting the name of the control variable on ENDs that close repetitive loops can also help locate this kind of error.</para></Explanation>
+    <Explanation><para>More ENDs were found in your program than DO, LOOP, or SELECT instructions, or the ENDs did not match the DO, LOOP, or SELECT instructions. This message also occurs if you try to transfer control into the middle of a loop using SIGNAL. In this case, the language processor does not expect the END because it did not process the previous DO instruction. Remember also that SIGNAL deactivates any current loops, so it cannot transfer control from one place inside a loop to another.</para>
+    <para>Another cause for this message is placing an END immediately after a THEN or ELSE subkeyword or specifying a name on the END keyword that does not match the name following DO or LOOP. Putting the name of the control variable on ENDs that close repetitive loops can also help locate this kind of error.</para></Explanation>
     <Subcodes>
       <SubMessage>
         <Code>10</Code>
@@ -323,7 +323,7 @@ Say NOT EQUALS
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Unexpected_end_nodo</SymbolicName>
-        <Text>END has no corresponding DO or SELECT</Text>
+        <Text>END has no corresponding DO, LOOP, or SELECT</Text>
       </SubMessage>
       <SubMessage>
         <Code>10</Code>
@@ -455,8 +455,8 @@ Say NOT EQUALS
     <Component>Rexx</Component>
     <Severity>Warning</Severity>
     <SymbolicName>Error_Incomplete_do</SymbolicName>
-    <Text>Incomplete DO/SELECT/IF</Text>
-    <Explanation><para>At the end of the program or the string for an INTERPRET instruction, a DO or SELECT instruction was found without a matching END or an IF clause that is not followed by a THEN clause.  Putting the name of the control variable on each END closing a controlled loop can help locate this kind of error.</para></Explanation>
+    <Text>Incomplete DO/LOOP/SELECT/IF</Text>
+    <Explanation><para>At the end of the program or the string for an INTERPRET instruction, a DO, LOOP, or SELECT instruction was found without a matching END or an IF clause that is not followed by a THEN clause.  Putting the name of the control variable on each END closing a controlled loop can help locate this kind of error.</para></Explanation>
     <Subcodes>
       <SubMessage>
         <Code>14</Code>
@@ -502,6 +502,15 @@ Say NOT EQUALS
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incomplete_do_otherwise</SymbolicName>
         <Text>OTHERWISE on line <Sub position="1" name="line_number"/> requires matching END</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>14</Code>
+        <Subcode>005</Subcode>
+        <MessageNumber>725</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Incomplete_do_loop</SymbolicName>
+        <Text>LOOP instruction on line <Sub position="1" name="line_number"/> requires matching END</Text>
       </SubMessage>
     </Subcodes>
   </Message>
@@ -779,7 +788,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Symbol_or_string_external</SymbolicName>
-        <Text>String or symbol expected after EXTERNAL keyword</Text>
+        <Text>String expected after EXTERNAL keyword</Text>
       </SubMessage>
       <SubMessage>
         <Code>19</Code>
@@ -1586,6 +1595,15 @@ special character (such as a parenthesis).
         <Severity>Warning</Severity>
         <SymbolicName>Error_Invalid_subkeyword_options</SymbolicName>
         <Text>Unknown keyword on ::OPTIONS directive; found <q><Sub position="1" name="word"/></q></Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>25</Code>
+        <Subcode>925</Subcode>
+        <MessageNumber>726</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Invalid_subkeyword_attribute</SymbolicName>
+        <Text>Unknown keyword on ::ATTRIBUTE directive; found <q><Sub position="1" name="word"/></q></Text>
       </SubMessage>
     </Subcodes>
   </Message>
@@ -2446,7 +2464,7 @@ special character (such as a parenthesis).
       <SubMessage>
         <Code>35</Code>
         <Subcode>933</Subcode>
-        <MessageNumber>724</MessageNumber>
+        <MessageNumber>737</MessageNumber>
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Invalid_expression_after_tilde</SymbolicName>
@@ -2503,7 +2521,7 @@ special character (such as a parenthesis).
       <SubMessage>
         <Code>36</Code>
         <Subcode>903</Subcode>
-        <MessageNumber>722</MessageNumber>
+        <MessageNumber>735</MessageNumber>
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Unmatched_parenthesis_curly</SymbolicName>
@@ -2568,7 +2586,7 @@ special character (such as a parenthesis).
       <SubMessage>
           <Code>37</Code>
           <Subcode>902</Subcode>
-          <MessageNumber>723</MessageNumber>
+          <MessageNumber>736</MessageNumber>
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Unexpected_curly_bracket</SymbolicName>
@@ -5110,6 +5128,78 @@ special character (such as a parenthesis).
         <Severity>Warning</Severity>
         <SymbolicName>Error_Translation_duplicate_constant</SymbolicName>
         <Text>Duplicate ::CONSTANT directive instruction</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>933</Subcode>
+        <MessageNumber>727</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_abstract_method</SymbolicName>
+        <Text>Abstract methods cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>934</Subcode>
+        <MessageNumber>728</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_attribute_method</SymbolicName>
+        <Text>Attribute methods cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>935</Subcode>
+        <MessageNumber>729</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_external_attribute</SymbolicName>
+        <Text>External attributes cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>936</Subcode>
+        <MessageNumber>730</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_external_method</SymbolicName>
+        <Text>External methods cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>937</Subcode>
+        <MessageNumber>731</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_body_error</SymbolicName>
+        <Text>Attribute methods without a SET or GET designation cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>938</Subcode>
+        <MessageNumber>732</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_constant_body</SymbolicName>
+        <Text>Constant methods cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>939</Subcode>
+        <MessageNumber>733</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_external_routine</SymbolicName>
+        <Text>External routines cannot have a method body</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>99</Code>
+        <Subcode>940</Subcode>
+        <MessageNumber>734</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Translation_abstract_attribute</SymbolicName>
+        <Text>Abstract attributes cannot have a method body</Text>
       </SubMessage>
     </Subcodes>
   </Message>
