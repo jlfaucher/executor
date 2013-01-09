@@ -57,12 +57,15 @@ See doers-samples.rex
     forward message "do"
 
 ::method trampoline unguarded
-    forward message "do" continue -- any number of arguments supported for the first call
+    doer = self
+    if self~hasMethod("functionDoer") then doer=self~functionDoer -- Add support for implicit return 
+    forward message "do" to (doer) continue -- any number of arguments supported for the first call
     if \var("result") then return
     v = result
     -- The test \v~needsObject lets eliminate the StringDoers (and the MethodDoers, but the point is on StringDoers) : 
     -- when you return a String, you don't want the error "Not enough arguments in method; 1 expected".
     do while v~isA(.Doer), \v~needsObject
+        if v~hasMethod("functionDoer") then v=v~functionDoer -- Add support for implicit return 
         v~do -- here, no args. Most of the time, v will be a closure which holds all the needed informations.
         if \var("result") then return
         v = result
@@ -74,21 +77,7 @@ See doers-samples.rex
     return {::closure
             expose args1 self
             args2 = arg(1, "a")
-            size2 = args2~size
-            if size2 == 0 then args = args1
-            else do
-                args = args1~copy
-                index1 = 1
-                index2 = 1
-                do while index2 <= size2
-                    do while args~hasIndex(index1)
-                        index1 += 1
-                    end
-                    if args2~hasIndex(index2) then args[index1] = args2[index2]
-                    index1 += 1
-                    index2 += 1
-                end
-            end
+            args = partialMergeArrays(args1, args2)
             -- Must forward explicitely to (self) otherwise stack overflow because forwarded to the closure itself.
             forward message "do" arguments (args) to (self)
            }~doer
@@ -128,6 +117,26 @@ See doers-samples.rex
     return lambda_x~(lambda_x)
 
 
+::routine partialMergeArrays
+    use strict arg args1, args2
+    size2 = args2~size
+    if size2 == 0 then args = args1
+    else do
+        args = args1~copy
+        index1 = 1
+        index2 = 1
+        do while index2 <= size2
+            do while args~hasIndex(index1)
+                index1 += 1
+            end
+            if args2~hasIndex(index2) then args[index1] = args2[index2]
+            index1 += 1
+            index2 += 1
+        end
+    end
+    return args
+
+    
 -----------------------------------------------------------------------------
 -- Mixin.
 
@@ -243,8 +252,7 @@ Possible transformations :
         -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
         if clauser~clauseAvailable then do
             clause = clauser~clause
-            parse lower var clause word rest
-            if word == "expose" & \ isAssignment(rest) then clauser~nextClause
+            if isExposeClause(clause) then clauser~nextClause
         end
     
         -- Insert the 'clauseBefore', if any
@@ -315,10 +323,6 @@ Without this redefinition, I should write :
 ::method hasMethod
     use strict arg methodName
     if self~hasMethod:super(methodName) then return .true
-    /*if methodName~caselessEquals("SUPPLIER") then*/ forward to (self~doer)
-    return .false
-
-::method supplier unguarded
     forward to (self~doer)
 
 /*
@@ -409,6 +413,18 @@ I find more natural to support directly blocks in the following samples (no need
 
 
 -----------------------------------------------------------------------------
+::routine isExposeClause
+    use strict arg clause
+    parse lower var clause word rest
+    if word <> "expose" then return .false
+    if isAssignment(rest) then return .false
+    left1 = rest~left(1)
+    if left1 == "(" then return .false -- function call
+    if left1 == "{" then return .false -- abreviated syntax for a block passed as last parameter
+    if left1 == "~" then return .false -- message term
+    return .true
+
+
 ::routine isAssignment
     use strict arg str
     left1 = str~left(1)

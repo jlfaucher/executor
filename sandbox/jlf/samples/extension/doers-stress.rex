@@ -119,7 +119,7 @@ say
 ::extension RexxBlock
 ::method duration
     call time('r')
-    self~doWith(arg(1, "a"))
+    forward message "do" continue
     say " (duration "time('e')~format(2,8)")"
 
 
