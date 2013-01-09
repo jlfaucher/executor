@@ -1,0 +1,155 @@
+Notes taken while searching how to implement this todo :
+<<
+The arguments passed to the coactivity with resume should be available like traditional
+arguments (use arg...). Currently they are returned by yield as an array.
+>>
+Implemented by adding support for :
+context = .context~parentContext : let retrieve the context of the yield's caller.
+.context~args=<an array of arguments> : let store the arguments passed to resume.
+
+
+
+Changes made in sanbox :
+
+ContextClass.hpp
+class RexxArray;
+...
+class RexxContext : public RexxObject
+    RexxObject *setArgs(RexxArray *);
+    RexxObject *getParentContextObject();
+
+
+ContextClass.cpp
+/**
+ * Set the arguments used to invoke the current context
+ */
+RexxObject *RexxContext::setArgs(RexxArray *arguments)
+{
+    checkValid();
+    // this is required and must be an array
+    arguments = arrayArgument(arguments, ARG_ONE);
+    arguments = (RexxArray *)arguments->copy();
+    activation->setMethodArgumentList(arguments->data(), arguments->size());
+    return OREF_NULL; // no return value
+}
+
+
+ContextClass.cpp
+/**
+ * @return The parent's context.
+ */
+RexxObject *RexxContext::getParentContextObject()
+{
+    checkValid();
+    return activation->getParentContextObject();
+}
+
+
+CPPCode.cpp
+CPPM(RexxContext::setArgs),
+CPPM(RexxContext::getParentContextObject),
+
+
+RexxActivation.hpp
+ class RexxActivation : public RexxActivationBase {
+   inline void              setMethodArgumentList(RexxObject **_arglist, size_t _argcount) {this->arglist = _arglist; this->argcount = _argcount;};
+   RexxObject *getParentContextObject();
+
+
+RexxActivation.cpp
+/**
+ * Get the context object for the parent of this activation.
+ *
+ * @return The created context object.
+ */
+RexxObject *RexxActivation::getParentContextObject()
+{
+    RexxActivation *parentActivation = this->senderActivation();
+    if (parentActivation == OREF_NULL) return TheNilObject;
+    return parentActivation->getContextObject();
+}
+
+
+setup.cpp
+  defineKernelMethod(CHAR_ARGSEQUALS    ,TheRexxContextBehaviour, CPPM(RexxContext::setArgs), 1);
+  defineKernelMethod(CHAR_PARENTCONTEXT ,TheRexxContextBehaviour, CPPM(RexxContext::getParentContextObject), 0);
+
+
+RexxConstants.hpp
+CHARCONSTANT(ARGSEQUALS, "ARGS=");
+CHARCONSTANT(PARENTCONTEXT, "PARENTCONTEXT");
+CHARCONSTANT(THREADLOCAL, "THREADLOCAL");
+
+
+=============================================================================
+arg
+parse arg
+use arg
+forward : impacté ? oui : ::method.coactive
+
+
+getProgramArgumentlist : pas utilisé
+getProgramArgumentCount : utilisé uniquement dans RexxNativeActivation.cpp
+getMethodArgumentList
+getMethodArgumentCount
+
+    interpreter/classes/ContextClass.cpp
+        RexxObject *RexxContext::getArgs()
+        {
+            checkValid();
+            RexxObject **arglist = activation->getMethodArgumentList();
+            size_t size = activation->getMethodArgumentCount();
+            return new (size, arglist) RexxArray;
+        }
+        
+    interpreter/execution/RexxActivation.hpp
+        class RexxActivation : public RexxActivationBase {
+            RexxObject         **arglist;       /* activity argument list            */
+            size_t               argcount;      /* the count of arguments            */
+            ----
+            RexxObject *run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist, size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj);
+            ----
+            inline RexxObject     ** getMethodArgumentList() {return this->arglist;};
+            ----
+            inline size_t            getMethodArgumentCount() { return argcount; }
+            ----
+            inline RexxObject *      getMethodArgument(size_t position) {
+               if (position > getMethodArgumentCount()) {
+                   return OREF_NULL;
+               }
+               else {
+                   return arglist[position-1];
+               }
+            }
+            ----
+            inline RexxArray        *getArguments() { return new_array(argcount, arglist); }
+    
+    interpreter/expression/BuiltinFunctions.cpp
+        BUILTIN(ARG)
+            RexxObject **arglist = context->getMethodArgumentList();
+            size_t size = context->getMethodArgumentCount();
+
+    interpreter/instructions/ParseInstruction.cpp
+        void RexxInstructionParse::execute(...
+                case SUBKEY_ARG:                   /* PARSE ARG instruction             */
+                    multiple = true;                 /* have an argument list             */
+                    /* get the current argument list     */
+                    argList = context->getMethodArgumentList();
+                    argCount = context->getMethodArgumentCount();
+                    break;
+
+    interpreter/instructions/UseStrictInstruction.cpp
+        void RexxInstructionUseStrict::execute(...
+            // get the argument information from the context
+            RexxObject **arglist = context->getMethodArgumentList();
+            size_t argcount = context->getMethodArgumentCount();
+
+==============================================================
+
+RexxNativeActivation::run
+
+    // retrieve the argument signatures and process them
+    uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
+    processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+--> see "rexx args to C args.txt"

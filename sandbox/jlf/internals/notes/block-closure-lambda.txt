@@ -1,3 +1,9 @@
+http://neilmadden.wordpress.com/2012/06/03/pimp-my-java/
+An example of generator implemented using threads
+
+http://gkz.github.com/LiveScript/
+
+
 http://jcp.org/aboutJava/communityprocess/edr/jsr335/index.html
 Lambda Expressions for the JavaTM Programming Language 
 
@@ -11,11 +17,19 @@ http://gafter.blogspot.com/2007/01/definition-of-closures.html
 http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/
 
 
+http://datumedge.blogspot.co.uk/2012/06/java-8-lambdas.html
+www.reddit.com/r/programming/comments/viorj/java_8_lambdas/
+
 http://openjdk.java.net/jeps/126
 JEP 126: Lambda Expressions and Virtual Extension Methods
 
-http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-3.html
+http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-4.html
 State of the Lambda
+
+http://cr.openjdk.java.net/~briangoetz/lambda/collections-overview.html
+(JLF : interesting read for the role of laziness)
+
+http://cr.openjdk.java.net/~briangoetz/lambda/lambda-translation.html
 
 http://javac.info/
 Closures (Lambda Expressions) for the Java Programming Language

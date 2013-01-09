@@ -1,0 +1,18 @@
+http://lwn.net/Articles/430720/
+http://thread.gmane.org/gmane.comp.python.ideas/9178
+Re: New pattern-matching library (was: str.split with multiple individual split characters)
+
+
+http://zesty.ca/python/rxb.py
+
+
+http://www.wilmott.ca/python/patternmatching.html
+This paper describes a model of pattern matching implemented using the Python programming language. It's designed with the following objectives:
+- To describe the style of pattern matching found in the SNBOL4, Icon and OmniMark programming languages to those who don't have an opportunity to use those languages.
+- To provide examples of the advantage of a streaming approach to pattern matching as found in the OmniMark language, its predecessor the Hugo language, and in Unix's "lex" utility.
+- As an attempt to fit pattern matching into the Python language in a more expressive and powerful manner than the existing "re" pattern matching library.
+- To explain pattern matching in an accessible fashion, and to show that it's not such a difficult subject
+
+
+http://www.rebol.net/wiki/Common_Parse_Patterns
+http://www.codeconscious.com/rebol/parse-tutorial.html

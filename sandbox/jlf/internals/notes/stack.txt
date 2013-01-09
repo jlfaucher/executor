@@ -1,0 +1,109 @@
+---------------------------------------------------------------
+Review of stack size declarations
+---------------------------------------------------------------
+
+
+trunk\common\platform\unix\SysThread.hpp
+    THREAD_STACK_SIZE = 1024*96
+
+trunk\common\platform\unix\SysThread.cpp
+    char *SysThread::getStackBase()
+    {
+       int32_t temp;
+       return ((char *)(&temp)) - THREAD_STACK_SIZE;
+    }
+
+trunk\common\platform\windows\SysThread.hpp
+    THREAD_STACK_SIZE = 1024*512
+trunk\common\platform\windows\SysThread.cpp
+
+    char *SysThread::getStackBase()
+    {
+       int32_t temp;
+       return ((char *)(&temp)) - THREAD_STACK_SIZE;
+    }
+
+trunk\interpreter\platform\unix\PlatformDefinitions.h
+    #define MIN_C_STACK 1024*16
+    #define TOTAL_STACK_SIZE 1024*512               0x80000    524288
+
+trunk\interpreter\platform\windows\PlatformDefinitions.h
+    // we need a little more space on 64-bit platforms, so add some padding based on
+    // the size of a pointer
+    #define MIN_C_STACK 1024*(32 + sizeof(void *))   0xa000     40960   sizeof(void *) == 8
+    #define TOTAL_STACK_SIZE 1024*512               0x80000    524288
+
+trunk\interpreter\platform\unix\SysActivity.cpp
+    char *SysActivity::getStackBase(size_t stackSize)
+    {
+        size_t temp;
+        return (char *)&temp - stackSize;
+    }
+trunk\interpreter\platform\windows\SysActivity.cpp
+    char *SysActivity::getStackBase(size_t stackSize)
+    {
+        size_t temp;
+        return(char *)&temp - stackSize;
+    }
+
+trunk\interpreter\concurrency\RexxActivity.hpp
+    class RexxActivity : public RexxInternalObject {
+        SysActivity currentThread;          /* descriptor for this thread        */
+        char       *stackBase;              /* pointer to base of C stack        */
+
+trunk\interpreter\concurrency\RexxActivity.cpp
+    void RexxActivity::runThread()
+    {
+        this->stackBase = currentThread.getStackBase(TOTAL_STACK_SIZE);
+        ...
+
+    void RexxActivity::checkStackSpace()
+    {
+        size_t temp;                          // if checking and there isn't room
+        if (((char *)&temp - (char *)this->stackBase) < MIN_C_STACK && this->stackcheck == true)
+        ...
+
+
+(char *)&temp =           0x00000000000c75a0
+(char *)this->stackBase = 0x00000000000bd5e0
+                                        9fc0
+
+RexxActivity.cpp
+RexxActivity::RexxActivity
+if (createThread)   --> 1er appel : false
+
+
+ 	rexx.dll!RexxActivity::RexxActivity(bool createThread)  Ligne 265	C++
+ 	rexx.dll!ActivityManager::createCurrentActivity()  Ligne 378 + 0x23 octets	C++
+ 	rexx.dll!ActivityManager::getRootActivity()  Ligne 691 + 0x5 octets	C++
+ 	rexx.dll!Interpreter::createInterpreterInstance(RexxOption * options)  Ligne 315 + 0x5 octets	C++
+ 	rexx.dll!Interpreter::createInterpreterInstance()  Ligne 95 + 0xb octets	C++
+ 	rexx.dll!InstanceBlock::InstanceBlock()  Ligne 383 + 0x5 octets	C++
+ 	rexx.dll!Interpreter::startInterpreter(Interpreter::InterpreterStartupMode mode)  Ligne 144 + 0xa octets	C++
+ 	rexx.dll!Interpreter::createInterpreterInstance(RexxOption * options)  Ligne 308 + 0xa octets	C++
+ 	rexx.dll!Interpreter::createInstance(RexxInstance_ * & instance, RexxThreadContext_ * & threadContext, RexxOption * options)  Ligne 266 + 0xd octets	C++
+ 	rexx.dll!RexxCreateInterpreter(RexxInstance_ * * instance, RexxThreadContext_ * * context, RexxOption * options)  Ligne 382 + 0x14 octets	C++
+>	rexx.exe!main(int argc, char * * argv)  Ligne 198	C++
+
+GetCurrentThreadId
+GetCurrentThread
+
+MSDN
+http://msdn.microsoft.com/en-us/library/windows/desktop/ms686774%28v=vs.85%29.aspx
+The default size for the reserved and initially committed stack memory is specified in the executable file header. 
+The default stack reservation size used by the linker is 1 MB. To specify a different default stack reservation size for all threads and fibers, use the STACKSIZE statement in the module definition (.def) file. The operating system rounds up the specified size to the nearest multiple of the system's allocation granularity (typically 64 KB).
+
+
+trunk\utilities\rexx\platform\windows\rexx.mak
+trunk\utilities\rexxc\platform\windows\rexxc.mak
+trunk\utilities\platform\windows\rexxpaws\rexxpaws.mak
+trunk\utilities\platform\windows\rexxhide\rexxhide.mak
+trunk\platform\windows\rexximage.mak
+/STACK:524288       JLF = 1024 * 512 donc même taille que pour thread stack
+
+
+trunk\extensions\platform\windows\orxscrpt\orxscrpt.def
+STACKSIZE 10240
+
+trunk\extensions\platform\windows\orxscrpt\orxscrpt.mak
+$(OR_OUTDIR)\ORXSCRPT.lib : $(CPPOBJS) $(OR_ORXSCRIPTSRC)\ORXSCRPT.def

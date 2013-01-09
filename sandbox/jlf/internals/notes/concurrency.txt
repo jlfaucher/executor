@@ -1,5 +1,17 @@
 ===================================================================================
 
+http://www.mail-archive.com/rebol-list@rebol.com/msg09673.html
+[REBOL] Re: About CONTINUATIONS
+
+http://stackoverflow.com/questions/2708033/technically-why-is-processes-in-erlang-more-efficient-than-os-threads
+
+http://www.sics.se/~joe/ericsson/du98024.html
+Performance Measurements of Threads in Java and Processes in Erlang
+
+https://groups.google.com/forum/?hl=en-GB&fromgroups=#!topic/qilang/UVG_aqH1n5U
+
+http://www.haskell.org/haskellwiki/GHC/Data_Parallel_Haskell
+
 
 http://herbsutter.com/welcome-to-the-jungle/
 
