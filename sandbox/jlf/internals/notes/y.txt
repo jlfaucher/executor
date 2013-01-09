@@ -1,0 +1,73 @@
+--------------------------------------------------------------------
+http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator
+
+    Example in Scheme
+
+        (define Y
+          (lambda (f)
+            ((lambda (x) (f (lambda (v) ((x x) v))))
+             (lambda (x) (f (lambda (v) ((x x) v)))))))
+
+        Factorial definition using Y Combinator
+
+        (define fact
+          (Y (lambda (f)
+               (lambda (n)
+                 (if (= n 0)
+                     1
+                     (* n (f (- n 1))))))))
+
+
+    Example in Python
+
+        def Y(f):
+            return (lambda x: f(lambda v: x(x)(v))) (lambda x: f(lambda v: x(x)(v)))
+         
+        def fact(f):
+            return (lambda n: 1 if (n == 0) else n * f(n - 1))
+    
+
+--------------------------------------------------------------------
+http://mvanier.livejournal.com/2897.html
+
+(define almost-factorial
+(lambda (f)
+  (lambda (n)
+    (if (= n 0)
+        1
+        (* n (f (- n 1)))))))
+
+
+(define Y 
+(lambda (f)
+  ((lambda (x) (x x))
+   (lambda (x) (f (lambda (y) ((x x) y)))))))
+
+
+(define factorial (Y almost-factorial))
+
+
+--------------------------------------------------------------------
+
+Y = {use strict arg f; 
+     {use strict arg x; 
+      f~{use strict arg v; x~(x)~(v)) ~ {::closure expose f; use strict arg x; f~{use strict arg v; x~(x)~(v)}}}
+
+
+Y = {
+        use strict arg f; 
+        {
+            use strict arg x; 
+            f~{
+                use strict arg v; 
+                x~(x)~(v)
+              ) ~ {
+                    ::closure expose f; 
+                    use strict arg x; 
+                    f~{
+                        use strict arg v; 
+                        x~(x)~(v)
+                      }
+                  }
+        }
+    }

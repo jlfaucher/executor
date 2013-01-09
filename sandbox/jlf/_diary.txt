@@ -4,6 +4,7 @@ Try to understand the internal locks.
 --> added some dbgprintf (Windows and Linux), now must analyze...
 
 Allow extension of the predefined ooRexx classes to get something similar to C# extension methods (but more powerful).
+done.
 --> unlock the define method : see samples/functional for an example of use.
     unlock the inherit method
     added ::extension directive
@@ -134,6 +135,39 @@ That makes the transformation of clauses more difficult, since a clause can be
 multi-line.
 Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
+
+
+===============================================================================
+2012 june 30
+
+[doers]
+
+Implemented the Y combinator as a method on Doer.
+http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator
+No practical interest... Inspired by http://mvanier.livejournal.com/2897.html
+Example (to run from ooRexxTry) :
+fact = {
+           use strict arg f
+           return {
+                      ::closure expose f
+                      use strict arg n
+                      if n==0 then
+                          return 1 
+                      else
+                          return n * f~(n-1)
+                  }
+       }~Y          -- ~Y(.true) for verbose mode
+fact~(10)=          -- 3628800
+
+ooRexx supports anonymous recursive functions, so no need of the Y combinator...
+fact = {
+    use strict arg n
+    if n==0 then
+        return 1 
+    else
+        return n * .context~executable~(n-1)
+}
+fact~(10)=          -- 3628800
 
 
 ===============================================================================
