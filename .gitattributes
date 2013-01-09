@@ -3,13 +3,13 @@
 
 *.1             text
 *.ac            text
-*.bat           text
+*.bat           text eol=crlf
 *.bmp           binary
 *.c             text
 *.cat           text
 *.cls           text
 *.cpp           text
-*.csh           text
+*.csh           text eol=lf
 *.doc           binary
 *.def           text
 *.dsp           text
@@ -22,7 +22,7 @@
 *.hpp           text
 *.html          text
 *.ico           binary
-*.in            text
+*.in            text eol=lf
 *.inc           text
 *.inp           text
 *.jap           text
@@ -33,12 +33,13 @@
 *.mwp           binary
 *.nsi           text
 *.nsh           text
+*.odt           binary
 *.orx           text
 *.png           binary
 *.rc            text
 *.res           binary
 *.rex           text
-*.sh            text
+*.sh            text eol=lf
 *.sgml          text
 *.spec          text
 *.src           text
@@ -54,10 +55,15 @@
 *.xml           text
 *.xsl           text
 *.zip           binary
-bootstrap       text
+acinclude.m4    text eol=lf
+bootstrap       text eol=lf
+configure.ac    text eol=lf
 COPYING         text
+create_packages text eol=lf
 INSTALL         text
 Makefile.*      text
 NOTICE          text
+oorexxshell     text eol=lf
 README          text
 ReleaseNotes    text
+setenv_oorexx   text eol=lf
