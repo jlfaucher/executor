@@ -28,7 +28,7 @@ doer~do("John", ", how are you ?") -- hello John, how are you ?
 say
 
 -- Here, ::coactivity is a tag to indicate that the doer must be a coactivity (whose executable is a routine by default).
--- Minimal abbreviation is ::c
+-- Minimal abbreviation is ::co
 block = {::coactivity
           say "hello" arg(1) || arg(2)
           .yield[]
@@ -43,7 +43,7 @@ doer~do("Keith") -- <nothing done, the coactivity is ended>
 say
 
 -- ::routine.coactive (coactive routine) is equivalent to ::coactivity.
--- Minimal abbreviation is ::r.c
+-- Minimal abbreviation is ::r.co
 block = {::routine.coactive
           say "hello" arg(1) || arg(2)
           .yield[]
@@ -59,7 +59,7 @@ say
 
 -- Here, ::method.coactive is a tag to indicate that the doer must be a coactivity whose executable is a method.
 -- The object on which the method is run is passed using the ~doer method.
--- Minimal abbreviation is ::m.c
+-- Minimal abbreviation is ::m.co
 block = {::method.coactive
           say self 'says "hello' arg(1) || arg(2)'"'
           .yield[]
@@ -149,7 +149,7 @@ end
 say
 
 -- Coactive closure
--- Minimal abbreviation is ::cl.c
+-- Minimal abbreviation is ::cl.co
 v = 1
 w = 2
 block = {::closure.coactive expose v w ; .yield[v] ; .yield[w]}

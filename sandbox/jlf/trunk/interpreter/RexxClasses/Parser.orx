@@ -51,14 +51,13 @@ to get the kind of executable to store on the RexxSourceLiteral.
 ::method kind class unguarded
     use strict arg clauser
     -- If the first word is ::cl[osure] then remove this word and remember it's a closure
-    -- If the first word is ::cl[osure].coactive] then remove this word and remember it's a coactive closure
-    -- If the first word is ::c[oactivity] then remove this word and remember it's a coactive routine.
+    -- If the first word is ::cl[osure].co[active] then remove this word and remember it's a coactive closure
+    -- If the first word is ::co[activity] then remove this word and remember it's a coactive routine.
     -- If the first word is ::m[ethod] then remove this word and remember it's a method.
-    -- If the first word is ::m[ethod].c[oactive] then remove this word and remember it's a coactive method.
-    -- If the first word is :[:routine] then remove this word and remember it's a routine.
-    -- If the first word is :[:routine].c[oactive] then remove this word and remember it's a coactive routine.
+    -- If the first word is ::m[ethod].co[active] then remove this word and remember it's a coactive method.
+    -- If the first word is ::r[outine] then remove this word and remember it's a routine.
+    -- If the first word is ::r[outine].co[active] then remove this word and remember it's a coactive routine.
     -- If the first word is ::[xxx] then raise an error (unknown tag)
-    -- If the first word starts with ':' then remove this character and remember it's a routine
     kind = "r" -- routine by default
     if clauser~clauseAvailable then do
         clause = clauser~clause
@@ -68,28 +67,28 @@ to get the kind of executable to store on the RexxSourceLiteral.
             clauser~clause = rest
             kind = "cl"
             if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 1) then kind = "cl.c"
+                if "coactive"~caselessAbbrev(option, 2) then kind = "cl.co"
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
         end
-        else if "::coactivity"~caselessAbbrev(word, 3) then do
+        else if "::coactivity"~caselessAbbrev(word, 4) then do
             clauser~clause = rest
-            kind = "r.c" -- routine by default
+            kind = "r.co" -- routine by default
             if option <> "" then raise syntax 93.900 array("Unknown option '"option"'")
         end
         else if "::method"~caselessAbbrev(word, 3)  then do
             clauser~clause = rest
             kind = "m"
             if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 1) then kind = "m.c"
+                if "coactive"~caselessAbbrev(option, 2) then kind = "m.co"
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
         end
-        else if "::routine"~caselessAbbrev(word, 1) then do
+        else if "::routine"~caselessAbbrev(word, 3) then do
             clauser~clause = rest
             kind = "r"
             if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 1) then kind = "r.c"
+                if "coactive"~caselessAbbrev(option, 2) then kind = "r.co"
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
         end
@@ -101,7 +100,10 @@ to get the kind of executable to store on the RexxSourceLiteral.
             end
         end
         else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
-        else if word~left(1) == ":" then do; clauser~clause = clause~substr(2) ; kind = "r" ; end
+        
+        -- If a tag has been removed, and the rest of the clause is blank only, then go to the next clause
+        -- The goal is to respect the invariant of the clauser : returns only non-empty clauses.
+        if clauser~clause~strip == "" then clauser~nextClause
     end
     return kind
 

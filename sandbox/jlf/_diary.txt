@@ -141,6 +141,35 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 jan 10
+
+[doers]
+
+The 'expose' was not detected correctly in the following code :
+{::cl
+    expose v
+}~functionDoer
+The tag ::cl was removed when calling SourceLiteralParser~kind, but the resulting
+clause was empty. Fixed by going to the next non-empty clause.
+
+Change the minimal abbreviation of some doers' tag, to follow the ooRexx abbreviation rules :
+::c[oactivity]     --> ::co[activity]
+:[:routine]        --> ::r[outine]
+option .c[oactive] --> .co[active]
+
+The message INIT sent by RexxBlock passed mistakenly two parameters, instead of none.
+Fixed.
+
+
+[unicode]
+Activate STRONG_TYPES only when compiling C++ code (otherwise compilation error).
+
+
+[ooRexxShell & ooRexxTry]
+Use condensed representation for arrays of dimension 0.
+
+
+===============================================================================
 2012 dec 14
 
 merge 7771-8678 from main/trunk

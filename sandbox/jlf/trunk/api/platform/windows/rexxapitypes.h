@@ -111,10 +111,12 @@ typedef size_t (REXXENTRY *REXXPFN)();
 
 #define VLARexxEntry __cdecl           /* external entry points       */
 
+#ifdef __cplusplus
 // If STRONG_TYPES is defined then string's size in chars and string's size in bytes are distinct types.
 // Useful to propagate the right types from entry points dealing with chars to inner helpers dealing with bytes.
 // Currently supported only by Visual C++
 #define STRONG_TYPES
+#endif
 
 #endif /* REXXAPITYPES_INCLUDED */
 

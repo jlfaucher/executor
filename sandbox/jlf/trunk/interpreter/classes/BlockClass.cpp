@@ -185,6 +185,7 @@ RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
 	// On the other hand, I want to extend the RexxBlock class and initialize some variables,
 	// hence the sendMessage OREF_INIT.
 
+#if 0 To rework... this code is wrong (crash)
 	// override the behaviour in case this is a subclass
 	RexxBehaviour *behaviour = ((RexxClass *)this)->getInstanceBehaviour();
     if (behaviour != NULL) this->setBehaviour(behaviour);
@@ -192,7 +193,8 @@ RexxBlock::RexxBlock(RexxSourceLiteral *s, RexxContext *c)
     {
         this->hasUninit();
     }
-    this->sendMessage(OREF_INIT, (RexxArray *)TheNullArray->copy(), 0);
+#endif
+    this->sendMessage(OREF_INIT);
 }
 
 

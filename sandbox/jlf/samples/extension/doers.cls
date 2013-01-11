@@ -269,14 +269,14 @@ Possible transformations :
 
     -- Returns the executable
     if kind == "r" then return rawExecutable
-    else if kind == "r.c" then return .Coactivity~new(rawExecutable)
+    else if kind == "r.co" then return .Coactivity~new(rawExecutable)
     else if kind == "m" then return rawExecutable
-    else if kind == "m.c" then do
+    else if kind == "m.co" then do
         if \objectSpecified then raise syntax 93.900 array("No object specified")
         return .Coactivity~new(rawExecutable, , object)
     end
     else if kind == "cl" then return .Closure~new(self~variables, rawExecutable)
-    else if kind == "cl.c" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
+    else if kind == "cl.co" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
     return .nil -- should never happen
 
 ::method functionDoer unguarded
