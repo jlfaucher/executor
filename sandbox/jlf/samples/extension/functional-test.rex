@@ -579,7 +579,7 @@ buffer~dump -- mutable buffer after mapping
 
 
 -- The shortest abbreviation of "::routine" is ":"
-.Array~of(1,2,3,4)~map{: use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
+.Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
 -- A routine object can be used directly.
