@@ -152,6 +152,14 @@ nop
 "10 20 30"~reduceW(100, "-")~dump
 
 
+-- http://projecteuler.net/problem=16
+-- Problem 16
+-- 2^15 = 32768 and the sum of its digits is 3 + 2 + 7 + 6 + 8 = 26.
+-- What is the sum of the digits of the number 2^1000?
+-- Factor : 2 1000 (pow) number>string 1 group [ string>number ] map sum
+numeric digits 302; (2**1000)~reduceC("+")~dump
+
+
 -- --------------------------------------------------------------
 -- Reducing a mutable buffer with a message
 -- --------------------------------------------------------------

@@ -135,6 +135,15 @@
 [40]
 
 
+-- http://projecteuler.net/problem=16
+-- Problem 16
+-- 2^15 = 32768 and the sum of its digits is 3 + 2 + 7 + 6 + 8 = 26.
+-- What is the sum of the digits of the number 2^1000?
+-- Factor : 2 1000 (pow) number>string 1 group [ string>number ] map sum
+   numeric digits 302; (2**1000)~reduceC("+")~dump
+[1366]
+
+
 -- --------------------------------------------------------------
 -- Reducing a mutable buffer with a message
 -- --------------------------------------------------------------
@@ -1066,7 +1075,7 @@
 
 
 -- The shortest abbreviation of "::routine" is ":"
-   .Array~of(1,2,3,4)~map{: use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
+   .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 [Array:
   1  :  1
   2  :  2
