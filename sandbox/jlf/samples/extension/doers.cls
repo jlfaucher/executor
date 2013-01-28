@@ -84,7 +84,7 @@ See doers-samples.rex
 
 
 -- [JLF] No practical interest... Inspired by http://mvanier.livejournal.com/2897.html.
--- Y = ?f.(?x.f (x x)) (?x.f (x x))
+-- Y = λf.(λx.f (x x)) (λx.f (x x))
 -- The Y combinator allows recursion to be defined as a set of rewrite rules.
 -- It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer). 
 -- It returns a version of the function which is recursive.
@@ -96,7 +96,7 @@ See doers-samples.rex
     use strict arg verbose=.false
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
     if verbose then do; .traceOutput~say("f =" f); f~source~each{.traceOutput~say(item)}; end
-    -- In all the examples I have seen on internet, the lambda expression ?x.f (x x) is applied to itself directly :
+    -- In all the examples I have seen on internet, the lambda expression λx.f (x x) is applied to itself directly :
     --  (define Y 
     --    (lambda (f)
     --      ((lambda (x) (f (x x)))
@@ -105,7 +105,7 @@ See doers-samples.rex
     lambda_x = {
         ::closure expose f verbose; use strict arg x
         if verbose then trace i
-        -- The "f (x x)" part in "?x.f (x x)"
+        -- The "f (x x)" part in "λx.f (x x)"
         return,
         f ~ {
                 ::closure expose x verbose; use strict arg v
