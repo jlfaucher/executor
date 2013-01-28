@@ -25,3 +25,50 @@ The rationale behind this limitation is that overuse of reader macros makes code
 No such thing in ooRexx, but could be... The parsing of a literal may need some user-defined code.
 This is the case for the source literals, whose tags ::xxx are analyzed by parser.orx.
 The call to the user-defined code is hardcoded in the parser (not good, but...).
+
+
+http://www.scsh.net/docu/html/man-Z-H-2.html#node_sec_1.6
+Scsh comes built on top of Scheme 48, and has two components:
+a process notation for running programs and setting up pipelines and redirections,
+and a complete syscall library for low-level access to the operating system.
+Here-strings
+The read macro #< is used to introduce "here-strings" in programs, similar to the << "here document" redirections provided by sh and csh.
+There are two kinds of here-string, character-delimited and line-delimited; they are both introduced by the #< sequence.
+Character-delimited here-strings
+--------------------------------
+A character-delimited here-string has the form
+    #<x...stuff...x
+where x is any single character (except <, see below), which is used to delimit the string bounds. Some examples:
+    Here-string syntax 	Ordinary string syntax
+    #<|Hello, world.| 	"Hello, world."
+    #<!"Ouch," he said.! 	"\"Ouch,\" he said."
+There is no interpretation of characters within the here-string; the characters are all copied verbatim.
+Line-delimited here-strings
+---------------------------
+If the sequence begins "#<<" then it introduces a line-delimited here-string.
+Line-delimited here-strings are delimited by the rest of the text line that follows the "#<<" sequence.
+For example:
+    #<<FOO
+    Hello, there.
+    This is read by Scheme as a string,
+    terminated by the first occurrence
+    of newline-F-O-O-newline or newline-F-O-O-eof.
+    FOO
+Thus,
+    #<<foo
+    Hello, world.
+    foo
+is the same thing as
+    "Hello, world."
+Detailed syntax of line-delimited here-strings
+----------------------------------------------
+The characters "#<<" begin the here-string.
+The characters between the "#<<" and the next newline are the delimiter line.
+All characters between the "#<<" and the next newline comprise the delimiter line -- including any white space.
+The body of the string begins on the following line, and is terminated by a line of text which exactly matches the delimiter line.
+This terminating line can be ended by either a newline or end-of-file.
+Absolutely no interpretation is done on the input string.
+Control characters, white space, quotes, backslash -- everything is copied as-is.
+The newline immediately preceding the terminating delimiter line is not included in the result string
+(leave an extra blank line if you need to put a final newline in the here-string.
+If EOF is encountered before reading the end of the here-string, an error is signalled.
