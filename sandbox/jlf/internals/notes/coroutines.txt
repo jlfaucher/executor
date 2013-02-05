@@ -1,5 +1,7 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+http://www.boost.org/doc/libs/1_53_0/libs/coroutine/doc/html/index.html
+
 http://railsware.com/blog/2012/03/13/ruby-2-0-enumerablelazy/
 
 http://www.cs.arizona.edu/icon/docs/ipd266.htm
