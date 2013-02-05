@@ -2315,7 +2315,7 @@ do a over arg(1, "a")
     end
     unknown~append(a)
 end
-if command == .nil then doer = {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
+if command == .nil then doer = .routines~UseItemAsCommand -- {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
 forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process
@@ -2336,4 +2336,10 @@ do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
 end
 queue~delete
 self~checkEOP(self~next)
+
+-- This routine is needed to keep current file compatible with standard ooRexx.
+-- It replaces this block : {use arg item; return item}~doer
+::routine UseItemAsCommand
+    use arg item
+    return item
 

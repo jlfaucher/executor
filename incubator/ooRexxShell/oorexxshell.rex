@@ -473,7 +473,7 @@ dumpResult: procedure
     end
     else do
         if value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
-        else if value~isA(.array), value~dimension <= 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
+        else if value~isA(.array), value~dimension <= 1, value~hasMethod("ppRepresentation") then say value~ppRepresentation(100) -- condensed output, 100 items max
         else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
         else say pp2(value)
         return value -- To get this value in the variable RESULT
