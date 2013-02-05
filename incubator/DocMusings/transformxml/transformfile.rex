@@ -200,7 +200,7 @@ syntax: -- In fact, it's an abort, not a syntax error...
     self~syntdiagNames = .Directory~new -- To avoid name collision, manage a counter per name
     self~syntdiagOutput = .nil -- The file will be created when the first syntax diagram is added
     self~syntdiagOutputFile = self~syntdiagBasename".xml"
-    self~target = "dsssl"
+    self~target = "xslt"
 
     
 ::method start_element
@@ -492,6 +492,10 @@ syntax: -- In fact, it's an abort, not a syntax error...
             -- assign PDF or PNG to %graphic-default-extension%.
             -- Inside programlisting, only inline media objects are allowed
             fileref = self~syntdiagBasename"/"entry~hrefbase -- relative path without extension
+
+            -- Publican
+            fileref = "images/"entry~hrefbase".png"
+
             self~output~lineout('<inlinemediaobject>')
             self~output~lineout('    <imageobject>')
             self~output~charout('        <imagedata fileref="'fileref'"')
