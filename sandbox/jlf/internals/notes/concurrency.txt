@@ -1,5 +1,7 @@
 ===================================================================================
 
+https://github.com/Amanieu/asyncplusplus
+
 http://www.mail-archive.com/rebol-list@rebol.com/msg09673.html
 [REBOL] Re: About CONTINUATIONS
 
@@ -28,8 +30,8 @@ getReserveCount
 getVariableDictionary
 
 Modification des accesseurs qui renvoient le dictionnaire et le compteur
-Le but est d'avoir l'info, même si l'activation n'a pas encore été mise à jour avec ces infos.
-D'après ce que je comprends, la mise à jour se fait uniquement s'il y a accès à une variable.
+Le but est d'avoir l'info, mÃªme si l'activation n'a pas encore Ã©tÃ© mise Ã  jour avec ces infos.
+D'aprÃ¨s ce que je comprends, la mise Ã  jour se fait uniquement s'il y a accÃ¨s Ã  une variable.
 
 
             this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
@@ -42,9 +44,9 @@ ObjectClass.hpp
 =====================================================================
 
 
-Le flag object_scope == SCOPE_RESERVED est local à chaque activation.
-J'ai l'impression que c'est une optimisation et il n'apporte pas une info très utile...
-Ce qui est plus utile, c'est si le dictionnaire de variable est reservé :
+Le flag object_scope == SCOPE_RESERVED est local Ã  chaque activation.
+J'ai l'impression que c'est une optimisation et il n'apporte pas une info trÃ¨s utile...
+Ce qui est plus utile, c'est si le dictionnaire de variable est reservÃ© :
 this->settings.object_variables->reserve(this->activity);
 et par qui :
 this->reservingActivity
@@ -87,14 +89,14 @@ RexxInstructionGuard::execute(
         else
         {
             ==============================================================================
-            JLF : DONC ON RESERVE LE DICTIONNAIRE AVANT MËME DE TESTER L'EXPRESSION ??????
+            JLF : DONC ON RESERVE LE DICTIONNAIRE AVANT MÃ‹ME DE TESTER L'EXPRESSION ??????
             ==============================================================================
             context->guardOn();              /* set guarded status in activation  */
         }
 
 
         ================================================
-        JLF : il y a UN SEUL currentActivity dans le système (!!!!)
+        JLF : il y a UN SEUL currentActivity dans le systÃ¨me (!!!!)
         C'est une variable statique de ActivityManager
         ================================================
         ActivityManager::currentActivity->guardSet();       /* initialize the guard sem          */         JLF : c'est un RESET !
@@ -129,7 +131,7 @@ RexxInstructionGuard::execute(
 
 
 
-Il y a un sémaphore par instance de RexxActivity pour les guard expressions
+Il y a un sÃ©maphore par instance de RexxActivity pour les guard expressions
    SysSemaphore        guardsem;       /* guard expression semaphore        */
 
 
@@ -193,11 +195,11 @@ RexxActivity.cpp
 RexxActivity::RexxActivity(bool createThread)
 : runsem("RexxActivity::runsem"), guardsem("RexxActivity::guardsem")
 
-Le nom des variables passé en paramètre est bien stocké
-mais ensuite effacé par
+Le nom des variables passÃ© en paramÃ¨tre est bien stockÃ©
+mais ensuite effacÃ© par
 this->clearObject();
 
-défini dans ObjectClass.hpp
+dÃ©fini dans ObjectClass.hpp
   class RexxInternalObject : public RexxVirtualBase{
      inline void   clearObject() { memset(getObjectDataSpace(), '\0', getObjectDataSize()); }
 
@@ -216,7 +218,7 @@ still locked by that thread.
 
 RexxActivation.object_scope est une optimisation :
 si == SCOPE_RELEASED alors pas besoin d'aller voir le dictionnaire de variables this->settings.object_variables
-sinon, le reserveCount est testé
+sinon, le reserveCount est testÃ©
 
 
 RexxActivation.hpp
@@ -236,8 +238,8 @@ RexxActivation.cpp
 void RexxActivation::guardOn()
 {
     ====================================
-    JLF : si object_scope indique que le dictionnaire est déjà reservé, rien à faire.
-    sinon, on demande à reserver le dictionnaire mais ça peut être bloquant. En sortie, on est SCOPE_RESERVED.
+    JLF : si object_scope indique que le dictionnaire est dÃ©jÃ  reservÃ©, rien Ã  faire.
+    sinon, on demande Ã  reserver le dictionnaire mais Ã§a peut Ãªtre bloquant. En sortie, on est SCOPE_RESERVED.
     ====================================
     /* currently in unguarded state?     */
     if (this->object_scope == SCOPE_RELEASED)
@@ -251,7 +253,7 @@ void RexxActivation::guardOn()
         /* lock the variable dictionary      */
         this->settings.object_variables->reserve(this->activity);			JLF : peut BLOQUER si besoin (object_variables est un RexxVariableDictionary)
         /* set the state here also           */
-        this->object_scope = SCOPE_RESERVED;						JLF : donc cette activation n'aura le status SCOPE_RESERVED que lorsque la réservation est effective, après attente si besoin
+        this->object_scope = SCOPE_RESERVED;						JLF : donc cette activation n'aura le status SCOPE_RESERVED que lorsque la rÃ©servation est effective, aprÃ¨s attente si besoin
     }
 }
 
@@ -276,14 +278,14 @@ RexxVariableDictionary::transfer
 
 
 
-Plus de détails
+Plus de dÃ©tails
 ---------------
-Un dictionnaire est associé à une activité qui l'a réservé.
+Un dictionnaire est associÃ© Ã  une activitÃ© qui l'a rÃ©servÃ©.
 3 cas :
-- dictionnaire pas encore réservé : assignation du reservingActivity et reserveCount=1
-- dictionnaire déjà réservé et l'appel se fait pour la même activité : reserveCount++
-- dictionnaire déjà réservé et l'appel se fait par une autre activité : 
-  l'activité appelante est ajoutée en fin de queue, et mise en attente
+- dictionnaire pas encore rÃ©servÃ© : assignation du reservingActivity et reserveCount=1
+- dictionnaire dÃ©jÃ  rÃ©servÃ© et l'appel se fait pour la mÃªme activitÃ© : reserveCount++
+- dictionnaire dÃ©jÃ  rÃ©servÃ© et l'appel se fait par une autre activitÃ© :
+  l'activitÃ© appelante est ajoutÃ©e en fin de queue, et mise en attente
 
 
 void RexxVariableDictionary::reserve(
