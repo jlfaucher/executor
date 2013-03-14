@@ -58,7 +58,7 @@
 ::method _description_ class
 nop
 /*
-Base pipeStage class.  
+Base pipeStage class.
 
 By default, a pipeStage has two inputs I1 & I2, and two ouputs O1 & O2.
 process : I1
@@ -91,10 +91,10 @@ Any object can be a source of pipe :
 - A coactivty can be a source of pipe : each yielded item is injected in the pipe (lazily).
   The indexes are those returned by the coactivity supplier.
 
-Most sub classes need only override the process() method to implement a pipeStage.  
+Most sub classes need only override the process() method to implement a pipeStage.
 The transformed results are passed down the pipeStage chain by calling the write method.
 
-Careful to >> 
+Careful to >>
     "hello"~pipe(.left[2] >> .upper | .console)
 Here, the result is not what you expect. You want "LLO", you get "he"...
 This is because .console is the primary follower of .left, not the primary
@@ -539,7 +539,7 @@ return 0
 /*
 Remember 1 : no reference to the next dataflow ! A dataflow can have several followers.
 Remember 2 : the internal structure is an array because it's easy to store additional informations
-             and manage them in a generic way (iterate from index 3 up to ~items). 
+             and manage them in a generic way (iterate from index 3 up to ~items).
 */
 
 ::method _description_ class
@@ -601,7 +601,7 @@ nop
 ::constant firstIndexPoolManaged 3 -- The items from this index up to the end of the dataflow's array are impacted by showPool.
 
 ::method create class
-use strict arg previous, tag, item, index -- follow the order convention used everywhere : item first, then index 
+use strict arg previous, tag, item, index -- follow the order convention used everywhere : item first, then index
 dataflow = self~new(4)
 if tag~isA(.pipeStage) then do
     pipeStage = tag
@@ -764,7 +764,7 @@ if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMa
     -- but the problem is that additional parameters are passed : showPool, pool, values.
     -- Other difference : I use a condensed output even if multi-dimensional array.
     -- Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
-    
+
     -- each item of the array is inserted.
     -- special care for recursive arrays
     level = stack~index(val)
@@ -2220,7 +2220,7 @@ forward message ("checkEOP") arguments (stages)
 /******************************************************************************/
 -- A 'fileLines' pipeStage to get the contents of a text file line by line.
 -- The input item can be a string (used as a path) or a .File instance.
--- In CMS pipelines, this stage is named "getFiles", but I prefer "fileLines"... 
+-- In CMS pipelines, this stage is named "getFiles", but I prefer "fileLines"...
 ::class "fileLines" public subclass pipeStage
 
 ::method process
@@ -2278,7 +2278,7 @@ Usage :
     if no command specified then use current item as command
 Example :
     "*.log"~pipe(.system {"ls" item} | .console)
-    .array~of("ls", "hello", "dummy")~pipe(.system {item} | .console)
+    .array~of("ls", "hello", "dummy")~pipe(.system | .console)
 */
 ::class "system" public subclass pipeStage
 
@@ -2326,12 +2326,14 @@ if trace then trace i
 use strict arg item, index, dataflow
 if doer <> .nil then command = doer~do(item, index, dataflow)
 queue = .RexxQueue~new(.RexxQueue~create)
-command '| rxqueue "'queue~get'"'
+command '2>&1 | rxqueue "'queue~get'"'
+error = (RC <> 0) -- doesn't work ! RC is the return code of rxqueue, not the return code of command
 linepos = 1
 do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
     line = queue~linein
     newIndex = .array~of(command, linepos)
-    self~write(line, newIndex, dataflow)
+    if error then self~writeSecondary(line, newIndex, dataflow)
+    else self~write(line, newIndex, dataflow)
     linepos += 1
 end
 queue~delete

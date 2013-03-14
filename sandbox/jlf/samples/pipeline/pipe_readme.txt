@@ -175,3 +175,5 @@ pipeStages
 
 .select : I1 --- O1 (selected), O2 (not selected)
     <filter-doer>
+
+.yield : I1 -- O1

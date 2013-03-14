@@ -72,7 +72,21 @@ So I added the 'pipe' method which injects the object in the pipe :
             expose pipe self
             return self~pipeProfile(pipe)
            }~doer
-    
+
+/******************************************************************************/
+-- A 'yield' pipeStage, to yield the current item.
+-- Works only from a coactive pipe.
+-- This is a convenience pipeStage, equivalent to .do {.yield[item]}
+
+::extension yield inherit pipeStage
+
+::method process
+use strict arg item, index, dataflow        -- get the data item
+args = arg(1, "a") -- save the current arguments array because .yield will overwrite it
+.yield[item]
+forward class (super) arguments (args)
+
+
 /******************************************************************************/
 -- An 'append' pipeStage to copy items from its primary input to its primary output,
 -- and then invoke the producer passed as argument and write the items produced by
@@ -94,7 +108,7 @@ The option iterate (no need of 'After') is automatically activated when the prod
 ::method initOptions
     expose iterate producer
     iterate = .false
-    producer = .nil    
+    producer = .nil
     unknown = .array~new
     do a over arg(1, "a")
         if a~isA(.String) then do
@@ -218,7 +232,7 @@ self~init:super
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method newDataflow
-    -- Overload default method, called by ~write and ~writeSecondary 
+    -- Overload default method, called by ~write and ~writeSecondary
     expose initialDataflow recursiveMemorize trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .inject~newDataflow")
@@ -259,7 +273,7 @@ self~init:super
             end
             else do
                 -- Send it to secondary output, which receives the abandonned items
-                -- Here, no management of "once". 
+                -- Here, no management of "once".
                 self~writeSecondary(item, index, dataflow)
                 if result <> .nil then dataflow = result
                 self~checkEOP(self~next, self~secondary)
@@ -346,7 +360,7 @@ self~init:super
             end
             else do
                 -- Send it to secondary output, which receives the abandonned items
-                -- Here, no management of "once". 
+                -- Here, no management of "once".
                 self~writeSecondary(item, index, dataflow)
                 if result <> .nil then dataflow = result
                 self~checkEOP(self~next, self~secondary)
@@ -471,7 +485,7 @@ self~init:super(.true) -- allow commands
 
 ::method initOptions
     expose doer
-    doer = .nil    
+    doer = .nil
     unknown = .array~new
     do a over arg(1, "a")
         if a~isA(.String) then nop
