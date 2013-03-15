@@ -2273,6 +2273,10 @@ self~checkEOP(self~next)
 A 'system' pipeStage to execute a system command and get the contents of its stdout line by line.
 To investigate : is it possible to get its stderr ?
 Maybe with bash : cmd > >(cmd1) 2> >(cmd2) Send stdout of cmd to cmd1 and stderr of cmd to cmd2.
+Not good : no easy way to get the exit code of the user command, when piping to rxqueue...
+http://stackoverflow.com/questions/2851622/unix-shell-getting-exit-code-with-piped-child
+http://stackoverflow.com/questions/8833396/pipe-command-output-but-keep-the-error-code
+http://cfajohnson.com/shell/cus-faq-2.html#Q11
 Usage :
     .system ["<command>"|<command-doer>]
     if no command specified then use current item as command
