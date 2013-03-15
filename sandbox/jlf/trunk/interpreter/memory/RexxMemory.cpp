@@ -554,8 +554,8 @@ void  RexxMemory::runUninits()
             uninitTable->put(TheFalseObject, zombieObj);
             {
                 // run this method with appropriate error trapping
-                verboseMessage("Calling uninit for object %s:%d\n", 
-                               size_t(zombieObj->classObject()->getId()->getStringData()), // ok, bad practice, convert a const char* to size_t, but...
+                verboseMessage("Calling uninit for object %s:%u\n", 
+                               zombieObj->classObject()->getId()->getStringData(),
                                zombieObj->identityHash());
                 UninitDispatcher dispatcher(zombieObj);
                 activity->run(dispatcher);

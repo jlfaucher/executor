@@ -255,6 +255,12 @@ class RexxMemory : public RexxInternalObject
 #endif
   }
 
+  inline void verboseMessage(const char *message, const char *sub1, size_t sub2) {
+#ifdef VERBOSE_GC
+      logVerboseOutput(message, (void *)sub1, (void *)sub2);
+#endif
+  }
+
   inline void logObjectStats(RexxObject *obj) { imageStats->logObject(obj); }
   inline void pushSaveStack(RexxObject *obj) { saveStack->push(obj); }
   inline void removeSavedObject(RexxObject *obj) { saveStack->remove(obj); }
