@@ -1,0 +1,5 @@
+http://ayende.com/blog/4435/map-reduce-a-visual-explanation
+
+http://michaelnielsen.org/blog/write-your-first-mapreduce-program-in-20-minutes/
+
+http://parasail-programming-language.blogspot.fr/2012/11/special-syntax-for-mapreduce-in-parasail.html

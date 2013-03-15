@@ -16,3 +16,9 @@ This paper describes a model of pattern matching implemented using the Python pr
 
 http://www.rebol.net/wiki/Common_Parse_Patterns
 http://www.codeconscious.com/rebol/parse-tutorial.html
+
+
+http://perlgeek.de/blog-en/perl-6/2013-pattern-matching.html
+When talking about pattern matching in the context of Perl 6, people usually think about regex or grammars.
+Those are indeed very powerful tools for pattern matching, but not the only one.
+Another powerful tool for pattern matching and for unpacking data structures uses signatures.

@@ -4,10 +4,6 @@ http://www.yesodweb.com/book/conduit
 
 http://www.yesodweb.com/blog/2012/01/conduit-versus-enumerator
 
-http://ayende.com/blog/4435/map-reduce-a-visual-explanation
-
-http://michaelnielsen.org/blog/write-your-first-mapreduce-program-in-20-minutes/
-
 http://hestia.typepad.com/flatlander/2011/06/partial-function-application-in-f-part-2-a-technique-for-simplicity.html
 Il y a un exemple de pipe |> dans F#
 
