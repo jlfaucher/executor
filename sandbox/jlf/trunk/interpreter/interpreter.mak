@@ -367,7 +367,7 @@ $(OR_OUTDIR)\winmsgtb.res: $(INT_PLATFORM)\winmsgtb.rc $(INTERPRETER_MESSAGES)\D
 $(OR_OUTDIR)\verinfo.res: $(INT_PLATFORM)\verinfo.rc
     @ECHO.
     @ECHO ResourceCompiling $(@B).res
-        $(rc) $(rcflags_common) -r -fo$(OR_OUTDIR)\$(@B).res $(OR_INTERPRETER_SRC)\$(@B).rc
+        $(rc) $(rcflags_common) -r -fo$(OR_OUTDIR)\$(@B).res $(INT_PLATFORM)\$(@B).rc
 
 #
 #
