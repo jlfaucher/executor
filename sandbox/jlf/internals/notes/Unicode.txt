@@ -90,19 +90,19 @@ Pas de risque de fausse reconnaissance si utf-8 ?
 
 ===========================================================
 
-ProblËme de parsing
+Probl√®me de parsing
 
 SourceFile.cpp
 RexxSource::nextClause
-Mettre point d'arrÍt sur 
+Mettre point d'arr√™t sur 
     token = this->sourceNextToken(OREF_NULL)
 
-Le fichier CoreClasses.orx est parsÈ sans problËme.
+Le fichier CoreClasses.orx est pars√© sans probl√®me.
 L'erreur vient du parsing du fichier Serializable.orx
-qui est chargÈ par :
+qui est charg√© par :
 call "Serializable.orx"
 -->
-Donc il faut mettre un point d'arrÍt sur call
+Donc il faut mettre un point d'arr√™t sur call
 
 call "Serializable.orx" :
 loader->runProgram                                                      interpreter\memory\Setup.cpp                        RexxMemory::createImage
@@ -133,8 +133,8 @@ size_t  RexxEntry BufferStringLength(RexxThreadContext *c, RexxBufferStringObjec
 --> StringCLength & StringBLength
 
 
-A priori utilisÈ pour gÈrer des noms de variables composites (a.b.c)
-Donc peut se limiter ‡ l'ASCII --> il faudra un test du genre "string compatible avec symbol)
+A priori utilis√© pour g√©rer des noms de variables composites (a.b.c)
+Donc peut se limiter √† l'ASCII --> il faudra un test du genre "string compatible avec symbol)
 interpreter\classes\support\RexxCompoundTail.hpp
 RexxCompoundTail
 
@@ -201,27 +201,27 @@ trunk/src/string/encoding/shared.c
 
 apic.c                  pas d'impact
 cclass.h                pas d'impact
-charset.c               supprimÈ
-charset.h               supprimÈ
+charset.c               supprim√©
+charset.h               supprim√©
 encoding.c
-encoding.h              modifiÈ. Suppression de class ENCODING. Nouvelle classe _str_vtable dans string.h
+encoding.h              modifi√©. Suppression de class ENCODING. Nouvelle classe _str_vtable dans string.h
     
-charset/ascii.c         dÈplacÈ dans encoding
-charset/ascii.h         supprimÈ, remplacÈ par shared.h
-charset/binary.c        dÈplacÈ dans encoding
-charset/binary.h        supprimÈ, remplacÈ par shared.h
-charset/iso-8859-1.c    dÈplacÈ dans encoding et renommÈ latin1.c ?
+charset/ascii.c         d√©plac√© dans encoding
+charset/ascii.h         supprim√©, remplac√© par shared.h
+charset/binary.c        d√©plac√© dans encoding
+charset/binary.h        supprim√©, remplac√© par shared.h
+charset/iso-8859-1.c    d√©plac√© dans encoding et renomm√© latin1.c ?
 charset/iso-8859-1.h
-charset/table.c         dÈplacÈ dans encoding
-charset/table.h         dÈplacÈ dans encoding
+charset/table.c         d√©plac√© dans encoding
+charset/table.h         d√©plac√© dans encoding
 charset/unicode.c
 charset/unicode.h
-encoding/fixed_8.c      supprimÈ
-encoding/fixed_8.h      supprimÈ
-encoding/ucs2.h         supprimÈ
-encoding/ucs4.h         supprimÈ
-encoding/utf16.h        supprimÈ
-encoding/utf8.h         supprimÈ
+encoding/fixed_8.c      supprim√©
+encoding/fixed_8.h      supprim√©
+encoding/ucs2.h         supprim√©
+encoding/ucs4.h         supprim√©
+encoding/utf16.h        supprim√©
+encoding/utf8.h         supprim√©
 
 
 
@@ -240,7 +240,7 @@ PARROT_DATA STR_VTABLE *Parrot_default_encoding_ptr;            extern ENCODING 
 struct _str_vtable {
     int         num;                                            ENCODING::number
     const char *name;                                           ENCODING::name
-    STRING     *name_str;                                       pas utilisÈ dans m17n
+    STRING     *name_str;                                       pas utilis√© dans m17n
     UINTVAL     max_bytes_per_codepoint;                        ENCODING::max_bytes_per_codepoint
 
     str_vtable_to_encoding_t            to_encoding;            ENCODING::encode
@@ -288,7 +288,7 @@ struct _str_vtable {
 
 
 ======================================================================================
-Analyse des erreurs rencontrÈes lors des tests de charout.testGroup
+Analyse des erreurs rencontr√©es lors des tests de charout.testGroup
 
 SysFile::getPosition
     buffered = true
@@ -344,7 +344,7 @@ Note : the redirection to file makes TEST_STDOUT_START fail (no error raised, pr
 
 crash trunk :
 rexx -e "say .mutablebuffer~new('abcdef')~replaceat('XXX', 1, 16)~string"
-(plante ‡ partir de 10)
+(plante √† partir de 10)
 
 
 crash :
@@ -436,17 +436,17 @@ parrot_string_t (pobj.h)
 STRING                              RexxString
 INTVAL                              wholenumber_t   (Parrot_Int = long)
 UINTVAL                             wholenumber_t   (Parrot_UInt = unsigned long)
-PARROT_INTERP                       supprimÈ
-SHIM                                supprimÈ
+PARROT_INTERP                       supprim√©
+SHIM                                supprim√©
     #define SHIM(a) /*@unused@*/ /*@null@*/ a ##_unused __attribute__unused__
-SHIM_INTERP                         supprimÈ
-PARROT_DATA                         supprimÈ
+SHIM_INTERP                         supprim√©
+PARROT_DATA                         supprim√©
     config.h
     #  define PARROT_DATA extern "C" __declspec(dllimport)
     #  define PARROT_DATA extern __declspec(dllimport)
     #  define PARROT_DATA extern "C" __declspec(dllexport)
     #  define PARROT_DATA extern __declspec(dllexport)
-NOTNULL                             supprimÈ
+NOTNULL                             supprim√©
     #  define NOTNULL(x)                  /*@notnull@*/ x
 Parrot_str_equal(X, Y)              X->primitiveIsEqual(Y)
 Parrot_str_new_constant             new_string(*(...))
@@ -484,14 +484,14 @@ RexxBufferStringObject obj;
 RexxBuffer
     
 
-ENCODING_GET_CODEPOINT : si utilisÈ dans une boucle, PAS BON !!! ‡ rÈ-Ècrire avec un itÈrateur car offset est une position de caractËre, recherchÈ ‡ chaque appel depuis le dÈbut
-U16_FWD_1_UNSAFE : vÈrifiÈ si ok dans boucle (ex : ENCODING_UTF16::codepoints)
+ENCODING_GET_CODEPOINT : si utilis√© dans une boucle, PAS BON !!! √† r√©-√©crire avec un it√©rateur car offset est une position de caract√®re, recherch√© √† chaque appel depuis le d√©but
+U16_FWD_1_UNSAFE : v√©rifi√© si ok dans boucle (ex : ENCODING_UTF16::codepoints)
 
 
 return (RexxString *)TheNilObject;
     
 null string singleton :
-OREF_NULLSTRING     (crÈÈ par une macro, donc pas trouvÈ tel quel dans les *.h*)
+OREF_NULLSTRING     (cr√©√© par une macro, donc pas trouv√© tel quel dans les *.h*)
 
 
 Returned values when exception :
@@ -678,7 +678,7 @@ genericCommandInvoke
 ================================
 
 bug dans CppMenu::maybeConnectItem ?
-Le paramËtre methodName n'est pas utilisÈ alors qu'il recoit une nouvelle valeur
+Le param√®tre methodName n'est pas utilis√© alors qu'il recoit une nouvelle valeur
 
 ================================
 
@@ -721,26 +721,26 @@ strcpy          --> fait
 _tcscpy         --> fait
 GetWindowTextLength --> fait
 printf          --> fait
-ObjectToStringValue     --> fait, mais pourquoi j'avais notÈ de le regarder ? rien vu d'utile...
-->fontName      vÈrifier les affectations de string (doit faire une copie)  --> fait
+ObjectToStringValue     --> fait, mais pourquoi j'avais not√© de le regarder ? rien vu d'utile...
+->fontName      v√©rifier les affectations de string (doit faire une copie)  --> fait
 .fontName       --> fait, aucune occurence
-dwTypeData      il y a des affectations de string   --> fait. apparemment dÈclarÈ non const car peut recevoir une valeur, selon service appelÈ
-lpstrInitialDir vÈrifier les affectations de string --> fait
-lpstrTitle      vÈrifier les affectations de string --> fait
-lpstrFilter     vÈrifier les affectations de string --> fait
-lpstrDefExt     vÈrifier les affectations de string --> fait
-.pszText        vÈrifier les affectations de string --> fait
-->pszText        vÈrifier les affectations de string    --> fait
+dwTypeData      il y a des affectations de string   --> fait. apparemment d√©clar√© non const car peut recevoir une valeur, selon service appel√©
+lpstrInitialDir v√©rifier les affectations de string --> fait
+lpstrTitle      v√©rifier les affectations de string --> fait
+lpstrFilter     v√©rifier les affectations de string --> fait
+lpstrDefExt     v√©rifier les affectations de string --> fait
+.pszText        v√©rifier les affectations de string --> fait
+->pszText        v√©rifier les affectations de string    --> fait
 '\0'            --> fait
 %s              en relation avec printf
 unicode2ansi    encore utile ?  oui
-putUnicodeText  encore utile ? oui car gËre les chaines NULL de faÁon spÈciale
-CP_ACP          --> fait, tout remplacÈ
+putUnicodeText  encore utile ? oui car g√®re les chaines NULL de fa√ßon sp√©ciale
+CP_ACP          --> fait, tout remplac√©
 
 rexx editrex.rex    the storage allocated for the dialog template is too small (DLGTEMPLATE_TOO_SMALL_MSG)
 
 Remember :
-_stprintf(msgBuffer, 511, _T("%s...     <-- le 2nd arg est le nombre de caractËres
+_stprintf(msgBuffer, 511, _T("%s...     <-- le 2nd arg est le nombre de caract√®res
 
 // warning C4996: '_swprintf': swprintf has been changed to conform with the ISO C standard, 
 // adding an extra character count parameter. 
@@ -751,12 +751,12 @@ rxwchar tocheck : I assume it's safe to cast to non const... Was like that befor
 
 
 todo :
-putUnicodeText : ‡ revoir...
-genericCommandInvoke : attention au paramËtre lParam
-image_getImage_cls : ‡ revoir, l'utilisation de name1 n'est pas top...
+putUnicodeText : √† revoir...
+genericCommandInvoke : attention au param√®tre lParam
+image_getImage_cls : √† revoir, l'utilisation de name1 n'est pas top...
 
 
-Types dÈfinis par ooDialog :
+Types d√©finis par ooDialog :
 DIALOGADMIN
 DATATABLEENTRY
 BITMAPTABLEENTRY

@@ -5,8 +5,8 @@ Voir JLF notes - lines.txt
 pour un exemple d'appel
 
 ATTENTION ! 
-Le 1er appel sert à récupérer la signature des arguments
-Le 2nd appel sert à la vraie execution
+Le 1er appel sert Ã  rÃ©cupÃ©rer la signature des arguments
+Le 2nd appel sert Ã  la vraie execution
 
 RexxNativeActivation::run
 ...
@@ -20,7 +20,7 @@ RexxNativeActivation::run
 
 
 CSELF
-permet de récupérer l'objet C++ wrappé dans l'objet Rexx
+permet de rÃ©cupÃ©rer l'objet C++ wrappÃ© dans l'objet Rexx
 RexxNativeActivation::cself         (interpreter\execution\RexxNativeActivation.cpp)
     return receiver->getCSelf()
     

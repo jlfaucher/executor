@@ -132,16 +132,16 @@ shared=0
 ===============================================
 
 
-Les classes Stream sont déclarées dans
+Les classes Stream sont dÃ©clarÃ©es dans
 interpreter\RexxClasses\StreamClasses.orx
 
-Les méthodes sont implémentées dans
+Les mÃ©thodes sont implÃ©mentÃ©es dans
 interpreter\streamLibrary\StreamNative.cpp
 
-Le status StreamError n'est utilisé que dans
+Le status StreamError n'est utilisÃ© que dans
 StreamNative.cpp
 StreamNative.hpp
-Il est positionné par StreamInfo::notreadyError
+Il est positionnÃ© par StreamInfo::notreadyError
 
 
 

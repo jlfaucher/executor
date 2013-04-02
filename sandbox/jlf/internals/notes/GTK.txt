@@ -1,6 +1,6 @@
 =================================================================
 
-J'ai un problème avec cette méthode :
+J'ai un problÃ¨me avec cette mÃ©thode :
 self == NULL
 quand je debug, je vois argcount=0
 A priori c'est normal puisque l'appel est 
@@ -17,7 +17,7 @@ RexxMethod1(int,                       // Return type
     return 0;
 }
 
--------------------------- code "preprocessé"
+-------------------------- code "preprocessÃ©"
 
 int GrxWidgetShow_impl (RexxMethodContext * context, POINTER self); 
 static uint16_t GrxWidgetShow_types[] = {12, 5, 0}; 

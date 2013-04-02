@@ -85,11 +85,11 @@ CHARCONSTANT(THREADLOCAL, "THREADLOCAL");
 arg
 parse arg
 use arg
-forward : impacté ? oui : ::method.coactive
+forward : impactÃ© ? oui : ::method.coactive
 
 
-getProgramArgumentlist : pas utilisé
-getProgramArgumentCount : utilisé uniquement dans RexxNativeActivation.cpp
+getProgramArgumentlist : pas utilisÃ©
+getProgramArgumentCount : utilisÃ© uniquement dans RexxNativeActivation.cpp
 getMethodArgumentList
 getMethodArgumentCount
 

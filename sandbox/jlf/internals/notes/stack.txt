@@ -99,7 +99,7 @@ trunk\utilities\rexxc\platform\windows\rexxc.mak
 trunk\utilities\platform\windows\rexxpaws\rexxpaws.mak
 trunk\utilities\platform\windows\rexxhide\rexxhide.mak
 trunk\platform\windows\rexximage.mak
-/STACK:524288       JLF = 1024 * 512 donc même taille que pour thread stack
+/STACK:524288       JLF = 1024 * 512 donc mÃªme taille que pour thread stack
 
 
 trunk\extensions\platform\windows\orxscrpt\orxscrpt.def

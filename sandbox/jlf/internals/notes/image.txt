@@ -11,10 +11,10 @@ RexxMemory memoryObject;
 
 Attention :
 RexxMemory::RexxMemory
-n'initialise pas image_buffer à NULL, mais cette valeur est testée dans RexxMemory::restore
+n'initialise pas image_buffer Ã  NULL, mais cette valeur est testÃ©e dans RexxMemory::restore
 
 Initialisation bizarre dans RexxMemory::initialize :
-    new (this) RexxMemory;  --> ça rappelle le constructeur RexxMemory::RexxMemory sur lui-même
+    new (this) RexxMemory;  --> Ã§a rappelle le constructeur RexxMemory::RexxMemory sur lui-mÃªme
     new (&newSpaceNormalSegments) NormalSegmentSet(this);
     new (&newSpaceLargeSegments) LargeSegmentSet(this);
 
@@ -23,13 +23,13 @@ Initialisation bizarre dans RexxMemory::initialize :
 
 
 ClassTypeCodes.xsl
-Ce fichier est généré
+Ce fichier est gÃ©nÃ©rÃ©
 
 interpreter\behaviour\ClassTypeCodes.h
-Ce fichier est généré
+Ce fichier est gÃ©nÃ©rÃ©
 
 interpreter\behaviour\VirtualFunctionTable.cpp
-Ce fichier est généré
+Ce fichier est gÃ©nÃ©rÃ©
 
 
 
@@ -43,7 +43,7 @@ RexxMemory::create
 RexxMemory::restore
 
 
-SystemInterpreter::loadImage    Charge rexx.img (déclaré dans PlatformDefinitions.h)
+SystemInterpreter::loadImage    Charge rexx.img (dÃ©clarÃ© dans PlatformDefinitions.h)
     RexxMemory::restoreImage
         RexxMemory::initialize
             ...
@@ -60,7 +60,7 @@ RexxMemory::restore                                 interpreter\memory\RexxMemor
                             
                             
 interpreter\interpreter.mak                            
-    Génération de fichiers à partir de rexxmsg.xml :
+    GÃ©nÃ©ration de fichiers Ã  partir de rexxmsg.xml :
     $(INT_PLATFORM)\winmsgtb.rc: $(INT_PLATFORM)\WinMessageResource.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
     $(INTERPRETER_MESSAGES)\RexxErrorCodes.h: $(INTERPRETER_MESSAGES)\RexxErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
     $(INTERPRETER_MESSAGES)\DocErrorMessages.sgml: $(INTERPRETER_MESSAGES)\DocBookErrors.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
@@ -68,25 +68,25 @@ interpreter\interpreter.mak
     $(INTERPRETER_MESSAGES)\RexxMessageTable.h: $(INTERPRETER_MESSAGES)\RexxMessageTable.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
     $(OR_APISRC)\oorexxerrors.h: $(INTERPRETER_MESSAGES)\ApiErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
 
-    Génération de fichiers à partir de PrimitiveClasses.xml :
+    GÃ©nÃ©ration de fichiers Ã  partir de PrimitiveClasses.xml :
     $(BEHAVIOUR)\PrimitiveBehaviourNames.h: $(BEHAVIOUR)\PrimitiveBehaviourNames.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
     $(BEHAVIOUR)\PrimitiveBehaviours.cpp: $(BEHAVIOUR)\PrimitiveBehaviours.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
     $(BEHAVIOUR)\VirtualFunctionTable.cpp: $(BEHAVIOUR)\VirtualFunctionTable.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
     $(BEHAVIOUR)\ClassTypeCodes.h: $(BEHAVIOUR)\ClassTypeCodes.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
 
 
-Dans RexxMemory::restore, il n'y a que les classes Exported qui sont restaurées.
+Dans RexxMemory::restore, il n'y a que les classes Exported qui sont restaurÃ©es.
 
 
 ===========================================================================
-RexxMemory::virtualFunctionTable est utilisé dans :
+RexxMemory::virtualFunctionTable est utilisÃ© dans :
 ObjectClass.cpp
     RexxNilObject::operator new : setVirtualFunctions
 RexxEnvelope.cpp
     RexxEnvelope::puff : setVirtualFunctions
 RexxMemory.cpp
-    RexxMemory::initialize : crée la table des vtables
-    RexxMemory::restoreImage : affecte sa vtable à chaque objet de l'image
+    RexxMemory::initialize : crÃ©e la table des vtables
+    RexxMemory::restoreImage : affecte sa vtable Ã  chaque objet de l'image
     RexxMemory::oldObject : initializeNewObject
     RexxMemory::newObject : initializeNewObject
     RexxMemory::newObjects : initializeNewObject

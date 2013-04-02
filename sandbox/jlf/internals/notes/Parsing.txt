@@ -89,7 +89,7 @@ Crash after changing builtin function codes from 1 to 2700
 =============================================================================================
 
 
-A propos du problËme de reset de location
+A propos du probl√®me de reset de location
 
 
 interpreter\parser\InstructionParser.cpp :
@@ -175,7 +175,7 @@ RexxInstruction *RexxSource::instruction()
                 case KEYWORD_END:          /* END for a block construct         */
                 case KEYWORD_THEN:         /* unexpected THEN                   */
 
-Il y a une Èquivalence avec les fichiers *.hpp dans interpreter\instructions
+Il y a une √©quivalence avec les fichiers *.hpp dans interpreter\instructions
 sauf pour ces cas :
                 case KEYWORD_LOOP:         /* all variations of LOOP instruction  */
                 case KEYWORD_PUSH:         /* PUSH instruction                  */
@@ -201,15 +201,15 @@ sauf pour ces cas :
 
 interpreter\parser\Scanner.cpp
 RexxSource::characterTable[]
-Cette table est utilisÈe pour scanner un symbol :
-- elle renvoie 0 pour un caractËre qui n'est pas autorisÈ dans un symbol.
+Cette table est utilis√©e pour scanner un symbol :
+- elle renvoie 0 pour un caract√®re qui n'est pas autoris√© dans un symbol.
 - elle convertit les minuscules en majuscules.
 
 
 interpreter\parser\Scanner.cpp
 RexxSource::sourceNextToken
 -->
-gËre les symboles, les strings, ...
+g√®re les symboles, les strings, ...
 
 
 interpreter\parser\Scanner.cpp
@@ -218,6 +218,6 @@ RexxSource::locateToken
 
 interpreter\parser\SourceFile.cpp
 RexxSource::commonString
-Stocke tous les symboles, toutes les chaines de caractËres dans
+Stocke tous les symboles, toutes les chaines de caract√®res dans
 RexxDirectory   *strings;            /* common pool of created strings    */
---> le but est d'avoir une valeur unique de chaque chaÓne
+--> le but est d'avoir une valeur unique de chaque cha√Æne

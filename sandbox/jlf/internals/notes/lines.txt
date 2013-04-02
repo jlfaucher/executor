@@ -4,18 +4,18 @@ Debug
 
 La fonction lines() renvoie 0
 
-Délègue à .INPUT
+DÃ©lÃ¨gue Ã  .INPUT
 qui est un monitor
 qui encapsule .STDIN
 
-Implémentation :
+ImplÃ©mentation :
 StreamNative.cpp
 RexxMethod2(int64_t, stream_lines, CSELF, streamPtr, OPTIONAL_CSTRING, option)
 
 
 ATTENTION ! 
-Le 1er appel sert à récupérer la signature des arguments
-Le 2nd appel sert à la vraie execution
+Le 1er appel sert Ã  rÃ©cupÃ©rer la signature des arguments
+Le 2nd appel sert Ã  la vraie execution
 
 
 // method with two arguments
@@ -43,13 +43,13 @@ __type(returnType) name##_impl(RexxMethodContext *context, __adcl(t1, n1), __adc
 
 
 
-fait appel à
+fait appel Ã 
 int64_t StreamInfo::lines(bool quick)
 avec quick = false
 
 
 
-fait appel à
+fait appel Ã 
 bool SysFile::hasData()
 
 

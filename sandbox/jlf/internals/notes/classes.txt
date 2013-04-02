@@ -1,28 +1,28 @@
 ===========================================================================
 interpreter/behaviour
 
-T_First_Primitive_Class n'est pas utilisé
+T_First_Primitive_Class n'est pas utilisÃ©
 
-T_First_Exported_Class n'est pas utilisé
+T_First_Exported_Class n'est pas utilisÃ©
 
-T_Last_Exported_Class est utilisé dans
+T_Last_Exported_Class est utilisÃ© dans
     interpreter/behaviour/RexxBehaviour.cpp
     interpreter/behaviour/RexxBehaviour.hpp
     interpreter/memory/RexxMemory.cpp
 
-T_First_Internal_Class n'est pas utilisé
+T_First_Internal_Class n'est pas utilisÃ©
 
-T_Last_Internal_Class n'est pas utilisé
+T_Last_Internal_Class n'est pas utilisÃ©
 
-T_First_Transient_Class est utilisé dans
+T_First_Transient_Class est utilisÃ© dans
     interpreter/behaviour/RexxBehaviour.cpp
 
-T_Last_Transient_Class n'est pas utilisé
+T_Last_Transient_Class n'est pas utilisÃ©
 
-T_Last_Primitive_Class est utilisé dans 
+T_Last_Primitive_Class est utilisÃ© dans 
     interpreter/behaviour/PrimitiveBehaviours.cpp
 
-T_Last_Class_Type est utilisé dans
+T_Last_Class_Type est utilisÃ© dans
     interpreter/memory/VirtualFunctionTable.cpp
     interpreter/memory/MemoryStats.cpp
     interpreter/memory/MemoryStats.hpp
@@ -34,14 +34,14 @@ T_Last_Class_Type est utilisé dans
 Classe exported :
     T_<class> = n
     T_<class>Class = n+1
-    si opérateurs propre alors <class>::operatorMethods
+    si opÃ©rateurs propre alors <class>::operatorMethods
     sinon RexxObject::operatorMethods
 
 Class internal
-    pas d'opérateur propre, toujours RexxObject::operatorMethods
+    pas d'opÃ©rateur propre, toujours RexxObject::operatorMethods
 
 Class transient
-    pas d'opérateur propre, toujours RexxObject::operatorMethods
+    pas d'opÃ©rateur propre, toujours RexxObject::operatorMethods
 
 
 ===========================================================================

@@ -20,16 +20,33 @@ http://pythonconquerstheuniverse.wordpress.com/2011/08/29/lambda_tutorial/
 http://datumedge.blogspot.co.uk/2012/06/java-8-lambdas.html
 www.reddit.com/r/programming/comments/viorj/java_8_lambdas/
 
+
 http://openjdk.java.net/jeps/126
 JEP 126: Lambda Expressions and Virtual Extension Methods
+
 
 http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-4.html
 State of the Lambda
 
-http://cr.openjdk.java.net/~briangoetz/lambda/collections-overview.html
+
+http://cr.openjdk.java.net/~briangoetz/lambda/sotc3.html
 (JLF : interesting read for the role of laziness)
 
+
+http://lambdadoc.net/api/java/util/stream/Stream.html
+Specification of the stream interface.
+
+
+http://hg.openjdk.java.net/lambda/lambda/jdk/file/7a27a3ca89f7/src/share/classes/java/util/stream/
+Implementation of the stream interface.
+
+
+http://openjdk.5641.n7.nabble.com/OpenJDK-Core-Libraries-f45829.html
+Search for "stream", there are some requets for code review.
+
+
 http://cr.openjdk.java.net/~briangoetz/lambda/lambda-translation.html
+
 
 http://javac.info/
 Closures (Lambda Expressions) for the Java Programming Language
@@ -40,10 +57,10 @@ A closure is an object that supports exactly one method: "apply".
 
 
 http://skilldrick.co.uk/2011/04/closures-explained-with-javascript/
-Makes reference to : ˆ 
+Makes reference to :
 http://www.mail-archive.com/jsmentors@googlegroups.com/msg02393.html
 which explains that :
-a closure actually remembers its environment rather than its free variables, so if you define a new variable in the environment of the closure after the closureÕs definition, it will be accessible inside the closure.
+a closure actually remembers its environment rather than its free variables, so if you define a new variable in the environment of the closure after the closureÃ•s definition, it will be accessible inside the closure.
 
 
 http://eclipsezone.com/eclipse/forums/t86911.html
@@ -72,7 +89,7 @@ repeatedly on independent sets of data. These problems can be solved by
 - partitioning the data (the split)
 - performing a single calculation on each partition (the apply)
 - returning the results in a specified format (the combine)
-“split-apply-combine” was coined by Hadley Wickham, but the approach has been supported 
+"split-apply-combine" was coined by Hadley Wickham, but the approach has been supported 
 on a number of different environments for some time under different names:
 - SAS: by
 - Google: MapReduce
@@ -116,7 +133,7 @@ CLOSURES IN RUBY     Paul Cantrell    http://innig.net
 
 http://blog.morrisjohns.com/javascript_closures_for_dummies.html
 --> les examples sont interessants, en particulier pour comprendre que c'est le stack frame
-à la fin de l'execution qui est mémorisé.
+Ã  la fin de l'execution qui est mÃ©morisÃ©.
 
 
 http://algorithm.com.au/blog/files/immutability-blocks-lambdas-closures.php
@@ -378,7 +395,7 @@ RexxSource::callNew()
         argCount = this->argList(OREF_NULL, TERM_EOC);
         _flags |= RexxInstructionCall::call_nointernal;          /* do not check for internal routines*/
     }
---> ici ça pourrait avoir un impact si on veut supporter ça :
+--> ici Ã§a pourrait avoir un impact si on veut supporter Ã§a :
 call { return arg(1)+1 } 99
 
 InstructionParser.cpp
@@ -387,7 +404,7 @@ RexxSource::callNew()
     else if (token->classId == TOKEN_LEFT)
     {
         _flags |= RexxInstructionCall::call_dynamic;             /* going to be indirect              */
---> ici ça pourrait avoir un impact si on veut supporter ça :
+--> ici Ã§a pourrait avoir un impact si on veut supporter Ã§a :
 routine = { return arg(1)+1 }
 call (routine) 99
 
@@ -408,7 +425,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
 
 
 A creuser : 
-Le paramètre start permet de démarrer ailleurs qu'à la 1ère instruction
+Le paramÃ¨tre start permet de dÃ©marrer ailleurs qu'Ã  la 1Ã¨re instruction
 Ca sert lorsqu'on n'est pas au top-level
 
 
@@ -421,16 +438,16 @@ sourceBuffer    "block = [1]
                  say ..."
 current_length  9
 
-Quand le parsing démarre avec le new source, on est avec
+Quand le parsing dÃ©marre avec le new source, on est avec
 this->line_offset == 0
 this->current_length == 9
 
 #define GETCHAR()  ((unsigned char)(this->current[size_v(this->line_offset)]))
 this->current de type const char * == "say block..."
-est calculé par RexxSource::position(size_t line, sizeB_t offset)
-2 cas supportés :
-this->sourceArray <> NULL ==> le source est dans un tableau et on récupère la ligne n° line (- interpret_adjust). L'offset ne sert pas, mais il est mémorisé
-this->sourceArray == NULL ==> le source est dans une string. La position dans la string est calculée avec descriptors = (LINE_DESCRIPTOR *)(this->sourceIndices->getData()
+est calculÃ© par RexxSource::position(size_t line, sizeB_t offset)
+2 cas supportÃ©s :
+this->sourceArray <> NULL ==> le source est dans un tableau et on rÃ©cupÃ¨re la ligne nÂ° line (- interpret_adjust). L'offset ne sert pas, mais il est mÃ©morisÃ©
+this->sourceArray == NULL ==> le source est dans une string. La position dans la string est calculÃ©e avec descriptors = (LINE_DESCRIPTOR *)(this->sourceIndices->getData()
 
 
 ===========================================================================

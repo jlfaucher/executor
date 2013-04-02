@@ -20,8 +20,8 @@ http://journal.stuffwithstuff.com/2010/10/01/solving-the-expression-problem/
 http://scholar.google.com/scholar?cites=13961554063037041356&as_sdt=5,38&sciodt=0,38&hl=en
 http://www.javarants.com/2011/01/22/using-closures-method-handles-and-extension-methods-in-java-8-jsr-335/?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+javarants+%28java+rants%29&utm_content=Google+Reader
 
-http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-3.html
-http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v3.pdf
+http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-4.html
+http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v4.pdf
 
 http://www.wiki.jvmlangsummit.com/images/7/71/2011_Goetz_Extension.pdf
 Virtual extension methods

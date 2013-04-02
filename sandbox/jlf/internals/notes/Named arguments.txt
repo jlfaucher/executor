@@ -30,25 +30,25 @@ inline RexxArray *arrayArgument(RexxObject *object, size_t position)
 
 ObjectClass.cpp
 RexxArray *RexxObject::requestArray()
-Il n'y a pas de ::requestDirectory --> à ajouter
+Il n'y a pas de ::requestDirectory --> Ã  ajouter
 
 
 void RexxCode::call
-appelé si call myroutine ...
-    appelé par void RoutineClass::runProgram
+appelÃ© si call myroutine ...
+    appelÃ© par void RoutineClass::runProgram
     appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
         appelle RexxInstructionCall::execute
-            --> CallInstruction.hpp : il y a un tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
+            --> CallInstruction.hpp : il y a un tableau des arguments, c'est lÃ  qu'il faut ajouter le tableau des noms
             Evalue chaque argument (push stack)
             puis appelle context->externalCall (mais il peut y avoir d'autres formes d'appel)
                 RexxActivation::externalCall
                     RoutineClass::call
                         RexxCode::call
-appelé si myroutine~call(...)
-    appelé par void RoutineClass::runProgram
+appelÃ© si myroutine~call(...)
+    appelÃ© par void RoutineClass::runProgram
     appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
         appelle RexxInstructionMessage::execute     
-            --> MessageInstruction.hpp : il y a le tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
+            --> MessageInstruction.hpp : il y a le tableau des arguments, c'est lÃ  qu'il faut ajouter le tableau des noms
             Evalue chaque argument (push stack)
             puis appelle stack->send(this->name, argcount, result);
                 RexxObject::messageSend

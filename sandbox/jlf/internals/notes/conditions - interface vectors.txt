@@ -1,6 +1,6 @@
 RexxThreadInterface
-déclaré dans RexxActivity.hpp
-implémenté dans ThreadContextStubs.cpp
+dÃ©clarÃ© dans RexxActivity.hpp
+implÃ©mentÃ© dans ThreadContextStubs.cpp
 
 
 oorexxapi.h             RexxThreadInterface *RexxThreadContext::functions;     // the interface function vector

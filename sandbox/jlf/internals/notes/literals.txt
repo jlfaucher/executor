@@ -20,7 +20,7 @@ A JSON literal could be #JSON...JSON#
 A multiline string could be #"..."#
 
 In Clojure, the notation #(..) is a reader macro.
-Reader macros are provided for a few extremely common tasks, and they can’t be defined by users.
+Reader macros are provided for a few extremely common tasks, and they canâ€™t be defined by users.
 The rationale behind this limitation is that overuse of reader macros makes code impossible to read unless the reader is very familiar with the macro in question.
 No such thing in ooRexx, but could be... The parsing of a literal may need some user-defined code.
 This is the case for the source literals, whose tags ::xxx are analyzed by parser.orx.

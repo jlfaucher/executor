@@ -1,4 +1,4 @@
-Pour avoir un n° de version toujours à jour
+Pour avoir un nÂ° de version toujours Ã  jour
 il faut faire :
 cdtrunk
 rm oorexx.ver.incl
@@ -48,7 +48,7 @@ ORX_REVISION=3
 
 
 oorexx.ver.incl
-Généré par makeorx.bat
+GÃ©nÃ©rÃ© par makeorx.bat
 ORX_MAJOR=4
 ORX_MINOR=0
 ORX_MOD_LVL=0
