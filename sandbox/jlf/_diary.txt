@@ -141,6 +141,40 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 mar 20
+
+Summary of recent changes :
+
+[GC]
+GC verbose message : use proper format to avoid negative values
+
+[pipe]
+Added a 'yield' pipe stage, to yield the current item.
+Works only from a coactive pipe.
+This is a convenience pipeStage, equivalent to .do {.yield[item]}
+Ex :
+    brancheGenerator = "git branch -a"~coactivePipe(.system | .yield)
+    brancheGenerator~()=    -- '  3.2.0'
+    brancheGenerator~()=    -- '  4.0.1'
+    brancheGenerator~()=    -- '  4.0beta'
+    brancheGenerator~()=    --   4.1
+    brancheGenerator~()=    -- '  4.1.0'
+    brancheGenerator~()=    -- '  4.1.2'
+    brancheGenerator~()=    -- '* master'
+    etc..
+Note about implementation :
+The class "yield" existed already, defined in coactivity.cls.
+This class has been extended by inheriting from the class "pipeStage", which brings
+the operators "[]", "|", ">", ">>" and " ".
+The operator "[]" was already defined to do .Coactivity~yield(value), which hides
+the 2nd definition.
+Summary of possible usages :
+.yield[value] : equivalent to .Coactivity.yield[value] which yields immediatly the value.
+.yield        : only from a coactive pipe, creates an instance of pipeStage which will
+                yield the current item at each execution of the method "process".
+
+
+===============================================================================
 2013 jan 10
 
 [doers]
