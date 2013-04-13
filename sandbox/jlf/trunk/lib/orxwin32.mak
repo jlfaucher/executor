@@ -41,13 +41,16 @@
 # These compiler defines allow the support of different versions of Mircrosoft's
 # Visual C++ compiler.  The build has not necessarily been tested on all of the
 # following versions, so some of the !IFDEF statements may need to be adjusted.
+# VCPP11 == Visual C++ 2012
 # VCPP10 == Visual C++ 2010
 # VCPP9 == Visual C++ 2008
 # VCPP8 == Visual C++ 2005
 # VCPP7 == Visual C++ 2003
 # VCPP6 == Visual C++ 6.0
 #
-!IF "$(MSVCVER)" == "10.0"
+!IF "$(MSVCVER)" == "11.0"
+VCPP11 = 1
+!ELSEIF "$(MSVCVER)" == "10.0"
 VCPP10 = 1
 !ELSEIF "$(MSVCVER)" == "9.0"
 VCPP9 = 1
@@ -118,7 +121,9 @@ WARNING_FLAGS = /W4 /wd4100 /wd4706 /wd4701 $(WARNING_FLAGS)
 WARNING_FLAGS = /W3 $(WARNING_FLAGS)
 !ENDIF
 
-!IFDEF VCPP10
+!IFDEF VCPP11
+Z_FLAGS =
+!ELSE IFDEF VCPP10
 Z_FLAGS =
 !ELSE IFDEF VCPP9
 Z_FLAGS =
@@ -131,12 +136,29 @@ Z_FLAGS = -Zd
 #
 # set up the compile flags used in addition to the $(cflags) windows sets
 #
+# JLF notes :
+# /O1 =  /Og /Os /Oy /Ob2 /Gs /GF /Gy       # smallest code in the majority of cases
+# /O2 = /Og /Oi /Ot /Oy /Ob2 /Gs /GF /Gy    # fastest code in the majority of cases
+# /Ox = /Og /Oi /Ot /Oy /Ob2                # favors execution speed over smaller size
+# The /Oy option makes using the debugger more difficult because the compiler suppresses frame pointer information.
+# Specify the /Oy- option after any other optimization compiler options (/Z7, /Zi, /ZI).
+#
+# /Gs       # Controls stack probes.
+# /MD       # Creates a multithreaded DLL using MSVCRT.lib.
+# /MDd      # Creates a debug multithreaded DLL using MSVCRTD.lib.
+# /MT       # Creates a multithreaded executable file using LIBCMT.lib.
+# /MTd      # Creates a debug multithreaded executable file using LIBCMTD.lib.
+# /Zi       # Generates complete debugging information.
+
 !IF "$(NODEBUG)" == "1"
-my_cdebug = $(Z_FLAGS) -O2 /Gr /DNDEBUG /Gs #Gs added by IH
+#JLF : better to have debug infos in release build, may help in case of crash
+#my_cdebug = $(Z_FLAGS) -O2 /Gr /DNDEBUG /Gs #Gs added by IH
+my_cdebug = $(Z_FLAGS) -Zi -O2 /Gr /DNDEBUG /DEBUGTYPE:CV /Gs #Gs added by IH
 #added by IH for the NT queue pull problem
 cflags_noopt=/nologo /D:_X86_ /DWIN32 $(WARNING_FLAGS) -c /Ox /Gf /Gr /DNDEBUG /Gs /DNULL=0
 !ELSE
-my_cdebug = -Zi /Od /Gr /D_DEBUG /DEBUGTYPE:CV /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
+my_cdebug = -Zi /Od /Gr /D_DEBUG /DEBUGTYPE:CV
+#/DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
 #added by IH for the NT queue pull problem
 cflags_noopt=/nologo /D:_X86_ /DWIN32 $(WARNING_FLAGS) -c $(my_cdebug) /DNULL=0
 !ENDIF
@@ -170,7 +192,9 @@ Tp=
 # set up the Link flags used in addition to the $(cflags) windows sets
 #
 !IF "$(NODEBUG)" == "1"
-my_ldebug =
+#JLF : better to have debug infos in release build, may help in case of crash
+#my_ldebug =
+my_ldebug =/DEBUG -debugtype:cv
 !ELSE
 my_ldebug = /PROFILE /DEBUG -debugtype:cv
 !ENDIF
