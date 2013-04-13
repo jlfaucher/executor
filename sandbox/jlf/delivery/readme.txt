@@ -31,10 +31,10 @@ When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.
 
 Example (Windows) :
-ooRexx[CMD] 'dir bin | find ".dll"'                    you need to surround by quotes
-ooRexx[CMD] cmd dir bin | find ".dll"                  unless you temporarily select cmd
-ooRexx[CMD] say 1+2                                    3
-ooRexx[CMD] cmd                                        switch to the cmd interpreter
+ooRexx[CMD]> 'dir bin | find ".dll"'                   you need to surround by quotes
+ooRexx[CMD]> cmd dir bin | find ".dll"                 unless you temporarily select cmd
+ooRexx[CMD]> say 1+2                                   3
+ooRexx[CMD]> cmd                                       switch to the cmd interpreter
 CMD> dir bin | find ".dll"                             raw command, no need of surrounding quotes
 CMD> say 1+2                                           error, the ooRexx interpreter is not active here
 CMD> oorexx say 1+2                                    you can temporarily select the ooRexx interpreter
