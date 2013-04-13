@@ -1,11 +1,18 @@
+https://github.com/dspeyer/generators
+python-style generators for C++11, implemented with pthreads...
+
+
 http://neilmadden.wordpress.com/2012/06/03/pimp-my-java/
 An example of generator implemented using threads
 
 http://gkz.github.com/LiveScript/
 
 
+http://www.lambdafaq.org/
+Maurice Naftalin's Lambda FAQ
+
 http://jcp.org/aboutJava/communityprocess/edr/jsr335/index.html
-Lambda Expressions for the JavaTM Programming Language 
+Lambda Expressions for the JavaTM Programming Language
 
 http://www.jcp.org/en/jsr/detail?id=335
 JSR 335: Lambda Expressions for the JavaTM Programming Language
@@ -84,7 +91,7 @@ Leveraging PHP 5.3's lambdas and closures
 
 
 http://www.stat.yale.edu/~jay/NQR/VLDSemerson.pdf
-Many computational problems in statistics are solved by performing the same calculation 
+Many computational problems in statistics are solved by performing the same calculation
 repeatedly on independent sets of data. These problems can be solved by
 - partitioning the data (the split)
 - performing a single calculation on each partition (the apply)
@@ -178,10 +185,10 @@ Closing over the loop variable considered harmful
 http://groovy.codehaus.org/JN2515-Closures
 http://groovy.codehaus.org/api/groovy/lang/Closure.html
 Trampoline :
-Builds a trampolined variant of the current closure. 
-To prevent stack overflow due to deep recursion, functions can instead leverage the trampoline mechanism and avoid recursive calls altogether. 
-Under trampoline, the function is supposed to perform one step of the calculation and, instead of a recursive call to itself or another function, 
-it return back a new closure, which will be executed by the trampoline as the next step. 
+Builds a trampolined variant of the current closure.
+To prevent stack overflow due to deep recursion, functions can instead leverage the trampoline mechanism and avoid recursive calls altogether.
+Under trampoline, the function is supposed to perform one step of the calculation and, instead of a recursive call to itself or another function,
+it return back a new closure, which will be executed by the trampoline as the next step.
 Once a non-closure value is returned, the trampoline stops and returns the value as the final result.
 
 
@@ -660,7 +667,7 @@ RexxSource::methodDirective
 
         /* go do the next block of code      */
         _method = new RexxMethod(name, code);
-        
+
     _method->setAttributes(Private == PRIVATE_SCOPE, Protected == PROTECTED_METHOD, guard != UNGUARDED_METHOD);
     // add to the compilation
     addMethod(internalname, _method, Class);
@@ -762,7 +769,7 @@ Setup.cpp
 void RexxMemory::createImage()
   RexxContext::createInstance();
 
-  -------------------------------------  
+  -------------------------------------
   /***************************************************************************/
   /*           RexxContext                                                   */
   /***************************************************************************/
@@ -795,7 +802,7 @@ void RexxMemory::createImage()
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheRexxContextClass->subClassable(true);
-  -------------------------------------  
+  -------------------------------------
 
   /* put the kernel-provided public objects in the environment directory */
   kernel_public(CHAR_REXXCONTEXT      ,TheRexxContextClass ,TheEnvironment);
@@ -893,10 +900,10 @@ RexxInternalObject
         RexxExpressionMessage       evaluate
         RexxStemVariable            evaluate
         RexxParseVariable           evaluate
-        RexxVariableReference       
+        RexxVariableReference
     RexxExpressionFunction          evaluate
     RexxExpressionLogical           evaluate
-    
+
 
 ==============================================================================
 

@@ -23,6 +23,17 @@ http://soniacodes.wordpress.com/2011/03/15/concurrency-review/
 
 http://threadingbuildingblocks.org/
 
+http://docs.python.org/2/c-api/init.html
+Python/C API Reference Manual
+Initialization, Finalization, and Threads
+
+http://docs.python.org/2/library/multiprocessing.html
+16.6. multiprocessing — Process-based “threading” interface
+
+http://www.voidspace.org.uk/python/weblog/arch_d7_2008_11_01.shtml#e1028
+
+http://smoothspan.wordpress.com/2007/09/14/guido-is-right-to-leave-the-gil-in-python-not-for-multicore-but-for-utility-computing/
+
 
 =====================================================================
 RexxActivation.hpp
