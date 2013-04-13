@@ -77,12 +77,21 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
 signal on any name error
 
+-- Use a property file to remember the current directory
+settingsFile = value("REXX_HOME",,"ENVIRONMENT") || "/oorexxshell.ini"
+settings = .Properties~load(settingsFile)
+previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
+if previousDirectory <> .nil then call directory previousDirectory
+
 -- Bypass defect 2933583 (fixed in release 4.0.1) :
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
 shell~call(arg(1), address())
 
 error:
 if .ooRexxShell~isExtended then .Coactivity~endAll
+
+settings["OOREXXSHELL_DIRECTORY"] = directory()
+settings~save(settingsFile)
 
 if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 
