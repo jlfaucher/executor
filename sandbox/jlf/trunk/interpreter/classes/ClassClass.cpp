@@ -1325,6 +1325,7 @@ RexxObject *RexxClass::enhanced(
     ProtectedObject p(dummy_subclass);
     /* turn into a real method dictionary*/
     enhanced_instance_mdict = dummy_subclass->methodDictionaryCreate(enhanced_instance_mdict, (RexxClass *)TheNilObject);
+    ProtectedObject p1(enhanced_instance_mdict);
     /* enhance the instance behaviour    */
     dummy_subclass->methodDictionaryMerge(enhanced_instance_mdict, dummy_subclass->instanceMethodDictionary);
     /* and record the changes in behavior*/
@@ -1433,6 +1434,7 @@ RexxClass  *RexxClass::subclass(
     {
         /* convert into a real method dict.  */
         enhancing_class_methods = new_class->methodDictionaryCreate(enhancing_class_methods, new_class);
+        ProtectedObject p(enhancing_class_methods);
         /* merge them into the class mdict    */
         new_class->methodDictionaryMerge(enhancing_class_methods, new_class->classMethodDictionary);
     }
