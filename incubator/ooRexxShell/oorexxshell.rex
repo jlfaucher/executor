@@ -78,7 +78,7 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 signal on any name error
 
 -- Use a property file to remember the current directory
-settingsFile = value("REXX_HOME",,"ENVIRONMENT") || "/oorexxshell.ini"
+settingsFile = value("HOME",,"ENVIRONMENT") || "/oorexxshell.ini"
 settings = .Properties~load(settingsFile)
 previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
 if previousDirectory <> .nil then call directory previousDirectory
@@ -438,7 +438,7 @@ interpretCommand:
 -------------------------------------------------------------------------------
 transformSource: procedure
     use strict arg command
-    
+
     signal on syntax name transformSourceError -- the clauser can raise an error
     if .ooRexxShell~isExtended then do
         -- Manage the "=" shortcut at the end of each clause
