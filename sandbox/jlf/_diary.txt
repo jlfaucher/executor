@@ -141,6 +141,39 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 apr 13
+
+[GC]
+Fix crash due to unprotected object.
+In ClassClass.cpp
+method RexxClass::enhanced : enhanced_instance_mdict must be GC-protected.
+method RexxClass::subclass : enhancing_class_methods must be GC-protected.
+
+
+[build]
+Add support for Visual C++ 2012, include debug info in release build.
+
+The file AgtCtl_i.c is no longer delivered with Visual C++ 2012.
+This file is needed to compile extensions\platform\windows\ole.
+Workaround : copy this file from an older version of VC++, paste it in the ole directory.
+
+Debug infos in release build :
+I keep all the optimizations, my goal is just to have a call stack with symbolic names, in case of crash.
+
+
+[pipe]
+No longer return a result at the end of the execution of the following methods :
+~pipe
+~coactivePipe
+~pipeProfile
+~coactivePipeProfile
+Previously, the returned result was the first pipestage of the pipe.
+That was useless, and not well adapted to coactive pipes.
+In the case of coactive pipes, several results can be yielded, and it's better
+to have no result when the coactive pipe is ended (same behaviour as generators).
+
+
+===============================================================================
 2013 mar 20
 
 Summary of recent changes :
@@ -153,14 +186,14 @@ Added a 'yield' pipe stage, to yield the current item.
 Works only from a coactive pipe.
 This is a convenience pipeStage, equivalent to .do {.yield[item]}
 Ex :
-    brancheGenerator = "git branch -a"~coactivePipe(.system | .yield)
-    brancheGenerator~()=    -- '  3.2.0'
-    brancheGenerator~()=    -- '  4.0.1'
-    brancheGenerator~()=    -- '  4.0beta'
-    brancheGenerator~()=    --   4.1
-    brancheGenerator~()=    -- '  4.1.0'
-    brancheGenerator~()=    -- '  4.1.2'
-    brancheGenerator~()=    -- '* master'
+    branchGenerator = "git branch -a"~coactivePipe(.system | .yield)
+    branchGenerator~()=    -- '  3.2.0'
+    branchGenerator~()=    -- '  4.0.1'
+    branchGenerator~()=    -- '  4.0beta'
+    branchGenerator~()=    --   4.1
+    branchGenerator~()=    -- '  4.1.0'
+    branchGenerator~()=    -- '  4.1.2'
+    branchGenerator~()=    -- '* master'
     etc..
 Note about implementation :
 The class "yield" existed already, defined in coactivity.cls.
