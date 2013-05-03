@@ -1,0 +1,94 @@
+To better support binary operators, call a routine which takes two arguments.
+That way, it's more easy to override the behaviour because the types of the
+two arguments can be taken into account.
+Ex :
+    1 + .array~of(10,20,30) --> [11, 21, 31]
+    .environment | {::pipe sort | console} --> .environment~pipe(.pipe.console | .pipe.console)
+If no overriding routine then fallback to the classic behaviour :
+send message to left arg.
+
+ExpressionOperator.cpp
+    RexxBinaryOperator::evaluate(
+        RexxActivation      *context,      /* current activation context        */
+        RexxExpressionStack *stack )       /* evaluation stack                  */
+            RexxObject *result = callOperatorMethod(left, this->oper, right);
+    RexxUnaryOperator::evaluate(
+        RexxActivation      *context,      /* current activation context        */
+        RexxExpressionStack *stack )       /* evaluation stack                  */
+            RexxObject *result = callOperatorMethod(term, this->oper, OREF_NULL);
+
+
+RexxCore.h
+inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, RexxObject *argument) {
+                                       /* get the entry point               */
+  PCPPM cppEntry = object->behaviour->getOperatorMethod(methodOffset);
+                                       /* go issue the method               */
+  return (object->*((PCPPM1)cppEntry))(argument);
+}
+
+
+RexxBehavior.hpp
+   inline PCPPM getOperatorMethod(size_t index) { return operatorMethods[index]; }
+
+Search for operatorMethods :
+
+ObjectClass.cpp
+StringClass.cpp
+NumberStringClass.cpp
+IntegerClass.cpp
+
+they all have a table similar to this one (of class String) :
+PCPPM RexxString::operatorMethods[] =
+{
+   NULL,                               /* first entry not used              */
+   (PCPPM)&RexxString::plus,
+   (PCPPM)&RexxString::minus,
+   (PCPPM)&RexxString::multiply,
+   (PCPPM)&RexxString::divide,
+   (PCPPM)&RexxString::integerDivide,
+   (PCPPM)&RexxString::remainder,
+   (PCPPM)&RexxString::power,
+   (PCPPM)&RexxString::concatRexx,
+   (PCPPM)&RexxString::concatRexx,
+   (PCPPM)&RexxString::concatBlank,
+   (PCPPM)&RexxString::equal,
+   (PCPPM)&RexxString::notEqual,
+   (PCPPM)&RexxString::isGreaterThan,
+   (PCPPM)&RexxString::isLessOrEqual,
+   (PCPPM)&RexxString::isLessThan,
+   (PCPPM)&RexxString::isGreaterOrEqual,
+                              /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::isGreaterOrEqual,
+   (PCPPM)&RexxString::isLessOrEqual,
+   (PCPPM)&RexxString::strictEqual,
+   (PCPPM)&RexxString::strictNotEqual,
+   (PCPPM)&RexxString::strictGreaterThan,
+   (PCPPM)&RexxString::strictLessOrEqual,
+   (PCPPM)&RexxString::strictLessThan,
+   (PCPPM)&RexxString::strictGreaterOrEqual,
+                              /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::strictGreaterOrEqual,
+   (PCPPM)&RexxString::strictLessOrEqual,
+   (PCPPM)&RexxString::notEqual,
+   (PCPPM)&RexxString::notEqual, /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::andOp,
+   (PCPPM)&RexxString::orOp,
+   (PCPPM)&RexxString::xorOp,
+   (PCPPM)&RexxString::operatorNot,
+};
+
+
+------------------------------------
+Analyze how to implement the overriding routines.
+Must be optimized, probably using a table for fast look-up.
+Where to put this table ? on context ?
+
+ExpressionFunction.cpp
+RexxExpressionFunction::evaluate
+        case function_external:            /* need to call externally           */
+            /* go process the internal call      */
+            context->externalCall(this->functionName, argcount, stack, OREF_FUNCTIONNAME, result);
+
+
+RexxActivation.cpp
+RexxActivation::externalCall

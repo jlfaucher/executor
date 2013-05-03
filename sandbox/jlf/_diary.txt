@@ -141,6 +141,19 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 may 03
+
+Start working on symetric overloading of binary operators.
+The idea is to let override binary operators using a routine which takes
+two arguments (left, right) and decide which behavior to support, depending
+on the types of both arguments.
+Ex :
+    1 + .array~of(10,20,30) --> [11, 21, 31]
+If no overriding routine then fallback to the classic behaviour :
+send message to left arg.
+
+
+===============================================================================
 2013 apr 13
 
 [GC]
