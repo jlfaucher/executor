@@ -1,0 +1,92 @@
+See also "conditions - interface vectors.txt"
+
+-------------------------------------------------------------------------------
+
+ActivityManager.hpp
+    reportException
+        ActivityManager::currentActivity->reportAnException
+        ActivityManager::currentActivity->raiseException
+
+
+RexxActivity.hpp
+   bool        raiseCondition(RexxString *, RexxObject *, RexxString *, RexxObject *, RexxObject *);
+   bool        raiseCondition(RexxDirectory *);
+   RexxDirectory *createConditionObject(RexxString *, RexxObject *, RexxString *, RexxObject *, RexxObject *);
+   void        raiseException(wholenumber_t, RexxString *, RexxArray *, RexxObject *);
+   RexxDirectory *createExceptionObject(wholenumber_t, RexxString *, RexxArray *, RexxObject *);
+   void        generateProgramInformation(RexxDirectory *exObj);
+   void        reportAnException(wholenumber_t, const char *);
+   void        reportAnException(wholenumber_t, const char *, const char *);
+   void        reportAnException(wholenumber_t, RexxObject *, const char *);
+   void        reportAnException(wholenumber_t, RexxObject *, wholenumber_t);
+   void        reportAnException(wholenumber_t, const char *, RexxObject *);
+   void        reportAnException(wholenumber_t, const char *, wholenumber_t);
+   void        reportAnException(wholenumber_t, const char *, wholenumber_t, RexxObject *);
+   void        reportAnException(wholenumber_t, const char *, RexxObject *, wholenumber_t);
+   void        reportAnException(wholenumber_t, wholenumber_t);
+   void        reportAnException(wholenumber_t, wholenumber_t, wholenumber_t);
+   void        reportAnException(wholenumber_t, wholenumber_t, RexxObject *);
+   void        reportAnException(wholenumber_t);
+   void        reportAnException(wholenumber_t, RexxObject *);
+   void        reportAnException(wholenumber_t, RexxObject *, RexxObject *);
+   void        reportAnException(wholenumber_t, RexxObject *, RexxObject *, RexxObject *);
+   void        reportAnException(wholenumber_t, RexxObject *, RexxObject *, RexxObject *, RexxObject *);
+   void        reportAnException(wholenumber_t, const char *, RexxObject *, const char *, RexxObject *);
+   void        reraiseException(RexxDirectory *);
+   void        raisePropagate(RexxDirectory *);
+
+
+StreamNative.hpp
+    void  raiseException(int err);
+    void  raiseException(int err, RexxObjectPtr sub1);
+    void  raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2);
+
+
+-------------------------------------------------------------------------------
+
+CalContextStubs.cpp
+catch (RexxNativeActivation *)
+
+
+Interpreter.cpp
+catch (ActivityException)
+
+
+MethodContextStubs
+catch (RexxNativeActivation *)
+
+
+ThreadContextStubs
+catch (RexxNativeActivation *)
+
+
+RexxActivity.cpp
+throw RecursiveStringError
+throw UnhandledCondition
+catch (ActivityException)
+
+
+RexxActivation.cpp
+throw activation
+throw this
+catch (RexxActivation *t)
+
+
+RexxNativeActivation.cpp
+throw this
+catch (RexxNativeActivation *)
+catch (RexxActivation *)
+catch (ActivityException)
+
+
+Setup.cpp
+catch (ActivityException )
+
+
+StreamNative.cpp
+thow Rexx_Error_System_service
+throw this
+throw err (where int err)
+catch (StreamInfo *)
+catch (int)
+

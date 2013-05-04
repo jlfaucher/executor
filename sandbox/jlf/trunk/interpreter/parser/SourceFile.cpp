@@ -1823,6 +1823,7 @@ RexxCode *RexxSource::translate(
     fuzz = Numerics::DEFAULT_FUZZ;
     enableCommands = RexxActivation::default_enable_commands;
     enableMacrospace = RexxActivation::default_enable_macrospace;
+    enableOperatorOverridingByRoutine = RexxActivation::default_enable_operator_overriding_by_routine;
     traceSetting = DEFAULT_TRACE_SETTING;
     traceFlags = RexxActivation::default_trace_flags;
 
@@ -2721,11 +2722,25 @@ void RexxSource::optionsDirective()
                     enableMacrospace = true;
                     break;
                 }
-                // ::OPTIONS NOCOMMANDS
+                // ::OPTIONS NOMACROSPACE
                 case SUBDIRECTIVE_NOMACROSPACE:
                 {
                     refineSubclass(token, IS_SUBDIRECTIVE);
                     enableMacrospace = false;
+                    break;
+                }
+                // ::OPTIONS OPERATOR_OVERRIDING_BY_ROUTINE
+                case SUBDIRECTIVE_OPERATOR_OVERRIDING_BY_ROUTINE:
+                {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    enableOperatorOverridingByRoutine = true;
+                    break;
+                }
+                // ::OPTIONS NOOPERATOR_OVERRIDING_BY_ROUTINE
+                case SUBDIRECTIVE_NOOPERATOR_OVERRIDING_BY_ROUTINE:
+                {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    enableOperatorOverridingByRoutine = false;
                     break;
                 }
 

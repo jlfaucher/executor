@@ -108,6 +108,7 @@ const size_t RexxActivation::trace_intermediates_flags = (trace_all | trace_labe
 
 const bool RexxActivation::default_enable_commands = true;
 const bool RexxActivation::default_enable_macrospace = true;
+const bool RexxActivation::default_enable_operator_overriding_by_routine = false;
 
 const size_t RexxActivation::single_step         = 0x00000800; /* we are single stepping execution  */
 const size_t RexxActivation::single_step_nested  = 0x00001000; /* this is a nested stepping         */
@@ -193,6 +194,7 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
     this->settings.enableCommands = sourceObject->getEnableCommands();
     this->settings.enableMacrospace = sourceObject->getEnableMacrospace();
+    this->settings.enableOperatorOverridingByRoutine = sourceObject->getEnableOperatorOverridingByRoutine();
 
     if (_method->isGuarded())            // make sure we set the appropriate guarded state
     {
@@ -339,6 +341,7 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
     setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
     this->settings.enableCommands = sourceObject->getEnableCommands();
     this->settings.enableMacrospace = sourceObject->getEnableMacrospace();
+    this->settings.enableOperatorOverridingByRoutine = sourceObject->getEnableOperatorOverridingByRoutine();
     /* save the source also              */
     this->settings.parent_code = this->code;
 
@@ -1970,6 +1973,14 @@ bool RexxActivation::enableMacrospace()
     return this->settings.enableMacrospace;
 }
 
+bool RexxActivation::enableOperatorOverridingByRoutine()
+/******************************************************************************/
+/* Function:  Return the current OPERATOR_OVERRIDING_BY_ROUTINE setting       */
+/******************************************************************************/
+{
+    return this->settings.enableOperatorOverridingByRoutine;
+}
+
 /**
  * Set the digits setting to the package-defined default
  */
@@ -2037,6 +2048,14 @@ void RexxActivation::enableMacrospace(bool status)
 /******************************************************************************/
 {
     this->settings.enableMacrospace = status;
+}
+
+void RexxActivation::enableOperatorOverridingByRoutine(bool status)
+/******************************************************************************/
+/* Function:  Set the new current OPERATOR_OVERRIDING_BY_ROUTINE setting      */
+/******************************************************************************/
+{
+    this->settings.enableOperatorOverridingByRoutine = status;
 }
 
 

@@ -408,6 +408,7 @@ class RexxSource : public RexxInternalObject {
     RexxString    *getTrace() { return formatTraceSetting(traceSetting); }
     bool           getEnableCommands() { return enableCommands; }
     bool           getEnableMacrospace() { return enableMacrospace; }
+    bool           getEnableOperatorOverridingByRoutine() { return enableOperatorOverridingByRoutine; }
 
     static pbuiltin builtinTable[];      /* table of builtin function stubs   */
 
@@ -487,6 +488,7 @@ protected:
     size_t traceFlags;                   // version optimized for quick setting at startup
     bool enableCommands;                 // are commands enabled ?
     bool enableMacrospace;               // is macrospace enabled ?
+    bool enableOperatorOverridingByRoutine;// is operator overriding by routine enabled ?
     intptr_t reserved1;                  // some reserved values for compatible expansion
     intptr_t reserved2;                  // some reserved values for compatible expansion
     intptr_t reserved3;                  // some reserved values for compatible expansion

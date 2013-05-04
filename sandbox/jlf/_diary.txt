@@ -141,6 +141,21 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 may 04
+
+The overriding of binary operators by routine has an impact on performances.
+The class String (behind the scene : StringClass, NumberStringClass, IntegerClass) has
+a fast access to operators implementations (see callOperatorMethod and operatorMethods).
+The overriding by routine replaces the fast access by a call to a routine, searched by name.
+A new option has been added to control the activation of this overriding :
+options "OPERATOR_OVERRIDING_BY_ROUTINE"
+options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
+::options "OPERATOR_OVERRIDING_BY_ROUTINE"
+::options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
+Unary operators can also be overriden by a routine.
+
+
+===============================================================================
 2013 may 03
 
 Start working on symetric overloading of binary operators.
