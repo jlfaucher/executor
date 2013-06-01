@@ -1,0 +1,461 @@
+In summary :
+Under Windows, ooRexx supports only cmd.
+Under Linux, if you selected bash, then ooRexx ALWAYS delegates to system().
+BUT... system() delegates to /bin/sh ! You see the problem ?
+Personnally, I saw the problem when running ooRexxShell under Ubuntu : the readline
+was broken, because set -o history was not supported (by sh).
+Fixed by calling system() when address is "sh" instead of "bash".
+Otherwise, your selection is taken into account correctly...
+
+
+==========================================================================================
+interpreter/platform/unix/PlatformDefinitions.h
+==========================================================================================
+#if defined(AIX)
+#define SYSINITIALADDRESS "ksh"
+#elif defined(OPSYS_SUN)
+#define SYSINITIALADDRESS "sh"
+#else
+#define SYSINITIALADDRESS "bash"
+#endif
+
+
+==========================================================================================
+interpreter/platform/windows/PlatformDefinitions.h
+==========================================================================================
+#define SYSINITIALADDRESS "CMD"
+
+
+==========================================================================================
+interpreter/platform/windows/SystemCommands.cpp
+==========================================================================================
+
+/******************************************************************************/
+/* Name:       sys_command                                                    */
+/*                                                                            */
+/* Arguments:  cmd - Command to be executed                                   */
+/*                                                                            */
+/* Returned:   rc - Return Code                                               */
+/*                  Note: if non-zero rc from DosExecPgm return DosExecPgm rc */
+/*                  else if non-zero termination code from system return code */
+/*                  else return rc from executed command                      */
+/*                                                                            */
+/* Notes:      Handles processing of a system command.  Finds location of     */
+/*             system command handler using the COMSPEC environment variable  */
+/*             and invokes the system specific routine which invokes the      */
+/*             command handler with the command to be executed                */
+/*                                                                            */
+/******************************************************************************/
+RexxObjectPtr RexxEntry systemCommandHandler(RexxExitContext *context, RexxStringObject address, RexxStringObject command)
+{
+
+The address parameter is not used (because the handler is specialized for cmd).
+The commands are delegated to cmd.
+
+
+void SysInterpreterInstance::registerCommandHandlers(InterpreterInstance *instance)
+{
+    // Windows only has the single command environment, we also register this
+    // under "" for the default handler
+    instance->addCommandHandler("CMD", (REXXPFN)systemCommandHandler);
+    instance->addCommandHandler("COMMAND", (REXXPFN)systemCommandHandler);
+    instance->addCommandHandler("", (REXXPFN)systemCommandHandler);
+}
+
+
+==========================================================================================
+interpreter/platform/unix/SystemCommands.cpp
+==========================================================================================
+
+/******************************************************************************/
+/* Name:       sys_command                                                    */
+/*                                                                            */
+/* Arguments:  cmd - Command to be executed                                   */
+/*             local_env_type - integer indicating which shell                */
+/*                                                                            */
+/* Returned:   rc - Return Code                                               */
+/*                                                                            */
+/* Notes:      Handles processing of a system command.                        */
+/*             Uses the 'fork' and 'exec' system calls to create a new process*/
+/*             and invoke the shell indicated by the local_env_type argument. */
+/*             This is modeled after command handling done in Classic REXX.   */
+/******************************************************************************/
+RexxObjectPtr RexxEntry systemCommandHandler(RexxExitContext *context, RexxStringObject address, RexxStringObject command)
+{
+    const char *envName = context->StringData(address);
+    /****************************************************************************/
+    /* Invoke the system command handler to execute the command                 */
+    /****************************************************************************/
+    // if this is the null string, then use the default address environment
+    // for the platform
+    if (strlen(envName) == 0)
+    {
+        envName = SYSINITIALADDRESS;
+    }
+
+if LINUX then address IS NOT USED !!!!!
+Calls directly system( cmd )
+
+if not LINUX then fork and execute one of these commands :
+"sh"    --> /bin/sh   -c cmd
+"ksh"   --> /bin/ksh  -c cmd
+"bsh"   --> /bin/bsh  -c cmd
+"csh"   --> /bin/csh  -c cmd
+"bash"  --> /bin/bash -c cmd
+"cmd"   --> direct execution of execvp(args[0], args)
+            where args is built by scanning cmd : scan_cmd(cmd, args)
+default --> /bin/sh   -c cmd
+
+
+void SysInterpreterInstance::registerCommandHandlers(InterpreterInstance *_instance)
+{
+    // Unix has a whole collection of similar environments, services by a single handler
+    _instance->addCommandHandler("COMMAND", (REXXPFN)systemCommandHandler);
+    _instance->addCommandHandler("", (REXXPFN)systemCommandHandler);
+    _instance->addCommandHandler("SH", (REXXPFN)systemCommandHandler);
+    _instance->addCommandHandler("KSH", (REXXPFN)systemCommandHandler);
+    _instance->addCommandHandler("CSH", (REXXPFN)systemCommandHandler);
+    _instance->addCommandHandler("BSH", (REXXPFN)systemCommandHandler);
+    _instance->addCommandHandler("BASH", (REXXPFN)systemCommandHandler);
+}
+
+==========================================================================================
+interpreter/runtime/RexxConstants.hpp
+==========================================================================================
+CHARCONSTANT(INITIALADDRESS, SYSINITIALADDRESS);
+
+
+==========================================================================================
+interpreter/runtime/GlobalNames.h
+==========================================================================================
+  GLOBAL_NAME(INITIALADDRESS, CHAR_INITIALADDRESS)
+
+
+==========================================================================================
+interpreter/platform/windows/SystemCommands.cpp
+==========================================================================================
+RexxString *SystemInterpreter::getDefaultAddressName()
+{
+    return OREF_INITIALADDRESS;
+}
+
+
+==========================================================================================
+interpreter/platform/unix/SystemCommands.cpp
+==========================================================================================
+RexxString *SystemInterpreter::getDefaultAddressName()
+{
+    return OREF_INITIALADDRESS;
+}
+
+
+==========================================================================================
+interpreter/execution/RexxActivation.hpp
+==========================================================================================
+class ActivationSettings
+{
+    public:
+      RexxString    * current_env;         /* current address environment       */
+      RexxString    * alternate_env;       /* alternate address environment     */
+
+
+==========================================================================================
+interpreter/execution/RexxActivation.cpp
+==========================================================================================
+/**
+ * Initialize an activation for a method invocation.
+ *
+ * @param _activity The activity we're running under.
+ * @param _method   The method being invoked.
+ * @param _code     The code to execute.
+ */
+RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+{
+    this->settings.current_env = activity->getInstance()->getDefaultEnvironment();
+    this->settings.alternate_env = this->settings.current_env;
+
+
+/**
+ * Create a top-level activation of Rexx code.  This will
+ * either a toplevel program or an external call.
+ *
+ * @param _activity The current thread we're running on.
+ * @param _routine  The routine to invoke.
+ * @param _code     The code object to be executed.
+ * @param calltype  Type type of call being made (function or subroutine)
+ * @param env       The default address environment
+ * @param context   The type of call context.
+ */
+RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code,
+    RexxString *calltype, RexxString *env, int context)
+{
+    this->settings.current_env = activity->getInstance()->getDefaultEnvironment();
+    this->settings.alternate_env = this->settings.current_env;
+
+
+void RexxActivation::toggleAddress()
+/******************************************************************************/
+/* Function:  Toggle the address setting between the current and alternate    */
+/******************************************************************************/
+{
+    RexxString *temp = this->settings.current_env;   /* save the current environment      */
+    /* make the alternate the current    */
+    this->settings.current_env = this->settings.alternate_env;
+    this->settings.alternate_env = temp; /* old current is now the alternate  */
+}
+
+
+void RexxActivation::setAddress(
+                               RexxString * address )             /* new address environment           */
+/******************************************************************************/
+/* Function:  Set the new current address, moving the current one to the      */
+/*            alternate address                                               */
+/******************************************************************************/
+{
+    /* old current is now the alternate  */
+    this->settings.alternate_env = this->settings.current_env;
+    this->settings.current_env = address;/* set new current environment       */
+}
+
+
+void RexxActivation::setDefaultAddress(
+                                      RexxString * address )             /* new address environment           */
+/******************************************************************************/
+/* Function:  Set up a default address environment so that both the primary   */
+/*            and the alternate address are the same value                    */
+/******************************************************************************/
+{
+    /* old current is the new one        */
+    this->settings.alternate_env = address;
+    this->settings.current_env = address;/* set new current environment       */
+}
+
+
+==========================================================================================
+interpreter/runtime/InterpreterInstance.hpp
+==========================================================================================
+
+class InterpreterInstance : public RexxInternalObject
+{
+public:
+    void addCommandHandler(const char *name, const char *registeredName);
+    void addCommandHandler(const char *name, REXXPFN entryPoint);
+    CommandHandler *resolveCommandHandler(RexxString *name);
+
+
+==========================================================================================
+interpreter/runtime/InterpreterInstance.cpp
+==========================================================================================
+/**
+ * Resolve a command handler for invoking a command.
+ *
+ * @param name   The name of the target address environment.
+ *
+ * @return The resolved handler, or OREF_NULL if this is not known.
+ */
+CommandHandler *InterpreterInstance::resolveCommandHandler(RexxString *name)
+{
+    // all names in the cache are in upper case
+    RexxString *upperName = name->upper();
+    ProtectedObject p(upperName);
+    CommandHandler *handler = (CommandHandler *)commandHandlers->at(upperName);
+    if (handler == OREF_NULL)
+    {
+        handler = new CommandHandler(name->getStringData());
+        if (!handler->isResolved())
+        {
+            return OREF_NULL;   // can't find this
+        }
+        commandHandlers->put((RexxObject *)handler, upperName);
+    }
+    return handler;
+}
+
+
+==========================================================================================
+interpreter/execution/RexxActivation.cpp
+==========================================================================================
+/**
+ * Issue a command to a named host evironment
+ *
+ * @param commandString
+ *                The command to issue
+ * @param address The target address
+ *
+ * @return The return code object
+ */
+void RexxActivation::command(RexxString *address, RexxString *commandString)
+{
+    bool         instruction_traced;     /* instruction has been traced       */
+    ProtectedObject condition;
+    ProtectedObject commandResult;
+
+                                         /* instruction already traced?       */
+    if (tracingAll() || tracingCommands())
+    {
+        instruction_traced = true;         /* remember we traced this           */
+    }
+    else
+    {
+        instruction_traced = false;        /* not traced yet                    */
+    }
+                                           /* if exit declines call             */
+    if (this->activity->callCommandExit(this, address, commandString, commandResult, condition))
+    {
+        // first check for registered command handlers
+        CommandHandler *handler = activity->resolveCommandHandler(address);
+        if (handler != OREF_NULL)
+        {
+            handler->call(activity, this, address, commandString, commandResult, condition);
+        }
+        else
+        {
+            // No handler for this environment
+            commandResult = new_integer(RXSUBCOM_NOTREG);   // just use the not registered return code
+            // raise the condition when things are done
+            condition = activity->createConditionObject(OREF_FAILURENAME, (RexxObject *)commandResult, commandString, OREF_NULL, OREF_NULL);
+        }
+    }
+
+    RexxObject *rc = (RexxObject *)commandResult;
+    RexxDirectory *conditionObj = (RexxDirectory *)(RexxObject *)condition;
+
+    bool failureCondition = false;    // don't have a failure condition yet
+
+    int returnStatus = RETURN_STATUS_NORMAL;
+    // did a handler raise a condition?  We need to pull the rc value from the
+    // condition object
+    if (conditionObj != OREF_NULL)
+    {
+        RexxObject *temp = conditionObj->at(OREF_RC);
+        if (temp == OREF_NULL)
+        {
+            // see if we have a result and make sure the condition object
+            // fills this as the RC value
+            temp = conditionObj->at(OREF_RESULT);
+            if (temp != OREF_NULL)
+            {
+                conditionObj->put(temp, OREF_RC);
+            }
+        }
+        // replace the RC value
+        if (temp != OREF_NULL)
+        {
+            rc = temp;
+        }
+
+        RexxString *conditionName = (RexxString *)conditionObj->at(OREF_CONDITION);
+        // check for an error or failure condition, since these get special handling
+        if (conditionName->strCompare(CHAR_FAILURENAME))
+        {
+            // unconditionally update the RC value
+            conditionObj->put(temp, OREF_RC);
+            // failure conditions require special handling when raising the condition
+            // we'll need to reraise this as an ERROR condition if not trapped.
+            failureCondition = true;
+            // set the appropriate return status
+            returnStatus = RETURN_STATUS_FAILURE;
+        }
+        if (conditionName->strCompare(CHAR_ERROR))
+        {
+            // unconditionally update the RC value
+            conditionObj->put(temp, OREF_RC);
+            // set the appropriate return status
+            returnStatus = RETURN_STATUS_ERROR;
+        }
+    }
+
+    // a handler might not return a value, so default the return code to zero
+    // if nothing is received.
+    if (rc == OREF_NULL)
+    {
+        rc = TheFalseObject;
+    }
+
+    // if this was done during a debug pause, we don't update RC
+    // and .RS.
+    if (!this->debug_pause)
+    {
+        // set the RC value before anything
+        this->setLocalVariable(OREF_RC, VARIABLE_RC, rc);
+        /* tracing command errors or fails?  */
+        if ((returnStatus == RETURN_STATUS_ERROR && tracingErrors()) ||
+            (returnStatus == RETURN_STATUS_FAILURE && (tracingFailures())))
+        {
+            /* trace the current instruction     */
+            this->traceClause(this->current, TRACE_PREFIX_CLAUSE);
+            /* then we always trace full command */
+            this->traceValue(commandString, TRACE_PREFIX_RESULT);
+            instruction_traced = true;       /* we've now traced this             */
+        }
+
+        wholenumber_t rcValue;
+        /* need to trace the RC info too?    */
+        if (instruction_traced && rc->numberValue(rcValue) && rcValue != 0)
+        {
+            /* get RC as a string                */
+            RexxString *rc_trace = rc->stringValue();
+            /* tack on the return code           */
+            rc_trace = rc_trace->concatToCstring("RC(");
+            /* add the closing part              */
+            rc_trace = rc_trace->concatWithCstring(")");
+            /* trace the return code             */
+            this->traceValue(rc_trace, TRACE_PREFIX_ERROR);
+        }
+        // set the return status
+        setReturnStatus(returnStatus);
+
+        // now handle any conditions we might need to raise
+        // these are also not raised if it's a debug pause.
+        if (conditionObj != OREF_NULL)
+        {
+            // try to raise the condition, and if it isn't handled, we might
+            // munge this into an ERROR condition
+            if (!activity->raiseCondition(conditionObj))
+            {
+                // untrapped failure condition?  Turn into an ERROR condition and
+                // reraise
+                if (failureCondition)
+                {
+                    // just change the condition name
+                    conditionObj->put(OREF_ERRORNAME, OREF_CONDITION);
+                    activity->raiseCondition(conditionObj);
+                }
+            }
+        }
+        // do debug pause if necessary.  necessary is defined by:  we are
+        // tracing ALL or COMMANDS, OR, we /* using TRACE NORMAL and a FAILURE
+        // return code was received OR we receive an ERROR return code and
+        // have TRACE ERROR in effect.
+        if (instruction_traced && inDebug())
+        {
+            this->debugPause();                /* do the debug pause                */
+        }
+    }
+}
+
+
+==========================================================================================
+interpreter/concurrency/RexxActivity.hpp
+==========================================================================================
+ class RexxActivity : public RexxInternalObject {
+  public:
+   CommandHandler *resolveCommandHandler(RexxString *);
+
+
+==========================================================================================
+interpreter/concurrency/RexxActivity.cpp
+==========================================================================================
+/**
+ * Resolve a command handler from the interpreter
+ * instance.
+ *
+ * @param name   The name of the command environment.
+ *
+ * @return A configured command environment, or OREF_NULL if the
+ *         target environment is not found.
+ */
+CommandHandler *RexxActivity::resolveCommandHandler(RexxString *name)
+{
+    return instance->resolveCommandHandler(name);
+}
