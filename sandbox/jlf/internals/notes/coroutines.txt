@@ -64,3 +64,6 @@ Coco is a small extension to get True C Coroutine semantics for Lua 5.1.
 True C coroutine semantics mean you can yield from a coroutine across a C call boundary
 and resume back to it. Coco allows you to use a dedicated C stack for each coroutine.
 Resuming a coroutine and yielding from a coroutine automatically switches C stacks.
+
+
+http://aldrin.co/coroutine-pipeline.html

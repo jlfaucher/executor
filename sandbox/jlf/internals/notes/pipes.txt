@@ -1,3 +1,8 @@
+C++ Pipelines
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3534.html
+http://code.google.com/p/google-concurrency-library/source/browse/include/pipeline.h
+
+
 http://www.balisage.net/Proceedings/vol3/print/Kay01/BalisageVol3-Kay01.html
 
 http://www.yesodweb.com/book/conduit
@@ -102,7 +107,7 @@ Segmentation fault
 Running on Linux AMD64 (Ubuntu 10.04 lucid Kernel 2.6.32-28-generic)
 Open Object Rexx Version 4.1.0
 Build date: Dec  3 2010
-Addressing Mode: 64 
+Addressing Mode: 64
 
 
 ============================================================================
