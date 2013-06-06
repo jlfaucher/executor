@@ -1,8 +1,11 @@
-http://billfen.wordpress.com/incremental-parsing-and-ast-repair-with-javacc-and-jjtree/
+﻿http://billfen.wordpress.com/incremental-parsing-and-ast-repair-with-javacc-and-jjtree/
 http://ibm-netrexx.215625.n3.nabble.com/NetRexx-Eclipse-status-video-td3271843.html
 
 http://www.reddit.com/r/lisp/comments/15h1wj/on_lisps_recent_discussions_on_this_subreddit/c7nic44
 The "macro system" that underlies Racket or Chez Scheme is not the pattern-matching frontend that you often use. The core concept is the "syntax object"---basically, s-expressions that are augmented with lexical information and source location information (and also a set of primitive operations on them). Macros are just functions that take syntax objects as input and produce syntax objects (and you can write them like that) that the macro expander handles specially.
+
+http://srfi.schemers.org/srfi-49/srfi-49.html
+Scheme SRFI : Indentation-sensitive syntax
 
 ==============================================================================
 
