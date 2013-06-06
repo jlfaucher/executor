@@ -40,8 +40,9 @@ REM       Command extensions are enabled by default in W2K, XP, W2K3, and Vista
 REM       They are probably enabled in NT.
 
 REM  Figure out the compiler and if this is a 64-bit build.
-goto DETERMINE_COMPILER
-:DETERMINE_C0MPILER_DONE
+call :DETERMINE_COMPILER
+
+call :DETERMINE_BRANCH
 
 REM  No sense in starting if SRC_DIR and SRC_DRV are not set.
 IF %SRC_DRV%x == x GOTO HELP_SRC_DRV
@@ -57,57 +58,62 @@ REM  If NO_BUILD_LOG is set, do not redirect to a log.
 if %NO_BUILD_LOG%x == x (set USELOGFILE=1) else (set USELOGFILE=0)
 
 REM  Check for the 'package' or component option
-goto PACKAGE_CHECK
-:PACKAGE_CHECK_DONE
+call :PACKAGE_CHECK
 
 REM  Check for the type of build
-if %1 == NODEBUG goto NO_DEBUG
-if %1 == DEBUG goto IS_DEBUG
-if %1 == BOTH goto DO_BOTH
+REM  If the first arg is not right, show help and quit.
+if %1 == NODEBUG (call :NO_DEBUG
+) else if %1 == DEBUG (call :IS_DEBUG
+) else if %1 == BOTH (call :DO_BOTH 
+) else goto HELP
 
-REM  Okay, the first arg is not right, show help and quit.
-goto HELP
-
-:BUILD_CHECK_DONE
-
-REM  Print out the args and environment variables to help with debug if the
-REM  build does not complete.
-goto PRINT_OUT_VARS
-:PRINT_OUT_VARS_DONE
 
 REM  If the package step is being done, check for the docs.
-IF %DOPACKAGE% == 1 goto DOC_CHECK
-:DOC_CHECK_DONE
+IF %DOPACKAGE% == 1 call :DOC_CHECK
+IF %DOC_CHECK%x == HELPx GOTO HELP
 
 REM  Generate, (or use an existing,) oorexx.ver.incl file.
-goto GENERATE_VERSION_FILE
-:GENERATE_VERSION_FILE_DONE
+call :GENERATE_VERSION_FILE
 
 :BUILD
 IF %MKNODEBUG% == 0 GOTO BLDDEBUG
 
+set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
+set OR_OUTDIR_API=%OR_OUTDIR%\api
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%.log
+if not exist %OR_OUTDIR% md %OR_OUTDIR%
+if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
+
 if %USELOGFILE% EQU 1 (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version >>%OR_ERRLOG%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version - %OR_BRANCH% >>%OR_ERRLOG%
 ) else (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version - %OR_BRANCH%
 )
+
+REM  Print out the args and environment variables to help with debug if the
+REM  build does not complete.
+call :PRINT_OUT_VARS
 
 SET MKASM=1
 SET BLDRELEASE=1
 GOTO STARTBUILD
 
-REM  If we are building BOTH, we need to reset the log name and API output
-REM  directory.  We just set them unconditionally.
 :BLDDEBUG
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
-set OR_OUTDIR_API=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg\api
-set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg.log
+set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%
+set OR_OUTDIR_API=%OR_OUTDIR%\api
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%.log
+if not exist %OR_OUTDIR% md %OR_OUTDIR%
+if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
 
 if %USELOGFILE% EQU 1 (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version >>%OR_ERRLOG%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version - %OR_BRANCH% >>%OR_ERRLOG%
 ) else (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version - %OR_BRANCH%
 )
+
+REM  Print out the args and environment variables to help with debug if the
+REM  build does not complete.
+call :PRINT_OUT_VARS
 
 SET MKASM=0
 SET BLDRELEASE=0
@@ -145,7 +151,7 @@ SET CPUDEF=/DCPU=%CPUNAME%
 REM  If not making the debug version skip to packaging the release version
 IF %PACKAGE_DBG% == 0 GOTO PACKAGE_RELEASE
 
-SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
+SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%
 cd platform\windows\install
 makensis %DOTVER% %NODOTVER% %SRCDIR% %BINDIR% %CPUDEF% oorexx.nsi
 
@@ -159,7 +165,7 @@ REM  If not making the release version skip to environment variables clean up.
 IF %PACKAGE_REL% == 0 GOTO ENV_VARS_CLEANUP
 
 :PACKAGE_RELEASE
-SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
+SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
 cd platform\windows\install
 makensis %DOTVER% %NODOTVER% %SRCDIR% %BINDIR% %CPUDEF% oorexx.nsi
 move ooRexx%NODOTS%-%CPUNAME%.exe ..\..\..\
@@ -189,6 +195,7 @@ SET OR_ERRLOG=
 SET DOCOMPONENT=
 SET DOCOMPONENT_ARGS=
 SET OR_BITNESS=
+SET OR_BRANCH=
 
 GOTO END
 
@@ -223,6 +230,7 @@ REM    argument to this batch file or specified in the environmental variable:
 REM    DOC_LOCATION
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :DOC_CHECK
+set DOC_CHECK=OK
 if not exist doc\nul md doc
 
 SET MISSING_DOC=0
@@ -238,7 +246,7 @@ if not exist doc\rexxextensions.pdf  SET MISSING_DOC=1
 if not exist doc\unixextensions.pdf  SET MISSING_DOC=1
 if not exist doc\winextensions.pdf   SET MISSING_DOC=1
 
-if %MISSING_DOC% EQU 0 goto DOC_CHECK_DONE
+if %MISSING_DOC% EQU 0 goto :eof
 
 REM  Missing some doc, try to copy it from a specified location.
 if %DOC_LOCATION%x == x (
@@ -252,7 +260,8 @@ if %DOC_LOCATION%x == x (
       echo location to copy the doc from can not be determined.
       echo.
     )
-    GOTO HELP
+    set DOC_CHECK=HELP
+    GOTO :eof
   ) else SET DOC_LOCATION=%3
 )
 
@@ -344,7 +353,7 @@ if not exist doc\winextensions.pdf (
 )
 copy %DOC_LOCATION%\winextensions.pdf doc 1>nul 2>&1
 
-GOTO DOC_CHECK_DONE
+GOTO :eof
 
 :NO_DOC_ERR
 if %USELOGFILE% EQU 1 (
@@ -356,7 +365,8 @@ if %USELOGFILE% EQU 1 (
   echo Failed to locate at least one doc file for the package option, aborting.
   echo.
 )
-goto HELP
+DOC_CHECK=HELP
+goto :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -411,7 +421,7 @@ for /F "delims== tokens=1,2,3*" %%i in (oorexx.ver) do (
  )
 )
 echo SVN_REVISION=%SVN_REV%>> oorexx.ver.incl
-goto GENERATE_VERSION_FILE_DONE
+goto :eof
 
 :NOSVN
 if exist oorexx.ver.incl (
@@ -425,7 +435,7 @@ if exist oorexx.ver.incl (
   echo SVN_REVISION=%SVN_REV%>> oorexx.ver.incl
 )
 
-goto GENERATE_VERSION_FILE_DONE
+goto :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -474,7 +484,7 @@ if %USELOGFILE% EQU 1 (
   echo DOC_LOCATION: %DOC_LOCATION%
   echo.
 )
-goto PRINT_OUT_VARS_DONE
+goto :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -489,61 +499,44 @@ SET DOPACKAGE=0
 SET DOCOMPONENT=
 SET DOCOMPONENT_ARGS=
 if %2x == x (
-  GOTO PACKAGE_CHECK_DONE
+  GOTO :eof
 )
 
 if %2 == PACKAGE (
   SET DOPACKAGE=1
   SET PACKAGE_REL=0
   SET PACKAGE_DBG=0
-  GOTO PACKAGE_CHECK_DONE
 ) ELSE (
   SET DOCOMPONENT=%2
   SET DOCOMPONENT_ARGS=%3 %4 %5 %6 %7 %8 %9
-  GOTO PACKAGE_CHECK_DONE
 )
-
+goto :eof
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM  :NO_DEBUG
-REM    Sets the variables for a non-debug build and creates the output
-REM    directory, if needed.
+REM    Sets the variables for a non-debug build.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :NO_DEBUG
 set MKNODEBUG=1
 set MKDEBUG=0
 IF %DOPACKAGE% == 1 SET PACKAGE_REL=1
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
-set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel.log
-if not exist %OR_OUTDIR% md %OR_OUTDIR%
-if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
-GOTO BUILD_CHECK_DONE
+GOTO :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM  :IS_DEBUG
-REM    Sets the variables for a debug build and creates the output directory, if
-REM    needed.
+REM    Sets the variables for a debug build.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :IS_DEBUG
 set MKNODEBUG=0
 set MKDEBUG=1
 IF %DOPACKAGE% == 1 SET PACKAGE_DBG=1
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
-set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg.log
-if not exist %OR_OUTDIR% md %OR_OUTDIR%
-if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
-GOTO BUILD_CHECK_DONE
+GOTO :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM  :DOBOTH
-REM    Sets the variables to do both non-debug and debug builds.  We will create
-REM    all output directories if needed.  The log name and API out directory
-REM    will first be used in the non-debug build.  Then corrected in the debug
-REM    build.
+REM    Sets the variables to do both non-debug and debug builds.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :DO_BOTH
 set MKNODEBUG=1
@@ -552,14 +545,7 @@ IF %DOPACKAGE% == 1 (
  set PACKAGE_REL=1
  set PACKAGE_DBG=1
 )
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
-set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel\Win%OR_BITNESS%Rel.log
-if not exist %OR_OUTDIR% md %OR_OUTDIR%
-if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
-if not exist %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg md %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg
-if not exist %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg\api md %SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg\api
-GOTO BUILD_CHECK_DONE
+GOTO :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -583,7 +569,17 @@ for /f "usebackq tokens=1,2,3" %%i in (`"%cl_infos%.exe"`) do (
     set OR_BITNESS=%%k
 )
 
-goto DETERMINE_C0MPILER_DONE
+goto :eof
+
+
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+REM This section attempts to determine the current git branch.
+REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+:DETERMINE_BRANCH
+pushd "%GIT_ROOT%"
+for /f "usebackq" %%i in (`git name-rev --name-only HEAD`) do set OR_BRANCH=%%i
+popd
+goto :eof
 
 
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -597,8 +593,8 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM  Need to be sure some of the vars are set.  By default the log name and
 REM  build directory will be set to release if they are not already set.
 if %USELOGFILE%x == x set USELOGFILE=1
-if %OR_OUTDIR%x == x  set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel
-if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel.log
+if %OR_OUTDIR%x == x  set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
+if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 
 REM  First echo to the screen the help, no matter what. So that someone building
@@ -708,11 +704,13 @@ REM     just quit after printing the text to the screen.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :HELP_SRC_DRV
 ECHO *==============================================================
-ECHO One of the environment variables SRC_DRV or SRC_DIR is not set
+ECHO One of the environment variables SRC_DRV or SRC_DIR or GIT_ROOT is not set
 ECHO Set the SRC_DRV variable to the build directory drive letter
 ECHO Set the SRC_DIR variable to the full build directory path
+ECHO Set the GIT_ROOT variable to the git repository full path
 ECHO e.g.
 ECHO "SET SRC_DRV=F:"
 ECHO "SET SRC_DIR=\oorexx\interpreter_3x"
+ECHO "SET GIT_ROOT=D:\oorexx\git"
 ECHO *======================================================
 GOTO ENV_VARS_CLEANUP
