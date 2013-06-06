@@ -1,5 +1,10 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+http://blog.paralleluniverse.co/post/49445260575/quasar-pulsar
+
+http://www.matthiasmann.de/content/view/24/26/
+Java contunuations library
+
 http://www.boost.org/doc/libs/1_53_0/libs/coroutine/doc/html/index.html
 
 http://railsware.com/blog/2012/03/13/ruby-2-0-enumerablelazy/
@@ -59,3 +64,6 @@ Coco is a small extension to get True C Coroutine semantics for Lua 5.1.
 True C coroutine semantics mean you can yield from a coroutine across a C call boundary
 and resume back to it. Coco allows you to use a dedicated C stack for each coroutine.
 Resuming a coroutine and yielding from a coroutine automatically switches C stacks.
+
+
+http://aldrin.co/coroutine-pipeline.html

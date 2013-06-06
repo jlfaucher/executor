@@ -1,3 +1,7 @@
+https://github.com/lihaoyi/macropy#macropy
+implementation of Syntactic Macros in the Python Programming Language
+
+
 http://lwn.net/Articles/430720/
 http://thread.gmane.org/gmane.comp.python.ideas/9178
 Re: New pattern-matching library (was: str.split with multiple individual split characters)

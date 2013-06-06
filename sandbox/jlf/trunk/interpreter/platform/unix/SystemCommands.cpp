@@ -701,7 +701,10 @@ RexxObjectPtr RexxEntry systemCommandHandler(RexxExitContext *context, RexxStrin
     int errCode = 0;
 #ifdef LINUX
 
-    if (Utilities::strCaselessCompare("bash", envName) == 0)
+    // JLF : I don't know why a special case is made to call system()
+    // But something sure : it's wrong to call system() when the passed address is "bash".
+    // Since system() delegates always to /bin/sh, the only acceptable address is "sh".
+    if (Utilities::strCaselessCompare("sh", envName) == 0)
     {
         errCode = system( cmd );
         if ( errCode >= 256 )

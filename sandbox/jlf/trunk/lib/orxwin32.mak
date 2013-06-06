@@ -152,8 +152,8 @@ Z_FLAGS = -Zd
 
 !IF "$(NODEBUG)" == "1"
 #JLF : better to have debug infos in release build, may help in case of crash
-#my_cdebug = $(Z_FLAGS) -O2 /Gr /DNDEBUG /Gs #Gs added by IH
-my_cdebug = $(Z_FLAGS) -Zi -O2 /Gr /DNDEBUG /DEBUGTYPE:CV /Gs #Gs added by IH
+#my_cdebug = $(Z_FLAGS)     -O2 /Gr /DNDEBUG               /Gs #Gs added by IH
+my_cdebug =  $(Z_FLAGS) -Zi -O2 /Gr /DNDEBUG /DEBUGTYPE:CV /Gs #Gs added by IH
 #added by IH for the NT queue pull problem
 cflags_noopt=/nologo /D:_X86_ /DWIN32 $(WARNING_FLAGS) -c /Ox /Gf /Gr /DNDEBUG /Gs /DNULL=0
 !ELSE
@@ -191,10 +191,17 @@ Tp=
 #
 # set up the Link flags used in addition to the $(cflags) windows sets
 #
+# JLF notes :
+# /opt:ref  # Eliminates functions and/or data that are never referenced
+            # If /DEBUG is specified, the default for /OPT is NOREF (otherwise, it is REF),
+            # and all functions are preserved in the image. To override this default and
+            # optimize a debugging build, specify /OPT:REF.
+            # The /OPT:REF option disables incremental linking.
+
 !IF "$(NODEBUG)" == "1"
 #JLF : better to have debug infos in release build, may help in case of crash
 #my_ldebug =
-my_ldebug =/DEBUG -debugtype:cv
+my_ldebug =/DEBUG -debugtype:cv /opt:ref
 !ELSE
 my_ldebug = /PROFILE /DEBUG -debugtype:cv
 !ENDIF
