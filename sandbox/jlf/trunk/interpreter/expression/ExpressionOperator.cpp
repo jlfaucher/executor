@@ -122,19 +122,13 @@ RexxObject *RexxBinaryOperator::evaluate(
     if (context->enableOperatorOverridingByRoutine())
     {
         RexxString *routineName = *(operatorNames[this->oper - 1]);
-        RoutineClass *routine = context->getSourceObject()->findRoutine(routineName);
-        if (routine != OREF_NULL)
+        ProtectedObject result;
+        const size_t argcount = 2;
+        context->overridableFunctionCall(routineName, argcount, stack, result);
+        if (result != OREF_NULL)
         {
-            ProtectedObject result;
-            const size_t argcount = 2;
-            RexxObject **arguments = stack->arguments(argcount);
-            routine->call(context->getActivity(), routineName, arguments, argcount, OREF_FUNCTIONNAME, OREF_NULL, EXTERNALCALL, result);
-            context->traceOperator(operatorName(), result);
-            if (result != OREF_NULL)
-            {
-                stack->operatorResult(result); // replace top two stack elements with result
-                return result;
-            }
+            stack->operatorResult(result); // replace top two stack elements with result
+            return result;
         }
     }
     /* evaluate the message              */
@@ -158,19 +152,13 @@ RexxObject *RexxUnaryOperator::evaluate(
     if (context->enableOperatorOverridingByRoutine())
     {
         RexxString *routineName = *(operatorNames[this->oper - 1]);
-        RoutineClass *routine = context->getSourceObject()->findRoutine(routineName);
-        if (routine != OREF_NULL)
+        ProtectedObject result;
+        const size_t argcount = 1;
+        context->overridableFunctionCall(routineName, argcount, stack, result);
+        if (result != OREF_NULL)
         {
-            ProtectedObject result;
-            const size_t argcount = 1;
-            RexxObject **arguments = stack->arguments(argcount);
-            routine->call(context->getActivity(), routineName, arguments, argcount, OREF_FUNCTIONNAME, OREF_NULL, EXTERNALCALL, result);
-            context->tracePrefix(operatorName(), result);
-            if (result != OREF_NULL)
-            {
-                stack->prefixResult(result); // replace the top element with result
-                return result;
-            }
+            stack->prefixResult(result); // replace the top element with result
+            return result;
         }
     }
     /* process this directly             */

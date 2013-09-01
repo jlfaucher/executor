@@ -250,6 +250,7 @@ class ActivationSettings
    void              trapDelay(RexxString *);
    void              trapUndelay(RexxString *);
    bool              callExternalRexx(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
+   RexxObject      * overridableFunctionCall(RexxString *, size_t, RexxExpressionStack *, ProtectedObject &);
    RexxObject      * externalCall(RexxString *, size_t, RexxExpressionStack *, RexxString *, ProtectedObject &);
    RexxObject      * internalCall(RexxString *, RexxInstruction *, size_t, RexxExpressionStack *, ProtectedObject &);
    RexxObject      * internalCallTrap(RexxString *, RexxInstruction *, RexxDirectory *, ProtectedObject &);

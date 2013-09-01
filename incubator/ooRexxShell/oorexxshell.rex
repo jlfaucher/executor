@@ -149,6 +149,7 @@ return
 -------------------------------------------------------------------------------
 main: procedure
 
+    if .ooRexxShell~isExtended then options "OPERATOR_OVERRIDING_BY_ROUTINE"
     REPL:
         if .ooRexxShell~debug then trace i ; else trace off
         call on halt name haltHandler

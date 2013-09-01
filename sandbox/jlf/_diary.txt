@@ -141,6 +141,69 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 sep 02
+
+Operator overriding supports overriding per package.
+
+Illustration : 
+array.cls defines operators for array and scalar.
+complex.cls defines operators for complex number and not-complex number.
+1 + .complex[1,5] =  -- 2+5i
+.complex[1,5] + 1 =  -- 2+5i
+1 + .array~of(1,2) = -- [2,3]
+.array~of(1,2) + 1 = -- [2,3]
+
+Todo : 
+a) Still not working : .array~of(1,2) + .complex[1,5]
+   That's because the overriding in complex.cls is not visible from array.cls.
+b) When iterating over imported packages, remember the already visited packages to not revisit a visited package.
+c) Optimize the search of overriding routines. A table of operator overridings can be managed per package
+   (similar to the table of operators managed on ObjectClass, StringClass, NumberStringClass, IntegerClass).
+d) I see a strange behavior in relation with findRoutine and merged_public_routines : d::r called instead of c::r
+e) I think that the fix of bug "#821 ::Routines cannot be called in mixed/lower case " does not respect the documentation.
+   call "r" should not succeed in the test case below, because only "R" routines are registered.
+
+----- a.rex -----
+say "elaborate a"
+call "r"
+::requires b
+::requires c
+::requires d
+
+----- b.rex -----
+say "elaborate b"
+::requires d
+::routine r public
+say "b::r"
+
+----- c.rex -----
+say "elaborate c"
+::requires d
+::routine r public
+say "c::r"
+
+----- d.rex -----
+say "elaborate d"
+::routine r public
+say "d::r"
+
+----- tests -----
+if "requires d" is not used in a.rex :
+elaborate d
+elaborate b
+elaborate c
+elaborate a
+c::r
+
+if "requires d" is used in a.rex :
+elaborate d
+elaborate b
+elaborate c
+elaborate a
+d::r               <-- ??? the elaboration order is unchanged, how is that possible to call a different implementation ?
+
+
+===============================================================================
 2013 may 04
 
 The overriding of binary operators by routine has an impact on performances.
@@ -150,8 +213,8 @@ The overriding by routine replaces the fast access by a call to a routine, searc
 A new option has been added to control the activation of this overriding :
 options "OPERATOR_OVERRIDING_BY_ROUTINE"
 options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
-::options "OPERATOR_OVERRIDING_BY_ROUTINE"
-::options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
+::options OPERATOR_OVERRIDING_BY_ROUTINE
+::options NOOPERATOR_OVERRIDING_BY_ROUTINE
 Unary operators can also be overriden by a routine.
 
 
