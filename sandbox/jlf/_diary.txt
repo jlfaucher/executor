@@ -160,6 +160,15 @@ b) When iterating over imported packages, remember the already visited packages 
 c) Optimize the search of overriding routines. A table of operator overridings can be managed per package
    (similar to the table of operators managed on ObjectClass, StringClass, NumberStringClass, IntegerClass).
 d) I see a strange behavior in relation with findRoutine and merged_public_routines : d::r called instead of c::r
+   [later]
+   ok, I understand now, the behavior is correct.
+   Each package manages its own list of imported packages.
+   See RexxSource::addPackage which updates the RexxList loadedPackages.
+   When a package P2 is indirectly required by the package P1, then this package P2 is loaded by the interpreter instance,
+   but not added to P1's loadedPackage.
+   If later this package P2 is directly required by P1 (my test case below), then the interpreter instance returns
+   the already loaded package P1 (so, no new elaboration) and the package P2 updates its list loadedPackage. There is also
+   an update of the directory merged_public_routines.
 e) I think that the fix of bug "#821 ::Routines cannot be called in mixed/lower case " does not respect the documentation.
    call "r" should not succeed in the test case below, because only "R" routines are registered.
 
@@ -201,6 +210,17 @@ elaborate b
 elaborate c
 elaborate a
 d::r               <-- ??? the elaboration order is unchanged, how is that possible to call a different implementation ?
+                       [later]
+                       The elaboration of a package is managed by the interpreter instance, which takes care to
+                       load a package once, and return this same package if required several times.
+                       Each package manages its own list of loadedPackage.
+                       When a package P2 is indirectly required by the package P1, the list loadedPackage of P1 is not impacted.
+                       But if the package P2 is directly required by P1, then the list loadedPackage of P1 is impacted.
+                       This is what happens here :
+                       - d is indirectly required by b --> elaboration of d
+                       - d is directly required by a --> no elaboration because already loaded by the interpreter instance, 
+                         d is added to the list loadedPackage of a,
+                         and the directory merged_public_routines is updated.
 
 
 ===============================================================================

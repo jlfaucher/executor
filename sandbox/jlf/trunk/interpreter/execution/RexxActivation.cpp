@@ -182,6 +182,7 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
                                          /* when creating the stack avoids it.*/
     _activity->allocateStackFrame(&this->stack, this->code->getMaxStackSize());
     this->setHasReferences();
+    this->stack.setActivation(this);
 
     // get initial settings template
     // NOTE:  Anything that alters information in the settings must happen AFTER
@@ -263,6 +264,7 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent,
     this->setHasReferences();
     /* inherit parents settings          */
     _parent->putSettings(this->settings);
+    this->stack.setActivation(_parent->stack.getActivation());
     // step the trace indentation level for this internal nesting
     settings.traceindent++;
     // the random seed is copied from the calling activity, this led
@@ -332,6 +334,7 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
                                          /* when creating the stack avoids it.*/
     _activity->allocateStackFrame(&stack, code->getMaxStackSize());
     this->setHasReferences();
+    this->stack.setActivation(this);
     /* get initial settings template     */
     this->settings = activationSettingsTemplate;
     // and override with the package-defined settings
@@ -2718,7 +2721,7 @@ RexxObject *RexxActivation::overridableFunctionCall(RexxString *target, size_t _
     // Get all the routines in the 'requires' search order
     RexxArray *routines = new_array((size_t)0);
     ProtectedObject r(routines);
-    this->settings.parent_code->findRoutine(target, routines);
+    /*this*/_stack->getActivation()->settings.parent_code->findRoutine(target, routines);
 
     // Call each routine until a result is returned
     // must be visited from last to first to follow the visibility rules
