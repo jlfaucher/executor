@@ -1,5 +1,10 @@
 In relation with extensions of predefined classes in ooRexx.
 
+http://adambard.com/blog/structured-clojure-protocols-and-multimethods/
+Structured clojure: Protocols and multimethods
+http://clojure.org/multimethods
+http://stackoverflow.com/questions/4509782/simple-explanation-of-clojure-protocols
+
 http://blog.headius.com/2012/11/refining-ruby.html
 
 http://perfectionkills.com/extending-built-in-native-objects-evil-or-not/
