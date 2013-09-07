@@ -257,7 +257,7 @@ many times as necessary to fill the array.
 ::options OPERATOR_OVERRIDING_BY_ROUTINE
 
 ::routine "+" public
-say "array '+'" arg(1) arg(2)
+--say "array '+'" arg(1) arg(2)
 if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("+")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
@@ -270,7 +270,7 @@ if arg() == 2 then do
     end
     if arg(2)~isA(.array) then do
         use arg scalar, array
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE"; scalar + item}
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar + item}
     end
 end
 
@@ -279,15 +279,15 @@ if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("-")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
         use arg array1, array2
-        return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - array2[index]}
+        return array1~map{::closure expose array2 ; item - array2[index]}
     end
     if arg(1)~isA(.array) then do
         use arg array, scalar
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - scalar}
+        return array~map{::closure expose scalar ; item - scalar}
     end
     if arg(2)~isA(.array) then do
         use arg scalar, array
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar - item}
+        return array~map{::closure expose scalar ; scalar - item}
     end
 end
 

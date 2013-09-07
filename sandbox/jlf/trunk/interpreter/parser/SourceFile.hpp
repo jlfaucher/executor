@@ -198,9 +198,9 @@ class RexxSource : public RexxInternalObject {
     RoutineClass *findRoutine(RexxString *);
     RoutineClass *findLocalRoutine(RexxString *);
     RoutineClass *findPublicRoutine(RexxString *);
-    void findRoutine(RexxString *routineName, RexxArray *routines);
-    void findLocalRoutine(RexxString *routineName, RexxArray *routines);
-    void findPublicImportedRoutine(RexxString *routineName, RexxArray *routines);
+    void findRoutines(RexxString *routineName, RexxArray *routines);
+    void findLocalRoutines(RexxString *routineName, RexxArray *routines);
+    void findPublicImportedRoutines(RexxString *routineName, RexxArray *routines);
     RexxClass  *findClass(RexxString *);
     RexxClass  *findInstalledClass(RexxString *name);
     RexxClass  *findPublicClass(RexxString *name);

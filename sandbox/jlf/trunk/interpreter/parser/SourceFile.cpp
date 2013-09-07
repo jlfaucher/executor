@@ -1582,7 +1582,7 @@ RoutineClass *RexxSource::findRoutine(RexxString *routineName)
  *
  * @param routines  The array which collects all the matching routines.
  */
-void RexxSource::findLocalRoutine(RexxString *name, RexxArray *routines)
+void RexxSource::findLocalRoutines(RexxString *name, RexxArray *routines)
 {
     // if we have one locally, then append it.
     if (this->routines != OREF_NULL)
@@ -1597,7 +1597,7 @@ void RexxSource::findLocalRoutine(RexxString *name, RexxArray *routines)
     // we might have a chained context, so check it also
     if (parentSource != OREF_NULL)
     {
-        parentSource->findLocalRoutine(name, routines);
+        parentSource->findLocalRoutines(name, routines);
     }
 }
 
@@ -1609,7 +1609,7 @@ void RexxSource::findLocalRoutine(RexxString *name, RexxArray *routines)
  *
  * @param routines  The array which collects all the matching routines.
  */
-void RexxSource::findPublicImportedRoutine(RexxString *name, RexxArray *routines)
+void RexxSource::findPublicImportedRoutines(RexxString *name, RexxArray *routines)
 {
     if (this->loadedPackages != OREF_NULL)
     {
@@ -1618,7 +1618,7 @@ void RexxSource::findPublicImportedRoutine(RexxString *name, RexxArray *routines
         {
             PackageClass *package = (PackageClass *)this->loadedPackages->getValue(i);
             RexxSource *source = package->getSourceObject();
-            source->findPublicImportedRoutine(name, routines);
+            source->findPublicImportedRoutines(name, routines);
         }
     }
 
@@ -1635,7 +1635,7 @@ void RexxSource::findPublicImportedRoutine(RexxString *name, RexxArray *routines
     // we might have a chained context, so check it also
     if (parentSource != OREF_NULL)
     {
-        parentSource->findPublicImportedRoutine(name, routines);
+        parentSource->findPublicImportedRoutines(name, routines);
     }
 }
 
@@ -1650,7 +1650,7 @@ void RexxSource::findPublicImportedRoutine(RexxString *name, RexxArray *routines
  *               The array which collects all the matching routines, search done in requires order.
  *               The returned array must be visited from last to first to follow the visibility rules.
  */
-void RexxSource::findRoutine(RexxString *routineName, RexxArray *routines)
+void RexxSource::findRoutines(RexxString *routineName, RexxArray *routines)
 {
     // These lookups are case insensive, so the table are all created using the upper
     // case names.  Use it once and reuse it.
@@ -1659,8 +1659,8 @@ void RexxSource::findRoutine(RexxString *routineName, RexxArray *routines)
 
     // Can't use findPublicRoutine because the imported routines are merged,
     // and only the most recently imported routine is visible.
-    findPublicImportedRoutine(upperName, routines);
-    findLocalRoutine(upperName, routines);
+    findPublicImportedRoutines(upperName, routines);
+    findLocalRoutines(upperName, routines);
 }
 
 

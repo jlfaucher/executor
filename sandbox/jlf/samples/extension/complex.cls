@@ -47,6 +47,8 @@
 /*  ::class and ::method directives.                                          */
 /******************************************************************************/
 
+--::options trace i
+
                                                 /* complex number data class      */
 ::class complex public
 
@@ -151,8 +153,10 @@
 -- A partial implementation of the operators is defined on the class 'complex'.
 -- The following routines address only the missing functionalities.
 
+::options OPERATOR_OVERRIDING_BY_ROUTINE
+
 ::routine "+" public
-say "complex '+'" arg(1) arg(2)
+--say "complex '+'" arg(1) arg(2)
 if arg() == 2 then do
     if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
         use arg complexNumber, notComplexNumber

@@ -141,6 +141,42 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 sep 07
+
+Implementation of operator overriding was not working for
+    .array~of(1,2) + .complex[1,5]
+This is because the search was limited to the requires order, which is :
+    extensions.cls --requires--> array.cls
+    extensions.cls --requires--> complex.cls
+The package array.cls provides an implementation of "+", but does not requires complex.cls.
+The package complex.cls provides an implementation of "+", but does not requires array.cls.
+It was possible to make it work by adding extra requires :
+    array.cls --requires--> complex.cls
+    complex.cls --requires--> array.cls
+but that's clearly not a good solution. 
+
+There is no direct call of a specific implementation of "+", we are in a case similar to
+CLOS generic methods, or Clojure multimethods : dependency on a polymporphic "+", where
+the polymorphism is not limited to the type of the first argument.
+
+To solve this problem, the search strategy is modified :
+From current activation, search for the oldest Rexx activation in the call stack.
+Get the package of the oldest Rexx activation : oldest package
+From the oldest package, search for a local routine having the operator name.
+From the oldest package, search for a public imported routine having the operator name, in the requires order.
+
+The execution strategy is unchanged :
+iterate over the routines returned by the search strategy.
+call the current routine.
+if a result is returned then stop the iteration and return this result
+otherwise contine the iteration.
+
+Todo :
+a) Modify the inheritance of context when creating an executable for a block.
+b) Modify the execution strategy to no execute a given method several times.
+ 
+
+===============================================================================
 2013 sep 02
 
 Operator overriding supports overriding per package.

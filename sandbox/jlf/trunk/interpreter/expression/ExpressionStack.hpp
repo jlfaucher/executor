@@ -54,8 +54,8 @@ class RexxExpressionStack {
  public:
 
   inline void *operator new(size_t size, void *ptr) { return ptr;};
-  RexxExpressionStack(RexxObject **frames, size_t items) { stack = frames; size = items; top = stack; activation = OREF_NULL; }
-  RexxExpressionStack() { stack = OREF_NULL; size = 0; top = stack; activation = OREF_NULL; }
+  RexxExpressionStack(RexxObject **frames, size_t items) { stack = frames; size = items; top = stack; }
+  RexxExpressionStack() { stack = OREF_NULL; size = 0; top = stack; }
   void live(size_t);
   void liveGeneral(int reason);
   void flatten(RexxEnvelope *);
@@ -90,14 +90,11 @@ class RexxExpressionStack {
   inline void         setTop(size_t v) {this->top = this->stack + v;};
   inline void         toss() { this->top--; };
   inline RexxObject **getFrame() { return stack; }
-  inline void         setActivation(RexxActivation *a) { this->activation = a; }
-  inline RexxActivation *getActivation() { return this->activation; }
 
 protected:
 
   size_t size;                         /* size of the expstack              */
   RexxObject **top;                    /* current expstack top location     */
   RexxObject **stack;                  /* actual stack values               */
-  RexxActivation *activation;          /* owning activation, needed by RexxActivation::overridableFunctionCall */
 };
 #endif
