@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -46,6 +46,7 @@
 
 #include <shlwapi.h>
 #include <OleAcc.h>
+#include <uxtheme.h>
 #include "APICommon.hpp"
 #include "oodCommon.hpp"
 #include "oodMessaging.hpp"
@@ -75,6 +76,7 @@ const char *controlType2winName(oodControl_t control)
         case winMonthCalendar :        return MONTHCAL_CLASS;
         case winDateTimePicker :       return DATETIMEPICK_CLASS;
         case winUpDown :               return UPDOWN_CLASS;
+        case winComboLBox :            return "ComboLBox";
         default :                      return "";
     }
 }
@@ -92,6 +94,7 @@ const char *controlType2className(oodControl_t control)
         case winEdit :                 return "EDIT";
         case winListBox :              return "LISTBOX";
         case winComboBox :             return "COMBOBOX";
+        case winComboLBox :            return "LISTBOX";
         case winScrollBar :            return "SCROLLBAR";
         case winTreeView :             return "TREEVIEW";
         case winListView :             return "LISTVIEW";
@@ -101,6 +104,35 @@ const char *controlType2className(oodControl_t control)
         case winMonthCalendar :        return "MONTHCALENDAR";
         case winDateTimePicker :       return "DATETIMEPICKER";
         case winUpDown :               return "UPDOWN";
+        case winToolTip :              return "TOOLTIP";
+        default :                      return "";
+    }
+}
+
+
+const char *controlType2controlName(oodControl_t control)
+{
+    switch ( control )
+    {
+        case winStatic :               return "Static";
+        case winPushButton :           return "PushButton";
+        case winRadioButton :          return "RadioButton";
+        case winCheckBox :             return "CheckBox";
+        case winGroupBox :             return "GroupBox";
+        case winEdit :                 return "Edit";
+        case winListBox :              return "ListBox";
+        case winComboBox :             return "ComboBox";
+        case winComboLBox :            return "ComboLBox";
+        case winScrollBar :            return "ScrollBar";
+        case winTreeView :             return "TreeView";
+        case winListView :             return "ListView";
+        case winTab :                  return "Tab";
+        case winProgressBar :          return "ProgressBar";
+        case winTrackBar :             return "TrackBar";
+        case winMonthCalendar :        return "MonthCalendar";
+        case winDateTimePicker :       return "DateTimePicker";
+        case winUpDown :               return "UpDown";
+        case winToolTip :              return "ToolTip";
         default :                      return "";
     }
 }
@@ -122,13 +154,15 @@ oodControl_t winName2controlType(const char *className)
     else if ( strcmp(className, MONTHCAL_CLASS    ) == 0 ) return winMonthCalendar;
     else if ( strcmp(className, DATETIMEPICK_CLASS) == 0 ) return winDateTimePicker;
     else if ( strcmp(className, UPDOWN_CLASS      ) == 0 ) return winUpDown;
+    else if ( strcmp(className, TOOLTIPS_CLASS    ) == 0 ) return winToolTip;
+    else if ( strcmp(className, "ComboLBox"       ) == 0 ) return winComboLBox;
     else
     {
         return winUnknown;
     }
 }
 
-oodControl_t control2controlType(HWND hControl)
+oodControl_t controlHwnd2controlType(HWND hControl)
 {
     oodControl_t type = winUnknown;
 
@@ -155,6 +189,30 @@ oodControl_t control2controlType(HWND hControl)
     }
 
     return type;
+}
+
+oodControl_t controlName2controlType(CSTRING name)
+{
+    if      ( StrCmpI(name, "CHECKBOX"      ) == 0 ) return winCheckBox;
+    else if ( StrCmpI(name, "COMBOBOX"      ) == 0 ) return winComboBox;
+    else if ( StrCmpI(name, "COMBOLBOX"     ) == 0 ) return winComboLBox;
+    else if ( StrCmpI(name, "DATETIMEPICKER") == 0 ) return winDateTimePicker;
+    else if ( StrCmpI(name, "EDIT"          ) == 0 ) return winEdit;
+    else if ( StrCmpI(name, "GROUPBOX"      ) == 0 ) return winGroupBox;
+    else if ( StrCmpI(name, "LISTBOX"       ) == 0 ) return winListBox;
+    else if ( StrCmpI(name, "LISTVIEW"      ) == 0 ) return winListView;
+    else if ( StrCmpI(name, "MONTHCALENDAR" ) == 0 ) return winMonthCalendar;
+    else if ( StrCmpI(name, "PROGRESSBAR"   ) == 0 ) return winProgressBar;
+    else if ( StrCmpI(name, "PUSHBUTTON"    ) == 0 ) return winPushButton;
+    else if ( StrCmpI(name, "RADIOBUTTON"   ) == 0 ) return winRadioButton;
+    else if ( StrCmpI(name, "SCROLLBAR"     ) == 0 ) return winScrollBar;
+    else if ( StrCmpI(name, "STATIC"        ) == 0 ) return winStatic;
+    else if ( StrCmpI(name, "TAB"           ) == 0 ) return winTab;
+    else if ( StrCmpI(name, "TRACKBAR"      ) == 0 ) return winTrackBar;
+    else if ( StrCmpI(name, "TREEVIEW"      ) == 0 ) return winTreeView;
+    else if ( StrCmpI(name, "UPDOWN"        ) == 0 ) return winUpDown;
+    else if ( StrCmpI(name, "TOOLTIP"       ) == 0 ) return winToolTip;
+    else return winUnknown;
 }
 
 RexxStringObject controlWindow2rexxString(RexxMethodContext *c, HWND hControl)
@@ -217,6 +275,27 @@ bool isControlMatch(HWND hControl, oodControl_t control)
 }
 
 /**
+ * Determine if a dialog control belongs to the specified dialog control class.
+ *
+ * @param hDlg     Handle to the owner dialog of the control, the assumed owner.
+ * @param   id     Resource ID of the dialog control/
+ * @param control  One of the oodControl types specifying the class to check
+ *                 for.
+ *
+ * @return True if the dialog control is the type specified, otherwise false.
+ */
+bool isControlMatch(HWND hDlg, uint32_t id, oodControl_t control)
+{
+    HWND hControl = GetDlgItem(hDlg, id);
+
+    if ( hControl != NULL )
+    {
+        return isControlMatch(hControl, control);
+    }
+    return false;
+}
+
+/**
  * Resolves a string to the type of windows control it is.  The function only
  * compares enough letters to determine unequivocally if it matches one of the
  * supported dialog controls.
@@ -251,6 +330,7 @@ oodControl_t oodName2controlType(CSTRING name)
     else if ( StrCmpN(name, "SCROLLBAR", 2     ) == 0 ) return winScrollBar;
     else if ( StrCmpN(name, "STATIC", 2        ) == 0 ) return winStatic;
     else if ( StrCmpN(name, "TAB", 3           ) == 0 ) return winTab;
+    else if ( StrCmpN(name, "TOOLT", 5         ) == 0 ) return winToolTip;
     else if ( StrCmpN(name, "TRACKBAR", 3      ) == 0 ) return winTrackBar;
     else if ( StrCmpN(name, "TREEVIEW", 3      ) == 0 ) return winTreeView;
     else if ( StrCmpN(name, "UPDOWN", 1        ) == 0 ) return winUpDown;
@@ -613,6 +693,101 @@ done_out:
 
 
 /**
+ *  If the user stores a Rexx object in the user data storage of a dialog
+ *  control, the Rexx object could be garbage collected because no Rexx object
+ *  has a reference to it.  To prevent that we put the Rexx object in a bag that
+ *  is an attribute of the dialog control object.
+ *
+ * @param c
+ * @param pcdc
+ * @param data
+ *
+ * @notes  This function could have been called maybeProtectControlUserData()
+ *         because it only stores a Rexx object if the data is not .nil and not
+ *         null.
+ */
+void protectControlUserData(RexxMethodContext *c, pCDialogControl pcdc, RexxObjectPtr data)
+{
+    if ( data != TheNilObj && data != NULLOBJECT )
+    {
+        if ( pcdc->rexxBag == NULL )
+        {
+            c->SendMessage1(pcdc->rexxSelf, "PUTINBAG", data);
+        }
+        else
+        {
+            c->SendMessage1(pcdc->rexxBag, "PUT", data);
+        }
+    }
+}
+
+
+/**
+ * Removes a Rexx object from the dialog control's Rexx bag.
+ *
+ * @param c
+ * @param pcdc
+ * @param oldUserData
+ */
+void unProtectControlUserData(RexxMethodContext *c, pCDialogControl pcdc, RexxObjectPtr oldUserData)
+{
+    if ( oldUserData != TheNilObj && oldUserData != NULLOBJECT && pcdc->rexxBag != NULLOBJECT )
+    {
+        c->SendMessage1(pcdc->rexxBag, "REMOVE", oldUserData);
+    }
+}
+
+
+/**
+ *  Protects some Rexx object related to a dialog control from garbage
+ *  collection by putting it in a Rexx bag.
+ *
+ *  This is similar to protectControlUserData(), but more generic.  For
+ *  instance, it is used for ToolTip objects of a list-view or tree-view.
+ *
+ * @param c
+ * @param pcdc
+ * @param obj
+ *
+ * @notes
+ */
+void protectControlObject(RexxMethodContext *c, pCDialogControl pcdc, RexxObjectPtr obj)
+{
+    if ( obj != TheNilObj && obj != NULLOBJECT )
+    {
+        if ( pcdc->rexxBag == NULL )
+        {
+            c->SendMessage1(pcdc->rexxSelf, "PUTINBAG", obj);
+        }
+        else
+        {
+            c->SendMessage1(pcdc->rexxBag, "PUT", obj);
+        }
+    }
+}
+
+
+/**
+ * Removes all instances of a single Rexx object from this dialog control's Rexx
+ * bag.
+ *
+ * @param c
+ * @param pcdc
+ * @param oldUserData
+ *
+ * @note  We use remove all here to remove all of the specified items in the
+ *        bag.
+ */
+void unProtectControlObject(RexxMethodContext *c, pCDialogControl pcdc, RexxObjectPtr obj)
+{
+    if ( obj != TheNilObj && obj != NULLOBJECT && pcdc->rexxBag != NULLOBJECT )
+    {
+        c->SendMessage1(pcdc->rexxBag, "REMOVEALL", obj);
+    }
+}
+
+
+/**
  *  Methods for the .DialogControl class.
  */
 #define DIALOGCONTROL_CLASS        "DialogControl"
@@ -622,7 +797,6 @@ done_out:
  * connectCharEvent().
  *
  * Note that PageUp is VK_PRIOR and PageDown is VK_NEXT.
- *
  *
  * @param wParam
  *
@@ -640,6 +814,8 @@ static inline bool isExtendedKeyEvent(WPARAM wParam)
  */
 void freeSubclassData(pSubClassData p)
 {
+    EnterCriticalSection(&crit_sec);
+
     if ( p != NULL )
     {
         if ( p->pData != NULL && p->pfn != NULL )
@@ -655,7 +831,7 @@ void freeSubclassData(pSubClassData p)
             safeLocalFree(p->msgs[i].rexxMethod);
         }
 
-        LocalFree(p->msgs);
+        safeLocalFree(p->msgs);
         p->msgs = NULL;
         p->mSize = 0;
         p->mNextIndex = 0;
@@ -666,6 +842,8 @@ void freeSubclassData(pSubClassData p)
 
         LocalFree(p);
     }
+
+    LeaveCriticalSection(&crit_sec);
 }
 
 /**
@@ -740,22 +918,39 @@ bool parseTagOpts(RexxThreadContext *c, CSTRING opts, uint32_t *pTag, size_t arg
     return foundKeyWord;
 }
 
+/**
+ *
+ *
+ * @param pData
+ * @param method
+ * @param args
+ * @param hwnd
+ * @param msg
+ * @param wParam
+ * @param lParam
+ *
+ * @return LRESULT
+ *
+ * @note  We are responsible for releasing the local references in args.
+ */
 static LRESULT charReply(pSubClassData pData, char *method, RexxArrayObject args,
                          HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam)
 {
     RexxThreadContext *c = pData->pcpbd->dlgProcContext;
 
+    LRESULT ret;
+
     RexxObjectPtr reply = c->SendMessage(pData->pcpbd->rexxSelf, method, args);
     if ( ! checkForCondition(c, false) && reply != NULLOBJECT )
     {
-        if ( reply == TheFalseObj )
+        if ( reply == TheFalseObj || isInt(0, reply, c) )
         {
             // Swallow the message.
-            return 0;
+            ret = 0;
         }
-        else if ( reply == TheTrueObj )
+        else if ( reply == TheTrueObj || isInt(1, reply, c) )
         {
-            return DefSubclassProc(hwnd, msg, wParam, lParam);
+            ret = DefSubclassProc(hwnd, msg, wParam, lParam);
         }
         else
         {
@@ -766,11 +961,25 @@ static LRESULT charReply(pSubClassData pData, char *method, RexxArrayObject args
             {
                 return DefSubclassProc(hwnd, msg, (WPARAM)chr, lParam);
             }
+            else
+            {
+                ret = DefSubclassProc(hwnd, msg, wParam, lParam);
+            }
         }
     }
+    else
+    {
+        // On errors:
+        ret = DefSubclassProc(hwnd, msg, wParam, lParam);
+    }
 
-    // On errors:
-    return DefSubclassProc(hwnd, msg, wParam, lParam);
+    if ( reply != NULLOBJECT )
+    {
+        c->ReleaseLocalReference(reply);
+    }
+    releaseKeyEventRexxArgs(c, args);
+
+    return ret;
 }
 
 /**
@@ -795,6 +1004,71 @@ static LRESULT processControlMsg(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM 
     {
         case CTRLTAG_NOTHING :
             break;
+
+        case CTRLTAG_COMBOBOX :
+        {
+            if ( tag & CTRLTAG_ISGRANDCHILD )
+            {
+                return grandchildEvent(pData, method, hwnd, msg, wParam, lParam, tag);
+            }
+            break;
+        }
+
+        case CTRLTAG_EDIT :
+        {
+            if ( tag & CTRLTAG_WANTRETURN )
+            {
+                if ( msg == WM_GETDLGCODE )
+                {
+                    return (DLGC_WANTALLKEYS | DefSubclassProc(hwnd, msg, wParam, lParam));
+                }
+                else if ( msg == WM_KEYDOWN )
+                {
+                    switch ( wParam )
+                    {
+                        case VK_RETURN :
+                        {
+                            RexxObjectPtr   ctrlID = c->UnsignedInt32(pData->id);
+                            RexxArrayObject args   = c->ArrayOfTwo(ctrlID, pData->pcdc->rexxSelf);
+                            RexxObjectPtr   reply  = c->SendMessage(pData->pcpbd->rexxSelf, method, args);
+
+                            if ( ! checkForCondition(c, false) && reply != NULLOBJECT )
+                            {
+                                c->ReleaseLocalReference(ctrlID);
+                                c->ReleaseLocalReference(args);
+                                c->ReleaseLocalReference(reply);
+
+                                return 0;
+                            }
+                            else
+                            {
+                                // On error return DefSubclassProc()
+                                return DefSubclassProc(hwnd, msg, wParam, lParam);
+                            }
+                        }
+
+                        case VK_ESCAPE :
+                        {
+                            SendMessage(pData->pcpbd->hDlg, WM_COMMAND, IDCANCEL, 0);
+                            return 0;
+                        }
+
+                        case VK_TAB :
+                        {
+                            BOOL previous = (GetAsyncKeyState(VK_SHIFT) & ISDOWN) ? 1 : 0;
+                            SendMessage(pData->pcpbd->hDlg, WM_NEXTDLGCTL, previous, FALSE);
+
+                            return 0;
+                        }
+                    }
+                }
+            }
+            else if ( tag & CTRLTAG_ISGRANDCHILD )
+            {
+                return grandchildEvent(pData, method, hwnd, msg, wParam, lParam, tag);
+            }
+            break;
+        }
 
         case CTRLTAG_CONTROL :
         {
@@ -865,7 +1139,9 @@ static LRESULT processControlMsg(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM 
         // we return 0, which means the message was processed for most messages.
         // Oherwise we again drop through and DefSubclassProc() is invoked.
 
-        RexxArrayObject args = c->ArrayOfThree(c->Uintptr(wParam), c->Intptr(lParam), pData->pcdc->rexxSelf);
+        RexxObjectPtr   _wP  = c->Uintptr(wParam);
+        RexxObjectPtr   _lP  = c->Intptr(lParam);
+        RexxArrayObject args = c->ArrayOfThree(_wP, _lP, pData->pcdc->rexxSelf);
 
         if ( tag & CTRLTAG_REPLYFROMREXX )
         {
@@ -874,15 +1150,31 @@ static LRESULT processControlMsg(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM 
             {
                 if ( isInt(0, reply, c) )
                 {
+                    c->ReleaseLocalReference(_wP);
+                    c->ReleaseLocalReference(_lP);
+                    c->ReleaseLocalReference(args);
+                    c->ReleaseLocalReference(reply);
+
                     // Swallow the message.
                     return 0;
                 }
             }
+
+            if ( reply != NULLOBJECT )
+            {
+                c->ReleaseLocalReference(reply);
+            }
         }
         else
         {
-            invokeDispatch(c, pData->pcpbd->rexxSelf, c->String(method), args);
+            RexxStringObject mth = c->String(method);
+            invokeDispatch(c, pData->pcpbd->rexxSelf, mth, args);
+            c->ReleaseLocalReference(mth);
         }
+
+        c->ReleaseLocalReference(_wP);
+        c->ReleaseLocalReference(_lP);
+        c->ReleaseLocalReference(args);
     }
 
     return DefSubclassProc(hwnd, msg, wParam, lParam);
@@ -929,7 +1221,7 @@ LRESULT CALLBACK ControlSubclassProc(HWND hwnd, uint32_t msg, WPARAM wParam, LPA
     {
         if ( (msg    & m[i].msgFilter) == m[i].msg    &&
              (wParam & m[i].wpFilter)  == m[i].wParam &&
-             (lParam & m[i].lpfilter)  == m[i].lParam )
+             (lParam & m[i].lpFilter)  == m[i].lParam )
         {
             return processControlMsg(hwnd, msg, wParam, lParam, pData, m[i].rexxMethod, m[i].tag);
         }
@@ -938,9 +1230,9 @@ LRESULT CALLBACK ControlSubclassProc(HWND hwnd, uint32_t msg, WPARAM wParam, LPA
     if ( msg == WM_NCDESTROY )
     {
         /* The window is being destroyed, remove the subclass, clean up memory.
-         * Note that with the current ooDialog architecture, this message never
-         * gets here.  Freeing the subclass data struct has to be done in the
-         * dialog control uninit().
+         * Note that with the current ooDialog architecture, this message
+         * *usually* never gets here.  Freeing the subclass data struct has to
+         * be done in the dialog control uninit().
          */
         RemoveWindowSubclass(hwnd, ControlSubclassProc, pData->id);
         freeSubclassData(pData);
@@ -1058,7 +1350,7 @@ bool addSubclassMessage(RexxMethodContext *c, pCDialogControl pcdc, pWinMessageF
         pscd->msgs = (MESSAGETABLEENTRY *)temp;
     }
 
-    pscd->msgs[index].rexxMethod = (char *)LocalAlloc(LMEM_FIXED, strlen(pwmf->method) + 1);
+    pscd->msgs[index].rexxMethod = (char *)LocalAlloc(LPTR, strlen(pwmf->method) + 1);
     if ( pscd->msgs[index].rexxMethod == NULL )
     {
         outOfMemoryException(c->threadContext);
@@ -1071,7 +1363,7 @@ bool addSubclassMessage(RexxMethodContext *c, pCDialogControl pcdc, pWinMessageF
     pscd->msgs[index].wParam    = pwmf->wp;
     pscd->msgs[index].wpFilter  = pwmf->wpFilter;
     pscd->msgs[index].lParam    = pwmf->lp;
-    pscd->msgs[index].lpfilter  = pwmf->lpFilter;
+    pscd->msgs[index].lpFilter  = pwmf->lpFilter;
     pscd->msgs[index].tag       = pwmf->tag;
 
     pscd->mNextIndex++;
@@ -1381,6 +1673,15 @@ done_out:
  *            structures in any subclass window procedure.  Instead the pointer
  *            to the struct is placed in the dialog control CSelf and freed here
  *            in uninit().
+ *
+ *            However, when the dialog is terminated abruptly due to conditions
+ *            being raised, we often do get the WM_NCDESTROY message in the
+ *            subclass.  Because of this, we can have the control uninit running
+ *            while the subclass data structure(s) are being freed in the
+ *            subclass procedure.  We need to prevent this uninit() and the
+ *            various subclass data frees in the subclass window procedures from
+ *            running at the same time.  Note that the keypress subclassing does
+ *            not use
  */
 RexxMethod1(RexxObjectPtr, dlgctrl_unInit, CSELF, pCSelf)
 {
@@ -1393,17 +1694,26 @@ RexxMethod1(RexxObjectPtr, dlgctrl_unInit, CSELF, pCSelf)
         pCDialogControl pcdc = (pCDialogControl)pCSelf;
 
 #if 0
-    printf("In dlgctrl_unInit() hCtrl=%p pscd=%p rexxSelf=%p\n", pcdc->hCtrl, pcdc->pscd, pcdc->rexxSelf);
+    printf("In dlgctrl_unInit() hCtrl=%p pscd=%p pRelayEvent=%p rexxSelf=%p\n",
+           pcdc->hCtrl, pcdc->pscd, pcdc->pRelayEvent, pcdc->rexxSelf);
 #endif
+
+        if ( pcdc->pKeyPress != NULL )
+        {
+            freeKeyPressData((pSubClassData)pcdc->pKeyPress);
+        }
+
+        EnterCriticalSection(&crit_sec);
         if ( pcdc->pscd != NULL )
         {
             freeSubclassData((pSubClassData)pcdc->pscd);
         }
 
-        if ( pcdc->pKeyPress != NULL )
+        if ( pcdc->pRelayEvent != NULL )
         {
-            freeKeyPressData((pSubClassData)pcdc->pscd);
+            freeRelayData((pSubClassData)pcdc->pRelayEvent);
         }
+        LeaveCriticalSection(&crit_sec);
 
         if ( pcdc->pcrs != NULL )
         {
@@ -1443,6 +1753,12 @@ RexxMethod1(RexxObjectPtr, dlgctrl_assignFocus, CSELF, pCSelf)
  *            to signal some special processing, but that was never followed
  *            through on.
  *
+ *  @remarks  For WANTRETURN, we need to also connect the VK_TAB and VK_ESCAPE
+ *            keys.  The reason is that we need to use DLGC_WANTALLKEYS for
+ *            WM_GETDLGCODE, which prevents the dialog manager from handling TAB
+ *            and ESCAPE.  I don't see any way of asking for RETURN but not
+ *            ESCAPE and TAB.  In the message processing loop, handle TAB and
+ *            ESCAPE ourselves.
  */
 RexxMethod3(RexxObjectPtr, dlgctrl_connectEvent, CSTRING, event, OPTIONAL_CSTRING, methodName, CSELF, pCSelf)
 {
@@ -1511,6 +1827,59 @@ RexxMethod3(RexxObjectPtr, dlgctrl_connectEvent, CSTRING, event, OPTIONAL_CSTRIN
         wmf.wm       = WM_SIZE;
         wmf.wmFilter = 0xFFFFFFFF;
         wmf.tag      = CTRLTAG_DIALOG | CTRLTAG_REPLYZERO;
+
+        if ( addSubclassMessage(context, pcdc, &wmf) )
+        {
+            result = TheTrueObj;
+        }
+        goto done_out;
+    }
+    else if ( StrCmpI(event, "WANTRETURN") == 0 )
+    {
+        if ( pcdc->controlType != winEdit || ! isSingleLineEdit(pcdc->hCtrl) )
+        {
+            result = TheFalseObj;
+            goto done_out;
+        }
+
+        if ( argumentOmitted(2) )
+        {
+            methodName = "onReturn";
+        }
+
+        wmf.method = methodName;
+        wmf.tag    = CTRLTAG_EDIT | CTRLTAG_WANTRETURN;
+
+        wmf.wm       = WM_KEYDOWN;
+        wmf.wmFilter = 0xFFFFFFFF;
+        wmf.wp       = VK_RETURN;
+        wmf.wpFilter = 0xFFFFFFFF;
+        wmf.lp       = 0;
+        wmf.lpFilter = KEY_WASDOWN;
+
+        if ( ! addSubclassMessage(context, pcdc, &wmf) )
+        {
+            goto done_out;
+        }
+
+        wmf.wp = VK_ESCAPE;
+        if ( ! addSubclassMessage(context, pcdc, &wmf) )
+        {
+            goto done_out;
+        }
+
+        wmf.wp = VK_TAB;
+        if ( ! addSubclassMessage(context, pcdc, &wmf) )
+        {
+            goto done_out;
+        }
+
+        wmf.wm       = WM_GETDLGCODE;
+        wmf.wmFilter = 0xFFFFFFFF;
+        wmf.wp       = 0;
+        wmf.wpFilter = 0;
+        wmf.lp       = 0;
+        wmf.lpFilter = 0;
 
         if ( addSubclassMessage(context, pcdc, &wmf) )
         {
@@ -1774,6 +2143,85 @@ RexxMethod2(RexxObjectPtr, dlgctrl_redrawRect, ARGLIST, args, CSELF, pCSelf)
 }
 
 
+/** DialogControl::setParent()
+ *
+ *  Sets a new parent for this dialog control.
+ *
+ *  @param  The new parent
+ *
+ *  @return  True on success, false on error.
+ *
+ *  @note  Sets the .SystemErrorCode.
+ */
+RexxMethod2(RexxObjectPtr, dlgctrl_setParent, RexxObjectPtr, parent, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    pCDialogControl pcdcParent = requiredDlgControlCSelf(context, parent, 1);
+    pCDialogControl pcdc       = validateDCCSelf(context, pCSelf);
+
+    if ( pcdc == NULL || pcdcParent == NULL )
+    {
+        return TheFalseObj;
+    }
+
+    HWND old = SetParent(pcdc->hCtrl, pcdcParent->hCtrl);
+    if ( old == NULL )
+    {
+        oodSetSysErrCode(context->threadContext);
+        return TheFalseObj;
+    }
+    return TheTrueObj;
+}
+
+
+/** DialogControl::setWindowTheme()
+ *
+ *  Causes a window to use a different set of visual style information than its
+ *  class normally uses.
+ *
+ *  @param  name [required]  The application name to use in place of the calling
+ *               application's name.
+ *
+ *  @return  True on success, false on error.
+ *
+ *  @note  Sets the .SystemErrorCode.
+ *
+ *  @remarks  The only theme name I know to work is 'explorer.'  Not at all sure
+ *            what other names might be valid.
+ */
+RexxMethod2(RexxObjectPtr, dlgctrl_setWindowTheme, CSTRING, name, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        return TheFalseObj;
+    }
+
+    size_t len = strlen(name);
+    if ( len >= MAX_PATH )
+    {
+        stringTooLongException(context->threadContext, 1, MAX_PATH - 1, len);
+        return TheFalseObj;
+    }
+
+    WCHAR themeName[MAX_PATH];
+
+    putUnicodeText((LPWORD)themeName, name);
+
+    HRESULT hr = SetWindowTheme(pcdc->hCtrl, themeName, NULL);
+    if ( ! SUCCEEDED(hr) )
+    {
+        oodSetSysErrCode(context->threadContext, hr);
+        return TheFalseObj;
+    }
+
+    return TheTrueObj;
+}
+
+
 /** DialogControl::textSize()
  *
  *  Computes the width and height in pixels of the specified string of text when
@@ -1889,8 +2337,19 @@ RexxMethod5(RexxObjectPtr, dlgctrl_getTextSizeDlg, CSTRING, text, OPTIONAL_CSTRI
 
 /** DialogControl::setColor()
  *  DialogControl::setSysColor
+ *
+ *  @remarks  Both setColor() and setSysColor() are enhanced in 4.2.1 to make
+ *            the first argument optional.  If not specified, the background
+ *            brush used is the default dialog color, or the brush used for the
+ *            dialog background color.  This is the 'transparent' text effect
+ *            that Martin Berg has always wanted.
+ *
+ *            setColor() is also enhanced by adding a third argument, isClrRef,
+ *            that allows the user to specify the colors as COLORREFs, not
+ *            pallete indexes.
  */
-RexxMethod4(int32_t, dlgctrl_setColor, RexxObjectPtr, rxBG, OPTIONAL_RexxObjectPtr, rxFG, NAME, method, CSELF, pCSelf)
+RexxMethod5(int32_t, dlgctrl_setColor, OPTIONAL_RexxObjectPtr, rxBG, OPTIONAL_RexxObjectPtr, rxFG,
+            OPTIONAL_logical_t, isClrRef, NAME, method, CSELF, pCSelf)
 {
     pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
     if ( pcdc == NULL )
@@ -1899,30 +2358,45 @@ RexxMethod4(int32_t, dlgctrl_setColor, RexxObjectPtr, rxBG, OPTIONAL_RexxObjectP
     }
 
     bool    useSysColor = (method[3] == 'S');
-    int32_t bkColor = 0;
-    int32_t fgColor = -1;
+    uint32_t bkColor = CLR_DEFAULT;
+    uint32_t fgColor = CLR_DEFAULT;
 
     if ( useSysColor )
     {
-        if ( ! getSystemColor(context, rxBG, &bkColor, 1) )
+        if ( argumentExists(1) && ! getSystemColor(context, rxBG, &bkColor, 1) )
         {
-            return -1;
+            return 1;
         }
         if ( argumentExists(2) && ! getSystemColor(context, rxFG, &fgColor, 2) )
         {
-            return -1;
+            return 1;
         }
     }
     else
     {
-        if ( ! context->Int32(rxBG, &bkColor) || (argumentExists(2) && ! context->Int32(rxFG, &fgColor)) )
+        if ( argumentExists(1) && ! context->UnsignedInt32(rxBG, &bkColor) )
         {
-            return -1;
+            return 1;
+        }
+        if ( argumentExists(2) && ! context->UnsignedInt32(rxFG, &fgColor) )
+        {
+            return 1;
         }
     }
 
-    return (int32_t)oodColorTable(context, dlgToCSelf(context, pcdc->oDlg), pcdc->id, bkColor,
-                                  argumentOmitted(2) ? -1 : fgColor, useSysColor);
+    if ( ! (useSysColor || isClrRef) )
+    {
+        if ( bkColor != CLR_DEFAULT )
+        {
+            bkColor = PALETTEINDEX(bkColor);
+        }
+        if ( fgColor != CLR_DEFAULT )
+        {
+            fgColor = PALETTEINDEX(fgColor);
+        }
+    }
+
+    return (int32_t)oodColorTable(context, dlgToCSelf(context, pcdc->oDlg), pcdc->id, bkColor, fgColor, useSysColor);
 }
 
 /** DialogControl::data()
@@ -2089,7 +2563,7 @@ RexxMethod2(RexxObjectPtr, dlgctrl_putInBag, RexxObjectPtr, object, CSELF, pCSel
     {
         if ( pcdc->rexxBag == NULL )
         {
-            RexxObjectPtr bag = rxNewSet(context);
+            RexxObjectPtr bag = rxNewBag(context);
             context->SetObjectVariable(DIALOGCONTROL_BAG_ATTRIBUTE, bag);
             pcdc->rexxBag = bag;
         }
@@ -2098,4 +2572,119 @@ RexxMethod2(RexxObjectPtr, dlgctrl_putInBag, RexxObjectPtr, object, CSELF, pCSel
 
     return TheNilObj;
 }
+
+
+
+/**
+ *  Generic methods for the dialog control classes.  These are methods that are
+ *  very similar in two or more controls, enough similar that it doesn't make
+ *  sense to have separate method implmentations.
+ */
+#define GENERIC_DIALOGCONTROL_METHODS        "Generic Methods"
+
+
+/** ListView::getToolTips()
+ *  TreeView::getToolTips()
+ *
+ *
+ *  Retrieves the child ToolTip control used by this list-view or tree-view.
+ *
+ *  @param  None.
+ *
+ *  @return  Returns the tool tip Rexx object, or .nil if there is no tool tip.
+ *
+ *  @remarks  We create a Rexx tool tip object from the returned handle and then
+ *  protect that object.  Rather than store the tool tip object in the dialog's
+ *  bag, we put it in the control's bag. We don't check the return from create
+ *  control for TheNilObj because protectControlObect() does that for us.
+ */
+RexxMethod1(RexxObjectPtr, generic_getToolTips, CSELF, pCSelf)
+{
+    RexxObjectPtr result = TheNilObj;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        goto done_out;
+    }
+
+    oodControl_t ctrlType = pcdc->controlType;
+    HWND         hTT      = NULL;
+
+    if ( ctrlType == winListView )
+    {
+        hTT = ListView_GetToolTips(pcdc->hCtrl);
+    }
+    else
+    {
+        hTT = TreeView_GetToolTips(pcdc->hCtrl);
+    }
+
+    if ( hTT == NULL )
+    {
+        goto done_out;
+    }
+
+    result = createControlFromHwnd(context, pcdc, hTT, winToolTip, false);
+    protectControlObject(context, pcdc, result);
+
+done_out:
+    return result;
+}
+
+
+/** ListView::setToolTips()
+ *  TreeView::setToolTips()
+ *
+ *  Sets the child ToolTip control used by this list-view or tree-view controls
+ *
+ *  @param  None.
+ *
+ *  @return  Returns the previous tool tip, as a Rexx ToolTip object, or .nil if
+ *           there is no previous tool tip.
+ */
+RexxMethod2(RexxObjectPtr, generic_setToolTips, RexxObjectPtr, toolTip, CSELF, pCSelf)
+{
+    RexxObjectPtr result = TheNilObj;
+
+    pCDialogControl pcdc = validateDCCSelf(context, pCSelf);
+    if ( pcdc == NULL )
+    {
+        goto done_out;
+    }
+    if ( ! requiredClass(context->threadContext, toolTip, "ToolTip", 1) )
+    {
+        goto done_out;
+    }
+
+    oodControl_t ctrlType = pcdc->controlType;
+    HWND         hOldTT   = NULL;
+
+    // Rather than put the tool tip object in the dialog bag, we put it in this
+    // control's bag, list-view or tree-view.
+    pCDialogControl pcdcTT = controlToCSelf(context, toolTip);
+    protectControlObject(context, pcdc, toolTip);
+
+    if ( ctrlType == winListView )
+    {
+        hOldTT = ListView_SetToolTips(pcdc->hCtrl, pcdcTT->hCtrl);
+    }
+    else
+    {
+        hOldTT = TreeView_SetToolTips(pcdc->hCtrl, pcdcTT->hCtrl);
+    }
+    if ( hOldTT == NULL )
+    {
+        goto done_out;
+    }
+
+    // We don't care if .nil is returned because unprotectControlObject() will
+    // check for TheNilObj and not try to remove it from the bag.
+    result = createControlFromHwnd(context, pcdc, hOldTT, winToolTip, false);
+    unProtectControlObject(context, pcdc, result);
+
+done_out:
+    return result;
+}
+
 

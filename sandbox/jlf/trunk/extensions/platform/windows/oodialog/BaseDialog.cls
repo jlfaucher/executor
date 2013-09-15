@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -45,8 +45,6 @@
  *
  * Some classes related to Windows resources are also included here.
  */
-::requires "PlainBaseDialog.cls"
-::requires "DialogExtensions.cls"
 
 /**
  * The class WindowExtensions implements methods that are common to all windows,
@@ -206,3 +204,70 @@
 ::method removeAll external "LIBRARY oodialog il_removeAll"
 ::method handle external "LIBRARY oodialog il_handle"
 ::method isNull external "LIBRARY oodialog il_isNull"
+
+
+::class 'CustomDraw' public mixinclass EventNotification
+
+::constant CDRF_DODEFAULT                  0  -- 0x00000000
+::constant CDRF_NEWFONT                    2  -- 0x00000002
+::constant CDRF_SKIPDEFAULT                4  -- 0x00000004
+::constant CDRF_DOERASE                    8  -- 0x00000008  draw the background
+::constant CDRF_SKIPPOSTPAINT            256  -- 0x00000100  don't draw the focus rect
+::constant CDRF_NOTIFYPOSTPAINT           16  -- 0x00000010
+::constant CDRF_NOTIFYITEMDRAW            32  -- 0x00000020
+::constant CDRF_NOTIFYSUBITEMDRAW         32  -- 0x00000020  flags are the same, MS can distinguish by context
+::constant CDRF_NOTIFYPOSTERASE           64  -- 0x00000040
+
+::constant CDDS_PREPAINT                   1  -- 0x00000001
+::constant CDDS_POSTPAINT                  2  -- 0x00000002
+::constant CDDS_PREERASE                   3  -- 0x00000003
+::constant CDDS_POSTERASE                  4  -- 0x00000004
+
+::constant CDDS_ITEM                   65536  -- 0x00010000  the 0x000010000 bit means it's individual item specific
+::constant CDDS_ITEMPREPAINT           65537  -- 0x00010001 (CDDS_ITEM | CDDS_PREPAINT)
+::constant CDDS_ITEMPOSTPAINT          65538  -- 0x00010002 (CDDS_ITEM | CDDS_POSTPAINT)
+::constant CDDS_ITEMPREERASE           65539  -- 0x00010003 (CDDS_ITEM | CDDS_PREERASE)
+::constant CDDS_ITEMPOSTERASE          65540  -- 0x00010004 (CDDS_ITEM | CDDS_POSTERASE)
+::constant CDDS_SUBITEM               131072  -- 0x00020000
+::constant CDDS_SUBITEMPREPAINT       196609  -- 0x00030001  -- ooRexx defined for convenience
+::constant CDDS_SUBITEMPOSTPAINT      196610  -- 0x00030002  -- ooRexx defined for convenience
+
+::constant CLR_NONE               4294967295  --  0xFFFFFFFFL
+::constant CLR_INVALID            4294967295  --  0xFFFFFFFFL
+::constant CLR_DEFAULT            4278190080  --  xFF000000L
+
+::method customDraw external "LIBRARY oodialog cd_init"
+::method customDrawControl external "LIBRARY oodialog cd_customDrawControl"
+::method RGB external "LIBRARY oodialog image_colorRef_cls"
+
+
+::class 'ResizingAdmin' public mixinclass Object
+
+::constant IDC_DEFAULT_PINTO_WINDOW     0
+
+::attribute minSize get external   "LIBRARY oodialog ra_minSize"
+::attribute minSize set external   "LIBRARY oodialog ra_setMinSize"
+::attribute maxSize get external   "LIBRARY oodialog ra_maxSize"
+::attribute maxSize set external   "LIBRARY oodialog ra_setMaxSize"
+
+::method controlBottom external "LIBRARY oodialog ra_controlSide"
+::method controlLeft external "LIBRARY oodialog ra_controlSide"
+::method controlRight external "LIBRARY oodialog ra_controlSide"
+::method controlSizing external "LIBRARY oodialog ra_controlSizing"
+::method controlTop external "LIBRARY oodialog ra_controlSide"
+::method defaultBottom external "LIBRARY oodialog ra_defaultSide"
+::method defaultLeft external "LIBRARY oodialog ra_defaultSide"
+::method defaultRight external "LIBRARY oodialog ra_defaultSide"
+::method defaultSizing external "LIBRARY oodialog ra_defaultSizing"
+::method defaultTop external "LIBRARY oodialog ra_defaultSide"
+::method defineSizing
+  return 0
+
+::method noMaxSize external "LIBRARY oodialog ra_noMaxSize"
+::method noMinSize external "LIBRARY oodialog ra_noMinSize"
+::method pagedTab external "LIBRARY oodialog ra_pagedTab"
+::method useDefaultSizing external "LIBRARY oodialog ra_useDefaultSizing"
+::method wantSizeEnded external "LIBRARY oodialog ra_wantSizeEnded"
+
+-- Internal use only
+::method initResizing private  external "LIBRARY oodialog ra_initResizing"              -- Do not document

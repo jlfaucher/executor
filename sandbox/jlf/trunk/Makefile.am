@@ -156,6 +156,7 @@ build_samples_platform_dir = $(samples_@ORX_PLATFORM@_dir)
 catdir = $(prefix)/bin
 
 COMMON_CPPFLAGS = -DORX_VER=$(ORX_MAJOR) -DORX_REL=$(ORX_MINOR) -DORX_MOD=$(ORX_MOD_LVL) -DORX_FIX=0 \
+                  -DOOREXX_COPY_YEAR=\"$(ORX_COPY_YEAR)\" \
                   -DORX_SYS_STR=\"@ORX_SYS_STR@\" \
                   -DORX_CATDIR=\"$(catdir)\" \
                   -DORX_SHARED_LIBRARY_EXT=\"@ORX_SHARED_LIBRARY_EXT@\"
@@ -390,7 +391,8 @@ unixMiscFiles = $(interpreter_unix_dir)/*.cat \
                 $(build_os_platform_dir)/rexx.csh \
                 $(build_os_platform_dir)/*.1 \
                 platform/unix/oorexx.spec \
-                platform/unix/oorexx-config
+                platform/unix/oorexx-config \
+                $(build_os_platform_dir)/rxapid.service
 commonMiscFiles = $(top_srcdir)/CPLv1.0.txt \
                   $(top_srcdir)/CHANGES \
                   $(top_srcdir)/ReleaseNotes \
@@ -1173,6 +1175,7 @@ install-exec-local:
 		$(install_sh_SCRIPT) $$a $(DESTDIR)$(prefix)/share/ooRexx/$$bn; \
 	done;
 	$(install_sh_SCRIPT) $(build_samples_dir)/readme $(DESTDIR)$(prefix)/share/ooRexx/readme
+	$(install_sh_SCRIPT) $(platform_unix_dir)/rxapid.service $(DESTDIR)$(prefix)/share/ooRexx/rxapid.service
 
 package:
 	./rexx $(build_os_platform_dir)/makepkg.rex @PACKAGETYPE@ $(ORX_MAJOR).$(ORX_MINOR).$(ORX_MOD_LVL) $(target) $(prefix) $(DESTDIR)

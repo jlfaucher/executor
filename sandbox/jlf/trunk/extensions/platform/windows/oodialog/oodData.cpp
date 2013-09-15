@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -364,7 +364,7 @@ static bool getComboBoxData(HWND hwnd, uint32_t itemID, char *data)
 {
     LRESULT result = 0;
 
-    if ( isDropDownList(hwnd, itemID) )
+    if ( isDropDownListCB(hwnd, itemID) )
     {
         result = SendDlgItemMessage(hwnd, itemID, CB_GETCURSEL, 0, 0);
         if ( result != CB_ERR && (SendDlgItemMessage(hwnd, itemID, CB_GETLBTEXTLEN, result, 0) < DATA_BUFFER) )
@@ -399,7 +399,7 @@ static bool getComboBoxData(HWND hwnd, uint32_t itemID, char *data)
  */
 static uint32_t setComboBoxData(HWND hwnd, uint32_t itemID, CSTRING itemText)
 {
-    if ( isDropDownList(hwnd, itemID) )
+    if ( isDropDownListCB(hwnd, itemID) )
     {
         LRESULT index = SendDlgItemMessage(hwnd, itemID, CB_FINDSTRING, 0, (LPARAM)itemText);
         if ( index != LB_ERR )
@@ -456,57 +456,15 @@ static bool getTreeViewData(HWND hW, char * ldat, INT item)
 
 static bool setTreeViewData(HWND hDlg, const char * ldat, uint32_t ctrlID)
 {
-   TVITEM tvi = {0};
-   CHAR data[DATA_BUFFER];
-
    HWND hCtrl = GetDlgItem(hDlg, ctrlID);
-   if ( hCtrl != NULL && *ldat != '\0' )
+
+   if ( hCtrl != NULL )
    {
-       HTREEITEM hTreeItem, root = TreeView_GetRoot(hCtrl);
-       tvi.hItem = root;
-       while ( tvi.hItem != NULL )
+       HTREEITEM hItem = tvFindItem(hCtrl, ldat, NULL, false);
+
+       if ( hItem != NULL )
        {
-            tvi.mask = TVIF_HANDLE | TVIF_TEXT | TVIF_CHILDREN;
-            tvi.pszText = data;
-            tvi.cchTextMax = DATA_BUFFER - 1;
-            if ( TreeView_GetItem(hCtrl, &tvi) )
-            {
-                if ( stricmp(tvi.pszText, ldat) == 0 )
-                {
-                    return (TreeView_SelectItem(hCtrl, tvi.hItem) ? true : false);
-                }
-                else
-                {
-                    if ( tvi.cChildren > 0 )
-                    {
-                        hTreeItem = TreeView_GetChild(hCtrl, tvi.hItem);
-                    }
-                    else
-                    {
-                        hTreeItem = TreeView_GetNextSibling(hCtrl, tvi.hItem);
-                    }
-
-                    while ( hTreeItem == NULL && tvi.hItem != NULL )
-                    {
-                        tvi.hItem = TreeView_GetParent(hCtrl, tvi.hItem);
-                        hTreeItem = TreeView_GetNextSibling(hCtrl, tvi.hItem);
-                        if ( hTreeItem == root )
-                        {
-                            return false;
-                        }
-                    }
-
-                    if ( tvi.hItem == NULL )
-                    {
-                        return false;
-                    }
-                    tvi.hItem = hTreeItem;
-                }
-            }
-            else
-            {
-                tvi.hItem = NULL;
-            }
+           return (TreeView_SelectItem(hCtrl, hItem) ? true : false);
        }
    }
    return false;
@@ -1158,7 +1116,7 @@ uint32_t doDataAutoDetection(RexxThreadContext *c, pCPlainBaseDialog pcpbd)
 
        if ( (GetWindowLong(current, GWL_STYLE) & WS_VISIBLE) != 0 )
        {
-           itemToAdd = control2controlType(current);
+           itemToAdd = controlHwnd2controlType(current);
            if ( ! isDataAttributeControl(itemToAdd) )
            {
                itemToAdd = winNotAControl;

@@ -1,6 +1,6 @@
 #/*----------------------------------------------------------------------------*/
 #/*                                                                            */
-#/* Copyright (c) 2011-2012 Rexx Language Association. All rights reserved.    */
+#/* Copyright (c) 2011-2013 Rexx Language Association. All rights reserved.    */
 #/*                                                                            */
 #/* This program and the accompanying materials are made available under       */
 #/* the terms of the Common Public License v1.0 which accompanies this         */
@@ -37,8 +37,8 @@
 
 .NOTPARALLEL:
 
-SUBDIRS		= Exercise02 Exercise03 Exercise04 Exercise05 Exercise06 Samples Support
-DIST_SUBDIRS		= Exercise02 Exercise03 Exercise04 Exercise05 Exercise06 Samples Support
+SUBDIRS		= Exercise02 Exercise03 Exercise04 Exercise05 Exercise06 Exercise07 Samples Support
+DIST_SUBDIRS		= Exercise02 Exercise03 Exercise04 Exercise05 Exercise06 Exercise07 Samples Support
 
 MAINTAINERCLEANFILES	= Makefile.in *~
 

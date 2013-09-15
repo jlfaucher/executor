@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -41,7 +41,6 @@
  *
  * Resource Dialog Class.
  */
-::requires "PlainBaseDialog.cls"
 
 -- This class extends the 'PlainBaseDialog' class.  Because of backwards
 -- compatibility we need to do this through the deprecated BaseDialog.

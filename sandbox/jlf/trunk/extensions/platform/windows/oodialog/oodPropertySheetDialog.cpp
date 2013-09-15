@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -56,6 +56,7 @@
 #include "oodResources.hpp"
 #include "oodResourceIDs.hpp"
 #include "oodControl.hpp"
+#include "oodResizableDialog.hpp"
 #include "oodPropertySheetDialog.hpp"
 
 
@@ -573,13 +574,16 @@ bool setPageText(RexxMethodContext *c, pCPropertySheetPage pcpsp, CSTRING text, 
  * property sheet dialog is about to be created.  At this point, the in-memory
  * dialog template can be accessed.
  *
- * This allows us to alter the template.  The one practical use of this, would
- * be to change the font of the property sheet.
+ * This allows us to alter the template.  One use of this, could be to change
+ * the font of the property sheet.
  *
  * Note this is just temp code that shows it can actually be done.  Because the
  * dialog template items are variable in size, we need to calculate the
  * beginning and end of memory used by the dialog items, change the font type
  * name and then move the dialog items to the correct place.
+ *
+ * The code here is just saved for future reference.  For a more practical use,
+ * see the adjustResizablePropSheetTemplate() function.
  *
  * @param tmplate
  */
@@ -590,9 +594,10 @@ void adjustPropSheetTemplate(LPARAM tmplate, bool quickReturn)
         return;
     }
 
+#if 0
     DLGTEMPLATE *pDlgTemplate;
     DLGTEMPLATEEX *pDlgTemplateEx;
-    bool hasFontInfo;
+    bool hasFontInfo = false;
 
     pDlgTemplateEx = (DLGTEMPLATEEX *)tmplate;
     if (pDlgTemplateEx->signature == 0xFFFF)
@@ -603,40 +608,216 @@ void adjustPropSheetTemplate(LPARAM tmplate, bool quickReturn)
     }
     else
     {
-           pDlgTemplate = (DLGTEMPLATE *)tmplate;
-           hasFontInfo = (pDlgTemplate->style & DS_SHELLFONT) || (pDlgTemplate->style & DS_SETFONT);
+        pDlgTemplate = (DLGTEMPLATE *)tmplate;
 
-           printf("PropertySheet, regular template. Has font info=%d\n", hasFontInfo);
+        hasFontInfo = (pDlgTemplate->style & DS_SHELLFONT) || (pDlgTemplate->style & DS_SETFONT);
 
-           WORD *pStruct = (WORD *)tmplate;
-           printf(" count items=%d x=%d y=%d cx=%d cy=%d menu=%d class=%d titleWord=%d\n",
-                  pStruct[4], pStruct[5], pStruct[6], pStruct[7], pStruct[8],
-                  pStruct[9], pStruct[10], pStruct[11]);
+        printf("PropertySheet, regular template. Has font info=%d\n", hasFontInfo);
+
+        WORD *pStruct = (WORD *)tmplate;
+        printf(" count items=%d x=%d y=%d cx=%d cy=%d menu=%d class=%d titleWord=%d\n",
+               pStruct[4], pStruct[5], pStruct[6], pStruct[7], pStruct[8],
+               pStruct[9], pStruct[10], pStruct[11]);
 
 
-           WCHAR *wstr = (WCHAR *)(pStruct + 13);
-           printf("  pointSize=%d ", pStruct[12]);
-           wprintf(L"Font=%s\n", wstr);
+        WCHAR *wstr = (WCHAR *)(pStruct + 13);
+        printf("  pointSize=%d ", pStruct[12]);
+        wprintf(L"Font=%s\n", wstr);
 
-           // Temp, change the font size and font name.  Really temp.  Font name
-           // has to be exactly same number of characters as MS Shell Dlg.
-           //
-           // Arial Italic
-           // Book Antiqua
-           // Cooper Black
-           // Poor Richard
-           *(pStruct + 12) = 12;
-           putUnicodeText((LPWORD)wstr, "Arial Italic");
+        // Temp, change the font size and font name.  Really temp.  Font name
+        // has to be exactly same number of characters as MS Shell Dlg.
+        //
+        // Arial Italic
+        // Book Antiqua
+        // Cooper Black
+        // Poor Richard
+        *(pStruct + 12) = 12;
+        putUnicodeText((LPWORD)wstr, "Arial Italic");
     }
-
+#endif
 }
 
+
+/**
+ * Called from the resizable property sheet callback function when signaled that
+ * the property sheet dialog is about to be created.  At this point, the
+ * in-memory dialog template can be accessed.
+ *
+ * This allows us to alter the template.  We use this to add the WS_THICKFRAME
+ * to the property sheet.  Other adjustments could be made.
+ *
+ * @param tmplate
+ */
+void adjustResizablePropSheetTemplate(LPARAM tmplate)
+{
+    DLGTEMPLATE *pDlgTemplate;
+    DLGTEMPLATEEX *pDlgTemplateEx;
+
+    pDlgTemplateEx = (DLGTEMPLATEEX *)tmplate;
+    if (pDlgTemplateEx->signature == 0xFFFF)
+    {
+        pDlgTemplateEx->style |= WS_THICKFRAME;
+    }
+    else
+    {
+        pDlgTemplate = (DLGTEMPLATE *)tmplate;
+        pDlgTemplate->style |= WS_THICKFRAME;
+    }
+}
+
+
+/**
+ * This is the subclass procedure for resizable property sheet dialogs.
+ *
+ * @param hDlg
+ * @param msg
+ * @param wParam
+ * @param lParam
+ * @param id
+ * @param dwData
+ *
+ * @return LRESULT CALLBACK
+ *
+ * @remarks  We need to call initializeResizableDialog() at the time of the
+ *           first WM_SHOWWINDOW.  If we call it prior to this, the button
+ *           controls have not been positioned and once a resize is done, they
+ *           appear in the wrong place.
+ */
+LRESULT CALLBACK ResizableSubclassProc(HWND hDlg, uint32_t msg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR dwData)
+{
+    pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)dwData;
+
+    switch ( msg )
+    {
+        case WM_ENTERSIZEMOVE :
+        {
+            pcpsd->pcpbd->resizeInfo->inSizeOrMove = true;
+            break;
+        }
+
+        case WM_SHOWWINDOW :
+        {
+            if ( pcpsd->isFirstShow )
+            {
+                pCPlainBaseDialog pcpbd = pcpsd->pcpbd;
+
+                initializeResizableDialog(hDlg, pcpbd->dlgProcContext, pcpbd);
+                pcpsd->isFirstShow = false;
+            }
+
+            break;
+        }
+
+        case WM_SIZE :
+        {
+            pCPlainBaseDialog     pcpbd = pcpsd->pcpbd;
+            pResizeInfoDlg        prid  = pcpbd->resizeInfo;
+
+            if ( prid->inSizeOrMove || wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED )
+            {
+                prid->isSizing = true;
+                BOOL ret = resizeAndPosition(pcpbd, hDlg, LOWORD(lParam), HIWORD(lParam));
+
+                HWND hTab = PropSheet_GetTabControl(hDlg);
+
+                POINT p = { 0 };
+                SIZE  s = { 0 };
+
+                calcDisplayRect(hTab, hDlg, &p, &s);
+
+                for ( size_t i = 0; i < pcpsd->pageCount; i++ )
+                {
+                    pCPropertySheetPage pcpsp = pcpsd->cppPages[i];
+                    HWND hPage = pcpsp->hPage;
+                    if ( hPage == NULL )
+                    {
+                        continue;
+                    }
+
+                    if ( IsWindowVisible(hPage) )
+                    {
+                        SetWindowPos(hPage, hTab, p.x, p.y, s.cx, s.cy, SWP_NOCOPYBITS | SWP_NOOWNERZORDER);
+                        prid->redrawThis = hPage;
+                    }
+                    else
+                    {
+                        MoveWindow(hPage, p.x, p.y, s.cx, s.cy, FALSE);
+                    }
+                }
+            }
+
+            break;
+        }
+
+        case WM_EXITSIZEMOVE :
+        {
+            pCPlainBaseDialog pcpbd = pcpsd->pcpbd;
+            pResizeInfoDlg    prid  = pcpbd->resizeInfo;
+
+            if ( prid->isSizing && prid->redrawThis )
+            {
+                RedrawWindow(prid->redrawThis, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+                prid->redrawThis = NULL;
+            }
+            if ( prid->isSizing && prid->sizeEndedMeth != NULL)
+            {
+                notifyExitSizeMove(pcpbd);
+            }
+
+            prid->isSizing = false;
+            prid->inSizeOrMove = false;
+
+            break;
+        }
+
+        case WM_GETMINMAXINFO :
+        {
+            pResizeInfoDlg  prid = pcpsd->pcpbd->resizeInfo;
+            MINMAXINFO     *pmmi = (MINMAXINFO *)lParam;
+
+            if ( prid->haveMinSize )
+            {
+                pmmi->ptMinTrackSize.x = prid->minSize.cx;
+                pmmi->ptMinTrackSize.y = prid->minSize.cy;
+            }
+
+            if ( prid->haveMaxSize )
+            {
+                pmmi->ptMaxTrackSize.x = prid->maxSize.cx;
+                pmmi->ptMaxTrackSize.y = prid->maxSize.cy;
+            }
+
+            return TRUE;
+        }
+
+        case WM_NCDESTROY :
+            /* The window is being destroyed, remove the subclass. The dwData
+             * struct will be cleaned up normally since it is the CSelf struct
+             * of the property sheet.
+             */
+            RemoveWindowSubclass(hDlg, ResizableSubclassProc, id);
+            break;
+
+        default :
+            break;
+    }
+
+    return DefSubclassProc(hDlg, msg, wParam, lParam);
+}
+
+void subclassResizablePropertySheet(HWND hPropSheet, pCPropertySheetDialog pcpsd)
+{
+    SetWindowSubclass(hPropSheet, ResizableSubclassProc, 100, (DWORD_PTR)pcpsd);
+}
 
 /**
  * Called from the property sheet callback function when signaled that the
  * property sheet dialog is being initialized.  Performs the initialization
  * normally done in the window loop thread function and the execute() method for
  * normal ooDialog dialogs.
+ *
+ * In addition, if this is a resizable property sheet, we subclass the property
+ * sheet so we can handle the resizing.
  *
  * @param hPropSheet  Window handle of the property sheet.
  */
@@ -646,9 +827,9 @@ static void initializePropSheet(HWND hPropSheet)
 
     if ( pshd != NULL )
     {
-        pCPropertySheetDialog pcpsd = pshd->pcpsd;
-        RexxThreadContext *c = pcpsd->dlgProcContext;
-        pCPlainBaseDialog pcpbd = pcpsd->pcpbd;
+        pCPropertySheetDialog  pcpsd = pshd->pcpsd;
+        RexxThreadContext     *c     = pcpsd->dlgProcContext;
+        pCPlainBaseDialog      pcpbd = pcpsd->pcpbd;
 
         LocalFree(pshd);
 
@@ -662,7 +843,7 @@ static void initializePropSheet(HWND hPropSheet)
         pcpbd->isActive = true;
         pcpbd->childDlg[0] = hPropSheet;
 
-        setDlgHandle(c, pcpbd);
+        setDlgHandle(pcpbd);
         setFontAttrib(c, pcpbd);
 
         pcpbd->onTheTop = true;
@@ -671,6 +852,11 @@ static void initializePropSheet(HWND hPropSheet)
         // Do we have a modal dialog?  TODO this check is worthless because
         // there is no pcpbd->previous set.
         checkModal((pCPlainBaseDialog)pcpbd->previous, pcpsd->modeless);
+
+        if ( pcpbd->isResizableDlg )
+        {
+            SetWindowSubclass(hPropSheet, ResizableSubclassProc, pcpbd->dlgID, (DWORD_PTR)pcpsd);
+        }
 
         c->SendMessage0(pcpsd->rexxSelf, "INITDIALOG");
     }
@@ -699,7 +885,13 @@ static void initializePropSheetPage(HWND hPage, pCPropertySheetPage pcpsp)
     pcpbd->isActive = true;
     pcpbd->childDlg[0] = hPage;
 
-    setDlgHandle(c, pcpbd);
+    setDlgHandle(pcpbd);
+
+    if ( pcpbd->isResizableDlg )
+    {
+        initializeResizableDialog(hPage, pcpbd->dlgProcContext, pcpbd);
+    }
+
     if ( pcpsp->pageType == oodResPSPDialog )
     {
         setFontAttrib(c, pcpbd);
@@ -755,7 +947,7 @@ inline bool isPropSheetMatch(LPCREATESTRUCT cs)
  * prevents the page from canceling the close.  We then programmatically press
  * the Cancel key.
  *
- * This was originally intended only for modal propert sheetes.  Usually it is
+ * This was originally intended only for modal propert sheets.  Usually it is
  * not needed with modeless property sheets as DestroyWindow() works fine,
  * however there is no reason it can not be used with modeless property sheet
  * dialogs.
@@ -773,6 +965,27 @@ void abortPropertySheet(pCPropertySheetDialog pcpsd, HWND hDlg, DlgProcErrType t
     }
 
     PropSheet_PressButton(hDlg, PSBTN_CANCEL);
+}
+
+
+void abortPropertySheetPage(pCPropertySheetPage page, HWND hDlg, DlgProcErrType t)
+{
+    RexxThreadContext     *c     = page->dlgProcContext;
+    pCPropertySheetDialog  pcpsd = (pCPropertySheetDialog)page->cppPropSheet;
+    uint32_t               count = pcpsd->pageCount;
+
+    for ( uint32_t i = 0; i < count; i++ )
+    {
+        pCPropertySheetPage pcpsp = pcpsd->cppPages[i];
+        pcpsp->abort = true;
+
+        if ( pcpsp->activated )
+        {
+            ensureFinished(pcpsp->pcpbd, c, TheTrueObj);
+        }
+    }
+
+    PropSheet_PressButton(pcpsd->hDlg, PSBTN_CANCEL);
 }
 
 
@@ -1250,7 +1463,8 @@ done_out:
 
 
 /**
- * The dialog procedure for control dialogs used by the PropertySheetDialog.
+ * The dialog procedure for control dialogs used by the PropertySheetDialog
+ * property sheet page dislogs.
  *
  * These are 'nested' dialogs, or dialogs within a top-level dialog.  For the
  * most part, the procedure is exactly the same as for top-level dialogs.  See
@@ -1271,7 +1485,7 @@ done_out:
  *           In WM_DESTROY we do the final steps / clean up normally done in the
  *           execute() method.
  */
-LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK RexxPropertySheetPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if ( uMsg == WM_INITDIALOG )
     {
@@ -1284,7 +1498,17 @@ LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, L
             return endDialogPremature(NULL, hDlg, NoPCPSPpased);
         }
 
+        pCPlainBaseDialog pcpbd = pcpsp->pcpbd;
+        pcpbd->hDlg = hDlg;
+
         initializePropSheetPage(hDlg, pcpsp);
+
+        if ( pcpbd->isCustomDrawDlg && pcpbd->idsNotChecked )
+        {
+            // We don't care what the outcome of this is, customDrawCheckIDs
+            // will take care of aborting this dialog if the IDs are bad.
+            customDrawCheckIDs(pcpbd);
+        }
 
         return TRUE;
     }
@@ -1314,6 +1538,17 @@ LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, L
         return TRUE;
     }
 
+    // We first deal with resizable stuff, then handle the rest with the normal
+    // ooDialog process.
+    if ( pcpbd->isResizableDlg )
+    {
+        MsgReplyType resizingReply = handleResizing(hDlg, uMsg, wParam, lParam, pcpbd);
+        if ( resizingReply != ContinueProcessing )
+        {
+            return (resizingReply == ReplyTrue ? TRUE : FALSE);
+        }
+    }
+
     bool msgEnabled = IsWindowEnabled(hDlg) ? true : false;
 
     // Do not search message table for WM_PAINT to improve redraw.
@@ -1334,28 +1569,21 @@ LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, L
         }
     }
 
+    if ( uMsg >= WM_USER_REXX_FIRST && uMsg <= WM_USER_REXX_LAST )
+    {
+        return handleWmUser(pcpbd, hDlg, uMsg, wParam, lParam, true);
+    }
+
     switch ( uMsg )
     {
         case WM_PAINT:
-            if ( pcpbd->bkgBitmap != NULL )
-            {
-                drawBackgroundBmp(pcpbd, hDlg);
-            }
-            break;
+            return drawBackgroundBmp(pcpbd, hDlg);
 
         case WM_DRAWITEM:
-            if ( lParam != 0 )
-            {
-                return drawBitmapButton(pcpbd, lParam, msgEnabled);
-            }
-            break;
+            return drawBitmapButton(pcpbd, lParam, msgEnabled);
 
         case WM_CTLCOLORDLG:
-            if ( pcpbd->bkgBrush )
-            {
-                return(LRESULT)pcpbd->bkgBrush;
-            }
-            break;
+            return handleDlgColor(pcpbd);
 
         case WM_CTLCOLORSTATIC:
         case WM_CTLCOLORBTN:
@@ -1363,152 +1591,17 @@ LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, L
         case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORMSGBOX:
         case WM_CTLCOLORSCROLLBAR:
-        {
-            HBRUSH hbrush = NULL;
-
-            if ( pcpbd->CT_nextIndex > 0 )
-            {
-                // See of the user has set the dialog item with a different
-                // color.
-                long id = GetWindowLong((HWND)lParam, GWL_ID);
-                if ( id > 0 )
-                {
-                    register size_t i = 0;
-                    while ( i < pcpbd->CT_nextIndex && pcpbd->ColorTab[i].itemID != id )
-                    {
-                        i++;
-                    }
-                    if ( i < pcpbd->CT_nextIndex )
-                    {
-                        hbrush = pcpbd->ColorTab[i].ColorBrush;
-                    }
-
-                    if ( hbrush )
-                    {
-                        if ( pcpbd->ColorTab[i].isSysBrush )
-                        {
-                            SetBkColor((HDC)wParam, GetSysColor(pcpbd->ColorTab[i].ColorBk));
-                            if ( pcpbd->ColorTab[i].ColorFG != -1 )
-                            {
-                                SetTextColor((HDC)wParam, GetSysColor(pcpbd->ColorTab[i].ColorFG));
-                            }
-                        }
-                        else
-                        {
-                            SetBkColor((HDC)wParam, PALETTEINDEX(pcpbd->ColorTab[i].ColorBk));
-                            if ( pcpbd->ColorTab[i].ColorFG != -1 )
-                            {
-                                SetTextColor((HDC)wParam, PALETTEINDEX(pcpbd->ColorTab[i].ColorFG));
-                            }
-                        }
-                    }
-                }
-            }
-            if ( hbrush )
-                return(LRESULT)hbrush;
-            else
-                return DefWindowProc(hDlg, uMsg, wParam, lParam);
-        }
+            return handleCtlColor(pcpbd, hDlg, uMsg, wParam, lParam);
 
         case WM_QUERYNEWPALETTE:
         case WM_PALETTECHANGED:
             return paletteMessage(pcpbd, hDlg, uMsg, wParam, lParam);
 
-        // For now, don't let the user created nested, nested dialogs.  In
-        // addition, keyboard hooks should only be created in a top-level
-        // dialog.
-        case WM_USER_CREATECHILD:
-        case WM_USER_CREATECONTROL_DLG:
-        case WM_USER_CREATECONTROL_RESDLG:
-        case WM_USER_HOOK:
-            ReplyMessage((LRESULT)NULL);
-            return TRUE;
+        case WM_COMMAND:
+            return handleWmCommand(pcpbd, hDlg, wParam, lParam, true);
 
-        case WM_USER_INTERRUPTSCROLL:
-            pcpbd->stopScroll = wParam;
-            return TRUE;
-
-        case WM_USER_GETFOCUS:
-            ReplyMessage((LRESULT)GetFocus());
-            return TRUE;
-
-        case WM_USER_MOUSE_MISC:
-        {
-            switch ( wParam )
-            {
-                case MF_RELEASECAPTURE :
-                {
-                    uint32_t rc = 0;
-                    if ( ReleaseCapture() == 0 )
-                    {
-                        rc = GetLastError();
-                    }
-                    ReplyMessage((LRESULT)rc);
-                    break;
-                }
-
-                case MF_GETCAPTURE :
-                    ReplyMessage((LRESULT)GetCapture());
-                    break;
-
-                case MF_SETCAPTURE :
-                    ReplyMessage((LRESULT)SetCapture((HWND)lParam));
-                    break;
-
-                case MF_BUTTONDOWN :
-                    ReplyMessage((LRESULT)GetAsyncKeyState((int)lParam));
-                    break;
-
-                case MF_SHOWCURSOR :
-                    ReplyMessage((LRESULT)ShowCursor((BOOL)lParam));
-                    break;
-
-                default :
-                    // Maybe we should raise an internal exception here.  But,
-                    // as long as the internal code is consistent, we can not
-                    // get here.
-                    break;
-            }
-            return TRUE;
-        }
-
-        case WM_USER_SUBCLASS:
-        {
-            pSubClassData pData = (pSubClassData)lParam;
-
-            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->id, (DWORD_PTR)pData);
-
-            ReplyMessage((LRESULT)success);
-            return TRUE;
-        }
-
-        case WM_USER_SUBCLASS_REMOVE:
-            ReplyMessage((LRESULT)RemoveWindowSubclass(GetDlgItem(hDlg, (int)lParam), (SUBCLASSPROC)wParam, (int)lParam));
-            return TRUE;
-
-        case WM_USER_CONTEXT_MENU:
-        {
-            PTRACKPOP ptp = (PTRACKPOP)wParam;
-            uint32_t cmd;
-
-            SetLastError(0);
-            cmd = (uint32_t)TrackPopupMenuEx(ptp->hMenu, ptp->flags, ptp->point.x, ptp->point.y,
-                                             ptp->hWnd, ptp->lptpm);
-
-            // If TPM_RETURNCMD is specified, the return is the menu item
-            // selected.  Otherwise, the return is 0 for failure and
-            // non-zero for success.
-            if ( ! (ptp->flags & TPM_RETURNCMD) )
-            {
-                cmd = (cmd == 0 ? FALSE : TRUE);
-                if ( cmd == FALSE )
-                {
-                    ptp->dwErr = GetLastError();
-                }
-            }
-            ReplyMessage((LRESULT)cmd);
-            return TRUE;
-        }
+        default:
+            break;
     }
 
     return FALSE;
@@ -1586,6 +1679,40 @@ void CALLBACK PropSheetCallback(HWND hwndPropSheet, UINT uMsg, LPARAM lParam)
     else if ( uMsg == PSCB_PRECREATE )
     {
         adjustPropSheetTemplate(lParam, true);
+    }
+}
+
+
+/**
+ * An implementation of the PropSheetProc callback.  The system calls this
+ * function when the property sheet is being created and initialized.
+ *
+ * We use this callback function for resizable property sheet dialogs.  At the
+ * PSCB_PRECREATE callback, we need to add the WS_THICKFRAME style to the dialog
+ * template.  Adding the style flag anywhere other than in the dialog template
+ * does not work.  However, the only information during this callback is the
+ * template struct, there is no way to know if the dialog is meant to be
+ * resizable or not.  However, the code that assigns callback function does know
+ * if it should be resizable or not.  So, we simply use two nearly identical
+ * callbacks.  One adds the right style to the template, the other does not.
+ *
+ * Other doc is in the PropSheetCallback header.
+ *
+ * @param hwndPropSheet
+ * @param uMsg
+ * @param lParam
+ *
+ * @return void
+ */
+void CALLBACK ResizablePropSheetCallback(HWND hwndPropSheet, UINT uMsg, LPARAM lParam)
+{
+    if ( uMsg == PSCB_INITIALIZED )
+    {
+        initializePropSheet(hwndPropSheet);
+    }
+    else if ( uMsg == PSCB_PRECREATE )
+    {
+        adjustResizablePropSheetTemplate(lParam);
     }
 }
 
@@ -1786,26 +1913,35 @@ static HWND checkPropSheetOwner(RexxMethodContext *c, RexxObjectPtr owner, size_
 
 void assignPSDThreadContext(pCPropertySheetDialog pcpsd, RexxThreadContext *c, uint32_t threadID)
 {
-    pcpsd->dlgProcContext = c;
-    pcpsd->dlgProcThreadID = threadID;
+    pcpsd->pcpbd->dlgProcThreadID = threadID;
+    pcpsd->pcpbd->dlgProcContext  = c;
+    pcpsd->dlgProcThreadID        = threadID;
+    pcpsd->dlgProcContext         = c;
 
     uint32_t count = pcpsd->pageCount;
     for ( uint32_t i = 0; i < count; i++ )
     {
-        pcpsd->cppPages[i]->dlgProcContext = c;
-        pcpsd->cppPages[i]->dlgProcThreadID = threadID;
-        pcpsd->cppPages[i]->pcpbd->dlgProcContext = c;
         pcpsd->cppPages[i]->pcpbd->dlgProcThreadID = threadID;
+        pcpsd->cppPages[i]->pcpbd->dlgProcContext  = c;
+        pcpsd->cppPages[i]->dlgProcThreadID        = threadID;
+        pcpsd->cppPages[i]->dlgProcContext         = c;
     }
 }
 
 
-bool psdInitSuper(RexxMethodContext *context, RexxClassObject super, RexxStringObject hFile)
+bool psdInitSuper(RexxMethodContext *context, RexxClassObject super, RexxStringObject hFile, RexxObjectPtr id)
 {
     RexxArrayObject newArgs = context->NewArray(4);
 
     context->ArrayPut(newArgs, context->NullString(), 1);
-    context->ArrayPut(newArgs, TheZeroObj, 2);
+    if ( id != NULLOBJECT )
+    {
+        context->ArrayPut(newArgs, id, 2);
+    }
+    else
+    {
+        context->ArrayPut(newArgs, context->UnsignedInt32(DEFAULT_PROPSHETT_ID), 2);
+    }
     if ( hFile != NULLOBJECT )
     {
         context->ArrayPut(newArgs, hFile, 4);
@@ -1903,14 +2039,17 @@ bool initPSP(RexxMethodContext *c, pCPropertySheetDialog pcpsd, PROPSHEETPAGE *p
     bool                success = false;
 
     RexxObjectPtr result = c->SendMessage0(dlg, "INITTEMPLATE");
-    if ( result == TheFalseObj )
+    if ( result != TheTrueObj )
     {
-        noWindowsPageDlgException(c, i + 1);
+        if ( ! c->CheckCondition() )
+        {
+            noWindowsPageDlgException(c, i + 1);
+        }
         goto done_out;
     }
 
     psp->dwSize      = sizeof(PROPSHEETPAGE);
-    psp->pfnDlgProc  = (DLGPROC)RexxPropertySheetDlgProc;
+    psp->pfnDlgProc  = (DLGPROC)RexxPropertySheetPageDlgProc;
     psp->lParam      = (LPARAM)pcpsp;
     psp->pfnCallback = PropSheetPageCallBack;
 
@@ -2024,6 +2163,7 @@ PROPSHEETPAGE *initPropSheetPages(RexxMethodContext *c, pCPropertySheetDialog pc
         {
             LocalFree(psp);
             psp = NULL;
+            goto done_out;
         }
     }
 
@@ -2058,7 +2198,16 @@ PROPSHEETHEADER *initPropSheetHeader(RexxMethodContext *c, pCPropertySheetDialog
     psh->hwndParent       = hParent;
     psh->nPages           = pcpsd->pageCount;
     psh->ppsp             = (LPCPROPSHEETPAGE)psp;
-    psh->pfnCallback      = (PFNPROPSHEETCALLBACK)PropSheetCallback;
+
+
+    if ( pcpsd->pcpbd->isResizableDlg )
+    {
+        psh->pfnCallback = (PFNPROPSHEETCALLBACK)ResizablePropSheetCallback;
+    }
+    else
+    {
+        psh->pfnCallback = (PFNPROPSHEETCALLBACK)PropSheetCallback;
+    }
 
     if ( pcpsd->hInstance != NULL )
     {
@@ -2507,15 +2656,15 @@ done_out:
  *           the programmer so that the programmer can not inadvertently screw
  *           with the array.
  */
-RexxMethod6(wholenumber_t, psdlg_init, RexxArrayObject, pages, OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, caption,
-            OPTIONAL_RexxStringObject, hFile, SUPER, super, OSELF, self)
+RexxMethod7(wholenumber_t, psdlg_init, RexxArrayObject, pages, OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, caption,
+            OPTIONAL_RexxStringObject, hFile, OPTIONAL_RexxObjectPtr, id, SUPER, super, OSELF, self)
 {
     // This is an error return.
     wholenumber_t result = 1;
 
-    if ( ! psdInitSuper(context, super, hFile) )
+    if ( ! psdInitSuper(context, super, hFile, id) )
     {
-        goto done_out;
+        goto err_out;
     }
 
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)context->GetCSelf();
@@ -2530,9 +2679,10 @@ RexxMethod6(wholenumber_t, psdlg_init, RexxArrayObject, pages, OPTIONAL_CSTRING,
     pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)context->BufferData(cselfBuffer);
     memset(pcpsd, 0, sizeof(CPropertySheetDialog));
 
-    pcpbd->dlgPrivate = pcpsd;
-    pcpsd->pcpbd = pcpbd;
-    pcpsd->rexxSelf = self;
+    pcpbd->dlgPrivate  = pcpsd;
+    pcpsd->pcpbd       = pcpbd;
+    pcpsd->rexxSelf    = self;
+    pcpsd->isFirstShow = true;
     context->SetObjectVariable("CSELF", cselfBuffer);
 
     // Now process the arguments and do the rest of the initialization.
@@ -2594,15 +2744,34 @@ RexxMethod6(wholenumber_t, psdlg_init, RexxArrayObject, pages, OPTIONAL_CSTRING,
     pcpsd->getResultValue = OOD_NO_VALUE;
 
     // Set values for all the attributes, APPICON first:
-    SIZE s;
+    RexxObjectPtr rxIcon;
+    SIZE          s;
     s.cx = GetSystemMetrics(SM_CXSMICON);
     s.cy = GetSystemMetrics(SM_CYSMICON);
 
-    HICON         hIcon = getOORexxIcon(IDI_DLG_OOREXX);
-    RexxObjectPtr temp  = rxNewValidImage(context, hIcon, IMAGE_ICON, &s, LR_SHARED, true);
+    if ( TheDefaultSmallIcon != NULL )
+    {
+        pcpsd->hIcon = TheDefaultSmallIcon;
+    }
+    else
+    {
+        pcpsd->hIcon = getOORexxIcon(IDI_DLG_OOREXX);
+    }
 
-    pcpsd->hIcon = hIcon;
-    context->SetObjectVariable("APPICON", temp);
+    // We need a Rexx Image object because the user can retrieve the appIcon
+    // attribute.  We use LR_SHARED for the flag because, even if we are using
+    // the TheDefaultSmallIcon and it was loaded from a file, the only thing the
+    // LR_SHARED flag does is prevent DestroyIcon() from being called if the
+    // uninit() method runs for the .Image object.  Which is what we want for
+    // the default application icon.
+    rxIcon = rxNewValidImage(context, pcpsd->hIcon, IMAGE_ICON, &s, LR_SHARED, true);
+    context->SetObjectVariable("APPICON", rxIcon);
+
+    // Be sure we have a good dialog ID:
+    if ( pcpbd->dlgID == -1 )
+    {
+        pcpbd->dlgID = DEFAULT_PROPSHETT_ID;
+    }
 
     // CAPTION
     if ( argumentOmitted(3) )
@@ -2629,6 +2798,8 @@ RexxMethod6(wholenumber_t, psdlg_init, RexxArrayObject, pages, OPTIONAL_CSTRING,
 
 done_out:
     pcpbd->wndBase->initCode = result;
+
+err_out:
     return result;
 }
 
@@ -3260,7 +3431,7 @@ RexxMethod2(uint32_t, psdlg_pageToIndex, POINTER, hPage, CSELF, pCSelf)
  *
  *  @notes  AeroWizard dialogs do not support modeless
  */
-RexxMethod2(RexxObjectPtr, psdlg_popup, NAME, methodName, CSELF, pCSelf)
+RexxMethod1(RexxObjectPtr, psdlg_popup, CSELF, pCSelf)
 {
     pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)pCSelf;
     pCPlainBaseDialog pcpbd = pcpsd->pcpbd;
@@ -3325,6 +3496,34 @@ err_out:
     safeLocalFree(psp);
     safeLocalFree(psh);
     stopDialog(pcpsd->pcpbd, context->threadContext);
+    return TheFalseObj;
+}
+
+
+/** PropertySheetDialog::popupAsChild()
+ *
+ *
+ */
+RexxMethod2(RexxObjectPtr, psdlg_popupAsChild, RexxObjectPtr, parent, CSELF, pCSelf)
+{
+    pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)pCSelf;
+    pCPlainBaseDialog pcpbd = pcpsd->pcpbd;
+
+    if ( ! requiredClass(context->threadContext, parent, "PlainBaseDialog", 1) )
+    {
+        goto err_out;
+    }
+
+    RexxObjectPtr childDialogs = context->SendMessage0(parent, "CHILDDIALOGS");
+    if ( childDialogs != NULLOBJECT )
+    {
+        context->SendMessage1(childDialogs, "INSERT", pcpsd->rexxSelf);
+        pcpbd->rexxParent = parent;
+
+        return context->SendMessage0(pcpsd->rexxSelf, "POPUP");
+    }
+
+err_out:
     return TheFalseObj;
 }
 
@@ -3913,6 +4112,32 @@ RexxMethod1(RexxObjectPtr, psdlg_test, CSELF, pCSelf)
 
 
 /**
+ * Ensures that a dialog CSelf pointer is not null.  This can happen if the user
+ * does something wrong in their use of the PropertySheetPag class so that the
+ * proper initialization is bypassed.
+ *
+ * Unfortunately users do this. ;-(  Before the conversion to the C++ API,
+ * things whould not work as the user expected, but no "real bad" things
+ * happened.  Now, this causes a null point derefernce unless we check first.
+ *
+ * @param c       Method context we are operating.
+ * @param pCSelf  CSelf pointer for the property sheet page object.
+ *
+ * @return The CSelf pointer cast to a pCPropertySheetPage, or null if pCSelf is
+ *         null.
+ *
+ * @note  The whole point of this is to raise the exception if pCSelf is null.
+ */
+static inline pCPropertySheetPage getPSPCSelf(RexxMethodContext *c, void * pCSelf)
+{
+    if ( pCSelf == NULL )
+    {
+        baseClassInitializationException(c, "PropertySheetPage");
+    }
+    return (pCPropertySheetPage)pCSelf;
+}
+
+/**
  * Performs the initialization of the PropertySheetPage mixin class.
  *
  * We create the CSelf struct for the class and then send the struct to the
@@ -4217,7 +4442,11 @@ RexxMethod2(uint32_t, psp_getcx, NAME, name, CSELF, pCSelf)
  */
 RexxMethod3(RexxObjectPtr, psp_setcx, uint32_t, dlgUnit, NAME, name, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     *(name + 1) == 'X' ? pcpsp->cx = dlgUnit : pcpsp->cy = dlgUnit;
     return NULLOBJECT;
@@ -4229,7 +4458,12 @@ RexxMethod3(RexxObjectPtr, psp_setcx, uint32_t, dlgUnit, NAME, name, CSELF, pCSe
  */
 RexxMethod1(POINTER, psp_pageID_atr, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
+
     return (POINTER)pcpsp->pageID;
 }
 
@@ -4239,7 +4473,12 @@ RexxMethod1(POINTER, psp_pageID_atr, CSELF, pCSelf)
  */
 RexxMethod1(uint32_t, psp_pageNumber_atr, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return 0;
+    }
+
     return pcpsp->pageNumber + 1;
 }
 
@@ -4250,7 +4489,11 @@ RexxMethod1(uint32_t, psp_pageNumber_atr, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, psp_getPageTitle, NAME, name, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     switch ( *(name + 7) )
     {
@@ -4269,7 +4512,11 @@ RexxMethod2(RexxObjectPtr, psp_getPageTitle, NAME, name, CSELF, pCSelf)
  */
 RexxMethod3(RexxObjectPtr, psp_setPageTitle, CSTRING, text, NAME, name, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     switch ( *(name + 7) )
     {
@@ -4294,7 +4541,12 @@ RexxMethod3(RexxObjectPtr, psp_setPageTitle, CSTRING, text, NAME, name, CSELF, p
  */
 RexxMethod1(RexxObjectPtr, psp_propSheet_atr, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
+
     return pcpsp->rexxPropSheet;
 }
 
@@ -4304,7 +4556,11 @@ RexxMethod1(RexxObjectPtr, psp_propSheet_atr, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, psp_setResources_atr, RexxObjectPtr, resourceImage, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     PRESOURCEIMAGE ri = rxGetResourceImage(context, resourceImage, 1);
     if ( ri != NULL )
@@ -4327,7 +4583,11 @@ RexxMethod2(RexxObjectPtr, psp_setResources_atr, RexxObjectPtr, resourceImage, C
  */
 RexxMethod2(RexxObjectPtr, psp_setTabIcon_atr, RexxObjectPtr, icon, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     bool    isImage;
     uint8_t type;
@@ -4363,7 +4623,12 @@ done_out:
  */
 RexxMethod2(RexxObjectPtr, psp_getWantNotification, NAME, methName, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
+
     RexxObjectPtr result = TheFalseObj;
 
     if ( *(methName + 4) == 'A' )
@@ -4384,7 +4649,11 @@ RexxMethod2(RexxObjectPtr, psp_getWantNotification, NAME, methName, CSELF, pCSel
  */
 RexxMethod3(RexxObjectPtr, psp_setWantNotification, logical_t, want, NAME, methName, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     if ( *(methName + 4) == 'A' )
     {
@@ -4403,7 +4672,12 @@ RexxMethod3(RexxObjectPtr, psp_setWantNotification, logical_t, want, NAME, methN
  */
 RexxMethod1(RexxObjectPtr, psp_wasActivated_atr, CSELF, pCSelf)
 {
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
+
     return pcpsp->activated ? TheTrueObj : TheFalseObj;
 }
 
@@ -4431,12 +4705,19 @@ RexxMethod1(logical_t, psp_init_propertySheetPage, RexxObjectPtr, cSelf)
 
 /** PropertySheetPage::initTemplate()
  *
- *
+ *  @remarks  Users have been known to screw up the initialization of the
+ *            property sheet page dialog and we could get here with pCSelf not
+ *            really a valid pCPropertySheetPage struct.  Or at least not a
+ *            properly filled in one.  switch ( pcpsp->pageType ) will detect
+ *            this.
  */
 RexxMethod1(RexxObjectPtr, psp_initTemplate, CSELF, pCSelf)
 {
-    // TODO validate CSelf.
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     PageDialogInfo pdi = {0};
     pdi.pageTitle  = pcpsp->pageTitle;
@@ -4468,6 +4749,7 @@ RexxMethod1(RexxObjectPtr, psp_initTemplate, CSELF, pCSelf)
             break;
 
         default :
+            baseClassInitializationException(context, "PropertySheetPage");
             break;
     }
 
@@ -4496,8 +4778,11 @@ RexxMethod1(RexxObjectPtr, psp_initTemplate, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, psp_setSize, ARGLIST, args, CSELF, pCSelf)
 {
-    // TODO validate CSelf.
-    pCPropertySheetPage pcpsp = (pCPropertySheetPage)pCSelf;
+    pCPropertySheetPage pcpsp = getPSPCSelf(context, pCSelf);
+    if ( pcpsp == NULL )
+    {
+        return NULLOBJECT;
+    }
 
     size_t arraySize;
     size_t argsUsed;
@@ -4515,13 +4800,18 @@ RexxMethod2(RexxObjectPtr, psp_setSize, ARGLIST, args, CSELF, pCSelf)
 
 
 
-
 /**
  *  Methods for the .UserPSPDialog class.
  */
 #define USERPSPDIALOG_CLASS  "UserPSPDialog"
 
 
+/** UserPSPDialog::init()
+ *
+ *  The init() method of the super class, UserDialog, returns the zero object,
+ *  so we check for that after forwarding to the super class init().
+ *
+ */
 RexxMethod9(RexxObjectPtr, userpspdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPTIONAL_RexxObjectPtr, includeFile,
             OPTIONAL_CSTRING, opts, OPTIONAL_CSTRING, title, OPTIONAL_CSTRING, fontName, OPTIONAL_uint32_t, fontSize,
             OPTIONAL_uint32_t, expected, SUPER, super, OSELF, self)
@@ -4538,8 +4828,7 @@ RexxMethod9(RexxObjectPtr, userpspdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPT
     }
 
     RexxObjectPtr result = context->ForwardMessage(NULL, NULL, super, newArgs);
-
-    if ( isInt(0, result, context->threadContext) )
+    if (result == TheZeroObj )
     {
         pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)context->GetCSelf();
         pCDynamicDialog pcdd = (pCDynamicDialog)context->ObjectToCSelf(self, TheDynamicDialogClass);
@@ -4589,6 +4878,14 @@ RexxMethod9(RexxObjectPtr, userpspdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPT
         }
         result = TheZeroObj;
         pcpbd->wndBase->initCode = 0;
+    }
+    else
+    {
+        // Let syntax conditions trickle through ...
+        if ( ! context->CheckCondition() )
+        {
+            baseClassInitializationException(context, USERPSPDIALOG_CLASS);
+        }
     }
 
 done_out:
@@ -4644,6 +4941,14 @@ RexxMethod9(RexxObjectPtr, rcpspdlg_init, RexxStringObject, scriptFile, RexxObje
         if ( argumentExists(6) )
         {
             pcpsp->extraOpts = connectOpts;
+        }
+    }
+    else
+    {
+        // Let syntax conditions trickle through ...
+        if ( ! context->CheckCondition() )
+        {
+            baseClassInitializationException(context, RCPSPDIALOG_CLASS);
         }
     }
 
@@ -4749,6 +5054,14 @@ RexxMethod7(RexxObjectPtr, respspdlg_init, RexxStringObject, dllFile, RexxObject
 
         pcpbd->isPageDlg = true;
     }
+    else
+    {
+        // Let syntax conditions trickle through ...
+        if ( ! context->CheckCondition() )
+        {
+            baseClassInitializationException(context, RESPSPDIALOG_CLASS);
+        }
+    }
 
 done_out:
     return result;
@@ -4767,18 +5080,9 @@ static inline pCTabOwnerDialog validateTodCSelf(RexxMethodContext *c, void *pCSe
     pCTabOwnerDialog pctod = (pCTabOwnerDialog)pCSelf;
     if ( pctod == NULL )
     {
-        baseClassIntializationException(c);
+        baseClassInitializationException(c);
     }
     return pctod;
-}
-
-static RexxObjectPtr tooManyMTsException(RexxMethodContext *c, uint32_t count)
-{
-    TCHAR buffer[256];
-    _snprintf(buffer, sizeof(buffer), "%d exceeds the maximum (%d) of allowable mangaged tabs", count, MAXMANAGEDTABS);
-
-    userDefinedMsgException(c, buffer);
-    return NULLOBJECT;
 }
 
 static void todAdjustMethods(RexxMethodContext *c, RexxObjectPtr self)
@@ -5064,6 +5368,20 @@ DLGTEMPLATEEX *getTemplate(RexxThreadContext *c, pCControlDialog pccd)
  * @param pcpbdOwner
  *
  * @return HWND
+ *
+ * @remarks The childDlg thing was used for the CategoryDialog implementation.
+ *          We now use it so that an owner dialog can keep track of its owned
+ *          control dialogs.  For an owner dialog using control dialogs for
+ *          whatever reason, the maximum number of child dialogs, 20, is
+ *          probably sufficient.
+ *
+ *          For managed tab owner dialogs, that maximum is too small because the
+ *          max page number is set at 100. Since the managed tab owner
+ *          implementation is hazy right now, we just put the first 20 dialogs
+ *          in the child dialog array. In the future we may need to rectify
+ *          this. We probably should just ignore the childDlg array in this
+ *          case.  We are keeping track of the page dialogs in the cppPages
+ *          array.
  */
 HWND createMTPageDlg(RexxThreadContext *c, pCControlDialog pccd, DLGTEMPLATEEX *pTemplate, pCPlainBaseDialog pcpbdOwner)
 {
@@ -5085,16 +5403,13 @@ HWND createMTPageDlg(RexxThreadContext *c, pCControlDialog pccd, DLGTEMPLATEEX *
         pcpbd->isActive = true;
         pccd->activated = true;
 
-        // I don't think this whole childDlg thing is used anymore.  It is a
-        // hold over from the CategoryDialog implementation.  TODO we need to
-        // do away with this.
         pcpbd->childDlg[0] = hPage;
         if ( pccd->pageNumber < MAXCHILDDIALOGS )
         {
             pcpbdOwner->childDlg[pccd->pageNumber + 1] = hPage;
         }
 
-        setDlgHandle(c, pcpbd);
+        setDlgHandle(pcpbd);
 
         if ( pccd->pageType == oodResControlDialog )
         {
@@ -5538,7 +5853,14 @@ LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
         // the setDlgHandle() function now.
         pcpbd->hDlg = hDlg;
         pcpbd->isActive = true;
-        setDlgHandle(pcpbd->dlgProcContext, pcpbd);
+        setDlgHandle(pcpbd);
+
+        if ( pcpbd->isCustomDrawDlg && pcpbd->idsNotChecked )
+        {
+            // We don't care what the outcome of this is, customDrawCheckIDs
+            // will take care of aborting this dialog if the IDs are bad.
+            customDrawCheckIDs(pcpbd);
+        }
 
         setMangedTabDetails(pctod);
         initStartPages(pctod);
@@ -5597,28 +5919,21 @@ LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
         }
     }
 
+    if ( uMsg >= WM_USER_REXX_FIRST && uMsg <= WM_USER_REXX_LAST )
+    {
+        return handleWmUser(pcpbd, hDlg, uMsg, wParam, lParam, false);
+    }
+
     switch ( uMsg )
     {
         case WM_PAINT:
-            if ( pcpbd->bkgBitmap != NULL )
-            {
-                drawBackgroundBmp(pcpbd, hDlg);
-            }
-            break;
+            return drawBackgroundBmp(pcpbd, hDlg);
 
         case WM_DRAWITEM:
-            if ( lParam != 0 )
-            {
-                return drawBitmapButton(pcpbd, lParam, msgEnabled);
-            }
-            break;
+            return drawBitmapButton(pcpbd, lParam, msgEnabled);
 
         case WM_CTLCOLORDLG:
-            if ( pcpbd->bkgBrush )
-            {
-                return(LRESULT)pcpbd->bkgBrush;
-            }
-            break;
+            return handleDlgColor(pcpbd);
 
         case WM_CTLCOLORSTATIC:
         case WM_CTLCOLORBTN:
@@ -5626,222 +5941,17 @@ LRESULT CALLBACK RexxTabOwnerDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
         case WM_CTLCOLORLISTBOX:
         case WM_CTLCOLORMSGBOX:
         case WM_CTLCOLORSCROLLBAR:
-        {
-            HBRUSH hbrush = NULL;
-
-            if ( pcpbd->CT_nextIndex > 0 )
-            {
-                // See of the user has set the dialog item with a different
-                // color.
-                long id = GetWindowLong((HWND)lParam, GWL_ID);
-                if ( id > 0 )
-                {
-                    register size_t i = 0;
-                    while ( i < pcpbd->CT_nextIndex && pcpbd->ColorTab[i].itemID != id )
-                    {
-                        i++;
-                    }
-                    if ( i < pcpbd->CT_nextIndex )
-                    {
-                        hbrush = pcpbd->ColorTab[i].ColorBrush;
-                    }
-
-                    if ( hbrush )
-                    {
-                        if ( pcpbd->ColorTab[i].isSysBrush )
-                        {
-                            SetBkColor((HDC)wParam, GetSysColor(pcpbd->ColorTab[i].ColorBk));
-                            if ( pcpbd->ColorTab[i].ColorFG != -1 )
-                            {
-                                SetTextColor((HDC)wParam, GetSysColor(pcpbd->ColorTab[i].ColorFG));
-                            }
-                        }
-                        else
-                        {
-                            SetBkColor((HDC)wParam, PALETTEINDEX(pcpbd->ColorTab[i].ColorBk));
-                            if ( pcpbd->ColorTab[i].ColorFG != -1 )
-                            {
-                                SetTextColor((HDC)wParam, PALETTEINDEX(pcpbd->ColorTab[i].ColorFG));
-                            }
-                        }
-                    }
-                }
-            }
-            if ( hbrush )
-                return(LRESULT)hbrush;
-            else
-                return DefWindowProc(hDlg, uMsg, wParam, lParam);
-        }
-
-        case WM_COMMAND:
-            switch ( LOWORD(wParam) )
-            {
-                case IDOK:
-                case IDCANCEL:
-
-                    // For both IDOK and IDCANCEL, the notification code
-                    // (the high word value) must be 0.
-                    if ( HIWORD(wParam) == 0 )
-                    {
-                        // We should never get here because both IDOK and
-                        // IDCANCEL should have be interecepted in
-                        // searchMessageTables().  But - sometimes we do, very
-                        // rarely.  It is on some abnormal error. See the
-                        // comments above for the WM_DESTROY message.
-                        pcpbd->abnormalHalt = true;
-                        DestroyWindow(hDlg);
-
-                        return TRUE;
-                    }
-            }
-            break;
+            return handleCtlColor(pcpbd, hDlg, uMsg, wParam, lParam);
 
         case WM_QUERYNEWPALETTE:
         case WM_PALETTECHANGED:
             return paletteMessage(pcpbd, hDlg, uMsg, wParam, lParam);
 
-        case WM_USER_CREATECHILD:
-        {
-            HWND hChild = CreateDialogIndirectParam(MyInstance, (LPCDLGTEMPLATE)lParam, hDlg, (DLGPROC)RexxDlgProc,
-                                                    (LPARAM)pcpbd);
-            ReplyMessage((LRESULT)hChild);
-            return TRUE;
-        }
+        case WM_COMMAND:
+            return handleWmCommand(pcpbd, hDlg, wParam, lParam, false);
 
-        case WM_USER_CREATECONTROL_DLG:
-        {
-            printf("Enter WM_USER_CREATECONTROL_DLG\n");
-            pCPlainBaseDialog p = (pCPlainBaseDialog)wParam;
-            HWND hChild = CreateDialogIndirectParam(MyInstance, (LPCDLGTEMPLATE)lParam, p->hOwnerDlg, (DLGPROC)RexxChildDlgProc,
-                                                    wParam);
-            ReplyMessage((LRESULT)hChild);
-            printf("Leave WM_USER_CREATECONTROL_DLG\n");
-            return TRUE;
-        }
-
-        case WM_USER_CREATECONTROL_RESDLG:
-        {
-            pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)wParam;
-
-            HWND hChild = CreateDialogParam(pcpbd->hInstance, MAKEINTRESOURCE((uint32_t)lParam), pcpbd->hOwnerDlg,
-                                            (DLGPROC)RexxChildDlgProc, (LPARAM)pcpbd);
-
-            ReplyMessage((LRESULT)hChild);
-            return TRUE;
-        }
-
-        case WM_USER_CREATEPROPSHEET_DLG:
-        {
-            pCPropertySheetDialog pcpsd = (pCPropertySheetDialog)lParam;
-
-            assignPSDThreadContext(pcpsd, pcpbd->dlgProcContext, GetCurrentThreadId());
-
-            if ( setPropSheetHook(pcpsd) )
-            {
-                SetLastError(0);
-                INT_PTR ret = PropertySheet((PROPSHEETHEADER *)wParam);
-                oodSetSysErrCode(pcpbd->dlgProcContext);
-                ReplyMessage((LRESULT)ret);
-            }
-            else
-            {
-                ReplyMessage((LRESULT)-1);
-            }
-
-            return TRUE;
-        }
-
-        case WM_USER_INTERRUPTSCROLL:
-            pcpbd->stopScroll = wParam;
-            return TRUE;
-
-        case WM_USER_GETFOCUS:
-            ReplyMessage((LRESULT)GetFocus());
-            return TRUE;
-
-        case WM_USER_MOUSE_MISC:
-        {
-            switch ( wParam )
-            {
-                case MF_RELEASECAPTURE :
-                {
-                    uint32_t rc = 0;
-                    if ( ReleaseCapture() == 0 )
-                    {
-                        rc = GetLastError();
-                    }
-                    ReplyMessage((LRESULT)rc);
-                    break;
-                }
-
-                case MF_GETCAPTURE :
-                    ReplyMessage((LRESULT)GetCapture());
-                    break;
-
-                case MF_SETCAPTURE :
-                    ReplyMessage((LRESULT)SetCapture((HWND)lParam));
-                    break;
-
-                case MF_BUTTONDOWN :
-                    ReplyMessage((LRESULT)GetAsyncKeyState((int)lParam));
-                    break;
-
-                case MF_SHOWCURSOR :
-                    ReplyMessage((LRESULT)ShowCursor((BOOL)lParam));
-                    break;
-
-                default :
-                    // Maybe we should raise an internal exception here.  But,
-                    // as long as the internal code is consistent, we can not
-                    // get here.
-                    break;
-            }
-            return TRUE;
-        }
-
-        case WM_USER_SUBCLASS:
-        {
-            pSubClassData pData = (pSubClassData)lParam;
-
-            BOOL success = SetWindowSubclass(pData->hCtrl, (SUBCLASSPROC)wParam, pData->id, (DWORD_PTR)pData);
-
-            ReplyMessage((LRESULT)success);
-            return TRUE;
-        }
-
-        case WM_USER_SUBCLASS_REMOVE:
-            ReplyMessage((LRESULT)RemoveWindowSubclass(GetDlgItem(hDlg, (int)lParam), (SUBCLASSPROC)wParam, (int)lParam));
-            return TRUE;
-
-        case WM_USER_HOOK:
-        {
-            ReplyMessage((LRESULT)SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)wParam, NULL, GetCurrentThreadId()));
-            return TRUE;
-        }
-
-        case WM_USER_CONTEXT_MENU:
-        {
-            PTRACKPOP ptp = (PTRACKPOP)wParam;
-            uint32_t cmd;
-
-            SetLastError(0);
-            cmd = (uint32_t)TrackPopupMenuEx(ptp->hMenu, ptp->flags, ptp->point.x, ptp->point.y,
-                                             ptp->hWnd, ptp->lptpm);
-
-            // If TPM_RETURNCMD is specified, the return is the menu item
-            // selected.  Otherwise, the return is 0 for failure and
-            // non-zero for success.
-            if ( ! (ptp->flags & TPM_RETURNCMD) )
-            {
-                cmd = (cmd == 0 ? FALSE : TRUE);
-                if ( cmd == FALSE )
-                {
-                    ptp->dwErr = GetLastError();
-                }
-            }
-            ReplyMessage((LRESULT)cmd);
-            return TRUE;
-        }
+        default:
+            break;
     }
 
     return FALSE;
@@ -6033,7 +6143,7 @@ RexxObjectPtr todiAddMTs(RexxMethodContext *c, pCTabOwnerDlgInfo pctodi, RexxObj
     {
         if ( pctodi->count >= MAXMANAGEDTABS )
         {
-            return tooManyMTsException(c, 5);
+            return tooManyPagedTabsException(c, 5, false);
         }
 
         pCManagedTab pcmt = (pCManagedTab)c->ObjectToCSelf(mts);
@@ -6047,7 +6157,7 @@ RexxObjectPtr todiAddMTs(RexxMethodContext *c, pCTabOwnerDlgInfo pctodi, RexxObj
         uint32_t count = (uint32_t)c->ArrayItems(_mts);
         if( count + pctodi->count > MAXMANAGEDTABS )
         {
-            return tooManyMTsException(c, count + pctodi->count);
+            return tooManyPagedTabsException(c, count + pctodi->count, false);
         }
 
         for ( uint32_t i = 1; i <= count; i++ )
@@ -6135,7 +6245,7 @@ RexxMethod2(RexxObjectPtr, todi_add, RexxObjectPtr, mts, CSELF, pCSelf)
     pCTabOwnerDlgInfo pctodi = (pCTabOwnerDlgInfo)pCSelf;
     if ( pctodi == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     return todiAddMTs(context, pctodi, mts);
@@ -6429,8 +6539,6 @@ RexxMethod7(RexxObjectPtr, cdi_init, OPTIONAL_RexxObjectPtr, owner, OPTIONAL_log
         goto  done_out;
     }
 
-
-
 done_out:
     return NULLOBJECT;
 }
@@ -6486,9 +6594,28 @@ static inline pCControlDialog validateCdCSelf(RexxMethodContext *c, void *pCSelf
     pCControlDialog pccd = (pCControlDialog)pCSelf;
     if ( pccd == NULL )
     {
-        baseClassIntializationException(c);
+        baseClassInitializationException(c);
     }
     return pccd;
+}
+
+
+void abortOwnedDlg(pCPlainBaseDialog pcpbd, HWND hDlg, DlgProcErrType t)
+{
+    RexxThreadContext *c          = pcpbd->dlgProcContext;
+    pCPlainBaseDialog  ownerCSelf = dlgToCSelf(c, pcpbd->rexxOwner);
+    pCPlainBaseDialog  pcpbdChild;
+
+    for ( size_t i = 1; i <= ownerCSelf->countChilds; i++ )
+    {
+        pcpbdChild = (pCPlainBaseDialog)ownerCSelf->childDlg[i];
+        c->SendMessage1(pcpbdChild->rexxSelf, "ENSUREFINISHED", TheTrueObj);
+    }
+
+    c->SendMessage1(ownerCSelf->rexxSelf, "ENSUREFINISHED", TheTrueObj);
+
+    DestroyWindow(ownerCSelf->hDlg);
+
 }
 
 
@@ -6765,7 +6892,7 @@ RexxMethod3(RexxObjectPtr, resCtrlDlg_startDialog_pvt, CSTRING, library, RexxObj
         ((pCControlDialog)pcpbd->dlgPrivate)->activated = true;
         pcpbd->childDlg[0] = hChild;
 
-        setDlgHandle(context->threadContext, pcpbd);
+        setDlgHandle(pcpbd);
         setFontAttrib(context->threadContext, pcpbd);
 
         if ( pcpbd->autoDetect )

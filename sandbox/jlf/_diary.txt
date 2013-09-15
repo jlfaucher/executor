@@ -17,13 +17,13 @@ todo...
 See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...
 --> done with .Coactivity
 
-Export the classes instantiated by the parser and make expression instances available from an ooRexx script. 
+Export the classes instantiated by the parser and make expression instances available from an ooRexx script.
 Inspired by C# LINQ and the expression tree API.
 See if that can be used to write macros (i.e. transform expression tree), user directives, DSL...
 todo...
 
-Named parameters (by opposition to positional parameters). 
-In C#, they say it's useful for calling COM services. 
+Named parameters (by opposition to positional parameters).
+In C#, they say it's useful for calling COM services.
 I have some Excel macros that would be simpler to call with that.
 --> I started to think about that, but it appears that the ooRexx arguments are not easy to manage by name.
 It's because the arguments are not declared in a single place at the begining of a procedure/routine/method.
@@ -31,7 +31,7 @@ They can be declared several times, and complex expressions can be used (stem, i
 Moreover, named arguments can be passed in any order, and that's a problem with current management by array.
 So, I give up...
 
-Deferred evaluation of parameters. 
+Deferred evaluation of parameters.
 Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, iffalse)
 todo
 --> See routine if(aLogical, whenTrue, whenFalse).
@@ -57,7 +57,7 @@ The CSV format can be useful for classic trace, because each line has the name o
 Pipes todo :
 .inject in breadthFirst mode is not limited by the ooRexx callstack size.
 Do the same for depthFirst mode.
-1~pipe(.inject {2*item} rec.506 | .take last | .console) is ok, but if you do one more recursion, 
+1~pipe(.inject {2*item} rec.506 | .take last | .console) is ok, but if you do one more recursion,
 you get the error "Insufficient control stack space; cannot continue execution"
 No such problem in breadthFirst mode :
 1~pipe(.inject {2*item} rec.b.100000 | .take last | .console) --> last result is 1.99800307E+30103
@@ -70,7 +70,7 @@ Is .stemCollector really needed ? I don't see the added value, compared to .arra
 
 Extension todo :
 During parsing, the extensions methods of an ::extension directive are accumulated in a table.
-Must use an ordered collection because the order of declaration is important. 
+Must use an ordered collection because the order of declaration is important.
 
 Extension todo :
 Forbids to replace a predefined method. The goal is to extend, not to alter the behavior.
@@ -141,6 +141,12 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 sep 15
+
+Merge revisions 8678-9423 from SourceForge main/trunk
+
+
+===============================================================================
 2013 sep 07
 
 Implementation of operator overriding was not working for
@@ -153,7 +159,7 @@ The package complex.cls provides an implementation of "+", but does not requires
 It was possible to make it work by adding extra requires :
     array.cls --requires--> complex.cls
     complex.cls --requires--> array.cls
-but that's clearly not a good solution. 
+but that's clearly not a good solution.
 
 There is no direct call of a specific implementation of "+", we are in a case similar to
 CLOS generic methods, or Clojure multimethods : dependency on a polymporphic "+", where
@@ -174,14 +180,14 @@ otherwise contine the iteration.
 Todo :
 a) Modify the inheritance of context when creating an executable for a block.
 b) Modify the execution strategy to no execute a given method several times.
- 
+
 
 ===============================================================================
 2013 sep 02
 
 Operator overriding supports overriding per package.
 
-Illustration : 
+Illustration :
 array.cls defines operators for array and scalar.
 complex.cls defines operators for complex number and not-complex number.
 1 + .complex[1,5] =  -- 2+5i
@@ -189,7 +195,7 @@ complex.cls defines operators for complex number and not-complex number.
 1 + .array~of(1,2) = -- [2,3]
 .array~of(1,2) + 1 = -- [2,3]
 
-Todo : 
+Todo :
 a) Still not working : .array~of(1,2) + .complex[1,5]
    That's because the overriding in complex.cls is not visible from array.cls.
 b) When iterating over imported packages, remember the already visited packages to not revisit a visited package.
@@ -254,7 +260,7 @@ d::r               <-- ??? the elaboration order is unchanged, how is that possi
                        But if the package P2 is directly required by P1, then the list loadedPackage of P1 is impacted.
                        This is what happens here :
                        - d is indirectly required by b --> elaboration of d
-                       - d is directly required by a --> no elaboration because already loaded by the interpreter instance, 
+                       - d is directly required by a --> no elaboration because already loaded by the interpreter instance,
                          d is added to the list loadedPackage of a,
                          and the directory merged_public_routines is updated.
 
@@ -394,7 +400,7 @@ I see a change when processing classes :
 Each installed class is stored in an array createdClasses.
 When all classes have been installed, iterate over createdClasses and send the
 message OREF_ACTIVATE.
-Should I do the same for extensions ? No... 
+Should I do the same for extensions ? No...
 But maybe a message ACTIVATE_EXTENSION could be useful.
 See previous entry : I send the message INIT from native RexxBlock, but this is
 not a standard pattern. Moreover, I have no way to intialize each extension separately.
@@ -418,7 +424,7 @@ BlockClass.cpp, BlockClass.hpp, CPPCode.cpp, Setup.cpp,RexxConstants.hpp
 After first tests, I see I need to initialize the variable "executable" added by extension.
 For that, I send the message INIT from native RexxBlock code. But the pattern is not really
 standard... Normally this message should be sent from RexxBlock::newRexx, but this method
-which implements .RexxBlock~new is not allowed from Rexx code (my decision). 
+which implements .RexxBlock~new is not allowed from Rexx code (my decision).
 I send the message INIT from RexxBlock::RexxBlock, but I had to do that :
 	RexxBehaviour *behaviour = ((RexxClass *)this)->getInstanceBehaviour();
     if (behaviour != NULL) this->setBehaviour(behaviour);
@@ -470,7 +476,7 @@ fact = {
                       ::closure expose f
                       use strict arg n
                       if n==0 then
-                          return 1 
+                          return 1
                       else
                           return n * f~(n-1)
                   }
@@ -481,7 +487,7 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 fact = {
     use strict arg n
     if n==0 then
-        return 1 
+        return 1
     else
         return n * .context~executable~(n-1)
 }
@@ -513,7 +519,7 @@ that no argument is passed when resuming a generator.
 
 coactivity.cls : the automatic termination of gc'ed coactivities was not working
 as expected. Some coactivities were never gc'ed and I suppose it's because of
-the coactive closures which keep a reference to other coactivities. 
+the coactive closures which keep a reference to other coactivities.
 By explicitely assigning .nil where appropriate, I increase the chances to have
 more GC'ed objects. But that's not normal to have to do that !
 Clearly, I see a problem with CoactivityObj : the uninit method is *rarely* called
@@ -574,12 +580,12 @@ The transformed command is :
     dir;
     options "NOCOMMANDS";
     rc ;
-    call dumpResult; 
+    call dumpResult;
     options "COMMANDS";
     unknown;
     options "NOCOMMANDS";
     rc ;
-    call dumpResult; 
+    call dumpResult;
     options "COMMANDS"
 
 
@@ -863,7 +869,7 @@ After modifying RexxSupplierClass::newRexx to protect newObj before sending the 
 no more crash (for the moment).
 
 
-Remember : 
+Remember :
 Fix done in RexxSupplierClass::newRexx also done in :
 (search for OREF_INIT in interpreter source files)
 RexxDirectory::newRexx
@@ -941,7 +947,7 @@ do i=1 to 100000; v=.my.var ; end
 Implemented RFE 2868655.
 Done by adding support for variable ".threadLocal" in RexxActivation::rexxVariable.
 This implementation is faster than the previous implementation with .activity.
-Note 1 : 
+Note 1 :
 I did not modify RexxDotVariable to search in .threadLocal. Maybe should be done,
 but I find that the search made by RexxDotVariable is already slow enough.
 Note 2 :
@@ -1011,7 +1017,7 @@ The option "showTags" has been removed : the tags are now always included in the
 The option "unique" has been renamed "once", to follow the same naming convention as coactivities.
 New options "iterateBefore", "iterateAfter" : no longer need the helpers index_item and index_item (removed).
 
-Gradually, the pipeIndex class evolved from a simple index to a whole data flow. 
+Gradually, the pipeIndex class evolved from a simple index to a whole data flow.
 So renamed pipeIndex : now dataflow.
 The index parameter is now only the index generated by the previous pipeStage.
 A third parameter "dataflow" is passed to the process methods.
@@ -1020,7 +1026,7 @@ to memorize in the dataflow.
 
 As written in the 2011 nov 16 entry, I find more natural to retrieve the produced item from
 the producing stage, rather than from the next stage.
-A stage's dataflow contains the produced item and index. 
+A stage's dataflow contains the produced item and index.
 New methods :
     ~index
     ~item
@@ -1032,7 +1038,7 @@ source:1,'hello'
        |
        +-> this is the index of the produced item.
            Here, only one value is produced.
-        
+
 
 Ex : .array~of(10,20,30)~pipe(.console dataflow)
 source:1,10
@@ -1063,7 +1069,7 @@ This method is used by ooRexxShell to display arrays in condensed form.
 [file]
 Added extension method listFilesIfNotSymbolicLink, which is a convenience method to support the generation of files, even in case of recursive paths :
     g=.file~new("C:\Program Files\ooRexx")~generate("listFilesIfNotSymbolicLink")~iterateAfter~recursive
-Reminder : 
+Reminder :
     - SysFileTree for Unix does not dereference symbolic links, which is good because it's possible to create recursive paths.
     - SysFileTree for Windows dereferences the symbolic links (tested with a junction), but does not crash with recursive paths.
       The recursion is stopped when the path becomes too long.
@@ -1254,7 +1260,7 @@ The options are passed by calling methods :
     If the current result has the method "supplier", then yield each item returned by the supplier.
     In case of recursive execution, each item is used as input value for the next recursive call.
     This method returns the generator (self), to let chaining other methods.
-~once : 
+~once :
     To remember all the processed items from the start, and process an item only once.
     This option encompasses the option ~recursive("cycles") which is limited to the call stack.
     This method returns the generator (self), to let chaining other methods.
@@ -1374,7 +1380,7 @@ Examples :
     100~times.generate~reduce("*")= -- 9.33262137E+157
     ...
     1000000~times.generate~reduce("*")= -- 8.26394715E+5565708
-    
+
 -- *NAIVE* generation of factorials from 0! :
     g=(-1)~generate{item+1}~recursive~each{.array~of(item~times.generate~reduce(1, "*"), item)}
     g~take(10)~iterator~each{say item[2]"! =" item[1]}
@@ -1429,32 +1435,32 @@ The methods ~take and ~select are not defined on .RexxBlock, but they are define
                                  -|--------|-----------|-----------|------------|--------|-------|--------|---
                                   |     reduce         |        reduceC      reduceW     |       |        |
                                  -|--------|-----------|-----------|------------|--------|-------|--------|---
-                                 map       |           |        mapC         mapW        |       |        |   
-                                 mapR      |           |           |            |      mapCR   mapWR      |   
+                                 map       |           |        mapC         mapW        |       |        |
+                                 mapR      |           |           |            |      mapCR   mapWR      |
                                  -|--------|-----------|-----------|------------|--------|-------|--------|---
-                                  |     each           |        eachC        eachW       |       |        |   
-                                  |     eachI          |        eachCI       eachWI      |       |        |     
+                                  |     each           |        eachC        eachW       |       |        |
+                                  |     eachI          |        eachCI       eachWI      |       |        |
                                  -|--------|-----------|-----------|------------|--------|-------|--------|---
-                                  |        |        drop        dropC        dropW       |       |        |   
-                                  |        |        dropI       dropCI       dropWI      |       |        |   
-                                  |        |        dropLast    dropLastC    dropLastW   |       |        |   
-                                  |        |        dropLastI   dropLastCI   dropLastWI  |       |        |   
-                                  |        |        dropUntil   dropUntilC   dropUntilW  |       |        |   
-                                  |        |        dropUntilI  dropUntilCI  dropUntilWI |       |        |   
-                                  |        |        dropWhile   dropWhileC   dropWhileW  |       |        |   
-                                  |        |        dropWhileI  dropWhileCI  dropWhileWI |       |        |   
-                                  |     reject         |        rejectC      rejectW     |       |        |   
-                                  |     rejectI        |        rejectCI     rejectWI    |       |        |   
-                                  |     select         |        selectC      selectW     |       |        |   
-                                  |     selectI        |        selectCI     selectWI    |       |        |   
-                                  |        |        take        takeC        takeW       |       |        |   
-                                  |        |        takeI       takeCI       takeWI      |       |        |   
-                                  |        |        takeLast    takeLastC    takeLastW   |       |        |   
-                                  |        |        takeLastI   takeLastCI   takeLastWI  |       |        |   
-                                  |        |        until       untilC       untilW      |       |        |   
-                                  |        |        untilI      untilCI      untilWI     |       |        |   
-                                  |        |        while       whileC       whileW      |       |        |   
-                                  |        |        whileI      whileCI      whileWI     |       |        |   
+                                  |        |        drop        dropC        dropW       |       |        |
+                                  |        |        dropI       dropCI       dropWI      |       |        |
+                                  |        |        dropLast    dropLastC    dropLastW   |       |        |
+                                  |        |        dropLastI   dropLastCI   dropLastWI  |       |        |
+                                  |        |        dropUntil   dropUntilC   dropUntilW  |       |        |
+                                  |        |        dropUntilI  dropUntilCI  dropUntilWI |       |        |
+                                  |        |        dropWhile   dropWhileC   dropWhileW  |       |        |
+                                  |        |        dropWhileI  dropWhileCI  dropWhileWI |       |        |
+                                  |     reject         |        rejectC      rejectW     |       |        |
+                                  |     rejectI        |        rejectCI     rejectWI    |       |        |
+                                  |     select         |        selectC      selectW     |       |        |
+                                  |     selectI        |        selectCI     selectWI    |       |        |
+                                  |        |        take        takeC        takeW       |       |        |
+                                  |        |        takeI       takeCI       takeWI      |       |        |
+                                  |        |        takeLast    takeLastC    takeLastW   |       |        |
+                                  |        |        takeLastI   takeLastCI   takeLastWI  |       |        |
+                                  |        |        until       untilC       untilW      |       |        |
+                                  |        |        untilI      untilCI      untilWI     |       |        |
+                                  |        |        while       whileC       whileW      |       |        |
+                                  |        |        whileI      whileCI      whileWI     |       |        |
 --------------------------------------------------------------------------------------------------------------
 .Object ..................................................................................................X...
 .String ...........................................................X............X.........................X...
@@ -1600,7 +1606,7 @@ Better to expose an internal variable "executable".
 
 (Updated 2011 dec 13)
 At the first call of ~RexxContextualSource~doer, if an executable is not already stored
-on the RexxContextualSource, then an executable is created and cached on the RexxContextualSource. 
+on the RexxContextualSource, then an executable is created and cached on the RexxContextualSource.
 The next calls of ~doer return directly the cached executable.
 Unlike ~doer, the methods ~functionDoer and ~actionDoer will create and cache a new
 executable at each call (replacing the previous cached executable). This is because these
@@ -1637,7 +1643,7 @@ Big picture (updated 2011 dec 13) :
       |        ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::cl".
       |        ~rawExecutable : the raw executable of the RexxSourceLiteral, created at load-time (routine or method).
       |        ~executable : cached executable, managed by doers.cls.
-      |                      routine or method or coactivity or closure. ~executable~source can be different from ~source. 
+      |                      routine or method or coactivity or closure. ~executable~source can be different from ~source.
       |
       +--> a RexxContextualSource
       |
@@ -1649,12 +1655,12 @@ Example, from ooRexxShell (the final '=' is used to display the result) :
     cs~source= -- the RexxSourceLiteral's source
         # 1: index=[1] -> item=["hello"]
     cs~rawExecutable= -- [a Routine id#_264298413]
-    cs~rawExecutable~source= 
+    cs~rawExecutable~source=
         # 1: index=[1] -> item=["hello"]
     cs~executable= -- [The NIL object id#_268001399]
     cs~do -- execute the system command "hello" --> display "Bonjour, le monde!"
     cs~executable= -- cached executable [a Routine id#_264001464]
-    
+
     cs~functionDoer= -- [a Routine id#_267150234] created from a transformed source derived from cs~source
     cs~executable= -- [a Routine id#_267150234] this new routine has been memorized
     cs~executable~source= -- transformed source
@@ -1663,13 +1669,13 @@ Example, from ooRexxShell (the final '=' is used to display the result) :
     cs~source= -- the original source is unchanged and still available
         # 1: index=[1] -> item=["hello"]
     cs~do= -- [hello]
-    
+
     cs~actionDoer= -- [a Routine id#_266463660] created from a source derived from cs~source (no transformation)
     cs~executable= -- [a Routine id#_266463660] memorized
     cs~executable~source=
         # 1: index=[1] -> item=["hello"]
     cs~do -- execute the system command "hello" --> display  "Bonjour, le monde!"
-    
+
     cs~executable = .nil -- reset the cache
     cs~executable= -- [The NIL object id#_268001399]
 
@@ -1710,7 +1716,7 @@ Ex : (already seen above, but here only tilde-calls are used, no more ~do)
     from5to8 = range~(5, 8)
     from20to30 = range~(20, 30)
     say from5to8~(6) -- 1       first execution : the closure is parsed
-    say from5to8~(9) -- 0       
+    say from5to8~(9) -- 0
     say from20to30~(6) -- 0     first execution : the closure is parsed
     say from20to30~(25) -- 1
 
@@ -1734,7 +1740,7 @@ This is more consistent for the caller, no need to test if a result was returned
 The option 'memorizeIndex' lets specify an optional tag : memorizeIndex[.tag]
 By default, the tag is the pipeStage class id.
 Still thinking to improve this memorization, because when needing the produced value,
-the tag must be specified on the next pipeStage (which consumes the value). 
+the tag must be specified on the next pipeStage (which consumes the value).
 In the example below, the tag "package" is associated to the 2nd inject, whereas
 I find it would be more natural to associate it to the 1st inject.
 todo : add ~valueIn, ~valueOut.
@@ -2032,7 +2038,7 @@ loss of performance happens in the future with non-profiled code.
 ===============================================================================
 2011 oct 30
 
-Each call to an external function (like SysXxx functions) triggers a communication 
+Each call to an external function (like SysXxx functions) triggers a communication
 with the rxapi server through a socket (QUERY_MACRO, to test is the function is
 defined in the macrospace).
 This has a major impact on performance !
@@ -2060,7 +2066,7 @@ Under MacOsX, no such difference :
     10000 calls of an empty routine object  : 0.0104
     10000 runs of an empty method           : 0.0087
 (samples/benchmark/call-benchmark.rexx)
- 
+
 
 ===============================================================================
 2011 oct 26
@@ -2170,7 +2176,7 @@ Refactoring of ~reduce, ~map and ~each :
   "indexed" and "inplace" options, "inplace" being renamed "replace".
   Consequence : the parameter "options" is removed.
 - ~map allowed to update in-place, but the design decisions were not good... I limited
-  this option to collections which understand ~append, because I wanted to support 
+  this option to collections which understand ~append, because I wanted to support
   deletion (filtering) of items. But that's a bad idea, better to not allow deletion
   and use []= for assignment. That will work with any collection, including multi-
   dimensional arrays.
@@ -2182,7 +2188,7 @@ Refactoring of ~reduce, ~map and ~each :
   ~map can be in-place, ~each is never in-place.
   ~map can't filter collections, ~each can filter collections.
 - ~each must be available on String and MutableBuffer. The result is an array or no result.
-  
+
 In summary :
 (update JLF 23 oct 2011 : the xxxI methods have been removed, the xxxII methods have been renamed xxxI)
                 reduce   reduceC   reduceW   map   mapC   mapW   mapR   mapCR   mapWR   each    eachC    eachW
@@ -2209,7 +2215,7 @@ Reduce on non-ordered collections will give good results only with commutative o
 Ex : any collection can be reduced with "+", but only ordered collections should be reduced with "-".
 
 Experimental : I search my way to implement lazy iterators using coactivities.
-I created additional methods like 
+I created additional methods like
     ~times.yield
     ~yield.upto
     ~yield.downto
@@ -2232,7 +2238,7 @@ At the first call of the function, the generator object is returned.
     <generator object at 0x58490>
     >>>
 So it looks similar to the third solution. Except that in the Python example, the loop and the yield are in the same function.
-In the case of ~upto, the loop and the yield are not in the same routine. 
+In the case of ~upto, the loop and the yield are not in the same routine.
 
 
 ===============================================================================
@@ -2252,7 +2258,7 @@ With implicit return, such an expression is quite common when filtering : value=
 but the parser raises an error to protect the user against a potential typo error,
 assuming the user wanted to enter : value=1.
 I deactivated this control, now the expression above is ok.
-Yes, it remains a problem (no syntax error, but it's an assignment, not a test) : 
+Yes, it remains a problem (no syntax error, but it's an assignment, not a test) :
     .array~of(1,2,1)~pipe(.select {value=1} | .console)
 good point, the lack of returned value is detected, must surround by parentheses
 to make it a real expression.
@@ -2380,7 +2386,7 @@ Conventions followed in this pipeline implementation :
 - If the pipeStage generates several values from the received value, then a second
   local index is added, which gives the position of the current generated value.
 - If the pipeStage lets create a user-defined index (ex : .inject), then this index
-  becomes the third (and following) local index. 
+  becomes the third (and following) local index.
 
 The creation of the pipe indexes is controlled by the option 'memorizeIndex' (abbrev 'mem').
 This option is available from any pipeStage.
@@ -2388,7 +2394,7 @@ By default, the pipe indexes are not created, except for the source of the pipel
 
 .inject : adaptation of the behaviour to the new management of indexes.
 Two options are available : 'memorizeIndex' and 'recursive.memorizeIndex'.
-By default, no index is memorized by .inject. 
+By default, no index is memorized by .inject.
 In the example below, the first column is the source index (always memorized)
 1~pipe(.inject {value+1} recursive.2 | .console)
 1,1 : 2
@@ -2449,9 +2455,9 @@ say i5~makeString(.false, .true)                          -- 1|'a'|(2)|i1=(c:)|i
 
 [pipes]
 
-Standardization of doers usage : 
+Standardization of doers usage :
     try first ~functionDoer,
-    then ~actionDoer (if candidate), 
+    then ~actionDoer (if candidate),
     then ~doer.
 The goal is to accept traditional routines or methods everywhere a functionDoer is
 accepted. Currently, only RexxContextualSourceDoer has the methods ~functionDoer
@@ -2486,7 +2492,7 @@ Fixed a crash in relation with line adjustment.
 
 Refinement of tokens 'subclass' attribute (for analysis) :
 The scanner splits a source file in clauses, and decompose each clause in tokens.
-Then the parser creates an AST from the tokens. 
+Then the parser creates an AST from the tokens.
 The tokens were not annotated by the parser to attach semantic information found
 during parsing. After a discussion with Rony about syntax coloring, I decided to
 see which informations could be added to the tokens. I found that the attribute
@@ -2515,7 +2521,7 @@ http://ibm-netrexx.215625.n3.nabble.com/NetRexx-Eclipse-status-video-td3271843.h
 Fixed a crash in relation with source literals and GC.
 Two problems :
 1) Forgot to replace RexxDirectory by RexxList when disabling the optimization
-for source literals (was a copy-paste of optimization done for string literals). 
+for source literals (was a copy-paste of optimization done for string literals).
 2) The constructor RexxSourceLiteral::RexxSourceLiteral can trigger a GC. Must protect
 'this'.
 
@@ -2563,8 +2569,8 @@ RexxActivity.cpp, RexxActivity::createConditionObject (fixed in sandbox)
 Other potential problems. A fresh created object is not protected, and some calls are made that could trigger GC.
 RexxBehaviour.cpp, RexxBehaviour::copy : newBehaviour is not protected. (05/03/2012 : done)
 RexxBehaviour.cpp, RexxBehaviour::addScope : this->scopes->allAt(TheNilObject) creates an object which is not protected. (05/03/2012 : added to this->scopes, so seems protected)
-RexxCollection.cpp, RexxHashTableCollection::copy : newObj is not protected. 
-    Should be protected only if ActivityManager::currentActivity != NULL, otherwise crash in implementation of ProtectedObject's methods 
+RexxCollection.cpp, RexxHashTableCollection::copy : newObj is not protected.
+    Should be protected only if ActivityManager::currentActivity != NULL, otherwise crash in implementation of ProtectedObject's methods
     (RexxHashTableCollection::copy is called during interpreter initialization, and at this time, ActivityManager::currentActivity == NULL).
 ArrayClass.cpp, RexxArray::copy : newArray is not protected.
 ClassClass.cpp, RexxClass::defineMethod : method_name and method_object are not protected.
@@ -2585,19 +2591,19 @@ SourceFile.cpp, RexxSource::translateBlock : _instruction is not protected.
 Modified functionDoer : Try first the source as-is, and in case of error try
 the 'clause transformed to expression'.
 Before this change :
-    say {if .true then 2}~functionDoer~do 
+    say {if .true then 2}~functionDoer~do
     -- display : "IF 1 THEN 2"
     -- because the clause has been transformed to an expression.
     say {if .true then 2}~functionDoer~source~tostring
     -- display :
     -- options "NOCOMMANDS" ; ( if .true then 2 )
-    --  ; if var("result") then return result    
+    --  ; if var("result") then return result
 Now :
-    say {if .true then 2}~functionDoer~do 
+    say {if .true then 2}~functionDoer~do
     -- display : "2"
     -- because the clause remains as-is :
     -- options "NOCOMMANDS" ; if .true then 2
-    --  ; if var("result") then return result    
+    --  ; if var("result") then return result
 
 
 [pipes]
@@ -2613,7 +2619,7 @@ The index created by .inject is now a pair (value, resultIndex) where
 - value is the processed value.
 - resultIndex is the index of the current result calculated with value.
 When doing recursive calculations and using the pushIndex option, the index
-is like a call stack with intermediate results : you get one pair 
+is like a call stack with intermediate results : you get one pair
 (value, resultIndex) for each level of recursion.
 Ex :
 .stream~pipe(.superclasses recursive pushIndex | .console)
@@ -2718,7 +2724,7 @@ Exemple :
 
 Make use of functionDoer to emulate pure expressions, but the current emulation shows its limits.
     arg(1) * 2 --> Incorrect PARSE template detected at "*"
-If I change the expression to : 
+If I change the expression to :
     2 * arg(1)
 then it's ok.
 That gave me the idea to modify functionDoer to surround the first clause other than "expose" and
@@ -2919,7 +2925,7 @@ The pipeline's methods to profile must be instrumented.
     my code here...
 
     is instrumented to become :
-    
+
     ::method myMethod protected        <-- will be intercepted
     forward message("myMethod_unprotected")
 
@@ -2938,7 +2944,7 @@ Now RexxContextualSource is used for that.
     doer = {use arg name; say "hello" name}~doer
     say doer~class -- The Routine class
     doer~do("John") -- hello John
-    
+
     doer = {::method say "hello" self}~doer
     say doer~class -- The Method class
     doer~do("John") -- hello John
@@ -2959,7 +2965,7 @@ Adapted the samples in extension, concurrency, pipeline :
 
 When a source literal was evaluated by an interpret instruction, the package associated
 to the RexxContextualSource (at parse time) was not holding the right informations
-for class & routine lookup scope. 
+for class & routine lookup scope.
 Symptom (assuming .myclass is visible from the current package, thanks to a ::requires) :
     {say .myclass}~doer~do             --> display The MYCLASS class (good)
     interpret "{say .myclass}~doer~do" --> display .MYCLASS          (not good)
@@ -3000,7 +3006,7 @@ Added support for source literals.
 Currently, a source literal is surrounded by curly braces, which is probably heretical,
 but my main focus is not on the syntax.
 My needs :
-- I need to make a distinction between a "real" string and a source literal. 
+- I need to make a distinction between a "real" string and a source literal.
   (will be useful for the pipeStage .Displayer)
 - I need the context of the source literal's definer. Thay way, I no longer need to call
   Doers.AddVisibilityFrom.
@@ -3024,7 +3030,7 @@ New class available from an ooRexx script :
 ::method context -- the context of the execution environment from which the source literal was evaluated.
 ::method source -- the text inside the curly braces, where '\n' has been replaced by ';'
 
-Example of use : 
+Example of use :
 The source literal can be assigned to a variable and passed as argument to a routine.
 
 -- package1.rex
@@ -3255,10 +3261,10 @@ The debug messages for semaphores and mutexes are very costly : about 400 times
 slower than main/trunk... Now, those messages are controlled by conditional
 compilation, and activated only in debug configuration.
 
-Slow learning curve of xcode4 under MacOsX, experimentation of several configurations : 
+Slow learning curve of xcode4 under MacOsX, experimentation of several configurations :
 gcc/debug
     $oorexx_src_dir/configure --prefix=$oorexx_delivery CFLAGS="-g -O0 -D_DEBUG" CXXFLAGS="-g -O0 -D_DEBUG"
-gcc/default : 
+gcc/default :
     $oorexx_src_dir/configure --prefix=$oorexx_delivery
 gcc/release
     $oorexx_src_dir/configure --prefix=$oorexx_delivery CFLAGS="-g -O3" CXXFLAGS="-g -O3"
@@ -3322,7 +3328,7 @@ Fixed in RexxActivation::run
 ===============================================================================
 2011 mar 17
 
-I have a small problem with doers : 
+I have a small problem with doers :
 Any routine/method created by StringDoer will have a lookup scope limited to the
 doers package, because the routines/methods are created from the doers package,
 not from the caller's package.
@@ -3349,7 +3355,7 @@ The proposed syntax [expr] lets defer the evaluation of expr, but is not suppose
 support instructions (why not ?).
 Maybe
     c = .Coactivity~new("do i = 1 to 10 ; .Coactivity~yield(i) ; end")
-could become 
+could become
     c = .Coactivity~new([do i = 1 to 10 ; .Coactivity~yield(i) ; end])
 In this case, the context is the "good" context, i.e. the context of the place from where
 the block is parsed. The distinction expression/instructions is similar to the distinction
@@ -3360,7 +3366,7 @@ arguments.
 ===============================================================================
 2011 mar 17
 
-m17n : 
+m17n :
 Don't use strong types by default, because gcc can't compile as-is.
 Fixed compilation errors under Linux.
 
@@ -3374,7 +3380,7 @@ So, I added new informations in the trace output :
 - nesting counter (4th column)
 
 Raw trace, generated by rexx :
-00004fec 7efc0fb0 7efc10f0 00001*     79 *-* if start 
+00004fec 7efc0fb0 7efc10f0 00001*     79 *-* if start
 00004fec 7efc0fb0 7efc10f0 00001*        >V>   START => "1"
 00004fec 7efc0fb0 7efc10f0 00001*        >>>   "1"
 00004fec 7efc0fb0 7efc10f0 00001*     79 *-*   then
@@ -3393,7 +3399,7 @@ Raw trace, generated by rexx :
 
 
 Human readable trace, generated by rexx trace/tracer using raw trace as input :
-T1   A4     V2      1*     79 *-* if start 
+T1   A4     V2      1*     79 *-* if start
 T1   A4     V2      1*        >V>   START => "1"
 T1   A4     V2      1*        >>>   "1"
 T1   A4     V2      1*     79 *-*   then
@@ -3476,7 +3482,7 @@ is "Extension" (no need of that with ::extension) :
 The level of integration brougth by extension/std is poor compared to the integration with ::extension !
 Most of the time, you will create instances of your extended class.
 Ex : .ExtendedString~new("say 2*arg(1)")~doer~do(10) -- display 20
-But sometimes, you must work with instances returned by the interpreter, and you can't create an instance 
+But sometimes, you must work with instances returned by the interpreter, and you can't create an instance
 of your extended class. In this case, you create an instance of your extension mixin which encapsulates the
 instance returned by the interpreter.
 Ex : routine = .context~package~findRoutine("multiply_by_2")
@@ -3555,10 +3561,10 @@ coroutine~resume -- unguarded
 0000ccac 7efcae78          >>>   "a COROUTINE"
 0000c8dc 7efcae78          >I> Method START with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
 0000ccac 7efd0968          >I> Method RESUME with scope "The COROUTINE class" in package D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\generator\coroutine.cls
-0000c8dc 7efcae78       95 *-* signal on any 
+0000c8dc 7efcae78       95 *-* signal on any
 0000ccac 7efd0968      162 *-* expose status yieldValue
 0000c8dc 7efcae78       96 *-* guard on when status <> .Coroutine~suspended
-0000ccac 7efd0968      163 *-* if status == .Coroutine~notStarted 
+0000ccac 7efd0968      163 *-* if status == .Coroutine~notStarted
 0000c8dc 7efcae78 *        >V>   STATUS => "1"
 0000ccac 7efd0968          >V>   STATUS => "1"
 
@@ -3584,9 +3590,9 @@ void *RexxBuffer::operator new(size_t size, size_t _length)
     newBuffer->bufferSize = _length;    <-- initialized here, *before* the execution of default constructor
     newBuffer->dataLength = _length;    <-- same problem
 
-    
+
 Now, the next step is probably to change the signature of the methods in StringUtil,
-to pass a IRexxString parameter, instead of a couple (char*, size_t) which are the 
+to pass a IRexxString parameter, instead of a couple (char*, size_t) which are the
 internal attributes stringData and length.
 
 
@@ -3640,7 +3646,7 @@ Added encoding to RexxString (m17n) : I borrowed the Parrot's implementation
 (the overall design is kept, but a lot of things has been adapted to ooRexx).
 
 For the moment, I have three sources of inspiration : Parrot, Ruby, Falcon
-I choosed Parrot to start, because it uses ICU if available at compile-time. 
+I choosed Parrot to start, because it uses ICU if available at compile-time.
 It's a minimal use, but at least I can put my hands on ICU through a concrete work.
 One pointer for charset and one pointer for encoding is probably too much, but this is
 how Parrot is implemented... And a third pointer is coming, for NFG.
@@ -3650,7 +3656,7 @@ http://lists.parrot.org/pipermail/parrot-dev/2010-August/004633.html
 Ruby's m17n is more complete than Parrot's, but seems more difficult to apprehend.
 The encoding is stored as a 16 bits index.
 
-Falcon is not like Parrot or Ruby, its internal charset is Unicode only. 
+Falcon is not like Parrot or Ruby, its internal charset is Unicode only.
 I'm interested by its "string polymorphism".
 The string manager (ako encoding) is stored as a pointer.
 
@@ -3668,7 +3674,7 @@ The environment variable HAVE_ICU is tested in buildorx.bat :
     set ICU_OPTION=
     if defined HAVE_ICU set ICU_OPTION="HAVE_ICU=%HAVE_ICU%"
     NMAKE /F INTERPRETER.MAK %ICU_OPTION%
-    
+
 interpreter.mak :
     !IFNDEF HAVE_ICU
     HAVE_ICU=0
@@ -3715,7 +3721,7 @@ RexxMemory::mark(RexxObject *markObject)
 markObject = 0x7eee1ac0                             --> see below, this is the 30th element of string array
     [RexxString]
                if tmp<2 then         -- start at first char
-           
+
 called by RexxArray::live(size_t liveMark)      ArrayClass.cpp
 where this = 0x7f30ed70
 this->objects = 7f30ed98
@@ -3751,7 +3757,7 @@ the behaviour of 30th element is stored at 0x7eee1acc
 
 
 called by RexxMemory::markObjectsMain(RexxObject *rootObject)
-where rootObject = 
+where rootObject =
 +		rootObject	0x003d2a90 class RexxMemory memoryObject {markWord=1 markReason=1 variableCache=0x7f5b55a8 ...}	RexxObject *
 
 called by RexxMemory::markObjects()
@@ -3821,8 +3827,8 @@ where newDead = 7eee1ac0
  	rexx.dll!RexxSource::loadRequires(RexxActivity * activity, RexxString * target)  Line 6082 + 0x14 bytes	C++
  	rexx.dll!PackageClass::loadPackage(RexxString * name, RexxArray * s)  Line 366 + 0x16 bytes	C++             <-- rgf_util2.rex
     while loading rgf_util2.rex
-    
-Why is 0x7eee1ac0 a dead object ? 
+
+Why is 0x7eee1ac0 a dead object ?
 In RexxSource::extractSource, the array "source" is created, but is not a ProtectedObject.
 
 
@@ -3847,17 +3853,17 @@ putUnicodeText converts to wide-char, so no need to convert byte-char to wide-ch
 ===============================================================================
 2010 may 15
 
-Added the function dbgprintf to write debug strings. 
+Added the function dbgprintf to write debug strings.
 Under Windows, it calls OutputDebugString.
 Under Linux, it calls syslog.
 
 Remember, typical debug session under PuppyLinux (with busybox) :
-Open a console : 
+Open a console :
     syslogd -S -C   # -S Smaller loggin output. -C Log to share mem buffer (read it using logred).
     logread -f
     The output of syslog is displayed by logread in this console (lock management, on client and server side).
-Open a console, launch rxapi. 
-    Has been compiled to stay as a foreground process. 
+Open a console, launch rxapi.
+    Has been compiled to stay as a foreground process.
     It sends debug strings to stderr, more easy to follow in this console (messages between client and server).
 Open a console, run the rexx command. The two other consoles are updated with debug infos.
 
@@ -3889,7 +3895,7 @@ Remember :
     Info          (level 6)
     Debug         (level 7)
 -----
-Create the file /var/log/debug.log : 
+Create the file /var/log/debug.log :
 sudo touch /var/log/debug.log
 Add this line to /etc/syslog.conf to get the debug messages in /var/log/debug.log :
 *.debug   /var/log/debug.log
@@ -3905,8 +3911,8 @@ Fixed a crash in the conversion A2W and W2A : The length must be asked to the Wi
 and not calculated with bad assumptions as I did.
 
 
-Something not clear to me : 
-In oodMessaging.cpp, there is a message queue implemented as a string. 
+Something not clear to me :
+In oodMessaging.cpp, there is a message queue implemented as a string.
 Each element is separated by a special character 0xFF.
 This message queue is declared rxcharT, so it's a wide-char string when building the wide-char configuration.
 Several methods have a rexxMethod parameter, and I declared it rxcharT.
@@ -3920,7 +3926,7 @@ It's a matter of conversion boundary...
 The japanese characters are not properly displayed by MessageBox (i.e. InfoDialog).
 It seems that under XP, one must install files for complex scripts.
 Not needed under Vista.
---> go to the "Regional and Language Options" control panel, go to the "Languages" tab, 
+--> go to the "Regional and Language Options" control panel, go to the "Languages" tab,
 and select "Install filesfor complex script...".
 You need to reboot :-(
 --> good, after reboot it works...
@@ -3960,12 +3966,12 @@ oodtree.inp, added UTF-8 strings for demo
 Added support for wide-chars in oodialog.
 Currently, the "A" Windows API is called, and the conversion occurs there, inside Windows, based on the current locale.
 When compiling ooDialog with wide chars UTF-16, the "W" API is called directly, making the dialogs Unicode-enabled.
-GTK+ uses UTF-8 internally. Most of  the Unix-style operating systems use UTF-8 internally. 
+GTK+ uses UTF-8 internally. Most of  the Unix-style operating systems use UTF-8 internally.
 So it's natural to use multi-byte chars in ooRexx instead of wide chars, and to provide string services which supports UTF-8.
-But the case of ooDialog is different : 
-This is a Windows-only sub-system, and for better integration with Windows, it must use UTF-16 chars internally. 
-The conversion to UTF-16 is under the responsability of ooDialog, which lets support code pages that are different 
-from the system's default code page. Typically, we can pass UTF-8 string to ooDialog which convert them to UTF-16 strings 
+But the case of ooDialog is different :
+This is a Windows-only sub-system, and for better integration with Windows, it must use UTF-16 chars internally.
+The conversion to UTF-16 is under the responsability of ooDialog, which lets support code pages that are different
+from the system's default code page. Typically, we can pass UTF-8 string to ooDialog which convert them to UTF-16 strings
 before calling the Windows "W" API.
 
 By default, the byte-char configuration is built when buildling the whole interpreter :
@@ -4012,9 +4018,9 @@ Currently, if the same method is extended several times, then it's the "last" ex
 The definition of "last" depends on the order of resolution of ::requires
 See samples\extension\test_extension_order.rex
 
-Remember : 
-Unlike ::class, you can have several ::extension in the same source for the same class. 
-So the current check for duplicate method in an ExtensionDirective is not very useful. 
+Remember :
+Unlike ::class, you can have several ::extension in the same source for the same class.
+So the current check for duplicate method in an ExtensionDirective is not very useful.
 The interpreter will complain for that :
 ::extension object
 ::method m
@@ -4097,3 +4103,5 @@ merge 7691-7736 from main/trunk
 merge 7736-7771 from main/trunk
 
 merge 7771-8678 from main/trunk
+
+merge 8678-9423 from main/trunk

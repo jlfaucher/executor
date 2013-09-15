@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2009-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2009-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -69,6 +69,7 @@
 
 
 #define MAX_PROPSHEET_DIALOGS        5
+#define DEFAULT_PROPSHETT_ID         100
 
 #define TOO_MANY_PROPSHEET_DIALOGS \
         "the concurrent creation of property sheet dialogs has reached the maximum (%d)"
@@ -101,7 +102,7 @@ extern bool setPropSheetHook(pCPropertySheetDialog);
 
 extern void assignPSDThreadContext(pCPropertySheetDialog pcpsd, RexxThreadContext *c, uint32_t threadID);
 
-extern LRESULT CALLBACK RexxPropertySheetDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern LRESULT CALLBACK RexxPropertySheetPageDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern LRESULT CALLBACK PropSheetCBTProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 #endif

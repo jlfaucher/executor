@@ -126,9 +126,9 @@ public:
 #endif
     static inline wholenumber_t maxValueForDigits(size_t d)
     {
-        if (d > DEFAULT_DIGITS)
+        if (d > ARGUMENT_DIGITS)
         {
-            return validMaxWhole[DEFAULT_DIGITS - 1];
+            return validMaxWhole[ARGUMENT_DIGITS - 1];
         }
         else
         {

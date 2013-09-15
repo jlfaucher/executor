@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -54,6 +54,7 @@
 #include "oodMessaging.hpp"
 #include "oodData.hpp"
 #include "oodDeviceGraphics.hpp"
+#include "oodResizableDialog.hpp"
 #include "oodResourceIDs.hpp"
 
 
@@ -188,8 +189,8 @@ bool loadResourceDLL(pCPlainBaseDialog pcpbd, CSTRING library)
         CHAR msg[256];
         sprintf(msg,
                 "Failed to load Dynamic Link Library (resource DLL.)\n"
-                "  File name:\t\t\t%s\n"
-                "  Windows System Error Code:\t%d\n", library, GetLastError());
+                "  Windows System Error Code:\t%d\n"
+                "  File name:\t\t%s\n", GetLastError(), library);
         MessageBox(0, msg, "ooDialog DLL Load Error", MB_OK | MB_ICONHAND | MB_SYSTEMMODAL);
         return false;
     }
@@ -395,8 +396,9 @@ int32_t delDialog(pCPlainBaseDialog pcpbd, RexxThreadContext *c)
     EnterCriticalSection(&crit_sec);
 
 #if 0
-    printf("In delDialog() hDlg=%p tabIdx=%d allocate=%d isActive=%d onTop=%d prev=%p\n",
-           pcpbd->hDlg, pcpbd->tableIndex, pcpbd->dlgAllocated, pcpbd->isActive, pcpbd->onTheTop, pcpbd->previous);
+    printf("In delDialog() hDlg=%p tabIdx=%d allocated=%d isActive=%d onTop=%d\n               prev=%p abnormalHalt=%d\n",
+           pcpbd->hDlg, pcpbd->tableIndex, pcpbd->dlgAllocated, pcpbd->isActive, pcpbd->onTheTop, pcpbd->previous,
+           pcpbd->abnormalHalt);
 #endif
 
     if ( ! pcpbd->dlgAllocated )
@@ -574,6 +576,20 @@ int32_t delDialog(pCPlainBaseDialog pcpbd, RexxThreadContext *c)
         pcpbd->dlgPrivate = NULL;
     }
 
+    if ( pcpbd->isResizableDlg && pcpbd->resizeInfo != NULL )
+    {
+        pResizeInfoDlg prid = pcpbd->resizeInfo;
+
+        for ( size_t i = 0; i < prid->countPagedTabs; i++ )
+        {
+            safeLocalFree(prid->pagedTabs[i]);
+        }
+        safeLocalFree(prid->riCtrls);
+        safeLocalFree(prid->sizeEndedMeth);
+        safeLocalFree(prid);
+        pcpbd->resizeInfo = NULL;
+    }
+
     if ( pcpbd->isPropSheetDlg && pcpbd->dlgPrivate != NULL  )
     {
         delPropSheetDialog((pCPropertySheetDialog)pcpbd->dlgPrivate);
@@ -655,6 +671,20 @@ BOOL getDialogIcons(pCPlainBaseDialog pcpbd, INT id, UINT iconSrc, PHANDLE phBig
 
     if ( id < 1 )
     {
+        if ( TheDefaultBigIcon != NULL )
+        {
+            *phBig   = TheDefaultBigIcon;
+            *phSmall = TheDefaultSmallIcon;
+
+            // The default icons will be used over and over again, (probably,)
+            // so they must not be destroyed when a dialog ends.
+            pcpbd->sharedIcon = true;
+
+            return TRUE;
+        }
+
+        // Should never get here, the default icons should already be set to
+        // IDI_DLG_DEFAULT, at least.
         id = IDI_DLG_DEFAULT;
     }
 
@@ -721,7 +751,7 @@ static inline pCWindowBase validateWbCSelf(RexxMethodContext *c, void *pCSelf)
     pCWindowBase pcwb = (pCWindowBase)pCSelf;
     if ( pcwb == NULL )
     {
-        baseClassIntializationException(c);
+        baseClassInitializationException(c);
     }
     return pcwb;
 }
@@ -996,7 +1026,7 @@ static bool getHwndBehind(RexxMethodContext *c, RexxObjectPtr _hwndBehind, HWND 
         {
             size_t len = strlen(str);
 
-            if ( (len == 0 || len == 2) || (len == 1 && *str != '0') || toupper(str[1]) != 'X' )
+            if ( (len == 0 || len == 2) || (len == 1 && *str != '0') || (len > 2 && toupper(str[1]) != 'X') )
             {
                 wrongArgValueException(c->threadContext, 1, "BOTTOM, NOTTOPMOST, TOP, TOPMOST, or a valid window handle", str);
                 return false;
@@ -1136,10 +1166,22 @@ RexxMethod2(RexxObjectPtr, wb_setInitCode, wholenumber_t, code, CSELF, pCSelf)
 }
 
 /** WindowBase::hwnd  [attribute get]
+ *
+ *  We use a lazy init for the Rexx hwnd object.
  */
 RexxMethod1(RexxObjectPtr, wb_getHwnd, CSELF, pCSelf)
 {
-    return ((pCWindowBase)pCSelf)->rexxHwnd;
+    pCWindowBase pcwb = validateWbCSelf(context, pCSelf);
+    if ( pcwb == NULL )
+    {
+        return TheZeroObj;
+    }
+    if ( pcwb->rexxHwnd == TheZeroObj && pcwb->hwnd != NULL )
+    {
+        pcwb->rexxHwnd = context->RequestGlobalReference(pointer2string(context, pcwb->hwnd));
+    }
+
+    return pcwb->rexxHwnd;
 }
 
 /** WindowBase::factorX  [attribute]
@@ -2631,6 +2673,34 @@ RexxMethod2(uint32_t, wb_getWindowLong_pvt, int32_t, flag, CSELF, pCSelf)
 }
 
 
+/** WindowBase::setWindowLong()  [private]
+ *
+ *  Calls SetWindowLong with the value specified.
+ *
+ *  @param  flag   [required] The GWL_xx index to set.
+ *
+ *  @param  value  [required] The value to set
+ *
+ *  @return  The previous value for the index
+ *
+ *  @remarks  This is used internally for setWindowStyleRaw, GWL_STYLE.  It
+ *            could also be used for GWL_EXSTYLE.  The other indexes, besides
+ *            those 2, are pointer or handle values. Because of this, this
+ *            method should not be documented. Use from Rexx for any other index
+ *            is likely to crash Rexx, or have other unintended consequences.
+ */
+RexxMethod3(uint32_t, wb_setWindowLong_pvt, int32_t, flag, CSTRING, value, CSELF, pCSelf)
+{
+
+    uint32_t realValue;
+    if ( ! rxStr2Number32(context, value, &realValue, 2) )
+    {
+        return NULLOBJECT;
+    }
+    return SetWindowLong(getWBWindow(context, pCSelf), flag, realValue);
+}
+
+
 /**
  *  Methods for the .PlainBaseDialog class.
  */
@@ -2641,7 +2711,7 @@ static inline HWND getPBDWindow(RexxMethodContext *c, void *pCSelf)
 {
     if ( pCSelf == NULL )
     {
-        return (HWND)baseClassIntializationException(c);
+        return (HWND)baseClassInitializationException(c);
     }
 
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
@@ -2656,7 +2726,7 @@ HWND getPBDControlWindow(RexxMethodContext *c, pCPlainBaseDialog pcpbd, RexxObje
 {
     if ( pcpbd == NULL )
     {
-        return (HWND)baseClassIntializationException(c);
+        return (HWND)baseClassInitializationException(c);
     }
 
     HWND hCtrl = NULL;
@@ -2726,10 +2796,13 @@ int32_t stopDialog(pCPlainBaseDialog pcpbd, RexxThreadContext *c)
  *  successfully created.  It then sets the dialog handle into the various CSelf
  *  structs that need it.
  *
- * @param c      Method context we are operating in.
  * @param pcpbd  CSelf pointer of the dialog
+ *
+ * @remarks  Originally we created the Rexx hwnd object here and requested a
+ *           global reference for it.  We now skip that and instead do a lazy
+ *           init of the Rexx object in the hwnd attribute get.
  */
-void setDlgHandle(RexxThreadContext *c, pCPlainBaseDialog pcpbd)
+void setDlgHandle(pCPlainBaseDialog pcpbd)
 {
     if ( ! pcpbd->isDlgHwndSet )
     {
@@ -2739,7 +2812,6 @@ void setDlgHandle(RexxThreadContext *c, pCPlainBaseDialog pcpbd)
         pcpbd->weCSelf->hwnd = hDlg;
 
         pcpbd->wndBase->hwnd = hDlg;
-        pcpbd->wndBase->rexxHwnd = c->RequestGlobalReference(pointer2string(c, hDlg));
 
         pcpbd->isDlgHwndSet = true;
     }
@@ -2902,6 +2974,17 @@ static bool checkDlgType(RexxMethodContext *c, RexxObjectPtr self, pCPlainBaseDi
         pcpbd->isPageDlg = true;
     }
 
+    if ( c->IsOfType(self, "CUSTOMDRAW") )
+    {
+        pcpbd->isCustomDrawDlg = true;
+        pcpbd->idsNotChecked   = true;
+    }
+
+    if ( c->IsOfType(self, "RESIZINGADMIN") )
+    {
+        pcpbd->isResizableDlg = true;
+    }
+
     return true;
 
 err_out:
@@ -3007,7 +3090,12 @@ done_out:
  *  The initialization of the base dialog.
  *
  *  @params  library      DLL or .rc file for ResDialog or RcDialog dialogs.
- *  @params  resource     Resource ID for ResDialog or RcDialog dialogs.
+ *  @params  resource     The resource ID for ResDialog or RcDialog dialogs. The
+ *                        dlgID attribute is set to this value, if it can be
+ *                        resolved to a number. By default -1 will be assigned
+ *                        to dlgID if resource does not resolve to a positive
+ *                        number.
+ *
  *  @params  dlgDataStem  Data stem.
  *  @params  hFile        Header file.
  *
@@ -3019,7 +3107,14 @@ done_out:
  *                        on to the concrete class.  Which in turn knows how to
  *                        use that init object.
  *
- *  @remarks  Prior to 4.0.1, if something failed here, the 'init code' was set
+ *  @remarks  We keep the dlgID attribute separate from the undocumented
+ *            resourceID. dlgID is set to resourceID, if resourceID can be
+ *            resolved here to a number greater than 0.  If it can not be
+ *            resolved, it is set to -1.  This way, changing it to -1 can not
+ *            interfere with the resourceID.  dlgID can be changed any time by
+ *            the user.
+ *
+ *            Prior to 4.0.1, if something failed here, the 'init code' was set
  *            to non-zero.  One problem with this is that it relies on the user
  *            checking the init code and *not* using the dialog object if it is
  *            an error code.  Since we can not rely on that, in order to prevent
@@ -3107,8 +3202,6 @@ RexxMethod6(RexxObjectPtr, pbdlg_init, CSTRING, library, RexxObjectPtr, resource
     strcpy(pcpbd->fontName, pcpbdc->fontName);
     pcpbd->fontSize = pcpbdc->fontSize;
 
-    // TODO at this point calculate the true dialog base units and set them into CPlainBaseDialog.
-
     if ( ! (pcpbd->isControlDlg || pcpbd->isPageDlg) )
     {
         pcpbd->previous = TopDlg;
@@ -3157,6 +3250,47 @@ RexxMethod6(RexxObjectPtr, pbdlg_init, CSTRING, library, RexxObjectPtr, resource
     if ( argumentExists(4) )
     {
         context->SendMessage1(self, "PARSEINCLUDEFILE", hFile);
+    }
+
+    // If there is a condition pending we do not want to clear it.
+    if ( ! context->CheckCondition() )
+    {
+        pcpbd->dlgID = resolveResourceID(context, resource, self);
+
+        // Now, if there is a condition pending, it came from trying to resolve
+        // the ID, and we do want to clear it.
+        if ( context->CheckCondition() )
+        {
+            context->ClearCondition();
+        }
+    }
+
+    if ( pcpbd->isResizableDlg )
+    {
+        if ( ! allocateResizeInfo(context, pcpbd, cselfBuffer) )
+        {
+            result = TheOneObj;
+            goto done_out;
+        }
+
+        pcpbd->resizeInfo->inDefineSizing = true;
+
+        RexxObjectPtr reply = context->SendMessage0(self, "DEFINESIZING");
+
+        if ( ! isInt(0, reply, context->threadContext) )
+        {
+            // It is relatively easy to get a syntax error in the defineSizing()
+            // method.  If we have a condition, we don't want to replace it with
+            // the base class initialization condition
+            if ( ! context->CheckCondition() )
+            {
+                baseClassInitializationException(context, "ResizingAdmin", "defineSizing failed");
+            }
+
+            result = TheOneObj;
+        }
+
+        pcpbd->resizeInfo->inDefineSizing = false;
     }
 
     goto done_out;
@@ -3217,7 +3351,7 @@ RexxMethod1(CSTRING, pbdlg_getLibrary, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (CSTRING)baseClassIntializationException(context);
+        return (CSTRING)baseClassInitializationException(context);
     }
     return pcpbd->library;
 }
@@ -3229,20 +3363,28 @@ RexxMethod1(RexxObjectPtr, pbdlg_getResourceID, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
     return pcpbd->resourceID;
 }
 
 /** PlainBaseDialog::dlgHandle  [attribute get] / PlainBaseDialog::getSelf()
+ *
+ *  We use a lazy init for rexxHwnd.
  */
 RexxMethod1(RexxObjectPtr, pbdlg_getDlgHandle, CSELF, pCSelf)
 {
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
+
+    if ( pcpbd->wndBase->rexxHwnd == TheZeroObj && pcpbd->wndBase->hwnd != NULL )
+    {
+        pcpbd->wndBase->rexxHwnd = context->RequestGlobalReference(pointer2string(context, pcpbd->wndBase->hwnd));
+    }
+
     return pcpbd->wndBase->rexxHwnd;
 }
 
@@ -3253,7 +3395,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_getAutoDetect, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
     return pcpbd->autoDetect ? TheTrueObj : TheFalseObj;
 }
@@ -3264,9 +3406,40 @@ RexxMethod2(RexxObjectPtr, pbdlg_setAutoDetect, logical_t, on, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
     pcpbd->autoDetect = on;
+    return NULLOBJECT;
+}
+
+/** PlainBaseDialog:dlgID    [attribute get]
+ */
+RexxMethod1(int32_t, pbdlg_getDlgID, CSELF, pCSelf)
+{
+    pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
+    if ( pcpbd == NULL )
+    {
+        baseClassInitializationException(context);
+        return 0;
+    }
+    return pcpbd->dlgID;
+}
+/** PlainBaseDialog::dlgID   [attribute set]
+ */
+RexxMethod2(RexxObjectPtr, pbdlg_setDlgID, RexxObjectPtr, _id, CSELF, pCSelf)
+{
+    pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
+    if ( pcpbd == NULL )
+    {
+        return (RexxObjectPtr)baseClassInitializationException(context);
+    }
+
+    int32_t id = oodResolveSymbolicID(context->threadContext, pcpbd->rexxSelf, _id, -1, 1, true);
+
+    if ( id != OOD_ID_EXCEPTION )
+    {
+        pcpbd->dlgID = id;
+    }
     return NULLOBJECT;
 }
 
@@ -3277,7 +3450,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_getParentDlg_pvt, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
     return pcpbd->rexxParent == NULLOBJECT ? TheNilObj : pcpbd->rexxParent;
 }
@@ -3288,7 +3461,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_setParentDlg_pvt, RexxObjectPtr, parent, CSELF,
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     if ( requiredClass(context->threadContext, parent, "PLAINBASEDIALOG", 1) )
@@ -3310,7 +3483,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_getOwnerDialog, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
     return pcpbd->rexxOwner == NULLOBJECT ? TheNilObj : pcpbd->rexxOwner;
 }
@@ -3347,7 +3520,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_setOwnerDialog, RexxObjectPtr, owner, CSELF, pC
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     if ( pcpbd->isOwnedDlg )
@@ -3390,14 +3563,9 @@ RexxMethod1(RexxObjectPtr, pbdlg_getFinished, CSELF, pCSelf)
  */
 RexxMethod2(RexxObjectPtr, pbdlg_setFinished, logical_t, val, CSELF, pCSelf)
 {
-    if ( val )
-    {
-        context->SetObjectVariable("FINISHED", TheTrueObj);
-    }
-    else
-    {
-        context->SetObjectVariable("FINISHED", TheFalseObj);
-    }
+    ((pCPlainBaseDialog)pCSelf)->isFinished = val ? true : false;
+
+    context->SetObjectVariable("FINISHED", val ? TheTrueObj : TheFalseObj);
 
     return NULLOBJECT;
 }
@@ -3410,7 +3578,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_getFontNameSize, NAME, method, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     RexxObjectPtr result;
@@ -3432,7 +3600,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_setFontName_pvt, CSTRING, name, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     if ( strlen(name) > (MAX_DEFAULT_FONTNAME - 1) )
@@ -3453,7 +3621,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_setFontSize_pvt, uint32_t, size, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     pcpbd->fontSize = size;
@@ -3496,7 +3664,7 @@ RexxMethod3(RexxObjectPtr, pbdlg_setDlgFont, CSTRING, fontName, OPTIONAL_uint32_
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
     if ( pcpbd == NULL )
     {
-        return (RexxObjectPtr)baseClassIntializationException(context);
+        return (RexxObjectPtr)baseClassInitializationException(context);
     }
 
     if ( strlen(fontName) > (MAX_DEFAULT_FONTNAME - 1) )
@@ -3657,55 +3825,23 @@ RexxMethod2(RexxObjectPtr, pbdlg_getTextSizeDu, CSTRING, text, CSELF, pCSelf)
 {
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
 
-    HWND hDlg     = pcpbd->hDlg;
     SIZE textSize = {0};
 
-    // If hwnd is null, this will get a DC for the entire screen and that should be ok.
-    HDC hdc = GetDC(hDlg);
-    if ( hdc == NULL )
+    if ( pcpbd->hDlg == NULL )
     {
-        systemServiceExceptionCode(context->threadContext, API_FAILED_MSG, "GetDC");
-        goto error_out;
-    }
-
-    HFONT dlgFont = NULL;
-    bool createdFont = false;
-
-    if ( hDlg == NULL )
-    {
-        dlgFont = createFontFromName(hdc, pcpbd->fontName, pcpbd->fontSize);
-        if ( dlgFont != NULL )
+        if ( ! getTextSizeDuInactiveDlg(context, pcpbd, text, &textSize) )
         {
-            createdFont = true;
+            goto error_out;
         }
     }
     else
     {
-        dlgFont = (HFONT)SendMessage(hDlg, WM_GETFONT, 0, 0);
+        if ( ! getTextSizeDuActiveDlg(context, pcpbd, text, &textSize) )
+        {
+            goto error_out;
+        }
     }
 
-    // If the font is still null we use the stock system font.  Even if we have
-    // the dialog handle, the font could be null if WM_SETFONT was not used.  In
-    // this case the stock system font will be correct.  If the
-    // createFontFromName() failed, well that is unlikely.  Just use the stock
-    // system font in that case.
-    if ( dlgFont == NULL )
-    {
-        dlgFont = (HFONT)GetStockObject(SYSTEM_FONT);
-    }
-
-    HFONT hOldFont = (HFONT)SelectObject(hdc, dlgFont);
-
-    GetTextExtentPoint32(hdc, text, (int)strlen(text), &textSize);
-    screenToDlgUnit(hdc, (POINT *)&textSize, 1);
-
-    SelectObject(hdc, hOldFont);
-    ReleaseDC(hDlg, hdc);
-
-    if ( createdFont )
-    {
-        DeleteObject(dlgFont);
-    }
     return rxNewSize(context, textSize.cx, textSize.cy);
 
 error_out:
@@ -3780,6 +3916,75 @@ RexxMethod5(RexxObjectPtr, pbdlg_getTextSizeDlg, CSTRING, text, OPTIONAL_CSTRING
     return NULLOBJECT;
 }
 
+
+/** PlainBaseDialog::getTextSizeTitleBar()
+ *
+ *  Gets the size, width and height, of a string used in the caption bar for the
+ *  title.
+ *
+ *  @param  text  [required]  The text to get the dimensions for.
+ *
+ *  @return  A .Size object that reflects the width and height of the string if
+ *           it were used in the caption bar.
+ *
+ *  @notes  This method can be invoked before the underlying dialog is created,
+ *          and will return the dimensions as it does after the dialog is
+ *          created.
+ *
+ *  @remarks  For GetWindowDC(), if the window handle passed to it is NULL, it
+ *            returns a DC for the screen.  This works fine for our needs.
+ *            Testing shows the same dimensions are returned with a NULL window
+ *            handle as with the actual dialog's window handle.
+ */
+RexxMethod2(RexxObjectPtr, pbdlg_getTextSizeTitleBar, CSTRING, text, CSELF, pCSelf)
+{
+    oodResetSysErrCode(context->threadContext);
+
+    uint32_t errCode = 0;
+    SIZE     size    = {0};
+
+    NONCLIENTMETRICS ncm = { 0 };
+    ncm.cbSize = sizeof(NONCLIENTMETRICS );
+
+    pCPlainBaseDialog pcpbd = getPBDCSelf(context, pCSelf);
+    if ( pcpbd == NULL )
+    {
+        goto done_out;
+    }
+
+    // First get the LOGFONT for the caption.
+    if ( ! SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS ), &ncm, 0) )
+    {
+        errCode = GetLastError();
+        goto done_out;
+    }
+
+    HDC hDC = GetWindowDC(pcpbd->hDlg);
+    if ( hDC == NULL )
+    {
+        errCode = GetLastError();
+        goto done_out;
+    }
+
+    HFONT hFont = CreateFontIndirect(&ncm.lfCaptionFont);
+    if ( hFont == NULL )
+    {
+        errCode = GetLastError();
+        goto done_out;
+    }
+
+    // This could fail, in which case the next steps are exactly the same, we
+    // release the DC and set the system error code.  So we don't check for an
+    // error.
+    getTextExtent(hFont, hDC, text, &size);
+
+    DeleteObject(hFont);
+    ReleaseDC(pcpbd->hDlg, hDC);
+
+done_out:
+    oodSetSysErrCode(context->threadContext, errCode);
+    return rxNewSize(context, size.cx, size.cy);
+}
 
 /** PlainBaseDialog::show()
  *
@@ -4296,6 +4501,7 @@ RexxMethod2(RexxObjectPtr, pbdlg_tiledBackgroundBitmap, CSTRING, bitmapFileName,
 }
 
 /** PlainBaseDialog::backgroundColor()
+ *  PlainBaseDialog::backgroundSysColor()
  *
  *  Sets a custom background color for the dialog.
  *
@@ -4303,7 +4509,11 @@ RexxMethod2(RexxObjectPtr, pbdlg_tiledBackgroundBitmap, CSTRING, bitmapFileName,
  *  creates a new brush for the specified color and this brush is then used
  *  whenever the background of the dialog needs to be repainted.
  *
- *  @param  color  The color index.
+ *  @param  colorIndex  The color index.
+ *
+ *  @param  isClr  [optional]  For backgroundColor() only. If isClr is true
+ *                 colorIndex refers to a COLORREF color, if false colorIndex is
+ *                 a palette index.  The default is fase.
  *
  *  @return  True on success, false for some error.
  *
@@ -4317,23 +4527,63 @@ RexxMethod2(RexxObjectPtr, pbdlg_tiledBackgroundBitmap, CSTRING, bitmapFileName,
  *            it did not return a value.  When it was moved to PlainBaseDialog
  *            after 4.0.1, the return was added.
  */
-RexxMethod2(RexxObjectPtr, pbdlg_backgroundColor, uint32_t, colorIndex, CSELF, pCSelf)
+RexxMethod4(RexxObjectPtr, pbdlg_backgroundColor, RexxObjectPtr, _colorIndex, OPTIONAL_logical_t, isClr,
+            NAME, methName, CSELF, pCSelf)
 {
     oodResetSysErrCode(context->threadContext);
     pCPlainBaseDialog pcpbd = (pCPlainBaseDialog)pCSelf;
 
-    HBRUSH hBrush = CreateSolidBrush(PALETTEINDEX(colorIndex));
+    uint32_t colorIndex;
+    HBRUSH   hBrush = NULL;
+    bool     isSys  = (methName[10] == 'S');
+
+    if ( isSys )
+    {
+        if ( argumentExists(2) )
+        {
+            tooManyArgsException(context->threadContext, 1);
+            return TheFalseObj;
+        }
+
+        if ( ! getSystemColor(context, _colorIndex, &colorIndex, 1) )
+        {
+            return TheFalseObj;
+        }
+
+        hBrush = GetSysColorBrush(colorIndex);
+    }
+    else
+    {
+        if ( ! context->UnsignedInt32(_colorIndex, &colorIndex) )
+        {
+            wrongRangeException(context->threadContext, 1, (uint32_t)0, UINT32_MAX, _colorIndex);
+            return TheFalseObj;
+        }
+
+        if ( isClr )
+        {
+            hBrush = CreateSolidBrush(colorIndex);
+        }
+        else
+        {
+            hBrush = CreateSolidBrush(PALETTEINDEX(colorIndex));
+        }
+    }
+
     if ( hBrush == NULL )
     {
         oodSetSysErrCode(context->threadContext);
         return TheFalseObj;
     }
 
-    if ( pcpbd->bkgBrush != NULL )
+    if ( pcpbd->bkgBrush != NULL && ! pcpbd->bkgBrushIsSystem )
     {
         DeleteObject(pcpbd->bkgBrush);
     }
-    pcpbd->bkgBrush = hBrush;
+
+    pcpbd->bkgBrushIsSystem = isSys;
+    pcpbd->bkgBrush         = hBrush;
+
     return TheTrueObj;
 }
 
@@ -4678,7 +4928,7 @@ RexxMethod1(RexxObjectPtr, pbdlg_isDialogActive, CSELF, pCSelf)
     pCPlainBaseDialog pcpbd = getPBDCSelf(context, pCSelf);
     if ( pcpbd != NULL )
     {
-        if ( pcpbd->hDlg != NULL && pcpbd->isActive && IsWindow(pcpbd->hDlg) )
+        if ( ! pcpbd->isFinished && pcpbd->hDlg != NULL && pcpbd->isActive && IsWindow(pcpbd->hDlg) )
         {
             return TheTrueObj;
         }
@@ -4941,7 +5191,8 @@ RexxMethod2(int32_t, pbdlg_stopIt, OPTIONAL_RexxObjectPtr, caller, CSELF, pCSelf
  *          catPage) would assign the parent dialog as the oDlg (owner dialog)
  *          of dialog controls on any of the category pages.  This seems
  *          technically wrong, but the same thing is done here. Need to
- *          investigate whether this ever makes a difference?
+ *          investigate whether this ever makes a difference?  CategoryDialog is
+ *          deprecated and no further work will be donwe with it.
  */
 RexxMethod5(RexxObjectPtr, pbdlg_newControl, RexxObjectPtr, rxID, OPTIONAL_uint32_t, categoryPageID,
             NAME, msgName, OSELF, self, CSELF, pCSelf)
@@ -5063,7 +5314,7 @@ RexxMethod3(RexxObjectPtr, pbdlg_getNewControl, RexxObjectPtr, rxID, OSELF, self
         goto out;
     }
 
-    oodControl_t controlType = control2controlType(hControl);
+    oodControl_t controlType = controlHwnd2controlType(hControl);
     if ( controlType == winUnknown )
     {
         controlNotSupportedException(context, rxID, self, 1, controlWindow2rexxString(context, hControl));
@@ -5115,7 +5366,7 @@ void dumpMsgTable(MESSAGETABLEENTRY *msgTable, size_t count, CSTRING title)
         printf("0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x 0x%08x %s\n",
                msgTable[i].msg, msgTable[i].msgFilter,
                msgTable[i].wParam, msgTable[i].wpFilter,
-               msgTable[i].lParam, msgTable[i].lpfilter,
+               msgTable[i].lParam, msgTable[i].lpFilter,
                msgTable[i].tag, msgTable[i].rexxMethod);
     }
     printf("\n");
