@@ -50,7 +50,7 @@ I was expecting this result, because I passed explicitely 6 arguments, 3 of them
 The items are a list of values that must be assigned to the cells of the array.
 Rules inspired by APL :
 If there are too many items, the extra items are ignored.
-If there are fewer items than implied by the dimensions, the list of items is reused as 
+If there are fewer items than implied by the dimensions, the list of items is reused as
 many times as necessary to fill the array.
     .array~new(2,3)~of(1,2)
     1 2 1
@@ -66,7 +66,7 @@ many times as necessary to fill the array.
     arrayIn = .nil
     doer = .nil
     supplier = .nil
-    
+
     if arg() == 1 then do
         if arg(1)~isA(.String) then arrayIn = arg(1)~subwords -- APL-like
         else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex")~arity(2)
@@ -76,7 +76,7 @@ many times as necessary to fill the array.
         else arrayIn = arg(1, "a")
     end
     else arrayIn = arg(1, "a")
-    
+
     if arrayIn <> .nil then do
         arrayInIndex = 1
         arrayInSize = arrayIn~size
@@ -99,7 +99,7 @@ many times as necessary to fill the array.
                     arrayInIndex += 1
                 end
             end
-            
+
             -- if initialization with a doer
             else if doer <> .nil then do
                 -- next line is not really needed because when a coactivity is ended, there is not returned result
@@ -116,7 +116,7 @@ many times as necessary to fill the array.
                     else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
                 end
             end
-            
+
             -- if initialization with a supplier
             else if supplier <> .nil then do
                 if \supplier~available then sourceEnd = selfIntegerIndex
@@ -170,8 +170,8 @@ many times as necessary to fill the array.
 ::method ppRepresentation
     /*
     Return a condensed string representation of the array.
-    Recursive arrays are supported. A reference *N is inserted in the representation, 
-    where N is the number of levels to follow from the current position. 
+    Recursive arrays are supported. A reference *N is inserted in the representation,
+    where N is the number of levels to follow from the current position.
     Ex :
     a = .array~of("string1", "string2")
     b = .array~of("string2")
@@ -253,11 +253,12 @@ many times as necessary to fill the array.
 
 /******************************************************************************/
 -- ArrayOperators
+-- Evolution of the current implementation of blocks needed to avoid the
+-- options "OPERATOR_OVERRIDING_BY_ROUTINE" inside the blocks.
 
 ::options OPERATOR_OVERRIDING_BY_ROUTINE
 
 ::routine "+" public
---say "array '+'" arg(1) arg(2)
 if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("+")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
@@ -279,15 +280,15 @@ if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("-")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
         use arg array1, array2
-        return array1~map{::closure expose array2 ; item - array2[index]}
+        return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - array2[index]}
     end
     if arg(1)~isA(.array) then do
         use arg array, scalar
-        return array~map{::closure expose scalar ; item - scalar}
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - scalar}
     end
     if arg(2)~isA(.array) then do
         use arg scalar, array
-        return array~map{::closure expose scalar ; scalar - item}
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar - item}
     end
 end
 
