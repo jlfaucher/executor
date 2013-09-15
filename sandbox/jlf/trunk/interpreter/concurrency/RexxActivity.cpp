@@ -979,6 +979,23 @@ void RexxActivity::generateProgramInformation(RexxDirectory *exobj)
 }
 
 
+RexxActivation *RexxActivity::getFirstRexxFrameWithLoadedPackages()
+{
+    if (this->firstRexxFrameWithLoadedPackages != OREF_NULL) return this->firstRexxFrameWithLoadedPackages;
+    for (RexxActivationBase *activation = this->getTopStackFrame() ; !activation->isStackBase(); activation = activation->getPreviousStackFrame())
+    {
+        if (activation->isRexxContext())
+        {
+            RexxActivation *rexxActivation = (RexxActivation *)activation;
+            RexxSource *source = rexxActivation->getSourceObject();
+            if (source == OREF_NULL) continue;
+            if (source->getPackages() != OREF_NULL) this->firstRexxFrameWithLoadedPackages = rexxActivation;
+        }
+    }
+    return this->firstRexxFrameWithLoadedPackages;
+}
+
+
 /**
  * Generate a list of stack frames for an Exception object.
  *

@@ -1,0 +1,255 @@
+Only one class visible by the ooRexx programmer (String)
+but several classes behind the scene...
+
+IntegerClass.hpp
+    #include "NumberStringClass.hpp"
+    class RexxInteger : public RexxObject
+    class RexxIntegerClass : public RexxClass
+
+NumberStringClass.hpp
+    #include "Numerics.hpp"
+    #include "NumberStringMath.hpp"
+    class RexxNumberStringBase : public RexxObject
+    class RexxNumberString : public RexxNumberStringBase
+
+NumberStringMath.hpp
+   only constants
+
+Numerics.hpp
+    class NumericSettings
+    class Numerics
+    
+StringClass.hpp
+    class RexxString : public RexxObject
+
+-------------------------------------------------------------------------------
+RexxIntegerClass
+-------------------------------------------------------------------------------
+
+VirtualFUnctionTable.cpp
+    RexxMemory::buildVirtualFunctionTable()
+       objectPtr = new (objectLoc) RexxIntegerClass(RESTOREIMAGE);      <-- because classclass="RexxIntegerClass" (by default, the metaclass is RexxClass)
+       virtualFunctionTable[T_IntegerClass] = getVftPointer(objectLoc);
+
+Integer.cpp
+    RexxIntegerClass::RexxIntegerClass
+        pre-allocate 100 integer objects, 0-99
+    RexxInteger::classObject
+        returns the fake class : TheStringClass
+    Allocate table of operators
+
+RexxMemory.cpp
+    RexxMemory::restore
+        RESTORE_CLASS(Integer, RexxIntegerClass);
+
+-------------------------------------------------------------------------------
+RexxInteger
+-------------------------------------------------------------------------------
+
+PrimitivesBehaviours.cpp
+    RexxBehaviour RexxBehaviour::primitiveBehaviours[T_Last_Primitive_Class + 1] =
+    {
+        RexxBehaviour(T_Integer, (PCPPM *)RexxInteger::operatorMethods),
+
+PrimitiveClasses.xml
+    <exported>
+    <Class id="Integer" class="RexxInteger" classclass="RexxIntegerClass" operators="true" include="IntegerClass.hpp"/>
+
+VirtualFUnctionTable.cpp
+    RexxMemory::buildVirtualFunctionTable()
+       objectPtr = new (objectLoc) RexxInteger(RESTOREIMAGE);
+       virtualFunctionTable[T_Integer] = getVftPointer(objectLoc);
+
+CppCode.cpp
+    PCPPM CPPCode::exportedMethods[] =     /* start of exported methods table   */
+    {
+        CPPM(RexxInteger::plus),               /* Integer methods                   */
+        CPPM(RexxInteger::minus),
+        ...
+
+Setup.cpp
+    /* If the integer class was set up correctly it would have the           */
+    /* class_id method in its own class but instead it points to the one     */
+    /* in the string class.                                                 .*/
+
+    defineKernelMethod(CHAR_NEW, TheIntegerClassBehaviour, CPPM(RexxString::newRexx), A_COUNT);
+
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+    TheIntegerClassBehaviour->setMethodDictionaryScope(TheIntegerClass);
+
+                                       /* Add the instance methods to the   */
+                                       /* instance behaviour mdict          */
+    defineKernelMethod(CHAR_PLUS                         ,TheIntegerBehaviour, CPPM(RexxInteger::plus), 1);
+    defineKernelMethod(CHAR_SUBTRACT                     ,TheIntegerBehaviour, CPPM(RexxInteger::minus), 1);
+    ...
+
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+    TheIntegerBehaviour->setMethodDictionaryScope(TheIntegerClass);
+
+                                       /* Now call the class subclassable   */
+                                       /* method                            */
+    TheIntegerClass->subClassable(true);
+
+-------------------------------------------------------------------------------
+RexxNumberString
+-------------------------------------------------------------------------------
+
+PrimitivesBehaviours.cpp
+    RexxBehaviour RexxBehaviour::primitiveBehaviours[T_Last_Primitive_Class + 1] =
+    {
+    RexxBehaviour(T_NumberString, (PCPPM *)RexxNumberString::operatorMethods),
+
+
+PrimitiveClasses.xml
+    <exported>
+    <Class id="NumberString" class="RexxNumberString" operators="true" include="NumberStringClass.hpp"/>
+
+VirtualFUnctionTable.cpp
+    RexxMemory::buildVirtualFunctionTable()
+        objectPtr = new (objectLoc) RexxNumberString(RESTOREIMAGE);
+        virtualFunctionTable[T_NumberString] = getVftPointer(objectLoc);
+
+CppCode.cpp
+    PCPPM CPPCode::exportedMethods[] =     /* start of exported methods table   */
+    {
+        CPPM(RexxNumberString::formatRexx),    /* NumberString methods              */
+        CPPM(RexxNumberString::trunc),
+        ...
+
+Setup.cpp
+     /* If the numberstring class was set up correctly it should have the    */
+     /* class_id method in its own class but instead it points to the one    */
+     /* in the string class.                                                 */
+
+    defineKernelMethod(CHAR_NEW, TheNumberStringClassBehaviour, CPPM(RexxString::newRexx), A_COUNT);
+
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+    TheNumberStringClassBehaviour->setMethodDictionaryScope(TheNumberStringClass);
+
+                                       /* Add the instance methods to this  */
+                                       /* instance behaviour mdict          */
+    defineKernelMethod(CHAR_UNKNOWN                      ,TheNumberStringBehaviour, CPPM(RexxObject::unknownRexx), 2);
+    defineKernelMethod(CHAR_ABS                          ,TheNumberStringBehaviour, CPPM(RexxNumberString::abs), 0);
+    ...
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+    TheNumberStringBehaviour->setMethodDictionaryScope(TheNumberStringClass);
+
+                                       /* Now call the class subclassable   */
+                                       /* method                            */
+    TheNumberStringClass->subClassable(true);
+
+
+-------------------------------------------------------------------------------
+Methods per class
+-------------------------------------------------------------------------------
+
+C++ method              RexxString  RexxInteger RexxNumberString
+abbrev                      X
+abs                         X           X           X
+andOp                       X           X           X
+b2x                         X
+bitAnd                      X
+bitOr                       X
+bitXor                      X
+c2d                         X
+c2x                         X
+caselessAbbrev              X
+caselessChangeStr           X
+caselessCompare             X
+caselessCompareToRexx       X
+caselessCountStrRexx        X
+caselessEquals              X
+caselessLastPosRexx         X
+caselessMatch               X
+caselessMatchChar           X
+caselessPosRexx             X
+caselessWordPos             X
+ceiling                     X           X           X
+center                      X
+changeStr                   X
+classObject                             X           X
+compare                     X
+compareToRexx               X
+concatBlank                 X
+concatRexx                  X
+concatWith                  X
+copies                      X
+countStrRexx                X
+d2c                         X           X           X
+d2x                         X           X           X
+d2xD2c                                              X
+dataType                    X
+decodeBase64                X
+delstr                      X
+delWord                     X
+divide                      X           X           X
+encodeBase64                X
+equal                       X           X           X
+equals                      X
+floor                       X           X           X
+format                      X           X
+formatRexx                                          X
+hashCode                                X           X
+insert                      X
+integerDivide               X           X           X
+isGreaterOrEqual            X           X           X
+isGreaterThan               X           X           X
+isInteger                   X                       X
+isLessOrEqual               X           X           X
+isLessThan                  X           X           X
+lastPosRexx                 X
+left                        X
+lengthRexx                  X
+lowerRexx                   X
+makeArrayRexx               X
+match                       X
+matchChar                   X
+Max                         X           X           X
+Min                         X           X           X
+minus                       X           X           X
+multiply                    X           X           X
+notEqual                    X           X           X
+notOp                       X           X           X
+orOp                        X           X           X
+overlay                     X
+plus                        X           X           X
+posRexx                     X
+power                       X           X           X
+remainder                   X           X           X
+replaceAt                   X
+reverse                     X
+right                       X
+round                       X           X           X
+sign                        X           X           X
+space                       X
+strictEqual                 X           X           X
+strictGreaterOrEqual        X           X           X
+strictGreaterThan           X           X           X
+strictLessOrEqual           X           X           X
+strictLessThan              X           X           X
+strictNotEqual              X           X           X
+strip                       X
+subchar                     X
+substr                      X
+subWord                     X
+subWords                    X
+translate                   X
+trunc                       X           X           X
+upperRexx                   X
+verify                      X
+word                        X
+wordIndex                   X
+wordLength                  X
+wordPos                     X
+words                       X
+x2b                         X
+x2c                         X
+x2d                         X
+x2dC2d                      X
+xorOp                       X           X           X
+
+

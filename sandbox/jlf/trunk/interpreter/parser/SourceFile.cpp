@@ -1559,7 +1559,7 @@ RoutineClass *RexxSource::findPublicRoutine(RexxString *name)
  */
 RoutineClass *RexxSource::findRoutine(RexxString *routineName)
 {
-    // These lookups are case insensive, so the table are all created using the opper
+    // These lookups are case insensive, so the table are all created using the upper
     // case names.  Use it once and reuse it.
     RexxString *upperName = routineName->upper();
     ProtectedObject p1(upperName);
@@ -1571,6 +1571,96 @@ RoutineClass *RexxSource::findRoutine(RexxString *routineName)
 
     // now try for one pulled in from ::REQUIRES objects
     return findPublicRoutine(upperName);
+}
+
+
+/**
+ * Resolve a directly defined class object in this or a parent
+ * context.
+ *
+ * @param name   The name we're searching for (all uppercase).
+ *
+ * @param routines  The array which collects all the matching routines.
+ */
+void RexxSource::findLocalRoutines(RexxString *name, RexxArray *routines)
+{
+    // if we have one locally, then append it.
+    if (this->routines != OREF_NULL)
+    {
+        RoutineClass *result = (RoutineClass *)(this->routines->fastAt(name));
+        if (result != OREF_NULL)
+        {
+            routines->append(result);
+        }
+    }
+
+    // we might have a chained context, so check it also
+    if (parentSource != OREF_NULL)
+    {
+        parentSource->findLocalRoutines(name, routines);
+    }
+}
+
+
+/**
+ * Resolve a public routine in this source context
+ *
+ * @param name   The target name.
+ *
+ * @param routines  The array which collects all the matching routines.
+ */
+void RexxSource::findPublicImportedRoutines(RexxString *name, RexxArray *routines)
+{
+    if (this->loadedPackages != OREF_NULL)
+    {
+        // RexxList
+        for (size_t i = this->loadedPackages->firstIndex(); i != LIST_END; i = this->loadedPackages->nextIndex(i))
+        {
+            PackageClass *package = (PackageClass *)this->loadedPackages->getValue(i);
+            RexxSource *source = package->getSourceObject();
+            source->findPublicImportedRoutines(name, routines);
+        }
+    }
+
+    // if we have one public, then append it.
+    if (this->public_routines != OREF_NULL)
+    {
+        RoutineClass *result = (RoutineClass *)(this->public_routines->fastAt(name));
+        if (result != OREF_NULL)
+        {
+            routines->append(result);
+        }
+    }
+
+    // we might have a chained context, so check it also
+    if (parentSource != OREF_NULL)
+    {
+        parentSource->findPublicImportedRoutines(name, routines);
+    }
+}
+
+
+/**
+ * Resolve a routine from this source files base context.
+ *
+ * @param routineName
+ *               The routine name of interest.
+ *
+ * @param routines
+ *               The array which collects all the matching routines, search done in requires order.
+ *               The returned array must be visited from last to first to follow the visibility rules.
+ */
+void RexxSource::findRoutines(RexxString *routineName, RexxArray *routines)
+{
+    // These lookups are case insensive, so the table are all created using the upper
+    // case names.  Use it once and reuse it.
+    RexxString *upperName = routineName->upper();
+    ProtectedObject p1(upperName);
+
+    // Can't use findPublicRoutine because the imported routines are merged,
+    // and only the most recently imported routine is visible.
+    findPublicImportedRoutines(upperName, routines);
+    findLocalRoutines(upperName, routines);
 }
 
 
@@ -1823,6 +1913,7 @@ RexxCode *RexxSource::translate(
     fuzz = Numerics::DEFAULT_FUZZ;
     enableCommands = RexxActivation::default_enable_commands;
     enableMacrospace = RexxActivation::default_enable_macrospace;
+    enableOperatorOverridingByRoutine = RexxActivation::default_enable_operator_overriding_by_routine;
     traceSetting = DEFAULT_TRACE_SETTING;
     traceFlags = RexxActivation::default_trace_flags;
 
@@ -2721,11 +2812,25 @@ void RexxSource::optionsDirective()
                     enableMacrospace = true;
                     break;
                 }
-                // ::OPTIONS NOCOMMANDS
+                // ::OPTIONS NOMACROSPACE
                 case SUBDIRECTIVE_NOMACROSPACE:
                 {
                     refineSubclass(token, IS_SUBDIRECTIVE);
                     enableMacrospace = false;
+                    break;
+                }
+                // ::OPTIONS OPERATOR_OVERRIDING_BY_ROUTINE
+                case SUBDIRECTIVE_OPERATOR_OVERRIDING_BY_ROUTINE:
+                {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    enableOperatorOverridingByRoutine = true;
+                    break;
+                }
+                // ::OPTIONS NOOPERATOR_OVERRIDING_BY_ROUTINE
+                case SUBDIRECTIVE_NOOPERATOR_OVERRIDING_BY_ROUTINE:
+                {
+                    refineSubclass(token, IS_SUBDIRECTIVE);
+                    enableOperatorOverridingByRoutine = false;
                     break;
                 }
 

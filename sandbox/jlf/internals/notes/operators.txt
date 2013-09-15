@@ -1,0 +1,250 @@
+To better support binary operators, call a routine which takes two arguments.
+That way, it's more easy to override the behaviour because the types of the
+two arguments can be taken into account.
+Ex :
+    1 + .array~of(10,20,30) --> [11, 21, 31]
+    .environment | {::pipe sort | console} --> .environment~pipe(.pipe.console | .pipe.console)
+If no overriding routine then fallback to the classic behaviour :
+send message to left arg.
+
+
+The implementation of operators for the class String is optimized.
+Does not send the message <operator>.
+Instead, go directly to the native implementation of the operator, through a table.
+The class Object has the same kind of table, where the native implementation sends the message <operator> to the target.
+
+do 1000000; v=1+2;end       -- 0.4 sec
+do 1000000; v=1~"+"(2);end  -- 0.7 sec
+
+
+say .test~new | 10                  -- overriding works as expected when overriding "|" on a user class
+say "toto" | 10                     -- when using the operator "|", overriding does not work when overriding by extension on String
+say "toto"~"|"(10)                  -- when sending the message "|", overriding works as expected when overriding by extension on String
+say .mystring~new("toto") | 10      -- overriding works as expected (here, no extension. just a subclass with overriden "|") 
+                                    -- the operators table of Object is used, which forwards the message "|"
+say .mystring~new("toto")~"|"(10)   -- overriding works as expected
+
+
+ExpressionOperator.cpp
+    RexxBinaryOperator::evaluate(
+        RexxActivation      *context,      /* current activation context        */
+        RexxExpressionStack *stack )       /* evaluation stack                  */
+            RexxObject *result = callOperatorMethod(left, this->oper, right);
+    RexxUnaryOperator::evaluate(
+        RexxActivation      *context,      /* current activation context        */
+        RexxExpressionStack *stack )       /* evaluation stack                  */
+            RexxObject *result = callOperatorMethod(term, this->oper, OREF_NULL);
+
+
+RexxCore.h
+inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, RexxObject *argument) {
+                                       /* get the entry point               */
+  PCPPM cppEntry = object->behaviour->getOperatorMethod(methodOffset);
+                                       /* go issue the method               */
+  return (object->*((PCPPM1)cppEntry))(argument);
+}
+
+
+RexxBehavior.hpp
+   inline PCPPM getOperatorMethod(size_t index) { return operatorMethods[index]; }
+
+Search for operatorMethods :
+
+ObjectClass.cpp
+StringClass.cpp
+NumberStringClass.cpp
+IntegerClass.cpp
+
+they all have a table similar to this one (of class String) :
+PCPPM RexxString::operatorMethods[] =
+{
+   NULL,                               /* first entry not used              */
+   (PCPPM)&RexxString::plus,
+   (PCPPM)&RexxString::minus,
+   (PCPPM)&RexxString::multiply,
+   (PCPPM)&RexxString::divide,
+   (PCPPM)&RexxString::integerDivide,
+   (PCPPM)&RexxString::remainder,
+   (PCPPM)&RexxString::power,
+   (PCPPM)&RexxString::concatRexx,
+   (PCPPM)&RexxString::concatRexx,
+   (PCPPM)&RexxString::concatBlank,
+   (PCPPM)&RexxString::equal,
+   (PCPPM)&RexxString::notEqual,
+   (PCPPM)&RexxString::isGreaterThan,
+   (PCPPM)&RexxString::isLessOrEqual,
+   (PCPPM)&RexxString::isLessThan,
+   (PCPPM)&RexxString::isGreaterOrEqual,
+                              /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::isGreaterOrEqual,
+   (PCPPM)&RexxString::isLessOrEqual,
+   (PCPPM)&RexxString::strictEqual,
+   (PCPPM)&RexxString::strictNotEqual,
+   (PCPPM)&RexxString::strictGreaterThan,
+   (PCPPM)&RexxString::strictLessOrEqual,
+   (PCPPM)&RexxString::strictLessThan,
+   (PCPPM)&RexxString::strictGreaterOrEqual,
+                              /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::strictGreaterOrEqual,
+   (PCPPM)&RexxString::strictLessOrEqual,
+   (PCPPM)&RexxString::notEqual,
+   (PCPPM)&RexxString::notEqual, /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::andOp,
+   (PCPPM)&RexxString::orOp,
+   (PCPPM)&RexxString::xorOp,
+   (PCPPM)&RexxString::operatorNot,
+};
+
+
+ObjectClass.cpp
+    #define operatorMethod(name, message) ...
+    #define prefixOperatorMethod(name, message) ...
+
+    The default implementation on Object is to send the appropriate message
+    corresponding to the operator.
+    Note : when the target is a string then the Object's default implementation
+    is not used. There is a direct use of String implementation by getOperatorMethod.
+    
+    prefixOperatorMethod(operator_plus                , PLUS)
+    prefixOperatorMethod(operator_minus               , SUBTRACT)
+    operatorMethod(operator_multiply                  , MULTIPLY)
+    operatorMethod(operator_divide                    , DIVIDE)
+    operatorMethod(operator_integerDivide             , INTDIV)
+    operatorMethod(operator_remainder                 , REMAINDER)
+    operatorMethod(operator_power                     , POWER)
+    operatorMethod(operator_abuttal                   , NULLSTRING)
+    operatorMethod(operator_concat                    , CONCATENATE)
+    operatorMethod(operator_concatBlank               , BLANK)
+    operatorMethod(operator_equal                     , EQUAL)
+    operatorMethod(operator_notEqual                  , BACKSLASH_EQUAL)
+    operatorMethod(operator_isGreaterThan             , GREATERTHAN)
+    operatorMethod(operator_isBackslashGreaterThan    , BACKSLASH_GREATERTHAN)
+    operatorMethod(operator_isLessThan                , LESSTHAN)
+    operatorMethod(operator_isBackslashLessThan       , BACKSLASH_LESSTHAN)
+    operatorMethod(operator_isGreaterOrEqual          , GREATERTHAN_EQUAL)
+    operatorMethod(operator_isLessOrEqual             , LESSTHAN_EQUAL)
+    operatorMethod(operator_strictEqual               , STRICT_EQUAL)
+    operatorMethod(operator_strictNotEqual            , STRICT_BACKSLASH_EQUAL)
+    operatorMethod(operator_strictGreaterThan         , STRICT_GREATERTHAN)
+    operatorMethod(operator_strictBackslashGreaterThan, STRICT_BACKSLASH_GREATERTHAN)
+    operatorMethod(operator_strictLessThan            , STRICT_LESSTHAN)
+    operatorMethod(operator_strictBackslashLessThan   , STRICT_BACKSLASH_LESSTHAN)
+    operatorMethod(operator_strictGreaterOrEqual      , STRICT_GREATERTHAN_EQUAL)
+    operatorMethod(operator_strictLessOrEqual         , STRICT_LESSTHAN_EQUAL)
+    operatorMethod(operator_lessThanGreaterThan       , LESSTHAN_GREATERTHAN)
+    operatorMethod(operator_greaterThanLessThan       , GREATERTHAN_LESSTHAN)
+    operatorMethod(operator_and                       , AND)
+    operatorMethod(operator_or                        , OR)
+    operatorMethod(operator_xor                       , XOR)
+    prefixOperatorMethod(operator_not                 , BACKSLASH)
+
+PCPPM RexxObject::operatorMethods[] =
+{
+   NULL,
+   (PCPPM)&RexxObject::operator_plus,       <-- this method is implemented by the macro prefixOperatorMethod which supports unary and binary operator
+   (PCPPM)&RexxObject::operator_minus,
+   (PCPPM)&RexxObject::operator_multiply,
+   (PCPPM)&RexxObject::operator_divide,
+   (PCPPM)&RexxObject::operator_integerDivide,
+   (PCPPM)&RexxObject::operator_remainder,
+    ...
+
+
+See PrimitiveClasses.xml
+Only 3 classes have operators="true" :
+Rexx            C++ class           C++ metaclass
+----            ---------           -------------
+Integer         RexxInteger         RexxIntegerClass
+NumberString    RexxNumberString
+String          RexxString
+
+
+See the file PrimitivesBehaviours, generated from PrimitiveClasses.xml
+Only 3 classes have operator methods not defined by RexxObject::operatorMethods :
+RexxBehaviour(T_Integer, (PCPPM *)RexxInteger::operatorMethods),
+RexxBehaviour(T_NumberString, (PCPPM *)RexxNumberString::operatorMethods),
+RexxBehaviour(T_String, (PCPPM *)RexxString::operatorMethods),
+
+------------------------------------
+Analyze how to implement the overriding routines.
+Must be optimized, probably using a table for fast look-up.
+Where to put this table ? on RexxSource ?
+[later]
+Finally, no need of such table. An option will be enough, to control the activation of the overriding.
+That will deactivate the optimization of String operators.
+options "OPERATOR_OVERRIDING_BY_ROUTINE"
+options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
+::options "OPERATOR_OVERRIDING_BY_ROUTINE"
+::options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
+
+ExpressionFunction.cpp
+RexxExpressionFunction::evaluate
+        case function_external:            /* need to call externally           */
+            /* go process the internal call      */
+            context->externalCall(this->functionName, argcount, stack, OREF_FUNCTIONNAME, result);
+
+
+RexxActivation.cpp
+RexxActivation::externalCall
+    step 1 : global functions directory (TheFunctionsDirectory)
+        RexxCore.h : #define TheFunctionsDirectory RexxMemory::functionsDir
+    // Step 2:  Check for a ::ROUTINE definition in the local context
+        routine = this->settings.parent_code->findRoutine(target);
+            parent_code is of type RexxCode*
+            All the management of methods and routines lookup is delegated to the wrapped RexxSource instance.
+
+RexxSource::findRoutine
+    RoutineClass *routineObject = findLocalRoutine(upperName);
+        RoutineClass *result = (RoutineClass *)(this->routines->fastAt(name));
+        ...
+        // we might have a chained context, so check it also
+        return parentSource->findLocalRoutine(name);
+    ...
+    // now try for one pulled in from ::REQUIRES objects
+    return findPublicRoutine(upperName);
+        RoutineClass *result = (RoutineClass *)(this->merged_public_routines->fastAt(name));
+        ...
+        // we might have a chained context, so check it also
+        return parentSource->findPublicRoutine(name);
+
+
+RexxSource is wrapped by PackageClass, RexxCode, ParseActivationFrame, RexxActivation, RexxNativeCode
+
+
+------------------------------------
+Remember
+This code has not been retained because doing an external call is too heavy :
+- will test the exits when routine not found
+- will perform platform-specific searches when exits not applicable
+- will raise an exception if nothing found
+Moreover, there is probably a problem with the stack of arguments, when an exception is raided
+(got a crash later, when cleaning the stack).
+RexxBinaryOperator::evaluate
+        try
+        {
+            ProtectedObject result;
+            context->externalCall(*(operatorNames[this->oper - 1]), 2, stack, OREF_FUNCTIONNAME, result);
+            /* replace top two stack elements with the result */
+            stack->operatorResult(result);
+            context->traceOperator(operatorName(), result);
+            return result;
+            
+        }
+        catch(RexxNativeActivation *)
+        {
+            // Routine not found, fallback to classic operator evaluation
+        }
+RexxUnaryOperator::evaluate
+        try
+        {
+            ProtectedObject result;
+            context->externalCall(*(operatorNames[this->oper - 1]), 1, stack, OREF_FUNCTIONNAME, result);
+            stack->prefixResult(result); /* replace the top element with the result */
+            context->tracePrefix(operatorName(), result);
+            return result;
+            
+        }
+        catch(RexxNativeActivation *)
+        {
+            // Routine not found, fallback to classic operator evaluation
+        }
