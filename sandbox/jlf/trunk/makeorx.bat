@@ -58,7 +58,7 @@ REM  If NO_BUILD_LOG is set, do not redirect to a log.
 if %NO_BUILD_LOG%x == x (set USELOGFILE=1) else (set USELOGFILE=0)
 
 REM  Check for the 'package' or component option
-call :PACKAGE_CHECK
+call :PACKAGE_CHECK %*
 
 REM  Check for the type of build
 REM  If the first arg is not right, show help and quit.
@@ -92,7 +92,7 @@ if %USELOGFILE% EQU 1 (
 
 REM  Print out the args and environment variables to help with debug if the
 REM  build does not complete.
-call :PRINT_OUT_VARS
+call :PRINT_OUT_VARS %*
 
 SET MKASM=1
 SET BLDRELEASE=1
@@ -113,7 +113,7 @@ if %USELOGFILE% EQU 1 (
 
 REM  Print out the args and environment variables to help with debug if the
 REM  build does not complete.
-call :PRINT_OUT_VARS
+call :PRINT_OUT_VARS %*
 
 SET MKASM=0
 SET BLDRELEASE=0
