@@ -1,5 +1,17 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://en.wikipedia.org/wiki/Call-with-current-continuation
+http://en.wikipedia.org/wiki/Coroutine#Coroutines_and_generators
+http://en.wikipedia.org/wiki/Fiber_%28computer_science%29
+
+http://tia.mat.br/blog/html/2012/09/29/asynchronous_i_o_in_c_with_coroutines.html
+http://tia.mat.br/blog/html/2013/09/26/implementing_sequences_in_lwan_template_engine.html
+https://github.com/lpereira/lwan/commit/a4188d73a00cec4c99d50473803c44bfb2218d13
+
+http://swtch.com/libtask/
+reddit comment :
+One of the guys behind Go also implemented coroutines and channels in C originally for use in Plan9 I believe.
+
 http://blog.paralleluniverse.co/post/49445260575/quasar-pulsar
 
 http://www.matthiasmann.de/content/view/24/26/
@@ -45,10 +57,6 @@ http://www.infoq.com/news/2007/08/ruby-1-9-fibers
 http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/11960
 
 http://classparser.blogspot.com/
-
-http://en.wikipedia.org/wiki/Coroutine#Coroutines_and_generators
-
-http://en.wikipedia.org/wiki/Fiber_%28computer_science%29
 
 http://msdn.microsoft.com/en-us/magazine/cc164086.aspx
 Implementing Coroutines for .NET by Wrapping the Unmanaged Fiber API
