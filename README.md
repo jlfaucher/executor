@@ -80,46 +80,57 @@ A more compact code... item is an implicit parameter.
 
 ### Y combinator
 
-Y = λf.(λx.f (x x)) (λx.f (x x))
+[Rosetta Code][rosetta_code_y_combinator]
 
 The [Y combinator][wikipedia_fixed_point_combinator] allows recursion to be defined as a set of rewrite rules.
 It takes a single argument, which is a function that isn't recursive.
 It returns a version of the function which is recursive.
 
-[Rosetta Code][rosetta_code_y_combinator]
+See [Mike Vanier article][mike_vanier_article].
 
-Implemented as a method on the class Doer (no function passed as argument, self is directly the function).
+call-by-name Y combinator (not for ooRexx, for languages which support lazy evaluation):
 
-    --  (define Y
-    --    (lambda (f)
-    --      ((lambda (x) (f (x x)))
-    --       (lambda (x) (f (x x))))))
+    Y = λf.(λx.f (x x)) (λx.f (x x))
+    (define Y
+      (lambda (f)
+        ( (lambda (x) (f (x x)))
+          (lambda (x) (f (x x))))))
+
+call-by-value Y combinator (applicable to ooRexx, explicit delayed evaluation done by the lambda (v) wrapper):
+
+    Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+    (define Y
+      (lambda (f)
+        ( (lambda (x) (f (lambda (v) ((x x) v))))
+          (lambda (x) (f (lambda (v) ((x x) v)))))))
+
+Equivalent form:
+
+    (define Y
+      (lambda (f)
+        ( (lambda (x) (x x))
+          (lambda (x) (f (lambda (y) ((x x) y)))))))
+
+The call-by-value is implemented as a method on the class Doer
+(no function passed as argument, self is directly the function).
 
     ::class Doer
     ::method Y
     f = self
-    lambda_x =  {
+    return {use arg a ; return a~(a)} ~ {
         ::closure expose f ; use strict arg x
-        return f ~ {::closure expose x ; use strict arg v ; return x~(x)~(v)}
+        return f ~ { ::closure expose x ; use strict arg v ; return x~(x)~(v) }
     }
-    return lambda_x~(lambda_x)
 
-Application to factorial:
+Application of the Y combinator to factorial:
 
-    fact =  {
-        use strict arg f
-        return  {
-            ::closure expose f
-            use strict arg n
-            if n==0 then
-                return 1
-            else
-                return n * f~(n-1)
-        }
-    }~Y
-    say fact~(10)          -- 3628800
+    say {
+          use strict arg f
+          return  {::closure expose f ; use strict arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+        }~Y~(10)
+    --> display 3628800
 
-ooRexx supports anonymous recursive functions, so no need of the Y combinator...
+### ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 
     fact =  {
         use strict arg n
@@ -128,7 +139,7 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
         else
             return n * .context~executable~(n-1)
     }
-    say fact~(10)          -- 3628800
+    say fact~(10)                           -- 3628800
 
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
@@ -139,6 +150,7 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 [slides]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/slides-sandbox-jlf.pdf "slides-sandbox-jlf.pdf"
 [download]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/index.html "Download"
 [wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
+[mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
 [rosetta_code_y_combinator]: http://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"

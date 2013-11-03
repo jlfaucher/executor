@@ -83,38 +83,39 @@ See doers-samples.rex
            }~doer
 
 
--- [JLF] No practical interest... Inspired by http://mvanier.livejournal.com/2897.html.
--- Y = λf.(λx.f (x x)) (λx.f (x x))
--- The Y combinator allows recursion to be defined as a set of rewrite rules.
--- It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
--- It returns a version of the function which is recursive.
--- Example :
---     say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
--- Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
---     say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
+/*
+[JLF] No practical interest... Inspired by http://mvanier.livejournal.com/2897.html.
+Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+
+(define Y
+  (lambda (f)
+    ( (lambda (x) (f (lambda (v) ((x x) v))))
+      (lambda (x) (f (lambda (v) ((x x) v)))))))
+
+Equivalent form:
+
+(define Y
+  (lambda (f)
+    ( (lambda (x) (x x))
+      (lambda (x) (f (lambda (y) ((x x) y)))))))
+
+The Y combinator allows recursion to be defined as a set of rewrite rules.
+It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
+It returns a version of the function which is recursive.
+Example :
+    say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
+Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
+    say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
+*/
 ::method Y
     use strict arg verbose=.false
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
-    if verbose then do; .traceOutput~say("f =" f); f~source~each{.traceOutput~say(item)}; end
-    -- In all the examples I have seen on internet, the lambda expression λx.f (x x) is applied to itself directly :
-    --  (define Y
-    --    (lambda (f)
-    --      ((lambda (x) (f (x x)))
-    --       (lambda (x) (f (x x))))))
-    -- I prefer to use a temporary variable, to make the code more clear.
-    lambda_x = {
+    if verbose then trace i
+    return {use arg a ; return a~(a)} ~ {
         ::closure expose f verbose; use strict arg x
         if verbose then trace i
-        -- The "f (x x)" part in "λx.f (x x)"
-        return,
-        f ~ {
-                ::closure expose x verbose; use strict arg v
-                if verbose then trace i
-                return,
-                x~(x)~(v)
-            }
-        }
-    return lambda_x~(lambda_x)
+        return f ~ { ::closure expose x verbose; use strict arg v ; if verbose then trace i ; return x~(x)~(v) }
+    }
 
 
 ::routine partialMergeArrays
