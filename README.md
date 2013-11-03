@@ -10,6 +10,14 @@ DocMusings provides a set of scripts to convert the ASCII railroads of the ooRex
 
 The experimental ooRexx interpreter implemented in sandbox/jlf is described by this [pdf][slides] and can be downloaded [here][download].
 
+Miscellaneous notes:
+
+- [Sandbox diary][sandbox_diary]
+- [DocMusings][doc_musings_diary]
+- [Doc XML transformation][doc_transformation_diary]
+- [Railroad][railroad_diary]
+- [Internal notes][internal_notes]
+
 Examples
 --------
 
@@ -122,6 +130,11 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
     }
     say fact~(10)          -- 3628800
 
+[sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
+[doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
+[doc_transformation_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/transformxml/_diary.txt "Doc XML transformations diary"
+[railroad_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/railroad/_diary.txt "Railroad diary"
+[internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [doc]: http://dl.dropbox.com/u/20049088/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [slides]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/slides-sandbox-jlf.pdf "slides-sandbox-jlf.pdf"
 [download]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/index.html "Download"
