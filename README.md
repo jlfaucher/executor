@@ -1,5 +1,5 @@
-Experimental ooRexx git repository
-==================================
+Experimental ooRexx
+===================
 Forked from http://sourceforge.net/projects/oorexx/
 
 - incubator/DocMusings
