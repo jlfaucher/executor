@@ -58,14 +58,14 @@ See doers-samples.rex
 
 ::method trampoline unguarded
     doer = self
-    if self~hasMethod("functionDoer") then doer=self~functionDoer -- Add support for implicit return 
+    if self~hasMethod("functionDoer") then doer=self~functionDoer -- Add support for implicit return
     forward message "do" to (doer) continue -- any number of arguments supported for the first call
     if \var("result") then return
     v = result
-    -- The test \v~needsObject lets eliminate the StringDoers (and the MethodDoers, but the point is on StringDoers) : 
+    -- The test \v~needsObject lets eliminate the StringDoers (and the MethodDoers, but the point is on StringDoers) :
     -- when you return a String, you don't want the error "Not enough arguments in method; 1 expected".
     do while v~isA(.Doer), \v~needsObject
-        if v~hasMethod("functionDoer") then v=v~functionDoer -- Add support for implicit return 
+        if v~hasMethod("functionDoer") then v=v~functionDoer -- Add support for implicit return
         v~do -- here, no args. Most of the time, v will be a closure which holds all the needed informations.
         if \var("result") then return
         v = result
@@ -86,7 +86,7 @@ See doers-samples.rex
 -- [JLF] No practical interest... Inspired by http://mvanier.livejournal.com/2897.html.
 -- Y = λf.(λx.f (x x)) (λx.f (x x))
 -- The Y combinator allows recursion to be defined as a set of rewrite rules.
--- It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer). 
+-- It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
 -- It returns a version of the function which is recursive.
 -- Example :
 --     say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
@@ -97,10 +97,10 @@ See doers-samples.rex
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
     if verbose then do; .traceOutput~say("f =" f); f~source~each{.traceOutput~say(item)}; end
     -- In all the examples I have seen on internet, the lambda expression λx.f (x x) is applied to itself directly :
-    --  (define Y 
+    --  (define Y
     --    (lambda (f)
     --      ((lambda (x) (f (x x)))
-    --       (lambda (x) (f (x x))))))    
+    --       (lambda (x) (f (x x))))))
     -- I prefer to use a temporary variable, to make the code more clear.
     lambda_x = {
         ::closure expose f verbose; use strict arg x
@@ -136,7 +136,7 @@ See doers-samples.rex
     end
     return args
 
-    
+
 -----------------------------------------------------------------------------
 -- Mixin.
 
@@ -181,7 +181,7 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::method doWith unguarded
     use strict arg object, array
-    forward to (object) message "run" array (self, "a", array) 
+    forward to (object) message "run" array (self, "a", array)
 
 
 -----------------------------------------------------------------------------
@@ -227,7 +227,7 @@ The method 'run' is a private method. So can be called only from another method 
     executable = self~sourceDoer( , , , objectSpecified, object)
     return executable
 
-::method executable unguarded
+::method executable
     expose executable
     return executable
 
@@ -248,22 +248,22 @@ Possible transformations :
         sourceArray = self~source -- always an array, even if empty or just one line
         clauser = .Clauser~new(sourceArray)
         kind = .SourceLiteralParser~kind(clauser)
-        
+
         -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
         if clauser~clauseAvailable then do
             clause = clauser~clause
             if isExposeClause(clause) then clauser~nextClause
         end
-    
+
         -- Insert the 'clauseBefore', if any
         if clauseBefore <> "" then do
             if clauser~clauseAvailable then clauser~clause = clauseBefore ";" clauser~clause
             else sourceArray~append(clauseBefore)
         end
-    
+
         -- Insert the 'clauseAfter', if any
         if clauseAfter <> "" then sourceArray~append(clauseAfter)
-        
+
         rawExecutable = .SourceLiteralParser~rawExecutable(kind, sourceArray, context)
     end
 
@@ -279,7 +279,7 @@ Possible transformations :
     else if kind == "cl.co" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
     return .nil -- should never happen
 
-::method functionDoer unguarded
+::method functionDoer
     expose executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
@@ -288,7 +288,7 @@ Possible transformations :
     executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
     return executable
 
-::method actionDoer unguarded
+::method actionDoer
     expose executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
@@ -312,9 +312,9 @@ I want to support that (no ~doer in the following expression) :
                                                                                                 ****
     1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
                                                                                                 ****
-In this example, the block passed to .inject returns another block whose doer is a coactivity. 
+In this example, the block passed to .inject returns another block whose doer is a coactivity.
 The option "iterateAfter" checks if the current item has the "supplier" method. If yes, then it iterates over the items returned by the supplier.
-A RexxBlock has no "supplier" method, but its doer may have one. This is the case in this example. 
+A RexxBlock has no "supplier" method, but its doer may have one. This is the case in this example.
 Without this redefinition, I should write :
                                                                                                 ****
     1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
@@ -328,7 +328,7 @@ Without this redefinition, I should write :
 /*
 Normally, it's not a good idea to define an "unknown" method on a mixin class...
 But here, I think it's ok to do that...
-I find more natural to support directly blocks in the following samples (no need to send the message ~doer to the block) : 
+I find more natural to support directly blocks in the following samples (no need to send the message ~doer to the block) :
 {::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~take(5)~iterator~each{say item}
 {::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~select{item//2 == 0}~take(5)~iterator~each{say item}
 */
@@ -361,10 +361,10 @@ I find more natural to support directly blocks in the following samples (no need
 
 
 -----------------------------------------------------------------------------
--- Closure by value : not yet a real closure but useful anyway 
+-- Closure by value : not yet a real closure but useful anyway
 -- (assuming that only closures by reference are real closures...)
 -- good point, no risk of race conditions...
- 
+
 ::class "Closure" public inherit Doer
 
 ::method init
