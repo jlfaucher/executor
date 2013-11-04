@@ -130,7 +130,9 @@ Application of the Y combinator to factorial:
         }~Y~(10)
     --> display 3628800
 
-### ooRexx supports anonymous recursive functions, so no need of the Y combinator...
+### Anonymous recursive functions
+
+ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 
     fact =  {
         use strict arg n
