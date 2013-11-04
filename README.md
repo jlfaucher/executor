@@ -108,8 +108,8 @@ Equivalent form:
 
     (define Y
       (lambda (f)
-        ( (lambda (x) (x x))
-          (lambda (x) (f (lambda (y) ((x x) y)))))))
+        ( (lambda (a) (a a))
+          (lambda (x) (f (lambda (v) ((x x) v)))))))
 
 The call-by-value is implemented as a method on the class Doer
 (no function passed as argument, self is directly the function).
