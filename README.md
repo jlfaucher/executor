@@ -118,15 +118,15 @@ The call-by-value is implemented as a method on the class Doer
     ::method Y
     f = self
     return {use arg a ; return a~(a)} ~ {
-        ::closure expose f ; use strict arg x
-        return f ~ { ::closure expose x ; use strict arg v ; return x~(x)~(v) }
+        ::closure expose f ; use arg x
+        return f ~ { ::closure expose x ; use arg v ; return x~(x)~(v) }
     }
 
 Application of the Y combinator to factorial:
 
     say {
-          use strict arg f
-          return  {::closure expose f ; use strict arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+          use arg f
+          return  { ::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
         }~Y~(10)
     --> display 3628800
 
@@ -135,8 +135,8 @@ Application of the Y combinator to factorial:
 ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 
     fact =  {
-        use strict arg n
-        if n==0 then
+        use arg n
+        if n == 0 then
             return 1
         else
             return n * .context~executable~(n-1)
