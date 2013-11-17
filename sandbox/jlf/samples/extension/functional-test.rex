@@ -191,7 +191,7 @@ numeric digits 302; (2**1000)~reduceC("+")~dump
 -- --------------------------------------------------------------
 
 -- The full tag is "::coactivity".
--- The shortest abbreviation is "::c".
+-- The shortest abbreviation is "::co".
 -- initial value is the first yielded item (default)
 {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("-")~dump
 
@@ -586,7 +586,7 @@ buffer~dump -- mutable buffer after mapping
 .Array~of(1,2,3,4)~map{::routine item * 2}~dump
 
 
--- The shortest abbreviation of "::routine" is ":"
+-- The shortest abbreviation of "::routine" is "::r"
 .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
