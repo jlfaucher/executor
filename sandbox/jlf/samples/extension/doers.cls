@@ -96,14 +96,16 @@ Equivalent form:
 
 (define Y
   (lambda (f)
-    ( (lambda (x) (x x))
+    ( (lambda (a) (a a))
       (lambda (x) (f (lambda (y) ((x x) y)))))))
 
 The Y combinator allows recursion to be defined as a set of rewrite rules.
 It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
 It returns a version of the function which is recursive.
+
 Example :
     say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
+
 Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
     say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
 */
