@@ -2330,7 +2330,7 @@ if trace then trace i
 use strict arg item, index, dataflow
 if doer <> .nil then command = doer~do(item, index, dataflow)
 queue = .RexxQueue~new(.RexxQueue~create)
-command '2>&1 | rxqueue "'queue~get'"'
+command '| rxqueue "'queue~get'"'
 error = (RC <> 0) -- doesn't work ! RC is the return code of rxqueue, not the return code of command
 linepos = 1
 do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
