@@ -74,8 +74,8 @@ create_Packages()
     copy_file ../../../incubator/ooRexxShell/oorexxshell
     copy_file ../../../incubator/ooRexxShell/oorexxshell.bat
     copy_file ../../../incubator/ooRexxShell/oorexxshell.rex
-    copy_file ../../../incubator/ooSQLite/build/debug/oosqlite.dll
-    copy_file ../../../incubator/ooSQLite/build/debug/oosqlite.exe
+    copy_file ../../../incubator/ooSQLite/build/release/oosqlite.dll
+    copy_file ../../../incubator/ooSQLite/build/release/oosqlite3.exe
     copy_file ../../../incubator/ooSQLite/src/rexx/ooSQLite.cls
     copy_file ../unicode/ooRexx/ooRexxTry.rex
     copy_file ../samples/ooRexxTry/ooRexxTry.rxj

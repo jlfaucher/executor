@@ -141,6 +141,12 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 nov 17
+
+Merge revisions 9423-9515 from SourceForge main/trunk
+
+
+===============================================================================
 2013 sep 15
 
 Merge revisions 8678-9423 from SourceForge main/trunk
@@ -4105,3 +4111,5 @@ merge 7736-7771 from main/trunk
 merge 7771-8678 from main/trunk
 
 merge 8678-9423 from main/trunk
+
+merge 9423-9515 from main/trunk
