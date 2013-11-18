@@ -60,7 +60,7 @@ A more compact code... item is an implicit parameter.
 
 ### Function composition
 
-[Rosetta Code][rosetta_code_accumulator_factory]
+[Rosetta Code][rosetta_code_function_composition]
 
     compose = {
         use arg f, g
@@ -156,3 +156,4 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 [rosetta_code_y_combinator]: http://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
+[rosetta_code_function_composition]:http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
