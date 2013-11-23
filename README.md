@@ -18,10 +18,191 @@ Miscellaneous notes:
 - [Railroad][railroad_diary]
 - [Internal notes][internal_notes]
 
-Examples
---------
+Examples of extensions
+----------------------
 
-### Closures/Value capture
+### Blocks (source literals)
+
+A RexxBlock is a piece of source code surrounded by curly brackets.
+
+Routine
+
+    {use strict arg name, greetings
+     say "hello" name || greetings
+    }~("John", ", how are you ?")       -- hello John, how are you ?
+
+Method
+
+    {::method use strict arg greetings
+     say "hello" self || greetings
+    }~doer~do("John", ", how are you ?") -- hello John, how are you ?
+
+Coactivity
+
+    nextInteger = {::coactivity i=0; do forever; .yield[i]; i+=1; end}
+    say nextInteger~()                  -- 0
+    say nextInteger~()                  -- 1
+    ...
+
+Closure
+
+    v = 1                                -- captured, belongs to the outer environment of the closure
+    {::closure expose v ; say v}~()      -- 1
+
+### Array initializer
+
+Initializer (instance method ~of) which takes into account the dimensions of the array.
+Inspired by [APL][apl_glimpse_heaven]
+
+If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
+
+    .array~new(2,3)~of(1 2 3 4 5 6)
+    1 2 3
+    4 5 6
+
+If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
+
+    .array~new(2,3)~of(1~upto(6))
+    1 2 3
+    4 5 6
+
+If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+Implicit arguments :
+    arg(1) : integerIndex : position of the current cell, from 1 to size.
+    arg(2) : arrayIndex : position of the current cell, in each dimension.
+The value returned by the doer is the item for the current cell.
+
+    .array~new(2,3)~of{10*integerIndex}
+    10 20 30
+    40 50 60
+
+Otherwise, when more than one argument, each argument is an item as-is.
+
+    .array~new(2,3)~of(1,2,3,4,5,6)
+    1 2 3
+    4 5 6
+
+If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
+
+    .array~new(2,3)~of(1,,3,,5,6)
+    1 . 3
+    . 5 6
+
+The items are a list of values that must be assigned to the cells of the array.
+Rules inspired by APL :
+If there are too many items, the extra items are ignored.
+If there are fewer items than implied by the dimensions, the list of items is reused as
+many times as necessary to fill the array.
+
+    .array~new(2,3)~of(1,2)
+    1 2 1
+    2 1 2
+
+Generation of an identity matrix (1 on the diagonal, 0 everywhere else).
+This example illustrates the extension of operators for array.
+[1,1,1] - 1 = [0,0,0], the sum of all indexes is 0 --> this is a diagonal index
+[1,1,2] - 1 = [0,0,1], the sum of all indexes is 1 --> this is not a diagonal index
+
+    .array~new(3,3)~of{ if (arrayIndex - arrayIndex[1])~reduce("+") == 0 then 1; else 0 }=
+    1 0 0
+    0 1 0
+    0 0 1
+
+
+### Coactivity / Inverse a recursive algorithm into an iterative one
+
+Producer/consumer problems can often be implemented elegantly with coactivities.
+Coactivities also provide an easy way to inverse recursive algorithms into iterative ones.
+Illustration with a binary tree.
+
+    btree = .BinaryTree~of(4, 6, 2, 7, 5, 3, 1)
+    ascending = btree~visitAscending
+    descending = btree~visitDescending
+    do btree~items
+        say ascending~()
+        say descending~()
+    end
+    .coactivity~endAll
+
+    ::requires "extension/extensions.cls"
+
+Class Node
+
+The binary tree stores items in nodes.
+Each node holds an item.
+Each node has a reference to a node on the left and a reference to a node on the right.
+Items smaller than current node's item are stored in the left-side subtree, and larger items are stored in the right-side subtree.
+
+    ::class Node private
+
+    ::attribute leftNode
+    ::attribute rightNode
+    ::attribute item
+
+    ::method init
+        self~leftNode = .nil
+        self~rightNode = .nil
+        self~item = .nil
+
+    ::method insert
+        use strict arg item
+        select
+            when self~item == .nil then do
+                self~item = item
+            end
+            when item < self~item then do
+                if self~leftNode == .nil then self~leftNode = self~class~new
+                self~leftNode~insert(item)
+            end
+            otherwise do
+                if self~rightNode == .nil then self~rightNode = self~class~new
+                self~rightNode~insert(item)
+            end
+        end
+
+    ::method visitAscending unguarded
+        if self~leftNode <> .nil then self~leftNode~visitAscending
+        .yield[self~item]   -- can be executed only in the context of a coactivity
+        if self~rightNode <> .nil then self~rightNode~visitAscending
+
+    ::method visitDescending unguarded
+        if self~rightNode <> .nil then self~rightNode~visitDescending
+        .yield[self~item]   -- can be executed only in the context of a coactivity
+        if self~leftNode <> .nil then self~leftNode~visitDescending
+
+Class BinaryTree
+
+    ::class BinaryTree public
+
+    ::method of class
+        use strict arg item, ...
+        binaryTree = self~new
+        do i = 1 to arg()
+            binaryTree~insert(arg(i))
+        end
+        return binaryTree
+
+    ::attribute rootNode private
+    ::attribute items
+
+    ::method init
+        self~rootNode = .Node~new
+        self~items = 0
+
+    ::method insert
+        self~items += 1
+        forward to (self~rootNode)
+
+    ::method visitAscending
+        -- the message "visitAscending" is sent to self~rootNode, in the context of a coactivity 
+        return .Coactivity~new("visitAscending", false, self~rootNode)
+
+    ::method visitDescending
+        -- the message "visitDescending" is sent to self~rootNode, in the context of a coactivity 
+        return .Coactivity~new("visitDescending", false, self~rootNode)
+
+
+### Closures / Value capture
 
 [Rosetta Code][rosetta_code_closures_value_capture]
 
@@ -157,3 +338,4 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
 [rosetta_code_function_composition]:http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
+[apl_glimpse_heaven]:http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
