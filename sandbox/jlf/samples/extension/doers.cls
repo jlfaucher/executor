@@ -273,8 +273,8 @@ Possible transformations :
     -- Returns the executable
     if kind == "r" then return rawExecutable
     else if kind == "r.co" then return .Coactivity~new(rawExecutable)
-    else if kind == "m" then return rawExecutable
-    else if kind == "m.co" then do
+    else if kind == "m.gu" | kind == "m.un" then return rawExecutable
+    else if kind == "m.co" | kind == "m.gu.co" | kind == "m.un.co" then do
         if \objectSpecified then raise syntax 93.900 array("No object specified")
         return .Coactivity~new(rawExecutable, , object)
     end

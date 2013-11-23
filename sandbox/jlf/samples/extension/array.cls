@@ -258,11 +258,20 @@ many times as necessary to fill the array.
 
 ::options OPERATOR_OVERRIDING_BY_ROUTINE
 
+::routine same_dimensions
+    use strict arg a1, a2
+    if a1~dimension <> a2~dimension then return .false
+    do i=1 to a1~dimension
+        if a1~dimension(i) <> a2~dimension(i) then return .false
+    end
+    return .true
+    
 ::routine "+" public
 if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("+")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
         use arg array1, array2
+        if \same_dimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
         return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item + array2[index]}
     end
     if arg(1)~isA(.array) then do
@@ -280,6 +289,7 @@ if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("-")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
         use arg array1, array2
+        if \same_dimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
         return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - array2[index]}
     end
     if arg(1)~isA(.array) then do
@@ -289,6 +299,58 @@ if arg() == 2 then do
     if arg(2)~isA(.array) then do
         use arg scalar, array
         return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar - item}
+    end
+end
+
+::routine "*" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- multiplication of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item * scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar * item}
+    end
+end
+
+::routine "/" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- division of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item / scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar / item}
+    end
+end
+
+::routine "%" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- integer division of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item % scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar % item}
+    end
+end
+
+::routine "//" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- remainder (divide an return the remainder) of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item // scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar // item}
     end
 end
 

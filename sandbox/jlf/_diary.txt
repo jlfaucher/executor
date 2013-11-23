@@ -141,6 +141,45 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2013 nov 23
+
+Add support for option guarded|ungarded in the declaration {::method...}
+The need has been discovered while exploring this alternative implementation of
+the methods ascendingItems and descendingItems in BinaryTree.cls :
+    ::method ascendingItems
+        -- return .Coactivity~new("visitAscending", , self~rootNode)
+        return {::method.coactive self~rootNode~visitAscending}~doer(self)
+    ::method descendingItems
+        --return .Coactivity~new("visitDescending", , self~rootNode)
+        return {::method.coactive self~rootNode~visitDescending}~doer(self)
+With this test case :
+    btree = .BinaryTree~of(4, 6, 2, 7, 5, 3, 1)
+    ascending = btree~visitAscending
+    descending = btree~visitDescending
+    do btree~items
+        say ascending~()
+        say descending~()
+    end
+There is a deadlock when calling descending~() because the instance btree is locked
+by the execution of ascending~().
+The solution is to declare the coactive methods unguarded :
+    return {::method.unguarded.coactive self~rootNode~visitAscending}~doer(self)
+
+.Array operators (symetric overloading)
+Add implementation for * scalar multiplication.
+Add implementation for / scalar division.
+Add implementation for % scalar integer division.
+Add implementation for // scalar remainder.
+
+.Complex operators (symetric overloading)
+Add implementation for - scalar multiplication.
+Add implementation for * scalar multiplication.
+Add implementation for / scalar division.
+Add implementation for % scalar integer division.
+Add implementation for // scalar remainder.
+
+
+===============================================================================
 2013 nov 17
 
 Merge revisions 9423-9515 from SourceForge main/trunk
