@@ -27,21 +27,23 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 
 Routine
 
-    {use strict arg name, greetings
+    {use arg name, greetings
      say "hello" name || greetings
     }~("John", ", how are you ?")       -- hello John, how are you ?
 
 Method
 
-    {::method use strict arg greetings
+    {::method use arg greetings
      say "hello" self || greetings
-    }~doer~do("John", ", how are you ?") -- hello John, how are you ?
+    }~("John", ", how are you ?")       -- hello John, how are you ?
 
 Coactivity
 
     nextInteger = {::coactivity i=0; do forever; .yield[i]; i+=1; end}
     say nextInteger~()                  -- 0
     say nextInteger~()                  -- 1
+    nextInteger~take(10)~iterator~each  -- [2,3,4,5,6,7,8,9,10,11]
+    say nextInteger~()                  -- 12
     ...
 
 Closure
@@ -145,7 +147,7 @@ Items smaller than current node's item are stored in the left-side subtree, and 
         self~item = .nil
 
     ::method insert
-        use strict arg item
+        use arg item
         select
             when self~item == .nil then do
                 self~item = item
@@ -175,7 +177,7 @@ Class BinaryTree
     ::class BinaryTree public
 
     ::method of class
-        use strict arg item, ...
+        use arg item, ...
         binaryTree = self~new
         do i = 1 to arg()
             binaryTree~insert(arg(i))
@@ -194,11 +196,11 @@ Class BinaryTree
         forward to (self~rootNode)
 
     ::method visitAscending
-        -- the message "visitAscending" is sent to self~rootNode, in the context of a coactivity 
+        -- the message "visitAscending" is sent to self~rootNode, in the context of a coactivity
         return .Coactivity~new("visitAscending", false, self~rootNode)
 
     ::method visitDescending
-        -- the message "visitDescending" is sent to self~rootNode, in the context of a coactivity 
+        -- the message "visitDescending" is sent to self~rootNode, in the context of a coactivity
         return .Coactivity~new("visitDescending", false, self~rootNode)
 
 
