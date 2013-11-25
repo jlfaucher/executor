@@ -33,7 +33,7 @@ Routine
 
 Method
 
-The first argument passed with ~do is the object, available in self.
+The first argument is the object, available in self, on which the method is executed.
 The remaining arguments are passed to the method as arg(1), arg(2), ...
 
     {::method use arg greetings
