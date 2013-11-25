@@ -33,22 +33,31 @@ Routine
 
 Method
 
+The first argument passed with ~do is the object, available in self.
+The remaining arguments are passed to the method as arg(1), arg(2), ...
+
     {::method use arg greetings
      say "hello" self || greetings
     }~("John", ", how are you ?")       -- hello John, how are you ?
 
 Coactivity
 
+A coactivity remembers its internal state. It can be called several times,
+the execution is resumed after the last executed .yield[].
+
     nextInteger = {::coactivity i=0; do forever; .yield[i]; i+=1; end}
     say nextInteger~()                  -- 0
     say nextInteger~()                  -- 1
-    nextInteger~take(10)~iterator~each  -- [2,3,4,5,6,7,8,9,10,11]
+    nextInteger~makeArray(10)           -- [2,3,4,5,6,7,8,9,10,11]
     say nextInteger~()                  -- 12
     ...
 
 Closure
 
-    v = 1                                -- captured, belongs to the outer environment of the closure
+A closure remembers the values of the variables defined in the outer environment of the block.
+Updating a variable from the closure will have no impact on the original context (closure by value).
+
+    v = 1                                -- captured
     {::closure expose v ; say v}~()      -- 1
 
 ### Array initializer
