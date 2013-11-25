@@ -117,6 +117,7 @@ This example illustrates the extension of operators for array.
 - [1,1,1] - 1 = [0,0,0], the sum of all indexes is 0 --> this is a diagonal index
 - [1,1,2] - 1 = [0,0,1], the sum of all indexes is 1 --> this is not a diagonal index
 
+
     .array~new(3,3)~of{ if (arrayIndex - arrayIndex[1])~reduce("+") == 0 then 1; else 0 }=
     1 0 0
     0 1 0
