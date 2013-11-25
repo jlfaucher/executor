@@ -112,11 +112,11 @@ many times as necessary to fill the array.
     2 1 2
 
 Generation of an identity matrix (1 on the diagonal, 0 everywhere else).
-This example illustrates the extension of operators for array.
 
 - [1,1,1] - 1 = [0,0,0], the sum of all indexes is 0 --> this is a diagonal index
 - [1,1,2] - 1 = [0,0,1], the sum of all indexes is 1 --> this is not a diagonal index
 
+This example illustrates the extension of operators for array.
 
     .array~new(3,3)~of{ if (arrayIndex - arrayIndex[1])~reduce("+") == 0 then 1; else 0 }=
     1 0 0
