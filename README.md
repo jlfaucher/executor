@@ -79,8 +79,10 @@ If there is only one argument, and this argument has the method ~supplier then e
 
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
 Implicit arguments :
-    arg(1) : integerIndex : position of the current cell, from 1 to size.
-    arg(2) : arrayIndex : position of the current cell, in each dimension.
+
+- arg(1) : integerIndex : position of the current cell, from 1 to size.
+- arg(2) : arrayIndex : position of the current cell, in each dimension.
+
 The value returned by the doer is the item for the current cell.
 
     .array~new(2,3)~of{10*integerIndex}
@@ -111,8 +113,9 @@ many times as necessary to fill the array.
 
 Generation of an identity matrix (1 on the diagonal, 0 everywhere else).
 This example illustrates the extension of operators for array.
-[1,1,1] - 1 = [0,0,0], the sum of all indexes is 0 --> this is a diagonal index
-[1,1,2] - 1 = [0,0,1], the sum of all indexes is 1 --> this is not a diagonal index
+
+- [1,1,1] - 1 = [0,0,0], the sum of all indexes is 0 --> this is a diagonal index
+- [1,1,2] - 1 = [0,0,1], the sum of all indexes is 1 --> this is not a diagonal index
 
     .array~new(3,3)~of{ if (arrayIndex - arrayIndex[1])~reduce("+") == 0 then 1; else 0 }=
     1 0 0
