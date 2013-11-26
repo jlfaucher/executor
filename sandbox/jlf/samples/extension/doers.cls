@@ -224,8 +224,8 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::method doer unguarded
     expose executable
-    use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
     if executable <> .nil then return executable
+    use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(1, "e") -- object explicitely passed ?
     executable = self~sourceDoer( , , , objectSpecified, object)
     return executable
@@ -284,6 +284,7 @@ Possible transformations :
 
 ::method functionDoer
     expose executable
+    if executable <> .nil then return executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     clauseBefore ||= ' ; options "NOCOMMANDS"'
@@ -293,6 +294,7 @@ Possible transformations :
 
 ::method actionDoer
     expose executable
+    if executable <> .nil then return executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)

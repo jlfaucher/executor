@@ -45,7 +45,7 @@ Coactivity
 A coactivity remembers its internal state. It can be called several times,
 the execution is resumed after the last executed .yield[].
 
-    nextInteger = {::coactivity i=0; do forever; .yield[i]; i+=1; end}
+    nextInteger = {::coactivity loop i=0; .yield[i]; end}
     say nextInteger~()                  -- 0
     say nextInteger~()                  -- 1
     nextInteger~makeArray(10)           -- [2,3,4,5,6,7,8,9,10,11]

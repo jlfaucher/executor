@@ -139,6 +139,7 @@
 
 .local~rgf.symbol.chars=".!_?"
 
+.local~rgf.showIdentityHash = .false -- JLF
 
 parse version "_" v "("
 
@@ -2587,9 +2588,11 @@ createCodeSnippet: procedure
   if \a1~isA(.string) then
   do
      if a1~isA(.Collection) then
-        return "["a1~string "("a1~items "items)" "id#_" || (a1~identityHash)"]"
+        if .local~rgf.showIdentityHash then return "["a1~string "("a1~items "items)" "id#_" || (a1~identityHash)"]"
+        else return "["a1~string "("a1~items "items)]"
      else
-        return "["a1~string "id#_" || (a1~identityHash)"]"
+        if .local~rgf.showIdentityHash then return "["a1~string "id#_" || (a1~identityHash)"]"
+        else return "["a1~string"]"
   end
 
   return "["escape2(a1)"]"
@@ -2635,7 +2638,8 @@ createCodeSnippet: procedure
         end
      end
 
-     return "["a1~string "id#_" || (a1~identityHash)"]"
+     if .local~rgf.showIdentityHash then return "["a1~string "id#_" || (a1~identityHash)"]"
+     return return "["a1~string"]"
   end
 
   return pp2(a1)     -- rgf, 20091228

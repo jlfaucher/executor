@@ -102,19 +102,14 @@ many times as necessary to fill the array.
 
             -- if initialization with a doer
             else if doer <> .nil then do
-                -- next line is not really needed because when a coactivity is ended, there is not returned result
-                -- and this case is managed by the second test doer~isEnded below.
-                if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
-                else do
-                    if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
-                    else if doer~arity == 1 then doer~do(selfIntegerIndex)
-                    else doer~do
-                    if var("result") then self~put(result, selfArrayIndex)
-                    -- next line is needed to offer the same behaviour for
-                    -- .array~new(2,3)~of(1~upto(5))
-                    -- .array~new(2,3)~of(1~generate.upto(5))
-                    else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
-                end
+                if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
+                else if doer~arity == 1 then doer~do(selfIntegerIndex)
+                else doer~do
+                if var("result") then self~put(result, selfArrayIndex)
+                -- next line is needed to offer the same behaviour for
+                -- .array~new(2,3)~of(1~upto(5))
+                -- .array~new(2,3)~of(1~generate.upto(5))
+                else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
             end
 
             -- if initialization with a supplier
