@@ -33,7 +33,7 @@ Routine
 
 Method
 
-The first argument is the object, available in self, on which the method is executed.
+The first argument is the object, available in self, on which the method is executed.  
 The remaining arguments are passed to the method as arg(1), arg(2), ...
 
     {::method use arg greetings
@@ -42,8 +42,8 @@ The remaining arguments are passed to the method as arg(1), arg(2), ...
 
 Coactivity
 
-A coactivity remembers its internal state. It can be called several times,
-the execution is resumed after the last executed .yield[].
+A coactivity remembers its internal state.  
+It can be called several times, the execution is resumed after the last executed .yield[].
 
     nextInteger = {::coactivity loop i=0; .yield[i]; end}
     say nextInteger~()                  -- 0
@@ -54,7 +54,7 @@ the execution is resumed after the last executed .yield[].
 
 Closure
 
-A closure remembers the values of the variables defined in the outer environment of the block.
+A closure remembers the values of the variables defined in the outer environment of the block.  
 Updating a variable from the closure will have no impact on the original context (closure by value).
 
     v = 1                                -- captured
@@ -62,7 +62,7 @@ Updating a variable from the closure will have no impact on the original context
 
 ### Array initializer
 
-Initializer (instance method ~of) which takes into account the dimensions of the array.
+Initializer (instance method ~of) which takes into account the dimensions of the array.  
 Inspired by [APL][apl_glimpse_heaven]
 
 If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
@@ -77,7 +77,7 @@ If there is only one argument, and this argument has the method ~supplier then e
     1 2 3
     4 5 6
 
-If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.  
 Implicit arguments :
 
 - arg(1) : integerIndex : position of the current cell, from 1 to size.
@@ -101,8 +101,8 @@ If some arguments are omitted, then the corresponding item in the initialized ar
     1 . 3
     . 5 6
 
-Rules inspired by APL :
-If there are too many items, the extra items are ignored.
+Rules inspired by APL :  
+If there are too many items, the extra items are ignored.  
 If there are fewer items than implied by the dimensions, the list of items is reused as
 many times as necessary to fill the array.
 
@@ -110,7 +110,7 @@ many times as necessary to fill the array.
     1 2 1
     2 1 2
 
-Generation of an identity matrix (1 on the diagonal, 0 everywhere else).
+Generation of an identity matrix (1 on the diagonal, 0 everywhere else).  
 If (arrayIndex - arrayIndex[1])~reduce("+") == 0 is true then this is a diagonal index.
 
 - [1,1,1] - 1 = [0,0,0], the sum of all items is 0 --> diagonal index
@@ -118,7 +118,7 @@ If (arrayIndex - arrayIndex[1])~reduce("+") == 0 is true then this is a diagonal
 
 This example also illustrates the availability of operators for array.
 
-    .array~new(3,3)~of{ if (arrayIndex - arrayIndex[1])~reduce("+") == 0 then 1; else 0 }=
+    .array~new(3,3)~of{ (arrayIndex - arrayIndex[1])~reduce("+") == 0 }=
     1 0 0
     0 1 0
     0 0 1
@@ -126,8 +126,8 @@ This example also illustrates the availability of operators for array.
 
 ### Coactivity / Inverse a recursive algorithm into an iterative one
 
-Producer/consumer problems can often be implemented elegantly with coactivities.
-Coactivities also provide an easy way to inverse recursive algorithms into iterative ones.
+Producer/consumer problems can often be implemented elegantly with coactivities.  
+Coactivities also provide an easy way to inverse recursive algorithms into iterative ones.  
 Illustration with a binary tree.
 
     btree = .BinaryTree~of(4, 6, 2, 7, 5, 3, 1)
@@ -143,9 +143,9 @@ Illustration with a binary tree.
 
 Class Node
 
-The binary tree stores items in nodes.
-Each node holds an item.
-Each node has a reference to a node on the left and a reference to a node on the right.
+The binary tree stores items in nodes.  
+Each node holds an item.  
+Each node has a reference to a node on the left and a reference to a node on the right.  
 Items smaller than current node's item are stored in the left-side subtree, and larger items are stored in the right-side subtree.
 
     ::class Node private
@@ -278,8 +278,8 @@ A more compact code... item is an implicit parameter.
 
 [Rosetta Code][rosetta_code_y_combinator]
 
-The [Y combinator][wikipedia_fixed_point_combinator] allows recursion to be defined as a set of rewrite rules.
-It takes a single argument, which is a function that isn't recursive.
+The [Y combinator][wikipedia_fixed_point_combinator] allows recursion to be defined as a set of rewrite rules.  
+It takes a single argument, which is a function that isn't recursive.  
 It returns a version of the function which is recursive.
 
 See [Mike Vanier article][mike_vanier_article].
