@@ -759,7 +759,7 @@ size_t StringUtil::validateSet(const char *String, sizeB_t Length, const char *S
         }
         else
         {
-            if (c == ch_SPACE)
+            if (c == ch_SPACE || c == '\t')
             {             /* if c blank                        */
                 SpaceLocation = Current;       /* save the space location           */
                 if (!SpaceFound)

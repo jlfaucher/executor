@@ -208,51 +208,6 @@ IF %USELOGFILE% equ 1 ( NMAKE /F %OR_WINKERNELSRC%\misc.mak >>%OR_ERRLOG% 2>&1 )
 if ERRORLEVEL 1 goto error
 if defined component goto arounderr
 
-
-:oodialog
-REM *** oodialog
-REM
-@ECHO Building standard OODIALOG..
-CD  %OR_OODIALOGSRC%
-IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK %args%)
-if ERRORLEVEL 1 goto error
-if /i "%component%" == "oodialog" goto oodialogA
-if defined component goto arounderr
-
-:oodialogA
-REM *** oodialog
-REM
-@ECHO Building byte-char version of OODIALOG.WCHAR..
-CD  %OR_OODIALOGSRCW%
-IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
-if ERRORLEVEL 1 goto error
-if /i "%component%" == "oodialog" goto oodialogW
-if defined component goto arounderr
-
-:oodialogW
-REM *** oodialog
-REM
-@ECHO Building wide-char version of OODIALOG.WCHAR..
-CD  %OR_OODIALOGSRCW%
-IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args%)
-if ERRORLEVEL 1 goto error
-if defined component goto arounderr
-
-:oodialog_classes
-ECHO Building standard OODIALOG classes
-CD %OR_OUTDIR%
-IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex )
-if ERRORLEVEL 1 goto error
-if defined component goto arounderr
-
-:oodialogW_classes
-ECHO Building OODIALOG.WCHAR classes
-CD %OR_OUTDIR%
-IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRCW%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRCW%\build_ooDialog_cls.rex )
-if ERRORLEVEL 1 goto error
-if defined component goto arounderr
-
-
 CD %SRC_DIR%
 
 REM @ECHO Building ORXSCRPT..
@@ -292,8 +247,29 @@ CD  %OR_APISAMPLESRC%\wpipe\wpipe3
 IF %USELOGFILE% equ 1 ( NMAKE /F rexxapi3.mak >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F rexxapi3.mak )
 if ERRORLEVEL 1 goto error
 
+goto arounderr
+
+:oodialog
+REM *** oodialog
+REM
+@ECHO Building standard OODIALOG..
+CD  %OR_OODIALOGSRC%
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK %args%)
+if ERRORLEVEL 1 goto error
+
+:oodialog_classes
+ECHO Building standard OODIALOG classes
+CD %OR_OUTDIR%
+IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRC%\build_ooDialog_cls.rex )
+if ERRORLEVEL 1 goto error
+
+:oodialog_samples
 @ECHO Building OODialog Samples..
 CD  %OR_OODIALOGSAMPLES%\res
+IF %USELOGFILE% equ 1 ( NMAKE /F res.mak MACHINE=%CPU% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F res.mak MACHINE=%CPU% )
+if ERRORLEVEL 1 goto error
+
+CD  %OR_OODIALOGSAMPLES%\controls\ListView\rc
 IF %USELOGFILE% equ 1 ( NMAKE /F res.mak MACHINE=%CPU% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F res.mak MACHINE=%CPU% )
 if ERRORLEVEL 1 goto error
 
@@ -307,6 +283,36 @@ if ERRORLEVEL 1 goto error
 
 CD  %OR_OODIALOGSAMPLES%\userGuide\exercises\Exercise06\Product\res
 IF %USELOGFILE% equ 1 ( NMAKE /F res.mak MACHINE=%CPU% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F res.mak MACHINE=%CPU% )
+if ERRORLEVEL 1 goto error
+
+CD  %OR_OODIALOGSAMPLES%\userGuide\exercises\Exercise07\Product\res
+IF %USELOGFILE% equ 1 ( NMAKE /F res.mak MACHINE=%CPU% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F res.mak MACHINE=%CPU% )
+if ERRORLEVEL 1 goto error
+
+goto arounderr
+
+:oodialog_unicode
+:oodialogA
+REM *** oodialog
+REM
+@ECHO Building byte-char version of OODIALOG.WCHAR..
+CD  %OR_OODIALOGSRCW%
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=0" %args%)
+if ERRORLEVEL 1 goto error
+if /i "%component%" neq "oodialog_unicode" goto oodialogW_classes
+
+:oodialogW
+REM *** oodialog
+REM
+@ECHO Building wide-char version of OODIALOG.WCHAR..
+CD  %OR_OODIALOGSRCW%
+IF %USELOGFILE% equ 1 ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args% >>%OR_ERRLOG% 2>&1 ) else ( NMAKE /F OODIALOG.MAK "WCHAR=1" %args%)
+if ERRORLEVEL 1 goto error
+
+:oodialogW_classes
+ECHO Building OODIALOG.WCHAR classes
+CD %OR_OUTDIR%
+IF %USELOGFILE% equ 1 ( REXX %OR_OODIALOGSRCW%\build_ooDialog_cls.rex >>%OR_ERRLOG% 2>&1 ) else ( REXX %OR_OODIALOGSRCW%\build_ooDialog_cls.rex )
 if ERRORLEVEL 1 goto error
 
 goto arounderr

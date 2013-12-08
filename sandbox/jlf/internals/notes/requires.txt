@@ -1,0 +1,161 @@
+===============================================================================
+Code review to understand how ::requires works
+===============================================================================
+
+A package is loaded once.
+This is managed by the interpreter instance.
+See InterpreterInstance::getRequiresFile
+
+Each package manages its own list of loaded packages.
+See RexxSource::addPackage
+
+Optimisation at the package level :
+The imported routines and classes are merged in a RexxDirectory : merged_public_routines
+My understanding : that avoids to walk through all the imported packages to find the routine/class.
+See RexxSource::mergeRequired(RexxSource *source)
+
+----------
+
+void RequiresDirective::install(RexxActivation *context)
+{
+    context->loadRequires(name, this);
+}
+
+
+PackageClass *RexxActivation::loadRequires(RexxString *target, RexxInstruction *instruction)
+{
+    // this will cause the correct location to be used for error reporting
+    this->current = instruction;
+
+    // the loading/merging is done by the source object
+    return getSourceObject()->loadRequires(activity, target);
+}
+
+
+PackageClass *RexxSource::loadRequires(RexxActivity *activity, RexxString *target)
+{
+    // we need the instance this is associated with
+    InterpreterInstance *instance = activity->getInstance();
+
+    // get a fully resolved name for this....we might locate this under either name, but the
+    // fully resolved name is generated from this source file context.
+    RexxString *fullName = resolveProgramName(activity, target);
+    ProtectedObject p(fullName);
+
+    // if we've already loaded this in this instance, just return it.
+    PackageClass *packageInstance = instance->loadRequires(activity, target, fullName);
+
+    if (packageInstance == OREF_NULL)       /* couldn't create this?             */
+    {
+        /* report an error                   */
+        reportException(Error_Routine_not_found_requires, target);
+    }
+    // add this to the source context
+    addPackage(packageInstance);
+    return packageInstance;
+}
+
+
+PackageClass *InterpreterInstance::loadRequires(RexxActivity *activity, RexxString *shortName, RexxString *fullName)
+{
+
+    // if we've already loaded this in this instance, just return it.
+    PackageClass *package = getRequiresFile(activity, shortName);
+    if (package != OREF_NULL)
+    {
+        return package;
+    }
+
+    // if there is a fully resolved full name, check this next
+    if (fullName != OREF_NULL)
+    {
+        // if we've already loaded this in this instance, just return it.
+        package = getRequiresFile(activity, fullName);
+        if (package != OREF_NULL)
+        {
+            // add this to the cache using the short name, since they resolve to the same
+            addRequiresFile(shortName, OREF_NULL, package);
+            return package;
+        }
+    }
+
+    // add the package manager to load this
+    ProtectedObject p;
+    RoutineClass *requiresFile = PackageManager::loadRequires(activity, shortName, fullName, p);
+
+    if (requiresFile == OREF_NULL)             /* couldn't create this?             */
+    {
+        /* report an error                   */
+        reportException(Error_Routine_not_found_requires, shortName);
+    }
+
+    package = requiresFile->getPackage();
+    // make sure we lock this package until we finish running the requires.
+    GuardLock lock(activity, package, ThePackageClass);
+    // add this to the instance cache too, under both the long
+    // name and the fullName (if it was resolved)
+    addRequiresFile(shortName, fullName, package);
+    // for any requires file loaded to this instance, we run the prolog within the instance.
+    runRequires(activity, fullName != OREF_NULL ? fullName : shortName, requiresFile);
+
+    return package;
+}
+
+
+PackageClass *InterpreterInstance::getRequiresFile(RexxActivity *activity, RexxString *name)
+{
+    WeakReference *ref = (WeakReference *)requiresFiles->get(name);
+    if (ref != OREF_NULL)
+    {
+        PackageClass *resolved = (PackageClass *)ref->get();
+        if (resolved != OREF_NULL)
+        {
+            // get the guard lock on this...this will ensure that
+            // the initializer is run before we grab this from the cache
+            GuardLock lock(activity, resolved, ThePackageClass);
+            return resolved;
+        }
+        // this was garbage collected, remove it from the table
+        requiresFiles->remove(name);
+    }
+    return OREF_NULL;
+}
+
+
+void RexxSource::addPackage(PackageClass *p)
+{
+    // force the directives to be processed first
+    install();
+    // we only create this on the first use
+    if (loadedPackages == OREF_NULL)
+    {
+        loadedPackages = new_list();
+    }
+    else
+    {
+        // we only add a given package item once.
+        if (loadedPackages->hasItem(p) == TheTrueObject)
+        {
+            return;
+        }
+    }
+
+    // add this to the list and merge the information
+    loadedPackages->append(p);
+    // not merge all of the info from the imported package
+    mergeRequired(p->getSourceObject());
+}
+
+
+JLF : this is another entry point to add a package
+Here, the package is already loaded, since passed as a parameter.
+So the interpreter instance is not sollicited.
+Only the package to which the other package is added is sollicited.
+
+RexxObject *PackageClass::addPackage(PackageClass *package)
+{
+    classArgument(package, ThePackageClass, "package");
+    source->addPackage(package);
+    return this;
+}
+

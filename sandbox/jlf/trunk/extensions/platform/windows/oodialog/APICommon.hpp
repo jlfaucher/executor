@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/;
 /*                                                                            */;
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */;
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */;
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */;
 /*                                                                            */;
 /* This program and the accompanying materials are made available under       */;
 /* the terms of the Common Public License v1.0 which accompanies this         */;
@@ -46,6 +46,7 @@
 
 
 #define NO_MEMORY_MSG             "failed to allocate memory"
+#define INVALID_CONSTANT_MSG      "the valid %s_XXX constants"
 
 extern void  severeErrorException(RexxThreadContext *c, const char *msg);
 extern void  systemServiceException(RexxThreadContext *context, const char *msg);
@@ -53,8 +54,12 @@ extern void  systemServiceException(RexxThreadContext *context, const char *msg,
 extern void  systemServiceExceptionCode(RexxThreadContext *context, const char *msg, const char *arg1, uint32_t rc);
 extern void  systemServiceExceptionCode(RexxThreadContext *context, const char *msg, const char *arg1);
 extern void  outOfMemoryException(RexxThreadContext *c);
-extern void *baseClassIntializationException(RexxMethodContext *c);
-extern void *baseClassIntializationException(RexxMethodContext *c, CSTRING clsName);
+extern void *baseClassInitializationException(RexxThreadContext *c);
+extern void *baseClassInitializationException(RexxThreadContext *c, CSTRING clsName);
+extern void *baseClassInitializationException(RexxMethodContext *c);
+extern void *baseClassInitializationException(RexxMethodContext *c, CSTRING clsName);
+extern void *baseClassInitializationException(RexxThreadContext *c, CSTRING clsName, CSTRING msg);
+extern void *baseClassInitializationException(RexxMethodContext *c, CSTRING clsName, CSTRING msg);
 extern void  userDefinedMsgException(RexxThreadContext *c, CSTRING msg);
 extern void  userDefinedMsgException(RexxThreadContext *c, CSTRING formatStr, int number);
 extern void  userDefinedMsgException(RexxThreadContext *c, int pos, CSTRING msg);
@@ -65,6 +70,7 @@ extern void  stringTooLongException(RexxThreadContext *c, size_t pos, size_t len
 extern void  numberTooSmallException(RexxThreadContext *c, int pos, int min, RexxObjectPtr actual);
 extern void  notNonNegativeException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual);
 extern void  notPositiveException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual);
+extern void  wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING msg, CSTRING actual);
 extern void  wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING obj, RexxObjectPtr actual);
 extern void  wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING obj);
 extern void  wrongObjInDirectoryException(RexxThreadContext *c, int argPos, CSTRING index, CSTRING needed, RexxObjectPtr actual);
@@ -75,22 +81,29 @@ extern void  missingIndexInDirectoryException(RexxThreadContext *c, int argPos, 
 extern void  directoryIndexExceptionMsg(RexxThreadContext *c, size_t pos, CSTRING index, CSTRING msg, CSTRING actual);
 extern void  directoryIndexExceptionList(RexxThreadContext *, size_t pos, CSTRING index, CSTRING list, CSTRING actual);
 extern void  missingIndexesInDirectoryException(RexxThreadContext *c, int argPos, CSTRING indexes);
+extern void  missingIndexInStemException(RexxThreadContext *c, int argPos, CSTRING index);
+extern void  stemIndexZeroException(RexxMethodContext *c, size_t pos);
 extern void  emptyArrayException(RexxThreadContext *c, int argPos);
 extern void  arrayToLargeException(RexxThreadContext *c, uint32_t found, uint32_t max, int argPos);
-extern void  sparseArrayException(RexxThreadContext *c, size_t argPos, size_t index);
 extern void  nullObjectException(RexxThreadContext *c, CSTRING name, size_t pos);
 extern void  nullObjectException(RexxThreadContext *c, CSTRING name);
 extern void  nullPointerException(RexxThreadContext *c, int pos);
 extern void  nullStringMethodException(RexxMethodContext *c, size_t pos);
 
+extern RexxObjectPtr sparseArrayException(RexxThreadContext *c, size_t argPos, size_t index);
 extern RexxObjectPtr wrongClassException(RexxThreadContext *c, size_t pos, const char *n);
 extern RexxObjectPtr wrongClassException(RexxThreadContext *c, size_t pos, const char *n, RexxObjectPtr actual);
+extern RexxObjectPtr wrongClassListException(RexxThreadContext *c, size_t pos, const char *n, RexxObjectPtr _actual);
 extern RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, RexxObjectPtr actual);
 extern RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, const char *actual);
 extern RexxObjectPtr wrongArgKeywordsException(RexxThreadContext *c, size_t pos, CSTRING list, CSTRING actual);
 extern RexxObjectPtr wrongArgKeywordsException(RexxThreadContext *c, size_t pos, CSTRING list, RexxObjectPtr actual);
+extern RexxObjectPtr wrongArgKeywordException(RexxMethodContext *c, size_t pos, CSTRING list, CSTRING actual);
+extern RexxObjectPtr invalidConstantException(RexxMethodContext *c, size_t argNumber, char *msg, const char *sub, RexxObjectPtr actual);
+extern RexxObjectPtr invalidConstantException(RexxMethodContext *c, size_t argNumber, char *msg, const char *sub, const char *actual);
 extern RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int max, RexxObjectPtr actual);
 extern RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int max, int actual);
+extern RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, uint32_t min, uint32_t max, RexxObjectPtr actual);
 extern RexxObjectPtr wrongRangeException(RexxMethodContext *c, size_t pos, uint32_t min, uint32_t max, uint32_t actual);
 extern RexxObjectPtr notBooleanException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual);
 extern RexxObjectPtr wrongArgOptionException(RexxThreadContext *c, size_t pos, CSTRING list, RexxObjectPtr actual);
@@ -99,6 +112,7 @@ extern RexxObjectPtr invalidTypeException(RexxThreadContext *c, size_t pos, cons
 extern RexxObjectPtr noSuchRoutineException(RexxThreadContext *c, CSTRING rtnName, size_t pos);
 extern RexxObjectPtr unsupportedRoutineException(RexxCallContext *c, CSTRING rtnName);
 extern RexxObjectPtr invalidReturnWholeNumberException(RexxThreadContext *c, CSTRING name, RexxObjectPtr actual, bool isMethod);
+extern void          notBooleanReplyException(RexxThreadContext *c, CSTRING method, RexxObjectPtr actual);
 
 extern CSTRING rxGetStringAttribute(RexxMethodContext *context, RexxObjectPtr obj, CSTRING name);
 extern bool    rxGetNumberAttribute(RexxMethodContext *context, RexxObjectPtr obj, CSTRING name, wholenumber_t *pNumber);
@@ -224,6 +238,48 @@ inline RexxObjectPtr notPositiveArgException(RexxThreadContext *c, size_t argPos
 {
     c->RaiseException2(Rexx_Error_Incorrect_method_nonnegative, c->WholeNumber(argPos), actual);
     return NULLOBJECT;
+}
+
+
+/**
+ * Index <index> of the array, argument <argPos>, must be <msg>; found
+ * "<actual>"
+ *
+ * Index 2 of the array, argument 2, must be exactly one of keywords POP or
+ * SHOW; found "POINT"
+ *
+ * Raises 88.900
+ *
+ * @param c        Thread context we are executing in.
+ * @param argPos   Array argument position.
+ * @param index    Index in array
+ * @param msg      Some string message, or object name
+ * @param actual   Actual Rexx object,
+ */
+inline void wrongObjInArrayException(RexxThreadContext *c, size_t argPos, size_t index, CSTRING msg, RexxObjectPtr actual)
+{
+    wrongObjInArrayException(c, argPos, index, msg, c->ObjectToStringValue(actual));
+}
+
+/**
+ * Similar to 93.915 and 93.914  (actually a combination of the two.)
+ *
+ * Method argument <pos>, keyword must be exactly one of <list>; found
+ * "<actual>"
+ *
+ * Method argument 2 must be exactly one of left, right, top, or bottom found
+ * "Side"
+ *
+ * @param c
+ * @param pos
+ * @param list
+ * @param actual  Rexx object, actual object
+ *
+ * @return RexxObjectPtr
+ */
+inline RexxObjectPtr wrongArgKeywordException(RexxMethodContext *c, size_t pos, CSTRING list, RexxObjectPtr actual)
+{
+    return wrongArgKeywordException(c, pos, list, c->ObjectToStringValue(actual));
 }
 
 /**

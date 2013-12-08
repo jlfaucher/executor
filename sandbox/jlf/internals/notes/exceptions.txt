@@ -49,7 +49,7 @@ catch (RexxNativeActivation *)
 
 
 Interpreter.cpp
-catch (ActivityException)
+catch (ActivityException)       JLF : enum type
 
 
 MethodContextStubs
@@ -60,10 +60,19 @@ ThreadContextStubs
 catch (RexxNativeActivation *)
 
 
+RexxActivity.hpp
+typedef enum
+{
+    RecursiveStringError,              // a recursion problem in error handling
+    FatalError,                        // bad problem       --> JLF never thrown
+    UnhandledCondition                 // we had an unhandled condition.
+} ActivityException;
+
+
 RexxActivity.cpp
-throw RecursiveStringError
-throw UnhandledCondition
-catch (ActivityException)
+throw RecursiveStringError      --> not caught explicitely anywhere, but caught by catch (ActivityException)
+throw UnhandledCondition        --> not caught explicitely anywhere, but caught by catch (ActivityException)
+catch (ActivityException)       --> enum type
 
 
 RexxActivation.cpp
@@ -76,11 +85,11 @@ RexxNativeActivation.cpp
 throw this
 catch (RexxNativeActivation *)
 catch (RexxActivation *)
-catch (ActivityException)
+catch (ActivityException)       --> enum type
 
 
 Setup.cpp
-catch (ActivityException )
+catch (ActivityException )      --> enum type
 
 
 StreamNative.cpp
@@ -89,4 +98,777 @@ throw this
 throw err (where int err)
 catch (StreamInfo *)
 catch (int)
+
+
+
+=======================================================================================
+Various notes
+=======================================================================================
+
+By default, an activation is not a stack base :
+virtual bool isStackBase() { return false; }
+Only a native activation can be a stack base :
+bool RexxNativeActivation::isStackbase()
+{
+    return stackBase; // stack base marker
+}
+This method is called from only one place :
+RexxActivity::createNewActivationStack()
+JLF : this marker stackBase seems redundant with previous = NULL, no ?
+
+
+RexxActivationBase::previous is different from RexxActivation::parent :
+previous is a chain up to the stack base
+parent is a chain up to : ??? see analysis below, can be NULL whereas previous is not NULL
+
+
+RexxActivation::trap
+    if current activation has the flag forwarded then 
+        getPreviousStackFrame until a non forwarded activation is reached.
+        Trap using this non forwarded activation
+    if current activation has an object to notify (RexxMessage *objnotify) and the condition is SYNTAX then
+        call the error method of the message object
+    traps is a RexxDirectory of traphandler, indexed by condition (ex : "SYNTAX")
+    if no trap directory then return false (if this->settings.traps == OREF_NULL)
+    if no traphandler for the current condition then
+        see if a traphandler exists for OREF_ANY
+    if a traphandler exists then        JLF : array 3 elements
+        if "HALT" condition then this->activity->callHaltClearExit(this)    // call the sys exit to clear it
+        RexxInstructionCallBase *handler = (RexxInstructionCallBase *)traphandler->get(1);      // get the handler info     JLF : RexxInstructionSignal
+        if no condition queue yet then create a pending queue and a handler queue
+            if (this->condition_queue == OREF_NULL)
+            {
+                this->condition_queue = new_queue();
+                this->handler_queue = new_queue();
+            }
+        instruction = "CALL"
+        if handler isType KEYWORD_SIGNAL then instruction = "SIGNAL"
+        Store this instruction on the exception object
+        Add the exception object and the trap handler to queue
+            this->condition_queue->addLast(exception_object);
+            this->handler_queue->addLast(traphandler);
+        this->pending_count++;             /* bump pending condition count      */
+        activity->clearCurrentCondition();  // clear this from the activity if we're trapping this here
+        if (handler->isType(KEYWORD_SIGNAL))    // if this is a signal instruction
+            if (!this->isInterpret())
+                throw this
+            else 
+                this->parent->mergeTraps(this->condition_queue, this->handler_queue);
+                this->parent->unwindTrap(this);/* go unwind this                    */
+        else
+            handled = true;                  /* tell caller we're processing later*/
+            this->settings.flags |= clause_boundary;    /* tell clause boundary to process */
+
+    
+Note about objnotify : 
+    the MessageClass use this technique of trap notification
+    RexxObject *RexxMessage::send(RexxObject *_receiver)
+    {
+        ...
+        RexxActivity *myActivity = (RexxActivity *)ActivityManager::currentActivity;
+        myActivity->getTopStackFrame()->setObjNotify(this);
+        ...
+    }
+
+    void RexxMessage::error(
+        RexxDirectory *_condition)         /* error condition object            */
+    {
+        this->setRaiseError();               /* indicate we had an error condition*/
+                                             /* save the condition object in case */
+                                             /*we want it.                        */
+        OrefSet(this, this->condition, _condition);
+        this->sendNotification();            /* do cleanup items.                 */
+    }
+
+
+Note about environmentList
+    void RexxActivation::pushEnvironment(RexxObject * environment)
+    RexxObject * RexxActivation::popEnvironment()
+
+    BUILTIN(SETLOCAL)
+        return SystemInterpreter::pushEnvironment(context);
+
+
+    * UNIX
+    * Push a new environment for the SysSetLocal() BIF.
+    RexxObject *SystemInterpreter::pushEnvironment(RexxActivation *context)
+        RexxObject *Current = buildEnvlist(); /* build the new save block          */
+        if (Current == OREF_NULL)           /* if unsuccessful return zero       */
+            return TheFalseObject;
+        else
+            /* Have Native Actiovation           */
+            context->pushEnvironment(Current);          /*  update environemnt list          */
+            return TheTrueObject;              /* this returns one                  */
+
+    * WINDOWS
+    RexxObject *SystemInterpreter::pushEnvironment(RexxActivation *context)
+        return TheFalseObject;
+
+
+void RexxActivation::termination()
+    this->guardOff();                    /* Remove any guards for this activatio*/
+                                         /* were there any SETLOCAL calls for */
+                                         /* this method?  And are there any   */
+                                         /* that didn't have a matching ENDLOC*/
+    if (this->environmentList != OREF_NULL && this->environmentList->getSize() != 0)
+        /* Yes, then restore the environment */
+        /*  to the ist on added.             */
+        SystemInterpreter::restoreEnvironment(((RexxBuffer *)this->environmentList->lastItem())->getData());
+    this->environmentList = OREF_NULL;   /* Clear out the env list            */
+    this->closeStreams();                /* close any open streams            */
+    /* release the stack frame, which also releases the frame for the */
+    /* variable cache. */
+    this->activity->releaseStackFrame(stack.getFrame());
+    /* do the variable termination       */
+    cleanupLocalVariables();
+    // deactivate the context object if we created one.
+    if (contextObject != OREF_NULL)
+        contextObject->detach();
+
+
+inline void cleanupLocalVariables()
+   /* if we're nested, we need to make sure that any variable */
+   /* dictionary created at this level is propagated back to */
+   /* the caller. */
+   if (isInternalLevelCall() && settings.local_variables.isNested())
+       parent->setLocalVariableDictionary(settings.local_variables.getNestedDictionary());
+   else
+       // we need to cleanup the local variables and return them to the
+       // cache.
+       for (size_t i = 0; i < settings.local_variables.size; i++)
+           RexxVariable *var = settings.local_variables.get(i);
+           if (var != OREF_NULL && var->isLocal(this))
+               cacheLocalVariable(var);
+
+
+=======================================================================================
+Analyze the exceptions raised during evaluation of
+.complex[]+.array~of(1,2)=
+=======================================================================================
+
+Exception : real not understood by .array
+
+popStackFrame(0x000007fffd186920)
+    cleanupStackFrame(0x000007fffd186920)
+        0x000007fffd186920->termination()
+
+
+context = 0x000007fffd186920 {settings={traps=0x0000000000000000 {method_table=??? unknown_method=??? } conditionObj=...} ...}
+            RexxActivation
+                activation_context = 2 (METHODCALL)
+context = 0x000007fffd190190 {settings={traps=0x000007fffd16c250 {method_table=0x0000000000000000 {...} unknown_method=...} ...} ...}
+            RexxActivation
+                activation_context = 8 (INTERPRET)
+                parent = 0x000007fffd0fcf60 {settings={traps=0x000007fffd16c250 {method_table=0x0000000000000000 {...} unknown_method=...} ...} ...}	RexxActivation *
+          0x000007fffd0fcf60 {settings={traps=0x000007fffd16c250 {method_table=0x0000000000000000 {...} unknown_method=...} ...} ...}	RexxActivationBase *
+            RexxActivation
+                activation_context = 4 (INTERNALCALL)
+                parent = 0x000007fffec92d20 {settings={traps=0x0000000000000000 {method_table=??? unknown_method=??? } conditionObj=...} ...}	RexxActivation *
+          0x000007fffec92d20 {settings={traps=0x0000000000000000 {method_table=??? unknown_method=??? } conditionObj=...} ...}	RexxActivationBase *
+            RexxActivation
+                activation_context = 32 (EXTERNALLCALL)
+                parent = 0x0000000000000000 {settings={traps=??? conditionObj=??? parent_arglist=??? ...} stack={size=??? top=...} ...}	RexxActivation *
+          0x000007fffec540b0 {settings={traps=0x000007fffec8c5d0 {method_table=0x0000000000000000 {...} unknown_method=...} ...} ...}	RexxActivationBase *
+            RexxActivation
+                activation_context = 16 (PROGRAMCALL)
+                parent = 0x0000000000000000 {settings={traps=??? conditionObj=??? parent_arglist=??? ...} stack={size=??? top=...} ...}	RexxActivation *
+          0x000007fffebb0810 {activity=0x000007fffebabe50 {instance=0x000007fffebac720 {context={instanceContext=...} ...} ...} ...}	RexxActivationBase *
+            RexxNativeActivation
+                activationType = DISPATCHER_ACTIVATION
+                stackBase = false
+          0x000007fffebb0740 {activity=0x000007fffebabe50 {instance=0x000007fffebac720 {context={instanceContext=...} ...} ...} ...}	RexxActivationBase *
+            RexxNativeActivation
+                activationType = PROGRAM_ACTIVATION
+                stackBase = true
+          0x0000000000000000 {previous=??? executable=??? }	RexxActivationBase *
+
+
+
+>	rexx.dll!RexxActivity::raiseCondition(RexxDirectory * conditionObj) Line 464	C++
+        JLF : 
+        unwind while the frame is not an activation (so while native activation ?)
+        for each visited frame (i.e. activation), call trap. handled<--true if trap handled.
+        return handled.
+        ---------------------------------------------------------------------------------------
+            bool RexxActivity::raiseCondition(RexxDirectory *conditionObj)
+            {
+                bool handled = false;                     /* condition not handled yet         */
+                RexxString *condition = (RexxString *)conditionObj->at(OREF_CONDITION);                     JLF : condition = 0x000007ffffdb1a00 {encoding=0 '\0' charset=0 '\0' hashValue=2460819427 ...}  "SYNTAX"
+
+                /* invoke the error traps, on all    */
+                /*  nativeacts until reach 1st       */
+                /*  also give 1st activation a shot. */
+                for (RexxActivationBase *activation = this->getTopStackFrame() ; !activation->isStackBase(); activation = activation->getPreviousStackFrame())
+                {
+                    handled = activation->trap(condition, conditionObj);
+                    if (isOfClass(Activation, activation)) /* reached our 1st activation yet.   */
+                    {
+                        break;                           /* yes, break out of loop            */
+                    }
+                }
+
+                /* Control will not return here if the condition was trapped via*/
+                /* SIGNAL ON SYNTAX.  For CALL ON conditions, handled will be   */
+                /* true if a trap is pending.                                   */
+
+                return handled;                      /* this has been handled             */
+            }
+        ---------------------------------------------------------------------------------------
+	rexx.dll!RexxActivity::raiseException(__int64 errcode, RexxString * description, RexxArray * additional, RexxObject * result) Line 769	C++
+        ---------------------------------------------------------------------------------------
+            void RexxActivity::raiseException(wholenumber_t  errcode, RexxString *description, RexxArray *additional, RexxObject *result)
+            /******************************************************************************/
+            /* This routine is used for SYNTAX conditions only.                           */
+            /*                                                                            */
+            /* The inserts are passed as objects because that happens to be more          */
+            /* convenient for the calling code in the two cases where this facility       */
+            /* is used.                                                                   */
+            /*                                                                            */
+            /* NOTE: The building of the excepption obejct (EXOBJ)  has been re-arranged  */
+            /*  so that a garbage collection in the middle of building traceBack/etc      */
+            /*  doesn't clean up the newly built objects.  SO we create exobj early on    */
+            /*  save it, and add newlly built objects to exobj as we go.                  */
+            /******************************************************************************/
+            {
+                // during error processing, we need to request the string value of message
+                // substitution objects.  It is possible that the string process will also
+                // cause a syntax error, resulting in a recursion loop.  We snip that off here,
+                // by disallowing a nested error condition.
+                if (requestingString)                                                                               JLF : requestingString = false
+                {
+                    throw RecursiveStringError;
+                }
+
+                RexxActivationBase *topFrame = this->getTopStackFrame();                                            JLF : topFrame = 0x000007fffd186920 {settings={traps=0x0000000000000000 {method_table=??? unknown_method=??? } conditionObj=...} ...}
+
+                RexxActivation *activation = this->getCurrentRexxFrame(); /* get the current activation        */   JLF : activation = 0x000007fffd186920 {settings={traps=0x0000000000000000 {method_table=??? unknown_method=??? } conditionObj=...} ...}
+                // if we're raised within a real Rexx context, we need to deal with forwarded
+                // frames
+                if (topFrame == activation)
+                {
+                    // unwind the stack until we find
+                    while (activation != OREF_NULL && activation->isForwarded())                                    JLF : no forwarded activation
+                    {
+                        // terminate and remove this stack frame
+                        popStackFrame(activation);
+                        // grab the new current frame
+                        activation = this->getCurrentRexxFrame();
+                    }
+                }
+                else {
+                    activation = NULL;      // raised from a native context, don't add to stack trace
+                }
+
+                this->conditionobj = createExceptionObject(errcode, description, additional, result);
+
+                /* process as common condition       */
+                if (!this->raiseCondition(conditionobj))
+                {
+                    /* fill in the propagation status    */
+                    conditionobj->put(TheTrueObject, OREF_PROPAGATED);
+                    // if we have an Rexx context to work with, unwind to that point,
+                    if (activation != OREF_NULL)
+                    {
+                        // unwind the frame to this point
+                        unwindToFrame(activation);
+                        popStackFrame(activation);     // remove it from the stack
+                    }
+                    this->raisePropagate(conditionobj);  /* pass on down the chain            */
+                }
+            }
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxActivity::reportAnException(__int64 errcode, RexxObject * substitution1, RexxObject * substitution2) Line 557	C++
+        ---------------------------------------------------------------------------------------
+            void RexxActivity::reportAnException(
+                wholenumber_t errcode,             /* REXX error code                   */
+                RexxObject *substitution1,         /* substitution information          */
+                RexxObject *substitution2 )        /* substitution information          */
+            /******************************************************************************/
+            /* Function:  Forward on an exception condition                               */
+            /******************************************************************************/
+            {
+              this->raiseException(errcode, OREF_NULL, new_array(substitution1, substitution2), OREF_NULL);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!reportException(__int64 error, RexxObject * a1, RexxObject * a2) Line 212	C++
+        ---------------------------------------------------------------------------------------
+            inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2)
+            {
+                ActivityManager::currentActivity->reportAnException(error, a1, a2);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!reportNomethod(RexxString * message, RexxObject * receiver) Line 246	C++
+        ---------------------------------------------------------------------------------------
+            inline void reportNomethod(RexxString *message, RexxObject *receiver)
+            {
+                if (!ActivityManager::currentActivity->raiseCondition(OREF_NOMETHOD, OREF_NULL, message, receiver, OREF_NULL))
+                {
+                                                       /* raise as a syntax error           */
+                    reportException(Error_No_method_name, receiver, message);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxObject::processUnknown(RexxString * messageName, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 882	C++
+        ---------------------------------------------------------------------------------------
+            void RexxObject::processUnknown(
+                RexxString   * messageName,        /* message to issue                  */
+                RexxObject  ** arguments,          /* actual message arguments          */
+                size_t         count,              /* count of arguments                */
+                ProtectedObject &result)           // returned result
+            /******************************************************************************/
+            /* Function:  Process an unknown message, uncluding looking for an UNKNOWN    */
+            /*            method and raising a NOMETHOD condition                         */
+            /******************************************************************************/
+            {
+                /* no method for this msgname        */
+                /* find the unknown method           */
+                RexxMethod *method_save = this->behaviour->methodLookup(OREF_UNKNOWN);
+                if (method_save == OREF_NULL)        /* "unknown" method exists?          */
+                /* no unknown method - try to raise  */
+                /* a NOMETHOD condition, and if that */
+                {
+                    reportNomethod(messageName, this); /* fails, it is an error message     */
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 799	C++
+        ---------------------------------------------------------------------------------------
+            void RexxObject::messageSend(
+                RexxString      *msgname,          /* name of the message to process    */
+                RexxObject     **arguments,        /* array of arguments                */
+                size_t           count,            /* count of arguments                */
+                ProtectedObject &result)           // returned result
+            /******************************************************************************/
+            /* Function:    send a message (with message lookup) to an object.            */
+            /*              All types of methods are handled and dispatched               */
+            /******************************************************************************/
+            {
+                ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+                /* grab the method from this level   */
+                RexxMethod *method_save = this->behaviour->methodLookup(msgname);
+                /* method exists...special processing*/
+                if (method_save != OREF_NULL && method_save->isSpecial())
+                {
+                    if (method_save->isPrivate())      /* actually private method?          */
+                    {
+                        /* go validate a private method      */
+                        method_save = this->checkPrivate(method_save);
+                    }
+                    /* now process protected methods     */
+                    if (method_save != OREF_NULL && method_save->isProtected())
+                    {
+                        /* really a protected method         */
+                        this->processProtectedMethod(msgname, method_save, arguments, count, result);
+                        return;
+                    }
+                }
+                /* have a method                     */
+                if (method_save != OREF_NULL)
+                {
+                    method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);
+                }
+                else
+                {
+                    /* go process an unknown method      */
+                    this->processUnknown(msgname, arguments, count, result);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned __int64 count, ProtectedObject & result) Line 74	C++
+        ---------------------------------------------------------------------------------------
+              inline void send(RexxString *message, size_t count, ProtectedObject &result) {
+                             (*(this->top - count))->messageSend(message, (RexxObject **)(this->top -count + 1), count, result); };
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack) Line 139	C++
+        ---------------------------------------------------------------------------------------
+            RexxObject *RexxExpressionMessage::evaluate(
+                RexxActivation      *context,      /* current activation context        */
+                RexxExpressionStack *stack )       /* evaluation stack                  */
+            /******************************************************************************/
+            /* Function:  Evaluate a message send in an expression                        */
+            /******************************************************************************/
+            {
+                ProtectedObject result;              /* message expression result         */
+                RexxObject *_super;                  /* target super class                */
+                size_t      argcount;                /* count of arguments                */
+                RexxObject *_target;                 /* message target                    */
+                size_t      i;                       /* loop counter                      */
+
+                                                     /* evaluate the target               */
+                _target = this->target->evaluate(context, stack);
+                if (this->super != OREF_NULL)      /* have a message lookup override?   */
+                {
+
+                    if (_target != context->getReceiver())   /* sender and receiver different?    */
+                    {
+                        /* this is an error                  */
+                        reportException(Error_Execution_super);
+                    }
+                    /* get the variable value            */
+                    _super = this->super->evaluate(context, stack);
+                    stack->toss();                     /* pop the top item                  */
+                }
+                else
+                {
+                    _super = OREF_NULL;                /* use the default lookup            */
+                }
+
+                argcount = this->argumentCount;      /* get the argument count            */
+                /* loop through the argument list    */
+                for (i = 0; i < (size_t)argcount; i++)
+                {
+                    /* real argument?                    */
+                    if (this->arguments[i] != OREF_NULL)
+                    {
+                        /* evaluate the expression           */
+                        RexxObject *resultArg = this->arguments[i]->evaluate(context, stack);
+                        /* trace if necessary                */
+                        context->traceIntermediate(resultArg, TRACE_PREFIX_ARGUMENT);
+                    }
+                    else
+                    {
+                        stack->push(OREF_NULL);          /* push an non-existent argument     */
+                                                         /* trace if necessary                */
+                        context->traceIntermediate(OREF_NULLSTRING, TRACE_PREFIX_ARGUMENT);
+                    }
+                }
+                if (_super == OREF_NULL)             /* no super class override?          */
+                {
+                                                     /* issue the fast message            */
+                    stack->send(this->messageName, argcount, result);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxBinaryOperator::evaluate(RexxActivation * context, RexxExpressionStack * stack) Line 121	C++
+        ---------------------------------------------------------------------------------------
+            RexxObject *RexxBinaryOperator::evaluate(
+                RexxActivation      *context,      /* current activation context        */
+                RexxExpressionStack *stack )       /* evaluation stack                  */
+            /******************************************************************************/
+            /* Function:  Execute a REXX binary operator                                  */
+            /******************************************************************************/
+            {
+                /* evaluate the target               */
+                RexxObject *left = this->left_term->evaluate(context, stack);
+                /* evaluate the right term           */
+                RexxObject *right = this->right_term->evaluate(context, stack);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack) Line 110	C++
+        ---------------------------------------------------------------------------------------
+            void RexxInstructionAssignment::execute(
+                RexxActivation      *context,      /* current activation context        */
+                RexxExpressionStack *stack)        /* evaluation stack                  */
+            /******************************************************************************/
+            /* Function:  Execute a REXX assignment instruction                           */
+            /*            NOTE:  This instruction is implemented using two seperate paths */
+            /*            for traced vs. non-traced execution.  This reduces the checks   */
+            /*            for non-traced execution to a single check in this very         */
+            /*            heavily executed instruction.                                   */
+            /******************************************************************************/
+            {
+                /*RexxObject * */ ProtectedObject result;
+                result = this->expression->evaluate(context, stack);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 549	C++
+        ---------------------------------------------------------------------------------------
+            RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,
+                 size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
+            /******************************************************************************/
+            /* Function:  Run a REXX method...this is it!  This is the heart of the       */
+            /*            interpreter that makes the whole thing run!                     */
+            /******************************************************************************/
+            {
+                // add the frame to the execution stack
+                RexxActivationFrame frame(activity, this);
+
+                RexxActivity      *oldActivity;      /* old activity                      */
+            #ifndef FIXEDTIMERS                      /* currently disabled                */
+                size_t             instructionCount; /* instructions without yielding     */
+            #endif
+                this->receiver = _receiver;          /* save the message receiver         */
+                // the "msgname" can also be the name of an external routine, the label
+                // name of an internal routine.
+                this->settings.msgname = msgname;
+                bool traceEntryDone = false;
+
+                /* not a reply restart situation?    */
+                if (this->execution_state != REPLIED)
+                {
+                    /* exits possible?  We don't use exits for methods in the image */
+                    if (!this->code->isOldSpace() && this->activity->isClauseExitUsed())
+                    {
+                        /* check at the end of each clause   */
+                        this->settings.flags |= clause_boundary;
+                        /* remember that we have sys exits   */
+                        this->settings.flags |= clause_exits;
+                    }
+                    this->arglist = _arglist;           /* set the argument list             */
+                    this->argcount = _argcount;
+                    /* first entry into here?            */
+                    if (this->isTopLevelCall())
+                    {
+                        /* save entry argument list for      */
+                        /* variable pool fetch private       */
+                        /* access                            */
+                        settings.parent_arglist = arglist;
+                        settings.parent_argcount = argcount;
+                        this->code->install(this);       /* do any required installations     */
+                        this->next = this->code->getFirstInstruction();  /* ask the method for the start point*/
+                        this->current = this->next;      /* set the current too (for errors)  */
+                                                         /* not an internal method?           */
+                        if (this->isProgramLevelCall())
+                        {
+                            /* run initialization exit           */
+                            activity->callInitializationExit(this);
+                            activity->getInstance()->setupProgram(this);         /* do any system specific setup      */
+                        }
+                        else
+                        {
+                            /* guarded method?                   */
+                            if (isGuarded())
+                            {
+                                /* get the object variables          */
+                                this->settings.object_variables = this->receiver->getObjectVariables(this->scope);
+
+                                // For proper diagnostic in case of deadlock, do the trace now
+                                if (tracingAll() && isMethodOrRoutine())
+                                {
+                                    traceEntry();
+                                    traceEntryDone = true;
+                                }
+
+                                /* reserve the variable scope        */
+                                this->settings.object_variables->reserve(this->activity);
+                                /* and remember for later            */
+                                this->object_scope = SCOPE_RESERVED;
+                            }
+                            /* initialize the this variable      */
+                            this->setLocalVariable(OREF_SELF, VARIABLE_SELF, this->receiver);
+                            /* initialize the SUPER variable     */
+                            this->setLocalVariable(OREF_SUPER, VARIABLE_SUPER, this->receiver->superScope(this->scope));
+                        }
+                    }
+                    else
+                    {
+                        if (start == OREF_NULL)          /* no starting location given?       */
+                        {
+                            this->next = this->code->getFirstInstruction();  /* ask the method for the start point*/
+                        }
+                        else
+                        {
+                            this->next = start;            /* set that as the current           */
+                        }
+                        this->current = this->next;      /* set the current too (for errors)  */
+                    }
+                }
+                else
+                {                               /* resuming after a reply            */
+                                                /* need to reaquire the lock?        */
+                    if (this->settings.flags&transfer_failed)
+                    {
+                        /* re-lock the variable dictionary   */
+                        this->settings.object_variables->reserve(this->activity);
+                        /* turn off the failure flag         */
+                        this->settings.flags &= ~transfer_failed;
+                    }
+                }
+                /* internal call?                    */
+                if (this->isInternalCall())
+                {
+                    start = this->next;                /* get the starting point            */
+                                                       /* scan over the internal labels     */
+                    while (start != OREF_NULL && start->isType(KEYWORD_LABEL))
+                    {
+                        start = start->nextInstruction;  /* step to the next one              */
+                    }
+                                                         /* this a procedure instruction      */
+                    if (start != OREF_NULL && start->isType(KEYWORD_PROCEDURE))
+                    {
+                        /* flip on the procedure flag        */
+                        this->settings.flags |= procedure_valid;
+                    }
+                }
+                this->execution_state = ACTIVE;      /* we are now actively processing    */
+
+                if (!traceEntryDone && tracingAll() && isMethodOrRoutine())
+                {
+                    traceEntry();
+                }
+
+                while (true)                         // loop until we get a terminating condition
+                {
+                    try
+                    {
+                        RexxExpressionStack *localStack = &this->stack;                /* load up the stack                 */
+            #ifndef FIXEDTIMERS                    /* currently disabled                */
+                        instructionCount = 0;                /* no instructions yet               */
+            #endif
+                        RexxInstruction *nextInst = this->next;  /* get the next instruction          */
+                        /* loop until we get a terminating   */
+                        while (nextInst != OREF_NULL)
+                        {      /* condition                         */
+
+            #ifdef FIXEDTIMERS                     /* currently disabled (active on Win)*/
+                            /* has time Slice expired?           */
+                            if (Interpreter::hasTimeSliceElapsed())
+                            {
+                                this->activity->relinquish();    /* yield control to the activity     */
+                            }
+            #else
+                            /* need to give someone else a shot? */
+                            if (++instructionCount > MAX_INSTRUCTIONS)
+                            {
+                                this->activity->relinquish();    /* yield control to the activity     */
+                                instructionCount = 0;            /* reset to zero                     */
+                            }
+            #endif
+
+                            this->current = nextInst;          /* set the next instruction          */
+                            this->next = nextInst->nextInstruction;/* prefetch the next clause          */
+
+                            nextInst->execute(this, localStack);  /* execute the instruction           */
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 136	C++
+        ---------------------------------------------------------------------------------------
+        JLF : création d'une nouvelle activation
+        ---------------------------------------------------------------------------------------
+            void RexxCode::run(
+                RexxActivity *activity,            /* activity running under            */
+                RexxMethod *method,                // the method object getting invoked
+                RexxObject *receiver,              /* object receiving the message      */
+                RexxString *msgname,               /* message to be run                 */
+                RexxObject**argPtr,                /* arguments to the method           */
+                size_t      argcount,              /* the count of arguments            */
+                ProtectedObject &result)           // the method result
+            /******************************************************************************/
+            /* Function:  Call a method as a top level program or external function call  */
+            /******************************************************************************/
+            {
+                RexxActivation *newacta = ActivityManager::newActivation(activity, method, this);
+                                                   /* add to the activity stack         */
+                activity->pushStackFrame(newacta);
+                                                   /* run the method and return result  */
+                newacta->run(receiver, msgname, argPtr, argcount, OREF_NULL, result);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 324	C++
+        ---------------------------------------------------------------------------------------
+            void RexxMethod::run(
+                RexxActivity *activity,            /* activity running under            */
+                RexxObject *receiver,              /* object receiving the message      */
+                RexxString *msgname,               /* message to be run                 */
+                RexxObject **argPtr,               /* arguments to the method           */
+                size_t count,                      /* count of arguments                */
+                ProtectedObject &result)           // the returned result
+            /******************************************************************************/
+            /* Function:  Run a method on an object                                       */
+            /******************************************************************************/
+            {
+                ProtectedObject p(this);           // belt-and-braces to make sure this is protected
+                // just forward this to the code object
+                code->run(activity, this, receiver, msgname, argPtr, count, result);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 794	C++
+        ---------------------------------------------------------------------------------------
+            void RexxObject::messageSend(
+                RexxString      *msgname,          /* name of the message to process    */
+                RexxObject     **arguments,        /* array of arguments                */
+                size_t           count,            /* count of arguments                */
+                ProtectedObject &result)           // returned result
+            /******************************************************************************/
+            /* Function:    send a message (with message lookup) to an object.            */
+            /*              All types of methods are handled and dispatched               */
+            /******************************************************************************/
+            {
+                ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+                /* grab the method from this level   */
+                RexxMethod *method_save = this->behaviour->methodLookup(msgname);
+                /* method exists...special processing*/
+                if (method_save != OREF_NULL && method_save->isSpecial())
+                {
+                    if (method_save->isPrivate())      /* actually private method?          */
+                    {
+                        /* go validate a private method      */
+                        method_save = this->checkPrivate(method_save);
+                    }
+                    /* now process protected methods     */
+                    if (method_save != OREF_NULL && method_save->isProtected())
+                    {
+                        /* really a protected method         */
+                        this->processProtectedMethod(msgname, method_save, arguments, count, result);
+                        return;
+                    }
+                }
+                /* have a method                     */
+                if (method_save != OREF_NULL)
+                {
+                    method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);    <-- JLF : se raccroche sur le currentActivity
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxObject::operator_plus(RexxObject * operand) Line 2377	C++
+        JLF : jump through table of operators
+        prefixOperatorMethod(operator_plus                , PLUS)
+ 	rexx.dll!callOperatorMethod(RexxObject * object, unsigned __int64 methodOffset, RexxObject * argument) Line 473	C++
+        inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, RexxObject *argument) {
+                                               /* get the entry point               */
+          PCPPM cppEntry = object->behaviour->getOperatorMethod(methodOffset);
+                                               /* go issue the method               */
+          return (object->*((PCPPM1)cppEntry))(argument);
+ 	rexx.dll!RexxBinaryOperator::evaluate(RexxActivation * context, RexxExpressionStack * stack) Line 126	C++
+        ---------------------------------------------------------------------------------------
+            RexxObject *RexxBinaryOperator::evaluate(
+                RexxActivation      *context,      /* current activation context        */
+                RexxExpressionStack *stack )       /* evaluation stack                  */
+            /******************************************************************************/
+            /* Function:  Execute a REXX binary operator                                  */
+            /******************************************************************************/
+            {
+                /* evaluate the target               */
+                RexxObject *left = this->left_term->evaluate(context, stack);
+                /* evaluate the right term           */
+                RexxObject *right = this->right_term->evaluate(context, stack);
+                RexxObject *top1 = stack->getTop();
+                try
+                {
+                    /* evaluate the message              */
+                    RexxObject *result = callOperatorMethod(left, this->oper, right);   <-- JLF : ni Activation, ni Activity passé en paramètre
+        ---------------------------------------------------------------------------------------
+            context = 0x000007fffd190190 {settings={traps=0x000007fffd16c250 {method_table=0x0000000000000000 {...} unknown_method=...} ...} ...}
+            stack = 0x000007fffd1902e0 {size=14 top=0x000007fffe7a4d30 {0x000007fffd1868b0 {objectVariables=0x0000000000000000 {...} }} ...}
+            top1 = 0x000007fffd1868b0 {arraySize=2 maximumSize=4 lastElement=2 ...}
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxInstructionCommand::execute(RexxActivation * context, RexxExpressionStack * stack) Line 69	C++
+        ---------------------------------------------------------------------------------------
+            void RexxInstructionCommand::execute(
+                RexxActivation      *context,      /* current activation context        */
+                RexxExpressionStack *stack )       /* evaluation stack                  */
+            /****************************************************************************/
+            /* Function:  Execute a REXX command instruction                            */
+            /****************************************************************************/
+            {
+                context->traceCommand(this);         /* trace if necessary                */
+                                                     /* get the expression value          */
+                RexxObject *result = this->expression->evaluate(context, stack);
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned __int64 _argcount, RexxInstruction * start, ProtectedObject & resultObj) Line 549	C++
+        ---------------------------------------------------------------------------------------
+                ...
+                this->current = nextInst;          /* set the next instruction          */
+                this->next = nextInst->nextInstruction;/* prefetch the next clause          */
+
+                nextInst->execute(this, localStack);  /* execute the instruction           */
+        ---------------------------------------------------------------------------------------
+
+ 	rexx.dll!RexxActivation::interpret(RexxString * codestring) Line 2439	C++
+        ---------------------------------------------------------------------------------------
+            void RexxActivation::interpret(RexxString * codestring)
+            /******************************************************************************/
+            /* Function:  Translate and interpret a string of data as a piece of REXX     */
+            /*            code within the current program context.                        */
+            /******************************************************************************/
+            {
+                ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+                /* translate the code                */
+                RexxCode * newCode = this->code->interpret(codestring, this->current->getLineNumber(), this);
+                /* create a new activation           */
+                RexxActivation *newActivation = ActivityManager::newActivation(this->activity, this, newCode, INTERPRET);
+                this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
+                ProtectedObject r;
+                /* run the internal routine on the   */
+                /* new activation                    */
+                newActivation->run(OREF_NULL, OREF_NULL, arglist, argcount, OREF_NULL, r);
+        ---------------------------------------------------------------------------------------
+            newActivation = 0x000007fffd190190 {settings={traps=0x000007fffd16c250 {method_table=0x0000000000000000 {...} unknown_method=...} ...} ...}
+        ---------------------------------------------------------------------------------------
+ 	rexx.dll!RexxInstructionInterpret::execute(RexxActivation * context, RexxExpressionStack * stack) Line 79	C++
+
+
 

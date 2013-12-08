@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -490,7 +490,7 @@ RexxMethod1(RexxObjectPtr, ud_getBuddy, CSELF, pCSelf)
     HWND hUpDown = getDChCtrl(pCSelf);
 
     HWND hBuddy = (HWND)SendMessage(hUpDown, UDM_GETBUDDY, 0, 0);
-    oodControl_t ctrl = control2controlType(hBuddy);
+    oodControl_t ctrl = controlHwnd2controlType(hBuddy);
 
     return createControlFromHwnd(context, (pCDialogControl)pCSelf, hBuddy, ctrl, true);
 }
@@ -513,7 +513,7 @@ RexxMethod2(RexxObjectPtr, ud_setBuddy, RexxObjectPtr, buddy, CSELF, pCSelf)
 
         HWND hOldBuddy = (HWND)SendMessage(hUpDown, UDM_SETBUDDY, (WPARAM)pcdc->hCtrl, 0);
 
-        oodControl_t ctrl = control2controlType(hOldBuddy);
+        oodControl_t ctrl = controlHwnd2controlType(hOldBuddy);
         result = createControlFromHwnd(context, (pCDialogControl)pCSelf, hOldBuddy, ctrl, true);
     }
     return result;

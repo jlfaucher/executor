@@ -50,13 +50,17 @@ to get the kind of executable to store on the RexxSourceLiteral.
 */
 ::method kind class unguarded
     use strict arg clauser
-    -- If the first word is ::cl[osure] then remove this word and remember it's a closure
-    -- If the first word is ::cl[osure].co[active] then remove this word and remember it's a coactive closure
-    -- If the first word is ::co[activity] then remove this word and remember it's a coactive routine.
-    -- If the first word is ::m[ethod] then remove this word and remember it's a method.
-    -- If the first word is ::m[ethod].co[active] then remove this word and remember it's a coactive method.
-    -- If the first word is ::r[outine] then remove this word and remember it's a routine.
-    -- If the first word is ::r[outine].co[active] then remove this word and remember it's a coactive routine.
+    -- If the first word is ::cl[osure] then remove this word and remember it's a closure : "cl"
+    -- If the first word is ::cl[osure].co[active] then remove this word and remember it's a coactive closure : "cl.co"
+    -- If the first word is ::co[activity] then remove this word and remember it's a coactive routine : "r.co"
+    -- If the first word is ::m[ethod] then remove this word and remember it's a guarded method (guarded is implicit) : "m.gu"
+    -- If the first word is ::m[ethod].gu[arded] then remove this word and remember it's a guarded method : "m.gu"
+    -- If the first word is ::m[ethod].un[guarded] then remove this word and remember it's an unguarded method : "m.un"
+    -- If the first word is ::m[ethod].co[active] then remove this word and remember it's a guarded coactive method (guarded is implicit) : "m.gu.co"
+    -- If the first word is ::m[ethod].un[guarded].co[active] then remove this word and remember it's an unguarded coactive method : "m.un.co"
+    -- (all the combinations of guarded, unguarded, coactive are supported)
+    -- If the first word is ::r[outine] then remove this word and remember it's a routine : "r"
+    -- If the first word is ::r[outine].co[active] then remove this word and remember it's a coactive routine : "r.co"
     -- If the first word is ::[xxx] then raise an error (unknown tag)
     kind = "r" -- routine by default
     if clauser~clauseAvailable then do
@@ -79,10 +83,18 @@ to get the kind of executable to store on the RexxSourceLiteral.
         else if "::method"~caselessAbbrev(word, 3)  then do
             clauser~clause = rest
             kind = "m"
-            if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 2) then kind = "m.co"
+            coactive = .false
+            guarded = .true
+            options = option
+            do while options <> ""
+                parse var options option "." options
+                if "coactive"~caselessAbbrev(option, 2) then coactive = .true
+                else if "guarded"~caselessAbbrev(option, 2) then guarded = .true
+                else if "unguarded"~caselessAbbrev(option, 2) then guarded = .false
                 else raise syntax 93.900 array("Unknown option '"option"'")
             end
+            if guarded then kind ||= ".gu" ; else kind ||= ".un"
+            if coactive then kind ||= ".co"
         end
         else if "::routine"~caselessAbbrev(word, 3) then do
             clauser~clause = rest
@@ -117,7 +129,11 @@ to get the executable to store on the RexxSourceLiteral.
     use strict arg kind, sourceArray, context=.nil
     parse var kind kind "." option
     if kind == "r" then executable = .Routine~new("", sourceArray, context)
-    else if kind == "m" then executable = .Method~new("", sourceArray, context)
+    else if kind == "m" then do
+        executable = .Method~new("", sourceArray, context)
+        parse var option option "." .
+        if option == "un" then executable~setUnguarded
+    end
     else if kind == "cl" then executable = .Method~new("do", sourceArray, context)
     else executable = .nil
     return executable

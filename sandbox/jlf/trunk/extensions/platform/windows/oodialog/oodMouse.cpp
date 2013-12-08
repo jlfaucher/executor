@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
-/* Copyright (c) 2011-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2011-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -43,10 +43,7 @@
  *
  */
 #include "ooDialog.hpp"     // Must be first, includes windows.h, commctrl.h, and oorexxapi.h
-//#include "oodControl.hpp"
 
-//#include <stdio.h>
-//#include <dlgs.h>
 #include <shlwapi.h>
 #include <WindowsX.h>
 
@@ -63,14 +60,6 @@
  */
 #define MOUSE_CLASS        "Mouse"
 
-#define TRACK_MOUSE_KEYWORDS    "CANCEL, HOVER, LEAVE, NONCLIENT, or QUERY"
-#define WM_MOUSE_KEYWORDS       "MouseMove, MouseWheel, MouseLeave, MouseHover, NcMouseLeave, NcMouseHover, lButtonUp, lButtonDown, or CaptureChanged"
-#define MOUSE_BUTTON_KEYWORDS   "LEFT, RIGHT, MIDDLE, XBUTTON1, or XBUTTON2"
-#define SYSTEM_CURSOR_KEYWORDS  "APPSTARTING, ARROW, CROSS, HAND, HELP, IBEAM, NO, SIZEALL, SIZENESW, SIZENS, " \
-                                "SIZENWSE, SIZEWE, UPARROW, or WAIT"
-
-#define DLG_HAS_ENDED_MSG       "windows dialog has executed and been closed"
-
 /**
  * Returns the mouse CSelf, raising an exception if it is null.
  *
@@ -86,7 +75,7 @@ static pCMouse getMouseCSelf(RexxMethodContext *c, void *p)
     pCMouse pcm = (pCMouse)p;
     if ( pcm == NULL )
     {
-        baseClassIntializationException(c);
+        baseClassInitializationException(c);
     }
     return pcm;
 }
@@ -162,7 +151,7 @@ static pCEventNotification getMousePCEN(RexxMethodContext *c, pCMouse pcm)
 
     if ( pcm == NULL )
     {
-        baseClassIntializationException(c);
+        baseClassInitializationException(c);
         goto done_out;
     }
 

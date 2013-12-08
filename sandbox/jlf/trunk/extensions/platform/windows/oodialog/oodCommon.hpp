@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -85,6 +85,22 @@ typedef map<string, int, less<string> > String2Int;
 #define OOD_NO_ERROR                0
 #define OOD_DATATABLE_FULL          1
 
+// Tool tip stuff
+#define MAX_TOOLTITLE_TEXT_LENGTH   99
+#define TT_CCH_TOOLTITLE_BUF        MAX_TOOLTITLE_TEXT_LENGTH + 1
+#define TT_MAX_ICON_KEYWORD         TTI_ERROR_LARGE
+#define TT_VALID_ICON_VALUES        "an icon Image object, or keyword: None, Error, ErrorLarge, Info, InfoLarge, Warning, or WarningLarge"
+
+// The context variable names used by the ToolInfo object to keep track of
+// things.
+#define TOOLINFO_MEMALLOCATED_VAR     "TEXT_MEMORY_IS_ALLOCATED"
+#define TOOLINFO_HWND_OBJECT_VAR      "HWND_SUPPLYING_OBJECT"
+#define TOOLINFO_UID_OBJECT_VAR       "UID_SUPPLYING_OBJECT"
+
+extern uint32_t         keyword2ttdiFlags(CSTRING flags);
+extern RexxStringObject ttdiFlags2keyword(RexxThreadContext *c, uint32_t flags);
+
+
 /* Struct for a reply to the UDN_DELTAPOS notification message. (Up-down control.) */
 typedef struct _DELTAPOS_REPLY {
     bool      change;
@@ -113,8 +129,6 @@ extern char *            strdupupr_nospace(const char *str);
 extern char *            strdup_nospace(const char *str);
 extern char *            strdup_2methodName(const char *str);
 extern void              checkModal(pCPlainBaseDialog previous, logical_t modeless);
-
-extern pCPlainBaseDialog requiredDlgCSelf(RexxMethodContext *c, RexxObjectPtr self, oodClass_t type, size_t argPos, pCDialogControl *ppcdc);
 
 extern oodClass_t    oodClass(RexxMethodContext *, RexxObjectPtr, oodClass_t *, size_t);
 extern DWORD         oodGetSysErrCode(RexxThreadContext *);
@@ -149,6 +163,7 @@ extern RexxObjectPtr rxNewRect(RexxMethodContext *context, PRECT r);
 extern PSIZE         rxGetSize(RexxMethodContext *context, RexxObjectPtr s, size_t argPos);
 extern RexxObjectPtr rxNewSize(RexxThreadContext *c, long cx, long cy);
 extern RexxObjectPtr rxNewSize(RexxMethodContext *c, long cx, long cy);
+extern RexxObjectPtr rxNewSize(RexxMethodContext *c, PSIZE s);
 
 extern bool rxGetWindowText(RexxMethodContext *c, HWND hwnd, RexxStringObject *pStringObj);
 extern bool rxDirectoryFromArray(RexxMethodContext *c, RexxArrayObject a, size_t index, RexxDirectoryObject *d, size_t argPos);
@@ -158,8 +173,10 @@ extern bool rxIntFromDirectory(RexxMethodContext *, RexxDirectoryObject, CSTRING
 
 extern int               putUnicodeText(LPWORD dest, const char *text);
 extern LPWSTR            ansi2unicode(LPCSTR str);
-extern RexxStringObject  unicode2string(RexxMethodContext *c, PWSTR wstr);
+extern RexxStringObject  unicode2string(RexxThreadContext *c, PWSTR wstr);
 extern char *            unicode2ansi(PWSTR wstr);
+extern bool              printHResultErr(CSTRING api, HRESULT hr);
+extern bool              getFormattedErrMsg(char **errBuff, uint32_t errCode, uint32_t *thisErr);
 
 extern RexxObjectPtr     setWindowStyle(RexxMethodContext *c, HWND hwnd, uint32_t style);
 extern int               getKeywordValue(String2Int *cMap, const char * str);
@@ -171,6 +188,7 @@ extern bool              getPointFromArglist(RexxMethodContext *, RexxArrayObjec
 extern bool getCategoryHDlg(RexxMethodContext *, RexxObjectPtr, uint32_t *, HWND *, int);
 extern uint32_t getCategoryNumber(RexxMethodContext *, RexxObjectPtr);
 
+
 // These functions are defined in oodUtilities.cpp
 extern RexxObjectPtr makeDayStateBuffer(RexxMethodContext *c, RexxArrayObject list, size_t count, LPMONTHDAYSTATE *ppmds);
 extern RexxObjectPtr makeQuickDayStateBuffer(RexxMethodContext *c, RexxObjectPtr _ds1, RexxObjectPtr _ds2, RexxObjectPtr _ds3, LPMONTHDAYSTATE *ppmds);
@@ -179,7 +197,7 @@ extern void          putDefaultSymbols(RexxMethodContext *c, RexxDirectoryObject
 
 // These functions are defined in ooDialog.cpp
 extern bool          initWindowBase(RexxMethodContext *c, HWND hwndObj, RexxObjectPtr self, pCWindowBase *ppCWB);
-extern void          setDlgHandle(RexxThreadContext *c, pCPlainBaseDialog pcpbd);
+extern void          setDlgHandle(pCPlainBaseDialog pcpbd);
 extern RexxObjectPtr oodSetForegroundWindow(RexxMethodContext *c, HWND hwnd);
 extern RexxObjectPtr oodGetFocus(RexxMethodContext *c, HWND hDlg);
 extern RexxObjectPtr sendWinMsgGeneric(RexxMethodContext *, HWND, CSTRING, RexxObjectPtr, RexxObjectPtr, size_t, bool);
@@ -191,9 +209,17 @@ extern bool initWindowExtensions(RexxMethodContext *, RexxObjectPtr, HWND, pCWin
 extern bool validControlDlg(RexxMethodContext *c, pCPlainBaseDialog pcpbd);
 extern bool processOwnedDialog(RexxMethodContext *c, pCPlainBaseDialog pcpbd);
 extern void setFontAttrib(RexxThreadContext *c, pCPlainBaseDialog pcpbd);
+extern void customDrawCheckIDs(pCPlainBaseDialog pcpbd);
 
 // These functions are defined in oodPropertySheet.cpp
 extern void abortPropertySheet(pCPropertySheetDialog pcpsd, HWND hDlg, DlgProcErrType t);
+extern void abortPropertySheetPage(pCPropertySheetPage page, HWND hDlg, DlgProcErrType t);
+extern void abortOwnedDlg(pCPlainBaseDialog pcpbd, HWND hDlg, DlgProcErrType t);
+
+// This function is defined in oodControl.cpp.  TODO should be in
+// oodControl.hpp, but needed by oodCommon.cpp, need to straighten out all
+// theses extern declarations.
+extern const char *controlType2controlName(oodControl_t control);
 
 // These functions are defined in oodViewControls.cpp
 extern bool isInReportView(HWND hList);
@@ -204,6 +230,11 @@ typedef enum {def, autoCheck, threeState, autoThreeState, noSubtype } BUTTONSUBT
 
 extern BUTTONTYPE getButtonInfo(HWND, PBUTTONSUBTYPE, DWORD *);
 
+
+inline RexxStringObject unicode2string(RexxMethodContext *c, LPWSTR wstr)
+{
+    return unicode2string(c->threadContext, wstr);
+}
 
 inline int32_t oodGlobalID(RexxMethodContext *c, RexxObjectPtr id, size_t argPosID, bool strict)
 {
@@ -218,7 +249,7 @@ inline int32_t oodResolveSymbolicID(RexxMethodContext *c, RexxObjectPtr oodObj, 
 
 inline void safeLocalFree(void *p)
 {
-    if (p != NULL)
+    if ( p != NULL && p != LPSTR_TEXTCALLBACK )
     {
         LocalFree(p);
     }
@@ -226,7 +257,7 @@ inline void safeLocalFree(void *p)
 
 inline void safeFree(void *p)
 {
-    if (p != NULL)
+    if ( p != NULL )
     {
         free(p);
     }
@@ -234,7 +265,7 @@ inline void safeFree(void *p)
 
 inline void safeDeleteObject(HANDLE h)
 {
-    if (h != NULL)
+    if ( h != NULL )
     {
         DeleteObject(h);
     }
@@ -326,6 +357,28 @@ inline bool isDlgThread(pCPlainBaseDialog pcpbd)
     return pcpbd->dlgProcThreadID == GetCurrentThreadId();
 }
 
+/**
+ * Searches the tool tip table for the tool tip matching id.
+ *
+ * @param pcpbd
+ * @param id
+ *
+ * @return  a pointer to the tool tip entry on success, null if there is no such
+ *          tool tip.
+ */
+inline PTOOLTIPTABLEENTRY findToolTipForID(pCPlainBaseDialog pcpbd, uint32_t id)
+{
+    for ( register size_t i = 0; i < pcpbd->TTT_nextIndex; i++ )
+    {
+        if ( pcpbd->ToolTipTab[i].id == id )
+        {
+            return &pcpbd->ToolTipTab[i];
+        }
+    }
+    return NULL;
+}
+
+
 extern void           ooDialogInternalException(RexxMethodContext *, char *, int, char *, char *);
 extern void           systemServiceExceptionCode(RexxThreadContext *context, const char *msg, const char *arg1);
 extern void           systemServiceExceptionComCode(RexxThreadContext *context, const char *msg, const char *arg1, HRESULT hr);
@@ -339,13 +392,22 @@ extern RexxObjectPtr  controlNotSupportedException(RexxMethodContext *c, RexxObj
 extern void          *wrongClassReplyException(RexxThreadContext *c, const char *mName, const char *n);
 extern void          *wrongReplyListException(RexxThreadContext *c, const char *mName, const char *list, RexxObjectPtr actual);
 extern void          *wrongReplyMsgException(RexxThreadContext *c, const char *mName, const char *msg);
+extern void          *wrongReplyRangeException(RexxThreadContext *c, const char *mName, int32_t min, int32_t max, RexxObjectPtr actual);
 extern void          *wrongReplyNotBooleanException(RexxThreadContext *c, const char *mName, RexxObjectPtr actual);
+extern void           stringTooLongReplyException(RexxThreadContext *c, CSTRING method, size_t len, size_t realLen);
 extern void           controlFailedException(RexxThreadContext *, CSTRING, CSTRING, CSTRING);
 extern void           wrongWindowStyleException(RexxMethodContext *c, CSTRING, CSTRING);
-extern void           bitmapTypeMismatchException(RexxMethodContext *c, BitmapButtonBMPType orig, BitmapButtonBMPType found, size_t pos);
+extern void           bitmapTypeMismatchException(RexxMethodContext *c, CSTRING orig, CSTRING found, size_t pos);
+extern void           customDrawMismatchException(RexxThreadContext *c, uint32_t id, oodControl_t type);
+extern RexxObjectPtr  tooManyPagedTabsException(RexxMethodContext *c, uint32_t count, bool isPagedTab);
+extern RexxObjectPtr  methodCanOnlyBeInvokedException(RexxMethodContext *c, CSTRING methodName, CSTRING msg, RexxObjectPtr rxObj);
 extern RexxObjectPtr  methodCanNotBeInvokedException(RexxMethodContext *c, CSTRING methodName, RexxObjectPtr rxDlg, CSTRING msg);
 extern RexxObjectPtr  methodCanNotBeInvokedException(RexxMethodContext *c, CSTRING methodName, CSTRING msg, RexxObjectPtr rxDlg);
 extern RexxObjectPtr  invalidAttributeException(RexxMethodContext *c, RexxObjectPtr rxDlg);
+
+extern pCPlainBaseDialog requiredDlgCSelf(RexxMethodContext *c, RexxObjectPtr self, oodClass_t type, size_t argPos, pCDialogControl *ppcdc);
+extern pCDialogControl   requiredDlgControlCSelf(RexxMethodContext *c, RexxObjectPtr control, size_t argPos);
+extern pCPlainBaseDialog requiredPlainBaseDlg(RexxMethodContext *c, RexxObjectPtr dlg, size_t argPos);
 
 /**
  *  93.900
@@ -385,6 +447,26 @@ inline RexxObjectPtr methodCanNotBeInvokedException(RexxMethodContext *c, RexxOb
 inline RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, RexxObjectPtr rxDlg)
 {
     return methodCanNotBeInvokedException(c, rxDlg, "Windows dialog does not exist");
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The "methName" method can not be invoked on "objectName" when the Windows
+ *  dialog does not exist.
+ *
+ *  The createToolTip method can not be invoked on a StyleDlg when the Windows
+ *  dialog does not exist.
+ *
+ * @param c
+ * @param rxDlg
+ */
+inline RexxObjectPtr noWindowsDialogException(RexxMethodContext *c, CSTRING methName, RexxObjectPtr rxDlg)
+{
+    return methodCanNotBeInvokedException(c, methName, rxDlg, "Windows dialog does not exist");
 }
 
 /**
@@ -436,7 +518,7 @@ inline RexxObjectPtr noOwnerRexxDialogException(RexxMethodContext *c, RexxObject
  *  The "methName" method can not be invoked on "objectName" when the window
  *  handle is not valid.
  *
- *  The getMaxSelection method can not be invoked on a MontnCalendar when the
+ *  The getMaxSelection method can not be invoked on a MonthCalendar when the
  *  window handle is not valid.
  *
  * @param c
@@ -445,6 +527,26 @@ inline RexxObjectPtr noOwnerRexxDialogException(RexxMethodContext *c, RexxObject
 inline RexxObjectPtr invalidWindowException(RexxMethodContext *c, RexxObjectPtr rxObj)
 {
     return methodCanNotBeInvokedException(c, rxObj, "window handle is not valid");
+}
+
+/**
+ *  93.900
+ *  Error 93 - Incorrect call to method
+ *        The specified method, built-in function, or external routine exists,
+ *        but you used it incorrectly.
+ *
+ *  The "methName" method can not be invoked on "objectName" when the tool tip
+ *  control does not exist.
+ *
+ *  The connectToolTipEvent method can not be invoked on a SimpleDialog when
+ *  the tool tip control does not exist.
+ *
+ * @param c
+ * @param rxObj
+ */
+inline RexxObjectPtr noToolTipException(RexxMethodContext *c, RexxObjectPtr rxObj)
+{
+    return methodCanNotBeInvokedException(c, rxObj, "tool tip control does not exist");
 }
 
 /**
@@ -468,7 +570,7 @@ static inline pCPlainBaseDialog getPBDCSelf(RexxMethodContext *c, void * pCSelf)
 {
     if ( pCSelf == NULL )
     {
-        baseClassIntializationException(c);
+        baseClassInitializationException(c);
     }
     return (pCPlainBaseDialog)pCSelf;
 }

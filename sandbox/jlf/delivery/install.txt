@@ -1,5 +1,5 @@
 ooRexx sandbox/jlf for experimental work.
-http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/
+https://github.com/jlfaucher/executor
 
 
 =====================================================================================
@@ -7,7 +7,7 @@ Windows
 =====================================================================================
 
 Open a console.
-Unzip the file oorexx-sandbox-jlf-win32.zip
+Unzip the file oorexx-sandbox-jlf-win64.zip
 Go to the directory oorexx-sandbox-jlf.
 call setenv_oorexx.bat (to execute each time you open a new console)
 
@@ -70,9 +70,9 @@ You can check that it is found by running :
     rexx BSF.CLS
 If no error then it's ok.
 Otherwise, you must update the indicated variable :
-- Windows : jvm.dll         (PATH)
-- Linux :   libjvm.so       (LD_LIBRARY_PATH)
-- MacOSX :  libjvm.dylib    (DYLD_LIBRARY_PATH)
+- Windows : update PATH to let find jvm.dll
+- Linux :   update LD_LIBRARY_PATH to let find libjvm.so
+- MacOSX :  update DYLD_LIBRARY_PATH to let find libjvm.dylib
 
 If you are interested by BSF4ooRexx, then you should install the normal delivery from
     http://sourceforge.net/projects/bsf4oorexx

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -75,6 +75,11 @@ RexxObjectPtr       TheNegativeOneObj = NULLOBJECT;
 RexxObjectPtr       TheApplicationObj = NULLOBJECT;
 RexxDirectoryObject TheConstDir = NULLOBJECT;
 
+// Initialized in ApplicationManager::init() (app_init)
+extern HICON        TheDefaultSmallIcon = NULL;
+extern HICON        TheDefaultBigIcon   = NULL;
+extern bool         DefaultIconIsShared = true;
+
 // Initialized here, can be changed by ApplicationManager::useGlobalConstDir()
 oodConstDir_t       TheConstDirUsage = globalNever;
 
@@ -94,13 +99,28 @@ RexxClassObject     ThePropertySheetPageClass = NULLOBJECT;
 RexxClassObject     TheControlDialogClass = NULLOBJECT;
 
 // Initialized in the Point class init method (point_init_cls.)
-RexxClassObject     ThePointClass = NULLOBJECT;;
+RexxClassObject     ThePointClass = NULLOBJECT;
 
 // Initialized in the Size class init method (size_init_cls.)
-RexxClassObject     TheSizeClass = NULLOBJECT;;
+RexxClassObject     TheSizeClass = NULLOBJECT;
 
 // Initialized in the Rect class init method (rect_init_cls.)
 RexxClassObject     TheRectClass = NULLOBJECT;
+
+// Initialized in the LvCustomDrawSimple class init method (lvcds_init_cls.)
+RexxClassObject     TheLvCustomDrawSimpleClass = NULLOBJECT;
+
+// Initialized in the TvCustomDrawSimple class init method (tvcds_init_cls.)
+RexxClassObject     TheTvCustomDrawSimpleClass = NULLOBJECT;
+
+// Initialized in the LvFullRow class init method (lvfr_init_cls.)
+RexxClassObject     TheLvFullRowClass = NULLOBJECT;
+
+// Initialized in the LvItem class init method (lvi_init_cls.)
+RexxClassObject     TheLvItemClass = NULLOBJECT;
+
+// Initialized in the LvSubItem class init method (lvsi_init_cls.)
+RexxClassObject     TheLvSubItemClass = NULLOBJECT;
 
 /* GdiplusStartupInput gdiplusStartupInput;
 ULONG_PTR           gdiplusToken; */
@@ -364,22 +384,26 @@ void RexxEntry ooDialogUnload(RexxThreadContext *c)
     /* GdiplusShutdown(gdiplusToken); */
 }
 
-REXX_TYPED_ROUTINE_PROTOTYPE(messageDialog_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(fileNameDlg_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(findWindow_rtn);
+REXX_TYPED_ROUTINE_PROTOTYPE(messageDialog_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(msSleep_rtn);
-REXX_TYPED_ROUTINE_PROTOTYPE(playSound_rtn);
+REXX_TYPED_ROUTINE_PROTOTYPE(play_rtn);
+REXX_TYPED_ROUTINE_PROTOTYPE(simpleFolderBrowse_rtn);
 REXX_TYPED_ROUTINE_PROTOTYPE(winTimer_rtn);
+
 REXX_TYPED_ROUTINE_PROTOTYPE(routineTest_rtn);
 
 RexxRoutineEntry oodialog_functions[] =
 {
-    REXX_TYPED_ROUTINE(messageDialog_rtn,      messageDialog_rtn),
-    REXX_TYPED_ROUTINE(findWindow_rtn,         findWindow_rtn),
     REXX_TYPED_ROUTINE(fileNameDlg_rtn,        fileNameDlg_rtn),
+    REXX_TYPED_ROUTINE(findWindow_rtn,         findWindow_rtn),
+    REXX_TYPED_ROUTINE(messageDialog_rtn,      messageDialog_rtn),
     REXX_TYPED_ROUTINE(msSleep_rtn,            msSleep_rtn),
-    REXX_TYPED_ROUTINE(playSound_rtn,          playSound_rtn),
+    REXX_TYPED_ROUTINE(play_rtn,               play_rtn),
+    REXX_TYPED_ROUTINE(simpleFolderBrowse_rtn, simpleFolderBrowse_rtn),
     REXX_TYPED_ROUTINE(winTimer_rtn,           winTimer_rtn),
+
     REXX_TYPED_ROUTINE(routineTest_rtn,        routineTest_rtn),
 
     REXX_LAST_ROUTINE()
@@ -389,6 +413,7 @@ RexxRoutineEntry oodialog_functions[] =
 REXX_METHOD_PROTOTYPE(dlgutil_init_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_comctl32Version_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_version_cls);
+REXX_METHOD_PROTOTYPE(dlgutil_errMsg_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_hiWord_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_loWord_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_shiWord_cls);
@@ -406,19 +431,22 @@ REXX_METHOD_PROTOTYPE(dlgutil_sShiftRight_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_getSystemMetrics_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_screenSize_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_screenArea_cls);
+REXX_METHOD_PROTOTYPE(dlgutil_halt_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_handleToPointer_cls);
+REXX_METHOD_PROTOTYPE(dlgutil_terminate_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_threadID_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_windowFromPoint_cls);
 REXX_METHOD_PROTOTYPE(dlgutil_test_cls);
 
 // ApplicationManager
 REXX_METHOD_PROTOTYPE(app_init);
-REXX_METHOD_PROTOTYPE(app_useGlobalConstDir);
 REXX_METHOD_PROTOTYPE(app_addToConstDir);
 REXX_METHOD_PROTOTYPE(app_autoDetection);
-REXX_METHOD_PROTOTYPE(app_initAutoDetection);
 REXX_METHOD_PROTOTYPE(app_defaultFont);
+REXX_METHOD_PROTOTYPE(app_defaultIcon);
+REXX_METHOD_PROTOTYPE(app_initAutoDetection);
 REXX_METHOD_PROTOTYPE(app_setDefaults);
+REXX_METHOD_PROTOTYPE(app_useGlobalConstDir);
 
 // OS
 REXX_METHOD_PROTOTYPE(os_is64bit);
@@ -445,6 +473,8 @@ REXX_METHOD_PROTOTYPE(spi_getMouseHoverWidth_cls);
 REXX_METHOD_PROTOTYPE(spi_setMouseHoverWidth_cls);
 REXX_METHOD_PROTOTYPE(spi_getMouseHoverHeight_cls);
 REXX_METHOD_PROTOTYPE(spi_setMouseHoverHeight_cls);
+REXX_METHOD_PROTOTYPE(spi_getNonClientMetrics_cls);
+REXX_METHOD_PROTOTYPE(spi_setNonClientMetrics_cls);
 REXX_METHOD_PROTOTYPE(spi_getUpdateFlag_cls);
 REXX_METHOD_PROTOTYPE(spi_setUpdateFlag_cls);
 REXX_METHOD_PROTOTYPE(spi_getWorkArea_cls);
@@ -458,6 +488,8 @@ REXX_METHOD_PROTOTYPE(sm_cxCursor_cls);
 REXX_METHOD_PROTOTYPE(sm_cxDrag_cls);
 REXX_METHOD_PROTOTYPE(sm_cxFixedFrame_cls);
 REXX_METHOD_PROTOTYPE(sm_cxScreen_cls);
+REXX_METHOD_PROTOTYPE(sm_cxSize_cls);
+REXX_METHOD_PROTOTYPE(sm_cxSmIcon_cls);
 REXX_METHOD_PROTOTYPE(sm_cxVScroll_cls);
 REXX_METHOD_PROTOTYPE(sm_cyCaption_cls);
 REXX_METHOD_PROTOTYPE(sm_cyCursor_cls);
@@ -519,6 +551,7 @@ REXX_METHOD_PROTOTYPE(wb_foreGroundWindow);
 REXX_METHOD_PROTOTYPE(wb_screenClient);
 REXX_METHOD_PROTOTYPE(wb_mapWindowPoints);
 REXX_METHOD_PROTOTYPE(wb_getWindowLong_pvt);
+REXX_METHOD_PROTOTYPE(wb_setWindowLong_pvt);
 
 // EventNotification
 REXX_METHOD_PROTOTYPE(en_init_eventNotification);
@@ -530,9 +563,11 @@ REXX_METHOD_PROTOTYPE(en_connectCommandEvents);
 REXX_METHOD_PROTOTYPE(en_connectScrollBarEvent);
 REXX_METHOD_PROTOTYPE(en_connectEachSBEvent);
 REXX_METHOD_PROTOTYPE(en_connectAllSBEvents);
-REXX_METHOD_PROTOTYPE(en_connectListViewEvent);
 REXX_METHOD_PROTOTYPE(en_connectDateTimePickerEvent);
+REXX_METHOD_PROTOTYPE(en_connectListViewEvent);
 REXX_METHOD_PROTOTYPE(en_connectMonthCalendarEvent);
+REXX_METHOD_PROTOTYPE(en_connectToolTipEvent);
+REXX_METHOD_PROTOTYPE(en_connectTreeViewEvent);
 REXX_METHOD_PROTOTYPE(en_connectUpDownEvent);
 REXX_METHOD_PROTOTYPE(en_addUserMessage);
 
@@ -553,6 +588,8 @@ REXX_METHOD_PROTOTYPE(pbdlg_setFontName_pvt);
 REXX_METHOD_PROTOTYPE(pbdlg_setFontSize_pvt);
 REXX_METHOD_PROTOTYPE(pbdlg_getAutoDetect);
 REXX_METHOD_PROTOTYPE(pbdlg_setAutoDetect);
+REXX_METHOD_PROTOTYPE(pbdlg_getDlgID);
+REXX_METHOD_PROTOTYPE(pbdlg_setDlgID);
 REXX_METHOD_PROTOTYPE(pbdlg_getParentDlg_pvt);
 REXX_METHOD_PROTOTYPE(pbdlg_setParentDlg_pvt);
 REXX_METHOD_PROTOTYPE(pbdlg_getOwnerDialog);
@@ -584,6 +621,7 @@ REXX_METHOD_PROTOTYPE(pbdlg_getControlHandle);
 REXX_METHOD_PROTOTYPE(pbdlg_getWindowText);
 REXX_METHOD_PROTOTYPE(pbdlg_setWindowText);
 REXX_METHOD_PROTOTYPE(pbdlg_getTextSizeDu);
+REXX_METHOD_PROTOTYPE(pbdlg_getTextSizeTitleBar);
 REXX_METHOD_PROTOTYPE(pbdlg_getControlText);
 REXX_METHOD_PROTOTYPE(pbdlg_setControlText);
 REXX_METHOD_PROTOTYPE(pbdlg_enableDisableControl);
@@ -597,14 +635,14 @@ REXX_METHOD_PROTOTYPE(pbdlg_putDlgDataInStem_pvt);
 REXX_METHOD_PROTOTYPE(pbdlg_getControlData);
 REXX_METHOD_PROTOTYPE(pbdlg_setControlData);
 REXX_METHOD_PROTOTYPE(pbdlg_getTextSizeDlg);
+REXX_METHOD_PROTOTYPE(pbdlg_createToolTip);
+REXX_METHOD_PROTOTYPE(pbdlg_newToolTip);
 REXX_METHOD_PROTOTYPE(pbdlg_newControl);
 REXX_METHOD_PROTOTYPE(pbdlg_getNewControl);
 REXX_METHOD_PROTOTYPE(pbdlg_putControl);
 REXX_METHOD_PROTOTYPE(pbdlg_dumpMessageTable);
 REXX_METHOD_PROTOTYPE(pbdlg_unInit);
 
-REXX_METHOD_PROTOTYPE(generic_setListTabulators);
-REXX_METHOD_PROTOTYPE(generic_subclassEdit);
 REXX_METHOD_PROTOTYPE(global_resolveSymbolicID);
 
 // DialogExtensions
@@ -661,6 +699,7 @@ REXX_METHOD_PROTOTYPE(dyndlg_createStaticText);
 REXX_METHOD_PROTOTYPE(dyndlg_createStaticImage);
 REXX_METHOD_PROTOTYPE(dyndlg_createStaticFrame);
 REXX_METHOD_PROTOTYPE(dyndlg_createPushButton);
+REXX_METHOD_PROTOTYPE(dyndlg_createPushButtonStem);
 REXX_METHOD_PROTOTYPE(dyndlg_createRadioButton);
 REXX_METHOD_PROTOTYPE(dyndlg_createGroupBox);
 REXX_METHOD_PROTOTYPE(dyndlg_createEdit);
@@ -677,7 +716,23 @@ REXX_METHOD_PROTOTYPE(dyndlg_addMethod);
 REXX_METHOD_PROTOTYPE(dyndlg_addIconResource);
 REXX_METHOD_PROTOTYPE(dyndlg_stop);
 
-// ResourceDialog
+// ResizingAdmin
+REXX_METHOD_PROTOTYPE(ra_maxSize);
+REXX_METHOD_PROTOTYPE(ra_setMaxSize);
+REXX_METHOD_PROTOTYPE(ra_minSize);
+REXX_METHOD_PROTOTYPE(ra_setMinSize);
+REXX_METHOD_PROTOTYPE(ra_controlSide);
+REXX_METHOD_PROTOTYPE(ra_controlSizing);
+REXX_METHOD_PROTOTYPE(ra_defaultSide);
+REXX_METHOD_PROTOTYPE(ra_defaultSizing);
+REXX_METHOD_PROTOTYPE(ra_initResizing);
+REXX_METHOD_PROTOTYPE(ra_noMaxSize);
+REXX_METHOD_PROTOTYPE(ra_noMinSize);
+REXX_METHOD_PROTOTYPE(ra_pagedTab);
+REXX_METHOD_PROTOTYPE(ra_useDefaultSizing);
+REXX_METHOD_PROTOTYPE(ra_wantSizeEnded);
+
+// ResDialog
 REXX_METHOD_PROTOTYPE(resdlg_init);
 REXX_METHOD_PROTOTYPE(resdlg_getDataTableIDs_pvt);
 REXX_METHOD_PROTOTYPE(resdlg_startDialog_pvt);
@@ -730,7 +785,6 @@ REXX_METHOD_PROTOTYPE(psdlg_setStartPage_atr);
 REXX_METHOD_PROTOTYPE(psdlg_setImageList_atr);
 REXX_METHOD_PROTOTYPE(psdlg_init);
 REXX_METHOD_PROTOTYPE(psdlg_execute);
-REXX_METHOD_PROTOTYPE(psdlg_popup);
 REXX_METHOD_PROTOTYPE(psdlg_getPage);
 REXX_METHOD_PROTOTYPE(psdlg_addPage);
 REXX_METHOD_PROTOTYPE(psdlg_insertPage);
@@ -746,6 +800,8 @@ REXX_METHOD_PROTOTYPE(psdlg_getResult);
 REXX_METHOD_PROTOTYPE(psdlg_indexToID);
 REXX_METHOD_PROTOTYPE(psdlg_indexToHandle);
 REXX_METHOD_PROTOTYPE(psdlg_pageToIndex);
+REXX_METHOD_PROTOTYPE(psdlg_popup);
+REXX_METHOD_PROTOTYPE(psdlg_popupAsChild);
 REXX_METHOD_PROTOTYPE(psdlg_pressButton);
 REXX_METHOD_PROTOTYPE(psdlg_setCurSel);
 REXX_METHOD_PROTOTYPE(psdlg_setCurSelByID);
@@ -788,6 +844,9 @@ REXX_METHOD_PROTOTYPE(rcpspdlg_startTemplate);
 
 // UserPSPDialog
 REXX_METHOD_PROTOTYPE(userpspdlg_init);
+
+// ProgressDialog
+REXX_METHOD_PROTOTYPE(pd_setInterruptible);
 
 // TimedMessage
 REXX_METHOD_PROTOTYPE(timedmsg_init);
@@ -885,9 +944,17 @@ REXX_METHOD_PROTOTYPE(dlgctrl_getTextSizeDlg);
 REXX_METHOD_PROTOTYPE(dlgctrl_hasKeyPressConnection);
 REXX_METHOD_PROTOTYPE(dlgctrl_redrawRect);
 REXX_METHOD_PROTOTYPE(dlgctrl_setColor);
+REXX_METHOD_PROTOTYPE(dlgctrl_setParent);
+REXX_METHOD_PROTOTYPE(dlgctrl_setWindowTheme);
 REXX_METHOD_PROTOTYPE(dlgctrl_tabGroup);
 REXX_METHOD_PROTOTYPE(dlgctrl_textSize);
 REXX_METHOD_PROTOTYPE(dlgctrl_putInBag);
+
+// Generic methods for dialog controls
+REXX_METHOD_PROTOTYPE(generic_getToolTips);
+REXX_METHOD_PROTOTYPE(generic_setListTabulators);
+REXX_METHOD_PROTOTYPE(generic_subclassEdit);
+REXX_METHOD_PROTOTYPE(generic_setToolTips);
 
 // Static
 REXX_METHOD_PROTOTYPE(stc_getIcon);
@@ -924,6 +991,7 @@ REXX_METHOD_PROTOTYPE(e_isSingleLine);
 REXX_METHOD_PROTOTYPE(e_selection);
 REXX_METHOD_PROTOTYPE(e_replaceSelText);
 REXX_METHOD_PROTOTYPE(e_getLine);
+REXX_METHOD_PROTOTYPE(e_isGrandChild);
 REXX_METHOD_PROTOTYPE(e_lineIndex);
 REXX_METHOD_PROTOTYPE(e_lineFromIndex);
 REXX_METHOD_PROTOTYPE(e_lineLength);
@@ -937,12 +1005,22 @@ REXX_METHOD_PROTOTYPE(e_setRect);
 REXX_METHOD_PROTOTYPE(e_style);
 
 // ComboBox
-REXX_METHOD_PROTOTYPE(cb_getText);
 REXX_METHOD_PROTOTYPE(cb_add);
-REXX_METHOD_PROTOTYPE(cb_insert);
-REXX_METHOD_PROTOTYPE(cb_select);
-REXX_METHOD_PROTOTYPE(cb_find);
 REXX_METHOD_PROTOTYPE(cb_addDirectory);
+REXX_METHOD_PROTOTYPE(cb_find);
+REXX_METHOD_PROTOTYPE(cb_getCue);
+REXX_METHOD_PROTOTYPE(cb_getComboBoxInfo);
+REXX_METHOD_PROTOTYPE(cb_getEditControl);
+REXX_METHOD_PROTOTYPE(cb_getItemHeight);
+REXX_METHOD_PROTOTYPE(cb_getMinVisible);
+REXX_METHOD_PROTOTYPE(cb_getText);
+REXX_METHOD_PROTOTYPE(cb_insert);
+REXX_METHOD_PROTOTYPE(cb_isDropDown);
+REXX_METHOD_PROTOTYPE(cb_isGrandchild);
+REXX_METHOD_PROTOTYPE(cb_select);
+REXX_METHOD_PROTOTYPE(cb_setCue);
+REXX_METHOD_PROTOTYPE(cb_setItemHeight);
+REXX_METHOD_PROTOTYPE(cb_setMinVisible);
 
 // ScrollBar
 REXX_METHOD_PROTOTYPE(sb_getRange);
@@ -951,16 +1029,17 @@ REXX_METHOD_PROTOTYPE(sb_getPosition);
 REXX_METHOD_PROTOTYPE(sb_setPosition);
 
 // ListBox
-REXX_METHOD_PROTOTYPE(lb_isSingleSelection);
-REXX_METHOD_PROTOTYPE(lb_getText);
 REXX_METHOD_PROTOTYPE(lb_add);
-REXX_METHOD_PROTOTYPE(lb_insert);
-REXX_METHOD_PROTOTYPE(lb_select);
-REXX_METHOD_PROTOTYPE(lb_selectIndex);
-REXX_METHOD_PROTOTYPE(lb_deselectIndex);
-REXX_METHOD_PROTOTYPE(lb_selectedIndex);
-REXX_METHOD_PROTOTYPE(lb_find);
 REXX_METHOD_PROTOTYPE(lb_addDirectory);
+REXX_METHOD_PROTOTYPE(lb_deselectIndex);
+REXX_METHOD_PROTOTYPE(lb_find);
+REXX_METHOD_PROTOTYPE(lb_getText);
+REXX_METHOD_PROTOTYPE(lb_hitTestInfo);
+REXX_METHOD_PROTOTYPE(lb_insert);
+REXX_METHOD_PROTOTYPE(lb_isSingleSelection);
+REXX_METHOD_PROTOTYPE(lb_select);
+REXX_METHOD_PROTOTYPE(lb_selectedIndex);
+REXX_METHOD_PROTOTYPE(lb_selectIndex);
 
 // ProgressBar
 REXX_METHOD_PROTOTYPE(pbc_getFullRange);
@@ -987,11 +1066,16 @@ REXX_METHOD_PROTOTYPE(lv_addClearExtendStyle);
 REXX_METHOD_PROTOTYPE(lv_addFullRow);
 REXX_METHOD_PROTOTYPE(lv_addRemoveStyle);
 REXX_METHOD_PROTOTYPE(lv_addRow);
+REXX_METHOD_PROTOTYPE(lv_addRowFromArray);
 REXX_METHOD_PROTOTYPE(lv_arrange);
 REXX_METHOD_PROTOTYPE(lv_checkUncheck);
+REXX_METHOD_PROTOTYPE(lv_delete);
+REXX_METHOD_PROTOTYPE(lv_deleteAll);
+REXX_METHOD_PROTOTYPE(lv_deleteColumn);
 REXX_METHOD_PROTOTYPE(lv_deselectAll);
 REXX_METHOD_PROTOTYPE(lv_find);
 REXX_METHOD_PROTOTYPE(lv_findNearestXY);
+REXX_METHOD_PROTOTYPE(lv_fixFullRowColumns);
 REXX_METHOD_PROTOTYPE(lv_getCheck);
 REXX_METHOD_PROTOTYPE(lv_getColor);
 REXX_METHOD_PROTOTYPE(lv_getColumnCount);
@@ -999,61 +1083,83 @@ REXX_METHOD_PROTOTYPE(lv_getColumnInfo);
 REXX_METHOD_PROTOTYPE(lv_getColumnOrder);
 REXX_METHOD_PROTOTYPE(lv_getColumnText);
 REXX_METHOD_PROTOTYPE(lv_getExtendedStyle);
+REXX_METHOD_PROTOTYPE(lv_getFullRow);
 REXX_METHOD_PROTOTYPE(lv_getImageList);
+REXX_METHOD_PROTOTYPE(lv_getItem);
 REXX_METHOD_PROTOTYPE(lv_getItemData);
 REXX_METHOD_PROTOTYPE(lv_getItemInfo);
 REXX_METHOD_PROTOTYPE(lv_getItemPos);
+REXX_METHOD_PROTOTYPE(lv_getItemRect);
 REXX_METHOD_PROTOTYPE(lv_getNextItem);
 REXX_METHOD_PROTOTYPE(lv_getNextItemWithState);
+REXX_METHOD_PROTOTYPE(lv_getSubitem);
+REXX_METHOD_PROTOTYPE(lv_getSubitemRect);
+REXX_METHOD_PROTOTYPE(lv_getView);
 REXX_METHOD_PROTOTYPE(lv_hasCheckBoxes);
 REXX_METHOD_PROTOTYPE(lv_hitTestInfo);
 REXX_METHOD_PROTOTYPE(lv_insert);
 REXX_METHOD_PROTOTYPE(lv_insertColumnPx);
+REXX_METHOD_PROTOTYPE(lv_insertFullRow);
 REXX_METHOD_PROTOTYPE(lv_isChecked);
 REXX_METHOD_PROTOTYPE(lv_itemState);
 REXX_METHOD_PROTOTYPE(lv_itemText);
 REXX_METHOD_PROTOTYPE(lv_modify);
 REXX_METHOD_PROTOTYPE(lv_modifyColumnPx);
+REXX_METHOD_PROTOTYPE(lv_modifyFullRow);
+REXX_METHOD_PROTOTYPE(lv_modifyItem);
+REXX_METHOD_PROTOTYPE(lv_modifySubitem);
+REXX_METHOD_PROTOTYPE(lv_prependFullRow);
 REXX_METHOD_PROTOTYPE(lv_removeItemData);
 REXX_METHOD_PROTOTYPE(lv_replaceExtendStyle);
 REXX_METHOD_PROTOTYPE(lv_replaceStyle);
 REXX_METHOD_PROTOTYPE(lv_setColor);
 REXX_METHOD_PROTOTYPE(lv_setColumnOrder);
 REXX_METHOD_PROTOTYPE(lv_setColumnWidthPx);
+REXX_METHOD_PROTOTYPE(lv_setFullRowText);
 REXX_METHOD_PROTOTYPE(lv_setImageList);
 REXX_METHOD_PROTOTYPE(lv_setItemData);
 REXX_METHOD_PROTOTYPE(lv_setItemPos);
 REXX_METHOD_PROTOTYPE(lv_setItemState);
 REXX_METHOD_PROTOTYPE(lv_setItemText);
 REXX_METHOD_PROTOTYPE(lv_setSpecificState);
+REXX_METHOD_PROTOTYPE(lv_setView);
 REXX_METHOD_PROTOTYPE(lv_sortItems);
 REXX_METHOD_PROTOTYPE(lv_stringWidthPx);
+REXX_METHOD_PROTOTYPE(lv_zTest);
 
 // LvItem
-REXX_METHOD_PROTOTYPE(lvi_init            );
-REXX_METHOD_PROTOTYPE(lvi_unInit          );
-REXX_METHOD_PROTOTYPE(lvi_index           );
-REXX_METHOD_PROTOTYPE(lvi_setIndex        );
-REXX_METHOD_PROTOTYPE(lvi_mask            );
-REXX_METHOD_PROTOTYPE(lvi_setMask         );
-REXX_METHOD_PROTOTYPE(lvi_text            );
-REXX_METHOD_PROTOTYPE(lvi_setText         );
-REXX_METHOD_PROTOTYPE(lvi_imageIndex      );
-REXX_METHOD_PROTOTYPE(lvi_setImageIndex   );
-REXX_METHOD_PROTOTYPE(lvi_userData        );
-REXX_METHOD_PROTOTYPE(lvi_setUserData     );
-REXX_METHOD_PROTOTYPE(lvi_itemState       );
-REXX_METHOD_PROTOTYPE(lvi_setItemState    );
-REXX_METHOD_PROTOTYPE(lvi_itemStateMask   );
-REXX_METHOD_PROTOTYPE(lvi_setItemStateMask);
-REXX_METHOD_PROTOTYPE(lvi_indent          );
-REXX_METHOD_PROTOTYPE(lvi_setIndent       );
-REXX_METHOD_PROTOTYPE(lvi_groupID         );
-REXX_METHOD_PROTOTYPE(lvi_setGroupID      );
-REXX_METHOD_PROTOTYPE(lvi_columns         );
-REXX_METHOD_PROTOTYPE(lvi_setColumns      );
+REXX_METHOD_PROTOTYPE(lvi_init_cls            );
+REXX_METHOD_PROTOTYPE(lvi_init                );
+REXX_METHOD_PROTOTYPE(lvi_unInit              );
+REXX_METHOD_PROTOTYPE(lvi_columnFormats       );
+REXX_METHOD_PROTOTYPE(lvi_setColumnFormats    );
+REXX_METHOD_PROTOTYPE(lvi_columns             );
+REXX_METHOD_PROTOTYPE(lvi_setColumns          );
+REXX_METHOD_PROTOTYPE(lvi_groupID             );
+REXX_METHOD_PROTOTYPE(lvi_setGroupID          );
+REXX_METHOD_PROTOTYPE(lvi_imageIndex          );
+REXX_METHOD_PROTOTYPE(lvi_setImageIndex       );
+REXX_METHOD_PROTOTYPE(lvi_indent              );
+REXX_METHOD_PROTOTYPE(lvi_setIndent           );
+REXX_METHOD_PROTOTYPE(lvi_index               );
+REXX_METHOD_PROTOTYPE(lvi_setIndex            );
+REXX_METHOD_PROTOTYPE(lvi_itemState           );
+REXX_METHOD_PROTOTYPE(lvi_setItemState        );
+REXX_METHOD_PROTOTYPE(lvi_itemStateMask       );
+REXX_METHOD_PROTOTYPE(lvi_setItemStateMask    );
+REXX_METHOD_PROTOTYPE(lvi_mask                );
+REXX_METHOD_PROTOTYPE(lvi_setMask             );
+REXX_METHOD_PROTOTYPE(lvi_overlayImageIndex   );
+REXX_METHOD_PROTOTYPE(lvi_setOverlayImageIndex);
+REXX_METHOD_PROTOTYPE(lvi_stateImageIndex     );
+REXX_METHOD_PROTOTYPE(lvi_itemData            );
+REXX_METHOD_PROTOTYPE(lvi_setItemData         );
+REXX_METHOD_PROTOTYPE(lvi_setStateImageIndex  );
+REXX_METHOD_PROTOTYPE(lvi_text                );
+REXX_METHOD_PROTOTYPE(lvi_setText             );
 
 // LvSubItem
+REXX_METHOD_PROTOTYPE(lvsi_init_cls       );
 REXX_METHOD_PROTOTYPE(lvsi_init           );
 REXX_METHOD_PROTOTYPE(lvsi_unInit         );
 REXX_METHOD_PROTOTYPE(lvsi_item           );
@@ -1068,20 +1174,102 @@ REXX_METHOD_PROTOTYPE(lvsi_imageIndex     );
 REXX_METHOD_PROTOTYPE(lvsi_setImageIndex  );
 
 // LvFullRow
-REXX_METHOD_PROTOTYPE(lvfr_init           );
-REXX_METHOD_PROTOTYPE(lvfr_unInit         );
+REXX_METHOD_PROTOTYPE(lvfr_init_cls);
+REXX_METHOD_PROTOTYPE(lvfr_fromArray_cls);
+REXX_METHOD_PROTOTYPE(lvfr_init);
+REXX_METHOD_PROTOTYPE(lvfr_unInit);
+REXX_METHOD_PROTOTYPE(lvfr_userData);
+REXX_METHOD_PROTOTYPE(lvfr_setUserData);
+REXX_METHOD_PROTOTYPE(lvfr_userData);
+REXX_METHOD_PROTOTYPE(lvfr_setUserData);
+REXX_METHOD_PROTOTYPE(lvfr_addSubitem);
+REXX_METHOD_PROTOTYPE(lvfr_insertSubitem);
+REXX_METHOD_PROTOTYPE(lvfr_item);
+REXX_METHOD_PROTOTYPE(lvfr_removeSubitem);
+REXX_METHOD_PROTOTYPE(lvfr_subitem);
+REXX_METHOD_PROTOTYPE(lvfr_subitems);
+
+// ToolTip
+REXX_METHOD_PROTOTYPE(tt_activate);
+REXX_METHOD_PROTOTYPE(tt_addTool);
+REXX_METHOD_PROTOTYPE(tt_addToolEx);
+REXX_METHOD_PROTOTYPE(tt_addToolRect);
+REXX_METHOD_PROTOTYPE(tt_adjustRect);
+REXX_METHOD_PROTOTYPE(tt_delTool);
+REXX_METHOD_PROTOTYPE(tt_enumTools);
+REXX_METHOD_PROTOTYPE(tt_getBubbleSize);
+REXX_METHOD_PROTOTYPE(tt_getCurrentTool);
+REXX_METHOD_PROTOTYPE(tt_getDelayTime);
+REXX_METHOD_PROTOTYPE(tt_getMargin);
+REXX_METHOD_PROTOTYPE(tt_getMaxTipWidth);
+REXX_METHOD_PROTOTYPE(tt_getText);
+REXX_METHOD_PROTOTYPE(tt_getTipBkColor);
+REXX_METHOD_PROTOTYPE(tt_getTipTextColor);
+REXX_METHOD_PROTOTYPE(tt_getTitle);
+REXX_METHOD_PROTOTYPE(tt_getToolCount);
+REXX_METHOD_PROTOTYPE(tt_getToolInfo);
+REXX_METHOD_PROTOTYPE(tt_hasCurrentTool);
+REXX_METHOD_PROTOTYPE(tt_hitTestInfo);
+REXX_METHOD_PROTOTYPE(tt_manageAtypicalTool);
+REXX_METHOD_PROTOTYPE(tt_newToolRect);
+REXX_METHOD_PROTOTYPE(tt_pop);
+REXX_METHOD_PROTOTYPE(tt_popUp);
+REXX_METHOD_PROTOTYPE(tt_setDelayTime);
+REXX_METHOD_PROTOTYPE(tt_setMargin);
+REXX_METHOD_PROTOTYPE(tt_setMaxTipWidth);
+REXX_METHOD_PROTOTYPE(tt_setTipBkColor);
+REXX_METHOD_PROTOTYPE(tt_setTipTextColor);
+REXX_METHOD_PROTOTYPE(tt_setTitle);
+REXX_METHOD_PROTOTYPE(tt_setToolInfo);
+REXX_METHOD_PROTOTYPE(tt_setWindowTheme);
+REXX_METHOD_PROTOTYPE(tt_trackActivate);
+REXX_METHOD_PROTOTYPE(tt_trackPosition);
+REXX_METHOD_PROTOTYPE(tt_update);
+REXX_METHOD_PROTOTYPE(tt_updateTipText);
+
+// ToolInfo
+REXX_METHOD_PROTOTYPE(ti_forHitTest_cls);
+REXX_METHOD_PROTOTYPE(ti_forID_cls);
+REXX_METHOD_PROTOTYPE(ti_init);
+REXX_METHOD_PROTOTYPE(ti_unInit);
+REXX_METHOD_PROTOTYPE(ti_flags);
+REXX_METHOD_PROTOTYPE(ti_setFlags);
+REXX_METHOD_PROTOTYPE(ti_rexxHwnd);
+REXX_METHOD_PROTOTYPE(ti_rexxID);
+REXX_METHOD_PROTOTYPE(ti_rect);
+REXX_METHOD_PROTOTYPE(ti_setRect);
+REXX_METHOD_PROTOTYPE(ti_resource);
+REXX_METHOD_PROTOTYPE(ti_text);
+REXX_METHOD_PROTOTYPE(ti_setText);
+REXX_METHOD_PROTOTYPE(ti_userData);
+REXX_METHOD_PROTOTYPE(ti_setUserData);
+
+REXX_METHOD_PROTOTYPE(ti_setTextMemoryIsAllocated);
+REXX_METHOD_PROTOTYPE(ti_hitTestHelper);
 
 // TreeView
-REXX_METHOD_PROTOTYPE(tv_getSpecificItem);
-REXX_METHOD_PROTOTYPE(tv_getNextItem);
-REXX_METHOD_PROTOTYPE(tv_selectItem);
+REXX_METHOD_PROTOTYPE(tv_delete);
+REXX_METHOD_PROTOTYPE(tv_deleteAll);
 REXX_METHOD_PROTOTYPE(tv_expand);
-REXX_METHOD_PROTOTYPE(tv_insert);
-REXX_METHOD_PROTOTYPE(tv_modify);
-REXX_METHOD_PROTOTYPE(tv_itemInfo);
-REXX_METHOD_PROTOTYPE(tv_hitTestInfo);
-REXX_METHOD_PROTOTYPE(tv_setImageList);
+REXX_METHOD_PROTOTYPE(tv_find);
 REXX_METHOD_PROTOTYPE(tv_getImageList);
+REXX_METHOD_PROTOTYPE(tv_getItemData);
+REXX_METHOD_PROTOTYPE(tv_getItemHeight);
+REXX_METHOD_PROTOTYPE(tv_getItemRect);
+REXX_METHOD_PROTOTYPE(tv_getNextItem);
+REXX_METHOD_PROTOTYPE(tv_getSpecificItem);
+REXX_METHOD_PROTOTYPE(tv_hitTestInfo);
+REXX_METHOD_PROTOTYPE(tv_insert);
+REXX_METHOD_PROTOTYPE(tv_itemInfo);
+REXX_METHOD_PROTOTYPE(tv_itemText);
+REXX_METHOD_PROTOTYPE(tv_modify);
+REXX_METHOD_PROTOTYPE(tv_removeItemData);
+REXX_METHOD_PROTOTYPE(tv_selectItem);
+REXX_METHOD_PROTOTYPE(tv_setImageList);
+REXX_METHOD_PROTOTYPE(tv_setItemData);
+REXX_METHOD_PROTOTYPE(tv_setItemHeight);
+REXX_METHOD_PROTOTYPE(tv_sortChildrenCB);
+REXX_METHOD_PROTOTYPE(tv_test);
 
 // Tab
 REXX_METHOD_PROTOTYPE(tab_select);
@@ -1132,7 +1320,7 @@ REXX_METHOD_PROTOTYPE(mc_getMonthRange);
 REXX_METHOD_PROTOTYPE(mc_getRange);
 REXX_METHOD_PROTOTYPE(mc_getSelectionRange);
 REXX_METHOD_PROTOTYPE(mc_getToday);
-REXX_METHOD_PROTOTYPE(mc_hitTest);
+REXX_METHOD_PROTOTYPE(mc_hitTestInfo);
 REXX_METHOD_PROTOTYPE(mc_setCalendarBorder);
 REXX_METHOD_PROTOTYPE(mc_setCALID);
 REXX_METHOD_PROTOTYPE(mc_setColor);
@@ -1165,6 +1353,7 @@ REXX_METHOD_PROTOTYPE(rect_setLeft);
 REXX_METHOD_PROTOTYPE(rect_setTop);
 REXX_METHOD_PROTOTYPE(rect_setRight);
 REXX_METHOD_PROTOTYPE(rect_setBottom);
+REXX_METHOD_PROTOTYPE(rect_copy);
 REXX_METHOD_PROTOTYPE(rect_string);
 
 // .Point
@@ -1302,10 +1491,76 @@ REXX_METHOD_PROTOTYPE(mouse_showCursor);
 REXX_METHOD_PROTOTYPE(mouse_trackEvent);
 REXX_METHOD_PROTOTYPE(mouse_test);
 
+//Keyboard
+REXX_METHOD_PROTOTYPE(kb_getAsyncKeyState_cls);
+
+
+// CustomDraw
+REXX_METHOD_PROTOTYPE(cd_init);
+REXX_METHOD_PROTOTYPE(cd_customDrawControl);
+
+// LvCustomDrawSimple
+REXX_METHOD_PROTOTYPE(lvcds_init_cls    );
+REXX_METHOD_PROTOTYPE(lvcds_init        );
+REXX_METHOD_PROTOTYPE(lvcds_setClrText  );
+REXX_METHOD_PROTOTYPE(lvcds_setClrTextBk);
+REXX_METHOD_PROTOTYPE(lvcds_getDrawStage);
+REXX_METHOD_PROTOTYPE(lvcds_setFont     );
+REXX_METHOD_PROTOTYPE(lvcds_getID       );
+REXX_METHOD_PROTOTYPE(lvcds_getItem     );
+REXX_METHOD_PROTOTYPE(lvcds_getItemData );
+REXX_METHOD_PROTOTYPE(lvcds_setReply    );
+REXX_METHOD_PROTOTYPE(lvcds_getSubItem  );
+
+// TvCustomDrawSimple
+REXX_METHOD_PROTOTYPE(tvcds_init_cls    );
+REXX_METHOD_PROTOTYPE(tvcds_init        );
+REXX_METHOD_PROTOTYPE(tvcds_setClrText  );
+REXX_METHOD_PROTOTYPE(tvcds_setClrTextBk);
+REXX_METHOD_PROTOTYPE(tvcds_getDrawStage);
+REXX_METHOD_PROTOTYPE(tvcds_setFont     );
+REXX_METHOD_PROTOTYPE(tvcds_getID       );
+REXX_METHOD_PROTOTYPE(tvcds_getItem     );
+REXX_METHOD_PROTOTYPE(tvcds_getItemData );
+REXX_METHOD_PROTOTYPE(tvcds_setReply    );
+REXX_METHOD_PROTOTYPE(tvcds_getLevel    );
+
+// BrowseForFolder
+REXX_METHOD_PROTOTYPE(bff_banner);
+REXX_METHOD_PROTOTYPE(bff_setBanner);
+REXX_METHOD_PROTOTYPE(bff_dlgTitle);
+REXX_METHOD_PROTOTYPE(bff_setDlgTitle);
+REXX_METHOD_PROTOTYPE(bff_hint);
+REXX_METHOD_PROTOTYPE(bff_setHint);
+REXX_METHOD_PROTOTYPE(bff_initialThread);
+REXX_METHOD_PROTOTYPE(bff_options);
+REXX_METHOD_PROTOTYPE(bff_setOptions);
+REXX_METHOD_PROTOTYPE(bff_owner);
+REXX_METHOD_PROTOTYPE(bff_setOwner);
+REXX_METHOD_PROTOTYPE(bff_root);
+REXX_METHOD_PROTOTYPE(bff_setRoot);
+REXX_METHOD_PROTOTYPE(bff_startDir);
+REXX_METHOD_PROTOTYPE(bff_setStartDir);
+REXX_METHOD_PROTOTYPE(bff_usePathForHint);
+REXX_METHOD_PROTOTYPE(bff_setUsePathForHint);
+REXX_METHOD_PROTOTYPE(bff_init);
+REXX_METHOD_PROTOTYPE(bff_uninit);
+REXX_METHOD_PROTOTYPE(bff_getDisplayName);
+REXX_METHOD_PROTOTYPE(bff_getFolder);
+REXX_METHOD_PROTOTYPE(bff_getItemIDList);
+REXX_METHOD_PROTOTYPE(bff_initCOM);
+REXX_METHOD_PROTOTYPE(bff_releaseCOM);
+REXX_METHOD_PROTOTYPE(bff_releaseItemIDList);
+REXX_METHOD_PROTOTYPE(bff_test);
+
+REXX_METHOD_PROTOTYPE(sfb_getFolder);
+
+
 RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dlgutil_init_cls,               dlgutil_init_cls),
     REXX_METHOD(dlgutil_comctl32Version_cls,    dlgutil_comctl32Version_cls),
     REXX_METHOD(dlgutil_version_cls,            dlgutil_version_cls),
+    REXX_METHOD(dlgutil_errMsg_cls,             dlgutil_errMsg_cls),
     REXX_METHOD(dlgutil_hiWord_cls,             dlgutil_hiWord_cls),
     REXX_METHOD(dlgutil_loWord_cls,             dlgutil_loWord_cls),
     REXX_METHOD(dlgutil_sloWord_cls,            dlgutil_sloWord_cls),
@@ -1323,18 +1578,21 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dlgutil_screenSize_cls,         dlgutil_screenSize_cls),
     REXX_METHOD(dlgutil_screenArea_cls,         dlgutil_screenArea_cls),
     REXX_METHOD(dlgutil_getSystemMetrics_cls,   dlgutil_getSystemMetrics_cls),
+    REXX_METHOD(dlgutil_halt_cls,               dlgutil_halt_cls),
     REXX_METHOD(dlgutil_handleToPointer_cls,    dlgutil_handleToPointer_cls),
+    REXX_METHOD(dlgutil_terminate_cls,          dlgutil_terminate_cls),
     REXX_METHOD(dlgutil_threadID_cls,           dlgutil_threadID_cls),
     REXX_METHOD(dlgutil_windowFromPoint_cls,    dlgutil_windowFromPoint_cls),
     REXX_METHOD(dlgutil_test_cls,               dlgutil_test_cls),
 
     REXX_METHOD(app_init,                       app_init),
-    REXX_METHOD(app_useGlobalConstDir,          app_useGlobalConstDir),
     REXX_METHOD(app_addToConstDir,              app_addToConstDir),
     REXX_METHOD(app_autoDetection,              app_autoDetection),
-    REXX_METHOD(app_initAutoDetection,          app_initAutoDetection),
     REXX_METHOD(app_defaultFont,                app_defaultFont),
+    REXX_METHOD(app_defaultIcon,                app_defaultIcon),
     REXX_METHOD(app_setDefaults,                app_setDefaults),
+    REXX_METHOD(app_initAutoDetection,          app_initAutoDetection),
+    REXX_METHOD(app_useGlobalConstDir,          app_useGlobalConstDir),
 
     // OS
     REXX_METHOD(os_is64bit,                     os_is64bit),
@@ -1359,6 +1617,8 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(spi_setMouseHoverTime_cls,      spi_setMouseHoverTime_cls),
     REXX_METHOD(spi_getMouseHoverWidth_cls,     spi_getMouseHoverWidth_cls),
     REXX_METHOD(spi_setMouseHoverWidth_cls,     spi_setMouseHoverWidth_cls),
+    REXX_METHOD(spi_getNonClientMetrics_cls,    spi_getNonClientMetrics_cls),
+    REXX_METHOD(spi_setNonClientMetrics_cls,    spi_setNonClientMetrics_cls),
     REXX_METHOD(spi_getUpdateFlag_cls,          spi_getUpdateFlag_cls),
     REXX_METHOD(spi_setUpdateFlag_cls,          spi_setUpdateFlag_cls),
     REXX_METHOD(spi_getWorkArea_cls,            spi_getWorkArea_cls),
@@ -1372,6 +1632,8 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(sm_cxDrag_cls,                  sm_cxDrag_cls),
     REXX_METHOD(sm_cxFixedFrame_cls,            sm_cxFixedFrame_cls),
     REXX_METHOD(sm_cxScreen_cls,                sm_cxScreen_cls),
+    REXX_METHOD(sm_cxSize_cls,                  sm_cxSize_cls),
+    REXX_METHOD(sm_cxSmIcon_cls,                sm_cxSmIcon_cls),
     REXX_METHOD(sm_cxVScroll_cls,               sm_cxVScroll_cls),
     REXX_METHOD(sm_cyCaption_cls,               sm_cyCaption_cls),
     REXX_METHOD(sm_cyCursor_cls,                sm_cyCursor_cls),
@@ -1428,6 +1690,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(wb_sendWinHandle2Msg,           wb_sendWinHandle2Msg),
     REXX_METHOD(wb_sendWinUintMsg,              wb_sendWinUintMsg),
     REXX_METHOD(wb_setWindowPos,                wb_setWindowPos),
+    REXX_METHOD(wb_setWindowLong_pvt,           wb_setWindowLong_pvt),
     REXX_METHOD(wb_show,                        wb_show),
     REXX_METHOD(wb_showFast,                    wb_showFast),
     REXX_METHOD(wb_windowRect,                  wb_windowRect),
@@ -1441,12 +1704,15 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(en_connectScrollBarEvent,       en_connectScrollBarEvent),
     REXX_METHOD(en_connectEachSBEvent,          en_connectEachSBEvent),
     REXX_METHOD(en_connectAllSBEvents,          en_connectAllSBEvents),
-    REXX_METHOD(en_connectListViewEvent,        en_connectListViewEvent),
     REXX_METHOD(en_connectDateTimePickerEvent,  en_connectDateTimePickerEvent),
+    REXX_METHOD(en_connectListViewEvent,        en_connectListViewEvent),
     REXX_METHOD(en_connectMonthCalendarEvent,   en_connectMonthCalendarEvent),
+    REXX_METHOD(en_connectToolTipEvent,         en_connectToolTipEvent),
+    REXX_METHOD(en_connectTreeViewEvent,        en_connectTreeViewEvent),
     REXX_METHOD(en_connectUpDownEvent,          en_connectUpDownEvent),
     REXX_METHOD(en_addUserMessage,              en_addUserMessage),
 
+    // PlainBaseDialog
     REXX_METHOD(pbdlg_init_cls,                 pbdlg_init_cls),
     REXX_METHOD(pbdlg_setDefaultFont_cls,       pbdlg_setDefaultFont_cls),
     REXX_METHOD(pbdlg_getFontName_cls,          pbdlg_getFontName_cls),
@@ -1459,6 +1725,8 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(pbdlg_setDlgFont,               pbdlg_setDlgFont),
     REXX_METHOD(pbdlg_getAutoDetect,            pbdlg_getAutoDetect),
     REXX_METHOD(pbdlg_setAutoDetect,            pbdlg_setAutoDetect),
+    REXX_METHOD(pbdlg_getDlgID,                 pbdlg_getDlgID),
+    REXX_METHOD(pbdlg_setDlgID,                 pbdlg_setDlgID),
     REXX_METHOD(pbdlg_getParentDlg_pvt,         pbdlg_getParentDlg_pvt),
     REXX_METHOD(pbdlg_setParentDlg_pvt,         pbdlg_setParentDlg_pvt),
     REXX_METHOD(pbdlg_getOwnerDialog,           pbdlg_getOwnerDialog),
@@ -1497,20 +1765,21 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(pbdlg_setControlText,           pbdlg_setControlText),
     REXX_METHOD(pbdlg_getTextSizeDu,            pbdlg_getTextSizeDu),
     REXX_METHOD(pbdlg_getTextSizeDlg,           pbdlg_getTextSizeDlg),
+    REXX_METHOD(pbdlg_getTextSizeTitleBar,      pbdlg_getTextSizeTitleBar),
     REXX_METHOD(pbdlg_enableDisableControl,     pbdlg_enableDisableControl),
     REXX_METHOD(pbdlg_getControlID,             pbdlg_getControlID),
     REXX_METHOD(pbdlg_center,                   pbdlg_center),
     REXX_METHOD(pbdlg_doMinMax,                 pbdlg_doMinMax),
     REXX_METHOD(pbdlg_setTabGroup,              pbdlg_setTabGroup),
     REXX_METHOD(pbdlg_stopIt,                   pbdlg_stopIt),
+    REXX_METHOD(pbdlg_createToolTip,            pbdlg_createToolTip),
+    REXX_METHOD(pbdlg_newToolTip,               pbdlg_newToolTip),
     REXX_METHOD(pbdlg_newControl,               pbdlg_newControl),
     REXX_METHOD(pbdlg_getNewControl,            pbdlg_getNewControl),
     REXX_METHOD(pbdlg_putControl,               pbdlg_putControl),
     REXX_METHOD(pbdlg_dumpMessageTable,         pbdlg_dumpMessageTable),
     REXX_METHOD(pbdlg_unInit,                   pbdlg_unInit),
 
-    REXX_METHOD(generic_setListTabulators,      generic_setListTabulators),
-    REXX_METHOD(generic_subclassEdit,           generic_subclassEdit),
     REXX_METHOD(global_resolveSymbolicID,       global_resolveSymbolicID),
 
     REXX_METHOD(dlgext_setWindowRect,           dlgext_setWindowRect),
@@ -1561,6 +1830,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dyndlg_createStaticImage,       dyndlg_createStaticImage),
     REXX_METHOD(dyndlg_createStaticFrame,       dyndlg_createStaticFrame),
     REXX_METHOD(dyndlg_createPushButton,        dyndlg_createPushButton),
+    REXX_METHOD(dyndlg_createPushButtonStem,    dyndlg_createPushButtonStem),
     REXX_METHOD(dyndlg_createRadioButton,       dyndlg_createRadioButton),
     REXX_METHOD(dyndlg_createGroupBox,          dyndlg_createGroupBox),
     REXX_METHOD(dyndlg_createEdit,              dyndlg_createEdit),
@@ -1579,29 +1849,24 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(dyndlg_startChildDialog,        dyndlg_startChildDialog),
     REXX_METHOD(dyndlg_stop,                    dyndlg_stop),
 
-    REXX_METHOD(dlgctrl_new_cls,                dlgctrl_new_cls),
-    REXX_METHOD(dlgctrl_init_cls,               dlgctrl_init_cls),
-    REXX_METHOD(dlgctrl_init,                   dlgctrl_init),
-    REXX_METHOD(dlgctrl_unInit,                 dlgctrl_unInit),
-    REXX_METHOD(dlgctrl_addUserSubclass,        dlgctrl_addUserSubclass),
-    REXX_METHOD(dlgctrl_assignFocus,            dlgctrl_assignFocus),
-    REXX_METHOD(dlgctrl_clearRect,              dlgctrl_clearRect),
-    REXX_METHOD(dlgctrl_connectEvent,           dlgctrl_connectEvent),
-    REXX_METHOD(dlgctrl_connectFKeyPress,       dlgctrl_connectFKeyPress),
-    REXX_METHOD(dlgctrl_connectKeyPress,        dlgctrl_connectKeyPress),
-    REXX_METHOD(dlgctrl_data,                   dlgctrl_data),
-    REXX_METHOD(dlgctrl_dataEquals,             dlgctrl_dataEquals),
-    REXX_METHOD(dlgctrl_disconnectKeyPress,     dlgctrl_disconnectKeyPress),
-    REXX_METHOD(dlgctrl_getTextSizeDlg,         dlgctrl_getTextSizeDlg),
-    REXX_METHOD(dlgctrl_hasKeyPressConnection,  dlgctrl_hasKeyPressConnection),
-    REXX_METHOD(dlgctrl_redrawRect,             dlgctrl_redrawRect),
-    REXX_METHOD(dlgctrl_setColor,               dlgctrl_setColor),
-    REXX_METHOD(dlgctrl_tabGroup,               dlgctrl_tabGroup),
-    REXX_METHOD(dlgctrl_textSize,               dlgctrl_textSize),
-    REXX_METHOD(dlgctrl_putInBag,               dlgctrl_putInBag),
-
     REXX_METHOD(window_init,                    window_init),
     REXX_METHOD(window_unInit,                  window_unInit),
+
+    // ResizingAdmin
+    REXX_METHOD(ra_maxSize,                     ra_maxSize),
+    REXX_METHOD(ra_setMaxSize,                  ra_setMaxSize),
+    REXX_METHOD(ra_minSize,                     ra_minSize),
+    REXX_METHOD(ra_setMinSize,                  ra_setMinSize),
+    REXX_METHOD(ra_controlSide,                 ra_controlSide),
+    REXX_METHOD(ra_controlSizing,               ra_controlSizing),
+    REXX_METHOD(ra_defaultSide,                 ra_defaultSide),
+    REXX_METHOD(ra_defaultSizing,               ra_defaultSizing),
+    REXX_METHOD(ra_initResizing,                ra_initResizing),
+    REXX_METHOD(ra_noMaxSize,                   ra_noMaxSize),
+    REXX_METHOD(ra_noMinSize,                   ra_noMinSize),
+    REXX_METHOD(ra_pagedTab,                    ra_pagedTab),
+    REXX_METHOD(ra_useDefaultSizing,            ra_useDefaultSizing),
+    REXX_METHOD(ra_wantSizeEnded,               ra_wantSizeEnded),
 
     // ResDialog
     REXX_METHOD(resdlg_init,                    resdlg_init),
@@ -1657,6 +1922,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(psdlg_init,                     psdlg_init),
     REXX_METHOD(psdlg_execute,                  psdlg_execute),
     REXX_METHOD(psdlg_popup,                    psdlg_popup),
+    REXX_METHOD(psdlg_popupAsChild,             psdlg_popupAsChild),
     REXX_METHOD(psdlg_getPage,                  psdlg_getPage),
     REXX_METHOD(psdlg_addPage,                  psdlg_addPage),
     REXX_METHOD(psdlg_insertPage,               psdlg_insertPage),
@@ -1715,6 +1981,9 @@ RexxMethodEntry oodialog_methods[] = {
     // ResPSPDialog
     REXX_METHOD(respspdlg_init,                 respspdlg_init),
 
+    // ProgressDialog
+    REXX_METHOD(pd_setInterruptible,            pd_setInterruptible),
+
     //TimedMessage
     REXX_METHOD(timedmsg_init,                  timedmsg_init),
 
@@ -1751,6 +2020,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(winex_textBkMode,               winex_textBkMode),
     REXX_METHOD(winex_getSetArcDirection,       winex_getSetArcDirection),
 
+    // ResourceImage
     REXX_METHOD(ri_init,                        ri_init),
     REXX_METHOD(ri_release,                     ri_release),
     REXX_METHOD(ri_handle,                      ri_handle),
@@ -1759,6 +2029,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(ri_getImage,                    ri_getImage),
     REXX_METHOD(ri_getImages,                   ri_getImages),
 
+    // Image
     REXX_METHOD(image_toID_cls,                 image_toID_cls),
     REXX_METHOD(image_getImage_cls,             image_getImage_cls),
     REXX_METHOD(image_fromFiles_cls,            image_fromFiles_cls),
@@ -1774,6 +2045,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(image_systemErrorCode,          image_systemErrorCode),
     REXX_METHOD(image_handle,                   image_handle),
 
+    // ImageList
     REXX_METHOD(il_create_cls,                  il_create_cls),
     REXX_METHOD(il_init,                        il_init),
     REXX_METHOD(il_release,                     il_release),
@@ -1788,6 +2060,35 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(il_remove,                      il_remove),
     REXX_METHOD(il_isNull,                      il_isNull),
     REXX_METHOD(il_handle,                      il_handle),
+
+    // DialogControl
+    REXX_METHOD(dlgctrl_new_cls,                dlgctrl_new_cls),
+    REXX_METHOD(dlgctrl_init_cls,               dlgctrl_init_cls),
+    REXX_METHOD(dlgctrl_init,                   dlgctrl_init),
+    REXX_METHOD(dlgctrl_unInit,                 dlgctrl_unInit),
+    REXX_METHOD(dlgctrl_addUserSubclass,        dlgctrl_addUserSubclass),
+    REXX_METHOD(dlgctrl_assignFocus,            dlgctrl_assignFocus),
+    REXX_METHOD(dlgctrl_clearRect,              dlgctrl_clearRect),
+    REXX_METHOD(dlgctrl_connectEvent,           dlgctrl_connectEvent),
+    REXX_METHOD(dlgctrl_connectFKeyPress,       dlgctrl_connectFKeyPress),
+    REXX_METHOD(dlgctrl_connectKeyPress,        dlgctrl_connectKeyPress),
+    REXX_METHOD(dlgctrl_data,                   dlgctrl_data),
+    REXX_METHOD(dlgctrl_dataEquals,             dlgctrl_dataEquals),
+    REXX_METHOD(dlgctrl_disconnectKeyPress,     dlgctrl_disconnectKeyPress),
+    REXX_METHOD(dlgctrl_getTextSizeDlg,         dlgctrl_getTextSizeDlg),
+    REXX_METHOD(dlgctrl_hasKeyPressConnection,  dlgctrl_hasKeyPressConnection),
+    REXX_METHOD(dlgctrl_redrawRect,             dlgctrl_redrawRect),
+    REXX_METHOD(dlgctrl_setColor,               dlgctrl_setColor),
+    REXX_METHOD(dlgctrl_setParent,              dlgctrl_setParent),
+    REXX_METHOD(dlgctrl_setWindowTheme,         dlgctrl_setWindowTheme),
+    REXX_METHOD(dlgctrl_tabGroup,               dlgctrl_tabGroup),
+    REXX_METHOD(dlgctrl_textSize,               dlgctrl_textSize),
+    REXX_METHOD(dlgctrl_putInBag,               dlgctrl_putInBag),
+
+    // Generic methods for dialog control
+    REXX_METHOD(generic_getToolTips,            generic_getToolTips),
+    REXX_METHOD(generic_setListTabulators,      generic_setListTabulators),
+    REXX_METHOD(generic_setToolTips,            generic_setToolTips),
 
     // Static
     REXX_METHOD(stc_getIcon,                    stc_getIcon),
@@ -1824,6 +2125,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(e_selection,                    e_selection),
     REXX_METHOD(e_replaceSelText,               e_replaceSelText),
     REXX_METHOD(e_getLine,                      e_getLine),
+    REXX_METHOD(e_isGrandChild,                 e_isGrandChild),
     REXX_METHOD(e_lineIndex,                    e_lineIndex),
     REXX_METHOD(e_lineFromIndex,                e_lineFromIndex),
     REXX_METHOD(e_lineLength,                   e_lineLength),
@@ -1837,24 +2139,35 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(e_setRect,                      e_setRect),
 
     // ComboBox
-    REXX_METHOD(cb_getText,                     cb_getText),
     REXX_METHOD(cb_add,                         cb_add),
-    REXX_METHOD(cb_insert,                      cb_insert),
-    REXX_METHOD(cb_select,                      cb_select),
-    REXX_METHOD(cb_find,                        cb_find),
     REXX_METHOD(cb_addDirectory,                cb_addDirectory),
+    REXX_METHOD(cb_find,                        cb_find),
+    REXX_METHOD(cb_getCue,                      cb_getCue),
+    REXX_METHOD(cb_getComboBoxInfo,             cb_getComboBoxInfo),
+    REXX_METHOD(cb_getEditControl,              cb_getEditControl),
+    REXX_METHOD(cb_getItemHeight,               cb_getItemHeight),
+    REXX_METHOD(cb_getMinVisible,               cb_getMinVisible),
+    REXX_METHOD(cb_getText,                     cb_getText),
+    REXX_METHOD(cb_insert,                      cb_insert),
+    REXX_METHOD(cb_isDropDown,                  cb_isDropDown),
+    REXX_METHOD(cb_isGrandchild,                cb_isGrandchild),
+    REXX_METHOD(cb_select,                      cb_select),
+    REXX_METHOD(cb_setCue,                      cb_setCue),
+    REXX_METHOD(cb_setItemHeight,               cb_setItemHeight),
+    REXX_METHOD(cb_setMinVisible,               cb_setMinVisible),
 
     // ListBox
-    REXX_METHOD(lb_isSingleSelection,           lb_isSingleSelection),
-    REXX_METHOD(lb_getText,                     lb_getText),
     REXX_METHOD(lb_add,                         lb_add),
-    REXX_METHOD(lb_insert,                      lb_insert),
-    REXX_METHOD(lb_select,                      lb_select),
-    REXX_METHOD(lb_selectIndex,                 lb_selectIndex),
-    REXX_METHOD(lb_deselectIndex,               lb_deselectIndex),
-    REXX_METHOD(lb_selectedIndex,               lb_selectedIndex),
-    REXX_METHOD(lb_find,                        lb_find),
     REXX_METHOD(lb_addDirectory,                lb_addDirectory),
+    REXX_METHOD(lb_deselectIndex,               lb_deselectIndex),
+    REXX_METHOD(lb_find,                        lb_find),
+    REXX_METHOD(lb_getText,                     lb_getText),
+    REXX_METHOD(lb_hitTestInfo,                 lb_hitTestInfo),
+    REXX_METHOD(lb_insert,                      lb_insert),
+    REXX_METHOD(lb_isSingleSelection,           lb_isSingleSelection),
+    REXX_METHOD(lb_select,                      lb_select),
+    REXX_METHOD(lb_selectedIndex,               lb_selectedIndex),
+    REXX_METHOD(lb_selectIndex,                 lb_selectIndex),
 
     // ListView
     REXX_METHOD(lv_add,                         lv_add),
@@ -1862,11 +2175,16 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(lv_addFullRow,         	        lv_addFullRow),
     REXX_METHOD(lv_addRemoveStyle,              lv_addRemoveStyle),
     REXX_METHOD(lv_addRow,                      lv_addRow),
+    REXX_METHOD(lv_addRowFromArray,             lv_addRowFromArray),
     REXX_METHOD(lv_arrange,                     lv_arrange),
     REXX_METHOD(lv_checkUncheck,                lv_checkUncheck),
+    REXX_METHOD(lv_delete,                      lv_delete),
+    REXX_METHOD(lv_deleteAll,                   lv_deleteAll),
+    REXX_METHOD(lv_deleteColumn,                lv_deleteColumn),
     REXX_METHOD(lv_deselectAll,                 lv_deselectAll),
     REXX_METHOD(lv_find,                        lv_find),
     REXX_METHOD(lv_findNearestXY,               lv_findNearestXY),
+    REXX_METHOD(lv_fixFullRowColumns,           lv_fixFullRowColumns),
     REXX_METHOD(lv_getCheck,                    lv_getCheck),
     REXX_METHOD(lv_getColor,                    lv_getColor),
     REXX_METHOD(lv_getColumnCount,              lv_getColumnCount),
@@ -1874,27 +2192,39 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(lv_getColumnOrder,              lv_getColumnOrder),
     REXX_METHOD(lv_getColumnText,               lv_getColumnText),
     REXX_METHOD(lv_getExtendedStyle,            lv_getExtendedStyle),
+    REXX_METHOD(lv_getFullRow,                  lv_getFullRow),
     REXX_METHOD(lv_getImageList,                lv_getImageList),
+    REXX_METHOD(lv_getItem,                     lv_getItem),
     REXX_METHOD(lv_getItemData,                 lv_getItemData),
     REXX_METHOD(lv_getItemInfo,                 lv_getItemInfo),
     REXX_METHOD(lv_getItemPos,                  lv_getItemPos),
+    REXX_METHOD(lv_getItemRect,                 lv_getItemRect),
     REXX_METHOD(lv_getNextItem,                 lv_getNextItem),
     REXX_METHOD(lv_getNextItemWithState,        lv_getNextItemWithState),
+    REXX_METHOD(lv_getSubitem,                  lv_getSubitem),
+    REXX_METHOD(lv_getSubitemRect,              lv_getSubitemRect),
+    REXX_METHOD(lv_getView,                     lv_getView),
     REXX_METHOD(lv_hasCheckBoxes,               lv_hasCheckBoxes),
     REXX_METHOD(lv_hitTestInfo,                 lv_hitTestInfo),
     REXX_METHOD(lv_insert,                      lv_insert),
     REXX_METHOD(lv_insertColumnPx,              lv_insertColumnPx),
+    REXX_METHOD(lv_insertFullRow,               lv_insertFullRow),
     REXX_METHOD(lv_isChecked,                   lv_isChecked),
     REXX_METHOD(lv_itemText,                    lv_itemText),
     REXX_METHOD(lv_itemState,                   lv_itemState),
     REXX_METHOD(lv_modify,                      lv_modify),
     REXX_METHOD(lv_modifyColumnPx,              lv_modifyColumnPx),
-    REXX_METHOD(lv_removeItemData,   	        lv_removeItemData),
+    REXX_METHOD(lv_modifyFullRow,               lv_modifyFullRow),
+    REXX_METHOD(lv_modifyItem,                  lv_modifyItem),
+    REXX_METHOD(lv_modifySubitem,               lv_modifySubitem),
+    REXX_METHOD(lv_prependFullRow,         	    lv_prependFullRow),
+    REXX_METHOD(lv_removeItemData,              lv_removeItemData),
     REXX_METHOD(lv_replaceExtendStyle,          lv_replaceExtendStyle),
     REXX_METHOD(lv_replaceStyle,                lv_replaceStyle),
     REXX_METHOD(lv_setColor,                    lv_setColor),
     REXX_METHOD(lv_setColumnOrder,              lv_setColumnOrder),
     REXX_METHOD(lv_setColumnWidthPx,            lv_setColumnWidthPx),
+    REXX_METHOD(lv_setFullRowText,              lv_setFullRowText),
     REXX_METHOD(lv_setImageList,                lv_setImageList),
     REXX_METHOD(lv_setItemData,                 lv_setItemData),
     REXX_METHOD(lv_setItemPos,                  lv_setItemPos),
@@ -1903,32 +2233,42 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(lv_setSpecificState,            lv_setSpecificState),
     REXX_METHOD(lv_sortItems,                   lv_sortItems),
     REXX_METHOD(lv_stringWidthPx,               lv_stringWidthPx),
+    REXX_METHOD(lv_setView,                     lv_setView),
+    REXX_METHOD(lv_zTest,                       lv_zTest),
 
     // LvItem
+    REXX_METHOD(lvi_init_cls,                   lvi_init_cls),
     REXX_METHOD(lvi_init,                       lvi_init),
     REXX_METHOD(lvi_unInit,                     lvi_unInit),
-    REXX_METHOD(lvi_index,                      lvi_index),
-    REXX_METHOD(lvi_setIndex,                   lvi_setIndex),
-    REXX_METHOD(lvi_mask,                       lvi_mask),
-    REXX_METHOD(lvi_setMask,                    lvi_setMask),
-    REXX_METHOD(lvi_text,                       lvi_text),
-    REXX_METHOD(lvi_setText,                    lvi_setText),
+    REXX_METHOD(lvi_columnFormats,              lvi_columnFormats),
+    REXX_METHOD(lvi_setColumnFormats,           lvi_setColumnFormats),
+    REXX_METHOD(lvi_columns,                    lvi_columns),
+    REXX_METHOD(lvi_setColumns,                 lvi_setColumns),
+    REXX_METHOD(lvi_groupID,                    lvi_groupID),
+    REXX_METHOD(lvi_setGroupID,                 lvi_setGroupID),
     REXX_METHOD(lvi_imageIndex,                 lvi_imageIndex),
     REXX_METHOD(lvi_setImageIndex,              lvi_setImageIndex),
-    REXX_METHOD(lvi_userData,                   lvi_userData),
-    REXX_METHOD(lvi_setUserData,                lvi_setUserData),
+    REXX_METHOD(lvi_indent,                     lvi_indent),
+    REXX_METHOD(lvi_setIndent,                  lvi_setIndent),
+    REXX_METHOD(lvi_index,                      lvi_index),
+    REXX_METHOD(lvi_setIndex,                   lvi_setIndex),
+    REXX_METHOD(lvi_itemData,                   lvi_itemData),
+    REXX_METHOD(lvi_setItemData,                lvi_setItemData),
     REXX_METHOD(lvi_itemState,                  lvi_itemState),
     REXX_METHOD(lvi_setItemState,               lvi_setItemState),
     REXX_METHOD(lvi_itemStateMask,              lvi_itemStateMask),
     REXX_METHOD(lvi_setItemStateMask,           lvi_setItemStateMask),
-    REXX_METHOD(lvi_indent,                     lvi_indent),
-    REXX_METHOD(lvi_setIndent,                  lvi_setIndent),
-    REXX_METHOD(lvi_groupID,                    lvi_groupID),
-    REXX_METHOD(lvi_setGroupID,                 lvi_setGroupID),
-    REXX_METHOD(lvi_columns,                    lvi_columns),
-    REXX_METHOD(lvi_setColumns,                 lvi_setColumns),
+    REXX_METHOD(lvi_mask,                       lvi_mask),
+    REXX_METHOD(lvi_setMask,                    lvi_setMask),
+    REXX_METHOD(lvi_overlayImageIndex,          lvi_overlayImageIndex),
+    REXX_METHOD(lvi_setOverlayImageIndex,       lvi_setOverlayImageIndex),
+    REXX_METHOD(lvi_stateImageIndex,            lvi_stateImageIndex),
+    REXX_METHOD(lvi_setStateImageIndex,         lvi_setStateImageIndex),
+    REXX_METHOD(lvi_text,                       lvi_text),
+    REXX_METHOD(lvi_setText,                    lvi_setText),
 
     // LvSubItem
+    REXX_METHOD(lvsi_init_cls,                  lvsi_init_cls),
     REXX_METHOD(lvsi_init,                      lvsi_init),
     REXX_METHOD(lvsi_unInit,                    lvsi_unInit),
     REXX_METHOD(lvsi_item,                      lvsi_item),
@@ -1943,20 +2283,100 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(lvsi_setImageIndex,             lvsi_setImageIndex),
 
     // LvFullRow
+    REXX_METHOD(lvfr_init_cls,                  lvfr_init_cls),
+    REXX_METHOD(lvfr_fromArray_cls,             lvfr_fromArray_cls),
     REXX_METHOD(lvfr_init,                      lvfr_init),
     REXX_METHOD(lvfr_unInit,                    lvfr_unInit),
+    REXX_METHOD(lvfr_userData,                  lvfr_userData),
+    REXX_METHOD(lvfr_setUserData,               lvfr_setUserData),
+    REXX_METHOD(lvfr_addSubitem,                lvfr_addSubitem),
+    REXX_METHOD(lvfr_insertSubitem,             lvfr_insertSubitem),
+    REXX_METHOD(lvfr_item,                      lvfr_item),
+    REXX_METHOD(lvfr_removeSubitem,             lvfr_removeSubitem),
+    REXX_METHOD(lvfr_subitem,                   lvfr_subitem),
+    REXX_METHOD(lvfr_subitems,                  lvfr_subitems),
+
+    // ToolTip
+    REXX_METHOD(tt_activate,                    tt_activate),
+    REXX_METHOD(tt_addTool,                     tt_addTool),
+    REXX_METHOD(tt_addToolEx,                   tt_addToolEx),
+    REXX_METHOD(tt_addToolRect,                 tt_addToolRect),
+    REXX_METHOD(tt_adjustRect,                  tt_adjustRect),
+    REXX_METHOD(tt_delTool,                     tt_delTool),
+    REXX_METHOD(tt_enumTools,                   tt_enumTools),
+    REXX_METHOD(tt_getBubbleSize,               tt_getBubbleSize),
+    REXX_METHOD(tt_getDelayTime,                tt_getDelayTime),
+    REXX_METHOD(tt_getCurrentTool,              tt_getCurrentTool),
+    REXX_METHOD(tt_getMargin,                   tt_getMargin),
+    REXX_METHOD(tt_getMaxTipWidth,              tt_getMaxTipWidth),
+    REXX_METHOD(tt_getText,                     tt_getText),
+    REXX_METHOD(tt_getTipBkColor,               tt_getTipBkColor),
+    REXX_METHOD(tt_getTipTextColor,             tt_getTipTextColor),
+    REXX_METHOD(tt_getTitle,                    tt_getTitle),
+    REXX_METHOD(tt_getToolCount,                tt_getToolCount),
+    REXX_METHOD(tt_getToolInfo,                 tt_getToolInfo),
+    REXX_METHOD(tt_hasCurrentTool,              tt_hasCurrentTool),
+    REXX_METHOD(tt_hitTestInfo,                     tt_hitTestInfo),
+    REXX_METHOD(tt_manageAtypicalTool,          tt_manageAtypicalTool),
+    REXX_METHOD(tt_newToolRect,                 tt_newToolRect),
+    REXX_METHOD(tt_pop,                         tt_pop),
+    REXX_METHOD(tt_popUp,                       tt_popUp),
+    REXX_METHOD(tt_setDelayTime,                tt_setDelayTime),
+    REXX_METHOD(tt_setMargin,                   tt_setMargin),
+    REXX_METHOD(tt_setMaxTipWidth,              tt_setMaxTipWidth),
+    REXX_METHOD(tt_setTipBkColor,               tt_setTipBkColor),
+    REXX_METHOD(tt_setTipTextColor,             tt_setTipTextColor),
+    REXX_METHOD(tt_setTitle,                    tt_setTitle),
+    REXX_METHOD(tt_setToolInfo,                 tt_setToolInfo),
+    REXX_METHOD(tt_setWindowTheme,              tt_setWindowTheme),
+    REXX_METHOD(tt_trackActivate,               tt_trackActivate),
+    REXX_METHOD(tt_trackPosition,               tt_trackPosition),
+    REXX_METHOD(tt_update,                      tt_update),
+    REXX_METHOD(tt_updateTipText,               tt_updateTipText),
+
+    // ToolInfo
+    REXX_METHOD(ti_forHitTest_cls,              ti_forHitTest_cls),
+    REXX_METHOD(ti_forID_cls,                   ti_forID_cls),
+    REXX_METHOD(ti_init,                        ti_init),
+    REXX_METHOD(ti_unInit,                      ti_unInit),
+    REXX_METHOD(ti_flags,                       ti_flags),
+    REXX_METHOD(ti_setFlags,                    ti_setFlags),
+    REXX_METHOD(ti_rect,                        ti_rect),
+    REXX_METHOD(ti_setRect,                     ti_setRect),
+    REXX_METHOD(ti_resource,                    ti_resource),
+    REXX_METHOD(ti_rexxHwnd,                    ti_rexxHwnd),
+    REXX_METHOD(ti_rexxID,                      ti_rexxID),
+    REXX_METHOD(ti_text,                        ti_text),
+    REXX_METHOD(ti_setText,                     ti_setText),
+    REXX_METHOD(ti_userData,                    ti_userData),
+    REXX_METHOD(ti_setUserData,                 ti_setUserData),
+
+    REXX_METHOD(ti_setTextMemoryIsAllocated,    ti_setTextMemoryIsAllocated),
+    REXX_METHOD(ti_hitTestHelper,               ti_hitTestHelper),
 
     // TreeView
-    REXX_METHOD(tv_getSpecificItem,             tv_getSpecificItem),
-    REXX_METHOD(tv_getNextItem,                 tv_getNextItem),
-    REXX_METHOD(tv_selectItem,                  tv_selectItem),
+    REXX_METHOD(tv_delete,                      tv_delete),
+    REXX_METHOD(tv_deleteAll,                   tv_deleteAll),
     REXX_METHOD(tv_expand,                      tv_expand),
-    REXX_METHOD(tv_insert,                      tv_insert),
-    REXX_METHOD(tv_modify,                      tv_modify),
-    REXX_METHOD(tv_itemInfo,                    tv_itemInfo),
-    REXX_METHOD(tv_hitTestInfo,                 tv_hitTestInfo),
-    REXX_METHOD(tv_setImageList,                tv_setImageList),
+    REXX_METHOD(tv_find,                        tv_find),
     REXX_METHOD(tv_getImageList,                tv_getImageList),
+    REXX_METHOD(tv_getItemData,                 tv_getItemData),
+    REXX_METHOD(tv_getItemHeight,               tv_getItemHeight),
+    REXX_METHOD(tv_getItemRect,                 tv_getItemRect),
+    REXX_METHOD(tv_getNextItem,                 tv_getNextItem),
+    REXX_METHOD(tv_getSpecificItem,             tv_getSpecificItem),
+    REXX_METHOD(tv_hitTestInfo,                 tv_hitTestInfo),
+    REXX_METHOD(tv_insert,                      tv_insert),
+    REXX_METHOD(tv_itemText,                    tv_itemText),
+    REXX_METHOD(tv_itemInfo,                    tv_itemInfo),
+    REXX_METHOD(tv_modify,                      tv_modify),
+    REXX_METHOD(tv_removeItemData,              tv_removeItemData),
+    REXX_METHOD(tv_selectItem,                  tv_selectItem),
+    REXX_METHOD(tv_setImageList,                tv_setImageList),
+    REXX_METHOD(tv_setItemData,                 tv_setItemData),
+    REXX_METHOD(tv_setItemHeight,               tv_setItemHeight),
+    REXX_METHOD(tv_sortChildrenCB,              tv_sortChildrenCB),
+    REXX_METHOD(tv_test,                        tv_test),
 
     // Tab
     REXX_METHOD(tab_select,                     tab_select),
@@ -2006,7 +2426,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(mc_getRange,                    mc_getRange),
     REXX_METHOD(mc_getSelectionRange,           mc_getSelectionRange),
     REXX_METHOD(mc_getToday,                    mc_getToday),
-    REXX_METHOD(mc_hitTest,                     mc_hitTest),
+    REXX_METHOD(mc_hitTestInfo,                 mc_hitTestInfo),
     REXX_METHOD(mc_setCalendarBorder,           mc_setCalendarBorder),
     REXX_METHOD(mc_setCALID,                    mc_setCALID),
     REXX_METHOD(mc_setColor,                    mc_setColor),
@@ -2058,6 +2478,7 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(rect_setTop,                    rect_setTop),
     REXX_METHOD(rect_setRight,                  rect_setRight),
     REXX_METHOD(rect_setBottom,                 rect_setBottom),
+    REXX_METHOD(rect_copy,                      rect_copy),
     REXX_METHOD(rect_string,                    rect_string),
     REXX_METHOD(point_init_cls,                 point_init_cls),
     REXX_METHOD(point_init,                     point_init),
@@ -2188,6 +2609,70 @@ RexxMethodEntry oodialog_methods[] = {
     REXX_METHOD(mouse_showCursor,               mouse_showCursor),
     REXX_METHOD(mouse_trackEvent,               mouse_trackEvent),
     REXX_METHOD(mouse_test,                     mouse_test),
+
+
+    // Keyboard
+    REXX_METHOD(kb_getAsyncKeyState_cls,        kb_getAsyncKeyState_cls),
+
+// CustomDraw
+    REXX_METHOD(cd_init,                        cd_init),
+    REXX_METHOD(cd_customDrawControl,           cd_customDrawControl),
+
+// LvCustomDrawSimple
+    REXX_METHOD(lvcds_init_cls,                 lvcds_init_cls),
+    REXX_METHOD(lvcds_init,                     lvcds_init),
+    REXX_METHOD(lvcds_setClrText,               lvcds_setClrText),
+    REXX_METHOD(lvcds_setClrTextBk,             lvcds_setClrTextBk),
+    REXX_METHOD(lvcds_getDrawStage,             lvcds_getDrawStage),
+    REXX_METHOD(lvcds_setFont,                  lvcds_setFont),
+    REXX_METHOD(lvcds_getItem,                  lvcds_getItem),
+    REXX_METHOD(lvcds_getItemData,              lvcds_getItemData),
+    REXX_METHOD(lvcds_getID,                    lvcds_getID),
+    REXX_METHOD(lvcds_setReply,                 lvcds_setReply),
+    REXX_METHOD(lvcds_getSubItem,               lvcds_getSubItem),
+
+// TvCustomDrawSimple
+    REXX_METHOD(tvcds_init_cls,                 tvcds_init_cls),
+    REXX_METHOD(tvcds_init,                     tvcds_init),
+    REXX_METHOD(tvcds_setClrText,               tvcds_setClrText),
+    REXX_METHOD(tvcds_setClrTextBk,             tvcds_setClrTextBk),
+    REXX_METHOD(tvcds_getDrawStage,             tvcds_getDrawStage),
+    REXX_METHOD(tvcds_setFont,                  tvcds_setFont),
+    REXX_METHOD(tvcds_getID,                    tvcds_getID),
+    REXX_METHOD(tvcds_getItem,                  tvcds_getItem),
+    REXX_METHOD(tvcds_getItemData,              tvcds_getItemData),
+    REXX_METHOD(tvcds_setReply,                 tvcds_setReply),
+    REXX_METHOD(tvcds_getLevel,                 tvcds_getLevel),
+
+// BrowseForFolder
+    REXX_METHOD(bff_banner,                     bff_banner),
+    REXX_METHOD(bff_setBanner,                  bff_setBanner),
+    REXX_METHOD(bff_dlgTitle,                   bff_dlgTitle),
+    REXX_METHOD(bff_setDlgTitle,                bff_setDlgTitle),
+    REXX_METHOD(bff_hint,                       bff_hint),
+    REXX_METHOD(bff_setHint,                    bff_setHint),
+    REXX_METHOD(bff_initialThread,              bff_initialThread),
+    REXX_METHOD(bff_owner,                      bff_owner),
+    REXX_METHOD(bff_setOwner,                   bff_setOwner),
+    REXX_METHOD(bff_options,                    bff_options),
+    REXX_METHOD(bff_setOptions,                 bff_setOptions),
+    REXX_METHOD(bff_root,                       bff_root),
+    REXX_METHOD(bff_setRoot,                    bff_setRoot),
+    REXX_METHOD(bff_startDir,                   bff_startDir),
+    REXX_METHOD(bff_setStartDir,                bff_setStartDir),
+    REXX_METHOD(bff_usePathForHint,             bff_usePathForHint),
+    REXX_METHOD(bff_setUsePathForHint,          bff_setUsePathForHint),
+    REXX_METHOD(bff_init,                       bff_init),
+    REXX_METHOD(bff_uninit,                     bff_uninit),
+    REXX_METHOD(bff_getDisplayName,             bff_getDisplayName),
+    REXX_METHOD(bff_getFolder,                  bff_getFolder),
+    REXX_METHOD(bff_getItemIDList,              bff_getItemIDList),
+    REXX_METHOD(bff_initCOM,                    bff_initCOM),
+    REXX_METHOD(bff_releaseCOM,                 bff_releaseCOM),
+    REXX_METHOD(bff_releaseItemIDList,          bff_releaseItemIDList),
+    REXX_METHOD(bff_test,                       bff_test),
+
+    REXX_METHOD(sfb_getFolder,                  sfb_getFolder),
 
     REXX_LAST_METHOD()
 };

@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2012 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2013 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -44,7 +44,6 @@
  * PlainBaseDialog with its two inherited mixin classes, WindowBase and
  * ResourceUtils, is the base dialog for all dialogs in the ooDialog framwork.
  */
-::requires "UtilityClasses.cls"
 
 /* The WindowBase class implements methods that are common to all windows.  The
  * methods only require the operating system window handle to function.
@@ -112,6 +111,10 @@
 ::method sendMessage unguarded external "LIBRARY oodialog wb_sendMessage"
 ::method sendMessageHandle unguarded external "LIBRARY oodialog wb_sendMessage"
 ::method setRect unguarded external "LIBRARY oodialog wb_setRect"
+::method setStyleRaw unguarded
+  use strict arg newValue
+  return self~setWindowLong(-16, newValue)
+
 ::method setText unguarded external "LIBRARY oodialog wb_setText"
 ::method setTitle unguarded external "LIBRARY oodialog wb_setText"
 ::method setWindowPos unguarded external "LIBRARY oodialog wb_setWindowPos"
@@ -172,6 +175,7 @@
 
 -- These shortcut methods are for internal use, do not document.
 ::method getWindowLong private unguarded external "LIBRARY oodialog wb_getWindowLong_pvt" -- Not intending to document getWindowLong, at this point
+::method setWindowLong private unguarded external "LIBRARY oodialog wb_setWindowLong_pvt" -- Not intending to document setWindowLong, at this point
 ::method sendWinHandle2Msg unguarded external "LIBRARY oodialog wb_sendWinHandle2Msg"   -- Internal use do not document
 ::method sendWinHandle2MsgH unguarded external "LIBRARY oodialog wb_sendWinHandle2Msg"  -- Internal use do not document
 ::method sendWinHandleMsg unguarded external "LIBRARY oodialog wb_sendWinHandleMsg"     -- Internal use do not document
@@ -264,6 +268,9 @@
 ::attribute autoDetect set external "LIBRARY oodialog pbdlg_setAutoDetect"
 
 ::attribute dlgHandle get unguarded external "LIBRARY oodialog pbdlg_getDlgHandle"
+
+::attribute dlgID get external "LIBRARY oodialog pbdlg_getDlgID"
+::attribute dlgID set external "LIBRARY oodialog pbdlg_setDlgID"
 
 -- finsished is now a boolean, when set to .true, the dialog ends.  Older ooDialog set it
 -- to 2 on an abnormal termination of the underlying dialog.  This is no longer done.
@@ -392,11 +399,11 @@
    -- If we ourselves are a child dialog and not called by the parent's stopIt(), then
    -- remove ourself from the parent dialog's child list.  (Child dialogs are independent
    -- and the user could close them at any time.)
-   if self~parentDlg \= .nil & caller \= "PARENT" then self~parentDlg~childDied(self)
+   if self~parentDlg \== .nil & caller \== "PARENT" then self~parentDlg~childDied(self)
 
    -- If we have child dialogs, then stop all of them.  Child dialogs are always started
    -- through popupAsChild() and are always closed when the parent closes.
-   if self~childDialogs \= .nil then do
+   if self~childDialogs \== .nil then do
        if self~childDialogs~items > 0 then
        do child over self~childDialogs
           child~stopit("PARENT")
@@ -409,9 +416,9 @@
 -- Remove a child dialog from the chain of child dialogs.
 ::method childDied                                         -- Not to be doumented.
    use arg child
-   if self~childDialogs \= .nil then do
+   if self~childDialogs \== .nil then do
        ndx = self~childDialogs~first
-       do while ndx \= .nil
+       do while ndx \== .nil
           if self~childDialogs[ndx] == child then do
               self~childDialogs~remove(ndx)
               ndx = .nil
@@ -445,11 +452,13 @@
 ::method getControlHandle unguarded external "LIBRARY oodialog pbdlg_getControlHandle"
 ::method getTextSizeDu unguarded external "LIBRARY oodialog pbdlg_getTextSizeDu"
 ::method getTextSizeDlg unguarded external "LIBRARY oodialog pbdlg_getTextSizeDlg"
+::method getTextSizeTitleBar unguarded external "LIBRARY oodialog pbdlg_getTextSizeTitleBar"
 ::method pixel2dlgUnit external "LIBRARY oodialog pbdlg_pixel2dlgUnit"
 ::method dlgUnit2pixel external "LIBRARY oodialog pbdlg_dlgUnit2pixel"
 ::method backgroundBitmap external "LIBRARY oodialog pbdlg_backgroundBitmap"
 ::method tiledBackgroundBitmap external "LIBRARY oodialog pbdlg_tiledBackgroundBitmap"
 ::method backgroundColor external "LIBRARY oodialog pbdlg_backgroundColor"
+::method backgroundSysColor external "LIBRARY oodialog pbdlg_backgroundColor"
 
 ::method ensureVisible unguarded
    return self~sendWinIntMsg(self~DM_REPOSITION, 0, 0)
@@ -492,7 +501,7 @@
    self~putDlgDataInStem(InternDlgData.)
 
    id = self~dataConnection~first
-   do while (id \= .nil)
+   do while (id \== .nil)
       self~sendWith(self~dataConnection[id]'=', .array~of(InternDlgData.id))
       id = self~dataConnection~next(id)
    end
@@ -503,7 +512,7 @@
 -- connectXXX methods.  connectListBox(), connectComboBox(), etc..
 ::method setData unguarded
    id = self~dataConnection~first
-   do while (id \= .nil)
+   do while (id \== .nil)
       data = self~send(self~dataConnection[id])
       InternDlgData.id = data
       id = self~dataConnection~next(id)
@@ -559,7 +568,7 @@
 ::method getDataAttribute unguarded
    use strict arg attributeName
    id = self~dataConnection~First
-   do while (id \= .nil)
+   do while (id \== .nil)
       if self~dataConnection[id] = attributeName~space(0) then do
          data = self~getControlData(id)
          self~sendWith(attributeName'=', .array~of(data))
@@ -586,7 +595,7 @@
 ::method setDataAttribute unguarded
    use strict arg attributeName
    id = self~dataConnection~first
-   do while (id \= .nil)
+   do while (id \== .nil)
       if self~dataConnection[id] = attributeName~space(0) then do
          data = self~send(attributeName)
          return self~setControlData(id, data)
@@ -622,7 +631,7 @@
 
    a = .array~new(self~dataConnection~items)
    id = self~dataConnection~first
-   do j = 1 while (id \= .nil)
+   do j = 1 while (id \== .nil)
       attributeName = self~dataConnection~at(id)
       data = self~send(attributeName)
       a[j] = data
@@ -836,6 +845,7 @@
 ::method hasMenuBar
   return self~menuBar \== .nil & self~isLinked
 
+::method createToolTip unguarded external "LIBRARY oodialog pbdlg_createToolTip"
 ::method newStatic unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newPushButton unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newRadioButton unguarded external "LIBRARY oodialog pbdlg_newControl"
@@ -845,6 +855,7 @@
 ::method newComboBox unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newListBox unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newScrollBar unguarded external "LIBRARY oodialog pbdlg_newControl"
+::method newToolTip unguarded external "LIBRARY oodialog pbdlg_newToolTip"
 ::method newTreeView unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newListView unguarded external "LIBRARY oodialog pbdlg_newControl"
 ::method newTab unguarded external "LIBRARY oodialog pbdlg_newControl"

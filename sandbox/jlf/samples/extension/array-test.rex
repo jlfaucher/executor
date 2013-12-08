@@ -42,6 +42,15 @@ call dump2      .array~new(2,3)~of(1,2)
 -- 1 2 1
 -- 2 1 2
 
+-- Test case that demonstrated a bug in ~functionDoer (a new generator was created when initializing the second array)
+g={::coactivity loop i=0; if i//2 == 0 then .yield[i]; else .yield[]; end}
+call dump2      .array~new(2,3)~of(g)
+-- 0 . 2
+-- . 4 .
+call dump2      .array~new(2,3)~of(g)
+-- 6  . 8
+-- . 10 .
+
 
 /********************************************************************
 Recursive arrays
@@ -113,10 +122,10 @@ ts1hour = .TimeSpan~fromHours(1)
 ts1minute = .TimeSpan~fromMinutes(1)
 ts1second = .TimeSpan~fromSeconds(1)
 ts1microsecond = .TimeSpan~fromMicroseconds(1)
-today = .DateTime~today
+date = .datetime~new(2013,1,10, 12, 30, 10)
 
-call dump2      .array~of(ts1microsecond, ts1second, ts1minute, ts1hour, ts1day) + today
-call dump2      today + .array~of(ts1microsecond, ts1second, ts1minute, ts1hour, ts1day)
+call dump2      .array~of(ts1microsecond, ts1second, ts1minute, ts1hour, ts1day) + date
+call dump2      date + .array~of(ts1microsecond, ts1second, ts1minute, ts1hour, ts1day)
 
 -- Operator overriding has a cost on performances...
 -- When activated, each usage of operator will trigger the multi-implementation behavior :
@@ -142,6 +151,8 @@ do 10000
     var = 1+2
 end
 say "duration2="time('e')~format(2,4)
+
+.Coactivity~endAll
 
 ::requires "extension/extensions.cls"
 ::requires "pipeline/pipe_extension.cls"

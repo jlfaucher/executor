@@ -102,19 +102,14 @@ many times as necessary to fill the array.
 
             -- if initialization with a doer
             else if doer <> .nil then do
-                -- next line is not really needed because when a coactivity is ended, there is not returned result
-                -- and this case is managed by the second test doer~isEnded below.
-                if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
-                else do
-                    if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
-                    else if doer~arity == 1 then doer~do(selfIntegerIndex)
-                    else doer~do
-                    if var("result") then self~put(result, selfArrayIndex)
-                    -- next line is needed to offer the same behaviour for
-                    -- .array~new(2,3)~of(1~upto(5))
-                    -- .array~new(2,3)~of(1~generate.upto(5))
-                    else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
-                end
+                if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
+                else if doer~arity == 1 then doer~do(selfIntegerIndex)
+                else doer~do
+                if var("result") then self~put(result, selfArrayIndex)
+                -- next line is needed to offer the same behaviour for
+                -- .array~new(2,3)~of(1~upto(5))
+                -- .array~new(2,3)~of(1~generate.upto(5))
+                else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
             end
 
             -- if initialization with a supplier
@@ -258,11 +253,20 @@ many times as necessary to fill the array.
 
 ::options OPERATOR_OVERRIDING_BY_ROUTINE
 
+::routine same_dimensions
+    use strict arg a1, a2
+    if a1~dimension <> a2~dimension then return .false
+    do i=1 to a1~dimension
+        if a1~dimension(i) <> a2~dimension(i) then return .false
+    end
+    return .true
+    
 ::routine "+" public
 if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("+")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
         use arg array1, array2
+        if \same_dimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
         return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item + array2[index]}
     end
     if arg(1)~isA(.array) then do
@@ -280,6 +284,7 @@ if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("-")
 if arg() == 2 then do
     if arg(1)~isA(.array), arg(2)~isA(.array) then do
         use arg array1, array2
+        if \same_dimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
         return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - array2[index]}
     end
     if arg(1)~isA(.array) then do
@@ -289,6 +294,58 @@ if arg() == 2 then do
     if arg(2)~isA(.array) then do
         use arg scalar, array
         return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar - item}
+    end
+end
+
+::routine "*" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- multiplication of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item * scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar * item}
+    end
+end
+
+::routine "/" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- division of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item / scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar / item}
+    end
+end
+
+::routine "%" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- integer division of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item % scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar % item}
+    end
+end
+
+::routine "//" public
+if arg() == 2 then do
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- remainder (divide an return the remainder) of two matrices not (yet) implemented
+    if arg(1)~isA(.array) then do
+        use arg array, scalar
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item // scalar}
+    end
+    if arg(2)~isA(.array) then do
+        use arg scalar, array
+        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar // item}
     end
 end
 
