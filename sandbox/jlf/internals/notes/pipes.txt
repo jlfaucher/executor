@@ -1,3 +1,9 @@
+http://hackage.haskell.org/package/pipes
+pipes is a clean and powerful stream processing library that lets you build and connect reusable streaming components
+http://hackage.haskell.org/package/pipes-4.0.1/docs/Pipes-Tutorial.html
+http://www.haskellforall.com/
+
+
 C++ Pipelines
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3534.html
 http://code.google.com/p/google-concurrency-library/source/browse/include/pipeline.h
