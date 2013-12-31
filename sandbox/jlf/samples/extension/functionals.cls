@@ -129,8 +129,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- http://en.wikipedia.org/wiki/Map_(higher-order_function)
 -- The result returned by ~map method is of the same type as the self object.
 -- A String or MutableBuffer can be filtered (when no result returned by the given action).
--- A Collection can't be filtered : If the given action doesn't return a result, then the current value is unchanged.
--- If you need to filter the values of a Collection, then use the ~each method.
+-- A Collection can be filtered : If the given action doesn't return a result, then the current value is removed.
 
 -----------------------------------------------
 ::class "StringMapper" mixinclass Object public
@@ -264,9 +263,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
         newItem = supplier~item
         if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
                            else doer~do(supplier~item)
-        if var("result") then newItem = result
-        if self~isA(.SetCollection) then self[newItem] = newItem -- special constraint : index and item must be the same object
-                                    else self[supplier~index] = newItem
+        if var("result") then do
+            newItem = result
+            if self~isA(.SetCollection) then self[newItem] = newItem -- special constraint : index and item must be the same object
+                                        else self[supplier~index] = newItem
+        end
+        else do
+            self~remove(supplier~index)
+        end
         supplier~next
     end
     return self
