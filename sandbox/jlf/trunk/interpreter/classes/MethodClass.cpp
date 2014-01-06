@@ -500,7 +500,7 @@ void *RexxMethod::operator new (size_t size)
  *
  * @return The constructed method object.
  */
-RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source, RexxObject *position, RexxSource *parentSource)
+RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source, RexxObject *position, RexxSource *parentSource, bool isBlock)
 {
     // request this as an array.  If not convertable, then we'll use it as a string
     RexxArray *newSourceArray = source->requestArray();
@@ -566,7 +566,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
     // if there is a parent source, then merge in the scope information
     if (parentSource != OREF_NULL)
     {
-        result->getSourceObject()->inheritSourceContext(parentSource);
+        result->getSourceObject()->inheritSourceContext(parentSource, isBlock);
     }
 
     return result;
@@ -627,8 +627,17 @@ RexxMethod *RexxMethod::newRexx(
             }
         }
     }
+
+    bool isBlock = false;
+    // retrieve extra parameter if exists
+    if (initCount != 0)
+    {
+        RexxClass::processNewArgs(init_args, initCount, &init_args, &initCount, 1, (RexxObject **)&option, NULL);
+        isBlock = option->truthValue(Error_Logical_value_logical_list);
+    }
+
     /* go create a method                */
-    newMethod = RexxMethod::newMethodObject(nameString, _source, IntegerTwo, sourceContext);
+    newMethod = RexxMethod::newMethodObject(nameString, _source, IntegerTwo, sourceContext, isBlock);
     ProtectedObject p(newMethod);
     /* Give new object its behaviour     */
     newMethod->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());

@@ -154,82 +154,79 @@
 -- A partial implementation of the operators is defined on the class 'complex'.
 -- The following routines address only the missing functionalities.
 
-::options OPERATOR_OVERRIDING_BY_ROUTINE
-
 ::routine "+" public
-if arg() == 2 then do
-    if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-        use arg complexNumber, notComplexNumber
-        return complexNumber + .complex[notComplexNumber]
+    if arg() == 2 then do
+        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
+            use arg complexNumber, notComplexNumber
+            return complexNumber + .complex[notComplexNumber]
+        end
+        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
+            use arg notComplexNumber, complexNumber
+            return .complex[notComplexNumber] + complexNumber
+        end
     end
-    if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-        use arg notComplexNumber, complexNumber
-        return .complex[notComplexNumber] + complexNumber
-    end
-end
 
 
 ::routine "-" public
-if arg() == 2 then do
-    if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-        use arg complexNumber, notComplexNumber
-        return complexNumber - .complex[notComplexNumber]
+    if arg() == 2 then do
+        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
+            use arg complexNumber, notComplexNumber
+            return complexNumber - .complex[notComplexNumber]
+        end
+        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
+            use arg notComplexNumber, complexNumber
+            return .complex[notComplexNumber] - complexNumber
+        end
     end
-    if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-        use arg notComplexNumber, complexNumber
-        return .complex[notComplexNumber] - complexNumber
-    end
-end
 
 
 ::routine "*" public
-if arg() == 2 then do
-    if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-        use arg complexNumber, notComplexNumber
-        return complexNumber * .complex[notComplexNumber]
+    if arg() == 2 then do
+        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
+            use arg complexNumber, notComplexNumber
+            return complexNumber * .complex[notComplexNumber]
+        end
+        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
+            use arg notComplexNumber, complexNumber
+            return .complex[notComplexNumber] * complexNumber
+        end
     end
-    if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-        use arg notComplexNumber, complexNumber
-        return .complex[notComplexNumber] * complexNumber
-    end
-end
 
 
 ::routine "/" public
-if arg() == 2 then do
-    if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-        use arg complexNumber, notComplexNumber
-        return complexNumber / .complex[notComplexNumber]
+    if arg() == 2 then do
+        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
+            use arg complexNumber, notComplexNumber
+            return complexNumber / .complex[notComplexNumber]
+        end
+        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
+            use arg notComplexNumber, complexNumber
+            return .complex[notComplexNumber] / complexNumber
+        end
     end
-    if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-        use arg notComplexNumber, complexNumber
-        return .complex[notComplexNumber] / complexNumber
-    end
-end
 
 
 ::routine "%" public
-if arg() == 2 then do
-    if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-        use arg complexNumber, notComplexNumber
-        return complexNumber % .complex[notComplexNumber]
+    if arg() == 2 then do
+        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
+            use arg complexNumber, notComplexNumber
+            return complexNumber % .complex[notComplexNumber]
+        end
+        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
+            use arg notComplexNumber, complexNumber
+            return .complex[notComplexNumber] % complexNumber
+        end
     end
-    if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-        use arg notComplexNumber, complexNumber
-        return .complex[notComplexNumber] % complexNumber
-    end
-end
 
 
 ::routine "//" public
-if arg() == 2 then do
-    if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-        use arg complexNumber, notComplexNumber
-        return complexNumber // .complex[notComplexNumber]
+    if arg() == 2 then do
+        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
+            use arg complexNumber, notComplexNumber
+            return complexNumber // .complex[notComplexNumber]
+        end
+        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
+            use arg notComplexNumber, complexNumber
+            return .complex[notComplexNumber] // complexNumber
+        end
     end
-    if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-        use arg notComplexNumber, complexNumber
-        return .complex[notComplexNumber] // complexNumber
-    end
-end
-

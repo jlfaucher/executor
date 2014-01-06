@@ -140,6 +140,86 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2014 jan 06
+
+[method search order]
+Allow to modify the method search order from anywhere.
+Before, was possible only from methods of the target object.
+    .c1~new~m
+    .c1~new~m:.c2 -- Now it's ok, interpreter modified to no longer raise :
+                  -- Message search overrides can be used only from methods of the target object
+
+    ::class c1 inherit c2
+    ::method m
+    say "c1::m"
+    self~m:.c2
+
+    ::class c2 mixinclass object
+    ::method m
+    say "c2::m"
+
+
+[block]
+Implement the functionality described in Q1 of entry 2013 sept 15 :
+    Inherit the toplevel source options settings, when creating a method or routine for a block.
+    No longer needed for the option OPERATOR_OVERRIDING_BY_ROUTINE (removed), but useful for the rest.
+A new optional parameter isBlock can be passed when creating a method or routine :
+    .Method~new("do", sourceArray, context, isBlock)
+    .Routine~new("", sourceArray, context, isBlock)
+This indicator is used to activate specific behaviour, like inheritance of toplevel source options.
+
+
+[operator]
+Remove the option OPERATOR_OVERRIDING_BY_ROUTINE.
+Too complicated to manage that per package, will have to find another way to optimize.
+For the moment, the search of overriding routines is done systematically when evaluating
+a binary or prefix operator.
+
+
+[operator]
+Add more overloading of operators for array.
+But not sure it's a good idea for some of them, like "||", " ", "".
+I have an error
+    Too many arguments in invocation of method; 0 expected
+when running:
+    d = .dataflow~create(.nil, "source", source, 1)
+    say "dataflow="d
+where the traceback is
+   720 *-*     string = previous~makeString(mask, showPool, pool, values)" | "
+       *-* Compiled method REQUEST with scope "Object"
+   426 *-*   say "dataflow=".dataflow~create(.nil, "source", source, 1)
+A dataflow is a subclass of array, and here the abbutal operator is used.
+If I don't declare the operator "", then no error.
+RexxInstructionAssignment::execute
+    this->expression :
+        RexxBinaryOperator
+            this->left_term : RexxExpressionMessage "MAKESTRING", count=4
+            this->right_term : RexxString " | "
+RexxExpressionMessage::Evaluate
+    this->target : RexxParseVariable variableName="PREVIOUS"
+    the evaluation returns a RexxString "dataflow=The NIL object"
+    and then the message MAKESTRING with 4 arguments is sent to this string
+    hence the error... because 
+        in RexxObject::messageSend
+            RexxMethod *method_save = this->behaviour->methodLookup(msgname)
+            returns a CPPCode with cppEntry = {rexx.dll!RexxObject::makeStringRexx(void)}
+                                   argumentCount = 0
+        4 > 0 ==> error
+In summary :
+We have d = [(The NIL object),'source',1,'SOURCE']
+This is an array of 4 items.
+The 1st item (previous dataflow) is the .NIL object.
+The expression "dataflow="d is evaluated ['dataflow=The NIL object', 'dataflow=source', 'dataflow=1', 'dataflow=SOURCE']
+The 1st item is the string 'dataflow=The NIL object'.
+The message MAKESTRING with 0 arguments is sent by the interpreter to ['dataflow=The NIL object', 'dataflow=source', 'dataflow=1', 'dataflow=SOURCE']
+The implementation for .DataFlow is called.
+This implementation do that :
+    if previous <> .nil then string = previous~makeString(mask, showPool, pool, values)" | "
+Since the previous element is not .NIL, the MAKESTRING with 4 arguments is sent to previous.
+Boom!
+
+
+===============================================================================
 2013 dec 31
 
 [functional]
@@ -169,6 +249,11 @@ a=
     # 1: index=[1,2] -> item=[2]
     # 2: index=[2,1] -> item=[4]
     # 3: index=[2,3] -> item=[6]
+
+
+[rgf_util2]
+No longer override pp2 in rgf_util2_wrappers.rex.
+Better to modify this routine pp2 directly in my copy of rgf_util2.rex
 
 
 ===============================================================================

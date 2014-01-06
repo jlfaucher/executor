@@ -416,7 +416,7 @@ void *RoutineClass::operator new (size_t size)
  *
  * @return A constructed Routine object.
  */
-RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *source, RexxObject *position, RexxSource *parentSource)
+RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *source, RexxObject *position, RexxSource *parentSource, bool isBlock)
 {
     // request this as an array.  If not convertable, then we'll use it as a string
     RexxArray *newSourceArray = source->requestArray();
@@ -486,7 +486,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
     // if there is a parent source, then merge in the scope information
     if (parentSource != OREF_NULL)
     {
-        result->getSourceObject()->inheritSourceContext(parentSource);
+        result->getSourceObject()->inheritSourceContext(parentSource, isBlock);
     }
 
     return result;
@@ -594,7 +594,15 @@ RoutineClass *RoutineClass::newRexx(
         }
     }
 
-    RoutineClass *newRoutine = newRoutineObject(nameString, _source, IntegerTwo, sourceContext);
+    bool isBlock = false;
+    // retrieve extra parameter if exists
+    if (initCount != 0)
+    {
+        RexxClass::processNewArgs(init_args, initCount, &init_args, &initCount, 1, (RexxObject **)&option, NULL);
+        isBlock = option->truthValue(Error_Logical_value_logical_list);
+    }
+
+    RoutineClass *newRoutine = newRoutineObject(nameString, _source, IntegerTwo, sourceContext, isBlock);
     ProtectedObject p(newRoutine);
     /* Give new object its behaviour     */
     newRoutine->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());

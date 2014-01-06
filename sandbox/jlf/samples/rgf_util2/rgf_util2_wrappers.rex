@@ -35,28 +35,6 @@ obj~method2(args) --> obj~method(reworked_args)
     return object
 
 
--- JLF : redefines the pp2 routine which is defined in rgf_util2.rex
--- Since I pretty-print array using square brackets, I prefer to avoid square brackets
-/* Show non-printable chars as Rexx hex-strings.
-   If non-string object, then show its string value and hash-value.
-*/
-::routine pp2 public       -- rgf, 20091214
-  use strict arg a1
-
-  if \a1~isA(.string) then
-  do
-     if a1~isA(.Collection) then
-        return "("a1~string "("a1~items "items)" "id#_" || (a1~identityHash)")"
-     else
-        return "("a1~string "id#_" || (a1~identityHash)")" -- JLF round bracked instead of square bracket
-  end
-
-  -- strings are surrounded by quotes, except string numbers
-  a1str = a1~string
-  if \a1~dataType("N") then a1str = "'"a1str"'"
-  return escape2(a1str)
-
-
 ::extension String
 ::method abbrev2 ; return abbrev2~call(self, .context~args)
 ::method changeStr2 ; return changeStr2~call(self, .context~args, 2)
