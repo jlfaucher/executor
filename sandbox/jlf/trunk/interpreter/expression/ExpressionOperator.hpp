@@ -54,7 +54,8 @@ class RexxExpressionOperator : public RexxInternalObject {
   void   liveGeneral(int reason);
   void   flatten(RexxEnvelope *);
 
-  inline const char *operatorName() { return (*(operatorNames[oper - 1]))->getStringData(); }
+  inline RexxString *operatorName() { return (*(operatorNames[oper])); }
+  static int operatorIndex(RexxString *msgname); // If msgname is the name of an operator, then return the index of this operator, otherwise return 0
 
 protected:
     // table of operator names

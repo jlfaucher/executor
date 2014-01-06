@@ -1782,7 +1782,7 @@ syntax:              -- propagate condition
      len=length(coll~items)
   end
 
-  say
+  -- JLF say
   count=0
 
 
@@ -1805,7 +1805,7 @@ syntax:              -- propagate condition
      say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
      s~next
   end
-  say "-"~copies(50)
+  -- JLF say "-"~copies(50)
   return
 
 
@@ -2587,15 +2587,22 @@ createCodeSnippet: procedure
 
   if \a1~isA(.string) then
   do
+     -- JLF : condensed output, 100 items max
+     if a1~isA(.array), a1~dimension <= 1, a1~hasMethod("ppRepresentation") then
+        return a1~ppRepresentation(100)
+     -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
      if a1~isA(.Collection) then
-        if .local~rgf.showIdentityHash then return "["a1~string "("a1~items "items)" "id#_" || (a1~identityHash)"]"
-        else return "["a1~string "("a1~items "items)]"
+        if .local~rgf.showIdentityHash then return "("a1~string "("a1~items "items)" "id#_" || (a1~identityHash)")"
+        else return "("a1~string "("a1~items "items))"
      else
-        if .local~rgf.showIdentityHash then return "["a1~string "id#_" || (a1~identityHash)"]"
-        else return "["a1~string"]"
+        if .local~rgf.showIdentityHash then return "("a1~string "id#_" || (a1~identityHash)")"
+        else return "("a1~string")"
   end
 
-  return "["escape2(a1)"]"
+  -- JLF : strings are surrounded by quotes, except string numbers
+  a1str = a1~string
+  if \a1~dataType("N") then a1str = "'"a1str"'"
+  return escape2(a1str)
 
 
 /* ======================================================================= */

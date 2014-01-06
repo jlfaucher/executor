@@ -1367,6 +1367,7 @@ void RexxActivity::live(size_t liveMark)
   memory_mark(this->activations);
   memory_mark(this->topStackFrame);
   memory_mark(this->currentRexxFrame);
+  memory_mark(this->firstRexxFrameWithLoadedPackages);
   memory_mark(this->conditionobj);
   memory_mark(this->requiresTable);
   memory_mark(this->waitingObject);
@@ -1392,6 +1393,7 @@ void RexxActivity::liveGeneral(int reason)
   memory_mark_general(this->activations);
   memory_mark_general(this->topStackFrame);
   memory_mark_general(this->currentRexxFrame);
+  memory_mark_general(this->firstRexxFrameWithLoadedPackages);
   memory_mark_general(this->conditionobj);
   memory_mark_general(this->requiresTable);
   memory_mark_general(this->waitingObject);

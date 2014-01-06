@@ -1,243 +1,246 @@
 --------------------------------------------------------------------------------
 Object's methods with their identity hash
-" "                             :  268010592 
-""                              :  268010432 
-"<>"                            :  268010879 
-"="                             :  268010772 
-"=="                            :  268010874 
-"><"                            :  268010869 
-"CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266673766 
-"COACTIVEPIPEPROFILE"           :  266696642 
-"COPY"                          :  268010831 
-"DEFAULTNAME"                   :  268010967 
-"GENERATE"                      :  267167743 
-"GENERATEI"                     :  267176025 
-"HASHCODE"                      :  268010754 
-"HASMETHOD"                     :  268010979 
-"IDENTITYHASH"                  :  268010925 
-"INIT"                          :  268010676 
-"INSTANCEMETHOD"                :  268010525 
-"INSTANCEMETHODS"               :  268010647 
-"ISA"                           :  268010912 
-"ISINSTANCEOF"                  :  268010796 
-"OBJECTNAME"                    :  268010617 
-"OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266650998 
-"PIPEPROFILE"                   :  266674072 
-"REQUEST"                       :  268010950 
-"RUN"                           :  268010819 
-"SEND"                          :  268010864 
-"SENDWITH"                      :  268010962 
-"SETMETHOD"                     :  268010722 
-"SETMETHOD1"                    :  266965604 
-"START"                         :  268010472 
-"STARTWITH"                     :  268010717 
-"STRING"                        :  268010688 
-"UNSETMETHOD"                   :  268010659 
-"\="                            :  268010901 
-"\=="                           :  268010836 
-"||"                            :  268010512 
-1 : 38
+" "                             :  1099511342924 
+""                              :  1099511343352 
+"<>"                            :  1099511343330 
+"="                             :  1099511343526 
+"=="                            :  1099511343440 
+"><"                            :  1099511343372 
+"CLASS"                         :  1099511343262 
+"COACTIVEPIPE"                  :  1099509360202 
+"COACTIVEPIPEPROFILE"           :  1099509389242 
+"COPY"                          :  1099511343550 
+"DEFAULTNAME"                   :  1099511343382 
+"GENERATE"                      :  1099510128888 
+"GENERATEI"                     :  1099510134888 
+"HASHCODE"                      :  1099511343362 
+"HASMETHOD"                     :  1099511342752 
+"IDENTITYHASH"                  :  1099511342800 
+"INIT"                          :  1099511343032 
+"INSTANCEMETHOD"                :  1099511342902 
+"INSTANCEMETHODS"               :  1099511342554 
+"ISA"                           :  1099511342946 
+"ISINSTANCEOF"                  :  1099511343430 
+"OBJECTNAME"                    :  1099511343320 
+"OBJECTNAME="                   :  1099511343470 
+"PIPE"                          :  1099509327426 
+"PIPEPROFILE"                   :  1099509360812 
+"REQUEST"                       :  1099511342728 
+"RUN"                           :  1099511343214 
+"SEND"                          :  1099511343516 
+"SENDWITH"                      :  1099511342506 
+"SETMETHOD"                     :  1099511343460 
+"SETMETHOD1"                    :  1099509769878 
+"START"                         :  1099511342600 
+"STARTWITH"                     :  1099511342482 
+"STRING"                        :  1099511343146 
+"UNSETMETHOD"                   :  1099511342776 
+"\="                            :  1099511343450 
+"\=="                           :  1099511343296 
+"||"                            :  1099511343492 
+(The NIL object) : 38
 --------------------------------------------------------------------------------
 Object's instance methods with their identity hash
-""                              :  268010432 
-" "                             :  268010592 
-"<>"                            :  268010749 
-"<>"                            :  268010879 
-"="                             :  268010733 
-"="                             :  268010772 
-"=="                            :  268010783 
-"=="                            :  268010874 
-"><"                            :  268010460 
-"><"                            :  268010869 
-"BASECLASS"                     :  268010629 
-"CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266650517 
-"COPY"                          :  268010831 
-"DEFAULTNAME"                   :  268010501 
-"DEFAULTNAME"                   :  268010967 
-"DEFINE"                        :  268010884 
-"DELETE"                        :  268010449 
-"ENHANCED"                      :  268010444 
-"GENERATE"                      :  267151124 
-"GENERATEI"                     :  267159420 
-"HASHCODE"                      :  268010671 
-"HASHCODE"                      :  268010754 
-"HASMETHOD"                     :  268010979 
-"HELP"                          :  267142830 
-"ID"                            :  268010565 
-"IDENTITYHASH"                  :  268010925 
-"INHERIT"                       :  268010570 
-"INIT"                          :  268010676 
-"INSTANCEMETHOD"                :  268010525 
-"INSTANCEMETHODS"               :  268010647 
-"ISA"                           :  268010912 
-"ISINSTANCEOF"                  :  268010796 
-"ISSUBCLASSOF"                  :  268010605 
-"METACLASS"                     :  268010537 
-"METHOD"                        :  268010634 
-"METHODS"                       :  268010841 
-"MIXINCLASS"                    :  268010808 
-"NEW"                           :  268010738 
-"OBJECTNAME"                    :  268010617 
-"OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266627749 
-"QUERYMIXINCLASS"               :  268010767 
-"REQUEST"                       :  268010950 
-"RUN"                           :  268010819 
-"SEND"                          :  268010864 
-"SENDWITH"                      :  268010962 
-"SETMETHOD"                     :  268010722 
-"START"                         :  268010472 
-"STARTWITH"                     :  268010717 
-"STRING"                        :  268010688 
-"SUBCLASS"                      :  268010693 
-"SUBCLASSES"                    :  268010705 
-"SUPERCLASS"                    :  268010554 
-"SUPERCLASSES"                  :  268010938 
-"UNINHERIT"                     :  268010489 
-"UNSETMETHOD"                   :  268010659 
-"\="                            :  268010852 
-"\="                            :  268010901 
-"\=="                           :  268010581 
-"\=="                           :  268010836 
-"||"                            :  268010512 
-1 : 62
+" "                             :  1099511342924 
+""                              :  1099511343352 
+"<>"                            :  1099511343022 
+"<>"                            :  1099511343330 
+"="                             :  1099511342632 
+"="                             :  1099511343526 
+"=="                            :  1099511342822 
+"=="                            :  1099511343440 
+"><"                            :  1099511342576 
+"><"                            :  1099511343372 
+"ACTIVATE"                      :  1099511343056 
+"BASECLASS"                     :  1099511343238 
+"CLASS"                         :  1099511343262 
+"COACTIVEPIPE"                  :  1099509326466 
+"COPY"                          :  1099511343550 
+"DEFAULTNAME"                   :  1099511342856 
+"DEFAULTNAME"                   :  1099511343382 
+"DEFINE"                        :  1099511342976 
+"DELETE"                        :  1099511343122 
+"ENHANCED"                      :  1099511342656 
+"GENERATE"                      :  1099510116778 
+"GENERATEI"                     :  1099510122806 
+"HASHCODE"                      :  1099511342704 
+"HASHCODE"                      :  1099511343362 
+"HASMETHOD"                     :  1099511342752 
+"HELP"                          :  1099510110754 
+"ID"                            :  1099511343192 
+"IDENTITYHASH"                  :  1099511342800 
+"INHERIT"                       :  1099511342458 
+"INIT"                          :  1099511343032 
+"INSTANCEMETHOD"                :  1099511342902 
+"INSTANCEMETHODS"               :  1099511342554 
+"ISA"                           :  1099511342946 
+"ISINSTANCEOF"                  :  1099511343430 
+"ISSUBCLASSOF"                  :  1099511343170 
+"METACLASS"                     :  1099511342448 
+"METHOD"                        :  1099511342956 
+"METHODS"                       :  1099511342966 
+"MIXINCLASS"                    :  1099511343406 
+"NEW"                           :  1099511343112 
+"OBJECTNAME"                    :  1099511343320 
+"OBJECTNAME="                   :  1099511343470 
+"PIPE"                          :  1099509293690 
+"QUERYMIXINCLASS"               :  1099511343286 
+"REQUEST"                       :  1099511342728 
+"RUN"                           :  1099511343214 
+"SEND"                          :  1099511343516 
+"SENDWITH"                      :  1099511342506 
+"SETMETHOD"                     :  1099511343460 
+"START"                         :  1099511342600 
+"STARTWITH"                     :  1099511342482 
+"STRING"                        :  1099511343146 
+"SUBCLASS"                      :  1099511342832 
+"SUBCLASSES"                    :  1099511342680 
+"SUPERCLASS"                    :  1099511342530 
+"SUPERCLASSES"                  :  1099511343080 
+"UNINHERIT"                     :  1099511343000 
+"UNSETMETHOD"                   :  1099511342776 
+"\="                            :  1099511343102 
+"\="                            :  1099511343450 
+"\=="                           :  1099511342878 
+"\=="                           :  1099511343296 
+"||"                            :  1099511343492 
+(The NIL object) : 63
 --------------------------------------------------------------------------------
 Class' methods with their identity hash
-""                              :  268010432 
-" "                             :  268010592 
-"!DEFINE_CLASS_METHOD"          :  268011525 
-"!DEFINE_METHODS"               :  268011511 
-"!REXXDEFINED"                  :  268011506 
-"<>"                            :  268010749 
-"<>"                            :  268010879 
-"="                             :  268010733 
-"="                             :  268010772 
-"=="                            :  268010783 
-"=="                            :  268010874 
-"><"                            :  268010460 
-"><"                            :  268010869 
-"BASECLASS"                     :  268010629 
-"CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266673766 
-"COACTIVEPIPEPROFILE"           :  266696642 
-"COPY"                          :  268010831 
-"DEFAULTNAME"                   :  268010501 
-"DEFAULTNAME"                   :  268010967 
-"DEFINE"                        :  268010884 
-"DELETE"                        :  268010449 
-"ENHANCED"                      :  268010444 
-"GENERATE"                      :  267167743 
-"GENERATEI"                     :  267176025 
-"HASHCODE"                      :  268010671 
-"HASHCODE"                      :  268010754 
-"HASMETHOD"                     :  268010979 
-"ID"                            :  268010565 
-"IDENTITYHASH"                  :  268010925 
-"INHERIT"                       :  268010570 
-"INIT"                          :  268010676 
-"INSTANCEMETHOD"                :  268010525 
-"INSTANCEMETHODS"               :  268010647 
-"ISA"                           :  268010912 
-"ISINSTANCEOF"                  :  268010796 
-"ISSUBCLASSOF"                  :  268010605 
-"METACLASS"                     :  268010537 
-"METHOD"                        :  268010634 
-"METHODS"                       :  268010841 
-"MIXINCLASS"                    :  268010808 
-"OBJECTNAME"                    :  268010617 
-"OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266650998 
-"PIPEPROFILE"                   :  266674072 
-"QUERYMIXINCLASS"               :  268010767 
-"REQUEST"                       :  268010950 
-"RUN"                           :  268010819 
-"SEND"                          :  268010864 
-"SENDWITH"                      :  268010962 
-"SETMETHOD"                     :  268010722 
-"SETMETHOD1"                    :  266965604 
-"START"                         :  268010472 
-"STARTWITH"                     :  268010717 
-"STRING"                        :  268010688 
-"SUBCLASS"                      :  268010693 
-"SUBCLASSES"                    :  268010705 
-"SUPERCLASS"                    :  268010554 
-"SUPERCLASSES"                  :  268010938 
-"UNINHERIT"                     :  268010489 
-"UNSETMETHOD"                   :  268010659 
-"\="                            :  268010852 
-"\="                            :  268010901 
-"\=="                           :  268010581 
-"\=="                           :  268010836 
-"||"                            :  268010512 
-1 : 66
+" "                             :  1099511342924 
+""                              :  1099511343352 
+"!DEFINE_CLASS_METHOD"          :  1099511344606 
+"!DEFINE_METHODS"               :  1099511344616 
+"!REXXDEFINED"                  :  1099511344626 
+"<>"                            :  1099511343022 
+"<>"                            :  1099511343330 
+"="                             :  1099511342632 
+"="                             :  1099511343526 
+"=="                            :  1099511342822 
+"=="                            :  1099511343440 
+"><"                            :  1099511342576 
+"><"                            :  1099511343372 
+"ACTIVATE"                      :  1099511343056 
+"BASECLASS"                     :  1099511343238 
+"CLASS"                         :  1099511343262 
+"COACTIVEPIPE"                  :  1099509360202 
+"COACTIVEPIPEPROFILE"           :  1099509389242 
+"COPY"                          :  1099511343550 
+"DEFAULTNAME"                   :  1099511342856 
+"DEFAULTNAME"                   :  1099511343382 
+"DEFINE"                        :  1099511342976 
+"DELETE"                        :  1099511343122 
+"ENHANCED"                      :  1099511342656 
+"GENERATE"                      :  1099510128888 
+"GENERATEI"                     :  1099510134888 
+"HASHCODE"                      :  1099511342704 
+"HASHCODE"                      :  1099511343362 
+"HASMETHOD"                     :  1099511342752 
+"ID"                            :  1099511343192 
+"IDENTITYHASH"                  :  1099511342800 
+"INHERIT"                       :  1099511342458 
+"INIT"                          :  1099511343032 
+"INSTANCEMETHOD"                :  1099511342902 
+"INSTANCEMETHODS"               :  1099511342554 
+"ISA"                           :  1099511342946 
+"ISINSTANCEOF"                  :  1099511343430 
+"ISSUBCLASSOF"                  :  1099511343170 
+"METACLASS"                     :  1099511342448 
+"METHOD"                        :  1099511342956 
+"METHODS"                       :  1099511342966 
+"MIXINCLASS"                    :  1099511343406 
+"OBJECTNAME"                    :  1099511343320 
+"OBJECTNAME="                   :  1099511343470 
+"PIPE"                          :  1099509327426 
+"PIPEPROFILE"                   :  1099509360812 
+"QUERYMIXINCLASS"               :  1099511343286 
+"REQUEST"                       :  1099511342728 
+"RUN"                           :  1099511343214 
+"SEND"                          :  1099511343516 
+"SENDWITH"                      :  1099511342506 
+"SETMETHOD"                     :  1099511343460 
+"SETMETHOD1"                    :  1099509769878 
+"START"                         :  1099511342600 
+"STARTWITH"                     :  1099511342482 
+"STRING"                        :  1099511343146 
+"SUBCLASS"                      :  1099511342832 
+"SUBCLASSES"                    :  1099511342680 
+"SUPERCLASS"                    :  1099511342530 
+"SUPERCLASSES"                  :  1099511343080 
+"UNINHERIT"                     :  1099511343000 
+"UNSETMETHOD"                   :  1099511342776 
+"\="                            :  1099511343102 
+"\="                            :  1099511343450 
+"\=="                           :  1099511342878 
+"\=="                           :  1099511343296 
+"||"                            :  1099511343492 
+(The NIL object) : 67
 --------------------------------------------------------------------------------
 Class' instance methods with their identity hash
-""                              :  268010432 
-" "                             :  268010592 
-"!DEFINE_CLASS_METHOD"          :  268011525 
-"!DEFINE_METHODS"               :  268011511 
-"!REXXDEFINED"                  :  268011506 
-"<>"                            :  268010749 
-"<>"                            :  268010879 
-"="                             :  268010733 
-"="                             :  268010772 
-"=="                            :  268010783 
-"=="                            :  268010874 
-"><"                            :  268010460 
-"><"                            :  268010869 
-"BASECLASS"                     :  268010629 
-"CLASS"                         :  268010896 
-"COACTIVEPIPE"                  :  266627225 
-"COPY"                          :  268010831 
-"DEFAULTNAME"                   :  268010501 
-"DEFAULTNAME"                   :  268010967 
-"DEFINE"                        :  268010884 
-"DELETE"                        :  268010449 
-"ENHANCED"                      :  268010444 
-"HASHCODE"                      :  268010671 
-"HASHCODE"                      :  268010754 
-"HASMETHOD"                     :  268010979 
-"ID"                            :  268010565 
-"IDENTITYHASH"                  :  268010925 
-"INHERIT"                       :  268010570 
-"INIT"                          :  268010676 
-"INSTANCEMETHOD"                :  268010525 
-"INSTANCEMETHODS"               :  268010647 
-"ISA"                           :  268010912 
-"ISINSTANCEOF"                  :  268010796 
-"ISSUBCLASSOF"                  :  268010605 
-"METACLASS"                     :  268010537 
-"METHOD"                        :  268010634 
-"METHODS"                       :  268010841 
-"MIXINCLASS"                    :  268010808 
-"NEW"                           :  268106732 
-"OBJECTNAME"                    :  268010617 
-"OBJECTNAME="                   :  268010542 
-"PIPE"                          :  266604461 
-"QUERYMIXINCLASS"               :  268010767 
-"REQUEST"                       :  268010950 
-"RUN"                           :  268010819 
-"SEND"                          :  268010864 
-"SENDWITH"                      :  268010962 
-"SETMETHOD"                     :  268010722 
-"START"                         :  268010472 
-"STARTWITH"                     :  268010717 
-"STRING"                        :  268010688 
-"SUBCLASS"                      :  268010693 
-"SUBCLASSES"                    :  268010705 
-"SUPERCLASS"                    :  268010554 
-"SUPERCLASSES"                  :  268010938 
-"UNINHERIT"                     :  268010489 
-"UNSETMETHOD"                   :  268010659 
-"\="                            :  268010852 
-"\="                            :  268010901 
-"\=="                           :  268010581 
-"\=="                           :  268010836 
-"||"                            :  268010512 
-1 : 62
+" "                             :  1099511342924 
+""                              :  1099511343352 
+"!DEFINE_CLASS_METHOD"          :  1099511344606 
+"!DEFINE_METHODS"               :  1099511344616 
+"!REXXDEFINED"                  :  1099511344626 
+"<>"                            :  1099511343022 
+"<>"                            :  1099511343330 
+"="                             :  1099511342632 
+"="                             :  1099511343526 
+"=="                            :  1099511342822 
+"=="                            :  1099511343440 
+"><"                            :  1099511342576 
+"><"                            :  1099511343372 
+"ACTIVATE"                      :  1099511343056 
+"BASECLASS"                     :  1099511343238 
+"CLASS"                         :  1099511343262 
+"COACTIVEPIPE"                  :  1099509292644 
+"COPY"                          :  1099511343550 
+"DEFAULTNAME"                   :  1099511342856 
+"DEFAULTNAME"                   :  1099511343382 
+"DEFINE"                        :  1099511342976 
+"DELETE"                        :  1099511343122 
+"ENHANCED"                      :  1099511342656 
+"HASHCODE"                      :  1099511342704 
+"HASHCODE"                      :  1099511343362 
+"HASMETHOD"                     :  1099511342752 
+"ID"                            :  1099511343192 
+"IDENTITYHASH"                  :  1099511342800 
+"INHERIT"                       :  1099511342458 
+"INIT"                          :  1099511343032 
+"INSTANCEMETHOD"                :  1099511342902 
+"INSTANCEMETHODS"               :  1099511342554 
+"ISA"                           :  1099511342946 
+"ISINSTANCEOF"                  :  1099511343430 
+"ISSUBCLASSOF"                  :  1099511343170 
+"METACLASS"                     :  1099511342448 
+"METHOD"                        :  1099511342956 
+"METHODS"                       :  1099511342966 
+"MIXINCLASS"                    :  1099511343406 
+"NEW"                           :  1099511535724 
+"OBJECTNAME"                    :  1099511343320 
+"OBJECTNAME="                   :  1099511343470 
+"PIPE"                          :  1099509259820 
+"QUERYMIXINCLASS"               :  1099511343286 
+"REQUEST"                       :  1099511342728 
+"RUN"                           :  1099511343214 
+"SEND"                          :  1099511343516 
+"SENDWITH"                      :  1099511342506 
+"SETMETHOD"                     :  1099511343460 
+"START"                         :  1099511342600 
+"STARTWITH"                     :  1099511342482 
+"STRING"                        :  1099511343146 
+"SUBCLASS"                      :  1099511342832 
+"SUBCLASSES"                    :  1099511342680 
+"SUPERCLASS"                    :  1099511342530 
+"SUPERCLASSES"                  :  1099511343080 
+"UNINHERIT"                     :  1099511343000 
+"UNSETMETHOD"                   :  1099511342776 
+"\="                            :  1099511343102 
+"\="                            :  1099511343450 
+"\=="                           :  1099511342878 
+"\=="                           :  1099511343296 
+"||"                            :  1099511343492 
+(The NIL object) : 63
 --------------------------------------------------------------------------------
 RexxBlock' methods, with their defining class
                                Object 
@@ -259,6 +262,7 @@ DOER                           RexxBlockDoer
 DOER                           DoerFactory 
 DOWITH                         RexxBlockDoer 
 DOWITH                         Doer 
+EXECUTABLE                     RexxBlockDoer 
 FUNCTIONDOER                   RexxBlockDoer 
 GENERATE                       Object 
 GENERATEI                      Object 
@@ -267,6 +271,7 @@ HASMETHOD                      Object
 HASMETHOD                      RexxBlockDoer 
 IDENTITYHASH                   Object 
 INIT                           Object 
+INIT                           RexxBlockDoer 
 INSTANCEMETHOD                 Object 
 INSTANCEMETHODS                Object 
 ISA                            Object 
@@ -289,10 +294,10 @@ SOURCEDOER                     RexxBlockDoer
 START                          Object 
 STARTWITH                      Object 
 STRING                         Object 
-SUPPLIER                       RexxBlockDoer 
 TRAMPOLINE                     Doer 
 UNKNOWN                        RexxBlockDoer 
 UNSETMETHOD                    Object 
+Y                              Doer 
 \=                             Object 
 \==                            Object 
 ||                             Object 
@@ -316,6 +321,7 @@ All classes understanding the ~help method
 (The ArrayPrettyPrinter class) 
 (The Bag class) 
 (The Buffer class) 
+(The COMPLEX class) 
 (The CaselessColumnComparator class) 
 (The CaselessComparator class) 
 (The CaselessDescendingComparator class) 
@@ -352,6 +358,7 @@ All classes understanding the ~help method
 (The InputStream class) 
 (The InvertingComparator class) 
 (The List class) 
+(The LogicalExtension class) 
 (The MESSAGEPROFILEDATA class) 
 (The MapCollection class) 
 (The Message class) 
@@ -415,6 +422,7 @@ All classes understanding the ~help method
 (The changeStr class) 
 (The charCount class) 
 (The characters class) 
+(The class.instanceMethods class) 
 (The console class) 
 (The dataflow class) 
 (The delStr class) 
@@ -436,7 +444,6 @@ All classes understanding the ~help method
 (The left class) 
 (The lower class) 
 (The merge class) 
-(The methods class) 
 (The notAll class) 
 (The overlay class) 
 (The partitionedCounter class) 
@@ -462,15 +469,17 @@ All classes understanding the ~help method
 (The yield class) 
 --------------------------------------------------------------------------------
 All packages that are visible from current context, including the current package (source of the pipeline).
-D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\one-liners.rex 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\generator.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\array.cls 
+d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\complex.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\file.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\functionals.cls 
+d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\logical.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\string.cls 
+d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\one-liners.rex 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension.cls 
 d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\profiling\profiling.cls 
@@ -495,6 +504,7 @@ generator.cls : (The StringGenerator class)
 generator.cls : (The SupplierGenerator class) 
 array.cls : (The ArrayInitializer class) 
 array.cls : (The ArrayPrettyPrinter class) 
+complex.cls : (The COMPLEX class) 
 doers.cls : (The Closure class) 
 doers.cls : (The CoactivityDoer class) 
 doers.cls : (The Doer class) 
@@ -522,6 +532,7 @@ functionals.cls : (The StringReducer class)
 functionals.cls : (The SupplierFilter class) 
 functionals.cls : (The SupplierIterator class) 
 functionals.cls : (The SupplierReducer class) 
+logical.cls : (The LogicalExtension class) 
 string.cls : (The StringHelpers class) 
 pipe.rex : (The after class) 
 pipe.rex : (The all class) 
@@ -543,6 +554,7 @@ pipe.rex : (The endsWith class)
 pipe.rex : (The fanin class) 
 pipe.rex : (The fanout class) 
 pipe.rex : (The fileLines class) 
+pipe.rex : (The indexedItem class) 
 pipe.rex : (The indexedItemComparator class) 
 pipe.rex : (The insert class) 
 pipe.rex : (The left class) 
@@ -570,68 +582,68 @@ pipe.rex : (The wordCount class)
 pipe.rex : (The words class) 
 pipe.rex : (The x2c class) 
 pipe_extension.cls : (The append class) 
+pipe_extension.cls : (The class.instanceMethods class) 
 pipe_extension.cls : (The do class) 
 pipe_extension.cls : (The fileTree class) 
 pipe_extension.cls : (The importedPackages class) 
 pipe_extension.cls : (The inject class) 
 pipe_extension.cls : (The instanceMethods class) 
-pipe_extension.cls : (The methods class) 
 pipe_extension.cls : (The select class) 
 pipe_extension.cls : (The subClasses class) 
 pipe_extension.cls : (The superClasses class) 
 profiling.cls : (The PROFILER class) 
 --------------------------------------------------------------------------------
 The 50 first files and directories in the /tmp directory
-source:1,'/tmp' | fileTree:1,(D:\tmp\#!sh.bat) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\AboutDlg.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\AboutDlg.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help\MSDNIntegrator.chi) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help\MSDNIntegrator.chm) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:4,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\LoadLibrary.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:5,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\LoadLibrary.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:6,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegration.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:7,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegration.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:8,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.clw) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:9,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:10,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.dsp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:11,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.dsw) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:12,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:13,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.opt) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:14,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.plg) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:15,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.positions) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:16,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.rc) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:17,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegratorDlg.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:18,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegratorDlg.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:19,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\ReadMe.txt) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:20,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:20,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release\MSDNIntegrator.exe) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\logo.bmp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\MSDNIntegrator.ico) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:3,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\MSDNIntegrator.rc2) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:4,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\ogo.bmp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:22,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\resource.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:23,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\SplitPath.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:24,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\SplitPath.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:25,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\StdAfx.cpp) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:26,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\StdAfx.h) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.chi) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:3,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.chm) 
-source:1,'/tmp' | fileTree:2,(D:\tmp\A guide to MSDN Collection Integration) | fileTree:4,(D:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.exe) 
-source:1,'/tmp' | fileTree:3,(D:\tmp\Achats Logiciels.xls) 
-source:1,'/tmp' | fileTree:4,(D:\tmp\ActiveRoles_MgmtShellForAD_10_AdminGuide_English_4.pdf) 
-source:1,'/tmp' | fileTree:5,(D:\tmp\demo.txt) 
-source:1,'/tmp' | fileTree:6,(D:\tmp\doclist.txt) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) | fileTree:1,(D:\tmp\GTDev\DomExt_xpath.pdf) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) | fileTree:2,(D:\tmp\GTDev\IPE.V1.0.FR.ppt) 
-source:1,'/tmp' | fileTree:7,(D:\tmp\GTDev) | fileTree:3,(D:\tmp\GTDev\XML Query & Transforming using dom.find & dom.set.doc) 
-source:1,'/tmp' | fileTree:8,(D:\tmp\iffe1205583635) 
-source:1,'/tmp' | fileTree:9,(D:\tmp\Local) 
-source:1,'/tmp' | fileTree:9,(D:\tmp\Local) | fileTree:1,(D:\tmp\Local\dbdita) 
+source:1,'/tmp' | fileTree:1,(d:\tmp\#!sh.bat) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\AboutDlg.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\AboutDlg.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help\MSDNIntegrator.chi) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help\MSDNIntegrator.chm) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:4,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\LoadLibrary.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:5,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\LoadLibrary.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:6,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegration.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:7,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegration.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:8,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.clw) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:9,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:10,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.dsp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:11,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.dsw) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:12,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:13,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.opt) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:14,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.plg) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:15,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.positions) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:16,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.rc) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:17,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegratorDlg.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:18,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegratorDlg.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:19,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\ReadMe.txt) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:20,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:20,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release\MSDNIntegrator.exe) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\logo.bmp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\MSDNIntegrator.ico) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\MSDNIntegrator.rc2) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:4,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\ogo.bmp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:22,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\resource.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:23,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\SplitPath.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:24,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\SplitPath.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:25,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\StdAfx.cpp) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:26,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\StdAfx.h) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.chi) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.chm) 
+source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:4,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.exe) 
+source:1,'/tmp' | fileTree:3,(d:\tmp\Achats Logiciels.xls) 
+source:1,'/tmp' | fileTree:4,(d:\tmp\ActiveRoles_MgmtShellForAD_10_AdminGuide_English_4.pdf) 
+source:1,'/tmp' | fileTree:5,(d:\tmp\demo.txt) 
+source:1,'/tmp' | fileTree:6,(d:\tmp\doclist.txt) 
+source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) 
+source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) | fileTree:1,(d:\tmp\GTDev\DomExt_xpath.pdf) 
+source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) | fileTree:2,(d:\tmp\GTDev\IPE.V1.0.FR.ppt) 
+source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) | fileTree:3,(d:\tmp\GTDev\XML Query & Transforming using dom.find & dom.set.doc) 
+source:1,'/tmp' | fileTree:8,(d:\tmp\iffe1205583635) 
+source:1,'/tmp' | fileTree:9,(d:\tmp\Local) 
+source:1,'/tmp' | fileTree:9,(d:\tmp\Local) | fileTree:1,(d:\tmp\Local\dbdita) 
 --------------------------------------------------------------------------------
 Count the files and directories in the /tmp directory
-1 : 24639
+(The NIL object) : 24639

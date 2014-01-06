@@ -108,7 +108,6 @@ const size_t RexxActivation::trace_intermediates_flags = (trace_all | trace_labe
 
 const bool RexxActivation::default_enable_commands = true;
 const bool RexxActivation::default_enable_macrospace = true;
-const bool RexxActivation::default_enable_operator_overriding_by_routine = false;
 
 const size_t RexxActivation::single_step         = 0x00000800; /* we are single stepping execution  */
 const size_t RexxActivation::single_step_nested  = 0x00001000; /* this is a nested stepping         */
@@ -188,13 +187,14 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     // this point.
     this->settings = activationSettingsTemplate;
     // and override with the package-defined settings
-    this->settings.numericSettings.digits = sourceObject->getDigits();
-    this->settings.numericSettings.fuzz = sourceObject->getFuzz();
-    this->settings.numericSettings.form = sourceObject->getForm();
-    setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
-    this->settings.enableCommands = sourceObject->getEnableCommands();
-    this->settings.enableMacrospace = sourceObject->getEnableMacrospace();
-    this->settings.enableOperatorOverridingByRoutine = sourceObject->getEnableOperatorOverridingByRoutine();
+    RexxSource *referenceSource = sourceObject;
+    if (sourceObject->isBlock) referenceSource = sourceObject->toplevelSource;
+    this->settings.numericSettings.digits = referenceSource->getDigits();
+    this->settings.numericSettings.fuzz = referenceSource->getFuzz();
+    this->settings.numericSettings.form = referenceSource->getForm();
+    setTrace(referenceSource->getTraceSetting(), referenceSource->getTraceFlags());
+    this->settings.enableCommands = referenceSource->getEnableCommands();
+    this->settings.enableMacrospace = referenceSource->getEnableMacrospace();
 
     if (_method->isGuarded())            // make sure we set the appropriate guarded state
     {
@@ -335,13 +335,14 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
     /* get initial settings template     */
     this->settings = activationSettingsTemplate;
     // and override with the package-defined settings
-    this->settings.numericSettings.digits = sourceObject->getDigits();
-    this->settings.numericSettings.fuzz = sourceObject->getFuzz();
-    this->settings.numericSettings.form = sourceObject->getForm();
-    setTrace(sourceObject->getTraceSetting(), sourceObject->getTraceFlags());
-    this->settings.enableCommands = sourceObject->getEnableCommands();
-    this->settings.enableMacrospace = sourceObject->getEnableMacrospace();
-    this->settings.enableOperatorOverridingByRoutine = sourceObject->getEnableOperatorOverridingByRoutine();
+    RexxSource *referenceSource = sourceObject;
+    if (sourceObject->isBlock) referenceSource = sourceObject->toplevelSource;
+    this->settings.numericSettings.digits = referenceSource->getDigits();
+    this->settings.numericSettings.fuzz = referenceSource->getFuzz();
+    this->settings.numericSettings.form = referenceSource->getForm();
+    setTrace(referenceSource->getTraceSetting(), referenceSource->getTraceFlags());
+    this->settings.enableCommands = referenceSource->getEnableCommands();
+    this->settings.enableMacrospace = referenceSource->getEnableMacrospace();
     /* save the source also              */
     this->settings.parent_code = this->code;
 
@@ -1973,14 +1974,6 @@ bool RexxActivation::enableMacrospace()
     return this->settings.enableMacrospace;
 }
 
-bool RexxActivation::enableOperatorOverridingByRoutine()
-/******************************************************************************/
-/* Function:  Return the current OPERATOR_OVERRIDING_BY_ROUTINE setting       */
-/******************************************************************************/
-{
-    return this->settings.enableOperatorOverridingByRoutine;
-}
-
 /**
  * Set the digits setting to the package-defined default
  */
@@ -2048,14 +2041,6 @@ void RexxActivation::enableMacrospace(bool status)
 /******************************************************************************/
 {
     this->settings.enableMacrospace = status;
-}
-
-void RexxActivation::enableOperatorOverridingByRoutine(bool status)
-/******************************************************************************/
-/* Function:  Set the new current OPERATOR_OVERRIDING_BY_ROUTINE setting      */
-/******************************************************************************/
-{
-    this->settings.enableOperatorOverridingByRoutine = status;
 }
 
 
@@ -2709,28 +2694,28 @@ bool RexxActivation::callMacroSpaceFunction(RexxString * target, RexxObject **_a
  *
  * @return The function result (also returned in the resultObj protected object reference.
  */
-RexxObject *RexxActivation::overridableFunctionCall(RexxString *target, size_t _argcount, RexxExpressionStack *_stack,
+RexxObject *RexxActivation::overridableFunctionCall(RexxString *target, size_t _argcount, RexxObject **_arguments,
     ProtectedObject &resultObj)
 {
-    /* get the arguments array           */
-    RexxObject **_arguments = _stack->arguments(_argcount);
-
     // Get all the routines in the 'requires' search order
     RexxArray *routines = new_array((size_t)0);
     ProtectedObject r(routines);
     // this->settings.parent_code->findRoutines(target, routines);
-    RexxActivation *activation = this->activity->getFirstRexxFrameWithLoadedPackages();
-    RexxSource *source = activation->getSourceObject();
-    source->findRoutines(target, routines);
-
-    // Call each routine until a result is returned
-    // must be visited from last to first to follow the visibility rules
-    size_t routinesCount = routines->size();
-    for (size_t i = routinesCount; i >= 1; i--)
+    RexxActivation *activation = ActivityManager::currentActivity->getFirstRexxFrameWithLoadedPackages();
+    if (activation != OREF_NULL)
     {
-        RoutineClass *routine = (RoutineClass *)routines->get(i);
-        routine->call(this->activity, target, _arguments, _argcount, OREF_ROUTINENAME, OREF_NULL, EXTERNALCALL, resultObj);
-        if ((RexxObject *)resultObj != OREF_NULL) return (RexxObject *)resultObj;
+        RexxSource *source = activation->getSourceObject();
+        source->findRoutines(target, routines);
+    
+        // Call each routine until a result is returned
+        // must be visited from last to first to follow the visibility rules
+        size_t routinesCount = routines->size();
+        for (size_t i = routinesCount; i >= 1; i--)
+        {
+            RoutineClass *routine = (RoutineClass *)routines->get(i);
+            routine->call(ActivityManager::currentActivity, target, _arguments, _argcount, OREF_ROUTINENAME, OREF_NULL, EXTERNALCALL, resultObj);
+            if ((RexxObject *)resultObj != OREF_NULL) return (RexxObject *)resultObj;
+        }
     }
 
     return OREF_NULL;
