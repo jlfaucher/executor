@@ -62,13 +62,22 @@ many times as necessary to fill the array.
     if self~dimension == 0 then raise syntax 93.900 array("Unknown number of dimensions")
 
     -- Only one of the following variable will be used
+    oneValue = .false
     arrayIn = .nil
     doer = .nil
     supplier = .nil
 
     if arg() == 1 then do
-        if arg(1)~isA(.String) then arrayIn = arg(1)~subwords -- APL-like
-        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex")~arity(2)
+        if arg(1)~isA(.String) then do
+            arrayIn = arg(1)~subwords -- APL-like
+            if arrayIn~items == 1 then do
+                -- Optimization : use the value as-is instead of iterating over an array of 1 item
+                arrayIn = .nil
+                oneValue = .true
+                value = arg(1)
+            end
+        end
+        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex, self")~arity(3)
         else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
         else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
@@ -76,13 +85,23 @@ many times as necessary to fill the array.
     end
     else arrayIn = arg(1, "a")
 
+    selfIntegerIndex = 1
+    selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+
+    -- Optimization
+    if oneValue == .true then do
+        do while selfIntegerIndex <= self~size
+            self~put(value, selfArrayIndex)
+            selfIntegerIndex += 1
+            self~incrementIndex(selfArrayIndex)
+        end
+        return self
+    end
+
     if arrayIn~"<>"(.nil) then do
         arrayInIndex = 1
         arrayInSize = arrayIn~size
     end
-
-    selfIntegerIndex = 1
-    selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
 
     sourceEnd = 0
     selfReuseIntegerIndex = 1
@@ -101,7 +120,8 @@ many times as necessary to fill the array.
 
             -- if initialization with a doer
             else if doer <> .nil then do
-                if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
+                if doer~arity == 3 then doer~do(selfIntegerIndex, selfArrayIndex~copy, self)
+                else if doer~arity == 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
                 else if doer~arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
@@ -410,7 +430,7 @@ many times as necessary to fill the array.
     end
 
 /*-----------------------------------------------------------------------------
-Not activated, because the risk of breaking existing programms is high. 
+Not activated, because the risk of breaking existing programms is high.
 
 /* Remember, the default implementation works with arrays (in fact with any type) */
 ::routine "=" public
