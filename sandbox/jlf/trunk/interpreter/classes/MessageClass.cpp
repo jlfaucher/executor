@@ -281,7 +281,7 @@ RexxObject *RexxMessage::send(RexxObject *_receiver)
     /* set this for resource deadlock    */
     /* checking purposes                 */
     OrefSet(this, this->startActivity, myActivity);
-    ProtectedObject p(myActivity);
+    ProtectedObject p;
     /*  call message_send to do the send */
     /* and assign our result.            */
     if (this->startscope != OREF_NULL)/* have a starting scope?            */

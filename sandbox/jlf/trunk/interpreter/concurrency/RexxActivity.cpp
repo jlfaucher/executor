@@ -2021,6 +2021,16 @@ void RexxActivity::checkStackSpace()
 {
 #ifdef STACKCHECK
   size_t temp;                          // if checking and there isn't room
+#if 0
+  printf("RexxActivity::checkStackSpace : SP=%16.16x stackBase=%16.16x delta=%i MIN_C_STACK=%i %i %i\n",
+         (char *)&temp,
+         (char *)this->stackBase,
+         ((char *)&temp - (char *)this->stackBase),
+         MIN_C_STACK,
+         ((char *)&temp - (char *)this->stackBase) < MIN_C_STACK,
+         this->stackcheck == true
+  );
+#endif
   if (((char *)&temp - (char *)this->stackBase) < MIN_C_STACK && this->stackcheck == true)
   {
                                         // go raise an exception
