@@ -606,6 +606,9 @@ class ActivationSettings
    }
 
    inline void setLocalVariableDictionary(RexxVariableDictionary *dict) {settings.local_variables.setDictionary(dict); }
+   inline void openTryCatch() { try_catch_count++; }
+   inline void closeTryCatch() { try_catch_count--; }
+   
 
  protected:
 
@@ -643,7 +646,7 @@ class ActivationSettings
    bool                 random_set;    /* random seed has been set          */
    size_t               blockNest;     /* block instruction nesting level   */
    size_t               lookaside_size;/* size of the lookaside table       */
-
+   size_t               try_catch_count;
 
    // constants
 

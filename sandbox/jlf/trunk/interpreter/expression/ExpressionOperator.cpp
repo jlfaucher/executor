@@ -46,51 +46,42 @@
 #include "RexxActivation.hpp"
 #include "ExpressionOperator.hpp"
 
-/*
-See also :
-RexxObject::operatorMethods
-RexxInteger::operatorMethods
-RexxNumberString::operatorMethods
-RexxString::operatorMethods
-
-can't be an array of RexxString* because the global names are not yet initialized when this array is initialized.
-so this is an array of pointers to the global names, hence the RexxString** declaration...
-*/
-RexxString **RexxExpressionOperator::operatorNames[] =
+const char *RexxExpressionOperator::operatorNames[] =
 {
-    &OREF_PLUS,
-    &OREF_SUBTRACT,
-    &OREF_MULTIPLY,
-    &OREF_DIVIDE,
-    &OREF_INTDIV,
-    &OREF_REMAINDER,
-    &OREF_POWER,
-    &OREF_NULLSTRING,
-    &OREF_CONCATENATE,
-    &OREF_BLANK,
-    &OREF_EQUAL,
-    &OREF_BACKSLASH_EQUAL,
-    &OREF_GREATERTHAN,
-    &OREF_BACKSLASH_GREATERTHAN,
-    &OREF_LESSTHAN,
-    &OREF_BACKSLASH_LESSTHAN,
-    &OREF_GREATERTHAN_EQUAL,
-    &OREF_LESSTHAN_EQUAL,
-    &OREF_STRICT_EQUAL,
-    &OREF_STRICT_BACKSLASH_EQUAL,
-    &OREF_STRICT_GREATERTHAN,
-    &OREF_STRICT_BACKSLASH_GREATERTHAN,
-    &OREF_STRICT_LESSTHAN,
-    &OREF_STRICT_BACKSLASH_LESSTHAN,
-    &OREF_STRICT_GREATERTHAN_EQUAL,
-    &OREF_STRICT_LESSTHAN_EQUAL,
-    &OREF_LESSTHAN_GREATERTHAN,
-    &OREF_GREATERTHAN_LESSTHAN,
-    &OREF_AND,
-    &OREF_OR,
-    &OREF_XOR,
-    &OREF_BACKSLASH
+    "+",
+    "-",
+    "*",
+    "/",
+    "%",
+    "//",
+    "**",
+    "",
+    "||",
+    " ",
+    "=",
+    "\\=",
+    ">",
+    "\\>",
+    "<",
+    "\\<",
+    ">=",
+    "<=",
+    "==",
+    "\\==",
+    ">>",
+    "\\>>",
+    "<<",
+    "\\<<",
+    ">>=",
+    "<<=",
+    "<>",
+    "><",
+    "&",
+    "|",
+    "&&",
+    "\\",
 };
+
 
 
 RexxExpressionOperator::RexxExpressionOperator(
@@ -119,18 +110,6 @@ RexxObject *RexxBinaryOperator::evaluate(
     RexxObject *left = this->left_term->evaluate(context, stack);
     /* evaluate the right term           */
     RexxObject *right = this->right_term->evaluate(context, stack);
-    if (context->enableOperatorOverridingByRoutine())
-    {
-        RexxString *routineName = *(operatorNames[this->oper - 1]);
-        ProtectedObject result;
-        const size_t argcount = 2;
-        context->overridableFunctionCall(routineName, argcount, stack, result);
-        if (result != OREF_NULL)
-        {
-            stack->operatorResult(result); // replace top two stack elements with result
-            return result;
-        }
-    }
     /* evaluate the message              */
     RexxObject *result = callOperatorMethod(left, this->oper, right);
     /* replace top two stack elements    */
@@ -149,18 +128,6 @@ RexxObject *RexxUnaryOperator::evaluate(
 {
     /* evaluate the target               */
     RexxObject *term = this->left_term->evaluate(context, stack);
-    if (context->enableOperatorOverridingByRoutine())
-    {
-        RexxString *routineName = *(operatorNames[this->oper - 1]);
-        ProtectedObject result;
-        const size_t argcount = 1;
-        context->overridableFunctionCall(routineName, argcount, stack, result);
-        if (result != OREF_NULL)
-        {
-            stack->prefixResult(result); // replace the top element with result
-            return result;
-        }
-    }
     /* process this directly             */
     RexxObject *result = callOperatorMethod(term, this->oper, OREF_NULL);
     stack->prefixResult(result);         /* replace the top element           */

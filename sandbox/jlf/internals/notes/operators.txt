@@ -1,3 +1,4 @@
+[abandonned]
 To better support binary operators, call a routine which takes two arguments.
 That way, it's more easy to override the behaviour because the types of the
 two arguments can be taken into account.
@@ -7,6 +8,7 @@ Ex :
 If no overriding routine then fallback to the classic behaviour :
 send message to left arg.
 
+---------------------------------------------------------------------------------
 
 The implementation of operators for the class String is optimized.
 Does not send the message <operator>.
@@ -58,7 +60,7 @@ IntegerClass.cpp
 they all have a table similar to this one (of class String) :
 PCPPM RexxString::operatorMethods[] =
 {
-   NULL,                               /* first entry not used              */
+   NULL,                               /* first entry not used              */ JLF because index starts at 1, see Token.hpp : #define OPERATOR_PLUS  1
    (PCPPM)&RexxString::plus,
    (PCPPM)&RexxString::minus,
    (PCPPM)&RexxString::multiply,
@@ -97,8 +99,31 @@ PCPPM RexxString::operatorMethods[] =
 
 
 ObjectClass.cpp
-    #define operatorMethod(name, message) ...
-    #define prefixOperatorMethod(name, message) ...
+    #define operatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
+    {\
+        ProtectedObject result;              /* returned result                   */\
+                                             /* do a real message send            */\
+        this->messageSend(OREF_##message, &operand, 1, result);                      \
+        if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
+        {  \
+                                             /* need to raise an exception        */ \
+            reportException(Error_No_result_object_message, OREF_##message); \
+        }  \
+        return (RexxObject *)result;         /* return the final result           */ \
+    }\
+
+    #define prefixOperatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
+    {\
+        ProtectedObject result;              /* returned result                   */\
+                                             /* do a real message send            */\
+        this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); \
+        if ((RexxObject *)result == OREF_NULL)             /* in an expression and need a result*/ \
+        {  \
+                                             /* need to raise an exception        */ \
+            reportException(Error_No_result_object_message, OREF_##message); \
+        }  \
+        return (RexxObject *)result;         /* return the final result           */ \
+    }\
 
     The default implementation on Object is to send the appropriate message
     corresponding to the operator.
@@ -165,7 +190,10 @@ RexxBehaviour(T_Integer, (PCPPM *)RexxInteger::operatorMethods),
 RexxBehaviour(T_NumberString, (PCPPM *)RexxNumberString::operatorMethods),
 RexxBehaviour(T_String, (PCPPM *)RexxString::operatorMethods),
 
-------------------------------------
+
+------------------------------------------------------------------------------------
+
+[abandonned]
 Analyze how to implement the overriding routines.
 Must be optimized, probably using a table for fast look-up.
 Where to put this table ? on RexxSource ?
@@ -211,13 +239,13 @@ RexxSource::findRoutine
 RexxSource is wrapped by PackageClass, RexxCode, ParseActivationFrame, RexxActivation, RexxNativeCode
 
 
-------------------------------------
+----------------------------------------------------------------------------------
 Remember
 This code has not been retained because doing an external call is too heavy :
 - will test the exits when routine not found
 - will perform platform-specific searches when exits not applicable
 - will raise an exception if nothing found
-Moreover, there is probably a problem with the stack of arguments, when an exception is raided
+Moreover, there is probably a problem with the stack of arguments, when an exception is raised
 (got a crash later, when cleaning the stack).
 RexxBinaryOperator::evaluate
         try
