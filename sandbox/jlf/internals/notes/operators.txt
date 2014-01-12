@@ -27,6 +27,8 @@ say .mystring~new("toto") | 10      -- overriding works as expected (here, no ex
 say .mystring~new("toto")~"|"(10)   -- overriding works as expected
 
 
+---------------------------------------------------------------------------------
+
 ExpressionOperator.cpp
     RexxBinaryOperator::evaluate(
         RexxActivation      *context,      /* current activation context        */
@@ -38,6 +40,51 @@ ExpressionOperator.cpp
             RexxObject *result = callOperatorMethod(term, this->oper, OREF_NULL);
 
 
+----------------------------------------------------------------------------------
+
+RexxCore.h
+#define koper(name) RexxObject *name(RexxObject *);
+
+
+ObjectClass.hpp
+   koper  (operator_plus)
+   koper  (operator_minus)
+   koper  (operator_multiply)
+   koper  (operator_divide)
+   koper  (operator_integerDivide)
+   koper  (operator_remainder)
+   koper  (operator_power)
+   koper  (operator_abuttal)
+   koper  (operator_concat)
+   koper  (operator_concatBlank)
+   koper  (operator_equal)
+   koper  (operator_notEqual)
+   koper  (operator_isGreaterThan)
+   koper  (operator_isBackslashGreaterThan)
+   koper  (operator_isLessThan)
+   koper  (operator_isBackslashLessThan)
+   koper  (operator_isGreaterOrEqual)
+   koper  (operator_isLessOrEqual)
+   koper  (operator_strictEqual)
+   koper  (operator_strictNotEqual)
+   koper  (operator_strictGreaterThan)
+   koper  (operator_strictBackslashGreaterThan)
+   koper  (operator_strictLessThan)
+   koper  (operator_strictBackslashLessThan)
+   koper  (operator_strictGreaterOrEqual)
+   koper  (operator_strictLessOrEqual)
+   koper  (operator_lessThanGreaterThan)
+   koper  (operator_greaterThanLessThan)
+   koper  (operator_and)
+   koper  (operator_or)
+   koper  (operator_xor)
+   koper  (operator_not)
+
+IntegerClass.hpp
+   koper (integer_operator_not)
+
+
+----------------------------------------------------------------------------------
 RexxCore.h
 inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, RexxObject *argument) {
                                        /* get the entry point               */
@@ -46,6 +93,8 @@ inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, 
   return (object->*((PCPPM1)cppEntry))(argument);
 }
 
+
+-----------------------------------------------------------------------------------
 
 RexxBehavior.hpp
    inline PCPPM getOperatorMethod(size_t index) { return operatorMethods[index]; }

@@ -103,16 +103,6 @@ void RexxInstructionOptions::execute(
             context->enableMacrospace(false);
         }
 
-        else if (word->strCaselessCompare(CHAR_OPERATOR_OVERRIDING_BY_ROUTINE))
-        {
-            context->enableOperatorOverridingByRoutine(true);
-        }
-
-        else if (word->strCaselessCompare(CHAR_NOOPERATOR_OVERRIDING_BY_ROUTINE))
-        {
-            context->enableOperatorOverridingByRoutine(false);
-        }
-
 #ifdef _DEBUG
         else if (word->strCaselessCompare("DUMPMEMORY"))
         {

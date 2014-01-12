@@ -339,14 +339,44 @@ ooRexx supports anonymous recursive functions, so no need of the Y combinator...
     }
     say fact~(10)                           -- 3628800
 
+### Pipelines
+
+A chain of connected [pipeStages][pipes_documentation] is a pipe.  
+Any object can be a source of pipe :
+
+- When the object does not support the method ~supplier then it's injected as-is.  
+  The index is 1.
+- A collection can be a source of pipe : each item of the collection is injected in the pipe.  
+  The indexes are those of the collection.
+- A coactivty can be a source of pipe : each yielded item is injected in the pipe (lazily).  
+  The indexes are those returned by the coactivity supplier.
+
+Example:  
+Count the number of files in the directory passed as argument, and in each subdirectory.  
+The recursivity is limited to 1 level, [breadth-first search][wikipedia_breadth_first_search].  
+The count per directory is done by partitioning the instances of .File flowing through the pipeline by their parent.  
+
+    "d:\"~pipe(.fileTree recursive.1.breadthFirst | .lineCount {item~parent} | .console {item~right(6)} index)
+
+output :
+
+        70 'd:'
+         1 'd:\$RECYCLE.BIN'
+       146 'd:\bin'
+        16 'd:\Cygwin'
+         6 'd:\gnutools'
+    ...
+
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
 [doc_transformation_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/transformxml/_diary.txt "Doc XML transformations diary"
 [railroad_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/railroad/_diary.txt "Railroad diary"
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
+[pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/samples/pipeline/pipe_readme.txt
 [doc]: http://dl.dropbox.com/u/20049088/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [slides]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/slides-sandbox-jlf.pdf "slides-sandbox-jlf.pdf"
 [download]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/index.html "Download"
+[wikipedia_breadth_first_search]: http://en.wikipedia.org/wiki/Breadth-first_search
 [wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
 [mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
 [rosetta_code_y_combinator]: http://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"

@@ -1367,6 +1367,7 @@ void RexxActivity::live(size_t liveMark)
   memory_mark(this->activations);
   memory_mark(this->topStackFrame);
   memory_mark(this->currentRexxFrame);
+  memory_mark(this->firstRexxFrameWithLoadedPackages);
   memory_mark(this->conditionobj);
   memory_mark(this->requiresTable);
   memory_mark(this->waitingObject);
@@ -1392,6 +1393,7 @@ void RexxActivity::liveGeneral(int reason)
   memory_mark_general(this->activations);
   memory_mark_general(this->topStackFrame);
   memory_mark_general(this->currentRexxFrame);
+  memory_mark_general(this->firstRexxFrameWithLoadedPackages);
   memory_mark_general(this->conditionobj);
   memory_mark_general(this->requiresTable);
   memory_mark_general(this->waitingObject);
@@ -2019,6 +2021,16 @@ void RexxActivity::checkStackSpace()
 {
 #ifdef STACKCHECK
   size_t temp;                          // if checking and there isn't room
+#if 0
+  printf("RexxActivity::checkStackSpace : SP=%16.16x stackBase=%16.16x delta=%i MIN_C_STACK=%i %i %i\n",
+         (char *)&temp,
+         (char *)this->stackBase,
+         ((char *)&temp - (char *)this->stackBase),
+         MIN_C_STACK,
+         ((char *)&temp - (char *)this->stackBase) < MIN_C_STACK,
+         this->stackcheck == true
+  );
+#endif
   if (((char *)&temp - (char *)this->stackBase) < MIN_C_STACK && this->stackcheck == true)
   {
                                         // go raise an exception

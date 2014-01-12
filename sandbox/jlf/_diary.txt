@@ -353,6 +353,120 @@ Merge revisions 8678-9423 from SourceForge main/trunk
 
 
 ===============================================================================
+2013 sep 15
+
+Creation of the branch block_closure.
+
+Will be used to optimize the implementation of closures.
+Currently, the instance of closure is created by user code in doers.cls.
+See the method sourceDoer of RexxBlockDoer.
+See the method init of Closure.
+This is very inefficient implementation, to replace by a native (C++) implementation.
+
+For the needs of operator overloadings, I have to bring an answer to question Q1 below.
+I propose to inherit the options settings, when creating a method or routine for a block.
+I will need to add an additional parameter isBlock to the constructor of a method/routine.
+This code, currently in ::routine "+" in array.cls :
+    return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item + scalar}
+will become :
+    return array~map{::closure expose scalar ; item + scalar}
+
+
+Standard ooRexx behavior :
+When a routine or method is created, a new RexxSource (i.e. a package) is created.
+All the settings defined on the package level (i.e. RexxSource) have the default values.
+It's possible to pass a context from which a RexxSource is taken (called parentSource) which
+allows the created routine/method to inherit class and routine lookup scope from another source.
+Nothing else is inherited.
+
+[inherited from context]
+    routines
+    merged_public_routines
+    installed_classes
+    merged_public_classes
+[currently never inherited from context]
+    digits
+    fuzz
+    form
+    trace
+    enableCommands (sandbox only)
+    enableMacrospace (sandbox only)
+    enableOperatorOverridingByRoutine (sandbox only)
+In the sandbox, the raw executable created from a RexxBlock is a routine or a method.
+Given the rule explained above, this raw executable has its own RexxSource (i.e. package) :
+    say .context~package~identityHash ; {say .context~package~identityHash}~() -- the hashes are different
+
+
+Q1
+Should a RexxBlock inherit the settings of the package in which it's defined ?
+If yes, all kinds of RexxBlock or just ::closure RexxBlock ?
+Currently, the visibility on routines/classes is inherited, but none of the following options are inherited :
+    ::options digits
+    ::options form
+    ::options fuzz
+    ::options trace
+    ::options commands (sandbox only)
+    ::options nocommands (sandbox only)
+    ::options macrospace (sandbox only)
+    ::options nomacrospace (sandbox only)
+    ::options operator_overriding_by_routine (sandbox only)
+    ::options nooperator_overriding_by_routine (sandbox only)
+Illustration :
+    say 1/3
+    {say 1/3}~()
+    ::options trace i
+    ::options digits 20
+    ::requires "extension/extensions.cls"
+Output :
+     1 *-* say 1/3
+       >L>   "1"
+       >L>   "3"
+       >O>   "/" => "0.33333333333333333333"
+       >>>   "0.33333333333333333333"
+0.33333333333333333333
+     2 *-* {say 1/3}~()
+       >L>   "a RexxBlock"
+0.333333333
+
+
+Q2
+Same question for the settings of the RexxActivation in which the RexxBlock is evaluated.
+Here, only a closure  is supposed to capture its environment.
+Should a closure remember the following settings of its defining RexxActivation ?
+The goal being to reuse automatically these settings at each execution (so from a different RexxActivation).
+Currently, none of the following settings are captured :
+    numeric digits
+    numeric form
+    numeric fuzz
+    trace
+    options "commands" (sandbox only)
+    options "nocommands" (sandbox only)
+    options "macrospace" (sandbox only)
+    options "nomacrospace" (sandbox only)
+    options "operator_overriding_by_routine" (sandbox only)
+    options "nooperator_overriding_by_routine" (sandbox only)
+Illustration :
+    trace i
+    numeric digits 20
+    say 1/3
+    {::closure say 1/3}~()
+    ::requires "extension/extensions.cls"
+Output :
+     2 *-* numeric digits 20
+       >L>   "20"
+       >>>   "20"
+     3 *-* say 1/3
+       >L>   "1"
+       >L>   "3"
+       >O>   "/" => "0.33333333333333333333"
+       >>>   "0.33333333333333333333"
+0.33333333333333333333
+     4 *-* {::closure say 1/3}~()
+       >L>   "a RexxBlock"
+0.333333333
+
+
+===============================================================================
 2013 sep 07
 
 Implementation of operator overriding was not working for
