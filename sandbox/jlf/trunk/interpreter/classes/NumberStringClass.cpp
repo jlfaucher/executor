@@ -3067,6 +3067,7 @@ RexxNumberString *RexxNumberString::plus(RexxObject *right)
         RexxNumberString *rightNumber = right->numberString();
         if (rightNumber == OREF_NULL)      /* is the operand numeric?           */
         {
+            if (right->classObject() != this->classObject()) return (RexxNumberString *)(right->sendMessage(OREF_PLUS_RIGHT, this));
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
         }
@@ -3103,6 +3104,7 @@ RexxNumberString *RexxNumberString::minus(RexxObject *right)
         RexxNumberString *rightNumber = right->numberString();
         if (rightNumber == OREF_NULL)      /* is the operand numeric?           */
         {
+            if (right->classObject() != this->classObject()) return (RexxNumberString *)(right->sendMessage(OREF_SUBTRACT_RIGHT, this));
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
         }
@@ -3130,6 +3132,7 @@ RexxNumberString *RexxNumberString::multiply(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        if (right->classObject() != this->classObject()) return (RexxNumberString *)(right->sendMessage(OREF_MULTIPLY_RIGHT, this));
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3148,6 +3151,7 @@ RexxNumberString *RexxNumberString::divide(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        if (right->classObject() != this->classObject()) return (RexxNumberString *)(right->sendMessage(OREF_DIVIDE_RIGHT, this));
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3166,6 +3170,7 @@ RexxNumberString *RexxNumberString::integerDivide(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        if (right->classObject() != this->classObject()) return (RexxNumberString *)(right->sendMessage(OREF_INTDIV_RIGHT, this));
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3185,6 +3190,7 @@ RexxNumberString *RexxNumberString::remainder(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        if (right->classObject() != this->classObject()) return (RexxNumberString *)(right->sendMessage(OREF_REMAINDER_RIGHT, this));
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }

@@ -752,6 +752,7 @@ RexxObject *RexxString::plus(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_PLUS_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -769,6 +770,7 @@ RexxObject *RexxString::minus(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_SUBTRACT_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -786,6 +788,7 @@ RexxObject *RexxString::multiply(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_MULTIPLY_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -803,6 +806,7 @@ RexxObject *RexxString::divide(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_DIVIDE_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -820,6 +824,7 @@ RexxObject *RexxString::integerDivide(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_INTDIV_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -837,6 +842,7 @@ RexxObject *RexxString::remainder(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_REMAINDER_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -854,6 +860,7 @@ RexxObject *RexxString::power(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_POWER_RIGHT, this);
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
