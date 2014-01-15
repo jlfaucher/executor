@@ -2358,6 +2358,9 @@ RexxObject *RexxInternalObject::clone()
     this->messageSend(OREF_##message, &operand, 1, result);                      \
     if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
     {  \
+        RexxObject *self = this; \
+        bool alternateResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \
+        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
                                          /* need to raise an exception        */ \
         reportException(Error_No_result_object_message, OREF_##message); \
     }  \

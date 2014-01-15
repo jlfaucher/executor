@@ -140,6 +140,20 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2014 jan 15
+
+[operator]
+Change the naming convention of the alternate operator :
+    "+OP:RIGHT"     -- plus
+    " OP:RIGHT"     -- space
+    "OP:RIGHT"      -- abbutal
+    etc...
+
+Add detection of no result : when the alternate operator returns nothing, then
+don't complain about that. Behave as if the alternate implementation did not
+exist, and raise the exception related to the left argument.
+
+===============================================================================
 2014 jan 14
 
 [operator]
@@ -169,7 +183,7 @@ Example of symetric overriding :
         end
         return self~map{::closure expose right ; item + right}
 
-    ::method "+ right"
+    ::method "+op:right" -- JLF 15 jan 2014 : fixed the message name
         use strict arg left
         return self~map{::closure expose left ; left + item}
 

@@ -52,6 +52,16 @@
                                                 /* complex number data class      */
 ::class complex public
 
+::method '[]' class                             /* create a new complex number    */
+    use arg first, second                       /* access the two numbers         */
+    forward to (self) message('NEW')            /* just forward this as a new message */
+
+::method convert class
+    use strict arg x
+    if x~isA(.string), x~datatype("N") then
+        return self~class~new(x)
+    return .nil
+
 ::method init                                   /* initialize a complex number    */
     expose real imaginary                       /* expose the state data          */
     use arg first, second                       /* access the two numbers         */
@@ -59,15 +69,11 @@
         real = 0
     else
         real = first + 0                        /* force rounding               */
-    
+
     if arg(2,'o') then                          /* no second argument?            */
         imaginary = 0                           /* imaginary part is zero         */
     else
         imaginary = second + 0                  /* force rounding on the second   */
-
-::method '[]' class                             /* create a new complex number    */
-    use arg first, second                       /* access the two numbers         */
-    forward to (self) message('NEW')            /* just forward this as a new message */
 
 ::method real                                   /* return real part of a complex  */
     expose real                                 /* access the state information   */
@@ -82,6 +88,10 @@
     use arg adder                               /* get the operand                */
     if arg(1,'o') then                          /* prefix plus operation?         */
         return self                             /* don't do anything with this    */
+    if \adder~isA(.complex) then do
+        adder = self~class~convert(adder)
+        if \adder~isA(.complex) then return
+    end
     tempreal = real + adder~real                /* add the real parts             */
                                                 /* add the imaginary parts        */
     tempimaginary = imaginary + adder~imaginary
@@ -94,6 +104,10 @@
     if arg(1,'o') then                          /* prefix minus operation?        */
                                                 /* negate the number              */
         return self~class~new(-real, -imaginary)
+    if \adder~isA(.complex) then do
+        adder = self~class~convert(adder)
+        if \adder~isA(.complex) then return
+    end
     tempreal = real - adder~real                /* subtract the real part         */
                                                 /* subtract the imaginary part    */
     tempimaginary = imaginary - adder~imaginary
@@ -104,6 +118,10 @@
     expose real imaginary                       /* access the state values        */
     use arg multiplier                          /* get the operand                */
                                                 /* calculate the real part        */
+    if \multiplier~isA(.complex) then do
+        multiplier = self~class~convert(multiplier)
+        if \multiplier~isA(.complex) then return
+    end
     tempreal = (real * multiplier~real) - (imaginary * multiplier~imaginary)
                                                 /* calculate the imaginary part   */
     tempimaginary = (real * multiplier~imaginary) + (imaginary * multiplier~real)
@@ -113,6 +131,10 @@
 ::method '/'                                    /* division method                */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
+    if \divisor~isA(.complex) then do
+        divisor = self~class~convert(divisor)
+        if \divisor~isA(.complex) then return
+    end
     a=real                                      /* get real and imaginaries for   */
     b=imaginary                                 /* both numbers                   */
     c=divisor~real
@@ -124,6 +146,10 @@
 ::method '%'                                    /* integer division method        */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
+    if \divisor~isA(.complex) then do
+        divisor = self~class~convert(divisor)
+        if \divisor~isA(.complex) then return
+    end
     a=real                                      /* get real and imaginaries for   */
     b=imaginary                                 /* both numbers                   */
     c=divisor~real
@@ -135,6 +161,10 @@
 ::method '//'                                   /* remainder method               */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
+    if \divisor~isA(.complex) then do
+        divisor = self~class~convert(divisor)
+        if \divisor~isA(.complex) then return
+    end
     a=real                                      /* get real and imaginaries for   */
     b=imaginary                                 /* both numbers                   */
     c=divisor~real
@@ -152,81 +182,58 @@
 /******************************************************************************/
 -- ComplexOperators
 -- A partial implementation of the operators is defined on the class 'complex'.
--- The following routines address only the missing functionalities.
+-- The following methods address only the missing functionalities.
 
-::routine "+" public
-    if arg() == 2 then do
-        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-            use arg complexNumber, notComplexNumber
-            return complexNumber + .complex[notComplexNumber]
-        end
-        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-            use arg notComplexNumber, complexNumber
-            return .complex[notComplexNumber] + complexNumber
-        end
+::method "+op:right"
+    use strict arg left
+    if \left~isA(.complex) then do
+        left = self~class~convert(left)
+        if \left~isA(.complex) then return
     end
+    return left + self
 
 
-::routine "-" public
-    if arg() == 2 then do
-        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-            use arg complexNumber, notComplexNumber
-            return complexNumber - .complex[notComplexNumber]
-        end
-        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-            use arg notComplexNumber, complexNumber
-            return .complex[notComplexNumber] - complexNumber
-        end
+::method "-op:right"
+    use strict arg left
+    if \left~isA(.complex) then do
+        left = self~class~convert(left)
+        if \left~isA(.complex) then return
     end
+    return left - self
 
 
-::routine "*" public
-    if arg() == 2 then do
-        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-            use arg complexNumber, notComplexNumber
-            return complexNumber * .complex[notComplexNumber]
-        end
-        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-            use arg notComplexNumber, complexNumber
-            return .complex[notComplexNumber] * complexNumber
-        end
+::method "*op:right"
+    use strict arg left
+    if \left~isA(.complex) then do
+        left = self~class~convert(left)
+        if \left~isA(.complex) then return
     end
+    return left * self
 
 
-::routine "/" public
-    if arg() == 2 then do
-        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-            use arg complexNumber, notComplexNumber
-            return complexNumber / .complex[notComplexNumber]
-        end
-        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-            use arg notComplexNumber, complexNumber
-            return .complex[notComplexNumber] / complexNumber
-        end
+::method "/op:right"
+    use strict arg left
+    if \left~isA(.complex) then do
+        left = self~class~convert(left)
+        if \left~isA(.complex) then return
     end
+    return left / self
 
 
-::routine "%" public
-    if arg() == 2 then do
-        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-            use arg complexNumber, notComplexNumber
-            return complexNumber % .complex[notComplexNumber]
-        end
-        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-            use arg notComplexNumber, complexNumber
-            return .complex[notComplexNumber] % complexNumber
-        end
+::method "%op:right"
+    use strict arg left
+    if \left~isA(.complex) then do
+        left = self~class~convert(left)
+        if \left~isA(.complex) then return
     end
+    return left % self
 
 
-::routine "//" public
-    if arg() == 2 then do
-        if arg(1)~isA(.complex), arg(2)~isA(.string), arg(2)~datatype("N") then do
-            use arg complexNumber, notComplexNumber
-            return complexNumber // .complex[notComplexNumber]
-        end
-        if arg(1)~isA(.string), arg(1)~datatype("N"), arg(2)~isA(.complex) then do
-            use arg notComplexNumber, complexNumber
-            return .complex[notComplexNumber] // complexNumber
-        end
+::method "//op:right"
+    use strict arg left
+    if \left~isA(.complex) then do
+        left = self~class~convert(left)
+        if \left~isA(.complex) then return
     end
+    return left // self
+

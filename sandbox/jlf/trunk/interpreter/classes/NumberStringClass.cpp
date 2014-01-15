@@ -3069,7 +3069,8 @@ RexxNumberString *RexxNumberString::plus(RexxObject *right)
         {
             ProtectedObject result;
             RexxObject *self = this;
-            if (right->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false)) return (RexxNumberString *)(RexxObject *)result;
+            bool alternateResult = right->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
+            if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
         }
@@ -3108,7 +3109,8 @@ RexxNumberString *RexxNumberString::minus(RexxObject *right)
         {
             ProtectedObject result;
             RexxObject *self = this;
-            if (right->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false)) return (RexxNumberString *)(RexxObject *)result;
+            bool alternateResult = right->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
+            if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
         }
@@ -3138,7 +3140,8 @@ RexxNumberString *RexxNumberString::multiply(RexxObject *right)
     {
         ProtectedObject result;
         RexxObject *self = this;
-        if (right->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false)) return (RexxNumberString *)(RexxObject *)result;
+        bool alternateResult = right->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
+        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3159,7 +3162,8 @@ RexxNumberString *RexxNumberString::divide(RexxObject *right)
     {
         ProtectedObject result;
         RexxObject *self = this;
-        if (right->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false)) return (RexxNumberString *)(RexxObject *)result;
+        bool alternateResult = right->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
+        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3180,7 +3184,8 @@ RexxNumberString *RexxNumberString::integerDivide(RexxObject *right)
     {
         ProtectedObject result;
         RexxObject *self = this;
-        if (right->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false)) return (RexxNumberString *)(RexxObject *)result;
+        bool alternateResult = right->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
+        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3202,7 +3207,8 @@ RexxNumberString *RexxNumberString::remainder(RexxObject *right)
     {
         ProtectedObject result;
         RexxObject *self = this;
-        if (right->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false)) return (RexxNumberString *)(RexxObject *)result;
+        bool alternateResult = right->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
+        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }

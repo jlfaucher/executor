@@ -277,7 +277,7 @@ many times as necessary to fill the array.
     end
     return self~map{::closure expose right ; item + right}
 
-::method "+ right"
+::method "+op:right"
     use strict arg left
     return self~map{::closure expose left ; left + item}
 
@@ -290,7 +290,7 @@ many times as necessary to fill the array.
     end
     return self~map{::closure expose right ; item - right}
 
-::method "- right"
+::method "-op:right"
     use strict arg left
     return self~map{::closure expose left ; left - item}
 
@@ -299,7 +299,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- multiplication of two matrices not (yet) implemented
     return self~map{::closure expose right ; item * right}
 
-::method "* right"
+::method "*op:right"
     use strict arg left
     return self~map{::closure expose left ; left * item}
 
@@ -308,7 +308,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- division of two matrices not (yet) implemented
     return self~map{::closure expose right ; item / right}
 
-::method "/ right"
+::method "/op:right"
     use strict arg left
     return self~map{::closure expose left ; left / item}
 
@@ -317,7 +317,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- integer division of two matrices not (yet) implemented
     return self~map{::closure expose right ; item % right}
 
-::method "% right"
+::method "%op:right"
     use strict arg left
     return self~map{::closure expose left ; left % item}
 
@@ -326,7 +326,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- remainder (divide and return the remainder) of two matrices not (yet) implemented
     return self~map{::closure expose right ; item // right}
 
-::method "// right"
+::method "//op:right"
     use strict arg left
     return self~map{::closure expose left ; left // item}
 
@@ -335,7 +335,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- power of two matrices not (yet) implemented
     return self~map{::closure expose right ; item ** right}
 
-::method "** right"
+::method "**op:right"
     use strict arg left
     return self~map{::closure expose left ; left ** item}
 
@@ -347,7 +347,7 @@ many times as necessary to fill the array.
     end
     return self~map{::closure expose right ; item right}
 
-::method "  right"
+::method " op:right"
     use strict arg left
     return self~map{::closure expose left ; left item}
 
@@ -359,7 +359,7 @@ many times as necessary to fill the array.
     end
     return self~map{::closure expose right ; item || right}
 
-::method "|| right"
+::method "||op:right"
     use strict arg left
     return self~map{::closure expose left ; left || item}
 
@@ -371,7 +371,7 @@ many times as necessary to fill the array.
     end
     return self~map{::closure expose right ; item || right}
 
-::method ":right"
+::method "op:right" -- abbutal
     use strict arg left
     return self~map{::closure expose left ; left || item}
 
@@ -380,7 +380,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- equality of two matrices not (yet) implemented
     return self~map{::closure expose right ; (item) = right}
 
-::method "= right"
+::method "=op:right"
     use strict arg left
     return self~map{::closure expose left ; (left) = item}
 
@@ -389,7 +389,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
     return self~map{::closure expose right ; item \= right}
 
-::method "\= right"
+::method "\=op:right"
     use strict arg left
     return self~map{::closure expose left ; left \= item}
 
@@ -398,7 +398,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
     return self~map{::closure expose right ; item <> right}
 
-::method "<> right"
+::method "<>op:right"
     use strict arg left
     return self~map{::closure expose left ; left <> item}
 
@@ -407,7 +407,7 @@ many times as necessary to fill the array.
     if right~isA(.array) then return -- "strict equality" of two matrices not (yet) implemented
     return self~map{::closure expose right ; item == right}
 
-::method "== right"
+::method "==op:right"
     use strict arg left
     return self~map{::closure expose left ; left - item}
 
