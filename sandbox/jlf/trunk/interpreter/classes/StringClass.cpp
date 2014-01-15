@@ -752,7 +752,9 @@ RexxObject *RexxString::plus(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_PLUS_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -770,7 +772,9 @@ RexxObject *RexxString::minus(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_SUBTRACT_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -788,7 +792,9 @@ RexxObject *RexxString::multiply(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_MULTIPLY_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -806,7 +812,9 @@ RexxObject *RexxString::divide(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_DIVIDE_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -824,7 +832,9 @@ RexxObject *RexxString::integerDivide(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_INTDIV_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -842,7 +852,9 @@ RexxObject *RexxString::remainder(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_REMAINDER_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -860,7 +872,9 @@ RexxObject *RexxString::power(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
-        if (right_term->classObject() != this->classObject()) return right_term->sendMessage(OREF_POWER_RIGHT, this);
+        ProtectedObject result;
+        RexxObject *self = this;
+        if (right_term->messageSend(OREF_POWER_RIGHT, &self, 1, result, false)) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -1383,7 +1397,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
 {
     // Todo : use m17n service for concatenation.
     // Current implementation is safe only if both strings have same charset and same encoding.
-    // The hardcoded ' ' separator is compatible only with encoding_fixed_8 and encoding_utf8. 
+    // The hardcoded ' ' separator is compatible only with encoding_fixed_8 and encoding_utf8.
     sizeB_t blen1;                        /* length of first string            */
     sizeC_t clen1;
     sizeB_t blen2;                        /* length of second string           */
@@ -1865,7 +1879,7 @@ RexxString *RexxString::concatWith(RexxString *other,
 {
     // Todo : use m17n service for concatenation.
     // Current implementation is safe only if both strings have same charset and same encoding.
-    // The between separator is compatible only with encoding_fixed_8 and encoding_utf8. 
+    // The between separator is compatible only with encoding_fixed_8 and encoding_utf8.
     sizeB_t blen1;                        /* length of first string            */
     sizeC_t clen1;
     sizeB_t blen2;                        /* length of second string           */
@@ -2131,10 +2145,10 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, ssizeC_t 
     newObj->put(0, string, blength);
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
-  
+
     newObj->setCharset(charset);
     newObj->setEncoding(encoding);
-  
+
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */
                                          /*we need to mark ourselves as       */
@@ -2174,10 +2188,10 @@ RexxString *RexxString::rawString(sizeB_t blength, ssizeC_t clength, CHARSET *ch
   newObj->putCharB(blength, '\0');
                                        /* by  default, we don't need Live   */
   newObj->setHasNoReferences();        /*sent                               */
-  
+
   newObj->setCharset(charset);
   newObj->setEncoding(encoding);
-  
+
                                        /* NOTE: That if we can set          */
                                        /*  this->NumebrString elsewhere     */
                                        /*we need to mark ourselves as       */
@@ -2207,7 +2221,7 @@ RexxString *RexxString::rawString(sizeB_t blength, ssizeC_t clength, const char 
  * @param string The source string data.
  * @param blength The length in bytes of the string data.
  * @param clength The length in characters of the string data.
- * @param charset The charset of the string data. 
+ * @param charset The charset of the string data.
  * @param encoding The encoding of the string data.
  *
  * @return A newly constructed string object.
@@ -2242,12 +2256,12 @@ RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blengt
     newObj->putCharB(blength, '\0');
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
-  
-    newObj->setCLength(clength == -1 ? encoding->codepoints(string, blength) : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character. 
+
+    newObj->setCLength(clength == -1 ? encoding->codepoints(string, blength) : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character.
 
     newObj->setCharset(charset);
     newObj->setEncoding(encoding);
-  
+
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */
                                          /*we need to mark ourselves as       */
@@ -2348,10 +2362,10 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
 }
 
 
-RexxMutableBuffer *RexxStringWrapper::makeMutableBuffer() 
-{ 
+RexxMutableBuffer *RexxStringWrapper::makeMutableBuffer()
+{
     RexxObject *args[] = { this->str };
-    return ((RexxMutableBufferClass*) TheMutableBufferClass)->newRexx(args, 1); // array of 1 element 
+    return ((RexxMutableBufferClass*) TheMutableBufferClass)->newRexx(args, 1); // array of 1 element
 }
 
 

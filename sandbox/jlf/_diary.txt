@@ -140,6 +140,41 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2014 jan 14
+
+[operator]
+I had in mind to catch the exception Error_Conversion_operator raised by the
+implementation of an operator, from RexxBinaryOperator::evaluate, and try an alternate
+implementation. But that was difficult, because the interpreter unwinds a lot of things,
+including the arguments stack. Moreover, raising an exception is costly, and I don't want
+to reintroduce a loss of performance...
+Finally, there is a more easy approach : if an alternate implementation exists then call it
+otherwise raise the exception. That must be done in each implementation of operator.
+The two methods Object::messageSend have been modified to let pass an additional parameter
+'processUnknown' which is true by default (legacy behavior). When this parameter is false,
+and no method is found for the message, then Object::messageSend returns false to indicate
+that no implementation exists. There is no processing of the unknown message.
+This is an efficient way to test if an alternate implementation exists and call it.
+
+Example of symetric overriding :
+
+    ::class "ArrayOperators" mixinclass Object public
+
+    ::method "+"
+        if arg() == 0 then return self~map("+")
+        use strict arg right
+        if right~isA(.array) then do
+            if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+            return self~map{::closure expose right ; item + right[index]}
+        end
+        return self~map{::closure expose right ; item + right}
+
+    ::method "+ right"
+        use strict arg left
+        return self~map{::closure expose left ; left + item}
+
+
+===============================================================================
 2014 jan 12
 
 [operator]
@@ -214,7 +249,7 @@ RexxExpressionMessage::Evaluate
     this->target : RexxParseVariable variableName="PREVIOUS"
     the evaluation returns a RexxString "dataflow=The NIL object"
     and then the message MAKESTRING with 4 arguments is sent to this string
-    hence the error... because 
+    hence the error... because
         in RexxObject::messageSend
             RexxMethod *method_save = this->behaviour->methodLookup(msgname)
             returns a CPPCode with cppEntry = {rexx.dll!RexxObject::makeStringRexx(void)}
@@ -289,7 +324,7 @@ when already calculated. This is needed to support correctly this test case :
         # 3: index=[2,2] -> item=[10]
 Before that change, the second array had the same content than the first array, because
 a new coactivity was created and stored in the cache when calling ~functionDoer from .array~of.
-Note : 
+Note :
 When called directly, ~sourceDoer is still applying the source transformations and
 returns a new executable. There is no impact on the cached executable.
 

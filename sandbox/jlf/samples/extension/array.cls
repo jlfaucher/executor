@@ -266,7 +266,224 @@ many times as necessary to fill the array.
 
 
 /******************************************************************************/
--- ArrayOperators
+::class "ArrayOperators" mixinclass Object public
+
+::method "+"
+    if arg() == 0 then return self~map("+")
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item + right[index]}
+    end
+    return self~map{::closure expose right ; item + right}
+
+::method "+ right"
+    use strict arg left
+    return self~map{::closure expose left ; left + item}
+
+::method "-"
+    if arg() == 0 then return self~map("-")
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item - right[index]}
+    end
+    return self~map{::closure expose right ; item - right}
+
+::method "- right"
+    use strict arg left
+    return self~map{::closure expose left ; left - item}
+
+::method "*"
+    use strict arg right
+    if right~isA(.array) then return -- multiplication of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item * right}
+
+::method "* right"
+    use strict arg left
+    return self~map{::closure expose left ; left * item}
+
+::method "/"
+    use strict arg right
+    if right~isA(.array) then return -- division of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item / right}
+
+::method "/ right"
+    use strict arg left
+    return self~map{::closure expose left ; left / item}
+
+::method "%"
+    use strict arg right
+    if right~isA(.array) then return -- integer division of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item % right}
+
+::method "% right"
+    use strict arg left
+    return self~map{::closure expose left ; left % item}
+
+::method "//"
+    use strict arg right
+    if right~isA(.array) then return -- remainder (divide and return the remainder) of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item // right}
+
+::method "// right"
+    use strict arg left
+    return self~map{::closure expose left ; left // item}
+
+::method "**"
+    use strict arg right
+    if right~isA(.array) then return -- power of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item ** right}
+
+::method "** right"
+    use strict arg left
+    return self~map{::closure expose left ; left ** item}
+
+::method " "
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item right[index]}
+    end
+    return self~map{::closure expose right ; item right}
+
+::method "  right"
+    use strict arg left
+    return self~map{::closure expose left ; left item}
+
+::method "||"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item || right[index]}
+    end
+    return self~map{::closure expose right ; item || right}
+
+::method "|| right"
+    use strict arg left
+    return self~map{::closure expose left ; left || item}
+
+::method ""
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item || right[index]}
+    end
+    return self~map{::closure expose right ; item || right}
+
+::method ":right"
+    use strict arg left
+    return self~map{::closure expose left ; left || item}
+
+::method "="
+    use strict arg right
+    if right~isA(.array) then return -- equality of two matrices not (yet) implemented
+    return self~map{::closure expose right ; (item) = right}
+
+::method "= right"
+    use strict arg left
+    return self~map{::closure expose left ; (left) = item}
+
+::method "\=" public
+    use strict arg right
+    if right~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \= right}
+
+::method "\= right"
+    use strict arg left
+    return self~map{::closure expose left ; left \= item}
+
+::method "<>"
+    use strict arg right
+    if right~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item <> right}
+
+::method "<> right"
+    use strict arg left
+    return self~map{::closure expose left ; left <> item}
+
+::method "=="
+    use strict arg right
+    if right~isA(.array) then return -- "strict equality" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item == right}
+
+::method "== right"
+    use strict arg left
+    return self~map{::closure expose left ; left - item}
+
+::method "\=="
+    use strict arg right
+    if right~isA(.array) then return -- "not strictly equal" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \== right}
+
+::method "><"
+    use strict arg right
+    if right~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item >< right}
+
+::method "\"
+    use strict arg -- none
+    return self~map("\")
+
+::method ">"
+    use strict arg right
+    if right~isA(.array) then return -- "greater than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item > right}
+
+::method "<"
+    use strict arg right
+    if right~isA(.array) then return -- "lesser than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item < right}
+
+::method ">="
+    use strict arg right
+    if right~isA(.array) then return -- "greater than or equal to" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item >= right}
+
+::method "\<"
+    use strict arg right
+    if right~isA(.array) then return -- "not less than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \< right}
+
+::method "<="
+    use strict arg right
+    if right~isA(.array) then return -- "less than or equal to" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \< right}
+
+::method "\>"
+    use strict arg right
+    if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not greater than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \< right}
+
+::method ">>"
+    use strict arg right
+    if right~isA(.array) then return -- "strictly greater than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item >> right}
+
+::method "<<"
+    use strict arg right
+    if right~isA(.array) then return -- "strictly less than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item << right}
+
+::method ">>="
+    use strict arg right
+    if right~isA(.array) then return -- "strictly greater than or equal to" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item >>= right}
+
+::method "\<<"
+    use strict arg right
+    if right~isA(.array) then return -- "strictly not less than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \<< right}
+
+::method "<<="
+    use strict arg right
+    if right~isA(.array) then return -- "strictly less than or equal to" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \<< right}
+
+::method "\>>"
+    use strict arg right
+    if right~isA(.array) then return -- "strictly not greater than" of two matrices not (yet) implemented
+    return self~map{::closure expose right ; item \>> right}
 
 ::routine SameDimensions
     use strict arg a1, a2
@@ -275,418 +492,3 @@ many times as necessary to fill the array.
         if a1~dimension(i) <> a2~dimension(i) then return .false
     end
     return .true
-
-::routine "+" public
-    if arg() == 1, arg(1)~isA(.array) then return arg(1)~map{+item} -- ~map("+")
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then do
-            use arg array1, array2
-            if \SameDimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
-            return array1~map{::closure expose array2 ; item + array2[index]}
-        end
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item + scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar + item}
-        end
-    end
-
-::routine "-" public
-    if arg() == 1, arg(1)~isA(.array) then return arg(1)~map{-item} -- ~map("-")
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then do
-            use arg array1, array2
-            if \SameDimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
-            return array1~map{::closure expose array2 ; item - array2[index]}
-        end
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item - scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar - item}
-        end
-    end
-
-::routine "*" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- multiplication of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item * scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar * item}
-        end
-    end
-
-::routine "/" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- division of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item / scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar / item}
-        end
-    end
-
-::routine "%" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- integer division of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item % scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar % item}
-        end
-    end
-
-::routine "//" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- remainder (divide an return the remainder) of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item // scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar // item}
-        end
-    end
-
-::routine "**" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- power of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item ** scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar ** item}
-        end
-    end
-
-::routine " " public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then do
-            use arg array1, array2
-            if \SameDimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
-            return array1~map{::closure expose array2 ; item array2[index]}
-        end
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar item}
-        end
-    end
-
-::routine "||" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then do
-            use arg array1, array2
-            if \SameDimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
-            return array1~map{::closure expose array2 ; item || array2[index]}
-        end
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item || scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar || item}
-        end
-    end
-
-::routine "" public
-    --.routines["||"]~callWith(arg("a"))
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then do
-            use arg array1, array2
-            if \SameDimensions(array1, array2) then raise syntax 93.900 array("Dimensions are not equal")
-            return array1~map{::closure expose array2 ; item || array2[index]}
-        end
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item || scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar || item}
-        end
-    end
-
-/*-----------------------------------------------------------------------------
-Not activated, because the risk of breaking existing programms is high.
-
-/* Remember, the default implementation works with arrays (in fact with any type) */
-::routine "=" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- equality of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; (item) = scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; (scalar) = item}
-        end
-    end
-
-/* Remember, the default implementation works with arrays (in fact with any type) */
-    ::routine "\=" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item \= scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar \= item}
-        end
-    end
-
-/* Remember, the default implementation works with arrays (in fact with any type) */
-    ::routine "<>" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item <> scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar <> item}
-        end
-    end
-
-/* Remember, the default implementation works with arrays (in fact with any type) */
-    ::routine "==" public
-    -- Must use the message instead of the operator, to avoid infinite recursion
-    if arg()~"=="(2) then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strict equality" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item == scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar == item}
-        end
-    end
-
-/* Remember, the default implementation works with arrays (in fact with any type) */
-    ::routine "\==" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not strictly equal" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item \== scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar \== item}
-        end
-    end
-
------------------------------------------------------------------------------*/
-
-/* Remember, the default implementation works with arrays (in fact with any type) */
-    ::routine "><" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not equality" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item >< scalar}
-        end
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar >< item}
-        end
-    end
-
-::routine "\" public
-    if arg() == 1, arg(1)~isA(.array) then return arg(1)~map{\item} -- ~map("\")
-
-::routine ">" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "greater than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item > scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar > item}
-        end
-    end
-
-::routine "<" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "lesser than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item < scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar < item}
-        end
-    end
-
-::routine ">=" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "greater than or equal to" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item >= scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar >= item}
-        end
-    end
-
-::routine "\<" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not less than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item \< scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar \< item}
-        end
-    end
-
-::routine "<=" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "less than or equal to" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item <= scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar <= item}
-        end
-    end
-
-::routine "\>" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "not greater than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item \> scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar \> item}
-        end
-    end
-
-::routine ">>" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strictly greater than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item >> scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar >> item}
-        end
-    end
-
-::routine "<<" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strictly less than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item << scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar << item}
-        end
-    end
-
-::routine ">>=" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strictly greater than or equal to" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item >>= scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar >>= item}
-        end
-    end
-
-::routine "\<<" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strictly not less than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item \<< scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar \<< item}
-        end
-    end
-
-::routine "<<=" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strictly less than or equal to" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item <<= scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar <<= item}
-        end
-    end
-
-::routine "\>>" public
-    if arg() == 2 then do
-        if arg(1)~isA(.array), arg(2)~isA(.array) then return -- "strictly not greater than" of two matrices not (yet) implemented
-        if arg(1)~isA(.array) then do
-            use arg array, scalar
-            return array~map{::closure expose scalar ; item \>> scalar}
-        end
-        /* Remember, the default implementation works with arrays (in fact with any type) */
-        if arg(2)~isA(.array) then do
-            use arg scalar, array
-            return array~map{::closure expose scalar ; scalar \>> item}
-        end
-    end
-
