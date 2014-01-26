@@ -12,7 +12,7 @@ This class is a security manager, which intercepts the messages sent for
 protected methods. A call stack, call count and duration is managed for each
 method.
 
-To let intercept the messages, the methods to profile must be instrumented 
+To let intercept the messages, the methods to profile must be instrumented
 by calling one of those methods :
 .Profiler~instrumentMethods(myclass, arrayOfMessagesToIntercept)
 .Profiler~instrumentMethod(myclass, message)
@@ -22,12 +22,12 @@ by calling one of those methods :
 Changes made by the instrumentation :
     ::method myMethod
     <my code here...>
-    
+
     is instrumented to become :
-    
+
     ::method myMethod protected        <-- will be intercepted
     forward message("myMethod_unprotected")
-    
+
     ::method myMethod_unprotected      <-- the security manager will forward this message
     <my code here...>
 
@@ -87,10 +87,10 @@ nop
 ::method instrumentMethod class
     use strict arg class, message
     method = class_method(class, message)
-    if method == .nil then return -- nothing to do
+    if .nil == method then return -- nothing to do
     newMessage = message"_unprotected"
     newMethod = class_method(class, newMessage)
-    if newMethod <> .nil then return -- already done
+    if .nil <> newMethod then return -- already done
     newMethod = .Method~new("", "forward message("newMessage")")
     newMethod~setProtected
     class~define(message, newMethod)
@@ -105,10 +105,10 @@ nop
 ::method instrumentClassMethod class
     use strict arg class, message
     method = object_instanceMethod(class, message)
-    if method == .nil then return -- nothing to do
+    if .nil == method then return -- nothing to do
     newMessage = message"_unprotected"
     newMethod = object_instanceMethod(class, newMessage)
-    if newMethod <> .nil then return -- already done
+    if .nil <> newMethod then return -- already done
     newMethod = .Method~new("", "forward message("newMessage")")
     newMethod~setProtected
     class~setMethod1(message, newMethod)
@@ -121,10 +121,10 @@ nop
     key = object~identityHash || message
     current = self~messageStack~peek
     profileData = .nil
-    if current <> .nil then profileData = current~followers[key]
-    if profileData == .nil then do
+    if .nil <> current then profileData = current~followers[key]
+    if .nil == profileData then do
         profileData = .MessageProfileData~new(object, message)
-        if current <> .nil then current~followers[key] = profileData
+        if .nil <> current then current~followers[key] = profileData
     end
     self~messageStack~push(profileData)
 
@@ -153,7 +153,7 @@ nop
 
 ::method reportResults
     use strict arg current, level=0
-    if current == .nil then return
+    if .nil == current then return
     if level == 0 then self~lineout(self~header)
     self~charout(self~indent~copies(level))
     if current~object~isA(.Class) then self~charout("."current~object~id) -- to rework

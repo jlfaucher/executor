@@ -224,7 +224,7 @@ The method 'run' is a private method. So can be called only from another method 
 
 ::method doer unguarded
     expose executable
-    if executable <> .nil then return executable
+    if .nil <> executable then return executable
     use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(1, "e") -- object explicitely passed ?
     executable = self~sourceDoer( , , , objectSpecified, object)
@@ -243,11 +243,11 @@ Possible transformations :
 */
 ::method sourceDoer unguarded
     use strict arg clauseBefore="", clauseAfter="", context=.nil, objectSpecified = .false, object = .nil
-    if context == .nil then context = self~package -- lookup scope
+    if .nil == context then context = self~package -- lookup scope
 
     kind = self~kind
     rawExecutable = self~rawExecutable
-    if clauseBefore <> "" | clauseAfter <> "" | rawExecutable == .nil then do
+    if clauseBefore <> "" | clauseAfter <> "" | .nil == rawExecutable then do
         sourceArray = self~source -- always an array, even if empty or just one line
         clauser = .Clauser~new(sourceArray)
         kind = .SourceLiteralParser~kind(clauser)
@@ -284,7 +284,7 @@ Possible transformations :
 
 ::method functionDoer
     expose executable
-    if executable <> .nil then return executable
+    if .nil <> executable then return executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     clauseBefore ||= ' ; options "NOCOMMANDS"'
@@ -294,7 +294,7 @@ Possible transformations :
 
 ::method actionDoer
     expose executable
-    if executable <> .nil then return executable
+    if .nil <> executable then return executable
     use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
     objectSpecified = arg(3, "e") -- object explicitely passed ?
     executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
@@ -375,14 +375,14 @@ I find more natural to support directly blocks in the following samples (no need
 ::method init
     expose !_closure.variableNames_!
     use strict arg variables=.nil, action=.nil
-    if variables <> .nil then do
+    if .nil <> variables then do
         !_closure.variableNames_! = ""
         do v over variables
             !_closure.variableNames_! ||= " "v
         end
         self~initVariables(variables)
     end
-    if action <> .nil then do
+    if .nil <> action then do
         method = action~doer
         self~setMethod("do", method, "Object")
     end
@@ -413,7 +413,7 @@ I find more natural to support directly blocks in the following samples (no need
 
 ::method source unguarded
     doMethod = self~instanceMethod("do")
-    if doMethod == .nil then return .nil
+    if .nil == doMethod then return .nil
     return doMethod~source
 
 

@@ -46,7 +46,7 @@ Routine and Method are directly doers : RoutineCaller and MethodRunner no longer
     -- Routine by default
     return .Routine~new("", self)
 
-    
+
 -----------------------------------------------------------------------------
 -- Higher-order actions
 
@@ -63,11 +63,11 @@ Routine and Method are directly doers : RoutineCaller and MethodRunner no longer
     end
     return r
 
-    
+
 ::method StringReduce
     use strict arg action
     return self~makearray("")~reduce(action)
-    
+
 
 -- Will work with Array, List, Queue, CircularQueue (any collection which supports "first" and "next")
 -- I don't use a supplier because it works on a snapshot of the collection and is not done for updating the collection
@@ -78,12 +78,12 @@ Routine and Method are directly doers : RoutineCaller and MethodRunner no longer
     r = self
     if \inplace then r = self~copy
     current = self~first
-    do while current <> .nil
+    do while .nil <> current
         r[current] = doer~do(self[current])
         current = self~next(current)
     end
     return r
-    
+
 
 -----------------------------------------------------------------------------
 -- Doer classes

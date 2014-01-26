@@ -32,30 +32,30 @@ end
 ::method insert
     use strict arg item
     select
-        when self~item == .nil then do
+        when .nil == self~item then do
             self~item = item
         end
         when item < self~item then do
-            if self~leftNode == .nil then self~leftNode = self~class~new
+            if .nil == self~leftNode then self~leftNode = self~class~new
             self~leftNode~insert(item)
         end
         otherwise do
-            if self~rightNode == .nil then self~rightNode = self~class~new
+            if .nil == self~rightNode then self~rightNode = self~class~new
             self~rightNode~insert(item)
         end
     end
 
 ::method visitAscending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
-    if self~leftNode <> .nil then self~leftNode~visitAscending
+    if .nil <> self~leftNode then self~leftNode~visitAscending
     .yield[self~item]
-    if self~rightNode <> .nil then self~rightNode~visitAscending
+    if .nil <> self~rightNode then self~rightNode~visitAscending
 
 ::method visitDescending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
-    if self~rightNode <> .nil then self~rightNode~visitDescending
+    if .nil <> self~rightNode then self~rightNode~visitDescending
     .yield[self~item]
-    if self~leftNode <> .nil then self~leftNode~visitDescending
+    if .nil <> self~leftNode then self~leftNode~visitDescending
 
 
 ::class BinaryTree public
@@ -109,15 +109,15 @@ end
 ::method insert
     use strict arg item
     select
-        when self~item == .nil then do
+        when .nil == self~item then do
             self~item = item
         end
         when item < self~item then do
-            if self~leftNode == .nil then self~leftNode = self~class~new
+            if .nil == self~leftNode then self~leftNode = self~class~new
             self~leftNode~insert(item)
         end
         otherwise do
-            if self~rightNode == .nil then self~rightNode = self~class~new
+            if .nil == self~rightNode then self~rightNode = self~class~new
             self~rightNode~insert(item)
         end
     end
@@ -144,19 +144,19 @@ end
 ::method ascendingItems
     return {::method.coactive
             -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
-            -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself 
-            if self~leftNode <> .nil then .context~executable~(self~leftNode)
+            -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself
+            if .nil <> self~leftNode then .context~executable~(self~leftNode)
             .yield[self~item]
-            if self~rightNode <> .nil then .context~executable~(self~rightNode)
+            if .nil <> self~rightNode then .context~executable~(self~rightNode)
            }~doer(self~rootNode)
 
 ::method descendingItems
     return {::method.coactive
             -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
-            -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself 
-            if self~rightNode <> .nil then .context~executable~(self~rightNode)
+            -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself
+            if .nil <> self~rightNode then .context~executable~(self~rightNode)
             .yield[self~item]
-            if self~leftNode <> .nil then .context~executable~(self~leftNode)
+            if .nil <> self~leftNode then .context~executable~(self~leftNode)
            }~doer(self~rootNode)
 
 

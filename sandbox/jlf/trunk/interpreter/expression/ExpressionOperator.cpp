@@ -46,66 +46,43 @@
 #include "RexxActivation.hpp"
 #include "ExpressionOperator.hpp"
 
-/*
-See also :
-RexxObject::operatorMethods
-RexxInteger::operatorMethods
-RexxNumberString::operatorMethods
-RexxString::operatorMethods
-
-can't be an array of RexxString* because the global names are not yet initialized when this array is initialized.
-so this is an array of pointers to the global names, hence the RexxString** declaration...
-*/
-RexxString **RexxExpressionOperator::operatorNames[] =
+const char *RexxExpressionOperator::operatorNames[] =
 {
-    OREF_NULL,          // First entry not used. See Token.hpp, the indexes start at 1 : #define OPERATOR_PLUS  1
-    &OREF_PLUS,
-    &OREF_SUBTRACT,
-    &OREF_MULTIPLY,
-    &OREF_DIVIDE,
-    &OREF_INTDIV,
-    &OREF_REMAINDER,
-    &OREF_POWER,
-    &OREF_NULLSTRING,
-    &OREF_CONCATENATE,
-    &OREF_BLANK,
-    &OREF_EQUAL,
-    &OREF_BACKSLASH_EQUAL,
-    &OREF_GREATERTHAN,
-    &OREF_BACKSLASH_GREATERTHAN,
-    &OREF_LESSTHAN,
-    &OREF_BACKSLASH_LESSTHAN,
-    &OREF_GREATERTHAN_EQUAL,
-    &OREF_LESSTHAN_EQUAL,
-    &OREF_STRICT_EQUAL,
-    &OREF_STRICT_BACKSLASH_EQUAL,
-    &OREF_STRICT_GREATERTHAN,
-    &OREF_STRICT_BACKSLASH_GREATERTHAN,
-    &OREF_STRICT_LESSTHAN,
-    &OREF_STRICT_BACKSLASH_LESSTHAN,
-    &OREF_STRICT_GREATERTHAN_EQUAL,
-    &OREF_STRICT_LESSTHAN_EQUAL,
-    &OREF_LESSTHAN_GREATERTHAN,
-    &OREF_GREATERTHAN_LESSTHAN,
-    &OREF_AND,
-    &OREF_OR,
-    &OREF_XOR,
-    &OREF_BACKSLASH
+    "+",
+    "-",
+    "*",
+    "/",
+    "%",
+    "//",
+    "**",
+    "",
+    "||",
+    " ",
+    "=",
+    "\\=",
+    ">",
+    "\\>",
+    "<",
+    "\\<",
+    ">=",
+    "<=",
+    "==",
+    "\\==",
+    ">>",
+    "\\>>",
+    "<<",
+    "\\<<",
+    ">>=",
+    "<<=",
+    "<>",
+    "><",
+    "&",
+    "|",
+    "&&",
+    "\\",
 };
 
 
-// If msgname is the name of an operator, then return the index of this operator, otherwise return 0
-int RexxExpressionOperator::operatorIndex(RexxString *msgname)
-{
-    const char *name = msgname->getStringData();
-    size_t count = sizeof operatorNames / sizeof operatorNames[0];
-    for (size_t i=1; i <= count; i++)
-    {
-        RexxString *operatorName = *(operatorNames[i]);
-        if (operatorName->strCompare(name) == true) return i;
-    }
-    return 0;
-}
 
 RexxExpressionOperator::RexxExpressionOperator(
     int         op,                    /* operator index                    */
@@ -133,26 +110,12 @@ RexxObject *RexxBinaryOperator::evaluate(
     RexxObject *left = this->left_term->evaluate(context, stack);
     /* evaluate the right term           */
     RexxObject *right = this->right_term->evaluate(context, stack);
-
-    // To optimize... probably by managing a table of overriden operators
-    {
-        RexxString *operatorName = *(operatorNames[this->oper]);
-        ProtectedObject result;
-        const size_t argcount = 2;
-        RexxActivation::overridableFunctionCall(operatorName, argcount, stack->arguments(argcount), result);
-        if (result != OREF_NULL)
-        {
-            stack->operatorResult(result); // replace top two stack elements with result
-            return result;
-        }
-    }
-
     /* evaluate the message              */
     RexxObject *result = callOperatorMethod(left, this->oper, right);
     /* replace top two stack elements    */
     stack->operatorResult(result);       /* with this one                     */
                                          /* trace if necessary                */
-    context->traceOperator(operatorName()->getStringData(), result);
+    context->traceOperator(operatorName(), result);
     return result;                       /* return the result                 */
 }
 
@@ -165,25 +128,11 @@ RexxObject *RexxUnaryOperator::evaluate(
 {
     /* evaluate the target               */
     RexxObject *term = this->left_term->evaluate(context, stack);
-
-    // To optimize... probably by managing a table of overriden operators
-    {
-        RexxString *operatorName = *(operatorNames[this->oper]);
-        ProtectedObject result;
-        const size_t argcount = 1;
-        RexxActivation::overridableFunctionCall(operatorName, argcount, stack->arguments(argcount), result);
-        if (result != OREF_NULL)
-        {
-            stack->prefixResult(result); // replace the top element with result
-            return result;
-        }
-    }
-
     /* process this directly             */
     RexxObject *result = callOperatorMethod(term, this->oper, OREF_NULL);
     stack->prefixResult(result);         /* replace the top element           */
                                          /* trace if necessary                */
-    context->tracePrefix(operatorName()->getStringData(), result);
+    context->tracePrefix(operatorName(), result);
     return result;                       /* return the result                 */
 }
 

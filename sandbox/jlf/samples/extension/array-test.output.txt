@@ -747,10 +747,55 @@ source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0]
            ]
        3 : 1500+3000i
 ]
---call dump2      a * a
---call dump2      b * b
---call dump2      c * c
---call dump2      a * b * c
+   call dump2      a * a
+[Array:
+       1 :  100
+       2 :  400
+       3 :  900
+]
+   call dump2      b * b
+[Array:
+       1 :  25
+       2 : 
+           [Array:
+                  1 :  100
+                  2 :  400
+                  3 :  900
+           ]
+       3 : -11+60i
+]
+   call dump2      c * c
+[Array:
+       1 : -31+480i
+       2 : 
+           [Array:
+                  1 :  25
+                  2 : 
+                      [Array:
+                             1 :  100
+                             2 :  400
+                             3 :  900
+                      ]
+                  3 : -11+60i
+           ]
+       3 :  225
+]
+   call dump2      a * b * c
+[Array:
+       1 : 750+800i
+       2 : 
+           [Array:
+                  1 :  1000
+                  2 : 
+                      [Array:
+                             1 :  4000
+                             2 :  8000
+                             3 :  12000
+                      ]
+                  3 : 3000+3600i
+           ]
+       3 : 2250+2700i
+]
 
    call dump2      100 / a
 [Array:
@@ -884,10 +929,55 @@ source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0]
            ]
        3 : 0.03-0.06i
 ]
---call dump2      a / a
---call dump2      b / b
---call dump2      c / c
---call dump2      a / b / c
+   call dump2      a / a
+[Array:
+       1 :  1
+       2 :  1
+       3 :  1
+]
+   call dump2      b / b
+[Array:
+       1 :  1
+       2 : 
+           [Array:
+                  1 :  1
+                  2 :  1
+                  3 :  1
+           ]
+       3 : 1+0i
+]
+   call dump2      c / c
+[Array:
+       1 : 1+0i
+       2 : 
+           [Array:
+                  1 :  1
+                  2 : 
+                      [Array:
+                             1 :  1
+                             2 :  1
+                             3 :  1
+                      ]
+                  3 : 1+0i
+           ]
+       3 :  1
+]
+   call dump2      a / b / c
+[Array:
+       1 : 0.0623700624-0.0665280665i
+       2 : 
+           [Array:
+                  1 :  0.4
+                  2 : 
+                      [Array:
+                             1 :  0.1
+                             2 :  0.05
+                             3 :  0.0333333333
+                      ]
+                  3 : 0.0546448089-0.0655737705i
+           ]
+       3 : 0.163934426-0.196721312i
+]
 
    call dump2      100 % a
 [Array:
@@ -1021,10 +1111,55 @@ source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0]
            ]
        3 : 0+0i
 ]
---call dump2      a % a
---call dump2      b % b
---call dump2      c % c
---call dump2      a % b % c
+   call dump2      a % a
+[Array:
+       1 :  1
+       2 :  1
+       3 :  1
+]
+   call dump2      b % b
+[Array:
+       1 :  1
+       2 : 
+           [Array:
+                  1 :  1
+                  2 :  1
+                  3 :  1
+           ]
+       3 : 1+0i
+]
+   call dump2      c % c
+[Array:
+       1 : 1+0i
+       2 : 
+           [Array:
+                  1 :  1
+                  2 : 
+                      [Array:
+                             1 :  1
+                             2 :  1
+                             3 :  1
+                      ]
+                  3 : 1+0i
+           ]
+       3 :  1
+]
+   call dump2      a % b % c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 0+0i
+           ]
+       3 : 0+0i
+]
 
    call dump2      100 // a
 [Array:
@@ -1158,10 +1293,55 @@ source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0]
            ]
        3 : 1500-3000i
 ]
---call dump2      a // a
---call dump2      b // b
---call dump2      c // c
---call dump2      a // b // c
+   call dump2      a // a
+[Array:
+       1 :  0
+       2 :  0
+       3 :  0
+]
+   call dump2      b // b
+[Array:
+       1 :  0
+       2 : 
+           [Array:
+                  1 :  0
+                  2 :  0
+                  3 :  0
+           ]
+       3 : 0+0i
+]
+   call dump2      c // c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 0+0i
+           ]
+       3 :  0
+]
+   call dump2      a // b // c
+[Array:
+       1 : 0+0i
+       2 : 
+           [Array:
+                  1 :  0
+                  2 : 
+                      [Array:
+                             1 :  0
+                             2 :  0
+                             3 :  0
+                      ]
+                  3 : 39-59i
+           ]
+       3 : 195-195i
+]
 
    call dump2      100 ** a
 [Array:
@@ -1169,26 +1349,31 @@ source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:4,[v1,v2,[v2,*1],*0]
        2 :  1E+40
        3 :  1E+60
 ]
---call dump2      100 ** b
---call dump2      100 ** c
+--call dump2      100 ** b                  -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump2      100 ** c                  -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
    call dump2      a ** 100
 [Array:
        1 :  1E+100
        2 :  1.2676506E+130
        3 :  5.15377521E+147
 ]
---call dump2      b ** 100
---call dump2      c ** 100
---call dump2      .complex[100,200] ** a
---call dump2      .complex[100,200] ** b
---call dump2      .complex[100,200] ** c
---call dump2      a ** .complex[100,200]
---call dump2      b ** .complex[100,200]
---call dump2      c ** .complex[100,200]
---call dump2      a /** a
---call dump2      b ** b
---call dump2      c ** c
---call dump2      a ** b ** c
+--call dump2      b ** 100                  -- Object "a COMPLEX" does not understand message "**"
+--call dump2      c ** 100                  -- Object "a COMPLEX" does not understand message "**"
+--call dump2      .complex[100,200] ** a    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      .complex[100,200] ** b    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      .complex[100,200] ** c    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      a ** .complex[100,200]    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump2      b ** .complex[100,200]    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump2      c ** .complex[100,200]    -- Object "a COMPLEX" does not understand message "**"
+   call dump2      a ** a
+[Array:
+       1 :  1E+10
+       2 :  1.048576E+26
+       3 :  2.05891132E+44
+]
+--call dump2      b ** b                    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      c ** c                    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      a ** b ** c               -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
 
    call dump2      100 a
 [Array:

@@ -54,14 +54,11 @@ class RexxExpressionOperator : public RexxInternalObject {
   void   liveGeneral(int reason);
   void   flatten(RexxEnvelope *);
 
-  inline RexxString *operatorName() { return (*(operatorNames[oper])); }
-  static int operatorIndex(RexxString *msgname); // If msgname is the name of an operator, then return the index of this operator, otherwise return 0
+  inline const char *operatorName() { return operatorNames[oper - 1]; }
 
 protected:
     // table of operator names
-    // can't be an array of RexxString* because the global names are not yet initialized when this array is initialized.
-    // so this is an array of pointers to the global names, hence the RexxString** declaration...
-    static RexxString **operatorNames[];
+    static const char *operatorNames[];
 
     int  oper;                           /* operator to perform               */
     RexxObject *right_term;              /* right term of the operator        */

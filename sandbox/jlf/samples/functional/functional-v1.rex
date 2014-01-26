@@ -50,7 +50,7 @@ See version v2 where Routine and Method are directly doers : RoutineCaller and M
     routine = .Routine~new("", self)
     return .RoutineCaller~new(routine)
 
-    
+
 -----------------------------------------------------------------------------
 -- Higher-order actions
 
@@ -67,11 +67,11 @@ See version v2 where Routine and Method are directly doers : RoutineCaller and M
     end
     return r
 
-    
+
 ::method StringReduce
     use strict arg action
     return self~makearray("")~reduce(action)
-    
+
 
 -- Will work with Array, List, Queue, CircularQueue (any collection which supports "first" and "next")
 -- I don't use a supplier because it works on a snapshot of the collection and is not done for updating the collection
@@ -82,12 +82,12 @@ See version v2 where Routine and Method are directly doers : RoutineCaller and M
     r = self
     if \inplace then r = self~copy
     current = self~first
-    do while current <> .nil
+    do while .nil <> current
         r[current] = doer~do(self[current])
         current = self~next(current)
     end
     return r
-    
+
 
 -----------------------------------------------------------------------------
 -- Doer classes
@@ -101,7 +101,7 @@ See version v2 where Routine and Method are directly doers : RoutineCaller and M
 ::method do
    return self~routine~callWith(arg(1,"a"))
 
-   
+
 -- Doer for running a method
 ::class MethodRunner
 ::attribute method
@@ -112,7 +112,7 @@ See version v2 where Routine and Method are directly doers : RoutineCaller and M
     use strict arg object, ...
     return object~run(self~method, "a", arg(2,"a"))
 
-    
+
 -- Doer for sending a message name
 ::class MessageNameSender
 ::attribute messageName

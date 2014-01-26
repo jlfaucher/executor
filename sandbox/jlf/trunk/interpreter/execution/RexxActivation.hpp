@@ -247,7 +247,6 @@ class ActivationSettings
    void              trapDelay(RexxString *);
    void              trapUndelay(RexxString *);
    bool              callExternalRexx(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
-   static RexxObject* overridableFunctionCall(RexxString *, size_t, RexxObject **, ProtectedObject &);
    RexxObject      * externalCall(RexxString *, size_t, RexxExpressionStack *, RexxString *, ProtectedObject &);
    RexxObject      * internalCall(RexxString *, RexxInstruction *, size_t, RexxExpressionStack *, ProtectedObject &);
    RexxObject      * internalCallTrap(RexxString *, RexxInstruction *, RexxDirectory *, ProtectedObject &);
@@ -604,6 +603,7 @@ class ActivationSettings
 
    inline void setLocalVariableDictionary(RexxVariableDictionary *dict) {settings.local_variables.setDictionary(dict); }
 
+
  protected:
 
    ActivationSettings   settings;      /* inherited REXX settings           */
@@ -640,7 +640,6 @@ class ActivationSettings
    bool                 random_set;    /* random seed has been set          */
    size_t               blockNest;     /* block instruction nesting level   */
    size_t               lookaside_size;/* size of the lookaside table       */
-
 
    // constants
 

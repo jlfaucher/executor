@@ -1,3 +1,32 @@
+Review of operator implementation
+
+5//2
+    RexxInteger::remainder
+    Both argument are of type RexxInteger
+
+5//a
+    RexxInteger::remainder
+    arg1 is of type RexxInteger
+    arg2 is of type RexxString
+    return integer_forward(this, remainder, other);
+        forwards to RexxNumberString::remainder
+        arg2 can't be converted to numberString : reportException(Error_Conversion_operator, right);
+
+a//2
+    RexxString::remainder
+    arg1 is of type RexxString
+    arg2 is of type RexxInteger
+    can't convert arg1 using fastNumberString() : reportException(Error_Conversion_operator, this);
+
+Declaration of new global variables in
+    RexxConstants.hpp
+    GlobalNames.h
+for the symetric operator names : "+ right", "- right", etc...
+
+
+---------------------------------------------------------------------------------
+
+[abandonned]
 To better support binary operators, call a routine which takes two arguments.
 That way, it's more easy to override the behaviour because the types of the
 two arguments can be taken into account.
@@ -7,6 +36,7 @@ Ex :
 If no overriding routine then fallback to the classic behaviour :
 send message to left arg.
 
+---------------------------------------------------------------------------------
 
 The implementation of operators for the class String is optimized.
 Does not send the message <operator>.
@@ -146,8 +176,31 @@ PCPPM RexxString::operatorMethods[] =
 
 
 ObjectClass.cpp
-    #define operatorMethod(name, message) ...
-    #define prefixOperatorMethod(name, message) ...
+    #define operatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
+    {\
+        ProtectedObject result;              /* returned result                   */\
+                                             /* do a real message send            */\
+        this->messageSend(OREF_##message, &operand, 1, result);                      \
+        if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
+        {  \
+                                             /* need to raise an exception        */ \
+            reportException(Error_No_result_object_message, OREF_##message); \
+        }  \
+        return (RexxObject *)result;         /* return the final result           */ \
+    }\
+
+    #define prefixOperatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
+    {\
+        ProtectedObject result;              /* returned result                   */\
+                                             /* do a real message send            */\
+        this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); \
+        if ((RexxObject *)result == OREF_NULL)             /* in an expression and need a result*/ \
+        {  \
+                                             /* need to raise an exception        */ \
+            reportException(Error_No_result_object_message, OREF_##message); \
+        }  \
+        return (RexxObject *)result;         /* return the final result           */ \
+    }\
 
     The default implementation on Object is to send the appropriate message
     corresponding to the operator.
@@ -217,6 +270,7 @@ RexxBehaviour(T_String, (PCPPM *)RexxString::operatorMethods),
 
 ------------------------------------------------------------------------------------
 
+[abandonned]
 Analyze how to implement the overriding routines.
 Must be optimized, probably using a table for fast look-up.
 Where to put this table ? on RexxSource ?
@@ -263,13 +317,12 @@ RexxSource is wrapped by PackageClass, RexxCode, ParseActivationFrame, RexxActiv
 
 
 ----------------------------------------------------------------------------------
-
 Remember
 This code has not been retained because doing an external call is too heavy :
 - will test the exits when routine not found
 - will perform platform-specific searches when exits not applicable
 - will raise an exception if nothing found
-Moreover, there is probably a problem with the stack of arguments, when an exception is raided
+Moreover, there is probably a problem with the stack of arguments, when an exception is raised
 (got a crash later, when cleaning the stack).
 RexxBinaryOperator::evaluate
         try

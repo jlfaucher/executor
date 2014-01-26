@@ -2681,50 +2681,6 @@ bool RexxActivation::callMacroSpaceFunction(RexxString * target, RexxObject **_a
 
 
 /**
- * OverridableFunction.
- * Search the routine by name, in 'requires' search order.
- * Call the routine as a SUBROUTINE (always). If a result is returned, then return this result to the caller.
- * Otherwise search the next routine in 'requires' search order and call it as described on the previous line.
- * If no routine found, or all found routines don't return a result, then return OREF_NULL.
- *
- * @param target    The target routine name.
- * @param _argcount The count of arguments for the call.
- * @param _stack    The expression stack holding the arguments.
- * @param resultObj The returned result.
- *
- * @return The function result (also returned in the resultObj protected object reference.
- */
-RexxObject *RexxActivation::overridableFunctionCall(RexxString *target, size_t _argcount, RexxObject **_arguments,
-    ProtectedObject &resultObj)
-{
-    // Get all the routines in the 'requires' search order
-    RexxArray *routines = new_array((size_t)0);
-    ProtectedObject r(routines);
-    // this->settings.parent_code->findRoutines(target, routines);
-    RexxActivation *activation = ActivityManager::currentActivity->getFirstRexxFrameWithLoadedPackages();
-    if (activation != OREF_NULL)
-    {
-        RexxSource *source = activation->getSourceObject();
-        source->findRoutines(target, routines);
-    
-        // Call each routine until a result is returned
-        // must be visited from last to first to follow the visibility rules
-        size_t routinesCount = routines->size();
-        for (size_t i = routinesCount; i >= 1; i--)
-        {
-            RoutineClass *routine = (RoutineClass *)routines->get(i);
-            routine->call(ActivityManager::currentActivity, target, _arguments, _argcount, OREF_ROUTINENAME, OREF_NULL, EXTERNALCALL, resultObj);
-            if ((RexxObject *)resultObj != OREF_NULL) return (RexxObject *)resultObj;
-        }
-    }
-
-    return OREF_NULL;
-}
-
-
-
-
-/**
  * Main method for performing an external routine call.  This
  * orchestrates the search order for locating an external routine.
  *
@@ -4490,11 +4446,11 @@ StackFrameClass *RexxActivation::createStackFrame()
 /**
  * Store user-redefined arguments.
  */
-void RexxActivation::setArguments(RexxArray *arguments) 
+void RexxActivation::setArguments(RexxArray *arguments)
 {
-    this->arguments = arguments; // Protect against GC before doing a copy 
+    this->arguments = arguments; // Protect against GC before doing a copy
     this->arguments = (RexxArray *)arguments->copy() ;  // Get a copy and protect it
-    this->arglist = this->arguments->data(); 
-    this->argcount = this->arguments->size(); 
+    this->arglist = this->arguments->data();
+    this->argcount = this->arguments->size();
 }
 

@@ -633,7 +633,7 @@ RexxMethod *RexxMethod::newRexx(
     if (initCount != 0)
     {
         RexxClass::processNewArgs(init_args, initCount, &init_args, &initCount, 1, (RexxObject **)&option, NULL);
-        isBlock = option->truthValue(Error_Logical_value_logical_list);
+        isBlock = option->truthValue(Error_Logical_value_method);
     }
 
     /* go create a method                */

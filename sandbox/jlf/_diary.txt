@@ -140,6 +140,206 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2014 jan 26
+
+[operator]
+Finalization of the implementation of alternative operators.
+
+Modification of the following methods to give a chance for an alternative operator
+before forcing the second argument to a string :
+    RexxInteger::concatBlank
+    RexxInteger::concat
+    RexxNumberString::concatBlank
+    RexxNumberString::concat
+    RexxString::concatRexx
+    RexxString::concatBlank
+If the second argument is not a string, then try the alternative operator before REQUEST_STRING.
+    a = .array~of(10,20,30)
+    100 a=                  -- ['100 10','100 20','100 30'] instead of '100 an Array'
+    a 100=                  -- ['10 100','20 100','30 100']
+    100 || a =              -- [10010,10020,10030]          instead of '100an Array'
+    a || 100 =              -- [10100,20100,30100]
+
+Modification of the following methods in CoreClasses.orx to give a chance for an alternative operator :
+    .DateTime~"-"
+    .DateTime~"+"
+    .TimeSpan~"-"
+    .TimeSpan~"+"
+Illustration :
+    ts1day = .TimeSpan~fromDays(1)                  -- (1.00:00:00.000000)
+    ts1hour = .TimeSpan~fromHours(1)                -- (01:00:00.000000)
+    date = .datetime~new(2013,1,10, 12, 30, 10)     -- (2013-01-10T12:30:10.000000)
+    date + .array~of(ts1hour, ts1day)=              -- [(2013-01-10T13:30:10.000000),(2013-01-11T12:30:10.000000)]
+
+Got a crash because I don't always return a value from an operator. In my approach of
+operator overriding, not returning a value is the way to indicate that the current
+implementation doesn't know how to support the current arguments. The lack of result is
+managed in the new implementation of the operators, but is not managed in the rest of the
+interpreter. The crash was here :
+    bool RexxObject::isEqual(RexxObject *other)
+    {
+        ...
+        else
+        {
+            ProtectedObject result;
+            this->sendMessage(OREF_STRICT_EQUAL, other, result);
+            return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
+        }
+    }
+result is NULL when the user code doesn't return a result, must be tested.
+Review of all the sendMessage used internally by the interpreter, which need a test :
+    RexxClass::isEqual
+    RexxInteger::isEqual
+    RexxNumberString::isEqual
+    RexxObject::isEqual
+    RexxString::hash
+    RexxString::isEqual
+
+Made a review of all my ooRexx scripts to swap the position of .nil in the tests, to
+make it the first argument. Since I defined the array operators, I can have an array
+as result for operators "=", "==", "<>", etc... when the first argument is an array.
+Had to swap .nil in StreamClasses.orx.
+Reminder : this technique of putting .nil as first argument is already used in several
+places of the interpreter. The reason is explained in rexxref (section Required string
+values) :
+When comparing a string object with the Nil object, if the NOSTRING condition is being
+trapped, then
+    if string = .nil
+will raise the NOSTRING condition, whereas
+    if .nil = string
+will not as the Nil object’s "=" method does not expect a string as an argument.
+
+Previous work about swaping the position of .nil is not enough to avoid errors.
+I have this case in pipe_extension_test.rex :
+    datas = .directory~new
+    datas["key1"] = .array~of("header", 1, 2, "footer")
+    datas["key2"] = .array~of("header", 5, 3, -9, 12, "footer")
+    datas["key3"] = .array~of("header", 4, 6, 5, "footer")
+    -- The datas without the headers and footers
+    datas~pipe(.inject {item} iterateBefore memorize | .drop first {dataflow["source"]~item } | .drop last {dataflow["source"]~item } | .console)
+where the source of the pipe is a directory of arrays.
+The code in charge of the partitioning do this test :
+    if previousPartitionItem <> partitionItem then do
+and an error is raised because the two arguments are array, and the result is an array.
+Here, the goal is to test if the two arguments are the same object.
+Conclusion :
+The operators for array programming should be :
+- either activated only when needed, under control of the programmer.
+- or deactivated by the interpreter when the context is a scalar context (ex : when calling truthValue).
+- or not defined at all when conflicting with the interpreter semantics.
+I select the third option : no longer override the operators "=", "\=", "><", "<>", "==", "\==".
+I provide the methods ~mapEqual, ~mapNotEqual, ~mapStrictEqual, ~mapStrictNotEqual.
+
+Remember :
+When operators for array programming are activated, the only way to use the scalar semantic
+is to refer explicitly to the .Object's operators.
+    a = .array~of(1,2,3)
+    a == a=              -- [1,1,1]
+    a~"=="(a)=           -- [1,1,1]
+    a~"==":.object(a)=   -- 1 (not possible with ooRexx standard, see [method search order] on 2014 jan 06)
+
+I have no problem with .array~ppRepresentation, whereas there is a test of equality to detect if a
+recursive array is printed. Normally should raise an error because of "==" returning an array.
+But it seems that 'level = stack~index(val)' is not impacted by the array operator "==".
+Verification in the implementation :
+    RexxObject *RexxQueue::index(RexxObject *target)
+        uses : if (target->equalValue(element->value))
+    class RexxObject : public RexxInternalObject {
+         bool inline equalValue(RexxObject *other)
+         {
+             // test first for direct equality, followed by value equality.
+             return (this == other) || this->isEqual(other);
+         }
+    bool RexxObject::isEqual( RexxObject *other )
+    {
+        if (this->isBaseClass()) return ((RexxObject *)this) == other;
+        else  /* return truth value of a compare   */
+        {
+            ProtectedObject result;
+            this->sendMessage(OREF_STRICT_EQUAL, other, result);
+            if ((RexxObject *)result == OREF_NULL) reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+            return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
+        }
+    }
+So we have three cases for this test of equality :
+a) If arg1 and arg2 are the same instance, then the equality is true
+b) If arg1 is a base class (i.e. not a subclass instance or an enhanced one-off), then
+   return true when arg1 and arg2 are the same instance.
+c) return arg1~"=="(arg2)
+Only a) and b) happen because my test is done with instances of .Array (so a base class).
+That explains why I don't have an error...
+
+
+[functional]
+~downTo now always returns an array, like upTo.
+The previous behaviour was to not return a result if the array of collected results was empty.
+
+
+===============================================================================
+2014 jan 15
+
+[operator]
+Change the naming convention of the alternate operator :
+    "+OP:RIGHT"     -- plus
+    " OP:RIGHT"     -- space
+    "OP:RIGHT"      -- abbutal
+    etc...
+
+Add detection of no result : when the alternate operator returns nothing, then
+don't complain about that. Behave as if the alternate implementation did not
+exist, and raise the exception related to the left argument.
+
+===============================================================================
+2014 jan 14
+
+[operator]
+I had in mind to catch the exception Error_Conversion_operator raised by the
+implementation of an operator, from RexxBinaryOperator::evaluate, and try an alternate
+implementation. But that was difficult, because the interpreter unwinds a lot of things,
+including the arguments stack. Moreover, raising an exception is costly, and I don't want
+to reintroduce a loss of performance...
+Finally, there is a more easy approach : if an alternate implementation exists then call it
+otherwise raise the exception. That must be done in each implementation of operator.
+The two methods Object::messageSend have been modified to let pass an additional parameter
+'processUnknown' which is true by default (legacy behavior). When this parameter is false,
+and no method is found for the message, then Object::messageSend returns false to indicate
+that no implementation exists. There is no processing of the unknown message.
+This is an efficient way to test if an alternate implementation exists and call it.
+
+Example of alternative operator :
+
+    ::class "ArrayOperators" mixinclass Object public
+
+    ::method "+"
+        if arg() == 0 then return self~map("+")
+        use strict arg right
+        if right~isA(.array) then do
+            if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+            return self~map{::closure expose right ; item + right[index]}
+        end
+        return self~map{::closure expose right ; item + right}
+
+    ::method "+op:right" -- JLF 15 jan 2014 : fixed the message name
+        use strict arg left
+        return self~map{::closure expose left ; left + item}
+
+
+===============================================================================
+2014 jan 12
+
+[operator]
+Performances are too bad... I give up the approach by routine overriding.
+Two problems :
+- must not override the optimized implementation of String (and hidden helper
+  classes) operators.
+- the search strategy of overriding routines was too costly, and not conform to
+  the standard visibility rules of routines.
+New approach :
+- Use only methods to override operators.
+- Modify the interpreter to automatically try b~"op:right"(a) when a~"op"(b) raises an exception
+
+
+===============================================================================
 2014 jan 06
 
 [method search order]
@@ -199,7 +399,7 @@ RexxExpressionMessage::Evaluate
     this->target : RexxParseVariable variableName="PREVIOUS"
     the evaluation returns a RexxString "dataflow=The NIL object"
     and then the message MAKESTRING with 4 arguments is sent to this string
-    hence the error... because 
+    hence the error... because
         in RexxObject::messageSend
             RexxMethod *method_save = this->behaviour->methodLookup(msgname)
             returns a CPPCode with cppEntry = {rexx.dll!RexxObject::makeStringRexx(void)}
@@ -274,7 +474,7 @@ when already calculated. This is needed to support correctly this test case :
         # 3: index=[2,2] -> item=[10]
 Before that change, the second array had the same content than the first array, because
 a new coactivity was created and stored in the cache when calling ~functionDoer from .array~of.
-Note : 
+Note :
 When called directly, ~sourceDoer is still applying the source transformations and
 returns a new executable. There is no impact on the cached executable.
 
@@ -311,13 +511,13 @@ by the execution of ascending~().
 The solution is to declare the coactive methods unguarded :
     return {::method.unguarded.coactive self~rootNode~visitAscending}~doer(self)
 
-.Array operators (symetric overloading)
+.Array alternative operators
 Add implementation for * scalar multiplication.
 Add implementation for / scalar division.
 Add implementation for % scalar integer division.
 Add implementation for // scalar remainder.
 
-.Complex operators (symetric overloading)
+.Complex alternative operators
 Add implementation for - scalar multiplication.
 Add implementation for * scalar multiplication.
 Add implementation for / scalar division.
@@ -588,7 +788,7 @@ Unary operators can also be overriden by a routine.
 ===============================================================================
 2013 may 03
 
-Start working on symetric overloading of binary operators.
+Start working on alternative binary operators.
 The idea is to let override binary operators using a routine which takes
 two arguments (left, right) and decide which behavior to support, depending
 on the types of both arguments.

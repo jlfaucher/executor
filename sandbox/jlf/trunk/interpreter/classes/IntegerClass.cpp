@@ -460,6 +460,9 @@ RexxString *RexxInteger::concatBlank(
 /* Function:  Concatenate an object to an integer                             */
 /******************************************************************************/
 {
+  // JLF same as RexxNumberString, give a chance for an alternative operator
+  return this->stringValue()->concatBlank(other);
+
   requiredArgument(other, ARG_ONE);            /* this is required                  */
   other = REQUEST_STRING(other);       /* ensure a string value             */
   ProtectedObject p(other);
@@ -473,6 +476,9 @@ RexxString *RexxInteger::concat(
 /* Function:  Concatenate an object to an integer                             */
 /******************************************************************************/
 {
+  // JLF same as RexxNumberString, give a chance for an alternative operator
+  return this->stringValue()->concatRexx(other);
+
   requiredArgument(other, ARG_ONE);            /* this is required                  */
   other = REQUEST_STRING(other);       /* ensure a string value             */
   ProtectedObject p(other);
@@ -638,7 +644,12 @@ bool RexxInteger::isEqual(
   if (this->isSubClassOrEnhanced())      /* not a primitive?                  */
   {
                                        /* do the full lookup compare        */
-      return this->sendMessage(OREF_STRICT_EQUAL, other)->truthValue(Error_Logical_value_method);
+      RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL, other);
+      if (result == OREF_NULL)
+      {
+          reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+      }
+      return result->truthValue(Error_Logical_value_method);
   }
 
   if (isOfClass(Integer, other))           /* two integers?                     */

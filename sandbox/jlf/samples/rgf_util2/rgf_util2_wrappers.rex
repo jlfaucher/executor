@@ -29,7 +29,7 @@ obj~method2(args) --> obj~method(reworked_args)
     -- .nil can't be extended, so must find a way to dump *ANY* object with all the details, including .nil
     -- Since a method can't do that, a routine will do !
     use strict arg object
-    if object == .nil then say pp2(object)
+    if .nil == object then say pp2(object)
     else if object~class == .class then say pp2(object)
     else object~dump2
     return object
