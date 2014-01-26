@@ -428,7 +428,7 @@ CHARCONSTANT(ASSIGNMENT_XOR, "&&=");
 CHARCONSTANT(ELLIPSIS, "...");
 
 
-/* Operator symetric overriding */
+/* Alternative operators */
 
 CHARCONSTANT(AND_RIGHT, "&OP:RIGHT");
 CHARCONSTANT(BACKSLASH_RIGHT, "\\OP:RIGHT");

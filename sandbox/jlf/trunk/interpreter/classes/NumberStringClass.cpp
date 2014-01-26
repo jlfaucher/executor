@@ -2731,7 +2731,12 @@ bool RexxNumberString::isEqual(
     if (this->isSubClassOrEnhanced())      /* not a primitive?                  */
     {
                                            /* do the full lookup compare        */
-        return this->sendMessage(OREF_STRICT_EQUAL, other)->truthValue(Error_Logical_value_method);
+        RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL, other);
+        if (result == OREF_NULL)
+        {
+            reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+        }
+        return result->truthValue(Error_Logical_value_method);
     }
                                        /* go do a string compare            */
     return this->stringValue()->isEqual(other);
@@ -3067,10 +3072,11 @@ RexxNumberString *RexxNumberString::plus(RexxObject *right)
         RexxNumberString *rightNumber = right->numberString();
         if (rightNumber == OREF_NULL)      /* is the operand numeric?           */
         {
+            // Try an alternative operator
             ProtectedObject result;
             RexxObject *self = this;
-            bool alternateResult = right->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
-            if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
+            bool alternativeResult = right->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
         }
@@ -3107,10 +3113,11 @@ RexxNumberString *RexxNumberString::minus(RexxObject *right)
         RexxNumberString *rightNumber = right->numberString();
         if (rightNumber == OREF_NULL)      /* is the operand numeric?           */
         {
+            // Try an alternative operator
             ProtectedObject result;
             RexxObject *self = this;
-            bool alternateResult = right->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
-            if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
+            bool alternativeResult = right->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
             /* nope, this is an error            */
             reportException(Error_Conversion_operator, right);
         }
@@ -3138,10 +3145,11 @@ RexxNumberString *RexxNumberString::multiply(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
+        bool alternativeResult = right->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3160,10 +3168,11 @@ RexxNumberString *RexxNumberString::divide(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
+        bool alternativeResult = right->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3182,10 +3191,11 @@ RexxNumberString *RexxNumberString::integerDivide(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
+        bool alternativeResult = right->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }
@@ -3205,10 +3215,11 @@ RexxNumberString *RexxNumberString::remainder(RexxObject *right)
     RexxNumberString *rightNumber = right->numberString();
     if (rightNumber == OREF_NULL)        /* is the operand numeric?           */
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
+        bool alternativeResult = right->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         /* nope, this is an error            */
         reportException(Error_Conversion_operator, right);
     }

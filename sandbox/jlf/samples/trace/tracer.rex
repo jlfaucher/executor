@@ -223,7 +223,7 @@ return 0
             if \self~parseHrId(rawLine) then currentTrace = .UnknownFormat~new
         end
     end
-    if currentTrace == .nil then do
+    if .nil == currentTrace then do
         if self~rawTrace~pos("Error") == 1 then currentTrace = .ErrorTrace~new
         else do -- normal trace line
             parse value self~rawTrace with 1 self~lineNumber >6 +1 self~tracePrefix >3 +1 self~restOfTrace
@@ -349,7 +349,7 @@ return 0
 ::method fromId class
     use strict arg threadId
     thread = .Thread~directory[threadId]
-    if thread == .nil then do
+    if .nil == thread then do
         thread = .Thread~new
         .Thread~directory[threadId] = thread
         thread~id = threadId
@@ -390,7 +390,7 @@ return 0
 ::method fromId class
     use strict arg activationId
     activation = .Activation~directory[activationId]
-    if activation == .nil then do
+    if .nil == activation then do
         activation = .Activation~new
         .Activation~directory[activationId] = activation
         activation~id = activationId
@@ -439,7 +439,7 @@ return 0
 ::method fromId class
     use strict arg varDictId -- can be made of spaces, when parsing hr trace
     varDict = .VariableDictionary~directory[varDictId]
-    if varDict == .nil then do
+    if .nil == varDict then do
         varDict = .VariableDictionary~new
         .VariableDictionary~directory[varDictId] = varDict
         varDict~id = varDictId

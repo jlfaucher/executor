@@ -109,7 +109,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg accu, item, index")~arity(3)
                                         else doer = action~doer
     if \ self~available then return initial
-    if initial <> .nil then accu = initial
+    if .nil <> initial then accu = initial
     else do
         accu = self~item
         self~next
@@ -1109,5 +1109,5 @@ This script needs a modified ooRexx interpreter which support extension of prede
         doer~do(i)
         if var("result") then collectedItems~append(result)
     end
-    if collectedItems <> .nil then return collectedItems
+    return collectedItems
 

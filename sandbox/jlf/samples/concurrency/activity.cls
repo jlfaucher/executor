@@ -36,7 +36,7 @@ else
     expose directory
     threadId=self~currentThreadId
     local = directory[threadId]
-    if local == .nil then do
+    if .nil == local then do
         local = .Directory~new
         directory[threadId] = local
     end

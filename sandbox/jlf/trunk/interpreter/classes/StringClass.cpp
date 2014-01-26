@@ -79,7 +79,12 @@ HashCode RexxString::hash()
     if (!isString(this))            /*  a nonprimitive object?           */
     {
         /* see if == overridden.             */
-        return this->sendMessage(OREF_STRICT_EQUAL)->requestString()->getStringHash();
+        RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL);
+        if (result == OREF_NULL)
+        {
+            reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+        }
+        return result->requestString()->getStringHash();
     }
     else
     {
@@ -492,7 +497,12 @@ bool RexxString::isEqual(
     if (!this->isBaseClass())            /* not a primitive?                  */
     {
         /* do the full lookup compare        */
-        return this->sendMessage(OREF_STRICT_EQUAL, otherObj)->truthValue(Error_Logical_value_method);
+        RexxObject *result = this->sendMessage(OREF_STRICT_EQUAL, otherObj);
+        if (result == OREF_NULL)
+        {
+            reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+        }
+        return result->truthValue(Error_Logical_value_method);
     }
 
     if (otherObj == TheNilObject)        // strings never compare equal to the NIL object
@@ -752,10 +762,11 @@ RexxObject *RexxString::plus(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -773,10 +784,11 @@ RexxObject *RexxString::minus(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -794,10 +806,11 @@ RexxObject *RexxString::multiply(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -815,10 +828,11 @@ RexxObject *RexxString::divide(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -836,10 +850,11 @@ RexxObject *RexxString::integerDivide(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -857,10 +872,11 @@ RexxObject *RexxString::remainder(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -878,10 +894,11 @@ RexxObject *RexxString::power(RexxObject *right_term)
                                          /* non-numeric?                      */
     if ((numstr = this->fastNumberString()) == OREF_NULL)
     {
+        // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternateResult = right_term->messageSend(OREF_POWER_RIGHT, &self, 1, result, false);
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        bool alternativeResult = right_term->messageSend(OREF_POWER_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -1285,6 +1302,16 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
 
     requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
                                          /* ensure a string value             */
+
+    if (!isOfClass(String, otherObj))
+    {
+        // Give a chance for an alternative operator before REQUEST_STRING
+        ProtectedObject result;
+        RexxObject *self = this;
+        bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
+    }
+
     other = (RexxString *)REQUEST_STRING(otherObj);
 
     /* added error checking for NULL pointer (from NilObject) */
@@ -1414,6 +1441,15 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
     char *data;                          /* character pointer                 */
 
     requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
+
+    if (!isOfClass(String, otherObj))
+    {
+        // Give a chance for an alternative operator before REQUEST_STRING
+        ProtectedObject result;
+        RexxObject *self = this;
+        bool alternativeResult = otherObj->messageSend(OREF_BLANK_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
+    }
                                          /* ensure a string value             */
     other = (RexxString *)REQUEST_STRING(otherObj);
 
@@ -1423,14 +1459,6 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
         reportException(Error_Incorrect_method_nostring, IntegerOne);
     }
 
-    /* ensure a string value             */
-    other = (RexxString *)REQUEST_STRING(otherObj);
-
-    /* added error checking for NULL pointer (from NilObject) */
-    if (other == OREF_NULL)
-    {
-        reportException(Error_Incorrect_method_nostring, IntegerOne);
-    }
     /* the following logic also appears  */
     /* in string_concat_with, but is     */
     /* repeated here because this is a   */

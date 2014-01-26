@@ -57,9 +57,12 @@
     forward to (self) message('NEW')            /* just forward this as a new message */
 
 ::method convert class
+-- Should rely on request("complex")
+-- and add a method makeComplex on String...
     use strict arg x
+    if x~isA(self) then return x
     if x~isA(.string), x~datatype("N") then
-        return self~class~new(x)
+        return self~new(x)
     return .nil
 
 ::method init                                   /* initialize a complex number    */
@@ -88,10 +91,8 @@
     use arg adder                               /* get the operand                */
     if arg(1,'o') then                          /* prefix plus operation?         */
         return self                             /* don't do anything with this    */
-    if \adder~isA(.complex) then do
-        adder = self~class~convert(adder)
-        if \adder~isA(.complex) then return
-    end
+    adder = self~class~convert(adder)
+    if .nil == adder then return
     tempreal = real + adder~real                /* add the real parts             */
                                                 /* add the imaginary parts        */
     tempimaginary = imaginary + adder~imaginary
@@ -104,10 +105,8 @@
     if arg(1,'o') then                          /* prefix minus operation?        */
                                                 /* negate the number              */
         return self~class~new(-real, -imaginary)
-    if \adder~isA(.complex) then do
-        adder = self~class~convert(adder)
-        if \adder~isA(.complex) then return
-    end
+    adder = self~class~convert(adder)
+    if .nil == adder then return
     tempreal = real - adder~real                /* subtract the real part         */
                                                 /* subtract the imaginary part    */
     tempimaginary = imaginary - adder~imaginary
@@ -118,10 +117,8 @@
     expose real imaginary                       /* access the state values        */
     use arg multiplier                          /* get the operand                */
                                                 /* calculate the real part        */
-    if \multiplier~isA(.complex) then do
-        multiplier = self~class~convert(multiplier)
-        if \multiplier~isA(.complex) then return
-    end
+    multiplier = self~class~convert(multiplier)
+    if .nil == multiplier then return
     tempreal = (real * multiplier~real) - (imaginary * multiplier~imaginary)
                                                 /* calculate the imaginary part   */
     tempimaginary = (real * multiplier~imaginary) + (imaginary * multiplier~real)
@@ -131,10 +128,8 @@
 ::method '/'                                    /* division method                */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
-    if \divisor~isA(.complex) then do
-        divisor = self~class~convert(divisor)
-        if \divisor~isA(.complex) then return
-    end
+    divisor = self~class~convert(divisor)
+    if .nil == divisor then return
     a=real                                      /* get real and imaginaries for   */
     b=imaginary                                 /* both numbers                   */
     c=divisor~real
@@ -146,10 +141,8 @@
 ::method '%'                                    /* integer division method        */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
-    if \divisor~isA(.complex) then do
-        divisor = self~class~convert(divisor)
-        if \divisor~isA(.complex) then return
-    end
+    divisor = self~class~convert(divisor)
+    if .nil == divisor then return
     a=real                                      /* get real and imaginaries for   */
     b=imaginary                                 /* both numbers                   */
     c=divisor~real
@@ -161,10 +154,8 @@
 ::method '//'                                   /* remainder method               */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
-    if \divisor~isA(.complex) then do
-        divisor = self~class~convert(divisor)
-        if \divisor~isA(.complex) then return
-    end
+    divisor = self~class~convert(divisor)
+    if .nil == divisor then return
     a=real                                      /* get real and imaginaries for   */
     b=imaginary                                 /* both numbers                   */
     c=divisor~real
@@ -186,54 +177,42 @@
 
 ::method "+op:right"
     use strict arg left
-    if \left~isA(.complex) then do
-        left = self~class~convert(left)
-        if \left~isA(.complex) then return
-    end
+    left = self~class~convert(left)
+    if .nil == left then return
     return left + self
 
 
 ::method "-op:right"
     use strict arg left
-    if \left~isA(.complex) then do
-        left = self~class~convert(left)
-        if \left~isA(.complex) then return
-    end
+    left = self~class~convert(left)
+    if .nil == left then return
     return left - self
 
 
 ::method "*op:right"
     use strict arg left
-    if \left~isA(.complex) then do
-        left = self~class~convert(left)
-        if \left~isA(.complex) then return
-    end
+    left = self~class~convert(left)
+    if .nil == left then return
     return left * self
 
 
 ::method "/op:right"
     use strict arg left
-    if \left~isA(.complex) then do
-        left = self~class~convert(left)
-        if \left~isA(.complex) then return
-    end
+    left = self~class~convert(left)
+    if .nil == left then return
     return left / self
 
 
 ::method "%op:right"
     use strict arg left
-    if \left~isA(.complex) then do
-        left = self~class~convert(left)
-        if \left~isA(.complex) then return
-    end
+    left = self~class~convert(left)
+    if .nil == left then return
     return left % self
 
 
 ::method "//op:right"
     use strict arg left
-    if \left~isA(.complex) then do
-        left = self~class~convert(left)
-        if \left~isA(.complex) then return
-    end
+    left = self~class~convert(left)
+    if .nil == left then return
     return left // self
 

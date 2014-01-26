@@ -15,6 +15,47 @@ http://force7.de/nimrod/index.html
 
 ================================================================================
 
+The interpreter assumes that the predefined classes can't be extended.
+And optimizes some tests, by avoiding to send a message.
+
+if (this->isBaseClass())
+if (this->isSubClassOrEnhanced())
+
+/**
+ * Test if an object instance is a true instance of a primitive
+ * class.
+ *
+ * @return true if the object is not a subclass instance or an enhanced one-off.
+ */
+bool RexxInternalObject::isBaseClass()
+{
+    return behaviour->isPrimitive();
+}
+
+
+/**
+ * Test if an object instance is an enhanced version of a
+ * primitive class or a subclass of the primitive class.
+ *
+ * @return true if the object is a subclass instance or an enhanced one-off.
+ */
+bool RexxInternalObject::isSubClassOrEnhanced()
+{
+    return behaviour->isNonPrimitive();
+}
+
+
+class ObjectHeader
+{
+    ...
+    inline bool isNonPrimitive() { return (flags & IsNonPrimitive) != 0; }
+    inline bool isPrimitive() { return (flags & IsNonPrimitive) == 0; }
+    ...
+}
+
+
+================================================================================
+
 messageSend
 called by
     RexxMessage::send                       (MessageClass.cpp), pas de stack

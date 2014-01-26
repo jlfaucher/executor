@@ -115,7 +115,7 @@ The option iterate (no need of 'After') is automatically activated when the prod
             if "iterate"~caselessAbbrev(a, 1) then do ; iterate = .true ; iterate ; end
         end
         else do
-            if producer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            if .nil <> producer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
             -- if doer then parse now, to detect possible errors before running the pipe.
             -- "actionDoer" not candidate here, we want a result.
             -- "functionDoer" : no need of args (called from ~eof, not from ~process).
@@ -126,7 +126,7 @@ The option iterate (no need of 'After') is automatically activated when the prod
         end
         unknown~append(a)
     end
-    if producer == .nil then raise syntax 93.900 array(self~class~id ": No producer specified")
+    if .nil == producer then raise syntax 93.900 array(self~class~id ": No producer specified")
     forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 
@@ -212,23 +212,23 @@ self~init:super
             iterate -- do that now, otherwise you will enter in the doer section
         end
         if allowCommands, a~hasMethod("actionDoer") then do
-            if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
             doer = a~actionDoer("use arg item, index, dataflow")
             iterate
         end
         if a~hasMethod("functionDoer") then do
-            if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
             doer = a~functionDoer("use arg item, index, dataflow")~arity(3)
             iterate
         end
         if a~hasMethod("doer") then do
-            if doer <> .nil then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
+            if .nil <> doer then raise syntax 93.900 array(self~class~id ": Only one producer is supported")
             doer = a~doer
             iterate
         end
         unknown~append(a)
     end
-    if doer == .nil then raise syntax 93.900 array(self~class~id ": No producer specified")
+    if .nil == doer then raise syntax 93.900 array(self~class~id ": No producer specified")
     forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method newDataflow
@@ -256,7 +256,7 @@ self~init:super
     if once, previousItems~hasItem(item) then do -- don't send twice an item
         -- Send it to secondary output, which receives the abandonned items
         self~writeSecondary(item, index, dataflow)
-        if result <> .nil then dataflow = result
+        if .nil <> result then dataflow = result
         self~checkEOP(self~next, self~secondary)
         return
     end
@@ -264,7 +264,7 @@ self~init:super
         if detectCycles then do
             if \ stack~hasItem(item) then do -- Recurse only if not already processed
                 self~write(item, index, dataflow)
-                if result <> .nil then dataflow = result
+                if .nil <> result then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 if once then previousItems~append(item)
                 stack~push(item)
@@ -275,14 +275,14 @@ self~init:super
                 -- Send it to secondary output, which receives the abandonned items
                 -- Here, no management of "once".
                 self~writeSecondary(item, index, dataflow)
-                if result <> .nil then dataflow = result
+                if .nil <> result then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 return
             end
         end
         else do
             self~write(item, index, dataflow)
-            if result <> .nil then dataflow = result
+            if .nil <> result then dataflow = result
             self~checkEOP(self~next, self~secondary)
             if once then previousItems~append(item)
             self~processDepthFirst.1(item, index, dataflow, previousItems, stack, depth+1)
@@ -290,7 +290,7 @@ self~init:super
     end
     else do
         self~write(item, index, dataflow)
-        if result <> .nil then dataflow = result
+        if .nil <> result then dataflow = result
         self~checkEOP(self~next, self~secondary)
         if once then previousItems~append(item)
     end
@@ -340,7 +340,7 @@ self~init:super
     if once, previousItems~hasItem(item) then do -- don't send twice an item
         -- Send it to secondary output, which receives the abandonned items
         self~writeSecondary(item, index, dataflow)
-        if result <> .nil then dataflow = result
+        if .nil <> result then dataflow = result
         self~checkEOP(self~next, self~secondary)
         return
     end
@@ -348,7 +348,7 @@ self~init:super
         if detectCycles then do
             if \ stack~hasItem(item) then do -- Recurse only if not already processed
                 self~write(item, index, dataflow)
-                if result <> .nil then dataflow = result
+                if .nil <> result then dataflow = result
                 self~checkEOP(self~next, self~secondary)
                 if once then previousItems~append(item)
                 stack~push(item)
@@ -362,13 +362,13 @@ self~init:super
                 -- Send it to secondary output, which receives the abandonned items
                 -- Here, no management of "once".
                 self~writeSecondary(item, index, dataflow)
-                if result <> .nil then dataflow = result
+                if .nil <> result then dataflow = result
                 self~checkEOP(self~next, self~secondary)
             end
         end
         else do
             self~write(item, index, dataflow)
-            if result <> .nil then dataflow = result
+            if .nil <> result then dataflow = result
             self~checkEOP(self~next, self~secondary)
             if once then previousItems~append(item)
             toprocess~queue(item)
@@ -379,7 +379,7 @@ self~init:super
     end
     else do
         self~write(item, index, dataflow)
-        if result <> .nil then dataflow = result
+        if .nil <> result then dataflow = result
         self~checkEOP(self~next, self~secondary)
         if once then previousItems~append(item)
     end
@@ -497,7 +497,7 @@ self~init:super(.true) -- allow commands
         end
         unknown~append(a)
     end
-    if doer == .nil then raise syntax 93.900 array(self~class~id ": No filter specified")
+    if .nil == doer then raise syntax 93.900 array(self~class~id ": No filter specified")
     forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
 
 ::method process
@@ -524,7 +524,7 @@ self~init:super(.true) -- allow commands
         use arg item -- index, dataflow : not needed
         if \item~isA(.File) then item = .File~new(item~string)
         childs = item~listFilesIfNotSymbolicLink -- don't dereference symbolic links
-        if childs <> .nil then return childs
+        if .nil <> childs then return childs
     }~doer -- get the doer now, to avoid application of functionDoer later
     args = arg(1, "a")
     args~append(producer)

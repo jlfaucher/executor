@@ -1306,7 +1306,7 @@ syntax:
   raise propagate
 
 pp:
-  if arg(1)=.nil then return ""
+  if .nil=arg(1) then return ""
                  else return "," arg(1)
 
 
@@ -1856,10 +1856,10 @@ makeSortedSupplier: procedure
 sortArray: procedure
   use arg arr, comparator=.nil
 
-  if comparator=.nil, \arr[1]~hasMethod('compareTo') then   -- no comparator available, use string renderings
+  if .nil=comparator, \arr[1]~hasMethod('compareTo') then   -- no comparator available, use string renderings
      comparator=.MessageComparator~new("string", .true)
 
-  if comparator<>.nil then
+  if .nil<>comparator then
      arr~stableSortWith(comparator)
   else
      arr~stableSort

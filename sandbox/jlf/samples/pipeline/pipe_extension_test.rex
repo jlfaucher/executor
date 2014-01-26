@@ -249,7 +249,7 @@ say df5 ; say df5~makeString(1234, .true)
 -- .inject {"echo" item} -- implicit return, commands are disabled
 
 -- Do something for each item (no returned value, so no value passed to .console).
-.array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow} | .console)
+.array~of(1, , 2, , 3)~pipe(.do {say 'item='item 'dataflow='dataflow~makeString} | .console)
 
 
 -- Do something for each item (the returned result replaces the item's value).
@@ -279,7 +279,7 @@ say df5 ; say df5~makeString(1234, .true)
 -- Same as previous example, but here, the recursive.memorize option is used.
 -- The dataflow is like a call stack.
 -- Ex : the last line is
--- source:5,3 | inject:1,90 | inject:1,2700 | inject:1,81000 item = 81000 
+-- source:5,3 | inject:1,90 | inject:1,2700 | inject:1,81000 item = 81000
 -- The item at index 5 in input array has injected 3 "inject" dataflows by recursion.
 .array~of(1, , 2, , 3)~pipe(.inject {item*10} recursive.0.memorize | .console dataflow "item =" item)
 .array~of(1, , 2, , 3)~pipe(.inject {item*20} recursive.1.memorize | .console dataflow "item =" item)
@@ -302,7 +302,7 @@ say df5 ; say df5~makeString(1234, .true)
 
 
 -- Another illustration of the "iterateAfter" option.
--- In this example, the block passed to .inject returns another block whose doer is a coactivity. 
+-- In this example, the block passed to .inject returns another block whose doer is a coactivity.
 -- The option "iterateAfter" force to check if the returned value has the "supplier" method.
 -- If yes, then .inject iterates over the items returned by the supplier and sends them to the next pipeStage.
 -- A block has no "supplier" method, but its doer may have one. This is the case in this example.
@@ -595,7 +595,7 @@ installdir()~pipe(,
 --     .take 2 {dataflow["file"]~item}
 -- Here, the partition expression returns the current file object produced by the pipeStage "fileTree".
 -- Exemple of result :
--- source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon' 
+-- source:1,'d:/local/Rexx/ooRexx/svn/sandbox/jlf/trunk/Win32rel/' | FILE:338,(d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32rel\winsystm.cls) | fileLines:250,'::method DeleteDesktopIcon' | words:2,'DeleteDesktopIcon' 'DeleteDesktopIcon'
 -- "DeleteDesktopIcon" is the 2nd word of the 250th line of the file
 -- "d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\Win32dbg\winsystm.cls"
 -- which is the 338th file/directory of the directory

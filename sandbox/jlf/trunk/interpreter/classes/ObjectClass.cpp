@@ -144,6 +144,10 @@ bool RexxObject::isEqual(
     {
         ProtectedObject result;
         this->sendMessage(OREF_STRICT_EQUAL, other, result);
+        if ((RexxObject *)result == OREF_NULL)
+        {
+            reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+        }
         return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
     }
 }
@@ -2359,8 +2363,8 @@ RexxObject *RexxInternalObject::clone()
     if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
     {  \
         RexxObject *self = this; \
-        bool alternateResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \
-        if (alternateResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
+        bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
                                          /* need to raise an exception        */ \
         reportException(Error_No_result_object_message, OREF_##message); \
     }  \
@@ -2376,6 +2380,12 @@ RexxObject *RexxInternalObject::clone()
     this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); \
     if ((RexxObject *)result == OREF_NULL)             /* in an expression and need a result*/ \
     {  \
+        if (operand != OREF_NULL) \
+        { \
+            RexxObject *self = this; \
+            bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
+        } \
                                          /* need to raise an exception        */ \
         reportException(Error_No_result_object_message, OREF_##message); \
     }  \

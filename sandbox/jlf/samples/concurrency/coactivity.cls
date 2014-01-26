@@ -48,7 +48,7 @@ To let a coactivity's thread be stopped when the coactivity is GC'ed, must use t
   Wrapper of a CoactivityObj instance.
   Runs in the thread of the end-user.
   Forwards almost all its messages to the wrapped CoactivityObj instance.
-- An instance of CoactivityObj, hidden from the end-user. 
+- An instance of CoactivityObj, hidden from the end-user.
   The methods of this instance run on a separate thread.
   This thread is automatically stopped when the wrapping Coactivity is GC'ed.
 */
@@ -116,7 +116,7 @@ To let a coactivity's thread be stopped when the coactivity is GC'ed, must use t
     expose coactivityObj
     proxy = .WeakProxy~new(self)
     use strict arg action="main", start=.false, object=(proxy) -- object must reference the proxy, not directly the coactivity, otherwise the coactivity will never be GC'ed
-    
+
     -- The following methods, if defined, will be attached to the instance of CoactivityObj
     -- Must do that, because when calling "onTerminate", the instance of Coactivity may be already garbage collected.
     -- In this case, proxy~value is .nil, and you can't run a method on it.
@@ -176,7 +176,7 @@ To let a coactivity's thread be stopped when the coactivity is GC'ed, must use t
                     invocation : .Coactivity~yield()
     */
     coactivityObj = .threadLocal["coactivity"]
-    if coactivityObj == .nil then raise syntax 93.900 array ("yield can be used only from a coactivity")
+    if .nil == coactivityObj then raise syntax 93.900 array ("yield can be used only from a coactivity")
     forward to (coactivityObj)
 
 
@@ -291,10 +291,10 @@ Status transitions :
     doer = action~doer
     status = .CoactivityObj~notStarted
     yieldIndex = 0
-    if instanceOnStart <> .nil then self~setMethod("onStart", instanceOnStart)
-    if classOnStart <> .nil then self~class~setMethod("onStart", classOnStart)
-    if instanceOnTerminate <> .nil then self~setMethod("onTerminate", instanceOnTerminate)
-    if classOnTerminate <> .nil then self~class~setMethod("onTerminate", classOnTerminate)
+    if .nil <> instanceOnStart then self~setMethod("onStart", instanceOnStart)
+    if .nil <> classOnStart then self~class~setMethod("onStart", classOnStart)
+    if .nil <> instanceOnTerminate then self~setMethod("onTerminate", instanceOnTerminate)
+    if .nil <> classOnTerminate then self~class~setMethod("onTerminate", classOnTerminate)
     if start then self~start
 
 
@@ -344,7 +344,7 @@ Status transitions :
     doer = .nil -- I was surprised to get .nil when doing myBlock~executable~executable after the end of {::cl.co}
                 -- but no choice... If I don't do this assignment, some coactivities are never GC'ed.
     object = .nil
-    if self~isKilled & condition("o") <> .nil then raise propagate
+    if self~isKilled & .nil <> condition("o") then raise propagate
 
 
 ::method yield --private
@@ -365,10 +365,10 @@ Status transitions :
     -- Must unwind until we reach a context whose package is not the current package.
     context = .context
     currentPackage = context~package
-    do while context <> .nil, context~package == currentPackage -- search for the first context outside this package
+    do while .nil <> context, context~package == currentPackage -- search for the first context outside this package
         context = context~parentContext -- .nil if native or top-level activation.
     end
-    if context == .nil then raise syntax 93.900 array ("Can't update the arguments, yield's context not found")
+    if .nil == context then raise syntax 93.900 array ("Can't update the arguments, yield's context not found")
     context~args = arguments -- assigns the arguments that the coactivity's client passed to 'resume'
 
 
@@ -541,7 +541,7 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
 
 
 -- If no result returned by the coactivity, then item=.nil and index=.nil
--- This is conform to the description of .Supplier~new : 
+-- This is conform to the description of .Supplier~new :
 -- The supplier iterates for the number of items contained in the values array,
 -- returning the Nil object for any nonexistent items in either array.
 ::method next
