@@ -135,7 +135,7 @@ If arg1 doesn't know how to process the message "+" (either because the message 
     arg2 ~ "+OP:RIGHT"( arg1 )
 
 If arg2 doesn't know how to process the message "+OP:RIGHT" (either because the message itself is not understood, or because the type of arg1 is not supported) then the interpreter raises an exception for the traditional message "+", not for the alternative message. That way, legacy programs are not impacted by this extension of behaviour.  
-There is no performance penalty because the interpreter sends the alternative message only when the traditional implementation fails. So the optimized implementations of String | RexxNumber | Number operators continue to be fully optimized.
+There is no performance penalty because the interpreter sends the alternative message only when the traditional implementation fails. So the optimized implementations of String | NumberString | Integer operators continue to be fully optimized.
 
 Examples :
 
