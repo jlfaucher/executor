@@ -1,3 +1,17 @@
+rxapi.exe - when is it used?
+
+RMG :
+When it is needed.
+The rxapi process manages all of the queues,
+plus the registrations of external libraries and the macrospace.
+Until one of those APIs is called, it does not get started.
+Calling an external function would likely be the first event
+that would trigger the launch since that search order uses
+both the macrospace and registration apis to search for the target.
+
+
+=============================================================
+
 QUERY_MACRO
     LocalMacroSpaceManager.cpp : LocalMacroSpaceManager::queryMacro
             RoutineClass.cpp : RoutineClass::processInstore
