@@ -124,6 +124,45 @@ This example also illustrates the availability of operators for array.
     0 0 1
 
 
+### Array programming
+
+Thanks to the support of alternative messages for binary operators, it's now possible to provide symetric implementations of binary operators.  
+
+    arg1 ~ "+"( arg2 )
+
+If arg1 doesn't know how to process the message "+" (either because the message itself is not understood, or because the type of arg2 is not supported) then the interpreter sends this alternative message :
+
+    arg2 ~ "+OP:RIGHT"( arg1 )
+
+If arg2 doesn't know how to process the message "+OP:RIGHT" (either because the message itself is not understood, or because the type of arg1 is not supported) then the interpreter raises an exception for the traditional message "+", not for the alternative message. That way, legacy programs are not impacted by this extension of behaviour.  
+There is no performance penalty because the interpreter sends the alternative message only when the traditional implementation fails. So the optimized implementations of String | RexxNumber | Number operators continue to be fully optimized.
+
+Examples :
+
+    a = .array~of(10,20,30)
+    100 a=                  -- ['100 10','100 20','100 30'] instead of '100 an Array'
+    a 100=                  -- ['10 100','20 100','30 100']
+    100 || a =              -- [10010,10020,10030]          instead of '100an Array'
+    a || 100 =              -- [10100,20100,30100]
+
+
+    ts1day = .TimeSpan~fromDays(1)                  -- (1.00:00:00.000000)
+    ts1hour = .TimeSpan~fromHours(1)                -- (01:00:00.000000)
+    date = .datetime~new(2013,1,10, 12, 30, 10)     -- (2013-01-10T12:30:10.000000)
+    date + .array~of(ts1hour, ts1day)=              -- [(2013-01-10T13:30:10.000000),(2013-01-11T12:30:10.000000)]
+
+
+    a = .array~of(10, 20, 30)
+    b = .array~of(5, a, .complex[5,6])
+    c = .array~of(.complex[15,16], b, 15)
+    100 - a =                                       -- [90, 80, 70]
+    100 - b =                                       -- [95, [90, 80, 70], 95-6i]
+    100 - c =                                       -- [85-16i, [95, [90, 80, 70], 95-6i], 85]
+    .complex[100,200] * a =                         -- [1000+2000i, 2000+4000i, 3000+6000i]
+    .complex[100,200] * b =                         -- [500+1000i, [1000+2000i, 2000+4000i, 3000+6000i], -700+1600i]
+    .complex[100,200] * c =                         -- [-1700+4600i, [500+1000i, [1000+2000i, 2000+4000i, 3000+6000i], -700+1600i], 1500+3000i]
+
+
 ### Coactivity / Inverse a recursive algorithm into an iterative one
 
 Producer/consumer problems can often be implemented elegantly with coactivities.  
