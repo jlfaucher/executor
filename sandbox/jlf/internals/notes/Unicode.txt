@@ -1,4 +1,4 @@
-
+﻿
 =========================================================================================
 
 rexx testOORexx.rex -s -S -R ooRexx\base\bif -f delstr
@@ -114,10 +114,6 @@ loader->runProgram                                                      interpre
                         activation->callExternalRexx                    interpreter\platform\windows\ExternalFunctions.cpp  SystemInterpreter::invokeExternalFunction
                             RoutineClass::fromFile                      interpreter\execution\RexxActivation.cpp            RexxActivation::callExternalRexx
 
-
-=================================================================
-
-http://cplusplus-soup.com/2010/07/23/lisp-macro-capability-in-c/
 
 ======================================================================================
 todo oorexx
@@ -784,8 +780,33 @@ ICONTABLEENTRY
 
 ========================
 
+Unicode String Models
+http://macchiati.blogspot.ch/2012/07/unicode-string-models-many-programming.html
+
 UTF8-CPP: UTF-8 with C++ in a Portable Way
 http://utfcpp.sourceforge.net/
 
-================================
+http://cplusplus-soup.com/2010/07/23/lisp-macro-capability-in-c/
 
+Twitter
+http://twitter.github.io/
+
+twitter / twitter-text-js
+A JavaScript implementation of Twitter's text processing library
+https://github.com/twitter/twitter-text-js
+
+twitter / twitter-text-java
+A Java implementation of Twitter's text processing library
+https://github.com/twitter/twitter-text-java
+
+twitter / RTLtextarea
+Automatically detects RTL and configures a text input
+https://github.com/twitter/RTLtextarea
+
+twitter / twitter-cldr-rb
+Ruby implementation of the ICU (International Components for Unicode) that uses the Common Locale Data Repository to format dates, plurals, and more.
+https://github.com/twitter/twitter-cldr-rb
+
+twitter / twitter-cldr-js
+JavaScript implementation of the ICU (International Components for Unicode) that uses the Common Locale Data Repository to format dates, plurals, and more. Based on twitter-cldr-rb.
+https://github.com/twitter/twitter-cldr-js
