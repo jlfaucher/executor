@@ -346,7 +346,7 @@ if error then raise syntax 93.900 array(self~class~id ": Unknown option")
 allEOP = .true
 allNIL = .true
 do pipeStage over arg(1, "a")
-    if pipeStage <> .nil then do
+    if .nil <> pipeStage then do
         allNIL = .false
         if \pipeStage~isEOP then allEOP = .false
     end
@@ -610,7 +610,7 @@ if tag~isA(.pipeStage) then do
 end
 else if \tag~isA(.String) then raise syntax 93.900 array(self~id"~create: 'tag' must be a pipeStage or a string")
 dataflow~tag = tag
-if previous <> .nil, \ previous~isA(.dataflow) then raise syntax 93.900 array(self~id"~create: 'previous' must be either a dataflow or .nil")
+if .nil <> previous, \ previous~isA(.dataflow) then raise syntax 93.900 array(self~id"~create: 'previous' must be either a dataflow or .nil")
 dataflow~previous = previous
 dataflow~index = index
 dataflow~item = item
@@ -645,7 +645,7 @@ self[4] = item
 return self[4]
 
 ::method length
-if self~previous <> .nil then return 1 + self~previous~length
+if .nil <> self~previous then return 1 + self~previous~length
 return 1
 
 ::method "[]"
@@ -659,7 +659,7 @@ use strict arg tag, nth=1
 if tag~isA(.String), tag~dataType("W"), tag < 0 then do
     -- tag is a negative whole number : search for relative dataflows. Here nth is not used.
     use strict arg count
-    do until current == .nil
+    do until .nil == current
         current = self~previous
         count += 1
         if count == 0 then return current
@@ -669,7 +669,7 @@ else do
     -- tag is used as a key. Here nth is used to decide which dataflow to return if the same key is used several times.
     count = 1
     current = self
-    do while current <> .nil
+    do while .nil <> current
         if current~tag~caselessEquals(tag) then do
             if count == nth then return current
             count += 1
@@ -693,9 +693,9 @@ if compare <> 0 then return compare
 -- compare the previous dataflows
 previousDataflow1 = self~previous
 previousDataflow2 = other~previous
-if previousDataflow1 == .nil & previousDataflow2 == .nil then return 0
-else if previousDataflow1 == .nil then return -1 -- nil < nonNil
-else if previousDataflow2 == .nil then return 1 -- nonNil > nil
+if .nil == previousDataflow1 & .nil == previousDataflow2 then return 0
+else if .nil == previousDataflow1 then return -1 -- nil < nonNil
+else if .nil == previousDataflow2 then return 1 -- nonNil > nil
 return previousDataflow1~compareTo(previousDataflow2)
 
 ::method makeString
@@ -717,7 +717,7 @@ if showPool then do
 end
 previous = self~previous
 string = ""
-if mask~pos(1) <> 0, previous <> .nil then string = previous~makeString(mask, showPool, pool, values)" | "
+if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool, values)" | "
 if mask~pos(2) <> 0 then string ||= self~tag":"
 separator = ""
 do index = self~firstIndexPoolManaged to self~dimension(1)
@@ -734,7 +734,7 @@ return string
 use strict arg val, values, stack=(.queue~new)
 if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMaxSize then do
     -- each item of the array will be inserted in the representation.
-    if stack~index(val) <> .nil then return -- recursive array
+    if .nil <> stack~index(val) then return -- recursive array
     stack~push(val)
     do v over val
         call dataflow_value v, values, stack
@@ -748,7 +748,7 @@ else do
     end
     if isnum then return -- numbers are not managed by pool
     count = values[val]
-    if count == .nil then count = 0
+    if .nil == count then count = 0
     values[val] = count+1
 end
 
@@ -768,7 +768,7 @@ if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMa
     -- each item of the array is inserted.
     -- special care for recursive arrays
     level = stack~index(val)
-    if level <> .nil then return "*"level-1
+    if .nil <> level then return "*"level-1
     stack~push(val)
     valstr = "["
     separator = ""
@@ -793,9 +793,9 @@ else do
     if isnum | \showPool then return valstr
     else do
         num = pool~index(val)
-        if num == .nil then do
+        if .nil == num then do
             count = values[val]
-            if count <> .nil, count > 1 then do
+            if .nil <> count, count > 1 then do
                 num = pool~append(val)
                 return "v"num"="valstr
             end
@@ -981,7 +981,7 @@ do criterion over criteria                  -- apply each criterion
 end
 -- if the last criterion is not a "sortBy", then do a sortBy item.
 if message <> "sortBy" then self~sortBy("item")
-do i = 1 to items~items while self~next <> .nil, \self~next~isEOP -- copy all sorted items to the primary stream
+do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all sorted items to the primary stream
    indexedItem = items[i]
    self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
 end
@@ -1019,7 +1019,7 @@ items~append(.indexedItem~new(item, index, dataflow)) -- append the item to the 
 expose comparator items quickSort
 if quickSort then items~sortWith(comparator)
              else items~stableSortWith(comparator)
-do i = 1 to items~items while self~next <> .nil, \self~next~isEOP -- copy all sorted items to the primary stream
+do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all sorted items to the primary stream
    indexedItem = items[i]
    self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
 end
@@ -1218,12 +1218,12 @@ do a over arg(1, "a")
     end
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~doer
         iterate
     end
@@ -1234,7 +1234,7 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 ::method processFirst
 expose count counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
-if partitionFunction <> .nil then do
+if .nil <> partitionFunction then do
     partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
@@ -1254,22 +1254,22 @@ else do
     self~writeSecondary(item, index, dataflow) -- non-selected records go down the secondary stream
 end
 self~checkEOP(self~next, self~secondary)
-if counter >= count & self~next == .nil & partitionFunction == .nil then self~isEOP = .true
+if counter >= count & .nil == self~next & .nil == partitionFunction then self~isEOP = .true
 
 ::method endOfPartition
 expose array count
 if array~items < count then do              -- didn't even receive that many items?
-    loop indexedItem over array while self~secondary <> .nil, \self~secondary~isEOP
+    loop indexedItem over array while .nil <> self~secondary, \self~secondary~isEOP
         self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- send everything down the secondary pipe
     end
 end
 else do
     first = array~items - count             -- this is the count of selected items
-    loop i = 1 to first while self~next <> .nil, \self~next~isEOP
+    loop i = 1 to first while .nil <> self~next, \self~next~isEOP
         indexedItem = array[i]
         self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)-- the selected go to the main pipe
     end
-    loop i = first + 1 to array~items while self~secondary <> .nil, \self~secondary~isEOP
+    loop i = first + 1 to array~items while .nil <> self~secondary, \self~secondary~isEOP
         indexedItem = array[i]
         self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the discarded go down the secondary pipe
     end
@@ -1278,7 +1278,7 @@ end
 ::method processLast
 expose array partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
-if partitionFunction <> .nil then do
+if .nil <> partitionFunction then do
     partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
@@ -1353,12 +1353,12 @@ do a over arg(1, "a")
     end
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~doer
         iterate
     end
@@ -1369,7 +1369,7 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 ::method processFirst
 expose count counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
-if partitionFunction <> .nil then do
+if .nil <> partitionFunction then do
     partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
@@ -1389,22 +1389,22 @@ else do
     self~write(item, index, dataflow)       -- still in the first bunch, send to main pipe
 end
 self~checkEOP(self~next, self~secondary)
-if counter >= count & self~secondary == .nil & partitionFunction == .nil then self~isEOP = .true
+if counter >= count & .nil == self~secondary & .nil == partitionFunction then self~isEOP = .true
 
 :: method endOfPartition
 expose array count
 if array~items < count then do          -- didn't even receive that many items?
-    loop indexedItem over array while self~next <> .nil, \self~next~isEOP
+    loop indexedItem over array while .nil <> self~next, \self~next~isEOP
         self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- send everything down the main pipe
     end
 end
 else do
     first = array~items - count         -- this is the count of discarded items
-    loop i = 1 to first while self~secondary <> .nil, \self~secondary~isEOP
+    loop i = 1 to first while .nil <> self~secondary, \self~secondary~isEOP
         indexedItem = array[i]
         self~writeSecondary(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the discarded go down the secondary pipe
     end
-    loop i = first + 1 to array~items while self~next <> .nil, \self~next~isEOP
+    loop i = first + 1 to array~items while .nil <> self~next, \self~next~isEOP
         indexedItem = array[i]
         self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow) -- the selected go to the main pipe
     end
@@ -1413,7 +1413,7 @@ end
 ::method processLast
 expose array partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
-if partitionFunction <> .nil then do
+if .nil <> partitionFunction then do
     partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
@@ -1522,7 +1522,7 @@ expose primaryEof secondaryEof array
 if self~I1Counter == 0 then primaryEof = .true
 if self~I2Counter == 0 then secondaryEof = .true
 if primaryEof & secondaryEof then do
-    loop i = 1 to array~items while self~next <> .nil, \self~next~isEOP -- need to write out the deferred items
+    loop i = 1 to array~items while .nil <> self~next, \self~next~isEOP -- need to write out the deferred items
         indexedItem = array[i]
         self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
     end
@@ -1559,7 +1559,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 ::method process                            -- pipeStage processing item
 expose copies
 use strict arg item, index, dataflow        -- get the data item
-loop n=1 to copies + 1 while self~next <> .nil, \self~next~isEOP -- write this out with the duplicate count
+loop n=1 to copies + 1 while .nil <> self~next, \self~next~isEOP -- write this out with the duplicate count
     self~write(item, n, dataflow)
 end
 self~checkEOP(self~next)
@@ -1857,8 +1857,8 @@ forward class(super)
 expose dataflowArray idx indexArray itemArray -- expose target array
 use strict arg itemArray, indexArray=.nil, dataflowArray=.nil -- get the array variable target
 itemArray~empty
-if indexArray <> .nil then indexArray~empty
-if dataflowArray <> .nil then dataflowArray~empty
+if .nil <> indexArray then indexArray~empty
+if .nil <> dataflowArray then dataflowArray~empty
 idx = 0
 forward class (super)                       -- forward the initialization
 
@@ -1867,8 +1867,8 @@ expose dataflowArray idx indexArray itemArray -- expose the array
 use strict arg item, index, dataflow        -- get the data item
 idx = idx + 1
 itemArray[idx] = item                       -- save the item
-if indexArray <> .nil then indexArray[idx] = index -- save the index
-if dataflowArray <> .nil then dataflowArray[idx] = dataflow -- save the dataflow
+if .nil <> indexArray then indexArray[idx] = index -- save the index
+if .nil <> dataflowArray then dataflowArray[idx] = dataflow -- save the dataflow
 forward class(super)                        -- allow superclass to send down pipe
 
 /******************************************************************************/
@@ -2004,12 +2004,12 @@ do a over arg(1, "a")
     end
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~doer
         iterate
     end
@@ -2019,11 +2019,11 @@ forward class (super) arguments (unknown)    -- forward the initialization to su
 
 ::method endOfPartition
 expose buffer count delimiter partitionCount
-loop i = 1 to count while self~next <> .nil, \self~next~isEOP -- now write copies of the set to the stream
+loop i = 1 to count while .nil <> self~next, \self~next~isEOP -- now write copies of the set to the stream
      if partitionCount > 1 | i > 1 then do
          self~write(delimiter, 1, .nil) -- put a delimiter between the sets
      end
-     loop j = 1 to buffer~items while self~next <> .nil, \self~next~isEOP -- and send along the buffered lines
+     loop j = 1 to buffer~items while .nil <> self~next, \self~next~isEOP -- and send along the buffered lines
          indexedItem = buffer[j]
          self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
      end
@@ -2032,7 +2032,7 @@ end
 ::method process
 expose buffer partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
-if partitionFunction <> .nil then do
+if .nil <> partitionFunction then do
     partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
@@ -2074,12 +2074,12 @@ do a over arg(1, "a")
     end
     -- "actionDoer" not candidate here, we want a result.
     if a~hasMethod("functionDoer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~functionDoer("use arg item, index, dataflow")~arity(3)
         iterate
     end
     if a~hasMethod("doer") then do
-        if partitionFunction <> .nil then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
+        if .nil <> partitionFunction then raise syntax 93.900 array(self~class~id ": Only one partition expression is supported")
         partitionFunction = a~doer
         iterate
     end
@@ -2096,7 +2096,7 @@ self~write(counter, previousPartitionItem, .nil); -- write out the counter messa
 ::method process
 expose counter partitionCount partitionFunction previousPartitionItem
 use strict arg item, index, dataflow
-if partitionFunction <> .nil then do
+if .nil <> partitionFunction then do
     partitionItem = partitionFunction~do(item, index, dataflow)
     if partitionCount == 0 then do
         partitionCount = 1
@@ -2230,7 +2230,7 @@ stream = .Stream~new(item~absolutePath)
 signal on notready
 stream~open("read")
 linepos = 1
-do while self~next <> .nil, \self~next~isEOP
+do while .nil <> self~next, \self~next~isEOP
     linetext = stream~linein
     self~write(linetext, linepos, dataflow)
     linepos += 1
@@ -2247,7 +2247,7 @@ stream~close
 ::method process
 use strict arg item, index, dataflow
 wordpos = 1
-do word over item~string~space~makearray(" ") while self~next <> .nil, \self~next~isEOP
+do word over item~string~space~makearray(" ") while .nil <> self~next, \self~next~isEOP
     self~write(word, wordpos, dataflow)
     wordpos += 1
 end
@@ -2261,7 +2261,7 @@ self~checkEOP(self~next)
 ::method process
 use strict arg item, index, dataflow
 charpos = 1
-do char over item~string~makearray("") while self~next <> .nil, \self~next~isEOP
+do char over item~string~makearray("") while .nil <> self~next, \self~next~isEOP
     self~write(char, charpos, dataflow)
     charpos += 1
 end
@@ -2296,7 +2296,7 @@ do a over arg(1, "a")
     if a~isA(.String) then do
         if "trace"~caselessAbbrev(a, 1) then do ; trace = .true ; iterate ; end
         if \ "memorize"~caselessAbbrev(a, 3) then do -- MUST detect this option here, otherwise would be taken as a command
-            if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+            if .nil <> command then raise syntax 93.900 array(self~class~id ": Only one command is supported")
             command = a
             iterate
         end
@@ -2305,13 +2305,13 @@ do a over arg(1, "a")
         -- "actionDoer" not tested here because you don't want to run a system command from the doer.
         -- The doer is supposed to return the command to execute.
         if a~hasMethod("functionDoer") then do
-            if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+            if .nil <> command then raise syntax 93.900 array(self~class~id ": Only one command is supported")
             command = a
             doer = a~functionDoer("use arg item, index, dataflow")~arity(3)
             iterate
         end
         if a~hasMethod("doer") then do
-            if command <> .nil then raise syntax 93.900 array(self~class~id ": Only one command is supported")
+            if .nil <> command then raise syntax 93.900 array(self~class~id ": Only one command is supported")
             command = a
             doer = a~doer
             iterate
@@ -2319,7 +2319,7 @@ do a over arg(1, "a")
     end
     unknown~append(a)
 end
-if command == .nil then doer = .routines~UseItemAsCommand -- {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
+if .nil == command then doer = .routines~UseItemAsCommand -- {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
 forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
 ::method process
@@ -2328,12 +2328,12 @@ expose command doer trace
 if trace then .traceOutput~say("       >I> Method .system~process")
 if trace then trace i
 use strict arg item, index, dataflow
-if doer <> .nil then command = doer~do(item, index, dataflow)
+if .nil <> doer then command = doer~do(item, index, dataflow)
 queue = .RexxQueue~new(.RexxQueue~create)
-command '2>&1 | rxqueue "'queue~get'"'
+command '| rxqueue "'queue~get'"'
 error = (RC <> 0) -- doesn't work ! RC is the return code of rxqueue, not the return code of command
 linepos = 1
-do while queue~queued() <> 0, self~next <> .nil, \self~next~isEOP
+do while queue~queued() <> 0, .nil <> self~next, \self~next~isEOP
     line = queue~linein
     newIndex = .array~of(command, linepos)
     if error then self~writeSecondary(line, newIndex, dataflow)

@@ -1,0 +1,4 @@
+http://blog.jayfields.com/2010/07/clojure-destructuring.html
+What is destructuring?
+Clojure supports abstract structural binding, often called destructuring, in let binding lists, fn parameter lists,
+and any macro that expands into a let or fn. -- http://clojure.org/special_forms

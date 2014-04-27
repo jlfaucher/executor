@@ -1,3 +1,32 @@
+Review of operator implementation
+
+5//2
+    RexxInteger::remainder
+    Both argument are of type RexxInteger
+
+5//a
+    RexxInteger::remainder
+    arg1 is of type RexxInteger
+    arg2 is of type RexxString
+    return integer_forward(this, remainder, other);
+        forwards to RexxNumberString::remainder
+        arg2 can't be converted to numberString : reportException(Error_Conversion_operator, right);
+
+a//2
+    RexxString::remainder
+    arg1 is of type RexxString
+    arg2 is of type RexxInteger
+    can't convert arg1 using fastNumberString() : reportException(Error_Conversion_operator, this);
+
+Declaration of new global variables in
+    RexxConstants.hpp
+    GlobalNames.h
+for the symetric operator names : "+ right", "- right", etc...
+
+
+---------------------------------------------------------------------------------
+
+[abandonned]
 To better support binary operators, call a routine which takes two arguments.
 That way, it's more easy to override the behaviour because the types of the
 two arguments can be taken into account.
@@ -7,6 +36,7 @@ Ex :
 If no overriding routine then fallback to the classic behaviour :
 send message to left arg.
 
+---------------------------------------------------------------------------------
 
 The implementation of operators for the class String is optimized.
 Does not send the message <operator>.
@@ -25,6 +55,8 @@ say .mystring~new("toto") | 10      -- overriding works as expected (here, no ex
 say .mystring~new("toto")~"|"(10)   -- overriding works as expected
 
 
+---------------------------------------------------------------------------------
+
 ExpressionOperator.cpp
     RexxBinaryOperator::evaluate(
         RexxActivation      *context,      /* current activation context        */
@@ -36,6 +68,51 @@ ExpressionOperator.cpp
             RexxObject *result = callOperatorMethod(term, this->oper, OREF_NULL);
 
 
+----------------------------------------------------------------------------------
+
+RexxCore.h
+#define koper(name) RexxObject *name(RexxObject *);
+
+
+ObjectClass.hpp
+   koper  (operator_plus)
+   koper  (operator_minus)
+   koper  (operator_multiply)
+   koper  (operator_divide)
+   koper  (operator_integerDivide)
+   koper  (operator_remainder)
+   koper  (operator_power)
+   koper  (operator_abuttal)
+   koper  (operator_concat)
+   koper  (operator_concatBlank)
+   koper  (operator_equal)
+   koper  (operator_notEqual)
+   koper  (operator_isGreaterThan)
+   koper  (operator_isBackslashGreaterThan)
+   koper  (operator_isLessThan)
+   koper  (operator_isBackslashLessThan)
+   koper  (operator_isGreaterOrEqual)
+   koper  (operator_isLessOrEqual)
+   koper  (operator_strictEqual)
+   koper  (operator_strictNotEqual)
+   koper  (operator_strictGreaterThan)
+   koper  (operator_strictBackslashGreaterThan)
+   koper  (operator_strictLessThan)
+   koper  (operator_strictBackslashLessThan)
+   koper  (operator_strictGreaterOrEqual)
+   koper  (operator_strictLessOrEqual)
+   koper  (operator_lessThanGreaterThan)
+   koper  (operator_greaterThanLessThan)
+   koper  (operator_and)
+   koper  (operator_or)
+   koper  (operator_xor)
+   koper  (operator_not)
+
+IntegerClass.hpp
+   koper (integer_operator_not)
+
+
+----------------------------------------------------------------------------------
 RexxCore.h
 inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, RexxObject *argument) {
                                        /* get the entry point               */
@@ -44,6 +121,8 @@ inline RexxObject * callOperatorMethod(RexxObject *object, size_t methodOffset, 
   return (object->*((PCPPM1)cppEntry))(argument);
 }
 
+
+-----------------------------------------------------------------------------------
 
 RexxBehavior.hpp
    inline PCPPM getOperatorMethod(size_t index) { return operatorMethods[index]; }
@@ -58,7 +137,7 @@ IntegerClass.cpp
 they all have a table similar to this one (of class String) :
 PCPPM RexxString::operatorMethods[] =
 {
-   NULL,                               /* first entry not used              */
+   NULL,                               /* first entry not used              */ JLF because index starts at 1, see Token.hpp : #define OPERATOR_PLUS  1
    (PCPPM)&RexxString::plus,
    (PCPPM)&RexxString::minus,
    (PCPPM)&RexxString::multiply,
@@ -97,8 +176,31 @@ PCPPM RexxString::operatorMethods[] =
 
 
 ObjectClass.cpp
-    #define operatorMethod(name, message) ...
-    #define prefixOperatorMethod(name, message) ...
+    #define operatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
+    {\
+        ProtectedObject result;              /* returned result                   */\
+                                             /* do a real message send            */\
+        this->messageSend(OREF_##message, &operand, 1, result);                      \
+        if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
+        {  \
+                                             /* need to raise an exception        */ \
+            reportException(Error_No_result_object_message, OREF_##message); \
+        }  \
+        return (RexxObject *)result;         /* return the final result           */ \
+    }\
+
+    #define prefixOperatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
+    {\
+        ProtectedObject result;              /* returned result                   */\
+                                             /* do a real message send            */\
+        this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); \
+        if ((RexxObject *)result == OREF_NULL)             /* in an expression and need a result*/ \
+        {  \
+                                             /* need to raise an exception        */ \
+            reportException(Error_No_result_object_message, OREF_##message); \
+        }  \
+        return (RexxObject *)result;         /* return the final result           */ \
+    }\
 
     The default implementation on Object is to send the appropriate message
     corresponding to the operator.
@@ -165,7 +267,10 @@ RexxBehaviour(T_Integer, (PCPPM *)RexxInteger::operatorMethods),
 RexxBehaviour(T_NumberString, (PCPPM *)RexxNumberString::operatorMethods),
 RexxBehaviour(T_String, (PCPPM *)RexxString::operatorMethods),
 
-------------------------------------
+
+------------------------------------------------------------------------------------
+
+[abandonned]
 Analyze how to implement the overriding routines.
 Must be optimized, probably using a table for fast look-up.
 Where to put this table ? on RexxSource ?
@@ -211,13 +316,13 @@ RexxSource::findRoutine
 RexxSource is wrapped by PackageClass, RexxCode, ParseActivationFrame, RexxActivation, RexxNativeCode
 
 
-------------------------------------
+----------------------------------------------------------------------------------
 Remember
 This code has not been retained because doing an external call is too heavy :
 - will test the exits when routine not found
 - will perform platform-specific searches when exits not applicable
 - will raise an exception if nothing found
-Moreover, there is probably a problem with the stack of arguments, when an exception is raided
+Moreover, there is probably a problem with the stack of arguments, when an exception is raised
 (got a crash later, when cleaning the stack).
 RexxBinaryOperator::evaluate
         try

@@ -1,0 +1,18 @@
+Remember :
+To activate the GC diagnostics, add these definitions in RexxCore.h :
+    #define CHECKOREFS
+    #define MEMPROFILE
+    #define VERBOSE_GC
+or better : could be added in lib/orxwin32.mak to my_cdebug, when debug mode.
+    /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
+
+
+Remember :
+A conditional break "newObj == 0x7eeff200" on the last line of RexxMemory::newObject (RexxMemory.cpp)
+lets stop the execution when the object is created. If too long, then modify the source :
+    if (newObj == (RexxObject*)0x7eeff200)
+    {
+        int dummy=0;    //  <-- put breakpoint here
+    }
+    return newObj;
+Then put a data breakpoint to detect when the attribute 'behavior' is overwritten.

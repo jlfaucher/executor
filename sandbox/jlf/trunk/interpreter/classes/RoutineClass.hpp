@@ -88,7 +88,7 @@ public:
     static RoutineClass *restore(RXSTRING *inData, RexxString *name);
     static RoutineClass *fromFile(RexxString *filename);
 
-    static RoutineClass *newRoutineObject(RexxString *, RexxObject *, RexxObject *, RexxSource *s);
+    static RoutineClass *newRoutineObject(RexxString *, RexxObject *, RexxObject *, RexxSource *s, bool isBlock);
     static RoutineClass *newRoutineObject(RexxString *, RexxArray *, RexxObject *);
 
     static RoutineClass *processInstore(PRXSTRING instore, RexxString * name );

@@ -591,6 +591,7 @@ void RexxSource::live(size_t liveMark)
 /******************************************************************************/
 {
   memory_mark(this->parentSource);
+  memory_mark(this->toplevelSource);
   memory_mark(this->sourceArray);
   memory_mark(this->programName);
   memory_mark(this->programDirectory);
@@ -665,6 +666,7 @@ void RexxSource::liveGeneral(int reason)
 #endif
   memory_mark_general(this->sourceArray);
   memory_mark_general(this->parentSource);
+  memory_mark_general(this->toplevelSource);
   memory_mark_general(this->programName);
   memory_mark_general(this->programDirectory);
   memory_mark_general(this->programExtension);
@@ -728,6 +730,7 @@ void RexxSource::flatten (RexxEnvelope *envelope)
     this->interpret_activation = OREF_NULL;
     flatten_reference(newThis->sourceArray, envelope);
     flatten_reference(newThis->parentSource, envelope);
+    flatten_reference(newThis->toplevelSource, envelope);
     flatten_reference(newThis->programName, envelope);
     flatten_reference(newThis->programDirectory, envelope);
     flatten_reference(newThis->programExtension, envelope);
@@ -1402,10 +1405,24 @@ void RexxSource::cleanup()
  *
  * @param parent The parent source context.
  */
-void RexxSource::inheritSourceContext(RexxSource *source)
+void RexxSource::inheritSourceContext(RexxSource *source, bool isBlock)
 {
     // set this as a parent
     OrefSet(this, this->parentSource, source);
+
+    // Remember : too early to set up the package global defaults, from the parent.
+    // At this point, the ::options directives have not been parsed.
+    // So the only thing to do is to retrieve the toplevel source, and store it for optimization.
+    // This toplevel source will be used from RexxActivation.cpp, when creating a new activation
+    // for a block, to get the global defaults.
+    this->isBlock = isBlock;
+    RexxSource *toplevelSource = source; 
+    while (source != OREF_NULL)
+    {
+        toplevelSource = source;
+        source = source->parentSource;
+    }
+    OrefSet(this, this->toplevelSource, toplevelSource);
 }
 
 
@@ -1913,7 +1930,6 @@ RexxCode *RexxSource::translate(
     fuzz = Numerics::DEFAULT_FUZZ;
     enableCommands = RexxActivation::default_enable_commands;
     enableMacrospace = RexxActivation::default_enable_macrospace;
-    enableOperatorOverridingByRoutine = RexxActivation::default_enable_operator_overriding_by_routine;
     traceSetting = DEFAULT_TRACE_SETTING;
     traceFlags = RexxActivation::default_trace_flags;
 
@@ -2817,20 +2833,6 @@ void RexxSource::optionsDirective()
                 {
                     refineSubclass(token, IS_SUBDIRECTIVE);
                     enableMacrospace = false;
-                    break;
-                }
-                // ::OPTIONS OPERATOR_OVERRIDING_BY_ROUTINE
-                case SUBDIRECTIVE_OPERATOR_OVERRIDING_BY_ROUTINE:
-                {
-                    refineSubclass(token, IS_SUBDIRECTIVE);
-                    enableOperatorOverridingByRoutine = true;
-                    break;
-                }
-                // ::OPTIONS NOOPERATOR_OVERRIDING_BY_ROUTINE
-                case SUBDIRECTIVE_NOOPERATOR_OVERRIDING_BY_ROUTINE:
-                {
-                    refineSubclass(token, IS_SUBDIRECTIVE);
-                    enableOperatorOverridingByRoutine = false;
                     break;
                 }
 

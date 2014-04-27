@@ -1,5 +1,9 @@
 ooRexx sandbox/jlf for experimental work.
-http://oorexx.svn.sourceforge.net/viewvc/oorexx/sandbox/jlf/
+https://github.com/jlfaucher/executor
+
+First delivery 2011 dec 27
+Updated 2012 may 09
+Updated 2013 nov 17
 
 Note :
 This file is encoded in UTF-8, because it contains strings in Greek, Russian,
@@ -163,7 +167,7 @@ place additional stress on the aging Collection interfaces; one of the most sign
 benefits of closures is that it enables the development of more powerful libraries.
 It would be disappointing to add a language feature that enables better libraries while
 at the same time not extending the core libraries to take advantage of that feature. 
-http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v3.pdf
+http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v4.pdf
 
 
 Same need for ooRexx... Hence the ::extension directive
@@ -1132,6 +1136,179 @@ say co_pipe~()    -- 110
 say co_pipe~()    -- The pipe displays 1 : 110 and yields the next value : 200
 say co_pipe~()    -- 210
 co_pipe~resume    -- another resume is needed to let the pipe display 2 : 210
+
+
+=====================================================================================
+Array Initializer
+=====================================================================================
+
+Initializer (instance method ~of) which takes into account the dimensions of the array.
+Inspired by http://archive.vector.org.uk/art10011550
+
+If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
+    .array~new(2,3)~of(1 2 3 4 5 6)
+    1 2 3
+    4 5 6
+
+If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
+    .array~new(2,3)~of(1~upto(6))
+    1 2 3
+    4 5 6
+
+If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+Implicit arguments :
+    arg(1) : integerIndex : position of the current cell, from 1 to size.
+    arg(2) : arrayIndex : position of the current cell, in each dimension. Always an array, even if the number of dimensions = 1
+The value returned by the doer is the item for the current cell.
+    .array~new(2,3)~of{10*integerIndex}
+    10 20 30
+    40 50 60
+
+Otherwise, when more than one argument, each argument is an item as-is.
+    .array~new(2,3)~of(1,2,3,4,5,6)
+    1 2 3
+    4 5 6
+
+If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
+    .array~new(2,3)~of(1,,3,,5,6)
+    1 . 3
+    . 5 6
+
+For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
+    .array~new(2,3)~of(1,,3,,5,)
+    1 . 3
+    . 5 1
+I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
+    1 . 3
+    . 5 .
+
+The items are a list of values that must be assigned to the cells of the array.
+Rules inspired by APL :
+If there are too many items, the extra items are ignored.
+If there are fewer items than implied by the dimensions, the list of items is reused as
+many times as necessary to fill the array.
+    .array~new(2,3)~of(1,2)
+    1 2 1
+    2 1 2
+
+Generation of an identity matrix (1 on the diagonal, 0 everywhere else).
+This example illustrates the extension of operators for array.
+[1,1,1] - 1 = [0,0,0], the sum of all indexes is 0 --> this is a diagonal index
+[1,1,2] - 1 = [0,0,1], the sum of all indexes is 1 --> this is not a diagonal index
+    .array~new(3,3)~of{ if (arrayIndex - arrayIndex[1])~reduce("+") == 0 then 1; else 0 }=
+    1 0 0
+    0 1 0
+    0 0 1
+
+
+
+=====================================================================================
+Array PrettyPrinter
+=====================================================================================
+
+The method ppRepresentation returns a condensed string representation of the array.
+Recursive arrays are supported. A reference *N is inserted in the representation,
+where N is the number of levels to follow from the current position.
+Ex :
+a = .array~of("string1", "string2")
+b = .array~of("string2")
+b~append(a)
+a~append(b)
+a~append(a)
+
+       +<------------------------------------+<--------+
+       |                                     ^         ^
+       V                                     |         |
+    +---------+---------+-----+--+--+        |         |
+    | string1 | string2 |  .  |  .  |        |         |
+    +---------+---------+--|--+--|--+        |         |
+                           |     |           |         |
+                           |     +---------->+         |    Reference current level : *0
+                           V                           |
+                       +---------+-----+               |
+                       | string2 |  .  |               |
+                       +---------+--|--+               |
+                                    |                  |
+                                    +----------------->+    Reference one level above : *1
+
+say a~ppRepresentation
+    ['string1','string2',['string2',*1],*0]
+
+This display of recursive arrays has been inspired by Prolog II of Colmerauer.
+
+
+=====================================================================================
+Operator overriding (symetric overloading, multi-implementations)
+=====================================================================================
+
+The idea is to let override binary operators using a routine which takes
+two arguments (left, right) and decide which behavior to support, depending
+on the types of both arguments.
+If no overriding routine then fallback to the classic behaviour :
+send message to the left arg, passing the right arg as 1st argument to the method.
+
+Illustration :
+
+complex.cls defines operators for complex number and not-complex number.
+1 + .complex[1,5] =  -- 2+5i
+.complex[1,5] + 1 =  -- 2+5i
+
+array.cls defines operators for array and scalar.
+1 + .array~of(1,2) = -- [2,3]
+.array~of(1,2) + 1 = -- [2,3]
+
+Each implementation is independant, but when both are loaded then it's possible
+to add a complex number to an array.
+.complex[1,5] + .array~of(1,2)=     -- [(2+5i),(3+5i)]
+.array~of(1,2) + .complex[1,5]=     -- [(2+5i),(3+5i)]
+
+There is no direct call of a specific implementation of "+", we are in a case similar to
+CLOS generic methods, or Clojure multimethods : dependency on a polymporphic "+", where
+the polymorphism is not limited to the type of the first argument.
+
+Search strategy (build a list of candidate routines) :
+Search in the call stack the older frame whose package requires some other packages.
+This is the root package for the search. Follow the order of requires from this root
+package, and collect all the implementations of the operator.
+
+Execution strategy :
+Iteration over the collected implementations and call them one by one, until one of them
+returns a result. This result is the result of the evaluation of the operator.
+If no result at all, then fallback to the normal evaluation of the operator.
+
+The overriding of binary operators by routine has an impact on performances.
+The class String (behind the scene : StringClass, NumberStringClass, IntegerClass) has
+a fast access to operators implementations (see callOperatorMethod and operatorMethods).
+The overriding by routine replaces the fast access by a call to a routine, searched by name.
+A new option has been added to control the activation of this overriding :
+options "OPERATOR_OVERRIDING_BY_ROUTINE"
+options "NOOPERATOR_OVERRIDING_BY_ROUTINE"
+::options OPERATOR_OVERRIDING_BY_ROUTINE
+::options NOOPERATOR_OVERRIDING_BY_ROUTINE
+Unary operators can also be overriden by a routine.
+
+Todo :
+a) Modify the inheritance of context when creating an executable for a closure.
+   This is to avoid the statement options "OPERATOR_OVERRIDING_BY_ROUTINE" in the closure below :
+        ::options OPERATOR_OVERRIDING_BY_ROUTINE
+        ::routine "+" public
+        ...
+        if arg() == 2 then do
+            if arg(1)~isA(.array), arg(2)~isA(.array) then do
+                use arg array1, array2
+                return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item + array2[index]}
+        ...
+
+b) Modify the execution strategy to not execute a given method several times.
+   The same package can be required from different places, and its candidate routines
+   are collected always, even if already collected.
+
+c) If possible, start with the normal evaluation of the operator, and in case of error,
+   use the symetric overloading. With this approach, no more need of the option
+   "OPERATOR_OVERRIDING_BY_ROUTINE", there is no loss of performance. Moreover the security
+   is better, since the standard operators are tried first.
+   But... not so easy to implement. The question has been asked on the dev list, and the
+   received answer was "This is seriously not going to work"...
 
 
 =====================================================================================

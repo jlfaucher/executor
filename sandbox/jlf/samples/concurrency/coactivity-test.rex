@@ -12,7 +12,7 @@ return
 error:
 condition = condition("o")
 say condition~instruction condition~condition "for" condition~additional
-if condition~message != .nil then say condition~message
+if .nil <> condition~message then say condition~message
 terminate:
 say
 say "Ended coactivities:" .Coactivity~endAll

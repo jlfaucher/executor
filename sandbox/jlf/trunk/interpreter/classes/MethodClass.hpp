@@ -147,7 +147,7 @@ protected:
    RexxMethod  *newFileRexx(RexxString *);
    RexxMethod  *loadExternalMethod(RexxString *name, RexxString *descriptor);
 
-   static RexxMethod  *newMethodObject(RexxString *, RexxObject *, RexxObject *, RexxSource *a);
+   static RexxMethod  *newMethodObject(RexxString *, RexxObject *, RexxObject *, RexxSource *a, bool isBlock=false);
    static RexxMethod  *restore(RexxBuffer *, char *, size_t length);
 
    static void createInstance();

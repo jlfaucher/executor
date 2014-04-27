@@ -12,3 +12,200 @@ http://msdn.microsoft.com/en-us/library/0yw3tz5k(VS.80).aspx
 Nimrod
 AST is part of the specification - this allows a powerful macro system.
 http://force7.de/nimrod/index.html
+
+================================================================================
+
+The interpreter assumes that the predefined classes can't be extended.
+And optimizes some tests, by avoiding to send a message.
+
+if (this->isBaseClass())
+if (this->isSubClassOrEnhanced())
+
+/**
+ * Test if an object instance is a true instance of a primitive
+ * class.
+ *
+ * @return true if the object is not a subclass instance or an enhanced one-off.
+ */
+bool RexxInternalObject::isBaseClass()
+{
+    return behaviour->isPrimitive();
+}
+
+
+/**
+ * Test if an object instance is an enhanced version of a
+ * primitive class or a subclass of the primitive class.
+ *
+ * @return true if the object is a subclass instance or an enhanced one-off.
+ */
+bool RexxInternalObject::isSubClassOrEnhanced()
+{
+    return behaviour->isNonPrimitive();
+}
+
+
+class ObjectHeader
+{
+    ...
+    inline bool isNonPrimitive() { return (flags & IsNonPrimitive) != 0; }
+    inline bool isPrimitive() { return (flags & IsNonPrimitive) == 0; }
+    ...
+}
+
+
+================================================================================
+
+messageSend
+called by
+    RexxMessage::send                       (MessageClass.cpp), pas de stack
+    RexxObject::sendMessage                 (ObjectClass.cpp), pas de stack
+    RexxObject::sendWith                    (ObjectClass.cpp), pas de stack
+    RexxObject::send                        (ObjectClass.cpp), pas de stack
+    macro operatorMethod                    (ObjectClass.cpp), pas de stack
+    macro prefixOperatorMethod              (ObjectClass.cpp), pas de stack
+    RexxActivation::forward                 (RexxActivation.cpp), pas de stack
+    RexxNativeActivation::forwardMessage    (RexxNativeActivation.cpp), pas de stack
+    inline RexxExpressionStack::send        (ExpressionStack.hpp), 'this' is the stack
+    Interpreter::startInterpreter           (Interpreter.cpp), pas de stack
+    Interpreter::initLocal                  (Interpreter.cpp), pas de stack
+
+->send
+called by
+    ...
+
+->sendMessage
+called by
+    SendMessageArray                        (ThreadContextStubs.cpp), pas de stack
+    SendMessage0                            (ThreadContextStubs.cpp), pas de stack
+    SendMessage1                            (ThreadContextStubs.cpp), pas de stack
+    SendMessage2                            (ThreadContextStubs.cpp), pas de stack
+    RexxArray::sectionSubclass              (ArrayClass.cpp), pas de stack
+    RexxArray::operator new                 (ArrayClass.cpp), pas de stack
+    RexxArray::of                           (ArrayClass.cpp), pas de stack
+    WithSortComparator::compare             (ArrayClass.cpp), pas de stack
+
+=================================================================================
+
+Why this exception on line 2 ?????
+This is clearly similar to C++ explicit selection of method
+So why not supporting that ???
+
+---------------------
+.c1~new~m
+.c1~new~m:.c2 -- Message search overrides can be used only from methods of the target object
+pause
+
+::class c1
+::method m
+say "c1::m"
+self~m:.c2
+self ~ m : .c3
+
+::extension c1 inherit c2 c3
+
+::class c2 mixinclass object
+::method m
+say "c2::m"
+
+::class c3 mixinclass object
+::method m
+say "c3::m"
+---------------------
+
+RexxInstructionMessage::execute
+...
+        if (_target != context->getReceiver())  /* sender and receiver different?    */
+        {
+            /* this is an error                  */
+            reportException(Error_Execution_super);
+        }
+...
+
+
+RexxExpressionMessage::evaluate
+...
+        if (_target != context->getReceiver())   /* sender and receiver different?    */
+        {
+            /* this is an error                  */
+            reportException(Error_Execution_super);
+        }
+...
+
+
+JLF : getReceiver returns OREF_NULL when sending the message from outside a method
+/**
+ * Get the message receiver
+ *
+ * @return The message receiver.  Returns OREF_NULL if this is not
+ *         a message activation.
+ */
+RexxObject *RexxActivation::getReceiver()
+{
+    if (this->isInterpret())
+    {
+        return parent->getReceiver();
+    }
+    return receiver;
+}
+
+
+void RexxObject::messageSend(
+    RexxString      *msgname,          /* name of the message to process    */
+    RexxObject     **arguments,        /* array of arguments                */
+    size_t           count,            /* count of arguments                */
+    RexxObject      *startscope,       /* starting superclass scope         */
+    ProtectedObject &result)           // returned result
+{
+    ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
+    /* go to the higher level            */
+    RexxMethod *method_save = this->superMethod(msgname, startscope);
+
+
+RexxMethod * RexxObject::superMethod(
+  RexxString *msgName,                 /* target message name             */
+  RexxObject *startScope)              /* starting lookup scope           */
+{
+  return this->behaviour->superMethod(msgName, startScope);
+}
+
+
+JLF : Find a method using the given starting scope information
+RexxMethod *RexxBehaviour::superMethod(
+    RexxString * messageName,          /* target method name                */
+    RexxObject * startScope)           /* starting scope                    */
+{
+    /* if we have scopes defined and we  */
+    /* have a good start scope           */
+    if (this->scopes != OREF_NULL && startScope != TheNilObject)
+    {
+        /* get the scope list for the given  */
+        /* starting scope                    */
+        RexxArray *scopeList = (RexxArray *)this->scopes->get(startScope);
+        if (scopeList != OREF_NULL)        /* have a matching list?             */
+        {
+            /* get a list of methods             */
+            RexxArray *methods = this->methodDictionary->stringGetAll(messageName);
+            size_t scopes_size = scopeList->size(); /* get the two array sizes           */
+            size_t methods_size = methods->size();
+            /* search through the methods list   */
+            /* for the first one with a          */
+            /* conforming scope                  */
+            for (size_t i = 1; i <= methods_size; i++)
+            {
+                /* get the next method               */
+                RexxMethod *method = (RexxMethod *)methods->get(i);
+                /* now loop through the scopes list  */
+                for (size_t j = 1; j <= scopes_size; j++)
+                {
+                    /* got a matching scope here?        */
+                    if (scopeList->get(j) == method->getScope())
+                    {
+                        return method;             /* return the method                 */
+                    }
+                }
+            }
+        }
+    }
+    return OREF_NULL;                    /* nothing found                     */
+}

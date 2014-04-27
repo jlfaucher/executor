@@ -191,7 +191,7 @@ numeric digits 302; (2**1000)~reduceC("+")~dump
 -- --------------------------------------------------------------
 
 -- The full tag is "::coactivity".
--- The shortest abbreviation is "::c".
+-- The shortest abbreviation is "::co".
 -- initial value is the first yielded item (default)
 {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("-")~dump
 
@@ -577,16 +577,26 @@ buffer~dump -- mutable buffer after mapping
 .CircularQueue~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
--- Filtering is not possible on collections using map (to keep the indexes unchanged).
--- When no value is returned by ~map, then the current item is kept unchanged in the collection.
-.array~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+-- Filtering : When no value is returned by the routine, then the current item is removed from the collection.
+.Array~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+.Bag~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+.CircularQueue~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+.Directory~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
+.IdentityTable~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
+.List~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+.Properties~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
+.Queue~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+.Relation~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
+.Set~of("one", "two", "three")~map{if item~length == 3 then item}~dump
+.Stem~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
+.Table~new~~put(1, "one")~~put(2, "two")~~put(3, "three")~map{if index~length == 3 then item}~dump
 
 
 -- A source can be tagged explicitely as a routine (but you don't need that, because it's the default)
 .Array~of(1,2,3,4)~map{::routine item * 2}~dump
 
 
--- The shortest abbreviation of "::routine" is ":"
+-- The shortest abbreviation of "::routine" is "::r"
 .Array~of(1,2,3,4)~map{use arg n ; if n == 0 then 1 ; else n * .context~executable~call(n - 1)}~dump
 
 
@@ -1016,6 +1026,7 @@ colors~map(.methods~entry("decimalColor"))~dump
     signal loop
 syntax:
     say "*** got an error :" condition("O")~message
+    say condition("O")~traceback~makearray~tostring
     evaluate_string = ""
     signal iterate
 

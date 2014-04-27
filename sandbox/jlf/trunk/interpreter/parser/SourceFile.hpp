@@ -194,7 +194,7 @@ class RexxSource : public RexxInternalObject {
     PackageClass *loadRequires(RexxActivity *activity, RexxString *target, RexxArray *s);
     void        addPackage(PackageClass *package);
     PackageClass *getPackage();
-    void        inheritSourceContext(RexxSource *source);
+    void        inheritSourceContext(RexxSource *source, bool isBlock);
     RoutineClass *findRoutine(RexxString *);
     RoutineClass *findLocalRoutine(RexxString *);
     RoutineClass *findPublicRoutine(RexxString *);
@@ -411,7 +411,6 @@ class RexxSource : public RexxInternalObject {
     RexxString    *getTrace() { return formatTraceSetting(traceSetting); }
     bool           getEnableCommands() { return enableCommands; }
     bool           getEnableMacrospace() { return enableMacrospace; }
-    bool           getEnableOperatorOverridingByRoutine() { return enableOperatorOverridingByRoutine; }
 
     static pbuiltin builtinTable[];      /* table of builtin function stubs   */
 
@@ -470,6 +469,8 @@ protected:
     RexxList      *loadedPackages;       // packages imported by this package
     PackageClass  *package;              // our package wrapper
     RexxSource    *parentSource;         // a parent source context environment;
+    RexxSource    *toplevelSource;       // optimization, will be used when creating an activation for a block
+    bool           isBlock;              // true if the current source has been created from a RexxBlock
     RexxDirectory *routines;             /* routines found on directives      */
     RexxDirectory *public_routines;      /* PUBLIC routines directive routines*/
     RexxList      *libraries;            // packages requiring loading
@@ -491,7 +492,6 @@ protected:
     size_t traceFlags;                   // version optimized for quick setting at startup
     bool enableCommands;                 // are commands enabled ?
     bool enableMacrospace;               // is macrospace enabled ?
-    bool enableOperatorOverridingByRoutine;// is operator overriding by routine enabled ?
     intptr_t reserved1;                  // some reserved values for compatible expansion
     intptr_t reserved2;                  // some reserved values for compatible expansion
     intptr_t reserved3;                  // some reserved values for compatible expansion

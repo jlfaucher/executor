@@ -55,7 +55,9 @@
 #define RUN_AS_DAEMON
 
 #ifdef RUN_AS_DAEMON
-#define OOREXX_PIDFILE "/var/run/ooRexx.pid"
+//JLF tired to get ooRexx crash because root access needed to launch rxapi
+//#define OOREXX_PIDFILE "/var/run/ooRexx.pid"
+#define OOREXX_PIDFILE "/tmp/ooRexx.pid"
 bool run_as_daemon = true;
 #else
 #define OOREXX_PIDFILE "/tmp/ooRexx.pid"

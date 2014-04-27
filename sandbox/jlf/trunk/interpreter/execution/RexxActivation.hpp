@@ -125,7 +125,6 @@ class ActivationSettings
       NumericSettings numericSettings;     /* globally effective settings       */
       bool enableCommands;                 /* are commands enabled ?            */
       bool enableMacrospace;               /* is macrospace enabled ?           */
-      bool enableOperatorOverridingByRoutine;/* is operator overriding by routine enabled ? */
       int64_t elapsed_time;                /* elapsed time clock                */
       RexxDateTime timestamp;              /* current timestamp                 */
       bool intermediate_trace;             /* very quick test for intermediate trace */
@@ -178,13 +177,11 @@ class ActivationSettings
    bool              form();
    bool              enableCommands();
    bool              enableMacrospace();
-   bool              enableOperatorOverridingByRoutine();
    void              setDigits(size_t);
    void              setFuzz(size_t);
    void              setForm(bool);
    void              enableCommands(bool);
    void              enableMacrospace(bool);
-   void              enableOperatorOverridingByRoutine(bool);
    void              setDigits();
    void              setFuzz();
    void              setForm();
@@ -250,7 +247,6 @@ class ActivationSettings
    void              trapDelay(RexxString *);
    void              trapUndelay(RexxString *);
    bool              callExternalRexx(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
-   RexxObject      * overridableFunctionCall(RexxString *, size_t, RexxExpressionStack *, ProtectedObject &);
    RexxObject      * externalCall(RexxString *, size_t, RexxExpressionStack *, RexxString *, ProtectedObject &);
    RexxObject      * internalCall(RexxString *, RexxInstruction *, size_t, RexxExpressionStack *, ProtectedObject &);
    RexxObject      * internalCallTrap(RexxString *, RexxInstruction *, RexxDirectory *, ProtectedObject &);
@@ -607,6 +603,7 @@ class ActivationSettings
 
    inline void setLocalVariableDictionary(RexxVariableDictionary *dict) {settings.local_variables.setDictionary(dict); }
 
+
  protected:
 
    ActivationSettings   settings;      /* inherited REXX settings           */
@@ -644,7 +641,6 @@ class ActivationSettings
    size_t               blockNest;     /* block instruction nesting level   */
    size_t               lookaside_size;/* size of the lookaside table       */
 
-
    // constants
 
    static const size_t trace_off;           /* no tracing                        */
@@ -665,7 +661,6 @@ class ActivationSettings
 
    static const bool default_enable_commands;
    static const bool default_enable_macrospace;
-   static const bool default_enable_operator_overriding_by_routine;
 
    static const size_t single_step;         /* we are single stepping execution  */
    static const size_t single_step_nested;  /* this is a nested stepping         */

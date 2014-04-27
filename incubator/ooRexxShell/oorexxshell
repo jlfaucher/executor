@@ -1,4 +1,5 @@
 #!/bin/sh
+rxapi >/dev/null & # Workaround to avoid crash at first execution
 while true
 do
     rexx oorexxshell.rex $*

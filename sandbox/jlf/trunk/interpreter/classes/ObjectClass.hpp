@@ -431,8 +431,8 @@ class RexxObject : public RexxInternalObject {
      RexxObject  *pmdict();
      RexxObject  *run(RexxObject **, size_t);
 
-     void         messageSend(RexxString *, RexxObject **, size_t, ProtectedObject &);
-     void         messageSend(RexxString *, RexxObject **, size_t, RexxObject *, ProtectedObject &);
+     bool         messageSend(RexxString *, RexxObject **, size_t, ProtectedObject &, bool processUnknown=true);
+     bool         messageSend(RexxString *, RexxObject **, size_t, RexxObject *, ProtectedObject &, bool processUnknown=true);
      RexxMethod  *checkPrivate(RexxMethod *);
      void         processUnknown(RexxString *, RexxObject **, size_t, ProtectedObject &);
      void         processProtectedMethod(RexxString *, RexxMethod *, RexxObject **, size_t, ProtectedObject &);

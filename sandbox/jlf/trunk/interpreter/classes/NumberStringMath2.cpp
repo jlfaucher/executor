@@ -53,6 +53,7 @@
 #include "RexxActivity.hpp"
 #include "NumberStringMath.hpp"
 #include "ActivityManager.hpp"
+#include "ProtectedObject.hpp"
 
 char *RexxNumberString::addMultiplier(
     char *top,                        /* data pointer of "top" number      */
@@ -699,6 +700,10 @@ RexxNumberString *RexxNumberString::power(RexxObject *PowerObj)
                                          /* get the whole number value        */
     if (!PowerObj->numberValue(powerValue, number_digits()))
     {
+        ProtectedObject result;
+        RexxObject *self = this;
+        bool alternativeResult = PowerObj->messageSend(OREF_POWER_RIGHT, &self, 1, result, false);
+        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxNumberString *)(RexxObject *)result;
         reportException(Error_Invalid_whole_number_power, PowerObj);
     }
 

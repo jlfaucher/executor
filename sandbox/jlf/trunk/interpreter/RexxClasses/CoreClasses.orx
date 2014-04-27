@@ -2654,7 +2654,9 @@ Output:
       return .timespan~new(utcTimeStamp - other~utcDate)
   end
 
-  raise syntax 88.914 array("subtractor", "DateTime or TimeSpan")
+  -- Give a chance for an alternative operator (no result instead of exception)
+  return
+  -- raise syntax 88.914 array("subtractor", "DateTime or TimeSpan")
 
 
 -- add a datetime instance to a timespan instance, returning a new datetime.
@@ -2682,7 +2684,9 @@ Output:
       return self~class~new(timestamp + other~totalMicroseconds, self~offset)
   end
 
-  raise syntax 93.948 array(1, "TimeSpan")
+  -- Give a chance for an alternative operator (no result instead of exception)
+  return
+  -- raise syntax 93.948 array(1, "TimeSpan")
 
 
 -- Add a number of years to a datetime object, returning a new object
@@ -3302,7 +3306,9 @@ Output:
   -- subtracting a time from a TimeStamp.  The reverse operation,
   -- however, makes sense.
   if !other~isa(.timespan) then do
-      raise syntax 93.948 array(1, "TimeSpan")
+      -- Give a chance for an alternative operator (no result instead of exception)
+      return
+      -- raise syntax 93.948 array(1, "TimeSpan")
   end
 
   -- combine the two intervals
@@ -3340,7 +3346,9 @@ Output:
       return other~class~new(timestamp + other~fullDate)
   end
 
-  raise syntax 88.914 array(1, "TimeSpan or DateTime")
+  -- Give a chance for an alternative operator (no result instead of exception)
+  return
+  -- raise syntax 88.914 array(1, "TimeSpan or DateTime")
 
 
 -- perform integer division on a timespan.  This divides the interval

@@ -1,0 +1,31 @@
+==============================================================
+
+https://mail.google.com/mail/?shva=1#inbox/1442da89fec5d678
+
+"I still would like to see the "-x" flag and a method to determine the parameters for -X in the testing program."
+
+The small -x is a valid suggestion.  I believe the basic framework for it already exists in the test suite, but the implementation is not finished.
+
+Use help testTypes to get the parameters for -X:
+
+C:\work.ooRexx\wc\ooTest\4.x>testOORexx.rex help testTypes
+testOORexx version 1.1.0 ooTest Framework version 1.0.0_4.0.0
+
+All test types:
+   Doc_example_noise Unit_long Framework_example Doc_example Unit Gui Ole Sample Gui_sample Native_api Tcpip
+
+Default test type set:
+   Doc_example Native_api Unit_long Sample Gui Gui_sample Ole Unit
+
+Default exclued test type set:
+ Doc_example_noise Framework_example Tcpip
+
+C:\work.ooRexx\wc\ooTest\4.x>
+
+Use help topic to see what topics are available for extended help:
+
+C:\work.ooRexx\wc\ooTest\4.x>testOORexx.rex help topic
+testOORexx version 1.1.0 ooTest Framework version 1.0.0_4.0.0
+
+Detailed help subjects (case insignificant) are:
+  testTypes

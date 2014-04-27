@@ -109,7 +109,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg accu, item, index")~arity(3)
                                         else doer = action~doer
     if \ self~available then return initial
-    if initial <> .nil then accu = initial
+    if .nil <> initial then accu = initial
     else do
         accu = self~item
         self~next
@@ -129,8 +129,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- http://en.wikipedia.org/wiki/Map_(higher-order_function)
 -- The result returned by ~map method is of the same type as the self object.
 -- A String or MutableBuffer can be filtered (when no result returned by the given action).
--- A Collection can't be filtered : If the given action doesn't return a result, then the current value is unchanged.
--- If you need to filter the values of a Collection, then use the ~each method.
+-- A Collection can be filtered : If the given action doesn't return a result, then the current value is removed.
 
 -----------------------------------------------
 ::class "StringMapper" mixinclass Object public
@@ -141,7 +140,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the string and apply the given action to (current_char, current_char_pos)
 -- "abcdefghijk"~mapC{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
 ::method mapC unguarded
-    use strict arg action
+    use strict arg action={arg(1)}
     return .MutableBuffer~new~mapCImpl(self, action)~string
 
 -- Not applicable to a string
@@ -152,7 +151,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the string and apply the given action to (current_word, current_word_index)
 -- "one two three"~mapW{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
-    use strict arg action
+    use strict arg action={arg(1)}
     return .MutableBuffer~new~mapWImpl(self, action)~string
 
 -- Not applicable to a string
@@ -168,7 +167,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos)
 -- .MutableBuffer~new("abcdefghijk")~mapC{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
 ::method mapC unguarded
-    use strict arg action
+    use strict arg action={arg(1)}
     return .MutableBuffer~new~mapCImpl(self, action)
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char) in-place
@@ -176,7 +175,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char, current_char_pos) in-place
 -- .MutableBuffer~new("abcdefghijk")~mapCR{arg(2)":"arg(1)" "} -- returns "1:a 2:b 3:c 4:d 5:e 6:f 7:g 8:h 9:i 10:j 11:k "
 ::method mapCR
-    use strict arg action
+    use strict arg action={arg(1)}
     return self~mapCImpl(self~string, action)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char)
@@ -184,7 +183,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos)
 -- .MutableBuffer~new("one two three")~mapW{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapW unguarded
-    use strict arg action
+    use strict arg action={arg(1)}
     return .MutableBuffer~new~mapWImpl(self, action)
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char) in-place
@@ -192,7 +191,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the words of the mutable buffer and apply the given action to (current_char, current_char_pos) in-place
 -- .MutableBuffer~new("one two three")~mapWR{arg(2)":"arg(1)} -- returns "1:one 2:two 3:three"
 ::method mapWR
-    use strict arg action
+    use strict arg action={arg(1)}
     return self~mapWImpl(self~string, action)
 
 ::method mapCImpl -- not private because called by String~map
@@ -241,7 +240,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the items of a copy of the collection and apply the given action to (current_item, current_index)
 -- .array~of(1,2,3)~map{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
 ::method map unguarded
-    use strict arg action
+    use strict arg action={arg(1)}
     return self~copy~mapImpl(self~supplier, action)
 
 -- Iterate over the items of the collection and apply the given action to (current_item) in-place
@@ -249,7 +248,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Iterate over the items of the collection and apply the given action to (current_item, current_index) in-place
 -- .array~of(1,2,3)~mapR{2*arg(1) + arg(2)} -- returns .array~of(3,6,9)
 ::method mapR
-    use strict arg action
+    use strict arg action={arg(1)}
     return self~mapImpl(self~supplier, action)
 
 -- Always in-place (if needed, do a copy of the target collection before applying this method).
@@ -264,9 +263,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
         newItem = supplier~item
         if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
                            else doer~do(supplier~item)
-        if var("result") then newItem = result
-        if self~isA(.SetCollection) then self[newItem] = newItem -- special constraint : index and item must be the same object
-                                    else self[supplier~index] = newItem
+        if var("result") then do
+            newItem = result
+            if self~isA(.SetCollection) then self[newItem] = newItem -- special constraint : index and item must be the same object
+                                        else self[supplier~index] = newItem
+        end
+        else do
+            self~remove(supplier~index)
+        end
         supplier~next
     end
     return self
@@ -1105,5 +1109,5 @@ This script needs a modified ooRexx interpreter which support extension of prede
         doer~do(i)
         if var("result") then collectedItems~append(result)
     end
-    if collectedItems <> .nil then return collectedItems
+    return collectedItems
 

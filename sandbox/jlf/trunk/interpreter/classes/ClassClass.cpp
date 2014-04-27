@@ -190,6 +190,10 @@ bool RexxClass::isEqual(
         /* other wise giveuser version a     */
         /*chance                             */
         this->sendMessage(OREF_STRICT_EQUAL, other, r);
+        if ((RexxObject *)r == OREF_NULL)
+        {
+            reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+        }
         return((RexxObject *)r)->truthValue(Error_Logical_value_method);
     }
 }

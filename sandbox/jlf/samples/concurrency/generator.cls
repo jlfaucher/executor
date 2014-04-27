@@ -637,6 +637,7 @@
 
 ::method init
     expose action allowCommands depthFirst detectCycles doer iterateBefore iterateAfter limit once recursive returnIndex source trace
+    say "Generator~init : self=" self self~identityHash
     self~init:super
     use strict arg source=.nil -- the seed of the generation, called "source" by analogy with pipes
     action = .nil
@@ -651,6 +652,10 @@
     recursive = .false
     returnIndex = .false
     trace = .false
+
+::method uninit
+    say "Generator~uninit"
+    self~uninit:super
 
 ::method action unguarded
     expose action trace
@@ -900,6 +905,7 @@
     expose action depthFirst detectCycles doer once recursive source trace
     use strict arg -- none
     doer = self~action2doer(action)
+    action = .nil -- to let GC
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~main")
     if trace then do -- additional info
@@ -915,4 +921,85 @@
     else if recursive then stack = .circularQueue~new(3) -- remember the 3 last calculated items. Arbitrary value, should be enough for most recursive algorithms.
     if depthFirst then self~processDepthFirst.1(source, 1, previousItems, stack)
                   else self~processBreadthFirst.1(source, 1, previousItems, stack)
+
+
+::class jlf public inherit Coactivity
+
+::method init
+    expose action doer trace source allowCommands
+    say "jlf~init : self=" self self~identityHash
+    self~init:super
+    --forward class (super) continue
+    use strict arg source=.nil -- the seed of the generation, called "source" by analogy with pipes
+    action = .nil
+    doer = .nil
+    trace = .false
+    allowCommands = .false
+
+::method uninit
+    say "jlf~uninit"
+    self~uninit:super
+
+::method action unguarded
+    expose action trace
+    if trace then trace i
+    if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
+    guard on
+    use strict arg action
+    return self
+
+::method trace unguarded
+    expose trace
+    if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
+    guard on
+    use strict arg -- none
+    trace = .true
+    return self
+
+::method action2doer private
+    expose allowCommands trace
+    if trace then trace i
+    use strict arg action
+    if action == .nil then action = {arg(1)}
+    if allowCommands, action~hasMethod("actionDoer") then do
+        doer = action~actionDoer("use arg item, index, depth, stack")~arity(4)
+        return doer
+    end
+    if action~hasMethod("functionDoer") then do
+        doer = action~functionDoer("use arg item, index, depth, stack")~arity(4)
+        return doer
+    end
+    if action~hasMethod("doer") then do
+        doer = action~doer
+        return doer
+    end
+    raise syntax 93.900 array(self~class~id ":" action "is not a doer factory")
+
+::method main
+    expose action doer source trace
+    use strict arg -- none
+    doer = self~action2doer(action)
+    -- not a block do...end, to not see the 'end' in the trace output
+    if trace then .traceOutput~say("       >I> Method .jlf~main")
+    if trace then do -- additional info
+        .traceOutput~say("-"~copies(20))
+        .traceOutput~say(doer~source~tostring)
+        .traceOutput~say("-"~copies(20))                                                                                          
+    end
+    if trace then trace i
+    doer~do(source)
+    action = .nil
+    doer = .nil
+    if \ var("result") then do
+        -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
+        -- The next calculation will be done only on resume.
+        self~yield
+        use strict arg -- none
+        return
+    end
+    else do
+        self~yield(result)
+        use strict arg -- none
+    end
+    say "jlf~main is ended"
 

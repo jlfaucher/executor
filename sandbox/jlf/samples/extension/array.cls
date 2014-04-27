@@ -2,7 +2,6 @@
 This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
 */
 
---::requires "extension/extensions.cls"
 --::options trace i
 
 /******************************************************************************/
@@ -63,13 +62,22 @@ many times as necessary to fill the array.
     if self~dimension == 0 then raise syntax 93.900 array("Unknown number of dimensions")
 
     -- Only one of the following variable will be used
+    oneValue = .false
     arrayIn = .nil
     doer = .nil
     supplier = .nil
 
     if arg() == 1 then do
-        if arg(1)~isA(.String) then arrayIn = arg(1)~subwords -- APL-like
-        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex")~arity(2)
+        if arg(1)~isA(.String) then do
+            arrayIn = arg(1)~subwords -- APL-like
+            if arrayIn~items == 1 then do
+                -- Optimization : use the value as-is instead of iterating over an array of 1 item
+                arrayIn = .nil
+                oneValue = .true
+                value = arg(1)
+            end
+        end
+        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex, self")~arity(3)
         else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
         else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
@@ -77,13 +85,23 @@ many times as necessary to fill the array.
     end
     else arrayIn = arg(1, "a")
 
-    if arrayIn <> .nil then do
+    selfIntegerIndex = 1
+    selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+
+    -- Optimization
+    if oneValue == .true then do
+        do while selfIntegerIndex <= self~size
+            self~put(value, selfArrayIndex)
+            selfIntegerIndex += 1
+            self~incrementIndex(selfArrayIndex)
+        end
+        return self
+    end
+
+    if .nil <> arrayIn then do
         arrayInIndex = 1
         arrayInSize = arrayIn~size
     end
-
-    selfIntegerIndex = 1
-    selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
 
     sourceEnd = 0
     selfReuseIntegerIndex = 1
@@ -92,7 +110,7 @@ many times as necessary to fill the array.
     do while selfIntegerIndex <= self~size
         if sourceEnd == 0 then do
             -- if initialization with an array (covers the case of several arguments passed to the method)
-            if arrayIn <> .nil then do
+            if .nil <> arrayIn then do
                 if arrayInIndex > arrayInSize then sourceEnd = selfIntegerIndex
                 else do
                     if arrayIn~hasIndex(arrayInIndex) then self~put(arrayIn[arrayInIndex], selfArrayIndex)
@@ -101,24 +119,20 @@ many times as necessary to fill the array.
             end
 
             -- if initialization with a doer
-            else if doer <> .nil then do
-                -- next line is not really needed because when a coactivity is ended, there is not returned result
-                -- and this case is managed by the second test doer~isEnded below.
-                if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
-                else do
-                    if doer~arity >= 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
-                    else if doer~arity == 1 then doer~do(selfIntegerIndex)
-                    else doer~do
-                    if var("result") then self~put(result, selfArrayIndex)
-                    -- next line is needed to offer the same behaviour for
-                    -- .array~new(2,3)~of(1~upto(5))
-                    -- .array~new(2,3)~of(1~generate.upto(5))
-                    else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
-                end
+            else if .nil <> doer then do
+                if doer~arity == 3 then doer~do(selfIntegerIndex, selfArrayIndex~copy, self)
+                else if doer~arity == 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
+                else if doer~arity == 1 then doer~do(selfIntegerIndex)
+                else doer~do
+                if var("result") then self~put(result, selfArrayIndex)
+                -- next line is needed to offer the same behaviour for
+                -- .array~new(2,3)~of(1~upto(5))
+                -- .array~new(2,3)~of(1~generate.upto(5))
+                else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
             end
 
             -- if initialization with a supplier
-            else if supplier <> .nil then do
+            else if .nil <> supplier then do
                 if \supplier~available then sourceEnd = selfIntegerIndex
                 else do
                     self~put(supplier~item, selfArrayIndex)
@@ -217,7 +231,7 @@ many times as necessary to fill the array.
     if val~isA(.array) /*, val~dimension == 1*/ then do
         -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
         level = stack~index(val)
-        if level <> .nil then return "*"level-1
+        if .nil <> level then return "*"level-1
         stack~push(val)
         -- each item of the array is inserted.
         items = 0 -- Not global. Each item being an array will have maxItems items inserted.
@@ -252,43 +266,578 @@ many times as necessary to fill the array.
 
 
 /******************************************************************************/
--- ArrayOperators
--- Evolution of the current implementation of blocks needed to avoid the
--- options "OPERATOR_OVERRIDING_BY_ROUTINE" inside the blocks.
+::class "ArrayOperators" mixinclass Object public
 
-::options OPERATOR_OVERRIDING_BY_ROUTINE
+::method "+"
+    if arg() == 0 then return self~map("+")
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item + right[index]}
+    end
+    return self~map{::closure expose right ; item + right}
 
-::routine "+" public
-if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("+")
-if arg() == 2 then do
-    if arg(1)~isA(.array), arg(2)~isA(.array) then do
-        use arg array1, array2
-        return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item + array2[index]}
+::method "+op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] + item}
     end
-    if arg(1)~isA(.array) then do
-        use arg array, scalar
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item + scalar}
-    end
-    if arg(2)~isA(.array) then do
-        use arg scalar, array
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar + item}
-    end
-end
+    return self~map{::closure expose left ; left + item}
 
-::routine "-" public
-if arg() == 1, arg(1)~isA(.array) then return arg(1)~map("-")
-if arg() == 2 then do
-    if arg(1)~isA(.array), arg(2)~isA(.array) then do
-        use arg array1, array2
-        return array1~map{::closure expose array2 ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - array2[index]}
+::method "-"
+    if arg() == 0 then return self~map("-")
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item - right[index]}
     end
-    if arg(1)~isA(.array) then do
-        use arg array, scalar
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; item - scalar}
-    end
-    if arg(2)~isA(.array) then do
-        use arg scalar, array
-        return array~map{::closure expose scalar ; options "OPERATOR_OVERRIDING_BY_ROUTINE" ; scalar - item}
-    end
-end
+    return self~map{::closure expose right ; item - right}
 
+::method "-op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] - item}
+    end
+    return self~map{::closure expose left ; left - item}
+
+::method "*"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item * right[index]}
+    end
+    return self~map{::closure expose right ; item * right}
+
+::method "*op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] * item}
+    end
+    return self~map{::closure expose left ; left * item}
+
+::method "/"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item / right[index]}
+    end
+    return self~map{::closure expose right ; item / right}
+
+::method "/op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] / item}
+    end
+    return self~map{::closure expose left ; left / item}
+
+::method "%"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item % right[index]}
+    end
+    return self~map{::closure expose right ; item % right}
+
+::method "%op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] % item}
+    end
+    return self~map{::closure expose left ; left % item}
+
+::method "//"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item // right[index]}
+    end
+    return self~map{::closure expose right ; item // right}
+
+::method "//op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] // item}
+    end
+    return self~map{::closure expose left ; left // item}
+
+::method "**"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item ** right[index]}
+    end
+    return self~map{::closure expose right ; item ** right}
+
+::method "**op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] ** item}
+    end
+    return self~map{::closure expose left ; left ** item}
+
+::method " "
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item right[index]}
+    end
+    return self~map{::closure expose right ; item right}
+
+::method " op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose self ; self[index] item}
+    end
+    return self~map{::closure expose left ; left item}
+
+::method "||"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item || right[index]}
+    end
+    return self~map{::closure expose right ; item || right}
+
+::method "||op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] || item}
+    end
+    return self~map{::closure expose left ; left || item}
+
+::method "" -- abuttal
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item || right[index]}
+    end
+    return self~map{::closure expose right ; item || right}
+
+::method "op:right" -- abuttal
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] || item}
+    end
+    return self~map{::closure expose left ; left || item}
+
+::method mapEqual
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; (item) = right[index]}
+    end
+    return self~map{::closure expose right ; (item) = right}
+
+/* Not activated
+::method "="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; (item) = right[index]}
+    end
+    return self~map{::closure expose right ; (item) = right}
+*/
+
+/* Not activated
+::method "=op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; (left[index]) = item}
+    end
+    return self~map{::closure expose left ; (left) = item}
+*/
+
+::method mapNotEqual
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \= right[index]}
+    end
+    return self~map{::closure expose right ; item \= right}
+
+/* Not activated
+::method "\="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \= right[index]}
+    end
+    return self~map{::closure expose right ; item \= right}
+*/
+
+/* Not activated
+::method "\=op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] \= item}
+    end
+    return self~map{::closure expose left ; left \= item}
+*/
+
+::method mapNotEqualTo
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item <> right[index]}
+    end
+    return self~map{::closure expose right ; item <> right}
+
+/* Not activated
+::method "<>"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item <> right[index]}
+    end
+    return self~map{::closure expose right ; item <> right}
+*/
+
+/* Not activated
+::method "<>op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] <> item}
+    end
+    return self~map{::closure expose left ; left <> item}
+*/
+
+::method mapStrictEqual
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item == right[index]}
+    end
+    return self~map{::closure expose right ; item == right}
+
+/* Not activated
+::method "=="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item == right[index]}
+    end
+    return self~map{::closure expose right ; item == right}
+*/
+
+/* Not activated
+::method "==op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] == item}
+    end
+    return self~map{::closure expose left ; left == item}
+*/
+
+::method mapStrictNotEqual
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \== right[index]}
+    end
+    return self~map{::closure expose right ; item \== right}
+
+/* Not activated
+::method "\=="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \== right[index]}
+    end
+    return self~map{::closure expose right ; item \== right}
+*/
+
+/* Not activated
+::method "\==op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] \== item}
+    end
+    return self~map{::closure expose left ; left \== item}
+*/
+
+/* Not activated
+::method "><"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item >< right[index]}
+    end
+    return self~map{::closure expose right ; item >< right}
+*/
+
+/* Not activated
+::method "><op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] >< item}
+    end
+    return self~map{::closure expose left ; left >< item}
+*/
+
+::method "\"
+    use strict arg -- none
+    return self~map("\")
+
+::method ">"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item > right[index]}
+    end
+    return self~map{::closure expose right ; item > right}
+
+::method ">op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] > item}
+    end
+    return self~map{::closure expose left ; left > item}
+
+::method "<"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item < right[index]}
+    end
+    return self~map{::closure expose right ; item < right}
+
+::method "<op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] < item}
+    end
+    return self~map{::closure expose left ; left < item}
+
+::method ">="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item >= right[index]}
+    end
+    return self~map{::closure expose right ; item >= right}
+
+::method ">=op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] >= item}
+    end
+    return self~map{::closure expose left ; left >= item}
+
+::method "\<"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \< right[index]}
+    end
+    return self~map{::closure expose right ; item \< right}
+
+::method "\<op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] \< item}
+    end
+    return self~map{::closure expose left ; left \< item}
+
+::method "<="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item <= right[index]}
+    end
+    return self~map{::closure expose right ; item <= right}
+
+::method "<=op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] <= item}
+    end
+    return self~map{::closure expose left ; left <= item}
+
+::method "\>"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \> right[index]}
+    end
+    return self~map{::closure expose right ; item \> right}
+
+::method "\>op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] \> item}
+    end
+    return self~map{::closure expose left ; left \> item}
+
+::method ">>"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item >> right[index]}
+    end
+    return self~map{::closure expose right ; item >> right}
+
+::method ">>op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] >> item}
+    end
+    return self~map{::closure expose left ; left >> item}
+
+::method "<<"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item << right[index]}
+    end
+    return self~map{::closure expose right ; item << right}
+
+::method "<<op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] << item}
+    end
+    return self~map{::closure expose left ; left << item}
+
+::method ">>="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item >>= right[index]}
+    end
+    return self~map{::closure expose right ; item >>= right}
+
+::method ">>=op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] >>= item}
+    end
+    return self~map{::closure expose left ; left >>= item}
+
+::method "\<<"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \<< right[index]}
+    end
+    return self~map{::closure expose right ; item \<< right}
+
+::method "\<<op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] \<< item}
+    end
+    return self~map{::closure expose left ; left \<< item}
+
+::method "<<="
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item <<= right[index]}
+    end
+    return self~map{::closure expose right ; item <<= right}
+
+::method "<<=op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] <<= item}
+    end
+    return self~map{::closure expose left ; left <<= item}
+
+::method "\>>"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item \>> right[index]}
+    end
+    return self~map{::closure expose right ; item \>> right}
+
+::method "\>>op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] \>> item}
+    end
+    return self~map{::closure expose left ; left \>> item}
+
+::method "&"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item & right[index]}
+    end
+    return self~map{::closure expose right ; item & right}
+
+::method "&op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] & item}
+    end
+    return self~map{::closure expose left ; left & item}
+
+::method "|"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item | right[index]}
+    end
+    return self~map{::closure expose right ; item | right}
+
+::method "|op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] | item}
+    end
+    return self~map{::closure expose left ; left | item}
+
+::method "&&"
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose right ; item && right[index]}
+    end
+    return self~map{::closure expose right ; item && right}
+
+::method "&&op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{::closure expose left ; left[index] && item}
+    end
+    return self~map{::closure expose left ; left && item}
+
+::routine SameDimensions
+    use strict arg a1, a2
+    if a1~dimension <> a2~dimension then return .false
+    do i=1 to a1~dimension
+        if a1~dimension(i) <> a2~dimension(i) then return .false
+    end
+    return .true
