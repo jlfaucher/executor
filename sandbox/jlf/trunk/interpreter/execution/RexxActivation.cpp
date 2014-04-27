@@ -3609,7 +3609,7 @@ void RexxActivation::traceSourceString()
 }
 
 
-RexxString * RexxActivation::formatTrace(
+RexxString *RexxActivation::formatTrace(
    RexxInstruction *  instruction,     /* instruction to trace              */
    RexxSource      *  _source )        /* program source                    */
 /******************************************************************************/
@@ -3626,11 +3626,11 @@ RexxString * RexxActivation::formatTrace(
                                            /* (formatted for tracing)           */
     if (this->settings.traceindent < MAX_TRACEBACK_INDENT)
     {
-        return _source->traceBack(location, this->settings.traceindent, true);
+        return _source->traceBack(this, location, this->settings.traceindent, true);
     }
     else
     {
-        return _source->traceBack(location, MAX_TRACEBACK_INDENT, true);
+        return _source->traceBack(this, location, MAX_TRACEBACK_INDENT, true);
     }
 }
 
@@ -4440,6 +4440,53 @@ StackFrameClass *RexxActivation::createStackFrame()
     ProtectedObject p_arguments(arguments); // getArguments() returns a new array, so must be protected
     ProtectedObject p;
     return new (p) StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, getTraceBack(), getContextLineNumber());
+}
+
+/**
+ * Format a more informative trace line when giving
+ * traceback information for code when no source code is
+ * available.
+ *
+ * @param packageName
+ *               The package name to use (could be "REXX" for internal code)
+ *
+ * @return A formatted descriptive string for the invocation.
+ */
+RexxString *RexxActivation::formatSourcelessTraceLine(RexxString *packageName)
+{
+    // if this is a method invocation, then we can give the method name and scope.
+    if (isMethod())
+    {
+        RexxArray *info = new_array(getMessageName(), scope->getId(), packageName);
+        ProtectedObject p(info);
+
+        return activity->buildMessage(Message_Translations_sourceless_method_invocation, info);
+    }
+    else if (isRoutine())
+    {
+        RexxArray *info = new_array(getMessageName(), packageName);
+        ProtectedObject p(info);
+
+        return activity->buildMessage(Message_Translations_sourceless_routine_invocation, info);
+    }
+    else
+    {
+        RexxArray *info = new_array(packageName);
+        ProtectedObject p(info);
+
+        return activity->buildMessage(Message_Translations_sourceless_program_invocation, info);
+    }
+}
+
+
+/**
+ * Generate the stack frames for the current context.
+ *
+ * @return A list of the stackframes.
+ */
+RexxArray *RexxActivation::getStackFrames(bool skipFirst)
+{
+    return activity->generateStackFrames(skipFirst);
 }
 
 

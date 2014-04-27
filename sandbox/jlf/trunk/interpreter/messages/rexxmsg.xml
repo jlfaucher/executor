@@ -3105,7 +3105,7 @@ special character (such as a parenthesis).
     <Severity>Warning</Severity>
     <SymbolicName>Error_Overflow</SymbolicName>
     <Text>Arithmetic overflow/underflow</Text>
-    <Explanation><para>The result of an arithmetic operation requires an exponent that is greater than the platform limit of nine digits for 32-bit systems or 18 for 64-bit systems.</para>
+    <Explanation><para>The result of an arithmetic operation requires an exponent that is greater than the platform limit of nine digits.</para>
     <para>This error can occur during the evaluation of an expression (often as a result of trying to divide a number by 0) or while stepping a DO loop control variable.</para></Explanation>
     <Subcodes>
       <SubMessage>
@@ -5409,6 +5409,42 @@ special character (such as a parenthesis).
         <Severity>Info</Severity>
         <SymbolicName>Message_Translations_no_source_available</SymbolicName>
         <Text>Package <q><Sub position="1" name="package"/></q> (no source available)</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>101</Code>
+        <Subcode>023</Subcode>
+        <MessageNumber>735</MessageNumber>
+        <Component>Translation</Component>
+        <Severity>Info</Severity>
+        <SymbolicName>Message_Translations_internal_code</SymbolicName>
+        <Text>Interpreter code (no source available)</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>101</Code>
+        <Subcode>024</Subcode>
+        <MessageNumber>736</MessageNumber>
+        <Component>Translation</Component>
+        <Severity>Info</Severity>
+        <SymbolicName>Message_Translations_sourceless_method_invocation</SymbolicName>
+        <Text>Method <Sub position="1" name="method"/> with scope <q><Sub position="2" name="class"/></q> in package <q><Sub position="3" name="package"/></q> (no source available)</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>101</Code>
+        <Subcode>025</Subcode>
+        <MessageNumber>737</MessageNumber>
+        <Component>Translation</Component>
+        <Severity>Info</Severity>
+        <SymbolicName>Message_Translations_sourceless_routine_invocation</SymbolicName>
+        <Text>Routine <Sub position="1" name="routine"/> in package <q><Sub position="2" name="package"/></q> (no source available)</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>101</Code>
+        <Subcode>026</Subcode>
+        <MessageNumber>738</MessageNumber>
+        <Component>Translation</Component>
+        <Severity>Info</Severity>
+        <SymbolicName>Message_Translations_sourceless_program_invocation</SymbolicName>
+        <Text>Program in <q><Sub position="1" name="package"/></q> (no source available)</Text>
       </SubMessage>
     </Subcodes>
   </Message>

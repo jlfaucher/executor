@@ -64,7 +64,6 @@
 #include "PackageClass.hpp"
 #include "WeakReferenceClass.hpp"
 #include "StackFrameClass.hpp"
-#include "ExceptionClass.hpp"
 #include "BlockClass.hpp"
 #include "Interpreter.hpp"
 #include "SystemInterpreter.hpp"
@@ -1245,7 +1244,7 @@ RexxArray  *RexxMemory::newObjects(
         /* point to the next object space. */
         largeObject = (RexxObject *)((char *)largeObject + objSize);
         /* copy the information from the prototype */
-        memcpy(largeObject, prototype, sizeof(RexxInternalObject));
+        memcpy((void *)largeObject, (void *)prototype, sizeof(RexxInternalObject));
     }
     arrayOfObjects->put(largeObject, i);  /* put the last Object */
 
@@ -1512,7 +1511,7 @@ void RexxMemory::saveImageMark(RexxObject *markObject, RexxObject **pMarkObject)
             Interpreter::logicError("Rexx saved image exceeds expected maximum");
         }
         /* Copy object to image buffer. */
-        memcpy(bufferReference, markObject, size);
+        memcpy((void *)bufferReference, (void *)markObject, size);
         /* clear the mark in the copy        */
         bufferReference->clearObjectMark();
         /* Retrieve the behaviour obj */
@@ -1601,7 +1600,7 @@ void RexxMemory::orphanCheckMark(RexxObject *markObject, RexxObject **pMarkObjec
                     objectClassName = className->getStringData();
                 if (firstnode)
                 {             /* is this the first node??          */
-                    printf("-->Parent node was marking offset '%u'x \n", (char *)pMarkObject - (char *)markObject);
+                    printf("-->Parent node was marking offset '%ld'x \n", (char *)pMarkObject - (char *)markObject);
                     dumpObject(markObject, outfile);
                     firstnode = false;
                     logMemoryCheck(outfile, "Parent node is at %p, of type %s(%d) \n",
@@ -1774,7 +1773,7 @@ void RexxMemory::saveImage(void)
 
     printf("Object stats for this image save are \n");
     _imageStats.printSavedImageStats();
-    printf("\n\n Total bytes for this image %d bytes \n", image_offset);
+    printf("\n\n Total bytes for this image %lu bytes \n", image_offset);
 }
 
 
@@ -1892,7 +1891,7 @@ RexxObject *RexxMemory::gutCheck(void)
         if (testValue == OREF_NULL)
         {
             /* nope, extra stuff in orig.        */
-            printf("object:  %p,  type:  %d, is extra in old2new.\n\n",
+            printf("object:  %p,  type:  %lu, is extra in old2new.\n\n",
                    index, index->behaviour->getClassType());
         }
         else
@@ -1903,9 +1902,9 @@ RexxObject *RexxMemory::gutCheck(void)
             testcount = testValue->getValue();
             if (count != testcount)
             {
-                printf("object:  %p,  type:  %d, has an incorrect refcount.\n",
+                printf("object:  %p,  type:  %lu, has an incorrect refcount.\n",
                        index, index->behaviour->getClassType());
-                printf("Refcount for object is %d, should be %d.\n\n", count, testcount);
+                printf("Refcount for object is %ld, should be %ld.\n\n", count, testcount);
             }
             /* now remove object from new table  */
             tempold2new->remove(index);
@@ -1919,7 +1918,7 @@ RexxObject *RexxMemory::gutCheck(void)
         (index = (RexxObject *)tempold2new->index(j)) != OREF_NULL;
         j = tempold2new->next(j))
     {
-        printf("object:  %p,  type:  %d, is missing from old2new.\n\n",
+        printf("object:  %p,  type:  %lu, is missing from old2new.\n\n",
                index,index->behaviour->getClassType());
     }
 
@@ -2041,7 +2040,7 @@ RexxObject *RexxMemory::setOref(void *oldValue, RexxObject *value)
                 printf("******** error in memory_setoref, unable to decrement refcount\n");
                 printf("Naughty object reference is from:  %p\n", oldValueLoc);
                 printf("Naughty object reference is at:  %p\n", index);
-                printf("Naughty object reference type is:  %d\n", (index)->behaviour->getClassType());
+                printf("Naughty object reference type is:  %lu\n", (index)->behaviour->getClassType());
             }
         }
         if (value != OREF_NULL && value->isNewSpace())
@@ -2358,7 +2357,6 @@ void RexxMemory::restore()
     RESTORE_CLASS(Buffer, RexxClass);
     RESTORE_CLASS(WeakReference, RexxClass);
     RESTORE_CLASS(StackFrame, RexxClass);
-    RESTORE_CLASS(Exception, RexxClass);
     RESTORE_CLASS(RexxBlock, RexxClass);
 
     memoryObject.setOldSpace();          /* Mark Memory Object as OldSpace    */

@@ -54,6 +54,7 @@
 #define FRAME_PROGRAM "PROGRAM"
 
 class RexxSource;
+class RexxArray;
 class ProtectedObject;
 
 class StackFrameClass : public RexxObject
@@ -80,6 +81,8 @@ public:
     RexxString *getTraceLine();
     RexxArray  *getArguments();
     RexxSource *getSourceObject();
+    virtual     RexxString  *makeString();
+    virtual     RexxString  *stringValue();
 
     RexxObject *newRexx(RexxObject **args, size_t argc);
 

@@ -17,8 +17,9 @@
 !define SHORTNAME      "ooRexx"            ;Short name (no slash) of package
 !define DISPLAYICON    "$INSTDIR\rexx.exe,0"
 !define UNINSTALLER    "uninstall.exe"
-!define KEYFILE1       "rexx.exe"
-!define KEYFILE2       "rxapi.dll"
+!define KEYFILE1       "rexx.dll"
+!define KEYFILE2       "rexx.exe"
+!define KEYFILE3       "rxapi.exe"
 
 ; Default file extensions and ftypes
 !define DefRexxExt       ".rex"
@@ -40,6 +41,7 @@ Name "${LONGNAME} ${VERSION}"
 !include "newpath.nsh"
 !include "WriteEnv.nsh"
 !include "StrFunc.nsh"
+!include "x64.nsh"
 
 ; Docs for the string functions say they need to be declared before use:
 ${StrTok}
@@ -56,8 +58,26 @@ ${UnStrTok}
 !define MUI_LICENSEPAGE
 !define MUI_COMPONENTSPAGE
 !define MUI_DIRECTORYPAGE
+
+;---------- Finish page set up --------------------------
 !define MUI_FINISHPAGE
 !define MUI_FINISHPAGE_NOAUTOCLOSE
+
+; Note that the finish page run function is used here to instead
+; create a Desktop icon.  The 'run_function' is set to our create
+; Desktop function, where we can do whatever we want.
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_NOTCHECKED
+!define MUI_FINISHPAGE_RUN_TEXT "Create ${LONGNAME} Desktop Shortcut"
+!define MUI_FINISHPAGE_RUN_FUNCTION CreateDesktopShortcut
+
+!define MUI_FINISHPAGE_SHOWREADME $INSTDIR\doc\ReleaseNotes.txt
+!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show ${LONGNAME} Release Notes"
+;!define MUI_FINISHPAGE_SHOWREADME_FUNCTION SomeFunctionToBeCreated
+
+!define MUI_FINISHPAGE_LINK "Getting started with Windows ${LONGNAME}"
+!define MUI_FINISHPAGE_LINK_LOCATION "http://www.rexxla.org/rexxlang/rexxtut.html"
 
 !define MUI_ABORTWARNING
 
@@ -142,6 +162,9 @@ Var UninstLog
   Page custom Confirm_page
 
   !insertmacro MUI_PAGE_INSTFILES
+
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE Finish_Page_pre
+  !define MUI_PAGE_CUSTOMFUNCTION_SHOW Finish_Page_show
   !insertmacro MUI_PAGE_FINISH
 
   /* Uninstaller pages */
@@ -169,6 +192,7 @@ Var RxapiIsRunning             ; is rxapi running:                              
 Var RegVal_uninstallString     ; uninstall string (program) found in regsitry
 Var RegVal_uninstallLocation   ; location of uninstall program found in registry
 Var RegVal_uninstallVersion    ; Version / level of uninstaller program.  This only exists at 410 or greater
+Var RegVal_uninstallBitness    ; The uninstaller is 32 or 64 bit.  This only exists at 420 or greater.
 Var RegVal_rexxAssociation     ; File association string for rexx.exe     (.ext / ftype - i.e. .rex RexxScript)
 Var RegVal_rexxEditor          ; ... and editor file name
 Var RegVal_rexxHideAssociation ; File association string for rexxhide.exe (.ext / ftype - i.e. .rexg RexxHide)
@@ -176,6 +200,7 @@ Var RegVal_rexxPawsAssociation ; File association string for rexxpaws.exe (.ext 
 Var RegVal_sendTo_rexx         ; Add / don't add Send To Rexx item
 Var RegVal_sendTo_rexxHide     ; Add / don't add Send To rexxpaws item
 Var RegVal_sendTo_rexxPaws     ; Add / don't add Send To rexxhide item
+Var RegVal_desktop_icon        ; Create / don't create a Desktop icon
 
 Var AssociationProgramName     ; Executable being associated  (i.e rexxpaws.exe, rexx.exe, etc..)
 Var AssociationText            ; Descriptive text that goes in registry  (i.e. ooRexx Rexx GUI Program)
@@ -185,6 +210,10 @@ Var PreviousVersionInstalled   ; A previous version is installed                
 Var DoUpgrade                  ; try to do an upgrade install                      true / false
 Var DoUpgradeQuick             ; don't show options pages with diasabled controls  true / false
 Var UpgradeTypeAvailable       ; Level of uninstaller sufficient for upgrade type  true / false
+
+Var KeyFileName                ; Used to contruct full path to key files.
+Var CheckRxApiLock             ; Used to skipping checking if rxapi is locked.
+Var UserRequestAbort           ; General purpose, set to true if User replies Ok, wanting to abort.
 
 ; Dialog variables
 Var Dialog
@@ -259,12 +288,7 @@ Var DeleteWholeTree
 
 Section -openlogfile
   CreateDirectory "$INSTDIR"
-  IfFileExists "$INSTDIR\${UninstLog}" +3
-    FileOpen $UninstLog "$INSTDIR\${UninstLog}" w
-    Goto +4
-  SetFileAttributes "$INSTDIR\${UninstLog}" NORMAL
-  FileOpen $UninstLog "$INSTDIR\${UninstLog}" a
-  FileSeek $UninstLog 0 END
+  Call OpenUninstallLog
 SectionEnd
 
 ;-------------------------------------------------------------------------------
@@ -272,9 +296,16 @@ SectionEnd
 
 Section "${LONGNAME} Core (required)" SecMain
   SectionIn 1 RO
+
+  DetailPrint "Beginning installation of ooRexx"
+  DetailPrint "  NSIS installer with max string length ${NSIS_MAX_STRLEN}"
+  DetailPrint ""
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR
   ; Distribution executables...
+  ${File} "${BINDIR}\" "ooDialog.com"
+  ${File} "${BINDIR}\" "ooDialog.exe"
   ${File} "${BINDIR}\" "rexx.exe"
   ${File} "${BINDIR}\" "rexx.img"
   ${File} "${BINDIR}\" "rexxc.exe"
@@ -317,14 +348,6 @@ Section "${LONGNAME} Core (required)" SecMain
   ${File} "${SRCDIR}\platform\windows\" "rexx.ico"
   ${File} "${SRCDIR}\" "CPLv1.0.txt"
 
-  ; readmes
-  ${SetOutPath} $INSTDIR\doc
-  ${File} "${SRCDIR}\doc\" "readme.pdf"
-  File /oname=CHANGES.txt "${SRCDIR}\CHANGES"
-  File /oname=ReleaseNotes.txt "${SRCDIR}\ReleaseNotes"
-  ${AddItem} $INSTDIR\doc\CHANGES.txt
-  ${AddItem} $INSTDIR\doc\ReleaseNotes.txt
-
   ; Set output path to the installation directory just in case
   SetOutPath $INSTDIR
 
@@ -338,28 +361,24 @@ Section "${LONGNAME} Core (required)" SecMain
 
   ; Add the Start Menu folder and start adding the items.
   ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}"
+
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Try Rexx.lnk" "$INSTDIR\rexx.exe" '"$INSTDIR\rexxtry.rex"' "$INSTDIR\rexx.exe"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Try Rexx.lnk"
+
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Try Rexx (GUI).lnk" "$INSTDIR\rexx.exe" '"$INSTDIR\ooRexxTry.rex"' "$INSTDIR\rexx.exe"
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Try Rexx (GUI).lnk"
 
-  ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\Documentation"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx README.lnk" "$INSTDIR\doc\readme.pdf" "" "$INSTDIR\doc\readme.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx README.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx CHANGES.lnk" "$INSTDIR\doc\CHANGES.txt" "" "$INSTDIR\doc\CHANGES.txt" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx CHANGES.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ReleaseNotes.lnk" "$INSTDIR\doc\ReleaseNotes.txt" "" "$INSTDIR\doc\ReleaseNotes.txt" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx ReleaseNotes.lnk"
-
   CreateShortCut "$SMPROGRAMS\${LONGNAME}\Uninstall ${SHORTNAME}.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   ${AddItem} "$SMPROGRAMS\${LONGNAME}\Uninstall ${SHORTNAME}.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\LICENSE.lnk" "$INSTDIR\CPLv1.0.txt" "" "$INSTDIR\CPLv1.0.txt" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\LICENSE.lnk"
-  WriteINIStr "$SMPROGRAMS\${LONGNAME}\ooRexx Home Page.url" "InternetShortcut" "URL" "http://www.oorexx.org/"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\ooRexx Home Page.url"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} LICENSE.lnk" "$INSTDIR\CPLv1.0.txt" "" "$INSTDIR\CPLv1.0.txt" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} LICENSE.lnk"
+
+  WriteINIStr "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Home Page.url" "InternetShortcut" "URL" "http://www.oorexx.org/"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Home Page.url"
 
   ; If we are doing an upgrade, these settings are all left however they were.
-  ${if} $DoUpgrade == 'false'
+  ${If} $DoUpgrade == 'false'
     ; Maybe create Send To items.
     Call DoSendToItems
 
@@ -372,16 +391,16 @@ Section "${LONGNAME} Core (required)" SecMain
 
     ; If an administrator, install rxapi as a service depending on what the user
     ; selected.
-    ${if} $IsAdminUser == "true"
+    ${If} $IsAdminUser == "true"
       Call InstallRxapi
-    ${endif}
+    ${EndIf}
   ${else}
     ; We are doing an upgrade, but if rxapi was installed as a service
     ; previously, the user has the choice of starting it.
-    ${if} $RxapiIsService == 'true'
+    ${If} $RxapiIsService == 'true'
       Call StartRxapi
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
 
   ; Write the uninstall keys.  Note that the uninstaller always deletes these
@@ -400,6 +419,7 @@ Section "${LONGNAME} Core (required)" SecMain
   WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString" '"$INSTDIR\${UNINSTALLER}"'
   WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UnInstallLocation" "$INSTDIR" ; dont quote it
   WriteRegStr       HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallVersion" "${VERSION}"
+  WriteRegStr       HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallBitness" "${CPU}"
   WriteRegDWORD     HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoModify" 0x00000001
   WriteRegDWORD     HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoRepair" 0x00000001
 
@@ -421,8 +441,10 @@ SectionEnd
 
 Section "${LONGNAME} Samples" SecDemo
   DetailPrint "********** Samples **********"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\" "0ReadMe.first"
   ${File} "${SRCDIR}\samples\" "rexxcps.rex"
   ${File} "${SRCDIR}\samples\" "ccreply.rex"
@@ -447,24 +469,28 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\samples\" "usecomp.rex"
   ${File} "${SRCDIR}\samples\" "usepipe.rex"
   ${File} "${SRCDIR}\samples\windows\rexutils\" "drives.rex"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\misc
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\misc\" "fileDrop.empty"
   ${File} "${SRCDIR}\samples\windows\misc\" "fileDrop.input"
   ${File} "${SRCDIR}\samples\windows\misc\" "fileDrop.readMe"
   ${File} "${SRCDIR}\samples\windows\misc\" "fileDrop.rex"
-  ${CreateDirectory} $INSTDIR\samples\ole
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\ole
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\ole\" "ReadMe.first"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\ole\adsi
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\ole\adsi\" "*.rex"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\ole\apps
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\ole\apps\" "MSAccessDemo.rex"
   ${File} "${SRCDIR}\samples\windows\ole\apps\" "oleUtils.frm"
   ${File} "${SRCDIR}\samples\windows\ole\apps\" "samp01.rex"
@@ -482,76 +508,62 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\samples\windows\ole\apps\" "samp12.rex"
   ${File} "${SRCDIR}\samples\windows\ole\apps\" "samp13.rex"
   ${File} "${SRCDIR}\samples\windows\ole\apps\" "samp14.rex"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\ole\methinfo
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\ole\methinfo\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\ole\methinfo\" "*.cls"
+
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\ole\wmi
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\ole\wmi\" "*.rex"
+
 ;;; Temporarily block out the orxscrpt samples
 ;;;   ; Set output path to the installation directory.
 ;;;   SetOutPath $INSTDIR\samples\wsh
-;;;   ; Distribution files...
+;;;   ; Add the files ...
 ;;;   ${File} "${SRCDIR}\samples\windows\wsh\" "*.rex"
 ;;;   ${File} "${SRCDIR}\samples\windows\wsh\" "*.htm"
 ;;;   ${File} "${SRCDIR}\samples\windows\wsh\" "*.wsf"
 ;;;   ${File} "${SRCDIR}\samples\windows\wsh\" "*.wsc"
-  ; Create start menu shortcuts
-  SetOutPath $INSTDIR\samples
-  ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\RexxCPS.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\rexxcps.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\RexxCPS.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Date.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\qdate.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Date.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Time.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\qtime.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Time.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Drive Info.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\drives.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Drive Info.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\MS Access.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\ole\apps\MSAccessDemo.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\MS Access.lnk"
+
   ;
   ; OOdialog samples
   ;
   ${SetOutPath} $INSTDIR\samples\oodialog
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\extensions\platform\windows\oodialog\" "oodialog.ico"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "AnimalGame.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "calculator.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "editrex.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "ftyperex.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "GUI_Template.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oobandit.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oobmpvu.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oodpbar.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "ooDraw.h"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "ooDraw.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oodStandardDialogs.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oodStandardRoutines.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oograph.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oophil.ico"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oophil.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oovideo.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oowalk2.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "oowalker.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "sample.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\" "samplesSetup.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\" "*.ico"
+  ${File} "${SRCDIR}\samples\windows\oodialog\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\bmp
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\bmp\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\bmp\" "*.ico"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\controls
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\" "*.txt"
+
+  ; Set the installation directory:
+  ${SetOutPath} $INSTDIR\samples\oodialog\controls\ComboBox
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ComboBox\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ComboBox\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ComboBox\" "*.rex"
+
+  ; Set the installation directory:
+  ${SetOutPath} $INSTDIR\samples\oodialog\controls\ListBox
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListBox\" "*.rex"
 
   ; Set the installation directory:
   ${SetOutPath} $INSTDIR\samples\oodialog\controls\ListView
@@ -567,6 +579,14 @@ Section "${LONGNAME} Samples" SecDemo
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\rc\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\rc\" "*.dll"
   ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\rc\" "res.mak"
+
+  ; Set the installation directory:
+  ${SetOutPath} $INSTDIR\samples\oodialog\controls\ListView\subitem.editing
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\subitem.editing\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\subitem.editing\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\subitem.editing\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\controls\ListView\subitem.editing\" "*.txt"
 
   ; Set the installation directory:
   ${SetOutPath} $INSTDIR\samples\oodialog\controls\ToolTip
@@ -592,20 +612,20 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\examples
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\" "*.txt"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\examples\resources
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\resources\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\resources\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\examples\resources\" "*.rc"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\menus
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\menus\" "*.bmp"
@@ -613,7 +633,7 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\mouse
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\mouse\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\mouse\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\mouse\" "*.rc"
@@ -622,7 +642,7 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\oleinfo
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\oleinfo\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\oleinfo\" "*.txt"
   ${File} "${SRCDIR}\samples\windows\oodialog\oleinfo\" "*.bmp"
@@ -630,18 +650,17 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\ooRexxTry
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\ooRexxTry\" "ooRexxTry.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\ooRexxTry\doc
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\ooRexxTry\doc\" "ooRexxTry.pdf"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\propertySheet.tabControls
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabControls\" "*.cls"
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabControls\" "oodListViews.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabControls\" "PropertySheetDemo.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\propertySheet.tabControls\" "TabDemo.rex"
@@ -660,34 +679,57 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\rc
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\rc\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\rc\" "*.rc"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\res
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\res\" "*.dll"
-  ${File} "${SRCDIR}\samples\windows\oodialog\res\" "res.mak"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\resizableDialogs
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\resizableDialogs\DialogAreaU
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\DialogAreaU\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\DialogAreaU\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\resizableDialogs\ResizingAdmin
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\ResizingAdmin\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\resizableDialogs\ResizingAdmin\rc
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\ResizingAdmin\rc\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\ResizingAdmin\rc\" "*.dll"
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\ResizingAdmin\rc\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\resizableDialogs\ResizingAdmin\rc\" "*.rc"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\simple
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\simple\" "*.rex"
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\simple\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\simple\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\simple\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\simple\" "*.txt"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\sysinfo
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.rc"
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\sysinfo\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\source
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${BINDIR}\" "ooDialog.cls"
   ${File} "${BINDIR}\" "oodWin32.cls"
   ${File} "${BINDIR}\" "oodPlain.cls"
@@ -714,7 +756,7 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\tutorial
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\tutorial\" "*.rc"
@@ -722,114 +764,167 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\" "*.txt"
+
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise02
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise02\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise03
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise03\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise04
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\" "*.rex"
 
   ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise04\Extras
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\Extras\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise04\Extras\DlgData
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\Extras\DlgData\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\Extras\DlgData\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\Extras\DlgData\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise04\Extras\DlgData\res
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise04\Extras\DlgData\res\" "*.dll"
+
+  ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise05
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise05\res
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\res\" "res.mak"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\res\" "ProductView.dll"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\res\" "ProductIcon.bmp"
 
   ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise05\Support
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise05\Support\" "NumberOnlyEditEx.cls"
+
+  ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Customer
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Customer\bmp
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\bmp\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Customer\bmp\" "*.ico"
 
   ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Extras
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Extras\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Extras\Popups
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Extras\Popups\" "*.rex"
+
+  ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Order
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Order\bmp
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\bmp\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Order\bmp\" "*.ico"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\OrderMgr
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\OrderMgr\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\OrderMgr\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\OrderMgr\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Product
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Product\res
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "res.mak"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.dll"
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.dll"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "*.ico"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Product\res\" "res.mak"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise06\Support
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise06\Support\" "*.cls"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Customer
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Customer\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Customer\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Customer\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Customer\" "*.txt"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Customer\bmp
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Customer\bmp\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Customer\bmp\" "*.ico"
 
   ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Extras
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Extras\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Extras\Person
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Extras\Person\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Extras\Person\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Extras\Person\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Extras\Person\" "*.txt"
+
+  ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Order
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Order\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Order\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Order\" "*.rex"
@@ -837,20 +932,20 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Order\bmp
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Order\bmp\" "*.bmp"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Order\bmp\" "*.ico"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\OrderMgr
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\OrderMgr\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\OrderMgr\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\OrderMgr\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Product
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\" "*.rex"
@@ -858,79 +953,260 @@ Section "${LONGNAME} Samples" SecDemo
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Product\res
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\res\" "res.mak"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\res\" "*.dll"
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\res\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\res\" "*.dll"
   ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\res\" "*.ico"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Product\res\" "res.mak"
 
   ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\" "ReadMe.txt"
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise07\Support
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Support\" "*.cls"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Support\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Support\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise07\Support\" "*.rex"
 
   ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples\DlgData
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\" "*.h"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\" "*.rc"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\" "*rex"
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\" "*.rex"
 
   ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples\DlgData\res
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\res\" "res.mak"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\DlgData\res\" "ASimpleDialog.dll"
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Customer
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\" "*.txt"
 
   ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples\Person
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\Person\" "*.h"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\Person\" "*.rc"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\Person\" "*.rex"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\Person\" "*.txt"
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Customer\bmp
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\bmp\" "*.ico"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\bmp\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Customer\bmp\" "*.cur"
 
   ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Samples\Popups
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Samples\Popups\" "*.rex"
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Extras
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Extras\" "*.txt"
 
   ; Set output path to the installation directory.
-  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Support
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Support\" "*.cls"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Support\" "*.h"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Support\" "*.rc"
-  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Support\" "*.rex"
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Extras\Person
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Extras\Person\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Extras\Person\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Extras\Person\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Extras\Person\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Order
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Order\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Order\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Order\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Order\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Order\bmp
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Order\bmp\" "*.ico"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Order\bmp\" "*.bmp"
+
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\OrderMgr
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\OrderMgr\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\OrderMgr\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\OrderMgr\" "*.rex"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Product
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\" "*.rex"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\" "*.txt"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Product\res
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\res\" "*.ico"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\res\" "*.bmp"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\res\" "*.dll"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Product\res\" "res.mak"
+
+  ; Set output path to the installation directory.
+  ${SetOutPath} $INSTDIR\samples\oodialog\userGuide\exercises\Exercise08\Support
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Support\" "*.cls"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Support\" "*.h"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Support\" "*.rc"
+  ${File} "${SRCDIR}\samples\windows\oodialog\userGuide\exercises\Exercise08\Support\" "*.rex"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\wav
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\wav\" "*.wav"
   ${File} "${SRCDIR}\samples\windows\oodialog\wav\" "*.txt"
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\samples\oodialog\winsystem
+  ; Add the files ...
   ${File} "${SRCDIR}\samples\windows\oodialog\winsystem\" "*.rex"
   ${File} "${SRCDIR}\samples\windows\oodialog\winsystem\" "*.rc"
   ${File} "${SRCDIR}\samples\windows\oodialog\winsystem\" "*.h"
   ${File} "${SRCDIR}\samples\windows\oodialog\winsystem\" "*.frm"
 
-  ; Create start menu shortcuts
-  SetOutPath $INSTDIR\samples\oodialog
+  ;
+  ; API samples
+  ;
+  ${SetOutPath} $INSTDIR\samples\api
+  ${File} "${SRCDIR}\samples\windows\api\" "readme.txt"
+  ; Set output path to the installation directory for callrxnt.
+  ${SetOutPath} $INSTDIR\samples\api\callrxnt
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "backward.fnc"
+  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.c"
+  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.ico"
+  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.mak"
+  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.exe"
+
+  ; Set output path to the installation directory for callrxwn.
+  ${SetOutPath} $INSTDIR\samples\api\callrxwn
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "backward.fnc"
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.c"
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.h"
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.ico"
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.mak"
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.exe"
+  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.rc"
+
+  ; Set output path to the installation directory for rexxexit.
+  ${SetOutPath} $INSTDIR\samples\api\rexxexit
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.c"
+  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.ico"
+  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.mak"
+  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.exe"
+  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "testRexxExit"
+
+  ; Set output path to the installation directory the wpipe examples.
+  ${SetOutPath} $INSTDIR\samples\api\wpipe
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\" "readme.txt"
+
+  ; Set output path to the installation directory for wpipe 1.
+  ${SetOutPath} $INSTDIR\samples\api\wpipe\wpipe1
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.c"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.def"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "apitest1.rex"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.mak"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.dll"
+
+  ; Set output path to the installation directory for wpipe 2.
+  ${SetOutPath} $INSTDIR\samples\api\wpipe\wpipe2
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.c"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.def"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "apitest2.rex"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.mak"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.dll"
+
+  ; Set output path to the installation directory for wpipe 3.
+  ${SetOutPath} $INSTDIR\samples\api\wpipe\wpipe3
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.c"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.def"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "apitest3.rex"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.mak"
+  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.dll"
+
+  ;
+  ; C++ API samples
+  ;
+  ${SetOutPath} $INSTDIR\samples\native.api
+  ${File} "${SRCDIR}\samples\native.api\" "ReadMe.txt"
+  ; Set output path to the installation directory for callexample.
+  ${SetOutPath} $INSTDIR\samples\native.api\call.example
+  ; Add the files ...
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "backward.fnc"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "HelloWorld.rex"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "Makefile.windows"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "ReadMe.txt"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "runRexxProgram.cpp"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "stackOverflow.cpp"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "tooRecursiveTrapped.rex"
+  ${File} "${SRCDIR}\samples\native.api\call.example\" "tooRecursiveUnhandled.rex"
+
+  ;
+  ; Create start menu shortcuts for some of the example programs.
+  ;
+
+  ; $OUTDIR is used as the working directory (the start in directory.)  Change
+  ; $OUTDIR by using SetOutPath.  Don't use the ${SetOutPath} macro which adds
+  ; the directory to the uninstall log.  That is not relevant here.
+
+  ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples"
+
+  SetOutPath $INSTDIR\samples
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\RexxCPS.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\rexxcps.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\RexxCPS.lnk"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Date.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\qdate.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Date.lnk"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Time.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\qtime.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Quick Time.lnk"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Drive Info.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\drives.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Drive Info.lnk"
+
+  SetOutPath $INSTDIR\samples\ole\apps
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\MS Access.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\ole\apps\MSAccessDemo.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\MS Access.lnk"
+
+  SetOutPath $INSTDIR\samples\oodialog\winsystem
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Window Tree.lnk" "$INSTDIR\ooDialog.exe" '"$INSTDIR\samples\oodialog\winsystem\displayWindowTree.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem}        "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Display Window Tree.lnk"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Windows Manager.lnk" "$INSTDIR\ooDialog.exe" '"$INSTDIR\samples\oodialog\winsystem\usewmgr.rex"' "$INSTDIR\rexx.exe"
+  ${AddItem}         "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\Windows Manager.lnk"
+
   ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Calculator.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\calculator.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Calculator.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Change Editor.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\editrex.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Change Editor.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Display Event Log.lnk" "$INSTDIR\rexxpaws.exe" '"$INSTDIR\samples\oodialog\winsystem\eventlog.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Display Event Log.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\FTYPE Changer.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\ftyperex.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\FTYPE Changer.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\sample.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Windows Manager.lnk" "$INSTDIR\rexxhide.exe" '"$INSTDIR\samples\oodialog\winsystem\usewmgr.rex"' "$INSTDIR\rexx.exe"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Windows Manager.lnk"
+
+  SetOutPath $INSTDIR\samples\oodialog\Controls\ComboBox
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Combo Box Types.lnk" "$INSTDIR\ooDialog.exe" '"$INSTDIR\samples\oodialog\Controls\ComboBox\comboBoxTypes.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
+  ${AddItem}         "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Combo Box Types.lnk"
+
+  SetOutPath $INSTDIR\samples\oodialog\Controls\ToolTip
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Custom Position Tool Tips.lnk" "$INSTDIR\ooDialog.exe" '"$INSTDIR\samples\oodialog\Controls\ToolTip\customPositionToolTip.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
+  ${AddItem}         "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Custom Position Tool Tips.lnk"
+
+  SetOutPath $INSTDIR\samples\oodialog\Controls\ListView
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\List-view Views.lnk" "$INSTDIR\ooDialog.exe" '"$INSTDIR\samples\oodialog\Controls\ListView\columnIcons.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
+  ${AddItem}         "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\List-view Views.lnk"
+
+  SetOutPath $INSTDIR\samples\oodialog
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk" "$INSTDIR\ooDialog.exe" '"$INSTDIR\samples\oodialog\sample.rex"' "$INSTDIR\samples\oodialog\oodialog.ico"
+  ${AddItem}        "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\ooDialog\Samples.lnk"
+
+  ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API"
+
+  SetOutPath $INSTDIR\samples\api\callrxnt
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Console.lnk" "$INSTDIR\samples\api\callrxnt\callrxnt.exe" "" "$INSTDIR\samples\api\callrxnt\callrxnt.ico"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Console.lnk"
+
+  SetOutPath $INSTDIR\samples\api\callrxwn
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Window.lnk" "$INSTDIR\samples\api\callrxwn\callrxwn.exe" "" "$INSTDIR\samples\api\callrxwn\callrxwn.ico"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Window.lnk"
+
+  SetOutPath $INSTDIR\samples\api\rexxexit
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx with Exits.lnk" "$INSTDIR\samples\api\rexxexit\rexxexit.exe" 'testRexxExit "189 8"' "$INSTDIR\samples\api\rexxexit\rexxexit.ico"
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx with Exits.lnk"
+
 SectionEnd
 
 ;------------------------------------------------------------------------
@@ -940,7 +1216,7 @@ Section "${LONGNAME} Development Kit" SecDev
   DetailPrint "********** Development Kit **********"
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\api
-  ; Distribution files...
+  ; Add the files ...
   ${File} "${BINDIR}\" "rexx.lib"
   ${File} "${BINDIR}\" "rexxapi.lib"
   ${File} "${SRCDIR}\api\" "oorexxapi.h"
@@ -950,99 +1226,7 @@ Section "${LONGNAME} Development Kit" SecDev
   ${File} "${SRCDIR}\api\platform\windows\" "rexxapitypes.h"
   ${File} "${SRCDIR}\api\platform\windows\" "rexxplatformapis.h"
   ${File} "${SRCDIR}\api\platform\windows\" "rexxplatformdefs.h"
-  ;
-  ; API samples
-  ;
-  ${SetOutPath} $INSTDIR\samples\api
-  ${File} "${SRCDIR}\samples\windows\api\" "readme.txt"
-  ; Set output path to the installation directory for callrxnt.
-  ${SetOutPath} $INSTDIR\samples\api\callrxnt
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "backward.fnc"
-  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.c"
-  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.ico"
-  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.mak"
-  ${File} "${SRCDIR}\samples\windows\api\callrxnt\" "callrxnt.exe"
-  ; Set output path to the installation directory for callrxwn.
-  ${SetOutPath} $INSTDIR\samples\api\callrxwn
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "backward.fnc"
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.c"
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.h"
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.ico"
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.mak"
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.exe"
-  ${File} "${SRCDIR}\samples\windows\api\callrxwn\" "callrxwn.rc"
-  ; Set output path to the installation directory for rexxexit.
-  ${SetOutPath} $INSTDIR\samples\api\rexxexit
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.c"
-  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.ico"
-  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.mak"
-  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "rexxexit.exe"
-  ${File} "${SRCDIR}\samples\windows\api\rexxexit\" "testRexxExit"
-  ; Set output path to the installation directory the wpipe examples.
-  ${SetOutPath} $INSTDIR\samples\api\wpipe
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\" "readme.txt"
-  ; Set output path to the installation directory for wpipe 1.
-  ${SetOutPath} $INSTDIR\samples\api\wpipe\wpipe1
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.c"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.def"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "apitest1.rex"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.mak"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe1\" "rexxapi1.dll"
-  ; Set output path to the installation directory for wpipe 2.
-  ${SetOutPath} $INSTDIR\samples\api\wpipe\wpipe2
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.c"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.def"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "apitest2.rex"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.mak"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe2\" "rexxapi2.dll"
-  ; Set output path to the installation directory for wpipe 3.
-  ${SetOutPath} $INSTDIR\samples\api\wpipe\wpipe3
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.c"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.def"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "apitest3.rex"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.mak"
-  ${File} "${SRCDIR}\samples\windows\api\wpipe\wpipe3\" "rexxapi3.dll"
-  ;
-  ; C++ API samples
-  ;
-  ${SetOutPath} $INSTDIR\samples\native.api
-  ${File} "${SRCDIR}\samples\native.api\" "ReadMe.txt"
-  ; Set output path to the installation directory for callexample.
-  ${SetOutPath} $INSTDIR\samples\native.api\call.example
-  ; Distribution files...
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "backward.fnc"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "HelloWorld.rex"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "Makefile.windows"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "ReadMe.txt"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "runRexxProgram.cpp"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "stackOverflow.cpp"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "tooRecursiveTrapped.rex"
-  ${File} "${SRCDIR}\samples\native.api\call.example\" "tooRecursiveUnhandled.rex"
-  ;
-  ; Create start menu shortcuts
-  ;
-  ; All three of these examples have files that the executable needs to locate
-  ; in the same directory. The short cut menu item has to have the 'Start in:'
-  ; field set to the directory of the executable. The 'SetOutPath' command is
-  ; what controls that.
-  ;
-  ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API"
-  SetOutPath $INSTDIR\samples\api\callrxnt
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Console.lnk" "$INSTDIR\samples\api\callrxnt\callrxnt.exe" "" "$INSTDIR\samples\api\callrxnt\callrxnt.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Console.lnk"
-  SetOutPath $INSTDIR\samples\api\callrxwn
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Window.lnk" "$INSTDIR\samples\api\callrxwn\callrxwn.exe" "" "$INSTDIR\samples\api\callrxwn\callrxwn.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx in a Window.lnk"
-  SetOutPath $INSTDIR\samples\api\rexxexit
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx with Exits.lnk" "$INSTDIR\samples\api\rexxexit\rexxexit.exe" 'testRexxExit "189 8"' "$INSTDIR\samples\api\rexxexit\rexxexit.ico"
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Samples\API\Call ooRexx with Exits.lnk"
+
 SectionEnd
 
 ;------------------------------------------------------------------------
@@ -1053,6 +1237,17 @@ Section "${LONGNAME} Documentation" SecDoc
 
   ; Set output path to the installation directory.
   ${SetOutPath} $INSTDIR\doc
+
+  ; readmes
+  ${File} "${SRCDIR}\doc\" "readme.pdf"
+
+  ; We can't use the ${File} macro here because we need to change the file name.
+  ; That means we also have to add the item manually to the uninstall log.
+  File /oname=CHANGES.txt "${SRCDIR}\CHANGES"
+  File /oname=ReleaseNotes.txt "${SRCDIR}\ReleaseNotes"
+  ${AddItem} $INSTDIR\doc\CHANGES.txt
+  ${AddItem} $INSTDIR\doc\ReleaseNotes.txt
+
   ${File} "${SRCDIR}\doc\" "rexxpg.pdf"
   ${File} "${SRCDIR}\doc\" "rexxref.pdf"
   ${File} "${SRCDIR}\doc\" "rxmath.pdf"
@@ -1067,30 +1262,39 @@ Section "${LONGNAME} Documentation" SecDoc
   ${File} "${SRCDIR}\samples\windows\oodialog\ooRexxTry\doc\" "ooRexxTry.pdf"
 
   ; Create start menu shortcuts
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Reference.lnk" "$INSTDIR\doc\rexxref.pdf" "" "$INSTDIR\doc\rexxref.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Programming Guide.lnk" "$INSTDIR\doc\rexxpg.pdf" "" "$INSTDIR\doc\rexxpg.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Programming Guide.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Mathematical Functions Reference.lnk" "$INSTDIR\doc\rxmath.pdf" "" "$INSTDIR\doc\rxmath.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Mathematical Functions Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx TCP-IP Sockets Functions Reference.lnk" "$INSTDIR\doc\rxsock.pdf" "" "$INSTDIR\doc\rxsock.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx TCP-IP Sockets Functions Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx rxFTP Class Reference.lnk" "$INSTDIR\doc\rxftp.pdf" "" "$INSTDIR\doc\rxftp.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx rxFTP Class Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog Reference.lnk" "$INSTDIR\doc\oodialog.pdf" "" "$INSTDIR\doc\oodialog.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog Release Notes.lnk" "$INSTDIR\doc\ooDialog_ReleaseNotes.txt" "" "$INSTDIR\doc\ooDialog_ReleaseNotes.txt" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog Release Notes.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog User Guide.lnk" "$INSTDIR\doc\oodguide.pdf" "" "$INSTDIR\doc\oodguide.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooDialog User Guide.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Rexx Extensions Reference.lnk" "$INSTDIR\doc\rexxextensions.pdf" "" "$INSTDIR\doc\rexxextensions.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Windows Extensions Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Unix Extensions Reference.lnk" "$INSTDIR\doc\unixextensions.pdf" "" "$INSTDIR\doc\unixextensions.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Windows Extensions Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Windows Extensions Reference.lnk" "$INSTDIR\doc\winextensions.pdf" "" "$INSTDIR\doc\winextensions.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexx Windows Extensions Reference.lnk"
-  CreateShortCut "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexxTry Reference.lnk" "$INSTDIR\doc\ooRexxTry.pdf" "" "$INSTDIR\doc\ooRexxTry.pdf" 0
-  ${AddItem} "$SMPROGRAMS\${LONGNAME}\Documentation\ooRexxTry Reference.lnk"
+  ${CreateDirectory} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx README.lnk" "$INSTDIR\doc\readme.pdf" "" "$INSTDIR\doc\readme.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx README.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx CHANGES.lnk" "$INSTDIR\doc\CHANGES.txt" "" "$INSTDIR\doc\CHANGES.txt" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx CHANGES.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx ReleaseNotes.lnk" "$INSTDIR\doc\ReleaseNotes.txt" "" "$INSTDIR\doc\ReleaseNotes.txt" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx ReleaseNotes.lnk"
+
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Reference.lnk" "$INSTDIR\doc\rexxref.pdf" "" "$INSTDIR\doc\rexxref.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Programming Guide.lnk" "$INSTDIR\doc\rexxpg.pdf" "" "$INSTDIR\doc\rexxpg.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Programming Guide.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Mathematical Functions Reference.lnk" "$INSTDIR\doc\rxmath.pdf" "" "$INSTDIR\doc\rxmath.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Mathematical Functions Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx TCP-IP Sockets Functions Reference.lnk" "$INSTDIR\doc\rxsock.pdf" "" "$INSTDIR\doc\rxsock.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx TCP-IP Sockets Functions Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx rxFTP Class Reference.lnk" "$INSTDIR\doc\rxftp.pdf" "" "$INSTDIR\doc\rxftp.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx rxFTP Class Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooDialog Reference.lnk" "$INSTDIR\doc\oodialog.pdf" "" "$INSTDIR\doc\oodialog.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooDialog Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooDialog Release Notes.lnk" "$INSTDIR\doc\ooDialog_ReleaseNotes.txt" "" "$INSTDIR\doc\ooDialog_ReleaseNotes.txt" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooDialog Release Notes.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooDialog User Guide.lnk" "$INSTDIR\doc\oodguide.pdf" "" "$INSTDIR\doc\oodguide.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooDialog User Guide.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Rexx Extensions Reference.lnk" "$INSTDIR\doc\rexxextensions.pdf" "" "$INSTDIR\doc\rexxextensions.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Rexx Extensions Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Unix Extensions Reference.lnk" "$INSTDIR\doc\unixextensions.pdf" "" "$INSTDIR\doc\unixextensions.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Unix Extensions Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Windows Extensions Reference.lnk" "$INSTDIR\doc\winextensions.pdf" "" "$INSTDIR\doc\winextensions.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexx Windows Extensions Reference.lnk"
+  CreateShortCut "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexxTry Reference.lnk" "$INSTDIR\doc\ooRexxTry.pdf" "" "$INSTDIR\doc\ooRexxTry.pdf" 0
+  ${AddItem} "$SMPROGRAMS\${LONGNAME}\${SHORTNAME} Documentation\ooRexxTry Reference.lnk"
 
 SectionEnd
 
@@ -1098,8 +1302,7 @@ SectionEnd
 ;  Hidden section to close the log file
 
 Section -closelogfile
- FileClose $UninstLog
- SetFileAttributes "$INSTDIR\${UninstLog}" READONLY|SYSTEM|HIDDEN
+ Call CloseUninstallLog
 SectionEnd
 
 ;===============================================================================
@@ -1117,27 +1320,45 @@ SectionEnd
  */
 Function .onInit
 
-  ${if} ${CPU} == "x86_64"
-    strcpy $INSTDIR "$PROGRAMFILES64\${SHORTNAME}"
-  ${endif}
+  Call CheckStrLen
+  ${If} $UserRequestAbort == 'true'
+    abort
+  ${EndIf}
+
+  ${If} ${CPU} == "x86_64"
+    ${If} ${RunningX64}
+      strcpy $INSTDIR "$PROGRAMFILES64\${SHORTNAME}"
+    ${else}
+      ; If we install 64 bit binaries on a 32 bit OS, things won't work.
+      MessageBox MB_OK \
+        "The installer detected that this operaring system is 32 bit.  This$\n\
+        installer contains 64-bit binaries.  These binaries will not$\n\
+        work on a 32-bit operating.$\n$\n\
+        The installer will quit.  Please use the 32-bit ooRexx installer$\n\
+        to install on this operating system." \
+        /SD IDOK
+        Abort
+    ${endIf}
+  ${EndIf}
 
   ;
   ; Install as All Users if an admin
   ;
   Call IsUserAdmin
   Pop $IsAdminUser
-  ${if} $IsAdminUser == "true"
+  ${If} $IsAdminUser == "true"
     SetShellVarContext all
     StrCpy $RxAPIInstallService ${BST_CHECKED}
     StrCpy $RxAPIStartService ${BST_CHECKED}
   ${else}
     StrCpy $RxAPIInstallService ${BST_UNCHECKED}
     StrCpy $RxAPIStartService ${BST_UNCHECKED}
-  ${endif}
+  ${EndIf}
 
   ReadRegStr $RegVal_uninstallString HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString"
   ReadRegStr $RegVal_uninstallLocation HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UnInstallLocation"
   ReadRegStr $RegVal_uninstallVersion HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallVersion"
+  ReadRegStr $RegVal_uninstallBitness HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallBitness"
   ReadRegStr $RegVal_rexxEditor HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "RexxEditor"
   ReadRegStr $RegVal_rexxAssociation HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "RexxAssociation"
   ReadRegStr $RegVal_rexxHideAssociation HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "RexxHideAssociation"
@@ -1145,9 +1366,34 @@ Function .onInit
   ReadRegStr $RegVal_sendTo_rexx HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "SendToRexx"
   ReadRegStr $RegVal_sendTo_rexxHide HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "SendToRexxHide"
   ReadRegStr $RegVal_sendTo_rexxPaws HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "SendToRexxPaws"
+  ReadRegStr $RegVal_desktop_icon HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "CreateDesktopIcon"
+
+  ; When the uninstaller and current installer are for different addressing
+  ; modes, we have had reports of problems.  We try to prevent that by giving
+  ; the user the chance to uninstall separately, then rerun the installer.  This
+  ; can only happen if the current platform is 64-bit.  And, I think it can only
+  ; happen if rxapi is *not* installed as a service.  We check for the former,
+  ; but not the later.
+  ${If} ${RunningX64}
+    Call CheckBitnessMatch
+    ${If} $UserRequestAbort == 'true'
+      abort
+    ${EndIf}
+  ${EndIf}
 
   ; Check for previous version and if the upgrade type of uninstall is available.
   Call CheckInstalledStatus
+
+  ; If a previous version is installed, make sure the key files are not locked.
+  ; If they are, we give the user a chance to retry, othwerwise we abort
+  ;unconditionally.
+  StrCpy $CheckRxApiLock 'false'
+  ${If} $PreviousVersionInstalled == 'true'
+    Call CheckLockedFiles
+    ${If} $UserRequestAbort == 'true'
+      abort
+    ${EndIf}
+  ${EndIf}
 
   ; Set the send to dialog control variables.
   Call SetSendToVars
@@ -1179,9 +1425,9 @@ FunctionEnd
 Function Uninstall_Old_ooRexx_page
 
   /* Skip this page if no previous version is present */
-  ${if} $PreviousVersionInstalled == "false"
+  ${If} $PreviousVersionInstalled == "false"
     Abort
-  ${endif}
+  ${EndIf}
 
   !insertmacro MUI_HEADER_TEXT "Previous ooRexx Version." "A previous version of ${LONGNAME} is already installed."
   nsDialogs::Create /NOUNLOAD 1018
@@ -1189,7 +1435,7 @@ Function Uninstall_Old_ooRexx_page
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_CreateLabel} 0 0 100% 40u \
     "A version of ${LONGNAME} is currently installed.  If the previous version is \
@@ -1240,7 +1486,30 @@ Function ShowHideForceInstall
 		ShowWindow $Label_Two ${SW_SHOW}
 		ShowWindow $Force_Install_CK ${SW_SHOW}
     ${NSD_Uncheck} $Force_Install_CK
-	${endif}
+	${EndIf}
+FunctionEnd
+
+/** OpenUninstallLog()
+ *
+ * Opens up the uninstall log.  In the hidden OpenLogFile section, the $INSTDIR
+ * must be created before this function is callled.
+ */
+Function OpenUninstallLog
+  IfFileExists "$INSTDIR\${UninstLog}" +3
+    FileOpen $UninstLog "$INSTDIR\${UninstLog}" w
+    Goto +4
+  SetFileAttributes "$INSTDIR\${UninstLog}" NORMAL
+  FileOpen $UninstLog "$INSTDIR\${UninstLog}" a
+  FileSeek $UninstLog 0 END
+FunctionEnd
+
+/** CloseUninstallLog()
+ *
+ * Closes up the uninstall log.
+ */
+Function CloseUninstallLog
+  FileClose $UninstLog
+  SetFileAttributes "$INSTDIR\${UninstLog}" READONLY|SYSTEM|HIDDEN
 FunctionEnd
 
 /** Uninstall_Old_ooRexx_Leave()  Callback function.
@@ -1255,7 +1524,7 @@ Function Uninstall_Old_ooRexx_Leave
   /* If the user said to not uninstall the previous and did not check force the
    * install, then send them back to the page.
    */
-  ${if} $0 == 0
+  ${If} $0 == 0
   ${andif} $1 == 0
     MessageBox MB_OK \
       "To bypass uninstalling the previous version of ooRexx you must check$\n\
@@ -1264,16 +1533,16 @@ Function Uninstall_Old_ooRexx_Leave
       Please check the appropriate check boxes to continue." \
       /SD IDOK
       Abort
-  ${endif}
+  ${EndIf}
 
   /* If the user said to not uninstall the previous and to force the install,
    * then we skip the uninstall.  To signal this we set the
    * PreviousVersionInstalled variable to false.
    */
-  ${if} $0 == 0
+  ${If} $0 == 0
   ${andif} $1 == 1
     StrCpy $PreviousVersionInstalled 'false'
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -1288,14 +1557,14 @@ FunctionEnd
 Function Uninstall_Type_page
 
   /* Skip this page if no previous version is present */
-  ${if} $PreviousVersionInstalled == "false"
+  ${If} $PreviousVersionInstalled == "false"
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $UpgradeTypeAvailable == 'false'
+  ${If} $UpgradeTypeAvailable == 'false'
     Call Do_The_Uninstall
     Abort
-  ${endif}
+  ${EndIf}
 
   !insertmacro MUI_HEADER_TEXT "Upgrade Previous ooRexx Version." "It is possible to do an 'upgrade' type of install."
   nsDialogs::Create /NOUNLOAD 1018
@@ -1303,7 +1572,7 @@ Function Uninstall_Type_page
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
 
   ${NSD_CreateLabel} 0u 0u 100% 64u \
@@ -1333,10 +1602,10 @@ Function Uninstall_Type_page
 	${NSD_SetState} $Do_Upgrade_Type_CK $Do_Upgrade_Type_CK_state
 	${NSD_SetState} $Do_Upgrade_Quick_CK $Do_Upgrade_Quick_CK_state
 
-  ${if} $Do_Upgrade_Type_CK_state == ${BST_UNCHECKED}
+  ${If} $Do_Upgrade_Type_CK_state == ${BST_UNCHECKED}
 		ShowWindow $Label_Two ${SW_HIDE}
 		ShowWindow $Do_Upgrade_Quick_CK ${SW_HIDE}
-  ${endif}
+  ${EndIf}
 
   ; Set focus to the page dialog rather than the installer dialog, set focus to
   ; the check box, and then show the page dialog
@@ -1368,18 +1637,18 @@ Function Uninstall_Type_Leave
 	${NSD_GetState} $Do_Upgrade_Type_CK $Do_Upgrade_Type_CK_state
 	${NSD_GetState} $Do_Upgrade_Quick_CK $Do_Upgrade_Quick_CK_state
 
-  ${if} $Do_Upgrade_Type_CK_state == ${BST_CHECKED}
+  ${If} $Do_Upgrade_Type_CK_state == ${BST_CHECKED}
     StrCpy $DoUpgrade 'true'
 
-    ${if} $Do_Upgrade_Quick_CK_state = ${BST_CHECKED}
+    ${If} $Do_Upgrade_Quick_CK_state = ${BST_CHECKED}
       StrCpy $DoUpgradeQuick 'true'
     ${else}
       StrCpy $DoUpgradeQuick 'false'
-    ${endif}
+    ${EndIf}
   ${else}
     StrCpy $DoUpgrade 'false'
     StrCpy $DoUpgradeQuick 'false'
-  ${endif}
+  ${EndIf}
 
   Call Do_The_Uninstall
 
@@ -1394,13 +1663,13 @@ Function ShowHideQuickUninstall
 	Pop $Do_Upgrade_Type_CK
 	${NSD_GetState} $Do_Upgrade_Type_CK $0
 
-	${if} $0 == ${BST_CHECKED}
+	${If} $0 == ${BST_CHECKED}
 		ShowWindow $Label_Two ${SW_SHOW}
 		ShowWindow $Do_Upgrade_Quick_CK ${SW_SHOW}
 	${else}
 		ShowWindow $Label_Two ${SW_HIDE}
 		ShowWindow $Do_Upgrade_Quick_CK ${SW_HIDE}
-	${endif}
+	${EndIf}
 FunctionEnd
 
 /** Do_The_Uninstall()
@@ -1427,14 +1696,14 @@ FunctionEnd
 Function Do_The_Uninstall
 
   ; Use $3 for the arg to the uninstall program.
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     StrCpy $INSTDIR $RegVal_uninstallLocation
     StrCpy $3 "upgrade"
 
-    ${if} $DoUpgradeQuick == 'true'
+    ${If} $DoUpgradeQuick == 'true'
       StrCpy $3 "upgradeQuick"
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
   HideWindow
   ClearErrors
@@ -1446,7 +1715,7 @@ Function Do_The_Uninstall
   ExecWait '$RegVal_uninstallString /U=$3 _?=$RegVal_uninstallLocation' $0
 
   IfErrors UninstallErrors
-  ${if} $0 == 0
+  ${If} $0 == 0
     ; No errors, do a sanity check and finish up.
     IfFileExists "$INSTDIR\${KEYFILE1}" UninstallErrors
     IfFileExists "$INSTDIR\${KEYFILE2}" UninstallErrors
@@ -1455,9 +1724,9 @@ Function Do_The_Uninstall
 
     BringToFront
     Goto NotInstalled
-  ${endif}
+  ${EndIf}
 
-  ${if} $0 == 1
+  ${If} $0 == 1
     ; The user canceled the uninstall ...
     MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST \
                "You have elected to cancel the uninstall of the previous version of$\n\
@@ -1469,18 +1738,31 @@ Function Do_The_Uninstall
                the previous version.  Then select to force the installation." \
                /SD IDOK
     Goto DoAbort
-  ${endif}
+  ${EndIf}
 
-  ${if} $0 == 4
+  ${If} $0 == 4
     ; The user wants to quit to stop rxapi.  Only set to 4 if the user cancels
     ; on the page where she is asked to stop rxapi.  On that page she is given
     ; the option to quit completely.
     Goto DoAbort
-  ${endif}
+  ${EndIf}
 
+  ${If} $0 == 5
+    ; 5 is only set when there are locked files
+    MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST \
+               "The uninstall of the previous version of ${SHORTNAME} was terminated by$\n\
+               the uninstall script.  The most likely cause of this is that there are$\n\
+               Rexx programs still running, which prevents critical files from being$\n\
+               updated.$\n$\n\
+               The installation will abort.$\n$\n\
+               You must ensure all Rexx programs are ended.  Then restart the installation." \
+               /SD IDOK
 
-  ; Return code is 2 or greater, but not 4.  2 is uninstall canceled by script,
-  ; we treat anything greater than 2 in the same way.
+    Goto DoAbort
+  ${EndIf}
+
+  ; Return code is 2 or greater, but not 4 or 5.  2 is uninstall canceled by
+  ; script, we treat anything greater than 2 in the same way.
   MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST \
              "The uninstall of the previous version of ${SHORTNAME} was terminated by$\n\
              the uninstall script.  The most likely cause of this is that the rxapi$\n\
@@ -1494,10 +1776,11 @@ Function Do_The_Uninstall
              2.) Try stopping rxapi manually and rerunning the installation.  If$\n\
              rxapi is installed as a service, use the service manager to stop rxapi.$\n\
              Otherwise, use the task manager to stop the rxapi process.$\n$\n\
-             3.) Elect to not stop rxapi and to not remove the previous version.  To do$\n\
-             this, rerun the installation and click No when asked to uninstall the previous$\n\
-             version.  Then click Yes when asked if you want to continue.  However, if$\n\
-             you do this ${SHORTNAME} will not be installed correctly." \
+             3.) Elect to not stop rxapi and to not remove the previous version.  To$\n\
+             do this, rerun the installation and click No when asked to uninstall$\n\
+             the previous version.  Then click Yes when asked if you want to$\n\
+             continue.  However, if you do this ${SHORTNAME} will not be installed$\n\
+             correctly." \
              /SD IDOK
   Goto DoAbort
 
@@ -1537,9 +1820,9 @@ Function Ok_Stop_RxAPI_page
   Call CheckIsRxapiService
   Call CheckIsRxapiRunning
 
-  ${if} $RxapiIsRunning == 'false'
+  ${If} $RxapiIsRunning == 'false'
     Abort
-  ${endif}
+  ${EndIf}
 
   !insertmacro MUI_HEADER_TEXT "The ${LONGNAME} memory manager (rxapi) is currently running." \
                                "A new version of rxapi can not be installed while rxapi is running."
@@ -1548,7 +1831,7 @@ Function Ok_Stop_RxAPI_page
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_CreateLabel} 0 0 100% 112u \
     "A previous version of the ${LONGNAME} memory manager (rxapi) is currently running. \
@@ -1584,15 +1867,15 @@ Function Ok_Stop_RxAPI_leave
 
   ${NSD_GetState} $StopRxAPI_CK $StopRxAPI_CK_State
 
-  ${if} $StopRxAPI_CK_State == 0
+  ${If} $StopRxAPI_CK_State == 0
     Quit
-  ${endif}
+  ${EndIf}
 
   Call StopRxapi
   Pop $R0
-  ${if} $R0 == 'Ok'
+  ${If} $R0 == 'Ok'
     Goto NotRunning
-  ${endif}
+  ${EndIf}
 
   ; rxapi was not stopped, the error code is now at top of stack
   Pop $R0
@@ -1608,20 +1891,29 @@ Function Ok_Stop_RxAPI_leave
     Quit
 
   NotRunning:
+
 FunctionEnd
 
 /** Components_Page_pre()  Call back function
  *
- * Invoked by the installer before the components page is created.
+ * Invoked by the installer before the components page is created.  We do one
+ * last check that there are no locked files.  If there are we quit.  This could
+ * be frustrating for a user, but we know that things will fail if we proceed.
  *
  * If this is a QUICK upgrade install, we skip the page.
  */
 Function Components_Page_pre
 
-  ${if} $DoUpgrade == 'true'
+  StrCpy $CheckRxApiLock 'false'
+  Call CheckLockedFiles
+  ${If} $$UserRequestAbort == 'true'
+    Quit
+  ${EndIf}
+
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -1636,7 +1928,7 @@ FunctionEnd
  */
 Function Components_Page_show
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     ; Disable Back button
     GetDlgItem $0 $HWNDPARENT 3
     EnableWindow $0 0
@@ -1650,7 +1942,7 @@ Function Components_Page_show
       changed for an upgrade type of install.  Click Next to continue."
 
     Call PageDisableQuit
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -1662,10 +1954,10 @@ FunctionEnd
  */
 Function Directory_Page_pre
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -1681,7 +1973,7 @@ FunctionEnd
  */
 Function Directory_Page_show
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     SendMessage $mui.DirectoryPage.Text ${WM_SETTEXT} 0 \
       "STR:Setup will install ${LONGNAME} ${VERSION} in the following folder.  The location can not be \
       changed for an upgrade type of install.  Click Next to continue."
@@ -1690,7 +1982,80 @@ Function Directory_Page_show
     EnableWindow $mui.DirectoryPage.BrowseButton 0
 
     Call PageDisableQuit
-  ${endif}
+  ${EndIf}
+
+FunctionEnd
+
+/** Finish_Page_pre()  Call back function
+ *
+ * Invoked by the installer before the finish page is created.
+ *
+ * If this is an upgrade install, the creation or not, of the desktop icon can
+ * not be changed.  So we always create the icon here if we are going to.
+ *
+ * If this is a QUICK upgrade install, we abort here so that the finish page is
+ * not shown at all
+ *
+ * At the time this is run, the registry values have been deleted.  The value in
+ * RegVal_desktop_icon is the value in the registry when this installer was
+ * started.  If there is an existing ooRexx, the ooRexx uninstaller is run and
+ * it always deletes all the existing registry entries.  If we are doing an
+ * upgrade and creating the icon we write a 1 for the registry value.  If we are
+ * not creating the icon we write a 0 just to be tidy.  Leaving out the entry
+ * altogether would be fine.  If we are not doing an upgrade, we do not do
+ * anything here, the Finish page will be shown and the CreateDesktopIcon()
+ * function will do the appropriate thing.
+ */
+Function Finish_Page_pre
+
+  ${If} $DoUpgrade == 'true'
+    ${If} $RegVal_desktop_icon == '1'
+      CreateShortcut "$DESKTOP\Open Object Rexx Resources.lnk" "$SMPROGRAMS\${LONGNAME}\" "" "$INSTDIR\rexx.exe"
+      Call OpenUninstallLog
+      ${AddItem} "$DESKTOP\Open Object Rexx Resources.lnk"
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "CreateDesktopIcon" 1
+      Call CloseUninstallLog
+    ${else}
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "CreateDesktopIcon" 0
+    ${EndIf}
+    ${If} $DoUpgradeQuick == 'true'
+      Abort
+    ${EndIf}
+  ${EndIf}
+
+FunctionEnd
+
+/** Finish_Page_show()  Call back function
+ *
+ * Invoked by the installer right before the finish page is shown.
+ *
+ * Note that if this is a quick upgrade type, we never get here.
+ *
+ * If this is an upgrade install, the create desktop icon value can not be
+ * changed.  We use function to show the create desktop icon value by checking
+ * or not checking the check box, but we disable the check box.  For the show
+ * getting started with Windows ooRex checkbox, we assume on an upgrade install,
+ * the user doesn't need this at all and we make the check box invisible.
+ *
+ * When it is not an upgrade install, nothing is done.
+ */
+Function Finish_Page_show
+
+  ${If} $DoUpgrade == 'true'
+    SendMessage $mui.FinishPage.Text ${WM_SETTEXT} 0 \
+      "STR:${LONGNAME} ${VERSION} has been installed on your computer.  Whether a Desktop \
+      Icon has been created or not is indicated by the state of the check box. This can not \
+      be changed for an upgrade type of install.$\n$\n  Click Finish to close this Wizard."
+
+    SendMessage $mui.FinishPage.Run ${BM_SETCHECK} ${BST_CHECKED} $RegVal_desktop_icon
+    EnableWindow $mui.FinishPage.Run 0
+
+    ShowWindow $mui.FinishPage.ShowReadme ${SW_HIDE}
+
+    ; Show or not show the link?
+    ShowWindow $mui.FinishPage.Link ${SW_HIDE}
+
+  ${EndIf}
 
 FunctionEnd
 
@@ -1704,38 +2069,38 @@ FunctionEnd
  */
 Function Rxapi_Options_page
 
-  ${if} $IsAdminUser == 'false'
+  ${If} $IsAdminUser == 'false'
     Abort
-  ${endif}
+  ${EndIf}
 
   ; If doing an upgrade and rxapi was NOT previously installed as a service, we
   ; skip this page.  If we are doing a quick upgrade and rxapi was installed as
   ; a server, we start it automatically.
-  ${if} $DoUpgrade == 'true'
-    ${if} $RxapiIsService == 'false'
+  ${If} $DoUpgrade == 'true'
+    ${If} $RxapiIsService == 'false'
       Abort
-    ${endif}
-    ${if} $DoUpgradeQuick == 'true'
+    ${EndIf}
+    ${If} $DoUpgradeQuick == 'true'
     ${andif} $RxapiIsService == 'true'
       StrCpy $RxAPIStartService '1'
       Abort
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     !insertmacro MUI_HEADER_TEXT "ooRexx rxapi is installed as a Windows Service." \
                                  "Installation of rxapi as a service can not be changed during an upgrade, but \
                                  you can choose whether to start the rxapi Service during installation."
   ${else}
     !insertmacro MUI_HEADER_TEXT "The ooRexx rxapi process." "Install rxapi as a Windows Service."
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Create /NOUNLOAD 1018
   Pop $Dialog
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_OnBack} Rxapi_Options_leave
 
@@ -1754,7 +2119,7 @@ Function Rxapi_Options_page
 
   ; If we are doing an upgrade, then we are only here if rxapi was previously
   ; installed as a service.  If so we don't allow the user to change this.
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     ${NSD_SetState} $RxAPI_Install_Service_CK 1
 	  EnableWindow $RxAPI_Install_Service_CK 0
 	  EnableWindow $Label_One 0
@@ -1762,14 +2127,14 @@ Function Rxapi_Options_page
   ${else}
     ${NSD_SetState} $RxAPI_Install_Service_CK $RxAPIInstallService
     ${NSD_OnClick} $RxAPI_Install_Service_CK EnableStartService
-  ${endif}
+  ${EndIf}
 
   ${NSD_CreateCheckBox} 0 106u 100% 15u "Start the rxapi Service during installation"
   Pop $RxAPI_Start_CK
   ${NSD_SetState} $RxAPI_Start_CK $RxAPIStartService
-  ${if} $RxAPIInstallService == 0
+  ${If} $RxAPIInstallService == 0
 	  EnableWindow $RxAPI_Start_CK 0
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Show
 FunctionEnd
@@ -1794,7 +2159,7 @@ Function EnableStartService
 	${Else}
 	  EnableWindow $RxAPI_Start_CK 0
     ${NSD_Uncheck} $RxAPI_Start_CK
-	${endif}
+	${EndIf}
 FunctionEnd
 
 /** Rxapi_Options_leave()  Call back function.
@@ -1817,9 +2182,9 @@ FunctionEnd
  */
 Function File_Associations_page
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
   !insertmacro MUI_HEADER_TEXT "Associate file extensions with the ooRexx executables." \
                                "Any, or all, of the ooRexx executables (rexx.exe, rexxhide.exe, or rexxpaws.exe) \
@@ -1830,7 +2195,7 @@ Function File_Associations_page
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_OnBack} File_Associations_leave
 
@@ -1876,12 +2241,12 @@ FunctionEnd
  */
 Function SendTo_Items_page
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     !insertmacro MUI_HEADER_TEXT "The Send To items that will be created." \
                                  "Which Send To items will be created can not be changed during an upgrade \
                                  type of install."
@@ -1889,14 +2254,14 @@ Function SendTo_Items_page
     !insertmacro MUI_HEADER_TEXT "Create 'Send To' items for the Rexx executables." \
                                  "'Send To' items can be used instead of file associations, or in addition \
                                  to file associations."
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Create 1018
   Pop $Dialog
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_OnBack} SendTo_Items_leave
 
@@ -1924,13 +2289,13 @@ Function SendTo_Items_page
   ${NSD_SetState} $SendTo_rexxhide_CK $SendTo_rexxHide_CK_state
   ${NSD_SetState} $SendTo_rexxpaws_CK $SendTo_rexxPaws_CK_state
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     EnableWindow $Label_One 0
 	  EnableWindow $SendTo_rexx_CK 0
 	  EnableWindow $SendTo_rexxHide_CK 0
 	  EnableWindow $SendTo_rexxPaws_CK 0
     Call PageDisableQuit
-	${endif}
+	${EndIf}
 
   nsDialogs::Show
 
@@ -1958,29 +2323,29 @@ FunctionEnd
  */
 Function Associate_rexx_page
 
-  ${if} $Use_File_Associations_CK_state == ${BST_UNCHECKED}
+  ${If} $Use_File_Associations_CK_state == ${BST_UNCHECKED}
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     !insertmacro MUI_HEADER_TEXT "The file extension for rexx.exe and Rexx program editor choices." \
                                  "These choices can not be changed during an upgrade type of install."
   ${else}
     !insertmacro MUI_HEADER_TEXT "Associate a file extension with rexx.exe." "Pick the editor to be used when the Edit \
                                  item of the context menu is selected."
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Create 1018
   Pop $Dialog
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_OnBack} Associate_rexx_leave
 
@@ -2035,20 +2400,20 @@ Function Associate_rexx_page
   ${NSD_SetState} $Associate_rexx_CK $Associate_rexx_CK_state
   ${NSD_SetState} $SendTo_rexx_CK $SendTo_rexx_CK_state
 
-  ${if} $Associate_rexx_CK_state == ${BST_UNCHECKED}
+  ${If} $Associate_rexx_CK_state == ${BST_UNCHECKED}
   ${orif} $DoUpgrade == 'true'
 	  EnableWindow $Rexx_ext_EDIT 0
 	  EnableWindow $Rexx_ftype_EDIT 0
 
-    ${if} $DoUpgrade == 'true'
+    ${If} $DoUpgrade == 'true'
   	  EnableWindow $Rexx_editor_EDIT 0
   	  EnableWindow $Rexx_editor_PB 0
   	  EnableWindow $Associate_rexx_CK 0
       EnableWindow $Label_One 0
       EnableWindow $Label_Two 0
       Call PageDisableQuit
-  	${endif}
-	${endif}
+  	${EndIf}
+	${EndIf}
 
   ${NSD_OnClick} $Associate_rexx_CK EnableRexxAssociation
   ${NSD_OnClick} $Rexx_editor_PB Get_rexx_editor_file
@@ -2067,35 +2432,35 @@ Function Associate_rexx_leave
 
   ${NSD_GetState} $Associate_rexx_CK $Associate_rexx_CK_state
 
-  ${if} $Associate_rexx_CK_state == ${BST_CHECKED}
+  ${If} $Associate_rexx_CK_state == ${BST_CHECKED}
     ${NSD_GetText} $Rexx_ext_EDIT $0
     ${NSD_GetText} $Rexx_ftype_EDIT $1
 
     ; If either the extension field or the ftype field are blank, abort.
-    ${if} $0 == ""
+    ${If} $0 == ""
     ${orif} $1 == ""
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Creating a file association requires that$\n\
         both the file extension and the file type field$\n\
         be filed in."
 
-      ${if} $0 == ""
+      ${If} $0 == ""
         SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ext_EDIT 1
       ${else}
         SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ftype_EDIT 1
-      ${endif}
+      ${EndIf}
       Abort
-    ${endif}
+    ${EndIf}
 
     ; Copy the first char of the ext field to $0 if not a '.', abort.
     StrCpy $2 $0 1
-    ${if} $2 != "."
+    ${If} $2 != "."
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Please include the leading dot '.' of the file$\n\
         extension."
       SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ext_EDIT 1
       Abort
-    ${endif}
+    ${EndIf}
 
     ; Check that the user did not include any spaces in either field. If so abort
     push $0
@@ -2105,21 +2470,21 @@ Function Associate_rexx_leave
     call CheckForSpaces
     pop $3
 
-    ${if} $2 > 0
+    ${If} $2 > 0
     ${orif} $3 > 0
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Neither the file extension field nor the file$\n\
         type name field can contain a space."
 
-      ${if} $2 > 0
+      ${If} $2 > 0
         SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ext_EDIT 1
       ${else}
         SendMessage $Dialog ${WM_NEXTDLGCTL} $Rexx_ftype_EDIT 1
-      ${endif}
+      ${EndIf}
       Abort
-    ${endif}
+    ${EndIf}
 
-  ${endif}
+  ${EndIf}
 
 
   ; Okay text fields are okay.  If editor field is blank, it is just not used.
@@ -2140,9 +2505,9 @@ Function Get_rexx_editor_file
 
   nsDialogs::SelectFileDialog open $0 "*.exe"
   pop $0
-  ${if} $0 != ""
+  ${If} $0 != ""
   	${NSD_SetText} $Rexx_editor_EDIT $0
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -2162,7 +2527,7 @@ Function EnableRexxAssociation
 	${Else}
 	  EnableWindow $Rexx_ext_EDIT 0
 	  EnableWindow $Rexx_ftype_EDIT 0
-	${endif}
+	${EndIf}
 FunctionEnd
 
 /** Associate_otherExes_page()  Custom page function.
@@ -2174,30 +2539,30 @@ FunctionEnd
  */
 Function Associate_otherExes_page
 
-  ${if} $Use_File_Associations_CK_state == ${BST_UNCHECKED}
+  ${If} $Use_File_Associations_CK_state == ${BST_UNCHECKED}
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     !insertmacro MUI_HEADER_TEXT "The file extension chocies for rexxhide.exe. and rexxpaws.exe" \
                                  "These choices can not be changed during an upgrade type of install."
   ${else}
     !insertmacro MUI_HEADER_TEXT "Associate a file extension with rexxhide.exe and / or rexxpaws.exe" \
                                  "rexxhide default file extension: $\"${DefRexxHideExt}$\" file type: $\"${DefRexxHideFType}$\"$\n\
                                  rexpaws default file extension: $\"${DefRexxPawsExt}$\" file type: $\"${DefRexxPawsFType}$\"."
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Create 1018
   Pop $Dialog
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_OnBack} Associate_otherExes_leave
 
@@ -2259,7 +2624,7 @@ Function Associate_otherExes_page
   ${NSD_CreateText}      228u 116u  46u 12u $RexxPaws_ftype_text
   Pop $RexxPaws_ftype_EDIT
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     EnableWindow $Associate_rexxhide_CK 0
 	  EnableWindow $RexxHide_ext_EDIT 0
 	  EnableWindow $RexxHide_ftype_EDIT 0
@@ -2273,16 +2638,16 @@ Function Associate_otherExes_page
 
     Call PageDisableQuit
   ${else}
-    ${if} $Associate_rexxhide_CK_state == ${BST_UNCHECKED}
+    ${If} $Associate_rexxhide_CK_state == ${BST_UNCHECKED}
   	  EnableWindow $RexxHide_ext_EDIT 0
   	  EnableWindow $RexxHide_ftype_EDIT 0
-  	${endif}
+  	${EndIf}
 
-    ${if} $Associate_rexxpaws_CK_state == ${BST_UNCHECKED}
+    ${If} $Associate_rexxpaws_CK_state == ${BST_UNCHECKED}
   	  EnableWindow $RexxPaws_ext_EDIT 0
   	  EnableWindow $RexxPaws_ftype_EDIT 0
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
   ${NSD_OnClick} $Associate_rexxhide_CK EnableRexxHideAssociation
   ${NSD_OnClick} $Associate_rexxpaws_CK EnableRexxPawsAssociation
@@ -2303,35 +2668,35 @@ Function Associate_otherExes_leave
   /* Check the Rexx Hide controls */
   ${NSD_GetState} $Associate_rexxhide_CK $Associate_rexxhide_CK_state
 
-  ${if} $Associate_rexxhide_CK_state == ${BST_CHECKED}
+  ${If} $Associate_rexxhide_CK_state == ${BST_CHECKED}
     ${NSD_GetText} $RexxHide_ext_EDIT $0
     ${NSD_GetText} $RexxHide_ftype_EDIT $1
 
     ; If either the extension field or the ftype field are blank, abort.
-    ${if} $0 == ""
+    ${If} $0 == ""
     ${orif} $1 == ""
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Creating a file association requires that$\n\
         both the file extension and the file type field$\n\
         be filed in."
 
-      ${if} $0 == ""
+      ${If} $0 == ""
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ext_EDIT 1
       ${else}
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ftype_EDIT 1
-      ${endif}
+      ${EndIf}
       Abort
-    ${endif}
+    ${EndIf}
 
     ; Copy the first char of the ext field to $0 if not a '.', abort.
     StrCpy $2 $0 1
-    ${if} $2 != "."
+    ${If} $2 != "."
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Please include the leading dot '.' of the file$\n\
         extension."
       SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ext_EDIT 1
       Abort
-    ${endif}
+    ${EndIf}
 
     ; Check that the user did not include any spaces in either field. If so abort
     push $0
@@ -2341,55 +2706,55 @@ Function Associate_otherExes_leave
     call CheckForSpaces
     pop $3
 
-    ${if} $2 > 0
+    ${If} $2 > 0
     ${orif} $3 > 0
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Neither the file extension field nor the file$\n\
         type name field can contain a space."
 
-      ${if} $2 > 0
+      ${If} $2 > 0
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ext_EDIT 1
       ${else}
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxHide_ftype_EDIT 1
-      ${endif}
+      ${EndIf}
       Abort
-    ${endif}
+    ${EndIf}
 
 
-  ${endif}
+  ${EndIf}
 
   /* Check the Rexx Paws controls */
   ${NSD_GetState} $Associate_rexxpaws_CK $Associate_rexxpaws_CK_state
 
-  ${if} $Associate_rexxpaws_CK_state == ${BST_CHECKED}
+  ${If} $Associate_rexxpaws_CK_state == ${BST_CHECKED}
     ${NSD_GetText} $RexxPaws_ext_EDIT $0
     ${NSD_GetText} $RexxPaws_ftype_EDIT $1
 
     ; If either the extension field or the ftype field are blank, abort.
-    ${if} $0 == ""
+    ${If} $0 == ""
     ${orif} $1 == ""
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Creating a file association requires that$\n\
         both the file extension and the file type field$\n\
         be filed in."
 
-      ${if} $0 == ""
+      ${If} $0 == ""
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ext_EDIT 1
       ${else}
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ftype_EDIT 1
-      ${endif}
+      ${EndIf}
       Abort
-    ${endif}
+    ${EndIf}
 
     ; Copy the first char of the ext field to $0 if not a '.', abort.
     StrCpy $2 $0 1
-    ${if} $2 != "."
+    ${If} $2 != "."
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Please include the leading dot '.' of the file$\n\
         extension."
       SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ext_EDIT 1
       Abort
-    ${endif}
+    ${EndIf}
 
     ; Check that the user did not include any spaces in either field. If so abort
     push $0
@@ -2399,21 +2764,21 @@ Function Associate_otherExes_leave
     call CheckForSpaces
     pop $3
 
-    ${if} $2 > 0
+    ${If} $2 > 0
     ${orif} $3 > 0
       MessageBox MB_OK|MB_ICONEXCLAMATION \
         "Neither the file extension field nor the file$\n\
         type name field can contain a space."
 
-      ${if} $2 > 0
+      ${If} $2 > 0
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ext_EDIT 1
       ${else}
         SendMessage $Dialog ${WM_NEXTDLGCTL} $RexxPaws_ftype_EDIT 1
-      ${endif}
+      ${EndIf}
       Abort
-    ${endif}
+    ${EndIf}
 
-  ${endif}
+  ${EndIf}
 
   ; Okay text fields are okay.
   ${NSD_GetText} $RexxHide_ext_EDIT $RexxHide_ext_text
@@ -2439,7 +2804,7 @@ Function EnableRexxHideAssociation
 	${Else}
 	  EnableWindow $RexxHide_ext_EDIT 0
 	  EnableWindow $RexxHide_ftype_EDIT 0
-	${endif}
+	${EndIf}
 FunctionEnd
 
 /** EnableRexxPawsAssociation()
@@ -2458,7 +2823,7 @@ Function EnableRexxPawsAssociation
 	${Else}
 	  EnableWindow $RexxPaws_ext_EDIT 0
 	  EnableWindow $RexxPaws_ftype_EDIT 0
-	${endif}
+	${EndIf}
 FunctionEnd
 
 /** Confirm_page()  Custom page function.
@@ -2469,28 +2834,28 @@ FunctionEnd
  */
 Function Confirm_page
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     !insertmacro MUI_HEADER_TEXT "${LONGNAME} is ready for installation." \
                                  "Installation options remain the same for an upgrade type of installation \
                                  of ${LONGNAME}."
   ${else}
     !insertmacro MUI_HEADER_TEXT "${LONGNAME} is ready for installation." \
                                  "All options for ${LONGNAME} have been collected."
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Create 1018
   Pop $Dialog
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     ${NSD_CreateLabel} 0u 0u 100% 72u \
     "Click the Install button to begin installation.  Click the Back button if you \
      wish to review the installation options.  An upgrade type of installation can \
@@ -2502,13 +2867,13 @@ Function Confirm_page
     Click the Install button to begin installation.  Click the Back button to \
     review or change any settings.  Click the Cancel button to abort the installation \
     altogether."
-  ${endif}
+  ${EndIf}
 
   Pop $Label_One
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     Call PageDisableQuit
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Show
 
@@ -2524,7 +2889,7 @@ Function PageDisableQuit
 
   ; Really this should only be called when DoUpgrade is true, but we'll use
   ; a little defensive programming.
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
     ; Disable the close button on title bar.
     push $1
     System::Call "user32::GetSystemMenu(i $HWNDPARENT,i 0) i.s"
@@ -2539,7 +2904,7 @@ Function PageDisableQuit
     ; Set focus to the Next button
     GetDlgItem $0 $HWNDPARENT 1
     SendMessage $HWNDPARENT ${WM_NEXTDLGCTL} $0 1
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -2578,20 +2943,20 @@ Function DoSendToItems
   StrCpy $RegVal_sendTo_rexxPaws $SendTo_rexxPaws_CK_state
 
   SetOutPath $INSTDIR
-  ${if} $SendTo_rexx_CK_state == ${BST_CHECKED}
+  ${If} $SendTo_rexx_CK_state == ${BST_CHECKED}
     CreateShortCut "$SENDTO\ooRexx.lnk" "$INSTDIR\rexx.exe" "" "" "" SW_SHOWNORMAL "" "ooRexx"
     DetailPrint "Created Send To rexx.exe item"
-  ${endif}
+  ${EndIf}
 
-  ${if} $SendTo_rexxHide_CK_state == ${BST_CHECKED}
+  ${If} $SendTo_rexxHide_CK_state == ${BST_CHECKED}
     CreateShortCut "$SENDTO\ooRexx with no console (rexxhide).lnk" "$INSTDIR\rexxhide.exe" "" "" "" SW_SHOWNORMAL "" "ooRexx with no console (rexxhide)"
     DetailPrint "Created Send To rexxhide.exe item"
-  ${endif}
+  ${EndIf}
 
-  ${if} $SendTo_rexxPaws_CK_state == ${BST_CHECKED}
+  ${If} $SendTo_rexxPaws_CK_state == ${BST_CHECKED}
     CreateShortCut "$SENDTO\ooRexx with pause (rexxpaws).lnk" "$INSTDIR\rexxpaws.exe" "" "" "" SW_SHOWNORMAL "" "ooRexx with pause (rexxpaws)"
     DetailPrint "Created Send To rexxpaws.exe item"
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -2616,34 +2981,34 @@ Function DoFileAssociations
   StrCpy $RegVal_rexxHideAssociation ""
   StrCpy $RegVal_rexxPawsAssociation ""
 
-  ${if} $Use_File_Associations_CK_state == ${BST_UNCHECKED}
+  ${If} $Use_File_Associations_CK_state == ${BST_UNCHECKED}
     DetailPrint "Do not use Windows file associations specified."
     Return
-  ${endif}
+  ${EndIf}
 
-  ${if} $Associate_rexx_CK_state == ${BST_CHECKED}
+  ${If} $Associate_rexx_CK_state == ${BST_CHECKED}
     StrCpy $AssociationProgramName 'rexx.exe'
     StrCpy $RegVal_rexxAssociation '$Rexx_ext_text $Rexx_ftype_text'
     StrCpy $RegVal_rexxEditor '$Rexx_editor_text'
 
     Call AssociateExtensionWithExe
-  ${endif}
+  ${EndIf}
 
-  ${if} $Associate_rexxhide_CK_state == ${BST_CHECKED}
+  ${If} $Associate_rexxhide_CK_state == ${BST_CHECKED}
     StrCpy $AssociationProgramName 'rexxhide.exe'
     StrCpy $RegVal_rexxHideAssociation '$RexxHide_ext_text $RexxHide_ftype_text'
     StrCpy $RegVal_rexxEditor '$Rexx_editor_text'
 
     Call AssociateExtensionWithExe
-  ${endif}
+  ${EndIf}
 
-  ${if} $Associate_rexxpaws_CK_state == ${BST_CHECKED}
+  ${If} $Associate_rexxpaws_CK_state == ${BST_CHECKED}
     StrCpy $AssociationProgramName 'rexxpaws.exe'
     StrCpy $RegVal_rexxPawsAssociation '$RexxPaws_ext_text $RexxPaws_ftype_text'
     StrCpy $RegVal_rexxEditor '$Rexx_editor_text'
 
     Call AssociateExtensionWithExe
-  ${endif}
+  ${EndIf}
 
   System::Call 'Shell32::SHChangeNotify(i ${SHCNE_ASSOCCHANGED}, i ${SHCNF_IDLIST}, i 0, i 0)'
 FunctionEnd
@@ -2688,7 +3053,7 @@ Function AssociateExtensionWithExe
 
   ; We will put the file extension in $0, the ftype in $1, and the editor file
   ; name in $2
-  ${if} $AssociationProgramName == 'rexx.exe'
+  ${If} $AssociationProgramName == 'rexx.exe'
     ${StrTok} $0 $RegVal_rexxAssociation " " "0" "0"
     ${StrTok} $1 $RegVal_rexxAssociation " " "1" "0"
     StrCpy $AssociationText "ooRexx Rexx Program"
@@ -2706,14 +3071,14 @@ Function AssociateExtensionWithExe
   ${else}
     DetailPrint "Unrecoverable ERROR. The ftype association executable: $AssociationProgramName is not recognized."
     Goto DoneWithRexxExe
-  ${endif}
+  ${EndIf}
 
-  ${if} $0 == ''
+  ${If} $0 == ''
   ${orif} $1 == ''
     DetailPrint "Unrecoverable ERROR.  Empty string in $AssociationProgramName association"
     DetailPrint "  Word one=<$0> word two=<$1>"
     Goto DoneWithRexxExe
-  ${endif}
+  ${EndIf}
 
   ClearErrors
   ; Write key $0 (.rex for example) with default value of $1 (RexxScript for example.)
@@ -2737,10 +3102,10 @@ Function AssociateExtensionWithExe
   WriteRegStr HKCU "SOFTWARE\Classes\$1\shell\open" "" "Run"
   WriteRegStr HKCU "SOFTWARE\Classes\$1\shell\open\command" "" '"$INSTDIR\$AssociationProgramName" "%1" %*'
 
-  ${if} $AssociationEditor != ""
+  ${If} $AssociationEditor != ""
     WriteRegStr HKCU "SOFTWARE\Classes\$1\shell\edit" "" "Edit"
     WriteRegStr HKCU "SOFTWARE\Classes\$1\shell\edit\command" "" '"$AssociationEditor" "%1"'
-  ${endif}
+  ${EndIf}
 
   WriteRegStr HKCU "SOFTWARE\Classes\$1\shellex\DropHandler" "" "{60254CA5-953B-11CF-8C96-00AA00B8708C}"
   Goto DoneWithRexxExe
@@ -2752,10 +3117,10 @@ Function AssociateExtensionWithExe
   WriteRegStr HKCR "$1\shell\open" "" "Run"
   WriteRegStr HKCR "$1\shell\open\command" "" '"$INSTDIR\$AssociationProgramName" "%1" %*'
 
-  ${if} $AssociationEditor != ""
+  ${If} $AssociationEditor != ""
     WriteRegStr HKCR "$1\shell\edit" "" "Edit"
     WriteRegStr HKCR "$1\shell\edit\command" "" '"$AssociationEditor" "%1"'
-  ${endif}
+  ${EndIf}
 
   WriteRegStr HKCR "$1\shellex\DropHandler" "" "{60254CA5-953B-11CF-8C96-00AA00B8708C}"
 
@@ -2824,13 +3189,13 @@ FunctionEnd
  */
 Function SetFileAssociationVars
 
-    ${if} $PreviousVersionInstalled == 'false'
+    ${If} $PreviousVersionInstalled == 'false'
     ${andif} $RegVal_rexxAssociation == ''
       Call SetDefaultFileAssociation
     ${elseif} $UpgradeTypeAvailable == 'false'
       Call SetDefaultFileAssociation
     ${else}
-      ${if} $RegVal_rexxAssociation == ''
+      ${If} $RegVal_rexxAssociation == ''
       ${andif} $RegVal_rexxHideAssociation == ''
       ${andif} $RegVal_rexxPawsAssociation == ''
         Call SetBlankFileAssociation
@@ -2840,7 +3205,7 @@ Function SetFileAssociationVars
         StrCpy $Use_File_Associations_CK_state '${BST_CHECKED}'
         StrCpy $Rexx_editor_text "$RegVal_rexxEditor"
 
-        ${if} $RegVal_rexxAssociation != ''
+        ${If} $RegVal_rexxAssociation != ''
           ${StrTok} $0 $RegVal_rexxAssociation " " "0" "0"
           ${StrTok} $1 $RegVal_rexxAssociation " " "1" "0"
 
@@ -2849,9 +3214,9 @@ Function SetFileAssociationVars
           StrCpy $Rexx_ftype_text $1
         ${else}
           StrCpy $Associate_rexx_CK_state '${BST_UNCHECKED}'
-        ${endif}
+        ${EndIf}
 
-        ${if} $RegVal_rexxHideAssociation != ''
+        ${If} $RegVal_rexxHideAssociation != ''
           ${StrTok} $0 $RegVal_rexxHideAssociation " " "0" "0"
           ${StrTok} $1 $RegVal_rexxHideAssociation " " "1" "0"
 
@@ -2860,9 +3225,9 @@ Function SetFileAssociationVars
           StrCpy $RexxHide_ftype_text $1
         ${else}
           StrCpy $Associate_rexxhide_CK_state '${BST_UNCHECKED}'
-        ${endif}
+        ${EndIf}
 
-        ${if} $RegVal_rexxPawsAssociation != ''
+        ${If} $RegVal_rexxPawsAssociation != ''
           ${StrTok} $0 $RegVal_rexxPawsAssociation " " "0" "0"
           ${StrTok} $1 $RegVal_rexxPawsAssociation " " "1" "0"
 
@@ -2871,9 +3236,9 @@ Function SetFileAssociationVars
           StrCpy $RexxPaws_ftype_text $1
         ${else}
           StrCpy $Associate_rexxpaws_CK_state '${BST_UNCHECKED}'
-        ${endif}
-      ${endif}
-    ${endif}
+        ${EndIf}
+      ${EndIf}
+    ${EndIf}
 
 FunctionEnd
 
@@ -2885,7 +3250,7 @@ FunctionEnd
  */
 Function SetSendToVars
 
-    ${if} $PreviousVersionInstalled == 'false'
+    ${If} $PreviousVersionInstalled == 'false'
     ${orif} $UpgradeTypeAvailable == 'false'
     ${orif} $RegVal_sendTo_rexx == ''
       StrCpy $SendTo_rexx_CK_state ${BST_UNCHECKED}
@@ -2895,7 +3260,26 @@ Function SetSendToVars
       StrCpy $SendTo_rexx_CK_state $RegVal_sendTo_rexx
       StrCpy $SendTo_rexxHide_CK_state $RegVal_sendTo_rexxHide
       StrCpy $SendTo_rexxPaws_CK_state $RegVal_sendTo_rexxPaws
-    ${endif}
+    ${EndIf}
+
+FunctionEnd
+
+/** test */
+
+/** CreateDesktopShortCut()
+ *
+ * This callback function is executed if, on the finish page, the user checks
+ * the Create Desktop Icon check box.  The short cut we create is a link to the
+ * Open Object Rexx Start Menu folder.
+ */
+Function CreateDesktopShortcut
+
+    CreateShortcut "$DESKTOP\Open Object Rexx Resources.lnk" "$SMPROGRAMS\${LONGNAME}\" "" "$INSTDIR\rexx.exe"
+
+    Call OpenUninstallLog
+    ${AddItem} "$DESKTOP\Open Object Rexx Resources.lnk"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "CreateDesktopIcon" 1
+    Call CloseUninstallLog
 
 FunctionEnd
 
@@ -2909,23 +3293,174 @@ Function CheckInstalledStatus
   StrCpy $PreviousVersionInstalled 'false'
   StrCpy $UpgradeTypeAvailable 'false'
 
-  ${if} $RegVal_uninstallString != ""
+  ${If} $RegVal_uninstallString != ""
     StrCpy $PreviousVersionInstalled 'true'
 
-    ${if} $RegVal_uninstallLocation == ""
+    ${If} $RegVal_uninstallLocation == ""
       ; No location in the registry, we'll use the installation directory.
       StrCpy $RegVal_uninstallLocation $INSTDIR
-    ${endif}
+    ${EndIf}
 
-    ${if} $RegVal_uninstallVersion != ""
+    ${If} $RegVal_uninstallVersion != ""
       ${VersionCompare} $RegVal_uninstallVersion "4.1.0.0" $0
 
       ; Returned in $0: 0 == versions are equal, 1 == version is greater than 4.1.0.0, 2 == version is less than 4.1.0.0
-      ${if} $0 < 2
+      ${If} $0 < 2
         StrCpy $UpgradeTypeAvailable 'true'
-      ${endif}
-    ${endif}
-  ${endif}
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+
+FunctionEnd
+
+
+/** CheckLockedFiles()
+ *
+ * Helper function used to determine if files are locked.  This function is
+ * called on init and right before we show the Components page.  The first time
+ * rxapi may or may not be running.  The second time is after rxapi should have
+ * been stopped.  If any of these files are locked, we know the install will be
+ * inconsistent.  If the files are locked we give the user a chance to close
+ * them and retry.
+ */
+Function CheckLockedFiles
+
+  StrCpy $UserRequestAbort 'false'
+
+check_lock_loop:
+
+  StrCpy $KeyFileName '$RegVal_uninstallLocation\${KEYFILE1}'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$RegVal_uninstallLocation\${KEYFILE2}'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  ; Key file 3 is rxapi.exe.  We only check it when we think it should be
+  ; stopped and we are about to do an install.
+  ${If} $CheckRxApiLock == 'true'
+    StrCpy $KeyFileName '$INSTDIR\${KEYFILE3}'
+    LockedList::IsFileLocked $KeyFileName
+    Pop $R0
+    ${If} $R0 == true
+      goto rexxIsRunning
+    ${EndIf}
+  ${EndIf}
+
+  StrCpy $KeyFileName '$RegVal_uninstallLocation\rexxhide.exe'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$RegVal_uninstallLocation\rexxpaws.exe'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$RegVal_uninstallLocation\ooDialog.exe'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$RegVal_uninstallLocation\ooDialog.dll'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  goto done_out
+
+  rexxIsRunning:
+      MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION|MB_TOPMOST \
+        "WARNING.  The file:$\n$\n\
+          $keyFileName$\n$\n\
+        is locked and can not be updated by the installer.  This indicates$\n\
+        that not all Rexx programs have been halted$\n$\n\
+        Continuing with the install in this case is known to cause problems.$\n$\n\
+        To Retry:$\n$\n\
+        Ensure all Rexx programs and processes are halted and then push$\n\
+        Retry.$\n$\n\
+        To Quit the install and fix the problem:$\n$\n\
+        Push Cancel.  Determine which Rexx programs are open and close$\n\
+        them.  Ensure no other Rexx programs or processes are open.  Then$\n\
+        retry the install." \
+        /SD IDCANCEL IDRETRY check_lock_loop
+
+        StrCpy $UserRequestAbort 'true'
+
+done_out:
+
+FunctionEnd
+
+
+/** CheckBitnessMatch()
+ *
+ * Checks that the bitness of the ooRexx to be installed matches the bitness of
+ * the ooRexx to be uninstalled.
+ */
+Function CheckBitnessMatch
+
+  StrCpy $UserRequestAbort 'false'
+
+  ${If} $RegVal_uninstallBitness != ""
+    ${If} $RegVal_uninstallBitness != ${CPU}
+      MessageBox MB_YESNO \
+        "WARNING.  You are installing the ${CPU} version of ooRexx.$\n\
+        The installed version of ooRexx is the $RegVal_uninstallBitness version.$\n\
+        Running the uninstaller from within the installer in this case$\n\
+        is known to cause problems, and is not supported.$\n$\n\
+        The previous version of ooRexx should be uninstalled separately.  To$\n\
+        do this, halt this installation.  Run the uninstall program using$\n\
+        the Control Panel, or the Start Menu item under the Open Object$\n\
+        Rexx program group.  Then restart this installation program.$\n$\n\
+        Do you wish to continue the installation knowing there may be$\n\
+        problems with the install?" \
+        /SD IDNO IDYES done_return
+        StrCpy $UserRequestAbort 'true'
+        done_return:
+    ${EndIf}
+  ${EndIf}
+
+FunctionEnd
+
+/** CheckStrLen()
+ *
+ * Checks that this installer is built using the long string version of NSIS.
+ */
+Function CheckStrLen
+
+  StrCpy $UserRequestAbort 'false'
+
+  ; Max string length is 8192 in the long string build
+
+  ${If} ${NSIS_MAX_STRLEN} < 8192
+    MessageBox MB_YESNO \
+      "WARNING.  The current installer was built using the short$\n\
+      string version of NSIS.  There are 2 problems with this:$\n$\n\
+      1.)  This indicates this is not an official ooRexx installer.$\n\
+      2.)  There is the possiblity that using this installer will$\n\
+      delete the PATH on this system.$\n$\n\
+      It is not advised that this installer be used to install$\n\
+      ooRexx.  If you continue it is at your own risk.$\n$\n\
+      Do you wish to continue despite the risk?" \
+      /SD IDNO IDYES done_return
+      StrCpy $UserRequestAbort 'true'
+      done_return:
+  ${EndIf}
 
 FunctionEnd
 
@@ -2944,9 +3479,9 @@ FunctionEnd
  * $R0 will contain the number of spaces.  When using the LogicLib, a check like
  * this can be done
  *
- * ${if} $R0 > 0
+ * ${If} $R0 > 0
  *   <do something>
- * ${endif}
+ * ${EndIf}
  *
  */
 Function CheckForSpaces
@@ -2987,9 +3522,9 @@ FunctionEnd
  */
 Function AddToPathExt
 
-  ${if} $IsAdminUser == "false"  ; TODO fix this
+  ${If} $IsAdminUser == "false"  ; TODO fix this
     Return
-  ${endif}
+  ${EndIf}
 
   ${StrTok} $0 $RegVal_rexxAssociation " " "0" "0"
   ${StrCase} $1 $0 "U"
@@ -3023,19 +3558,19 @@ FunctionEnd
  */
 Function InstallRxapi
 
-  ${if} $RxAPIInstallService == 1
+  ${If} $RxAPIInstallService == 1
     ; User asked to install rxapi as a service.
     DetailPrint "Installing rxapi as a Windows Service"
     nsExec::ExecToLog "$INSTDIR\rxapi /i /s"
     Pop $R0
 
-    ${if} $R0 == 0
+    ${If} $R0 == 0
       DetailPrint "rxapi successfully installed as a Windows Service"
       Call StartRxapi
     ${else}
       MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST "Failed to install rxapi as a Windows Service: $R0\n" /SD IDOK
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 /** CheckIsRxapiService()
@@ -3048,11 +3583,11 @@ Function CheckIsRxapiService
   services::IsServiceInstalled 'RXAPI'
   Pop $R0
 
-  ${if} $R0 == 'Yes'
+  ${If} $R0 == 'Yes'
     StrCpy $RxapiIsService 'true'
   ${else}
     StrCpy $RxapiIsService 'false'
-  ${endif}
+  ${EndIf}
 FunctionEnd
 
 /** CheckIsRxapirunning()
@@ -3065,26 +3600,26 @@ FunctionEnd
  *
  */
 Function CheckIsRxapiRunning
-  ${if} $RxapiIsService == 'true'
+  ${If} $RxapiIsService == 'true'
     services::IsServiceRunning 'RXAPI'
     Pop $R0
-    ${if} $R0 == 'Yes'
+    ${If} $R0 == 'Yes'
       StrCpy $RxapiIsRunning 'true'
     ${else}
       StrCpy $RxapiIsRunning 'false'
-    ${endif}
+    ${EndIf}
   ${else}
     ooRexxProcess::findProcess "rxapi.exe"
     Pop $R0
     DetailPrint "ooRexxProcess::findProcess rc: $R0"
-    ${if} $R0 == '0'
+    ${If} $R0 == '0'
       StrCpy $RxapiIsRunning 'true'
     ${elseif} $R0 == '1'
       StrCpy $RxapiIsRunning 'false'
     ${else}
       StrCpy $RxapiIsRunning 'unknown $R0'
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 /** StartRxapi()
@@ -3093,17 +3628,17 @@ FunctionEnd
  */
 Function StartRxapi
 
-  ${if} $RxAPIStartService == 1
+  ${If} $RxAPIStartService == 1
     ; User asked to start the rxapi service.
     Services::SendServiceCommand 'start' 'RXAPI'
     Pop $R0
 
-    ${if} $R0 == 'Ok'
+    ${If} $R0 == 'Ok'
       DetailPrint "The rxapi service was successfully sent the start command"
     ${else}
       MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST "Failed to start the ooRexx rxapi service: $R0" /SD IDOK
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
 FunctionEnd
 
@@ -3129,20 +3664,20 @@ FunctionEnd
  */
 Function StopRxapi
 
-  ${if} $RxapiIsService == 'true'
+  ${If} $RxapiIsService == 'true'
     Services::SendServiceCommand 'stop' 'RXAPI'
     Pop $R0
     Sleep 300
   ${else}
     ooRexxProcess::killProcess 'rxapi'
     Pop $R0
-  ${endif}
+  ${EndIf}
 
   Call CheckIsRxapiRunning
-  ${if} $RxapiIsRunning == 'false'
+  ${If} $RxapiIsRunning == 'false'
     Push 'Ok'
     return
-  ${endif}
+  ${EndIf}
 
   ; Still running, try one more time, it may be that the service has a stop
   ; pending.  Otherwise, this is probably a waste of time.  But, we will capture
@@ -3151,13 +3686,13 @@ Function StopRxapi
   ; above.
   ooRexxProcess::killProcess 'rxapi'
   Pop $R0
-  ${if} $R0 == 0
+  ${If} $R0 == 0
   ${orif} $R0 == 1
     Push 'Ok'
   ${else}
     Push $R0
     Push 'Error'
-  ${endif}
+  ${EndIf}
 FunctionEnd
 
 ;===============================================================================
@@ -3182,7 +3717,8 @@ Section "Uninstall"
    temporarily comment out orxscrpt stuff while it is disabled in the build.
 
    ; orxscrpt.dll needs to be degistered  NOTE WSH DLL name may have changed.
-   !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\orxscrpt.dll"
+   !insertmacro Un
+   InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "$INSTDIR\orxscrpt.dll"
    ;
    ; In the old WSH code, entering the orxscrpt.dll started up the interpreter.
    ; This may no longer be the case.  If it is, rxapi will need to be stopped
@@ -3191,11 +3727,11 @@ Section "Uninstall"
   */
 
   /* If we are doing an upgrade type of install, we leave everything as it was. */
-  ${if} $DoUpgrade == 'false'
-    ${if} $RxapiIsService == 'true'
+  ${If} $DoUpgrade == 'false'
+    ${If} $RxapiIsService == 'true'
       Call un.InstallRxapiService
       Pop $R0
-      ${if} $R0 != 0
+      ${If} $R0 != 0
         MessageBox MB_OK|MB_ICONSTOP \
         "Unexpected error removing the rxapi service.$\n$\n\
         The uninstall will abort.  Report this error to$\n\
@@ -3204,8 +3740,19 @@ Section "Uninstall"
         /SD IDOK
         SetErrorLevel 3
         Quit
-      ${endif}
-    ${endif}
+      ${EndIf}
+    ${EndIf}
+
+    ; One last check, see if rxapi.exe is locked.  We do this here and below
+    ; because we want to quit, if we are going to, before anything is undone.
+    ; Granted, we may have removed rxapi as a service above, but rxapi /i will
+    ; let the user reinstall it if nothing else is deleted.
+    StrCpy $CheckRxApiLock 'false'
+    Call un.CheckLockedFiles
+    ${If} $UserRequestAbort == 'true'
+      setErrorLevel 5
+      Quit
+    ${EndIf}
 
     ; Get rid of the file associations.  Also removes the extension from
     ; PATHEXT.
@@ -3221,7 +3768,32 @@ Section "Uninstall"
     Push "REXX_HOME"
     Push $IsAdminUser ; "true" or "false"
     Call un.DeleteEnvStr
-  ${endif}
+  ${EndIf}
+
+  ; One last check, see if rxapi.exe is locked.
+  ${If} $DoUpgrade == 'true'
+    StrCpy $CheckRxApiLock 'false'
+    Call un.CheckLockedFiles
+    ${If} $UserRequestAbort == 'true'
+      setErrorLevel 5
+      Quit
+    ${EndIf}
+  ${EndIf}
+
+  StrCpy $KeyFileName '$INSTDIR\${KEYFILE3}'
+
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+      MessageBox MB_OK|MB_ICONSTOP \
+      "Unexpected error the file:$\n$\n\
+        $KeyFileName$\n$\n\
+      is locked. The uninstall will abort.  Report $\n\
+      this error to the ${SHORTNAME} developers." \
+      /SD IDOK
+      SetErrorLevel 3
+      Quit
+  ${EndIf}
 
   ; Upgrade or not, we always remove the installation stuff.
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}"
@@ -3247,12 +3819,12 @@ Function un.onInit
   StrCpy $DoUpgradeQuick 'false'
 
   ${GetOptions} "$CMDLINE" "/U="  $R0
-  ${if} $R0 == 'upgrade'
+  ${If} $R0 == 'upgrade'
     StrCpy $DoUpgrade 'true'
   ${elseif} $R0 == 'upgradeQuick'
     StrCpy $DoUpgrade 'true'
     StrCpy $DoUpgradeQuick 'true'
-  ${endif}
+  ${EndIf}
 
   StrCpy $DeleteWholeTree 'false'
 
@@ -3261,9 +3833,16 @@ Function un.onInit
   ; UnInstall as All Users if an admin
   Call un.IsUserAdmin
   Pop $IsAdminUser
-  ${if} $IsAdminUser == "true"
+  ${If} $IsAdminUser == "true"
     SetShellVarContext all
-  ${endif}
+  ${EndIf}
+
+  StrCpy $CheckRxApiLock 'false'
+  Call un.CheckLockedFiles
+  ${If} $UserRequestAbort == 'true'
+    setErrorLevel 5
+    abort
+  ${EndIf}
 
   ; Read in the file associations done by the installer.
   ReadRegStr $RegVal_rexxAssociation HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "RexxAssociation"
@@ -3274,6 +3853,7 @@ Function un.onInit
   StrCpy $InStopRxapiPage 'false'
   Call un.CheckIsRxapiService
   Call un.CheckIsRxapiRunning
+
 FunctionEnd
 
 
@@ -3284,9 +3864,9 @@ FunctionEnd
  * the okay to stop it.  If the user says no, we quit the uninstall.
  */
 Function un.Ok_Stop_RxAPI_page
-  ${if} $RxapiIsRunning == 'false'
+  ${If} $RxapiIsRunning == 'false'
     Abort
-  ${endif}
+  ${EndIf}
 
   StrCpy $InStopRxapiPage 'true'
 
@@ -3296,7 +3876,7 @@ Function un.Ok_Stop_RxAPI_page
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
   ${NSD_CreateLabel} 0 0 100% 104u \
     "${SHORTNAME} can not be completely uninstalled while rxapi is running.$\n$\n\
@@ -3333,18 +3913,18 @@ Function un.Ok_Stop_RxAPI_leave
 
   ${NSD_GetState} $StopRxAPI_CK $StopRxAPI_CK_State
 
-  ${if} $StopRxAPI_CK_State == 0
+  ${If} $StopRxAPI_CK_State == 0
     SetErrorLevel 4
     Quit
-  ${endif}
+  ${EndIf}
 
   StrCpy $InStopRxapiPage 'false'
 
   Call un.StopRxapi
   Pop $R0
-  ${if} $R0 == 'Ok'
+  ${If} $R0 == 'Ok'
     Return
-  ${endif}
+  ${EndIf}
 
   ; rxapi was not stopped, the error code is now at top of stack
   Pop $R0
@@ -3371,6 +3951,99 @@ Function un.CheckOkToStopRxapiBack
   StrCpy $InStopRxapiPage 'false'
 FunctionEnd
 
+
+/** un.CheckLockedFiles()
+ *
+ * Helper function used to determine if files are locked.  This function is
+ * called on init of the uninstaller.  rxapi may or may not be running, so we
+ * don't check it.  If any of these files are locked, we know the install will
+ * be inconsistent.  If the files are locked we give the user a chance to close
+ * them and retry.
+ */
+Function un.CheckLockedFiles
+
+  StrCpy $UserRequestAbort 'false'
+
+check_lock_loop:
+
+  StrCpy $KeyFileName '$INSTDIR\${KEYFILE1}'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$INSTDIR\${KEYFILE2}'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  ; Key file 3 is rxapi.exe.  We only check it when we think it should be
+  ; stopped.
+  ${If} $CheckRxApiLock == 'true'
+    StrCpy $KeyFileName '$INSTDIR\${KEYFILE3}'
+    LockedList::IsFileLocked $KeyFileName
+    Pop $R0
+    ${If} $R0 == true
+      goto rexxIsRunning
+    ${EndIf}
+  ${EndIf}
+
+  StrCpy $KeyFileName '$INSTDIR\rexxhide.exe'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$INSTDIR\rexxpaws.exe'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$INSTDIR\ooDialog.exe'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  StrCpy $KeyFileName '$INSTDIR\ooDialog.dll'
+  LockedList::IsFileLocked $KeyFileName
+  Pop $R0
+  ${If} $R0 == true
+    goto rexxIsRunning
+  ${EndIf}
+
+  goto done_out
+
+  rexxIsRunning:
+      MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION|MB_TOPMOST \
+        "WARNING.  The file:$\n$\n\
+          $keyFileName$\n$\n\
+        is locked and can not be removed by the uninstaller.  This indicates$\n\
+        that not all Rexx programs have been halted$\n$\n\
+        Continuing with the uninstall in this case is known to cause problems.$\n$\n\
+        To Retry:$\n$\n\
+        Ensure all Rexx programs and processes are halted and then push$\n\
+        Retry.$\n$\n\
+        To Quit the uninstall and fix the problem:$\n$\n\
+        Push Cancel.  Determine which Rexx programs are open and close$\n\
+        them.  Ensure no other Rexx programs or processes are open.  Then$\n\
+        retry the uninstall." \
+        /SD IDCANCEL IDRETRY check_lock_loop
+
+        StrCpy $UserRequestAbort 'true'
+
+done_out:
+
+FunctionEnd
+
+
 /** un.Uninstall_By_Log_page()  Custom page function.
  *
  * This is a custom page that follows the page that checks if it is okay to
@@ -3387,7 +4060,7 @@ Function un.Uninstall_By_Log_page
   IfFileExists "$INSTDIR\${UninstLog}" 0 +4
     StrCpy $LogFileExists 'true'
 
-  ${if} $LogFileExists == 'false'
+  ${If} $LogFileExists == 'false'
     !insertmacro MUI_HEADER_TEXT \
       "${UninstLog} NOT found." \
       "The option of only removing files installed by the prior ooRexx installer is not available."
@@ -3413,26 +4086,26 @@ Function un.Uninstall_By_Log_page
       $INSTDIR folder.  This will include any folders or files not placed there by the ooRexx \
       installation."
 
-  ${endif}
+  ${EndIf}
 
   ; If the log file exists and we are doing an upgrade type of uninstall, then
   ; we don't show this page.  On the other hand, if we are doing an upgrade, but
   ; the install log is missing, we do show the page so that the user can cancel
   ; here.
 
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $LogFileExists == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 
   nsDialogs::Create /NOUNLOAD 1018
   Pop $Dialog
 
   ${If} $Dialog == error
     Abort
-  ${endif}
+  ${EndIf}
 
-  ${if} $LogFileExists == 'false'
+  ${If} $LogFileExists == 'false'
     ${NSD_CreateLabel} 0 0 100% 80u $0
     Pop $Label_One
 
@@ -3449,7 +4122,7 @@ Function un.Uninstall_By_Log_page
 
     ${NSD_CreateCheckBox} 0 120u 100% 8u "Delete entire directory tree"
     Pop $Delete_ooRexx_Tree_CK
-  ${endif}
+  ${EndIf}
 
   ; Set focus to the page dialog rather than the installer dialog, set focus to
   ; the check box, and then show the page dialog
@@ -3469,11 +4142,11 @@ Function un.Uninstall_By_Log_leave
 
   ${NSD_GetState} $Delete_ooRexx_Tree_CK $0
 
-  ${if} $0 == 1
+  ${If} $0 == 1
     StrCpy $DeleteWholeTree 'true'
   ${else}
     StrCpy $DeleteWholeTree 'false'
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -3485,10 +4158,10 @@ FunctionEnd
  *
  */
 Function un.Confirm_Page_pre
-  ${if} $DoUpgrade == 'true'
+  ${If} $DoUpgrade == 'true'
   ${andif} $DoUpgradeQuick == 'true'
     Abort
-  ${endif}
+  ${EndIf}
 FunctionEnd
 
 /** un.onCancelButton()  Call back function
@@ -3499,9 +4172,9 @@ FunctionEnd
  * we should just quit.
  */
 Function un.onCancelButton
-  ${if} $InStopRxapiPage == 'true'
+  ${If} $InStopRxapiPage == 'true'
     SetErrorLevel 4
-  ${endif}
+  ${EndIf}
 FunctionEnd
 
 /** un.Delete_Installed_Files()
@@ -3512,11 +4185,12 @@ FunctionEnd
  */
 Function un.Delete_Installed_Files
 
-  ${if} $DeleteWholeTree == 'true'
+  ${If} $DeleteWholeTree == 'true'
     DetailPrint "Uninstall files by deleting the $INSTDIR directory tree"
     RMDir /r "$INSTDIR"
     DetailPrint "Removing all Start Menu short cuts by removing the $SMPROGRAMS\${LONGNAME} folder"
     RMDir /r "$SMPROGRAMS\${LONGNAME}"
+    Delete "$DESKTOP\Open Object Rexx Resources.lnk"
 
   ${else}
     DetailPrint "Uninstall files using the install log file"
@@ -3559,7 +4233,7 @@ Function un.Delete_Installed_Files
     Pop $R2
     Pop $R1
     Pop $R0
-  ${endif}
+  ${EndIf}
 
   /*
    * Remove the send to entries unless we are doing an updgrade type. These
@@ -3569,12 +4243,12 @@ Function un.Delete_Installed_Files
    * If they do not exist, deleting them does not harm, i.e., there is no
    * warning or error rasised.
    */
-  ${if} $DoUpgrade == 'false'
+  ${If} $DoUpgrade == 'false'
     Delete "$SENDTO\ooRexx.lnk"
     Delete "$SENDTO\ooRexx with pause (rexxpaws).lnk"
     Delete "$SENDTO\ooRexx with no console (rexxhide).lnk"
     DetailPrint "Removed 'Send To' items (if any.)"
-  ${endif}
+  ${EndIf}
 
 FunctionEnd
 
@@ -3590,40 +4264,40 @@ FunctionEnd
  */
 Function un.InstallRxapiService
   Call un.CheckIsRxapiRunning
-  ${if} $$RxapiIsRunning == 'true'
+  ${If} $$RxapiIsRunning == 'true'
     Services::SendServiceCommand 'stop' 'rxapi'
     Pop $R0
 
-    ${if} $R0 != 'Ok'
+    ${If} $R0 != 'Ok'
       ; Seems impossible to get here, but if we did, we'll try to kill rxapi.
       ; If that fails we give up.
       DetailPrint "Service Control Manager failed to stop rxapi, forcing termination"
       ooRexxProcess::killProcess 'rxapi'
       Pop $R0
-      ${if} $R0 != 0
+      ${If} $R0 != 0
       ${andif} $R0 != 1
         Push $R0
         Return
-      ${endif}
-    ${endif}
-  ${endif}
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
 
   DetailPrint "Uninstalling ooRexx rxapi Service"
   nsExec::ExecToLog "$INSTDIR\rxapi /u /s"
   Pop $R0
 
-  ${if} $R0 != 0
+  ${If} $R0 != 0
     ; One reason for this could be that rxapi.exe, the file, has been deleted.
     ; We'll try to handle this case by having the service manager delete the
     ; service.  This can be done even if rxapi.exe is missing.
     Services::SendServiceCommand 'delete' 'rxapi'
     Pop $R0
-    ${if} $R0 != 'Ok'
+    ${If} $R0 != 'Ok'
       DetailPrint "Failed to uninstall rxapi as a service.  Reason: $R0"
       Push $R0
       Return
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
   DetailPrint "Uninstalled rxapi as a service"
   Push 0
@@ -3645,7 +4319,7 @@ Function un.DeleteFileAssociations
 
   ; We will put the file extension in $0 and the ftype in $1
 
-  ${if} $RegVal_rexxAssociation != ''
+  ${If} $RegVal_rexxAssociation != ''
     ${UnStrTok} $0 $RegVal_rexxAssociation " " "0" "0"
     ${UnStrTok} $1 $RegVal_rexxAssociation " " "1" "0"
 
@@ -3653,45 +4327,45 @@ Function un.DeleteFileAssociations
     ; read from the registry should match the ftype we saved in our uninstall
     ; strings.
     ReadRegStr $2 HKCR "$0" ""
-    ${if} $1 == $2
+    ${If} $1 == $2
       DeleteRegKey HKCR "$0"
       DeleteRegKey HKCR "$1"
       DetailPrint "Deleted file association for $0"
 
       push $0
       Call un.AddToPathExt
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
-  ${if} $RegVal_rexxHideAssociation != ''
+  ${If} $RegVal_rexxHideAssociation != ''
     ${UnStrTok} $0 $RegVal_rexxHideAssociation " " "0" "0"
     ${UnStrTok} $1 $RegVal_rexxHideAssociation " " "1" "0"
 
     ReadRegStr $2 HKCR "$0" ""
-    ${if} $1 == $2
+    ${If} $1 == $2
       DeleteRegKey HKCR "$0"
       DeleteRegKey HKCR "$1"
       DetailPrint "Deleted file association for $0"
 
       push $0
       Call un.AddToPathExt
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
-  ${if} $RegVal_rexxPawsAssociation != ''
+  ${If} $RegVal_rexxPawsAssociation != ''
     ${UnStrTok} $0 $RegVal_rexxPawsAssociation " " "0" "0"
     ${UnStrTok} $1 $RegVal_rexxPawsAssociation " " "1" "0"
 
     ReadRegStr $2 HKCR "$0" ""
-    ${if} $1 == $2
+    ${If} $1 == $2
       DeleteRegKey HKCR "$0"
       DeleteRegKey HKCR "$1"
       DetailPrint "Deleted file association for $0"
 
       push $0
       Call un.AddToPathExt
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 
   System::Call 'Shell32::SHChangeNotify(i ${SHCNE_ASSOCCHANGED}, i ${SHCNF_IDLIST}, i 0, i 0)'
 
@@ -3718,9 +4392,9 @@ Function un.AddToPathExt
 
   Pop $R0
 
-  ${if} $IsAdminUser == "false"
+  ${If} $IsAdminUser == "false"
     Return
-  ${endif}
+  ${EndIf}
 
   DetailPrint "Removing the $R0 extension from PATHEXT."
   Push $R0
@@ -3738,11 +4412,11 @@ Function un.CheckIsRxapiService
 
   services::IsServiceInstalled 'RXAPI'
   Pop $R0
-  ${if} $R0 == 'Yes'
+  ${If} $R0 == 'Yes'
     StrCpy $RxapiIsService 'true'
   ${else}
     StrCpy $RxapiIsService 'false'
-  ${endif}
+  ${EndIf}
 FunctionEnd
 
 /** un.CheckIsRxapiRunning()
@@ -3756,26 +4430,26 @@ FunctionEnd
  */
 Function un.CheckIsRxapiRunning
 
-  ${if} $RxapiIsService == 'true'
+  ${If} $RxapiIsService == 'true'
     services::IsServiceRunning 'RXAPI'
     Pop $R0
-    ${if} $R0 == 'Yes'
+    ${If} $R0 == 'Yes'
       StrCpy $RxapiIsRunning 'true'
     ${else}
       StrCpy $RxapiIsRunning 'false'
-    ${endif}
+    ${EndIf}
   ${else}
     ooRexxProcess::findProcess "rxapi.exe"
     Pop $R0
     DetailPrint "ooRexxProcess::findProcess rc: $R0"
-    ${if} $R0 == '0'
+    ${If} $R0 == '0'
       StrCpy $RxapiIsRunning 'true'
     ${elseif} $R0 == '1'
       StrCpy $RxapiIsRunning 'false'
     ${else}
       StrCpy $RxapiIsRunning 'unknown $R0'
-    ${endif}
-  ${endif}
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 
 /** un.StopRxapi()
@@ -3800,20 +4474,20 @@ FunctionEnd
  */
 Function un.StopRxapi
 
-  ${if} $RxapiIsService == 'true'
+  ${If} $RxapiIsService == 'true'
     Services::SendServiceCommand 'stop' 'RXAPI'
     Pop $R0
     Sleep 300
   ${else}
     ooRexxProcess::killProcess 'rxapi'
     Pop $R0
-  ${endif}
+  ${EndIf}
 
   Call un.CheckIsRxapiRunning
-  ${if} $RxapiIsRunning == 'false'
+  ${If} $RxapiIsRunning == 'false'
     Push 'Ok'
     return
-  ${endif}
+  ${EndIf}
 
   ; Still running, try one more time, it may be that the service has a stop
   ; pending.  Otherwise, this is probably a waste of time.  But, we will capture
@@ -3822,13 +4496,13 @@ Function un.StopRxapi
   ; above.
   ooRexxProcess::killProcess 'rxapi'
   Pop $R0
-  ${if} $R0 == 0
+  ${If} $R0 == 0
   ${orif} $R0 == 1
     Push 'Ok'
   ${else}
     Push $R0
     Push 'Error'
-  ${endif}
+  ${EndIf}
 FunctionEnd
 
 ;eof

@@ -208,7 +208,6 @@ classesHeaders = $(build_classes_dir)/ArrayClass.hpp \
                  $(build_classes_dir)/TableClass.hpp \
                  $(build_classes_dir)/WeakReferenceClass.hpp \
                  $(build_classes_dir)/StackFrameClass.hpp \
-                 $(build_classes_dir)/ExceptionClass.hpp\
                  $(build_classes_dir)/BlockClass.hpp
 classesSupportHeaders = $(build_classes_support_dir)/ProgramMetaData.hpp \
                         $(build_classes_support_dir)/RexxCollection.hpp \
@@ -593,7 +592,6 @@ classes_sources = $(build_classes_dir)/ArrayClass.cpp \
                   $(build_classes_dir)/IdentityTableClass.cpp \
                   $(build_classes_dir)/WeakReferenceClass.cpp \
                   $(build_classes_dir)/StackFrameClass.cpp \
-                  $(build_classes_dir)/ExceptionClass.cpp \
                   $(build_classes_dir)/BlockClass.cpp
 package_sources = $(build_package_dir)/LibraryPackage.cpp \
                   $(build_package_dir)/PackageManager.cpp
@@ -964,7 +962,7 @@ librxsock_la_CXXFLAGS = $(COMMON_CPPFLAGS) \
 #
 # Extra libraries for librxsock.so (maybe)
 #
-librxsock_la_LIBADD  = @ORX_LIBADD_LIBRARY@
+librxsock_la_LIBADD  = @ORX_LIBADD_LIBRARY@ @ORX_LDFLAGS_OS_EXTRA@
 librxsock_la_LDFLAGS = $(VERSION_INFO) @ORX_LDFLAGS_LIBRARY@
 
 #################### librxregexp.so ################

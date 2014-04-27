@@ -285,3 +285,23 @@ RexxObject *StackFrameClass::getTarget()
     }
     return target;
 }
+
+/**
+ * Default string method override
+ *
+ * @return The trace line
+ */
+RexxString *StackFrameClass::stringValue()
+{
+    return getTraceLine();
+}
+
+/**
+ * Default makestring method override
+ *
+ * @return The trace line
+ */
+RexxString *StackFrameClass::makeString()
+{
+    return getTraceLine();
+}

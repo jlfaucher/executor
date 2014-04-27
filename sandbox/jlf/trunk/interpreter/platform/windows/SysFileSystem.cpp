@@ -171,7 +171,7 @@ void SysFileSystem::qualifyStreamName(const char *unqualifiedName, char *qualifi
     }
     /* get the fully expanded name       */
     errorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-    GetFullPathName(qualifiedName, (DWORD)bufferSize, qualifiedName, &lpszLastNamePart);
+    DWORD rc = GetFullPathName(qualifiedName, (DWORD)bufferSize, qualifiedName, &lpszLastNamePart);
     SetErrorMode(errorMode);
 }
 
@@ -222,7 +222,12 @@ bool SysFileSystem::findFirstFile(const char *name)
  */
 bool SysFileSystem::fileExists(const char *name)
 {
-    return findFirstFile(name);
+    DWORD dwAttrib = GetFileAttributes(name);
+
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+         !((dwAttrib & FILE_ATTRIBUTE_SYSTEM)
+          || (dwAttrib & FILE_ATTRIBUTE_HIDDEN)
+          || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY)));
 }
 
 
@@ -403,7 +408,7 @@ bool SysFileSystem::primitiveSearchName(const char *name, const char *path, cons
     strncpy(tempName, name, sizeof(tempName));
     if (extension != NULL)
     {
-        strncat(tempName, extension, sizeof(tempName));
+        strncat(tempName, extension, sizeof(tempName) - strlen(tempName) - 1);
     }
 
     *resolvedName = '\0';
@@ -880,7 +885,7 @@ SysFileIterator::SysFileIterator(const char *p)
     // save the pattern and convert into a wild card
     // search
     strncpy(pattern, p, sizeof(pattern));
-    strncat(pattern, "\\*", sizeof(pattern));
+    strncat(pattern, "\\*", sizeof(pattern) - strlen(pattern) - 1);
 
     // this assumes we'll fail...if we find something,
     // we'll flip this

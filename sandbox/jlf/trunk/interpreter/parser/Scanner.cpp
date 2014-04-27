@@ -951,19 +951,9 @@ RexxToken *RexxSource::sourceNextToken(
                     }
                 }
                 else if (inch == '.')
-                {        /* may have an environmental symbol  */
-                         /* get the second character          */
-                    inch = this->current[size_v(start + 1)];
-                    /* have a digit?                     */
-                    if (inch >= '0' && inch <= '9')
-                    {
-                        subclass = SYMBOL_CONSTANT;/* have a constant symbol            */
-                    }
-                    else
-                    {
-                        /* this is an environment symbol     */
-                        subclass = SYMBOL_DOTSYMBOL;
-                    }
+                {
+                   /* this is an environment symbol     */
+                   subclass = SYMBOL_DOTSYMBOL;
                 }
                 else
                 {                         /* variable type symbol              */

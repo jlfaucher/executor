@@ -97,8 +97,6 @@
 #define TheIdentityTableClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_IdentityTableClass])
 #define TheStackFrameBehaviour      (&RexxBehaviour::primitiveBehaviours[T_StackFrame])
 #define TheStackFrameClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_StackFrameClass])
-#define TheExceptionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Exception])
-#define TheExceptionClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_ExceptionClass])
 #define TheRexxBlockBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxBlock])
 #define TheRexxBlockClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxBlockClass])
 #define TheNilObjectBehaviour      (&RexxBehaviour::primitiveBehaviours[T_NilObject])

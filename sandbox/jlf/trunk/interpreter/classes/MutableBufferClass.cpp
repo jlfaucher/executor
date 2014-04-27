@@ -185,7 +185,7 @@ RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, const char *charsetNa
     data = new_buffer(bufferLength);
     this->setBLength(0);
     this->setCLength(0);
-    
+
     CHARSET *_charset = NULL;
     if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
     if (_charset == NULL) _charset = m17n_default_charset();
@@ -211,7 +211,7 @@ RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, CHARSET *_charset, EN
     data = new_buffer(bufferLength);
     this->setBLength(0);
     this->setCLength(0);
-    
+
     this->setCharset(_charset ? _charset : m17n_default_charset());
     this->setEncoding(_encoding ? _encoding : _charset->preferred_encoding);
 }
@@ -332,6 +332,61 @@ void RexxMutableBuffer::ensureCapacity(sizeC_t addedLength)
 	this->ensureCapacity(resultLength);
 }
 #endif
+
+
+/**
+ * Set the length of the data in the buffer.  The limit is
+ * the current capacity of the buffer.  If the length is
+ * extended beyond the current length, the extra characters
+ * of the buffer will be filled with nulls.
+ *
+ * @param newLength The new datalength.  This is capped to the capacity of
+ *                  the buffer.
+ *
+ * @return The actual length the data has been set to.  If the
+ *         target length is greater than the capacity, the capacity
+ *         value is returned.
+ */
+sizeB_t RexxMutableBuffer::setDataLength(sizeB_t newLength)
+{
+    // cap the data length at the capacity
+    sizeB_t capacity = this->getCapacity();
+    if (newLength > capacity)
+    {
+        newLength = capacity;
+    }
+
+    sizeB_t oldLength = this->getBLength();
+    // set the new buffer length
+    dataBLength = newLength;
+    // todo m17n : dataCLength
+    // do we need to pad?
+    if (newLength > oldLength)
+    {
+        this->setData(oldLength, '\0', newLength - oldLength);
+    }
+
+    return newLength;
+}
+
+/**
+ * Set the capacity of the buffer.
+ *
+ * @param newLength The new buffer length
+ *
+ * @return The pointer to the data area in the buffer.
+ */
+char *RexxMutableBuffer::setCapacity(size_t newLength)
+{
+    // if the new length is longer than our current,
+    // extend by the delta
+    if (newLength > bufferLength)
+    {
+        ensureCapacity(newLength - bufferLength);
+    }
+    // return a pointer to the current buffer data
+    return getData();
+}
 
 
 /**

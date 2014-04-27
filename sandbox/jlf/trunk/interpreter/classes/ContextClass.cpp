@@ -322,3 +322,16 @@ RexxObject *RexxContext::getName()
     checkValid();
     return activation->getCallname();
 }
+
+/**
+ * Retrieve the stack frames from the current context.
+ *
+ * @return A list of the current stack frames.
+ */
+RexxObject *RexxContext::getStackFrames()
+{
+    checkValid();
+    // we don't want to include the stackframes frame in the list, so ask
+    // that it be skipped.
+    return activation->getStackFrames(true);
+}

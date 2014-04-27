@@ -147,6 +147,7 @@ class RexxSource : public RexxInternalObject {
     bool        reconnect();
     void        setReconnect();
     void        setBufferedSource(RexxBuffer *newSource) { this->initBuffered(newSource); }
+    void        interpretLine(size_t);
     void        adjustLine(size_t, size_t);
     void        comment();
     void        needVariable(RexxToken *);
@@ -172,7 +173,7 @@ class RexxSource : public RexxInternalObject {
     void        nextClause();
     RexxToken  *sourceNextToken(RexxToken *);
     RexxToken  *sourceLiteral(size_t, SourceLocation);
-    RexxString *traceBack(SourceLocation &, size_t, bool);
+    RexxString *traceBack(RexxActivation *, SourceLocation &, size_t, bool);
     RexxString *extract(SourceLocation &, bool=false);
     RexxArray  *extractSource(SourceLocation &);
     RexxArray  *extractSource();
@@ -198,9 +199,6 @@ class RexxSource : public RexxInternalObject {
     RoutineClass *findRoutine(RexxString *);
     RoutineClass *findLocalRoutine(RexxString *);
     RoutineClass *findPublicRoutine(RexxString *);
-    void findRoutines(RexxString *routineName, RexxArray *routines);
-    void findLocalRoutines(RexxString *routineName, RexxArray *routines);
-    void findPublicImportedRoutines(RexxString *routineName, RexxArray *routines);
     RexxClass  *findClass(RexxString *);
     RexxClass  *findInstalledClass(RexxString *name);
     RexxClass  *findPublicClass(RexxString *name);
@@ -322,6 +320,7 @@ class RexxSource : public RexxInternalObject {
     inline void        syntaxError(int errorcode, RexxObject *a1, RexxObject *a2, RexxObject *a3) { this->error(errorcode, a1, a2, a3); }
     inline void        syntaxError(int errorcode, RexxToken *token) { this->errorToken(errorcode, token); }
     inline void        syntaxError(int errorcode) { this->error(errorcode); }
+    inline bool        isInternalCode() { return this->isOldSpace(); }
     StackFrameClass *createStackFrame();
 
     RexxInstruction *addressNew();

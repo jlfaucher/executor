@@ -140,6 +140,16 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2014 apr 27
+
+Merge revisions 9515-9978 from SourceForge main/trunk
+
+Remove oodialog :
+main/trunk/extensions/platform/windows/oodialog
+main/trunk/samples/windows/oodialog
+
+
+===============================================================================
 2014 jan 26
 
 [operator]
@@ -4612,3 +4622,17 @@ merge 7771-8678 from main/trunk
 merge 8678-9423 from main/trunk
 
 merge 9423-9515 from main/trunk
+
+merge 9515-9978 from main/trunk
+remove oodialog :
+main/trunk/extensions/platform/windows/oodialog
+main/trunk/samples/windows/oodialog
+
+
+Remember Cornerstone :
+Merge by cherry-pick, option ignore line endings
+To solve conflict, select file, then Working Copy/Resolve conflict using File Merge
+In FileMerge, if you don't see the merged file, then drag the splitter bar at the bottom of the window
+In FileMerge, there is a default merge applied, even on conflicted area.
+If the default merge is ok, then just File/Save merge.
+Back in Cornerstone, click the button Resolve.

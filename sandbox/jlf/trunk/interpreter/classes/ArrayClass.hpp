@@ -52,7 +52,7 @@
 #define ExtendUpper         0x00000010
 
 
-typedef struct copyElelmentParm {
+typedef struct copyElementParm {
    size_t firstChangedDimension;
    RexxArray *newArray;
    RexxArray *newDimArray;
@@ -167,6 +167,7 @@ typedef struct copyElelmentParm {
    size_t       items();
    RexxObject  *itemsRexx();
    RexxObject  *dimension(RexxObject *);
+   RexxObject  *getDimensions();
    size_t       getDimension();
    RexxObject  *supplier();
    RexxObject  *join(RexxArray *);
@@ -180,6 +181,7 @@ typedef struct copyElelmentParm {
    RexxObject  *of(RexxObject **, size_t);
    RexxObject  *empty();
    RexxObject  *isEmpty();
+   RexxObject  *fill(RexxObject *);
    RexxObject  *index(RexxObject *);
    RexxObject  *hasItem(RexxObject *);
    RexxObject  *removeItem(RexxObject *);
@@ -206,6 +208,8 @@ typedef struct copyElelmentParm {
 
    inline bool isMultiDimensional() { return this->dimensions != OREF_NULL && this->dimensions->size() != 1; }
    inline bool isSingleDimensional() { return !isMultiDimensional(); }
+
+   static RexxArray *createMultidimensional(RexxObject **dims, size_t count, RexxClass *);
 
    static void createInstance();
    // singleton class instance;
