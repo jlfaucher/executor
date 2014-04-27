@@ -46,7 +46,7 @@
 
 
 
-LocalRegistrationManager::LocalRegistrationManager() : LocalAPISubsystem()
+LocalRegistrationManager::LocalRegistrationManager() : locked(false), LocalAPISubsystem()
 {
     // no state in this
 }
@@ -114,6 +114,23 @@ RexxReturnCode LocalRegistrationManager::registerCallback(RegistrationType type,
  */
 RegistrationTable &LocalRegistrationManager::locateTable(RegistrationType type)
 {
+    // if this is the first request for local registration information, we need to
+    // lock the rxapi library into memory by requesting an additional load.  This
+    // is necessary because some apps dynamically load rexxapi, call a function, then
+    // unload the library.  This wipes out the local registration tables.  By doing a
+    // second load, then we are protected until the process goes away.
+    if (!locked)
+    {
+        SysLibrary lib;
+        // not necessarily an error if this fails, but we will be subject to
+        // the loading/unloading behavior.  It is possible this might not be
+        // an issue for most applications, so an error doesn't really seem necessary.
+        if (lib.load("rexxapi"))
+        {
+            locked = true;
+        }
+    }
+
     if (type == FunctionAPI)
     {
         return functions;
@@ -337,17 +354,7 @@ RexxReturnCode LocalRegistrationManager::resolveCallback(RegistrationType type, 
  */
 RexxReturnCode LocalRegistrationManager::processServiceException(ServiceException *e)
 {
-    switch (e->getErrorCode())
-    {
-        case CALLBACK_NOT_FOUND:
-            return RXSUBCOM_NOTREG;
-
-        case DROP_NOT_AUTHORIZED:
-            return RXSUBCOM_NOCANDROP;
-
-        default:
-            return RXAPI_MEMFAIL;
-    }
+    return RXAPI_MEMFAIL;
 }
 
 
@@ -361,15 +368,5 @@ RexxReturnCode LocalRegistrationManager::processServiceException(ServiceExceptio
  */
 RexxReturnCode LocalRegistrationManager::mapReturnResult(ServiceMessage &m)
 {
-    switch (m.result)
-    {
-        case CALLBACK_NOT_FOUND:
-            return RXSUBCOM_NOTREG;
-
-        case DROP_NOT_AUTHORIZED:
-            return RXSUBCOM_NOCANDROP;
-
-        default:
-            return RXSUBCOM_OK;
-    }
+    return RXSUBCOM_OK;
 }

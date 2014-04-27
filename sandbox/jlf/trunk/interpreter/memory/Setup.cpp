@@ -86,7 +86,6 @@
 #include "PackageClass.hpp"
 #include "ContextClass.hpp"
 #include "StackFrameClass.hpp"
-#include "ExceptionClass.hpp"
 #include "BlockClass.hpp"
 
 
@@ -222,7 +221,6 @@ void RexxMemory::createImage()
   RexxBuffer::createInstance();
   WeakReference::createInstance();
   StackFrameClass::createInstance();
-  ExceptionClass::createInstance();
   RexxBlock::createInstance();
 
                                        /* build the common retriever tables */
@@ -367,6 +365,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_BRACKETSEQUAL,TheArrayBehaviour, CPPM(RexxArray::putRexx), A_COUNT);
   defineKernelMethod(CHAR_AT           ,TheArrayBehaviour, CPPM(RexxArray::getRexx), A_COUNT);
   defineKernelMethod(CHAR_DIMENSION    ,TheArrayBehaviour, CPPM(RexxArray::dimension), 1);
+  defineKernelMethod("DIMENSIONS"      ,TheArrayBehaviour, CPPM(RexxArray::getDimensions), 0);
   defineKernelMethod(CHAR_HASINDEX     ,TheArrayBehaviour, CPPM(RexxArray::hasIndexRexx), A_COUNT);
   defineKernelMethod(CHAR_ITEMS        ,TheArrayBehaviour, CPPM(RexxArray::itemsRexx), 0);
   defineKernelMethod(CHAR_MAKEARRAY    ,TheArrayBehaviour, CPPM(RexxObject::makeArrayRexx), 0);
@@ -393,6 +392,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_REMOVEITEM   ,TheArrayBehaviour, CPPM(RexxArray::removeItem), 1);
   defineKernelMethod(CHAR_INSERT       ,TheArrayBehaviour, CPPM(RexxArray::insertRexx), 2);
   defineKernelMethod(CHAR_DELETE       ,TheArrayBehaviour, CPPM(RexxArray::deleteRexx), 1);
+  defineKernelMethod("FILL"            ,TheArrayBehaviour, CPPM(RexxArray::fill), 1);
   // there have been some problems with the quick sort used as the default sort, so map everything
   // to the stable sort.  The stable sort, in theory, uses more memory, but in practice, this is not true.
   defineKernelMethod(CHAR_SORT         ,TheArrayBehaviour, CPPM(RexxArray::stableSortRexx), 0);
@@ -651,7 +651,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_NEW     ,TheRexxContextClassBehaviour, CPPM(RexxContext::newRexx), A_COUNT);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
-  TheRexxContextBehaviour->setMethodDictionaryScope(TheRexxContextClass);
+  TheRexxContextClassBehaviour->setMethodDictionaryScope(TheRexxContextClass);
 
   defineKernelMethod(CHAR_COPY          ,TheRexxContextBehaviour, CPPM(RexxContext::copyRexx), 0);
   defineKernelMethod(CHAR_PACKAGE       ,TheRexxContextBehaviour, CPPM(RexxContext::getPackage), 0);
@@ -666,6 +666,7 @@ void RexxMemory::createImage()
   defineKernelMethod("LINE"             ,TheRexxContextBehaviour, CPPM(RexxContext::getLine), 0);
   defineKernelMethod("RS"               ,TheRexxContextBehaviour, CPPM(RexxContext::getRS), 0);
   defineKernelMethod(CHAR_NAME          ,TheRexxContextBehaviour, CPPM(RexxContext::getName), 0);
+  defineKernelMethod("STACKFRAMES"      ,TheRexxContextBehaviour, CPPM(RexxContext::getStackFrames), 0);
   defineKernelMethod(CHAR_PARENTCONTEXT ,TheRexxContextBehaviour, CPPM(RexxContext::getParentContextObject), 0);
 
                                        /* Add the instance methods to the   */
@@ -1359,6 +1360,10 @@ void RexxMemory::createImage()
   defineKernelMethod("TARGET", TheStackFrameBehaviour, CPPM(StackFrameClass::getTarget), 0);
   defineKernelMethod("TRACELINE", TheStackFrameBehaviour, CPPM(StackFrameClass::getTraceLine), 0);
   defineKernelMethod("TYPE", TheStackFrameBehaviour, CPPM(StackFrameClass::getType), 0);
+  defineKernelMethod("ARGUMENTS", TheStackFrameBehaviour, CPPM(StackFrameClass::getArguments), 0);
+  // the string method just maps to TRACELINE
+  defineKernelMethod("STRING", TheStackFrameBehaviour, CPPM(StackFrameClass::getTraceLine), 0);
+  defineKernelMethod("MAKESTRING", TheStackFrameBehaviour, CPPM(StackFrameClass::getTraceLine), 0);
 
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
@@ -1367,38 +1372,6 @@ void RexxMemory::createImage()
                                        /* Now call the class subclassable   */
                                        /* method                            */
   TheStackFrameClass->subClassable(false);
-
-  /***************************************************************************/
-  /*           EXCEPTION                                                     */
-  /***************************************************************************/
-                                       /* Add the NEW methods to the class  */
-                                       /* behaviour mdict                   */
-  defineKernelMethod(CHAR_NEW, TheExceptionClassBehaviour, CPPM(ExceptionClass::newRexx), A_COUNT);
-                                       /* set the scope of the methods to   */
-                                       /* this classes oref                 */
-  TheExceptionClassBehaviour->setMethodDictionaryScope(TheExceptionClass);
-
-
-                                       /* Add the instance methods to the   */
-                                       /* instance behaviour mdict          */
-  defineKernelMethod("INIT", TheExceptionBehaviour, CPPM(ExceptionClass::init), 5);
-  defineKernelMethod("TYPE", TheExceptionBehaviour, CPPM(ExceptionClass::getType), 0);
-  defineKernelMethod("MESSAGE", TheExceptionBehaviour, CPPM(ExceptionClass::getMessage), 0);
-  defineKernelMethod("DESCRIPTION", TheExceptionBehaviour, CPPM(ExceptionClass::getDescription), 0);
-  defineKernelMethod("ADDITIONAL", TheExceptionBehaviour, CPPM(ExceptionClass::getAdditional), 0);
-  defineKernelMethod("CAUSE", TheExceptionBehaviour, CPPM(ExceptionClass::getCause), 0);
-  defineKernelMethod("STACKFRAMES", TheExceptionBehaviour, CPPM(ExceptionClass::getStackFrames), 0);
-  defineKernelMethod("TRACEBACK", TheExceptionBehaviour, CPPM(ExceptionClass::getTraceBack), 0);
-  defineKernelMethod("CONDITION", TheExceptionBehaviour, CPPM(ExceptionClass::getCondition), 0);
-  defineKernelMethod("FILLINSTACKTRACE", TheExceptionBehaviour, CPPM(ExceptionClass::fillInStackTrace), 0);
-
-                                       /* set the scope of the methods to   */
-                                       /* this classes oref                 */
-  TheExceptionBehaviour->setMethodDictionaryScope(TheExceptionClass);
-
-                                       /* Now call the class subclassable   */
-                                       /* method                            */
-  TheExceptionClass->subClassable(false);
 
   /***************************************************************************/
   /*           RexxBlock                                                     */

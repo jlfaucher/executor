@@ -848,7 +848,7 @@ RexxDirectory *RexxActivity::createExceptionObject(wholenumber_t  errcode,
     char work[32];
                                          /* format the number (string) into   */
                                          /*  work buffer.                     */
-    sprintf(work,"%d.%1d", errcode/1000, errcode - primary);
+    sprintf(work,"%ld.%1ld", errcode/1000, errcode - primary);
     RexxString *code = new_string(work); /* get the formatted code            */
     exobj->put(code, OREF_CODE);
 
@@ -932,32 +932,26 @@ void RexxActivity::generateProgramInformation(RexxDirectory *exobj)
     exobj->put(traceback, OREF_TRACEBACK);
 
     ActivationFrame *frame = activationFrames;
-    while (frame != OREF_NULL && frame->getSource() == OREF_NULL)
+
+    RexxSource *source = OREF_NULL;
+    StackFrameClass *firstFrame = OREF_NULL;
+
+    while (frame != NULL)
     {
+        StackFrameClass *stackFrame = frame->createStackFrame();
+        // save the topmost source object we can find for error reporting
+        if (source == OREF_NULL && frame->getSource() != OREF_NULL)
+        {
+            firstFrame = stackFrame;
+            source = frame->getSource();
+        }
+        stackFrames->append(stackFrame);
+        traceback->append(stackFrame->getTraceLine());
         frame = frame->next;
     }
 
-    RexxSource *source = OREF_NULL;
-
-    // if we have a frame, then process the list
-    if (frame != NULL)
+    if (firstFrame != OREF_NULL)
     {
-        StackFrameClass *firstFrame = frame->createStackFrame();
-        // save the source object associated with that frame
-        source = frame->getSource();
-        stackFrames->append(firstFrame);
-        traceback->append(firstFrame->getTraceLine());
-
-        // step to the next frame
-        frame = frame->next;
-        while (frame != NULL)
-        {
-            StackFrameClass *stackFrame = frame->createStackFrame();
-            stackFrames->append(stackFrame);
-            traceback->append(stackFrame->getTraceLine());
-            frame = frame->next;
-        }
-
         RexxObject *lineNumber = firstFrame->getLine();
         if (lineNumber != TheNilObject)
         {
@@ -966,64 +960,51 @@ void RexxActivity::generateProgramInformation(RexxDirectory *exobj)
         }
     }
 
-    if (source != OREF_NULL)             /* have source for this?             */
+    // if we have source, and this is not part of the interpreter image,
+    // add program information
+    if (source != OREF_NULL && !source->isOldSpace())             /* have source for this?             */
     {
         exobj->put(source->getProgramName(), OREF_PROGRAM);
         exobj->put(source->getPackage(), OREF_PACKAGE);
     }
     else
     {
-        // if not available, then this is explicitly a NULLSTRINg.
+        // if not available, then this is explicitly a NULLSTRING.
         exobj->put(OREF_NULLSTRING, OREF_PROGRAM);
     }
-}
-
-
-RexxActivation *RexxActivity::getFirstRexxFrameWithLoadedPackages()
-{
-    if (this->firstRexxFrameWithLoadedPackages != OREF_NULL) return this->firstRexxFrameWithLoadedPackages;
-    for (RexxActivationBase *activation = this->getTopStackFrame() ; !activation->isStackBase(); activation = activation->getPreviousStackFrame())
-    {
-        if (activation->isRexxContext())
-        {
-            RexxActivation *rexxActivation = (RexxActivation *)activation;
-            RexxSource *source = rexxActivation->getSourceObject();
-            if (source == OREF_NULL) continue;
-            if (source->getPackages() != OREF_NULL) this->firstRexxFrameWithLoadedPackages = rexxActivation;
-        }
-    }
-    return this->firstRexxFrameWithLoadedPackages;
 }
 
 
 /**
  * Generate a list of stack frames for an Exception object.
  *
- * @return A list of the stack frames in the call context.
+ * @param skipFirst Determines if we should skip the first frame.  Used primarily
+ *                  for the RexxContext stackFrames() method to avoid returning
+ *                  the stackframes method as the first item.
+ *
+ * @return An array of the stack frames in the call context.
  */
-RexxList *RexxActivity::generateStackFrames()
+RexxArray *RexxActivity::generateStackFrames(bool skipFirst)
 {
     // create lists for both the stack frames and the traceback lines
-    RexxList *stackFrames = new_list();
+    RexxArray *stackFrames = new_array((size_t)0);
     ProtectedObject p(stackFrames);
 
     ActivationFrame *frame = activationFrames;
-    while (frame != OREF_NULL && frame->getSource() == OREF_NULL)
-    {
-        frame = frame->next;
-    }
 
-    RexxSource *source = OREF_NULL;
-
-    // if we have a frame, then process the list
-    if (frame != NULL)
+    while (frame != NULL)
     {
-        while (frame != NULL)
+        // if asked to skip the first frame, just turn the flag off
+        // and go around again
+        if (skipFirst)
         {
+            skipFirst = false;
+        }
+        else {
             StackFrameClass *stackFrame = frame->createStackFrame();
             stackFrames->append(stackFrame);
-            frame = frame->next;
         }
+        frame = frame->next;
     }
     return stackFrames;
 }
@@ -1165,7 +1146,7 @@ void RexxActivity::reraiseException(RexxDirectory *exobj)
         char            work[10];            /* temp buffer for formatting        */
              /* format the number (string) into   */
              /*  work buffer.                     */
-        sprintf(work,"%1d%3.3d", errornumber/1000, errornumber - primary);
+        sprintf(work,"%1ld%3.3ld", errornumber/1000, errornumber - primary);
         errornumber = atol(work);          /* convert to a long value           */
                                            /* retrieve the secondary message    */
         RexxString *message = SystemInterpreter::getMessageText(errornumber);
@@ -1367,7 +1348,6 @@ void RexxActivity::live(size_t liveMark)
   memory_mark(this->activations);
   memory_mark(this->topStackFrame);
   memory_mark(this->currentRexxFrame);
-  memory_mark(this->firstRexxFrameWithLoadedPackages);
   memory_mark(this->conditionobj);
   memory_mark(this->requiresTable);
   memory_mark(this->waitingObject);
@@ -1393,7 +1373,6 @@ void RexxActivity::liveGeneral(int reason)
   memory_mark_general(this->activations);
   memory_mark_general(this->topStackFrame);
   memory_mark_general(this->currentRexxFrame);
-  memory_mark_general(this->firstRexxFrameWithLoadedPackages);
   memory_mark_general(this->conditionobj);
   memory_mark_general(this->requiresTable);
   memory_mark_general(this->waitingObject);
@@ -3018,7 +2997,7 @@ RexxObject *RexxActivity::lineOut(
 
   length = size_v(line->getBLength());         /* get the string length and the     */
   data = line->getStringData();        /* data pointer                      */
-  printf("%.*s\n",length, data);       /* print it                          */ // todo m17n
+  printf("%.*s\n",(int)length, data);       /* print it                          */ // todo m17n
   return (RexxObject *)IntegerZero;    /* return on residual count          */
 }
 

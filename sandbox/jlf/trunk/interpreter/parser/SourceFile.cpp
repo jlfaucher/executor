@@ -994,17 +994,23 @@ void RexxSource::nextClause()
 StackFrameClass *RexxSource::createStackFrame()
 {
     ProtectedObject p;
-    return new (p) StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceBack(clauseLocation, 0, true), clauseLocation.getLineNumber());
+    return new (p) StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceBack(OREF_NULL, clauseLocation, 0, true), clauseLocation.getLineNumber());
 }
 
 
-RexxString *RexxSource::traceBack(
-     SourceLocation &location,         /* value to trace                    */
-     size_t         indent,            /* blank indentation                 */
-     bool           trace )            /* traced instruction (vs. error)    */
-/******************************************************************************/
-/* Function:  Format a source line for traceback or tracing                   */
-/******************************************************************************/
+/**
+ * Format a source line for tracing
+ *
+ * @param activation The activation of the current running code.  This can be
+ *                   null if this is a translation time error.
+ * @param location   The source line location.
+ * @param indent     The indentation amount to apply to the trace line
+ * @param trace      This is a traced line vs. an error line
+ *
+ * @return A formatted trace line, including headers and indentations.
+ */
+RexxString *RexxSource::traceBack(RexxActivation *activation, SourceLocation &location,
+     size_t indent, bool trace)
 {
     RexxString  *buffer;                 /* buffer for building result        */
     RexxString  *line;                   /* actual line data                  */
@@ -1013,21 +1019,39 @@ RexxString *RexxSource::traceBack(
     char         linenumber[11];         /* formatted line number             */
 
                                            /* format the value                  */
-    sprintf(linenumber,"%u", location.getLineNumber());
+    sprintf(linenumber,"%lu", location.getLineNumber());
 
     line = this->extract(location);      /* extract the source string         */
                                          /* doesn't exist and this isn't a    */
                                          /* trace instruction format?         */
     if (line == OREF_NULLSTRING)
     {
-        RexxArray *args = new_array(this->programName);
-        ProtectedObject p(args);
-        line = ActivityManager::currentActivity->buildMessage(Message_Translations_no_source_available, args);
-    }
-
-    if (indent < 0)                      /* possible negative indentation?    */
-    {
-        indent = 0;                        /* just reset it                     */
+        // old space code means this is part of the interpreter image.  Don't include
+        // the package name in the message
+        if (this->isOldSpace())
+        {
+            line = ActivityManager::currentActivity->buildMessage(Message_Translations_internal_code, new_array((size_t)0));
+        }
+        // if we have an activation (and we should, since the only time we won't would be for a
+        // translation time error...and we have source then), ask it to provide a line describing
+        // the invocation situation
+        if (activation != OREF_NULL)
+        {
+            line = activation->formatSourcelessTraceLine(isInternalCode() ? OREF_REXX : this->programName);
+        }
+        // this could be part of the internal code...give a generic message that doesn't identify
+        // the actual package.
+        else if (this->isInternalCode())
+        {
+            line = ActivityManager::currentActivity->buildMessage(Message_Translations_internal_code, new_array((size_t)0));
+        }
+        else
+        {
+            // generic package message.
+            RexxArray *args = new_array(this->programName);
+            ProtectedObject p(args);
+            line = ActivityManager::currentActivity->buildMessage(Message_Translations_no_source_available, args);
+        }
     }
                                            /* get an output string              */
     buffer = raw_string(line->getBLength() + INSTRUCTION_OVERHEAD + indent * INDENT_SPACING);
@@ -1416,7 +1440,7 @@ void RexxSource::inheritSourceContext(RexxSource *source, bool isBlock)
     // This toplevel source will be used from RexxActivation.cpp, when creating a new activation
     // for a block, to get the global defaults.
     this->isBlock = isBlock;
-    RexxSource *toplevelSource = source; 
+    RexxSource *toplevelSource = source;
     while (source != OREF_NULL)
     {
         toplevelSource = source;
@@ -1588,96 +1612,6 @@ RoutineClass *RexxSource::findRoutine(RexxString *routineName)
 
     // now try for one pulled in from ::REQUIRES objects
     return findPublicRoutine(upperName);
-}
-
-
-/**
- * Resolve a directly defined class object in this or a parent
- * context.
- *
- * @param name   The name we're searching for (all uppercase).
- *
- * @param routines  The array which collects all the matching routines.
- */
-void RexxSource::findLocalRoutines(RexxString *name, RexxArray *routines)
-{
-    // if we have one locally, then append it.
-    if (this->routines != OREF_NULL)
-    {
-        RoutineClass *result = (RoutineClass *)(this->routines->fastAt(name));
-        if (result != OREF_NULL)
-        {
-            routines->append(result);
-        }
-    }
-
-    // we might have a chained context, so check it also
-    if (parentSource != OREF_NULL)
-    {
-        parentSource->findLocalRoutines(name, routines);
-    }
-}
-
-
-/**
- * Resolve a public routine in this source context
- *
- * @param name   The target name.
- *
- * @param routines  The array which collects all the matching routines.
- */
-void RexxSource::findPublicImportedRoutines(RexxString *name, RexxArray *routines)
-{
-    if (this->loadedPackages != OREF_NULL)
-    {
-        // RexxList
-        for (size_t i = this->loadedPackages->firstIndex(); i != LIST_END; i = this->loadedPackages->nextIndex(i))
-        {
-            PackageClass *package = (PackageClass *)this->loadedPackages->getValue(i);
-            RexxSource *source = package->getSourceObject();
-            source->findPublicImportedRoutines(name, routines);
-        }
-    }
-
-    // if we have one public, then append it.
-    if (this->public_routines != OREF_NULL)
-    {
-        RoutineClass *result = (RoutineClass *)(this->public_routines->fastAt(name));
-        if (result != OREF_NULL)
-        {
-            routines->append(result);
-        }
-    }
-
-    // we might have a chained context, so check it also
-    if (parentSource != OREF_NULL)
-    {
-        parentSource->findPublicImportedRoutines(name, routines);
-    }
-}
-
-
-/**
- * Resolve a routine from this source files base context.
- *
- * @param routineName
- *               The routine name of interest.
- *
- * @param routines
- *               The array which collects all the matching routines, search done in requires order.
- *               The returned array must be visited from last to first to follow the visibility rules.
- */
-void RexxSource::findRoutines(RexxString *routineName, RexxArray *routines)
-{
-    // These lookups are case insensive, so the table are all created using the upper
-    // case names.  Use it once and reuse it.
-    RexxString *upperName = routineName->upper();
-    ProtectedObject p1(upperName);
-
-    // Can't use findPublicRoutine because the imported routines are merged,
-    // and only the most recently imported routine is visible.
-    findPublicImportedRoutines(upperName, routines);
-    findLocalRoutines(upperName, routines);
 }
 
 

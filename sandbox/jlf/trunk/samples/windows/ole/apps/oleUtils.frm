@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2008-2011 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2008-2014 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -323,16 +323,8 @@ return .false
 ::routine  getAddressingMode public
   use strict arg
 
-  tmpOutFile = 'tmpXXX_delete.me'
-
-  'rexx -v >' tmpOutFile '2>&1'
-
-  fsObj = .stream~new(tmpOutFile)
-  tmpArray = fsObj~arrayin
-  parse value tmpArray[3] with . . mode
-  fsObj~close
-
-  j = SysFileDelete(tmpOutFile)
+  parse version rexx'_'ver'_'mode'-bit' .
+  return mode
 
 return mode
 

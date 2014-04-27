@@ -80,6 +80,9 @@
 %if %(if grep -q "release 6.4" /etc/redhat-release; then echo 1; else echo 0; fi;)
 %define build_version 64
 %endif
+%if %(if grep -q "release 6.5" /etc/redhat-release; then echo 1; else echo 0; fi;)
+%define build_version 65
+%endif
 %define _osdistname %{build_distro}%{build_version}
 %define _unknownos 0
 %endif
@@ -263,23 +266,18 @@ ln -sf %{_libdir}/librxunixsys.so %{_libdir}/librxunixsys.so.3
 ln -sf %{_datadir}/ooRexx/rexxtry.rex %{_bindir}/rexxtry.rex
 # Add the rxapi service
 if [ -x /usr/bin/systemctl ]; then
-   ln -sf %{_datadir}/ooRexx/rxapid.service /etc/systemd/system/multi-user.target.wants/rxapid.service
-   echo "%{_libdir}/ooRexx" > /etc/ld.so.conf.d/ooRexx.conf
-   ldconfig
+   systemctl link %{_datadir}/ooRexx/rxapid.service
+   systemctl --system daemon-reload
    systemctl start rxapid.service
 elif [ -x /sbin/insserv ]; then
    ln -sf %{_bindir}/rxapid /etc/init.d/rxapid
    # try insserv first (for Suse)
    insserv -f rxapid
-   echo "%{_libdir}/ooRexx" > /etc/ld.so.conf.d/ooRexx.conf
-   ldconfig
    service rxapid start
 else
    ln -sf %{_bindir}/rxapid /etc/init.d/rxapid
    # else, try good old chkconfig
    chkconfig --add rxapid
-   echo "%{_libdir}/ooRexx" > /etc/ld.so.conf.d/ooRexx.conf
-   ldconfig
    service rxapid start
 fi
 
@@ -289,37 +287,24 @@ fi
 # Remove rxapi service
 if [ -x /usr/bin/systemctl ]; then
    systemctl stop rxapid.service
-   # Remove misc
    rm -f /etc/systemd/system/rxapid.service
-   rm -f /etc/ld.so.conf.d/ooRexx.conf
-   ldconfig
+   systemctl --system daemon-reload
 elif [ -x /sbin/insserv ]; then
    service rxapid stop
    # try insserv first (for Suse)
    insserv -f rxapid
    # Remove the rxapi daemon
    rm -f /etc/init.d/rxapid
-   # Remove misc
-   rm -f %{_bindir}/rexxtry.rex
-   rm -f /etc/ld.so.conf.d/ooRexx.conf
-   ldconfig
 else
    service rxapid stop
-   # else, try good old chkconfig
    chkconfig --del rxapid
-   # Remove the rxapi daemon
    rm -f /etc/init.d/rxapid
-   # Remove misc
-   rm -f %{_bindir}/rexxtry.rex
-   rm -f /etc/ld.so.conf.d/ooRexx.conf
-   ldconfig
 fi
+rm -f %{_bindir}/rexxtry.rex
 
 #******************************************************************************
 %postun
 #******************************************************************************
-rm -f /etc/ld.so.conf.d/ooRexx.conf
-ldconfig
 
 #******************************************************************************
 %changelog

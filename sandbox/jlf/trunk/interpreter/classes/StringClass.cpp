@@ -391,10 +391,10 @@ RexxNumberString *RexxString::numberString()
     {          /* not truly a string type?          */
         newSelf = this->requestString();   /* do the conversion                 */
                                            /* get a new numberstring Obj        */
-        OrefSet(newSelf, newSelf->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), size_v(newSelf->getCLength()))); // todo m17n : numberstring supports only ascii
-        if (newSelf->NumberString != OREF_NULL)     /* Did number convert OK?            */
+        OrefSet(this, this->NumberString, (RexxNumberString *)new_numberstring(newSelf->getStringData(), size_v(newSelf->getCLength()))); // todo m17n : numberstring supports only ascii
+        if (this->NumberString != OREF_NULL)     /* Did number convert OK?            */
         {
-            newSelf->setHasReferences();     /* Make sure we are sent Live...     */
+            this->setHasReferences();     /* Make sure we are sent Live...     */
         }
     }
     else
@@ -1642,7 +1642,7 @@ RexxString *RexxString::stringTrace()
     for (; i > 0; i--)
     {                 /* loop for the entire string        */
                       /* control character?                */
-        if (*Current < ' ')
+        if (*Current < ch_SPACE)
         {
             NonDisplay = true;               /* got a non-displayable             */
             break;                           /* get out of here                   */
@@ -1662,7 +1662,7 @@ RexxString *RexxString::stringTrace()
     for (; i > 0; i--)
     {                 /* loop for the entire string        */
                       /* control character?                */
-        if (*outptr < ' ' && *outptr != '\t')
+        if (*outptr < ch_SPACE && *outptr != ch_TAB)
         {
             *outptr = '?';                 /* yes, change to question           */
         }

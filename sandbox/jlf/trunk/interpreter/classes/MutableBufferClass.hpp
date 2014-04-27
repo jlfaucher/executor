@@ -146,7 +146,12 @@ class RexxMutableBufferClass : public RexxClass {
    inline void adjustGap(sizeB_t offset, sizeB_t _size, sizeB_t _newSize) { data->adjustGap(offset, _size, _newSize); }
    inline void setData(sizeB_t offset, char character, sizeB_t l) { data->setData(offset, character, l); }
    inline char getCharB(sizeB_t offset) { return getData()[size_v(offset)]; }
+   sizeB_t setDataLength(sizeB_t l);
    inline codepoint_t getCharC(sizeC_t offset) { return getData()[size_v(offset)]; } // todo m17n : convert charpos to bytepos and return a codepoint, not a byte
+   inline sizeB_t getCapacity() { return bufferLength; }
+   char *setCapacity(sizeB_t newLength);
+
+
 
    static void createInstance();
    static RexxClass *classInstance;

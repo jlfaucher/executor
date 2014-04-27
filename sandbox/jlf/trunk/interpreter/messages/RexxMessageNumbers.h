@@ -640,8 +640,12 @@
 #define Error_Translation_external_routine_msg                       733
 #define Error_Translation_abstract_attribute_msg                     734
 #define Error_Unmatched_parenthesis_curly_msg                        735
+#define Message_Translations_internal_code_msg                       735
 #define Error_Unexpected_curly_bracket_msg                           736
+#define Message_Translations_sourceless_method_invocation_msg        736
 #define Error_Invalid_expression_after_tilde_msg                     737
+#define Message_Translations_sourceless_routine_invocation_msg       737
+#define Message_Translations_sourceless_program_invocation_msg       738
 
 
 #endif

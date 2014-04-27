@@ -1,54 +1,47 @@
-            Fixes in Open Object Rexx 4.2.0
+            Fixes in Open Object Rexx 4.3.0
 
-The following is the list of fixes and enhancements added to ooRexx since the
-4.1.2 release.
-
-
-All Platforms
-=============
+The following is a list of fixes, enhancements, and other relevant changes
+to ooRexx since the 4.2.0 release.  The numbers for each item can be used to
+look up the item in the appropriate tracker in the ooRexx project on
+SourceForge.  I.e., the Bugs tracker the, Feature Requests tracker, etc..
 
   Bugs
   ----
 
+  * xxxx	...
+
+
 
   Requests For Enhancement
   ------------------------
+
+  * xxx	...
+
+
+
+  Documentation Bugs
+  ------------------
+
+  * yyy	...
+
 
 
 Windows
 =======
 
-  Bugs
-  ----
+  Miscellaneous
+  -------------
 
+  - The version of ooDialog distributed with ooRexx is updated to ooDialog
+    version a.b.c.
 
-  Requests For Enhancement
-  ------------------------
+  - ooDialog has a separate release notes file that shows changes in
+    ooDialog.  The file: ooDialog_ReleaseNotes.txt is located with the other
+    ooRexx documentation in the distribution. The ooDialog.pdf manual also
+    lists all changes for the current version.
 
 
 Unix/Linux
 ==========
 
-  Bugs
-  ----
-
-
-  Patches
-  -------
-
-  - The rxapi daemon has been enhanced to support distributions that
-    support the systemd daemon control mechanism. The ooRexx installation
-    automatically detects the kind of daemon control system supported by
-    the Linux distribution and dynamically picks the best one to use.
-
-  - The rxapid script has been upgraded to be LSB compliant.
-
-
-z/OS
-====
-
-
-
-Documentation
-=============
-
+  ???

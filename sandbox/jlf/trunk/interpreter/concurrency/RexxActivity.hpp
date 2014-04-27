@@ -187,7 +187,7 @@ typedef enum
    void        unwindToDepth(size_t depth);
    void        unwindToFrame(RexxActivation *frame);
    void        cleanupStackFrame(RexxActivationBase *poppedStackFrame);
-   RexxList   *generateStackFrames();
+   RexxArray  *generateStackFrames(bool skipFirst);
    RexxActivity *spawnReply();
 
    void        exitKernel();
@@ -280,7 +280,6 @@ typedef enum
 
    inline RexxActivation *getCurrentRexxFrame() {return currentRexxFrame;}
    inline RexxActivationBase *getTopStackFrame() { return topStackFrame; }
-   RexxActivation *getFirstRexxFrameWithLoadedPackages();
    inline size_t getActivationDepth() { return stackFrameDepth; }
    inline NumericSettings *getNumericSettings () {return this->numericSettings;}
    inline RexxObject *runningRequires(RexxString *program) {return this->requiresTable->stringGet(program);}
@@ -367,7 +366,6 @@ typedef enum
    // made the callout and the currentRexxFrame will be the predecessor frame.
    RexxActivation     *currentRexxFrame;
    RexxActivationBase *topStackFrame;
-   RexxActivation     *firstRexxFrameWithLoadedPackages; /* cache */
    RexxString         *currentExit;    /* current executing system exit     */
    RexxObject         *waitingObject;  /* object activity is waiting on     */
    SysSemaphore        runsem;         /* activity run control semaphore    */
