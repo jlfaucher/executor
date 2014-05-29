@@ -15,52 +15,64 @@ So I added the 'pipe' method which injects the object in the pipe :
 "a"~pipe(.upper|.console)
 */
 
+::routine pipe
+    use strict arg object, pipe, profile
+
+    -- case 1 : permuting combinator, to reverse the normal order of evaluation.
+    -- the expression read consistently from left to right.
+    -- f(x~m1) can be rewritten x~m1~pipe{f(item)}
+    if pipe~isA(.doer) then do
+        if pipe~hasMethod("functionDoer") then doer = pipe~functionDoer("use arg item")~arity(1)
+                                            else doer = pipe~doer
+        doer~do(object)
+        if var("result") then return result
+        return object
+    end
+
+    -- case 2 : normal pipe.
+    if pipe~isa(.class) then pipe = pipe~new
+    pipe~go(object, profile)
+    return pipe
+
+::routine coactivePipe
+    use strict arg object, pipe, profile
+    return {::closure.coactive
+            expose object pipe profile
+            return object~pipe(pipe, profile)
+           }~doer
+
+
 ::extension Class
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
 ::method pipe class unguarded
     use strict arg pipe, profile=.false
-    if pipe~isa(.class) then pipe = pipe~new
-    pipe~go(self, profile)
-    return pipe
+    return pipe(self, pipe, profile)
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
 ::method coactivePipe class unguarded
     use strict arg pipe, profile=.false
-    return {::closure.coactive
-            expose pipe profile self
-            return self~pipe(pipe, profile)
-           }~doer
+    return coactivePipe(self, pipe, profile)
 
 ::extension Object
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
 ::method pipe class unguarded
     use strict arg pipe, profile=.false
-    if pipe~isa(.class) then pipe = pipe~new
-    pipe~go(self, profile)
-    return pipe
+    return pipe(self, pipe, profile)
 
 -- Must review the extension mechanisms ! Not normal to have to do that...
 ::method coactivePipe class unguarded
     use strict arg pipe, profile=.false
-    return {::closure.coactive
-            expose pipe profile self
-            return self~pipe(pipe, profile)
-           }~doer
+    return coactivePipe(self, pipe, profile)
 
 ::method pipe unguarded
     use strict arg pipe, profile=.false
-    if pipe~isa(.class) then pipe = pipe~new
-    pipe~go(self, profile)
-    return pipe
+    return pipe(self, pipe, profile)
 
 ::method coactivePipe unguarded
     use strict arg pipe, profile=.false
-    return {::closure.coactive
-            expose pipe profile self
-            return self~pipe(pipe, profile)
-           }~doer
+    return coactivePipe(self, pipe, profile)
 
 ::method pipeProfile unguarded
     use strict arg pipe
@@ -68,10 +80,8 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 ::method coactivePipeProfile unguarded
     use strict arg pipe
-    return {::closure.coactive
-            expose pipe self
-            return self~pipeProfile(pipe)
-           }~doer
+    return coactivePipe(self, pipe, .true)
+
 
 /******************************************************************************/
 -- A 'yield' pipeStage, to yield the current item.
