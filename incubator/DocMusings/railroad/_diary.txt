@@ -1,7 +1,14 @@
 ===============================================================================
+2014 may 31
+
+Railroad diagram generator
+http://bottlecaps.de/rr/ui
+
+
+===============================================================================
 2009 sept 18
 
-constants.xml : 
+constants.xml :
 I made a wrong assumption about diagram_max_width.
 This constant is not used to limit the witdth of the image, it's used to
 calculate the xscale. If too small, then the xscale will be < 1.0 and the
@@ -9,7 +16,7 @@ image's contents will become less readable. So assign a big value to it (10000)
 and tune the constant diagram_wrap_width to ensure that the syntax diagrams
 will fit in the page.
 
-Hum, I see that the syntax diagram of String~translate 5.1.3.64 does not fit in 
+Hum, I see that the syntax diagram of String~translate 5.1.3.64 does not fit in
 the page. It's probably because no wrap was possible (would need two continuation
 points, and I think that syntaxdiagram2svg can't do that).
 So, I re-assign to diagram_max_width the same value as diagram_wrap_width.
@@ -25,7 +32,7 @@ HTML : Times-New-Roman 12pt
 When generating PNG, I'd like to use an "infinite" value, to have no wrapping.
 Done by modifying the XSLT script make-constants.xsl and passing a parameter
 ("PDF" or "PNG") from the script sd2image.rex.
-Not sure it's a good idea : 
+Not sure it's a good idea :
 see oodialog\sd_basedialog\sd_Animated_Buttons_ConnectAnimatedButton.png
 
 
@@ -36,7 +43,7 @@ Small tuning in CSS and resources :
 No longer use bold.
 Adjust diagram max width (still too big, I think).
 
-transform.xsl : 
+transform.xsl :
 Changed the way the titles (or lack of titles) are managed.
 Currently, the fragments have their own full name, no need of title in their
 enclosing syntax diagram.
@@ -47,7 +54,7 @@ enclosing syntax diagram.
 
 I have a small documentation which gives examples of railroads generated
 from DITA syntax diagrams, but I can't remember from where I downloaded it...
-[14/09/2009] 
+[14/09/2009]
 I remember now : from http://tech.groups.yahoo.com/group/dita-users/files/
 search for syntaxdiagram-doc.zip
 
@@ -68,7 +75,7 @@ I find that the letters of the keywords are a little bit blurred.
 --> Changed the CSS stylesheet to declare stroke-width: 0.0; instead of 0.1
 Since the look is better, changed all the 0.1 to 0.0
 
-Another possible improvement : in constants.xml, there is a suggestion to try 
+Another possible improvement : in constants.xml, there is a suggestion to try
 diagram_scale=0.28
 diagram_unit=in
 This is lot more CPU intensive, and I needed to declare a bigger heap for java.
@@ -87,8 +94,8 @@ http://julianhyde.blogspot.com/2009/05/clapham-railroad-diagram-generator.html
 In the comments :
 <<
 Tom Copeland said...
-Also, FWIW, Eric Dahlstrom saw this and tweeted "that svg output is not very pretty, 
-suggest using either svg paths or rects directly, and to make sure text is placed correctly". 
+Also, FWIW, Eric Dahlstrom saw this and tweeted "that svg output is not very pretty,
+suggest using either svg paths or rects directly, and to make sure text is placed correctly".
 Probably the "use paths or rects" means more to you than it does to me :-)
 >>
 
@@ -107,11 +114,11 @@ by importing the XSLT template <filepath>xsl/syntaxdiagram2svg.xsl
 >>
 --> I had to modify a lot of things in this stylesheet (mechanical changes : had to replace
 the tests contains(@class,...)  by name()=
-Now I have something working (SVG output) but I can't visualize it... 
+Now I have something working (SVG output) but I can't visualize it...
 According to Deborah Picket (http://tech.groups.yahoo.com/group/dita-users/message/12082) :
-<< 
+<<
 You need a JavaScript-aware SVG renderer (I use Batik) to dynamically size the syntax diagram
-to envelop the text that each box contains 
+to envelop the text that each box contains
 >>
 --> so I downloaded Batik...
 The file js/constants.js is missing.
