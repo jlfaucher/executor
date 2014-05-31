@@ -25,8 +25,8 @@ So I added the 'pipe' method which injects the object in the pipe :
         if pipe~hasMethod("functionDoer") then doer = pipe~functionDoer("use arg item")~arity(1)
                                             else doer = pipe~doer
         doer~do(object)
-        if var("result") then return result
-        return object
+        if var("result") then return result -- trush Txy = yx : reverse evaluation.
+        return object                       -- kestrel Kxy = x : return a constant function.
     end
 
     -- case 2 : normal pipe.
