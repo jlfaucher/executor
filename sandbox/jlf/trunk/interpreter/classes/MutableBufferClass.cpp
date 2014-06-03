@@ -376,7 +376,7 @@ sizeB_t RexxMutableBuffer::setDataLength(sizeB_t newLength)
  *
  * @return The pointer to the data area in the buffer.
  */
-char *RexxMutableBuffer::setCapacity(size_t newLength)
+char *RexxMutableBuffer::setCapacity(sizeB_t newLength)
 {
     // if the new length is longer than our current,
     // extend by the delta
