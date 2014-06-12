@@ -406,6 +406,246 @@ output :
          6 'd:\gnutools'
     ...
 
+Example:  
+All packages that are visible from current context, including the current package (source of the pipeline).
+
+    .context~package~pipe(,
+        .importedPackages recursive once after |,
+        .sort {item~name} |,
+        .console {item~name})
+
+output, when run from ooRexxShell:
+
+    D:\oorexx\Win64rel-master-delivery\bin\bchar\ooDialog.cls
+    D:\oorexx\Win64rel-master-delivery\bin\mime.cls
+    D:\oorexx\Win64rel-master-delivery\bin\rxftp.cls
+    D:\oorexx\Win64rel-master-delivery\bin\rxregexp.cls
+    D:\oorexx\Win64rel-master-delivery\bin\smtp.cls
+    D:\oorexx\Win64rel-master-delivery\bin\socket.cls
+    D:\oorexx\Win64rel-master-delivery\bin\streamsocket.cls
+    D:\oorexx\Win64rel-master-delivery\bin\winsystm.cls
+    D:\oorexx\Win64rel-master-delivery\bsf4oorexx\BSF.CLS
+    D:\oorexx\Win64rel-master-delivery\packages\concurrency\coactivity.cls
+    D:\oorexx\Win64rel-master-delivery\packages\concurrency\generator.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\array.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\complex.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\doers.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\extensions.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\file.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\functionals.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\logical.cls
+    D:\oorexx\Win64rel-master-delivery\packages\extension\string.cls
+    D:\oorexx\Win64rel-master-delivery\packages\ooSQLite.cls
+    D:\oorexx\Win64rel-master-delivery\packages\oorexxshell.rex
+    D:\oorexx\Win64rel-master-delivery\packages\pipeline\pipe.rex
+    D:\oorexx\Win64rel-master-delivery\packages\pipeline\pipe_extension.cls
+    D:\oorexx\Win64rel-master-delivery\packages\profiling\profiling.cls
+    D:\oorexx\Win64rel-master-delivery\packages\regex\regex.cls
+    D:\oorexx\Win64rel-master-delivery\packages\rgf_util2\rgf_util2.rex
+    D:\oorexx\Win64rel-master-delivery\packages\rgf_util2\rgf_util2_wrappers.rex
+
+Example:  
+Public classes by package.
+
+    .context~package~pipe(,
+        .importedPackages recursive once after mem.package |,
+        .inject {item~publicClasses} iterateAfter |,
+        .sort {item~id} {dataflow["package"]~item~name} |,
+        .console {.file~new(dataflow["package"]~item~name)~name} ":" item,
+        )
+
+output, when run from ooRexxShell:
+
+    ooDialog.cls : (The AdvancedControls class)
+    ooDialog.cls : (The Alerter class)
+    ooDialog.cls : (The AnimatedButton class)
+    ooDialog.cls : (The ApplicationManager class)
+    ooDialog.cls : (The BaseDialog class)
+    ...
+    mime.cls : (The MIMEMULTIPART class)
+    mime.cls : (The MIMEPART class)
+    rxftp.cls : (The rxftp class)
+    rxregexp.cls : (The RegularExpression class)
+    smtp.cls : (The SMTP class)
+    smtp.cls : (The SMTPMSG class)
+    socket.cls : (The HOSTINFO class)
+    socket.cls : (The INETADDRESS class)
+    socket.cls : (The Socket class)
+    streamsocket.cls : (The StreamSocket class)
+    winsystm.cls : (The MenuObject class)
+    winsystm.cls : (The VirtualKeyCodes class)
+    winsystm.cls : (The WindowObject class)
+    winsystm.cls : (The WindowsClipboard class)
+    winsystm.cls : (The WindowsEventLog class)
+    winsystm.cls : (The WindowsManager class)
+    winsystm.cls : (The WindowsProgramManager class)
+    winsystm.cls : (The WindowsRegistry class)
+    BSF.CLS : (The B4R class)
+    BSF.CLS : (The BSF class)
+    BSF.CLS : (The BSF.DIALOG class)
+    BSF.CLS : (The BSF4REXX class)
+    BSF.CLS : (The BSF_PROXY class)
+    coactivity.cls : (The Coactivity class)
+    coactivity.cls : (The CoactivitySupplier class)
+    coactivity.cls : (The CoactivitySupplierForGeneration class)
+    coactivity.cls : (The CoactivitySupplierForIteration class)
+    coactivity.cls : (The WeakProxy class)
+    coactivity.cls : (The yield class)
+    generator.cls : (The CoactivityFilter class)
+    generator.cls : (The CoactivityGenerator class)
+    generator.cls : (The CoactivityIterator class)
+    generator.cls : (The CoactivitySupplierForGenerationFilter class)
+    generator.cls : (The CoactivitySupplierForGenerationIterator class)
+    generator.cls : (The CollectionGenerator class)
+    generator.cls : (The Generator class)
+    generator.cls : (The MutableBufferGenerator class)
+    generator.cls : (The RepeaterGenerator class)
+    generator.cls : (The StringGenerator class)
+    generator.cls : (The SupplierGenerator class)
+    array.cls : (The ArrayInitializer class)
+    array.cls : (The ArrayPrettyPrinter class)
+    complex.cls : (The COMPLEX class)
+    doers.cls : (The Closure class)
+    doers.cls : (The CoactivityDoer class)
+    doers.cls : (The Doer class)
+    doers.cls : (The DoerFactory class)
+    doers.cls : (The MethodDoer class)
+    doers.cls : (The RexxBlockDoer class)
+    doers.cls : (The RoutineDoer class)
+    doers.cls : (The StringDoer class)
+    file.cls : (The FileExtension class)
+    functionals.cls : (The CoactivityReducer class)
+    functionals.cls : (The CollectionFilter class)
+    functionals.cls : (The CollectionIterator class)
+    functionals.cls : (The CollectionMapper class)
+    functionals.cls : (The CollectionReducer class)
+    functionals.cls : (The MutableBufferFilter class)
+    functionals.cls : (The MutableBufferIterator class)
+    functionals.cls : (The MutableBufferMapper class)
+    functionals.cls : (The MutableBufferReducer class)
+    functionals.cls : (The OrderedCollectionFilter class)
+    functionals.cls : (The RepeaterCollector class)
+    functionals.cls : (The StringFilter class)
+    functionals.cls : (The StringIterator class)
+    functionals.cls : (The StringMapper class)
+    functionals.cls : (The StringReducer class)
+    functionals.cls : (The SupplierFilter class)
+    functionals.cls : (The SupplierIterator class)
+    functionals.cls : (The SupplierReducer class)
+    logical.cls : (The LogicalExtension class)
+    string.cls : (The StringHelpers class)
+    ooSQLite.cls : (The ooSQLCollation class)
+    ooSQLite.cls : (The ooSQLCollationNeeded class)
+    ooSQLite.cls : (The ooSQLExtensions class)
+    ooSQLite.cls : (The ooSQLFunction class)
+    ooSQLite.cls : (The ooSQLLibrary class)
+    ooSQLite.cls : (The ooSQLPackage class)
+    ooSQLite.cls : (The ooSQLResult class)
+    ooSQLite.cls : (The ooSQLValue class)
+    ooSQLite.cls : (The ooSQLite class)
+    ooSQLite.cls : (The ooSQLiteBackup class)
+    ooSQLite.cls : (The ooSQLiteConnection class)
+    ooSQLite.cls : (The ooSQLiteConstants class)
+    ooSQLite.cls : (The ooSQLiteMutex class)
+    ooSQLite.cls : (The ooSQLiteStmt class)
+    pipe.rex : (The after class)
+    pipe.rex : (The all class)
+    pipe.rex : (The arrayCollector class)
+    pipe.rex : (The before class)
+    pipe.rex : (The between class)
+    pipe.rex : (The bitbucket class)
+    pipe.rex : (The buffer class)
+    pipe.rex : (The changeStr class)
+    pipe.rex : (The charCount class)
+    pipe.rex : (The characters class)
+    pipe.rex : (The console class)
+    pipe.rex : (The dataflow class)
+    pipe.rex : (The delStr class)
+    pipe.rex : (The drop class)
+    pipe.rex : (The dropNull class)
+    pipe.rex : (The duplicate class)
+    pipe.rex : (The endsWith class)
+    pipe.rex : (The fanin class)
+    pipe.rex : (The fanout class)
+    pipe.rex : (The fileLines class)
+    pipe.rex : (The indexedItem class)
+    pipe.rex : (The indexedItemComparator class)
+    pipe.rex : (The insert class)
+    pipe.rex : (The left class)
+    pipe.rex : (The lineCount class)
+    pipe.rex : (The lower class)
+    pipe.rex : (The merge class)
+    pipe.rex : (The notAll class)
+    pipe.rex : (The overlay class)
+    pipe.rex : (The partitionedCounter class)
+    pipe.rex : (The pipeProfiler class)
+    pipe.rex : (The pipeStage class)
+    pipe.rex : (The pivot class)
+    pipe.rex : (The reverse class)
+    pipe.rex : (The right class)
+    pipe.rex : (The secondaryConnector class)
+    pipe.rex : (The sort class)
+    pipe.rex : (The sortWith class)
+    pipe.rex : (The splitter class)
+    pipe.rex : (The startsWith class)
+    pipe.rex : (The stemCollector class)
+    pipe.rex : (The system class)
+    pipe.rex : (The take class)
+    pipe.rex : (The upper class)
+    pipe.rex : (The wordCount class)
+    pipe.rex : (The words class)
+    pipe.rex : (The x2c class)
+    pipe_extension.cls : (The append class)
+    pipe_extension.cls : (The class.instanceMethods class)
+    pipe_extension.cls : (The do class)
+    pipe_extension.cls : (The fileTree class)
+    pipe_extension.cls : (The importedPackages class)
+    pipe_extension.cls : (The inject class)
+    pipe_extension.cls : (The instanceMethods class)
+    pipe_extension.cls : (The select class)
+    pipe_extension.cls : (The subClasses class)
+    pipe_extension.cls : (The superClasses class)
+    profiling.cls : (The PROFILER class)
+    regex.cls : (The MATCHREPLACEMENTRESULT class)
+    regex.cls : (The PARSER class)
+    regex.cls : (The PATTERN class)
+    regex.cls : (The REGEXCOMPILER class)
+    regex.cls : (The REPLACEMENTPATTERN class)
+    rgf_util2.rex : (The MessageComparator class)
+    rgf_util2.rex : (The NumberComparator class)
+    rgf_util2.rex : (The StringColumnComparator class)
+    rgf_util2.rex : (The StringComparator class)
+    rgf_util2.rex : (The StringOfWords class)
+
+### Thrush & Kestrel combinators
+
+Inspired by [Raganwald's Homoiconic][raganwald_homoiconic].  
+The ~pipe method has been modified to support the T & K combinators.  
+
+- thrush : Txy = yx : reverse evaluation (makes an expression read consistently from left to right).
+- kestrel : Kxy = x : return a constant function (when no result returned by the doer, return the input argument).
+
+Example without thrush:  
+Square (take the numbers from 1 to 100, select the odd ones, and take the sum of those).
+
+    {return arg(1) ** 2}~(1~upto(100)~select{item // 2 == 1}~reduce("+"))=
+    -- return 6250000
+
+Same example with thrush:  
+Take the numbers from 1 to 100, keep the odd ones, take the sum of those, and then answer the square of that number.  
+Here, the block benefits from the implicit argument "item" and implicit return.
+
+    1~upto(100)~select{item // 2 == 1}~reduce("+")~pipe{item ** 2}=
+    -- return 6250000
+
+Same example with kestrels, to log intermediate results:
+
+    1~upto(100)~select{item // 2 == 1}~pipe{say item~ppRepresentation}~reduce("+")~pipe{say item}~pipe{item ** 2}=
+    -- display [1,3,5,7,9,11,13,15,17,19,...,91,93,95,97,99]
+    -- display 2500
+    -- return  6250000
+
+
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
 [doc_transformation_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/transformxml/_diary.txt "Doc XML transformations diary"
@@ -423,3 +663,4 @@ output :
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
 [rosetta_code_function_composition]:http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
 [apl_glimpse_heaven]:http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
+[raganwald_homoiconic]: https://github.com/raganwald-deprecated/homoiconic "Raganwald's Homoiconic"
