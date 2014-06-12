@@ -149,7 +149,7 @@ brings interesting ideas to implement :
   (makes an expression read consistently from left to right)
 - Modify the implementation of ~pipe to support the K combinator
   kestrel : Kxy = x : return a constant function.
-  (when no result returned by the doer, return the input argument)
+  (when no result returned by the doer, return the receiver (self))
 
 Example without thrush :
 
