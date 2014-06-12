@@ -623,7 +623,7 @@ Inspired by [Raganwald's Homoiconic][raganwald_homoiconic].
 The ~pipe method has been modified to support the T & K combinators.  
 
 - thrush : Txy = yx : reverse evaluation (makes an expression read consistently from left to right).
-- kestrel : Kxy = x : return a constant function (when no result returned by the doer, return the input argument).
+- kestrel : Kxy = x : return a constant function (when no result returned by the doer, return the receiver (self)).
 
 Example without thrush:  
 Square (take the numbers from 1 to 100, select the odd ones, and take the sum of those).
