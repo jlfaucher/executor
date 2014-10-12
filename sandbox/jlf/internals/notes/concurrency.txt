@@ -1,4 +1,12 @@
 ===================================================================================
+node.js
+
+http://bjouhier.wordpress.com/2012/03/11/fibers-and-threads-in-node-js-what-for/
+node-fibder : https://github.com/laverdet/node-fibers
+Threads  à gogo : https://github.com/xk/node-threads-a-gogo
+
+
+===================================================================================
 Lock-free programmming
 
 http://mintomic.github.io/
