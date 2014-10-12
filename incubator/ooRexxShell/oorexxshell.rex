@@ -100,6 +100,8 @@ return .ooRexxShell~RC <> 0
 
 
 -------------------------------------------------------------------------------
+--::options trace i
+
 ::routine SHELL
 use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
 
@@ -316,7 +318,7 @@ help: procedure
         when .platform~is("aix") | .platform~is("linux") | .platform~is("sunos") then do
             'acroread /opt/oorexx/doc/rexxref.pdf&'
         end
-        when .platform~is("macosx") then do
+        when .platform~is("macosx") | .platform~is("darwin") then do
             'open "http://www.oorexx.org/docs/"' -- not perfect : switch to Safari but the new window is not visible (at least on my machine).
         end
         otherwise do
@@ -481,7 +483,7 @@ dumpResult: procedure
         return
     end
     else do
-        if value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
+        if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
         else if value~isA(.array), value~dimension <= 1, value~hasMethod("ppRepresentation") then say value~ppRepresentation(100) -- condensed output, 100 items max
         else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
         else say pp2(value)
@@ -744,7 +746,7 @@ loadLibrary:
                 otherwise nop
             end
         end
-        when .platform~is("linux") | .platform~is("macosx") then do
+        when .platform~is("linux") | .platform~is("macosx") | .platform~is("darwin") then do
             select
                 when color~caselessEquals("white") then call charout , d2c(27)"[m"
                 when color~caselessEquals("bwhite") then call charout , d2c(27)"[1m"
