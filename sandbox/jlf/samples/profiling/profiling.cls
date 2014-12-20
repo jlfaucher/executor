@@ -1,7 +1,10 @@
 -- To profile class methods, I need to redefine instances methods of classes.
 -- For that, must use setMethod, but setMethod is a private method.
 -- Don't know how to redefine an instance method on any class, unless doing that...
+-- JLF 20/12/2014 : no longer supported with ooRexx 5, must catch the error.
+signal on syntax name ignoreObjectDefineError
 .Object~define("setMethod1", "forward message('setMethod')") -- No effect with standard ooRexx
+ignoreObjectDefineError:
 
 ::class Profiler public
 
