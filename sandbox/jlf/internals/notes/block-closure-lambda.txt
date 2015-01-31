@@ -1,3 +1,5 @@
+https://github.com/rust-lang/rfcs/blob/master/text/0114-closures.md
+
 https://github.com/dspeyer/generators
 python-style generators for C++11, implemented with pthreads...
 
@@ -96,7 +98,7 @@ repeatedly on independent sets of data. These problems can be solved by
 - partitioning the data (the split)
 - performing a single calculation on each partition (the apply)
 - returning the results in a specified format (the combine)
-"split-apply-combine" was coined by Hadley Wickham, but the approach has been supported 
+"split-apply-combine" was coined by Hadley Wickham, but the approach has been supported
 on a number of different environments for some time under different names:
 - SAS: by
 - Google: MapReduce
@@ -431,7 +433,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
 
 
 
-A creuser : 
+A creuser :
 Le paramètre start permet de démarrer ailleurs qu'à la 1ère instruction
 Ca sert lorsqu'on n'est pas au top-level
 
