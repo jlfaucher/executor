@@ -145,6 +145,7 @@ pngFn=filespec("Location",s) || .bsf4rexx~file.separator || 'ooRexxTry.png'
 if .bsf4rexx~opsys="MACOSX" then  -- on MacOSX display the standard ooRexx4OOo logo
 do
 -- frame~setIconImage(.bsf~new("javax.swing.ImageIcon", pngFn)~getImage)
+  call makeBSF4ooRexxLookLikeMacOSX   -- make sure that on MacOSX the application looks like a Mac application
  .bsf4rexx~apple_application~setDockIconImage(.bsf~new("javax.swing.ImageIcon",pngFn)~getImage)
 
 end
@@ -254,7 +255,7 @@ loadOptionalComponents:
     end
 
     return
-    
+
 
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
@@ -268,7 +269,7 @@ loadPackage:
     say "loadPackage KO for" filename
     return .false
 
-    
+
 -------------------------------------------------------------------------------
 -- Remember : don't implement that as a procedure or routine or method !
 loadLibrary:
@@ -282,7 +283,7 @@ loadLibrary:
     say "loadLibrary KO for" filename
     return .false
 
-    
+
 -------------------------------------------------------------------------------
 
 --::options trace i
@@ -2265,7 +2266,7 @@ transformSource: procedure
         if clause~left(2) == "::" then leave -- don't transform code inside directives
         if clause~right(1) == "=" then do
             clause = clause~left(clause~length - 1)
-            -- Remember : when assigning a value to current clause, sourceArray is impacted 
+            -- Remember : when assigning a value to current clause, sourceArray is impacted
             clauser~clause = 'options "NOCOMMANDS";' clause ';call dumpResult var("result"), result; options "COMMANDS"'
         end
         clauser~nextClause
@@ -2310,7 +2311,7 @@ return
         package~addPackage(p)
     end
 
-    
+
 ::routine dumpResult public
     use strict arg hasValue, value
     if \hasValue then do
@@ -3106,8 +3107,8 @@ any:
 ::method is class
     use strict arg name
     return self~name~caselessEquals(name)
-    
-    
+
+
 ::method unknown class -- delegates to the singleton
     use strict arg msg, args
     forward to (self~current) message (msg) arguments (args)
