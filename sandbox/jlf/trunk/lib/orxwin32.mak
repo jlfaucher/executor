@@ -41,6 +41,7 @@
 # These compiler defines allow the support of different versions of Mircrosoft's
 # Visual C++ compiler.  The build has not necessarily been tested on all of the
 # following versions, so some of the !IFDEF statements may need to be adjusted.
+# VCPP12 == Visual C++ 2013
 # VCPP11 == Visual C++ 2012
 # VCPP10 == Visual C++ 2010
 # VCPP9 == Visual C++ 2008
@@ -48,7 +49,9 @@
 # VCPP7 == Visual C++ 2003
 # VCPP6 == Visual C++ 6.0
 #
-!IF "$(MSVCVER)" == "11.0"
+!IF "$(MSVCVER)" == "12.0"
+VCPP12 = 1
+!ELSEIF "$(MSVCVER)" == "11.0"
 VCPP11 = 1
 !ELSEIF "$(MSVCVER)" == "10.0"
 VCPP10 = 1
@@ -121,7 +124,9 @@ WARNING_FLAGS = /W4 /wd4100 /wd4706 /wd4701 $(WARNING_FLAGS)
 WARNING_FLAGS = /W3 $(WARNING_FLAGS)
 !ENDIF
 
-!IFDEF VCPP11
+!IFDEF VCPP12
+Z_FLAGS =
+!ELSEIFDEF VCPP11
 Z_FLAGS =
 !ELSE IFDEF VCPP10
 Z_FLAGS =
