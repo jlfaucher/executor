@@ -27,7 +27,7 @@ check_preconditions()
     fi
     check_ok=1
     check_dir "../../../incubator/ooRexxShell"
-    check_dir "../../../incubator/ooSQLite"
+    #check_dir "../../../incubator/ooSQLite"
     check_dir "../../../incubator/regex"
     check_dir "../samples"
     if test $check_ok = 0
@@ -56,7 +56,7 @@ copy_file()
 create_Makefile_am()
 {
     return # not needed for the moment
-    
+
     subdirs=$1
     makefile_am="packages/$DEST/Makefile.am"
     echo "" > "$makefile_am"
@@ -74,9 +74,9 @@ create_Packages()
     copy_file ../../../incubator/ooRexxShell/oorexxshell
     copy_file ../../../incubator/ooRexxShell/oorexxshell.bat
     copy_file ../../../incubator/ooRexxShell/oorexxshell.rex
-    copy_file ../../../incubator/ooSQLite/build/release/oosqlite.dll
-    copy_file ../../../incubator/ooSQLite/build/release/oosqlite3.exe
-    copy_file ../../../incubator/ooSQLite/src/rexx/ooSQLite.cls
+    #copy_file ../../../incubator/ooSQLite/build/release/oosqlite.dll
+    #copy_file ../../../incubator/ooSQLite/build/release/oosqlite3.exe
+    #copy_file ../../../incubator/ooSQLite/src/rexx/ooSQLite.cls
     copy_file ../unicode/ooRexx/ooRexxTry.rex
     copy_file ../samples/ooRexxTry/ooRexxTry.rxj
     create_Makefile_am "_samples concurrency extension pipeline profiling regex rgf_util2 trace"
@@ -157,11 +157,11 @@ create_Packages()
     then echo "Got errors while copying"
     else echo The directory packages has been created.
     fi
-    
+
     return $ERROR
 }
 
-if ! check_preconditions 
+if ! check_preconditions
 then false
 else create_Packages
 fi
