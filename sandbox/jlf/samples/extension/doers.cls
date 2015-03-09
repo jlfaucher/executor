@@ -43,9 +43,10 @@ See doers-samples.rex
 ::method source abstract
 
 -- Used by higher-order functions, to decide which arguments to pass
-::method arity
+::method arity unguarded
     expose arity
     if arg() <> 0 then do
+        guard on
         use strict arg arity -- store the arity
         return self -- for convenience, return the doer itself
     end
@@ -81,43 +82,6 @@ See doers-samples.rex
             -- Must forward explicitely to (self) otherwise stack overflow because forwarded to the closure itself.
             forward message "do" arguments (args) to (self)
            }~doer
-
-
-/*
-[JLF] No practical interest... Inspired by http://mvanier.livejournal.com/2897.html.
-Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
-
-(define Y
-  (lambda (f)
-    ( (lambda (x) (f (lambda (v) ((x x) v))))
-      (lambda (x) (f (lambda (v) ((x x) v)))))))
-
-Equivalent form:
-
-(define Y
-  (lambda (f)
-    ( (lambda (a) (a a))
-      (lambda (x) (f (lambda (y) ((x x) y)))))))
-
-The Y combinator allows recursion to be defined as a set of rewrite rules.
-It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
-It returns a version of the function which is recursive.
-
-Example :
-    say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
-
-Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
-    say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
-*/
-::method Y
-    use strict arg verbose=.false
-    f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
-    if verbose then trace i
-    return {use arg a ; return a~(a)} ~ {
-        ::closure expose f verbose; use strict arg x
-        if verbose then trace i
-        return f ~ { ::closure expose x verbose; use strict arg v ; if verbose then trace i ; return x~(x)~(v) }
-    }
 
 
 ::routine partialMergeArrays
@@ -157,6 +121,63 @@ Remember : ooRexx supports anonymous recursion, no need of the Y combinator in t
 
 ::method doWith unguarded
     forward message "callWith"
+
+/*
+Inspired by http://mvanier.livejournal.com/2897.html.
+Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
+
+(define Y
+  (lambda (f)
+    ( (lambda (x) (f (lambda (v) ((x x) v))))
+      (lambda (x) (f (lambda (v) ((x x) v)))))))
+
+Equivalent form:
+
+(define Y
+  (lambda (f)
+    ( (lambda (a) (a a))
+      (lambda (x) (f (lambda (y) ((x x) y)))))))
+
+The Y combinator allows recursion to be defined as a set of rewrite rules.
+It takes a single argument, which is a function that isn't recursive (JLF : here, no argument, use self which is a Doer).
+It returns a version of the function which is recursive.
+
+Example :
+    say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
+
+Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
+    say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
+*/
+::method Y unguarded
+    use strict arg verbose=.false
+    if verbose then trace i
+    f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+    return {use arg a ; return a~(a)} ~ {
+        ::closure expose f verbose
+        if verbose then trace i
+        use strict arg x
+        return f ~ { ::closure expose x verbose; if verbose then trace i ; use strict arg v ; return x~(x)~(v) }
+    }
+
+-- Y combinator with memoization
+::method YM unguarded
+    use strict arg verbose=.false
+    if verbose then trace i
+    f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+    table = .Table~new
+    return {use arg a ; return a~(a)} ~ {
+        ::closure expose f verbose table
+        if verbose then trace i
+        use strict arg x
+        return f ~ { ::closure expose x verbose table
+                     if verbose then trace i
+                     use strict arg v
+                     r = table[v]
+                     if r <> .nil then return r
+                     r = x~(x)~(v)
+                     table[v] = r
+                     return r}
+    }
 
 
 -----------------------------------------------------------------------------
@@ -230,7 +251,7 @@ The method 'run' is a private method. So can be called only from another method 
     executable = self~sourceDoer( , , , objectSpecified, object)
     return executable
 
-::method executable
+::method executable unguarded
     expose executable
     return executable
 
@@ -325,7 +346,7 @@ Without this redefinition, I should write :
     1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
                                                                                                 ****
 */
-::method hasMethod
+::method hasMethod unguarded
     use strict arg methodName
     if self~hasMethod:super(methodName) then return .true
     forward to (self~doer)
@@ -337,7 +358,7 @@ I find more natural to support directly blocks in the following samples (no need
 {::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~take(5)~iterator~each{say item}
 {::coactivity i=1 ; do forever; .yield[i]; i += 1 ; end}~select{item//2 == 0}~take(5)~iterator~each{say item}
 */
-::method unknown
+::method unknown unguarded
     use arg msg, args
     forward message (msg) arguments (args) to (self~doer)
 
@@ -415,6 +436,15 @@ I find more natural to support directly blocks in the following samples (no need
     doMethod = self~instanceMethod("do")
     if .nil == doMethod then return .nil
     return doMethod~source
+
+::method variables
+    expose !_closure.variableNames_! (!_closure.variableNames_!)
+    -- Must use variable names that will not collide with user-defined variables
+    !_closure.directory_! = .Directory~new
+    do !_closure.variableName_! over !_closure.variableNames_! ~ subwords
+        !_closure.directory_! ~ put(value(!_closure.variableName_!), !_closure.variableName_!)
+    end
+    return !_closure.directory_!
 
 
 -----------------------------------------------------------------------------

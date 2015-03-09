@@ -30,6 +30,15 @@ It's because the arguments are not declared in a single place at the begining of
 They can be declared several times, and complex expressions can be used (stem, instance's attribute, ...).
 Moreover, named arguments can be passed in any order, and that's a problem with current management by array.
 So, I give up...
+[2015 mar 8]
+I reopen the subject... Named arguments can be managed separately from the array of arguments.
+"123 456 789"~reduceW(100, "+")
+could become
+"123 456 789"~reduce("+") by:"word" initial:100
+The named parameters don't impact the array of arguments, nor the declaration of arguments.
+They could be provided in a directory returned by .context~namedArgs.
+They could be optionally be declared with the 'use' instruction :
+use strict named args by, initial=.nil
 
 Deferred evaluation of parameters.
 Let the routine/method decide which parameters must be evaluated, ex : iif(cond, iftrue, iffalse)
@@ -138,6 +147,110 @@ That makes the transformation of clauses more difficult, since a clause can be
 multi-line.
 Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
+
+===============================================================================
+2015 mar 8
+
+Moved the implementation of the Y combinator from the class Doer to the class
+RoutineDoer because, by definition, a combinator is a lambda with no free variable.
+So can't be a message (not a lambda), nor a closure or method (can have free variables).
+No reason to support the Y combinator on a coactivity, because only one result is
+expected. So the only remaining candidate is a routine.
+
+
+Added the implementation of the Y combinator with memoization.
+::class RoutineDoer
+::method YM unguarded
+    use strict arg verbose=.false
+    if verbose then trace i
+    f = self -- to be closer to the notation (here, self is the routine to which the Y combinator is applied)
+    table = .Table~new
+    return {use arg a ; return a~(a)} ~ {
+        ::closure expose f verbose table
+        if verbose then trace i
+        use strict arg x
+        return f ~ { ::closure expose x verbose table
+                     if verbose then trace i
+                     use strict arg v
+                     r = table[v]
+                     if r <> .nil then return r
+                     r = x~(x)~(v)
+                     table[v] = r
+                     return r}
+    }
+
+Application to fibonacci :
+fibm = { use arg fib; return {::closure expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}~YM
+fibm~(20) is calculated almost instantly,
+whereas the not-memoizing version needs almost 30 sec.
+
+Both Y and YM are subject to stack overflow.
+But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization :
+do i=1 to 100; say "fibm~("i")="fibm~(i*100); end
+    fibm~(100)=3.54224847E+20
+    fibm~(200)=2.80571176E+41
+    fibm~(300)=2.22232246E+62
+    ...
+    fibm~(10000)=3.36447936E+2089
+The first execution needs around 2.5 sec.
+The following executions need less than 0.01 sec.
+
+
+Added the method 'variables' to the class Closure,
+which returns a directory of the variables captured by the closure.
+Illustration after the calculation of fibm~(10000) :
+fibm=
+    (a RexxBlock)
+fibm~executable=
+    (a Closure)
+fibm~executable~source=
+    expose fib; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)
+fibm~executable~variables=
+    type: The Directory class: (1 items)
+    # 1: index='FIB' -> item=(a RexxBlock)
+fibm~executable~variables["FIB"]~executable=
+    (a Closure)
+fibm~executable~variables["FIB"]~executable~source~each{say item}
+    expose x verbose table
+    if verbose then trace i
+    use strict arg v
+    r = table[v]
+    if r <> .nil then return r
+    r = x~(x)~(v)
+    table[v] = r
+    return r
+fibm~executable~variables["FIB"]~executable~variables=
+    type: The Directory class: (6 items)
+    # 1: index='F'       -> item=(a Routine)
+    # 2: index='SELF'    -> item=(a Closure)
+    # 3: index='SUPER'   -> item=(The Doer class)
+    # 4: index='TABLE'   -> item=(a Table (10000 items))
+    # 5: index='VERBOSE' -> item=0
+    # 6: index='X'       -> item=(a RexxBlock)
+fibm~executable~variables["FIB"]~executable~variables["X"]~executable=
+    (a Closure)
+fibm~executable~variables["FIB"]~executable~variables["X"]~executable~source~each{say item}
+    expose f verbose table
+    if verbose then trace i
+    use strict arg x
+    return f ~ { ::closure expose x verbose table
+                 if verbose then trace i
+                 use strict arg v
+                 r = table[v]
+                 if r <> .nil then return r
+                 r = x~(x)~(v)
+                 table[v] = r
+                 return r}
+fibm~executable~variables["FIB"]~executable~variables["X"]~executable~variables=
+    type: The Directory class: (5 items)
+    # 1: index='F'       -> item=(a Routine)
+    # 2: index='SELF'    -> item=(a Routine)
+    # 3: index='SUPER'   -> item=(The Doer class)
+    # 4: index='TABLE'   -> item=(a Table (10000 items))
+    # 5: index='VERBOSE' -> item=0
+fibm~executable~variables["FIB"]~executable~variables["X"]~executable~variables["F"]~source=
+    use arg fib; return {::closure expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}
+
 
 ===============================================================================
 2014 may 29
