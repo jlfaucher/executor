@@ -239,6 +239,7 @@ prompt: procedure
 readline: procedure
     use strict arg prompt
     inputrx = ""
+    RC = 0
     select
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
             -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
@@ -300,6 +301,13 @@ readline: procedure
     if .ooRexxShell~traceReadline then do
         .color~select(.ooRexxShell~traceColor)
         .traceOutput~say("[readline] inputrx=" inputrx)
+        .color~select(.ooRexxShell~defaultColor)
+    end
+    if RC <> 0 then do
+        .ooRexxShell~readline = .false
+        .color~select(.ooRexxShell~errorColor)
+        .traceOutput~say("[readline] RC="RC)
+        .traceOutput~say("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
         .color~select(.ooRexxShell~defaultColor)
     end
     return inputrx
@@ -517,7 +525,7 @@ loadOptionalComponents:
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
-    call loadPackage("ooSQLite.cls")
+    --call loadPackage("ooSQLite.cls")
     call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
