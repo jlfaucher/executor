@@ -271,6 +271,8 @@ if profile then do
     .context~package~setSecurityManager(profiler)
 end
 self~begin(source)                          -- now go feed the pipeline
+self~eof                                    -- signal that processing is finished
+self~reset
 if profile then do
     profiler~reportResults(profiler~pull)
     .context~package~setSecurityManager
@@ -287,7 +289,7 @@ if \source~hasMethod("supplier") then do
 end
 else do
     supplier = source~supplier              -- get a data supplier
-    do while supplier~available, \self~isEOP-- while more data
+    do while \self~isEOP, supplier~available-- while more data
       -- Initial dataflow, each following pipeStage will create an enclosing dataflow, when requested.
       dataflow = .dataflow~create(.nil, "source", supplier~item, supplier~index)
       self~process(supplier~item, supplier~index, dataflow) -- pump this down the pipe
@@ -301,7 +303,6 @@ else do
       supplier~next                         -- get the next data item
     end
 end
-self~eof                                    -- signal that processing is finished
 
 ::method start                              -- process "start-of-pipe" condition
 expose next options secondary
@@ -343,16 +344,15 @@ if error then raise syntax 93.900 array(self~class~id ": Unknown option")
 -- Accept zero to n arguments, each argument being a pipeStage or .nil
 -- If all the args are .nil then don't change isEOP (this is a terminal pipeStage).
 -- If all the nonNil arguments (i.e. pipeStages) are EOP then the current pipeStage becomes EOP.
-allEOP = .true
 allNIL = .true
 do pipeStage over arg(1, "a")
     if .nil <> pipeStage then do
         allNIL = .false
-        if \pipeStage~isEOP then allEOP = .false
+        if \pipeStage~isEOP then return -- can stop immediately, self is not EOP
     end
 end
 if allNIL then return
-if allEOP then self~isEOP = .true
+self~isEOP = .true
 
 ::method process                            -- default data processing
 use strict arg item, index, dataflow        -- get the data item
@@ -405,6 +405,15 @@ if .nil <> next then do
 end
 if .nil <> secondary then do
     secondary~secondaryEof                  -- only forward if we have a successor
+end
+
+::method reset
+expose next secondary
+if .nil <> next then do
+    next~reset
+end
+if .nil <> secondary then do
+    secondary~reset
 end
 
 
@@ -578,7 +587,7 @@ dataflow~index
     Returns the index of the produced item.
 dataflow~length
     Returns the number of linked dataflows, including the current one ( >= 1 ).
-dataflow~makeString
+dataflow~makeString(mask="1234", showPool=.false)
     Returns a string representation of the dataflow.
     - mask lets indicate which fields to include.
       if previous is included, then the same mask is used everywhere.
@@ -987,6 +996,12 @@ do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all so
 end
 forward class(super)                        -- make sure we propagate the done message
 
+::method reset
+expose items
+use strict arg -- none
+items = .array~new                          -- create a new list
+forward class (super)
+
 
 /******************************************************************************/
 ::class "sortWith" public subclass pipeStage-- sort piped data
@@ -1024,6 +1039,12 @@ do i = 1 to items~items while .nil <> self~next, \self~next~isEOP -- copy all so
    self~write(indexedItem~item, indexedItem~index, indexedItem~dataflow)
 end
 forward class(super)                        -- make sure we propagate the done message
+
+::method reset
+expose items
+use strict arg -- none
+items = .array~new                          -- create a new list
+forward class (super)
 
 
 /******************************************************************************/
@@ -1304,6 +1325,13 @@ expose first
 if \first then self~endOfPartition
 forward class(super)                        -- make sure we propagate the done message
 
+::method reset
+counter = 0                                 -- if first, we need to count the processed items
+array = .array~new                          -- if last, we need to accumulate these until the end
+partitionCount = 0
+previousPartitionItem = .nil
+forward class (super)
+
 
 /******************************************************************************/
 ::class "take" public subclass pipeStage    -- take the first or last n records
@@ -1439,6 +1467,13 @@ expose first
 if \first then self~endOfPartition
 forward class(super)                        -- make sure we propagate the done message
 
+::method reset
+counter = 0                                 -- if first, we need to count the processed items
+array = .array~new                          -- if last, we need to accumulate these until the end
+partitionCount = 0
+previousPartitionItem = .nil
+forward class (super)
+
 
 /******************************************************************************/
 ::class "x2c" public subclass pipeStage     -- translate records to hex characters
@@ -1540,6 +1575,12 @@ expose secondaryEof
 secondaryEof = .true                        -- mark ourselves finished
 self~finalize                               -- will finalize if both branches finished
 
+::method reset
+primaryEof = .false
+secondaryEof = .false
+array = .array~new                          -- accumulator for secondary
+forward class (super)
+
 
 /******************************************************************************/
 ::class "duplicate" public subclass pipeStage-- duplicate each record N times
@@ -1569,7 +1610,6 @@ self~checkEOP(self~next)
 ::class "console" subclass pipeStage public
 
 ::method init
-expose items
 use strict arg -- none
 forward class (super)
 
@@ -1837,8 +1877,9 @@ self~checkEOP(self~next, self~secondary)
 ::method init
 expose stem.                                -- expose target stem
 use strict arg stem.                        -- get the stem variable target
-stem.~empty
-stem.0 = 0                                  -- start with zero items
+-- Don't reset the stem, up to the user to reset before running the pipe
+-- stem.~empty
+-- stem.0 = 0                               -- start with zero items
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
@@ -1850,15 +1891,20 @@ stem.[stem.0, 'INDEX'] = index              -- save the index
 stem.[stem.0, 'DATAFLOW'] = dataflow        -- save the dataflow
 forward class(super)
 
+-- No need of reset, the reset of the collected  datas is under the responsability of the user
+-- ::method reset
+
+
 /******************************************************************************/
 ::class "arrayCollector" subclass pipeStage public-- collect items in an array
 
 ::method init                               -- initialize a collector
 expose dataflowArray idx indexArray itemArray -- expose target array
 use strict arg itemArray, indexArray=.nil, dataflowArray=.nil -- get the array variable target
-itemArray~empty
-if .nil <> indexArray then indexArray~empty
-if .nil <> dataflowArray then dataflowArray~empty
+-- Don't reset the array, up to the user to reset before running the pipe
+-- itemArray~empty
+-- if .nil <> indexArray then indexArray~empty
+-- if .nil <> dataflowArray then dataflowArray~empty
 idx = 0
 forward class (super)                       -- forward the initialization
 
@@ -1870,6 +1916,10 @@ itemArray[idx] = item                       -- save the item
 if .nil <> indexArray then indexArray[idx] = index -- save the index
 if .nil <> dataflowArray then dataflowArray[idx] = dataflow -- save the dataflow
 forward class(super)                        -- allow superclass to send down pipe
+
+-- No need of reset, the reset of the collected  datas is under the responsability of the user
+-- ::method reset
+
 
 /******************************************************************************/
 ::class "between" subclass pipeStage public -- write only records from first trigger record
@@ -1912,6 +1962,12 @@ else do
 end
 self~checkEOP(self~next, self~secondary)
 
+::method reset
+expose finished started
+started = .false                            -- not processing any lines yet
+finished = .false
+forward class (super)
+
 
 /******************************************************************************/
 ::class "after" subclass pipeStage public   -- write only records from first trigger record
@@ -1944,6 +2000,11 @@ if \started then do                         -- not turned on yet?  see if we've 
 end
 else self~write(item, index, dataflow)      -- pass along
 self~checkEOP(self~next, self~secondary)
+
+::method reset
+expose started
+started = .false                            -- not processing any lines yet
+forward class (super)
 
 
 /******************************************************************************/
@@ -1980,6 +2041,11 @@ else do
     self~writeSecondary(item, index, dataflow) -- non-selected lines go to the secondary bucket
 end
 self~checkEOP(self~next, self~secondary)
+
+::method reset
+expose finished
+finished = .false
+forward class (super)
 
 
 /******************************************************************************/
@@ -2051,6 +2117,13 @@ buffer~append(.indexedItem~new(item, index, dataflow)) -- just accumulate the it
 self~endOfPartition
 forward class(super)                        -- and send the done message along
 
+::method reset
+expose buffer partitionCount previousPartitionItem
+buffer = .array~new
+partitionCount = 0
+previousPartitionItem = .nil
+forward class (super)
+
 
 /******************************************************************************/
 ::class "partitionedCounter" subclass pipeStage public -- abstract
@@ -2114,6 +2187,13 @@ counter += self~count(item, index, dataflow)
 ::method eof
 self~endOfPartition
 forward class(super)                        -- and send the done message along
+
+::method reset
+expose counter partitionCount previousPartitionItem
+counter = 0
+partitionCount = 0
+previousPartitionItem = .nil
+forward class (super)
 
 
 /******************************************************************************/

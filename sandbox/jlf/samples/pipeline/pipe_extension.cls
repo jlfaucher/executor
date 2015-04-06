@@ -150,15 +150,14 @@ The option iterate (no need of 'After') is automatically activated when the prod
     -- Similar to .pipeStage~begin :
     if iterate, producer~hasMethod("supplier") then do
         supplier = producer~supplier
-        do while supplier~available, \self~isEOP
+        do while \self~isEOP, supplier~available
             self~process(supplier~item, supplier~index, .nil)
             -- Similar to .pipeStage~begin :
             -- Matter of choice : should I stay on current item or get the next item before leaving ?
             -- Current choice works good for coactivities : no lost item when piping directly the coactivity
             -- to several pipes. But if you pass the same supplier to several pipes then you have to call
             -- ~next if you don't want to get the last processed item again.
-            if self~isEOP then leave
-            supplier~next -- get the next data item
+            if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else do
@@ -318,9 +317,9 @@ self~init:super
     -- Similar to .pipeStage~begin :
     if iterateAfter, doResult~hasMethod("supplier") then do
         supplier = doResult~supplier
-        do while supplier~available, \self~isEOP
+        do while \self~isEOP, supplier~available
             self~processDepthFirst.3(supplier~item, supplier~index, dataflow, previousItems, stack, depth)
-            supplier~next
+            if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else self~processDepthFirst.3(doResult, index, dataflow, previousItems, stack, depth)
@@ -333,9 +332,9 @@ self~init:super
     use strict arg item, index, dataflow, previousItems, stack, depth=0
     if iterateBefore, item~hasMethod("supplier") then do
         supplier = item~supplier
-        do while supplier~available, \self~isEOP
+        do while \self~isEOP, supplier~available
             self~processDepthFirst.2(supplier~item, supplier~index, dataflow, previousItems, stack, depth)
-            supplier~next
+            if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else self~processDepthFirst.2(item, index, dataflow, previousItems, stack, depth)
@@ -406,9 +405,9 @@ self~init:super
     -- Similar to .pipeStage~begin :
     if iterateAfter, doResult~hasMethod("supplier") then do
         supplier = doResult~supplier
-        do while supplier~available, \self~isEOP
+        do while \self~isEOP, supplier~available
             self~processBreadthFirst.3(supplier~item, supplier~index, dataflow, toprocess, previousItems, stack, depth)
-            supplier~next
+            if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
         end
     end
     else do
@@ -426,9 +425,9 @@ self~init:super
     do while \self~isEOP
         if iterateBefore, item~hasMethod("supplier") then do
             supplier = item~supplier
-            do while supplier~available, \self~isEOP
+            do while \self~isEOP, supplier~available
                 self~processBreadthFirst.2(supplier~item, supplier~index, dataflow, toprocess, previousItems, stack, depth)
-                supplier~next
+                if \self~isEOP then supplier~next -- when the supplier is a coactivity supplier, it's important to not read the next item
             end
         end
         else self~processBreadthFirst.2(item, index, dataflow, toprocess, previousItems, stack, depth)
