@@ -1107,8 +1107,9 @@ RunSyntax:
     fileMenu = .javax.swing.JMenu~new('File')
     fileMenu~setMnemonic(.java.awt.event.KeyEvent~VK_F)
     	newMenuItem = .javax.swing.JMenuItem~new('New')
-        newMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_N)
-        newMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_N, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
+        -- JLF : too dangerous under MacOs : Alt-N is used to create "~". Too many often, I press Cmd-N and all my input is lost.
+        -- newMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_N)
+        -- newMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_N, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
         openMenuItem = .javax.swing.JMenuItem~new('Open ...')
         openMenuItem~setMnemonic(.java.awt.event.KeyEvent~VK_O)
         openMenuItem~setAccelerator(.javax.swing.KeyStroke~getKeyStroke(.java.awt.event.KeyEvent~VK_O, .java.awt.Toolkit~getDefaultToolkit~getMenuShortcutKeyMask))
