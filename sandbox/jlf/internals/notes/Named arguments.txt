@@ -20,8 +20,15 @@ It's because the arguments are not declared in a single place at the begining of
 They can be declared several times, and complex expressions can be used (stem, instance's attribute, ...).
 Moreover, named arguments can be passed in any order, and that's a problem with current management by array.
 So, I give up...
-
-
+[2015 mar 8]
+I reopen the subject... Named arguments can be managed separately from the array of arguments.
+"123 456 789"~reduceW(100, "+")
+could become
+"123 456 789"~reduce("+") by:"word" initial:100
+The named parameters don't impact the array of arguments, nor the declaration of arguments.
+They could be provided in a directory returned by .context~namedArgs.
+They could be optionally be declared with the 'use' instruction :
+use strict named args by, initial=.nil
 
 
 RexxCore.h
@@ -47,14 +54,14 @@ appelé si call myroutine ...
 appelé si myroutine~call(...)
     appelé par void RoutineClass::runProgram
     appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
-        appelle RexxInstructionMessage::execute     
+        appelle RexxInstructionMessage::execute
             --> MessageInstruction.hpp : il y a le tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
             Evalue chaque argument (push stack)
             puis appelle stack->send(this->name, argcount, result);
                 RexxObject::messageSend
                     RexxMethod::run
                         RexxCode::run
-    
+
 
 Evaluation des arguments
 RexxInstructionCall
