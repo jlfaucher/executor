@@ -46,6 +46,9 @@ todo
 --> See routine if(aLogical, whenTrue, whenFalse).
     It's up to the caller to freeze the evaluation, by passing explicitely a doer.
     So the goal is not reached... I want the callee to have full control of the evaluation.
+According to
+http://www.nhplace.com/kent/Papers/Special-Forms.html
+fexpr must be avoided. Macros are better.
 
 Investigate the Activation stack (reify ? closure ? continuation ?)
 --> closure by value : done
