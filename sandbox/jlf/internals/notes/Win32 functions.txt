@@ -200,3 +200,10 @@ http://www.tech-archive.net/Archive/Development/microsoft.public.win32.programme
 
     Finally, many existing Exe/DLL tools also parses the PE file format
     internally, such as dumpbin.exe etc...
+
+==========================================================================================
+sysfiletree & FindFirstFile
+
+http://blogs.msdn.com/oldnewthing/archive/2005/07/20/440918.aspx
+http://netez.com/2xExplorer/shellFAQ/bas_xplore.html
+
