@@ -7,7 +7,7 @@ http://stackoverflow.com/questions/4509782/simple-explanation-of-clojure-protoco
 
 http://blog.headius.com/2012/11/refining-ruby.html
 
-http://perfectionkills.com/extending-built-in-native-objects-evil-or-not/
+http://perfectionkills.com/extending-native-builtins/
 
 http://channel9.msdn.com/shows/Going+Deep/C9-Lectures-Dr-Ralf-Laemmel-Advanced-Functional-Programming-The-Expression-Problem/
 http://channel9.msdn.com/shows/Going+Deep/C9-Lectures-Dr-Ralf-Lmmel-Advanced-Functional-Programming-Type-Classes/
@@ -18,11 +18,10 @@ Extension Methods (C# Programming Guide)
 http://lambda-the-ultimate.org/node/4136
 
 http://journal.stuffwithstuff.com/2011/04/21/multimethods-multiple-inheritance-multiawesome/
+http://journal.stuffwithstuff.com/2010/10/01/solving-the-expression-problem/
 
 http://www.ibm.com/developerworks/java/library/j-clojure-protocols/index.html
 http://www.reddit.com/r/programming/comments/fp0re/solving_the_expression_problem_with_clojure/
-http://journal.stuffwithstuff.com/2010/10/01/solving-the-expression-problem/
-http://scholar.google.com/scholar?cites=13961554063037041356&as_sdt=5,38&sciodt=0,38&hl=en
 http://www.javarants.com/2011/01/22/using-closures-method-handles-and-extension-methods-in-java-8-jsr-335/?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+javarants+%28java+rants%29&utm_content=Google+Reader
 
 http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-4.html
