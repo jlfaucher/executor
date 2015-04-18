@@ -6,12 +6,20 @@ http://python.net/crew/theller/ctypes/tutorial.html
 
 
 Cython
-http://docs.cython.org/docs/external_C_code.html
+http://docs.cython.org/src/userguide/external_C_code.html
 
 
 Ruby/DL
-http://www.jbrowse.com/text/rdl_en.html
+http://ttsky.net/ruby/ruby-dl.html
+http://ruby-doc.org/stdlib-2.0/libdoc/dl/rdoc/DL.html
 
+Ruby/Fiddle
+Replace dl/import with Fiddle providing Ruby 2.2.0 support
+https://github.com/sup-heliotrope/sup/pull/360
+Fiddle is an extension to translate a foreign function interface (FFI) with ruby.
+It wraps libffi, a popular C library which provides a portable interface that allows code
+written in one language to call code written in another language.
+http://ruby-doc.org/stdlib-2.0/libdoc/fiddle/rdoc/Fiddle.html
 
 =================================================================================
 
@@ -50,9 +58,9 @@ http://www.jbrowse.com/text/rdl_en.html
  	rexx.exe!main(int argc=2, char * * argv=0x00a45410)  Line 198 + 0x27 bytes	C++
  	rexx.exe!__tmainCRTStartup()  Line 266 + 0x19 bytes	C
  	rexx.exe!mainCRTStartup()  Line 182	C
- 	kernel32.dll!7c817077() 	
- 	[Frames below may be incorrect and/or missing, no symbols loaded for kernel32.dll]	
+ 	kernel32.dll!7c817077()
+ 	[Frames below may be incorrect and/or missing, no symbols loaded for kernel32.dll]
  	rexx.dll!RexxList::getFree()  Line 144	C++
- 	63005300()	
+ 	63005300()
 
 
