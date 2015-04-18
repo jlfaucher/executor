@@ -1,1 +1,4 @@
 https://eclipse.org/Xtext/
+
+Arc internals : Macros
+http://arclanguage.github.io/ref/macros.html
