@@ -1,0 +1,17 @@
+==========================================================================================
+Series of articles introducting you to some of the features of the upcoming ES6 specification.
+ECMAScript 6 (ES6, often referred to as “Harmony”) is the upcoming sixth major release of
+the ECMAScript language specification.
+ECMAScript is the “proper” name for the language commonly referred to as JavaScript.
+
+http://globaldev.co.uk/2013/10/es6-part-4/
+Parameters and Spread
+
+http://globaldev.co.uk/2013/10/es6-part-3/
+Destructuring
+
+http://globaldev.co.uk/2013/09/es6-part-2/
+Block Scoping
+
+http://globaldev.co.uk/2013/09/es6-part-1/
+Using ES6 Today

@@ -1,0 +1,55 @@
+==========================================================================================
+
+http://www.debian-administration.org/articles/316
+An introduction to bash completion: part 1
+
+http://www.debian-administration.org/articles/317
+An introduction to bash completion: part 2
+
+http://tldp.org/LDP/abs/html/sample-bashrc.html
+Appendix L. Sample .bashrc and .bash_profile Files
+
+http://fahdshariff.blogspot.com/2011/04/writing-your-own-bash-completion.html
+Writing your own Bash Completion Function
+
+http://stackoverflow.com/questions/5302650/multi-level-bash-completion
+
+==========================================================================================
+
+readline
+
+http://gnuwin32.sourceforge.net/packages/readline.htm
+
+http://search.cpan.org/~rivy/Win32-CommandLine-0.4.4.269/lib/Win32/CommandLine.pm
+
+
+kernel32.dll
+    ExpungeConsoleCommandHistoryA
+    ExpungeConsoleCommandHistoryW
+
+    FlushConsoleInputBuffer
+
+    GenerateConsoleCtrlEvent
+
+    GetConsoleCommandHistoryA
+    GetConsoleCommandHistoryLengthA
+    GetConsoleCommandHistoryLengthW
+    GetConsoleCommandHistoryW
+
+    GetConsoleInputExeNameA
+    GetConsoleInputExeNameW
+
+    SetConsoleInputExeNameA
+    SetConsoleInputExeNameW
+
+    GetConsoleAlias[A/W], AddConsoleAlias
+
+
+http://source.winehq.org/source/dlls/kernel32/console.c
+
+http://en.wikipedia.org/wiki/Comparison_of_command_shells
+
+ReactOS
+trunk/reactos/base/applications/cmdutils/doskey/
+
+http://jline.sourceforge.net/

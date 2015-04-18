@@ -1,0 +1,16 @@
+==========================================================================================
+Racket's package manager
+
+http://docs.racket-lang.org/pkg/
+There are two ways to manage Racket package installations:
+- The package manager graphical interface.
+- The raco pkg command-line tool.
+
+
+==========================================================================================
+Racket's package manager (deprecated)
+
+http://planet.racket-lang.org/display.ss?
+PLaneT is Racket's old package distribution system.
+We encourage you to use the newer pkg system for any new software.
+PLaneT will continue to be maintained, but future effort will most be focused on pkgs.

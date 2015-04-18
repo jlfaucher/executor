@@ -1,0 +1,37 @@
+==========================================================================================
+
+http://globaldev.co.uk/2014/05/ruby-2-1-in-detail/
+Ruby 2.1 In Detail
+
+
+http://globaldev.co.uk/2013/03/ruby-2-0-0-in-detail/
+Ruby 2.0.0 in Detail
+Thorough and detailed run-down of all the tweaks, changes and additions that have made it in to the release.
+
+A creuser car certaines évolutions pourraient nous apporter des réponses
+sur les choix à faire pour ooRexx.
+
+
+==========================================================================================
+Ruby Tips series
+
+http://globaldev.co.uk/2014/04/ruby-tips-part-5/
+A collection of all the smaller tips that didn't make it in to the earlier parts
+
+http://globaldev.co.uk/2013/10/ruby-tips-part-4/
+Debugging using IRB, the best way to lay out your project's directory structure and also some hints on documenting your code.
+
+http://globaldev.co.uk/2013/09/ruby-tips-part-3/
+dealing with exceptions and various ways of using modules
+
+http://globaldev.co.uk/2013/09/ruby-tips-part-2/
+de- and re-structuring arrays using the "splat" operator,
+and the different ways to do explicit and implicit conversions between types.
+
+http://globaldev.co.uk/2013/09/ruby-tips-part-1/
+blocks and ranges
+
+==========================================================================================
+MRI GIL
+
+http://www.jstorimer.com/blogs/workingwithcode/8100871-nobody-understands-the-gil-part-2-implementation

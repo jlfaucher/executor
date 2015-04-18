@@ -1,0 +1,10 @@
+==========================================================================================
+
+Change process
+http://wiki.commonjs.org/wiki/Process
+
+Il y a des renvois vers d'autres process :
+Python
+Scheme
+RFC
+Apache

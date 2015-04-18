@@ -1,0 +1,38 @@
+==========================================================================================
+
+Debug SysFileTree
+
+dans gdb :
+info b --> trouver le n° du breakpoint (ici 13)
+ignore 13 19539 --> nbre de PROCHAINS passages à ignorer
+
+Note : pour savoir combien de passages ignorer, mettre le breakpoint
+et cocher "automatically continue"
+
+RexxNativeActivation::variablePoolInterface(PSHVBLOCK pshvblock)
+    RexxNativeActivation::variablePoolRequest(PSHVBLOCK pshvblock)
+        RXSHV_SYSET : RexxNativeActivation::variablePoolSetVariable(PSHVBLOCK pshvblock)
+
+p ldp->truefile
+affichage tronqué.
+Pour voir la totalité :
+set print elements 0
+
+"/Users/jlfaucher/Library/Caches/Metadata/Safari/History/http:%2F%2Fdeveloper.apple.com%2Flibrary%2Fmac%2F%23documentation%2FDeveloperTools%2FReference%2FXcodeBuildSettingRef%2F1-Build_Setting_Reference%2Fbuild_setting_ref.html%23%2F%2Fapple_ref%2Fdoc%2Fuid%"
+
+
+==========================================================================================
+
+OutputDebugString
+http://www.unixwiz.net/techtips/outputdebugstring.html
+
+syslog
+http://fr.wikipedia.org/wiki/Syslog
+http://www.linux-kheops.com/doc/man/manfr/man-html-0.9/man3/syslog.3.html
+LOG_USER | LOG_DEBUG
+
+
+==========================================================================================
+
+http://www.oklabs.net/skype-reverse-engineering-the-long-journey/
+Montre comment utiliser Olly dbg
