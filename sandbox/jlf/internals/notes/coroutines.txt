@@ -1,5 +1,9 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+http://factor-language.blogspot.fr/2010/04/switching-call-stacks-on-different.html
+
+http://www.dekorte.com/projects/opensource/libcoroutine/
+
 https://en.wikipedia.org/wiki/Call-with-current-continuation
 http://en.wikipedia.org/wiki/Coroutine#Coroutines_and_generators
 http://en.wikipedia.org/wiki/Fiber_%28computer_science%29
