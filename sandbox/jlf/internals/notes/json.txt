@@ -1,4 +1,11 @@
-http://www.rhinocerus.net/forum/lang-rexx/588763-does-anyone-know-any-rexx-json-support.html
+Does anyone know of Rexx code to read or create JSON files?
+https://groups.google.com/forum/#!topic/comp.lang.rexx/e8cZJEkAzcs
 
 
+Header-file-only, JSON parser serializer in C++
 https://github.com/kazuho/picojson
+
+
+Code to retrieve information about the weather and write it to a ini file that other apps can use.
+The script store the found information for later use in a file called OpenWeather.ini
+http://www.os2world.com/forum/index.php?topic=65.0
