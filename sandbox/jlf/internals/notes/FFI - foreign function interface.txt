@@ -1,5 +1,49 @@
 FFI = Foreign Function Interface
 
+FFI from Go to Rust
+https://github.com/medimatrix/rust-plus-golang
+https://news.ycombinator.com/item?id=9516442
+JLF : the point of interest is not on the github part, but on the discussion
+in Hacker News about :
+cmd/cgo: do not let Go pointers end up in C
+https://github.com/golang/go/issues/8310
+This discussion reminds me how the ooRexx pointers passed to the C/C++ api are
+stored in a list, to keep them alive while the RexxNativeActivation is alive.
+See RexxNativeActivation in "rexx args to C args.txt".
+Note : the pointer to the ooRexx object is passed to the foreign function.
+To investigate : what happens in case of GC during the execution of the foreign function ?
+That can happen when several threads are running. I suppose that the live objects are not
+moved during the GC, so any pointer to them remains valid ?
+
+ooRexx protection of pointers passed to the foreign function :
+/**
+ * Create a local reference for an object.  The protects the object
+ * from GC until the environment terminates.
+ *
+ * @param objr   The object to protect.
+ */
+void RexxNativeActivation::createLocalReference(RexxObject *objr)
+{
+    // if we have a real object, then add to the list
+    if (objr != OREF_NULL)
+    {
+        // make sure we protect this from a GC triggered by this table creation.
+        ProtectedObject p1(objr);           -- JLF : this is a temporay protectection, until objr is stored in this->savelist
+        if (this->savelist == OREF_NULL)     /* first saved object?               */
+        {
+            /* create the save list now          */
+            this->savelist = new_identity_table();
+        }
+        /* add to the save table             */
+        this->savelist->put(objr, objr);
+    }
+}
+
+
+Nim
+http://nim-lang.org/docs/manual.html#foreign-function-interface
+
+
 Python ctypes
 http://docs.python.org/library/ctypes.html
 http://python.net/crew/theller/ctypes/tutorial.html

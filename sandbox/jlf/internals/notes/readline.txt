@@ -1,5 +1,15 @@
 ==========================================================================================
 
+https://gist.github.com/baruchel/b6d8bee16a818dd5d64d
+Using rlwrap with Dialog APL.
+The trick is feeding the input of dyalog from another process rather than from a terminal.
+
+https://github.com/baruchel/vim-notebook
+A plugin for the Vim editor for handling any interpreter in a Notebook style
+
+
+==========================================================================================
+
 http://www.debian-administration.org/articles/316
 An introduction to bash completion: part 1
 

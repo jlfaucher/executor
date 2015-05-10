@@ -43,7 +43,7 @@ RexxString::concatBlank
    540 *-*
    114 *-*
     79 *-*
-    
+
 
 [failure] [20101113 17:52:32.328000]
   svn:    r4502   Change date: 2009-04-25 17:42:58 +0200
@@ -73,7 +73,7 @@ Error 91 running D:\local\Rexx\ooRexx\svn\test\trunk\framework\OOREXXUNIT.CLS li
 object
 Error 91.999:  Message "NAME" did not return a result
 
-    
+
 =======================================================
 
 interpreter\classes\RoutineClass.cpp    RoutineClass::restore
@@ -94,7 +94,7 @@ Problème de parsing
 
 SourceFile.cpp
 RexxSource::nextClause
-Mettre point d'arrêt sur 
+Mettre point d'arrêt sur
     token = this->sourceNextToken(OREF_NULL)
 
 Le fichier CoreClasses.orx est parsé sans problème.
@@ -139,6 +139,18 @@ RexxCompoundTail
 Remember Parrot
 trunk/src/io/utf8.c
 
+JLF 10/05/2015
+Forget Parrot.
+See MoarVM.
+http://moarvm.com/index.html
+MoarVM 2015.04
+Implementation of Unicode Normalization (NFC, NFD, NFKC, NFKD), and a partial implementation of
+Normal Form Grapheme. Unicode Database upgraded to version 7.0.
+
+https://6guts.wordpress.com/2015/04/30/this-week-the-big-nfg-switch-on-and-many-fixes/
+Blog of Jonathan Worthington, the guy who implemented NFG for Perl6.
+Rakudo on MoarVM uses NFG now
+Since the 24th April, all strings you work with in Rakudo on MoarVM are at grapheme level.
 
 
 ======================================================================================
@@ -201,7 +213,7 @@ charset.c               supprimé
 charset.h               supprimé
 encoding.c
 encoding.h              modifié. Suppression de class ENCODING. Nouvelle classe _str_vtable dans string.h
-    
+
 charset/ascii.c         déplacé dans encoding
 charset/ascii.h         supprimé, remplacé par shared.h
 charset/binary.c        déplacé dans encoding
@@ -293,7 +305,7 @@ SysFile::getPosition
 SysFile::writeData
     _write(fileHandle, data, (unsigned int)length) --> -1
     errno == 22 EINVAL  Invalid argument
-    
+
 RexxActivation::resolveStream
     RexxDirectory *streamTable = getStreams(); /* get the current stream set        */
             ...
@@ -416,8 +428,8 @@ Also versions of the APIs that can deal with UNICode strings will need to be def
 1   0x003f8c50  CHARSET_ISO_8859
 2   0x003f8c98  CHARSET_BINARY
     0x003f8bf8  CHARSET_UNICODE
-    
-    
+
+
 SysInterpreterInstance.instance --> InterpreterInstance.searchExtensions
 
 
@@ -425,7 +437,7 @@ SysInterpreterInstance.instance --> InterpreterInstance.searchExtensions
 
 Parrot_str_init (string/api.c)
     Parrot_charsets_encodings_init  (charset.c)
-    
+
 parrot_string_t (pobj.h)
 
 
@@ -478,14 +490,14 @@ RexxBufferStringObject obj;
 
 
 RexxBuffer
-    
+
 
 ENCODING_GET_CODEPOINT : si utilisé dans une boucle, PAS BON !!! à ré-écrire avec un itérateur car offset est une position de caractère, recherché à chaque appel depuis le début
 U16_FWD_1_UNSAFE : vérifié si ok dans boucle (ex : ENCODING_UTF16::codepoints)
 
 
 return (RexxString *)TheNilObject;
-    
+
 null string singleton :
 OREF_NULLSTRING     (créé par une macro, donc pas trouvé tel quel dans les *.h*)
 
@@ -500,7 +512,7 @@ ENCODING
     iter_get                    return -1;
     iter_get_and_advance        return -1;
     to_encoding                 return (RexxString *)TheNilObject;
-    
+
 
   defineKernelMethod(CHAR_APPEND                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::append), 1);
 1>d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\memory\Setup.cpp(947): error C2440: 'type cast' : cannot convert from 'overloaded-function' to 'PCPPM'
@@ -704,7 +716,7 @@ bool rxsetCodePage(int codepage)
 
 ================================
 
-chercher 
+chercher
 (LPARAM)        --> fait
 (LPSTR)         --> fait
 CB_GETLBTEXT    --> fait
@@ -738,8 +750,8 @@ rexx editrex.rex    the storage allocated for the dialog template is too small (
 Remember :
 _stprintf(msgBuffer, 511, _T("%s...     <-- le 2nd arg est le nombre de caractères
 
-// warning C4996: '_swprintf': swprintf has been changed to conform with the ISO C standard, 
-// adding an extra character count parameter. 
+// warning C4996: '_swprintf': swprintf has been changed to conform with the ISO C standard,
+// adding an extra character count parameter.
 // To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
 #define _CRT_NON_CONFORMING_SWPRINTFS
 

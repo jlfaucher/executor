@@ -1,10 +1,17 @@
 Rexx args to C args
 
 
+See "FFI - foreign function interface.txt"
+RexxNativeActivation::createLocalReference
+The ooRexx objects created during the call to the native activation are stored
+in a list managed in the native activation, to protect them against GC.
+They are passed to the foreign function.
+
+
 Voir JLF notes - lines.txt
 pour un exemple d'appel
 
-ATTENTION ! 
+ATTENTION !
 Le 1er appel sert à récupérer la signature des arguments
 Le 2nd appel sert à la vraie execution
 
@@ -23,7 +30,7 @@ CSELF
 permet de récupérer l'objet C++ wrappé dans l'objet Rexx
 RexxNativeActivation::cself         (interpreter\execution\RexxNativeActivation.cpp)
     return receiver->getCSelf()
-    
+
 receiver est une instance de RexxObject (interpreter\classes\ObjectClass.hpp)
 
 void *RexxObject::getCSelf()
