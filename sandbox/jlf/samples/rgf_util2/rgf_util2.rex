@@ -2585,7 +2585,9 @@ createCodeSnippet: procedure
 ::routine pp2 public       -- rgf, 20091214
   use strict arg a1
 
-  if \a1~isA(.string) then
+  -- JLF : can't use .Text, its package is not imported here
+  a1.isaText = (a1~class~id=="Text")
+  if \a1~isA(.string) & \a1.isaText then
   do
      -- JLF : condensed output, 100 items max
      if a1~isA(.array), a1~dimension <= 1, a1~hasMethod("ppRepresentation") then
@@ -2601,7 +2603,9 @@ createCodeSnippet: procedure
 
   -- JLF : strings are surrounded by quotes, except string numbers
   a1str = a1~string
-  if \a1~dataType("N") then a1str = "'"a1str"'"
+  if \a1str~dataType("N") then a1str = "'"a1str"'"
+  -- JLF : texts are prefixed with "T"
+  if a1.isaText then a1str = "T"a1str
   return escape2(a1str)
 
 
