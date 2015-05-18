@@ -199,14 +199,17 @@ s2~length=                          -- 3
 s2~eachC{item~c2x}=                 -- ['65','CC','81']
 
 My goal :
-s1~text~clength=                    -- 1 codepoint
-s1~text~glength=                    -- 1 grapheme
-s2~text~clength=                    -- 2 codepoints
-s2~text~glength=                    -- 1 grapheme
+s1~text~length=                     -- 1 grapheme
+s1~text~codepoints~length=          -- 1 codepoint
+s2~text~length=                     -- 1 grapheme
+s2~text~codepoints~length=          -- 2 codepoints
+
+For a more complex example of combining characters, see
+https://6guts.wordpress.com/2015/04/20/this-week-digging-into-nfg-fixing-use-fatal-and-more/
 
 The ooRexx programmer has the choice :
 - working with String at byte level
-- working when needed with Text.
+- working with Text at grapheme level.
 - the same instance of String is used in both cases.
 
 myString = "où as tu e" || .UTF8Encoding~character("combining acute accent") || "té ?"
