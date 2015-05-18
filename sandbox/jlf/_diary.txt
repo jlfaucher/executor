@@ -152,6 +152,83 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 may 16
+
+Start working on a prototype for encoded strings.
+This prototype will be only Rexx code, there is no need to modify the interpreter.
+The changes I made on the interpreter years ago (adding an encoding to the String
+class) is not used because I will need more than one encoding per string...
+I will manage this additional information with Rexx code, thanks to the extensions
+mechanisms.
+
+See "Thoughts on ooRexx and Unicode.odt", in particular the conclusion of the
+first chapter, page 5.
+
+Main ideas explored with this prototype :
+- No automatic conversion to Unicode by the interpreter.
+- The strings crossing the I/O barriers are kept unchanged.
+- A string is made of slices, where each slice has its own encoding.
+- Supported encodings : byte, utf-8, utf-16.
+- When no encoding has been explicitely specified, a default encoding is used.
+- Initially, the default encoding is "byte". It can be changed at anytime.
+- Strings with different encodings can be concatenated, there is no need of conversion.
+- The existing String class is kept unchanged, but its semantic becomes : "byte-oriented".
+- The prototype will add a layer of services working at grapheme level, provided by the Text class.
+- The Text class works on the bytes managed by the String class.
+- String instances are immutable, the same for Text instances.
+
+On my Mac, where locale returns :
+    LANG="fr_FR.UTF-8"
+    LC_COLLATE="fr_FR.UTF-8"
+    LC_CTYPE="fr_FR.UTF-8"
+    LC_MESSAGES="fr_FR.UTF-8"
+    LC_MONETARY="fr_FR.UTF-8"
+    LC_NUMERIC="fr_FR.UTF-8"
+    LC_TIME="fr_FR.UTF-8"
+    LC_ALL=
+
+I get that under ooRexxShell :
+s1 = "é"
+s1=                                 -- 'é'
+s1~length=                          -- 2
+s1~eachC{item~c2x}=                 -- ['C3','A9']
+combining_acute_accent = "cc81"x
+s2 = "e" || combining_acute_accent
+s2=                                 -- 'é'
+s2~length=                          -- 3
+s2~eachC{item~c2x}=                 -- ['65','CC','81']
+
+My goal :
+s1~text~clength=                    -- 1 codepoint
+s1~text~glength=                    -- 1 grapheme
+s2~text~clength=                    -- 2 codepoints
+s2~text~glength=                    -- 1 grapheme
+
+The ooRexx programmer has the choice :
+- working with String at byte level
+- working when needed with Text.
+- the same instance of String is used in both cases.
+
+myString = "où as tu e" || .UTF8Encoding~character("combining acute accent") || "té ?"
+myString=                       -- 'où as tu été ?'
+myText = myString~text
+myText~encoding("utf-8")
+myText=                         -- 'où as tu été ?'
+myString~text == myText=        -- true, always return the same counterpart
+myText~string == myString=      -- true, always return the same counterpart
+myString~length=                -- 18
+myText~length=                  -- 14
+
+                                --  1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18
+myString~eachC{item~c2x}=       -- '6F','C3','B9','20','61','73','20','74','75','20','65','CC','81','74','C3','A9','20','3F'
+                                --  o.   ù......    .   a.   s.    .   t.   u.    .   e.   acute..   t.   é......    .   ?.
+
+                                --  1       2      3    4    5    6    7    8    9            10     11      12     13   14
+myText~eachC{item~c2x}=         -- '6F',   'C3B9','20','61','73','20','74','75','20','65',   'CC81','74',   'C3A9','20','3F'
+                                --  o.      ù...    .   a.   s.    .   t.   u.    .   e.      acut   t.      é...    .   ?.
+
+
+===============================================================================
 2015 mar 8
 
 Moved the implementation of the Y combinator from the class Doer to the class
