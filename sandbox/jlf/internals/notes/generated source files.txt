@@ -1,0 +1,42 @@
+==========================================================================================
+Generated source files
+Those files are not in subversion.
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\api\oorexxerrors.h
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\api\oorexxerrors.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\ApiErrorCodes.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxErrorCodes.h
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxErrorCodes.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxErrorCodes.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxMessageNumbers.h
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxMessageNumbers.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxMessageNumbers.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxMessageTable.h
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxMessageTable.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\RexxMessageTable.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveBehaviourNames.h
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveBehaviourNames.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveClasses.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveBehaviourNames.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\ClassTypeCodes.h
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\ClassTypeCodes.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveClasses.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\ClassTypeCodes.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveBehaviours.cpp
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveBehaviours.cpp d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveClasses.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveBehaviours.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\VirtualFunctionTable.cpp
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\VirtualFunctionTable.cpp d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\PrimitiveClasses.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\behaviour\VirtualFunctionTable.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnums.xml
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnums.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnums.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumsrxqueue.xml
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumsrxqueue.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumsrxqueue.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumssubcom.xml
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumssubcom.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumssubcom.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumsrexxc.xml
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumsrexxc.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnumsrexxc.xsl
+
+Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\DocErrorMessages.sgml
+	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\DocErrorMessages.sgml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\DocBookErrors.xsl

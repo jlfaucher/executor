@@ -1,0 +1,5 @@
+http://stackoverflow.com/questions/500607/what-are-the-lesser-known-but-cool-data-structures
+
+
+http://xlinux.nist.gov/dads/
+Dictionary of Algorithms and Data Structures

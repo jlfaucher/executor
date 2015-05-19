@@ -1,0 +1,24 @@
+==========================================================================================
+
+http://msdn.microsoft.com/en-us/library/aa289171.aspx
+
+/GS enable security checks
+When you compile with /GS, code is inserted to detect buffer overruns that may have overwritten the function's return address. A dialog warns the user and then the program is terminated.
+
+/Ge force stack checking for all functions
+
+/Gs[num]    control stack checking calls
+
+/RTCc   convert to smaller type checks (MSDN detect assignments that result in data loss)
+This option inserts code to alert you when an assignment results in data loss, so you can be sure that all the casts you make to smaller types never lose data
+
+/RTCs   stack frame runtime checking
+This option does several things that help to protect the stack from corruption.
+Initialize all local variables to non-zero values each time the function is called. This prevents inadvertent use of values on the stack from previous calls.
+Verify the stack pointer to check for corruption, such as that caused by defining a function as __stdcall in one place and __cdecl in another.
+Detect overruns and underruns of local variables. This differs from /GS because it is available only in debug builds, and it detects corruption on either end of a buffer and for all buffers.
+
+/RTCu   uninitialized local usage checks
+This option warns when a variable is accessed without being initialized
+
+
