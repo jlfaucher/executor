@@ -191,18 +191,20 @@ I get that under ooRexxShell :
 s1 = "é"
 s1=                                 -- 'é'
 s1~length=                          -- 2
-s1~eachC{item~c2x}=                 -- ['C3','A9']
+s1~c2x=                             -- C3 A9
 combining_acute_accent = "cc81"x
 s2 = "e" || combining_acute_accent
 s2=                                 -- 'é'
 s2~length=                          -- 3
-s2~eachC{item~c2x}=                 -- ['65','CC','81']
+s2~c2x=                             -- 65 CC 81
 
 My goal :
 s1~text~length=                     -- 1 grapheme
 s1~text~codepoints~length=          -- 1 codepoint
+s1~text~bytes~length=               -- 2 bytes
 s2~text~length=                     -- 1 grapheme
 s2~text~codepoints~length=          -- 2 codepoints
+s2~text~bytes~length=               -- 3 bytes
 
 For a more complex example of combining characters, see
 https://6guts.wordpress.com/2015/04/20/this-week-digging-into-nfg-fixing-use-fatal-and-more/
@@ -215,20 +217,19 @@ The ooRexx programmer has the choice :
 myString = "où as tu e" || .UTF8Encoding~character("combining acute accent") || "té ?"
 myString=                       -- 'où as tu été ?'
 myText = myString~text
-myText~encoding("utf-8")
-myText=                         -- 'où as tu été ?'
+myText=                         -- T'où as tu été ?'
 myString~text == myText=        -- true, always return the same counterpart
 myText~string == myString=      -- true, always return the same counterpart
 myString~length=                -- 18
 myText~length=                  -- 14
 
-                                --  1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18
-myString~eachC{item~c2x}=       -- '6F','C3','B9','20','61','73','20','74','75','20','65','CC','81','74','C3','A9','20','3F'
-                                --  o.   ù......    .   a.   s.    .   t.   u.    .   e.   acute..   t.   é......    .   ?.
+                                -- 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18
+myString~c2x=                   -- 6F C3 B9 20 61 73 20 74 75 20 65 CC 81 74 C3 A9 20 3F
+                                -- o. ù....  . a. s.  . t. u.  . e. acute t. é....  . ?.
 
-                                --  1       2      3    4    5    6    7    8    9            10     11      12     13   14
-myText~eachC{item~c2x}=         -- '6F',   'C3B9','20','61','73','20','74','75','20','65',   'CC81','74',   'C3A9','20','3F'
-                                --  o.      ù...    .   a.   s.    .   t.   u.    .   e.      acut   t.      é...    .   ?.
+                                -- 1  2     3  4  5  6  7  8  9  10       11 12    13 14
+myText~c2x=                     -- 6F C3B9  20 61 73 20 74 75 20 65 CC81  74 C3A9  20 3F
+                                -- o. ù...   . a. s.  . t. u.  . e. acut  t. é...   . ?.
 
 
 ===============================================================================
