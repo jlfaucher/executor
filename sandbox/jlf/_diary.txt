@@ -201,10 +201,10 @@ s2~c2x=                             -- 65 CC 81
 My goal :
 s1~text~length=                     -- 1 grapheme
 s1~text~codepoints~length=          -- 1 codepoint
-s1~text~bytes~length=               -- 2 bytes
+s1~text~string~length=              -- 2 bytes
 s2~text~length=                     -- 1 grapheme
 s2~text~codepoints~length=          -- 2 codepoints
-s2~text~bytes~length=               -- 3 bytes
+s2~text~string~length=              -- 3 bytes
 
 For a more complex example of combining characters, see
 https://6guts.wordpress.com/2015/04/20/this-week-digging-into-nfg-fixing-use-fatal-and-more/
