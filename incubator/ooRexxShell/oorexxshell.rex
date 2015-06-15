@@ -78,7 +78,13 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 signal on any name error
 
 -- Use a property file to remember the current directory
-settingsFile = value("HOME",,"ENVIRONMENT") || "/oorexxshell.ini"
+HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
+if HOME == "" then do
+    HOMEDRIVE = value("HOMEDRIVE",,"ENVIRONMENT")
+    HOMEPATH = value("HOMEPATH",,"ENVIRONMENT")
+    HOME = HOMEDRIVE || HOMEPATH
+end
+settingsFile = HOME || "/oorexxshell.ini"
 settings = .Properties~load(settingsFile)
 previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
 if previousDirectory <> .nil then call directory previousDirectory
