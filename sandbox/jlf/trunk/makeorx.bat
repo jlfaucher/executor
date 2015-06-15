@@ -33,7 +33,8 @@
 @REM NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 @REM SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 @REM
-@ECHO OFF
+@echo off
+if defined echo echo %echo%
 
 REM Note: This batch file will not work if command extensions are disabled.
 REM       Command extensions are enabled by default in W2K, XP, W2K3, and Vista
@@ -42,11 +43,11 @@ REM       They are probably enabled in NT.
 REM  Figure out the compiler and if this is a 64-bit build.
 call :DETERMINE_COMPILER
 
-call :DETERMINE_BRANCH
-
 REM  No sense in starting if SRC_DIR and SRC_DRV are not set.
 IF %SRC_DRV%x == x GOTO HELP_SRC_DRV
 IF %SRC_DIR%x == x GOTO HELP_SRC_DRV
+IF %BUILD_DRV%x == x GOTO HELP_SRC_DRV
+IF %BUILD_DIR%x == x GOTO HELP_SRC_DRV
 
 REM  Might be needed for a build under Win 2000.
 SET COPYCMD=/Y
@@ -64,7 +65,7 @@ REM  Check for the type of build
 REM  If the first arg is not right, show help and quit.
 if %1 == NODEBUG (call :NO_DEBUG
 ) else if %1 == DEBUG (call :IS_DEBUG
-) else if %1 == BOTH (call :DO_BOTH 
+) else if %1 == BOTH (call :DO_BOTH
 ) else goto HELP
 
 
@@ -78,7 +79,7 @@ call :GENERATE_VERSION_FILE
 :BUILD
 IF %MKNODEBUG% == 0 GOTO BLDDEBUG
 
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
+set OR_OUTDIR=%BUILD_DRV%%BUILD_DIR%
 set OR_OUTDIR_API=%OR_OUTDIR%\api
 set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
@@ -99,7 +100,7 @@ SET BLDRELEASE=1
 GOTO STARTBUILD
 
 :BLDDEBUG
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%
+set OR_OUTDIR=%BUILD_DRV%%BUILD_DIR%
 set OR_OUTDIR_API=%OR_OUTDIR%\api
 set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
@@ -128,7 +129,7 @@ CALL ORXDB %BLDRELEASE% %DOCOMPONENT% %DOCOMPONENT_ARGS%
 IF ERRORLEVEL 1 GOTO ENV_VARS_CLEANUP
 
 REM  Make sure we are back in the root build directory.
-CD %SRC_DRV%%SRC_DIR%
+CD %BUILD_DRV%%BUILD_DIR%
 
 REM  Check if we still need to build the debug version.
 IF %MKDEBUG% == 1 GOTO BLDDEBUG
@@ -151,7 +152,10 @@ SET CPUDEF=/DCPU=%CPUNAME%
 REM  If not making the debug version skip to packaging the release version
 IF %PACKAGE_DBG% == 0 GOTO PACKAGE_RELEASE
 
-SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%
+SET BINDIR=/DBINDIR=%OR_OUTDIR%
+
+REM JLF to adapt
+goto skip_nsis
 cd platform\windows\install
 makensis %DOTVER% %NODOTVER% %SRCDIR% %BINDIR% %CPUDEF% oorexx.nsi
 
@@ -160,12 +164,13 @@ REM  is created.
 ren ooRexx%NODOTS%-%CPUNAME%.exe ooRexx%NODOTS%-%CPUNAME%-debug.exe
 move ooRexx%NODOTS%-%CPUNAME%-debug.exe ..\..\..\
 cd ..\..\..\
+:skip_nsis
 
 REM  If not making the release version skip to environment variables clean up.
 IF %PACKAGE_REL% == 0 GOTO ENV_VARS_CLEANUP
 
 :PACKAGE_RELEASE
-SET BINDIR=/DBINDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
+SET BINDIR=/DBINDIR=%OR_OUTDIR%
 cd platform\windows\install
 makensis %DOTVER% %NODOTVER% %SRCDIR% %BINDIR% %CPUDEF% oorexx.nsi
 move ooRexx%NODOTS%-%CPUNAME%.exe ..\..\..\
@@ -213,7 +218,7 @@ GOTO ENV_VARS_CLEANUP
 REM - - - - - - - - - - - - END exits this batch file - - - - - - - - - - - - -
 :END
 REM Make sure we are back in the root build directory.
-CD %SRC_DRV%%SRC_DIR%
+CD %BUILD_DRV%%BUILD_DIR%
 exit /b
 
 
@@ -461,6 +466,8 @@ if %USELOGFILE% EQU 1 (
   echo. >>%OR_ERRLOG%
   echo SRC_DRV: %SRC_DRV% >>%OR_ERRLOG%
   echo SRC_DIR: %SRC_DIR% >>%OR_ERRLOG%
+  echo BUILD_DRV: %BUILD_DRV% >>%OR_ERRLOG%
+  echo BUILD_DIR: %BUILD_DIR% >>%OR_ERRLOG%
   echo CPU: %CPU% >>%OR_ERRLOG%
   echo MSVCVER: %MSVCVER% >>%OR_ERRLOG%
   echo NO_BUILD_LOG: %NO_BUILD_LOG% >>%OR_ERRLOG%
@@ -478,6 +485,8 @@ if %USELOGFILE% EQU 1 (
   echo Environment vars ---
   echo SRC_DRV: %SRC_DRV%
   echo SRC_DIR: %SRC_DIR%
+  echo BUILD_DRV: %BUILD_DRV%
+  echo BUILD_DIR: %BUILD_DIR%
   echo CPU: %CPU%
   echo MSVCVER: %MSVCVER%
   echo NO_BUILD_LOG: %NO_BUILD_LOG%
@@ -564,21 +573,12 @@ set cl_infos=%TEMP%\cl_infos
 del /F "%cl_infos%.exe" 1>nul 2>&1
 cl /nologo /Fo"%cl_infos%.obj" /Fe"%cl_infos%.exe" cl_infos.cpp 1>nul
 for /f "usebackq tokens=1,2,3" %%i in (`"%cl_infos%.exe"`) do (
-    set MSCVER=%%i
+    set MSVCVER=%%i
     set CPU=%%j
     set OR_BITNESS=%%k
 )
+set OR_COMPILER=cl
 
-goto :eof
-
-
-REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-REM This section attempts to determine the current git branch.
-REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-:DETERMINE_BRANCH
-pushd "%GIT_ROOT%"
-for /f "usebackq" %%i in (`git name-rev --name-only HEAD`) do set OR_BRANCH=%%i
-popd
 goto :eof
 
 
@@ -593,14 +593,14 @@ REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REM  Need to be sure some of the vars are set.  By default the log name and
 REM  build directory will be set to release if they are not already set.
 if %USELOGFILE%x == x set USELOGFILE=1
-if %OR_OUTDIR%x == x  set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
+if %OR_OUTDIR%x == x  set OR_OUTDIR=%BUILD_DRV%%BUILD_DIR%
 if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 
 REM  First echo to the screen the help, no matter what. So that someone building
 REM  from the command line is sure to see the problem
-ECHO Syntax: 
-ECHO makeorx BUILD_TYPE [PACKAGE [DOC_LOCATION] ^| aComponent [build_args]] 
+ECHO Syntax:
+ECHO makeorx BUILD_TYPE [PACKAGE [DOC_LOCATION] ^| aComponent [build_args]]
 ECHO Where BUILD_TYPE is required and exactly one of DEBUG NODEBUG BOTH
 ECHO Where PACKAGE is optional.  If present and exactly PACKAGE the
 ECHO Windows ooRexx install package will be built.
@@ -670,6 +670,8 @@ if %USELOGFILE% EQU 1 (
   echo. >>%OR_ERRLOG%
   echo SRC_DRV: %SRC_DRV% >>%OR_ERRLOG%
   echo SRC_DIR: %SRC_DIR% >>%OR_ERRLOG%
+  echo BUILD_DRV: %BUILD_DRV% >>%OR_ERRLOG%
+  echo BUILD_DIR: %BUILD_DIR% >>%OR_ERRLOG%
   echo CPU: %CPU% >>%OR_ERRLOG%
   echo MSVCVER: %MSVCVER% >>%OR_ERRLOG%
   echo NO_BUILD_LOG: %NO_BUILD_LOG% >>%OR_ERRLOG%
@@ -686,6 +688,8 @@ if %USELOGFILE% EQU 1 (
   echo Environment vars ---
   echo SRC_DRV: %SRC_DRV%
   echo SRC_DIR: %SRC_DIR%
+  echo BUILD_DRV: %BUILD_DRV%
+  echo BUILD_DIR: %BUILD_DIR%
   echo CPU: %CPU%
   echo MSVCVER: %MSVCVER%
   echo NO_BUILD_LOG: %NO_BUILD_LOG%
@@ -704,13 +708,16 @@ REM     just quit after printing the text to the screen.
 REM - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :HELP_SRC_DRV
 ECHO *==============================================================
-ECHO One of the environment variables SRC_DRV or SRC_DIR or GIT_ROOT is not set
-ECHO Set the SRC_DRV variable to the build directory drive letter
-ECHO Set the SRC_DIR variable to the full build directory path
-ECHO Set the GIT_ROOT variable to the git repository full path
+ECHO One of the environment variables SRC_DRV or SRC_DIR
+ECHO or BUILD_DRV or BUILD_DIR is not set.
+ECHO Set the SRC_DRV variable to the source directory drive letter.
+ECHO Set the SRC_DIR variable to the full source directory path.
+ECHO Set the BUILD_DRV variable to the build directory drive letter.
+ECHO Set the BUILD_DIR variable to the full build directory path.
 ECHO e.g.
 ECHO "SET SRC_DRV=F:"
 ECHO "SET SRC_DIR=\oorexx\interpreter_3x"
-ECHO "SET GIT_ROOT=D:\oorexx\git"
+ECHO "SET BUILD_DRV=E:"
+ECHO "SET BUILD_DIR=\oorexx\interpreter_3x"
 ECHO *======================================================
 GOTO ENV_VARS_CLEANUP

@@ -34,25 +34,15 @@
 @REM SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 @REM
 @echo off
+if defined echo echo %echo%
 SETLOCAL
 
 REM Check for variables we require to be set by makeorx.bat.
 IF %SRC_DRV%x == x GOTO HELP_SRC_DRV
 IF %MKASM%x == x GOTO HELP_MKASM
 IF %OR_ERRLOG%x == x GOTO HELP_LOG
-IF %OR_BITNESS%x == x GOTO HELP_BITNESS
-IF %OR_BRANCH%x == x GOTO HELP_BRANCH
+IF %OR_OUTDIR%x == x GOTO HELP_OUTDIR
 
-REM
-REM set up the directories for the generated files
-REM
-REM set OR_OUTDIR=O:\TESTDIR
-if (%1)==(1) goto release
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%
-goto cont
-:release
-set OR_OUTDIR=%SRC_DRV%%SRC_DIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%
-:cont
 REM
 REM set up the directories for the source files
 REM
@@ -139,9 +129,11 @@ REM Call build program
 call %SRC_DRV%%SRC_DIR%\platform\windows\buildorx %2 %3 %4 %5 %6 %7 %8 %9
 if ERRORLEVEL 1 goto error
 
+%BUILD_DRV%
 cd %OR_OUTDIR%
 
 :CONTINUE
+%SRC_DRV%
 cd %SRC_DIR%
 
 goto END
@@ -176,19 +168,9 @@ ECHO *======================================================
 
 goto END
 
-:HELP_BITNESS
+:HELP_OUTDIR
 ECHO *======================================================
-ECHO The environment variable OR_BITNESS is not set
-ECHO This variable is set by makeorx.bat.  orxdb.bat should
-ECHO not be called directly.  Use makeorx.bat to build the
-ECHO Windows version of the intepreter.
-ECHO *======================================================
-
-goto END
-
-:HELP_BRANCH
-ECHO *======================================================
-ECHO The environment variable OR_BRANCH is not set
+ECHO The environment variable OR_OUTDIR is not set
 ECHO This variable is set by makeorx.bat.  orxdb.bat should
 ECHO not be called directly.  Use makeorx.bat to build the
 ECHO Windows version of the intepreter.
