@@ -11,6 +11,10 @@
 :: and double-click on s.bat from the file explorer.
 
 @echo off
+
 :run
+set errorlevel=
 rexx.exe oorexxshell.rex %*
-if errorlevel 200 goto run
+set status = %errorlevel%
+if "%status%" == "200" goto run
+exit /b %status%
