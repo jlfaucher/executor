@@ -118,7 +118,11 @@ use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
 .ooRexxShell~errorColor = "bred"
 .ooRexxShell~infoColor = "bgreen"
 .ooRexxShell~promptColor = "byellow"
-.ooRexxShell~traceColor = "purple"
+.ooRexxShell~traceColor = "bpurple"
+if .platform~is("windows") & .color~defaultBackground == 15 /*white*/ then do
+    .ooRexxShell~infoColor = "green"
+    .ooRexxShell~promptColor = "yellow"
+end
 
 .ooRexxShell~systemAddress = systemAddress()
 
@@ -745,10 +749,10 @@ loadLibrary:
 ::class color
 -------------------------------------------------------------------------------
 
--- Initialized by .WindowsPlatform~init
+-- Initialized by .WindowsPlatform~init, not used by Linux & Darwin platforms.
 ::attribute default class
-::attribute defaultBackground class
-::attribute defaultForeground class
+::attribute defaultBackground class -- 0 to 15
+::attribute defaultForeground class -- 0 to 15
 
 ::method select class
     use strict arg color
@@ -756,21 +760,30 @@ loadLibrary:
         when .platform~is("windows") then do
             select
                 when color~caselessEquals("default") then .platform~SetConsoleTextColor(self~default)
-                when color~caselessEquals("bdefault") then .platform~SetConsoleTextColor(self~default /*15*/)
-                when color~caselessEquals("black") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 8)
-                when color~caselessEquals("bblack") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 0)
+                when color~caselessEquals("bdefault") then do
+                    if self~defaultForeground >= 8 then do
+                         -- if already bold then use as-is
+                        .platform~SetConsoleTextColor(self~default)
+                    end
+                    else do
+                        -- use bold version of foreground (+8)
+                        .platform~SetConsoleTextColor(self~defaultBackground * 16 + self~defaultForeground + 8)
+                    end
+                end
+                when color~caselessEquals("black") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 0)
+                when color~caselessEquals("bblack") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 8)
                 when color~caselessEquals("red") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 4)
-                when color~caselessEquals("bred") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 12) -- should swap the values of red and bred, but better like that
-                when color~caselessEquals("green") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 10) -- Not readable when background is blank
-                when color~caselessEquals("bgreen") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 2)
-                when color~caselessEquals("yellow") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 14) -- Not readable when background is blank
-                when color~caselessEquals("byellow") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 6)
-                when color~caselessEquals("blue") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 9)
-                when color~caselessEquals("bblue") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 1)
-                when color~caselessEquals("purple") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 13)
-                when color~caselessEquals("bpurple") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 5)
-                when color~caselessEquals("cyan") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 11) -- Not readable when background is blank
-                when color~caselessEquals("bcyan") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 3)
+                when color~caselessEquals("bred") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 12)
+                when color~caselessEquals("green") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 2)
+                when color~caselessEquals("bgreen") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 10)
+                when color~caselessEquals("yellow") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 6)
+                when color~caselessEquals("byellow") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 14)
+                when color~caselessEquals("blue") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 1)
+                when color~caselessEquals("bblue") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 9)
+                when color~caselessEquals("purple") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 5)
+                when color~caselessEquals("bpurple") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 13)
+                when color~caselessEquals("cyan") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 3)
+                when color~caselessEquals("bcyan") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 11)
                 when color~caselessEquals("white") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 7)
                 when color~caselessEquals("bwhite") then .platform~SetConsoleTextColor(self~defaultBackground * 16 + 15)
                 otherwise nop
