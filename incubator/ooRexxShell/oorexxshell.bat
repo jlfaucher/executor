@@ -15,6 +15,6 @@
 :run
 set errorlevel=
 rexx.exe oorexxshell.rex %*
-set status = %errorlevel%
+set status=%errorlevel%
 if "%status%" == "200" goto run
 exit /b %status%
