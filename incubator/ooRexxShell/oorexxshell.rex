@@ -78,14 +78,7 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 signal on any name error
 
 -- Use a property file to remember the current directory
-HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
-if HOME == "" then do
-    HOMEDRIVE = value("HOMEDRIVE",,"ENVIRONMENT")
-    HOMEPATH = value("HOMEPATH",,"ENVIRONMENT")
-    HOME = HOMEDRIVE || HOMEPATH
-end
-settingsFile = HOME || "/oorexxshell.ini"
-settings = .Properties~load(settingsFile)
+settings = .Properties~load(.ooRexxShell~settingsFile)
 previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
 if previousDirectory <> .nil then call directory previousDirectory
 
@@ -97,7 +90,7 @@ error:
 if .ooRexxShell~isExtended then .Coactivity~endAll
 
 settings["OOREXXSHELL_DIRECTORY"] = directory()
-settings~save(settingsFile)
+settings~save(.ooRexxShell~settingsFile)
 
 if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 
@@ -394,12 +387,14 @@ dispatchCommand:
     RC = 0
     .ooRexxShell~error = .false
     call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
+    .ooRexxShell~securityManager~isEnabled = .true
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         signal interpretCommand -- don't call
     else
         signal addressCommand -- don't call
 
     return_to_dispatchCommand:
+    .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queuePrivateName -- Back to the private ooRexxShell queue
     if .ooRexxShell~error then do
@@ -507,11 +502,6 @@ dumpResult: procedure
         else say pp2(value)
         return value -- To get this value in the variable RESULT
     end
-
-
--------------------------------------------------------------------------------
-clearResult:
-    return
 
 
 -------------------------------------------------------------------------------
@@ -625,6 +615,7 @@ loadLibrary:
 ::attribute RC class -- Return code from the last executed command
 ::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
 ::attribute securityManager class
+::attribute settingsFile class
 ::attribute showInfos class
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
 ::attribute traceback class -- traceback of last error
@@ -648,6 +639,15 @@ loadLibrary:
     self~traceDispatchCommand = .false
     self~traceback = .array~new
     self~debug = .false
+
+    -- Use a property file to remember the current directory
+    HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
+    if HOME == "" then do
+        HOMEDRIVE = value("HOMEDRIVE",,"ENVIRONMENT")
+        HOMEPATH = value("HOMEPATH",,"ENVIRONMENT")
+        HOME = HOMEDRIVE || HOMEPATH
+    end
+    self~settingsFile = HOME || "/oorexxshell.ini"
 
 
 ::method hasLastResult class
@@ -675,12 +675,12 @@ loadLibrary:
 -------------------------------------------------------------------------------
 ::class securityManager
 -------------------------------------------------------------------------------
-::attribute isRunningCommand
+::attribute isEnabled
 ::attribute traceCommand
 
 
 ::method init
-   self~isRunningCommand = .false
+   self~isEnabled = .false
    self~traceCommand = .false
 
 
@@ -696,20 +696,29 @@ loadLibrary:
         .traceOutput~say("[securityManager] command=" info~command)
         .color~select(.ooRexxShell~defaultColor)
     end
-    if self~isRunningCommand then return 0 -- recursive call, delegate to system
-    command = self~adjustCommand(info~address, info~command)
+    if \ self~isEnabled then return 0 -- delegate to system
+    -- Use a temporary property file to remember the child process directory
+    temporarySettingsFile = .ooRexxShell~settingsFile"."SysQueryProcess("PID")
+    if SysFileExists(temporarySettingsFile) then call SysFileDelete temporarySettingsFile -- will be created by the command execution, maybe
+    command = self~adjustCommand(info~address, info~command, temporarySettingsFile)
     if command == info~command then return 0 -- command not impacted, delegate to system
-    self~isRunningCommand = .true
+    self~isEnabled = .false
         address value info~address
         command
         info~rc = RC
         address -- restore previous
-    self~isRunningCommand = .false
+    self~isEnabled = .true
+    if SysFileExists(temporarySettingsFile) then do
+        settings = .Properties~load(temporarySettingsFile)
+        directory = settings["OOREXXSHELL_DIRECTORY"]
+        if directory <> .nil then call directory directory
+        call SysFileDelete temporarySettingsFile
+    end
     return 1
 
 
 ::method adjustCommand
-    use strict arg address, command
+    use strict arg address, command, temporarySettingsFile
     if address~caselessEquals("cmd") then do
         -- [WIN32] Bypass a problem with doskey history :
         -- When a command is directly executable (i.e. passed without "cmd /c" to CreateProcess
@@ -730,8 +739,8 @@ loadLibrary:
     end
     else if address~caselessEquals("bash") then do
         -- If directly managed by the systemCommandHandler then don't add bash in front of the command
-        if command~caselessEquals("cd") == 1 then return command -- home directory
-        if command~caselessPos("cd ") == 1 then return command -- change directory
+        -- if command~caselessEquals("cd") == 1 then return command -- home directory
+        -- if command~caselessPos("cd ") == 1 then return command -- change directory
         if command~caselessPos("set ") == 1 then return command -- variable assignment
         if command~caselessPos("unset ") == 1 then return command -- variable unassignment
         if command~caselessPos("export ") == 1 then return command -- variable assignment
@@ -740,7 +749,8 @@ loadLibrary:
         -- One way to define them is to do :
         -- export BASH_ENV=~/bash_env
         -- and declare the aliases in this file.
-        return "bash -O expand_aliases -c 'history -r ; "command"'" -- the special characters have been already escaped by readline()
+        -- The trap command is used to save the current directory of the child process
+        return "bash -O expand_aliases -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; history -r ; "command"'" -- the special characters have been already escaped by readline()
     end
     return command
 
