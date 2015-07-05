@@ -278,10 +278,10 @@ readline: procedure
                 parse pull "inputrx=" inputrx1 -- output of 'set'
                 parse pull inputrx2 -- output of 'echo'
                 if .ooRexxShell~traceReadline then do
-                    .color~select(.ooRexxShell~traceColor)
+                    .color~select(.ooRexxShell~traceColor, .traceOutput)
                     .traceOutput~say("[readline] inputrx1=" inputrx1)
                     .traceOutput~say("[readline] inputrx2=" inputrx2)
-                    .color~select(.ooRexxShell~defaultColor)
+                    .color~select(.ooRexxShell~defaultColor, .traceOutput)
                 end
 
                 -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
@@ -302,16 +302,16 @@ readline: procedure
         end
     end
     if .ooRexxShell~traceReadline then do
-        .color~select(.ooRexxShell~traceColor)
+        .color~select(.ooRexxShell~traceColor, .traceOutput)
         .traceOutput~say("[readline] inputrx=" inputrx)
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .traceOutput)
     end
     if RC <> 0 then do
         .ooRexxShell~readline = .false
-        .color~select(.ooRexxShell~errorColor)
+        .color~select(.ooRexxShell~errorColor, .traceOutput)
         .traceOutput~say("[readline] RC="RC)
         .traceOutput~say("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .traceOutput)
     end
     return inputrx
 
@@ -398,21 +398,21 @@ dispatchCommand:
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queuePrivateName -- Back to the private ooRexxShell queue
     if .ooRexxShell~error then do
-        .color~select(.ooRexxShell~errorColor)
+        .color~select(.ooRexxShell~errorColor, .error)
         .error~say(condition("O")~message)
         --.error~say(condition("O")~traceback~makearray~tostring)
         .ooRexxShell~traceback = condition("O")~traceback
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .error)
     end
     if RC <> 0 then do
-        .color~select(.ooRexxShell~errorColor)
+        .color~select(.ooRexxShell~errorColor, .error)
         .error~say("RC=" RC)
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .error)
     end
     if RC <> 0 | .ooRexxShell~error then do
-        .color~select(.ooRexxShell~infoColor)
+        .color~select(.ooRexxShell~infoColor, .error)
         .error~say(.ooRexxShell~command)
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .error)
     end
     if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
         .color~select(.ooRexxShell~infoColor)
@@ -431,9 +431,9 @@ dispatchCommand:
 interpretCommand:
     .ooRexxShell~command =  transformSource(.ooRexxShell~command)
     if .ooRexxShell~traceDispatchCommand then do
-        .color~select(.ooRexxShell~traceColor)
+        .color~select(.ooRexxShell~traceColor, .traceOutput)
         .traceOutput~say("[interpret] command=" .ooRexxShell~command)
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .traceOutput)
     end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                                   else drop result
@@ -566,9 +566,9 @@ loadPackage:
     end
     return .true
     loadPackageError:
-    .color~select(.ooRexxShell~errorColor)
+    .color~select(.ooRexxShell~errorColor, .error)
     .error~say("loadPackage KO for" filename)
-    .color~select(.ooRexxShell~defaultColor)
+    .color~select(.ooRexxShell~defaultColor, .error)
     return .false
 
 
@@ -586,9 +586,9 @@ loadLibrary:
         return .true
     end
     loadLibraryError:
-    .color~select(.ooRexxShell~errorColor)
+    .color~select(.ooRexxShell~errorColor, .error)
     .error~say("loadLibrary KO for" filename)
-    .color~select(.ooRexxShell~defaultColor)
+    .color~select(.ooRexxShell~defaultColor, .error)
     return .false
 
 
@@ -691,10 +691,10 @@ loadLibrary:
 ::method command
     use arg info
     if self~traceCommand then do
-        .color~select(.ooRexxShell~traceColor)
+        .color~select(.ooRexxShell~traceColor, .traceOutput)
         .traceOutput~say("[securityManager] address=" info~address)
         .traceOutput~say("[securityManager] command=" info~command)
-        .color~select(.ooRexxShell~defaultColor)
+        .color~select(.ooRexxShell~defaultColor, .traceOutput)
     end
     if \ self~isEnabled then return 0 -- delegate to system
     -- Use a temporary property file to remember the child process directory
@@ -765,7 +765,7 @@ loadLibrary:
 ::attribute defaultForeground class -- 0 to 15
 
 ::method select class
-    use strict arg color
+    use strict arg color, stream=.stdout
     select
         when .platform~is("windows") then do
             select
@@ -801,24 +801,24 @@ loadLibrary:
         end
         when .platform~is("linux") | .platform~is("macosx") | .platform~is("darwin") then do
             select
-                when color~caselessEquals("default") then call charout , d2c(27)"[0m"
-                when color~caselessEquals("bdefault") then call charout , d2c(27)"[1m"
-                when color~caselessEquals("black") then call charout , d2c(27)"[0;30m"
-                when color~caselessEquals("bblack") then call charout , d2c(27)"[1;30m"
-                when color~caselessEquals("red") then call charout , d2c(27)"[0;31m"
-                when color~caselessEquals("bred") then call charout , d2c(27)"[1;31m"
-                when color~caselessEquals("green") then call charout , d2c(27)"[0;32m"
-                when color~caselessEquals("bgreen") then call charout , d2c(27)"[1;32m"
-                when color~caselessEquals("yellow") then call charout , d2c(27)"[0;33m"
-                when color~caselessEquals("byellow") then call charout , d2c(27)"[1;33m"
-                when color~caselessEquals("blue") then call charout , d2c(27)"[0;34m"
-                when color~caselessEquals("bblue") then call charout , d2c(27)"[1;34m"
-                when color~caselessEquals("purple") then call charout , d2c(27)"[0;35m"
-                when color~caselessEquals("bpurple") then call charout , d2c(27)"[1;35m"
-                when color~caselessEquals("cyan") then call charout , d2c(27)"[0;36m"
-                when color~caselessEquals("bcyan") then call charout , d2c(27)"[1;36m"
-                when color~caselessEquals("white") then call charout , d2c(27)"[0;37m"
-                when color~caselessEquals("bwhite") then call charout , d2c(27)"[1;37m"
+                when color~caselessEquals("default") then stream~charout(d2c(27)"[0m")
+                when color~caselessEquals("bdefault") then stream~charout(d2c(27)"[1m")
+                when color~caselessEquals("black") then stream~charout(d2c(27)"[0;30m")
+                when color~caselessEquals("bblack") then stream~charout(d2c(27)"[1;30m")
+                when color~caselessEquals("red") then stream~charout(d2c(27)"[0;31m")
+                when color~caselessEquals("bred") then stream~charout(d2c(27)"[1;31m")
+                when color~caselessEquals("green") then stream~charout(d2c(27)"[0;32m")
+                when color~caselessEquals("bgreen") then stream~charout(d2c(27)"[1;32m")
+                when color~caselessEquals("yellow") then stream~charout(d2c(27)"[0;33m")
+                when color~caselessEquals("byellow") then stream~charout(d2c(27)"[1;33m")
+                when color~caselessEquals("blue") then stream~charout(d2c(27)"[0;34m")
+                when color~caselessEquals("bblue") then stream~charout(d2c(27)"[1;34m")
+                when color~caselessEquals("purple") then stream~charout(d2c(27)"[0;35m")
+                when color~caselessEquals("bpurple") then stream~charout(d2c(27)"[1;35m")
+                when color~caselessEquals("cyan") then stream~charout(d2c(27)"[0;36m")
+                when color~caselessEquals("bcyan") then stream~charout(d2c(27)"[1;36m")
+                when color~caselessEquals("white") then stream~charout(d2c(27)"[0;37m")
+                when color~caselessEquals("bwhite") then stream~charout(d2c(27)"[1;37m")
                 otherwise nop
             end
         end
