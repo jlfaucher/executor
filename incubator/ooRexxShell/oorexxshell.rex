@@ -77,10 +77,14 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
 signal on any name error
 
--- Use a property file to remember the current directory
-settings = .Properties~load(.ooRexxShell~settingsFile)
-previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
-if previousDirectory <> .nil then call directory previousDirectory
+.ooRexxShell~isInteractive = (arg(1) == "")
+
+if .ooRexxShell~isInteractive then do
+    -- Use a property file to remember the current directory
+    settings = .Properties~load(.ooRexxShell~settingsFile)
+    previousDirectory = settings["OOREXXSHELL_DIRECTORY"]
+    if previousDirectory <> .nil then call directory previousDirectory
+end
 
 -- Bypass defect 2933583 (fixed in release 4.0.1) :
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
@@ -89,8 +93,11 @@ shell~call(arg(1), address())
 error:
 if .ooRexxShell~isExtended then .Coactivity~endAll
 
-settings["OOREXXSHELL_DIRECTORY"] = directory()
-settings~save(.ooRexxShell~settingsFile)
+if .ooRexxShell~isInteractive then do
+    settings = .Properties~load(.ooRexxShell~settingsFile)
+    settings["OOREXXSHELL_DIRECTORY"] = directory()
+    settings~save(.ooRexxShell~settingsFile)
+end
 
 if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 
@@ -125,7 +132,6 @@ end
 .ooRexxShell~interpreters~setEntry(.ooRexxShell~systemAddress, .ooRexxShell~systemAddress)
 .ooRexxShell~interpreters~setEntry(address(), address()) -- maybe the same as systemAddress, maybe not
 
-.ooRexxShell~isInteractive = (.ooRexxShell~initialArgument == "")
 call loadOptionalComponents
 
 address value .ooRexxShell~initialAddress

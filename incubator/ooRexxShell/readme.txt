@@ -14,6 +14,10 @@ You switch from an interpreter to an other one by entering its name alone.
 Something interesting (for me) :
 Thanks to the ooRexx implementation of address (some commands are intercepted and executed in the
 ooRexx process), you can change the current directory as if you were in a "real" shell.
+[JLF jul 04, 2015]
+Unfortunately, that doesn't work when you use an alias to change of directory.
+Now getting the current directory of the child process after each execution of a command,
+and change the  current directory of the parent (ooRexxShell) accordingly.
 
 
 Example (Windows) :
@@ -23,7 +27,7 @@ CMD> say 1+2                                        error, the ooRexx interprete
 CMD> oorexx say 1+2                                 you can temporarily select an interpreter
 CMD> oorexx                                         switch to the ooRexx interpreter
 ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
-ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd 
+ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd
 ooRexx[CMD] say 1+2                                 3
 ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
 ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
@@ -36,11 +40,11 @@ Known problems under Windows :
 
 - If you want the colors then you must put gci.dll in your PATH.
   You can get gci here : http://rexx-gci.sourceforge.net
-  
+
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.
       cmd /c ""my path to\rexx" "my path to\ooRexxShell""
-      
+
 - The default console code page is the OEMCP, which does not match the default ANSI
   code page (ACP). That bring troubles when you execute a command which contains
   letters with accent. This problem could be bypassed by converting OEMCP to ACP in the
@@ -52,7 +56,7 @@ Known problems under Windows :
   See:
   http://blogs.msdn.com/michkap/archive/2005/02/08/369197.aspx
   http://en.wikipedia.org/wiki/Windows-1252
-  
+
 - Assuming you defined this doskey macro : ll=ls -lap $*
   you will see a difference of behavior between
   CMD> ll
@@ -63,16 +67,16 @@ Known problems under Windows :
   and
   ooRexx[CMD]> ll
   - In the first case, the macro works as expected.
-  - In the second and third case, the macro is not expanded. This is because the macro expansion 
+  - In the second and third case, the macro is not expanded. This is because the macro expansion
     is done by readline (not when evaluating the command) and only the first word of the command
     line is expanded by doskey (here "cmd" or 'll' is the first word).
   - In the last case, the macro is expanded, but you don't what that...
         ls -lap
         Nonnumeric value ("LS") used in arithmetic operation
-        RC= 41.1  
+        RC= 41.1
   [Note : these problems do not occur under Linux with Bash because the aliases are expanded
   only when the interpreter is Bash and the command is evaluated.]
- 
+
 Known problems under all platforms :
 
 - When the first word of the command is an interpreter name, then it is assumed you want to
@@ -88,6 +92,22 @@ Known problems under all platforms :
 See demo/hostemu_from_THE.png
 for an example of shell with 4 interpreters.
 Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
+
+
+-----------------------------------------------
+2015 Jul 5
+
+Minor adaptations to let use ooRexxShell in non-interactive mode :
+On startup, the current directory is not changed to the directory of the previous session.
+The color's control characters are sent to the right stream (before : was always sent to stdout).
+
+Examples of non-interactive session :
+
+# Get all the files path included with xi:include, search in all the xml files of the current directory.
+oorexxshell '"grep xi:include *.xml"~pipe(.system | .inject {quote = 34~d2c; parse var item . "href="(quote) file (quote) . ; file } | .sort | .take 1 {item} | .select {\ SysFileExists(item)} | .console)'
+
+# With input a text file where each line is a file path : Count the number of files per extension
+oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffix = item~substr(item~lastpos(".")); if suffix~pos(".") == 1 & suffix~pos("/") == 0 then suffix~lower} | .sort  | .lineCount {item} | .console)' > files_analysis.txt
 
 
 -----------------------------------------------
@@ -135,12 +155,12 @@ The transformed command is :
     dir;
     options "NOCOMMANDS";
     rc ;
-    if var("result") then call dumpResult(result); 
+    if var("result") then call dumpResult(result);
     options "COMMANDS";
     unknown;
     options "NOCOMMANDS";
     rc ;
-    if var("result") then call dumpResult(result); 
+    if var("result") then call dumpResult(result);
     options "COMMANDS"
 
 With standard ooRexx :
@@ -154,7 +174,7 @@ Coactivities are no longer available, so no longer display the number of coactiv
 New command "tb", to display the trace back after an error.
 
 Arrays are pretty printed in condensed form.
-Ex : 
+Ex :
 .array~of("a", 1, .array~of("b", 2), "c")= -- ['a',1,['b',2],'c']
 
 
