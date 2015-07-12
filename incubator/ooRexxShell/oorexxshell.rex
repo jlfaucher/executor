@@ -852,11 +852,26 @@ located above the GCI source directory, which contains :
 
 #include "<your path to> rexx.h"
 typedef void* PVOID ;
-# define APIRET ULONG
+#define APIRET ULONG
 typedef CONST char *PCSZ ;
 
-Other change in gci-win32.def:
-LIBRARY gci ; INITINSTANCE
+Other change in gci_win32.def, to fix a syntax error:
+4c4
+< LIBRARY gci INITINSTANCE
+---
+> LIBRARY gci ; INITINSTANCE
+
+Other change in gci_convert.win32.vc, to support 64 bits:
+89c89,94
+< #define GCI_STACK_ELEMENT unsigned
+---
+> #if defined(_M_IX86)
+> #define GCI_STACK_ELEMENT unsigned __int32
+> #else
+> #define GCI_STACK_ELEMENT unsigned __int64
+> #endif
+>
+
 */
 
 
