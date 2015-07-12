@@ -12,7 +12,7 @@ done.
                                  +-INHERIT--iclasses-+
 
 Add the "in" keyword to the DO repetitor : Similar to "over" but calls the method "supplier" instead of "makearray".
-todo...
+[2015 Jul 12] : no longer needed to work on that, ooRexx5 supports DO WITH index ITEM item OVER supplier
 
 See if a thread could return more than one result and become a generator when synchronized with : do i in generator ...
 --> done with .Coactivity

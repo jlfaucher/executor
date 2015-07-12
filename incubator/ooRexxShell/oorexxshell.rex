@@ -998,7 +998,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 
 ::method string2args
     -- Converts a string to an array of arguments.
-    -- Arguments are separated by whitespaces (anything < 32) and can be quoted.
+    -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
     use strict arg string
 
     args = .Array~new
