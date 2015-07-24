@@ -64,6 +64,9 @@ http://www.infoq.com/news/2007/08/ruby-1-9-fibers
 
 http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/11960
 
+http://pragdave.me/blog/2007/12/30/pipelines-using-fibers-in-ruby-19/
+http://pragdave.me/blog/2008/01/01/pipelines-using-fibers-in-ruby-19part-ii/
+
 http://classparser.blogspot.com/
 
 http://msdn.microsoft.com/en-us/magazine/cc164086.aspx
