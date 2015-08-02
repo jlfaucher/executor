@@ -7,5 +7,6 @@
 
 @echo off
 set NO_BUILD_LOG=1
+%src_drv%
 cd %src_drv%%src_dir%
 call makeorx %*
