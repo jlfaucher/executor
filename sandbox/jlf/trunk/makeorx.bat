@@ -81,14 +81,14 @@ IF %MKNODEBUG% == 0 GOTO BLDDEBUG
 
 set OR_OUTDIR=%BUILD_DRV%%BUILD_DIR%
 set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%.log
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
 
 if %USELOGFILE% EQU 1 (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version - %OR_BRANCH% >>%OR_ERRLOG%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version >>%OR_ERRLOG%
 ) else (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version - %OR_BRANCH%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Non-Debug Version
 )
 
 REM  Print out the args and environment variables to help with debug if the
@@ -102,14 +102,14 @@ GOTO STARTBUILD
 :BLDDEBUG
 set OR_OUTDIR=%BUILD_DRV%%BUILD_DIR%
 set OR_OUTDIR_API=%OR_OUTDIR%\api
-set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg-%OR_BRANCH%.log
+set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Dbg.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 if not exist %OR_OUTDIR_API% md %OR_OUTDIR_API%
 
 if %USELOGFILE% EQU 1 (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version - %OR_BRANCH% >>%OR_ERRLOG%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version >>%OR_ERRLOG%
 ) else (
-  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version - %OR_BRANCH%
+  ECHO Building Open Object REXX for Windows %OR_BITNESS% - Debug Version
 )
 
 REM  Print out the args and environment variables to help with debug if the
@@ -200,7 +200,6 @@ SET OR_ERRLOG=
 SET DOCOMPONENT=
 SET DOCOMPONENT_ARGS=
 SET OR_BITNESS=
-SET OR_BRANCH=
 
 GOTO END
 
@@ -594,7 +593,7 @@ REM  Need to be sure some of the vars are set.  By default the log name and
 REM  build directory will be set to release if they are not already set.
 if %USELOGFILE%x == x set USELOGFILE=1
 if %OR_OUTDIR%x == x  set OR_OUTDIR=%BUILD_DRV%%BUILD_DIR%
-if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel-%OR_BRANCH%.log
+if %OR_ERRLOG%x == x  set OR_ERRLOG=%OR_OUTDIR%\Win%OR_BITNESS%Rel.log
 if not exist %OR_OUTDIR% md %OR_OUTDIR%
 
 REM  First echo to the screen the help, no matter what. So that someone building
