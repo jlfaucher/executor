@@ -1,0 +1,420 @@
+main\trunk\interpreter\classes\ArrayClass.cpp(123):
+error C2956: sized deallocation function 'operator delete(void*, size_t)' would be chosen as placement deallocation function.
+predefined C++ types (compiler internal)(30): note: see declaration of 'operator delete'
+
+
+================================================================================
+JLF : review history of RexxBehaviour.hpp (one of the files impacted by the commit 6218)
+================================================================================
+    before 6218
+        void *operator new(size_t, size_t);
+        inline void *operator new(size_t size, void *ptr) {return ptr;};
+        inline void  operator delete(void *) { ; }
+        inline void  operator delete(void *, void *) { ; }
+    6218 : add
+        inline void  operator delete(void *, size_t) { }
+    10289 : remove
+        inline void  operator delete(void *) { ; }
+    10400 : remove
+        inline void *operator new(size_t size, void *ptr) {return ptr;};
+        inline void  operator delete(void *, void *) { ; }
+    10469 : remove the 2nd arg size_t
+        before: inline void  operator delete(void *, size_t) { }
+        after:  inline void  operator delete(void *) { }
+    10540 : remove
+        void *operator new(size_t, size_t);
+        inline void  operator delete(void *) { }
+
+
+
+================================================================================
+Review of the C++ operators new & delete in ooRexx sources
+================================================================================
+
+The indented lines are for the operator new with more than one argument.
+
+
+interpreter/behaviour/MethodDictionary.cpp:void *MethodDictionary::operator new (size_t size)
+interpreter/behaviour/MethodDictionary.hpp:     void        *operator new(size_t);
+interpreter/behaviour/MethodDictionary.hpp:     inline void  operator delete(void *) { ; }
+
+    interpreter/classes/ArrayClass.cpp:void *ArrayClass::operator new(size_t size, size_t items, size_t maxSize)
+    interpreter/classes/ArrayClass.hpp:    void * operator new(size_t, size_t = DefaultArraySize, size_t = DefaultArraySize);
+    interpreter/classes/ArrayClass.hpp:    inline void operator delete(void *) {;}
+
+interpreter/classes/BagClass.cpp:void *BagClass::operator new (size_t size)
+interpreter/classes/BagClass.hpp:     void        *operator new(size_t);
+interpreter/classes/BagClass.hpp:     inline void  operator delete(void *) { ; }
+
+    interpreter/classes/BufferClass.cpp:void *BufferClass::operator new(size_t size, size_t length)
+    interpreter/classes/BufferClass.hpp:    void *operator new(size_t, size_t);
+    interpreter/classes/BufferClass.hpp:    inline void  operator delete(void *) { ; }
+
+interpreter/classes/ClassClass.cpp:void  *RexxClass::operator new(size_t size)
+interpreter/classes/ClassClass.hpp:    void *operator new(size_t);
+interpreter/classes/ClassClass.hpp:    inline void operator delete(void *) { }
+interpreter/classes/ContextClass.cpp:void *RexxContext::operator new(size_t size)
+interpreter/classes/ContextClass.hpp:    void *operator new(size_t);
+interpreter/classes/ContextClass.hpp:    inline void  operator delete(void *) { ; }
+interpreter/classes/DirectoryClass.cpp:void *DirectoryClass::operator new (size_t size)
+interpreter/classes/DirectoryClass.hpp:    void        *operator new(size_t);
+interpreter/classes/DirectoryClass.hpp:    inline void  operator delete(void *) { ; }
+interpreter/classes/IdentityTableClass.cpp:void *IdentityTable::operator new (size_t size)
+interpreter/classes/IdentityTableClass.hpp:     void        *operator new(size_t);
+interpreter/classes/IdentityTableClass.hpp:     inline void  operator delete(void *) { ; }
+interpreter/classes/IntegerClass.cpp:void *RexxInteger::operator new(size_t size)
+interpreter/classes/IntegerClass.hpp:    void *operator new(size_t);
+interpreter/classes/ListClass.cpp:void *ListClass::operator new (size_t size)
+interpreter/classes/ListClass.hpp:    void * operator new(size_t);
+interpreter/classes/MessageClass.cpp:void *MessageClass::operator new(size_t size)
+interpreter/classes/MessageClass.hpp:    void * operator new(size_t);
+interpreter/classes/MethodClass.cpp:void *MethodClass::operator new (size_t size)
+interpreter/classes/MethodClass.hpp:    void *operator new(size_t);
+interpreter/classes/MutableBufferClass.cpp:void *MutableBuffer::operator new(size_t size)
+interpreter/classes/MutableBufferClass.hpp:           void *operator new(size_t size);
+
+    interpreter/classes/NumberStringClass.cpp:void  *NumberString::operator new(size_t size, size_t length)
+    interpreter/classes/NumberStringClass.hpp:    void         *operator new(size_t, size_t);
+    interpreter/classes/NumberStringClass.hpp:    inline void   operator delete(void *) { }
+
+interpreter/classes/ObjectClass.cpp:void *RexxObject::operator new (size_t size)
+interpreter/classes/ObjectClass.cpp:void *RexxNilObject::operator new(size_t size)
+interpreter/classes/ObjectClass.hpp:    void * operator new(size_t);
+interpreter/classes/ObjectClass.hpp:    inline void  operator delete(void *) { ; }
+interpreter/classes/ObjectClass.hpp:    void * operator new(size_t);
+interpreter/classes/ObjectClass.hpp:    inline void   operator delete(void *) { ; }
+interpreter/classes/PackageClass.cpp:void *PackageClass::operator new (size_t size)
+interpreter/classes/PackageClass.hpp:    void *operator new(size_t);
+interpreter/classes/PointerClass.cpp:void *PointerClass::operator new(size_t size)
+interpreter/classes/PointerClass.hpp:    void *operator new(size_t);
+interpreter/classes/PointerClass.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/classes/QueueClass.cpp:void *QueueClass::operator new(size_t size, size_t capacity, size_t maxSize)
+    interpreter/classes/QueueClass.hpp:     void * operator new(size_t, size_t = DefaultArraySize, size_t = DefaultArraySize);
+
+interpreter/classes/RelationClass.cpp:void *RelationClass::operator new (size_t size)
+interpreter/classes/RelationClass.hpp:     void        *operator new(size_t);
+interpreter/classes/RelationClass.hpp:     inline void  operator delete(void *) { ; }
+interpreter/classes/RexxInfoClass.cpp:void *RexxInfo::operator new(size_t size)
+interpreter/classes/RexxInfoClass.hpp:    void *operator new(size_t);
+interpreter/classes/RexxInfoClass.hpp:    inline void  operator delete(void *) { ; }
+interpreter/classes/RoutineClass.cpp:void *RoutineClass::operator new (size_t size)
+interpreter/classes/RoutineClass.hpp:    void *operator new(size_t);
+interpreter/classes/SetClass.cpp:void *SetClass::operator new (size_t size)
+interpreter/classes/SetClass.hpp:     void        *operator new(size_t);
+interpreter/classes/SetClass.hpp:     inline void  operator delete(void *) { ; }
+interpreter/classes/StackFrameClass.cpp:void *StackFrameClass::operator new(size_t size)
+interpreter/classes/StackFrameClass.hpp:    void *operator new(size_t);
+interpreter/classes/StemClass.cpp:void *StemClass::operator new(size_t size)
+interpreter/classes/StemClass.hpp:    void *operator new (size_t);
+interpreter/classes/StringTableClass.cpp:void *StringTable::operator new (size_t size)
+interpreter/classes/StringTableClass.hpp:     void        *operator new(size_t);
+interpreter/classes/StringTableClass.hpp:     inline void  operator delete(void *) { ; }
+interpreter/classes/SupplierClass.cpp:void *SupplierClass::operator new(size_t size)
+interpreter/classes/SupplierClass.hpp:           void *operator new(size_t);
+interpreter/classes/SupplierClass.hpp:    inline void  operator delete(void *) {;}
+interpreter/classes/support/CompoundTableElement.cpp:void *CompoundTableElement::operator new(size_t size)
+interpreter/classes/support/CompoundTableElement.hpp:           void *operator new(size_t size);
+interpreter/classes/support/CompoundTableElement.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/classes/support/HashContents.cpp:void *IdentityHashContents::operator new(size_t size, size_t capacity)
+    interpreter/classes/support/HashContents.cpp:void *EqualityHashContents::operator new(size_t size, size_t capacity)
+    interpreter/classes/support/HashContents.cpp:void *MultiValueContents::operator new(size_t size, size_t capacity)
+    interpreter/classes/support/HashContents.cpp:void *StringHashContents::operator new(size_t size, size_t capacity)
+    interpreter/classes/support/HashContents.hpp:           void * operator new(size_t size, size_t capacity);
+    interpreter/classes/support/HashContents.hpp:    inline void  operator delete(void *) { ; }
+    interpreter/classes/support/HashContents.hpp:           void *operator new(size_t size, size_t capacity);
+    interpreter/classes/support/HashContents.hpp:    inline void  operator delete(void *) { ; }
+    interpreter/classes/support/HashContents.hpp:           void *operator new(size_t size, size_t capacity);
+    interpreter/classes/support/HashContents.hpp:    inline void  operator delete(void *) { ; }
+    interpreter/classes/support/HashContents.hpp:           void *operator new(size_t size, size_t capacity);
+    interpreter/classes/support/HashContents.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/classes/support/ListContents.cpp:void *ListContents::operator new(size_t size, size_t initialSize)
+    interpreter/classes/support/ListContents.hpp:           void *operator new(size_t, size_t);
+    interpreter/classes/support/ListContents.hpp:    inline void  operator delete(void *) { }
+
+    interpreter/classes/support/ProgramMetaData.cpp:void *ProgramMetaData::operator new (size_t size, BufferClass *buff)
+    interpreter/classes/support/ProgramMetaData.hpp:    void *operator new (size_t size, BufferClass *buff);
+    interpreter/classes/support/ProgramMetaData.hpp:    void operator delete (void *p) { SystemInterpreter::releaseResultMemory(p); }
+
+interpreter/classes/TableClass.cpp:void *TableClass::operator new (size_t size)
+interpreter/classes/TableClass.hpp:     void        *operator new(size_t);
+interpreter/classes/TableClass.hpp:     inline void  operator delete(void *) { ; }
+interpreter/classes/WeakReferenceClass.cpp:void *WeakReference::operator new(size_t size)
+interpreter/classes/WeakReferenceClass.hpp:           void *operator new(size_t);
+interpreter/concurrency/Activity.cpp:void *Activity::operator new(size_t size)
+interpreter/concurrency/Activity.hpp:    void *operator new(size_t);
+interpreter/concurrency/Activity.hpp:    inline void  operator delete(void *) { ; }
+interpreter/concurrency/CommandHandler.cpp:void *CommandHandler::operator new(size_t size)
+interpreter/concurrency/CommandHandler.hpp:    void        *operator new(size_t size);
+interpreter/concurrency/CommandHandler.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/execution/ActivationStack.cpp:void *ActivationFrameBuffer::operator new(size_t size, size_t entries)
+    interpreter/execution/ActivationStack.hpp:            void *operator new(size_t size, size_t entries);
+    interpreter/execution/ActivationStack.hpp:     inline void  operator delete(void *) { ; }
+
+interpreter/execution/CPPCode.cpp:void *CPPCode::operator new(size_t size)
+interpreter/execution/CPPCode.cpp:void *AttributeGetterCode::operator new(size_t size)
+interpreter/execution/CPPCode.cpp:void *AttributeSetterCode::operator new(size_t size)
+interpreter/execution/CPPCode.cpp:void *ConstantGetterCode::operator new(size_t size)
+interpreter/execution/CPPCode.cpp:void *AbstractCode::operator new(size_t size)
+interpreter/execution/CPPCode.cpp:void *DelegateCode::operator new(size_t size)
+interpreter/execution/CPPCode.hpp:    void *operator new(size_t);
+interpreter/execution/CPPCode.hpp:    inline void operator delete(void *) { }
+interpreter/execution/CPPCode.hpp:    void *operator new(size_t);
+interpreter/execution/CPPCode.hpp:    inline void operator delete(void *) { }
+interpreter/execution/CPPCode.hpp:    void *operator new(size_t);
+interpreter/execution/CPPCode.hpp:    inline void operator delete(void *) { }
+interpreter/execution/CPPCode.hpp:    void *operator new(size_t);
+interpreter/execution/CPPCode.hpp:    inline void operator delete(void *) { }
+interpreter/execution/CPPCode.hpp:    void *operator new(size_t);
+interpreter/execution/CPPCode.hpp:    inline void operator delete(void *) { }
+interpreter/execution/CPPCode.hpp:    void *operator new(size_t);
+interpreter/execution/CPPCode.hpp:    inline void operator delete(void *) { }
+interpreter/execution/NativeActivation.cpp:void * NativeActivation::operator new(size_t size)
+interpreter/execution/NativeActivation.hpp:           void *operator new(size_t);
+interpreter/execution/NativeActivation.hpp:    inline void  operator delete(void *) { ; }
+interpreter/execution/NativeCode.cpp:void * NativeMethod::operator new(size_t size)
+interpreter/execution/NativeCode.cpp:void *NativeRoutine::operator new(size_t size)
+interpreter/execution/NativeCode.cpp:void *RegisteredRoutine::operator new(size_t size)
+interpreter/execution/NativeCode.hpp:    void        *operator new(size_t size);
+interpreter/execution/NativeCode.hpp:    inline void  operator delete(void *) { ; }
+interpreter/execution/NativeCode.hpp:    void        *operator new(size_t size);
+interpreter/execution/NativeCode.hpp:    inline void  operator delete(void *) { ; }
+interpreter/execution/NativeCode.hpp:    void        *operator new(size_t size);
+interpreter/execution/NativeCode.hpp:    inline void  operator delete(void *) { ; }
+interpreter/execution/RexxActivation.cpp:void * RexxActivation::operator new(size_t size)
+interpreter/execution/RexxActivation.hpp:   void *operator new(size_t);
+interpreter/execution/RexxActivation.hpp:   inline void  operator delete(void *) { ; }
+interpreter/execution/RexxCode.cpp:void *RexxCode::operator new(size_t size)
+interpreter/execution/RexxCode.hpp:   void *operator new(size_t);
+interpreter/execution/RexxCode.hpp:   inline void  operator delete(void *) { ; }
+interpreter/execution/RexxVariable.cpp:void *RexxVariable::operator new(size_t size)
+interpreter/execution/RexxVariable.hpp:    void *operator new(size_t);
+interpreter/execution/RexxVariable.hpp:    inline void  operator delete(void *) { }
+interpreter/execution/SecurityManager.cpp:void *SecurityManager::operator new (size_t size)
+interpreter/execution/SecurityManager.hpp:    void *operator new(size_t);
+interpreter/execution/SecurityManager.hpp:    inline void  operator delete(void *) {;}
+interpreter/execution/TrapHandler.cpp:void *TrapHandler::operator new(size_t size)
+interpreter/execution/TrapHandler.hpp:    void *operator new(size_t base);
+interpreter/execution/VariableDictionary.cpp:void *VariableDictionary::operator new (size_t size)
+interpreter/execution/VariableDictionary.hpp:           void *operator new(size_t size);
+interpreter/execution/VariableDictionary.hpp:    inline void  operator delete(void *) { }
+interpreter/expression/ExpressionClassResolver.cpp:void *ClassResolver::operator new(size_t size)
+interpreter/expression/ExpressionClassResolver.hpp:    void *operator new(size_t);
+interpreter/expression/ExpressionClassResolver.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/expression/ExpressionCompoundVariable.cpp:void * RexxCompoundVariable::operator new(size_t size, size_t tailCount)
+    interpreter/expression/ExpressionCompoundVariable.hpp:    void *operator new(size_t, size_t);
+    interpreter/expression/ExpressionCompoundVariable.hpp:    inline void  operator delete(void *) { ; }
+
+interpreter/expression/ExpressionDotVariable.cpp:void * RexxDotVariable::operator new(size_t size)
+interpreter/expression/ExpressionDotVariable.hpp:    void *operator new(size_t);
+interpreter/expression/ExpressionDotVariable.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/expression/ExpressionFunction.cpp:void *RexxExpressionFunction::operator new(size_t size, size_t argCount)
+    interpreter/expression/ExpressionFunction.hpp:    void *operator new(size_t, size_t);
+    interpreter/expression/ExpressionFunction.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/expression/ExpressionList.cpp:void *RexxExpressionList::operator new(size_t size, size_t  count)
+    interpreter/expression/ExpressionList.hpp:           void *operator new(size_t, size_t);
+    interpreter/expression/ExpressionList.hpp:    inline void  operator delete(void *) {;}
+
+    interpreter/expression/ExpressionLogical.cpp:void *RexxExpressionLogical::operator new(size_t size, size_t  count)
+    interpreter/expression/ExpressionLogical.hpp:           void *operator new(size_t, size_t);
+    interpreter/expression/ExpressionLogical.hpp:    inline void  operator delete(void *) {;}
+
+    interpreter/expression/ExpressionMessage.cpp:void *RexxExpressionMessage::operator new(size_t size, size_t argCount)
+    interpreter/expression/ExpressionMessage.hpp:    void *operator new(size_t, size_t);
+    interpreter/expression/ExpressionMessage.hpp:    inline void  operator delete(void *) { ; }
+
+interpreter/expression/ExpressionOperator.cpp:void *RexxUnaryOperator::operator new(size_t size)
+interpreter/expression/ExpressionOperator.cpp:void *RexxBinaryOperator::operator new(size_t size)
+interpreter/expression/ExpressionOperator.hpp:    void  *operator new(size_t);
+interpreter/expression/ExpressionOperator.hpp:    inline void  operator delete(void *) { ; }
+interpreter/expression/ExpressionOperator.hpp:    void  *operator new(size_t);
+interpreter/expression/ExpressionOperator.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/expression/ExpressionQualifiedFunction.cpp:void *QualifiedFunction::operator new(size_t size, size_t argCount)
+    interpreter/expression/ExpressionQualifiedFunction.hpp:    void *operator new(size_t, size_t);
+    interpreter/expression/ExpressionQualifiedFunction.hpp:    inline void  operator delete(void *) { ; }
+
+interpreter/expression/ExpressionStem.cpp:void *RexxStemVariable::operator new(size_t size)
+interpreter/expression/ExpressionStem.hpp:    void *operator new(size_t);
+interpreter/expression/ExpressionStem.hpp:    inline void  operator delete(void *) { ; }
+interpreter/expression/ExpressionVariable.cpp:void *RexxSimpleVariable::operator new(size_t size)
+interpreter/expression/ExpressionVariable.hpp:    void *operator new(size_t);
+interpreter/expression/ExpressionVariable.hpp:    inline void  operator delete(void *) { ; }
+interpreter/expression/IndirectVariableReference.cpp:void *RexxVariableReference::operator new(size_t size)
+interpreter/expression/IndirectVariableReference.hpp:           void *operator new(size_t);
+interpreter/expression/IndirectVariableReference.hpp:    inline void  operator delete(void *) { ; }
+interpreter/instructions/AddressInstruction.hpp:    inline void operator delete(void *) { }
+interpreter/instructions/ClassDirective.cpp:void *ClassDirective::operator new(size_t size)
+interpreter/instructions/ClassDirective.hpp:           void *operator new(size_t);
+interpreter/instructions/ClassDirective.hpp:    inline void  operator delete(void *) { }
+interpreter/instructions/DoBlock.cpp:void * DoBlock::operator new(size_t size)
+interpreter/instructions/DoBlock.hpp:    void *operator new(size_t);
+interpreter/instructions/DoBlock.hpp:    inline void  operator delete(void *) { ; }
+interpreter/instructions/LibraryDirective.cpp:void *LibraryDirective::operator new(size_t size)
+interpreter/instructions/LibraryDirective.hpp:           void *operator new(size_t);
+interpreter/instructions/LibraryDirective.hpp:    inline void  operator delete(void *) { }
+
+    interpreter/instructions/ParseTrigger.cpp:void  *ParseTrigger::operator new(size_t size, size_t variableCount)
+    interpreter/instructions/ParseTrigger.hpp:    void        *operator new(size_t, size_t);
+    interpreter/instructions/ParseTrigger.hpp:    inline void  operator delete(void *) { }
+
+interpreter/instructions/RequiresDirective.cpp:void *RequiresDirective::operator new(size_t size)
+interpreter/instructions/RequiresDirective.hpp:           void *operator new(size_t);
+interpreter/instructions/RequiresDirective.hpp:    inline void  operator delete(void *) { }
+interpreter/instructions/RexxInstruction.cpp:void * RexxInstruction::operator new(size_t size)
+interpreter/instructions/RexxInstruction.hpp:           void *operator new(size_t);
+interpreter/instructions/RexxInstruction.hpp:    inline void  operator delete(void *) { }
+interpreter/memory/Envelope.cpp:void *Envelope::operator new(size_t size)
+interpreter/memory/Envelope.hpp:    void *operator new(size_t);
+interpreter/memory/Envelope.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/memory/InternalStack.cpp:void *InternalStack::operator new(size_t size, size_t stackSize)
+    interpreter/memory/InternalStack.hpp:           void *operator new(size_t size, size_t stackSize);
+    interpreter/memory/InternalStack.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/memory/MapBucket.cpp:void *MapBucket::operator new(size_t size, size_t entries)
+    interpreter/memory/MapBucket.hpp:           void *operator new(size_t base, size_t entries);
+    interpreter/memory/MapBucket.hpp:    inline void  operator delete(void *) {;}
+
+interpreter/memory/MapTable.cpp:void *MapTable::operator new(size_t size)
+interpreter/memory/MapTable.hpp:           void *operator new(size_t base);
+interpreter/memory/MapTable.hpp:    inline void  operator delete(void *) {;}
+
+    interpreter/memory/MemoryStack.cpp:void *LiveStack::operator new(size_t size, size_t stksize, bool temporary)
+    interpreter/memory/MemoryStack.cpp:void *PushThroughStack::operator new(size_t size, size_t stksize)
+    interpreter/memory/MemoryStack.hpp:    void        *operator new(size_t, size_t);
+    interpreter/memory/MemoryStack.hpp:    void        *operator new(size_t, size_t, bool temporary);
+    interpreter/memory/MemoryStack.hpp:    inline void  operator delete(void *) { };
+    interpreter/memory/MemoryStack.hpp:    void        *operator new(size_t, size_t);
+    interpreter/memory/MemoryStack.hpp:    void        *operator new(size_t, size_t, bool temporary);
+    interpreter/memory/MemoryStack.hpp:    inline void  operator delete(void *) { };
+
+    interpreter/memory/NumberArray.cpp:void *NumberArray::operator new(size_t size, size_t entries)
+    interpreter/memory/NumberArray.hpp:    void *operator new(size_t base, size_t entries);
+
+    interpreter/memory/PointerBucket.cpp:void *PointerBucket::operator new(size_t size, size_t entries)
+    interpreter/memory/PointerBucket.hpp:           void *operator new(size_t base, size_t entries);
+    interpreter/memory/PointerBucket.hpp:    inline void  operator delete(void *) {;}
+
+interpreter/memory/PointerTable.cpp:void *PointerTable::operator new(size_t size)
+interpreter/memory/PointerTable.hpp:           void *operator new(size_t base);
+interpreter/memory/PointerTable.hpp:    inline void  operator delete(void *) {;}
+
+    interpreter/memory/RexxMemory.hpp:     void          *operator new(size_t size, size_t minSize);
+    interpreter/memory/RexxMemory.hpp:     inline void    operator delete(void *) { }
+
+interpreter/memory/SmartBuffer.cpp:void   *SmartBuffer::operator new(size_t size)
+interpreter/memory/SmartBuffer.hpp:    void *operator new(size_t);
+interpreter/memory/SmartBuffer.hpp:    inline void  operator delete(void *) { ; }
+interpreter/package/LibraryPackage.cpp:void *LibraryPackage::operator new(size_t size)
+interpreter/package/LibraryPackage.hpp:           void *operator new(size_t);
+interpreter/package/LibraryPackage.hpp:    inline void  operator delete(void *) {;}
+interpreter/parser/Clause.cpp:void *RexxClause::operator new(size_t size)
+interpreter/parser/Clause.hpp:    void        *operator new(size_t);
+interpreter/parser/Clause.hpp:    inline void  operator delete(void *) { ; }
+interpreter/parser/LanguageParser.hpp:    void        *operator new(size_t);
+interpreter/parser/LanguageParser.hpp:    inline void  operator delete(void *) { ; }
+interpreter/parser/ProgramSource.cpp:void *ProgramSource::operator new(size_t size)
+interpreter/parser/ProgramSource.cpp:void *BufferProgramSource::operator new(size_t size)
+interpreter/parser/ProgramSource.cpp:void *ArrayProgramSource::operator new(size_t size)
+interpreter/parser/ProgramSource.cpp:void *FileProgramSource::operator new(size_t size)
+interpreter/parser/ProgramSource.hpp:    void *operator new(size_t);
+interpreter/parser/ProgramSource.hpp:    inline void  operator delete(void *) { ; }
+interpreter/parser/ProgramSource.hpp:    void *operator new(size_t);
+interpreter/parser/ProgramSource.hpp:    inline void  operator delete(void *) { ; }
+interpreter/parser/ProgramSource.hpp:    void *operator new(size_t);
+interpreter/parser/ProgramSource.hpp:    inline void  operator delete(void *) { ; }
+interpreter/parser/ProgramSource.hpp:    void *operator new(size_t);
+interpreter/parser/ProgramSource.hpp:    inline void  operator delete(void *) { ; }
+interpreter/parser/Token.cpp:void *RexxToken::operator new(size_t size)
+interpreter/parser/Token.hpp:    void        *operator new(size_t);
+interpreter/parser/Token.hpp:    inline void  operator delete(void *) { ; }
+
+    interpreter/platform/unix/MemorySupport.cpp:void *MemorySegmentPool::operator new(size_t size, size_t minSize)
+    interpreter/platform/windows/MemorySupport.cpp:void *MemorySegmentPool::operator new(size_t size, size_t minSize)
+
+interpreter/runtime/InterpreterInstance.cpp:void *InterpreterInstance::operator new(size_t size)
+interpreter/runtime/InterpreterInstance.hpp:    void *operator new(size_t);
+interpreter/runtime/InterpreterInstance.hpp:    inline void  operator delete(void *) {;}
+
+
+================================================================================
+JLF : review internet
+================================================================================
+
+https://llvm.org/bugs/show_bug.cgi?id=23513
+
+https://connect.microsoft.com/VisualStudio/feedback/details/1351894
+
+http://stackoverflow.com/questions/5367674/what-does-the-error-non-placement-deallocation-function
+    One of the answers refers to this bug of ooRexx : https://sourceforge.net/p/oorexx/bugs/905/
+    The fix was in commit 6218.
+    Modified files :
+        ExpressionLogical.hpp · /main/trunk/interpreter/expression
+        ExpressionMessage.hpp · /main/trunk/interpreter/expression
+        NumberStringClass.hpp · /main/trunk/interpreter/classes
+        RexxBehaviour.hpp · /main/trunk/interpreter/behaviour
+        RexxListTable.hpp · /main/trunk/interpreter/classes/support
+        StackClass.hpp · /main/trunk/interpreter/classes
+
+https://en.wikipedia.org/wiki/Placement_syntax
+
+http://en.cppreference.com/w/cpp/memory/new/operator_new
+    In section "Global replacements"
+        The placement form void* operator new(size_t, size_t) is not allowed
+        because the matching signature of the deallocation function,
+        void operator delete(void*, size_t), is a usual (not placement) deallocation function.
+
+http://en.cppreference.com/w/cpp/memory/new/operator_delete
+    In section "replaceable deallocation functions":
+        void operator delete  ( void* ptr, std::size_t sz );    (5)	(since C++14)
+        void operator delete[]( void* ptr, std::size_t sz );    (6)	(since C++14)
+        void operator delete  ( void* ptr, std::size_t sz, const std::nothrow_t& tag ); (7) (since C++14) (until C++17)
+        void operator delete[]( void* ptr, std::size_t sz, const std::nothrow_t& tag ); (8) (since C++14) (until C++17)
+
+        JLF : this comment is incomprehensible
+        5-8) Called instead of (1-4) if a user-defined replacement is provided
+        except that it's implementation-defined whether (1-4) or (5-8) is called
+        when deleting objects of incomplete type and arrays of non-class and
+        trivially-destructible class types (since C++17).
+        The standard library implementations are identical to (1-4).
+
+    In section "class-specific deallocation functions":
+        void T::operator delete  ( void* ptr, std::size_t sz ); (15)
+        void T::operator delete[]( void* ptr, std::size_t sz ); (16)
+        15) If defined, and if (13) is not defined, called by the usual single-object delete-expressions if deallocating an object of type T.
+        16) If defined, and if (14) is not defined, called by the usual array delete[]-expressions if deallocating an array of objects of type T.
+
+https://isocpp.org/files/papers/n3778.html
+    3.7.4.2
+    The global operator delete with exactly two parameters, the second of which has
+    type std::size_t, is a usual deallocation function.
+    The global operator delete[] with exactly two parameters, the second of which has
+    type std::size_t, is a usual deallocation function.
+    [Footnote: This deallocation function precludes use of an allocation function
+    void operator new(std::size_t, std::size_t) as a placement allocation function
+    (C.?.? [diff.cpp11.basic]). —end footnote]
+
+    In C++ 2011, one could declare a global placement allocation function and deallocation function as follows.
+        void operator new(std::size_t, std::size_t);
+        void operator delete(void*, std::size_t) noexcept;
+    Now, however, the declaration of operator delete might match a predefined usual (non-placement) operator delete (3.7.4 [basic.stc.dynamic]).
+    If so, the program is ill-formed, as it was for class member allocation functions and deallocation functions (5.3.4 [new.expr])
+
+http://www.cplusplus.com/reference/new/operator%20delete/
+    ordinary (1)            void operator delete (void* ptr) noexcept;
+    nothrow (2)             void operator delete (void* ptr, const std::nothrow_t& nothrow_constant) noexcept;
+    placement (3)           void operator delete (void* ptr, void* voidptr2) noexcept;
+    with size (4)           void operator delete (void* ptr, std::size_t size) noexcept;
+    nothrow with size (5)   void operator delete (void* ptr, std::size_t size, const std::nothrow_t& nothrow_constant) noexcept;
+    Note that if one of the signatures with size is replaced, its corresponsing
+    version without size shall also be replaced (and the other way around).
+    I.e.: If either (1) or (4) is replaced, both shall be replaced.
+    Likewise, if either (2) or (5) is replaced, both shall be replaced.
+
