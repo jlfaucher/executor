@@ -1,5 +1,11 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://www.reddit.com/r/javascript/comments/3i1td3/how_does_yield_actually_pauseresume_the_flow_of_a/
+Implemented in the parser (yes !)
+Interesting technique to provide the info :
+reference the source code in github.
+https://github.com/joyent/node/blob/d13d7f74d794340ac5e126cfb4ce507fe0f803d5/deps/v8/src/parser.cc#L1009:L1013
+
 http://factor-language.blogspot.fr/2010/04/switching-call-stacks-on-different.html
 
 http://www.dekorte.com/projects/opensource/libcoroutine/
