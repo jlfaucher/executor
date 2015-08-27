@@ -501,13 +501,14 @@ dumpResult: procedure
         say "[no result]"
         return
     end
+    if \.ooRexxShell~hasRgfUtil2 then say value
     else do
         if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
         else if value~isA(.array), value~dimension <= 1, value~hasMethod("ppRepresentation") then say value~ppRepresentation(100) -- condensed output, 100 items max
         else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
         else say pp2(value)
-        return value -- To get this value in the variable RESULT
     end
+    return value -- To get this value in the variable RESULT
 
 
 -------------------------------------------------------------------------------
@@ -532,7 +533,7 @@ loadOptionalComponents:
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
     --call loadPackage("ooSQLite.cls")
-    call loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     call loadPackage("UNO.CLS")
     .ooRexxShell~isExtended = .true
@@ -607,6 +608,7 @@ loadLibrary:
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
+::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute inputrx class -- The current input to interpret
@@ -640,6 +642,7 @@ loadLibrary:
 ::method init class
     self~BsfJavaThreadId = 0
     self~hasBsf = .false
+    self~hasRgfUtil2 = .false
     self~isExtended = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
