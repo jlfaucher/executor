@@ -297,25 +297,36 @@ readline: procedure
                 parse pull inputrx1 -- 1st line : quoted in a way that can be reused as shell input.
                 if inputrx1 == "" then inputrx = "exit" -- eof, happens after "ls" has been processed when doing that : echo ls | oorexxshell
                 else do
-                    if inputrx1~abbrev("inputrx=") then inputrx1 = inputrx1~substr(9) -- remove "inputrx="
-                    parse pull inputrx2 -- 2nd line : unquoted
-                    if .ooRexxShell~traceReadline then do
-                        .color~select(.ooRexxShell~traceColor, .traceOutput)
-                        .traceOutput~say("[readline] inputrx1=" inputrx1)
-                        .traceOutput~say("[readline] inputrx2=" inputrx2)
-                        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+                    if inputrx1~abbrev("inputrx=") then do
+                        -- Since the first line read from the queue starts with "inputrx=",
+                        -- we assume that this line has been sent by the read command.
+                        -- A second line is expected.
+                        inputrx1 = inputrx1~substr(9) -- remove "inputrx="
+                        parse pull inputrx2 -- 2nd line : unquoted
+                        if .ooRexxShell~traceReadline then do
+                            .color~select(.ooRexxShell~traceColor, .traceOutput)
+                            .traceOutput~say("[readline] inputrx1=" inputrx1)
+                            .traceOutput~say("[readline] inputrx2=" inputrx2)
+                            .color~select(.ooRexxShell~defaultColor, .traceOutput)
+                        end
+
+                        -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
+                        -- Ex : echo, 'echo a', ls, 'ls -la'
+                        -- Remove these quotes.
+                        inputrx1 = unquoted(inputrx1, "'")
+
+                        -- Select the most appropriate line, depending on the target interpreter
+                        interpreter = .ooRexxShell~interpreter -- default
+                        if .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = inputrx1~word(1) -- temporary
+                        if interpreter~caselessEquals("bash") then inputrx = inputrx1
+                        else inputrx = inputrx2
                     end
-
-                    -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
-                    -- Ex : echo, 'echo a', ls, 'ls -la'
-                    -- Remove these quotes.
-                    inputrx1 = unquoted(inputrx1, "'")
-
-                    -- Select the most appropriate line, depending on the target interpreter
-                    interpreter = .ooRexxShell~interpreter -- default
-                    if .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = inputrx1~word(1) -- temporary
-                    if interpreter~caselessEquals("bash") then inputrx = inputrx1
-                    else inputrx = inputrx2
+                    else do
+                        -- Since the line read from the queue does not start with "inputrx",
+                        -- we assume that this line has been sent by another process, not by the read command.
+                        -- In this case, no second line is expected.
+                        inputrx = inputrx1
+                    end
                 end
             end
         end
