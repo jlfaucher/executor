@@ -2,10 +2,16 @@ In summary :
 Under Windows, ooRexx supports only cmd.
 Under Linux, if you selected bash, then ooRexx ALWAYS delegates to system().
 BUT... system() delegates to /bin/sh ! You see the problem ?
+Any feature specific to bash will not work !
 Personnally, I saw the problem when running ooRexxShell under Ubuntu : the readline
 was broken, because set -o history was not supported (by sh).
+Note : this problem does not happen under MacOs, don't know why.
+Here too, it's sh which is used for readline.
 Fixed by calling system() when address is "sh" instead of "bash".
-Otherwise, your selection is taken into account correctly...
+
+
+29/08/2015
+oorexx5 under MacOs : default address is "ksh" --> not good !
 
 
 ==========================================================================================
