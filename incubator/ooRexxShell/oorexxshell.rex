@@ -77,7 +77,7 @@ shell~setSecurityManager(.ooRexxShell~securityManager)
 -- In case of error, must end any running coactivity, otherwise the program doesn't terminate
 signal on any name error
 
-.ooRexxShell~isInteractive = (arg(1) == "")
+.ooRexxShell~isInteractive = (arg(1) == "" & lines() == 0) -- Example of not interactive session : echo dir | oorexxshell
 
 if .ooRexxShell~isInteractive then do
     -- Use a property file to remember the current directory
@@ -137,8 +137,8 @@ call loadOptionalComponents
 address value .ooRexxShell~initialAddress
 .ooRexxShell~interpreter = "oorexx"
 
-.ooRexxShell~queuePrivateName = rxqueue("create")
-.ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queuePrivateName)
+.ooRexxShell~queueName = rxqueue("create")
+.ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queueName)
 
 select
     when .ooRexxShell~isInteractive then do
@@ -146,13 +146,12 @@ select
         call main
     end
     otherwise do
-        -- One-liner for default address() and exit.
-        push unquoted(.ooRexxShell~initialArgument)
+        if .ooRexxShell~initialArgument <> "" then push unquoted(.ooRexxShell~initialArgument) -- One-liner
         call main
     end
 end
 
-call rxqueue "delete", .ooRexxShell~queuePrivateName
+call rxqueue "delete", .ooRexxShell~queueName
 
 return
 
@@ -184,6 +183,10 @@ main: procedure
                 .ooRexxShell~debug = .true
             when .ooRexxShell~inputrx~caselessEquals("debugoff") then
                 .ooRexxShell~debug = .false
+            when .ooRexxShell~inputrx~caselessEquals("securityon") then
+                .ooRexxShell~securityManager~isEnabledByUser = .true
+            when .ooRexxShell~inputrx~caselessEquals("securityoff") then
+                .ooRexxShell~securityManager~isEnabledByUser = .false
             when .ooRexxShell~inputrx~caselessEquals("tb") then
                 .error~say(.ooRexxShell~traceback~makearray~tostring)
             when .ooRexxShell~inputrx~caselessEquals("reload") then do
@@ -213,7 +216,7 @@ main: procedure
 
         CONTINUE_REPL:
         if var("RC") then .ooRexxShell~RC = RC
-        if \.ooRexxShell~isInteractive & queued() == 0 then return -- For one-liner, stop loop when queue is empty.
+        if \.ooRexxShell~isInteractive & queued() == 0 & lines() == 0 then return -- When non-interactive, stop loop when queue is empty and default input stream is empty.
     signal REPL
 
 
@@ -225,7 +228,8 @@ intro: procedure
     say version
     .ooRexxShell~sayInterpreters
     say "? : to invoke ooRexx documentation."
-    say "Other commands : exit interpreters reload tb traceoff traceon."
+    say "Other commands : exit interpreters reload securityoff securityon tb traceoff traceon."
+    say "Input queue name :" .ooRexxShell~queueName
     .color~select(.ooRexxShell~defaultColor)
     return
 
@@ -239,8 +243,8 @@ prompt: procedure
     .color~select(.ooRexxShell~defaultColor)
     -- No longer display the prompt, return it and let readline display it
     prompt = .ooRexxShell~interpreter
-    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]"
-    prompt ||= "> "
+    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[oorexx]"
+    if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!>"
     return prompt
 
 
@@ -249,6 +253,12 @@ readline: procedure
     use strict arg prompt
     inputrx = ""
     RC = 0
+    if .ooRexxShell~traceReadline then do
+        .color~select(.ooRexxShell~traceColor, .traceOutput)
+        .traceOutput~say("[readline] queued()=" queued())
+        .traceOutput~say("[readline] lines()=" lines())
+        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+    end
     select
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
             -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
@@ -257,9 +267,11 @@ readline: procedure
                 "(title ooRexxShell) &",
                 "(set inputrx=) &",
                 "(set /p inputrx="quoted(prompt)") &",
-                "(if defined inputrx set inputrx | rxqueue "quoted(.ooRexxShell~queuePrivateName)")"
+                "(if defined inputrx set inputrx | rxqueue "quoted(.ooRexxShell~queueName)")"
             address -- restore
-            if queued() <> 0 then parse pull "inputrx=" inputrx
+            if queued() <> 0 then parse pull inputrx
+            if inputrx == "" then inputrx = "exit" -- eof. Example: happens after "dir" has been processed when doing that : echo dir | oorexxshell
+            else if inputrx~abbrev("inputrx=") then inputrx = inputrx~substr(9) -- remove "inputrx="
         end
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("bash") & .ooRexxShell~readline then do
             -- I want all the features of readline when editing my command line (history, tab completion, ...)
@@ -271,35 +283,40 @@ readline: procedure
             -- Seems to work under Linux as well : say "\a\b" displays "\a\b".
             address value .ooRexxShell~systemAddress
                 "set -o noglob ;",
-                "set -o history ;",
+                "dummy='set -o history' ;",
+                "HISTFILE=".ooRexxShell~historyFile" ;",
                 "history -r ;",
                 "read -r -e -p "quoted(prompt)" inputrx ;",
                 "history -s $inputrx ;",
-                "history -a ;",
+                "dummy='history -a' ;",
                 "history -w ;",
-                "set | grep ^inputrx= | rxqueue "quoted(.ooRexxShell~queuePrivateName)" ;",
-                "/bin/echo $inputrx | rxqueue "quoted(.ooRexxShell~queuePrivateName)
+                "set | grep ^inputrx= | rxqueue "quoted(.ooRexxShell~queueName)" ;",
+                "/bin/echo $inputrx | rxqueue "quoted(.ooRexxShell~queueName)
             address -- restore
             if queued() <> 0 then do
-                parse pull "inputrx=" inputrx1 -- output of 'set'
-                parse pull inputrx2 -- output of 'echo'
-                if .ooRexxShell~traceReadline then do
-                    .color~select(.ooRexxShell~traceColor, .traceOutput)
-                    .traceOutput~say("[readline] inputrx1=" inputrx1)
-                    .traceOutput~say("[readline] inputrx2=" inputrx2)
-                    .color~select(.ooRexxShell~defaultColor, .traceOutput)
+                parse pull inputrx1 -- 1st line : quoted in a way that can be reused as shell input.
+                if inputrx1 == "" then inputrx = "exit" -- eof, happens after "ls" has been processed when doing that : echo ls | oorexxshell
+                else do
+                    if inputrx1~abbrev("inputrx=") then inputrx1 = inputrx1~substr(9) -- remove "inputrx="
+                    parse pull inputrx2 -- 2nd line : unquoted
+                    if .ooRexxShell~traceReadline then do
+                        .color~select(.ooRexxShell~traceColor, .traceOutput)
+                        .traceOutput~say("[readline] inputrx1=" inputrx1)
+                        .traceOutput~say("[readline] inputrx2=" inputrx2)
+                        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+                    end
+
+                    -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
+                    -- Ex : echo, 'echo a', ls, 'ls -la'
+                    -- Remove these quotes.
+                    inputrx1 = unquoted(inputrx1, "'")
+
+                    -- Select the most appropriate line, depending on the target interpreter
+                    interpreter = .ooRexxShell~interpreter -- default
+                    if .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = inputrx1~word(1) -- temporary
+                    if interpreter~caselessEquals("bash") then inputrx = inputrx1
+                    else inputrx = inputrx2
                 end
-
-                -- If inputrx1 contains more than one word, then it has been surrounded by quotes :
-                -- Ex : echo, 'echo a', ls, 'ls -la'
-                -- Remove these quotes.
-                inputrx1 = unquoted(inputrx1, "'")
-
-                -- Select the most appropriate line, depending on the target interpreter
-                interpreter = .ooRexxShell~interpreter -- default
-                if .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = inputrx1~word(1) -- temporary
-                if interpreter~caselessEquals("bash") then inputrx = inputrx1
-                else inputrx = inputrx2
             end
         end
         otherwise do
@@ -393,16 +410,16 @@ dispatchCommand:
     RC = 0
     .ooRexxShell~error = .false
     call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
-    .ooRexxShell~securityManager~isEnabled = .true
+    if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .true
     if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
         signal interpretCommand -- don't call
     else
         signal addressCommand -- don't call
 
     return_to_dispatchCommand:
-    .ooRexxShell~securityManager~isEnabled = .false
+    if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
-    call rxqueue "set", .ooRexxShell~queuePrivateName -- Back to the private ooRexxShell queue
+    call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
     if .ooRexxShell~error then do
         .color~select(.ooRexxShell~errorColor, .error)
         .error~say(condition("O")~message)
@@ -609,16 +626,17 @@ loadLibrary:
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
+::attribute historyFile class
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
 ::attribute initialArgument class -- The command line argument on startup
 ::attribute inputrx class -- The current input to interpret
 ::attribute interpreter class -- One of the environments in 'interpreters' or the special value "ooRexx"
 ::attribute interpreters class -- The set of interpreters that can be activated
 ::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
-::attribute isInteractive class -- Are we in interactive mode, or are we executing a one-liner ?
+::attribute isInteractive class -- Are we in interactive mode ?
 ::attribute lastResult class -- result's value from the last interpreted line
 ::attribute prompt class -- The prompt to display
-::attribute queuePrivateName class -- Private queue for no interference with the user commands
+::attribute queueName class -- Private queue for no interference with the user commands
 ::attribute queueInitialName class -- Backup the initial external queue name (probably "SESSION")
 ::attribute RC class -- Return code from the last executed command
 ::attribute readline class -- When .true, the readline functionality is activated (history, tab expansion...)
@@ -649,15 +667,18 @@ loadLibrary:
     self~traceback = .array~new
     self~debug = .false
 
-    -- Use a property file to remember the current directory
     HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
     if HOME == "" then do
         HOMEDRIVE = value("HOMEDRIVE",,"ENVIRONMENT")
         HOMEPATH = value("HOMEPATH",,"ENVIRONMENT")
         HOME = HOMEDRIVE || HOMEPATH
     end
-    self~settingsFile = HOME || "/oorexxshell.ini"
 
+    -- Use a property file to remember the current directory
+    self~settingsFile = HOME || "/.oorexxshell.ini"
+
+    -- When possible, use a history file specific for ooRexxShell
+    self~historyFile = HOME || "/.history_oorexxshell"
 
 ::method hasLastResult class
     expose lastResult
@@ -684,11 +705,19 @@ loadLibrary:
 -------------------------------------------------------------------------------
 ::class securityManager
 -------------------------------------------------------------------------------
-::attribute isEnabled
+-- Under the control of the user :
+
+-- isEnabledByUser is true by default, can be set to false using the command securityoff.
+-- When false, the security manager is deactivated (typically for debug purpose).
+::attribute isEnabledByUser
 ::attribute traceCommand
+
+-- Under the control of ooRexxShell
+::attribute isEnabled
 
 
 ::method init
+   self~isEnabledByUser = .true
    self~isEnabled = .false
    self~traceCommand = .false
 
@@ -699,13 +728,18 @@ loadLibrary:
 
 ::method command
     use arg info
+
+    isEnabled = self~isEnabledByUser & self~isEnabled
+    if isEnabled then status = "enabled" ; else status = "disabled"
+
     if self~traceCommand then do
         .color~select(.ooRexxShell~traceColor, .traceOutput)
-        .traceOutput~say("[securityManager] address=" info~address)
-        .traceOutput~say("[securityManager] command=" info~command)
+        .traceOutput~say("[securityManager ("status")] address=" info~address)
+        .traceOutput~say("[securityManager ("status")] command=" info~command)
         .color~select(.ooRexxShell~defaultColor, .traceOutput)
     end
-    if \ self~isEnabled then return 0 -- delegate to system
+
+    if \ isEnabled then return 0 -- delegate to system
     -- Use a temporary property file to remember the child process directory
     temporarySettingsFile = .ooRexxShell~settingsFile"."SysQueryProcess("PID")
     if SysFileExists(temporarySettingsFile) then call SysFileDelete temporarySettingsFile -- will be created by the command execution, maybe
@@ -774,6 +808,7 @@ loadLibrary:
 ::attribute defaultForeground class -- 0 to 15
 
 ::method select class
+    if \ .ooRexxShell~isInteractive then return -- to not put control characters in stdout/stderr
     use strict arg color, stream=.stdout
     select
         when .platform~is("windows") then do

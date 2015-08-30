@@ -613,3 +613,64 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
     }
 }
 
+
+--------------------------------------------------------------------------------
+oorexxapi.h
+--------------------------------------------------------------------------------
+
+#define REXX_ARGUMENT_TERMINATOR  0
+#define REXX_VALUE_ARGLIST     2
+#define REXX_VALUE_NAME        3
+#define REXX_VALUE_SCOPE       4
+#define REXX_VALUE_CSELF       5
+#define REXX_VALUE_OSELF       6
+#define REXX_VALUE_SUPER       7
+
+// each of the following types have an optional equivalent
+
+#define REXX_VALUE_RexxObjectPtr          11
+#define REXX_VALUE_int                    12
+#define REXX_VALUE_wholenumber_t          13
+#define REXX_VALUE_double                 14
+#define REXX_VALUE_CSTRING                15
+#define REXX_VALUE_POINTER                16
+#define REXX_VALUE_RexxStringObject       17
+#define REXX_VALUE_stringsize_t           18
+#define REXX_VALUE_float                  19
+#define REXX_VALUE_int8_t                 20
+#define REXX_VALUE_int16_t                21
+#define REXX_VALUE_int32_t                22
+#define REXX_VALUE_int64_t                23
+#define REXX_VALUE___int64_t               23
+#define REXX_VALUE_uint8_t                24
+#define REXX_VALUE_uint16_t               25
+#define REXX_VALUE_uint32_t               26
+#define REXX_VALUE_uint64_t               27
+#define REXX_VALUE___uint64_t             27  -- aliased
+#define REXX_VALUE_intptr_t               28
+#define REXX_VALUE_uintptr_t              29
+#define REXX_VALUE___uintptr_t            29  -- aliased
+#define REXX_VALUE_logical_t              30
+#define REXX_VALUE_RexxArrayObject        31
+#define REXX_VALUE_RexxStemObject         32
+#define REXX_VALUE_size_t                 33
+#define REXX_VALUE_ssize_t                34
+#define REXX_VALUE_POINTERSTRING          35
+#define REXX_VALUE_RexxClassObject        36
+#define REXX_VALUE_RexxMutableBufferObject 37
+
+#define REXX_OPTIONAL_ARGUMENT                 0x8000
+
+
+// argument existence indicator
+#define ARGUMENT_EXISTS   0x01
+// the argument is a "special" virtual argument derived from context
+#define SPECIAL_ARGUMENT  0x02
+
+
+#define ARGUMENT_TYPE_ARGLIST    RexxArrayObject
+#define ARGUMENT_TYPE_NAME       CSTRING
+#define ARGUMENT_TYPE_SCOPE      RexxObjectPtr
+#define ARGUMENT_TYPE_CSELF      POINTER
+#define ARGUMENT_TYPE_OSELF      RexxObjectPtr
+#define ARGUMENT_TYPE_SUPER      RexxClassObject
