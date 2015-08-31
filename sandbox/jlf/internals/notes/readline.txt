@@ -1,3 +1,9 @@
+http://serverfault.com/questions/95404/is-there-a-global-persistent-cmd-history
+has a reference to
+http://mridgers.github.io/clink/
+https://github.com/mridgers/clink
+to review...
+
 ==========================================================================================
 
 https://gist.github.com/baruchel/b6d8bee16a818dd5d64d
