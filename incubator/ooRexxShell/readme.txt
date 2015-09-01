@@ -95,6 +95,39 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
 -----------------------------------------------
+2015 Sep 1
+
+More work on the non-interactive mode.
+
+The readline procedure is implemented with parse pull.
+By design, parse pull reads first the queue and then the standard input :
+say hello1 | oorexxshell say hello2
+HELLO2
+HELLO1
+
+To execute a set of commands using a non-interactive ooRexxShell :
+[windows] type my_commands.txt | oorexxshell <optional first command>
+[unix]    cat  my_commands.txt | oorexxshell <optional first command>
+
+To replay a set of commands from an interactive ooRexxShell :
+First, launch ooRexxShell.
+Copy its queue name (displayed before the first prompt, also available in .ooRexxShell~queueName).
+From another cmd windows, execute :
+[windows] type my_commands.txt | rxqueue <queuename>
+[unix]    cat  my_commands.txt | rxqueue <queuename>
+Back in ooRexxShell.
+Press <enter>.
+If you typed a command in ooRexxShell, it will be executed first.
+Then each command read from the queue will be executed.
+
+
+New commands :
+readlineoff : use the raw parse pull for the input.
+readlineon : delegate to the system readline (better support for history, tab completion).
+securityoff : deactivate the security manager. The system commands are passed as-is to the system.
+securityon : activate the security manager. The system commands are transformed before passing them to the system.
+
+-----------------------------------------------
 2015 Jul 5
 
 Minor adaptations to let use ooRexxShell in non-interactive mode :

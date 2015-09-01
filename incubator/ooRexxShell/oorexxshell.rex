@@ -169,26 +169,26 @@ main: procedure
         select
             when .ooRexxShell~inputrx == "" then
                 nop
+
             when .ooRexxShell~inputrx == "?" then
                 call help
-            when .ooRexxShell~inputrx~caselessEquals("exit") then
-                exit
-            when .ooRexxShell~inputrx~caselessEquals("interpreters") then
-                .ooRexxShell~sayInterpreters
-            when .ooRexxShell~inputrx~caselessEquals("traceon") then
-                .ooRexxShell~trace(.true)
-            when .ooRexxShell~inputrx~caselessEquals("traceoff") then
-                .ooRexxShell~trace(.false)
-            when .ooRexxShell~inputrx~caselessEquals("debugon") then
-                .ooRexxShell~debug = .true
+
             when .ooRexxShell~inputrx~caselessEquals("debugoff") then
                 .ooRexxShell~debug = .false
-            when .ooRexxShell~inputrx~caselessEquals("securityon") then
-                .ooRexxShell~securityManager~isEnabledByUser = .true
-            when .ooRexxShell~inputrx~caselessEquals("securityoff") then
-                .ooRexxShell~securityManager~isEnabledByUser = .false
-            when .ooRexxShell~inputrx~caselessEquals("tb") then
-                .error~say(.ooRexxShell~traceback~makearray~tostring)
+            when .ooRexxShell~inputrx~caselessEquals("debugon") then
+                .ooRexxShell~debug = .true
+
+            when .ooRexxShell~inputrx~caselessEquals("exit") then
+                exit
+
+            when .ooRexxShell~inputrx~caselessEquals("interpreters") then
+                .ooRexxShell~sayInterpreters
+
+            when .ooRexxShell~inputrx~caselessEquals("readlineoff") then
+                .ooRexxShell~readline = .false
+            when .ooRexxShell~inputrx~caselessEquals("readlineon") then
+                .ooRexxShell~readline = .true
+
             when .ooRexxShell~inputrx~caselessEquals("reload") then do
                 -- Often, I modify some packages that are loaded by ooRexxShell at startup.
                 -- To benefit from the changes, I have to reload the components.
@@ -196,16 +196,32 @@ main: procedure
                 .ooRexxShell~RC = .ooRexxShell~reload
                 exit
             end
+
+            when .ooRexxShell~inputrx~caselessEquals("securityoff") then
+                .ooRexxShell~securityManager~isEnabledByUser = .false
+            when .ooRexxShell~inputrx~caselessEquals("securityon") then
+                .ooRexxShell~securityManager~isEnabledByUser = .true
+
+            when .ooRexxShell~inputrx~caselessEquals("tb") then
+                .error~say(.ooRexxShell~traceback~makearray~tostring)
+
+            when .ooRexxShell~inputrx~caselessEquals("traceoff") then
+                .ooRexxShell~trace(.false)
+            when .ooRexxShell~inputrx~caselessEquals("traceon") then
+                .ooRexxShell~trace(.true)
+
             when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
                 -- Change the default interpreter
                 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx)
             end
+
             when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx~word(1)) then do
                 -- The line starts with an interpreter name : use it instead of the default interpreter
                 .ooRexxShell~commandInterpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx~word(1))
                 .ooRexxShell~command = .ooRexxShell~inputrx~substr(.ooRexxShell~inputrx~wordIndex(2))
                 signal dispatchCommand -- don't call, because some ooRexx interpreter informations would be saved/restored
             end
+
             otherwise do
                 -- Interpret the line with the default interpreter
                 .ooRexxShell~commandInterpreter = .ooRexxShell~interpreter
@@ -228,7 +244,9 @@ intro: procedure
     say version
     .ooRexxShell~sayInterpreters
     say "? : to invoke ooRexx documentation."
-    say "Other commands : exit interpreters reload securityoff securityon tb traceoff traceon."
+    say "Other commands :"
+    say "    debugon debugoff exit interpreters readlineoff readlineon reload"
+    say "    reload securityoff securityon tb traceoff traceon."
     say "Input queue name :" .ooRexxShell~queueName
     .color~select(.ooRexxShell~defaultColor)
     return
@@ -267,7 +285,8 @@ readline: procedure
                 "(title ooRexxShell) &",
                 "(set inputrx=) &",
                 "(set /p inputrx="quoted(prompt)") &",
-                "(if defined inputrx set inputrx | rxqueue "quoted(.ooRexxShell~queueName)")"
+                "(if defined inputrx set inputrx | rxqueue "quoted(.ooRexxShell~queueName)" /lifo) &",
+                "(if not defined inputrx echo inputrx= | rxqueue "quoted(.ooRexxShell~queueName)" /lifo)"
             address -- restore
             if queued() <> 0 then parse pull inputrx
             if inputrx == "" then inputrx = "exit" -- eof. Example: happens after "dir" has been processed when doing that : echo dir | oorexxshell
@@ -283,30 +302,30 @@ readline: procedure
             -- Seems to work under Linux as well : say "\a\b" displays "\a\b".
             address value .ooRexxShell~systemAddress
                 "set -o noglob ;",
-                "dummy='set -o history' ;",
+                /*"set -o history ;"*/,
                 "HISTFILE=".ooRexxShell~historyFile" ;",
                 "history -r ;",
                 "read -r -e -p "quoted(prompt)" inputrx ;",
                 "history -s $inputrx ;",
-                "dummy='history -a' ;",
+                /*"history -a ;"*/,
                 "history -w ;",
-                "set | grep ^inputrx= | rxqueue "quoted(.ooRexxShell~queueName)" ;",
-                "/bin/echo $inputrx | rxqueue "quoted(.ooRexxShell~queueName)
+                "(set | grep ^inputrx= | tr '\n' ' ' ; printf ""\000"" ; printf ""%s"" ""$inputrx"" ; printf ""\000"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
             address -- restore
             if queued() <> 0 then do
-                parse pull inputrx1 -- 1st line : quoted in a way that can be reused as shell input.
-                if inputrx1 == "" then inputrx = "exit" -- eof, happens after "ls" has been processed when doing that : echo ls | oorexxshell
+                -- inputrx1 : quoted in a way that can be reused as shell input.
+                -- inputrx2 : unquoted (as is)
+                parse pull inputrx
+                if inputrx == "" then inputrx = "exit" -- eof, happens after "ls" has been processed when doing that : echo ls | oorexxshell
                 else do
-                    if inputrx1~abbrev("inputrx=") then do
-                        -- Since the first line read from the queue starts with "inputrx=",
+                    if inputrx~abbrev("inputrx=") then do
+                        -- Since the line read from the queue starts with "inputrx=",
                         -- we assume that this line has been sent by the read command.
-                        -- A second line is expected.
-                        inputrx1 = inputrx1~substr(9) -- remove "inputrx="
-                        parse pull inputrx2 -- 2nd line : unquoted
+                        parse var inputrx "inputrx=" inputrx1 "0"x inputrx2 "0"x inputrx3
                         if .ooRexxShell~traceReadline then do
                             .color~select(.ooRexxShell~traceColor, .traceOutput)
                             .traceOutput~say("[readline] inputrx1=" inputrx1)
                             .traceOutput~say("[readline] inputrx2=" inputrx2)
+                            .traceOutput~say("[readline] inputrx3=" inputrx3) -- not used, I want just to compare with inputrx1
                             .color~select(.ooRexxShell~defaultColor, .traceOutput)
                         end
 
@@ -324,15 +343,16 @@ readline: procedure
                     else do
                         -- Since the line read from the queue does not start with "inputrx",
                         -- we assume that this line has been sent by another process, not by the read command.
-                        -- In this case, no second line is expected.
-                        inputrx = inputrx1
+                        nop
                     end
                 end
             end
         end
         otherwise do
+            terminal = queued() == 0 & lines() == 0
             call charout ,prompt
-            parse pull inputrx -- Input keyboard or queue.
+            parse pull inputrx -- Input queue or standard input or keyboard.
+            if \ terminal then say inputrx
         end
     end
     if .ooRexxShell~traceReadline then do
