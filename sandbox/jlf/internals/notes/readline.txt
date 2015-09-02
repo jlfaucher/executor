@@ -3,6 +3,11 @@ has a reference to
 http://mridgers.github.io/clink/
 https://github.com/mridgers/clink
 to review...
+review done with clink v0.4.5 :
+clink is not working for rexxtry and oorexxshell.
+For rexxtry, not working because the parent process is rexx, not cmd (I guess).
+For ooRexx, not working because the set /p (user input) does not benefit from clink (bug ?).
+
 
 ==========================================================================================
 
