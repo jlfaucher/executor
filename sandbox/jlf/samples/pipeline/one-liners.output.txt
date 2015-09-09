@@ -1,245 +1,245 @@
 --------------------------------------------------------------------------------
 Object's methods with their identity hash
-" "                             :  1099511342924 
-""                              :  1099511343352 
-"<>"                            :  1099511343330 
-"="                             :  1099511343526 
-"=="                            :  1099511343440 
-"><"                            :  1099511343372 
-"CLASS"                         :  1099511343262 
-"COACTIVEPIPE"                  :  1099509360202 
-"COACTIVEPIPEPROFILE"           :  1099509389242 
-"COPY"                          :  1099511343550 
-"DEFAULTNAME"                   :  1099511343382 
-"GENERATE"                      :  1099510128888 
-"GENERATEI"                     :  1099510134888 
-"HASHCODE"                      :  1099511343362 
-"HASMETHOD"                     :  1099511342752 
-"IDENTITYHASH"                  :  1099511342800 
-"INIT"                          :  1099511343032 
-"INSTANCEMETHOD"                :  1099511342902 
-"INSTANCEMETHODS"               :  1099511342554 
-"ISA"                           :  1099511342946 
-"ISINSTANCEOF"                  :  1099511343430 
-"OBJECTNAME"                    :  1099511343320 
-"OBJECTNAME="                   :  1099511343470 
-"PIPE"                          :  1099509327426 
-"PIPEPROFILE"                   :  1099509360812 
-"REQUEST"                       :  1099511342728 
-"RUN"                           :  1099511343214 
-"SEND"                          :  1099511343516 
-"SENDWITH"                      :  1099511342506 
-"SETMETHOD"                     :  1099511343460 
-"SETMETHOD1"                    :  1099509769878 
-"START"                         :  1099511342600 
-"STARTWITH"                     :  1099511342482 
-"STRING"                        :  1099511343146 
-"UNSETMETHOD"                   :  1099511342776 
-"\="                            :  1099511343450 
-"\=="                           :  1099511343296 
-"||"                            :  1099511343492 
+" "                             :  265913820 
+""                              :  265913464 
+"<>"                            :  265913916 
+"="                             :  265913798 
+"=="                            :  265913911 
+"><"                            :  265913906 
+"CLASS"                         :  265913933 
+"COACTIVEPIPE"                  :  264815421 
+"COACTIVEPIPEPROFILE"           :  264816183 
+"COPY"                          :  265913868 
+"DEFAULTNAME"                   :  265914004 
+"GENERATE"                      :  265182726 
+"GENERATEI"                     :  265185085 
+"HASHCODE"                      :  265913780 
+"HASMETHOD"                     :  265914016 
+"IDENTITYHASH"                  :  265913962 
+"INIT"                          :  265913709 
+"INSTANCEMETHOD"                :  265913557 
+"INSTANCEMETHODS"               :  265913680 
+"ISA"                           :  265913949 
+"ISINSTANCEOF"                  :  265913833 
+"OBJECTNAME"                    :  265913650 
+"OBJECTNAME="                   :  265913574 
+"PIPE"                          :  264815098 
+"PIPEPROFILE"                   :  264815871 
+"REQUEST"                       :  265913987 
+"RUN"                           :  265913856 
+"SEND"                          :  265913901 
+"SENDWITH"                      :  265913999 
+"SETMETHOD"                     :  265913748 
+"SETMETHOD1"                    :  264996967 
+"START"                         :  265913504 
+"STARTWITH"                     :  265913743 
+"STRING"                        :  265913714 
+"UNSETMETHOD"                   :  265913692 
+"\="                            :  265913938 
+"\=="                           :  265913873 
+"||"                            :  265913544 
 (The NIL object) : 38
 --------------------------------------------------------------------------------
 Object's instance methods with their identity hash
-" "                             :  1099511342924 
-""                              :  1099511343352 
-"<>"                            :  1099511343022 
-"<>"                            :  1099511343330 
-"="                             :  1099511342632 
-"="                             :  1099511343526 
-"=="                            :  1099511342822 
-"=="                            :  1099511343440 
-"><"                            :  1099511342576 
-"><"                            :  1099511343372 
-"ACTIVATE"                      :  1099511343056 
-"BASECLASS"                     :  1099511343238 
-"CLASS"                         :  1099511343262 
-"COACTIVEPIPE"                  :  1099509326466 
-"COPY"                          :  1099511343550 
-"DEFAULTNAME"                   :  1099511342856 
-"DEFAULTNAME"                   :  1099511343382 
-"DEFINE"                        :  1099511342976 
-"DELETE"                        :  1099511343122 
-"ENHANCED"                      :  1099511342656 
-"GENERATE"                      :  1099510116778 
-"GENERATEI"                     :  1099510122806 
-"HASHCODE"                      :  1099511342704 
-"HASHCODE"                      :  1099511343362 
-"HASMETHOD"                     :  1099511342752 
-"HELP"                          :  1099510110754 
-"ID"                            :  1099511343192 
-"IDENTITYHASH"                  :  1099511342800 
-"INHERIT"                       :  1099511342458 
-"INIT"                          :  1099511343032 
-"INSTANCEMETHOD"                :  1099511342902 
-"INSTANCEMETHODS"               :  1099511342554 
-"ISA"                           :  1099511342946 
-"ISINSTANCEOF"                  :  1099511343430 
-"ISSUBCLASSOF"                  :  1099511343170 
-"METACLASS"                     :  1099511342448 
-"METHOD"                        :  1099511342956 
-"METHODS"                       :  1099511342966 
-"MIXINCLASS"                    :  1099511343406 
-"NEW"                           :  1099511343112 
-"OBJECTNAME"                    :  1099511343320 
-"OBJECTNAME="                   :  1099511343470 
-"PIPE"                          :  1099509293690 
-"QUERYMIXINCLASS"               :  1099511343286 
-"REQUEST"                       :  1099511342728 
-"RUN"                           :  1099511343214 
-"SEND"                          :  1099511343516 
-"SENDWITH"                      :  1099511342506 
-"SETMETHOD"                     :  1099511343460 
-"START"                         :  1099511342600 
-"STARTWITH"                     :  1099511342482 
-"STRING"                        :  1099511343146 
-"SUBCLASS"                      :  1099511342832 
-"SUBCLASSES"                    :  1099511342680 
-"SUPERCLASS"                    :  1099511342530 
-"SUPERCLASSES"                  :  1099511343080 
-"UNINHERIT"                     :  1099511343000 
-"UNSETMETHOD"                   :  1099511342776 
-"\="                            :  1099511343102 
-"\="                            :  1099511343450 
-"\=="                           :  1099511342878 
-"\=="                           :  1099511343296 
-"||"                            :  1099511343492 
+""                              :  265913464 
+" "                             :  265913820 
+"<>"                            :  265913775 
+"<>"                            :  265913916 
+"="                             :  265913759 
+"="                             :  265913798 
+"=="                            :  265913809 
+"=="                            :  265913911 
+"><"                            :  265913492 
+"><"                            :  265913906 
+"ACTIVATE"                      :  265913625 
+"BASECLASS"                     :  265913662 
+"CLASS"                         :  265913933 
+"COACTIVEPIPE"                  :  264814736 
+"COPY"                          :  265913868 
+"DEFAULTNAME"                   :  265913533 
+"DEFAULTNAME"                   :  265914004 
+"DEFINE"                        :  265913921 
+"DELETE"                        :  265913481 
+"ENHANCED"                      :  265913476 
+"GENERATE"                      :  265177953 
+"GENERATEI"                     :  265180326 
+"HASHCODE"                      :  265913704 
+"HASHCODE"                      :  265913780 
+"HASMETHOD"                     :  265914016 
+"HELP"                          :  265175582 
+"ID"                            :  265913597 
+"IDENTITYHASH"                  :  265913962 
+"INHERIT"                       :  265913602 
+"INIT"                          :  265913709 
+"INSTANCEMETHOD"                :  265913557 
+"INSTANCEMETHODS"               :  265913680 
+"ISA"                           :  265913949 
+"ISINSTANCEOF"                  :  265913833 
+"ISSUBCLASSOF"                  :  265913638 
+"METACLASS"                     :  265913569 
+"METHOD"                        :  265913667 
+"METHODS"                       :  265913878 
+"MIXINCLASS"                    :  265913845 
+"NEW"                           :  265913764 
+"OBJECTNAME"                    :  265913650 
+"OBJECTNAME="                   :  265913574 
+"PIPE"                          :  264814413 
+"QUERYMIXINCLASS"               :  265913793 
+"REQUEST"                       :  265913987 
+"RUN"                           :  265913856 
+"SEND"                          :  265913901 
+"SENDWITH"                      :  265913999 
+"SETMETHOD"                     :  265913748 
+"START"                         :  265913504 
+"STARTWITH"                     :  265913743 
+"STRING"                        :  265913714 
+"SUBCLASS"                      :  265913719 
+"SUBCLASSES"                    :  265913731 
+"SUPERCLASS"                    :  265913586 
+"SUPERCLASSES"                  :  265913975 
+"UNINHERIT"                     :  265913521 
+"UNSETMETHOD"                   :  265913692 
+"\="                            :  265913889 
+"\="                            :  265913938 
+"\=="                           :  265913613 
+"\=="                           :  265913873 
+"||"                            :  265913544 
 (The NIL object) : 63
 --------------------------------------------------------------------------------
 Class' methods with their identity hash
-" "                             :  1099511342924 
-""                              :  1099511343352 
-"!DEFINE_CLASS_METHOD"          :  1099511344606 
-"!DEFINE_METHODS"               :  1099511344616 
-"!REXXDEFINED"                  :  1099511344626 
-"<>"                            :  1099511343022 
-"<>"                            :  1099511343330 
-"="                             :  1099511342632 
-"="                             :  1099511343526 
-"=="                            :  1099511342822 
-"=="                            :  1099511343440 
-"><"                            :  1099511342576 
-"><"                            :  1099511343372 
-"ACTIVATE"                      :  1099511343056 
-"BASECLASS"                     :  1099511343238 
-"CLASS"                         :  1099511343262 
-"COACTIVEPIPE"                  :  1099509360202 
-"COACTIVEPIPEPROFILE"           :  1099509389242 
-"COPY"                          :  1099511343550 
-"DEFAULTNAME"                   :  1099511342856 
-"DEFAULTNAME"                   :  1099511343382 
-"DEFINE"                        :  1099511342976 
-"DELETE"                        :  1099511343122 
-"ENHANCED"                      :  1099511342656 
-"GENERATE"                      :  1099510128888 
-"GENERATEI"                     :  1099510134888 
-"HASHCODE"                      :  1099511342704 
-"HASHCODE"                      :  1099511343362 
-"HASMETHOD"                     :  1099511342752 
-"ID"                            :  1099511343192 
-"IDENTITYHASH"                  :  1099511342800 
-"INHERIT"                       :  1099511342458 
-"INIT"                          :  1099511343032 
-"INSTANCEMETHOD"                :  1099511342902 
-"INSTANCEMETHODS"               :  1099511342554 
-"ISA"                           :  1099511342946 
-"ISINSTANCEOF"                  :  1099511343430 
-"ISSUBCLASSOF"                  :  1099511343170 
-"METACLASS"                     :  1099511342448 
-"METHOD"                        :  1099511342956 
-"METHODS"                       :  1099511342966 
-"MIXINCLASS"                    :  1099511343406 
-"OBJECTNAME"                    :  1099511343320 
-"OBJECTNAME="                   :  1099511343470 
-"PIPE"                          :  1099509327426 
-"PIPEPROFILE"                   :  1099509360812 
-"QUERYMIXINCLASS"               :  1099511343286 
-"REQUEST"                       :  1099511342728 
-"RUN"                           :  1099511343214 
-"SEND"                          :  1099511343516 
-"SENDWITH"                      :  1099511342506 
-"SETMETHOD"                     :  1099511343460 
-"SETMETHOD1"                    :  1099509769878 
-"START"                         :  1099511342600 
-"STARTWITH"                     :  1099511342482 
-"STRING"                        :  1099511343146 
-"SUBCLASS"                      :  1099511342832 
-"SUBCLASSES"                    :  1099511342680 
-"SUPERCLASS"                    :  1099511342530 
-"SUPERCLASSES"                  :  1099511343080 
-"UNINHERIT"                     :  1099511343000 
-"UNSETMETHOD"                   :  1099511342776 
-"\="                            :  1099511343102 
-"\="                            :  1099511343450 
-"\=="                           :  1099511342878 
-"\=="                           :  1099511343296 
-"||"                            :  1099511343492 
+""                              :  265913464 
+" "                             :  265913820 
+"!DEFINE_CLASS_METHOD"          :  265914556 
+"!DEFINE_METHODS"               :  265914551 
+"!REXXDEFINED"                  :  265914546 
+"<>"                            :  265913775 
+"<>"                            :  265913916 
+"="                             :  265913759 
+"="                             :  265913798 
+"=="                            :  265913809 
+"=="                            :  265913911 
+"><"                            :  265913492 
+"><"                            :  265913906 
+"ACTIVATE"                      :  265913625 
+"BASECLASS"                     :  265913662 
+"CLASS"                         :  265913933 
+"COACTIVEPIPE"                  :  264815421 
+"COACTIVEPIPEPROFILE"           :  264816183 
+"COPY"                          :  265913868 
+"DEFAULTNAME"                   :  265913533 
+"DEFAULTNAME"                   :  265914004 
+"DEFINE"                        :  265913921 
+"DELETE"                        :  265913481 
+"ENHANCED"                      :  265913476 
+"GENERATE"                      :  265182726 
+"GENERATEI"                     :  265185085 
+"HASHCODE"                      :  265913704 
+"HASHCODE"                      :  265913780 
+"HASMETHOD"                     :  265914016 
+"ID"                            :  265913597 
+"IDENTITYHASH"                  :  265913962 
+"INHERIT"                       :  265913602 
+"INIT"                          :  265913709 
+"INSTANCEMETHOD"                :  265913557 
+"INSTANCEMETHODS"               :  265913680 
+"ISA"                           :  265913949 
+"ISINSTANCEOF"                  :  265913833 
+"ISSUBCLASSOF"                  :  265913638 
+"METACLASS"                     :  265913569 
+"METHOD"                        :  265913667 
+"METHODS"                       :  265913878 
+"MIXINCLASS"                    :  265913845 
+"OBJECTNAME"                    :  265913650 
+"OBJECTNAME="                   :  265913574 
+"PIPE"                          :  264815098 
+"PIPEPROFILE"                   :  264815871 
+"QUERYMIXINCLASS"               :  265913793 
+"REQUEST"                       :  265913987 
+"RUN"                           :  265913856 
+"SEND"                          :  265913901 
+"SENDWITH"                      :  265913999 
+"SETMETHOD"                     :  265913748 
+"SETMETHOD1"                    :  264996967 
+"START"                         :  265913504 
+"STARTWITH"                     :  265913743 
+"STRING"                        :  265913714 
+"SUBCLASS"                      :  265913719 
+"SUBCLASSES"                    :  265913731 
+"SUPERCLASS"                    :  265913586 
+"SUPERCLASSES"                  :  265913975 
+"UNINHERIT"                     :  265913521 
+"UNSETMETHOD"                   :  265913692 
+"\="                            :  265913889 
+"\="                            :  265913938 
+"\=="                           :  265913613 
+"\=="                           :  265913873 
+"||"                            :  265913544 
 (The NIL object) : 67
 --------------------------------------------------------------------------------
 Class' instance methods with their identity hash
-" "                             :  1099511342924 
-""                              :  1099511343352 
-"!DEFINE_CLASS_METHOD"          :  1099511344606 
-"!DEFINE_METHODS"               :  1099511344616 
-"!REXXDEFINED"                  :  1099511344626 
-"<>"                            :  1099511343022 
-"<>"                            :  1099511343330 
-"="                             :  1099511342632 
-"="                             :  1099511343526 
-"=="                            :  1099511342822 
-"=="                            :  1099511343440 
-"><"                            :  1099511342576 
-"><"                            :  1099511343372 
-"ACTIVATE"                      :  1099511343056 
-"BASECLASS"                     :  1099511343238 
-"CLASS"                         :  1099511343262 
-"COACTIVEPIPE"                  :  1099509292644 
-"COPY"                          :  1099511343550 
-"DEFAULTNAME"                   :  1099511342856 
-"DEFAULTNAME"                   :  1099511343382 
-"DEFINE"                        :  1099511342976 
-"DELETE"                        :  1099511343122 
-"ENHANCED"                      :  1099511342656 
-"HASHCODE"                      :  1099511342704 
-"HASHCODE"                      :  1099511343362 
-"HASMETHOD"                     :  1099511342752 
-"ID"                            :  1099511343192 
-"IDENTITYHASH"                  :  1099511342800 
-"INHERIT"                       :  1099511342458 
-"INIT"                          :  1099511343032 
-"INSTANCEMETHOD"                :  1099511342902 
-"INSTANCEMETHODS"               :  1099511342554 
-"ISA"                           :  1099511342946 
-"ISINSTANCEOF"                  :  1099511343430 
-"ISSUBCLASSOF"                  :  1099511343170 
-"METACLASS"                     :  1099511342448 
-"METHOD"                        :  1099511342956 
-"METHODS"                       :  1099511342966 
-"MIXINCLASS"                    :  1099511343406 
-"NEW"                           :  1099511535724 
-"OBJECTNAME"                    :  1099511343320 
-"OBJECTNAME="                   :  1099511343470 
-"PIPE"                          :  1099509259820 
-"QUERYMIXINCLASS"               :  1099511343286 
-"REQUEST"                       :  1099511342728 
-"RUN"                           :  1099511343214 
-"SEND"                          :  1099511343516 
-"SENDWITH"                      :  1099511342506 
-"SETMETHOD"                     :  1099511343460 
-"START"                         :  1099511342600 
-"STARTWITH"                     :  1099511342482 
-"STRING"                        :  1099511343146 
-"SUBCLASS"                      :  1099511342832 
-"SUBCLASSES"                    :  1099511342680 
-"SUPERCLASS"                    :  1099511342530 
-"SUPERCLASSES"                  :  1099511343080 
-"UNINHERIT"                     :  1099511343000 
-"UNSETMETHOD"                   :  1099511342776 
-"\="                            :  1099511343102 
-"\="                            :  1099511343450 
-"\=="                           :  1099511342878 
-"\=="                           :  1099511343296 
-"||"                            :  1099511343492 
+""                              :  265913464 
+" "                             :  265913820 
+"!DEFINE_CLASS_METHOD"          :  265914556 
+"!DEFINE_METHODS"               :  265914551 
+"!REXXDEFINED"                  :  265914546 
+"<>"                            :  265913775 
+"<>"                            :  265913916 
+"="                             :  265913759 
+"="                             :  265913798 
+"=="                            :  265913809 
+"=="                            :  265913911 
+"><"                            :  265913492 
+"><"                            :  265913906 
+"ACTIVATE"                      :  265913625 
+"BASECLASS"                     :  265913662 
+"CLASS"                         :  265913933 
+"COACTIVEPIPE"                  :  264814008 
+"COPY"                          :  265913868 
+"DEFAULTNAME"                   :  265913533 
+"DEFAULTNAME"                   :  265914004 
+"DEFINE"                        :  265913921 
+"DELETE"                        :  265913481 
+"ENHANCED"                      :  265913476 
+"HASHCODE"                      :  265913704 
+"HASHCODE"                      :  265913780 
+"HASMETHOD"                     :  265914016 
+"ID"                            :  265913597 
+"IDENTITYHASH"                  :  265913962 
+"INHERIT"                       :  265913602 
+"INIT"                          :  265913709 
+"INSTANCEMETHOD"                :  265913557 
+"INSTANCEMETHODS"               :  265913680 
+"ISA"                           :  265913949 
+"ISINSTANCEOF"                  :  265913833 
+"ISSUBCLASSOF"                  :  265913638 
+"METACLASS"                     :  265913569 
+"METHOD"                        :  265913667 
+"METHODS"                       :  265913878 
+"MIXINCLASS"                    :  265913845 
+"NEW"                           :  266012193 
+"OBJECTNAME"                    :  265913650 
+"OBJECTNAME="                   :  265913574 
+"PIPE"                          :  264813692 
+"QUERYMIXINCLASS"               :  265913793 
+"REQUEST"                       :  265913987 
+"RUN"                           :  265913856 
+"SEND"                          :  265913901 
+"SENDWITH"                      :  265913999 
+"SETMETHOD"                     :  265913748 
+"START"                         :  265913504 
+"STARTWITH"                     :  265913743 
+"STRING"                        :  265913714 
+"SUBCLASS"                      :  265913719 
+"SUBCLASSES"                    :  265913731 
+"SUPERCLASS"                    :  265913586 
+"SUPERCLASSES"                  :  265913975 
+"UNINHERIT"                     :  265913521 
+"UNSETMETHOD"                   :  265913692 
+"\="                            :  265913889 
+"\="                            :  265913938 
+"\=="                           :  265913613 
+"\=="                           :  265913873 
+"||"                            :  265913544 
 (The NIL object) : 63
 --------------------------------------------------------------------------------
 RexxBlock' methods, with their defining class
@@ -297,7 +297,6 @@ STRING                         Object
 TRAMPOLINE                     Doer 
 UNKNOWN                        RexxBlockDoer 
 UNSETMETHOD                    Object 
-Y                              Doer 
 \=                             Object 
 \==                            Object 
 ||                             Object 
@@ -318,6 +317,7 @@ All classes understanding the ~help method
 (The ArgUtil class) 
 (The Array class) 
 (The ArrayInitializer class) 
+(The ArrayOperators class) 
 (The ArrayPrettyPrinter class) 
 (The Bag class) 
 (The Buffer class) 
@@ -349,7 +349,8 @@ All classes understanding the ~help method
 (The Directory class) 
 (The Doer class) 
 (The DoerFactory class) 
-(The Exception class) 
+(The EncodedString class) 
+(The Encoding class) 
 (The File class) 
 (The FileExtension class) 
 (The Generator class) 
@@ -357,6 +358,7 @@ All classes understanding the ~help method
 (The InputOutputStream class) 
 (The InputStream class) 
 (The InvertingComparator class) 
+(The JLF class) 
 (The List class) 
 (The LogicalExtension class) 
 (The MESSAGEPROFILEDATA class) 
@@ -371,6 +373,7 @@ All classes understanding the ~help method
 (The MutableBufferIterator class) 
 (The MutableBufferMapper class) 
 (The MutableBufferReducer class) 
+(The NumericComparator class) 
 (The OLEObject class) 
 (The OLEVariant class) 
 (The Orderable class) 
@@ -409,7 +412,10 @@ All classes understanding the ~help method
 (The SupplierIterator class) 
 (The SupplierReducer class) 
 (The Table class) 
+(The Text class) 
 (The TimeSpan class) 
+(The UTF16Encoding class) 
+(The UTF8Encoding class) 
 (The WeakReference class) 
 (The after class) 
 (The all class) 
@@ -469,20 +475,20 @@ All classes understanding the ~help method
 (The yield class) 
 --------------------------------------------------------------------------------
 All packages that are visible from current context, including the current package (source of the pipeline).
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\coactivity.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\concurrency\generator.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\array.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\complex.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\doers.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\extensions.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\file.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\functionals.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\logical.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\extension\string.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\one-liners.rex 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe.rex 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\pipeline\pipe_extension.cls 
-d:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\profiling\profiling.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\concurrency\coactivity.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\concurrency\generator.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\array.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\complex.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\doers.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\extensions.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\file.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\functionals.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\logical.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\extension\string.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\pipeline\one-liners.rex 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\pipeline\pipe.rex 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\pipeline\pipe_extension.cls 
+C:\jlf\local\rexx\oorexx\official\sandbox\jlf\samples\profiling\profiling.cls 
 --------------------------------------------------------------------------------
 Public classes by package
 coactivity.cls : (The Coactivity class) 
@@ -498,11 +504,13 @@ generator.cls : (The CoactivitySupplierForGenerationFilter class)
 generator.cls : (The CoactivitySupplierForGenerationIterator class) 
 generator.cls : (The CollectionGenerator class) 
 generator.cls : (The Generator class) 
+generator.cls : (The JLF class) 
 generator.cls : (The MutableBufferGenerator class) 
 generator.cls : (The RepeaterGenerator class) 
 generator.cls : (The StringGenerator class) 
 generator.cls : (The SupplierGenerator class) 
 array.cls : (The ArrayInitializer class) 
+array.cls : (The ArrayOperators class) 
 array.cls : (The ArrayPrettyPrinter class) 
 complex.cls : (The COMPLEX class) 
 doers.cls : (The Closure class) 
@@ -533,7 +541,14 @@ functionals.cls : (The SupplierFilter class)
 functionals.cls : (The SupplierIterator class) 
 functionals.cls : (The SupplierReducer class) 
 logical.cls : (The LogicalExtension class) 
+string.cls : (The ByteEncoding class) 
+string.cls : (The EncodedString class) 
+string.cls : (The Encoding class) 
+string.cls : (The Encodings class) 
 string.cls : (The StringHelpers class) 
+string.cls : (The Text class) 
+string.cls : (The UTF16Encoding class) 
+string.cls : (The UTF8Encoding class) 
 pipe.rex : (The after class) 
 pipe.rex : (The all class) 
 pipe.rex : (The arrayCollector class) 
@@ -594,56 +609,334 @@ pipe_extension.cls : (The superClasses class)
 profiling.cls : (The PROFILER class) 
 --------------------------------------------------------------------------------
 The 50 first files and directories in the /tmp directory
-source:1,'/tmp' | fileTree:1,(d:\tmp\#!sh.bat) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\AboutDlg.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\AboutDlg.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help\MSDNIntegrator.chi) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Html Help\MSDNIntegrator.chm) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:4,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\LoadLibrary.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:5,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\LoadLibrary.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:6,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegration.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:7,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegration.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:8,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.clw) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:9,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:10,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.dsp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:11,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.dsw) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:12,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:13,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.opt) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:14,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.plg) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:15,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.positions) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:16,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegrator.rc) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:17,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegratorDlg.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:18,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\MSDNIntegratorDlg.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:19,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\ReadMe.txt) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:20,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:20,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\Release\MSDNIntegrator.exe) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\logo.bmp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\MSDNIntegrator.ico) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\MSDNIntegrator.rc2) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:21,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res) | fileTree:4,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\res\ogo.bmp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:22,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\resource.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:23,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\SplitPath.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:24,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\SplitPath.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:25,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\StdAfx.cpp) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:1,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator) | fileTree:26,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator\StdAfx.h) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.chi) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:3,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.chm) 
-source:1,'/tmp' | fileTree:2,(d:\tmp\A guide to MSDN Collection Integration) | fileTree:4,(d:\tmp\A guide to MSDN Collection Integration\MSDNIntegrator.exe) 
-source:1,'/tmp' | fileTree:3,(d:\tmp\Achats Logiciels.xls) 
-source:1,'/tmp' | fileTree:4,(d:\tmp\ActiveRoles_MgmtShellForAD_10_AdminGuide_English_4.pdf) 
-source:1,'/tmp' | fileTree:5,(d:\tmp\demo.txt) 
-source:1,'/tmp' | fileTree:6,(d:\tmp\doclist.txt) 
-source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) 
-source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) | fileTree:1,(d:\tmp\GTDev\DomExt_xpath.pdf) 
-source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) | fileTree:2,(d:\tmp\GTDev\IPE.V1.0.FR.ppt) 
-source:1,'/tmp' | fileTree:7,(d:\tmp\GTDev) | fileTree:3,(d:\tmp\GTDev\XML Query & Transforming using dom.find & dom.set.doc) 
-source:1,'/tmp' | fileTree:8,(d:\tmp\iffe1205583635) 
-source:1,'/tmp' | fileTree:9,(d:\tmp\Local) 
-source:1,'/tmp' | fileTree:9,(d:\tmp\Local) | fileTree:1,(d:\tmp\Local\dbdita) 
+source:1,'/tmp' | fileTree:1,(C:\tmp\all_cd_docs_helena.txt) 
+source:1,'/tmp' | fileTree:2,(C:\tmp\all_cd_docs_r2.txt) 
+source:1,'/tmp' | fileTree:3,(C:\tmp\all_cd_docs_r3.txt) 
+source:1,'/tmp' | fileTree:4,(C:\tmp\commands1.txt) 
+source:1,'/tmp' | fileTree:5,(C:\tmp\commands2.txt) 
+source:1,'/tmp' | fileTree:6,(C:\tmp\extract_inv002F-v49.txt) 
+source:1,'/tmp' | fileTree:7,(C:\tmp\extract_inv002F-v53.txt) 
+source:1,'/tmp' | fileTree:8,(C:\tmp\f.txt) 
+source:1,'/tmp' | fileTree:9,(C:\tmp\f1.txt) 
+source:1,'/tmp' | fileTree:10,(C:\tmp\f1s.txt) 
+source:1,'/tmp' | fileTree:11,(C:\tmp\f1x.txt) 
+source:1,'/tmp' | fileTree:12,(C:\tmp\f2.txt) 
+source:1,'/tmp' | fileTree:13,(C:\tmp\f2s.txt) 
+source:1,'/tmp' | fileTree:14,(C:\tmp\f2x.txt) 
+source:1,'/tmp' | fileTree:15,(C:\tmp\f3.txt) 
+source:1,'/tmp' | fileTree:16,(C:\tmp\f4.txt) 
+source:1,'/tmp' | fileTree:17,(C:\tmp\filter_prems-v49.txt) 
+source:1,'/tmp' | fileTree:18,(C:\tmp\filter_prems-v53.txt) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7\batik-rasterizer.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:2,(C:\tmp\mt\toolkit\bin\batik-1.7\batik-slideshow.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:3,(C:\tmp\mt\toolkit\bin\batik-1.7\batik-squiggle.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\batik-svgpp.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:5,(C:\tmp\mt\toolkit\bin\batik-1.7\batik-ttf2svg.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:6,(C:\tmp\mt\toolkit\bin\batik-1.7\batik.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:7,(C:\tmp\mt\toolkit\bin\batik-1.7\CHANGES) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\.htaccess) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:2,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\broken-links.xml) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:3,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\contributors.html) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\AppletDemo$1.class) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:2,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\AppletDemo$2.class) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:3,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\AppletDemo.class) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\AppletDemo.java) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:5,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\barChart.svg) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:6,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-awt-util.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:7,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-bridge.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-css.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:9,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-dom.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:10,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-ext.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:11,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-gvt.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:12,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-parser.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:13,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-script.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:14,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-svg-dom.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:15,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-swing.jar) 
+source:1,'/tmp' | fileTree:19,(C:\tmp\mt) | fileTree:1,(C:\tmp\mt\toolkit) | fileTree:1,(C:\tmp\mt\toolkit\bin) | fileTree:1,(C:\tmp\mt\toolkit\bin\batik-1.7) | fileTree:8,(C:\tmp\mt\toolkit\bin\batik-1.7\docs) | fileTree:4,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo) | fileTree:16,(C:\tmp\mt\toolkit\bin\batik-1.7\docs\demo\batik-util.jar) 
+--------------------------------------------------------------------------------
+List the files and directories in the /tmp directory, using a pipe component
+files = {use arg depth=1; return .fileTree rec.depth | .sort | .console | .lineCount | .console}
+
+"/tmp"~pipe(files~())
+1 : (C:\tmp\all_cd_docs_helena.txt)
+2 : (C:\tmp\all_cd_docs_r2.txt)
+3 : (C:\tmp\all_cd_docs_r3.txt)
+4 : (C:\tmp\commands1.txt)
+5 : (C:\tmp\commands2.txt)
+6 : (C:\tmp\extract_inv002F-v49.txt)
+7 : (C:\tmp\extract_inv002F-v53.txt)
+8 : (C:\tmp\f.txt)
+9 : (C:\tmp\f1.txt)
+10 : (C:\tmp\f1s.txt)
+11 : (C:\tmp\f1x.txt)
+12 : (C:\tmp\f2.txt)
+13 : (C:\tmp\f2s.txt)
+14 : (C:\tmp\f2x.txt)
+15 : (C:\tmp\f3.txt)
+16 : (C:\tmp\f4.txt)
+17 : (C:\tmp\filter_prems-v49.txt)
+18 : (C:\tmp\filter_prems-v53.txt)
+19 : (C:\tmp\mt)
+1 : (C:\tmp\mt\toolkit)
+2 : (C:\tmp\mt\toolkit_local)
+20 : (C:\tmp\out.txt)
+21 : (C:\tmp\testrexx.rex)
+22 : (C:\tmp\todrop-HEL_CR081_Triggering liquidation receipts death and maturity-v1.4.docx)
+23 : (C:\tmp\uintptr_max.c)
+24 : (C:\tmp\uintptr_max.exe)
+25 : (C:\tmp\uintptr_max.obj)
+(The NIL object) : 27
+
+"/tmp"~pipe(files~(2))
+1 : (C:\tmp\all_cd_docs_helena.txt)
+2 : (C:\tmp\all_cd_docs_r2.txt)
+3 : (C:\tmp\all_cd_docs_r3.txt)
+4 : (C:\tmp\commands1.txt)
+5 : (C:\tmp\commands2.txt)
+6 : (C:\tmp\extract_inv002F-v49.txt)
+7 : (C:\tmp\extract_inv002F-v53.txt)
+8 : (C:\tmp\f.txt)
+9 : (C:\tmp\f1.txt)
+10 : (C:\tmp\f1s.txt)
+11 : (C:\tmp\f1x.txt)
+12 : (C:\tmp\f2.txt)
+13 : (C:\tmp\f2s.txt)
+14 : (C:\tmp\f2x.txt)
+15 : (C:\tmp\f3.txt)
+16 : (C:\tmp\f4.txt)
+17 : (C:\tmp\filter_prems-v49.txt)
+18 : (C:\tmp\filter_prems-v53.txt)
+19 : (C:\tmp\mt)
+1 : (C:\tmp\mt\toolkit)
+4 : (C:\tmp\mt\toolkit\CatalogManager.properties)
+1 : (C:\tmp\mt\toolkit\bin)
+2 : (C:\tmp\mt\toolkit\bin0)
+3 : (C:\tmp\mt\toolkit\catalog.xml)
+5 : (C:\tmp\mt\toolkit\convert)
+6 : (C:\tmp\mt\toolkit\fast_setenv_jfaucher.bat)
+7 : (C:\tmp\mt\toolkit\formats)
+8 : (C:\tmp\mt\toolkit\generated-catalog.xml)
+9 : (C:\tmp\mt\toolkit\local_init.bat)
+10 : (C:\tmp\mt\toolkit\local_setenv.bat)
+11 : (C:\tmp\mt\toolkit\metamodels)
+12 : (C:\tmp\mt\toolkit\scripts)
+13 : (C:\tmp\mt\toolkit\synchronize_toolkit.bat)
+2 : (C:\tmp\mt\toolkit_local)
+20 : (C:\tmp\out.txt)
+21 : (C:\tmp\testrexx.rex)
+22 : (C:\tmp\todrop-HEL_CR081_Triggering liquidation receipts death and maturity-v1.4.docx)
+23 : (C:\tmp\uintptr_max.c)
+24 : (C:\tmp\uintptr_max.exe)
+25 : (C:\tmp\uintptr_max.obj)
+(The NIL object) : 40
+
+"/tmp"~pipe(files~(3))
+1 : (C:\tmp\all_cd_docs_helena.txt)
+2 : (C:\tmp\all_cd_docs_r2.txt)
+3 : (C:\tmp\all_cd_docs_r3.txt)
+4 : (C:\tmp\commands1.txt)
+5 : (C:\tmp\commands2.txt)
+6 : (C:\tmp\extract_inv002F-v49.txt)
+7 : (C:\tmp\extract_inv002F-v53.txt)
+8 : (C:\tmp\f.txt)
+9 : (C:\tmp\f1.txt)
+10 : (C:\tmp\f1s.txt)
+11 : (C:\tmp\f1x.txt)
+12 : (C:\tmp\f2.txt)
+13 : (C:\tmp\f2s.txt)
+14 : (C:\tmp\f2x.txt)
+15 : (C:\tmp\f3.txt)
+16 : (C:\tmp\f4.txt)
+17 : (C:\tmp\filter_prems-v49.txt)
+18 : (C:\tmp\filter_prems-v53.txt)
+19 : (C:\tmp\mt)
+1 : (C:\tmp\mt\toolkit)
+4 : (C:\tmp\mt\toolkit\CatalogManager.properties)
+1 : (C:\tmp\mt\toolkit\bin)
+2 : (C:\tmp\mt\toolkit\bin0)
+2 : (C:\tmp\mt\toolkit\bin0\GnuWin32)
+4 : (C:\tmp\mt\toolkit\bin0\HtmlHelp)
+5 : (C:\tmp\mt\toolkit\bin0\LanguageTool-1.0.0)
+8 : (C:\tmp\mt\toolkit\bin0\UMLGraph-4.5)
+1 : (C:\tmp\mt\toolkit\bin0\aspell)
+3 : (C:\tmp\mt\toolkit\bin0\gs-8.63)
+6 : (C:\tmp\mt\toolkit\bin0\msfilter-2.0)
+7 : (C:\tmp\mt\toolkit\bin0\tidy-070217)
+9 : (C:\tmp\mt\toolkit\bin0\word2html-1.0)
+10 : (C:\tmp\mt\toolkit\bin0\xep-4.11)
+11 : (C:\tmp\mt\toolkit\bin0\xfc-3.1)
+7 : (C:\tmp\mt\toolkit\bin\GTMOF)
+6 : (C:\tmp\mt\toolkit\bin\GTMetaTool)
+5 : (C:\tmp\mt\toolkit\bin\Graphviz)
+1 : (C:\tmp\mt\toolkit\bin\batik-1.7)
+2 : (C:\tmp\mt\toolkit\bin\cygwin)
+3 : (C:\tmp\mt\toolkit\bin\echoset.bat)
+4 : (C:\tmp\mt\toolkit\bin\fop-0.94)
+8 : (C:\tmp\mt\toolkit\bin\helpers)
+9 : (C:\tmp\mt\toolkit\bin\jre1.6.0_11)
+10 : (C:\tmp\mt\toolkit\bin\msSDK)
+11 : (C:\tmp\mt\toolkit\bin\ooRexx-4.0.0)
+12 : (C:\tmp\mt\toolkit\bin\setenv.bat)
+13 : (C:\tmp\mt\toolkit\bin\setenv_old.bat)
+14 : (C:\tmp\mt\toolkit\bin\system)
+15 : (C:\tmp\mt\toolkit\bin\xalan-j_2_7_1)
+16 : (C:\tmp\mt\toolkit\bin\xmlsoft.org)
+3 : (C:\tmp\mt\toolkit\catalog.xml)
+5 : (C:\tmp\mt\toolkit\convert)
+1 : (C:\tmp\mt\toolkit\convert\aiadic.external)
+2 : (C:\tmp\mt\toolkit\convert\audit)
+3 : (C:\tmp\mt\toolkit\convert\docbook)
+4 : (C:\tmp\mt\toolkit\convert\gtxml)
+5 : (C:\tmp\mt\toolkit\convert\html)
+6 : (C:\tmp\mt\toolkit\convert\mtdata)
+7 : (C:\tmp\mt\toolkit\convert\mtdoc)
+8 : (C:\tmp\mt\toolkit\convert\mtxml)
+9 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2bmp)
+10 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2ctx)
+11 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2dic)
+12 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2doc)
+13 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2gr)
+14 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2sm)
+15 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2swm)
+16 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2tbd)
+17 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2tnr)
+18 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2tst)
+19 : (C:\tmp\mt\toolkit\convert\mtxml_gtm2tut)
+20 : (C:\tmp\mt\toolkit\convert\text.tab_separated)
+21 : (C:\tmp\mt\toolkit\convert\util)
+22 : (C:\tmp\mt\toolkit\convert\wordml)
+23 : (C:\tmp\mt\toolkit\convert\xhtml-transitional)
+24 : (C:\tmp\mt\toolkit\convert\xmi-1.0)
+25 : (C:\tmp\mt\toolkit\convert\xmi-1.0_uml-1.3)
+26 : (C:\tmp\mt\toolkit\convert\xmi-1.0_uml-1.3_gtdesigner)
+27 : (C:\tmp\mt\toolkit\convert\xmi-2.0)
+28 : (C:\tmp\mt\toolkit\convert\xmi-2.0_cmof-2.0)
+29 : (C:\tmp\mt\toolkit\convert\xmi-2.0_gtmof)
+30 : (C:\tmp\mt\toolkit\convert\xml-1.0)
+31 : (C:\tmp\mt\toolkit\convert\xml_schema)
+32 : (C:\tmp\mt\toolkit\convert\xsltdoc.config.xml)
+6 : (C:\tmp\mt\toolkit\fast_setenv_jfaucher.bat)
+7 : (C:\tmp\mt\toolkit\formats)
+1 : (C:\tmp\mt\toolkit\formats\aia_doc)
+2 : (C:\tmp\mt\toolkit\formats\catalog)
+3 : (C:\tmp\mt\toolkit\formats\docbook)
+4 : (C:\tmp\mt\toolkit\formats\doxygen)
+5 : (C:\tmp\mt\toolkit\formats\mathml)
+6 : (C:\tmp\mt\toolkit\formats\schematron)
+7 : (C:\tmp\mt\toolkit\formats\svg)
+8 : (C:\tmp\mt\toolkit\formats\xhtml)
+9 : (C:\tmp\mt\toolkit\formats\xhtml_delivery)
+10 : (C:\tmp\mt\toolkit\formats\xhtml_delivery.old)
+11 : (C:\tmp\mt\toolkit\formats\xinclude)
+12 : (C:\tmp\mt\toolkit\formats\xml)
+13 : (C:\tmp\mt\toolkit\formats\xsl-fo)
+8 : (C:\tmp\mt\toolkit\generated-catalog.xml)
+9 : (C:\tmp\mt\toolkit\local_init.bat)
+10 : (C:\tmp\mt\toolkit\local_setenv.bat)
+11 : (C:\tmp\mt\toolkit\metamodels)
+1 : (C:\tmp\mt\toolkit\metamodels\cmof.gtm)
+2 : (C:\tmp\mt\toolkit\metamodels\di)
+3 : (C:\tmp\mt\toolkit\metamodels\dm)
+4 : (C:\tmp\mt\toolkit\metamodels\gtd)
+5 : (C:\tmp\mt\toolkit\metamodels\gtinfra)
+6 : (C:\tmp\mt\toolkit\metamodels\gtm2bmp)
+7 : (C:\tmp\mt\toolkit\metamodels\gtm2ctx)
+8 : (C:\tmp\mt\toolkit\metamodels\gtm2devm)
+9 : (C:\tmp\mt\toolkit\metamodels\gtm2devm_branch1)
+10 : (C:\tmp\mt\toolkit\metamodels\gtm2dic)
+11 : (C:\tmp\mt\toolkit\metamodels\gtm2doc)
+12 : (C:\tmp\mt\toolkit\metamodels\gtm2elr)
+13 : (C:\tmp\mt\toolkit\metamodels\gtm2gr)
+14 : (C:\tmp\mt\toolkit\metamodels\gtm2sm)
+15 : (C:\tmp\mt\toolkit\metamodels\gtm2swm)
+16 : (C:\tmp\mt\toolkit\metamodels\gtm2tbd)
+17 : (C:\tmp\mt\toolkit\metamodels\gtm2tnr)
+18 : (C:\tmp\mt\toolkit\metamodels\gtm2tst)
+19 : (C:\tmp\mt\toolkit\metamodels\gtm2tut)
+20 : (C:\tmp\mt\toolkit\metamodels\gtm2wm)
+21 : (C:\tmp\mt\toolkit\metamodels\gtmof)
+22 : (C:\tmp\mt\toolkit\metamodels\gtmpt)
+23 : (C:\tmp\mt\toolkit\metamodels\makefile)
+24 : (C:\tmp\mt\toolkit\metamodels\metatool)
+25 : (C:\tmp\mt\toolkit\metamodels\scripts)
+26 : (C:\tmp\mt\toolkit\metamodels\tutorial)
+27 : (C:\tmp\mt\toolkit\metamodels\uml2-030402)
+28 : (C:\tmp\mt\toolkit\metamodels\viewers)
+12 : (C:\tmp\mt\toolkit\scripts)
+1 : (C:\tmp\mt\toolkit\scripts\cmd_repl.bat)
+2 : (C:\tmp\mt\toolkit\scripts\collect_chm_files.bat)
+3 : (C:\tmp\mt\toolkit\scripts\commands2html.bat)
+4 : (C:\tmp\mt\toolkit\scripts\copy_as_image.bat)
+5 : (C:\tmp\mt\toolkit\scripts\copy_as_image_old.bat)
+6 : (C:\tmp\mt\toolkit\scripts\deliver_documents.bat)
+7 : (C:\tmp\mt\toolkit\scripts\docbook2docbook.bat)
+8 : (C:\tmp\mt\toolkit\scripts\docbook2fo.bat)
+9 : (C:\tmp\mt\toolkit\scripts\docbook2htmlhelp.bat)
+10 : (C:\tmp\mt\toolkit\scripts\docbook2odt.bat)
+11 : (C:\tmp\mt\toolkit\scripts\docbook2pdf.bat)
+12 : (C:\tmp\mt\toolkit\scripts\docbook2rtf.bat)
+13 : (C:\tmp\mt\toolkit\scripts\docbook2wml.bat)
+14 : (C:\tmp\mt\toolkit\scripts\docbook2xhtml.bat)
+15 : (C:\tmp\mt\toolkit\scripts\docbook2xhtml_chunk.bat)
+16 : (C:\tmp\mt\toolkit\scripts\docbook_copy.bat)
+17 : (C:\tmp\mt\toolkit\scripts\docbook_get_script.bat)
+18 : (C:\tmp\mt\toolkit\scripts\dot2image.bat)
+19 : (C:\tmp\mt\toolkit\scripts\dot2svg.bat)
+20 : (C:\tmp\mt\toolkit\scripts\embed_xfiles.bat)
+21 : (C:\tmp\mt\toolkit\scripts\filter_audit.bat)
+22 : (C:\tmp\mt\toolkit\scripts\fo2pdf.bat)
+23 : (C:\tmp\mt\toolkit\scripts\folint.bat)
+24 : (C:\tmp\mt\toolkit\scripts\generate_mtxml_serializer.bat)
+25 : (C:\tmp\mt\toolkit\scripts\groff2image.bat)
+26 : (C:\tmp\mt\toolkit\scripts\groff2pdf.bat)
+27 : (C:\tmp\mt\toolkit\scripts\groff2ps.bat)
+28 : (C:\tmp\mt\toolkit\scripts\gtmof2uml13.bat)
+29 : (C:\tmp\mt\toolkit\scripts\gtxml2dot.bat)
+30 : (C:\tmp\mt\toolkit\scripts\gtxml2hutn.bat)
+31 : (C:\tmp\mt\toolkit\scripts\html2xhtml.bat)
+32 : (C:\tmp\mt\toolkit\scripts\m2_xmi2hutn.bat)
+33 : (C:\tmp\mt\toolkit\scripts\make.bat)
+34 : (C:\tmp\mt\toolkit\scripts\make_documents.bat)
+35 : (C:\tmp\mt\toolkit\scripts\migrate.bat)
+36 : (C:\tmp\mt\toolkit\scripts\mtdata2xhtml.bat)
+37 : (C:\tmp\mt\toolkit\scripts\mtdoc2docbook.bat)
+38 : (C:\tmp\mt\toolkit\scripts\mthelp.bat)
+39 : (C:\tmp\mt\toolkit\scripts\mtxml2documents.bat)
+40 : (C:\tmp\mt\toolkit\scripts\mtxml2dot.bat)
+41 : (C:\tmp\mt\toolkit\scripts\mtxml2hutn.bat)
+42 : (C:\tmp\mt\toolkit\scripts\mtxml2mtdoc.bat)
+43 : (C:\tmp\mt\toolkit\scripts\mtxmlclone.bat)
+44 : (C:\tmp\mt\toolkit\scripts\mtxmllight.bat)
+45 : (C:\tmp\mt\toolkit\scripts\pic2image.bat)
+46 : (C:\tmp\mt\toolkit\scripts\private)
+47 : (C:\tmp\mt\toolkit\scripts\ps2image.bat)
+48 : (C:\tmp\mt\toolkit\scripts\repeat.bat)
+49 : (C:\tmp\mt\toolkit\scripts\sch2xsl.bat)
+50 : (C:\tmp\mt\toolkit\scripts\svg2image.bat)
+51 : (C:\tmp\mt\toolkit\scripts\tex2image.bat)
+52 : (C:\tmp\mt\toolkit\scripts\tex2pdf.bat)
+53 : (C:\tmp\mt\toolkit\scripts\word2gif.bat)
+54 : (C:\tmp\mt\toolkit\scripts\word2xhtml.bat)
+55 : (C:\tmp\mt\toolkit\scripts\xhtml2docbook.bat)
+56 : (C:\tmp\mt\toolkit\scripts\xhtml2documents.bat)
+57 : (C:\tmp\mt\toolkit\scripts\xhtml2fo.bat)
+58 : (C:\tmp\mt\toolkit\scripts\xhtml2pdf.bat)
+59 : (C:\tmp\mt\toolkit\scripts\xslt.bat)
+13 : (C:\tmp\mt\toolkit\synchronize_toolkit.bat)
+2 : (C:\tmp\mt\toolkit_local)
+20 : (C:\tmp\out.txt)
+21 : (C:\tmp\testrexx.rex)
+22 : (C:\tmp\todrop-HEL_CR081_Triggering liquidation receipts death and maturity-v1.4.docx)
+23 : (C:\tmp\uintptr_max.c)
+24 : (C:\tmp\uintptr_max.exe)
+25 : (C:\tmp\uintptr_max.obj)
+(The NIL object) : 199
 --------------------------------------------------------------------------------
 Count the files and directories in the /tmp directory
-(The NIL object) : 24639
+(The NIL object) : 7810

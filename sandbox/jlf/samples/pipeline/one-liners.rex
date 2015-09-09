@@ -51,6 +51,21 @@ say "The 50 first files and directories in the /tmp directory"
 
 
 say separator
+say "List the files and directories in the /tmp directory, using a pipe component"
+say "files = {use arg depth=1; return .fileTree rec.depth | .sort | .console | .lineCount | .console}"
+files = {use arg depth=1; return .fileTree rec.depth | .sort | .console | .lineCount | .console}
+say
+say '"/tmp"~pipe(files~())'
+"/tmp"~pipe(files~())
+say
+say '"/tmp"~pipe(files~(2))'
+"/tmp"~pipe(files~(2))
+say
+say '"/tmp"~pipe(files~(3))'
+"/tmp"~pipe(files~(3))
+
+
+say separator
 say "Count the files and directories in the /tmp directory"
 "/tmp"~pipe(.fileTree recursive | .lineCount | .console)
 
