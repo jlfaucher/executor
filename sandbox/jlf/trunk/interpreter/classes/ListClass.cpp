@@ -83,6 +83,7 @@ RexxObject *RexxList::copy(void)
     /* make a copy of ourself (also      */
     /* copies the object variables)      */
     RexxList *newlist = (RexxList *)this->RexxObject::copy();
+    ProtectedObject p(newlist);
     /* make a copy of the table          */
     OrefSet(newlist, newlist->table, (RexxListTable *)this->table->copy());
     return(RexxObject *)newlist;        /* return the new list               */

@@ -428,6 +428,7 @@ RexxInstruction *RexxSource::callNew()
     }
     /* create a new translator object    */
     RexxInstruction *newObject = new_variable_instruction(CALL, Call, sizeof(RexxInstructionCallBase) + argCount * sizeof(RexxObject *));
+    ProtectedObject p(newObject);
     /* Initialize this new object        */
     new ((void *)newObject) RexxInstructionCall(name, _condition, argCount, this->subTerms, _flags, builtin_index);
 
@@ -2298,6 +2299,7 @@ RexxInstruction *RexxSource::signalNew()
     }
     /* create a new translator object    */
     RexxInstruction *newObject = new_instruction(SIGNAL, Signal);
+    ProtectedObject p(newObject);
     /* now complete this                 */
     new ((void *)newObject) RexxInstructionSignal(_expression, _condition, name, _flags);
     if (!signalOff)                      /* need to resolve later?            */

@@ -3323,8 +3323,9 @@ StackFrameClass *RexxNativeActivation::createStackFrame()
 
         RexxString *message = activity->buildMessage(Message_Translations_compiled_method_invocation, info);
         p = message;
-        ProtectedObject presult;
-        return new (presult) StackFrameClass(FRAME_METHOD, getMessageName(), (BaseExecutable *)getExecutableObject(), receiver, getArguments(), message, SIZE_MAX);
+        RexxArray *arguments = getArguments();
+        ProtectedObject p_arguments(arguments); // getArguments() returns a new array, so must be protected
+        return new StackFrameClass(FRAME_METHOD, getMessageName(), (BaseExecutable *)getExecutableObject(), receiver, arguments, message, SIZE_MAX);
     }
 }
 

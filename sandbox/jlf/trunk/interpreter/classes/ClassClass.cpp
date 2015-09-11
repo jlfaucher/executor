@@ -638,6 +638,7 @@ RexxObject *RexxClass::defineMethod(
     /* parameter                         */
     method_name = stringArgument(method_name, ARG_ONE)->upper();
     ProtectedObject p(method_name);
+    ProtectedObject p_method_object(method_object);
     if ( OREF_NULL == method_object)     /* 2nd arg omitted?                  */
     {
         /* Yes, remove all message with this */
@@ -666,6 +667,7 @@ RexxObject *RexxClass::defineMethod(
             this->setHasUninitDefined();     /* and turn on uninit if so          */
         }
     }
+    p_method_object = method_object;
 
     /* make a copy of the instance       */
     /* behaviour so any previous objects */

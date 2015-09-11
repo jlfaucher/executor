@@ -4438,8 +4438,13 @@ StackFrameClass *RexxActivation::createStackFrame()
     }
 
     ProtectedObject p_arguments(arguments); // getArguments() returns a new array, so must be protected
-    ProtectedObject p;
-    return new (p) StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, getTraceBack(), getContextLineNumber());
+    // construct the traceback line before we allocate the stack frame object.
+    // calling this in the constructor argument list can cause the stack frame instance
+    // to be inadvertently reclaimed if a GC is triggered while evaluating the constructor
+    // arguments.
+    RexxString *traceback = getTraceBack();
+    ProtectedObject p_traceback(traceback);
+    return new StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, traceback, getContextLineNumber());
 }
 
 /**

@@ -539,6 +539,7 @@ RexxObject * RexxObject::copy()
     if (this->behaviour->getInstanceMethodDictionary() != OREF_NULL)
     {
         /* need to copy the behaviour        */
+        ProtectedObject p(newObj);
         newObj->setBehaviour((RexxBehaviour *)newObj->behaviour->copy());
     }
     return newObj;                       /* return the copied version         */
@@ -2061,6 +2062,7 @@ RexxObject  *RexxObject::defMethod(
         /* no real method added              */
         methcopy = (RexxMethod *)TheNilObject;
     }
+    ProtectedObject p1(methcopy);
     /* is this the first added method?   */
     if (this->behaviour->getInstanceMethodDictionary() == OREF_NULL)
     {

@@ -116,6 +116,7 @@ RexxObject *RexxDirectory::copy()
                                        /* No specifics for Directory.       */
     if (this->method_table != OREF_NULL)
     {
+        ProtectedObject p(newObj);
                                        /* copy it too                       */
         OrefSet(newObj, newObj->method_table, (RexxTable *)this->method_table->copy());
     }
