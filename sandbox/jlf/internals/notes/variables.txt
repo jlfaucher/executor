@@ -1,5 +1,43 @@
-Notes taken while searching how to implement RFE 2868655 (.threadLocal)
+================================================================================
+Notes taken while debuging a crash (can't remember what was the code)
+================================================================================
 
+RexxLocalVariables::findVariable(RexxString *name, size_t index)
+    for (i = 0; i < size; i++)
+        if (name->memCompare(variable->getName()))  <-- crash because variable.name is NULL
+
+called by
+  class RexxLocalVariables
+  inline RexxVariable *find(RexxString *name, size_t index)
+  {
+      RexxVariable *variable = get(index);
+      if (variable == OREF_NULL) {
+          variable = findVariable(name, index);
+      }
+      return variable;
+  }
+
+called by
+   RexxActivation
+   inline bool localVariableExists(RexxString *name, size_t index)
+   {
+     /* get the stem entry from this dictionary */
+     RexxVariable *variable = settings.local_variables.find(name, index);
+     /* The stem exists if the stem variable has ever been used. */
+     return variable != OREF_NULL && variable->getVariableValue() != OREF_NULL;
+   }
+
+called by
+bool RexxParseVariable::exists(
+  RexxActivation *context)             /* current activation context        */
+{
+    return context->localVariableExists(variableName, index);
+}
+
+
+================================================================================
+Notes taken while searching how to implement RFE 2868655 (.threadLocal)
+================================================================================
 
 Changes made in sandbox :
 
