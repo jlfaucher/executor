@@ -1,0 +1,72 @@
+=======================================================
+crash, suite à modification de oorexxshell pour enregistrer répertoire courant dans un fichier.
+
+RexxClass *ClassDirective::install(RexxSource *source, RexxActivation *activation)
+    classObject = subclass->mixinclass(idName, metaclass, classMethods)
+        subclass = 0x000007ffffdd0350 {id=0x000007ffffdd04c0 {encoding=0 '\0' charset=0 '\0' hashValue=2355466079 ...} ...}
+        idName = 0x000007ffff44f630 {encoding=0 '\0' charset=0 '\0' hashValue=12361039210270607523 ...}
+        metaclass = 0x0000000000000000 {id=??? classMethodDictionary=??? instanceBehaviour=??? ...}
+        classMethods = 0x000007ffff76d0f0 {...}
+
+        RexxClass  *RexxClass::mixinclass(RexxString  * mixin_id, RexxClass   * meta_class, RexxTable   * enhancing_class_methods)
+            RexxClass *mixin_subclass = this->subclass(mixin_id, meta_class, enhancing_class_methods);
+
+                RexxClass  *RexxClass::subclass(RexxString  * mixin_id, RexxClass   * meta_class, RexxTable   * enhancing_class_methods)
+                    enhancing_class_methods = new_class->methodDictionaryCreate(enhancing_class_methods, new_class);
+THE FIX -->         ProtectedObject p(enhancing_class_methods);
+                    new_class->methodDictionaryMerge(enhancing_class_methods, new_class->classMethodDictionary);
+                        new_class = 0x000007ffff7d59a0 {id=0x000007ffff44f630 {encoding=0 '\0' charset=0 '\0' hashValue=12361039210270607523 ...} ...}
+                        enhancing_class_methods = 0x000007ffff80eb50 {...}
+                        new_class->classMethodDictionary = 0x000007ffff800050 {...}
+
+                        void RexxClass::methodDictionaryMerge(RexxTable  *source_mdict, RexxTable  *target_mdict)
+                            RexxString *method_name = REQUEST_STRING(source_mdict->index(i));
+                                source_mdict = 0x000007ffff80eb50 {...}
+                                i = 425
+                                JLF : the object retrieved in source_mdict for i=425 has no behaviour (0x0), see object in next call below
+                                ------
+                                i=0     method_name = 0x000007ffff3aa6a0 {encoding=0 '\0' charset=0 '\0' hashValue=1903345966830 ...}
+                                        +		(char*)(method_name)->stringData	0x000007ffff3aa6f8 "CANTOPEN"	char *
+
+                                i=1     method_name = 0x000007ffff80fff0 {encoding=0 '\0' charset=0 '\0' hashValue=9109137844132846783 ...}
+                                        +		(char*)(method_name)->stringData	0x000007ffff810048 "CONSTRAINT_PRIMARYKEY"	char *
+                                3       +		(char*)(method_name)->stringData	0x000007fffe664918 "IOCAP_ATOMIC"	char *
+                                4       +		(char*)(method_name)->stringData	0x000007ffff798c58 "UTF16_ALIGNED"	char *
+                                5       +		(char*)(method_name)->stringData	0x000007ffff9368c8 "IGNORE"	char *
+                                6       +		(char*)(method_name)->stringData	0x000007ffff782a08 "FCNTL_PERSIST_WAL"	char *
+                                7       +		(char*)(method_name)->stringData	0x000007fffef4ad48 "CREATE_TABLE"	char *
+                                8       +		(char*)(method_name)->stringData	0x000007ffff7cf838 "CHECKPOINT_FULL"	char *
+                                9       +		(char*)(method_name)->stringData	0x000007fffef9d178 "OO_BACKUP_IN_PROGRESS"	char *
+                                10      +		(char*)(method_name)->stringData	0x000007ffff77bc28 "IOCAP_ATOMIC64K"	char *
+                                11      +		(char*)(method_name)->stringData	0x000007ffff787728 "SHM_SHARED"	char *
+                                12      +		(char*)(method_name)->stringData	0x000007ffff5c8c88 "CONFIG_GETMALLOC"	char *
+                                13      +		(char*)(method_name)->stringData	0x000007ffff795458 "UTF8"	char *
+                                14      +		(char*)(method_name)->stringData	0x000007ffff7936f8 "STMTSTATUS_FULLSCAN_STEP"	char *
+                                15      +		(char*)(method_name)->stringData	0x000007ffff082808 "OPEN_WAL"	char *
+                                17      +		(char*)(method_name)->stringData	0x000007fffec00298 "OO_CLASSIC_STEM"	char *
+                                18      +		(char*)(method_name)->stringData	0x000007ffff4d28c8 "CONFIG_MEMSTATUS"	char *
+                                20      +		(char*)(method_name)->stringData	0x000007ffffad5a78 "READONLY_ROLLBACK"	char *
+                                21      +		(char*)(method_name)->stringData	0x000007ffff7dc588 "LOCKED"	char *
+                                25      +		(char*)(method_name)->stringData	0x000007ffff77c358 "IOCAP_POWERSAFE_OVERWRITE"	char *
+                                26      +		(char*)(method_name)->stringData	0x000007ffff784c88 "LOCK_RESERVED"	char *
+                                ...
+                                ???     +		(char*)(method_name)->stringData	0x000007ffff788eb8 "STATUS_PAGECACHE_USED"	char *
+                                425     crash
+
+
+                                inline RexxString *REQUEST_STRING(RexxObject *object)
+                                    return (isOfClass(String, object) ? (RexxString *)object : (object)->requestString());
+                                        object = 0x000007ffff2b0002 {objectVariables=0x0000000000000000 {reservingActivity=??? contents=??? waitingActivities=...} }
+                                        JLF : this object contains 0x0 in all its fields.
+                                        Modify RexxMemory::newObject (RexxMemory.cpp) to test when 0x000007ffff2b0002 is created
+
+                                        RexxString *RexxObject::requestString()
+                                            if (this->isBaseClass())
+
+                                                bool RexxInternalObject::isBaseClass()
+                                                    return behaviour->isPrimitive();
+
+                                                        inline bool  isPrimitive()    {  return (behaviourFlags & NON_PRIMITIVE_BEHAVIOUR) == 0; };
+                                                        --> crash
+
+
