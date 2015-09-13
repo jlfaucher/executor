@@ -28,7 +28,7 @@ stats2~display
 ::method init
     expose ident duration yieldCounter addWaitingActivityCounter relinquishCounter requestAccessCounter getAPIManagerCounter
     use strict arg ident, duration
-    -- Following variables are monitoring counters added to the interpreter 
+    -- Following variables are monitoring counters added to the interpreter
     yieldCounter = .yieldCounter
     addWaitingActivityCounter = .addWaitingActivityCounter
     relinquishCounter = .relinquishCounter
@@ -127,5 +127,50 @@ stats2 yieldCounter=0
 stats2 addWaitingActivityCounter=0
 stats2 relinquishCounter=2039653
 stats2 requestAccessCounter=2000065
+
+
+At home, Macos Yosemite, with WIFI network, 1000000 :
+stats0 duration=0
+stats0 yieldCounter=0
+stats0 addWaitingActivityCounter=0
+stats0 relinquishCounter=21
+stats0 requestAccessCounter=25
+stats0 getAPIManagerCounter=1
+-----
+stats1 duration=125.822719                                  <-- very slow !
+stats1 yieldCounter=0
+stats1 addWaitingActivityCounter=0
+stats1 relinquishCounter=1019839
+stats1 requestAccessCounter=1000046
+stats1 getAPIManagerCounter=1000001
+-----
+stats2 duration=2.461318
+stats2 yieldCounter=0
+stats2 addWaitingActivityCounter=0
+stats2 relinquishCounter=2039657
+stats2 requestAccessCounter=2000067
+stats2 getAPIManagerCounter=1000001
+
+At home, Macos Yosemite, without WIFI network, 1000000 :
+stats0 duration=0
+stats0 yieldCounter=0
+stats0 addWaitingActivityCounter=0
+stats0 relinquishCounter=21
+stats0 requestAccessCounter=25
+stats0 getAPIManagerCounter=1
+-----
+stats1 duration=119.758971                                  <-- very slow !
+stats1 yieldCounter=0
+stats1 addWaitingActivityCounter=0
+stats1 relinquishCounter=1019839
+stats1 requestAccessCounter=1000046
+stats1 getAPIManagerCounter=1000001
+-----
+stats2 duration=2.503144
+stats2 yieldCounter=0
+stats2 addWaitingActivityCounter=0
+stats2 relinquishCounter=2039657
+stats2 requestAccessCounter=2000067
+stats2 getAPIManagerCounter=1000001
 
 */
