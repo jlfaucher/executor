@@ -29,3 +29,405 @@ testOORexx version 1.1.0 ooTest Framework version 1.0.0_4.0.0
 
 Detailed help subjects (case insignificant) are:
   testTypes
+
+================================================================================
+
+
+merge 7390-7647 from main/trunk
+
+Tests after merge.
+
+rexx testOORexx.rex -s -S -R ooRexx\base\bif
+Failures:            16
+Errors:              1
+
+    [failure] [20120313 13:43:06.897000]
+      svn:    r5227   Change date: 2009-09-30 22:43:45 +0200
+      Test:   TEST_MANY_CHARS
+      Class:  CHAROUT.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\CHAROUT.testGroup
+      Line:   150
+      Failed: assertSame
+        Expected: [[0], identityHash="268016458"]
+        Actual:   [[209715200], identityHash="263156535"]
+    same in trunk, this is because of the USB drive which doesn't support so big files
+
+    [failure] [20120313 13:43:07.302000]
+      svn:    r5227   Change date: 2009-09-30 22:43:45 +0200
+      Test:   TEST_MANY_CHARS_BIN
+      Class:  CHAROUT.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\CHAROUT.testGroup
+      Line:   989
+      Failed: assertSame
+        Expected: [[0], identityHash="268016458"]
+        Actual:   [[209715200], identityHash="263142179"]
+    same in trunk, this is because of the USB drive which doesn't support so big files
+
+    [failure] [20120313 13:43:07.816000]
+      svn:    r5227   Change date: 2009-09-30 22:43:45 +0200
+      Test:   TEST_MANY_CHARS_NB
+      Class:  CHAROUT.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\CHAROUT.testGroup
+      Line:   577
+      Failed: assertSame
+        Expected: [[0], identityHash="268016458"]
+        Actual:   [[209715200], identityHash="263163226"]
+    same in trunk, this is because of the USB drive which doesn't support so big files
+
+    [failure] [20120313 13:43:22.262000]
+      svn:    r4240   Change date: 2009-03-01 20:07:18 +0100
+      Test:   TEST_ERRORTEXT
+      Class:  DIGITS.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\DIGITS.testGroup
+      Line:   203
+      Failed: assertSame
+        Expected: [[Unmatched "(" or "[" in expression], identityHash="266862458"]
+        Actual:   [[Unmatched "(" or "[" or "{" in expression], identityHash="261056330"]
+    not in trunk (normal... { is new in sandbox)
+
+    [failure] [20120313 13:43:22.278000]
+      svn:    r3371   Change date: 2008-09-21 06:33:29 +0200
+      Test:   TEST_ERRORTEXT
+      Class:  ERRORTEXT.testGroup
+      File:   D:\local\Rexx\ooRexx\...\test\trunk\ooRexx\base\bif\ERRORTEXT.testGroup
+      Line:   99
+      Failed: assertSame
+        Expected: [[Unmatched "(" or "[" in expression], identityHash="266935669"]
+        Actual:   [[Unmatched "(" or "[" or "{" in expression], identityHash="261047472"]
+    not in trunk (normal... { is new in sandbox)
+
+    [failure] [20120313 13:43:41.493000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_10
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   2037
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb3a should be greater than or equal to 5, cb3a is: 4.987000
+    same in trunk
+
+    [failure] [20120313 13:43:54.460000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_11
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   2070
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb6a should be greater than or equal to 5, cb6a is: 4.987000
+    same in trunk
+
+    [failure] [20120313 13:44:01.442000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_2
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   1790
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb2a should be greater than or equal to 1, cb2a is: 0.998000
+    same in trunk
+
+    [failure] [20120313 13:44:14.409000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_3
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   1827
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb5a should be greater than or equal to 1, cb5a is: 0.998000
+    same in trunk
+
+    [failure] [20120313 13:44:21.391000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_4
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   1873
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb3a should be greater than or equal to 5, cb3a is: 4.987000
+    same in trunk
+
+    [failure] [20120313 13:44:34.358000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_5
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   1906
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb6a should be greater than or equal to 5, cb6a is: 4.987000
+    same in trunk
+
+    [failure] [20120313 13:44:41.340000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_8
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   1933
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb2a should be greater than or equal to 1, cb2a is: 0.998000
+    same in trunk
+
+    [failure] [20120313 13:44:54.307000]
+      svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+      Test:   TEST_9
+      Class:  TIME.long.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+      Line:   1981
+      Failed: assertTrue
+        Expected: [1]
+        Actual:   [[0], identityHash="268001395"]
+        Message:  cb5a should be greater than or equal to 1, cb5a is: 0.998000
+    same in trunk
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\class
+
+    [failure] [20120313 13:49:13.054000]
+      svn:    r3447   Change date: 2008-10-06 01:12:55 +0200
+      Test:   TEST_ELASPED1
+      Class:  DateTime.testGroup
+      File:   D:\local\Rexx\ooRexx\...\trunk\ooRexx\base\class\DateTime.testGroup
+      Line:   593
+      Failed: assertSame
+        Expected: [[1], identityHash="268001956"]
+        Actual:   [[0], identityHash="268016458"]
+    same in trunk
+
+    [error] [20120313 13:49:11.761000]
+      svn:    r5505   Change date: 2010-01-24 05:14:18 +0100
+      Test:   TEST_DEFINE
+      Class:  Class.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\class\Class.testGroup
+      Event:  [SYNTAX 97.1] raised unexpectedly.
+        Object "a TEST_A" does not understand message "TESTMETHOD"
+        Line:    120
+       120 *-* self~assertEquals("test", o1~testmethod)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+    [error] [20120313 13:49:11.761000]
+      svn:    r5505   Change date: 2010-01-24 05:14:18 +0100
+      Test:   TEST_DELETE
+      Class:  Class.testGroup
+      File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\class\Class.testGroup
+      Event:  [SYNTAX 97.1] raised unexpectedly.
+        Object "a TEST_B2" does not understand message "TESTMETHOD"
+        Line:    149
+       149 *-* self~assertEquals("test_b1 test", o1~testmethod)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+    [error] [20120313 13:49:28.952000]
+      svn:    r6834   Change date: 2011-03-07 19:32:03 +0100
+      Test:   TEST_SECTION
+      Class:  Collection_circularqueueMethod.testGroup
+      File:   D:\local\Rexx\ooRexx\...\base\class\collections\circularqueue.testGroup
+      Event:  [SYNTAX 93.901] raised unexpectedly.
+        Not enough arguments in method; 1 expected
+        Program: D:\local\Rexx\ooRexx\...\jlf\trunk\Win32Rel\CoreClasses.orx
+        Line:    168
+      1917 *-* Source unavailable
+           *-* Compiled code
+           *-* Compiled code
+       168 *-* a2=a1~section(1)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+    [error] [20120313 13:49:29.061000]
+      svn:    r6819   Change date: 2011-03-02 14:04:21 +0100
+      Test:   TEST_15
+      Class:  Collection_listMethod.testGroup
+      File:   D:\local\Rexx\ooRexx\...\ooRexx\base\class\collections\list.testGroup
+      Event:  [SYNTAX 97.1] raised unexpectedly.
+        Object "a List" does not understand message "SIZE"
+        Line:    177
+       177 *-* self~assertEquals(2, lst~size)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+    [error] [20120313 13:49:29.092000]
+      svn:    r6819   Change date: 2011-03-02 14:04:21 +0100
+      Test:   TEST_DELETE
+      Class:  Collection_listMethod.testGroup
+      File:   D:\local\Rexx\ooRexx\...\ooRexx\base\class\collections\list.testGroup
+      Event:  [SYNTAX 97.1] raised unexpectedly.
+        Object "a List" does not understand message "SIZE"
+        Line:    188
+       188 *-* self~assertEquals(2, lst~size)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+    [error] [20120313 13:49:29.232000]
+      svn:    r6819   Change date: 2011-03-02 14:04:21 +0100
+      Test:   TEST_3
+      Class:  Collection_queueMethod.testGroup
+      File:   D:\local\Rexx\ooRexx\...\ooRexx\base\class\collections\queue.testGroup
+      Event:  [SYNTAX 97.1] raised unexpectedly.
+        Object "a Queue" does not understand message "SIZE"
+        Line:    109
+       109 *-* self~assertEquals(3, que~size)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+    [error] [20120313 13:49:29.263000]
+      svn:    r6819   Change date: 2011-03-02 14:04:21 +0100
+      Test:   TEST_DELETE
+      Class:  Collection_queueMethod.testGroup
+      File:   D:\local\Rexx\ooRexx\...\ooRexx\base\class\collections\queue.testGroup
+      Event:  [SYNTAX 97.1] raised unexpectedly.
+        Object "a Queue" does not understand message "SIZE"
+        Line:    116
+       116 *-* self~assertEquals(2, que~size)
+           *-* Compiled code
+      1547 *-* .message~new(self, methodName)~send
+      1532 *-* self~doTheTest(fName, aTestResult)  -- carry out the testmethod
+       540 *-*   test~execute(testResult, verbose)
+       540 *-*   test~execute(testResult, verbose)
+       114 *-* suite~execute(testResult)
+        79 *-* retCode = 'worker.rex'(arguments)
+    not in trunk
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\directives
+ok
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\expressions
+ok
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\keyword
+Failures:            1
+same problem in trunk.
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\rexxutil
+Failures:            1
+same problem in trunk.
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\runtime.objects
+ok
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\source.file
+ok
+
+
+rexx testOORexx.rex -s -S -R ooRexx\base\special.variables
+ok
+
+
+rexx testOORexx.rex -s -S -R ooRexx\extensions
+Not launched (too much time !)
+
+
+rexx testOORexx.rex -s -S -R ooRexx\regressions
+ok
+
+
+rexx testOORexx.rex -s -S -R ooRexx\utilities
+ok
+
+================================================================================
+Tests after merge 6500-6784
+
+rexx testOORexx.rex -s -S -R ooRexx\base\bif
+[failure] [20110224 08:31:24.213000]
+  svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
+  Test:   TEST_3
+  Class:  TIME.long.testGroup
+  File:   D:\local\Rexx\ooRexx\svn\test\trunk\ooRexx\base\bif\TIME.testGroup
+  Line:   1828
+  Failed: assertTrue
+    Expected: [1]
+    Actual:   [[0], identityHash="268001391"]
+    Message:  cb6a should be greater than or equal to 5, cb6a is: 4.999000
+no error in trunk
+Without STRONG_TYPES : no error  (except the 3 errors TEST_MANY_CHARS)
+
+rexx testOORexx.rex -s -S -R ooRexx\base\class
+2 errors rexx testOORexx.rex -s -S -R ooRexx\base\class
+same errors in trunk
+Without STRONG_TYPES : several erros because of new tests added for sort, section (must sync the snadbox)
+
+rexx testOORexx.rex -s -S -R ooRexx\base\directives
+ok
+
+rexx testOORexx.rex -s -S -R ooRexx\base\expressions
+ok
+
+rexx testOORexx.rex -s -S -R ooRexx\base\keyword
+8 errors
+same errors in trunk
+
+rexx testOORexx.rex -s -S -R ooRexx\base\rexxutil
+1 error TEST_SETDEFAULTPRINTER_RET_OLD_STYLE
+same error in trunk
+
+rexx testOORexx.rex -s -S -R ooRexx\base\runtime.objects
+ok
+
+rexx testOORexx.rex -s -S -R ooRexx\base\source.file
+ok
+
+rexx testOORexx.rex -s -S -R ooRexx\base\special.variables
+ok
+
+rexx testOORexx.rex -s -S -R ooRexx\extensions      (ça prend du temps !)
+18 failures because some file/directoy names are hardcode for english system.
+
+rexx testOORexx.rex -s -S -R ooRexx\regressions
+ok
+
+rexx testOORexx.rex -s -S -R ooRexx\utilities
+ok
