@@ -103,7 +103,7 @@ PROCESS_CLEANUP,
 
 --------------------------------------------------------------------------------------------
 Someone said in comp.lang.rexx that the performances of ooRexx v4.0 on his web server are not good compared to 3.2
-I have no idea of the architecture of a web server based on rexx (only one rexx processes ? several ?). 
+I have no idea of the architecture of a web server based on rexx (only one rexx processes ? several ?).
 That brought me a question about rxapi and its usage for a web server.
 
 My understanding of rxapi is that it lets share some informations between several oorexx processes (queues, global environment).
@@ -154,3 +154,129 @@ RexxRegisterSubcomExe
 1 RexxResolveSubcom
 3 RexxSaveMacroSpace
 RexxShutDownAPI
+
+
+================================================================================
+Macrospace
+================================================================================
+
+Etude d'un point d'entrée dans l'API, appelé par
+RexxActivation::callMacroSpaceFunction
+(lorsque le macrospace n'est pas désactivé)
+rexxapi\client\MacroSpaceApi.cpp
+    RexxReturnCode RexxEntry RexxQueryMacro(
+        const char     *name,                /* name to search for         */
+        unsigned short *pos)                 /* pointer for return of pos  */
+    {
+        ENTER_REXX_API(MacroSpaceManager)
+        {
+            size_t order = 0;
+
+            RexxReturnCode ret = lam->macroSpaceManager.queryMacro(name, &order);
+            *pos = (unsigned short)order;
+            return ret;
+        }
+        EXIT_REXX_API();
+    }
+
+
+D'où vient MacroSpaceManager ? type énuméré
+rexxapi\common\ServiceMessage.hpp
+    // definitions of server message targets
+    typedef enum
+    {
+        QueueManager,
+        RegistrationManager,
+        MacroSpaceManager,
+        APIManager
+
+    } ServerManager;
+
+
+D'où vient ENTER_REXX_API ? macro
+rexxapi\client\RexxAPI.h
+    #define ENTER_REXX_API(target) \
+        LocalAPIContext context(target); \                      // JLF : no cost
+        try                           \
+        {                             \
+            LocalAPIManager *lam = context.getAPIManager(); \   // JLF : localManager = LocalAPIManager::getInstance()
+
+    #define EXIT_REXX_API()            \
+        }                              \
+        catch (ServiceException *e)    \
+        {                              \
+            return context.processServiceException(e); \
+        }                              \
+        catch (std::bad_alloc &)      \
+        {                              \
+            return RXAPI_MEMFAIL;      \
+        }
+
+
+LocalAPIManager::getInstance appelé par :
+    rexxapi\client\ClientMessage.cpp
+        ClientMessage::send
+    rexxapi\client\LocalAPIContext.cpp
+        LocalAPIContext::getAPIManager
+            ENTER_REXX_API
+
+
+LocalAPIManager::getInstance implémenté ici :
+    rexxapi\client\LocalAPIManager.cpp
+        LocalAPIManager *LocalAPIManager::getInstance()
+        {
+            Lock lock(messageLock, "LocalAPIManager::getInstance", 0);                     // make sure we single thread this
+            if (singleInstance == NULL)
+            {
+                // create an intialize this.  If this fails, an exception is thrown
+                singleInstance = new LocalAPIManager();
+                // to the process-specific initialization now.
+                singleInstance->initProcess();
+            }
+            return singleInstance;
+        }
+
+
+Donc toutes les occurences de ENTER_REXX_API vont donner les points d'entrée
+    rexxapi\client\MacroSpaceApi.cpp
+        RexxAddMacro
+        RexxDropMacro
+        RexxClearMacroSpace
+        RexxSaveMacroSpace
+        RexxLoadMacroSpace
+        RexxQueryMacro
+        RexxReorderMacro
+        RexxResolveMacroFunction
+    rexxapi\client\QueuesAPI.cpp
+        RexxCreateQueue
+        RexxOpenQueue
+        RexxQueueExists
+        RexxDeleteQueue
+        RexxClearQueue
+        RexxQueryQueue
+        RexxAddQueue
+        RexxPullFromQueue
+        RexxCreateSessionQueue
+    rexxapi\client\RegistrationAPI.cpp
+        RexxRegisterSubcomDll
+        RexxRegisterSubcomExe
+        RexxDeregisterSubcom
+        RexxQuerySubcom
+        RexxResolveSubcom
+        RexxLoadSubcom
+        RexxRegisterExitDll
+        RexxRegisterExitExe
+        RexxDeregisterExit
+        RexxQueryExit
+        RexxResolveExit
+        RexxRegisterFunctionDll
+        RexxRegisterFunctionExe
+        RexxDeregisterFunction
+        RexxQueryFunction
+        RexxResolveRoutine
+
+
+Dans LocalAPIManager::getInstance
+    singleInstance->initProcess()
+    fait appel à 
+        establishServerConnection
