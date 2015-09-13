@@ -1,0 +1,225 @@
+=====================================================================================
+
+Crash GC
+
+p = 0x000ad960 {protectedObject=0x000ad9b4 next=0x7ef19b88 activity=0x7f4454f0 }
+                                     |               |                   |
+                                     |               |                   +----> This is a method, why is it in the field activity ?)
+                                     |               +----> This is an address of protected object, why is it in the field next ?
+                                     +----> This is an address of ProtectedObject. No reason to have it in this field.
+
+object 0x7f4454f0 created after counter=615526
+GC failure at counter = 1019525
+
+
+[debug] 307769 p=000ad654 a=7eee5fa0
+breakpoint RexxMemory::newObject : 0x7f4454f0
+>	rexx.dll!RexxMemory::newObject(unsigned int requestLength, unsigned int type)  Line 1141	C++
+ 	rexx.dll!new_object(unsigned int s, unsigned int t)  Line 426 + 0x1e bytes	C++
+ 	rexx.dll!RexxMethod::operator new(unsigned int size)  Line 484 + 0xd bytes	C++
+ 	rexx.dll!RexxSource::methodDirective()  Line 2536 + 0xa bytes	C++
+
+
+breakpoint when counter == 546771 (in dbgtrap)
+p = 0x000ad960 {protectedObject=0x00000003 next=0x00000041 activity=0x000ad978 }
++		&(p->next)	0x000ad964	ProtectedObject * *
+
+
+p = 0x000ac718 {protectedObject=0x7eee57a0 next=0x000ac784 activity=0x7eee5fa0 }    RexxDirectory *RexxActivity::createConditionObject : ProtectedObject p
+p = 0x000ac784 {protectedObject=0x7fcb2fc8 next=0x000ac910 activity=0x7eee5fa0 }    RexxString *RexxObject::requestString : ProtectedObject string_value
+p = 0x000ac910 {protectedObject=0x7fccab38 next=0x000ac9d8 activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000ac9d8 {protectedObject=0x7ef0ece8 next=0x000ac9c8 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000ac9c8 {protectedObject=0x00000000 next=0x000ac9bc activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000ac9bc {protectedObject=0x00000000 next=0x000aca0c activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000aca0c {protectedObject=0x00000000 next=0x000acaf8 activity=0x7eee5fa0 }    void RexxInstructionAssignment::execute : ProtectedObject result
+p = 0x000acaf8 {protectedObject=0x7fccad30 next=0x000acb9c activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000acb9c {protectedObject=0x7ef0ece8 next=0x000acb8c activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000acb8c {protectedObject=0x00000000 next=0x000acb80 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000acb80 {protectedObject=0x00000000 next=0x000acbd0 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000acbd0 {protectedObject=0x00000000 next=0x000accbc activity=0x7eee5fa0 }    void RexxInstructionAssignment::execute : ProtectedObject result
+p = 0x000accbc {protectedObject=0x7fccac00 next=0x000acd34 activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000acd34 {protectedObject=0x00000000 next=0x000ace30 activity=0x7eee5fa0 }    void RexxInstructionMessage::execute : ProtectedObject result
+p = 0x000ace30 {protectedObject=0x7fccaad8 next=0x000aceb0 activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000aceb0 {protectedObject=0x00000000 next=0x000acef8 activity=0x7eee5fa0 }    RexxObject *RexxObject::sendMessage : ProtectedObject r
+p = 0x000acef8 {protectedObject=0x7ef0ece8 next=0x000acfd8 activity=0x7eee5fa0 }    void *RexxObject::operator new : ProtectedObject newObject
+p = 0x000acfd8 {protectedObject=0x7fcc2790 next=0x000ad07c activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000ad07c {protectedObject=0x7fcc9870 next=0x000ad06c activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000ad06c {protectedObject=0x00000000 next=0x000ad060 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000ad060 {protectedObject=0x00000000 next=0x000ad0b0 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000ad0b0 {protectedObject=0x00000000 next=0x000ad19c activity=0x7eee5fa0 }    void RexxInstructionAssignment::execute : ProtectedObject result
+-----
+p = 0x000ad19c {protectedObject=0x7f4c98b0 next=0x000ad240 activity=0x7eee5fa0 }    RexxMethod::run : ProtectedObject p
+p = 0x000ad240 {protectedObject=0x7ef1aae8 next=0x000ad230 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000ad230 {protectedObject=0x00000000 next=0x000ad224 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000ad224 {protectedObject=0x00000000 next=0x000ad274 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000ad274 {protectedObject=0x00000000 next=0x000ad370 activity=0x7eee5fa0 }    void RexxInstructionMessage::execute : ProtectedObject result
+p = 0x000ad370 {protectedObject=0x7f4c8018 next=0x000ad414 activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000ad414 {protectedObject=0x7ef1aae8 next=0x000ad404 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000ad404 {protectedObject=0x00000000 next=0x000ad3f8 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000ad3f8 {protectedObject=0x00000000 next=0x000ad474 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000ad474 {protectedObject=0x00000000 next=0x000ad464 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000ad464 {protectedObject=0x00000000 next=0x000ad458 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000ad458 {protectedObject=0x00000000 next=0x000ad4a8 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000ad4a8 {protectedObject=0x00000000 next=0x000ad594 activity=0x7eee5fa0 }    void RexxInstructionAssignment::execute : ProtectedObject result
+p = 0x000ad594 {protectedObject=0x7f432b50 next=0x000ad65c activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000ad65c {protectedObject=0x7ef0e4f8 next=0x000ad64c activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _target
+p = 0x000ad64c {protectedObject=0x00000000 next=0x000ad640 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject _super
+p = 0x000ad640 {protectedObject=0x00000000 next=0x000ad764 activity=0x7eee5fa0 }    RexxObject *RexxExpressionMessage::evaluate : ProtectedObject result
+p = 0x000ad764 {protectedObject=0x7f430828 next=0x000ad7cc activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p
+p = 0x000ad7cc {protectedObject=0x00000000 next=0x000ad828 activity=0x7eee5fa0 }    RexxObject *RexxActivation::forward : ProtectedObject r
+p = 0x000ad828 {protectedObject=0x00000000 next=0x000ad92c activity=0x7eee5fa0 }    void RexxInstructionForward::execute : ProtectedObject p_message
+p = 0x000ad92c {protectedObject=0x7f4454f0 next=0x000ad960 activity=0x7eee5fa0 }    void RexxMethod::run : ProtectedObject p    <-- next should be 0x000ad9d0
+p = 0x000ad960 {protectedObject=0x000ad9b4 next=0x7ef19b88 activity=0x7f4454f0 }
+-		next	0x7ef19b88 {protectedObject=0x0052d74c next=0x00000020 activity=0x00000001 }	ProtectedObject *
++		next	0x00000020 {protectedObject=??? next=??? activity=??? }	ProtectedObject *
+
+1st thread
+----------
+Unflagged	>	81160	0	Main Thread	Main Thread	RexxActivity::liveGeneral	Normal
+>	rexx.dll!RexxActivity::liveGeneral(int reason)  Line 1392	C++
+ 	rexx.dll!RexxMemory::killOrphans(RexxObject * rootObject)  Line 440	C++
+ 	rexx.dll!RexxMemory::markObjects()  Line 641	C++
+ 	rexx.dll!RexxMemory::collect()  Line 1030	C++
+ 	rexx.dll!NormalSegmentSet::handleAllocationFailure(unsigned int allocationLength)  Line 1272	C++
+ 	rexx.dll!RexxMemory::newObject(unsigned int requestLength, unsigned int type)  Line 1110 + 0x12 bytes	C++
+ 	rexx.dll!RexxMemory::newObject(unsigned int size)  Line 190 + 0x15 bytes	C++
+ 	rexx.dll!new_object(unsigned int s)  Line 425 + 0x15 bytes	C++
+ 	rexx.dll!RexxArray::operator new(unsigned int newSize, unsigned int size, unsigned int maxSize, RexxClass * arrayClass)  Line 2612 + 0x8 bytes	C++
+ 	rexx.dll!new_array(unsigned int s)  Line 246 + 0x1a bytes	C++
+ 	rexx.dll!RexxArray::operator new(unsigned int size, RexxObject * first, RexxObject * second)  Line 2548 + 0xa bytes	C++
+ 	rexx.dll!new_array(RexxObject * o1, RexxObject * o2)  Line 261 + 0x11 bytes	C++
+ 	rexx.dll!InternalActivationFrame::createStackFrame()  Line 97 + 0x1f bytes	C++
+ 	rexx.dll!RexxActivity::generateProgramInformation(RexxDirectory * exobj)  Line 955 + 0xd bytes	C++
+ 	rexx.dll!RexxActivity::createConditionObject(RexxString * condition, RexxObject * rc, RexxString * description, RexxObject * additional, RexxObject * result)  Line 521	C++
+ 	rexx.dll!RexxActivity::raiseCondition(RexxString * condition, RexxObject * rc, RexxString * description, RexxObject * additional, RexxObject * result)  Line 444 + 0x1c bytes	C++
+ 	rexx.dll!RexxObject::requestString()  Line 1166	C++
+ 	rexx.dll!REQUEST_STRING(RexxObject * object)  Line 280 + 0x24 bytes	C++
+ 	rexx.dll!RexxString::strictComp(RexxObject * otherObj)  Line 699 + 0x8 bytes	C++
+ 	rexx.dll!RexxInteger::strictComp(RexxObject * other)  Line 667	C++
+ 	rexx.dll!RexxInteger::strictEqual(RexxObject * other)  Line 716 + 0xc bytes	C++
+ 	rexx.dll!callOperatorMethod(RexxObject * object, unsigned int methodOffset, RexxObject * argument)  Line 473	C++
+ 	rexx.dll!RexxBinaryOperator::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 114 + 0x12 bytes	C++
+ 	rexx.dll!RexxInstructionIf::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 122 + 0x1d bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::processProtectedMethod(RexxString * messageName, RexxMethod * targetMethod, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 861	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 786	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 110 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 110 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxObject::sendMessage(RexxString * message, RexxObject * * args, unsigned int argCount, ProtectedObject & result)  Line 441 + 0x1f bytes	C++
+ 	rexx.dll!RexxObject::sendMessage(RexxString * message, RexxObject * * args, unsigned int argCount)  Line 626	C++
+ 	rexx.dll!RexxObject::operator new(unsigned int size, RexxClass * classObject, RexxObject * * args, unsigned int argCount)  Line 2422	C++
+ 	rexx.dll!RexxObject::newRexx(RexxObject * * arguments, unsigned int argCount)  Line 2301 + 0x1b bytes	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 121 + 0xe bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 110 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 213 + 0x23 bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 97 + 0x1b bytes	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 110 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::processProtectedMethod(RexxString * messageName, RexxMethod * targetMethod, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 861	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 786	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+ 	rexx.dll!RexxInstructionReturn::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 70 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxActivation::forward(RexxObject * target, RexxString * message, RexxObject * superClass, RexxObject * * _arguments, unsigned int _argcount, bool continuing)  Line 1324	C++
+ 	rexx.dll!RexxInstructionForward::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 197 + 0x27 bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 140	C++
+--> problerm here : there are 3 protected objects, not found in list.
+    strange to have protectedObject=0x000ad9b4 (search 0x000ad9b4, and you will see...)
++		&result	0x000ad9b4 {protectedObject=0x00000000 next=0x000ada04 activity=0x7eee5fa0 }	ProtectedObject *
++		&_super	0x000ad9c0 {protectedObject=0x00000000 next=0x000ad9b4 activity=0x7eee5fa0 }	ProtectedObject *
++		&_target	0x000ad9d0 {protectedObject=0x7ef19b88 next=0x000ad9c0 activity=0x7eee5fa0 }	ProtectedObject *  <-- this instance is not referenced, list broken here. The rest of the list is ok.
+
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 189 + 0x1d bytes	C++
++		&result	0x000ada04 {protectedObject=0x00000000 next=0x000adad8 activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxActivation::interpret(RexxString * codestring)  Line 2419	C++
++		&r	0x000adad8 {protectedObject=0x00000000 next=0x000adb10 activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!RexxInstructionInterpret::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 81	C++
++		&p	0x000adb10 {protectedObject=0x7ef6ce30 next=0x000adc04 activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RoutineClass::call(RexxActivity * activity, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 253	C++
++		&p	0x000adc04 {protectedObject=0x7f5993b8 next=0x000adca0 activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!RexxActivation::externalCall(RexxString * target, unsigned int _argcount, RexxExpressionStack * _stack, RexxString * calltype, ProtectedObject & resultObj)  Line 2709	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 280	C++
++		&result	0x000adc7c {protectedObject=0x00000000 next=0x000add98 activity=0x7eee5fa0 }	ProtectedObject *
++		&p_name	0x000adca0 {protectedObject=0x00000000 next=0x000adc7c activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity, RexxObject * * arguments, unsigned int argCount, ProtectedObject & result)  Line 321	C++
++		&p	0x000add98 {protectedObject=0x7eee7d48 next=0x000adddc activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!CallProgramDispatcher::run()  Line 239	C++
++		&p	0x000adddc {protectedObject=0x7eee7d48 next=0x000adea8 activity=0x7eee5fa0 }	ProtectedObject *
+
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher)  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target)  Line 3100	C++
+ 	rexx.dll!CallProgram(RexxThreadContext_ * c, const char * p, _RexxArrayObject * a)  Line 475	C++
+ 	rexx.exe!RexxThreadContext_::CallProgram(const char * n, _RexxArrayObject * a)  Line 833	C++
+ 	rexx.exe!main(int argc, char * * argv)  Line 218 + 0x13 bytes	C++
+
+2nd thread
+----------
+Unflagged		81736	0	Worker Thread	Win32 Thread	7c90e514	Highest
+    no source available
+
+3rd thread
+----------
+Unflagged		80804	0	Worker Thread	call_thread_function	waitHandle	Normal
+>	rexx.dll!waitHandle(void * s)  Line 237 + 0x15 bytes	C++
+ 	rexx.dll!SysSemaphore::wait(const char * ds, int di)  Line 77	C++
+ 	rexx.dll!RexxActivity::runThread()  Line 100	C++
+ 	rexx.dll!call_thread_function(void * arguments)  Line 63	C++
