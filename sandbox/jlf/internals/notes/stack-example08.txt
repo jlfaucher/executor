@@ -1,0 +1,40 @@
+hostemu ne valorise pas in.0 quand executé depuis oorexxshell
+
+>	rexx.dll!CommandHandlerDispatcher::run()  Line 136 + 0x1a bytes	C++
+ 	rexx.dll!RexxNativeActivation::run(CallbackDispatcher & dispatcher={...})  Line 1593	C++
+ 	rexx.dll!RexxActivity::run(CallbackDispatcher & target={...})  Line 3048	C++
+ 	rexx.dll!CommandHandler::call(RexxActivity * activity=0x7eee5640, RexxActivation * activation=0x7ef4e5c8, RexxString * address=0x7ef4e4d0, RexxString * command=0x7ef4e500, ProtectedObject & result={...}, ProtectedObject & condition={...})  Line 106	C++
+ 	rexx.dll!RexxActivation::command(RexxString * address=0x7ef4e4d0, RexxString * commandString=0x7ef4e500)  Line 3769	C++
+ 	rexx.dll!RexxInstructionAddress::execute(RexxActivation * context=0x7ef4e5c8, RexxExpressionStack * stack=0x7ef4e688)  Line 131	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x00000000, RexxObject * * _arglist=0x7eae251c, unsigned int _argcount=1, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 521	C++
+ 	rexx.dll!RexxActivation::interpret(RexxString * codestring=0x7ef4c8e8)  Line 2359	C++
+ 	rexx.dll!RexxInstructionInterpret::execute(RexxActivation * context=0x7ef4cb88, RexxExpressionStack * stack=0x7ef4cc48)  Line 80	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x7ef0cc08, RexxString * msgname=0x7eeed7c8, RexxObject * * _arglist=0x7eae251c, unsigned int _argcount=1, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 521	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity=0x7eee5640, RexxMethod * method=0x7eef9108, RexxObject * receiver=0x7ef0cc08, RexxString * msgname=0x7eeed7c8, RexxObject * * argPtr=0x7eae251c, unsigned int argcount=1, ProtectedObject & result={...})  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5640, RexxObject * receiver=0x7ef0cc08, RexxString * msgname=0x7eeed7c8, RexxObject * * argPtr=0x7eae251c, unsigned int count=1, ProtectedObject & result={...})  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eeed7c8, RexxObject * * arguments=0x7eae251c, unsigned int count=1, ProtectedObject & result={...})  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eeed7c8, unsigned int count=1, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context=0x7ef1d368, RexxExpressionStack * stack=0x7ef1d428)  Line 139	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context=0x7ef1d368, RexxExpressionStack * stack=0x7ef1d428)  Line 122 + 0x1d bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x00000000, RexxObject * * _arglist=0x7eae2448, unsigned int _argcount=0, RexxInstruction * start=0x7eeebc50, ProtectedObject & resultObj={...})  Line 521	C++
+ 	rexx.dll!RexxActivation::internalCall(RexxInstruction * target=0x7eeebc10, unsigned int _argcount=0, RexxExpressionStack * _stack=0x7ef047b8, ProtectedObject & returnObject={...})  Line 2846	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context=0x7ef046f8, RexxExpressionStack * stack=0x7ef047b8)  Line 265	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7fd694d8, RexxObject * * _arglist=0x7eee69a0, unsigned int _argcount=0, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 521	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eee6a00, RexxString * msgname=0x7fd694d8, RexxObject * * argPtr=0x7eee69a0, unsigned int argcount=0, RexxString * calltype=0x7fcf5ec0, RexxString * environment=0x7eee5c00, int context=16, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity=0x7eee5640, RexxString * calltype=0x7fcf5ec0, RexxString * environment=0x7eee5c00, RexxObject * * arguments=0x7eee69a0, unsigned int argCount=0, ProtectedObject & result={...})  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher={...})  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target={...})  Line 2997	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits=0x00000000, const char * env=0x0041d234)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount=0, _CONSTRXSTRING * arglist=0x000aff5c, const char * programname=0x00b353b2, _RXSTRING * instore=0x00000000, const char * envname=0x0041d234, int calltype=0, _RXSYSEXIT * exits=0x00000000, short * retcode=0x000adf28, _RXSTRING * result=0x000aff4c)  Line 165	C++
+ 	rexx.exe!main(int argc=2, char * * argv=0x00b35370)  Line 198 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 266 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 182	C
+ 	kernel32.dll!7c816fe7()
+ 	[Frames below may be incorrect and/or missing, no symbols loaded for kernel32.dll]
+ 	rexx.dll!builtin_function_CHANGESTR(RexxActivation * context=0x78b2e800, unsigned int argcount=192, RexxExpressionStack * stack=0x000000bc)  Line 2413 + 0x9 bytes	C++
+ 	6f005800()
+ 	rexx.exe!__crtGetEnvironmentStringsA()  Line 62 + 0x6 bytes	C
+ 	rexx.exe!__crtGetEnvironmentStringsA()  Line 62 + 0x6 bytes	C
+ 	rexx.exe!__crtGetEnvironmentStringsA()  Line 62 + 0x6 bytes	C
+
