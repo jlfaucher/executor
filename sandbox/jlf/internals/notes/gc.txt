@@ -16,3 +16,987 @@ lets stop the execution when the object is created. If too long, then modify the
     }
     return newObj;
 Then put a data breakpoint to detect when the attribute 'behavior' is overwritten.
+
+================================================================================
+2015 Sept
+
+GC review
+stringArgument can return a new string
+which should be protected
+--> review all the calls of stringArgument : done in v4.2
+
+idem optionalStringArgument : done in v4.2
+idem ->requiredString : done in v4.2
+idem requiredStringArg : no problem, stored in expression stack
+idem required_string : no problem, stored in expression stack
+idem requestArray : done in v4.2
+idem REQUEST_ARRAY : done in v4.2
+idem makeArray : done
+
+--------------------------------------------------------------------------------
+Review the fixes done for GC in executor.
+The goal is to apply them to v4.2
+
+12/03/2012 "Commit pending changes" --> lot of changes for GC
+06/03/2012 diary : list plenty of GC fixes
+04/03/2012 diary : GC fixes
+16/08/2011 diary : GC fixes
+    Remember
+    RexxCollection.cpp, RexxHashTableCollection::copy : newObj is not protected.
+        Should be protected only if ActivityManager::currentActivity != NULL, otherwise crash in implementation of ProtectedObject's methods
+        (RexxHashTableCollection::copy is called during interpreter initialization, and at this time, ActivityManager::currentActivity == NULL).
+
+
+ArrayClass.cpp                              done 4.2, 4.2 work
+RexxObject  *RexxArray::copy(void)
+    todo : newArray is not protected
+
+
+BuiltinFunctions.cpp                        done 4.2, 4.2 work
+BUILTIN(VALUE)
+before
+            result = ((RexxString *)OREF_PERIOD)->concat(variable->upper());
+after
+            variable = variable->upper();
+            ProtectedObject p(variable);
+            result = ((RexxString *)OREF_PERIOD)->concat(variable);
+
+
+CallInstruction.cpp                         done 4.2 work
+void RexxInstructionCall::execute(
+    ProtectedObject p_name;
+    ...
+            p_name = _name;
+
+
+ClassClass.cpp                              done 4.2 work
+ProtectedObject p1(enhanced_instance_mdict);
+ProtectedObject p(enhancing_class_methods);
+
+
+ClassClass.cpp                              done 4.2 work
+RexxString *RexxClass::defaultName()
+    /*RexxString * */ ProtectedObject defaultname = this->id;  /* use the id directly               */
+                                         /* prefix with "The"                 */
+    defaultname = ((RexxString*)defaultname)->concatToCstring("The ");
+    /* add on "class"                    */
+    defaultname = ((RexxString*)defaultname)->concatWithCstring(" class");
+
+
+ClassClass.cpp                              done 4.2 work (including method_object)
+RexxObject *RexxClass::defineMethod(
+    ProtectedObject p(method_name);
+    JLF : method_object should be also protected, according to my comment in diary on 16/08/2011
+
+
+ClassClass.cpp                              done 4.2 work
+RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *newMethod)
+    ProtectedObject p(method_name);
+
+
+ClassClass.cpp                              done 4.2 work
+RexxObject *RexxClass::deleteMethod(
+    ProtectedObject p(method_name);
+
+
+ClassClass.cpp                              done 4.2 work
+RexxMethod *RexxClass::method(
+    ProtectedObject p(method_name);
+
+
+ClassClass.cpp                              done 4.2 work
+void RexxClass::methodDictionaryMerge(
+        ProtectedObject p(method_name);
+
+
+ClassClass.cpp                              done 4.2 work
+RexxTable *RexxClass::methodDictionaryCreate(
+        ProtectedObject p(method_name);
+
+
+ContextClass.cpp                            done 4.2 work
+void RexxContext::live(size_t liveMark)
+    (jlf : I don't see this variable in .h, is it coming from the superclass ?)
+    memory_mark(this->objectVariables);
+
+
+ContextClass.cpp                            done 4.2 work
+void RexxContext::liveGeneral(int reason)
+    memory_mark_general(this->objectVariables);
+
+
+ContextClass.cpp                            not done
+void RexxContext::flatten(RexxEnvelope *envelope)
+  flatten_reference(newThis->objectVariables, envelope);                jlf : are you sure ??? not done
+
+
+DirectoryClass.cpp                          done 4.2 work
+RexxObject *RexxDirectory::copy()
+    jlf : newObj must be protected (todo)
+
+
+DirectoryClass.cpp                          done 4.2 work
+RexxObject *RexxDirectory::setEntry(
+    ProtectedObject p(entryname);
+
+
+DirectoryClass.cpp                          done 4.2 work
+RexxObject *RexxDirectory::setMethod(
+    ProtectedObject p(entryname);
+
+
+DirectoryClass.cpp                          done 4.2 work
+RexxObject *RexxDirectory::newRexx(
+    ProtectedObject p(newDirectory);
+
+
+DoInstruction.cpp                           done 4.2 work
+void RexxInstructionDo::execute(
+    /*RexxObject * */ ProtectedObject result; /* expression evaluation result      */
+    ...
+                if (isOfClass(Array, (RexxObject*)result))      /* already an array item?            */
+    ...
+                        reportException(Error_Execution_noarray, (RexxObject*)result);
+    ...
+                if (isOfClass(Array, (RexxObject*)result))      /* already an array item?            */
+    ...
+                        reportException(Error_Execution_noarray, (RexxObject*)result);
+    ...
+                if (isOfClass(Integer, (RexxObject*)result) && context->digits() >= Numerics::DEFAULT_DIGITS)
+    ...
+                    count = ((RexxInteger *)(RexxObject*)result)->getValue();
+    ...
+                    if (!((RexxObject*)result)->requestNumber(count, number_digits()))
+    ...
+                if (isOfClass(Integer, (RexxObject*)result) && context->digits() >= Numerics::DEFAULT_DIGITS)
+    ...
+                    count = ((RexxInteger *)(RexxObject*)result)->getValue();
+    ...
+                    if (!((RexxObject*)result)->requestNumber(count, number_digits()))
+
+
+DoInstruction.cpp                           done 4.2 work
+void RexxInstructionDo::controlSetup(
+    /*RexxObject * */ ProtectedObject result; /* expression result                 */
+    ...
+    + several casts
+
+
+ExceptionClass.cpp                          not done (not in official 4.2)
+void ExceptionClass::live(size_t liveMark)
+    memory_mark(this->objectVariables);
+}
+
+
+ExceptionClass.cpp                          not done (not in official 4.2)
+void ExceptionClass::liveGeneral(int reason)
+    memory_mark_general(this->objectVariables);
+}
+
+
+ExceptionClass.cpp                          not done (not in official 4.2)
+void ExceptionClass::flatten(RexxEnvelope *envelope)
+  flatten_reference(newThis->objectVariables, envelope);
+
+  cleanUpFlatten
+}
+
+
+ExceptionClass.cpp                          not done (not in official 4.2)
+RexxDirectory *ExceptionClass::getCondition()
+        ProtectedObject p(condition);
+
+
+ExpressionStack.cpp                         done 4.2 work
+#include "ProtectedObject.hpp"
+
+
+ExpressionStack.cpp                         done 4.2 work
+RexxString *RexxExpressionStack::requiredStringArg(
+    ProtectedObject p(newStr);
+
+
+ExpressionStack.cpp                         done 4.2 work
+RexxString *RexxExpressionStack::optionalStringArg(
+    ProtectedObject p(newStr);
+
+
+ForwardInstruction.cpp
+void RexxInstructionForward::execute(       done 4.2 work
+    ProtectedObject p_message;
+    ...
+        _message = REQUEST_STRING(temp);    /* get the string version            */
+        p_message = _message;
+        _message = _message->upper();       /* and force to uppercase            */
+        p_message = _message;
+
+
+IdentityTableClass.cpp                      already done in official 4.2
+#include "ProtectedObject.hpp"
+
+
+IdentityTableClass.cpp                      already done in official 4.2
+RexxObject *RexxIdentityTable::newRexx(RexxObject **args, size_t argCount)
+    ProtectedObject p(newObj);
+
+
+InstructionParser.cpp                       done 4.2 work
+RexxInstruction *RexxSource::callNew()
+    /* RexxString * */ ProtectedObject _condition = (RexxObject*)OREF_NULL; /* clear the condition               */
+    ...
+    + casts
+
+
+InstructionParser.cpp                       done 4.2 work
+RexxInstruction *RexxSource::raiseNew()
+    /* RexxString * */ ProtectedObject _condition = token->value;           /* use the condition string value    */
+    ...
+    + casts
+
+
+InstructionParser.cpp                       done 4.2 work (including newObject - another occurence also protected)
+RexxInstruction *RexxSource::signalNew()
+    /* RexxString * */ ProtectedObject _condition = (RexxString*)OREF_NULL; /* and no condition                  */
+    ...
+    + casts
+    ----
+    jlf : newObject to protect ? (not done)
+
+
+IntegerClass.cpp                            done 4.2 work
+RexxString *RexxInteger::concatBlank(
+  ProtectedObject p(other);
+
+
+IntegerClass.cpp                            done 4.2 work
+RexxString *RexxInteger::concat(
+  ProtectedObject p(other);
+
+
+Interpreter.cpp                             done 4.2 work
+RexxClass *Interpreter::findClass(RexxString *className)
+    ProtectedObject p(internalName);
+
+
+InterpreterInstance.cpp                     done 4.2 work
+CommandHandler *InterpreterInstance::resolveCommandHandler(RexxString *name)
+    ProtectedObject p(upperName);
+
+
+InterpretInstruction.cpp                    done 4.2 work
+void RexxInstructionInterpret::execute(
+    ProtectedObject p(interpretString);
+
+
+ListClass.cpp                               done 4.2 work
+RexxObject *RexxList::copy(void)
+    jlf : newlist must be protected (todo)
+
+
+ListClass.cpp                               done 4.2 work
+RexxSupplier *RexxList::supplier(void)
+    indices = this->makeArrayIndices();
+    ProtectedObject p_indices(indices);
+    values = this->makeArray();          /* get the list values               */
+    ProtectedObject p_values(values);
+
+
+ListClass.cpp                               already done in official 4.2
+RexxList *RexxList::newRexx(
+    ProtectedObject p(newList);
+
+
+MessageClass.cpp                            done v4.2 work (newMessage already done)
+RexxObject *RexxMessage::newRexx(
+    ProtectedObject m(msgName);
+    ...
+        ProtectedObject p(newMessage);
+
+
+MethodClass.cpp                             done v4.2 work
+RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source, RexxObject *position, RexxSource *parentSource)
+        ProtectedObject p(sourceString);
+    ...
+            ProtectedObject p(sourceString);
+
+
+MethodClass.cpp                             done v4.2 work
+RexxMethod *RexxMethod::newRexx(
+            ProtectedObject p(option);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxMethod *RexxObject::instanceMethod(RexxString  *method_name)
+    ProtectedObject p(method_name);
+
+
+ObjectClass.cpp                             done v4.2 work (optim ok ?)
+RexxObject * RexxObject::copy()
+    jlf : newObj must be protected (todo)
+
+
+ObjectClass.cpp                             done v4.2 work
+void RexxObject::copyIntoTail(RexxCompoundTail *tail)
+    ProtectedObject p(value);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxObject  *RexxObject::setMethod(
+    ProtectedObject p(msgname);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxObject  *RexxObject::unsetMethod(
+  ProtectedObject p(msgname);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxObject  *RexxObject::requestRexx(
+    className = stringArgument(className, ARG_ONE)->upper();
+    ProtectedObject p_className(className);
+    RexxString *class_id = this->id()->upper();      /* get the class name in uppercase   */
+    ProtectedObject p_class_id(class_id);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments)
+    decodeMessageName(this, message, messageName, startScope);
+    ProtectedObject m(messageName);
+
+    arguments = arrayArgument(arguments, ARG_TWO);
+    ProtectedObject p(arguments);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxObject *RexxObject::send(RexxObject **arguments, size_t argCount)
+    ProtectedObject m(messageName);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments)
+    ProtectedObject p(arguments);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxMessage *RexxObject::startCommon(RexxObject *message, RexxObject **arguments, size_t argCount)
+    ProtectedObject m(messageName);
+
+
+ObjectClass.cpp                             done v4.2 work
+void RexxObject::decodeMessageName(RexxObject *target, RexxObject *message, RexxString *&messageName, RexxObject *&startScope)
+        ProtectedObject p(messageArray);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxObject  *RexxObject::defMethods(
+        name = name->upper();              /* make sure the name is upperCase.  */
+        ProtectedObject p(name);
+
+
+ObjectClass.cpp                             done v4.2 work (including methcopy)
+RexxObject  *RexxObject::defMethod(
+    msgname = msgname->upper();          /* add this as an uppercase name     */
+    ProtectedObject p(msgname);
+    ---
+    jlf : methcopy to protect ? (not sure...)(todo)
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxString *RexxObject::concatRexx(RexxObject *otherObj)
+    RexxString *alias = (RexxString *)REQUEST_STRING(this);
+    ProtectedObject p(alias);
+
+
+ObjectClass.cpp                             done v4.2 work
+RexxString *RexxObject::concatBlank(RexxObject *otherObj)
+    RexxString *alias = (RexxString *)REQUEST_STRING(this);
+    ProtectedObject p(alias);
+
+
+OptionsInstruction.cpp                      done v4.2 work
+void RexxInstructionOptions::execute(
+    stringVal = REQUEST_STRING(value);   /* get the string version            */
+    ProtectedObject p(stringVal);
+
+
+PackageClass.cpp                            done v4.2 work
+PackageClass *PackageClass::loadPackage(RexxString *name, RexxArray *s)
+        s = arrayArgument(s, "source");
+        ProtectedObject p(s);
+
+
+PackageClass.cpp                            done v4.2 work
+PackageClass *PackageClass::newRexx(
+        RexxArray *sourceArray = arrayArgument(_source, "source");
+        ProtectedObject p(sourceArray);
+        package = instance->loadRequires(activity, nameString, sourceArray);
+    }
+
+    ProtectedObject p(package);
+
+
+PackageManager.cpp                          done v4.2 work
+RoutineClass *PackageManager::createRegisteredRoutine(RexxString *function)
+    RoutineClass *func = new RoutineClass(function, new RegisteredRoutine(function, (RexxRoutineHandler *)entry));
+    function = function->upper();
+    ProtectedObject p(function);
+
+
+PackageManager.cpp                          done v4.2 work
+RexxObject *PackageManager::dropRegisteredRoutine(RexxString *name)
+    name = name->upper();
+    ProtectedObject p(name);
+
+
+PackageManager.cpp                          done v4.2 work
+RexxObject *PackageManager::queryRegisteredRoutine(RexxString *name)
+    name = name->upper();
+    ProtectedObject p(name);
+
+
+PackageManager.cpp                          done v4.2 work
+bool PackageManager::callNativeRoutine(RexxActivity *activity, RexxString *name,
+    name = name->upper();
+    ProtectedObject p(name);
+
+
+ProtectedObject.hpp                         not done (for me it's useful, but modifying this class may be not appreciated)
+// To let the compiler tell you it's forbidden !
+// You want to assign a rexx object, not an other protected object.
+// The list of protected objects is broken if such an assignement is done.
+private:
+    ProtectedObject(const ProtectedObject&);
+    ProtectedObject &operator=(const ProtectedObject&);
+
+
+QueueClass.cpp                              done v4.2 work
+RexxObject *RexxQueue::supplier()
+    RexxArray *values = this->makeArray();          /* convert into an array             */
+    ProtectedObject p(values);
+
+
+QueueClass.cpp                              done v4.2 work
+RexxObject *RexxQueue::newRexx(RexxObject **init_args, size_t argCount)
+    RexxObject *newObj =  new RexxQueue;             /* get a new queue                   */
+    ProtectedObject p(newObj);
+
+
+QueueInstruction.cpp                        done v4.2 work
+void RexxInstructionQueue::execute(
+    ProtectedObject p_value;
+    ...
+        value = REQUEST_STRING(result);    /* get the string version            */
+        p_value = value;
+
+
+RaiseInstruction.cpp                        done v4.2 work
+void RexxInstructionRaise::execute(
+    ProtectedObject p_result;
+    ProtectedObject p_description;
+    ProtectedObject p_additional;
+...
+        _additional = TheNullArray->copy(); /* change default additional info    */
+        p_additional = _additional;
+...
+        errorcode = REQUEST_STRING(rc);    /* get the string version            */
+        ProtectedObject p(errorcode);
+...
+        _description = (RexxString *)this->description->evaluate(context, stack);
+        p_description = _description;
+...
+        _additional = this->additional[0]->evaluate(context, stack);
+        p_additional = _additional;
+...
+        _result = this->result->evaluate(context, stack);
+        p_result = _result;
+...
+            _additional = REQUEST_ARRAY(_additional);
+            p_additional = _additional;
+
+
+RelationClass.cpp                           already done in official v4.2
+RexxObject *RexxRelation::newRexx(
+    RexxRelation *newObj = new_relation();             /* get a new relation                */
+    ProtectedObject p(newObj);
+
+
+RexxActivation.cpp                          not done, not needed 4.2
+void RexxActivation::live(size_t liveMark)
+    memory_mark(this->contextObject);
+    memory_mark(this->arguments); // arguments can be user-redefined (ex : yield), must be marked
+
+
+RexxActivation.cpp                          not done, not needed 4.2
+void RexxActivation::liveGeneral(int reason)
+    memory_mark_general(this->contextObject);
+    memory_mark_general(this->arguments); // arguments can be user-redefined (ex : yield), must be marked
+
+
+RexxActivation.cpp                          done 4.2, 4.2 work
+void RexxActivation::raise(
+{
+    ProtectedObject p_conditionobj;
+...
+        conditionobj = new_directory();    /* get a new directory               */
+        p_conditionobj = conditionobj;
+
+
+RexxActivation.cpp                          was cancelled, nothing to apply for 4.2
+RexxObject *RexxActivation::evaluateLocalCompoundVariable(RexxString *stemName, size_t index, RexxObject **tail, size_t tailCount)
+    if (tracingIntermediates())
+    {
+        ProtectedObject p(stem_table);
+
+
+// JLF : fix of Rony problem ? NO !
+RexxActivation.cpp                          done 4.2, 4.2 work (keep the change made in official, which is different)
+StackFrameClass *RexxActivation::createStackFrame()
+    ProtectedObject p_arguments(arguments); // getArguments() returns a new array, so must be protected
+    ProtectedObject p;
+    return new (p) StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), target, arguments, getTraceBack(), getContextLineNumber());
+
+
+RexxActivation.hpp                          not needed 4.2
+   RexxActivation      *parent;        // previous running activation for internal call/interpret
+   RexxArray           *arguments;     /* user-redefined, GC protected      */          <-- jlf : new
+   RexxObject         **arglist;       /* activity argument list            */
+
+
+RexxActivity.cpp                            done v4.2 work
+RexxDirectory *RexxActivity::createConditionObject(RexxString *condition, RexxObject *rc, RexxString *description, RexxObject *additional, RexxObject *result)
+    RexxDirectory *conditionObj = new_directory();
+    ProtectedObject p(conditionObj);
+
+
+RexxActivity.cpp                            done v4.2 work
+RexxString *RexxActivity::messageSubstitution(
+    size_t substitutions = additional->size();  /* get the substitution count        */
+    /* RexxString * */ ProtectedObject newmessage = OREF_NULLSTRING;        /* start with a null string          */
+...
+        /* RexxString * */ ProtectedObject front = message->extractC(0, subposition - 1);
+        /* pull off the remainder            */
+        /* RexxString * */ ProtectedObject back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
+...
+        /* not a good number?                */
+        /* RexxString * */ ProtectedObject stringVal = OREF_NULLSTRING;
+...
+        /* accumulate the front part         */
+        ProtectedObject front_stringVal = ((RexxString*)front)->concat(stringVal);
+        newmessage = ((RexxString*)newmessage)->concat(front_stringVal);
+...
+    /* add on any remainder              */
+    newmessage = ((RexxString*)newmessage)->concat(message);
+
+
+RexxActivity.cpp                            done v4.2 work
+RexxObject *RexxActivity::display(RexxDirectory *exobj)
+    /* get the header                    */
+    /* RexxString * */ ProtectedObject text = SystemInterpreter::getMessageHeader(errorCode);
+...
+    else                                 /* add to the message text           */
+    {
+        text = ((RexxString*)text)->concat(SystemInterpreter::getMessageText(Message_Translations_error));
+...
+    /* add on the error number           */
+    ProtectedObject rcString = REQUEST_STRING(rc);
+    text = ((RexxString*)text)->concatWith(rcString, ' ');
+...
+        /* add on the "running" part         */
+        text = ((RexxString*)text)->concatWith(SystemInterpreter::getMessageText(Message_Translations_running), ' ');
+        /* add on the program name           */
+        text = ((RexxString*)text)->concatWith(programname, ' ');
+...
+            /* Yes, add on the "line" part       */
+            text = ((RexxString*)text)->concatWith(SystemInterpreter::getMessageText(Message_Translations_line), ' ');
+            /* add on the line number            */
+            ProtectedObject positionString = REQUEST_STRING(position);
+            text = ((RexxString*)text)->concatWith(positionString, ' ');
+...
+    text = ((RexxString*)text)->concatWithCstring(":  ");
+    /* and finally the error message     */
+    text = ((RexxString*)text)->concat((RexxString *)exobj->at(OREF_ERRORTEXT));
+...
+        else                               /* add to the message text           */
+        {
+            text = ((RexxString*)text)->concat(SystemInterpreter::getMessageText(Message_Translations_error));
+        }
+        /* add on the error number           */
+        text = ((RexxString*)text)->concatWith((RexxString *)rc, ' ');
+        /* add on the ":  "                  */
+        text = ((RexxString*)text)->concatWithCstring(":  ");
+        /* and finally the error message     */
+        text = ((RexxString*)text)->concat(secondary);
+
+
+RexxActivity.cpp                            done v4.2 work
+RexxObject *RexxActivity::displayDebug(RexxDirectory *exobj)
+  RexxString *secondary;               /* secondary message                 */
+  /* RexxString * */ ProtectedObject text;/* constructed final message         */
+...
+  ProtectedObject rcString = REQUEST_STRING(exobj->at(OREF_RC));
+  text = ((RexxString*)text)->concatWith(rcString, ' ');
+                                       /* add on the ":  "                  */
+  text = ((RexxString*)text)->concatWithCstring(":  ");
+                                       /* and finally the error message     */
+  text = ((RexxString*)text)->concatWith((RexxString *)exobj->at(OREF_ERRORTEXT), ' ');
+...
+    text = ((RexxString*)text)->concatWith((RexxString *)exobj->at(OREF_CODE), ' ');
+                                       /* add on the ":  "                  */
+    text = ((RexxString*)text)->concatWithCstring(":  ");
+                                       /* and finally the error message     */
+    text = ((RexxString*)text)->concat(secondary);
+
+
+RexxActivity.cpp                            not done, specific to executor
+void  RexxActivity::traceOutput(       /* write a line of trace information */
+    ProtectedObject p_line = line->stringTrace(); /* get traceable form of this        */
+    + casts
+
+
+RexxBehaviour.cpp                           done 4.2, 4.2 work
+RexxObject *RexxBehaviour::copy()
+    RexxBehaviour *newBehaviour = (RexxBehaviour *)this->clone();
+    ProtectedObject p(newBehaviour);
+
+
+RexxCompoundTable.cpp                       done v4.2 work
+RexxCompoundElement *RexxCompoundTable::findEntry(
+    /* create a new compound variable */
+    ProtectedObject p_tailString(tail->makeString());
+    anchor = new_compoundElement(p_tailString);
+
+
+RexxInstruction.cpp                         already done in official v4.2
+RexxInstructionRaise::execute
+    _result to protect (done)
+    _description to protect (done)
+    _additional to protect (done)
+
+
+RexxNativeActivation.cpp                    done v4.2 work
+int RexxNativeActivation::stemSort(const char *stemname, int order, int type, size_t start, size_t end, size_t firstcol, size_t lastcol)
+        RexxString *tail = OREF_NULLSTRING ;
+        ProtectedObject p2(tail); // JLF useless here !
+...
+            tail = tail->upper();
+            p2 = tail; // JLF here, it's useful
+
+
+RexxNativeActivation.cpp                    done v4.2 work (keep the change made in official, which is different)
+StackFrameClass *RexxNativeActivation::createStackFrame()
+    ProtectedObject p;
+    return new (p) StackFrameClass(type, getMessageName(), (BaseExecutable *)getExecutableObject(), receiver, getArguments(), new_string(COMPILED_MARKER), SIZE_MAX);
+
+
+RexxVariableDictionary.cpp                  done v4.2
+RexxVariableBase  *RexxVariableDictionary::getVariableRetriever(
+    variable = variable->upper();        /* upper case the variable           */
+    ProtectedObject p(variable);
+
+
+RoutineClass.cpp                            done v4.2
+RexxObject *RoutineClass::callWithRexx(RexxArray *args)
+    args = arrayArgument(args, ARG_ONE);
+    ProtectedObject p(args);
+
+
+RoutineClass.cpp                            done v4.2
+RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *source, RexxObject *position, RexxSource *parentSource)
+        RexxString *sourceString = source->makeString();
+        ProtectedObject p(sourceString);
+...
+            RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            ProtectedObject p(sourceString);
+
+
+RoutineClass.cpp                            done v4.2
+RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *source, RexxObject *position)
+            RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            ProtectedObject p(sourceString);
+
+
+SayInstruction.cpp                          done v4.2
+void  RexxInstructionSay::execute(
+    RexxString *value;                   /* string version of output value    */
+    ProtectedObject p_value;
+...
+        value = REQUEST_STRING(result);    /* get the string version            */
+        p_value = value;
+
+
+SignalInstruction.cpp                       done v4.2
+void RexxInstructionSignal::execute(
+            stringResult = REQUEST_STRING(result);
+            ProtectedObject p(stringResult);
+
+
+SourceFile.cpp                              not done, specific executor
+void RexxSource::live(size_t liveMark)
+  memory_mark(this->interpret_activation);      <-- jlf : added by me
+}
+
+
+SourceFile.cpp                              not done, specific executor
+void RexxSource::liveGeneral(int reason)
+  memory_mark_general(this->interpret_activation);  <-- jlf : added by me
+}
+
+
+SourceFile.cpp                              not done, specific executor
+void RexxSource::flatten (RexxEnvelope *envelope)
+    this->securityManager = OREF_NULL;
+    this->interpret_activation = OREF_NULL;         <-- jlf : added by me
+...
+    flatten_reference(newThis->interpret_activation, envelope);
+
+  cleanUpFlatten
+}
+
+
+SourceFile.cpp                              done v4.2 but keeping the changes of official
+StackFrameClass *RexxSource::createStackFrame()
+    ProtectedObject p;
+    return new (p) StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceBack(clauseLocation, 0, true), clauseLocation.getLineNumber());
+
+
+SourceFile.cpp                              done v4.2 but differently from executor
+RexxString *RexxSource::extract(
+    /* RexxString * */ ProtectedObject line = OREF_NULLSTRING;  /* returned source line              */
+    RexxString *source_line;             /* current extracting line           */
+    size_t  counter;                     /* line counter                      */
+...
+            /* concatenate the next line on      */
+            if (newline) line = ((RexxString*)line)->concatWith(this->get(counter), '\n');
+            else line = ((RexxString*)line)->concat(this->get(counter));
+        }
+        /* now add on the last part          */
+        if (newline) line = ((RexxString*)line)->concatWith(this->get(counter)->extractB(0, location.getEndOffset()), '\n');
+        else line = ((RexxString*)line)->concat(this->get(counter)->extractB(0, location.getEndOffset()));
+
+
+SourceFile.cpp                              done v4.2
+RexxClass *RexxSource::findClass(RexxString *className)
+    RexxString *internalName = className->upper();   /* upper case it                     */
+    ProtectedObject p(internalName);
+
+
+SourceFile.cpp                              done v4.2
+void RexxSource::classDirective()
+    RexxString *public_name = this->commonString(name->upper());
+    ProtectedObject p(public_name);
+
+
+SourceFile.cpp                              done v4.2
+void RexxSource::methodDirective()
+    RexxString *internalname = this->commonString(name->upper());
+    ProtectedObject p(internalname);
+...
+            decodeExternalMethod(internalname, externalname, library, procedure);
+            ProtectedObject p_library(library);
+            ProtectedObject p_procedure(procedure);
+
+
+SourceFile.cpp                              done v4.2
+void RexxSource::attributeDirective()
+    RexxString *internalname = this->commonString(name->upper());
+    ProtectedObject p(internalname);
+...
+                decodeExternalMethod(internalname, externalname, library, procedure);
+                ProtectedObject p_library(library);
+                ProtectedObject p_procedure(procedure);
+...
+                decodeExternalMethod(internalname, externalname, library, procedure);
+                ProtectedObject p_library(library);
+                ProtectedObject p_procedure(procedure);
+...
+                    procedure = procedure->concatToCstring("GET");
+                    p_procedure = procedure;
+...
+                decodeExternalMethod(internalname, externalname, library, procedure);
+                ProtectedObject p_library(library);
+                ProtectedObject p_procedure(procedure);
+...
+                    procedure = procedure->concatToCstring("SET");
+                    p_procedure = procedure;
+
+
+SourceFile.cpp                              done v4.2
+void RexxSource::constantDirective()
+    RexxString *internalname = this->commonString(name->upper());
+    ProtectedObject p(internalname);
+
+
+SourceFile.cpp                              done v4.2 but differently from executor
+RexxString *RexxSource::commonString(
+    ProtectedObject p(string); // JLF I see a lot of calls where string is a not protected object
+
+
+SourceFile.cpp                              not done because the fix for commonString is enough
+RexxArray  *RexxSource::words(
+    word = ((RexxString *)(string->word(IntegerOne)))->upper();
+    ProtectedObject p(word);
+
+
+SourceFile.cpp                              not done... complicated, many occurences of _instruction
+RexxCode *RexxSource::translateBlock(
+    jlf : _instruction to protect ? (not done)
+
+
+SourceFile.cpp                              already done
+RexxArray *RexxSource::extractSource(
+        /* get the result array              */
+        RexxArray *source = new_array(location.getEndLine() - location.getLineNumber() + 1);
+        ProtectedObject p(source);
+
+
+StackFrameClass.cpp                         already done
+void StackFrameClass::live(size_t liveMark)
+    memory_mark(this->objectVariables);
+}
+
+
+StackFrameClass.cpp                         already done
+void StackFrameClass::liveGeneral(int reason)
+    memory_mark_general(this->objectVariables);
+}
+
+
+StackFrameClass.cpp                         already done
+void StackFrameClass::flatten(RexxEnvelope *envelope)
+  newThis->objectVariables = OREF_NULL;
+
+  cleanUpFlatten
+}
+
+
+StackFrameClass.cpp                         already done
+#include "ProtectedObject.hpp"
+
+
+StackFrameClass.cpp                         not done, no longer needed because I kept the official approach
+/**
+ * Allocate a new GC-protected StackFrame object
+ *
+ * @param size   The size of the object.
+ * @param p      The protected object
+ *
+ * @return The newly allocated object.
+ */
+void *StackFrameClass::operator new(size_t size, ProtectedObject &p)
+{
+    /* Get new object                    */
+    p = new_object(size, T_StackFrame);
+    return p;
+}
+
+
+StackFrameClass.hpp                         not done, no longer needed because I kept the official approach
+class RexxSource;
+class ProtectedObject;
+...
+    void *operator new(size_t);
+    void *operator new(size_t, ProtectedObject &);      <-- this one was added by me, but no longer needed
+
+
+StemClass.cpp                               done v4.2
+RexxObject *RexxStem::request(
+    makeclass = stringArgument(makeclass, ARG_ONE)->upper();
+    ProtectedObject p(makeclass);
+
+
+StemClass.cpp                               already done
+RexxObject *RexxStem::newRexx(
+    newObj = new RexxStem ((RexxString *)name);   /* get a new stem                    */
+    ProtectedObject p(newObj);
+
+
+StringClass.cpp                             already done
+RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
+    string = new_string(string->getStringData(), string->getBLength(), string->getCLength(), string->getCharset(), string->getEncoding());
+    ProtectedObject p(string);
+
+
+SupplierClass.cpp                           already done
+RexxObject  *RexxSupplierClass::newRexx(
+    RexxObject *newObj = new RexxSupplier();
+    ProtectedObject p = newObj;
+
+
+TableClass.cpp                              already done
+#include "ProtectedObject.hpp"
+
+
+TableClass.cpp                              already done
+RexxObject *RexxTable::newRexx(
+    RexxTable *newObj = new_table();                /* get a new table                   */
+    ProtectedObject p(newObj);
+
+
+TraceInstruction.cpp                        not done (not sure it's needed)
+void RexxInstructionTrace::execute(
+        result = this->expression->evaluate(context, stack);
+        ProtectedObject p_result(result);
+        value = REQUEST_STRING(result);    /* force to string form              */
+        ProtectedObject p_value(value);
+
+
+WeakReferenceClass.cpp                      already done
+void WeakReference::live(size_t liveMark)
+    // we need to get called, but we don't do any marking of the referent.
+    // we do, however, need to mark the object variables in case this is a subclass.
+    memory_mark(this->objectVariables);
+
+
+WeakReferenceClass.cpp                      already done
+void WeakReference::liveGeneral(int reason)
+    // this might be a subclass, so we need to mark the object variables always
+    memory_mark_general(this->objectVariables);
+
+
+WeakReferenceClass.cpp                      already done
+void WeakReference::flatten(RexxEnvelope *envelope)
+  setUpFlatten(WeakReference)
+   // not normally needed, but this might be a subclass
+   flatten_reference(newThis->objectVariables, envelope);
+
+
+WeakReferenceClass.cpp                      already done
+RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount)
+  RexxObject *newObj = new WeakReference(refObj);
+  ProtectedObject p(newObj);
+
+================================================================================
+
+Revue des protected objects
+Risque de GC avant l'initialisation :
+
+ObjectClass.cpp
+RexxObject::operator new(
+    ProtectedObject newObject = new (classObject) RexxObject;
+
+
+================================================================================
+
+While testing pipeline/one-liners.rex, got a GC crash...
+It's part of the remaining code to review (->evaluate).
+Strange... I fixed the crash by protecting the variables _super and _target in RexxExpressionMessage::evaluate.
+But, they should be protected by the stack, no ?
+_target = this->target->evaluate(context, stack);       --> see code below, the result is pushed on the stack
+_super = this->super->evaluate(context, stack);     (not called in my case)
+>	rexx.dll!RexxParseVariable::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 102	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 97 + 0x1b bytes	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 109 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+----------
+RexxObject  *RexxParseVariable::evaluate(
+    RexxActivation      *context,      /* current activation context        */
+    RexxExpressionStack *stack )       /* evaluation stack                  */
+{
+    RexxVariable *variable = context->getLocalVariable(variableName, index);
+    RexxObject *value = variable->getVariableValue();/* get the value                     */
+    ...
+    stack->push(value);                  /* place on the evaluation stack     */        <-- here, the result is protected
+    ...
+    return value;                        /* return the located variable       */
+}
+
