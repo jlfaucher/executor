@@ -167,7 +167,7 @@ ClassClass.hpp
    inline void         clearHasUninitDefined()   { classFlags &= ~HAS_UNINIT; };
    inline bool         parentHasUninitDefined()   { return (classFlags & PARENT_HAS_UNINIT) != 0; };
    inline void         setParentHasUninitDefined()   { classFlags |= PARENT_HAS_UNINIT; };
-   
+
      enum
      {
         REXX_DEFINED      = 0x00000001,   // this class is a native rexx class
@@ -435,3 +435,108 @@ bool InterpreterInstance::terminate()
     // before we update of the data structures, make sure we process any
     // pending uninit activity.
     memoryObject.collectAndUninit(Interpreter::lastInstance());
+
+
+================================================================================
+
+2320 Fix interpreter termination uninit problem
+ObjectClass.cpp
+    RexxInteger *RexxObject::hasMethod(RexxString *msgname)
+        old : return (this->behaviour->methodObject(msgname) != OREF_NULL) ? TheTrueObject : TheFalseObject;
+        new : return (this->behaviour->methodLookup(msgname) != OREF_NULL) ? TheTrueObject : TheFalseObject;
+InterpreterInstance.cpp
+    bool InterpreterInstance::poolActivity(RexxActivity *activity)
+        old : memoryObject.forceUninits();
+        new : memoryObject.runUninits();
+    bool InterpreterInstance::terminate()
+        old :
+            // if everything has terminated, then make sure we run the uninits before shutting down.
+            if (terminated)
+            {
+                // This activity is currently the current activity.  We're going to run the
+                // uninits on this one, so reactivate it until we're done running
+                enterOnCurrentThread();
+                // before we update of the data structures, make sure we process any
+                // pending uninit activity.
+                memoryObject.forceUninits();
+                // ok, deactivate this again...this will return the activity because the terminating
+                // flag is on.
+                exitCurrentThread();
+                EVCLOSE(terminationSem);
+                return true;
+            }
+        new :
+            // if everything has terminated, then make sure we run the uninits before shutting down.
+            if (terminated)
+            {
+                // This activity is currently the current activity.  We're going to run the
+                // uninits on this one, so reactivate it until we're done running
+                enterOnCurrentThread();
+                // release any global references we've been holding.
+                globalReferences->empty();
+                // before we update of the data structures, make sure we process any
+                // pending uninit activity.
+                memoryObject.collectAndUninit();
+                // ok, deactivate this again...this will return the activity because the terminating
+                // flag is on.
+                exitCurrentThread();
+                EVCLOSE(terminationSem);
+                return true;
+            }
+RexxActivity.cpp
+    void RexxActivity::exitCurrentThread()
+        old :
+            // deactivate the nesting level
+            deactivate();
+            // this activity owned the kernel semaphore before entering here...release it
+            // now.
+            releaseAccess();
+        new :
+            // deactivate the nesting level
+            deactivate();
+            // if we're inactive, try to run any pending uninits
+            if (isInactive())
+            {
+                memoryObject.runUninits();
+            }
+            // this activity owned the kernel semaphore before entering here...release it
+            // now.
+            releaseAccess();
+RexxActivity.hpp
+RexxMemory.cpp
+    Ajout de RexxMemory::collectAndUninit
+RexxMemory.hpp
+
+
+stream_close
+zombieObj = 0x7fca87a0
+
+To study : RexxCore.h : #define OrefSet
+
+#ifndef CHECKOREFS
+#define OrefSet(o,r,v) ((o)->isOldSpace() ? memoryObject.setOref((void *)&(r),(RexxObject *)v) : (RexxObject *)(r=v))
+#else
+#define OrefSet(o,r,v) memoryObject.checkSetOref((RexxObject *)o, (RexxObject **)&(r), (RexxObject *)v, __FILE__, __LINE__)
+#endif
+
+RexxObject *RexxMemory::checkSetOref(
+                RexxObject  *setter,
+                RexxObject **index,
+                RexxObject  *value,
+                const char  *fileName,
+                int          lineNum)
+{
+    return(setter->isOldSpace() ? (this->setOref(index, value)) : (*index = value));
+}
+
+
+0x7fca8410
+0x7fca8418
+
+To study :
+RexxMemory::markObjects
+RexxMemory::markObjectsMain
+RexxMemory::mark
+
+InterpreterInstance::terminate
+
