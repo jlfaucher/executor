@@ -22,3 +22,40 @@ Detect overruns and underruns of local variables. This differs from /GS because 
 This option warns when a variable is accessed without being initialized
 
 
+=======================================================
+Visual C++
+Optimization options
+
+http://msdn.microsoft.com/en-us/library/8f8h5cxt.aspx
+    Creates the smallest code in the majority of cases.
+    /O1 =  /Og /Os /Oy /Ob2 /Gs /GF /Gy
+
+    Creates the fastest code in the majority of cases. (default setting for release builds)
+    /O2 = /Og /Oi /Ot /Oy /Ob2 /Gs /GF /Gy
+
+    Produces code that favors execution speed over smaller size.
+    /Ox
+        /Ob (Inline Function Expansion) , where the option parameter is 2 (/Ob2)
+        /Og (Global Optimizations)
+        /Oi (Generate Intrinsic Functions)
+        /Ot (Favor Fast Code)
+        /Oy (Frame-Pointer Omission)
+    /Ox = /Og /Oi /Ot /Oy /Ob2
+
+http://msdn.microsoft.com/en-us/library/k1ack8f1.aspx
+    /O1 optimizes code for minimum size.
+    /O2 optimizes code for maximum speed.
+    /Ob controls inline function expansion.
+    /Od disables optimization, speeding compilation and simplifying debugging.
+    /Og enables global optimizations.
+    /Oi generates intrinsic functions for appropriate function calls.
+    /Os tells the compiler to favor optimizations for size over optimizations for speed.
+    /Ot (a default setting) tells the compiler to favor optimizations for speed over optimizations for size.
+    /Ox selects full optimization.
+    /Oy suppresses the creation of frame pointers on the call stack for quicker function calls.
+        The /Oy compiler option makes using the debugger more difficult
+        because the compiler suppresses frame pointer information.
+        If you specify a debug complier option (/Z7, /Zi, /ZI),
+        we recommend that you specify the /Oy- option
+        after any other optimization compiler options.
+
