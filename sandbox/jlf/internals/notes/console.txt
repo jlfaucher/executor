@@ -1,0 +1,10 @@
+Console
+
+https://msdn.microsoft.com/en-us/library/system.console(v=vs.110).aspx
+Source code :
+http://referencesource.microsoft.com/#mscorlib/system/console.cs,f907d79481da6ba4
+
+http://stackoverflow.com/questions/6973260/why-does-my-console-application-have-command-history
+
+https://msdn.microsoft.com/en-us/library/system.console.readline(v=vs.110).aspx
+
