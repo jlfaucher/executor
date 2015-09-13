@@ -1,0 +1,93 @@
+================================================================================
+Monitoring
+================================================================================
+
+Monitoring counters :
+Pourquoi un tel écart sur relinquishCounter entre win7 et linux ?
+Pourquoi requestAccessCounter est 2 fois plus petit sous linux que sous win7 ?
+voir D:\local\Rexx\ooRexx\svn\sandbox\jlf\samples\benchmark\macrospace_impact.rex
+
+ActivityManager::relinquish(RexxActivity *activity) : static method
+interpreter\concurrency\ActivityManager.cpp : implémentation
+
+RexxActivity::relinquish()
+interpreter\concurrency\RexxActivity.cpp : implémentation, délègue à  ActivityManager::relinquish
+appelé par
+    interpreter\execution\RexxActivation.cpp
+        RexxActivation::run
+            #ifdef FIXEDTIMERS
+                if (Interpreter::hasTimeSliceElapsed()) this->activity->relinquish()
+            #else
+                if (++instructionCount > MAX_INSTRUCTIONS) this->activity->relinquish()
+                (local definition : MAX_INSTRUCTIONS = 100)
+            #endif
+            in case of replied : this->activity->relinquish()
+        RexxActivation::processClauseBoundary
+            if (this->settings.flags&external_yield)
+            {
+                /* turn off the yield flag           */
+                this->settings.flags &= ~external_yield;
+                this->activity->relinquish();      /* yield control to the activity     */
+            }
+    interpreter\execution\RexxCode.cpp
+        RexxCode::run
+
+
+requestAccess
+    UnsafeBlock
+    ActivityManager::getRootActivity
+        NativeContextBlock::NativeContextBlock
+        to continue...
+    ActivityManager::attachThread
+    RexxActivity::runThread
+    RexxActivity::enterCurrentThread
+    RexxActivity::enterKernel
+    RexxActivity::waitReserve
+    RexxActivity::guardWait
+    RexxActivity::run
+    RexxNativeActivation::run
+    RexxNativeActivation::callNativeRoutine
+    RexxNativeActivation::callRegisteredRoutine
+    RexxVariable::notify
+    InterpreterInstance::enterOnCurrentThread
+
+
+FIXEDTIMERS
+    RexxActivation.cpp (see above)
+    interpreter\platform\windows\PlatformDefinitions.h
+        /* OPTIONAL:  Enable concurrency timeslice dispatching support.  Default is   */
+        /* only yield at specific event points.                                       */
+        // Make this clearer? Mutually exclusive with NOTIMER?
+        #define TIMESLICE
+        #define FIXEDTIMERS
+
+
+interpreter\platform\windows\PlatformDefinitions.h
+                                Windows
+#define MIN_C_STACK             1024*32                                                     1024*16
+#define TOTAL_STACK_SIZE        1024*512                                                    1024*512
+#define C_STACK_SIZE            60000                                                       TOTAL_STACK_SIZE
+#define SysCall                 _cdecl                                                      <empty>
+#define FNONBLOCK               <not defined>                                               O_NONBLOCK
+#define RXTRACE_SUPPORT         <not defined>                                               <empty>
+#define STACKCHECK              <defined>                                                   <defined>
+#define NOTIMER                 <not defined>                                               <defined>
+#define TIMESLICE               <defined>                                                   <not defined>
+#define FIXEDTIMERS             <defined>                                                   <not defined>
+#define SCRIPTING               <defined>                                                   <not defined>
+#define _POSIX_THREADS_         <not defined>                                               <deined>
+#define SYSINITIALADDRESS       "CMD"                                                       "ksh" or "sh" or "bash"
+#define BASEIMAGE               "rexx.img"                                                  "rexx.img"
+#define BASEIMAGELOAD           "CoreClasses.orx"                                           "CoreClasses.orx"
+#define REXXMESSAGEFILE         "winatab.rc"                                                "rexx.cat"
+#define delimiter               '\\'                                                        '/'
+#define line_end                "\r\n"                                                      "\n"
+#define line_end_size           2                                                           1
+#define DEFRXSTRING             256                                                         256
+#define REXXTIMESLICE           <not defined>                                               100
+#define EBCDIC                  <not defined>                                               <empty> if __MVS__
+#define isnan(x)                _isnan(x)
+#define WinBeginExceptions      SetConsoleCtrlHandler(&WinConsoleCtrlHandler, true);\
+                                __try {
+#define WinEndExceptions }      __except ( WinExceptionFilter(GetExceptionCode( ))) {  }\
+                                SetConsoleCtrlHandler(&WinConsoleCtrlHandler, FALSE);
