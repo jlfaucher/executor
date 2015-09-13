@@ -1,0 +1,299 @@
+=======================================================
+
+ooRexxShell :
+Colors are correctly displayed, until bsf.cls is loaded.
+Then colors are no longer displayed.
+Colors are managed by calling GCI routines.
+
+How to debug :
+RexxNativeActivation.cpp
+    RexxNativeActivation::callRegisteredRoutine : breakpoint count>=54
+When this breakpoint triggers, bsf.cls is not yet loaded.
+The current call of GCI registered routine will succeed (colors are displayed).
+F5 to reach next call to GCI routine
+This breakpoint triggers again (count == 55)
+bsf.cls has been loaded.
+The current call of GCI registered routine will fail because the variable pool is not enabled (fail reading a stem).
+The variable pool is not enabled because the RexxNativeActivation (0x7f5b1558) is not the same as when enableVariablepool() was called (0x7f48f230).
+The RexxNativeActivation comes from activity->topStackFrame (ActivityManager.cpp, NativeContextBlock::NativeContextBlock)
+So the question is : what is changing topStackFrame from 0x7f48f230 to 0x7f5b1558 ?
+data breakpoint at this address :
++		&((*activity).topStackFrame)	0x7eee5fe8	RexxActivationBase * *
+[later]
+The problem is not what is changing topStackFrame...
+The problem is that a same thread is attached to two different activities.
+0x7f69bea8 --> this one should not exist
+0x7eee5fa0
+
+
+>	rexx.dll!RexxNativeActivation::variablePoolInterface(_SHVBLOCK * pshvblock)  Line 2804	C++
+ 	rexx.dll!RexxVariablePool(_SHVBLOCK * pshvblock)  Line 396 + 0xc bytes	C++
+        NativeContextBlock context;
+        context = {self=0x7f5b1558 activity=0x7f69bea8 instance=0x00000000 }
+        JLF : here, for this RexxNativeActivation 0x7f5b1558, the variable pool is not enabled (vpavailable == false)
+ 	gci.dll!readRexx(void * hidden, const GCI_str * name, GCI_str * target, int symbolicAccess, int signalOnNovalue, int allocate, int * novalue)  Line 541 + 0xa bytes	C
+ 	gci.dll!GCI_readNewRexx(void * hidden, const GCI_str * name, GCI_str * target, int symbolicAccess, int signalOnNovalue, int * novalue)  Line 698 + 0x1f bytes	C
+ 	gci.dll!loadStem(void * hidden, const GCI_str * stem, GCI_str * base)  Line 655 + 0x17 bytes	C
+ 	gci.dll!GCI_execute(void * hidden, void (void)* func, const GCI_treeinfo * ti, int argc, const GCI_str * args, GCI_str * error_disposition, GCI_str * retval, const char * prefixChar)  Line 1299 + 0x11 bytes	C
+ 	gci.dll!_GciDispatcher(const char * calledname, unsigned long argc, _RXSTRING * const argv, const char * queuename, _RXSTRING * returnstring)  Line 1156 + 0x35 bytes	C
+ 	rexx.dll!RexxNativeActivation::callRegisteredRoutine(RoutineClass * _routine, RegisteredRoutine * _code, RexxString * functionName, RexxObject * * list, unsigned int count, ProtectedObject & resultObj)  Line 1441 + 0x34 bytes	C++
+        this = 0x7f48f230 {activity=0x7eee5fa0 code=0x00000000 receiver=0x00000000 ...}
+        enableVariablepool();                // enable the variable pool interface here
+ 	rexx.dll!RegisteredRoutine::call(RexxActivity * activity, RoutineClass * routine, RexxString * functionName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 353	C++
+        activity = 0x7eee5fa0 {instance=0x7eee6418 threadContext={...} oldActivity=0x00000000 ...}
+ 	rexx.dll!RoutineClass::call(RexxActivity * activity, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 234	C++
+ 	rexx.dll!PackageManager::callNativeRoutine(RexxActivity * activity, RexxString * name, RexxObject * * arguments, unsigned int argcount, ProtectedObject & result)  Line 678	C++
+ 	rexx.dll!SystemInterpreter::invokeExternalFunction(RexxActivation * activation, RexxActivity * activity, RexxString * target, RexxObject * * arguments, unsigned int argcount, RexxString * calltype, ProtectedObject & result)  Line 272 + 0x17 bytes	C++
+ 	rexx.dll!RexxActivation::externalCall(RexxString * target, unsigned int _argcount, RexxExpressionStack * _stack, RexxString * calltype, ProtectedObject & resultObj)  Line 2724 + 0x25 bytes	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 280	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::processProtectedMethod(RexxString * messageName, RexxMethod * targetMethod, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 861	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 786	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxExpressionMessage::evaluate(RexxActivation * context, RexxExpressionStack * stack)  Line 139	C++
+ 	rexx.dll!RexxInstructionAssignment::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 110 + 0x1b bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxActivation::forward(RexxObject * target, RexxString * message, RexxObject * superClass, RexxObject * * _arguments, unsigned int _argcount, bool continuing)  Line 1324	C++
+ 	rexx.dll!RexxInstructionForward::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 197 + 0x27 bytes	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::processUnknown(RexxString * messageName, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 896	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 799	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxActivation::internalCall(RexxInstruction * target, unsigned int _argcount, RexxExpressionStack * _stack, ProtectedObject & returnObject)  Line 2944	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 268	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxActivation::internalCall(RexxInstruction * target, unsigned int _argcount, RexxExpressionStack * _stack, ProtectedObject & returnObject)  Line 2944	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 268	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 92	C++
+ 	rexx.dll!RoutineClass::callRexx(RexxObject * * args, unsigned int count)  Line 269	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 121 + 0xe bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message, unsigned int count, ProtectedObject & result)  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity, RoutineClass * routine, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, RexxString * calltype, RexxString * environment, int context, ProtectedObject & result)  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity, RexxObject * * arguments, unsigned int argCount, ProtectedObject & result)  Line 321	C++
+ 	rexx.dll!CallProgramDispatcher::run()  Line 239	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher)  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target)  Line 3100	C++
+ 	rexx.dll!CallProgram(RexxThreadContext_ * c, const char * p, _RexxArrayObject * a)  Line 475	C++
+ 	rexx.exe!RexxThreadContext_::CallProgram(const char * n, _RexxArrayObject * a)  Line 833	C++
+ 	rexx.exe!main(int argc, char * * argv)  Line 225 + 0x13 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 278 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 189	C
+
+RexxNativeActivation.hpp
+class RexxNativeActivation : public RexxActivationBase
+    bool            vpavailable;         /* Variable pool access flag         */
+
+void RexxNativeActivation::enableVariablepool()
+    RexxActivity.cpp
+        void RexxActivity::exitKernel()
+        void RexxActivity::run(CallbackDispatcher &target)
+    RexxNativeActivation.cpp
+        void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName, RexxObject **list, size_t count, ProtectedObject &resultObj)
+        void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, RegisteredRoutine *_code, RexxString *functionName, RexxObject **list, size_t count, ProtectedObject &resultObj)
+
+void RexxNativeActivation::disableVariablepool()
+    RexxNativeActivation.cpp
+        void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeRoutine *_code, RexxString *functionName, RexxObject **list, size_t count, ProtectedObject &resultObj)
+        void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, RegisteredRoutine *_code, RexxString *functionName, RexxObject **list, size_t count, ProtectedObject &resultObj)
+
+
+RexxNativeActivation.cpp
+RexxNativeActivation::callRegisteredRoutine
+activity = 0x7eee5fa0 {instance=0x7eee6418 threadContext={...} oldActivity=0x00000000 ...}
+
+activity = 0x7eee5fa0 {instance=0x7eee6418 threadContext={...} oldActivity=0x00000000 ...}
+activity = 0x7eee5fa0 {instance=0x7eee6418 threadContext={...} oldActivity=0x00000000 ...}
+this = 0x7f48f230 {activity=0x7eee5fa0 code=0x00000000 receiver=0x00000000 ...}
++		&((*this).vpavailable)	0x7f48f290	bool *
+
+NativeContextBlock
+    activity = ActivityManager::getActivity();
+    activity = 0x7f69bea8 {instance=0x7f667188 threadContext={...} oldActivity=0x00000000 ...}
+
+RexxReturnCode RexxNativeActivation::variablePoolInterface(PSHVBLOCK pshvblock)
++		this	0x7f5b1558 {activity=0 code=0x00000000 receiver=0x00000000 ...}	RexxNativeActivation * const
+
+
+InterpreterAPI.cpp
+RexxReturnCode RexxEntry RexxVariablePool(PSHVBLOCK pshvblock)
+{
+    NativeContextBlock context;
+    // the variable pool interface handles its own try/catches.
+    return context.self->variablePoolInterface(pshvblock);
+}
+
+
+
+So the question is : what is changing topStackFrame ?
++		&((*activity).topStackFrame)	0x7eee5fe8	RexxActivationBase * *
+data breakpoint...
+[later] Wrong assumption, the problem is not here.
+
+
+topStackFrame is changed when doing that from RexxNativeActivation::callRegisteredRoutine :
+    /* get the current queue name        */
+    const char *queuename = Interpreter::getCurrentQueue()->getStringData();
+
+    Call stack :
+        rexx.dll!RexxActivity::updateFrameMarkers()  Line 1470	C++
+            topStackFrame = (RexxActivationBase *)activations->getTop();
+            topStackFrame = 0x7e71c4f0 {settings={...} stack={...} code=0x7fd00470 ...}
+        rexx.dll!RexxActivity::pushStackFrame(RexxActivationBase * new_activation)  Line 1501	C++
+            new_activation = 0x7e71c4f0 {settings={...} stack={...} code=0x7fd00470 ...}
+            topStackFrame = 0x7e71c4f0 {settings={...} stack={...} code=0x7fd00470 ...}
+            JLF : same value... by chance ?
+        rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 135	C++
+            RexxActivation *newacta = ActivityManager::newActivation(activity, method, this);
+            newacta = 0x7e71c4f0 {settings={...} stack={...} code=0x7fd00470 ...}
+            activity->pushStackFrame(newacta);
+        rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+    >	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+            method_save = 0x7fcffce0 {methodFlags=2 scope=0x7fcfed28 }
+        rexx.dll!RexxObject::sendMessage(RexxString * message, ProtectedObject & result)  Line 440 + 0x1b bytes	C++
+        rexx.dll!RexxObject::sendMessage(RexxString * message)  Line 619	C++
+        rexx.dll!Interpreter::getCurrentQueue()  Line 556	C++
+            queue = 0x7eee76e0 {objectVariables=0x7eee7980 operatorMethods=0x0055b920 classInstance=0x7fcc0a50 }
+        rexx.dll!RexxNativeActivation::callRegisteredRoutine(RoutineClass * _routine, RegisteredRoutine * _code, RexxString * functionName, RexxObject * * list, unsigned int count, ProtectedObject & resultObj)  Line 1424 + 0x5 bytes	C++
+
+
+Restore previous topStackFrame (ok)
+    Call stack :
+    >	rexx.dll!RexxActivity::updateFrameMarkers()  Line 1470	C++
+            topStackFrame = (RexxActivationBase *)activations->getTop();
+            topStackFrame = 0x7f48f230 {activity=0x7eee5fa0 code=0x00000000 receiver=0x00000000 ...}
+        rexx.dll!RexxActivity::popStackFrame(bool reply)  Line 1554	C++
+            reply = false
+            RexxActivationBase *poppedStackFrame = (RexxActivationBase *)activations->fastPop();
+            poppedStackFrame = 0x7e71c4f0 {settings={...} stack={...} code=0x7fd00470 ...}
+        rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 579	C++
+            if (this->execution_state == RETURNED)
+                ...
+                this->activity->popStackFrame(false);   /* now pop the current activity      */
+        rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 136	C++
+            ... (see previous call stack above)
+            newacta->run(receiver, msgname, argPtr, argcount, OREF_NULL, result);
+        rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 325	C++
+        rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned int count, ProtectedObject & result)  Line 794	C++
+        rexx.dll!RexxObject::sendMessage(RexxString * message, ProtectedObject & result)  Line 440 + 0x1b bytes	C++
+        rexx.dll!RexxObject::sendMessage(RexxString * message)  Line 619	C++
+        rexx.dll!Interpreter::getCurrentQueue()  Line 556	C++
+        rexx.dll!RexxNativeActivation::callRegisteredRoutine(RoutineClass * _routine, RegisteredRoutine * _code, RexxString * functionName, RexxObject * * list, unsigned int count, ProtectedObject & resultObj)  Line 1424 + 0x5 bytes	C++
+
+
+Now the call to the GCI routine is done.
+When calling the API RexxVariablePool, the activity is searched.
+>	rexx.dll!ActivityManager::findActivity(unsigned long threadId)  Line 520	C++
+        threadId = 57972
+        listIndex = 1 --> activity = 0x7f69bea8 {instance=0x7f667188 threadContext={...} oldActivity=0x00000000 ...}
+ 	rexx.dll!ActivityManager::findActivity()  Line 546	C++
+ 	rexx.dll!ActivityManager::getActivity()  Line 794 + 0x5 bytes	C++
+ 	rexx.dll!NativeContextBlock::NativeContextBlock()  Line 875 + 0x5 bytes	C++
+ 	rexx.dll!RexxVariablePool(_SHVBLOCK * pshvblock)  Line 396	C++
+ 	gci.dll!readRexx(void * hidden, const GCI_str * name, GCI_str * target, int symbolicAccess, int signalOnNovalue, int allocate, int * novalue)  Line 541 + 0xa bytes	C
+ 	gci.dll!GCI_readNewRexx(void * hidden, const GCI_str * name, GCI_str * target, int symbolicAccess, int signalOnNovalue, int * novalue)  Line 698 + 0x1f bytes	C
+ 	gci.dll!loadStem(void * hidden, const GCI_str * stem, GCI_str * base)  Line 655 + 0x17 bytes	C
+ 	gci.dll!GCI_execute(void * hidden, void (void)* func, const GCI_treeinfo * ti, int argc, const GCI_str * args, GCI_str * error_disposition, GCI_str * retval, const char * prefixChar)  Line 1299 + 0x11 bytes	C
+ 	gci.dll!_GciDispatcher(const char * calledname, unsigned long argc, _RXSTRING * const argv, const char * queuename, _RXSTRING * returnstring)  Line 1156 + 0x35 bytes	C
+ 	rexx.dll!RexxNativeActivation::callRegisteredRoutine(RoutineClass * _routine, RegisteredRoutine * _code, RexxString * functionName, RexxObject * * list, unsigned int count, ProtectedObject & resultObj)  Line 1441 + 0x34 bytes	C++
+ 	rexx.dll!RegisteredRoutine::call(RexxActivity * activity, RoutineClass * routine, RexxString * functionName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 353	C++
+        activity = 0x7eee5fa0 {instance=0x7eee6418 threadContext={...} oldActivity=0x00000000 ...}
+        JLF : threadId = 57972 --> Problem ! two activities for the same thread id
+
+
+Creation of the second activity :
+>	rexx.dll!RexxActivity::RexxActivity(bool createThread)  Line 245	C++
+        currentThread.useCurrentThread();
+        currentThread = {threadId=76824 hThread=0xfffffffe }
+ 	rexx.dll!ActivityManager::createCurrentActivity()  Line 378 + 0xa bytes	C++
+        RexxActivity *activity = new RexxActivity(false);
+            activity = 0x7f69bea8 {instance=0x00000000 threadContext={...} oldActivity=0x00000000 ...}
+        allActivities->append((RexxObject *)activity);
+            allActivities = 0x7eee0ce0 {table=0x7eee0d10 first=0 last=0 ...}
+                table = 0x7eee0d10 {size=5 elements=0x7eee0d24 }
+                    before append :
+                    +		((*((*allActivities).table)).elements)[0]	{value=0x7eee5fa0 next=4294967295 previous=4294967295 }	listentry
+                    after append :
+                    +		((*((*allActivities).table)).elements)[0]	{value=0x7eee5fa0 next=1 previous=4294967295 }	listentry
+                    +		((*((*allActivities).table)).elements)[1]	{value=0x7f69bea8 next=4294967295 previous=0 }	listentry
+ 	rexx.dll!ActivityManager::getRootActivity()  Line 691 + 0x5 bytes	C++
+        RexxActivity *oldActivity = findActivity();
+            oldActivity = 0x7eee5fa0 {instance=0x7eee6418 threadContext={...} oldActivity=0x00000000 ...}
+        RexxActivity *activityObject = createCurrentActivity();
+            activityObject = 0x7f69bea8 {instance=0x00000000 threadContext={...} oldActivity=0x00000000 ...}
+        oldActivity->setSuspended(true);
+        activityObject->setNestedActivity(oldActivity);
+ 	rexx.dll!Interpreter::createInterpreterInstance(RexxOption * options)  Line 315 + 0x5 bytes	C++
+        RexxActivity *rootActivity = ActivityManager::getRootActivity();
+            rootActivity = 0x7f69bea8 {instance=0x00000000 threadContext={...} oldActivity=0x00000000 ...}
+        InterpreterInstance *instance = new InterpreterInstance();
+            instance = 0x7f667188 {context={...} sysInstance={...} rootActivity=0x00000000 ...}
+        instance->initialize(rootActivity, options);
+            void InterpreterInstance::initialize(RexxActivity *activity, RexxOption *options)
+                activity->setupAttachedActivity(this);
+                    void RexxActivity::setupAttachedActivity(InterpreterInstance *interpreter)
+                        addToInstance(interpreter);
+                            void RexxActivity::addToInstance(InterpreterInstance *interpreter)
+                                instance = interpreter;
+ 	rexx.dll!Interpreter::createInstance(RexxInstance_ * & instance, RexxThreadContext_ * & threadContext, RexxOption * options)  Line 266 + 0x8 bytes	C++
+        InterpreterInstance *newInstance = createInterpreterInstance(options);
+            newInstance = 0x7f667188 {context={...} sysInstance={...} rootActivity=0x7f69bea8 ...}
+        instance = newInstance->getInstanceContext();
+            RexxInstance *getInstanceContext() { return &context.instanceContext; }
+            instance = 0x7f667198
+        threadContext = newInstance->getRootThreadContext();
+            return rootActivity->getThreadContext();
+                inline RexxThreadContext *getThreadContext() { return &threadContext.threadContext; }
+            threadContext = 0x7f69bebc
+        RexxActivity *activity = newInstance->getRootActivity();
+            activity = 0x7f69bea8 {instance=0x7f667188 threadContext={...} oldActivity=0x00000000 ...}
+        activity->releaseAccess();
+        // the activity needs to be in a deactivated state when we return.
+        activity->deactivate();
+            nestedCount--;
+            nestedCount = 0
+ 	rexx.dll!RexxCreateInterpreter(RexxInstance_ * * instance, RexxThreadContext_ * * context, RexxOption * options)  Line 382 + 0xf bytes	C++
+ 	BSF4ooRexx.dll!Java_org_rexxla_bsf_engines_rexx_RexxAndJava_jniRexxCreateInterpreterInstance(JNIEnv_ * env, _jobject * jobj, _jobjectArray * joptions)  Line 13733 + 0x11 bytes	C++
+ 	01569fc7()
+ 	jvm.dll!6d8eac3b()
+ 	[Frames below may be incorrect and/or missing, no symbols loaded for jvm.dll]
+ 	jvm.dll!6d97c3a1()
+ 	jvm.dll!6d8eacbd()
+ 	jvm.dll!6d885776()
+ 	jvm.dll!6d88d6b8()
+ 	BSF4ooRexx.dll!JNIEnv_::CallStaticVoidMethod(_jclass * cls, _jmethodID * methodID, ...)  Line 1499	C++
+ 	BSF4ooRexx.dll!BsfLoadJava_impl(RexxCallContext_ * context, _RexxArrayObject * argArray)  Line 8476 + 0x16 bytes	C++
+ 	BSF4ooRexx.dll!BsfLoadJava(RexxCallContext_ * context, ValueDescriptor * arguments)  Line 8006 + 0x17 bytes	C++
+ 	rexx.dll!RexxNativeActivation::callNativeRoutine(RoutineClass * _routine, RexxNativeRoutine * _code, RexxString * functionName, RexxObject * * list, unsigned int count, ProtectedObject & resultObj)  Line 1319	C++
+ 	rexx.dll!RexxNativeRoutine::call(RexxActivity * activity, RoutineClass * routine, RexxString * functionName, RexxObject * * argPtr, unsigned int count, ProtectedObject & result)  Line 316	C++
+ 	rexx.dll!RoutineClass::call(RexxActivity * activity, RexxString * msgname, RexxObject * * argPtr, unsigned int argcount, ProtectedObject & result)  Line 234	C++
+ 	rexx.dll!PackageManager::callNativeRoutine(RexxActivity * activity, RexxString * name, RexxObject * * arguments, unsigned int argcount, ProtectedObject & result)  Line 669	C++
+ 	rexx.dll!SystemInterpreter::invokeExternalFunction(RexxActivation * activation, RexxActivity * activity, RexxString * target, RexxObject * * arguments, unsigned int argcount, RexxString * calltype, ProtectedObject & result)  Line 272 + 0x17 bytes	C++
+ 	rexx.dll!RexxActivation::externalCall(RexxString * target, unsigned int _argcount, RexxExpressionStack * _stack, RexxString * calltype, ProtectedObject & resultObj)  Line 2724 + 0x25 bytes	C++
+ 	rexx.dll!RexxInstructionCall::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 280	C++
+>	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+ 	rexx.dll!RexxActivation::interpret(RexxString * codestring)  Line 2419	C++
+ 	rexx.dll!RexxInstructionInterpret::execute(RexxActivation * context, RexxExpressionStack * stack)  Line 81	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver, RexxString * msgname, RexxObject * * _arglist, unsigned int _argcount, RexxInstruction * start, ProtectedObject & resultObj)  Line 544	C++
+
+BSF.cls line 400 : interpret stmt, where stmt == "CALL BsfLoadJava"
