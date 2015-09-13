@@ -1,4 +1,4 @@
-===========================================================================
+================================================================================
 interpreter\runtime\RexxCore.h
 // this one is special, and is truly global.
 EXTERNMEM RexxMemory  memoryObject;   /* memory object                     */
@@ -47,7 +47,7 @@ SystemInterpreter::loadImage    Charge rexx.img (déclaré dans PlatformDefiniti
     RexxMemory::restoreImage
         RexxMemory::initialize
             ...
-            
+
 
 RexxMemory::restore                                 interpreter\memory\RexxMemory.cpp
     RexxMemory::initialize                          interpreter\memory\RexxMemory.cpp
@@ -57,9 +57,9 @@ RexxMemory::restore                                 interpreter\memory\RexxMemor
                     ActivityDispatcher::invoke      interpreter\concurrency\ActivityDispatcher.cpp
                         RexxStart                   interpreter\api\InterpreterAPI.cpp
                             main                    utilities\rexx\platform\windows\rexx.cpp
-                            
-                            
-interpreter\interpreter.mak                            
+
+
+interpreter\interpreter.mak
     Génération de fichiers à partir de rexxmsg.xml :
     $(INT_PLATFORM)\winmsgtb.rc: $(INT_PLATFORM)\WinMessageResource.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
     $(INTERPRETER_MESSAGES)\RexxErrorCodes.h: $(INTERPRETER_MESSAGES)\RexxErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
@@ -78,7 +78,7 @@ interpreter\interpreter.mak
 Dans RexxMemory::restore, il n'y a que les classes Exported qui sont restaurées.
 
 
-===========================================================================
+================================================================================
 RexxMemory::virtualFunctionTable est utilisé dans :
 ObjectClass.cpp
     RexxNilObject::operator new : setVirtualFunctions
@@ -97,3 +97,58 @@ RexxListTable.cpp
     RexxListTable::operator new : initializeNewObject
 VirtualFunctionTable.cpp
 
+================================================================================
+
+RexxCore.h
+    #define TheFunctionsDirectory RexxMemory::functionsDir
+
+
+Setup.cpp
+    void RexxMemory::createImage()
+    {
+      ...
+      TheFunctionsDirectory = new_directory();
+      ...
+      kernel_public(CHAR_FUNCTIONS        ,TheFunctionsDirectory  ,TheKernel);
+
+
+    void RexxMemory::restoreImage()
+    {
+        ...
+        TheFunctionsDirectory = (RexxDirectory *)saveArray->get(saveArray_FUNCTIONS);
+
+
+    void RexxMemory::saveImage(void)
+    {
+        ...
+        saveArray->put((RexxObject *)TheFunctionsDirectory,  saveArray_FUNCTIONS);
+
+
+RexxActivation.cpp
+    RexxObject *RexxActivation::externalCall(RexxString *target, size_t _argcount, RexxExpressionStack *_stack,
+        RexxString *calltype, ProtectedObject &resultObj)
+    {
+        // Step 1:  Check the global functions directory
+        // this is actually considered part of the built-in functions, but these are
+        // written in ooRexx.  The names are also case sensitive
+        RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get(target);
+
+
+RexxMemory.hpp
+    class RexxMemory : public RexxInternalObject
+    {
+      ...
+      static RexxDirectory *environment;      // global environment
+      static RexxDirectory *functionsDir;     // statically defined requires
+      static RexxDirectory *commonRetrievers; // statically defined requires
+      static RexxDirectory *kernel;           // the kernel directory
+      static RexxDirectory *system;           // the system directory
+
+
+RexxMemory.cpp
+    RexxDirectory *RexxMemory::globalStrings = OREF_NULL;
+    RexxDirectory *RexxMemory::environment = OREF_NULL;       // global environment
+    RexxDirectory *RexxMemory::functionsDir = OREF_NULL;      // statically defined requires
+    RexxDirectory *RexxMemory::commonRetrievers = OREF_NULL;
+    RexxDirectory *RexxMemory::kernel = OREF_NULL;
+    RexxDirectory *RexxMemory::system = OREF_NULL;
