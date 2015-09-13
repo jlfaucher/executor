@@ -22,10 +22,10 @@ http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator
 
         def Y(f):
             return (lambda x: f(lambda v: x(x)(v))) (lambda x: f(lambda v: x(x)(v)))
-         
+
         def fact(f):
             return (lambda n: 1 if (n == 0) else n * f(n - 1))
-    
+
 
 --------------------------------------------------------------------
 http://mvanier.livejournal.com/2897.html
@@ -38,7 +38,7 @@ http://mvanier.livejournal.com/2897.html
         (* n (f (- n 1)))))))
 
 
-(define Y 
+(define Y
 (lambda (f)
   ((lambda (x) (x x))
    (lambda (x) (f (lambda (y) ((x x) y)))))))
@@ -49,25 +49,196 @@ http://mvanier.livejournal.com/2897.html
 
 --------------------------------------------------------------------
 
-Y = {use strict arg f; 
-     {use strict arg x; 
+Y = {use strict arg f;
+     {use strict arg x;
       f~{use strict arg v; x~(x)~(v)) ~ {::closure expose f; use strict arg x; f~{use strict arg v; x~(x)~(v)}}}
 
 
 Y = {
-        use strict arg f; 
+        use strict arg f;
         {
-            use strict arg x; 
+            use strict arg x;
             f~{
-                use strict arg v; 
+                use strict arg v;
                 x~(x)~(v)
               ) ~ {
-                    ::closure expose f; 
-                    use strict arg x; 
+                    ::closure expose f;
+                    use strict arg x;
                     f~{
-                        use strict arg v; 
+                        use strict arg v;
                         x~(x)~(v)
                       }
                   }
         }
     }
+
+================================================================================
+Memoization
+================================================================================
+
+Remember : the example is  not optimized.
+The intermediate calculations do not benefit of memoization.
+
+http://www.ibm.com/developerworks/java/library/j-jtp04247/index.html
+
+Example from the Scheme programming language of a function that takes a function as argument and returns a memoized version of that function
+
+(define (memoize f)
+  (let ((table (make-table)))
+    (lambda (x)
+      (let ((previously-computed-result (lookup x table)))
+        (if (not (null? previously-computed-result))
+          previously-computed-result
+          (let ((result (f x)))
+            (insert! x result table)
+            result))))))
+
+This code defines a function called memoize that takes as its argument a function f
+and returns another function that computes the same function as f but caches previously computed results in a table
+so they can be returned more efficiently.
+The returned function is created using the lambda construct, which dynamically creates a new function object.
+
+-- fib(0) = 0
+-- fib(1) = 1
+-- fib(n>0) = fib(n-2) + fib(n-1)
+-- fib(n<0) = fib(n+2) - fib(n+1)
+-- n =      0 1 2 3 4 5 6 7  8  9  10 11 12  13  14  15  16  17   18   19   20   21    22    23    24    25
+-- fib(n) = 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765 10946 17711 28657 46368 75025
+fib = {use arg n; if n==0 then return 0; if n==1 then return 1; fib=.context~executable; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}
+
+
+::routine fib public
+use arg n
+if n==0 then return 0
+if n==1 then return 1
+if n<0 then return fib(n+2) - fib(n+1)
+return fib(n-2) + fib(n-1)
+
+
+-- First version of memoization.
+-- The first call for a given n is not optimized.
+memoize = {use arg f; table=.IdentityTable~new; return {::closure expose f table; use arg n; r=table[n]; if r<>.nil then return r; r=f~(n); table[n]=r; return r}}
+fibm = memoize(fib)
+
+
+WORK IN PROGRESS
+See how to memoize recursively
+
+
+::class Doer
+::method Y
+f = self
+return {use arg a ; return a~(a)} ~ {
+    ::closure expose f ; use arg x
+    return f ~ { ::closure expose x ; use arg v ; return x~(x)~(v) }
+}
+
+
+say {
+      use arg f
+      return  { ::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+    }~Y~(10)
+--> display 3628800
+
+
+-- the same, monoline.
+                   {                     use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+{use arg f; return {::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }}~Y~(10)=
+
+-- details
+{use arg f; return {::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }}~Y=
+    {::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+    with f =
+        {::closure expose x ; use arg v ; return x~(x)~(v)}
+        with x =
+            {
+            ::closure expose f ; use arg x
+            return f ~ { ::closure expose x ; use arg v ; return x~(x)~(v) }
+            }
+            with f =
+                {use arg f; return {::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }}
+
+
+                      {                       use arg n; if n==0 then return 0; if n==1 then return 1; fib=.context~executable; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}
+{ use arg fib; return {::closure expose fib ; use arg n; if n==0 then return 0; if n==1 then return 1; if n<0 then return fib~(n+2) - fib~(n+1); return fib~(n-2) + fib~(n-1)}}
+
+
+-------------------------------------------
+-- trampoline with accumulator
+factorial = {
+    use strict arg n, accu=1
+    if n <= 1 then return accu
+    executable = .context~executable
+    return {::cl
+        expose n accu executable
+        return executable~(n-1, n*accu)
+    }
+}
+say factorial~trampoline(1000000) -- 8.26394406E+5565708
+
+-- trampoline monoline, without accumulator
+-- NO, CAN'T WORK : "Nonnumeric value ("a RexxBlock") used in arithmetic operation"
+{use arg n ; if n == 0 then 1 ; f = .context~executable; return {::closure expose n f; n * f~(n-1)} }~trampoline(10)
+
+-- The shortest possible code for trampoline wihout accumulator (implicit closure, implicit expose, implicit return...)
+{use arg n ; if n == 0 then 1 ; else {n * f~(n-1)} }
+
+-------------------------------------------
+
+::method Y
+    use strict arg verbose=.false
+    f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+    if verbose then trace i
+    return {use arg a ; return a~(a)} ~ {
+        ::closure expose f verbose; use strict arg x
+        if verbose then trace i
+        return f ~ { ::closure expose x verbose; use strict arg v
+                     if verbose then trace i
+                     return x~(x)~(v) }
+    }
+
+
+-- Y combinator with memoization
+::method YM
+    use strict arg verbose=.false
+    f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
+    if verbose then trace i
+    table = .IdentityTable~new
+    return {use arg a ; return a~(a)} ~ {
+        ::closure expose f verbose table; use strict arg x
+        if verbose then trace i
+        return f ~ { ::closure expose x verbose table; use strict arg v
+                     if verbose then trace i
+                     r = table[v]
+                     if r <> .nil then return r
+                     r = x~(x)~(v)
+                     table[v] = r
+                     return r}
+    }
+
+--------------------------------------------
+
+-- Example : say {::method use arg n; if n==0 then return 1; else return n * self~(n-1) }~Y~(10)
+::method Y unguarded
+    use strict arg verbose=.false
+    if verbose then trace i
+    return .YClass~new(self, verbose)
+
+
+::class YClass private
+::method init
+    expose method verbose
+    use strict arg method, verbose
+    --self~setMethod("do", method, "Object")
+::method do unguarded
+    expose verbose
+    if verbose then trace i
+    use strict arg v
+    return {use arg self, v, a ; return a~(self, v, a)} ~ (self, v){
+        ::method expose method verbose
+        if verbose then trace i
+        use strict arg v, x
+        return method ~ (self, x~(self, x)~(v))
+    }
+::method "~()" unguarded
+    forward message "do"
