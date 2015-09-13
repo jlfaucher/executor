@@ -1,0 +1,145 @@
+==========================================================================================
+ooRexx.pid
+
+The fact oorexx.pid is put in a directory not accessible to normal users is really annoying !
+Not possible to use ooRexx as a portable application.
+
+
+http://sourceforge.net/p/oorexx/feature-requests/542/
+Support non-root interpreter installation and execution on Unix-like systems
+
+http://refspecs.linuxfoundation.org/fhs.shtml
+
+http://superuser.com/questions/454449/linux-alternative-places-where-to-store-pid-file-instead-of-var-run
+The normal location for pidfiles is /var/run.
+Most unices will clean this directory on boot; under Ubuntu this is achieved by /var/run an in-memory filesystem (tmpfs).
+
+http://stackoverflow.com/questions/3957242/storing-pid-file-for-a-daemon-run-as-user
+Suggest to put it in the home directory.
+
+http://stackoverflow.com/questions/5173636/must-my-pidfile-be-located-in-var-run
+Pick a location under /tmp or /var/tmp, but this introduces additional complexity because the pidfile's name can't be uniquely determined if it's in a world-writable directory.
+In any case, make it easy (command-line option, plus perhaps a compile-time option) for the distributor or administrator to change the pidfile location.
+----
+/opt is used to install 'self-contained' applications, so nothing wrong here. Using /opt/my_app/etc/ for config files, /opt/my_app/log/ for logs and so on - common practice for this kind of application.
+----
+Another convention, if you're not running the script as root, is to put the pidfile in ~/.my_app/my_app.pid. It's simpler this way while still being secure as the home directory is not world-writeable.
+
+MySQL
+https://github.com/mysql
+https://github.com/mysql/mysql-server
+
+http://stackoverflow.com/questions/17692663/how-can-i-change-the-path-of-pid-file-in-mysql-5-6
+    mysql> show variables like '%pid%';
+    +---------------+-------------------------------+
+    | Variable_name | Value                         |
+    +---------------+-------------------------------+
+    | pid_file      | /var/lib/mysql/your-db.pid    |
+    +---------------+-------------------------------+
+
+    You can change this either by setting in in the my.cnf, here the option would look like the following
+    pid-file=/var/lib/mysql/your-db.pid.
+    Or you can change it by altering startup parameters and append
+    --pid-file=/var/lib/mysql/your-db.pid.
+    I would strongly suggest that you stick to the my.cnf option, the other solution would require some fiddling in your start-scripts.
+
+    You find the documentation here: http://dev.mysql.com/doc/refman/5.6/en/server-options.html#option_mysqld_pid-file
+
+Conclusion :
+C:\jlf\Downloads\Software\rexx\executor\git\sandbox\jlf\trunk\rexxapi\server\platform\unix\linux\APIService.cpp
+Add support for the environment variable RXPIDFILE
+There is already RXTRACE, RXQUEUE, REXX_PATH.
+Executor adds :
+RXTRACE_PARSING
+RXTRACE_CONCURRENCY
+
+Remember
+C:\jlf\Downloads\Software\rexx\executor\git\sandbox\jlf\trunk\rexxapi\server\platform\unix\rxapid.in
+contains this hardcoded path :
+start)
+start_daemon -p /var/run/ooRexx.pid $RXAPI_BIN
+stop)
+killproc -p /var/run/ooRexx.pid $RXAPI_BIN
+status)
+checkproc -p /var/run/ooRexx.pid $RXAPI_BIN
+probe)
+test /var/run/ooRexx.pid && echo reload
+
+
+Example of code
+
+C:\jlf\Downloads\Software\rexx\executor\git\sandbox\jlf\trunk\interpreter\platform\unix\SysInterpreterInstance.cpp
+void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
+{
+    instance = i;
+
+    externalTraceEnabled = false;    // off by default
+    /* scan current environment,         */
+    const char *rxTraceBuf = getenv("RXTRACE");
+    if (rxTraceBuf != NULL)
+    {
+        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        {
+            externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
+        }
+    }
+
+
+C:\jlf\Downloads\Software\rexx\executor\git\sandbox\jlf\trunk\interpreter\platform\windows\SysInterpreterInstance.cpp
+void SysInterpreterInstance::initialize(InterpreterInstance *i, RexxOption *options)
+{
+    externalTraceEnabled = false;    // off by default
+    TCHAR rxTraceBuf[8];
+
+    /* scan current environment,         */
+    if (GetEnvironmentVariable("RXTRACE", rxTraceBuf, 8))
+    {
+        if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+        {
+            externalTraceEnabled = true;   // turn on tracing of top-level activations for this instance
+        }
+    }
+
+
+C:\jlf\Downloads\Software\rexx\executor\git\sandbox\jlf\trunk\common\platform\unix\SysUtilities.cpp
+bool Utilities::traceConcurrency()
+{
+    // I don't put this part of code in SystemInterpreter::setupProgram
+    // where RXTRACE is managed, because would be initialized too late :
+    // Some mutexes/semaphores have been already used before calling setupProgram.
+    static bool firstcall = true;
+    if (firstcall)
+    {
+        firstcall = false;
+        const char *rxTraceBuf = getenv("RXTRACE_CONCURRENCY");
+        if (rxTraceBuf != NULL)
+        {
+            if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+            {
+                /* turn on tracing                   */
+                Utilities::traceConcurrency(true);
+            }
+        }
+    }
+
+
+C:\jlf\Downloads\Software\rexx\executor\git\sandbox\jlf\trunk\common\platform\windows\SysUtilities.cpp
+bool Utilities::traceConcurrency()
+{
+    // I don't put this part of code in SystemInterpreter::setupProgram
+    // where RXTRACE is managed, because would be initialized too late :
+    // Some mutexes/semaphores have been already used before calling setupProgram.
+    static bool firstcall = true;
+    if (firstcall)
+    {
+        firstcall = false;
+        TCHAR rxTraceBuf[8];
+        if (GetEnvironmentVariable("RXTRACE_CONCURRENCY", rxTraceBuf, 8))
+        {
+            if (!Utilities::strCaselessCompare(rxTraceBuf, "ON"))    /* request to turn on?               */
+            {
+                /* turn on tracing                   */
+                Utilities::traceConcurrency(true);
+            }
+        }
+    }
