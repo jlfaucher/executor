@@ -1,0 +1,230 @@
+========================================================
+
+rexx -e "say 1+2"
+
+The first rexx activation is the one created for CoreClasses.orx
+
+>	rexx.dll!RexxActivity::pushStackFrame(RexxActivationBase * new_activation) Line 1502	C++
+ 	rexx.dll!RexxCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 argcount, ProtectedObject & result) Line 135	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 324	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 794	C++
+ 	rexx.dll!RexxObject::sendMessage(RexxString * message, RexxObject * * args, unsigned __int64 argCount, ProtectedObject & result) Line 441	C++
+ 	rexx.dll!RexxObject::sendMessage(RexxString * message, RexxObject * * args, unsigned __int64 argCount) Line 626	C++
+ 	rexx.dll!RexxObject::operator new(unsigned __int64 size, RexxClass * classObject, RexxObject * * args, unsigned __int64 argCount) Line 2440	C++
+ 	rexx.dll!RexxObject::newRexx(RexxObject * * arguments, unsigned __int64 argCount) Line 2319	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity, RexxMethod * method, RexxObject * receiver, RexxString * messageName, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 121	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity, RexxObject * receiver, RexxString * msgname, RexxObject * * argPtr, unsigned __int64 count, ProtectedObject & result) Line 324	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname, RexxObject * * arguments, unsigned __int64 count, ProtectedObject & result) Line 794	C++
+        server_class->messageSend(OREF_NEW, OREF_NULL, 0, result);    --> send message NEW to CLASS
+ 	rexx.dll!Interpreter::startInterpreter(Interpreter::InterpreterStartupMode mode) Line 156	C++
+ 	rexx.dll!Interpreter::createInterpreterInstance(RexxOption * options) Line 308	C++
+ 	rexx.dll!InstanceBlock::InstanceBlock(_RXSYSEXIT * exits, const char * env) Line 435	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits, const char * env) Line 118	C++
+ 	rexx.dll!RexxStart(unsigned __int64 argcount, _CONSTRXSTRING * arglist, const char * programname, _RXSTRING * instore, const char * envname, int calltype, _RXSYSEXIT * exits, short * retcode, _RXSTRING * result) Line 165	C++
+ 	rexx.exe!main(int argc, char * * argv) Line 187	C++
+
+
+Interpreter::createInterpreterInstance
+    SERVER_INIT_INSTANCE
+
+
+=======================================================
+Operator overloading (debug)
+1+2=
+options "OPERATOR_OVERRIDING_BY_ROUTINE" ; v=1+2 ; options "NOOPERATOR_OVERRIDING_BY_ROUTINE" ; v=
+
+[overridableFunctionCall] 00000000fec92840 00000000fdb2d380 '+'
+    [findRoutine '+']
+        [findPublicImportedRoutine '+'] 00000000fec54d30 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fec97320 --> not found
+        [findPublicImportedRoutine '+'] 00000000ff9e51f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffa9b6a0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffad2040 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff8cf140 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff70a8f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6f4e40 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6e22f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fe5b0100 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff778a70 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffb93240 --> not found
+        [findPublicImportedRoutine '+'] 00000000ffb84de0 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdee1820 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdcd1290 --> not found
+        [findPublicImportedRoutine '+'] 00000000fddcd3e0 --> not found
+        [findPublicImportedRoutine '+'] 00000000fda20180 --> 00000000fda87f00
+        [findPublicImportedRoutine '+'] 00000000fdac52b0 --> 00000000fdae30c0
+        [findPublicImportedRoutine '+'] 00000000fdae9b60 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fdaf5780 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6bd060 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdb018a0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fe035b20 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fda32220 --> not found
+        [findPublicImportedRoutine '+'] 00000000fda596b0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd9ee540 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd59e5d0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd58cec0 --> not found
+        [findPublicImportedRoutine '+'] 00000000febb0a10 --> no public routine
+        [findLocalRoutine '+'] 00000000febb0a10 --> not found
+[overridableFunctionCall] 00000000fec92840 00000000fdb2d380 '+' : before call 00000000fdae30c0
+[overridableFunctionCall] 00000000fec92840 00000000fdb2d380 '+' : after call 00000000fdae30c0 --> 0000000000000000
+[overridableFunctionCall] 00000000fec92840 00000000fdb2d380 '+' : before call 00000000fda87f00
+[overridableFunctionCall] 00000000fec92840 00000000fdb2d380 '+' : after call 00000000fda87f00 --> 0000000000000000
+
+
+=======================================================
+Operator overloading (debug)
+.complex[1,2] + .array~of(5,6)
+options "OPERATOR_OVERRIDING_BY_ROUTINE" ; v=.complex[1,2] + .array~of(5,6) ; options "NOOPERATOR_OVERRIDING_BY_ROUTINE" ; v=
+without additional requires
+
+[overridableFunctionCall] 00000000fec92840 00000000fd410470 '+'
+    [findRoutine '+']
+        [findPublicImportedRoutine '+'] 00000000fec54d30 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fec97320 --> not found
+        [findPublicImportedRoutine '+'] 00000000ff9e51f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffa9b6a0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffad2040 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff8cf140 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff70a8f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6f4e40 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6e22f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fe5b0100 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff778a70 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffb93240 --> not found
+        [findPublicImportedRoutine '+'] 00000000ffb84de0 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdee1820 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdcd1290 --> not found
+        [findPublicImportedRoutine '+'] 00000000fddcd3e0 --> not found
+        [findPublicImportedRoutine '+'] 00000000fda20180 --> 00000000fda87f00
+        [findPublicImportedRoutine '+'] 00000000fdac52b0 --> 00000000fdae30c0
+        [findPublicImportedRoutine '+'] 00000000fdae9b60 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fdaf5780 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6bd060 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdb018a0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fe035b20 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fda32220 --> not found
+        [findPublicImportedRoutine '+'] 00000000fda596b0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd9ee540 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd59e5d0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd58cec0 --> not found
+        [findPublicImportedRoutine '+'] 00000000febb0a10 --> no public routine
+        [findLocalRoutine '+'] 00000000febb0a10 --> not found
+[overridableFunctionCall] 00000000fec92840 00000000fd410470 '+' : before call 00000000fdae30c0
+[overridableFunctionCall] 00000000fec92840 00000000fd410470 '+' : after call 00000000fdae30c0 --> 0000000000000000
+[overridableFunctionCall] 00000000fec92840 00000000fd410470 '+' : before call 00000000fda87f00
+
+    [overridableFunctionCall] 00000000fd43f4a0 00000000fd43f4a0 '+'
+        [findRoutine '+']
+            [findPublicImportedRoutine '+'] 00000000fd4347f0 --> no public routine
+            [findPublicImportedRoutine '+'] 00000000fda20180 --> 00000000fda87f00
+            [findLocalRoutine '+'] 00000000fd4347f0 --> no local routine
+            [findLocalRoutine '+'] 00000000fda20180 --> 00000000fda87f00
+    [overridableFunctionCall] 00000000fd43f4a0 00000000fd43f4a0 '+' : before call 00000000fda87f00
+    [overridableFunctionCall] 00000000fd43f4a0 00000000fd43f4a0 '+' : after call 00000000fda87f00 --> 0000000000000000
+    [overridableFunctionCall] 00000000fd43f4a0 00000000fd43f4a0 '+' : before call 00000000fda87f00
+    [overridableFunctionCall] 00000000fd43f4a0 00000000fd43f4a0 '+' : after call 00000000fda87f00 --> 0000000000000000
+
+    JLF : pas de after call (car exception Object "5" does not understand message "REAL")
+
+
+=======================================================
+Operator overloading (debug)
+.complex[1,2] + .array~of(5,6)
+options "OPERATOR_OVERRIDING_BY_ROUTINE" ; v=.complex[1,2] + .array~of(5,6) ; options "NOOPERATOR_OVERRIDING_BY_ROUTINE" ; v=
+with additional requires
+
+[overridableFunctionCall] 00000000fec92840 00000000fd4b4750 '+'
+    [findRoutine '+']
+        [findPublicImportedRoutine '+'] 00000000fec54d30 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fec97320 --> not found
+        [findPublicImportedRoutine '+'] 00000000ff9e51f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffa9b6a0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffad2040 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff8cf140 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff70a8f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6f4e40 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6e22f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fe5b0100 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff778a70 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ffb93240 --> not found
+        [findPublicImportedRoutine '+'] 00000000ffb84de0 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdee1820 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdcd1290 --> not found
+        [findPublicImportedRoutine '+'] 00000000fddcd3e0 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdabadb0 --> 00000000fdad8d00
+        [findPublicImportedRoutine '+'] 00000000fda20180 --> 00000000fda88050
+        [findPublicImportedRoutine '+'] 00000000fdaea8b0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fdaf64d0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000ff6bdc30 --> not found
+        [findPublicImportedRoutine '+'] 00000000fdb025f0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fe03b400 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fda32370 --> not found
+        [findPublicImportedRoutine '+'] 00000000fda58610 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd9ee540 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fd6e6ba0 --> no public routine
+        [findPublicImportedRoutine '+'] 00000000fcd75de0 --> not found
+        [findPublicImportedRoutine '+'] 00000000febb0a10 --> no public routine
+        [findLocalRoutine '+'] 00000000febb0a10 --> not found
+[overridableFunctionCall] 00000000fec92840 00000000fd4b4750 '+' : before call 00000000fda88050
+
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+'
+        [findRoutine '+']
+            [findPublicImportedRoutine '+'] 00000000fd48ed00 --> no public routine
+            [findPublicImportedRoutine '+'] 00000000fdabadb0 --> 00000000fdad8d00
+            [findPublicImportedRoutine '+'] 00000000fda20180 --> 00000000fda88050
+            [findLocalRoutine '+'] 00000000fd48ed00 --> no local routine
+            [findLocalRoutine '+'] 00000000fda20180 --> 00000000fda88050
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+' : before call 00000000fda88050
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+' : after call 00000000fda88050 --> 0000000000000000
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+' : before call 00000000fda88050
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+' : after call 00000000fda88050 --> 0000000000000000
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+' : before call 00000000fdad8d00
+    [overridableFunctionCall] 00000000fd4870d0 00000000fd4870d0 '+' : after call 00000000fdad8d00 --> 00000000fd488cd0
+
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+'
+        [findRoutine '+']
+            [findPublicImportedRoutine '+'] 00000000fd48ed00 --> no public routine
+            [findPublicImportedRoutine '+'] 00000000fdabadb0 --> 00000000fdad8d00
+            [findPublicImportedRoutine '+'] 00000000fda20180 --> 00000000fda88050
+            [findLocalRoutine '+'] 00000000fd48ed00 --> no local routine
+            [findLocalRoutine '+'] 00000000fda20180 --> 00000000fda88050
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+' : before call 00000000fda88050
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+' : after call 00000000fda88050 --> 0000000000000000
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+' : before call 00000000fda88050
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+' : after call 00000000fda88050 --> 0000000000000000
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+' : before call 00000000fdad8d00
+    [overridableFunctionCall] 00000000fd4895b0 00000000fd4895b0 '+' : after call 00000000fdad8d00 --> 00000000fd481280
+
+[overridableFunctionCall] 00000000fec92840 00000000fd4b4750 '+' : after call 00000000fda88050 --> 00000000fd4b0930
+
+
+=======================================================
+Operator overloading (implementation)
+
+
+RexxCode.hpp
+inline RoutineClass *findRoutine(RexxString *n) { return source->findRoutine(n); }
+
+SourceFile.cpp
+RoutineClass *RexxSource::findRoutine(RexxString *routineName)
+    RoutineClass *routineObject = findLocalRoutine(upperName);
+    return findPublicRoutine(upperName);
+
+SourceFile.cpp
+RoutineClass *RexxSource::findPublicRoutine(RexxString *name)
+
+
+#821 ::Routines cannot be called in mixed/lower case
+Doc pas en accord avec cette correction !
+7.2.1. Search Order
+Function calls or subroutines may use a name that is specified as a symbol or a literal string. For
+example, these calls are equivalent:
+call MyProcedure
+call 'MYPROCEDURE'
+Note that the name value when specified as a symbol is the symbol name translated to upper case. Both
+of the calls above will search for a routine named "MYPROCEDURE". When the name is specified as a
+literal string, then the literal string value is used as-is. Thus the following two calls are not equivalent:
+call MyProcedure -- calls "MYPROCEDURE"
+call 'MyProcedure' -- calls "MyProcedure"
+
+
