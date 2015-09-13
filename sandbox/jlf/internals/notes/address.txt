@@ -465,3 +465,113 @@ CommandHandler *RexxActivity::resolveCommandHandler(RexxString *name)
 {
     return instance->resolveCommandHandler(name);
 }
+
+
+================================================================================
+::routine, initial address and default address
+================================================================================
+
+ 	rexx.dll!RexxActivation::RexxActivation(RexxActivity * _activity=0x7eee5640, RoutineClass * _routine=0x7eefcc48, RexxCode * _code=0x7eefcc20, RexxString * calltype=0x7fd69718, RexxString * env=0x00000000, int context=32)  Line 344	C++
+ 	rexx.dll!ActivityManager::newActivation(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eefcc48, RexxCode * code=0x7eefcc20, RexxString * calltype=0x7fd69718, RexxString * environment=0x00000000, int context=32)  Line 284 + 0x3a bytes	C++
+>	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eefcc48, RexxString * msgname=0x7eee93a0, RexxObject * * argPtr=0x7eae244c, unsigned int argcount=2, RexxString * calltype=0x7fd69718, RexxString * environment=0x00000000, int context=32, ProtectedObject & result={...})  Line 112 + 0x1b bytes	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eefcc48, RexxString * msgname=0x7eee93a0, RexxObject * * argPtr=0x7eae244c, unsigned int argcount=2, ProtectedObject & result={...})  Line 92	C++
+ 	rexx.dll!RoutineClass::callRexx(RexxObject * * args=0x7eae244c, unsigned int count=2)  Line 269	C++
+ 	rexx.dll!CPPCode::run(RexxActivity * activity=0x7eee5640, RexxMethod * method=0x7fd4d770, RexxObject * receiver=0x7eefcc48, RexxString * messageName=0x7eee9708, RexxObject * * argPtr=0x7eae244c, unsigned int count=2, ProtectedObject & result={...})  Line 121 + 0xe bytes	C++
+ 	rexx.dll!RexxMethod::run(RexxActivity * activity=0x7eee5640, RexxObject * receiver=0x7eefcc48, RexxString * msgname=0x7eee9708, RexxObject * * argPtr=0x7eae244c, unsigned int count=2, ProtectedObject & result={...})  Line 325	C++
+ 	rexx.dll!RexxObject::messageSend(RexxString * msgname=0x7eee9708, RexxObject * * arguments=0x7eae244c, unsigned int count=2, ProtectedObject & result={...})  Line 793	C++
+ 	rexx.dll!RexxExpressionStack::send(RexxString * message=0x7eee9708, unsigned int count=2, ProtectedObject & result={...})  Line 74 + 0x33 bytes	C++
+ 	rexx.dll!RexxInstructionMessage::execute(RexxActivation * context=0x7ef0c768, RexxExpressionStack * stack=0x7ef0c828)  Line 229	C++
+ 	rexx.dll!RexxActivation::run(RexxObject * _receiver=0x00000000, RexxString * msgname=0x7fd694d8, RexxObject * * _arglist=0x7eee69b8, unsigned int _argcount=0, RexxInstruction * start=0x00000000, ProtectedObject & resultObj={...})  Line 521	C++
+ 	rexx.dll!RexxCode::call(RexxActivity * activity=0x7eee5640, RoutineClass * routine=0x7eee6a30, RexxString * msgname=0x7fd694d8, RexxObject * * argPtr=0x7eee69b8, unsigned int argcount=0, RexxString * calltype=0x7fcf5ec0, RexxString * environment=0x7eee5c00, int context=16, ProtectedObject & result={...})  Line 116	C++
+ 	rexx.dll!RoutineClass::runProgram(RexxActivity * activity=0x7eee5640, RexxString * calltype=0x7fcf5ec0, RexxString * environment=0x7eee5c00, RexxObject * * arguments=0x7eee69b8, unsigned int argCount=0, ProtectedObject & result={...})  Line 306	C++
+ 	rexx.dll!RexxStartDispatcher::run()  Line 149	C++
+ 	rexx.dll!RexxNativeActivation::run(ActivityDispatcher & dispatcher={...})  Line 1542	C++
+ 	rexx.dll!RexxActivity::run(ActivityDispatcher & target={...})  Line 2997	C++
+ 	rexx.dll!ActivityDispatcher::invoke(_RXSYSEXIT * exits=0x00000000, const char * env=0x0041d234)  Line 122	C++
+ 	rexx.dll!RexxStart(unsigned int argcount=0, _CONSTRXSTRING * arglist=0x000aff5c, const char * programname=0x00a4541a, _RXSTRING * instore=0x00000000, const char * envname=0x0041d234, int calltype=0, _RXSYSEXIT * exits=0x00000000, short * retcode=0x000adf28, _RXSTRING * result=0x000aff4c)  Line 165	C++
+ 	rexx.exe!main(int argc=2, char * * argv=0x00a453d8)  Line 198 + 0x27 bytes	C++
+ 	rexx.exe!__tmainCRTStartup()  Line 266 + 0x19 bytes	C
+ 	rexx.exe!mainCRTStartup()  Line 182	C
+ 	kernel32.dll!7c817077()
+ 	[Frames below may be incorrect and/or missing, no symbols loaded for kernel32.dll]
+ 	rexx.dll!builtin_function_CHANGESTR(RexxActivation * context=0x7530f983, unsigned int argcount=146673660, RexxExpressionStack * stack=0x8b000001)  Line 2411 + 0xf bytes	C++
+ 	44e9c032()
+
+call routine :
+RexxActivation::RexxActivation
+    this->settings.current_env = SystemInterpreter::getDefaultAddressName();
+
+SystemCommands.cpp
+RexxString *SystemInterpreter::getDefaultAddressName()
+{
+    return OREF_INITIALADDRESS;
+}
+
+Chercher initialaddress dans le code source :
+
+    oorexxapi.h
+        // The initial address environment, passed as a CSTRING value.
+        #define INITIAL_ADDRESS_ENVIRONMENT "InitialAddress"
+        -->
+        utilisé dans Interpreter.cpp et InterpreterInstance.cpp : c'est le nom d'une option
+
+    GlobalNames.h
+        GLOBAL_NAME(INITIALADDRESS, CHAR_INITIALADDRESS)
+
+    RexxConstants.hpp
+        inclus par RexxCore.h
+
+        #define CHARCONSTANT(name, value) CONSTCLASS char CHAR_##name[] INITIAL(value)
+
+        CHARCONSTANT(INITIALADDRESS, SYSINITIALADDRESS);
+            #ifdef DEFINING : char CHAR_INITIALADDRESS[] =SYSINITIALADDRESS
+            #else           : extern char CHAR_INITIALADDRESS[]
+
+    unix\PlatformDefinitions.h
+        #if defined(AIX)
+        #define SYSINITIALADDRESS "ksh"
+        #elif defined(OPSYS_SUN)
+        #define SYSINITIALADDRESS "sh"
+        #else
+        #define SYSINITIALADDRESS "bash"
+        #endif
+
+    unix\SystemCommands.cpp
+        RexxString *SystemInterpreter::getDefaultAddressName()
+        {
+            return OREF_INITIALADDRESS;
+        }
+
+    windows\PlatformDefinitions.h
+        #define SYSINITIALADDRESS "CMD"
+
+    windows\SystemCommands.cpp
+        RexxString *SystemInterpreter::getDefaultAddressName()
+        {
+            return OREF_INITIALADDRESS;
+        }
+
+
+RexxStart dans InterpretAPI.cpp
+    si "//T" (TOKENIZE_ONLY)
+    TranslateDispatcher arguments;
+    arguments.invoke(exits, envname);
+
+    RexxStartDispatcher arguments;
+    arguments.invoke(exits, envname);
+
+
+void RexxStartDispatcher::run() (RexxStartDispatcher.cpp)
+    RexxString *initial_address = activity->getInstance()->getDefaultEnvironment();
+
+
+void RoutineClass::runProgram(
+    code->call(activity, this, OREF_NONE, arguments, argCount, OREF_COMMAND, activity->getInstance()->getDefaultEnvironment(), PROGRAMCALL, result);
+
+
+------------------
+Correction apportée (ano 2933583)
+
+RexxActivation::RexxActivation (2 oocurences)
+-    this->settings.current_env = SystemInterpreter::getDefaultAddressName();
++    this->settings.current_env = activity->getInstance()->getDefaultEnvironment();
