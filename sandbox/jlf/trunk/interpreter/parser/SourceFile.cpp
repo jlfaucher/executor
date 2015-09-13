@@ -993,8 +993,13 @@ void RexxSource::nextClause()
  */
 StackFrameClass *RexxSource::createStackFrame()
 {
-    ProtectedObject p;
-    return new (p) StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceBack(OREF_NULL, clauseLocation, 0, true), clauseLocation.getLineNumber());
+    // construct the traceback line before we allocate the stack frame object.
+    // calling this in the constructor argument list can cause the stack frame instance
+    // to be inadvertently reclaimed if a GC is triggered while evaluating the constructor
+    // arguments.
+    RexxString *traceback = traceBack(OREF_NULL, clauseLocation, 0, true);
+    ProtectedObject p_traceback(traceback);
+    return new StackFrameClass(FRAME_PARSE, programName, OREF_NULL, OREF_NULL, OREF_NULL, traceback, clauseLocation.getLineNumber());
 }
 
 
@@ -4678,12 +4683,12 @@ RexxString *RexxSource::commonString(
 /*            a single, common set of strings.                                */
 /******************************************************************************/
 {
-    ProtectedObject p(string); // JLF I see a lot of calls where string is a not protected object
     /* check the global table first      */
     RexxString *result = (RexxString *)this->strings->fastAt(string);
     /* not in the table                  */
     if (result == OREF_NULL)
     {
+        ProtectedObject p(string); // often string is a non-protected object on the caller side, better to protect it now
         this->strings->put(string, string);/* add this to the table             */
         result = string;                   /* also the final value              */
     }
@@ -5913,7 +5918,6 @@ RexxArray  *RexxSource::words(
     wordlist = this->subTerms;           /* use the subterms list             */
                                          /* get the first word                */
     word = ((RexxString *)(string->word(IntegerOne)))->upper();
-    ProtectedObject p(word);
     word = this->commonString(word);     /* get the common version of this    */
     wordlist->push(word);                /* add to the word list              */
     count = 1;                           /* one word so far                   */

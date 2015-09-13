@@ -481,6 +481,7 @@ RexxObject *RexxDirectory::unknown(
             /* raise an error                    */
             reportException(Error_Incorrect_method_noarray, IntegerTwo);
         }
+        ProtectedObject p(arguments);
         /* extract the name part of the msg  */
         message_value = (RexxString *)message_value->extractC(0, message_length - 1);
         /* do this as an assignment          */
@@ -645,6 +646,7 @@ RexxObject *RexxDirectory::put(
 {
     /* get as a string parameter         */
     _index = stringArgument(_index, ARG_TWO);
+    ProtectedObject p(_index);
     if (this->method_table != OREF_NULL) /* have a table?                     */
     {
         this->method_table->remove(_index);/* remove any method                 */

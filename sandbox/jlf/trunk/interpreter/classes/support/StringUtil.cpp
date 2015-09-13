@@ -505,6 +505,7 @@ RexxArray *StringUtil::makearray(const char *start, sizeB_t length, RexxString *
         sepSize = separator->getBLength();
         checkCR = false;                 // if explicitly given, only use the given one
     }
+    ProtectedObject p(separator);
 
 
     // the Null string gets special handling

@@ -1042,7 +1042,8 @@ RexxString *RexxActivity::messageSubstitution(
 /******************************************************************************/
 {
     size_t substitutions = additional->size();  /* get the substitution count        */
-    /* RexxString * */ ProtectedObject newmessage = OREF_NULLSTRING;        /* start with a null string          */
+    RexxString *newmessage = OREF_NULLSTRING;        /* start with a null string          */
+    ProtectedObject p_newmessage(newmessage);
                                          /* loop through and substitute values*/
     for (size_t i = 1; i <= substitutions; i++)
     {
@@ -1053,15 +1054,15 @@ RexxString *RexxActivity::messageSubstitution(
             break;                           /* get outta here...                 */
         }
                                              /* get the leading part              */
-        /* RexxString * */ ProtectedObject front;
-        front = message->extractC(0, subposition - 1);
+        RexxString *front = message->extractC(0, subposition - 1);
+        ProtectedObject p_front(front);
         /* pull off the remainder            */
-        /* RexxString * */ ProtectedObject back;
-        back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
+        RexxString *back = message->extractC(subposition + 1, message->getCLength() - (subposition + 1));
+        ProtectedObject p_back(back);
         /* get the descriptor position       */
         codepoint_t selector = message->getCharC(subposition);
         /* not a good number?                */
-        /* RexxString * */ ProtectedObject stringVal = OREF_NULLSTRING;
+        RexxString *stringVal = OREF_NULLSTRING;
         if (selector < '0' || selector > '9') // todo m17n : DecimalDigitNumber (careful : 'U+0BEF TAMIL DIGIT NINE \u0BEF 9)
         {
             /* use a default message             */
@@ -1101,14 +1102,16 @@ RexxString *RexxActivity::messageSubstitution(
                 }
             }
         }
+        ProtectedObject p_stringval(stringVal);
         /* accumulate the front part         */
-        ProtectedObject front_stringVal;
-        front_stringVal = ((RexxString*)front)->concat(stringVal);
-        newmessage = ((RexxString*)newmessage)->concat(front_stringVal);
+        RexxString *front_stringVal = front->concat(stringVal);
+        ProtectedObject p_front_stringVal(front_stringVal);
+        newmessage = newmessage->concat(front_stringVal);
+        p_newmessage = newmessage;
         message = back;                    /* replace with the remainder        */
     }
     /* add on any remainder              */
-    newmessage = ((RexxString*)newmessage)->concat(message);
+    newmessage = newmessage->concat(message);
     return newmessage;                   /* return the message                */
 }
 
@@ -1226,8 +1229,7 @@ RexxObject *RexxActivity::display(RexxDirectory *exobj)
     /* get the message number            */
     wholenumber_t errorCode = Interpreter::messageNumber((RexxString *)rc);
     /* get the header                    */
-    /* RexxString * */ ProtectedObject text;
-    text = SystemInterpreter::getMessageHeader(errorCode);
+    RexxString *text = SystemInterpreter::getMessageHeader(errorCode);
     if (text == OREF_NULL)               /* no header available?              */
     {
         /* get the leading part              */
@@ -1235,38 +1237,46 @@ RexxObject *RexxActivity::display(RexxDirectory *exobj)
     }
     else                                 /* add to the message text           */
     {
-        text = ((RexxString*)text)->concat(SystemInterpreter::getMessageText(Message_Translations_error));
+        text = text->concat(SystemInterpreter::getMessageText(Message_Translations_error));
     }
+    ProtectedObject p_text(text);
     /* get the name of the program       */
     RexxString *programname = (RexxString *)exobj->at(OREF_PROGRAM);
     /* add on the error number           */
-    ProtectedObject rcString;
-    rcString = REQUEST_STRING(rc);
-    text = ((RexxString*)text)->concatWith(rcString, ' ');
+    RexxString *rcString = REQUEST_STRING(rc);
+    ProtectedObject p_rcString(rcString);
+    text = text->concatWith(rcString, ' ');
+    p_text = text;
     /* if program exists, add the name   */
     /* of the program to the message     */
     if (programname != OREF_NULL && programname != OREF_NULLSTRING)
     {
         /* add on the "running" part         */
-        text = ((RexxString*)text)->concatWith(SystemInterpreter::getMessageText(Message_Translations_running), ' ');
+        text = text->concatWith(SystemInterpreter::getMessageText(Message_Translations_running), ' ');
+        p_text = text;
         /* add on the program name           */
-        text = ((RexxString*)text)->concatWith(programname, ' ');
+        text = text->concatWith(programname, ' ');
+        p_text = text;
         /* Get the position/Line number info */
         RexxObject *position = exobj->at(OREF_POSITION);
         if (position != OREF_NULL)         /* Do we have position/Line no info? */
         {
             /* Yes, add on the "line" part       */
-            text = ((RexxString*)text)->concatWith(SystemInterpreter::getMessageText(Message_Translations_line), ' ');
+            text = text->concatWith(SystemInterpreter::getMessageText(Message_Translations_line), ' ');
+            p_text = text;
             /* add on the line number            */
-            ProtectedObject positionString;
-            positionString = REQUEST_STRING(position);
-            text = ((RexxString*)text)->concatWith(positionString, ' ');
+            RexxString *positionString = REQUEST_STRING(position);
+            ProtectedObject p_positionString(positionString);
+            text = text->concatWith(positionString, ' ');
+            p_text = text;
             /* add on the ":  "                  */
         }
     }
-    text = ((RexxString*)text)->concatWithCstring(":  ");
+    text = text->concatWithCstring(":  ");
+    p_text = text;
     /* and finally the error message     */
-    text = ((RexxString*)text)->concat((RexxString *)exobj->at(OREF_ERRORTEXT));
+    text = text->concat((RexxString *)exobj->at(OREF_ERRORTEXT));
+    p_text = text;
     /* write out the line                */
     this->traceOutput(currentRexxFrame, text);
     /* get the secondary message         */
@@ -1288,12 +1298,16 @@ RexxObject *RexxActivity::display(RexxDirectory *exobj)
         {
             text = ((RexxString*)text)->concat(SystemInterpreter::getMessageText(Message_Translations_error));
         }
+        p_text = text;
         /* add on the error number           */
-        text = ((RexxString*)text)->concatWith((RexxString *)rc, ' ');
+        text = text->concatWith((RexxString *)rc, ' ');
+        p_text = text;
         /* add on the ":  "                  */
-        text = ((RexxString*)text)->concatWithCstring(":  ");
+        text = text->concatWithCstring(":  ");
+        p_text = text;
         /* and finally the error message     */
-        text = ((RexxString*)text)->concat(secondary);
+        text = text->concat(secondary);
+        p_text = text;
         /* write out the line                */
         this->traceOutput(currentRexxFrame, text);
     }
@@ -1308,18 +1322,22 @@ RexxObject *RexxActivity::displayDebug(RexxDirectory *exobj)
 /******************************************************************************/
 {
   RexxString *secondary;               /* secondary message                 */
-  /* RexxString * */ ProtectedObject text;/* constructed final message         */
+  RexxString *text;                    /* constructed final message         */
+  ProtectedObject p_text;
 
                                        /* get the leading part              */
   text = SystemInterpreter::getMessageText(Message_Translations_debug_error);
                                        /* add on the error number           */
-  ProtectedObject rcString;
-  rcString = REQUEST_STRING(exobj->at(OREF_RC));
-  text = ((RexxString*)text)->concatWith(rcString, ' ');
+  RexxString *rcString = REQUEST_STRING(exobj->at(OREF_RC));
+  ProtectedObject p_rcString(rcString);
+  text = text->concatWith(rcString, ' ');
+  p_text = text;
                                        /* add on the ":  "                  */
-  text = ((RexxString*)text)->concatWithCstring(":  ");
+  text = text->concatWithCstring(":  ");
+  p_text = text;
                                        /* and finally the error message     */
-  text = ((RexxString*)text)->concatWith((RexxString *)exobj->at(OREF_ERRORTEXT), ' ');
+  text = text->concatWith((RexxString *)exobj->at(OREF_ERRORTEXT), ' ');
+  p_text = text;
                                        /* write out the line                */
   this->traceOutput(currentRexxFrame, text);
                                        /* get the secondary message         */
@@ -1329,11 +1347,14 @@ RexxObject *RexxActivity::displayDebug(RexxDirectory *exobj)
                                        /* get the leading part              */
     text = SystemInterpreter::getMessageText(Message_Translations_debug_error);
                                        /* add on the error number           */
-    text = ((RexxString*)text)->concatWith((RexxString *)exobj->at(OREF_CODE), ' ');
+    text = text->concatWith((RexxString *)exobj->at(OREF_CODE), ' ');
+    p_text = text;
                                        /* add on the ":  "                  */
-    text = ((RexxString*)text)->concatWithCstring(":  ");
+    text = text->concatWithCstring(":  ");
+    p_text = text;
                                        /* and finally the error message     */
-    text = ((RexxString*)text)->concat(secondary);
+    text = text->concat(secondary);
+    p_text = text;
                                        /* write out the line                */
     this->traceOutput(getCurrentRexxFrame(), text);
   }

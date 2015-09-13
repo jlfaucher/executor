@@ -152,6 +152,23 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 sept 13
+
+GC review
+stringArgument can return a new string
+which should be protected
+--> review all the calls of stringArgument : done
+
+idem optionalStringArgument : done
+idem ->requiredString : done
+idem requiredStringArg : no problem, stored in expression stack
+idem required_string : no problem, stored in expression stack
+idem requestArray : done
+idem REQUEST_ARRAY : done
+idem makeArray : done
+
+
+===============================================================================
 2015 may 16
 
 Start working on a prototype for encoded strings.

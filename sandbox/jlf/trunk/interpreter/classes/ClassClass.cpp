@@ -375,11 +375,12 @@ RexxString *RexxClass::defaultName()
 /* Function:  retrieve a classes default name value                           */
 /******************************************************************************/
 {
-    /*RexxString * */ ProtectedObject defaultname(this->id);  /* use the id directly               */
+    RexxString *defaultname = this->id;  /* use the id directly               */
+    ProtectedObject p(defaultname);
                                          /* prefix with "The"                 */
-    defaultname = ((RexxString*)defaultname)->concatToCstring("The ");
+    defaultname = defaultname->concatToCstring("The ");
     /* add on "class"                    */
-    defaultname = ((RexxString*)defaultname)->concatWithCstring(" class");
+    defaultname = defaultname->concatWithCstring(" class");
     return defaultname;                  /* return that value                 */
 }
 
@@ -637,7 +638,7 @@ RexxObject *RexxClass::defineMethod(
     /* make sure there is at least one   */
     /* parameter                         */
     method_name = stringArgument(method_name, ARG_ONE)->upper();
-    ProtectedObject p(method_name);
+    ProtectedObject p_method_name(method_name);
     ProtectedObject p_method_object(method_object);
     if ( OREF_NULL == method_object)     /* 2nd arg omitted?                  */
     {
@@ -1618,6 +1619,7 @@ RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount)
     }
     RexxString *class_id = (RexxString *)args[0];    /* get the id parameter              */
     class_id = stringArgument(class_id, ARG_ONE);   /* and that it can be a string       */
+    ProtectedObject p1(class_id);
     /* get a copy of this class object   */
     RexxClass *new_class = (RexxClass *)this->clone();
 

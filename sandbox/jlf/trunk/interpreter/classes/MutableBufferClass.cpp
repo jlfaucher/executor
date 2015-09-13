@@ -95,6 +95,7 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
     {
         string = OREF_NULLSTRING;
     }
+    ProtectedObject p_string(string);
 
     if (argc >= 2)
     {
@@ -118,7 +119,7 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
     /* copy the content                  */
     newBuffer->copyData(0, string->getStringData(), string->getBLength());
 
-    ProtectedObject p(newBuffer);
+    ProtectedObject p_newBuffer(newBuffer);
     newBuffer->sendMessage(OREF_INIT, args, argc > 2 ? argc - 2 : 0);
     return newBuffer;
 }
@@ -442,6 +443,7 @@ RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, R
 {
     // force this into string form
     RexxString * string = stringArgument(str, ARG_ONE);
+    ProtectedObject p(string);
 
     // we're using optional length because 0 is valid for insert.
     sizeC_t begin = optionalNonNegative(pos, 0, ARG_TWO);
@@ -510,6 +512,7 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
 /******************************************************************************/
 {
     RexxString *string = stringArgument(str, ARG_ONE);
+    ProtectedObject p(string);
     sizeC_t begin = optionalPositionArgument(pos, 1, ARG_TWO) - 1;
     sizeC_t replaceLength = optionalLengthArgument(len, string->getCLength(), ARG_THREE);
 
@@ -567,6 +570,7 @@ RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, 
 RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
 {
     RexxString *string = stringArgument(str, ARG_ONE);
+    ProtectedObject p(string);
     sizeC_t begin = positionArgument(pos, ARG_TWO) - 1;
     sizeC_t newLength = string->getCLength();
     sizeC_t replaceLength = optionalLengthArgument(len, newLength, ARG_THREE);
@@ -809,6 +813,7 @@ RexxInteger *RexxMutableBuffer::caselessPos(RexxString  *needle, RexxInteger *ps
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p(needle);
     /* get the starting position         */
     sizeC_t _start = optionalPositionArgument(pstart, 1, ARG_TWO);
     sizeC_t _range = optionalLengthArgument(range, getCLength() - _start + 1, ARG_THREE);
@@ -834,6 +839,7 @@ RexxInteger *RexxMutableBuffer::caselessLastPos(RexxString  *needle, RexxInteger
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p(needle);
     /* get the starting position         */
     sizeC_t _start = optionalPositionArgument(pstart, getCLength(), ARG_TWO);
     sizeC_t _range = optionalLengthArgument(range, getCLength(), ARG_THREE);
@@ -882,6 +888,7 @@ RexxInteger *RexxMutableBuffer::countStrRexx(RexxString *needle)
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p(needle);
     // delegate the counting to the string util
     return new_integer(StringUtil::countStr(getStringData(), getBLength(), needle));
 }
@@ -894,6 +901,7 @@ RexxInteger *RexxMutableBuffer::caselessCountStrRexx(RexxString *needle)
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p(needle);
     // delegate the counting to the string util
     return new_integer(StringUtil::caselessCountStr(getStringData(), getBLength(), needle));
 }
@@ -912,8 +920,10 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p1(needle);
     /* newneedle must be a string two    */
     newNeedle = stringArgument(newNeedle, ARG_TWO);
+    ProtectedObject p2(newNeedle);
 
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, ARG_THREE);
@@ -1052,8 +1062,10 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
 {
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p1(needle);
     /* newneedle must be a string two    */
     newNeedle = stringArgument(newNeedle, ARG_TWO);
+    ProtectedObject p2(newNeedle);
 
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, ARG_THREE);
@@ -1281,9 +1293,11 @@ RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *
     }
                                             /* validate the tables               */
     tableo = optionalStringArgument(tableo, OREF_NULLSTRING, ARG_ONE);
+    ProtectedObject p1(tableo);
     sizeB_t outTableLength = tableo->getBLength();      /* get the table length              */
     /* input table too                   */
     tablei = optionalStringArgument(tablei, OREF_NULLSTRING, ARG_TWO);
+    ProtectedObject p2(tablei);
     sizeB_t inTableLength = tablei->getBLength();       /* get the table length              */
     const char *inTable = tablei->getStringData();    /* point at the input table          */
     const char *outTable = tableo->getStringData();   /* and the output table              */

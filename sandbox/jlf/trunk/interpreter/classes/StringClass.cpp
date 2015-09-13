@@ -2383,9 +2383,10 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
     RexxClass::processNewArgs(init_args, argCount, &init_args, &argCount, 1, (RexxObject **)&stringObj, NULL);
     /* force argument to string value    */
     RexxString *string = (RexxString *)stringArgument(stringObj, ARG_ONE);
+    ProtectedObject p(string);
     /* create a new string object        */
     string = new_string(string->getStringData(), string->getBLength(), string->getCLength(), string->getCharset(), string->getEncoding());
-    ProtectedObject p(string);
+    p = string;
     string->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     if (((RexxClass *)this)->hasUninitDefined())
     {

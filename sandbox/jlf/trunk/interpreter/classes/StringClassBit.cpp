@@ -48,6 +48,7 @@
 #include <math.h>
 #include "RexxCore.h"
 #include "StringClass.hpp"
+#include "ProtectedObject.hpp"
 
 /******************************************************************************/
 /* Arguments:  String to bitand with self                                     */
@@ -75,6 +76,7 @@ RexxString *RexxString::bitAnd(RexxString *string2,
                                          /* get string we will be doing bit   */
                                          /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
+    ProtectedObject p(string2);
     String2Len = string2->getBLength();        /* get the string length             */
     String2 = string2->getStringData();       /* get the string data pointer       */
     /* get the pad character             */
@@ -145,6 +147,7 @@ RexxString *RexxString::bitOr(RexxString *string2,
     /* get string we will be doing bit   */
     /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
+    ProtectedObject p(string2);
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */
@@ -215,6 +218,7 @@ RexxString *RexxString::bitXor(RexxString *string2,
     /* get string we will be doing bit   */
     /* stuff to...                       */
     string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
+    ProtectedObject p(string2);
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
                                          /* get the pad character             */

@@ -1614,6 +1614,7 @@ RexxObject  *RexxObject::setMethod(
             reportException(Error_Incorrect_call_list, CHAR_SETMETHOD, IntegerThree, "\"FLOAT\", \"OBJECT\"", option);
         }
     }
+    ProtectedObject p2(option);
 
     if (methobj == OREF_NULL)            /* we weren't passed a method,       */
     {
@@ -1652,9 +1653,9 @@ RexxObject  *RexxObject::requestRexx(
 {
                                          /* Verify we have a string parm      */
     className = stringArgument(className, ARG_ONE)->upper();
-    ProtectedObject p_className(className);
+    ProtectedObject p1(className);
     RexxString *class_id = this->id()->upper();      /* get the class name in uppercase   */
-    ProtectedObject p_class_id(class_id);
+    ProtectedObject p2(class_id);
                                          /* of the same class?                */
     if (className->strictEqual(class_id) == TheTrueObject)
     {
@@ -1967,8 +1968,6 @@ RexxObject  *RexxObject::run(
                         /* raise an error                    */
                         reportException(Error_Incorrect_method_noarray, arguments[2]);
                     }
-                    // request array may create a new one...keep it safe
-                    ProtectedObject p1(arglist);
                     /* grab the argument information */
                     argumentPtr = arglist->data();
                     argcount = arglist->size();
@@ -1987,6 +1986,7 @@ RexxObject  *RexxObject::run(
                 break;
         }
     }
+    ProtectedObject p1(arglist); // argumentPtr may refer to arglist...keep it safe
     ProtectedObject result;
     /* now just run the method....       */
     methobj->run(ActivityManager::currentActivity, this, OREF_NONE, argumentPtr, argcount, result);

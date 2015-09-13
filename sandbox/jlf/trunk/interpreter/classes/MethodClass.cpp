@@ -549,6 +549,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
             }
         }
     }
+    ProtectedObject p(newSourceArray);
 
     RexxMethod *result = new RexxMethod(pgmname, newSourceArray);
 
@@ -592,6 +593,7 @@ RexxMethod *RexxMethod::newRexx(
     RexxClass::processNewArgs(init_args, argCount, &init_args, &initCount, 2, (RexxObject **)&pgmname, (RexxObject **)&_source);
     /* get the method name as a string   */
     RexxString *nameString = stringArgument(pgmname, ARG_ONE);
+    ProtectedObject p_nameString(nameString);
     requiredArgument(_source, ARG_TWO);          /* make sure we have the second too  */
 
     RexxSource *sourceContext = OREF_NULL;
@@ -658,9 +660,10 @@ RexxMethod *RexxMethod::newFileRexx(RexxString *filename)
 {
     /* get the method name as a string   */
     filename = stringArgument(filename, ARG_ONE);
+    ProtectedObject p1(filename);
     /* create a source object            */
     RexxMethod *newMethod = new RexxMethod(filename);
-    ProtectedObject p(newMethod);
+    ProtectedObject p2(newMethod);
     newMethod->setScope((RexxClass *)TheNilObject);
     /* Give new object its behaviour     */
     newMethod->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
@@ -857,7 +860,9 @@ PackageClass *BaseCode::getPackage()
 RexxMethod *RexxMethod::loadExternalMethod(RexxString *name, RexxString *descriptor)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p1(name);
     descriptor = stringArgument(descriptor, "descriptor");
+    ProtectedObject p2(descriptor);
     /* convert external into words       */
     RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());
     ProtectedObject p(_words);

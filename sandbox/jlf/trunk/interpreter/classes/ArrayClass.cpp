@@ -124,6 +124,7 @@ RexxObject  *RexxArray::copy(void)
 {
     /* make a copy of ourself            */
     RexxArray *newArray = (RexxArray *) this->RexxObject::copy();
+    ProtectedObject p(newArray);
     /* this array contain the data?      */
     if (this->expansionArray != OREF_NULL && this->expansionArray != this)
     {
@@ -1584,6 +1585,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
                 RexxObject * _stringValue = item->requiredString();
                 if (_stringValue != TheNilObject)
                 {
+                    ProtectedObject p(_stringValue);
                     mutbuffer->append(_stringValue);
                 }
             }
@@ -1616,6 +1618,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
                 RexxObject *_stringValue = item->requiredString();
                 if (_stringValue != TheNilObject)
                 {
+                    ProtectedObject p(_stringValue);
                     mutbuffer->append(_stringValue);
                 }
                 first = false;

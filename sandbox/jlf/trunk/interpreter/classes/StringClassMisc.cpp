@@ -577,8 +577,10 @@ RexxString *RexxString::changeStr(RexxString *needle, RexxString *newNeedle, Rex
 
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p1(needle);
     /* newneedle must be a string two    */
     newNeedle = stringArgument(newNeedle, ARG_TWO);
+    ProtectedObject p2(newNeedle);
 
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, ARG_THREE);
@@ -645,8 +647,10 @@ RexxString *RexxString::caselessChangeStr(RexxString *needle, RexxString *newNee
 
     /* force needle to a string          */
     needle = stringArgument(needle, ARG_ONE);
+    ProtectedObject p1(needle);
     /* newneedle must be a string two    */
     newNeedle = stringArgument(newNeedle, ARG_TWO);
+    ProtectedObject p2(newNeedle);
     // we'll only change up to a specified count.  If not there, we do everything.
     size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, ARG_THREE);
 
@@ -788,9 +792,11 @@ RexxString *RexxString::translate(
                                             /* validate the tables               */
                                             /* validate the tables               */
     tableo = optionalStringArgument(tableo, OREF_NULLSTRING, ARG_ONE);
+    ProtectedObject p1(tableo);
     OutTableLength = tableo->getBLength();      /* get the table length              */
     /* input table too                   */
     tablei = optionalStringArgument(tablei, OREF_NULLSTRING, ARG_TWO);
+    ProtectedObject p2(tablei);
     InTableLength = tablei->getBLength();       /* get the table length              */
     InTable = tablei->getStringData();    /* point at the input table          */
     OutTable = tableo->getStringData();   /* and the output table              */

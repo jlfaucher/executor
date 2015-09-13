@@ -126,7 +126,9 @@ void RexxContext::flatten(RexxEnvelope *envelope)
 {
   setUpFlatten(RexxContext)
 
-  flatten_reference(newThis->objectVariables, envelope);
+  // jlf : todo... flatten or not flatten ?
+  //flatten_reference(newThis->objectVariables, envelope);
+  newThis->objectVariables = OREF_NULL;
   newThis->activation = OREF_NULL;   // this never should be getting flattened, so sever the connection
 
   cleanUpFlatten

@@ -420,6 +420,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
 {
     // request this as an array.  If not convertable, then we'll use it as a string
     RexxArray *newSourceArray = source->requestArray();
+    ProtectedObject p_newSourceArray(newSourceArray);
     /* couldn't convert?                 */
     if (newSourceArray == (RexxArray *)TheNilObject)
     {
@@ -444,14 +445,11 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
             reportException(Error_Incorrect_method_noarray, position);
         }
         /*  element are strings.             */
-        /* Make a source array safe.         */
-        ProtectedObject p(newSourceArray);
         /* Make sure all elements in array   */
         for (size_t counter = 1; counter <= newSourceArray->size(); counter++)
         {
             /* Get element as string object      */
             RexxString *sourceString = newSourceArray ->get(counter)->makeString();
-            ProtectedObject p(sourceString);
             /* Did it convert?                   */
             if (sourceString == (RexxString *)TheNilObject)
             {
@@ -465,12 +463,11 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
             }
         }
     }
+    p_newSourceArray = newSourceArray;
 
     // create the routine
     RoutineClass *result = new RoutineClass(pgmname, newSourceArray);
     ProtectedObject p(result);
-
-    p = result;    // switch the protectiong
 
     // if we've been provided with a scope, use it
     if (parentSource == OREF_NULL)
@@ -546,6 +543,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *sou
             }
         }
     }
+    ProtectedObject p(newSourceArray);
     // create the routine
     return new RoutineClass(pgmname, newSourceArray);
 }
@@ -569,6 +567,7 @@ RoutineClass *RoutineClass::newRexx(
     RexxClass::processNewArgs(init_args, argCount, &init_args, &initCount, 2, (RexxObject **)&pgmname, (RexxObject **)&_source);
     /* get the method name as a string   */
     RexxString *nameString = stringArgument(pgmname, ARG_ONE);
+    ProtectedObject p_nameString(nameString);
     requiredArgument(_source, ARG_TWO);          /* make sure we have the second too  */
 
     RexxSource *sourceContext = OREF_NULL;
@@ -887,7 +886,9 @@ RoutineClass *RoutineClass::fromFile(RexxString *filename)
 RoutineClass *RoutineClass::loadExternalRoutine(RexxString *name, RexxString *descriptor)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p1(name);
     descriptor = stringArgument(descriptor, "descriptor");
+    ProtectedObject p2(descriptor);
     /* convert external into words       */
     RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());
     ProtectedObject p(_words);

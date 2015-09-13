@@ -360,6 +360,7 @@ PackageClass *PackageClass::loadPackage(RexxString *name, RexxArray *s)
 {
     // make sure we have a valid name and delegate to the source object
     name = stringArgument(name, 1);
+    ProtectedObject p(name);
     // if no source provided, this comes from a file
     if (s == OREF_NULL)
     {
@@ -399,6 +400,7 @@ RexxObject *PackageClass::addPackage(PackageClass *package)
 RexxObject *PackageClass::addRoutine(RexxString *name, RoutineClass *routine)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p(name);
     classArgument(routine, TheRoutineClass, "routine");
     source->addInstalledRoutine(name, routine, false);
     return this;
@@ -415,6 +417,7 @@ RexxObject *PackageClass::addRoutine(RexxString *name, RoutineClass *routine)
 RexxObject *PackageClass::addPublicRoutine(RexxString *name, RoutineClass *routine)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p(name);
     classArgument(routine, TheRoutineClass, "routine");
     source->addInstalledRoutine(name, routine, true);
     return this;
@@ -431,6 +434,7 @@ RexxObject *PackageClass::addPublicRoutine(RexxString *name, RoutineClass *routi
 RexxObject *PackageClass::addClass(RexxString *name, RexxClass *clazz)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p(name);
     classArgument(clazz, TheClassClass, "class");
     source->addInstalledClass(name, clazz, false);
     return this;
@@ -447,6 +451,7 @@ RexxObject *PackageClass::addClass(RexxString *name, RexxClass *clazz)
 RexxObject *PackageClass::addPublicClass(RexxString *name, RexxClass *clazz)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p(name);
     classArgument(clazz, TheClassClass, "class");
     source->addInstalledClass(name, clazz, true);
     return this;
@@ -559,6 +564,7 @@ PackageClass *PackageClass::newRexx(
 
     /* get the package name as a string   */
     RexxString *nameString = stringArgument(pgmname, "name");
+    ProtectedObject p_nameString(nameString);
     if (_source == OREF_NULL)
     {
         // if no directly provided source, resolve the name in the global context and have the instance
@@ -575,7 +581,8 @@ PackageClass *PackageClass::newRexx(
         package = instance->loadRequires(activity, nameString, sourceArray);
     }
 
-    ProtectedObject p(package);
+    ProtectedObject p_package(package);
+
     /* Give new object its behaviour     */
     package->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     if (((RexxClass *)this)->hasUninitDefined())
@@ -599,6 +606,7 @@ PackageClass *PackageClass::newRexx(
 RexxObject *PackageClass::loadLibrary(RexxString *name)
 {
     name = stringArgument(name, "name");
+    ProtectedObject p(name);
     // have we already loaded this package?
     // may need to bootstrap it up first.
     LibraryPackage *package = PackageManager::loadLibrary(name);

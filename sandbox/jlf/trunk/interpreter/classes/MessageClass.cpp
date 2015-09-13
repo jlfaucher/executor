@@ -589,6 +589,7 @@ RexxObject *RexxMessage::newRexx(
         /* no args, use a null array.        */
         argPtr = (RexxArray *)TheNullArray->copy();
     }
+    ProtectedObject p(argPtr);
     /* all args are parcelled out, go    */
     /*create the new message object...   */
     RexxMessage *newMessage = new RexxMessage(_target, msgName, _startScope, argPtr);

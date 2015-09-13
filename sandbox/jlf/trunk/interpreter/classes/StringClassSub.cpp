@@ -50,6 +50,7 @@
 #include "StringClass.hpp"
 #include "ActivityManager.hpp"
 #include "StringUtil.hpp"
+#include "ProtectedObject.hpp"
 
 
 /* the CENTER function (and the CENTRE function) */
@@ -208,6 +209,7 @@ RexxString *RexxString::insert(RexxString  *newStrObj,
     TCharLen = this->getCLength();             /* get the target string length      */
     /* get the needle string (and length)*/
     newStr = stringArgument(newStrObj, ARG_ONE);
+    ProtectedObject p(newStr);
     NCharLen = newStr->getCLength();
     /* use optionalLengthArgument for starting  */
     /* position becase a value of 0 IS   */
@@ -357,6 +359,7 @@ RexxString *RexxString::overlay(
     TargetLen = this->getCLength();       /* get the haystack length           */
                                          /* get the overlay string value      */
     newStr = stringArgument(newStrObj, ARG_ONE);
+    ProtectedObject p(newStr);
     NewLen = newStr->getCLength();
     /* get the overlay position          */
     OverlayPos = optionalPositionArgument(position, 1, ARG_TWO);
@@ -456,6 +459,7 @@ RexxString *RexxString::replaceAt(RexxString  *newStrObj, RexxInteger *position,
     sizeC_t targetLen = this->getCLength();   // get the length of the replacement target
     // the replacement value is required and must be a string
     RexxString *newStr = stringArgument(newStrObj, ARG_ONE);
+    ProtectedObject p(newStr);
     // the length of the replacement string is the default replacement length
     sizeC_t newLen = newStr->getCLength();
     // the overlay position is required
