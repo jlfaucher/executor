@@ -8,3 +8,14 @@ http://stackoverflow.com/questions/6973260/why-does-my-console-application-have-
 
 https://msdn.microsoft.com/en-us/library/system.console.readline(v=vs.110).aspx
 
+
+================================================================================
+Console colors
+
+Console::BackgroundColor Property
+https://msdn.microsoft.com/en-us/library/system.console.backgroundcolor.aspx?cs-save-lang=1&cs-lang=cpp#code-snippet-1
+
+Implementation in .NET
+https://github.com/dotnet/coreclr/blob/master/src/mscorlib/src/System/Console.cs
+
+
