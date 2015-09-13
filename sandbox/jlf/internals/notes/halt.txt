@@ -9,7 +9,7 @@ or the threadid parameter is not registered with a RexxActivity
 (the procid parameter is not used)
 
 A RexxActivity has an attribute
-SysActivity currentThread 
+SysActivity currentThread
 
 This SysActivity has a attribute
 (unix)    pthread_t     threadId;
@@ -84,7 +84,7 @@ RexxReturnCode REXXENTRY RexxHaltThread(thread_id_t threadid)
 trunk/interpreter/runtime/interpreter.hpp
     Interpreter::isActive()
         { return active; }
-    
+
     static bool   active;            // indicates whether the interpreter is initialized
     --> set to true by Interpreter::startInterpreter
     --> never set to false (should be by Interpreter::terminateInterpreter)
@@ -278,4 +278,19 @@ trunk/interpreter/platform/unix
         }
         ...
 
+
+================================================================================
+Hang
+================================================================================
+I can reproduce a hang under Windows with ooRexx trunk (debug) and the latest revision of incubator/ooRexxShell.
+Probably not the same hang as oorexxpert...
+I have a haltHandler only in the main routine, no haltHandler declared in the methods.
+Keep Ctrl-C pressed and the application hangs almost immediately.
+When debugging (attach to rexx process + break all) the hang is always in SystemCommands.cpp :
+        if (WAIT_FAILED != WaitForSingleObject ( piProcInfo.hProcess, INFINITE ) )
+after CreateProcess("cmd /c ..."
+
+If I don't register the security manager
+-- shell~setSecurityManager(...
+then if I keep Ctrl-C pressed, the process is interrupted (no hang).
 
