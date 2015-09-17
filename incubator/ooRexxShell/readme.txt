@@ -18,7 +18,20 @@ ooRexx process), you can change the current directory as if you were in a "real"
 Unfortunately, that doesn't work when you use an alias to change of directory.
 Now getting the current directory of the child process after each execution of a command,
 and change the  current directory of the parent (ooRexxShell) accordingly.
+[JLF sept 17, 2015]
+Same technique under Windows.
+Don't use $T in the doskey macros, use instead ^&.
+Reason : $T generates 2 lines, only the first line is injected in the input queue.
+Example :
+doskey cdoorexx=%builder_shared_drv% ^& cd %builder_shared_dir%
+works correctly in ooRExxShell, whereas
+doskey cdoorexx=%builder_shared_drv% $T cd %builder_shared_dir%
+does not work (only C: is injected).
 
+
+Interactive mode
+================
+Launch ooRexxShell without argument : You enter in the Read-Eval-Print Loop (REPL).
 
 Example (Windows) :
 CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
@@ -36,7 +49,84 @@ MYHANDLER> myCommand myArg                          an hypothetic command, no ne
 MYHANDLER> exit                                     the exit command is supported whatever the interpreter
 
 
-Known problems under Windows :
+Non-interactive mode
+====================
+
+ooRexxShell uses "parse pull" to get the next command to execute from its input queue.
+When arguments are passed from the command line, they are pushed as-is to the input queue (all in one line).
+You may need to protect the special characters like | ; & from the shell interpretation, using quotes or backslahes.
+
+Here no quotes needed
+CMD> oorexxshell say hello
+CMD> oorexxshell 1+1=
+
+Here quotes needed to protect the &
+CMD> oorexxshell ".true & .false ="
+
+Get all the file path included with xi:include, search in all the xml files of the current directory.
+Extract the file path from href="<file path>" then test if the file "<file path>" exists.
+If not found then display its path on the console.
+CMD> oorexxshell '"grep xi:include *.xml"~pipe(.system | .inject {quote = 34~d2c; parse var item . "href="(quote) file (quote) . ; file } | .sort | .take 1 {item} | .select {\ SysFileExists(item)} | .console)'
+
+With as input a text file where each line is a file path : Count the number of files per extension
+CMD> oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffix = item~substr(item~lastpos(".")); if suffix~pos(".") == 1 & suffix~pos("/") == 0 then suffix~lower} | .sort  | .lineCount {item} | .console)' > files_analysis.txt
+
+By design, parse pull reads first the queue and then the standard input.
+In the next example, "say hello2" has been pushed to the input queue of ooRexxShell,
+and "say hello1" comes the standard input.
+CMD> say hello1 | oorexxshell say hello2
+HELLO2
+HELLO1
+
+To execute a set of commands using a non-interactive ooRexxShell :
+CMD>  type my_commands.txt | oorexxshell <optional first command>
+BASH> cat  my_commands.txt | oorexxshell <optional first command>
+
+In the previous example, each line is interpreted one by one,
+with the restrictions of the INTERPRET instruction :
+- Constructions such as DO...END and SELECT...END must be complete.
+- Labels within the interpreted string are not permanent and are, therefore, an error
+- You cannot use a directive within an INTERPRET instruction
+To execute a Rexx script, use this command :
+CMD> oorexxshell call "my script path"
+
+To replay a set of commands from an interactive ooRexxShell :
+First, launch ooRexxShell.
+Copy its queue name (displayed before the first prompt, also available in .ooRexxShell~queueName).
+From another command prompt, execute :
+CMD>  type my_commands.txt | rxqueue <queuename>
+BASH> cat  my_commands.txt | rxqueue <queuename>
+Back in ooRexxShell.
+Press <enter>.
+If you typed a command in ooRexxShell, it will be executed first.
+Then each command read from the queue will be executed.
+
+
+Commands
+========
+
+To be recognized, these commands must be the first word of the input line.
+
+bash : select the bash interpreter (if available : see interpreters).
+cmd : select the cmd interpreter (if available : see interpreters).
+debugoff : deactivate the full trace of the internals of ooRexxShell.
+debugon : activate the full trace of the internals of ooRexxShell.
+exit : exit ooRexxShell.
+hostemeu : select the hostemu interpreter (if available : see interpreters).
+interpreters : list of interpreters that can be selected.
+oorexx : select the ooRexx interpreter.
+readlineoff : use the raw parse pull for the input.
+readlineon : delegate to the system readline (better support for history, tab completion).
+reload : exit the current session and start a new one, reloading all the packages/librairies.
+securityoff : deactivate the security manager. The system commands are passed as-is to the system.
+securityon : activate the security manager. The system commands are transformed before passing them to the system.
+tb : display the trace back of the last error.
+traceoff : deactivate the ligth trace of the internals of ooRexxShell.
+traceon : activate the ligth trace of the internals of ooRexxShell.
+
+
+Known problems under Windows
+============================
 
 - If you want the colors then you must put gci.dll in your PATH.
   You can get gci here : http://rexx-gci.sourceforge.net
@@ -77,7 +167,9 @@ Known problems under Windows :
   [Note : these problems do not occur under Linux with Bash because the aliases are expanded
   only when the interpreter is Bash and the command is evaluated.]
 
-Known problems under all platforms :
+
+Known problems under all platforms
+==================================
 
 - When the first word of the command is an interpreter name, then it is assumed you want to
   temporarily select this interpreter. The first word is removed from the command passed to
@@ -89,37 +181,20 @@ Known problems under all platforms :
   bash bash --help
 
 
+Demo
+====
+
 See demo/hostemu_from_THE.png
 for an example of shell with 4 interpreters.
 Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 
------------------------------------------------
+History of changes
+==================
+
 2015 Sep 1
 
 More work on the non-interactive mode.
-
-The readline procedure is implemented with parse pull.
-By design, parse pull reads first the queue and then the standard input :
-say hello1 | oorexxshell say hello2
-HELLO2
-HELLO1
-
-To execute a set of commands using a non-interactive ooRexxShell :
-[windows] type my_commands.txt | oorexxshell <optional first command>
-[unix]    cat  my_commands.txt | oorexxshell <optional first command>
-
-To replay a set of commands from an interactive ooRexxShell :
-First, launch ooRexxShell.
-Copy its queue name (displayed before the first prompt, also available in .ooRexxShell~queueName).
-From another cmd windows, execute :
-[windows] type my_commands.txt | rxqueue <queuename>
-[unix]    cat  my_commands.txt | rxqueue <queuename>
-Back in ooRexxShell.
-Press <enter>.
-If you typed a command in ooRexxShell, it will be executed first.
-Then each command read from the queue will be executed.
-
 
 New commands :
 readlineoff : use the raw parse pull for the input.
@@ -133,14 +208,6 @@ securityon : activate the security manager. The system commands are transformed 
 Minor adaptations to let use ooRexxShell in non-interactive mode :
 On startup, the current directory is not changed to the directory of the previous session.
 The color's control characters are sent to the right stream (before : was always sent to stdout).
-
-Examples of non-interactive session :
-
-# Get all the files path included with xi:include, search in all the xml files of the current directory.
-oorexxshell '"grep xi:include *.xml"~pipe(.system | .inject {quote = 34~d2c; parse var item . "href="(quote) file (quote) . ; file } | .sort | .take 1 {item} | .select {\ SysFileExists(item)} | .console)'
-
-# With input a text file where each line is a file path : Count the number of files per extension
-oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffix = item~substr(item~lastpos(".")); if suffix~pos(".") == 1 & suffix~pos("/") == 0 then suffix~lower} | .sort  | .lineCount {item} | .console)' > files_analysis.txt
 
 
 -----------------------------------------------

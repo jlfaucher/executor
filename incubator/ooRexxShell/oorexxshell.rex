@@ -245,7 +245,7 @@ intro: procedure
     .ooRexxShell~sayInterpreters
     say "? : to invoke ooRexx documentation."
     say "Other commands :"
-    say "    debugon debugoff exit interpreters readlineoff readlineon reload"
+    say "    debugon debugoff exit interpreters readlineoff readlineon"
     say "    reload securityoff securityon tb traceoff traceon."
     say "Input queue name :" .ooRexxShell~queueName
     .color~select(.ooRexxShell~defaultColor)
@@ -409,20 +409,6 @@ systemAddress: procedure
         when .platform~is("sunos") then return "sh"
         otherwise return "bash"
     end
-
--------------------------------------------------------------------------------
-quoted: procedure
-    use strict arg string, quote='"'
-    return quote || string || quote
-
-
--------------------------------------------------------------------------------
-unquoted: procedure
-    use strict arg string, quote='"'
-    if string~left(1) == quote & string~right(1) == quote then
-        return string~substr(2, string~length - 2)
-    else
-        return string
 
 
 -------------------------------------------------------------------------------
@@ -603,6 +589,9 @@ loadOptionalComponents:
             onStartMethod = .method~new("", onStartSource) -- When explictely creating a method like that, then .ooRexxShell is visible when running the method...
             .Coactivity~setMethod('onStart', onStartMethod) -- If passing onStartSource here, then .ooRexxShell is not visible when running the method...
         end
+        -- regex.cls use the method .String~contains which is available only from ooRexx v5.
+        -- Add this method if not available.
+        if \ ""~hasMethod("contains") then .String~define("contains", "use strict arg needle; return self~pos(needle) <> 0")
     end
 
     return
@@ -645,6 +634,27 @@ loadLibrary:
     .error~say("loadLibrary KO for" filename)
     .color~select(.ooRexxShell~defaultColor, .error)
     return .false
+
+
+-------------------------------------------------------------------------------
+::routine quoted
+    use strict arg string, quote='"'
+    return quote || string || quote
+
+
+-------------------------------------------------------------------------------
+routine unquoted
+    use strict arg string, quote='"'
+    if string~left(1) == quote & string~right(1) == quote then
+        return string~substr(2, string~length - 2)
+    else
+        return string
+
+
+-------------------------------------------------------------------------------
+::routine paren
+    use strict arg string
+    return "(" || string || ")"
 
 
 -------------------------------------------------------------------------------
@@ -808,8 +818,14 @@ loadLibrary:
         exepath = .platform~which(args[1])
         exefullpath = qualify(exepath)
         if .platform~subsystem(exefullpath) == 2 then return 'start "" 'command -- Don't wait when GUI application
-        return 'cmd /c "'command'"'
-
+        --return 'cmd /c "'command'"'
+        return 'cmd /v /c ' ||,
+               quoted(,
+                   paren(command) ||,
+                   ' & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL!' ||,
+                   ' & echo OOREXXSHELL_DIRECTORY=!CD! > ' || quoted(temporarySettingsFile) ||,
+                   ' & exit /b !OOREXXSHELL_ERRORLEVEL!',
+               )
     end
     else if address~caselessEquals("bash") then do
         -- If directly managed by the systemCommandHandler then don't add bash in front of the command
