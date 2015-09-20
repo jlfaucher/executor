@@ -637,13 +637,13 @@ loadLibrary:
 
 
 -------------------------------------------------------------------------------
-::routine quoted
+::routine quoted public
     use strict arg string, quote='"'
     return quote || string || quote
 
 
 -------------------------------------------------------------------------------
-routine unquoted
+::routine unquoted public
     use strict arg string, quote='"'
     if string~left(1) == quote & string~right(1) == quote then
         return string~substr(2, string~length - 2)
@@ -652,7 +652,7 @@ routine unquoted
 
 
 -------------------------------------------------------------------------------
-::routine paren
+::routine paren public
     use strict arg string
     return "(" || string || ")"
 

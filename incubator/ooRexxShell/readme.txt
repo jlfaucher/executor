@@ -35,10 +35,10 @@ Launch ooRexxShell without argument : You enter in the Read-Eval-Print Loop (REP
 
 Example (Windows) :
 CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
-CMD> cd c:\program files
-CMD> say 1+2                                        error, the ooRexx interpreter is not active here
-CMD> oorexx say 1+2                                 you can temporarily select an interpreter
-CMD> oorexx                                         switch to the ooRexx interpreter
+CMD[ooRexx]> cd c:\program files
+CMD[ooRexx]>> say 1+2                               error, the ooRexx interpreter is not active here
+CMD[ooRexx]>> oorexx say 1+2                        you can temporarily select an interpreter
+CMD[ooRexx]>> oorexx                                switch to the ooRexx interpreter
 ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
 ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd
 ooRexx[CMD] say 1+2                                 3
