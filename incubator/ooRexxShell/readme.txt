@@ -1,6 +1,6 @@
 ooRexxShell, derived from rexxtry.
 
-This shell supports several interpreters :
+This shell supports several interpreters:
 - ooRexx itself
 - the system address (cmd under Windows, bash under Linux)
 - any other external environment (you need to modify this script, search for hostemu for an example).
@@ -11,7 +11,7 @@ When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.
 
 
-Something interesting (for me) :
+Something interesting (for me):
 Thanks to the ooRexx implementation of address (some commands are intercepted and executed in the
 ooRexx process), you can change the current directory as if you were in a "real" shell.
 [JLF jul 04, 2015]
@@ -21,8 +21,8 @@ and change the  current directory of the parent (ooRexxShell) accordingly.
 [JLF sept 17, 2015]
 Same technique under Windows.
 Don't use $T in the doskey macros, use instead ^&.
-Reason : $T generates 2 lines, only the first line is injected in the input queue.
-Example :
+Reason: $T generates 2 lines, only the first line is injected in the input queue.
+Example:
 doskey cdoorexx=%builder_shared_drv% ^& cd %builder_shared_dir%
 works correctly in ooRExxShell, whereas
 doskey cdoorexx=%builder_shared_drv% $T cd %builder_shared_dir%
@@ -31,22 +31,21 @@ does not work (only C: is injected).
 
 Interactive mode
 ================
-Launch ooRexxShell without argument : You enter in the Read-Eval-Print Loop (REPL).
+Launch ooRexxShell without argument: You enter in the Read-Eval-Print Loop (REPL).
 
-Example (Windows) :
-CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
+Example (Windows):
+ooRexx[CMD]> 'dir oorexx | find ".dll"'             -- here you need to surround by quotes
+ooRexx[CMD]> cmd dir oorexx | find ".dll"           -- unless you temporarily select cmd
+ooRexx[CMD]> say 1+2                                -- 3
+ooRexx[CMD]> cmd                                    -- switch to the cmd interpreter
+CMD[ooRexx]> dir | find ".dll"                      -- raw command, no need of surrounding quotes
 CMD[ooRexx]> cd c:\program files
-CMD[ooRexx]>> say 1+2                               error, the ooRexx interpreter is not active here
-CMD[ooRexx]>> oorexx say 1+2                        you can temporarily select an interpreter
-CMD[ooRexx]>> oorexx                                switch to the ooRexx interpreter
-ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
-ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd
-ooRexx[CMD] say 1+2                                 3
-ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
-ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
-ooRexx[MYHANDLER] myhandler                         switch to the MYHANDLER interpreter
-MYHANDLER> myCommand myArg                          an hypothetic command, no need of quotes
-MYHANDLER> exit                                     the exit command is supported whatever the interpreter
+CMD[ooRexx]> say 1+2                                -- error, the ooRexx interpreter is not active here
+CMD[ooRexx]> oorexx say 1+2                         -- you can temporarily select an interpreter
+CMD[ooRexx]> hostemu                                -- switch to the hostemu interpreter
+HostEmu[ooRexx]> execio * diskr "install.txt" (finis stem in.  -- store the contents of the file in the stem in.
+HostEmu[ooRexx]> oorexx in.=                        -- temporarily switch to ooRexx to display the stem
+HostEmu[ooRexx]> exit                               -- the exit command is supported whatever the interpreter
 
 
 Non-interactive mode
@@ -68,7 +67,7 @@ Extract the file path from href="<file path>" then test if the file "<file path>
 If not found then display its path on the console.
 CMD> oorexxshell '"grep xi:include *.xml"~pipe(.system | .inject {quote = 34~d2c; parse var item . "href="(quote) file (quote) . ; file } | .sort | .take 1 {item} | .select {\ SysFileExists(item)} | .console)'
 
-With as input a text file where each line is a file path : Count the number of files per extension
+With as input a text file where each line is a file path: Count the number of files per extension
 CMD> oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffix = item~substr(item~lastpos(".")); if suffix~pos(".") == 1 & suffix~pos("/") == 0 then suffix~lower} | .sort  | .lineCount {item} | .console)' > files_analysis.txt
 
 By design, parse pull reads first the queue and then the standard input.
@@ -78,22 +77,22 @@ CMD> say hello1 | oorexxshell say hello2
 HELLO2
 HELLO1
 
-To execute a set of commands using a non-interactive ooRexxShell :
+To execute a set of commands using a non-interactive ooRexxShell:
 CMD>  type my_commands.txt | oorexxshell <optional first command>
 BASH> cat  my_commands.txt | oorexxshell <optional first command>
 
 In the previous example, each line is interpreted one by one,
-with the restrictions of the INTERPRET instruction :
+with the restrictions of the INTERPRET instruction:
 - Constructions such as DO...END and SELECT...END must be complete.
 - Labels within the interpreted string are not permanent and are, therefore, an error
 - You cannot use a directive within an INTERPRET instruction
-To execute a Rexx script, use this command :
+To execute a Rexx script, use this command:
 CMD> oorexxshell call "my script path"
 
-To replay a set of commands from an interactive ooRexxShell :
+To replay a set of commands from an interactive ooRexxShell:
 First, launch ooRexxShell.
 Copy its queue name (displayed before the first prompt, also available in .ooRexxShell~queueName).
-From another command prompt, execute :
+From another command prompt, execute:
 CMD>  type my_commands.txt | rxqueue <queuename>
 BASH> cat  my_commands.txt | rxqueue <queuename>
 Back in ooRexxShell.
@@ -107,29 +106,32 @@ Commands
 
 To be recognized, these commands must be the first word of the input line.
 
-bash : select the bash interpreter (if available : see interpreters).
-cmd : select the cmd interpreter (if available : see interpreters).
-debugoff : deactivate the full trace of the internals of ooRexxShell.
-debugon : activate the full trace of the internals of ooRexxShell.
-exit : exit ooRexxShell.
-hostemeu : select the hostemu interpreter (if available : see interpreters).
-interpreters : list of interpreters that can be selected.
-oorexx : select the ooRexx interpreter.
-readlineoff : use the raw parse pull for the input.
-readlineon : delegate to the system readline (better support for history, tab completion).
-reload : exit the current session and start a new one, reloading all the packages/librairies.
-securityoff : deactivate the security manager. The system commands are passed as-is to the system.
-securityon : activate the security manager. The system commands are transformed before passing them to the system.
-tb : display the trace back of the last error.
-traceoff : deactivate the ligth trace of the internals of ooRexxShell.
-traceon : activate the ligth trace of the internals of ooRexxShell.
+bash: select the bash interpreter (if available : see interpreters).
+cmd: select the cmd interpreter (if available : see interpreters).
+commands: list the internal commands supported by ooRexxShell.
+debugoff: deactivate the full trace of the internals of ooRexxShell.
+debugon: activate the full trace of the internals of ooRexxShell.
+exit: exit ooRexxShell.
+hostemu: select the hostemu interpreter (if available : see interpreters).
+interpreters: list the interpreters that can be selected.
+oorexx: select the ooRexx interpreter.
+readlineoff: use the raw parse pull for the input.
+readlineon: delegate to the system readline (better support for history, tab completion).
+reload: exit the current session and start a new one, reloading all the packages/librairies.
+securityoff: deactivate the security manager. The system commands are passed as-is to the system.
+securityon: activate the security manager. The system commands are transformed before passing them to the system.
+tb: display the trace back of the last error.
+traceoff: deactivate the ligth trace of the internals of ooRexxShell.
+traceon: activate the ligth trace of the internals of ooRexxShell.
+trapoff: deactivate the conditions traps when interpreting the command.
+trapon: activate the conditions traps when interpreting the command.
 
 
 Known problems under Windows
 ============================
 
 - If you want the colors then you must put gci.dll in your PATH.
-  You can get gci here : http://rexx-gci.sourceforge.net
+  You can get gci here: http://rexx-gci.sourceforge.net
 
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.
@@ -138,20 +140,20 @@ Known problems under Windows
 - The default console code page is the OEMCP, which does not match the default ANSI
   code page (ACP). That bring troubles when you execute a command which contains
   letters with accent. This problem could be bypassed by converting OEMCP to ACP in the
-  securiy manager, but there is a more general workaround that can be used :
+  securiy manager, but there is a more general workaround that can be used:
   Change the default code page of the console to ACP. For example, european users could
-  enter this command : chcp 1252
+  enter this command: chcp 1252
   You must also change the font of the console, because a raster font can't display letters
   with accent. Try Lucida Console, for example.
   See:
   http://blogs.msdn.com/michkap/archive/2005/02/08/369197.aspx
   http://en.wikipedia.org/wiki/Windows-1252
 
-- Assuming you defined this doskey macro : ll=ls -lap $*
+- Assuming you defined this doskey macro: ll=ls -lap $*
   you will see a difference of behavior between
-  CMD> ll
+  CMD[ooRexx]> ll
   and
-  CMD> cmd ll
+  CMD[ooRexx]> cmd ll
   and
   ooRexx[CMD]> 'll'
   and
@@ -163,8 +165,8 @@ Known problems under Windows
   - In the last case, the macro is expanded, but you don't what that...
         ls -lap
         Nonnumeric value ("LS") used in arithmetic operation
-        RC= 41.1
-  [Note : these problems do not occur under Linux with Bash because the aliases are expanded
+        Code= 41.1
+  [Note: these problems do not occur under Linux with Bash because the aliases are expanded
   only when the interpreter is Bash and the command is evaluated.]
 
 

@@ -50,19 +50,18 @@ When in ooRexx mode, you have a shell identical to rexxtry.
 You switch from an interpreter to an other one by entering its name alone.
 
 Example (Windows) :
-CMD> dir | find ".dll"                              raw command, no need of surrounding quotes
-CMD> cd c:\program files
-CMD> say 1+2                                        error, the ooRexx interpreter is not active here
-CMD> oorexx say 1+2                                 you can temporarily select an interpreter
-CMD> oorexx                                         switch to the ooRexx interpreter
-ooRexx[CMD] 'dir oorexx | find ".dll"'              here you need to surround by quotes
-ooRexx[CMD] cmd dir oorexx | find ".dll"            unless you temporarily select cmd
-ooRexx[CMD] say 1+2                                 3
-ooRexx[CMD] address myHandler                       selection of the "myHandler" subcommand handler (hypothetic, just an example)
-ooRexx[MYHANDLER] 'myCommand myArg'                 an hypothetic command, must be surrounded by quotes because we are in ooRexx mode.
-ooRexx[MYHANDLER] myhandler                         switch to the MYHANDLER interpreter
-MYHANDLER> myCommand myArg                          an hypothetic command, no need of quotes
-MYHANDLER> exit                                     the exit command is supported whatever the interpreter
+ooRexx[CMD]> 'dir oorexx | find ".dll"'             -- here you need to surround by quotes
+ooRexx[CMD]> cmd dir oorexx | find ".dll"           -- unless you temporarily select cmd
+ooRexx[CMD]> say 1+2                                -- 3
+ooRexx[CMD]> cmd                                    -- switch to the cmd interpreter
+CMD[ooRexx]> dir | find ".dll"                      -- raw command, no need of surrounding quotes
+CMD[ooRexx]> cd c:\program files
+CMD[ooRexx]> say 1+2                                -- error, the ooRexx interpreter is not active here
+CMD[ooRexx]> oorexx say 1+2                         -- you can temporarily select an interpreter
+CMD[ooRexx]> hostemu                                -- switch to the hostemu interpreter
+HostEmu[ooRexx]> execio * diskr "install.txt" (finis stem in.  -- store the contents of the file in the stem in.
+HostEmu[ooRexx]> oorexx in.=                        -- temporarily switch to ooRexx to display the stem
+HostEmu[ooRexx]> exit                               -- the exit command is supported whatever the interpreter
 */
 
 .platform~initialize
@@ -90,7 +89,7 @@ end
 -- Must pass the current address (default) because will be reset to system address when entering in SHELL routine
 shell~call(arg(1), address())
 
-error:
+finalize:
 if .ooRexxShell~isExtended then .Coactivity~endAll
 
 if .ooRexxShell~isInteractive then do
@@ -104,6 +103,17 @@ if .ooRexxShell~RC == .ooRexxShell~reload then return .ooRexxShell~reload
 -- 0 means ok (return 0), anything else means ko (return 1)
 return .ooRexxShell~RC <> 0
 
+error:
+condition = condition("O")
+if condition <> .nil then do
+    .color~select(.ooRexxShell~errorColor, .error)
+    if condition~message <> .nil then .error~say(condition~message)
+    else if condition~errortext <> .nil then .error~say(condition~errortext)
+    .error~say("Code=" condition~code)
+    .error~say(condition~traceback~makearray~tostring)
+    .color~select(.ooRexxShell~defaultColor, .error)
+end
+signal finalize
 
 -------------------------------------------------------------------------------
 --::options trace i
@@ -173,6 +183,9 @@ main: procedure
             when .ooRexxShell~inputrx == "?" then
                 call help
 
+            when .ooRexxShell~inputrx~caselessEquals("commands") then
+                .ooRexxShell~sayCommands
+
             when .ooRexxShell~inputrx~caselessEquals("debugoff") then
                 .ooRexxShell~debug = .false
             when .ooRexxShell~inputrx~caselessEquals("debugon") then
@@ -210,6 +223,11 @@ main: procedure
             when .ooRexxShell~inputrx~caselessEquals("traceon") then
                 .ooRexxShell~trace(.true)
 
+            when .ooRexxShell~inputrx~caselessEquals("trapoff") then
+                .ooRexxShell~trap = .false
+            when .ooRexxShell~inputrx~caselessEquals("trapon") then
+                .ooRexxShell~trap = .true
+
             when .ooRexxShell~interpreters~hasEntry(.ooRexxShell~inputrx) then do
                 -- Change the default interpreter
                 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~inputrx)
@@ -242,11 +260,6 @@ intro: procedure
     .color~select(.ooRexxShell~infoColor)
     say
     say version
-    .ooRexxShell~sayInterpreters
-    say "? : to invoke ooRexx documentation."
-    say "Other commands :"
-    say "    debugon debugoff exit interpreters readlineoff readlineon"
-    say "    reload securityoff securityon tb traceoff traceon."
     say "Input queue name :" .ooRexxShell~queueName
     .color~select(.ooRexxShell~defaultColor)
     return
@@ -261,7 +274,7 @@ prompt: procedure
     .color~select(.ooRexxShell~defaultColor)
     -- No longer display the prompt, return it and let readline display it
     prompt = .ooRexxShell~interpreter
-    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[oorexx]"
+    if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[ooRexx]"
     if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!>"
     return prompt
 
@@ -437,14 +450,18 @@ dispatchCommand:
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
+    condition = condition("O")
     if .ooRexxShell~error then do
         .color~select(.ooRexxShell~errorColor, .error)
-        .error~say(condition("O")~message)
-        --.error~say(condition("O")~traceback~makearray~tostring)
-        .ooRexxShell~traceback = condition("O")~traceback
+        if condition~message <> .nil then .error~say(condition~message)
+        else if condition~errortext <> .nil then .error~say(condition~errortext)
+        .error~say("Code=" condition~code)
+        .ooRexxShell~traceback = condition~traceback
         .color~select(.ooRexxShell~defaultColor, .error)
     end
-    if RC <> 0 then do
+    if RC <> 0 & \.ooRexxShell~error then do
+        -- RC can be set by interpretCommand or by addressCommand
+        -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
         .color~select(.ooRexxShell~errorColor, .error)
         .error~say("RC=" RC)
         .color~select(.ooRexxShell~defaultColor, .error)
@@ -477,7 +494,7 @@ interpretCommand:
     end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                                   else drop result
-    signal on syntax name interpretError
+    if .ooRexxShell~trap then signal on syntax name interpretError
     interpret .ooRexxShell~command
     signal off syntax
     if var("result") then .ooRexxShell~lastResult = result -- backup current result
@@ -486,7 +503,6 @@ interpretCommand:
 
     interpretError:
     .ooRexxShell~error = .true
-    RC = condition("O")~code
     signal return_to_dispatchCommand
 
 
@@ -697,16 +713,18 @@ loadLibrary:
 ::attribute traceDispatchCommand class
 
 ::attribute debug class
+::attribute trap class -- default true : the conditions are trapped when interpreting the command
 
 ::method init class
     self~BsfJavaThreadId = 0
+    self~debug = .false
     self~hasBsf = .false
     self~hasRgfUtil2 = .false
     self~isExtended = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
     self~traceback = .array~new
-    self~debug = .false
+    self~trap = .true
 
     HOME = value("HOME",,"ENVIRONMENT") -- probably defined under MacOs and Linux, but maybe not under Windows
     if HOME == "" then do
@@ -731,9 +749,31 @@ loadLibrary:
 
 
 ::method sayInterpreters class
+    say "Interpreters:"
     do interpreter over .ooRexxShell~interpreters~allIndexes~sort
-        say interpreter~lower" : to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
+        say "    "interpreter~lower": to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
     end
+
+
+::method sayCommands class
+    .ooRexxShell~sayInterpreters
+    say "Other commands:"
+    say "    ? : to invoke ooRexx documentation."
+    say "    debugon: activate the full trace of the internals of ooRexxShell."
+    say "    debugoff: deactivate the full trace of the internals of ooRexxShell."
+    say "    exit: exit ooRexxShell."
+    say "    interpreters: list of interpreters that can be selected."
+    say "    readlineoff: use the raw parse pull for the input."
+    say "    readlineon: delegate to the system readline (better support for history, tab completion)."
+    say "    reload: exit the current session and start a new one, reloading all the packages/librairies."
+    say "    securityoff: deactivate the security manager. The system commands are passed as-is to the system."
+    say "    securityon: activate the security manager. The system commands are transformed before passing them to the system."
+    say "    tb: display the trace back of the last error."
+    say "    traceoff: deactivate the ligth trace of the internals of ooRexxShell."
+    say "    traceon: activate the ligth trace of the internals of ooRexxShell."
+    say "    trapoff: deactivate the conditions traps when interpreting the command"
+    say "    trapon: activate the conditions traps when interpreting the command"
+    say "Input queue name :" .ooRexxShell~queueName
 
 
 ::method trace class
@@ -768,6 +808,7 @@ loadLibrary:
 
 
 ::method command
+    if .ooRexxShell~debug then trace i ; else trace off
     use arg info
 
     isEnabled = self~isEnabledByUser & self~isEnabled
@@ -802,6 +843,7 @@ loadLibrary:
 
 
 ::method adjustCommand
+    if .ooRexxShell~debug then trace i ; else trace off
     use strict arg address, command, temporarySettingsFile
     if address~caselessEquals("cmd") then do
         -- [WIN32] Bypass a problem with doskey history :
@@ -1146,9 +1188,16 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     ...
     More values defined in winnt.h
     */
+    if .ooRexxShell~debug then trace i ; else trace off
     use strict arg exename
     signal on notready
     stream = .Stream~new(exename)
+    if stream~query("size") == 0 then do
+        -- this test is mandatory, because stream~open raises Error 93.938:  Method argument 1 must have a string value
+        -- when an empty file is opened in binary mode, without specifying "Reclength <length>"
+        -- Sounds like a bug...
+        return .false
+    end
     if stream~open("read shared binary") <> "READY:" then return 0
     e_magic = stream~charIn(1, 2)
     if e_magic <> "4D5A"x then return 0 -- MZ
