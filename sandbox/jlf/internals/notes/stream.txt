@@ -51,7 +51,7 @@ but does not fallback to write-only in case of failure (limited to device)
 Another problem in this method, when testing if the last character is ctrl_z.
 Since the handle is write-only, the attempt to read the last character fails and notReadyError is called.
 
-ctrl_z also tested in 
+ctrl_z also tested in
 StreamInfo::implicitOpen
 StreamInfo::handleOpen
 
@@ -65,13 +65,13 @@ or from bash
 
 --------
 
-Put a breakpoint in A) : 
+Put a breakpoint in A) :
 b BuiltinFunctions.cpp:2234     command(...)
 b BuiltinFunctions.cpp:2056     charout(file, string)
 b BuiltinFunctions.cpp:2015     lineout(file, string)
 run write_only.rex
 The breakpoint is hit
-Put a breakpoint in B) : 
+Put a breakpoint in B) :
 b StreamNative.cpp:2383         streamOpen
 b StreamNative.cpp:745          implicitOpen
 b StreamNative.cpp:625          handleOpen
@@ -101,7 +101,7 @@ const char *StreamInfo::streamOpen(const char *options)
 #define IREAD_IWRITE (S_IREAD | S_IWRITE)
 
 
-oflag=522   oflag |= O_WRONLY | O_CREAT | O_APPEND 
+oflag=522   oflag |= O_WRONLY | O_CREAT | O_APPEND
 pmode=384   pmode |= S_IWRITE
 shared=0
 
@@ -153,7 +153,7 @@ Review of interpreter\streamLibrary\StreamNative.cpp
 StreamNotready is never assigned.
 
 StreamEof is assigned by StreamInfo::eof, which is called by StreamInfo::checkEof, called by StreamInfo::readLine
-returned as "NOTREADY" by StreamInfo::getState, 
+returned as "NOTREADY" by StreamInfo::getState,
 returned as "NOTREADY:EOF" by StreamInfo::getDescription
 
 On the reader side, we have the status ERROR at the end because of that :
@@ -179,7 +179,7 @@ So now, must see why stdout is not transient under Unix...
 
 
 Depending on the side of the pipe, the results are different (which makes sense, but this is and indication that an additional test if needed for pipes)
-root> rexx sender.rex | rexx receiver.rex 
+root> rexx sender.rex | rexx receiver.rex
 
 *** SysFile::getStreamTypeInfo : isatty(0)=1                stdin on sender side    : transient
 *** SysFile::getStreamTypeInfo#2 : is character device=1
@@ -196,3 +196,90 @@ root> rexx sender.rex | rexx receiver.rex
 
 
 
+=====================================================================
+ooRexxShell
+error if command "toto" and the file "toto" exists and is empty.
+::method subsystem
+if stream~open("read shared binary") <> "READY:" then return 0
+--> error because of StreamInfo::checkStreamType
+
+StreamInfo::checkStreamType
+    // see if the system believes this is transient.
+    if (!fileInfo.isTransient())
+    {
+        // non-transient, now process this as binary or text based.
+        if (record_based)
+        {
+            // not given as a binary record length?
+            if (!binaryRecordLength)
+            {
+                // one stream, one record, up to the record size restriction
+                binaryRecordLength = (size_t)size();
+                if (binaryRecordLength == 0)
+                {
+                    // raise an exception for this
+                    raiseException(Rexx_Error_Incorrect_method);
+                }
+
+
+Why record_based is true ?
+If I understand correctly, BINARY ==> record_based = true
+
+
+StreamCommandParser.h
+inline ParseAction(ActionType a, bool &target, bool source)
+
+trunk\interpreter\streamLibrary\StreamCommandParser.h
+typedef enum
+{
+    NoAction,                 // table terminator element
+    BitOr,                    // or a value into an integer         // *int_output |= int_value; return 0;
+    BitAnd,                   // and a value into an integer        // *int_output &= int_value; return 0;
+    MF,                       // Mutual exclusion field             // return (*int_output != 0) ? 1 : 0;
+    ME,                       // Mutual exclusion flag              // return (*int_output & int_value) ?  1 : 0;
+    MI,                       // Mutual inclusion flag              // return ((*int_output & int_value) != int_value) ? 1 : 0;
+    MEB,                      // Mutual exclusion bool              // return (*bool_output) ? 1 : 0;
+    MIB,                      // Mutual inclusion bool              // return (*bool_output) ? 0 : 1;
+    SetBool,                  // set a boolean item                 // *bool_output = bool_value; return 0;
+    SetItem,                  // set an int item to a value         // *int_output = int_value; return 0;
+    CallItem,                 // additional processing required     // return (*afp)(def, token, actionParm);
+} ActionType;
+
+Stop as soon as the action returns <> 0
+
+trunk\interpreter\streamLibrary\StreamCommandParser.cpp
+StreamInfo::streamOpen
+        ParseAction  OpenActionread[] = {
+            ParseAction(MEB, read_write),                                   // if read_write == 0
+            ParseAction(MEB, write_only),                                   // if write_only == 0
+            ParseAction(MEB, append),                                       // if append == 0
+            ParseAction(ME, oflag, RX_O_TRUNC),                             // if oflag & RX_O_TRUNC == 0
+            ParseAction(SetBool, read_only, true),                          // read_only = true
+            ParseAction(BitOr, oflag, RX_O_RDONLY),                         // oflag |= RX_O_RDONLY
+            ParseAction(BitOr, pmode, RX_S_IREAD),                          // pmode |= RX_S_IREAD
+            ParseAction()
+        };
+        ParseAction OpenActionbinary[] = {
+            ParseAction(MEB, record_based, true),                           // if record_based == 0     // JLF : is this test useful ? if == 1 then assig
+            ParseAction(SetBool, record_based, true),                       // record_based = true
+            ParseAction()
+        };
+        ParseAction OpenActionreclength[] = {
+            ParseAction(MIB, record_based),                                 // if record_based == 1
+            ParseAction(CallItem, reclength_token, &binaryRecordLength),    // read the optional length (Binary Reclength <length>) : binaryRecordLength = <length>
+            ParseAction()
+        };
+        ParseAction OpenActionshared[] = {
+            ParseAction(SetItem, shared, RX_SH_DENYNO),
+            ParseAction()
+        };
+
+        TokenDefinition  tts[] = {
+            TokenDefinition("READ",3,      OpenActionread),             // 3 is minimal length to be not ambiguous : REA|D vs REC|LENGTH
+            ...
+            TokenDefinition("BINARY",2,    OpenActionbinary),
+            TokenDefinition("RECLENGTH",3, OpenActionreclength),
+            TokenDefinition("SHARED",6,    OpenActionshared),
+            ...
+
+I still don't understand why it's an error to open an empty file in binary mode, when no Reclength is provided.
