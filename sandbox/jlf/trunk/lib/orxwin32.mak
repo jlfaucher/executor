@@ -167,7 +167,12 @@ my_cdebug = -Zi /Od /Gr /D_DEBUG /DEBUGTYPE:CV
 cflags_noopt=/nologo /D:_X86_ /DWIN32 $(WARNING_FLAGS) -c $(my_cdebug) /DNULL=0
 !ENDIF
 
-cflags_common=/EHsc /nologo /D:_X86_ /DWIN32 $(VER_DEF) $(WARNING_FLAGS) -c $(my_cdebug) $(MK_ASM) $(RXDBG) /DNULL=0 $(HAVE_INTTYPES_H)
+# If STRONG_TYPES is defined then string's size in chars and string's size in bytes are distinct types.
+# Useful to propagate the right types from entry points dealing with chars to inner helpers dealing with bytes.
+# Currently supported only by Visual C++
+STRONG_TYPES = /DSTRONG_TYPES
+
+cflags_common=/EHsc /nologo /D:_X86_ /DWIN32 $(VER_DEF) $(WARNING_FLAGS) -c $(my_cdebug) $(MK_ASM) $(RXDBG) /DNULL=0 $(HAVE_INTTYPES_H) $(STRONG_TYPES)
 
 # ooRexx has always been using a statically linked CRT.
 !IFDEF NOCRTDLL
