@@ -24,9 +24,9 @@ Don't use $T in the doskey macros, use instead ^&.
 Reason: $T generates 2 lines, only the first line is injected in the input queue.
 Example:
 doskey cdoorexx=%builder_shared_drv% ^& cd %builder_shared_dir%
-works correctly in ooRExxShell, whereas
+works correctly in ooRexxShell, whereas
 doskey cdoorexx=%builder_shared_drv% $T cd %builder_shared_dir%
-does not work (only C: is injected).
+does not work (only C: is injected in the input queue).
 
 
 Interactive mode
@@ -55,21 +55,26 @@ ooRexxShell uses "parse pull" to get the next command to execute from its input 
 When arguments are passed from the command line, they are pushed as-is to the input queue (all in one line).
 You may need to protect the special characters like | ; & from the shell interpretation, using quotes or backslahes.
 
-Here no quotes needed
+Example
+Here no quotes needed:
 CMD> oorexxshell say hello
 CMD> oorexxshell 1+1=
 
-Here quotes needed to protect the &
+Example
+Here quotes needed to protect the '&':
 CMD> oorexxshell ".true & .false ="
 
+Example
 Get all the file path included with xi:include, search in all the xml files of the current directory.
 Extract the file path from href="<file path>" then test if the file "<file path>" exists.
 If not found then display its path on the console.
 CMD> oorexxshell '"grep xi:include *.xml"~pipe(.system | .inject {quote = 34~d2c; parse var item . "href="(quote) file (quote) . ; file } | .sort | .take 1 {item} | .select {\ SysFileExists(item)} | .console)'
 
+Example
 With as input a text file where each line is a file path: Count the number of files per extension
 CMD> oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffix = item~substr(item~lastpos(".")); if suffix~pos(".") == 1 & suffix~pos("/") == 0 then suffix~lower} | .sort  | .lineCount {item} | .console)' > files_analysis.txt
 
+Example
 By design, parse pull reads first the queue and then the standard input.
 In the next example, "say hello2" has been pushed to the input queue of ooRexxShell,
 and "say hello1" comes the standard input.
@@ -77,6 +82,7 @@ CMD> say hello1 | oorexxshell say hello2
 HELLO2
 HELLO1
 
+Example
 To execute a set of commands using a non-interactive ooRexxShell:
 CMD>  type my_commands.txt | oorexxshell <optional first command>
 BASH> cat  my_commands.txt | oorexxshell <optional first command>
@@ -167,7 +173,7 @@ Known problems under Windows
         Nonnumeric value ("LS") used in arithmetic operation
         Code= 41.1
   [Note: these problems do not occur under Linux with Bash because the aliases are expanded
-  only when the interpreter is Bash and the command is evaluated.]
+  only when the command is evaluated by Bash.]
 
 
 Known problems under all platforms
@@ -194,6 +200,15 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 History of changes
 ==================
 
+-----------------------------------------------
+2015 sep 25
+
+UNO.CLS is now loaded only if the environment variable UNO_INSTALLED is set.
+
+Access to help sligthly reworked: go to the ooRexx web site if REXX_HOME not defined.
+
+
+-----------------------------------------------
 2015 Sep 1
 
 More work on the non-interactive mode.
