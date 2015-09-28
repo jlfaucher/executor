@@ -1,5 +1,10 @@
 In relation with extensions of predefined classes in ooRexx.
 
+https://developer.apple.com/library/ios/documentation/Swift/Conceptual/Swift_Programming_Language/Extensions.html#//apple_ref/doc/uid/TP40014097-CH24-ID151
+Extensions add new functionality to an existing class, structure, enumeration, or protocol type.
+This includes the ability to extend types for which you do not have access to the original source code (known as retroactive modeling).
+Extensions can add new functionality to a type, but they cannot override existing functionality.
+
 http://adambard.com/blog/structured-clojure-protocols-and-multimethods/
 Structured clojure: Protocols and multimethods
 http://clojure.org/multimethods
