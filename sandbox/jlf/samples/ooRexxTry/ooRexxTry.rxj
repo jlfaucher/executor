@@ -246,12 +246,6 @@ loadOptionalComponents:
     if .local~mm.dir~ooRexx.isExtended then do
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-       .Coactivity~setMethod('onStart', .array~of(,
-           'use strict arg coactivity;',
-           'signal on syntax;',
-           'call BsfAttachToTid .mm.dir~start.tid;',
-           'coactivity~setMethod("onTerminate", "call BsfDetach");',
-           'syntax:'))
     end
 
     return

@@ -203,6 +203,12 @@ History of changes
 ==================
 
 -----------------------------------------------
+2015 oct 6
+
+Since BSF4OORexx 4.5.0, it's no longer need to call BsfAttachToTID and BsfDetach.
+Removed the useless code.
+
+-----------------------------------------------
 2015 sep 25
 
 UNO.CLS is now loaded only if the environment variable UNO_INSTALLED is set.

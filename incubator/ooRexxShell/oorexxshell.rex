@@ -595,17 +595,6 @@ loadOptionalComponents:
     if .ooRexxShell~isExtended then do
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        if .ooRexxShell~hasBsf then do
-            .ooRexxShell~BsfJavaThreadId = BsfGetTid()
-            onStartSource = .array~of(,
-                'use strict arg coactivity;',
-                'signal on syntax;',
-                'call BsfAttachToTid .ooRexxShell~BsfJavaThreadId;',
-                'coactivity~setMethod("onTerminate", "call BsfDetach");',
-                'syntax:')
-            onStartMethod = .method~new("", onStartSource) -- When explictely creating a method like that, then .ooRexxShell is visible when running the method...
-            .Coactivity~setMethod('onStart', onStartMethod) -- If passing onStartSource here, then .ooRexxShell is not visible when running the method...
-        end
         -- regex.cls use the method .String~contains which is available only from ooRexx v5.
         -- Add this method if not available.
         if \ ""~hasMethod("contains") then .String~define("contains", "use strict arg needle; return self~pos(needle) <> 0")
@@ -678,7 +667,6 @@ loadLibrary:
 ::class ooRexxShell
 -------------------------------------------------------------------------------
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
-::attribute BsfJavaThreadId class -- The thread id of the thread which loaded BSF.cls
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
@@ -717,7 +705,6 @@ loadLibrary:
 ::attribute trap class -- default true: the conditions are trapped when interpreting the command
 
 ::method init class
-    self~BsfJavaThreadId = 0
     self~debug = .false
     self~hasBsf = .false
     self~hasRgfUtil2 = .false
