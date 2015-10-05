@@ -78,7 +78,7 @@ Example
 By design, parse pull reads first the queue and then the standard input.
 In the next example, "say hello2" has been pushed to the input queue of ooRexxShell,
 and "say hello1" comes the standard input.
-CMD> say hello1 | oorexxshell say hello2
+CMD> echo say hello1 | oorexxshell say hello2
 HELLO2
 HELLO1
 
@@ -142,6 +142,8 @@ Known problems under Windows
 - If you launch ooRexxShell from a .bat file, then you need to prepend cmd /c to have the
   doskey history working correctly.
       cmd /c ""my path to\rexx" "my path to\ooRexxShell""
+
+- The doskey history is fragile. It's not rare to loose the history.
 
 - The default console code page is the OEMCP, which does not match the default ANSI
   code page (ACP). That bring troubles when you execute a command which contains
