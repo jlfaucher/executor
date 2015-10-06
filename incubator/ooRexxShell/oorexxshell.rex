@@ -302,7 +302,9 @@ readline: procedure
                 "(if not defined inputrx echo inputrx= | rxqueue "quoted(.ooRexxShell~queueName)" /lifo)"
             address -- restore
             if queued() <> 0 then parse pull inputrx
-            if inputrx == "" then inputrx = "exit" -- eof. Example: happens after "dir" has been processed when doing that: echo dir | oorexxshell
+            if inputrx == "" then do
+                if RC == 0 then inputrx = "exit" -- eof. Example: happens after "dir" has been processed when doing that: echo dir | oorexxshell
+            end
             else if inputrx~abbrev("inputrx=") then inputrx = inputrx~substr(9) -- remove "inputrx="
         end
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("bash") & .ooRexxShell~readline then do
@@ -1381,14 +1383,14 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 -------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
-::routine unsigned32
+::routine unsigned32 public
     use strict arg number
     numeric digits 10
     if number >= 0 then return number
     return 4294967296 + number
 
 
-::routine littleendian2integer16
+::routine littleendian2integer16 public
     use strict arg string
     byte2 = string~subchar(2)~c2d
     byte1 = string~subchar(1)~c2d
@@ -1397,7 +1399,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     return integer16
 
 
-::routine littleendian2integer32
+::routine littleendian2integer32 public
     use strict arg string
     numeric digits 10
     byte4 = string~subchar(4)~c2d
