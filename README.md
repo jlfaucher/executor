@@ -346,10 +346,10 @@ Equivalent form:
         ( (lambda (a) (a a))
           (lambda (x) (f (lambda (v) ((x x) v)))))))
 
-The call-by-value is implemented as a method on the class Doer
+The call-by-value is implemented as a method on the class RoutineDoer
 (no function passed as argument, self is directly the function).
 
-    ::class Doer
+    ::class RoutineDoer
     ::method Y
     f = self
     return {use arg a ; return a~(a)} ~ {
@@ -359,24 +359,72 @@ The call-by-value is implemented as a method on the class Doer
 
 Application of the Y combinator to factorial:
 
-    say {
-          use arg f
-          return  { ::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
-        }~Y~(10)
-    --> display 3628800
+    fact = { use arg f
+             return  { ::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+           }~Y
+    say fact~(10) -- 3628800
 
 ### Anonymous recursive functions
 
-ooRexx supports anonymous recursive functions, so no need of the Y combinator...
+ooRexx supports anonymous recursive functions...
 
-    fact =  {
-        use arg n
-        if n == 0 then
-            return 1
-        else
-            return n * .context~executable~(n-1)
+    fact =  { use arg n
+              if n == 0 then
+                  return 1
+              else
+                  return n * .context~executable~(n-1)
+            }
+    say fact~(10) -- 3628800
+
+... so no need of the Y combinator, except for memoization.
+
+### Y combinator with memoization
+
+[Memoization][wikipedia_memoization] is an optimization technique used primarily to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.
+
+    ::class RoutineDoer
+    ::method YM
+    f = self
+    table = .Table~new
+    return {use arg a ; return a~(a)} ~ {
+        ::closure expose f table ; use arg x
+        return f ~ { ::closure expose x table
+                     use arg v
+                     r = table[v]
+                     if r <> .nil then return r
+                     r = x~(x)~(v)
+                     table[v] = r
+                     return r
+                   }
     }
-    say fact~(10)                           -- 3628800
+
+Application to fibonacci :
+
+    fibm = { use arg fib;
+             return {::closure expose fib ; use arg n
+                     if n==0 then return 0
+                     if n==1 then return 1
+                     if n<0 then return fib~(n+2) - fib~(n+1)
+                     return fib~(n-2) + fib~(n-1)
+                    }
+           }~YM
+    say fibm~(25) -- 75025
+
+fibm~(25) is calculated almost instantly,  
+whereas the not-memoizing version needs almost 30 sec.
+
+Both Y and YM are subject to stack overflow.  
+But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization :
+
+    do i=1 to 100; say "fibm~("i*100")="fibm~(i*100); end
+    -- fibm~(100)=3.54224847E+20
+    -- fibm~(200)=2.80571176E+41
+    -- fibm~(300)=2.22232246E+62
+    ...
+    -- fibm~(10000)=3.36447936E+2089
+
+The first execution needs around 2.5 sec.  
+The following executions need less than 0.01 sec.
 
 ### Pipelines
 
@@ -661,6 +709,7 @@ Same example with kestrels, to log intermediate results:
 [rosetta_code_y_combinator]: http://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
-[rosetta_code_function_composition]:http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
-[apl_glimpse_heaven]:http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
+[rosetta_code_function_composition]: http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
+[apl_glimpse_heaven]: http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
 [raganwald_homoiconic]: https://github.com/raganwald-deprecated/homoiconic "Raganwald's Homoiconic"
+[wikipedia_memoization]: https://en.wikipedia.org/wiki/Memoization
