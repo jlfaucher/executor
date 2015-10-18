@@ -287,7 +287,7 @@ whereas the not-memoizing version needs almost 30 sec.
 
 Both Y and YM are subject to stack overflow.
 But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization :
-do i=1 to 100; say "fibm~("i")="fibm~(i*100); end
+do i=1 to 100; say "fibm~("i*100")="fibm~(i*100); end
     fibm~(100)=3.54224847E+20
     fibm~(200)=2.80571176E+41
     fibm~(300)=2.22232246E+62
