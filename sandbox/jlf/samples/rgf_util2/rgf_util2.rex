@@ -1802,7 +1802,9 @@ syntax:              -- propagate condition
   count=0
   do while s~available
      count=count+1
-     say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
+     -- JLF shorter output
+     -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
+     say ppIndex2(s~index)~left(maxWidth) "->" pp2(s~item)
      s~next
   end
   -- JLF say "-"~copies(50)
