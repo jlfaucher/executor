@@ -24,6 +24,7 @@ Implicit arguments :
     arg(1) : integerIndex : position of the current cell, from 1 to size.
     arg(2) : arrayIndex : position of the current cell, in each dimension. Always an array, even if the number of dimensions = 1
 The value returned by the doer is the item for the current cell.
+If no value returned then the cell remains unassigned.
     .array~new(2,3)~of{10*integerIndex}
     10 20 30
     40 50 60
@@ -77,7 +78,7 @@ many times as necessary to fill the array.
                 value = arg(1)
             end
         end
-        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex, self")~arity(3)
+        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex, array")~arity(3)
         else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
         else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
@@ -227,8 +228,8 @@ many times as necessary to fill the array.
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
 */
-    use strict arg maxItems=(-1), ellipsis="...", separator=",", val=(self), stack=(.queue~new)
-    if val~isA(.array) /*, val~dimension == 1*/ then do
+    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
+    if val~isA(.array), val~dimension == 1 then do
         -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
         level = stack~index(val)
         if .nil <> level then return "*"level-1
@@ -238,14 +239,27 @@ many times as necessary to fill the array.
                   -- Maybe a global count could be useful... Will see on usage.
         valstr = "["
         sep = ""
-        do v over val -- not well adapted to multi-dimension arrays : converted into a non-sparse single dimension array
+        s = val~supplier
+        i = 1 -- current index, will let detect sparse sections
+        do while s~available
+            item = s~item
+            index = s~index
             if maxItems >= 0, items >= maxItems then do
                 valstr ||= sep || ellipsis
                 leave
             end
-            valstr ||= sep || self~ppRepresentation(maxItems, ellipsis, separator, v, stack)
+            if i <> index then do
+                valstr ||= sep || sparse
+                sep = separator
+            end
+            valstr ||= sep || self~ppRepresentation(maxItems, sparse, ellipsis, separator, item, stack)
             sep = separator
             items += 1
+            i = index + 1 -- next index
+            s~next -- skip sparse section, if any
+        end
+        if maxItems >= 0, items < maxItems then do -- if not truncated
+            if i <= self~size then valstr ||= sep || sparse
         end
         valstr ||= "]"
         stack~pull
@@ -259,7 +273,10 @@ many times as necessary to fill the array.
         end
         else do
             isnum = .false
-            valstr = "("valstr")" -- to make a distinction between a real string and other objects
+            -- To make a distinction between a real string and other objects, surround by (...)
+            -- For the arrays, indicate their shape : (an Array 2x3)
+            if val~isA(.array) then valstr = "("valstr val~shape~reduce{accu"x"item}")"
+            else valstr = "("valstr")"
         end
         return valstr
     end

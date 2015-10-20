@@ -587,7 +587,7 @@ dataflow~index
     Returns the index of the produced item.
 dataflow~length
     Returns the number of linked dataflows, including the current one ( >= 1 ).
-dataflow~makeString(mask="1234", showPool=.false)
+dataflow~makeString(mask="1 2 3 4", showPool=.false)
     Returns a string representation of the dataflow.
     - mask lets indicate which fields to include.
       if previous is included, then the same mask is used everywhere.
@@ -717,7 +717,7 @@ return previousDataflow1~compareTo(previousDataflow2)
 -- Ex :
 -- with showPool == .false : "my string",(a Method)|"my string",(a Method)
 -- with showPool == .true  : v1="my string",v2=(a Method)|v1,v2
-use strict arg mask="1234", showPool=.false, pool=(.queue~new), values=(.table~new)
+use strict arg mask="1 2 3 4", showPool=.false, pool=(.queue~new), values=(.table~new)
 if showPool then do
     do index = self~firstIndexPoolManaged to self~dimension(1)
         if mask~pos(index) == 0 then iterate
@@ -741,7 +741,7 @@ return string
 -- The goal is to know if a given value appears more than once in the representation (count > 1) : shared value.
 -- If reused and showPool==.true, then a compacted representation will be used (see dataflow_representation).
 use strict arg val, values, stack=(.queue~new)
-if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMaxSize then do
+if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
     -- each item of the array will be inserted in the representation.
     if .nil <> stack~index(val) then return -- recursive array
     stack~push(val)
@@ -766,12 +766,11 @@ end
 -- The first occurence of a shared value is represented by vN=<shared value representation>
 -- The next occurences of this shared value is just vN.
 use strict arg val, showPool, pool, values, stack=(.queue~new)
-if val~isA(.array) /*, val~dimension == 1*/, val~items <= .dataflow~arrayPrintMaxSize then do
+if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
     -- Remember : this part of code is a duplication of .array~ppRepresentation.
     -- Must find a way to avoid this duplication...
     -- One difference is the call to dataflow_representation instead of ppRepresentation,
     -- but the problem is that additional parameters are passed : showPool, pool, values.
-    -- Other difference : I use a condensed output even if multi-dimensional array.
     -- Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
 
     -- each item of the array is inserted.
@@ -797,7 +796,10 @@ else do
     end
     else do
         isnum = .false
-        valstr = "("valstr")" -- to make a distinction between a real string and other objects
+        -- To make a distinction between a real string and other objects, surround by (...)
+        -- For the arrays, indicate their shape : (an Array 2x3)
+        if val~isA(.array) then valstr = "("valstr val~shape~reduce{accu"x"item}")"
+        else valstr = "("valstr")"
     end
     if isnum | \showPool then return valstr
     else do
@@ -1675,8 +1677,8 @@ return dataflow_representation(val, .false, .nil, .nil) -- showPool=.false, pool
 
 ::method displayDataflow -- private (in comment otherwise error "does not understand message DISPLAYDATAFLOW_UNPROTECTED when profiling)
 expose showPool showTags
-if showTags then mask=1234567
-else mask = 124567
+if showTags then mask="1 2 3 4 5 6 7"
+else mask = "1 2 4 5 6 7"
 use strict arg width, item, index, dataflow
 if width == -1 then .output~charout(dataflow~makeString(mask, showPool))
                else .output~charout(dataflow~makeString(mask, showPool)~left(width))

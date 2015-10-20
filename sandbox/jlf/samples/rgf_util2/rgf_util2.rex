@@ -1778,7 +1778,10 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     say title": ("coll~items "items)"
+     -- JLF add shape for Array: 2x3
+     shape = ""
+     if coll~isA(.array), coll~hasMethod("shape") then shape = "shape " || coll~shape~reduce{accu"x"item} || ", "
+     say title": ("shape || coll~items "items)"
      len=length(coll~items)
   end
 
@@ -1804,7 +1807,7 @@ syntax:              -- propagate condition
      count=count+1
      -- JLF shorter output
      -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
-     say ppIndex2(s~index)~left(maxWidth) "->" pp2(s~item)
+     say ppIndex2(s~index)~left(maxWidth) ":" pp2(s~item)
      s~next
   end
   -- JLF say "-"~copies(50)
@@ -2595,9 +2598,12 @@ createCodeSnippet: procedure
      if a1~isA(.array), a1~dimension <= 1, a1~hasMethod("ppRepresentation") then
         return a1~ppRepresentation(100)
      -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
-     if a1~isA(.Collection) then
-        if .local~rgf.showIdentityHash then return "("a1~string "("a1~items "items)" "id#_" || (a1~identityHash)")"
-        else return "("a1~string "("a1~items "items))"
+     if a1~isA(.Collection) then do
+        shape = ""
+        if a1~isA(.array), a1~hasMethod("shape") then shape = "shape " || a1~shape~reduce{accu"x"item} || ", "
+        if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
+        else return "("a1~string "("shape || a1~items "items))"
+     end
      else
         if .local~rgf.showIdentityHash then return "("a1~string "id#_" || (a1~identityHash)")"
         else return "("a1~string")"

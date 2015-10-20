@@ -152,6 +152,22 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 oct 20
+
+Sparse arrays in condensed mode: display .. when a section is empty.
+.array~new(1)= -- [..]
+.array~new(10)= -- [..]
+.array~new(20)~of{if integerIndex // 2 == 0 then integerIndex}= -- [..,2,..,4,..,6,..,8,..,10,..,12,..,14,..,16,..,18,..,20]
+.array~new(20)~of{if integerIndex // 3 == 0 then integerIndex}= -- [..,3,..,6,..,9,..,12,..,15,..,18,..]
+.array~new(20)~of{if integerIndex // 4 == 0 then integerIndex}= -- [..,4,..,8,..,12,..,16,..,20]
+
+
+pipe.rex
+dataflow_representation now supports only array of dimension 1.
+Arrays with 2 dimensions or more are represented as an object Array : "an Array 2x3"
+
+
+===============================================================================
 2015 sept 13
 
 GC review
