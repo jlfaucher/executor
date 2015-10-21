@@ -152,6 +152,22 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 oct 22
+
+Array operators:
+Add support for recursive arrays.
+Work in progress... Only "+" and "-" have been adapted.
+
+Ex:
+a = .array~of(1,2)
+a~append(a)
+a =     -- [1,2,*0]
+-a =    -- [-1,-2,*0]
+a+1 =   -- [2,3,*@]
+1+a =   -- [2,3,*@]
+
+
+===============================================================================
 2015 oct 20
 
 Sparse arrays in condensed mode: display .. when a section is empty.

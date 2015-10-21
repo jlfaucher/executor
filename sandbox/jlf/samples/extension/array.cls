@@ -285,39 +285,97 @@ many times as necessary to fill the array.
 /******************************************************************************/
 ::class "ArrayOperators" mixinclass Object public
 
-::method "+"
-    if arg() == 0 then return self~map("+")
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item + right[index]}
+::method leftElementWise
+    use strict arg message, rightArgIsProvided, rightArg, recursion=(.identityTable~new)
+    counterpart = recursion[self]
+    if counterpart <> .nil then return counterpart -- stop infinite recursion
+    r = .array~new
+    recursion[self] = r -- will be used to build the resulting infinite array
+    if \ rightArgIsProvided then do -- unary operator
+        supplier = self~supplier
+        do while supplier~available
+            index = supplier~index
+            item = supplier~item
+            if item~isA(.array) then
+                r[index] = item~leftElementWise(message, .false, .nil, recursion)
+            else
+                r[index] = item~send(message)
+            supplier~next
+        end
     end
-    return self~map{::closure expose right ; item + right}
+    else if rightArg~isA(.array) then do -- binary operator with array on left & right
+        if \SameDimensions(self, rightArg) then raise syntax 93.900 array("Dimensions are not equal")
+        supplier = self~supplier
+        do while supplier~available
+            index = supplier~index
+            item = supplier~item
+            if item~isA(.array) then
+                r[index] = item~leftElementWise(message, .true, rightArg[index], recursion)
+            else
+                r[index] = item~send(message, rightArg[index])
+            supplier~next
+        end
+    end
+    else do -- binary operator with array on left only
+        supplier = self~supplier
+        do while supplier~available
+            index = supplier~index
+            item = supplier~item
+            if item~isA(.array) then
+                r[index] = item~leftElementWise(message, .true, rightArg, recursion)
+            else
+                r[index] = item~send(message, rightArg)
+            supplier~next
+        end
+    end
+    recursion~remove(self)
+    return r
+
+::method "rightElementWise"
+    use strict arg message, leftArg, recursion=(.identityTable~new)
+    counterpart = recursion[self]
+    if counterpart <> .nil then return counterpart -- stop infinite recursion
+    r = .array~new
+    recursion[self] = r -- will be used to build the resulting infinite array
+    if leftArg~isA(.array) then do -- binary operator with array on left & right
+        if \SameDimensions(self, leftArg) then raise syntax 93.900 array("Dimensions are not equal")
+        supplier = self~supplier
+        do while supplier~available
+            index = supplier~index
+            item = supplier~item
+            if item~isA(.array) then
+                r[index] = item~rightElementWise(message, leftArg[index], recursion)
+            else
+                r[index] = leftArg[index]~send(message, item)
+            supplier~next
+        end
+    end
+    else do -- binary operator with array on right only
+        supplier = self~supplier
+        do while supplier~available
+            index = supplier~index
+            item = supplier~item
+            if item~isA(.array) then
+                r[index] = item~rightElementWise(message, leftArg, recursion)
+            else
+                r[index] = leftArg~send(message, item)
+            supplier~next
+        end
+    end
+    recursion~remove(self)
+    return r
+
+::method "+"
+    return self~leftElementWise("+", arg(1, "e"), arg(1))
 
 ::method "+op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] + item}
-    end
-    return self~map{::closure expose left ; left + item}
+    return self~rightElementWise("+", arg(1))
 
 ::method "-"
-    if arg() == 0 then return self~map("-")
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item - right[index]}
-    end
-    return self~map{::closure expose right ; item - right}
+    return self~leftElementWise("-", arg(1, "e"), arg(1))
 
 ::method "-op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] - item}
-    end
-    return self~map{::closure expose left ; left - item}
+    return self~rightElementWise("-", arg(1))
 
 ::method "*"
     use strict arg right
