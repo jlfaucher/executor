@@ -159,12 +159,7 @@ many times as necessary to fill the array.
 
 -- The shape of an array is an array which gives the size of each dimension (APL).
 ::method shape
-    -- return self~dimension~times{::closure expose self;self~dimension(item)}
-    shape = .array~new(self~dimension)
-    do i=1 to self~dimension
-        shape[i] = self~dimension(i)
-    end
-    return shape
+    forward message "dimensions"
 
 
 ::method incrementIndex
@@ -285,13 +280,24 @@ many times as necessary to fill the array.
 /******************************************************************************/
 ::class "ArrayOperators" mixinclass Object public
 
+::attribute isBoxed set
+    expose isBoxed
+    use strict arg isBoxed
+::attribute isBoxed get
+    expose isBoxed
+    if var("isBoxed") then return isBoxed
+    return .false
+
+::attribute defaultSparseValue
+
 ::method leftElementWise
     use strict arg message, rightArgIsProvided, rightArg, recursion=(.identityTable~new)
     counterpart = recursion[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
-    r = .array~new
-    recursion[self] = r -- will be used to build the resulting infinite array
-    if \ rightArgIsProvided then do -- unary operator
+    if \ rightArgIsProvided then do
+        -- unary operator
+        r = .array~new
+        recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
         do while supplier~available
             index = supplier~index
@@ -302,9 +308,27 @@ many times as necessary to fill the array.
                 r[index] = item~send(message)
             supplier~next
         end
+        recursion~remove(self)
+        return r
     end
-    else if rightArg~isA(.array) then do -- binary operator with array on left & right
+    if self~isBoxed then do
+        -- boxed array on left
+        if rightArg~isA(.array), rightArg~isBoxed then do
+            -- binary operator with boxed array on left & right
+            raise syntax 93.900 array("Message" message "does not support two boxed arrays")
+        end
+        if rightArg~isA(.array) then do
+            -- binary operator with boxed array on left & unboxed array on right
+            return rightArg~rightElementWise(message, self)
+        end
+    end
+    -- unboxed array on left
+    -- or boxed array on left and not array on right: in this case, the boxed array is handled as an unboxed array
+    if rightArg~isA(.array), \ rightArg~isBoxed then do
+        -- binary operator with unboxed array on left & right
         if \SameDimensions(self, rightArg) then raise syntax 93.900 array("Dimensions are not equal")
+        r = .array~new
+        recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
         do while supplier~available
             index = supplier~index
@@ -315,8 +339,15 @@ many times as necessary to fill the array.
                 r[index] = item~send(message, rightArg[index])
             supplier~next
         end
+        recursion~remove(self)
+        return r
     end
-    else do -- binary operator with array on left only
+    else do
+        -- binary operator with unboxed array on left only.
+        -- If rightArg is an array, then it's a boxed array, to handle as a whole.
+        recursion[self] = r -- will be used to build the resulting infinite array
+        r = .array~new
+        recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
         do while supplier~available
             index = supplier~index
@@ -327,40 +358,34 @@ many times as necessary to fill the array.
                 r[index] = item~send(message, rightArg)
             supplier~next
         end
+        recursion~remove(self)
+        return r
     end
-    recursion~remove(self)
-    return r
 
 ::method "rightElementWise"
+    -- no unary operator here.
     use strict arg message, leftArg, recursion=(.identityTable~new)
     counterpart = recursion[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
+    if leftArg~isA(.array) then do
+        -- By design, if leftArg is an array, then it's a boxed array.
+        if \ leftArg~isBoxed then raise syntax 93.900 array("Assertion failed: leftArg must be a boxed array")
+        -- By design, if leftArg is an array, then rightArg is an unboxed array
+        if self~isBoxed then raise syntax 93.900 array("Assertion failed: rightArg must be an unboxed array")
+    end
+    -- binary operator with unboxed array on right only
+    -- If leftArg is an array, then it's a boxed array, to handle as a whole.
     r = .array~new
     recursion[self] = r -- will be used to build the resulting infinite array
-    if leftArg~isA(.array) then do -- binary operator with array on left & right
-        if \SameDimensions(self, leftArg) then raise syntax 93.900 array("Dimensions are not equal")
-        supplier = self~supplier
-        do while supplier~available
-            index = supplier~index
-            item = supplier~item
-            if item~isA(.array) then
-                r[index] = item~rightElementWise(message, leftArg[index], recursion)
-            else
-                r[index] = leftArg[index]~send(message, item)
-            supplier~next
-        end
-    end
-    else do -- binary operator with array on right only
-        supplier = self~supplier
-        do while supplier~available
-            index = supplier~index
-            item = supplier~item
-            if item~isA(.array) then
-                r[index] = item~rightElementWise(message, leftArg, recursion)
-            else
-                r[index] = leftArg~send(message, item)
-            supplier~next
-        end
+    supplier = self~supplier
+    do while supplier~available
+        index = supplier~index
+        item = supplier~item
+        if item~isA(.array) then
+            r[index] = item~rightElementWise(message, leftArg, recursion)
+        else
+            r[index] = leftArg~send(message, item)
+        supplier~next
     end
     recursion~remove(self)
     return r
@@ -378,536 +403,221 @@ many times as necessary to fill the array.
     return self~rightElementWise("-", arg(1))
 
 ::method "*"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item * right[index]}
-    end
-    return self~map{::closure expose right ; item * right}
+    return self~leftElementWise("*", arg(1, "e"), arg(1))
 
 ::method "*op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] * item}
-    end
-    return self~map{::closure expose left ; left * item}
+    return self~rightElementWise("*", arg(1))
 
 ::method "/"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item / right[index]}
-    end
-    return self~map{::closure expose right ; item / right}
+    return self~leftElementWise("/", arg(1, "e"), arg(1))
 
 ::method "/op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] / item}
-    end
-    return self~map{::closure expose left ; left / item}
+    return self~rightElementWise("/", arg(1, "e"), arg(1))
 
 ::method "%"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item % right[index]}
-    end
-    return self~map{::closure expose right ; item % right}
+    return self~leftElementWise("%", arg(1, "e"), arg(1))
 
 ::method "%op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] % item}
-    end
-    return self~map{::closure expose left ; left % item}
+    return self~rightElementWise("%", arg(1, "e"), arg(1))
 
 ::method "//"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item // right[index]}
-    end
-    return self~map{::closure expose right ; item // right}
+    return self~leftElementWise("//", arg(1, "e"), arg(1))
 
 ::method "//op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] // item}
-    end
-    return self~map{::closure expose left ; left // item}
+    return self~rightElementWise("//", arg(1, "e"), arg(1))
 
 ::method "**"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item ** right[index]}
-    end
-    return self~map{::closure expose right ; item ** right}
+    return self~leftElementWise("**", arg(1, "e"), arg(1))
 
 ::method "**op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] ** item}
-    end
-    return self~map{::closure expose left ; left ** item}
+    return self~rightElementWise("**", arg(1, "e"), arg(1))
 
 ::method " "
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item right[index]}
-    end
-    return self~map{::closure expose right ; item right}
+    return self~leftElementWise(" ", arg(1, "e"), arg(1))
 
 ::method " op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose self ; self[index] item}
-    end
-    return self~map{::closure expose left ; left item}
+    return self~rightElementWise(" ", arg(1, "e"), arg(1))
 
 ::method "||"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item || right[index]}
-    end
-    return self~map{::closure expose right ; item || right}
+    return self~leftElementWise("||", arg(1, "e"), arg(1))
 
 ::method "||op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] || item}
-    end
-    return self~map{::closure expose left ; left || item}
+    return self~rightElementWise("||", arg(1, "e"), arg(1))
 
 ::method "" -- abuttal
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item || right[index]}
-    end
-    return self~map{::closure expose right ; item || right}
+    return self~leftElementWise("", arg(1, "e"), arg(1))
 
 ::method "op:right" -- abuttal
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] || item}
-    end
-    return self~map{::closure expose left ; left || item}
+    return self~rightElementWise("", arg(1, "e"), arg(1))
 
 ::method mapEqual
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; (item) = right[index]}
-    end
-    return self~map{::closure expose right ; (item) = right}
+    return self~leftElementWise("=", arg(1, "e"), arg(1))
 
 /* Not activated
 ::method "="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; (item) = right[index]}
-    end
-    return self~map{::closure expose right ; (item) = right}
+    return self~leftElementWise("=", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "=op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; (left[index]) = item}
-    end
-    return self~map{::closure expose left ; (left) = item}
+    return self~rightElementWise("=", arg(1, "e"), arg(1))
 */
 
 ::method mapNotEqual
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \= right[index]}
-    end
-    return self~map{::closure expose right ; item \= right}
+    return self~leftElementWise("\=", arg(1, "e"), arg(1))
 
 /* Not activated
 ::method "\="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \= right[index]}
-    end
-    return self~map{::closure expose right ; item \= right}
+    return self~leftElementWise("\=", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "\=op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] \= item}
-    end
-    return self~map{::closure expose left ; left \= item}
+    return self~rightElementWise("\=", arg(1, "e"), arg(1))
 */
 
 ::method mapNotEqualTo
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item <> right[index]}
-    end
-    return self~map{::closure expose right ; item <> right}
+    return self~leftElementWise("<>", arg(1, "e"), arg(1))
 
 /* Not activated
 ::method "<>"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item <> right[index]}
-    end
-    return self~map{::closure expose right ; item <> right}
+    return self~leftElementWise("<>", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "<>op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] <> item}
-    end
-    return self~map{::closure expose left ; left <> item}
+    return self~rightElementWise("<>", arg(1, "e"), arg(1))
 */
 
 ::method mapStrictEqual
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item == right[index]}
-    end
-    return self~map{::closure expose right ; item == right}
+    return self~leftElementWise("==", arg(1, "e"), arg(1))
 
 /* Not activated
 ::method "=="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item == right[index]}
-    end
-    return self~map{::closure expose right ; item == right}
+    return self~leftElementWise("==", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "==op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] == item}
-    end
-    return self~map{::closure expose left ; left == item}
+    return self~rightElementWise("==", arg(1, "e"), arg(1))
 */
 
 ::method mapStrictNotEqual
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \== right[index]}
-    end
-    return self~map{::closure expose right ; item \== right}
+    return self~leftElementWise("\==", arg(1, "e"), arg(1))
 
 /* Not activated
 ::method "\=="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \== right[index]}
-    end
-    return self~map{::closure expose right ; item \== right}
+    return self~leftElementWise("\==", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "\==op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] \== item}
-    end
-    return self~map{::closure expose left ; left \== item}
+    return self~rightElementWise("\==", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "><"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item >< right[index]}
-    end
-    return self~map{::closure expose right ; item >< right}
+    return self~leftElementWise("><", arg(1, "e"), arg(1))
 */
 
 /* Not activated
 ::method "><op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] >< item}
-    end
-    return self~map{::closure expose left ; left >< item}
+    return self~rightElementWise("><", arg(1, "e"), arg(1))
 */
 
 ::method "\"
-    use strict arg -- none
-    return self~map("\")
+    use strict arg -- none, no binary version
+    return self~leftElementWise("\", .false, .nil)
 
 ::method ">"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item > right[index]}
-    end
-    return self~map{::closure expose right ; item > right}
+    return self~leftElementWise(">", arg(1, "e"), arg(1))
 
 ::method ">op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] > item}
-    end
-    return self~map{::closure expose left ; left > item}
+    return self~rightElementWise(">", arg(1, "e"), arg(1))
 
 ::method "<"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item < right[index]}
-    end
-    return self~map{::closure expose right ; item < right}
+    return self~leftElementWise("<", arg(1, "e"), arg(1))
 
 ::method "<op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] < item}
-    end
-    return self~map{::closure expose left ; left < item}
+    return self~rightElementWise("<", arg(1, "e"), arg(1))
 
 ::method ">="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item >= right[index]}
-    end
-    return self~map{::closure expose right ; item >= right}
+    return self~leftElementWise(">=", arg(1, "e"), arg(1))
 
 ::method ">=op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] >= item}
-    end
-    return self~map{::closure expose left ; left >= item}
+    return self~rightElementWise(">=", arg(1, "e"), arg(1))
 
 ::method "\<"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \< right[index]}
-    end
-    return self~map{::closure expose right ; item \< right}
+    return self~leftElementWise("\<", arg(1, "e"), arg(1))
 
 ::method "\<op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] \< item}
-    end
-    return self~map{::closure expose left ; left \< item}
+    return self~rightElementWise("\<", arg(1, "e"), arg(1))
 
 ::method "<="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item <= right[index]}
-    end
-    return self~map{::closure expose right ; item <= right}
+    return self~leftElementWise("<=", arg(1, "e"), arg(1))
 
 ::method "<=op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] <= item}
-    end
-    return self~map{::closure expose left ; left <= item}
+    return self~rightElementWise("<=", arg(1, "e"), arg(1))
 
 ::method "\>"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \> right[index]}
-    end
-    return self~map{::closure expose right ; item \> right}
+    return self~leftElementWise("\>", arg(1, "e"), arg(1))
 
 ::method "\>op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] \> item}
-    end
-    return self~map{::closure expose left ; left \> item}
+    return self~rightElementWise("\>", arg(1, "e"), arg(1))
 
 ::method ">>"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item >> right[index]}
-    end
-    return self~map{::closure expose right ; item >> right}
+    return self~leftElementWise(">>", arg(1, "e"), arg(1))
 
 ::method ">>op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] >> item}
-    end
-    return self~map{::closure expose left ; left >> item}
+    return self~rightElementWise(">>", arg(1, "e"), arg(1))
 
 ::method "<<"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item << right[index]}
-    end
-    return self~map{::closure expose right ; item << right}
+    return self~leftElementWise("<<", arg(1, "e"), arg(1))
 
 ::method "<<op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] << item}
-    end
-    return self~map{::closure expose left ; left << item}
+    return self~rightElementWise("<<", arg(1, "e"), arg(1))
 
 ::method ">>="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item >>= right[index]}
-    end
-    return self~map{::closure expose right ; item >>= right}
+    return self~leftElementWise(">>=", arg(1, "e"), arg(1))
 
 ::method ">>=op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] >>= item}
-    end
-    return self~map{::closure expose left ; left >>= item}
+    return self~rightElementWise(">>=", arg(1, "e"), arg(1))
 
 ::method "\<<"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \<< right[index]}
-    end
-    return self~map{::closure expose right ; item \<< right}
+    return self~leftElementWise("\<<", arg(1, "e"), arg(1))
 
 ::method "\<<op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] \<< item}
-    end
-    return self~map{::closure expose left ; left \<< item}
+    return self~rightElementWise("\<<", arg(1, "e"), arg(1))
 
 ::method "<<="
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item <<= right[index]}
-    end
-    return self~map{::closure expose right ; item <<= right}
+    return self~leftElementWise("<<=", arg(1, "e"), arg(1))
 
 ::method "<<=op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] <<= item}
-    end
-    return self~map{::closure expose left ; left <<= item}
+    return self~rightElementWise("<<=", arg(1, "e"), arg(1))
 
 ::method "\>>"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item \>> right[index]}
-    end
-    return self~map{::closure expose right ; item \>> right}
+    return self~leftElementWise("\>>", arg(1, "e"), arg(1))
 
 ::method "\>>op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] \>> item}
-    end
-    return self~map{::closure expose left ; left \>> item}
+    return self~rightElementWise("\>>", arg(1, "e"), arg(1))
 
 ::method "&"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item & right[index]}
-    end
-    return self~map{::closure expose right ; item & right}
+    return self~leftElementWise("&", arg(1, "e"), arg(1))
 
 ::method "&op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] & item}
-    end
-    return self~map{::closure expose left ; left & item}
+    return self~rightElementWise("&", arg(1, "e"), arg(1))
 
 ::method "|"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item | right[index]}
-    end
-    return self~map{::closure expose right ; item | right}
+    return self~leftElementWise("|", arg(1, "e"), arg(1))
 
 ::method "|op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] | item}
-    end
-    return self~map{::closure expose left ; left | item}
+    return self~rightElementWise("|", arg(1, "e"), arg(1))
 
 ::method "&&"
-    use strict arg right
-    if right~isA(.array) then do
-        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose right ; item && right[index]}
-    end
-    return self~map{::closure expose right ; item && right}
+    return self~leftElementWise("&&", arg(1, "e"), arg(1))
 
 ::method "&&op:right"
-    use strict arg left
-    if left~isA(.array) then do
-        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-        return self~map{::closure expose left ; left[index] && item}
-    end
-    return self~map{::closure expose left ; left && item}
+    return self~rightElementWise("&&", arg(1, "e"), arg(1))
 
 ::routine SameDimensions
     use strict arg a1, a2

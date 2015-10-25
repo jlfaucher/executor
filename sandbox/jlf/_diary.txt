@@ -152,6 +152,23 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 oct 23
+
+
+Array operators:
+All the operators support recursive arrays.
+An array can be declared boxed.
+A boxed array is handled as a whole when the other argument of a binary operator is also an array.
+
+Ex:
+a = .array~of(1,2,3)
+b = .array~of(10,20,30)
+a+b= -- [11,22,33]
+b~isBoxed = .true
+a+b= -- [[11,21,31],[12,22,32],[13,23,33]]
+
+
+===============================================================================
 2015 oct 22
 
 Array operators:
@@ -161,10 +178,10 @@ Work in progress... Only "+" and "-" have been adapted.
 Ex:
 a = .array~of(1,2)
 a~append(a)
-a =     -- [1,2,*0]
--a =    -- [-1,-2,*0]
-a+1 =   -- [2,3,*@]
-1+a =   -- [2,3,*@]
+a=     -- [1,2,*0]
+-a=    -- [-1,-2,*0]
+a+1=   -- [2,3,*0]
+1+a=   -- [2,3,*0]
 
 
 ===============================================================================
