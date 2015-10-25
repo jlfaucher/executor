@@ -1778,9 +1778,8 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     -- JLF add shape for Array: 2x3
-     shape = ""
-     if coll~isA(.array), coll~hasMethod("shape") then shape = "shape " || coll~shape~reduce{accu"x"item} || ", "
+     shape = "" -- JLF: will be something like "2x3x..."
+     if coll~isA(.array) then shape = "shape " || coll~dimensions~toString("L", "x") || ", "
      say title": ("shape || coll~items "items)"
      len=length(coll~items)
   end
@@ -2599,8 +2598,8 @@ createCodeSnippet: procedure
         return a1~ppRepresentation(100)
      -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
      if a1~isA(.Collection) then do
-        shape = ""
-        if a1~isA(.array), a1~hasMethod("shape") then shape = "shape " || a1~shape~reduce{accu"x"item} || ", "
+        shape = "" -- JLF: will be something like "2x3x..."
+        if a1~isA(.array) then shape = "shape " || a1~dimensions~toString("L", "x") || ", "
         if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
         else return "("a1~string "("shape || a1~items "items))"
      end
