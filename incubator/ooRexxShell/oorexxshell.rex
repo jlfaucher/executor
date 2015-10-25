@@ -217,6 +217,8 @@ main: procedure
 
             when .ooRexxShell~inputrx~caselessEquals("tb") then
                 .error~say(.ooRexxShell~traceback~makearray~tostring)
+            when .ooRexxShell~inputrx~caselessEquals("bt") then -- backtrace seems a better name (command "bt" in lldb)
+                .error~say(.ooRexxShell~traceback~makearray~tostring)
 
             when .ooRexxShell~inputrx~caselessEquals("traceoff") then
                 .ooRexxShell~trace(.false)
@@ -590,7 +592,7 @@ loadOptionalComponents:
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage("UNO.CLS")
     .ooRexxShell~isExtended = .true
-    if \loadPackage("extension/extensions.cls") then do -- requires jlf sandbox ooRexx
+    if \loadPackage("extension/extensions.cls", .true) then do -- requires jlf sandbox ooRexx
         .ooRexxShell~isExtended = .false
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
@@ -608,7 +610,7 @@ loadOptionalComponents:
 -------------------------------------------------------------------------------
 -- Remember: don't implement that as a procedure or routine or method !
 loadPackage:
-    use strict arg filename
+    use strict arg filename, silent=.false
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
     if .ooRexxShell~isInteractive then do
@@ -618,9 +620,11 @@ loadPackage:
     end
     return .true
     loadPackageError:
-    .color~select(.ooRexxShell~errorColor, .error)
-    .error~say("loadPackage KO for" filename)
-    .color~select(.ooRexxShell~defaultColor, .error)
+    if \ silent then do
+        .color~select(.ooRexxShell~errorColor, .error)
+        .error~say("loadPackage KO for" filename)
+        .color~select(.ooRexxShell~defaultColor, .error)
+    end
     return .false
 
 
@@ -749,6 +753,7 @@ loadLibrary:
     .ooRexxShell~sayInterpreters
     say "Other commands:"
     say "    ?: to invoke ooRexx documentation."
+    say "    bt: display the backtrace of the last error (same as tb)."
     say "    commands: list the internal commands supported by ooRexxShell."
     say "    debugon: activate the full trace of the internals of ooRexxShell."
     say "    debugoff: deactivate the full trace of the internals of ooRexxShell."
@@ -759,7 +764,7 @@ loadLibrary:
     say "    reload: exit the current session and start a new one, reloading all the packages/librairies."
     say "    securityoff: deactivate the security manager. The system commands are passed as-is to the system."
     say "    securityon: activate the security manager. The system commands are transformed before passing them to the system."
-    say "    tb: display the trace back of the last error."
+    say "    tb: display the trace back of the last error (same as bt)."
     say "    traceoff: deactivate the ligth trace of the internals of ooRexxShell."
     say "    traceon: activate the ligth trace of the internals of ooRexxShell."
     say "    trapoff: deactivate the conditions traps when interpreting the command"

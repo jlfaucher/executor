@@ -113,6 +113,7 @@ Commands
 To be recognized, these commands must be the first word of the input line.
 
 bash: select the bash interpreter (if available : see interpreters).
+bt: display the backtrace of the last error (same as tb).
 cmd: select the cmd interpreter (if available : see interpreters).
 commands: list the internal commands supported by ooRexxShell.
 debugoff: deactivate the full trace of the internals of ooRexxShell.
@@ -126,7 +127,7 @@ readlineon: delegate to the system readline (better support for history, tab com
 reload: exit the current session and start a new one, reloading all the packages/librairies.
 securityoff: deactivate the security manager. The system commands are passed as-is to the system.
 securityon: activate the security manager. The system commands are transformed before passing them to the system.
-tb: display the trace back of the last error.
+tb: display the traceback of the last error (same as bt).
 traceoff: deactivate the ligth trace of the internals of ooRexxShell.
 traceon: activate the ligth trace of the internals of ooRexxShell.
 trapoff: deactivate the conditions traps when interpreting the command.
