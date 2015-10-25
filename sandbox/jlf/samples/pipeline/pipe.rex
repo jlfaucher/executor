@@ -798,7 +798,7 @@ else do
         isnum = .false
         -- To make a distinction between a real string and other objects, surround by (...)
         -- For the arrays, indicate their shape : (an Array 2x3)
-        if val~isA(.array) then valstr = "("valstr val~shape~reduce{accu"x"item}")"
+        if val~isA(.array) then valstr = "("valstr val~dimensions~toString("L", "x")")"
         else valstr = "("valstr")"
     end
     if isnum | \showPool then return valstr
