@@ -6,58 +6,58 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /******************************************************************************/
 ::class "ArrayInitializer" mixinclass Object public
-/*
-Initializer (instance method) which takes into account the dimensions of the array.
-
-If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
-    .array~new(2,3)~of(1 2 3 4 5 6)
-    1 2 3
-    4 5 6
-
-If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
-    .array~new(2,3)~of(1~upto(6))
-    1 2 3
-    4 5 6
-
-If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
-Implicit arguments :
-    arg(1) : integerIndex : position of the current cell, from 1 to size.
-    arg(2) : arrayIndex : position of the current cell, in each dimension. Always an array, even if the number of dimensions = 1
-The value returned by the doer is the item for the current cell.
-If no value returned then the cell remains unassigned.
-    .array~new(2,3)~of{10*integerIndex}
-    10 20 30
-    40 50 60
-
-Otherwise, when more than one argument, each argument is an item as-is.
-    .array~new(2,3)~of(1,2,3,4,5,6)
-    1 2 3
-    4 5 6
-
-If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
-    .array~new(2,3)~of(1,,3,,5,6)
-    1 . 3
-    . 5 6
-
-For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
-    .array~new(2,3)~of(1,,3,,5,)
-    1 . 3
-    . 5 1
-I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
-    1 . 3
-    . 5 .
-
-The items are a list of values that must be assigned to the cells of the array.
-Rules inspired by APL :
-If there are too many items, the extra items are ignored.
-If there are fewer items than implied by the dimensions, the list of items is reused as
-many times as necessary to fill the array.
-    .array~new(2,3)~of(1,2)
-    1 2 1
-    2 1 2
-*/
 
 ::method of
+    /*
+    Initializer (instance method) which takes into account the dimensions of the array.
+
+    If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
+        .array~new(2,3)~of(1 2 3 4 5 6)
+        1 2 3
+        4 5 6
+
+    If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
+        .array~new(2,3)~of(1~upto(6))
+        1 2 3
+        4 5 6
+
+    If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
+    Implicit arguments :
+        arg(1) : integerIndex : position of the current cell, from 1 to size.
+        arg(2) : arrayIndex : position of the current cell, in each dimension. Always an array, even if the number of dimensions = 1
+    The value returned by the doer is the item for the current cell.
+    If no value returned then the cell remains unassigned.
+        .array~new(2,3)~of{10*integerIndex}
+        10 20 30
+        40 50 60
+
+    Otherwise, when more than one argument, each argument is an item as-is.
+        .array~new(2,3)~of(1,2,3,4,5,6)
+        1 2 3
+        4 5 6
+
+    If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
+        .array~new(2,3)~of(1,,3,,5,6)
+        1 . 3
+        . 5 6
+
+    For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
+        .array~new(2,3)~of(1,,3,,5,)
+        1 . 3
+        . 5 1
+    I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
+        1 . 3
+        . 5 .
+
+    The items are a list of values that must be assigned to the cells of the array.
+    Rules inspired by APL :
+    If there are too many items, the extra items are ignored.
+    If there are fewer items than implied by the dimensions, the list of items is reused as
+    many times as necessary to fill the array.
+        .array~new(2,3)~of(1,2)
+        1 2 1
+        2 1 2
+    */
     use strict arg arg1, ... -- at least one argument
 
     if self~dimension == 0 then raise syntax 93.900 array("Unknown number of dimensions")
@@ -157,11 +157,6 @@ many times as necessary to fill the array.
     return self
 
 
--- The shape of an array is an array which gives the size of each dimension (APL).
-::method shape
-    forward message "dimensions"
-
-
 ::method incrementIndex
     use strict arg arrayIndex -- updated in place
     do i=self~dimension to 1 by -1
@@ -172,14 +167,39 @@ many times as necessary to fill the array.
     return arrayIndex -- for convenience
 
 
+::method rank
+    /*
+        APL definition:
+        An array may have 0 or more axes or dimensions.
+        The number of axes of an array is known as its rank.
+
+        An array with 0 axes (rank 0) is called a scalar --> Not applicable to ooRexx: rank=0 when the array has no (yet) determined dimension.
+        An array with 1 axis (rank 1) is called a vector.
+        An array with 2 axes (rank 2) is called a matrix.
+        An array with more than 2 axes is called a multi-dimensional array
+    */
+    return self~dimension
+
+
+::method shape
+    -- The shape of an array is an array which gives the size of each dimension (APL).
+    forward message "dimensions"
+
+
+::method reshape
+    -- args : new dimension(s)
+    if arg() == 1 then return .array~new(arg(1))~of(self) -- to support an array as argument
+    return .array~new(arg(1, "a"))~of(self)
+
+
 /******************************************************************************/
 ::class "ArrayPrettyPrinter" mixinclass Object public
--- Ex :
--- .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppRepresentation -- [[1,'two',[1,'two',3],[1,'two']]]
 
 ::method ppRepresentation
     /*
     Return a condensed string representation of the array.
+    Ex :
+    .array~of(1,"two", .array~of(1, "two", 3), .array~of(1, "two"))~ppRepresentation -- [[1,'two',[1,'two',3],[1,'two']]]
     Recursive arrays are supported. A reference *N is inserted in the representation,
     where N is the number of levels to follow from the current position.
     Ex :
@@ -222,7 +242,7 @@ many times as necessary to fill the array.
         source:4,['string1',v1='string2',[v1,*1],*0] | inject:1,v1
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
-*/
+    */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
     if val~isA(.array), val~dimension == 1 then do
         -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
@@ -326,7 +346,7 @@ many times as necessary to fill the array.
     -- or boxed array on left and not array on right: in this case, the boxed array is handled as an unboxed array
     if rightArg~isA(.array), \ rightArg~isBoxed then do
         -- binary operator with unboxed array on left & right
-        if \SameDimensions(self, rightArg) then raise syntax 93.900 array("Dimensions are not equal")
+        if \SameShapes(self, rightArg) then raise syntax 93.900 array("Shapes are not equal")
         r = .array~new
         recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
@@ -619,7 +639,7 @@ many times as necessary to fill the array.
 ::method "&&op:right"
     return self~rightElementWise("&&", arg(1, "e"), arg(1))
 
-::routine SameDimensions
+::routine SameShapes
     use strict arg a1, a2
     if a1~dimension <> a2~dimension then return .false
     do i=1 to a1~dimension
