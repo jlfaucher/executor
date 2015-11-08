@@ -92,7 +92,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 --------------------------------------------------
 
 -- Iterate over the items of the supplier and combine them into one value by applying the given action to (current_value, current_item)
--- When the action understands ~functionDoer then a third parameter current_index is passed.
 ::method reduce unguarded
     if arg() == 2 then do
         use strict arg initial, action
@@ -287,7 +286,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -------------------------------------------------
 
 -- Iterate over the characters of the string and apply the given action to (current_char)
--- When the action understands ~functionDoer then a second parameter current_char_pos is passed.
 -- An array of results is returned (can be empty).
 ::method eachC unguarded
     forward message "each" to (self~makeArray(""))
@@ -298,7 +296,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "eachI" to (self~makeArray(""))
 
 -- Iterate over the words of the string and apply the given action to (current_word)
--- When the action understands ~functionDoer then a second parameter current_word_index is passed.
 -- A array of results is returned (can be empty).
 ::method eachW unguarded
     forward message "each" to (self~subwords)
@@ -314,7 +311,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 --------------------------------------------------------
 
 -- Iterate over the characters of the mutable buffer and apply the given action to (current_char)
--- When the action understands ~functionDoer then a second parameter current_char_pos is passed.
 -- An array of results is returned (can be empty).
 ::method eachC unguarded
     forward message "each" to (self~makeArray(""))
@@ -325,7 +321,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "eachI" to (self~makeArray(""))
 
 -- Iterate over the words of the mutable buffer and apply the given action to (current_word)
--- When the action understands ~functionDoer then a second parameter current_word_index is passed.
 -- An array of results is returned (can be empty).
 ::method eachW unguarded
     forward message "each" to (self~subwords)
@@ -341,7 +336,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -----------------------------------------------------
 
 -- Iterate over the items of the collection and apply the given action to (current_item).
--- When the action understands ~functionDoer then a second parameter current_index is passed.
 -- An array of results is returned (can be empty).
 ::method each unguarded
     forward to (self~supplier)
@@ -357,7 +351,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ---------------------------------------------------
 
 -- Iterate over the items of the supplier and apply the given action to (current_item).
--- When the action understands ~functionDoer then a second parameter current_index is passed.
 -- An array of results is returned (can be empty).
 ::method each unguarded
     use strict arg action={arg(1)}
@@ -424,7 +417,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "dropWhileI" to (self~makeArray(""))
 
 -- Iterate over the characters of the string and reject the characters for which the given filter applied to (current_char) returns true.
--- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
 -- An array of not rejected characters is returned (can be empty).
 ::method rejectC unguarded
     forward message "reject" to (self~makeArray(""))
@@ -435,7 +427,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "rejectI" to (self~makeArray(""))
 
 -- Iterate over the characters of the string and select the characters for which the given filter applied to (current_char) returns true.
--- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
 -- An array of selected characters is returned (can be empty).
 ::method selectC unguarded
     forward message "select" to (self~makeArray(""))
@@ -494,7 +485,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "dropWhileI" to (self~subwords)
 
 -- Iterate over the words of the string and reject the words for which the given filter applied to (current_word) returns true.
--- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
 -- An array of not rejected words is returned (can be empty).
 ::method rejectW unguarded
     forward message "reject" to (self~subwords)
@@ -505,7 +495,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "rejectI" to (self~subwords)
 
 -- Iterate over the words of the string and select the words for which the given filter applied to (current_word) returns true.
--- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
 -- An array of selected words is returned (can be empty).
 ::method selectW unguarded
     forward message "select" to (self~subwords)
@@ -569,7 +558,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "dropWhileI" to (self~makeArray(""))
 
 -- Iterate over the characters of the mutable buffer and reject the characters for which the given filter applied to (current_char) returns true.
--- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
 -- An array of not rejected characters is returned (can be empty).
 ::method rejectC unguarded
     forward message "reject" to (self~makeArray(""))
@@ -580,7 +568,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "rejectI" to (self~makeArray(""))
 
 -- Iterate over the characters of the mutable buffer and select the characters for which the given filter applied to (current_char) returns true.
--- When the filter understands ~functionDoer then a second parameter current_char_pos is passed.
 -- An array of selected characters is returned (can be empty).
 ::method selectC unguarded
     forward message "select" to (self~makeArray(""))
@@ -639,7 +626,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "dropWhileI" to (self~subwords)
 
 -- Iterate over the words of the mutable buffer and reject the words for which the given filter applied to (current_word) returns true.
--- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
 -- An array of not rejected words is returned (can be empty).
 ::method rejectW unguarded
     forward message "reject" to (self~subwords)
@@ -650,7 +636,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "rejectI" to (self~subwords)
 
 -- Iterate over the words of the mutable buffer and select the words for which the given filter applied to (current_word) returns true.
--- When the filter understands ~functionDoer then a second parameter current_word_index is passed.
 -- An array of selected words is returned (can be empty).
 ::method selectW unguarded
     forward message "select" to (self~subwords)
@@ -690,7 +675,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ---------------------------------------------------
 
 -- Iterate over the items of the collection and reject the items for which the given filter applied to (current_item) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- An array of not rejected items is returned (can be empty).
 ::method reject unguarded
     forward to (self~supplier)
@@ -701,7 +685,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward to (self~supplier)
 
 -- Iterate over the items of the collection and select the items for which the given filter applied to (current_item) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- An array of selected items is returned (can be empty).
 ::method select unguarded
     forward to (self~supplier)
@@ -806,7 +789,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self~dropWhileImpl(predicate, .true)
 
 -- Iterate over the items of the supplier and reject the items for which the given filter applied to (current_item) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- An array of not rejected items is returned (can be empty).
 ::method reject unguarded
     use strict arg predicate
@@ -819,7 +801,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self~rejectImpl(predicate, .true)
 
 -- Iterate over the items of the supplier and select the items for which the given filter applied to (current_item) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- An array of selected items is returned (can be empty).
 ::method select unguarded
     use strict arg predicate
@@ -1069,7 +1050,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg action={arg(1)}
     if \ self~dataType("W") then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
     if \ (self >= 0) then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
-    forward to 1 message "upto" array(self, action)
+    --forward to 1 message "upto" array(self, action)
+    return 1~upto(self, action)
 
 -- Repeat the given action from self up to upper limit (self and upper limit are numbers).
 -- An array of results is returned (can be empty).
@@ -1111,3 +1093,20 @@ This script needs a modified ooRexx interpreter which support extension of prede
     end
     return collectedItems
 
+-- Shorter notation for upto (1~10) & downto (10~1)
+-- when both self and the message are a number.
+::method unknown unguarded
+    use arg msg, args
+    if self~dataType("N"), msg~dataType("N") then do
+        if args~size > 1 then raise syntax 93.900 array(self"~"msg": Too many arguments")
+        if args~size == 1 then do
+            if msg >= self then return self~upto(msg, args[1])
+            else return self~downto(msg, args[1])
+        end
+        else do
+            if msg >= self then return self~upto(msg)
+            else return self~downto(msg)
+        end
+    end
+    --forward class (super)
+    raise syntax 97.1 array(self, msg)

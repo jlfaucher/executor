@@ -152,8 +152,21 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
-2015 oct 23
+2015 nov 08
 
+Shorter notation for upTo and downTo:
+1~10 -- same as 1~upTo(10)      [1,2,3,4,5,6,7,8,9,10]
+10~1 -- same as 10~downTo(1)    [10,9,8,7,6,5,4,3,2,1]
+An action can be specified:
+100.5~103.6{value item}= -- ['VALUE 100.5','VALUE 101.5','VALUE 102.5','VALUE 103.5']
+
+Array programming:
+Fix the representation of sparse array (a final '..' was inserted when not needed).
+Fix the calls to rightElementWise. There is no parameter letfArgIsProvided.
+
+
+===============================================================================
+2015 oct 23
 
 Array operators:
 All the operators support recursive arrays.

@@ -267,14 +267,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || self~ppRepresentation(maxItems, sparse, ellipsis, separator, item, stack)
+            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, stack)
             sep = separator
             items += 1
             i = index + 1 -- next index
             s~next -- skip sparse section, if any
         end
         if maxItems >= 0, items < maxItems then do -- if not truncated
-            if i <= self~size then valstr ||= sep || sparse
+            if i <= val~size then do
+                valstr ||= sep || sparse
+            end
         end
         valstr ||= "]"
         stack~pull
@@ -432,43 +434,43 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self~leftElementWise("/", arg(1, "e"), arg(1))
 
 ::method "/op:right"
-    return self~rightElementWise("/", arg(1, "e"), arg(1))
+    return self~rightElementWise("/", arg(1))
 
 ::method "%"
     return self~leftElementWise("%", arg(1, "e"), arg(1))
 
 ::method "%op:right"
-    return self~rightElementWise("%", arg(1, "e"), arg(1))
+    return self~rightElementWise("%", arg(1))
 
 ::method "//"
     return self~leftElementWise("//", arg(1, "e"), arg(1))
 
 ::method "//op:right"
-    return self~rightElementWise("//", arg(1, "e"), arg(1))
+    return self~rightElementWise("//", arg(1))
 
 ::method "**"
     return self~leftElementWise("**", arg(1, "e"), arg(1))
 
 ::method "**op:right"
-    return self~rightElementWise("**", arg(1, "e"), arg(1))
+    return self~rightElementWise("**", arg(1))
 
 ::method " "
     return self~leftElementWise(" ", arg(1, "e"), arg(1))
 
 ::method " op:right"
-    return self~rightElementWise(" ", arg(1, "e"), arg(1))
+    return self~rightElementWise(" ", arg(1))
 
 ::method "||"
     return self~leftElementWise("||", arg(1, "e"), arg(1))
 
 ::method "||op:right"
-    return self~rightElementWise("||", arg(1, "e"), arg(1))
+    return self~rightElementWise("||", arg(1))
 
 ::method "" -- abuttal
     return self~leftElementWise("", arg(1, "e"), arg(1))
 
 ::method "op:right" -- abuttal
-    return self~rightElementWise("", arg(1, "e"), arg(1))
+    return self~rightElementWise("", arg(1))
 
 ::method mapEqual
     return self~leftElementWise("=", arg(1, "e"), arg(1))
@@ -480,7 +482,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /* Not activated
 ::method "=op:right"
-    return self~rightElementWise("=", arg(1, "e"), arg(1))
+    return self~rightElementWise("=", arg(1))
 */
 
 ::method mapNotEqual
@@ -493,7 +495,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /* Not activated
 ::method "\=op:right"
-    return self~rightElementWise("\=", arg(1, "e"), arg(1))
+    return self~rightElementWise("\=", arg(1))
 */
 
 ::method mapNotEqualTo
@@ -506,7 +508,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /* Not activated
 ::method "<>op:right"
-    return self~rightElementWise("<>", arg(1, "e"), arg(1))
+    return self~rightElementWise("<>", arg(1))
 */
 
 ::method mapStrictEqual
@@ -519,7 +521,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /* Not activated
 ::method "==op:right"
-    return self~rightElementWise("==", arg(1, "e"), arg(1))
+    return self~rightElementWise("==", arg(1))
 */
 
 ::method mapStrictNotEqual
@@ -532,7 +534,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /* Not activated
 ::method "\==op:right"
-    return self~rightElementWise("\==", arg(1, "e"), arg(1))
+    return self~rightElementWise("\==", arg(1))
 */
 
 /* Not activated
@@ -542,7 +544,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 /* Not activated
 ::method "><op:right"
-    return self~rightElementWise("><", arg(1, "e"), arg(1))
+    return self~rightElementWise("><", arg(1))
 */
 
 ::method "\"
@@ -553,91 +555,91 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self~leftElementWise(">", arg(1, "e"), arg(1))
 
 ::method ">op:right"
-    return self~rightElementWise(">", arg(1, "e"), arg(1))
+    return self~rightElementWise(">", arg(1))
 
 ::method "<"
     return self~leftElementWise("<", arg(1, "e"), arg(1))
 
 ::method "<op:right"
-    return self~rightElementWise("<", arg(1, "e"), arg(1))
+    return self~rightElementWise("<", arg(1))
 
 ::method ">="
     return self~leftElementWise(">=", arg(1, "e"), arg(1))
 
 ::method ">=op:right"
-    return self~rightElementWise(">=", arg(1, "e"), arg(1))
+    return self~rightElementWise(">=", arg(1))
 
 ::method "\<"
     return self~leftElementWise("\<", arg(1, "e"), arg(1))
 
 ::method "\<op:right"
-    return self~rightElementWise("\<", arg(1, "e"), arg(1))
+    return self~rightElementWise("\<", arg(1))
 
 ::method "<="
     return self~leftElementWise("<=", arg(1, "e"), arg(1))
 
 ::method "<=op:right"
-    return self~rightElementWise("<=", arg(1, "e"), arg(1))
+    return self~rightElementWise("<=", arg(1))
 
 ::method "\>"
     return self~leftElementWise("\>", arg(1, "e"), arg(1))
 
 ::method "\>op:right"
-    return self~rightElementWise("\>", arg(1, "e"), arg(1))
+    return self~rightElementWise("\>", arg(1))
 
 ::method ">>"
     return self~leftElementWise(">>", arg(1, "e"), arg(1))
 
 ::method ">>op:right"
-    return self~rightElementWise(">>", arg(1, "e"), arg(1))
+    return self~rightElementWise(">>", arg(1))
 
 ::method "<<"
     return self~leftElementWise("<<", arg(1, "e"), arg(1))
 
 ::method "<<op:right"
-    return self~rightElementWise("<<", arg(1, "e"), arg(1))
+    return self~rightElementWise("<<", arg(1))
 
 ::method ">>="
     return self~leftElementWise(">>=", arg(1, "e"), arg(1))
 
 ::method ">>=op:right"
-    return self~rightElementWise(">>=", arg(1, "e"), arg(1))
+    return self~rightElementWise(">>=", arg(1))
 
 ::method "\<<"
     return self~leftElementWise("\<<", arg(1, "e"), arg(1))
 
 ::method "\<<op:right"
-    return self~rightElementWise("\<<", arg(1, "e"), arg(1))
+    return self~rightElementWise("\<<", arg(1))
 
 ::method "<<="
     return self~leftElementWise("<<=", arg(1, "e"), arg(1))
 
 ::method "<<=op:right"
-    return self~rightElementWise("<<=", arg(1, "e"), arg(1))
+    return self~rightElementWise("<<=", arg(1))
 
 ::method "\>>"
     return self~leftElementWise("\>>", arg(1, "e"), arg(1))
 
 ::method "\>>op:right"
-    return self~rightElementWise("\>>", arg(1, "e"), arg(1))
+    return self~rightElementWise("\>>", arg(1))
 
 ::method "&"
     return self~leftElementWise("&", arg(1, "e"), arg(1))
 
 ::method "&op:right"
-    return self~rightElementWise("&", arg(1, "e"), arg(1))
+    return self~rightElementWise("&", arg(1))
 
 ::method "|"
     return self~leftElementWise("|", arg(1, "e"), arg(1))
 
 ::method "|op:right"
-    return self~rightElementWise("|", arg(1, "e"), arg(1))
+    return self~rightElementWise("|", arg(1))
 
 ::method "&&"
     return self~leftElementWise("&&", arg(1, "e"), arg(1))
 
 ::method "&&op:right"
-    return self~rightElementWise("&&", arg(1, "e"), arg(1))
+    return self~rightElementWise("&&", arg(1))
 
 ::routine SameShapes
     use strict arg a1, a2
