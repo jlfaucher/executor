@@ -1,3 +1,7 @@
+https://github.com/matz/streem
+Prototype of stream based programming language by Yukihiro Matsumoto
+
+
 http://hackage.haskell.org/package/pipes
 pipes is a clean and powerful stream processing library that lets you build and connect reusable streaming components
 http://hackage.haskell.org/package/pipes-4.0.1/docs/Pipes-Tutorial.html

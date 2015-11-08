@@ -19,3 +19,68 @@ Implementation in .NET
 https://github.com/dotnet/coreclr/blob/master/src/mscorlib/src/System/Console.cs
 
 
+================================================================================
+width of console
+
+Windows (already implemented in ooRexxShell)
+.windowsplatform~GetConsoleInfo=
+type: The Stem class: (12 items)
+'DWCURSORPOSITION.X'    -> 0
+'DWCURSORPOSITION.Y'    -> 970
+'DWMAXIMUMWINDOWSIZE.X' -> 120              <--
+'DWMAXIMUMWINDOWSIZE.Y' -> 73
+'DWSIZE.X'              -> 120
+'DWSIZE.Y'              -> 5000
+'ISVALID'               -> 1
+'SRWINDOW.BOTTOM'       -> 970
+'SRWINDOW.LEFT'         -> 0
+'SRWINDOW.RIGHT'        -> 119
+'SRWINDOW.TOP'          -> 921
+'WATTRIBUTES'           -> 7
+
+
+Windows (Python)
+Interesting for the FFI : much simpler than GCI !
+see struct.unpack
+https://gist.github.com/jtriley/1108174
+    Get current terminal size on Linux, Mac, and Windows
+    def _get_terminal_size_windows():
+        try:
+            from ctypes import windll, create_string_buffer
+            # stdin handle is -10
+            # stdout handle is -11
+            # stderr handle is -12
+            h = windll.kernel32.GetStdHandle(-12)
+            csbi = create_string_buffer(22)
+            res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
+            if res:
+                (bufx, bufy, curx, cury, wattr,
+                 left, top, right, bottom,
+                 maxx, maxy) = struct.unpack("hhhhHhhhhhh", csbi.raw)
+                sizex = right - left + 1
+                sizey = bottom - top + 1
+                return sizex, sizey
+
+
+Unix & Windows
+http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
+    tput cols tells you the number of columns.
+    tput lines tells you the number of rows.
+    alias dim="echo $(tput cols)x$(tput lines)", which might result in 80x50
+    In bash, the $LINES and $COLUMNS environmental variables should be able to do the trick.
+    stty size # 60 120 # <= sample output
+    windows:
+        mode
+        Statut du périphérique CON:
+        ---------------------------
+            Lignes :          5000  :: The height returned is the number of lines in the buffer, it is not the number of lines that are visible within the window
+            Colonnes :        120
+            Vitesse clavier : 31
+            Délai clavier :   1
+            Page de codes :   1252
+
+
+Unix
+https://nixshell.wordpress.com/2009/09/08/get-the-width-of-the-terminal/
+    A quick and easy way to get the width of your terminal is the command stty size. I have used it with diff like this:
+    diff -y -W `stty size | cut -d” ” -f2` –suppress-common-lines oldfile newfile
