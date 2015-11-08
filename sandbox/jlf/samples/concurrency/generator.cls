@@ -13,7 +13,6 @@
 -----------------------------------------------------
 
 -- Iterate over the values yielded by the coactivity and apply the given action to (current_yielded_value).
--- When the action understands ~functionDoer then a second parameter current_yielded_index is passed.
 -- Each result is yielded one by one.
 ::method each unguarded
     forward to (self~supplier)
@@ -29,7 +28,6 @@
 -----------------------------------------------------------------------
 
 -- Iterate over the items of the supplier and apply the given action to (current_item).
--- When the action understands ~functionDoer then a second parameter current_index is passed.
 -- Each result is yielded one by one.
 ::method each unguarded
     use strict arg action={arg(1)}
@@ -100,7 +98,6 @@
     forward to (self~supplier)
 
 -- Iterate over the values yielded by the coactivity and reject the values for which the given filter applied to (current_yielded_value) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- Each not rejected item is yielded one by one.
 ::method reject unguarded
     forward to (self~supplier)
@@ -111,7 +108,6 @@
     forward to (self~supplier)
 
 -- Iterate over the values yielded by the coactivity and select the values for which the given filter applied to (current_yielded_value) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- Each selected item is yielded one by one.
 ::method select unguarded
     forward to (self~supplier)
@@ -183,7 +179,6 @@
     return self~dropWhileImpl(predicate, .true)
 
 -- Iterate over the items of the supplier and reject the items for which the given filter applied to (current_item) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- Each not rejected item is yielded one by one.
 ::method reject unguarded
     use strict arg predicate
@@ -196,7 +191,6 @@
     return self~rejectImpl(predicate, .true)
 
 -- Iterate over the items of the supplier and select the items for which the given filter applied to (current_item) returns true.
--- When the filter understands ~functionDoer then a second parameter current_index is passed.
 -- Each selected item is yielded one by one.
 ::method select unguarded
     use strict arg predicate
@@ -765,7 +759,7 @@
     if trace then .traceOutput~say("       >I> Method .Generator~processDepthFirst.2")
     if trace then trace i
     use strict arg item, index, previousItems, stack, depth
-    if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported 
+    if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported
     if doer~arity >= 4 then doer~do(item, index, depth, stack)
     else if doer~arity == 3 then doer~do(item, index, depth)
     else if doer~arity == 2 then doer~do(item, index)
@@ -833,7 +827,7 @@
     if trace then .traceOutput~say("       >I> Method .Generator~processBreadthFirst.2")
     if trace then trace i
     use strict arg item, index, toprocess, previousItems, stack, depth
-    if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported 
+    if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported
     if doer~arity >= 4 then doer~do(item, index, depth, stack)
     else if doer~arity == 3 then doer~do(item, index, depth)
     else if doer~arity == 2 then doer~do(item, index)
@@ -911,7 +905,7 @@
     if trace then do -- additional info
         .traceOutput~say("-"~copies(20))
         .traceOutput~say(doer~source~tostring)
-        .traceOutput~say("-"~copies(20))                                                                                          
+        .traceOutput~say("-"~copies(20))
     end
     if trace then trace i
     previousItems = .nil
@@ -984,7 +978,7 @@
     if trace then do -- additional info
         .traceOutput~say("-"~copies(20))
         .traceOutput~say(doer~source~tostring)
-        .traceOutput~say("-"~copies(20))                                                                                          
+        .traceOutput~say("-"~copies(20))
     end
     if trace then trace i
     doer~do(source)

@@ -545,3 +545,45 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
 ::class "CoactivitySupplierForGeneration" public subclass CoactivitySupplier
 ::class "CoactivitySupplierForIteration" public subclass CoactivitySupplier
 
+
+/*
+Problem with iterator of coactivity ? no...
+
+g={::co loop i=1; .yield[i]; end}
+i=g~iterator
+i~take(10)=     -- [1,2,3,4,5,6,7,8,9,10]
+g~()=           -- 11
+i~take(10)=     -- [10,12,13,14,15,16,17,18,19,20]      <-- 10 ??
+g~()=           -- 21
+g~()=           -- 22
+i~take(10)=     -- [20,23,24,25,26,27,28,29,30,31]      <-- 20 ??
+
+After code review, no problem...
+See takeFirstImpl in functional.cls
+While you don't call ~next, you get the last returned item.
+Exception : for the first invocation of ~item, the ~next method is called because the supplier is not yet started.
+
+g={::co loop i=1; .yield[i]; end}
+i=g~iterator
+i~take(10)=     -- [1,2,3,4,5,6,7,8,9,10]
+i~take(10)=     -- [10,11,12,13,14,15,16,17,18,19]      <-- 10 is re-included
+i~take(10)=     -- [19,20,21,22,23,24,25,26,27,28]      <-- 19 is re-included
+
+
+Same behaviour with supplier...
+g={::co loop i=1; .yield[i]; end}
+s=g~supplier
+s~take(10)~iterator~each=       -- [1,2,3,4,5,6,7,8,9,10]
+s~take(10)~iterator~each=       -- [10,11,12,13,14,15,16,17,18,19]
+s~take(10)~iterator~each=       -- [19,20,21,22,23,24,25,26,27,28]
+
+No such problem when working directly with the coactivity...
+And yet behind the scene, a supplier is used...
+This is because a new supplier is created at each invocation of ~take.
+The method ~next is called when calling ~item for the first time.
+g={::co loop i=1; .yield[i]; end}
+g~take(10)~iterator~each=       -- [1,2,3,4,5,6,7,8,9,10]
+g~take(10)~iterator~each=       -- [11,12,13,14,15,16,17,18,19,20]
+g~take(10)~iterator~each=       -- [21,22,23,24,25,26,27,28,29,30]
+
+*/
