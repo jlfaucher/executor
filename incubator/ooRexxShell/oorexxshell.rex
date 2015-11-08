@@ -764,7 +764,7 @@ loadLibrary:
     say "    reload: exit the current session and start a new one, reloading all the packages/librairies."
     say "    securityoff: deactivate the security manager. The system commands are passed as-is to the system."
     say "    securityon: activate the security manager. The system commands are transformed before passing them to the system."
-    say "    tb: display the trace back of the last error (same as bt)."
+    say "    tb: display the traceback of the last error (same as bt)."
     say "    traceoff: deactivate the ligth trace of the internals of ooRexxShell."
     say "    traceon: activate the ligth trace of the internals of ooRexxShell."
     say "    trapoff: deactivate the conditions traps when interpreting the command"
@@ -1071,16 +1071,17 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 ::constant PSTRUCT "indirect container"
 
 
-::method init class
+::method init
+    forward class (super) continue
+
+    -- This part was in init at class level, but I realized that it was executed whatever the platform.
+    -- Better to move the declaration of the FFI here.
     if .GCI~isInstalled then do
         self~defineGetConsoleScreenBufferInfo
         self~defineSetConsoleTextAttribute
         self~defineGetStdHandle
     end
 
-
-::method init
-    forward class (super) continue
     self~class~current = self -- normally you never call directly a method of .WindowsPlatform, but just in case...
     -- Default background & foreground colors
     wAttributes = 0
