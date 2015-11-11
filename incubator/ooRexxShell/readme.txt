@@ -134,6 +134,13 @@ trapoff: deactivate the conditions traps when interpreting the command.
 trapon: activate the conditions traps when interpreting the command.
 
 
+Known problems when bash is used for the input
+==============================================
+If the input starts with the dash ("-") character then the history command
+display this warning : bash: line 0: history:  invalid option
+and the input is not added to the history.
+
+
 Known problems under Windows
 ============================
 
@@ -206,7 +213,7 @@ History of changes
 -----------------------------------------------
 2015 oct 6
 
-Since BSF4OORexx 4.5.0, it's no longer need to call BsfAttachToTID and BsfDetach.
+Since BSF4OORexx 4.5.0, it's no longer needed to call BsfAttachToTID and BsfDetach.
 Removed the useless code.
 
 -----------------------------------------------
