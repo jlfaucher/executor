@@ -22,11 +22,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     /*
     Initializer (instance method) which takes into account the dimensions of the array.
 
-    If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
-        .array~new(2,3)~of(1 2 3 4 5 6)
-        1 2 3
-        4 5 6
-
     If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
         .array~new(2,3)~of(1~upto(6))
         1 2 3
@@ -87,31 +82,30 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
     if arg() == 1 then do
         if arg(1)~isA(.String) then do
-            arrayIn = arg(1)~subwords -- APL-like
-            if arrayIn~items == 1 then do
-                -- Optimization : use the value as-is instead of iterating over an array of 1 item
-                arrayIn = .nil
-                oneValue = .true
-                value = arg(1)
-            end
+            -- Do this test to not convert the strings to doers
+            oneValue = .true
+            value = arg(1)
         end
         else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg item, index, array")~arity(3)
         else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
         else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
-        else arrayIn = arg(1, "a")
+        else do
+            oneValue = .true
+            value = arg(1)
+        end
     end
     else arrayIn = arg(1, "a")
-
-    selfIntegerIndex = 1
-    if self~dimension == 1 then selfArrayIndex = 1
-                           else selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
 
     -- Optimization
     if oneValue == .true then do
         self~fill(value)
         return self
     end
+
+    selfIntegerIndex = 1
+    if self~dimension == 1 then selfArrayIndex = 1
+                           else selfArrayIndex = .array~new(self~dimension)~~fill(1) -- Initializes all indexes to 1
 
     if .nil <> arrayIn then do
         arrayInIndex = 1
@@ -121,7 +115,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     sourceEnd = 0
     selfReuseIntegerIndex = 1
     if self~dimension == 1 then selfReuseArrayIndex = 1
-                           else selfReuseArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+                           else selfReuseArrayIndex = .array~new(self~dimension)~~fill(1) -- Initializes all indexes to 1
 
     do while selfIntegerIndex <= self~size
         if sourceEnd == 0 then do
@@ -163,7 +157,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
             if selfReuseIntegerIndex == sourceEnd then do
                 selfReuseIntegerIndex = 1 -- rewind
                 if self~dimension == 1 then selfReuseArrayIndex = 1 -- rewind
-                                       else selfReuseArrayIndex~mapR{1} -- rewind all indexes to 1
+                                       else selfReuseArrayIndex~fill(1) -- rewind all indexes to 1
             end
             if self~hasIndex(selfReuseArrayIndex) then self~put(self[selfReuseArrayIndex], selfArrayIndex)
             selfReuseIntegerIndex += 1
@@ -312,7 +306,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
             isnum = .false
             -- To make a distinction between a real string and other objects, surround by (...)
             -- For the arrays, indicate their shape : (an Array 2x3)
-            if val~isA(.array) then valstr = "("valstr val~shape~reduce{accu"x"item}")"
+            if val~isA(.array) then valstr = "("valstr val~shape~toString("L", "x")")"
             else valstr = "("valstr")"
         end
         return valstr

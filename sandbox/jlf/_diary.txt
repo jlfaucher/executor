@@ -152,6 +152,35 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 nov 12
+
+Optimize the method .array~of (instance level).
+No longer support the APL-like notation.
+Benchmark array initializer
+
+do 10000; a(9)~fill(1); end
+0.04
+
+do 10000; a(3,3)~fill(1); end
+0.04
+
+do 10000; a(9)~of(1); end
+0.12s (0.095 after removing the support of space-separated list)
+
+do 10000; a(3,3)~of(1); end
+0.12s (0.095 after removing the support of space-separated list)
+
+do 10000; a(9)~of(1,2,3); end
+0.37s
+
+do 10000; a(3,3)~of(1,2,3); end
+7.5s (strange... sometimes 10s)
+0.89 after removing the blocks...
+The fact I call directly blocks in this method is a problem for this kind of benchmark...
+I have in project to transform the block sources at parse-time...
+
+
+===============================================================================
 2015 nov 11
 
 Array programming:
