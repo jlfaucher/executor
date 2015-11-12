@@ -251,14 +251,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return self~mapImpl(self~supplier, action)
 
 -- Always in-place (if needed, do a copy of the target collection before applying this method).
--- If no value is returned by the given action, then the current item is unchanged (no filtering).
+-- If no value is returned by the given action, then the current item is deleted.
 ::method mapImpl private
     use strict arg supplier, action
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
     if self~isA(.SetCollection) | self~isA(.Relation) then self~empty
-    do while supplier~available
+    do while supplier~available -- REMEMBER: That works good because the supplier has taken a SNAPSHOT of the collection before calling ~empty.
         newItem = supplier~item
         if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
                            else doer~do(supplier~item)
