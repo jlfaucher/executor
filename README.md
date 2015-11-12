@@ -65,12 +65,6 @@ Updating a variable from the closure will have no impact on the original context
 Initializer (instance method ~of) which takes into account the dimensions of the array.  
 Inspired by [APL][apl_glimpse_heaven]
 
-If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
-
-    .array~new(2,3)~of(1 2 3 4 5 6)
-    1 2 3
-    4 5 6
-
 If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
 
     .array~new(2,3)~of(1~upto(6))
@@ -80,12 +74,12 @@ If there is only one argument, and this argument has the method ~supplier then e
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.  
 Implicit arguments :
 
-- arg(1) : integerIndex : position of the current cell, from 1 to size.
-- arg(2) : arrayIndex : position of the current cell, in each dimension.
+- arg(1) : item : position of the current cell, from 1 to size.
+- arg(2) : inndex : position of the current cell, in each dimension.
 
 The value returned by the doer is the item for the current cell.
 
-    .array~new(2,3)~of{10*integerIndex}
+    .array~new(2,3)~of{10*item}
     10 20 30
     40 50 60
 
