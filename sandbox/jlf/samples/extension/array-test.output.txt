@@ -30,7 +30,7 @@
 -- 4 5 6
 
 -- If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
-   call dump2      .array~new(2,3)~of{10*integerIndex}
+   call dump2      .array~new(2,3)~of{10*item}
 [Array:
    [1,1] :  10
    [1,2] :  20

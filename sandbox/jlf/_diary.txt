@@ -152,6 +152,51 @@ Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
 ===============================================================================
+2015 nov 11
+
+Array programming:
+
+Helper to create a vector: v(e1, e2, ..., eN)
+v(1,"text", 1.5, v(),,v(-4,3) )=    -- [1,'text',1.5,(an Array 0),..,[-4,3]]
+
+Helper to create an empty dimensionned array: a(d1, ..., dN).
+a(3)        -- [..]
+a(3,2)      -- type: The Array class: (shape 3x2, 0 items)
+a(3,2,1)    -- type: The Array class: (shape 3x2x1, 0 items
+
+Array initializer: Renamed the implicit parameters passed to a doer.
+"integerIndex" --> "item"
+"arrayIndex"   --> "index"
+When the rank is 1, the index is an integer.
+    Invariant: index == item.
+    Example:
+    a(10)~of{item}=     -- [1,2,3,4,5,6,7,8,9,10]
+    a(10)~of{index}=    -- [1,2,3,4,5,6,7,8,9,10]
+When the rank is > 1, the index is an array [i1,i2,...,iRank].
+    Invariant:  1 + rank**(rank-1)*(i1-1) + rank**(rank-2)*(i2-1) + ... + rank**(0)*(iRank-1) == item
+    Example:
+    The reduce calculates 2 values for each index.
+    The 1st value is the expression as a string.
+    The 2nd value is the calculation of the expression.
+    a(2,2,3)~of{index~reduce(v("1",1)){::closure expose array ; r=array~rank ; e=r-index ; v(accu[1] "+" "("r"**"e")*("item"-1)", accu[2] + (r**e)*(item-1))}}
+        type: The Array class: (shape 2x2x3, 12 items)
+        [1,1,1] : ['1 + (3**2)*(1-1) + (3**1)*(1-1) + (3**0)*(1-1)',1]
+        [1,1,2] : ['1 + (3**2)*(1-1) + (3**1)*(1-1) + (3**0)*(2-1)',2]
+        [1,1,3] : ['1 + (3**2)*(1-1) + (3**1)*(1-1) + (3**0)*(3-1)',3]
+        [1,2,1] : ['1 + (3**2)*(1-1) + (3**1)*(2-1) + (3**0)*(1-1)',4]
+        [1,2,2] : ['1 + (3**2)*(1-1) + (3**1)*(2-1) + (3**0)*(2-1)',5]
+        [1,2,3] : ['1 + (3**2)*(1-1) + (3**1)*(2-1) + (3**0)*(3-1)',6]
+        [2,1,1] : ['1 + (3**2)*(2-1) + (3**1)*(1-1) + (3**0)*(1-1)',10]
+        [2,1,2] : ['1 + (3**2)*(2-1) + (3**1)*(1-1) + (3**0)*(2-1)',11]
+        [2,1,3] : ['1 + (3**2)*(2-1) + (3**1)*(1-1) + (3**0)*(3-1)',12]
+        [2,2,1] : ['1 + (3**2)*(2-1) + (3**1)*(2-1) + (3**0)*(1-1)',13]
+        [2,2,2] : ['1 + (3**2)*(2-1) + (3**1)*(2-1) + (3**0)*(2-1)',14]
+        [2,2,3] : ['1 + (3**2)*(2-1) + (3**1)*(2-1) + (3**0)*(3-1)',15]
+
+
+.array~lefElementWise: supports doers of any kind, not just messages.
+
+===============================================================================
 2015 nov 08
 
 Shorter notation for upTo and downTo:

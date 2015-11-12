@@ -4,6 +4,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 --::options trace i
 
+::routine a public
+    -- Empty array of specified shape
+    if arg() == 0 then return .array~new
+    return .array~new(arg(1, "a"))
+
+
+::routine v public
+    -- Vector (rank = 1)
+    return arg(1, "a")
+
+
 /******************************************************************************/
 ::class "ArrayInitializer" mixinclass Object public
 
@@ -23,13 +34,19 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
     If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
     Implicit arguments :
-        arg(1) : integerIndex : position of the current cell, from 1 to size.
-        arg(2) : arrayIndex : position of the current cell, in each dimension. Always an array, even if the number of dimensions = 1
+        arg(1) : item : position of the current cell, from 1 to size.
+        arg(2) : index : position of the current cell, in each dimension.
+            When the rank is 1, the index is an integer.
+            Invariant: index == item.
+            When the rank is > 1, the index is an array [i1,i2,...,iRank].
+            Invariant:  1 + rank**(rank-1)*(i1-1) + rank**(rank-2)*(i2-1) + ... + rank**(0)*(iRank-1) == item
+        arg(3) : array : the array under construction.
     The value returned by the doer is the item for the current cell.
     If no value returned then the cell remains unassigned.
-        .array~new(2,3)~of{10*integerIndex}
+        .array~new(2,3)~of{if item//4 <> 0 then 10*item}
         10 20 30
-        40 50 60
+        .. 50 60
+        70 .. 90
 
     Otherwise, when more than one argument, each argument is an item as-is.
         .array~new(2,3)~of(1,2,3,4,5,6)
@@ -62,7 +79,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
     if self~dimension == 0 then raise syntax 93.900 array("Unknown number of dimensions")
 
-    -- Only one of the following variable will be used
+    -- Only one of the following variables will be used
     oneValue = .false
     arrayIn = .nil
     doer = .nil
@@ -78,7 +95,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
                 value = arg(1)
             end
         end
-        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg integerIndex, arrayIndex, array")~arity(3)
+        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg item, index, array")~arity(3)
         else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
         else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
@@ -87,15 +104,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
     else arrayIn = arg(1, "a")
 
     selfIntegerIndex = 1
-    selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+    if self~dimension == 1 then selfArrayIndex = 1
+                           else selfArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
 
     -- Optimization
     if oneValue == .true then do
-        do while selfIntegerIndex <= self~size
-            self~put(value, selfArrayIndex)
-            selfIntegerIndex += 1
-            self~incrementIndex(selfArrayIndex)
-        end
+        self~fill(value)
         return self
     end
 
@@ -106,7 +120,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
     sourceEnd = 0
     selfReuseIntegerIndex = 1
-    selfReuseArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
+    if self~dimension == 1 then selfReuseArrayIndex = 1
+                           else selfReuseArrayIndex = self~dimension~times{1} -- Initializes all indexes to 1
 
     do while selfIntegerIndex <= self~size
         if sourceEnd == 0 then do
@@ -121,8 +136,10 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
             -- if initialization with a doer
             else if .nil <> doer then do
-                if doer~arity == 3 then doer~do(selfIntegerIndex, selfArrayIndex~copy, self)
-                else if doer~arity == 2 then doer~do(selfIntegerIndex, selfArrayIndex~copy)
+                if self~dimension == 1 then index = selfArrayIndex
+                                       else index = selfArrayIndex~copy
+                if doer~arity == 3 then doer~do(selfIntegerIndex, index, self)
+                else if doer~arity == 2 then doer~do(selfIntegerIndex, index)
                 else if doer~arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
@@ -145,14 +162,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
             if sourceEnd == 1 then leave -- can stop now because nothing to reuse (happens when you pass an empty provider)
             if selfReuseIntegerIndex == sourceEnd then do
                 selfReuseIntegerIndex = 1 -- rewind
-                selfReuseArrayIndex~mapR{1} -- rewind all indexes to 1
+                if self~dimension == 1 then selfReuseArrayIndex = 1 -- rewind
+                                       else selfReuseArrayIndex~mapR{1} -- rewind all indexes to 1
             end
             if self~hasIndex(selfReuseArrayIndex) then self~put(self[selfReuseArrayIndex], selfArrayIndex)
             selfReuseIntegerIndex += 1
-            self~incrementIndex(selfReuseArrayIndex)
+            if self~dimension == 1 then selfReuseArrayIndex += 1
+                                   else self~incrementIndex(selfReuseArrayIndex)
         end
         selfIntegerIndex += 1
-        self~incrementIndex(selfArrayIndex)
+        if self~dimension == 1 then selfArrayIndex += 1
+                               else self~incrementIndex(selfArrayIndex)
     end
     return self
 
@@ -313,35 +333,44 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::attribute defaultSparseValue
 
 ::method leftElementWise
-    use strict arg message, rightArgIsProvided, rightArg, recursion=(.identityTable~new)
+    use strict arg action, rightArg=.nil, recursion=(.identityTable~new)
     counterpart = recursion[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
-    if \ rightArgIsProvided then do
+    if \ arg(2, "e") then do
         -- unary operator
+        if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                            else doer = action~doer
         r = .array~new
         recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) then
-                r[index] = item~leftElementWise(message, .false, .nil, recursion)
-            else
-                r[index] = item~send(message)
+            if item~isA(.array) then do
+                r[index] = item~leftElementWise(doer, , recursion)
+            end
+            else do
+                if doer~arity >= 2 then doer~do(item, index)
+                                   else doer~do(item)
+                if var("result") then r[index] = result
+            end
             supplier~next
         end
         recursion~remove(self)
         return r
     end
+    -- binary operator
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
+                                        else doer = action~doer
     if self~isBoxed then do
         -- boxed array on left
         if rightArg~isA(.array), rightArg~isBoxed then do
             -- binary operator with boxed array on left & right
-            raise syntax 93.900 array("Message" message "does not support two boxed arrays")
+            raise syntax 93.900 array("Element-wise operation does not support two boxed arrays")
         end
         if rightArg~isA(.array) then do
             -- binary operator with boxed array on left & unboxed array on right
-            return rightArg~rightElementWise(message, self)
+            return rightArg~rightElementWise(doer, self)
         end
     end
     -- unboxed array on left
@@ -355,10 +384,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) then
-                r[index] = item~leftElementWise(message, .true, rightArg[index], recursion)
-            else
-                r[index] = item~send(message, rightArg[index])
+            if item~isA(.array) then do
+                r[index] = item~leftElementWise(doer, rightArg[index], recursion)
+            end
+            else do
+                if doer~arity >= 4 then doer~do(item, rightArg[index], index, index)
+                                   else doer~do(item, rightArg[index])
+                if var("result") then r[index] = result
+            end
             supplier~next
         end
         recursion~remove(self)
@@ -367,17 +400,20 @@ This script needs a modified ooRexx interpreter which support extension of prede
     else do
         -- binary operator with unboxed array on left only.
         -- If rightArg is an array, then it's a boxed array, to handle as a whole.
-        recursion[self] = r -- will be used to build the resulting infinite array
         r = .array~new
         recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) then
-                r[index] = item~leftElementWise(message, .true, rightArg, recursion)
-            else
-                r[index] = item~send(message, rightArg)
+            if item~isA(.array) then do
+                r[index] = item~leftElementWise(doer, rightArg, recursion)
+            end
+            else do
+                if doer~arity >= 4 then doer~do(item, rightArg, index, index)
+                                   else doer~do(item, rightArg)
+                if var("result") then r[index] = result
+            end
             supplier~next
         end
         recursion~remove(self)
@@ -386,7 +422,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method "rightElementWise"
     -- no unary operator here.
-    use strict arg message, leftArg, recursion=(.identityTable~new)
+    use strict arg action, leftArg, recursion=(.identityTable~new)
     counterpart = recursion[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
     if leftArg~isA(.array) then do
@@ -397,249 +433,257 @@ This script needs a modified ooRexx interpreter which support extension of prede
     end
     -- binary operator with unboxed array on right only
     -- If leftArg is an array, then it's a boxed array, to handle as a whole.
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
+                                        else doer = action~doer
     r = .array~new
     recursion[self] = r -- will be used to build the resulting infinite array
     supplier = self~supplier
     do while supplier~available
         index = supplier~index
         item = supplier~item
-        if item~isA(.array) then
-            r[index] = item~rightElementWise(message, leftArg, recursion)
-        else
-            r[index] = leftArg~send(message, item)
+        if item~isA(.array) then do
+            r[index] = item~rightElementWise(doer, leftArg, recursion)
+        end
+        else do
+            if doer~arity >= 4 then doer~do(leftArg, item, index, index)
+                               else doer~do(leftArg, item)
+            if var("result") then r[index] = result
+        end
         supplier~next
     end
     recursion~remove(self)
     return r
 
 ::method "+"
-    return self~leftElementWise("+", arg(1, "e"), arg(1))
+    if arg() == 0 then return self~leftElementWise("+")
+    if arg() == 1 then return self~leftElementWise("+", arg(1))
 
 ::method "+op:right"
-    return self~rightElementWise("+", arg(1))
+    if arg() == 1 then return self~rightElementWise("+", arg(1))
 
 ::method "-"
-    return self~leftElementWise("-", arg(1, "e"), arg(1))
+    if arg() == 0 then return self~leftElementWise("-")
+    if arg() == 1 then return self~leftElementWise("-", arg(1))
 
 ::method "-op:right"
-    return self~rightElementWise("-", arg(1))
+    if arg() == 1 then return self~rightElementWise("-", arg(1))
 
 ::method "*"
-    return self~leftElementWise("*", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("*", arg(1))
 
 ::method "*op:right"
-    return self~rightElementWise("*", arg(1))
+    if arg() == 1 then return self~rightElementWise("*", arg(1))
 
 ::method "/"
-    return self~leftElementWise("/", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("/", arg(1))
 
 ::method "/op:right"
-    return self~rightElementWise("/", arg(1))
+    if arg() == 1 then return self~rightElementWise("/", arg(1))
 
 ::method "%"
-    return self~leftElementWise("%", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("%", arg(1))
 
 ::method "%op:right"
-    return self~rightElementWise("%", arg(1))
+    if arg() == 1 then return self~rightElementWise("%", arg(1))
 
 ::method "//"
-    return self~leftElementWise("//", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("//", arg(1))
 
 ::method "//op:right"
-    return self~rightElementWise("//", arg(1))
+    if arg() == 1 then return self~rightElementWise("//", arg(1))
 
 ::method "**"
-    return self~leftElementWise("**", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("**", arg(1))
 
 ::method "**op:right"
-    return self~rightElementWise("**", arg(1))
+    if arg() == 1 then return self~rightElementWise("**", arg(1))
 
 ::method " "
-    return self~leftElementWise(" ", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise(" ", arg(1))
 
 ::method " op:right"
-    return self~rightElementWise(" ", arg(1))
+    if arg() == 1 then return self~rightElementWise(" ", arg(1))
 
 ::method "||"
-    return self~leftElementWise("||", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("||", arg(1))
 
 ::method "||op:right"
-    return self~rightElementWise("||", arg(1))
+    if arg() == 1 then return self~rightElementWise("||", arg(1))
 
 ::method "" -- abuttal
-    return self~leftElementWise("", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("", arg(1))
 
 ::method "op:right" -- abuttal
-    return self~rightElementWise("", arg(1))
+    if arg() == 1 then return self~rightElementWise("", arg(1))
 
 ::method mapEqual
-    return self~leftElementWise("=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("=", arg(1))
 
 /* Not activated
 ::method "="
-    return self~leftElementWise("=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("=", arg(1))
 */
 
 /* Not activated
 ::method "=op:right"
-    return self~rightElementWise("=", arg(1))
+    if arg() == 1 then return self~rightElementWise("=", arg(1))
 */
 
 ::method mapNotEqual
-    return self~leftElementWise("\=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\=", arg(1))
 
 /* Not activated
 ::method "\="
-    return self~leftElementWise("\=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\=", arg(1))
 */
 
 /* Not activated
 ::method "\=op:right"
-    return self~rightElementWise("\=", arg(1))
+    if arg() == 1 then return self~rightElementWise("\=", arg(1))
 */
 
 ::method mapNotEqualTo
-    return self~leftElementWise("<>", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("<>", arg(1))
 
 /* Not activated
 ::method "<>"
-    return self~leftElementWise("<>", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("<>", arg(1))
 */
 
 /* Not activated
 ::method "<>op:right"
-    return self~rightElementWise("<>", arg(1))
+    if arg() == 1 then return self~rightElementWise("<>", arg(1))
 */
 
 ::method mapStrictEqual
-    return self~leftElementWise("==", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("==", arg(1))
 
 /* Not activated
 ::method "=="
-    return self~leftElementWise("==", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("==", arg(1))
 */
 
 /* Not activated
 ::method "==op:right"
-    return self~rightElementWise("==", arg(1))
+    if arg() == 1 then return self~rightElementWise("==", arg(1))
 */
 
 ::method mapStrictNotEqual
-    return self~leftElementWise("\==", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\==", arg(1))
 
 /* Not activated
 ::method "\=="
-    return self~leftElementWise("\==", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\==", arg(1))
 */
 
 /* Not activated
 ::method "\==op:right"
-    return self~rightElementWise("\==", arg(1))
+    if arg() == 1 then return self~rightElementWise("\==", arg(1))
 */
 
 /* Not activated
 ::method "><"
-    return self~leftElementWise("><", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("><", arg(1))
 */
 
 /* Not activated
 ::method "><op:right"
-    return self~rightElementWise("><", arg(1))
+    if arg() == 1 then return self~rightElementWise("><", arg(1))
 */
 
 ::method "\"
     use strict arg -- none, no binary version
-    return self~leftElementWise("\", .false, .nil)
+    return self~leftElementWise("\")
 
 ::method ">"
-    return self~leftElementWise(">", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise(">", arg(1))
 
 ::method ">op:right"
-    return self~rightElementWise(">", arg(1))
+    if arg() == 1 then return self~rightElementWise(">", arg(1))
 
 ::method "<"
-    return self~leftElementWise("<", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("<", arg(1))
 
 ::method "<op:right"
-    return self~rightElementWise("<", arg(1))
+    if arg() == 1 then return self~rightElementWise("<", arg(1))
 
 ::method ">="
-    return self~leftElementWise(">=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise(">=", arg(1))
 
 ::method ">=op:right"
-    return self~rightElementWise(">=", arg(1))
+    if arg() == 1 then return self~rightElementWise(">=", arg(1))
 
 ::method "\<"
-    return self~leftElementWise("\<", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\<", arg(1))
 
 ::method "\<op:right"
-    return self~rightElementWise("\<", arg(1))
+    if arg() == 1 then return self~rightElementWise("\<", arg(1))
 
 ::method "<="
-    return self~leftElementWise("<=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("<=", arg(1))
 
 ::method "<=op:right"
-    return self~rightElementWise("<=", arg(1))
+    if arg() == 1 then return self~rightElementWise("<=", arg(1))
 
 ::method "\>"
-    return self~leftElementWise("\>", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\>", arg(1))
 
 ::method "\>op:right"
-    return self~rightElementWise("\>", arg(1))
+    if arg() == 1 then return self~rightElementWise("\>", arg(1))
 
 ::method ">>"
-    return self~leftElementWise(">>", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise(">>", arg(1))
 
 ::method ">>op:right"
-    return self~rightElementWise(">>", arg(1))
+    if arg() == 1 then return self~rightElementWise(">>", arg(1))
 
 ::method "<<"
-    return self~leftElementWise("<<", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("<<", arg(1))
 
 ::method "<<op:right"
-    return self~rightElementWise("<<", arg(1))
+    if arg() == 1 then return self~rightElementWise("<<", arg(1))
 
 ::method ">>="
-    return self~leftElementWise(">>=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise(">>=", arg(1))
 
 ::method ">>=op:right"
-    return self~rightElementWise(">>=", arg(1))
+    if arg() == 1 then return self~rightElementWise(">>=", arg(1))
 
 ::method "\<<"
-    return self~leftElementWise("\<<", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\<<", arg(1))
 
 ::method "\<<op:right"
-    return self~rightElementWise("\<<", arg(1))
+    if arg() == 1 then return self~rightElementWise("\<<", arg(1))
 
 ::method "<<="
-    return self~leftElementWise("<<=", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("<<=", arg(1))
 
 ::method "<<=op:right"
-    return self~rightElementWise("<<=", arg(1))
+    if arg() == 1 then return self~rightElementWise("<<=", arg(1))
 
 ::method "\>>"
-    return self~leftElementWise("\>>", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("\>>", arg(1))
 
 ::method "\>>op:right"
-    return self~rightElementWise("\>>", arg(1))
+    if arg() == 1 then return self~rightElementWise("\>>", arg(1))
 
 ::method "&"
-    return self~leftElementWise("&", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("&", arg(1))
 
 ::method "&op:right"
-    return self~rightElementWise("&", arg(1))
+    if arg() == 1 then return self~rightElementWise("&", arg(1))
 
 ::method "|"
-    return self~leftElementWise("|", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("|", arg(1))
 
 ::method "|op:right"
-    return self~rightElementWise("|", arg(1))
+    if arg() == 1 then return self~rightElementWise("|", arg(1))
 
 ::method "&&"
-    return self~leftElementWise("&&", arg(1, "e"), arg(1))
+    if arg() == 1 then return self~leftElementWise("&&", arg(1))
 
 ::method "&&op:right"
-    return self~rightElementWise("&&", arg(1))
+    if arg() == 1 then return self~rightElementWise("&&", arg(1))
 
 ::routine SameShapes
     use strict arg a1, a2
