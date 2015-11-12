@@ -78,11 +78,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ----------------------------------------------------
 
 -- Iterate over the values yielded by the coactivity and combine them into one value by applying the given action to (current_value, current_yielded_value)
--- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("+") -- initial value is the first item (default), returns 60
--- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce(100, "+") -- initial value is 100, returns 160
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~reduce("+") -- initial value is the first item (default), returns 60
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~reduce(100, "+") -- initial value is 100, returns 160
 -- Iterate over the values yielded by the coactivity and combine them into one value by applying the given action to (current_value, current_yielded_value, current_yielded_index)
--- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
--- {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~reduce{arg(1) + arg(2) + arg(3)} -- initial value is the first item (default), index passed as 3rd argument, returns 10 + 20+2 + 30+3 = 65
+-- {::coactivity .yield[10]; .yield[20]; .yield[30]}~reduce(0){arg(1) + arg(2) + arg(3)} -- initial value is 0, index passed as 3rd argument, returns 0 + 10+1 + 20+2 + 30+3 = 66
 ::method reduce unguarded
     forward to (self~supplier)
 
