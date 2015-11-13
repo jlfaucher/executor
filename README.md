@@ -105,14 +105,14 @@ many times as necessary to fill the array.
     2 1 2
 
 Generation of an identity matrix (1 on the diagonal, 0 everywhere else).  
-If (arrayIndex - arrayIndex[1])~reduce("+") == 0 is true then this is a diagonal index.
+If (index - index[1])~reduce("+") == 0 is true then this is a diagonal index.
 
 - [1,1] - 1 = [0,0], the sum of all items is 0 --> diagonal index
 - [1,2] - 1 = [0,1], the sum of all items is not 0 --> not a diagonal index
 
 This example also illustrates the availability of operators for array.
 
-    .array~new(3,3)~of{ (arrayIndex - arrayIndex[1])~reduce("+") == 0 }=
+    .array~new(3,3)~of{ (index - index[1])~reduce("+") == 0 }=
     1 0 0
     0 1 0
     0 0 1
