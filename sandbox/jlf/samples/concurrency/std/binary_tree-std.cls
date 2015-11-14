@@ -1,6 +1,6 @@
 --::options trace i
 ::requires "extension/std/extensions-std.cls"
-::requires "concurrency/coactivity.cls"
+::requires "concurrency/std/coactivity.cls"
 
 --------------------------------------------------------------------------------
 /*
@@ -45,7 +45,7 @@ end
             self~rightNode~insert(value)
         end
     end
-    
+
 ::method visitAscending
     -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
     if self~leftNode <> .nil then self~leftNode~visitAscending
