@@ -75,7 +75,7 @@ If there is only one argument, and this argument is a doer, then the doer is cal
 Implicit arguments :
 
 - arg(1) : item : position of the current cell, from 1 to size.
-- arg(2) : inndex : position of the current cell, in each dimension.
+- arg(2) : index : position of the current cell, in each dimension.
 
 The value returned by the doer is the item for the current cell.
 
