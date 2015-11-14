@@ -1,5 +1,8 @@
--- Windows only : 
+-- Windows only :
 -- A routine call is on average 15 times slower than a method call.
+-- [19/02/2012: Fixed]
+-- The problem was the access to the environment variable RXTRACE.
+
 
 count1 = 5
 count2 = 100000
