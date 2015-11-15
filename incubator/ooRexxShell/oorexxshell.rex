@@ -123,6 +123,7 @@ use strict arg .ooRexxShell~initialArgument, .ooRexxShell~initialAddress
 
 .ooRexxShell~readline = .true -- assign .false if you want only the basic "parse pull" functionality
 .ooRexxShell~showInfos = .true -- assign .false if you don't want the infos displayed after each line interpretation
+.oorexxShell~showColor = .true -- assign .false if you don't want the colors.
 
 .ooRexxShell~defaultColor = "default"
 .ooRexxShell~errorColor = "bred"
@@ -182,6 +183,11 @@ main: procedure
 
             when .ooRexxShell~inputrx == "?" then
                 call help
+
+            when .ooRexxShell~inputrx~caselessEquals("coloroff") then
+                .ooRexxShell~showColor = .false
+            when .ooRexxShell~inputrx~caselessEquals("coloron") then
+                .ooRexxShell~showColor = .true
 
             when .ooRexxShell~inputrx~caselessEquals("commands") then
                 .ooRexxShell~sayCommands
@@ -696,6 +702,7 @@ loadLibrary:
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
 ::attribute traceback class -- traceback of last error
 
+::attribute showColor class
 ::attribute defaultColor class
 ::attribute errorColor class
 ::attribute infoColor class
@@ -752,9 +759,11 @@ loadLibrary:
     say "Other commands:"
     say "    ?: to invoke ooRexx documentation."
     say "    bt: display the backtrace of the last error (same as tb)."
+    say "    coloroff: deactivate the colors."
+    say "    coloron: activate the colors."
     say "    commands: list the internal commands supported by ooRexxShell."
-    say "    debugon: activate the full trace of the internals of ooRexxShell."
     say "    debugoff: deactivate the full trace of the internals of ooRexxShell."
+    say "    debugon: activate the full trace of the internals of ooRexxShell."
     say "    exit: exit ooRexxShell."
     say "    interpreters: list of interpreters that can be selected."
     say "    readlineoff: use the raw parse pull for the input."
@@ -892,6 +901,7 @@ loadLibrary:
 
 ::method select class
     if \ .ooRexxShell~isInteractive then return -- to not put control characters in stdout/stderr
+    if \ .ooRexxShell~showColor then return -- you don't want the colors
     use strict arg color, stream=.stdout
     select
         when .platform~is("windows") then do

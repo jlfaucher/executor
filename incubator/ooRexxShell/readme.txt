@@ -115,6 +115,8 @@ To be recognized, these commands must be the first word of the input line.
 bash: select the bash interpreter (if available : see interpreters).
 bt: display the backtrace of the last error (same as tb).
 cmd: select the cmd interpreter (if available : see interpreters).
+coloroff: deactivate the colors.
+coloron: activate the colors.
 commands: list the internal commands supported by ooRexxShell.
 debugoff: deactivate the full trace of the internals of ooRexxShell.
 debugon: activate the full trace of the internals of ooRexxShell.
