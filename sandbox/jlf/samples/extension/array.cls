@@ -15,6 +15,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
     return arg(1, "a")
 
 
+::routine sameShapes public
+    use strict arg a1, a2
+    if a1~dimension <> a2~dimension then return .false
+    do i=1 to a1~dimension
+        if a1~dimension(i) <> a2~dimension(i) then return .false
+    end
+    return .true
+
+
 /******************************************************************************/
 ::class "ArrayInitializer" mixinclass Object public
 
@@ -371,7 +380,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- or boxed array on left and not array on right: in this case, the boxed array is handled as an unboxed array
     if rightArg~isA(.array), \ rightArg~isBoxed then do
         -- binary operator with unboxed array on left & right
-        if \SameShapes(self, rightArg) then raise syntax 93.900 array("Shapes are not equal")
+        if \sameShapes(self, rightArg) then raise syntax 93.900 array("Shapes are not equal")
         r = .array~new
         recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
@@ -510,7 +519,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method "op:right" -- abuttal
     if arg() == 1 then return self~rightElementWise("", arg(1))
 
-::method mapEqual
+::method elementEquals
     if arg() == 1 then return self~leftElementWise("=", arg(1))
 
 /* Not activated
@@ -523,7 +532,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if arg() == 1 then return self~rightElementWise("=", arg(1))
 */
 
-::method mapNotEqual
+::method elementNotEquals
     if arg() == 1 then return self~leftElementWise("\=", arg(1))
 
 /* Not activated
@@ -536,9 +545,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if arg() == 1 then return self~rightElementWise("\=", arg(1))
 */
 
-::method mapNotEqualTo
-    if arg() == 1 then return self~leftElementWise("<>", arg(1))
-
 /* Not activated
 ::method "<>"
     if arg() == 1 then return self~leftElementWise("<>", arg(1))
@@ -549,7 +555,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if arg() == 1 then return self~rightElementWise("<>", arg(1))
 */
 
-::method mapStrictEqual
+::method elementStrictEquals
     if arg() == 1 then return self~leftElementWise("==", arg(1))
 
 /* Not activated
@@ -562,7 +568,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if arg() == 1 then return self~rightElementWise("==", arg(1))
 */
 
-::method mapStrictNotEqual
+::method elementStrictNotEquals
     if arg() == 1 then return self~leftElementWise("\==", arg(1))
 
 /* Not activated
@@ -678,11 +684,3 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method "&&op:right"
     if arg() == 1 then return self~rightElementWise("&&", arg(1))
-
-::routine SameShapes
-    use strict arg a1, a2
-    if a1~dimension <> a2~dimension then return .false
-    do i=1 to a1~dimension
-        if a1~dimension(i) <> a2~dimension(i) then return .false
-    end
-    return .true
