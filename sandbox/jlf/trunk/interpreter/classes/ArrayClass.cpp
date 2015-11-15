@@ -413,13 +413,10 @@ void RexxArray::openGap(size_t index, size_t elements)
         ensureSpace(index + elements - 1);
     }
     else {
-        // the last element to move.  NOTE:  we check this BEFORE
-        // expanding the size, otherwise we move too many elements.
-        char *_end = (char *)slotAddress(this->size() + 1);
-
         // make sure we have space for the additional elements
         ensureSpace(size() + elements);
-                                             /* get the address of first element  */
+
+        char *_end = (char *)slotAddress(this->lastElement + 1);
         char *_start = (char *)slotAddress(index);
         char *_target = (char *)slotAddress(index + elements);
         /* shift the array over              */
