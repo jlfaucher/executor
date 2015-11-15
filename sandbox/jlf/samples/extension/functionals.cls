@@ -1048,10 +1048,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 3~times{arg(1)} -- returns .array~of(1,2,3)
 ::method times unguarded
     use strict arg action={arg(1)}
-    if \ self~dataType("W") then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
-    if \ (self >= 0) then raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
-    --forward to 1 message "upto" array(self, action)
-    return 1~upto(self, action)
+    if self~dataType("W"), self >= 0 then return 1~upto(self, 1, -1, action)
+    raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
 
 -- Repeat the given action from self up to upper limit (self and upper limit are numbers).
 -- An array of results is returned (can be empty).
@@ -1060,18 +1058,20 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 11~upto(13) -- returns .array~of(11,12,13)
 -- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
 ::method upto unguarded
-    use strict arg upperLimit, action={arg(1)}
-    if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
-    if \ upperLimit~dataType("N") then raise syntax 93.900 array ("upperLimit must be a number; found" upperLimit)
-    -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
-                                        else doer = action~doer
-    collectedItems = .array~new
-    do i = self to upperLimit
-        doer~do(i)
-        if var("result") then collectedItems~append(result)
+    step = 1
+    count = -1 -- no count by default
+    action = {arg(1)}
+    if arg() <= 1 then use strict arg limit
+    else if arg() == 2 then do
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, step=(step)
+        else use arg limit, action=(action)
     end
-    return collectedItems
+    else if arg() == 3 then do
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, step=(step), count=(count)
+        else use arg limit, step=(step), action=(action)
+    end
+    else use strict arg limit, step=(step), count=(count), action=(action)
+    return controlledLoop(self, limit, step, count, action)
 
 -- Repeat the given action from self down to lower limit (self and lower limit are numbers).
 -- An array of results is returned (can be empty).
@@ -1080,33 +1080,47 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 13~downto(11) -- returns .array~of(13,12,11)
 -- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
 ::method downto unguarded
-    use strict arg lowerLimit, action={arg(1)}
-    if \ self~dataType("N") then raise syntax 93.900 array ("self must be a number; found" self)
-    if \ lowerLimit~dataType("N") then raise syntax 93.900 array ("lowerLimit must be a number; found" lowerLimit)
-    -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
-                                        else doer = action~doer
-    collectedItems = .array~new
-    do i = self to lowerLimit by -1
-        doer~do(i)
-        if var("result") then collectedItems~append(result)
+    step = -1
+    count = -1 -- no count by default
+    action = {arg(1)}
+    if arg() <= 1 then use strict arg limit
+    else if arg() == 2 then do
+        if arg(2)~isA(.String), arg(2)~dataType("N") then use arg limit, step=(step)
+        else use arg limit, action=(action)
     end
-    return collectedItems
+    else if arg() == 3 then do
+        if arg(3)~isA(.String), arg(3)~dataType("N") then use arg limit, step=(step), count=(count)
+        else use arg limit, step=(step), action=(action)
+    end
+    else use strict arg limit, step=(step), count=(count), action=(action)
+    return controlledLoop(self, limit, step, count, action)
 
 -- Shorter notation for upto (1~10) & downto (10~1)
 -- when both self and the message are a number.
 ::method unknown unguarded
     use arg msg, args
     if self~dataType("N"), msg~dataType("N") then do
-        if args~size > 1 then raise syntax 93.900 array(self"~"msg": Too many arguments")
-        if args~size == 1 then do
-            if msg >= self then return self~upto(msg, args[1])
-            else return self~downto(msg, args[1])
-        end
-        else do
-            if msg >= self then return self~upto(msg)
-            else return self~downto(msg)
-        end
+        if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil))
+        else return self~sendWith("downto", args~~insert(msg, .nil))
     end
     --forward class (super)
     raise syntax 97.1 array(self, msg)
+
+::routine controlledLoop
+    use strict arg from, limit, step, count, action
+    -- parse only once, before iteration
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
+                                        else doer = action~doer
+    collectedItems = .array~new
+    if count == -1 then
+        -- no FOR
+        do i = from TO limit BY step
+            doer~do(i)
+            if var("result") then collectedItems~append(result)
+        end
+    else
+        do i = from TO limit BY step FOR count
+            doer~do(i)
+            if var("result") then collectedItems~append(result)
+        end
+    return collectedItems
