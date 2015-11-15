@@ -48,7 +48,7 @@
 /******************************************************************************/
 
 --::options trace i
-
+::requires "rxmath" library
                                                 /* complex number data class      */
 ::class complex public
 
@@ -61,8 +61,14 @@
 -- and add a method makeComplex on String...
     use strict arg x
     if x~isA(self) then return x
-    if x~isA(.string), x~datatype("N") then
-        return self~new(x)
+    if x~isA(.string) then do
+        if x~datatype("N") then return self~new(x)
+        if x~right(1)~caselessEquals("i") then do
+            imaginary = x~left(x~length-1)
+            if imaginary == "" then imaginary = 1
+            if imaginary~datatype("N") then return self~new(0, imaginary)
+        end
+    end
     return .nil
 
 ::method init                                   /* initialize a complex number    */
@@ -85,6 +91,43 @@
 ::method imaginary                              /* return imaginary part          */
     expose imaginary                            /* access the state information   */
     return imaginary                            /* return the value               */
+
+/*
+::method arg
+    -- Complex argument
+    -- http://mathworld.wolfram.com/ComplexArgument.html
+    -- arg(x+iy) = arctan(y/x)
+    expose real imaginary
+    return RxCalcArcTan(real / imaginary, , "r")
+*/
+
+::method equals
+    expose real imaginary
+    use strict arg right
+    right = self~class~convert(right)
+    if .nil == right then return
+    return real=right~real & imaginary=right~imaginary
+
+::method notEquals
+    expose real imaginary
+    use strict arg right
+    right = self~class~convert(right)
+    if .nil == right then return
+    return real\=right~real | imaginary\=right~imaginary
+
+::method strictEquals
+    expose real imaginary
+    use strict arg right
+    right = self~class~convert(right)
+    if .nil == right then return
+    return real==right~real & imaginary==right~imaginary
+
+::method strictNotEquals
+    expose real imaginary
+    use strict arg right
+    right = self~class~convert(right)
+    if .nil == right then return
+    return real\==right~real | imaginary\==right~imaginary
 
 ::method '+'                                    /* addition method                */
     expose real imaginary                       /* access the state values        */
@@ -216,3 +259,239 @@
     if .nil == left then return
     return left // self
 
+
+/******************************************************************************/
+-- Add support for notation a+bi where a and b are numbers.
+::class "ComplexString" mixinclass Object public
+
+/*
+::method arg
+    use strict arg -- none
+    complex = .complex~convert(self)
+    if .nil == complex then forward class (super)
+    return complex~arg
+*/
+
+::method "+op:left"
+    -- For the moment, this message is sent only for the unary +
+    use arg right=.nil
+    left = .complex~convert(self)
+    if .nil == left then return
+    if .nil == right then return left -- unary +
+    right = .complex~convert(right)
+    if .nil == right then return
+    return left + right
+
+
+::method "+op:right"
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    right = .complex~convert(self)
+    if .nil == right then return
+    return left + right
+
+
+::method "-op:left"
+    -- For the moment, this message is sent only for the unary -
+    use strict arg right=.nil
+    left = .complex~convert(self)
+    if .nil == left then return
+    if .nil == right then return 0 - left
+    right = .complex~convert(right)
+    if .nil == right then return
+    return left - right
+
+
+::method "-op:right"
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    right = .complex~convert(self)
+    if .nil == right then return
+    return left - right
+
+
+::method "*op:right"
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    right = .complex~convert(self)
+    if .nil == right then return
+    return left * right
+
+
+::method "/op:right"
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    right = .complex~convert(self)
+    if .nil == right then return
+    return left / right
+
+
+::method "%op:right"
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    right = .complex~convert(self)
+    if .nil == right then return
+    return left % right
+
+
+::method "//op:right"
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    right = .complex~convert(self)
+    if .nil == right then return
+    return left // right
+
+
+::method "**op:right"
+    -- Limited support, I want mainly support i**2
+    use strict arg left
+    left = .complex~convert(left)
+    if .nil == left then return
+    if \ self~datatype("W") then return
+    if self == 0 then return 1 -- not sure it's correct for a complex number
+    r = 1
+    do abs(self) ; r *= left ; end -- naive calculation
+    if self < 0 then return 1/r
+    return r
+
+
+/*
+Others operators
+
+::method "**op:right"
+
+/* Not activated
+::method "="
+*/
+
+/* Not activated
+::method "=op:right"
+*/
+
+/* Not activated
+::method "\="
+*/
+
+/* Not activated
+::method "\=op:right"
+*/
+
+/* Not activated
+::method "<>"
+*/
+
+/* Not activated
+::method "<>op:right"
+*/
+
+/* Not activated
+::method "=="
+*/
+
+/* Not activated
+::method "==op:right"
+*/
+
+/* Not activated
+::method "\=="
+*/
+
+/* Not activated
+::method "\==op:right"
+*/
+
+/* Not activated
+::method "><"
+*/
+
+/* Not activated
+::method "><op:right"
+*/
+
+::method "\"
+    use strict arg -- none, no binary version
+
+::method ">"
+
+::method ">op:right"
+
+::method "<"
+
+::method "<op:right"
+
+::method ">="
+
+::method ">=op:right"
+
+::method "\<"
+
+::method "\<op:right"
+
+::method "<="
+
+::method "<=op:right"
+
+::method "\>"
+
+::method "\>op:right"
+
+::method ">>"
+
+::method ">>op:right"
+
+::method "<<"
+
+::method "<<op:right"
+
+::method ">>="
+
+::method ">>=op:right"
+
+::method "\<<"
+
+::method "\<<op:right"
+
+::method "<<="
+
+::method "<<=op:right"
+
+::method "\>>"
+
+::method "\>>op:right"
+
+::method "&"
+
+::method "&op:right"
+
+::method "|"
+
+::method "|op:right"
+
+::method "&&"
+
+::method "&&op:right"
+
+*/
+
+/*
+Operators not needed for complex numbers
+
+::method " "
+
+::method " op:right"
+
+::method "||"
+
+::method "||op:right"
+
+::method "" -- abuttal
+
+::method "op:right" -- abuttal
+
+*/

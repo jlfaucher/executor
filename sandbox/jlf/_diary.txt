@@ -151,6 +151,38 @@ multi-line.
 Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
 
+
+===============================================================================
+2015 nov 15
+
+.array~of(1,2,3,4)~~insert(0,.nil)=
+Crash --> fixed.
+
+
+.numberString~upTo
+.numberString~downTo
+.numberString~numberString
+Modified to support all the possibilities of controlled loop:
+r=.array~new; loop i=0.3 to 4.3 by 0.7 for 5; r~append(i); end; r= -- [0.3,1.0,1.7,2.4,3.1]
+The same loop:
+0.3~upTo(4.3, 0.7, 5)=  -- [0.3,1.0,1.7,2.4,3.1]
+0.3~4.3(0.7, 5)=        -- [0.3,1.0,1.7,2.4,3.1]
+
+
+Complex numbers:
+Add support for notation a+bi where a and b are numbers.
+i+1 did not trigger the execution of "+op:right"
+It's because 1 is a RexxIntegerClass whose behaviour can't be extended with ::extension.
+By sending the alternative message "+op:right" to the string associated to the RexxIntegerClass then it works.
+This is already what's done by the interpreter for the unknown message.
+
+Complex numbers:
+Add support for unary operator + -
+The message "+op:right" can't be sent because there is no right operand.
++i --> the message "+op:left" is sent by the interpreter.
+-i --> the message "-op:left" is sent by the interpreter.
+
+
 ===============================================================================
 2015 nov 12
 
@@ -1495,6 +1527,7 @@ The methods ~pipe, ~pipe.generate, pipeProfile and pipeProfile.generate must be 
 [coactivity]
 Added support for onStart and onTerminate at the class level.
 Needed to attach/detach properly to/from the Java thread in ooRexxTry.rxj.
+10/06/2015 : removed, no longer needed.
 
 
 [parser]
