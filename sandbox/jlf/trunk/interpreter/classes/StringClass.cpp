@@ -765,8 +765,17 @@ RexxObject *RexxString::plus(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternativeResult = right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
-        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        if (right_term == OREF_NULL)
+        {
+            bool alternativeResult = this->messageSend(OREF_PLUS_LEFT, &right_term, 0, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        }
+        else
+        {
+            if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
+            bool alternativeResult = right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        }
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -787,8 +796,17 @@ RexxObject *RexxString::minus(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
-        bool alternativeResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
-        if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        if (right_term == OREF_NULL)
+        {
+            bool alternativeResult = this->messageSend(OREF_SUBTRACT_LEFT, &right_term, 0, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        }
+        else
+        {
+            if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
+            bool alternativeResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
+        }
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
     }
@@ -809,6 +827,7 @@ RexxObject *RexxString::multiply(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
+        if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
         bool alternativeResult = right_term->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
@@ -831,6 +850,7 @@ RexxObject *RexxString::divide(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
+        if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
         bool alternativeResult = right_term->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
@@ -853,6 +873,7 @@ RexxObject *RexxString::integerDivide(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
+        if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
         bool alternativeResult = right_term->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
@@ -875,6 +896,7 @@ RexxObject *RexxString::remainder(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
+        if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
         bool alternativeResult = right_term->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
@@ -897,6 +919,7 @@ RexxObject *RexxString::power(RexxObject *right_term)
         // Try an alternative operator
         ProtectedObject result;
         RexxObject *self = this;
+        if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
         bool alternativeResult = right_term->messageSend(OREF_POWER_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
@@ -1308,6 +1331,7 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
         // Give a chance for an alternative operator before REQUEST_STRING
         ProtectedObject result;
         RexxObject *self = this;
+        if (otherObj->classObject() == TheIntegerClass || otherObj->classObject() == TheNumberStringClass) otherObj = otherObj->stringValue();
         bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
     }
@@ -1447,6 +1471,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
         // Give a chance for an alternative operator before REQUEST_STRING
         ProtectedObject result;
         RexxObject *self = this;
+        if (otherObj->classObject() == TheIntegerClass || otherObj->classObject() == TheNumberStringClass) otherObj = otherObj->stringValue();
         bool alternativeResult = otherObj->messageSend(OREF_BLANK_RIGHT, &self, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
     }
