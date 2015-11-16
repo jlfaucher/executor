@@ -516,6 +516,7 @@ RexxObject *RexxMessage::newRexx(
     RexxObject *_target   = msgArgs[0];              /* Get the receiver object           */
     requiredArgument(_target, ARG_ONE);
     RexxObject *_message  = msgArgs[1];              /* get the message .                 */
+    requiredArgument(_message, ARG_TWO);
     RexxString *msgName;
     RexxObject *_startScope;
     // decode the message argument into name and scope
