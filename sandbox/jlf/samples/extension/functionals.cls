@@ -1048,7 +1048,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 3~times{arg(1)} -- returns .array~of(1,2,3)
 ::method times unguarded
     use strict arg action={arg(1)}
-    if self~dataType("W"), self >= 0 then return 1~upto(self, 1, -1, action)
+    if self~dataType("W"), self >= 0 then return 1~upto(self, 1,  .nil, action)
     raise syntax 93.900 array ("self must be zero or a positive whole number; found" self)
 
 -- Repeat the given action from self up to upper limit (self and upper limit are numbers).
@@ -1059,7 +1059,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- (-1)~upto(3) -- returns .array~of(-1,0,1,2,3) -- Note that -1 MUST be surrounded by paren or quotes
 ::method upto unguarded
     step = 1
-    count = -1 -- no count by default
+    count = .nil -- no count by default
     action = {arg(1)}
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
@@ -1081,7 +1081,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- 3~upto(-1) -- returns .array~of(3,2,1,0,-1)
 ::method downto unguarded
     step = -1
-    count = -1 -- no count by default
+    count = .nil -- no count by default
     action = {arg(1)}
     if arg() <= 1 then use strict arg limit
     else if arg() == 2 then do
@@ -1109,18 +1109,32 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::routine controlledLoop
     use strict arg from, limit, step, count, action
     -- parse only once, before iteration
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
+    loop
+        if from + step - from = step & limit + step - limit = step then leave
+        numeric digits digits() + digits() % 2
+    end
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, digits")~arity(1)
                                         else doer = action~doer
     collectedItems = .array~new
-    if count == -1 then
+    if count == .nil then do
         -- no FOR
         do i = from TO limit BY step
-            doer~do(i)
+            doer~do(i, digits())
             if var("result") then collectedItems~append(result)
         end
-    else
+    end
+    else do
+        if count < 0 then do
+            N = (limit - from + step) % step
+            N = abs(N)
+            L = from + (N-1)*step
+            count = abs(count)
+            if count > N then count = N
+            from = L - (count-1)*step
+        end
         do i = from TO limit BY step FOR count
-            doer~do(i)
+            doer~do(i, digits())
             if var("result") then collectedItems~append(result)
         end
+    end
     return collectedItems

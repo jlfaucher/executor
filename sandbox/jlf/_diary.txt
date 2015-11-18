@@ -155,6 +155,42 @@ made on the clause which contains it.
 ===============================================================================
 2015 nov 15
 
+More work on ~upTo ~downTo
+
+When the count is negative then only the last -count elements are generated.
+Ex :
+0.3~4.3(0.7, -5)=  -- [1.0,1.7,2.4,3.1,3.8]
+
+The setting of numeric digits is adjusted to ensure a correct progression.
+Algoritm:
+    loop
+        if from + step - from = step & limit + step - limit = step then leave
+        numeric digits digits() + digits() % 2
+    end
+Ex:
+1~20000000000(0.000000127, 3)=     -- [1,1.000000127,1.000000254]
+1~20000000000(0.000000127, -3)=    -- [19999999999.999999681,19999999999.999999808,19999999999.999999935]
+
+The value of digits() is passed as argument digits to the doer.
+That allows to declare the same setting in the context of the doer, if needed.
+Reminder: by default, the setting of numeric digits is 9 inside the doer (standard ooRexx setting).
+Ex:
+do i=10 to 100 by 10; n="1e"i; n~upto(n,,1){say "digits="digits "item+0="item+0 "item="item}; end
+digits=13 item+0=1E+10 item=10000000000
+digits=28 item+0=1E+20 item=100000000000000000000
+digits=42 item+0=1E+30 item=1000000000000000000000000000000
+digits=42 item+0=1E+40 item=10000000000000000000000000000000000000000
+digits=63 item+0=1E+50 item=100000000000000000000000000000000000000000000000000
+digits=63 item+0=1E+60 item=1000000000000000000000000000000000000000000000000000000000000
+digits=94 item+0=1E+70 item=10000000000000000000000000000000000000000000000000000000000000000000000
+digits=94 item+0=1E+80 item=100000000000000000000000000000000000000000000000000000000000000000000000000000000
+digits=94 item+0=1E+90 item=1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+digits=141 item+0=1E+100 item=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+
+===============================================================================
+2015 nov 15
+
 .array~of(1,2,3,4)~~insert(0,.nil)=
 Crash --> fixed.
 
