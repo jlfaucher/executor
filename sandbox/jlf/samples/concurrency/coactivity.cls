@@ -243,10 +243,6 @@ To let a coactivity's thread be stopped when the coactivity is GC'ed, must use t
     forward to (coactivityObj)
 
 
-::method setMethod class public unguarded -- override the private setMethod inherited from Object to make it public
-    forward class (super)
-
-
 --------------------------------------------------------------------------------
 ::class "CoactivityObj"
 
