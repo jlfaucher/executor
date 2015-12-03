@@ -3,19 +3,6 @@
 -- Array initializers
 -- --------------------------------------------------------------
 
--- If there is only one argument, and this argument is a string, then each word of the string is an item (APL-like).
-   call dump2      .array~new(2,3)~of(1 2 3 4 5 6)
-[Array:
-   [1,1] :  1
-   [1,2] :  2
-   [1,3] :  3
-   [2,1] :  4
-   [2,2] :  5
-   [2,3] :  6
-]
--- 1 2 3
--- 4 5 6
-
 -- If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
    call dump2      .array~new(2,3)~of(1~upto(6))
 [Array:
