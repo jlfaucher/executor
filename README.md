@@ -31,15 +31,6 @@ Routine
      say "hello" name || greetings
     }~("John", ", how are you ?")       -- hello John, how are you ?
 
-Method
-
-The first argument is the object, available in self, on which the method is executed.  
-The remaining arguments are passed to the method as arg(1), arg(2), ...
-
-    {::method use arg greetings
-     say "hello" self || greetings
-    }~("John", ", how are you ?")       -- hello John, how are you ?
-
 Coactivity
 
 A coactivity remembers its internal state.  
@@ -83,7 +74,7 @@ The value returned by the doer is the item for the current cell.
     10 20 30
     40 50 60
 
-Otherwise, when more than one argument, each argument is an item as-is.
+Otherwise each argument is an item as-is.
 
     .array~new(2,3)~of(1,2,3,4,5,6)
     1 2 3
