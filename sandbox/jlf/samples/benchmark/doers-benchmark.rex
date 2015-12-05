@@ -5,20 +5,15 @@ call run count, .context~package~findRoutine("emptyRoutine")
 call run count, {/**/}
 call run count, {::r}
 call run count, .methods["EMPTYMETHOD"]
-call run count, {::m}
 -- Here, the coactivities are ended at first call, so very fast...
 call run count, {::r.co}
--- for a coactive method, the self must be passed whith ~doer
-call run count, {::m.co}~doer(.nil)
 
 call run count, .context~package~findRoutine("myRoutine")
 call run count, {if item // 1000 == 0 then call charout ,"."}
 call run count, {::r if item // 1000 == 0 then call charout ,"."}
 call run count, .methods["MYMETHOD"]
-call run count, {::m if self // 1000 == 0 then call charout ,"."}
 -- Current implementation of yield is very costly !  (JLF 2012 mar 23 : with .threadLocal, no longer costly...)
 call run count, {::r.co do forever ; .yield[]; item = arg(1) ; if item // 1000 == 0 then call charout ,"." ; end}
-call run count, {::m.co do forever ; .yield[]; item = arg(1) ; if item // 1000 == 0 then call charout ,"." ; end}~doer(.nil)
 -- 4 times faster when using self~yield (JLF 2012 mar 23 : no longer 4 times faster, because .yield[] now uses .threadLocal...)
 call run count, .myCoactivity~new
 
@@ -118,40 +113,6 @@ do i=1 to count
     r += {return 2 * arg(1)}~(i)
 end
 say r "literal {return 2 * arg(1)} in loop, called with ~()" count "times :" time('e')~format(2,4)
-
--------------------------------------------------------------------------------
-
-call time('r')
-f = {::m return 2 * self}
-r = 0
-do i=1 to count
-    r += f~do(i)
-end
-say r "literal {::m return 2 * self} before loop, called with ~do" count "times :" time('e')~format(2,4)
-
-call time('r')
-f = {::m return 2 * self}
-r = 0
-do i=1 to count
-    r += f~(i)
-end
-say r "literal {::m return 2 * self} before loop, called with ~()" count "times :" time('e')~format(2,4)
-
--------------------------------------------------------------------------------
-
-call time('r')
-r = 0
-do i=1 to count
-    r += {::m return 2 * self}~do(i)
-end
-say r "literal {::m return 2 * self} in loop, called with ~do" count "times :" time('e')~format(2,4)
-
-call time('r')
-r = 0
-do i=1 to count
-    r += {::m return 2 * self}~(i)
-end
-say r "literal {::m return 2 * self} in loop, called with ~()" count "times :" time('e')~format(2,4)
 
 -------------------------------------------------------------------------------
 

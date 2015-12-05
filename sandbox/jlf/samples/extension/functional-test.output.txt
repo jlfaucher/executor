@@ -2012,16 +2012,6 @@
        )
 
 
--- A source can be tagged explicitely as a method (you need that, because it's a routine by default)
-   colors~map{::method self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump
-[Array:
-  1  : 0 (0, 0, 0)
-  2  : 255 (0, 0, 255)
-  3  : 32768 (0, 128, 0)
-  4  : 12500670 (190, 190, 190)
-]
-
-
 -- A method object can be used directly
 -- No need to define the method on the receiver class...
    colors~map(.methods~entry("decimalColor"))~dump

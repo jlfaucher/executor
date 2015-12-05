@@ -153,6 +153,20 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2015 dec 5
+
+Remove support of {::method...}
+After 4 years, I never needed a method as a block.
+The decision has been taken after investigating how to remove the source transformation
+at run-time (functionDoer). I will probably add support for implicit arguments, whose
+name is given by the caller. The instruction "use implicit" will be injected at parse-time
+in all block sources. Since the callee has no control over the names given by
+the caller, there was a risk to break encapsulation when the callee is a method
+which exposes some attributes. The caller could assign a value to any exposed
+variable, just by passing the variable name as implicit name.
+
+
+===============================================================================
 2015 nov 15
 
 More work on ~upTo ~downTo
@@ -259,7 +273,7 @@ v(1,"text", 1.5, v(),,v(-4,3) )=    -- [1,'text',1.5,(an Array 0),..,[-4,3]]
 Helper to create an empty dimensionned array: a(d1, ..., dN).
 a(3)        -- [..]
 a(3,2)      -- type: The Array class: (shape 3x2, 0 items)
-a(3,2,1)    -- type: The Array class: (shape 3x2x1, 0 items
+a(3,2,1)    -- type: The Array class: (shape 3x2x1, 0 items)
 
 Array initializer: Renamed the implicit parameters passed to a doer.
 "integerIndex" --> "item"

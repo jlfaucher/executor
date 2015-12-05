@@ -186,8 +186,8 @@ Remember : ooRexx supports anonymous recursion, no need of the Y combinator in t
 /*
 Remember :
 The method 'run' is a private method. So can be called only from another method of object...
-"hello"~run({::method say self}~doer) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
-{::method say self}~doer~do("hello") --> No error, display "hello" (so the private method is visible ?)
+"hello"~run(aMethod) --> Error : Object "hello" does not understand message "RUN" (ok, 'run' is private)
+aMethod~do("hello") --> No error, display "hello" (so the private method is visible ?)
 --> It's because the ~run method is called from the ~do method which has been added by extension.
 */
 ::class "MethodDoer" mixinclass Object public inherit Doer
@@ -238,17 +238,15 @@ The method 'run' is a private method. So can be called only from another method 
 ::class "RexxBlockDoer" mixinclass Object public inherit DoerFactory Doer
 
 ::method init
-    -- Careful ! If another method 'init' is defined later (typically by another extension), then this one won't be executed...
-    -- See .class~define : Using the define method replaces any existing definition for methodname in the receiver class.
     expose executable
     executable = .nil
+    self~init:super
 
 ::method doer unguarded
     expose executable
     if .nil <> executable then return executable
-    use strict arg object=.nil -- optional object, needed when the source is tagged ::method.coactive
-    objectSpecified = arg(1, "e") -- object explicitely passed ?
-    executable = self~sourceDoer( , , , objectSpecified, object)
+    use strict arg -- none
+    executable = self~sourceDoer
     return executable
 
 ::method executable unguarded
@@ -263,7 +261,7 @@ Possible transformations :
 - Insert a clause at the end.
 */
 ::method sourceDoer unguarded
-    use strict arg clauseBefore="", clauseAfter="", context=.nil, objectSpecified = .false, object = .nil
+    use strict arg clauseBefore="", clauseAfter="", context=.nil
     if .nil == context then context = self~package -- lookup scope
 
     kind = self~kind
@@ -294,11 +292,6 @@ Possible transformations :
     -- Returns the executable
     if kind == "r" then return rawExecutable
     else if kind == "r.co" then return .Coactivity~new(rawExecutable)
-    else if kind == "m.gu" | kind == "m.un" then return rawExecutable
-    else if kind == "m.co" | kind == "m.gu.co" | kind == "m.un.co" then do
-        if \objectSpecified then raise syntax 93.900 array("No object specified")
-        return .Coactivity~new(rawExecutable, , object)
-    end
     else if kind == "cl" then return .Closure~new(self~variables, rawExecutable)
     else if kind == "cl.co" then return .Coactivity~new(.Closure~new(self~variables, rawExecutable))
     return .nil -- should never happen
@@ -306,19 +299,17 @@ Possible transformations :
 ::method functionDoer
     expose executable
     if .nil <> executable then return executable
-    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
-    objectSpecified = arg(3, "e") -- object explicitely passed ?
+    use strict arg clauseBefore="", clauseAfter=""
     clauseBefore ||= ' ; options "NOCOMMANDS"'
     clauseAfter ||= ' ; if var("result") then return result'
-    executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
+    executable = self~sourceDoer(clauseBefore, clauseAfter)
     return executable
 
 ::method actionDoer
     expose executable
     if .nil <> executable then return executable
-    use strict arg clauseBefore="", clauseAfter="", object=.nil-- optional object, needed when the source is tagged ::method.coactive
-    objectSpecified = arg(3, "e") -- object explicitely passed ?
-    executable = self~sourceDoer(clauseBefore, clauseAfter, , objectSpecified, object)
+    use strict arg clauseBefore="", clauseAfter=""
+    executable = self~sourceDoer(clauseBefore, clauseAfter)
     return executable
 
 -- Even if unknown is defined, must explicitely provide a concrete implementation because abstract

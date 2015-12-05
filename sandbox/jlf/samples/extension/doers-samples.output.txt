@@ -8,9 +8,6 @@ hello John, how are you ?
 
 hello John, how are you ?
 
-The Method class
-hello John, how are you ?
-
 The Coactivity class
 a Routine
 hello John, how are you ?
@@ -20,11 +17,6 @@ The Coactivity class
 a Routine
 hello John, how are you ?
 good bye Kathie, see you soon.
-
-The Coactivity class
-a Method
-The boss says "hello John, how are you ?"
-The boss says "good bye Kathie, see you soon."
 
 The String class
 4
@@ -32,10 +24,6 @@ The String class
 
 The Routine class
 4
-
-The Method class
-expose a b;use strict arg x ; options "NOCOMMANDS" ; x*(a+b)
-return result
 
 The Routine class
 4

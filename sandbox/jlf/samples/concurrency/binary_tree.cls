@@ -68,19 +68,26 @@ end
     end
     return binaryTree
 
-::attribute rootNode
+::attribute items get
+-- ::attribute rootNode
 
 ::method init
-    self~rootNode = .Node~new
+    expose items rootNode
+    items = 0
+    rootNode = .Node~new
 
 ::method insert
-    forward to (self~rootNode)
+    expose items rootNode
+    items += 1
+    forward to (rootNode)
 
 ::method ascendingItems
-    return .Coactivity~new("visitAscending", , self~rootNode)
+    expose rootNode
+    return .Coactivity~new("visitAscending", , rootNode)
 
 ::method descendingItems
-    return .Coactivity~new("visitDescending", , self~rootNode)
+    expose rootNode
+    return .Coactivity~new("visitDescending", , rootNode)
 
 
 --------------------------------------------------------------------------------
@@ -133,31 +140,42 @@ end
     end
     return binaryTree
 
-::attribute rootNode
+::attribute items get
+-- ::attribute rootNode
 
 ::method init
-    self~rootNode = .Node2~new
+    expose items rootNode
+    items = 0
+    rootNode = .Node2~new
 
 ::method insert
-    forward to (self~rootNode)
+    expose items rootNode
+    items += 1
+    forward to (rootNode)
 
 ::method ascendingItems
-    return {::method.coactive
+    expose rootNode
+    return {::closure.coactive
+            expose rootNode
+            use arg node=(rootNode)
             -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
             -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself
-            if .nil <> self~leftNode then .context~executable~(self~leftNode)
-            .yield[self~item]
-            if .nil <> self~rightNode then .context~executable~(self~rightNode)
-           }~doer(self~rootNode)
+            if .nil <> node~leftNode then self~(node~leftNode)
+            .yield[node~item]
+            if .nil <> node~rightNode then self~(node~rightNode)
+           }
 
 ::method descendingItems
-    return {::method.coactive
+    expose rootNode
+    return {::closure.coactive
+            expose rootNode
+            use arg node=(rootNode)
             -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
             -- The recursive call is done with the wrapped executable (the method on the node), not with the method itself
-            if .nil <> self~rightNode then .context~executable~(self~rightNode)
-            .yield[self~item]
-            if .nil <> self~leftNode then .context~executable~(self~leftNode)
-           }~doer(self~rootNode)
+            if .nil <> node~rightNode then self~(node~rightNode)
+            .yield[node~item]
+            if .nil <> node~leftNode then self~(node~leftNode)
+           }
 
 
 --------------------------------------------------------------------------------

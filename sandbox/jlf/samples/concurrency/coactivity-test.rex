@@ -1,19 +1,8 @@
 -- Coactivities in ooRexx
 -- This script needs a modified ooRexx interpreter which allows to extend predefined ooRexx classes.
 
--- In case of error, must kill any running coactivity, otherwise the program doesn't terminate
-signal on any name error
-signal on syntax name error
-
 call demo
-call terminate
-return
 
-error:
-condition = condition("o")
-say condition~instruction condition~condition "for" condition~additional
-if .nil <> condition~message then say condition~message
-terminate:
 say
 say "Ended coactivities:" .Coactivity~endAll
 return
@@ -134,5 +123,12 @@ c~resume
 do while var("result")
     say result
     c~resume
+end
+say "Mixed order"
+ascending = btree~ascendingItems
+descending = btree~descendingItems
+do btree~items
+    say ascending~()
+    say descending~()
 end
 

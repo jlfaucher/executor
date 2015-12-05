@@ -857,10 +857,6 @@ colors = .Array~of( ,
     )
 
 
--- A source can be tagged explicitely as a method (you need that, because it's a routine by default)
-colors~map{::method self~rgbInteger "("self~redIntensity", "self~greenIntensity", "self~blueIntensity")"}~dump
-
-
 -- A method object can be used directly
 -- No need to define the method on the receiver class...
 colors~map(.methods~entry("decimalColor"))~dump
@@ -970,7 +966,7 @@ colors~map(.methods~entry("decimalColor"))~dump
         .output~charout(indent layout(s~index)~left(3)" : ")
         if s~item~isA(.Collection) then do
             say
-            call dump s~item, "    "indent 
+            call dump s~item, "    "indent
         end
         else say layout(s~item)
         s~next
