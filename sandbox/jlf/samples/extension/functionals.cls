@@ -104,18 +104,19 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::method reduceImpl private unguarded
     use strict arg action, initial=.nil
+    if \ self~available then return initial
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg accu, item, index")~arity(3)
                                         else doer = action~doer
-    if \ self~available then return initial
+    arity = doer~arity
     if .nil <> initial then accu = initial
     else do
         accu = self~item
         self~next
     end
     do while self~available
-        if doer~arity >=3 then doer~do(accu, self~item, self~index)
-                          else doer~do(accu, self~item)
+        if arity >=3 then doer~do(accu, self~item, self~index)
+                     else doer~do(accu, self~item)
         if var("result") then accu = result
         self~next
     end
@@ -198,11 +199,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     self~delete(1)
     supplier = source~makearray("")~supplier -- really not optimized but...
     do while supplier~available
-        if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                           else doer~do(supplier~item)
+        if arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                      else doer~do(supplier~item)
         if var("result") then self~append(result)
         supplier~next
     end
@@ -213,12 +215,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     self~delete(1)
     supplier = source~subwords~supplier -- really not optimized but...
     first = .true
     do while supplier~available
-        if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                           else doer~do(supplier~item)
+        if arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                      else doer~do(supplier~item)
         if var("result") then do
             doResult = result
             if \first then self~append(" ")
@@ -257,11 +260,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     if self~isA(.SetCollection) | self~isA(.Relation) then self~empty
     do while supplier~available -- REMEMBER: That works good because the supplier has taken a SNAPSHOT of the collection before calling ~empty.
         newItem = supplier~item
-        if doer~arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
-                           else doer~do(supplier~item)
+        if arity >= 2 then doer~do(supplier~item, supplier~index) -- Most of the time, we need only the item, that's why it's the first arg.
+                      else doer~do(supplier~item)
         if var("result") then do
             newItem = result
             if self~isA(.SetCollection) then self[newItem] = newItem -- special constraint : index and item must be the same object
@@ -367,12 +371,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
         index = self~index
-        if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                           else doer~do(item)
+        if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                      else doer~do(item)
         if var("result") then do
             doResult = result
             if returnIndex then newItem = .array~of(doResult, index)
@@ -880,13 +885,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
         index = self~index
         self~next -- do it before testing the predicate
-        if doer~arity >= 2 then logicalValue = doer~do(item, index)
-                           else logicalValue = doer~do(item)
+        if arity >= 2 then logicalValue = doer~do(item, index)
+                      else logicalValue = doer~do(item)
         if logicalValue then leave
     end
     do while self~available
@@ -903,12 +909,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
         index = self~index
-        if doer~arity >= 2 then logicalValue = doer~do(item, index)
-                           else logicalValue = doer~do(item)
+        if arity >= 2 then logicalValue = doer~do(item, index)
+                      else logicalValue = doer~do(item)
         if \ logicalValue then leave
         self~next
     end
@@ -927,12 +934,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
         index = self~index
-        if doer~arity >=2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                          else doer~do(item)
+        if arity >=2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                     else doer~do(item)
         if var("result") then do
             doResult = result
             if \doResult then do
@@ -950,12 +958,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
         index = self~index
-        if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                           else doer~do(item)
+        if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                      else doer~do(item)
         if var("result") then do
             doResult = result
             if doResult then do
@@ -1000,6 +1009,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
@@ -1007,8 +1017,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
         if returnIndex then newItem = .array~of(item, index)
                        else newItem = item
         collectedItems~append(newItem)
-        if doer~arity >=2 then logicalValue = doer~do(item, index)
-                          else logicalValue = doer~do(item)
+        if arity >=2 then logicalValue = doer~do(item, index)
+                     else logicalValue = doer~do(item)
         if logicalValue then leave
         self~next
     end
@@ -1018,12 +1028,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
+    arity = doer~arity
     collectedItems = .Array~new
     do while self~available
         item = self~item
         index = self~index
-        if doer~arity >= 2 then logicalValue = doer~do(item, index)
-                           else logicalValue = doer~do(item)
+        if arity >= 2 then logicalValue = doer~do(item, index)
+                      else logicalValue = doer~do(item)
         if \ logicalValue then leave
         if returnIndex then newItem = .array~of(item, index)
                        else newItem = item
@@ -1113,13 +1124,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
         if from + step - from = step & limit + step - limit = step then leave
         numeric digits digits() + digits() % 2
     end
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, digits")~arity(1)
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, digits")~arity(2)
                                         else doer = action~doer
+    arity = doer~arity
     collectedItems = .array~new
     if count == .nil then do
         -- no FOR
         do i = from TO limit BY step
-            doer~do(i, digits())
+            if arity >= 2 then doer~do(i, digits())
+                          else doer~do(i)
             if var("result") then collectedItems~append(result)
         end
     end
@@ -1133,7 +1146,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
             from = L - (count-1)*step
         end
         do i = from TO limit BY step FOR count
-            doer~do(i, digits())
+            if arity >= 2 then doer~do(i, digits())
+                          else doer~do(i)
             if var("result") then collectedItems~append(result)
         end
     end

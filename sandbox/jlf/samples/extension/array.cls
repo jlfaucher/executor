@@ -126,6 +126,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if self~dimension == 1 then selfReuseArrayIndex = 1
                            else selfReuseArrayIndex = .array~new(self~dimension)~~fill(1) -- Initializes all indexes to 1
 
+    if .nil <> doer then arity = doer~arity
+
     do while selfIntegerIndex <= self~size
         if sourceEnd == 0 then do
             -- if initialization with an array (covers the case of several arguments passed to the method)
@@ -141,9 +143,9 @@ This script needs a modified ooRexx interpreter which support extension of prede
             else if .nil <> doer then do
                 if self~dimension == 1 then index = selfArrayIndex
                                        else index = selfArrayIndex~copy
-                if doer~arity == 3 then doer~do(selfIntegerIndex, index, self)
-                else if doer~arity == 2 then doer~do(selfIntegerIndex, index)
-                else if doer~arity == 1 then doer~do(selfIntegerIndex)
+                if arity == 3 then doer~do(selfIntegerIndex, index, self)
+                else if arity == 2 then doer~do(selfIntegerIndex, index)
+                else if arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
                 -- next line is needed to offer the same behaviour for
@@ -343,6 +345,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
         -- unary operator
         if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                             else doer = action~doer
+        arity = doer~arity
         r = .array~new
         recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
@@ -353,8 +356,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
                 r[index] = item~leftElementWise(doer, , recursion)
             end
             else do
-                if doer~arity >= 2 then doer~do(item, index)
-                                   else doer~do(item)
+                if arity >= 2 then doer~do(item, index)
+                              else doer~do(item)
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -365,6 +368,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- binary operator
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
                                         else doer = action~doer
+    arity = doer~arity
     if self~isBoxed then do
         -- boxed array on left
         if rightArg~isA(.array), rightArg~isBoxed then do
@@ -391,8 +395,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
                 r[index] = item~leftElementWise(doer, rightArg[index], recursion)
             end
             else do
-                if doer~arity >= 4 then doer~do(item, rightArg[index], index, index)
-                                   else doer~do(item, rightArg[index])
+                if arity >= 4 then doer~do(item, rightArg[index], index, index)
+                              else doer~do(item, rightArg[index])
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -413,8 +417,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
                 r[index] = item~leftElementWise(doer, rightArg, recursion)
             end
             else do
-                if doer~arity >= 4 then doer~do(item, rightArg, index, index)
-                                   else doer~do(item, rightArg)
+                if arity >= 4 then doer~do(item, rightArg, index, index)
+                              else doer~do(item, rightArg)
                 if var("result") then r[index] = result
             end
             supplier~next
@@ -438,6 +442,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     -- If leftArg is an array, then it's a boxed array, to handle as a whole.
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
                                         else doer = action~doer
+    arity = doer~arity
     r = .array~new
     recursion[self] = r -- will be used to build the resulting infinite array
     supplier = self~supplier
@@ -448,8 +453,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
             r[index] = item~rightElementWise(doer, leftArg, recursion)
         end
         else do
-            if doer~arity >= 4 then doer~do(leftArg, item, index, index)
-                               else doer~do(leftArg, item)
+            if arity >= 4 then doer~do(leftArg, item, index, index)
+                          else doer~do(leftArg, item)
             if var("result") then r[index] = result
         end
         supplier~next

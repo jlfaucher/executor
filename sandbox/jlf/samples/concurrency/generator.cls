@@ -47,11 +47,12 @@
             -- parse only once, before iteration
             if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                                 else doer = action~doer
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                                   else doer~do(item)
+                if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                              else doer~do(item)
                 if var("result") then do
                     doResult = result
                     if returnIndex then newItem = .array~of(doResult, index)
@@ -281,12 +282,13 @@
     return {::closure.coactive
             expose doer returnIndex self
             use strict arg -- none
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
                 self~next -- do it before testing the predicate
-                if doer~arity >= 2 then logicalValue = doer~do(item, index)
-                                   else logicalValue = doer~do(item)
+                if arity >= 2 then logicalValue = doer~do(item, index)
+                              else logicalValue = doer~do(item)
                 if logicalValue then leave
             end
             do while self~available
@@ -307,11 +309,12 @@
     return {::closure.coactive
             expose doer returnIndex self
             use strict arg -- none
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if doer~arity >= 2 then logicalValue = doer~do(item, index)
-                                   else logicalValue = doer~do(item)
+                if arity >= 2 then logicalValue = doer~do(item, index)
+                              else logicalValue = doer~do(item)
                 if \ logicalValue then leave
                 self~next
             end
@@ -334,11 +337,12 @@
             -- parse only once, before iteration
             if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                                    else doer = predicate~doer
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                                   else doer~do(item)
+                if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                              else doer~do(item)
                 if var("result") then do
                     doResult = result
                     if \doResult then do
@@ -360,11 +364,12 @@
             -- parse only once, before iteration
             if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                                    else doer = predicate~doer
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if doer~arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
-                                   else doer~do(item)
+                if arity >= 2 then doer~do(item, index) -- Most of the time, we need only the item, that's why it's the first arg.
+                              else doer~do(item)
                 if var("result") then do
                     doResult = result
                     if doResult then do
@@ -425,6 +430,7 @@
     return {::closure.coactive
             expose doer returnIndex self
             use strict arg -- none
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
@@ -432,8 +438,8 @@
                                else newItem = item
                 .yield[newItem]
                 use strict arg -- none
-                if doer~arity >= 2 then logicalValue = doer~do(item, index)
-                                   else logicalValue = doer~do(item)
+                if arity >= 2 then logicalValue = doer~do(item, index)
+                              else logicalValue = doer~do(item)
                 if logicalValue then leave
                 self~next
             end
@@ -446,11 +452,12 @@
     return {::closure.coactive
             expose doer returnIndex self
             use strict arg -- none
+            arity = doer~arity
             do while self~available
                 item = self~item
                 index = self~index
-                if doer~arity >=2 then logicalValue = doer~do(item, index)
-                                  else logicalValue = doer~do(item)
+                if arity >=2 then logicalValue = doer~do(item, index)
+                             else logicalValue = doer~do(item)
                 if \ logicalValue then leave
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
@@ -648,7 +655,7 @@
     trace = .false
 
 ::method uninit
-    say "Generator~uninit"
+    say "Generator~uninit" -- Temporary, for trying to understand why the GC is not working
     self~uninit:super
 
 ::method action unguarded
@@ -760,9 +767,10 @@
     if trace then trace i
     use strict arg item, index, previousItems, stack, depth
     if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported
-    if doer~arity >= 4 then doer~do(item, index, depth, stack)
-    else if doer~arity == 3 then doer~do(item, index, depth)
-    else if doer~arity == 2 then doer~do(item, index)
+    arity = doer~arity
+    if arity >= 4 then doer~do(item, index, depth, stack)
+    else if arity == 3 then doer~do(item, index, depth)
+    else if arity == 2 then doer~do(item, index)
     else doer~do(item)
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
@@ -828,9 +836,10 @@
     if trace then trace i
     use strict arg item, index, toprocess, previousItems, stack, depth
     if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported
-    if doer~arity >= 4 then doer~do(item, index, depth, stack)
-    else if doer~arity == 3 then doer~do(item, index, depth)
-    else if doer~arity == 2 then doer~do(item, index)
+    arity = doer~arity
+    if arity >= 4 then doer~do(item, index, depth, stack)
+    else if arity == 3 then doer~do(item, index, depth)
+    else if arity == 2 then doer~do(item, index)
     else doer~do(item)
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
@@ -918,6 +927,9 @@
 
 
 ::class jlf public inherit Coactivity
+/*
+Temporary, for trying to understand why the GC is not working
+*/
 
 ::method init
     expose action doer trace source allowCommands
