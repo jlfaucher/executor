@@ -1,3 +1,111 @@
+================================================================================
+MOSTflexiPL (Modular, Statically Typed, Flexibly Extensible Programming Language)
+http://flexipl.info/
+
+The approach to achieve complete syntactic extensibility in MOSTflexiPL can be summarized by the formula:
+Everything is an expression, i. e., the application of an operator to subexpressions.
+However, the notion of operators used here is much more general than usual:
+Operators can have any number of names (or operator symbols), and they can be applied to any number of operands.
+This apparently rather small generalization of operators allows to subsume all relevant programming language constructs under this general notion.
+In fact, constants, variables, functions, control structures, type constructors, and even declaration forms simply become different kinds of operators.
+If it is now possible to freely define new operators, all aspects of the language become in fact extensible.
+
+To investigate:
+http://flexipl.info/tutorial/
+
+
+---------------------------------------------------------------------------------
+http://christian.heinleins.net/apples/context/
+
+APPLEs: Advanced Procedural Programming Language Elements
+http://christian.heinleins.net/pureappl/
+During 2009, the project has been renamed to STEEL (Statically Typed Extensible Expression Language)
+and later on to  MOSTflexiPL (Modular, Statically Typed, Flexibly Extensible Programming Language),
+since the syntactic extensibility of the language has become the predominant goal as well as the most ambitious challenge.
+
+
+Implicit parameters
+
+If functions have very long parameter lists, and many of these parameters are simply passed down to nested function invocations,
+it is tempting to replace these parameters with global variables in order to shorten formal parameter and actual argument lists.
+Since the use of global variables is generally discouraged, however, a better solution is to use implicit parameters,
+which are part of a function's signature just like normal parameters, but which need not be passed explicitly in function calls.
+If an explicit argument value for an implicit parameter is missing in a call, an entity of the same name from the static calling context is used implicitly instead;
+if no such entity exists, or if it has an incompatible type, the call is rejected by the compiler.
+Therefore, in contrast to normal explicit parameters whose names are irrelevant for callers, the names of implicit parameters constitute an important part of a function's signature.
+
+Alternatively, a concept similar to environment variables in operating systems can be used in combination with so-called dynamic parameters:
+If an explicit argument value for a dynamic parameter is missing in a call,
+an exported variable of the same name and type provided by the dynamic calling context is used implicitly if possible.
+If no such variable is found, the parameter's default value (which is mandatory for dynamic parameters) is used.
+
+Implicit and dynamic parameters are also useful for passing additional context information to overloaded operators,
+which by their very nature have a very limited number of explicit parameters (usually one for unary and two for binary operators).
+As an example, operators performing arbitrary precision floating point arithmetic might have additional implicit or dynamic parameters
+specifying the actually desired precision or the preferred rounding mode.
+
+
+---------------------------------------------------------------------------------
+https://www.haskell.org/hugs/pages/users_guide/implicit-parameters.html
+Implicit parameters
+
+Implicit parameters are implemented as described in Implicit parameters: dynamic scoping with static types, J Lewis, MB Shields, E Meijer, J Launchbury, 27th ACM Symposium on Principles of Programming Languages (POPL'00), Boston, Jan 2000.
+JLF : this paper is not free.
+
+A variable is called dynamically bound when it is bound by the calling context of a function and statically bound when bound by the callee's context.
+In Haskell, all variables are statically bound.
+Dynamic binding of variables is a notion that goes back to Lisp, but was later discarded in more modern incarnations, such as Scheme, as dynamic binding can be very confusing in an untyped language.
+Unfortunately typed languages, in particular Hindley-Milner typed languages like Haskell, only support static scoping of variables.
+
+However, by a simple extension to the type class system of Haskell, we can support dynamic binding.
+Basically, we express the use of a dynamically bound variable as a constraint on the type.
+These constraints lead to types of the form (?x::t') => t, which says "this function uses a dynamically-bound variable ?x of type t'".
+For example, the following expresses the type of a sort function, implicitly parameterized by a comparison function named cmp.
+
+sort :: (?cmp :: a -> a -> Bool) => [a] -> [a]
+
+---------------------------------------------------------------------------------
+https://ocharles.org.uk/blog/posts/2014-12-11-implicit-params.html
+Implicit parameters
+
+Implicit parameters act like parameters to a function, except the caller never has to apply the function to the argument.
+Instead, the argument is automatically passed to the function by merely being in scope.
+
+Without implicit parameter
+    > type LogFunction = String -> IO ()
+    >
+    > type Present = String
+    >
+    > queueNewChristmasPresents :: LogFunction -> [Present] -> IO ()
+    > queueNewChristmasPresents logMessage presents = do
+    >   mapM (logMessage . ("Queueing present for delivery: " ++)) presents
+    >   return ()
+
+With implicit parameter
+    > queueNewChristmasPresents2 :: (?logMessage :: LogFunction) => [Present] -> IO ()
+    > queueNewChristmasPresents2 presents = do
+    >   mapM (?logMessage . ("Queueing present for delivery: " ++)) presents
+    >   return ()
+
+The LogFunction is no longer a parameter to the function, but is rather part of the context of the function - constraints that must be satisfied when we use the program.
+The body of the program is mostly the same, other than the leading ? that prefixes implicit parameters.
+To supply an implicit parameter, all we need to do is bring an appropriately named variable into scope
+    > ex2 :: IO ()
+    > ex2 = do
+    >   -- Specifies its own logger
+    >   ex1
+    >
+    >   -- We can locally define a new logging function
+    >   let ?logMessage = \t -> putStrLn (zipWith (\i c -> if even i
+    >                                                      then c
+    >                                                      else toUpper c)
+    >                                            [0..]
+    >                                            t)
+    >   queueNewChristmasPresents2 ["Category Theory Books"]
+
+
+================================================================================
+
 Notes taken while searching how to implement this todo :
 <<
 The arguments passed to the coactivity with resume should be available like traditional
@@ -101,7 +209,7 @@ getMethodArgumentCount
             size_t size = activation->getMethodArgumentCount();
             return new (size, arglist) RexxArray;
         }
-        
+
     interpreter/execution/RexxActivation.hpp
         class RexxActivation : public RexxActivationBase {
             RexxObject         **arglist;       /* activity argument list            */
@@ -123,7 +231,7 @@ getMethodArgumentCount
             }
             ----
             inline RexxArray        *getArguments() { return new_array(argcount, arglist); }
-    
+
     interpreter/expression/BuiltinFunctions.cpp
         BUILTIN(ARG)
             RexxObject **arglist = context->getMethodArgumentList();
