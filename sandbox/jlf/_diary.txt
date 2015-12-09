@@ -153,6 +153,29 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2015 dec 6
+
+Add by extension the method "unknown" to the class .Object:
+::extension Object
+::method unknown unguarded
+    use arg msg, args
+    raise syntax 97.1 array(self, msg)
+With this extension, I can forward the message "unknown" to the class (super).
+Without this extension, I have a stack overflow.
+First needed for the implementation of 1~10 --> 1~upTo(10):
+::class RepeaterCollector
+::method unknown unguarded
+    use arg msg, args
+    if self~dataType("N"), msg~dataType("N") then do
+        if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil))
+        else return self~sendWith("downto", args~~insert(msg, .nil))
+    end
+    forward class (super)
+
+
+
+
+===============================================================================
 2015 dec 5
 
 Remove support of {::method...}

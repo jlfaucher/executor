@@ -72,3 +72,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg action={item}
     return .Generator~new(self)~action(action)~returnIndex
 
+-- This method is needed to avoid a stack overflow when forwarding the message "unknown".
+-- Ex:
+-- The class RepeaterCollector defines an "unknown" method to support the form number~number.
+-- If not applicable, then it forwards the message "unknown" to the class (super): here RepeaterGenerator.
+-- If RepeaterGenerator has no "unknown" method then the interpreter recalls RepeaterCollector~unknown.
+::method unknown unguarded
+    use arg msg, args
+    raise syntax 97.1 array(self, msg)
