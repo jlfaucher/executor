@@ -1114,14 +1114,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
         if msg >= self then return self~sendWith("upto", args~~insert(msg, .nil))
         else return self~sendWith("downto", args~~insert(msg, .nil))
     end
-    --forward class (super)
-    raise syntax 97.1 array(self, msg)
+    -- Remember: I can forward the message "unknown" because I added by extension the method "unknown" to the class .Object.
+    -- Without this extension, you get a stack overflow.
+    forward class (super)
 
 ::routine controlledLoop
     use strict arg from, limit, step, count, action
     -- parse only once, before iteration
     loop
-        if from + step - from = step & limit + step - limit = step then leave
+        fps = from + step
+        lps = limit + step
+        if fps <> from, fps <> step, lps <> limit, lps <> step then leave
         numeric digits digits() + digits() % 2
     end
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, digits")~arity(2)
