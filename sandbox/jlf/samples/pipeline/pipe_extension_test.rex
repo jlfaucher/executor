@@ -310,7 +310,7 @@ say df5 ; say df5~makeString(1234, .true)
 -- The method "supplier" has been defined on RexxBlock to forward to its doer.
 -- Note :
 -- The pipeStage .take is mandatory because the generator passed to .inject will generate an infinite sequence of numbers.
-1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
+1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
 
 
 -- ----------------------------------------------------------------------------

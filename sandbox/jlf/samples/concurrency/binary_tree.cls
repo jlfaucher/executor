@@ -155,7 +155,7 @@ end
 
 ::method ascendingItems
     expose rootNode
-    return {::closure.coactive
+    return {::coactivity
             expose rootNode
             use arg node=(rootNode)
             -- No need of yieldFrom à la Python... Yield from inner invocations is supported.
@@ -167,7 +167,7 @@ end
 
 ::method descendingItems
     expose rootNode
-    return {::closure.coactive
+    return {::coactivity
             expose rootNode
             use arg node=(rootNode)
             -- No need of yieldFrom à la Python... Yield from inner invocations is supported.

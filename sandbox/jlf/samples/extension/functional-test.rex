@@ -636,8 +636,8 @@ buffer~dump -- mutable buffer after mapping
 
 translation = .Directory~of("quick", "slow", "lazy", "nervous", "brown", "yellow", "dog", "cat")
 translation~setMethod("UNKNOWN", "return arg(1)")
-"The quick brown fox jumps over the lazy dog"~mapW{::closure expose translation ; translation[arg(1)]}~dump
-.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{::closure expose translation ; translation[arg(1)]}~dump
+"The quick brown fox jumps over the lazy dog"~mapW{expose translation ; translation[arg(1)]}~dump
+.MutableBuffer~new("The quick brown fox jumps over the lazy dog")~mapW{expose translation ; translation[arg(1)]}~dump
 
 
 -- --------------------------------------------------------------

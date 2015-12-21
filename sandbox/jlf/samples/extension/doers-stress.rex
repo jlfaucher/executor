@@ -53,8 +53,8 @@ odd~duration(0)
 odd~duration(1)
 odd~duration(2)
 odd~duration(101)
-odd~duration(1000)
-odd~duration(10001) -- control stack full
+odd~duration(1000) -- control stack full with ooRexx 64-bit + crash (to debug...)
+--odd~duration(10001) -- control stack full
 syntax:
 say
 
@@ -64,7 +64,7 @@ say
 say trampoline{say "one" ; return {say "two"; return {say "three" ; return "four"}}}
 say
 
-t_odd = {use arg n ; call charout , n~format(6) "=" trampoline(t_odd(n))} 
+t_odd = {use arg n ; call charout , n~format(6) "=" trampoline(t_odd(n))}
 t_odd~duration(0)
 t_odd~duration(1)
 t_odd~duration(2)
@@ -94,12 +94,12 @@ say
 ::routine t_odd
     use strict arg n
     if n == 0 then return .false
-    return {::closure expose n ; return t_even(n-1)}
+    return {expose n ; return t_even(n-1)}
 
 ::routine t_even
     use strict arg n
     if n == 0 then return .true
-    return {::closure expose n ; return t_odd(n-1)}
+    return {expose n ; return t_odd(n-1)}
 
 -------------------------------------------------------------------------------
 -- The trampoline function
@@ -107,7 +107,7 @@ say
 -- If the return value is a function then call the function and recurse.
 
 ::routine trampoline
-    use strict arg arg 
+    use strict arg arg
     do while arg~isA(.RexxBlock)
         arg = arg~()
     end

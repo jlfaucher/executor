@@ -3,20 +3,20 @@
 
 /*
 When passing a Doer, the evaluation is delayed
-num=0; if(num==0, "INF", {::closure expose num; 100/num})=        -- 'INF'
-num=0; (num==0)~ifTrue("INF", {::closure expose num; 100/num})=   -- 'INF'
+num=0; if(num==0, "INF", {expose num; 100/num})=        -- 'INF'
+num=0; (num==0)~ifTrue("INF", {expose num; 100/num})=   -- 'INF'
 
 When not passing a Doer, the evaluation is immediate
 num=0; if(num==0, "INF", 100/num)=          -- Arithmetic overflow; divisor must not be zero
-num=0; (num==0)~ifTrue("INF", 100/num)=     -- Arithmetic overflow; divisor must not be zero 
+num=0; (num==0)~ifTrue("INF", 100/num)=     -- Arithmetic overflow; divisor must not be zero
 
-Note : I would like a more concise expression, like : 
+Note : I would like a more concise expression, like :
 num=0; if(num==0, "INF", {100/num})=                              -- 'INF'
 -->
 This implies :
 - a block without ::<tag> is a closure (implicit closure).
 - all the captured variables are implicitely exposed, no need to expose them.
-  but, if you expose explicitely some variables, then your decision is respected : no implicit exposition. 
+  but, if you expose explicitely some variables, then your decision is respected : no implicit exposition.
 
 If you don't need to return a value, this alternative notation is possible
 num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
@@ -48,7 +48,7 @@ num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
 ::routine eval
     use arg expression, expressionSpecified
     if \ expressionSpecified then return
-    -- The test \ expression~needsObject lets eliminate the StringDoers and the MethodDoers 
+    -- The test \ expression~needsObject lets eliminate the StringDoers and the MethodDoers
     if expression~isA(.doer), \ expression~needsObject then do
         if expression~hasMethod("functionDoer") then doer = expression~functionDoer
                                                 else doer = expression~doer

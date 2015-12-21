@@ -41,7 +41,7 @@
 
 ::method eachImpl private unguarded
     use strict arg action, returnIndex=.false
-    return {::closure.coactive
+    return {::coactivity
             expose action returnIndex self
             use strict arg -- none
             -- parse only once, before iteration
@@ -237,7 +237,7 @@
 
 ::method dropFirstImpl private unguarded
     use strict arg count, returnIndex
-    return {::closure.coactive
+    return {::coactivity
             expose count returnIndex self
             use strict arg -- none
             do while count > 0, self~available
@@ -257,7 +257,7 @@
 
 ::method dropLastImpl private unguarded
     use strict arg count, returnIndex
-    return {::closure.coactive
+    return {::coactivity
             expose count returnIndex self
             use strict arg -- none
             buffer = .circularQueue~new(count)
@@ -279,7 +279,7 @@
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
-    return {::closure.coactive
+    return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
@@ -306,7 +306,7 @@
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
-    return {::closure.coactive
+    return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
@@ -331,7 +331,7 @@
 
 ::method rejectImpl private unguarded
     use strict arg predicate, returnIndex=.false
-    return {::closure.coactive
+    return {::coactivity
             expose predicate returnIndex self
             use strict arg -- none
             -- parse only once, before iteration
@@ -358,7 +358,7 @@
 
 ::method selectImpl private unguarded
     use strict arg predicate, returnIndex=.false
-    return {::closure.coactive
+    return {::coactivity
             expose predicate returnIndex self
             use strict arg -- none
             -- parse only once, before iteration
@@ -385,7 +385,7 @@
 
 ::method takeFirstImpl private unguarded
     use strict arg count, returnIndex
-    return {::closure.coactive
+    return {::coactivity
             expose count returnIndex self
             use strict arg -- none
             do while count > 0, self~available
@@ -403,7 +403,7 @@
 
 ::method takeLastImpl private unguarded
     use strict arg count, returnIndex
-    return {::closure.coactive
+    return {::coactivity
             expose count returnIndex self
             use strict arg -- none
             buffer = .circularQueue~new(count)
@@ -427,7 +427,7 @@
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
-    return {::closure.coactive
+    return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
@@ -449,7 +449,7 @@
     use strict arg predicate, returnIndex
     if predicate~hasMethod("functionDoer") then doer = predicate~functionDoer("use arg item, index")~arity(2)
                                            else doer = predicate~doer
-    return {::closure.coactive
+    return {::coactivity
             expose doer returnIndex self
             use strict arg -- none
             arity = doer~arity
@@ -504,7 +504,7 @@
     if \ upperLimit~dataType("N") then raise syntax 93.900 array ("upperLimit must be a number; found" upperLimit)
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
                                         else doer = action~doer
-    return {::closure.coactive
+    return {::coactivity
             expose doer upperLimit self
             use strict arg -- none
             do i = self to upperLimit
@@ -528,7 +528,7 @@
     if \ lowerLimit~dataType("N") then raise syntax 93.900 array ("lowerLimit must be a number; found" lowerLimit)
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item")~arity(1)
                                         else doer = action~doer
-    return {::closure.coactive
+    return {::coactivity
             expose doer lowerLimit self
             use strict arg -- none
             do i = self to lowerLimit by -1

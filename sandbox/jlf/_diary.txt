@@ -153,6 +153,20 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2015 dec 21
+
+RexxBlock: The removal of {::method...} allows more simplifications.
+
+Remove tag ::closure.
+The existence of an expose clause is enough to know that the block is a closure.
+{::closure expose ...} --> {expose ...}
+
+Remove option .coactive.
+{::routine.coactive ...}        --> {::coactivity ...}
+{::closure.coactive expose ...} --> {::coactivity expose ...}
+
+
+===============================================================================
 2015 dec 6
 
 Add by extension the method "unknown" to the class .Object:
@@ -160,8 +174,10 @@ Add by extension the method "unknown" to the class .Object:
 ::method unknown unguarded
     use arg msg, args
     raise syntax 97.1 array(self, msg)
+
 With this extension, I can forward the message "unknown" to the class (super).
 Without this extension, I have a stack overflow.
+
 First needed for the implementation of 1~10 --> 1~upTo(10):
 ::class RepeaterCollector
 ::method unknown unguarded
@@ -173,13 +189,12 @@ First needed for the implementation of 1~10 --> 1~upTo(10):
     forward class (super)
 
 
-
-
 ===============================================================================
 2015 dec 5
 
 Remove support of {::method...}
 After 4 years, I never needed a method as a block.
+
 The decision has been taken after investigating how to remove the source transformation
 at run-time (functionDoer). I will probably add support for implicit arguments, whose
 name is given by the caller. The instruction "use implicit" will be injected at parse-time

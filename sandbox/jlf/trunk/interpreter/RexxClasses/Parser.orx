@@ -36,7 +36,7 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
--- The parser delegates to this class when parsing source literals
+-- The parser delegates to these classes when parsing source literals
 .environment~setentry("SOURCELITERALPARSER", .SourceLiteralParser)
 .environment~setentry("CLAUSER", .Clauser)
 
@@ -50,50 +50,38 @@ to get the kind of executable to store on the RexxSourceLiteral.
 */
 ::method kind class unguarded
     use strict arg clauser
-    -- If the first word is ::cl[osure] then remove this word and remember it's a closure : "cl"
-    -- If the first word is ::cl[osure].co[active] then remove this word and remember it's a coactive closure : "cl.co"
     -- If the first word is ::co[activity] then remove this word and remember it's a coactive routine : "r.co"
+    --     If the first clause is an expose clause then it's a coactive closure : "cl.co"
     -- If the first word is ::r[outine] then remove this word and remember it's a routine : "r"
-    -- If the first word is ::r[outine].co[active] then remove this word and remember it's a coactive routine : "r.co"
+    --     If the first clause is an expose clause then it's a closure : "cl"
     -- If the first word is ::[xxx] then raise an error (unknown tag)
     kind = "r" -- routine by default
     if clauser~clauseAvailable then do
         clause = clauser~clause
-        parse var clause word1 rest
-        parse var word1 word "." option
-        if "::closure"~caselessAbbrev(word, 4) then do
-            clauser~clause = rest
-            kind = "cl"
-            if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 2) then kind = "cl.co"
-                else raise syntax 93.900 array("Unknown option '"option"'")
-            end
-        end
-        else if "::coactivity"~caselessAbbrev(word, 4) then do
+        parse var clause word rest
+        if "::coactivity"~caselessAbbrev(word, 4) then do
             clauser~clause = rest
             kind = "r.co" -- routine by default
-            if option <> "" then raise syntax 93.900 array("Unknown option '"option"'")
         end
         else if "::routine"~caselessAbbrev(word, 3) then do
             clauser~clause = rest
             kind = "r"
-            if option <> "" then do
-                if "coactive"~caselessAbbrev(option, 2) then kind = "r.co"
-                else raise syntax 93.900 array("Unknown option '"option"'")
-            end
         end
         else if "::tokens"~caselessAbbrev(word, 3) then do
+            -- This is for debug. Currently, I get nothing interesting, most of the tokens are TOKEN_OTHER.
             clauser~clause = rest
             kind = "t"
-            if option <> "" then do
-                raise syntax 93.900 array("Unknown option '"option"'")
-            end
         end
         else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
 
         -- If a tag has been removed, and the rest of the clause is blank only, then go to the next clause
         -- The goal is to respect the invariant of the clauser : returns only non-empty clauses.
         if clauser~clause~strip == "" then clauser~nextClause
+        if clauser~clauseAvailable, .Clauser~isExposeClause(clauser~clause) then do
+            -- The existence of an expose clause indicates that it's a closure
+            if kind == "r" then kind = "cl"
+            else if kind == "r.co" then kind = "cl.co"
+        end
     end
     return kind
 
@@ -229,6 +217,32 @@ Iterate over the clauses of the modified source :
 ::constant TOKEN_EOC 1
 ::constant TOKEN_OTHER 2
 
+
+::method isExposeClause class unguarded
+    use strict arg clause
+    parse lower var clause word rest
+    if word <> "expose" then return .false
+    if self~isAssignment(rest) then return .false
+    left1 = rest~left(1)
+    if left1 == "(" then return .false -- function call
+    if left1 == "{" then return .false -- abreviated syntax for a block passed as last parameter
+    if left1 == "~" then return .false -- message term
+
+    return .true
+
+
+::method isAssignment class unguarded
+    use strict arg str
+    left1 = str~left(1)
+    left2 = str~left(2)
+    left3 = str~left(3)
+    if left2 == "==" then return .false
+    if left1 == "=" then return .true
+    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true
+    if "//= ||= &&="~pos(left3) <> 0 then return .true
+    return .false
+
+
 ::method init
     expose sourceArray buffer
     use strict arg sourceArray
@@ -242,7 +256,7 @@ Iterate over the clauses of the modified source :
 
 ::method clause
     expose clause
-    if \ self~clauseAvailable then raise syntax 937
+    if \ self~clauseAvailable then raise syntax 93.937
     return clause
 
 -- Replace the current clause by the new source fragment (black box, can be several clauses, won't be scanned)

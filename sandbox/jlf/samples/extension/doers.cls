@@ -75,8 +75,7 @@ See doers-samples.rex
 
 ::method partial unguarded
     args1 = arg(1, "a")
-    return {::closure
-            expose args1 self
+    return {expose args1 self
             args2 = arg(1, "a")
             args = partialMergeArrays(args1, args2)
             -- Must forward explicitely to (self) otherwise stack overflow because forwarded to the closure itself.
@@ -143,7 +142,7 @@ It takes a single argument, which is a function that isn't recursive (JLF : here
 It returns a version of the function which is recursive.
 
 Example :
-    say {use arg f; return {::closure expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
+    say {use arg f; return {expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
 
 Remember : ooRexx supports anonymous recursion, no need of the Y combinator in the real life...
     say { use arg n; if n==0 then return 1; else return n * .context~executable~(n-1)}~(10)
@@ -153,10 +152,10 @@ Remember : ooRexx supports anonymous recursion, no need of the Y combinator in t
     if verbose then trace i
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
     return {use arg a ; return a~(a)} ~ {
-        ::closure expose f verbose
+        expose f verbose
         if verbose then trace i
         use strict arg x
-        return f ~ { ::closure expose x verbose; if verbose then trace i ; use strict arg v ; return x~(x)~(v) }
+        return f ~ { expose x verbose; if verbose then trace i ; use strict arg v ; return x~(x)~(v) }
     }
 
 -- Y combinator with memoization
@@ -166,10 +165,10 @@ Remember : ooRexx supports anonymous recursion, no need of the Y combinator in t
     f = self -- to be closer to the notation (would be passed by parameter to lambda_f when implemented by a function instead of a method)
     table = .Table~new
     return {use arg a ; return a~(a)} ~ {
-        ::closure expose f verbose table
+        expose f verbose table
         if verbose then trace i
         use strict arg x
-        return f ~ { ::closure expose x verbose table
+        return f ~ { expose x verbose table
                      if verbose then trace i
                      use strict arg v
                      r = table[v]
@@ -274,7 +273,7 @@ Possible transformations :
         -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
         if clauser~clauseAvailable then do
             clause = clauser~clause
-            if isExposeClause(clause) then clauser~nextClause
+            if .Clauser~isExposeClause(clause) then clauser~nextClause
         end
 
         -- Insert the 'clauseBefore', if any
@@ -327,14 +326,14 @@ Possible transformations :
 /*
 I want to support that (no ~doer in the following expression) :
                                                                                                 ****
-    1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
+    1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}} iterateAfter | .take 10 | .console)
                                                                                                 ****
 In this example, the block passed to .inject returns another block whose doer is a coactivity.
 The option "iterateAfter" checks if the current item has the "supplier" method. If yes, then it iterates over the items returned by the supplier.
 A RexxBlock has no "supplier" method, but its doer may have one. This is the case in this example.
 Without this redefinition, I should write :
                                                                                                 ****
-    1~pipe(.inject {{::closure.coactive expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
+    1~pipe(.inject {{::coactivity expose item ; do forever ; .yield[item] ; item += 1 ; end}~doer} iterateAfter | .take 10 | .console)
                                                                                                 ****
 */
 ::method hasMethod unguarded
@@ -436,30 +435,3 @@ I find more natural to support directly blocks in the following samples (no need
         !_closure.directory_! ~ put(value(!_closure.variableName_!), !_closure.variableName_!)
     end
     return !_closure.directory_!
-
-
------------------------------------------------------------------------------
-::routine isExposeClause
-    use strict arg clause
-    parse lower var clause word rest
-    if word <> "expose" then return .false
-    if isAssignment(rest) then return .false
-    left1 = rest~left(1)
-    if left1 == "(" then return .false -- function call
-    if left1 == "{" then return .false -- abreviated syntax for a block passed as last parameter
-    if left1 == "~" then return .false -- message term
-    return .true
-
-
-::routine isAssignment
-    use strict arg str
-    left1 = str~left(1)
-    left2 = str~left(2)
-    left3 = str~left(3)
-    if left2 == "==" then return .false
-    if left1 == "=" then return .true
-    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true
-    if "//= ||= &&="~pos(left3) <> 0 then return .true
-    return .false
-
-

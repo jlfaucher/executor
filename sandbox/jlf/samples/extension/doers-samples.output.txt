@@ -13,11 +13,6 @@ a Routine
 hello John, how are you ?
 good bye Kathie, see you soon.
 
-The Coactivity class
-a Routine
-hello John, how are you ?
-good bye Kathie, see you soon.
-
 The String class
 4
 4

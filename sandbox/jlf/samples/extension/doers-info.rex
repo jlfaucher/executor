@@ -1,5 +1,5 @@
 pool = .queue~new
-indexer = {::closure
+indexer = {
     expose pool
     use strict arg value
     index = pool~index(value)
@@ -7,7 +7,7 @@ indexer = {::closure
     return index
 }
 
-info = {::closure
+info = {
     expose indexer
     use strict arg variableName, block
     rawExecutable = block~rawExecutable
@@ -16,7 +16,7 @@ info = {::closure
     return block
 }
 
-range = { use arg min, max ; return { ::closure expose min max ; use arg num ; return min <= num & num <= max }}
+range = { use arg min, max ; return { expose min max ; use arg num ; return min <= num & num <= max }}
 -- range's executable is already parsed
 info~("range", range)
 from5to8 = range~(5, 8)
@@ -25,7 +25,7 @@ from20to30 = range~(20, 30)
 info~("from20to30", from20to30)
 say from5to8~(6) -- 1
 info~("from5to8", from5to8)
-say from5to8~(9) -- 0       
+say from5to8~(9) -- 0
 info~("from5to8", from5to8)
 say from20to30~(6) -- 0
 info~("from20to30", from20to30)

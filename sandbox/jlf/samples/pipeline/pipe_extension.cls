@@ -36,7 +36,7 @@ So I added the 'pipe' method which injects the object in the pipe :
 
 ::routine coactivePipe
     use strict arg object, pipe, profile
-    return {::closure.coactive
+    return {::coactivity
             expose object pipe profile
             return object~pipe(pipe, profile)
            }~doer

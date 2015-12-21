@@ -32,21 +32,6 @@ doer~do("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
 doer~do("Keith") -- <nothing done, the coactivity is ended>
 say
 
--- ::routine.coactive (coactive routine) is equivalent to ::coactivity.
--- Minimal abbreviation is ::r.co
-block = {::routine.coactive
-          say "hello" arg(1) || arg(2)
-          .yield[]
-          say "good bye" arg(1) || arg(2)
-         }
-doer = block~doer
-say doer~class -- The Coactivity class
-say doer~executable -- a Routine
-doer~do("John", ", how are you ?") -- hello John, how are you ?
-doer~do("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
-doer~do("Keith") -- <nothing done, the coactivity is ended>
-say
-
 -- When used as a doer, a string is a message
 block = "length"
 doer = block~doer
@@ -75,7 +60,7 @@ say doer~do("John") -- 4
 say
 
 -- closure by value
--- Minimal abbreviation is ::cl
+-- No tag, a block is a closure if it contains an expose clause.
 -- Output is :
 --    RexxBlock:1 --> Closure:2 --> 1 4
 --    RexxBlock:3 --> Closure:4 --> 2 4
@@ -84,7 +69,7 @@ say
 -- i contains a non mutable value (different value captured at each iteration).
 -- blocks contains a reference to a mutableValue (same value captured at each iteration).
 pool = .queue~new
-indexer = {::closure
+indexer = {
             expose pool
             use strict arg value
             index = pool~index(value)
@@ -93,7 +78,7 @@ indexer = {::closure
 }
 blocks = .array~new
 do i=1 to 4
-    blocks[i] = {::closure
+    blocks[i] = {
                  expose indexer blocks i
                  use strict arg block, doer
                  call charout , block~class~id":"indexer~(block)
@@ -111,10 +96,10 @@ end
 say
 
 -- Coactive closure
--- Minimal abbreviation is ::cl.co
+-- It's a coactivity with an expose clause.
 v = 1
 w = 2
-block = {::closure.coactive expose v w ; .yield[v] ; .yield[w]}
+block = {::coactivity expose v w ; .yield[v] ; .yield[w]}
 doer = block~doer
 say doer~class -- The Coactivity class
 say doer~executable -- a Closure
