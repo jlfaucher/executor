@@ -38,7 +38,8 @@ So I added the 'pipe' method which injects the object in the pipe :
     use strict arg object, pipe, profile
     return {::coactivity
             expose object pipe profile
-            return object~pipe(pipe, profile)
+            object~pipe(pipe, profile)
+            -- remember : don't return something here. The only way to "return" something is by using yield.
            }~doer
 
 
