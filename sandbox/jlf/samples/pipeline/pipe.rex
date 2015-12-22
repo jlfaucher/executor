@@ -1881,7 +1881,7 @@ expose stem.                                -- expose target stem
 use strict arg stem.                        -- get the stem variable target
 -- Don't reset the stem, up to the user to reset before running the pipe
 -- stem.~empty
--- stem.0 = 0                               -- start with zero items
+if \stem.0~datatype("N") then stem.0 = 0    -- start with zero items, only if stem.0 is not a number
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
@@ -1907,16 +1907,14 @@ use strict arg itemArray, indexArray=.nil, dataflowArray=.nil -- get the array v
 -- itemArray~empty
 -- if .nil <> indexArray then indexArray~empty
 -- if .nil <> dataflowArray then dataflowArray~empty
-idx = 0
 forward class (super)                       -- forward the initialization
 
 ::method process                            -- process a stem pipeStage item
 expose dataflowArray idx indexArray itemArray -- expose the array
 use strict arg item, index, dataflow        -- get the data item
-idx = idx + 1
-itemArray[idx] = item                       -- save the item
-if .nil <> indexArray then indexArray[idx] = index -- save the index
-if .nil <> dataflowArray then dataflowArray[idx] = dataflow -- save the dataflow
+itemArray~append(item)                      -- save the item
+if .nil <> indexArray then indexArray~append(index) -- save the index
+if .nil <> dataflowArray then dataflowArray~append(dataflow) -- save the dataflow
 forward class(super)                        -- allow superclass to send down pipe
 
 -- No need of reset, the reset of the collected  datas is under the responsability of the user
