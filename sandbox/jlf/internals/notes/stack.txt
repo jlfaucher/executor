@@ -57,18 +57,41 @@ setPreviousStackFrame
 Review of stack space checking (because doers-stress.rex crashes under win7)
 ================================================================================
 
+Diagnostic :
+I think the crash comes from the fact TOTAL_STACK_SIZE = value of /STACK
+When calling checkStackSpace, a part of the stack is already used, so there is not
+exactly TOTAL_STACK_SIZE available.
+[later]
+In fact, MIN_C_STACK is used to keep a reserve stack when checking the remaining space.
+
+
 checkStackSpace
 
 Controlled by the following macro definitions :
     interpreter\platform\unix\PlatformDefinitions.h
         #define MIN_C_STACK 1024*16                         16384
+        #define TOTAL_STACK_SIZE 1024*512
+        #define C_STACK_SIZE TOTAL_STACK_SIZE
         #define STACKCHECK
     interpreter\platform\windows\PlatformDefinitions.h
         #define MIN_C_STACK 1024*(32 + sizeof(void *))      before fix : 32768, after fix for 32 bits : 1024*(32+4)=36864, for 64 bits : 1024*(32+8)=40960
+        #define TOTAL_STACK_SIZE 1024*512
+        #define C_STACK_SIZE 60000                          has been changed in official : TOTAL_STACK_SIZE instead of 60000
         #define STACKCHECK
 and also by activity->stackcheck, which is always true, except here :
     RexxActivity::messageSubstitution
 don't know why this special case...
+
+
+Official
+    interpreter\platform\unix\PlatformDefinitions.h
+        #define MIN_C_STACK 1024*(32 + sizeof(void *))
+        #define TOTAL_STACK_SIZE 1024*512
+        #define C_STACK_SIZE TOTAL_STACK_SIZE
+    interpreter\platform\windows\PlatformDefinitions.h
+        #define MIN_C_STACK 1024*(32 + sizeof(void *))
+        #define TOTAL_STACK_SIZE 1024*512
+        #define C_STACK_SIZE TOTAL_STACK_SIZE
 
 
 RexxActivity.cpp
@@ -106,7 +129,7 @@ one used by trunk\rexxapi\server
 one used by trunk\interpreter
     stack size (used only to calculate the stack base)              TOTAL_STACK_SIZE = 1024*512         TOTAL_STACK_SIZE = 1024*512
     check stack space : minimal reserve                             MIN_C_STACK = 1024*16               MIN_C_STACK = 1024*(32 + sizeof(void *))
-    stack size used to create thread                                C_STACK_SIZE = TOTAL_STACK_SIZE     C_STACK_SIZE = 60000
+    stack size used to create thread                                C_STACK_SIZE = TOTAL_STACK_SIZE     C_STACK_SIZE = 60000 (in official = TOTAL_STACK_SIZE)
                                                                                                         /STACK:524288 (1024 * 512)
 Note :
 MIN_C_STACK for Windows 32 bits = 1024*(32+4)=36864
@@ -117,6 +140,27 @@ The first thread is not created by ooRexx, it's the main thread of the process.
 The stack size of this first thread is system dependent :
     Windows : given by /STACK:524288
     Unix : ???
+The stackSize of the other threads is given by C_STACK_SIZE
+RexxActivity::RexxActivity(bool createThread)
+    ...
+    currentThread.create(this, C_STACK_SIZE)        JLF : SysActivity currentThread;
+    ...
+
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\platform\unix\SysActivity.cpp
+    void SysActivity::create(RexxActivity *activity, size_t stackSize)
+        ...
+        rc = pthread_attr_setstacksize(&newThreadAttr, stackSize);
+        ...
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\platform\windows\SysActivity.cpp
+    void SysActivity::create(RexxActivity *activity, size_t stackSize)
+        ...
+        hThread = CreateThread(NULL, stackSize, call_thread_function, (void *)activity, 0, &res);
+        ...
+
+Note :
+The stack grows from higher addresses to lower addresses.
+getStackBase returns the stack's lowest address, but the calculation is empirical !
+The calculation depends on the parameter stackSize, whose value is TOTAL_STACK_SIZE.
 
 
 Only in trunk\rexxapi\server :
@@ -220,7 +264,7 @@ trunk\utilities\rexxc\platform\windows\rexxc.mak
 trunk\utilities\platform\windows\rexxpaws\rexxpaws.mak
 trunk\utilities\platform\windows\rexxhide\rexxhide.mak
 trunk\platform\windows\rexximage.mak
-/STACK:524288       JLF = 1024 * 512 donc même taille que pour thread stack
+/STACK:524288       JLF = 1024 * 512 donc même taille que pour thread stack (TOTAL_STACK_SIZE)
 
 
 trunk\extensions\platform\windows\orxscrpt\orxscrpt.def
@@ -230,3 +274,203 @@ trunk\extensions\platform\windows\orxscrpt\orxscrpt.mak
 $(OR_OUTDIR)\ORXSCRPT.lib : $(CPPOBJS) $(OR_ORXSCRIPTSRC)\ORXSCRPT.def
 
 
+===============================================================================
+http://stackoverflow.com/questions/199747/how-to-detect-possible-potential-stack-overflow-problems-in-a-c-c-program
+===============================================================================
+
+On windows, the stack (for specific thread) grows on-demand until the stack size specified
+for this thread prior to its creation has been reached.
+
+On-demand growing is impelmented using guard pages, in that there's a only a fragment of stack available initially,
+followed by a guard page, which, when hit, will trigger an exception - this exception is special,
+and is handled by the system for you - the handling increases the available stack space
+(also checked if a limit has been reached!) and the read operation is retried.
+
+Once the limit is reached, there's no more growing which results in stack overflow exception.
+The current stack base and limit are stored in thread environment block, in a struct called _NT_TIB (thread information block).
+If you have a debugger handy, this is what you see:
+
+0:000> dt ntdll!_teb @$teb nttib.
+   +0x000 NtTib  :
+      +0x000 ExceptionList : 0x0012e030 _EXCEPTION_REGISTRATION_RECORD
+      +0x004 StackBase : 0x00130000
+      +0x008 StackLimit : 0x0011e000
+      +0x00c SubSystemTib : (null)
+      +0x010 FiberData : 0x00001e00
+      +0x010 Version : 0x1e00
+      +0x014 ArbitraryUserPointer : (null)
+      +0x018 Self   : 0x7ffdf000 _NT_TIB
+The StackLimit attribute will get updated on-demand. If you check the attributes on this memory block, you'll see something similar to that:
+
+0:000> !address 0x0011e000
+    00030000 : 0011e000 - 00012000
+                    Type     00020000 MEM_PRIVATE
+                    Protect  00000004 PAGE_READWRITE
+                    State    00001000 MEM_COMMIT
+                    Usage    RegionUsageStack
+                    Pid.Tid  abc.560
+And checking a page next to it reveals the guard attribute:
+
+0:000> !address 0x0011e000-1000
+    00030000 : 0011d000 - 00001000
+                    Type     00020000 MEM_PRIVATE
+                    Protect  00000104 PAGE_READWRITE | PAGE_GUARD
+                    State    00001000 MEM_COMMIT
+                    Usage    RegionUsageStack
+                    Pid.Tid  abc.560
+
+
+===============================================================================
+https://software.intel.com/en-us/blogs/2010/07/01/the-reasons-why-64-bit-programs-require-more-stack-memory/
+===============================================================================
+
+In forums, people often say that 64-bit versions of programs consume a larger amount of memory and stack.
+Saying so, they usually argue that the sizes of data have become twice larger.
+But this statement is unfounded since the size of most types (char, short, int, float) in the C/C++ language remains the same on 64-bit systems.
+Of course, for instance, the size of a pointer has increased but far not all the data in a program consist of pointers.
+The reasons why the memory amount consumed by programs has increased are more complex.
+I decided to investigate this issue in detail.
+
+In this post, I will speak about the stack and in future I plan to discuss memory allocation and binary code's size.
+And I would like also to note right away that the article covers the language C/C++ and Microsoft Visual Studio development environment.
+
+Until recently, I have believed that the code of a 64-bit application cannot consume the stack quicker than twice in comparison to 32-bit code.
+Relying on this assumption, in my articles, I recommended to increase the program stack two times just in case.
+But now I have explored an unpleasant thing: stack consumption might grow much higher than twice.
+I was astonished since I considered the stack growth of two times the worst-case scenario.
+The reason of my unfounded hopes will become clear a bit later.
+But now let's see how parameters are passed in a 64-bit program when calling functions.
+
+When developing calling conventions for the x86-64 architecture, they decided to bring an end to various versions of function calls.
+In Win32, there was a wide range of calling conventions: stdcall, cdecl, fastcall, thiscall, etc.
+In Win64, there is only one "native" calling convention.
+Modifiers like __cdecl are ignored by the compiler.
+I think everybody agrees that such an axe of calling conventions is noble.
+
+The calling convention on the x86-64 platform resembles the fastcall convention existing in x86.
+In the x64-convention, the first four integer arguments (left to right) are passed in 64-bit registers chosen specially for this purpose:
+RCX: the 1-st integer argument
+RDX: the 2-nd integer argument
+R8: the 3-rd integer argument
+R9: the 4-th integer argument
+The rest integer arguments are passed through the stack.
+The pointer "this" is considered an integer argument, so it is always placed into the RCX register.
+If floating-point values are passed, the first four of them are passed in the registers XMM0-XMM3 while all the next are passed through the stack.
+
+Relying on this information, I concluded that a 64-bit program can in many cases save the stack memory unlike a 32-bit one.
+For if parameters are passed through registers and the code of the function is brief and there is no need to save the arguments in the memory (stack),
+then the size of the stack memory being consumed must be smaller. But it is not so.
+
+Although arguments can be passed in registers, the compiler all the same reserves some space for them in the stack
+by reducing the value of the RSP register (the stack pointer).
+Each function must reserve at least 32 bytes (four 64-bit values corresponding to the registers RCX, RDX, R8, R9) in the stack.
+This space in the stack allows to easily save the contents of the registers passed into the function in the stack.
+The function being called is not required to save input parameters passed through the registers into the stack
+but reserving space in the stack allows to do this if necessary.
+If more than four integer parameters are passed, some additional space must be reserved in the stack.
+
+Let's consider an example. Some function passes two integer parameters to a child function.
+The compiler places the arguments' values into the registers RCX and RDX and meanwhile subtracts 32 bytes from the RSP register.
+The function being called can address the parameters through the registers RCX and RDX.
+If the code of this function needs these registers for some purpose, it can copy their contents into the reserved space in the stack with the size 32 bytes.
+
+The described feature leads to a significant growth of the stack consumption speed.
+Even if the function does not have parameters, 32 bytes will be "bit off" the stack anyway and they will not be used anyhow then.
+I failed to find the reason for such a wasteful mechanism.
+There were some explanations concerning unification and simplification of debugging but this information was too vague.
+
+Note another thing. The stack pointer RSP must be aligned on a 16-byte boundary before a next function call.
+Thus, the total size of the stack being used when calling a function without parameters in 64-bit code is:
+8 (the return address) + 8 (alignment) + 32 (reserved space for arguments) = 48 bytes!
+
+Let's see what it might cause in practice.
+Here and further, I will use Visual Studio 2010 for my experiments. Let's make a recursive function like this:
+
+void StackUse(size_t *depth)
+{
+  volatile size_t *ptr = 0;
+  if (depth != NULL)
+    ptr = depth;
+  cout << *ptr << endl;
+  (*ptr)++;
+  StackUse(depth);
+  (*ptr)--;
+}
+
+The function is deliberately a bit confused to prevent the optimizer from turning it into "nothing".
+The main thing here is: the function has an argument of the pointer type and one local variable, also pointer-type.
+Let's see how much stack is consumed by the function in the 32-bit and 64-bit versions
+and how many times it can be recursively called when the stack's size is 1 Mbyte (the size by default).
+
+Release 32-bit: the last displayed number (stack depth) - 51331
+The compiler uses 20 bytes when calling this function.
+
+Release 64-bit: the last displayed number - 21288
+The compiler uses 48 bytes when calling this function.
+
+Thus, the 64-bit version of the StackUse function is more than twice voracious than the 32-bit one.
+Note that changing of data alignment rules might also influence the size of consumed stack.
+Let's assume that the function takes the following structure as an argument:
+
+struct S
+{
+  char a;
+  size_t b;
+  char c;
+};
+
+void StackUse(S s) { ... }
+
+The size of the 'S' structure increases from 12 bytes to 24 bytes when being recompiled in the 64-bit version
+due to changes of alignment rules and change of the 'b' member's size.
+The structure is passed into the function by the value.
+And, correspondingly, the structure will also take twice more memory in the stack.
+
+Can it all be so bad? No.
+Do not forget that the 64-bit compiler can handle more registers than the 32-bit one.
+Let's complicate the experiment function's code:
+
+void StackUse(size_t *depth, char a, int b)
+{
+  volatile size_t *ptr = 0;
+  int c = 1;
+  int d = -1;
+  for (int i = 0; i < b; i++)
+    for (char j = 0; j < a; j++)
+      for (char k = 0; k < 5; k++)
+        if (*depth > 10 && k > 2)
+        {
+          c += j * k - i;
+          d -= (i - j) * c;
+        }
+  if (depth != NULL)
+    ptr = depth;
+  cout << c << " " << d << " " << *ptr << endl;
+  (*ptr)++;
+  StackUse(depth, a, b);
+  (*ptr)--;
+}
+
+Here are the results of its execution:
+
+Release 32-bit: the last displayed number - 16060
+The compiler uses 64 bytes this time when calling this function.
+
+Release 64-bit: the last displayed number - 21310
+The compiler still uses 48 bytes when calling this function.
+
+The 64-bit compiler managed to use additional registers for this sample and build a more efficient code
+allowing us to reduce the amount of the stack memory being consumed!
+
+Conclusions
+One cannot foresee how much stack memory a 64-bit version of a program will consume in comparison to a 32-bit one.
+It might be both less (unlikely) and much more.
+
+For a 64-bit program, you should increase the amount of reserved stack 2-3 times.
+3 times is better - just to feel at ease.
+To do this, see the parameter Stack Reserve Size (the /STACK:reserve switch) in project settings. By default the stack's size is 1 Mbyte.
+
+You should not worry if your 64-bit program consumes more stack memory.
+There is much more physical memory in 64-bit systems.
+The stack with the size 2 Mbytes on a 64-bit system with 8 Gbytes of memory takes fewer percent of memory
+than 1 Mbyte of stack in a 32-bit system with 2 Gbytes.
