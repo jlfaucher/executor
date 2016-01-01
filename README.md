@@ -49,7 +49,7 @@ A closure remembers the values of the variables defined in the outer environment
 Updating a variable from the closure will have no impact on the original context (closure by value).
 
     v = 1                                -- captured
-    {::closure expose v ; say v}~()      -- 1
+    {expose v ; say v}~()      -- 1
 
 ### Array initializer
 
@@ -247,7 +247,7 @@ Class BinaryTree
 
     a = .array~new
     do i=1 to 10
-        a~append{::closure expose i; return i*i}
+        a~append{expose i; return i*i}
     end
     do i=1 to 9
         say a[i]~()
@@ -255,7 +255,7 @@ Class BinaryTree
 
 A more compact code... item is an implicit parameter.
 
-    1~upto(10){ {::closure expose item; return item * item} } ~ take(9) ~ each{ say item~() }
+    1~upto(10){ {expose item; return item * item} } ~ take(9) ~ each{ say item~() }
 
 ### Accumulator factory
 
@@ -264,7 +264,6 @@ A more compact code... item is an implicit parameter.
     accumulator = {
         use arg sum
         return  {
-            ::closure
             expose sum
             use arg n
             sum += n
@@ -285,7 +284,7 @@ A more compact code... item is an implicit parameter.
     compose = {
         use arg f, g
         return {
-            ::closure expose f g
+            expose f g
             use arg x
             return f~(g~(x))
         }
@@ -338,14 +337,14 @@ The call-by-value is implemented as a method on the class RoutineDoer
     ::method Y
     f = self
     return {use arg a ; return a~(a)} ~ {
-        ::closure expose f ; use arg x
-        return f ~ { ::closure expose x ; use arg v ; return x~(x)~(v) }
+        expose f ; use arg x
+        return f ~ { expose x ; use arg v ; return x~(x)~(v) }
     }
 
 Application of the Y combinator to factorial:
 
     fact = { use arg f
-             return  { ::closure expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
+             return  { expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
            }~Y
     say fact~(10) -- 3628800
 
@@ -372,8 +371,8 @@ ooRexx supports anonymous recursive functions...
     f = self
     table = .Table~new
     return {use arg a ; return a~(a)} ~ {
-        ::closure expose f table ; use arg x
-        return f ~ { ::closure expose x table
+        expose f table ; use arg x
+        return f ~ { expose x table
                      use arg v
                      r = table[v]
                      if r <> .nil then return r
@@ -386,7 +385,7 @@ ooRexx supports anonymous recursive functions...
 Application to fibonacci :
 
     fibm = { use arg fib;
-             return {::closure expose fib ; use arg n
+             return {expose fib ; use arg n
                      if n==0 then return 0
                      if n==1 then return 1
                      if n<0 then return fib~(n+2) - fib~(n+1)
