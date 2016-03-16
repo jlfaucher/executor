@@ -269,6 +269,68 @@ RexxObject *RexxActivation::resolveDotVariable(RexxString *name)
 SourceFile.cpp
 -----
 
+/**
+ * Resolve a directly defined class object in this or a parent
+ * context.
+ *
+ * @param name   The name we're searching for (all uppercase).
+ *
+ * @return A resolved class object, if found.
+ */
+RexxClass *RexxSource::findInstalledClass(RexxString *name)
+{
+    // if we have one locally, then return it.
+    if (this->installed_classes != OREF_NULL)
+    {
+        /* try for a local one first         */
+        RexxClass *result = (RexxClass *)(this->installed_classes->fastAt(name));
+        if (result != OREF_NULL)
+        {
+            return result;
+        }
+    }
+
+    // we might have a chained context, so check it also
+    if (parentSource != OREF_NULL)
+    {
+        return parentSource->findInstalledClass(name);
+    }
+    // nope, no got one
+    return OREF_NULL;
+}
+
+
+RexxClass *RexxSource::findPublicClass(RexxString *name)
+{
+    // if we have one locally, then return it.
+    if (this->merged_public_classes != OREF_NULL)
+    {
+        /* try for a local one first         */
+        RexxClass *result = (RexxClass *)(this->merged_public_classes->fastAt(name));
+        if (result != OREF_NULL)
+        {
+            return result;
+        }
+    }
+
+    // we might have a chained context, so check it also
+    if (parentSource != OREF_NULL)
+    {
+        return parentSource->findPublicClass(name);
+    }
+    // nope, no got one
+    return OREF_NULL;
+}
+
+
+/**
+ * Resolve a class from this source file context (including any
+ * chained parent contexts).
+ *
+ * @param className The target name of the class.
+ *
+ * @return The resolved class object, if any.
+ */
 RexxClass *RexxSource::findClass(RexxString *className)
 {
     RexxString *internalName = className->upper();   /* upper case it                     */

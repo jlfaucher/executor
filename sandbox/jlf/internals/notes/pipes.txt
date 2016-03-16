@@ -1,3 +1,29 @@
+http://www.jpaulmorrison.com/fbp/
+
+
+Ocaml pipes
+https://ocaml.janestreet.com/ocaml-core/111.28.00/doc/async_kernel/#Pipe
+
+
+FS2: Functional Streams for Scala (previously 'Scalaz-Stream')
+https://github.com/functional-streams-for-scala/fs2
+
+
+Haskell Networks of composable stream transducers
+https://github.com/ekmett/machines/
+Machines are demand driven input sources like pipes or conduits, but can support multiple inputs.
+
+
+Go pipes (flow based dataflow)
+https://blog.gopheracademy.com/composable-pipelines-pattern/
+https://blog.gopheracademy.com/advent-2015/composable-pipelines-improvements/
+
+
+Go pipes (functional stream processing syntax)
+https://blog.gopheracademy.com/advent-2015/automi-stream-processing-over-go-channels/
+Automi: Stream Processing Over Go Channels
+
+
 https://github.com/matz/streem
 Prototype of stream based programming language by Yukihiro Matsumoto
 

@@ -1,5 +1,16 @@
 FFI = Foreign Function Interface
 
+Bash
+https://github.com/taviso/ctypes.sh/wiki
+https://github.com/taviso/ctypes.sh
+
+Julia
+http://docs.julialang.org/en/release-0.4/manual/calling-c-and-fortran-code/
+
+LuaJIT FFI
+http://luajit.org/ext_ffi.html
+
+
 FFI from Go to Rust
 https://github.com/medimatrix/rust-plus-golang
 https://news.ycombinator.com/item?id=9516442
