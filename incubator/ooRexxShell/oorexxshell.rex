@@ -563,7 +563,7 @@ dumpResult: procedure
     if \.ooRexxShell~hasRgfUtil2 then say value
     else do
         if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
-        else if value~isA(.array), value~dimension <= 1, value~hasMethod("ppRepresentation") then say value~ppRepresentation(100) -- condensed output, 100 items max
+        else if value~isA(.array), value~dimension == 1, value~hasMethod("ppRepresentation") then say value~ppRepresentation(100) -- condensed output, 100 items max
         else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
         else say pp2(value)
     end
