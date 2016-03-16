@@ -1741,6 +1741,26 @@ syntax:              -- propagate condition
 
 
 /* ======================================================================= */
+/*
+   JLF: Helper to display the shape of an array.
+   Something like "2x3x..."
+*/
+
+::routine shape private
+    use arg coll, separator=""
+    shape = ""
+    if coll~isA(.array) then do
+        dimensions = coll~dimensions
+        if coll~dimension == 0 then do
+            if dimensions~items == 0 then shape = "shape []" || separator
+            else shape = "no shape" || separator -- Remember: ooRexx has a bug here, because self~dimensions returns [0]
+        end
+        else shape = "shape " || coll~dimensions~toString("L", "x") || separator
+    end
+    return shape
+
+
+/* ======================================================================= */
 /* Dump collection or supplier. */
 /*
     dumpArray2(--coll--[,-title-]-)
@@ -1750,12 +1770,13 @@ syntax:              -- propagate condition
       comparator ... the comparator to use in sorting
 */
 ::routine dump2 public
-  use arg coll, title=("type: The" coll~class~id "class"), comparator=.nil
+  -- JLF: I prefer a notation closer to the standard notation "a String" or "an Array"
+  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil
 
   if .nil=comparator, title~isA(.comparator) then
   do
      comparator=title
-     title=("type: The" coll~class~id "class")
+     title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
   end
 
 
@@ -1778,9 +1799,8 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     shape = "" -- JLF: will be something like "2x3x..."
-     if coll~isA(.array) then shape = "shape " || coll~dimensions~toString("L", "x") || ", "
-     say title": ("shape || coll~items "items)"
+     shape = shape(coll, ", ") -- JLF: will be something like "2x3x..."
+     say title" ("shape || coll~items "items)"
      len=length(coll~items)
   end
 
@@ -2594,12 +2614,11 @@ createCodeSnippet: procedure
   if \a1~isA(.string) & \a1.isaText then
   do
      -- JLF : condensed output, 100 items max
-     if a1~isA(.array), a1~dimension <= 1, a1~hasMethod("ppRepresentation") then
+     if a1~isA(.array), a1~dimension == 1, a1~hasMethod("ppRepresentation") then
         return a1~ppRepresentation(100)
      -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
      if a1~isA(.Collection) then do
-        shape = "" -- JLF: will be something like "2x3x..."
-        if a1~isA(.array) then shape = "shape " || a1~dimensions~toString("L", "x") || ", "
+        shape = shape(a1, ", ") -- JLF: will be something like "2x3x..."
         if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
         else return "("a1~string "("shape || a1~items "items))"
      end

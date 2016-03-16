@@ -1,17 +1,68 @@
 /*
 This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
+
+
+v0 = a(0)~of{index} -- equivalent to v()
+    []
+    an Array (shape 0, 0 items)
+
+v1 = a(1)~of{index} -- equivalent to v(1)
+    [1]
+    an Array (shape 1, 1 items)
+    1 : 1
+
+v2 = a(2)~of{index} -- equivalent to v(1,2)
+    [1,2]
+    an Array (shape 2, 2 items)
+    1 : 1
+    2 : 2
+
+v3 = a(3)~of{index} -- equivalent to v(1,2,3)
+    [1,2,3]
+    an Array (shape 3, 3 items)
+    1 : 1
+    2 : 2
+    3 : 3
+
+a33 = a(3,3)~of{index}
+    an Array (shape 3x3, 9 items)
+    [1,1] : [1,1]
+    [1,2] : [1,2]
+    [1,3] : [1,3]
+    [2,1] : [2,1]
+    [2,2] : [2,2]
+    [2,3] : [2,3]
+    [3,1] : [3,1]
+    [3,2] : [3,2]
+    [3,3] : [3,3]
+
+APL     ,           ravel       monadic function (Comma)
+ooRexx  ~each
+inverse of reshape, which turns any data into a vector whose length is the product
+of the shape vector (the dimensions) of the operand array
+
+
 */
 
 --::options trace i
 
 ::routine a public
     -- Empty array of specified shape
-    if arg() == 0 then return .array~new
-    return .array~new(arg(1, "a"))
 
+    -- if arg() == 0 then return .array~new -- no dimension (yet), can be set later.
+    -- Bug : .array~new~dimensions returns [0], should return an array with no dimension (not [] which is returned for arrays definitively with 0 dimension).
+
+    return .array~new(arg(1, "a")) -- dimension assigned, no longer possible to change it
+    -- Remember :
+    -- When called with no argument, this function returns an array
+    -- which is definitively an array with no dimension : an Array (shape , 0 items)
+    -- Any attempt to assign a value to this array raises the error
+    -- "Too many subscripts for array; 0 expected"
 
 ::routine v public
     -- Vector (rank = 1)
+    -- When no argument, arg(1, "a") returns an array with NO dimension. This is not what we want here, we want 1 dimension.
+    if arg() == 0 then return .array~new(0) -- empty vector
     return arg(1, "a")
 
 
@@ -22,6 +73,141 @@ This script needs a modified ooRexx interpreter which support extension of prede
         if a1~dimension(i) <> a2~dimension(i) then return .false
     end
     return .true
+
+
+/******************************************************************************/
+-- Object can't inherit from a mixinclass (would raise "cannot inherit from itself")
+::extension Object -- APLObject
+
+::method rank
+    /*
+        R←⍴⍴Y
+        An array may have 0 or more axes or dimensions.
+        The number of axes of an array is known as its rank.
+        An array with 0 axes (rank 0) is called a scalar
+        An array with 1 axis (rank 1) is called a vector.
+        An array with 2 axes (rank 2) is called a matrix or table.
+        An array with 3 axes (rank 3) is called a cube.
+        An array with more than 2 axes is called a multi-dimensional array
+    */
+    shape = self~shape
+    if shape~dimension == 0 then return -1 -- special case which does not exist in APL : an array with no dimension yet assigned
+    return shape~items
+
+
+::method shape
+    -- R←⍴Y (Rho)
+    -- The shape of a scalar is an empty vector []
+    return v()
+
+
+::method depth
+    -- R←≡Y (Equal Underbar)
+    -- Depth (≡) indicates the degree of nesting within an array.
+    -- It returns a non-negative integer which defines the maximum number of levels
+    -- of structure to be penetrated in order to get to a simple scalar where simple means non-nested.
+    return 0
+
+
+::method reshape
+    -- R←X⍴Y (Rho)
+    -- args : new dimension(s)
+    if arg() == 1 then return .array~new(arg(1))~of(self) -- to support an array as argument
+    return .array~new(arg(1, "a"))~of(self)
+
+
+::method enclose
+    -- R←⊂Y (Left Shoe)
+    -- If Y is a simple scalar, R is the simple scalar unchanged.
+    -- Otherwise, R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+    -- Here, Y is a simple scalar.
+    return self
+
+
+::method disclose
+    -- R←⊃Y (Right Shoe)
+    -- Disclose is the inverse of Enclose.  The identity R←→⊃⊂R holds for all R.
+    return self
+
+
+/******************************************************************************/
+::class "APLArray" mixinclass Object public
+
+::method shape
+    -- The shape of an array is an array which gives the size of each dimension (APL).
+    dimensions = self~dimensions
+    if self~dimension == 0 then do
+        -- Two cases:
+
+        -- array definitively with no dimension : .array~new(.array~new)
+        -- This case exist in APL : the scalars have no dimension, their shape is an empty vector
+        if dimensions~items == 0 then return v() -- empty vector (1 dimension, 0 item)
+
+        -- array with no dimension yet assigned (the first assignment will determine the dimension).
+        -- This case does not exist in APL
+        -- Remember : ooRexx has a bug here, because self~dimensions returns [0]. It should return an array with no dimension.
+        return a() -- really no shape yet, return an array with no dimension.
+    end
+    return dimensions
+
+
+::method depth
+    -- R←≡Y (Equal Underbar)
+    -- Here, Y is an array. Y has depth 1 greater than that of its most deeply nested item.
+    return 1 + self~reduce(0){depth = item~depth; if depth > accu then depth}
+
+
+::method enclose
+    -- R←⊂Y (Left Shoe)
+    -- Here, Y is an array.  R is a scalar array whose item is the array Y.
+    -- R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+    return .EnclosedArray~new(self)
+
+
+/******************************************************************************/
+::class "EnclosedArray" public inherit ArrayOperators
+
+::method init
+    expose object
+    use strict arg object
+
+
+::method enclose
+    -- R←⊂Y (Left Shoe)
+    -- Here, Y is a scalar array.  R is a scalar array whose item is the scalar array Y.
+    -- R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+    return .EnclosedArray~new(self)
+
+
+::method disclose
+    -- R←⊃Y (Right Shoe)
+    -- Disclose is the inverse of Enclose.  The identity R←→⊃⊂R holds for all R.
+    expose object
+    return object
+
+
+::method depth
+    -- R←≡Y (Equal Underbar)
+    -- Here, Y is a scalar array.  R is a scalar array whose item is the scalar array Y.
+    -- R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+    expose object
+    return 1 + object~depth
+
+
+::method leftElementWise
+    -- Don't forward to the enclosed object, it's important to keep the class Enclosed
+    forward class (super)
+
+
+::method rightElementWise
+    -- Don't forward to the enclosed object, it's important to keep the class Enclosed
+    forward class (super)
+
+
+::method unknown unguarded
+    expose object
+    use arg msg, args
+    forward message (msg) arguments (args) to (object)
 
 
 /******************************************************************************/
@@ -52,7 +238,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
         .. 50 60
         70 .. 90
 
-    Otherwise, when more than one argument, each argument is an item as-is.
+    Otherwise each argument is an item as-is.
         .array~new(2,3)~of(1,2,3,4,5,6)
         1 2 3
         4 5 6
@@ -81,7 +267,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     */
     use strict arg arg1, ... -- at least one argument
 
-    if self~dimension == 0 then raise syntax 93.900 array("Unknown number of dimensions")
+    if self~dimension == 0 then raise syntax 93.900 array("Dimension 0 not supported")
 
     -- Only one of the following variables will be used
     oneValue = .false
@@ -143,7 +329,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
             else if .nil <> doer then do
                 if self~dimension == 1 then index = selfArrayIndex
                                        else index = selfArrayIndex~copy
-                if arity == 3 then doer~do(selfIntegerIndex, index, self)
+                if arity >= 3 then doer~do(selfIntegerIndex, index, self)
                 else if arity == 2 then doer~do(selfIntegerIndex, index)
                 else if arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
@@ -190,31 +376,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
         arrayIndex[i] = 1
     end
     return arrayIndex -- for convenience
-
-
-::method rank
-    /*
-        APL definition:
-        An array may have 0 or more axes or dimensions.
-        The number of axes of an array is known as its rank.
-
-        An array with 0 axes (rank 0) is called a scalar --> Not applicable to ooRexx: rank=0 when the array has no (yet) determined dimension.
-        An array with 1 axis (rank 1) is called a vector.
-        An array with 2 axes (rank 2) is called a matrix.
-        An array with more than 2 axes is called a multi-dimensional array
-    */
-    return self~dimension
-
-
-::method shape
-    -- The shape of an array is an array which gives the size of each dimension (APL).
-    forward message "dimensions"
-
-
-::method reshape
-    -- args : new dimension(s)
-    if arg() == 1 then return .array~new(arg(1))~of(self) -- to support an array as argument
-    return .array~new(arg(1, "a"))~of(self)
 
 
 /******************************************************************************/
@@ -327,14 +488,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 /******************************************************************************/
 ::class "ArrayOperators" mixinclass Object public
 
-::attribute isBoxed set
-    expose isBoxed
-    use strict arg isBoxed
-::attribute isBoxed get
-    expose isBoxed
-    if var("isBoxed") then return isBoxed
-    return .false
-
 ::attribute defaultSparseValue
 
 ::method leftElementWise
@@ -342,13 +495,27 @@ This script needs a modified ooRexx interpreter which support extension of prede
     counterpart = recursion[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
     if \ arg(2, "e") then do
-        -- unary operator
+        -- unary operator (op self):
+        -- op Array
+        -- op EnclosedArray
+
         if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                             else doer = action~doer
         arity = doer~arity
-        r = .array~new
-        recursion[self] = r -- will be used to build the resulting infinite array
-        supplier = self~supplier
+
+        if self~isA(.EnclosedArray) then do
+            arg = self~disclose
+            r = .array~new(arg~dimensions)
+            recursion[arg] = r -- will be used to build the resulting infinite array
+            er = r~enclose
+            recursion[self] = er -- will be used to build the resulting enclosed infinite array
+        end
+        else do
+            arg = self
+            r = .array~new(arg~dimensions)
+            recursion[arg] = r -- will be used to build the resulting infinite array
+        end
+        supplier = arg~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
@@ -362,36 +529,55 @@ This script needs a modified ooRexx interpreter which support extension of prede
             end
             supplier~next
         end
-        recursion~remove(self)
-        return r
+        if self~isA(.EnclosedArray) then do
+            recursion~remove(arg)
+            recursion~remove(self)
+            return er
+        end
+        else do
+            recursion~remove(self)
+            return r
+        end
     end
-    -- binary operator
+
+    -- binary operator (self op rightArg):
+    -- Array op Array : element wise
+    -- Array op EnclosedArray : manage enclosedArray as a whole
+    -- Array op Other
+    -- EnclosedArray op Array : return rightArg~rightElementWise(doer, self)
+    -- EnclosedArray op EnclosedArray : error
+    -- EnclosedArray op Other : manage enclosedArray as a non enclosed array
+
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
                                         else doer = action~doer
     arity = doer~arity
-    if self~isBoxed then do
-        -- boxed array on left
-        if rightArg~isA(.array), rightArg~isBoxed then do
-            -- binary operator with boxed array on left & right
-            raise syntax 93.900 array("Element-wise operation does not support two boxed arrays")
+
+    if self~isA(.EnclosedArray) then do
+        -- enclosed array on left
+        if rightArg~isA(.EnclosedArray) then do
+            -- binary operator with enclosed array on left & right : EnclosedArray op EnclosedArray
+            raise syntax 93.900 array("Element-wise operation does not support two enclosed arrays")
         end
         if rightArg~isA(.array) then do
-            -- binary operator with boxed array on left & unboxed array on right
+            -- binary operator with enclosed array on left & not enclosed array on right : EnclosedArray op Array
             return rightArg~rightElementWise(doer, self)
         end
     end
-    -- unboxed array on left
-    -- or boxed array on left and not array on right: in this case, the boxed array is handled as an unboxed array
-    if rightArg~isA(.array), \ rightArg~isBoxed then do
-        -- binary operator with unboxed array on left & right
+
+    -- not enclosed array on left
+    -- or enclosed array on left and not array on right: in this case, the enclosed array is handled as a not enclosed array
+
+    if rightArg~isA(.array) then do
+        -- binary operator with not enclosed array on left & right : Array op Array
         if \sameShapes(self, rightArg) then raise syntax 93.900 array("Shapes are not equal")
-        r = .array~new
+        r = .array~new(self~dimensions)
         recursion[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
+        -- TODO : sparse array not supported. Must use TWO suppliers.
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, rightArg[index], recursion)
             end
             else do
@@ -405,15 +591,27 @@ This script needs a modified ooRexx interpreter which support extension of prede
         return r
     end
     else do
-        -- binary operator with unboxed array on left only.
-        -- If rightArg is an array, then it's a boxed array, to handle as a whole.
-        r = .array~new
-        recursion[self] = r -- will be used to build the resulting infinite array
-        supplier = self~supplier
+        -- Remaining cases:
+        -- Array op EnclosedArray
+        -- Array op Other
+        -- EnclosedArray op Other
+        if self~isA(.EnclosedArray) then do
+            leftArg = self~disclose
+            r = .array~new(leftArg~dimensions)
+            recursion[leftArg] = r -- will be used to build the resulting infinite array
+            er = r~enclose
+            recursion[self] = er -- will be used to build the resulting enclosed infinite array
+        end
+        else do
+            leftArg = self
+            r = .array~new(leftArg~dimensions)
+            recursion[leftArg] = r -- will be used to build the resulting infinite array
+        end
+        supplier = leftArg~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, rightArg, recursion)
             end
             else do
@@ -423,33 +621,63 @@ This script needs a modified ooRexx interpreter which support extension of prede
             end
             supplier~next
         end
-        recursion~remove(self)
-        return r
+        if self~isA(.EnclosedArray) then do
+            recursion~remove(leftArg)
+            recursion~remove(self)
+            return er
+        end
+        else do
+            recursion~remove(self)
+            return r
+        end
     end
 
 ::method "rightElementWise"
     -- no unary operator here.
+    -- Array op Array : delegate to leftElementWise
+    -- Array op EnclosedArray : delegate to leftElementWise
+    -- EnclosedArray op Array : specific implementation
+    -- EnclosedArray op EnclosedArray : error
+    -- Other op Array : specific implementation
+    -- Other op EnclosedArray : specific implementation
+
     use strict arg action, leftArg, recursion=(.identityTable~new)
     counterpart = recursion[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
-    if leftArg~isA(.array) then do
-        -- By design, if leftArg is an array, then it's a boxed array.
-        if \ leftArg~isBoxed then raise syntax 93.900 array("Assertion failed: leftArg must be a boxed array")
-        -- By design, if leftArg is an array, then rightArg is an unboxed array
-        if self~isBoxed then raise syntax 93.900 array("Assertion failed: rightArg must be an unboxed array")
-    end
-    -- binary operator with unboxed array on right only
-    -- If leftArg is an array, then it's a boxed array, to handle as a whole.
+
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
                                         else doer = action~doer
     arity = doer~arity
-    r = .array~new
-    recursion[self] = r -- will be used to build the resulting infinite array
-    supplier = self~supplier
+
+    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self)
+
+    if leftArg~isA(.EnclosedArray), self~isA(.EnclosedArray) then do
+        -- binary operator with enclosed array on left & right : EnclosedArray op EnclosedArray
+        raise syntax 93.900 array("Element-wise operation does not support two enclosed arrays")
+    end
+
+    -- Remaining cases:
+    -- EnclosedArray op Array : enclosedArray managed as a whole
+    -- Other op Array : specific implementation
+    -- Other op EnclosedArray : disclose the enclosed array
+
+    if self~isA(.EnclosedArray) then do
+        rightArg = self~disclose
+        r = .array~new(rightArg~dimensions)
+        recursion[rightArg] = r -- will be used to build the resulting infinite array
+        er = r~enclose
+        recursion[self] = er -- will be used to build the resulting enclosed infinite array
+    end
+    else do
+        rightArg = self
+        r = .array~new(rightArg~dimensions)
+        recursion[rightArg] = r -- will be used to build the resulting infinite array
+    end
+    supplier = rightArg~supplier
     do while supplier~available
         index = supplier~index
         item = supplier~item
-        if item~isA(.array) then do
+        if item~isA(.array) | item~isA(.EnclosedArray) then do
             r[index] = item~rightElementWise(doer, leftArg, recursion)
         end
         else do
@@ -459,8 +687,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
         end
         supplier~next
     end
-    recursion~remove(self)
-    return r
+    if self~isA(.EnclosedArray) then do
+        recursion~remove(rightArg)
+        recursion~remove(self)
+        return er
+    end
+    else do
+        recursion~remove(self)
+        return r
+    end
 
 ::method "+"
     if arg() == 0 then return self~leftElementWise("+")
