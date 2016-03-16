@@ -15,6 +15,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Routine                         inherit RoutineDoer
 ::extension Method                          inherit MethodDoer
 ::extension RexxBlock                       inherit RexxBlockDoer
+
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
 ::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
 ::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper StringHelpers
@@ -23,13 +24,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
 ::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator
 
-::extension Array                           inherit ArrayInitializer ArrayPrettyPrinter ArrayOperators
+::extension Array                           inherit ArrayInitializer ArrayPrettyPrinter ArrayOperators APLArray
 ::extension File                            inherit FileExtension
 
 
 -------------------------------------------------------------------------------
--- Can't inherit from a mixinclass (would raise "cannot inherit from itself")
+-- Object can't inherit from a mixinclass (would raise "cannot inherit from itself")
 ::extension Object
+
+-------
+-- Help
+-------
 
 -- Display and return the comment stored in the source of the method _description_, if any.
 ::method help class
@@ -56,6 +61,10 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if display then say "no help"
     return .array~new
 
+------------
+-- Generator
+------------
+
 ::method generate class
     use strict arg action={item}
     return .Generator~new(self)~action(action)
@@ -71,6 +80,10 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method generateI
     use strict arg action={item}
     return .Generator~new(self)~action(action)~returnIndex
+
+----------
+-- Unknown
+----------
 
 -- This method is needed to avoid a stack overflow when forwarding the message "unknown".
 -- Ex:
