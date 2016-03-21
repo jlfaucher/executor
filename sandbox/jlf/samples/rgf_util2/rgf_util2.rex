@@ -1743,21 +1743,16 @@ syntax:              -- propagate condition
 /* ======================================================================= */
 /*
    JLF: Helper to display the shape of an array.
-   Something like "2x3x..."
 */
 
 ::routine shape private
     use arg coll, separator=""
-    shape = ""
-    if coll~isA(.array) then do
-        dimensions = coll~dimensions
-        if coll~dimension == 0 then do
-            if dimensions~items == 0 then shape = "shape []" || separator
-            else shape = "no shape" || separator -- Remember: ooRexx has a bug here, because self~dimensions returns [0]
-        end
-        else shape = "shape " || coll~dimensions~toString("L", "x") || separator
+    if coll~hasMethod("shapeToString"), coll~isA(.array) then do
+        shape = coll~shapeToString
+        if shape <> "no shape" then shape = "shape" shape
+        return shape || separator
     end
-    return shape
+    return ""
 
 
 /* ======================================================================= */
@@ -1799,7 +1794,7 @@ syntax:              -- propagate condition
   end
   else      -- a collection in hand
   do
-     shape = shape(coll, ", ") -- JLF: will be something like "2x3x..."
+     shape = shape(coll, ", ") -- JLF
      say title" ("shape || coll~items "items)"
      len=length(coll~items)
   end
@@ -2618,7 +2613,7 @@ createCodeSnippet: procedure
         return a1~ppRepresentation(100)
      -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
      if a1~isA(.Collection) then do
-        shape = shape(a1, ", ") -- JLF: will be something like "2x3x..."
+        shape = shape(a1, ", ") -- JLF
         if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
         else return "("a1~string "("shape || a1~items "items))"
      end

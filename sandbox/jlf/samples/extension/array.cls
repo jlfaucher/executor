@@ -4,28 +4,28 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 v0 = a(0)~of{index} -- equivalent to v()
     []
-    an Array (shape 0, 0 items)
+    an Array (shape [0], 0 items)
 
 v1 = a(1)~of{index} -- equivalent to v(1)
     [1]
-    an Array (shape 1, 1 items)
+    an Array (shape [1], 1 items)
     1 : 1
 
 v2 = a(2)~of{index} -- equivalent to v(1,2)
     [1,2]
-    an Array (shape 2, 2 items)
+    an Array (shape [2], 2 items)
     1 : 1
     2 : 2
 
 v3 = a(3)~of{index} -- equivalent to v(1,2,3)
     [1,2,3]
-    an Array (shape 3, 3 items)
+    an Array (shape [3], 3 items)
     1 : 1
     2 : 2
     3 : 3
 
 a33 = a(3,3)~of{index}
-    an Array (shape 3x3, 9 items)
+    an Array (shape [3,3], 9 items)
     [1,1] : [1,1]
     [1,2] : [1,2]
     [1,3] : [1,3]
@@ -50,12 +50,12 @@ of the shape vector (the dimensions) of the operand array
     -- Empty array of specified shape
 
     -- if arg() == 0 then return .array~new -- no dimension (yet), can be set later.
-    -- Bug : .array~new~dimensions returns [0], should return an array with no dimension (not [] which is returned for arrays definitively with 0 dimension).
+    -- Bug ? .array~new~dimensions returns [0], should return an array with no dimension (not [] which is an empty vector returned for arrays definitively with 0 dimension).
 
     return .array~new(arg(1, "a")) -- dimension assigned, no longer possible to change it
     -- Remember :
     -- When called with no argument, this function returns an array
-    -- which is definitively an array with no dimension : an Array (shape , 0 items)
+    -- which is definitively an array with no dimension : an Array (no shape , 0 items)
     -- Any attempt to assign a value to this array raises the error
     -- "Too many subscripts for array; 0 expected"
 
@@ -99,6 +99,13 @@ of the shape vector (the dimensions) of the operand array
     -- R←⍴Y (Rho)
     -- The shape of a scalar is an empty vector []
     return v()
+
+
+::method shapeToString
+   -- Helper to display the shape of any object
+   shape = self~shape
+   if shape~dimension == 0 then return "no shape"
+   return "[" || shape~toString("L", ",") || "]"
 
 
 ::method depth
@@ -145,7 +152,7 @@ of the shape vector (the dimensions) of the operand array
 
         -- array with no dimension yet assigned (the first assignment will determine the dimension).
         -- This case does not exist in APL
-        -- Remember : ooRexx has a bug here, because self~dimensions returns [0]. It should return an array with no dimension.
+        -- Bug ? self~dimensions returns [0]. It should return an array with no dimension.
         return a() -- really no shape yet, return an array with no dimension.
     end
     return dimensions
@@ -267,7 +274,7 @@ of the shape vector (the dimensions) of the operand array
     */
     use strict arg arg1, ... -- at least one argument
 
-    if self~dimension == 0 then raise syntax 93.900 array("Dimension 0 not supported")
+    if self~dimension == 0 then raise syntax 93.900 array("Array with no dimension")
 
     -- Only one of the following variables will be used
     oneValue = .false
@@ -519,7 +526,7 @@ of the shape vector (the dimensions) of the operand array
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, , recursion)
             end
             else do
