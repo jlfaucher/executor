@@ -151,6 +151,8 @@ address value .ooRexxShell~initialAddress
 .ooRexxShell~queueName = rxqueue("create")
 .ooRexxShell~queueInitialName = rxqueue("set", .ooRexxShell~queueName)
 
+call checkReadlineCapability
+
 select
     when .ooRexxShell~isInteractive then do
         call intro
@@ -205,8 +207,10 @@ main: procedure
 
             when .ooRexxShell~inputrx~caselessEquals("readlineoff") then
                 .ooRexxShell~readline = .false
-            when .ooRexxShell~inputrx~caselessEquals("readlineon") then
+            when .ooRexxShell~inputrx~caselessEquals("readlineon") then do
                 .ooRexxShell~readline = .true
+                call checkReadlineCapability
+            end
 
             when .ooRexxShell~inputrx~caselessEquals("reload") then do
                 -- Often, I modify some packages that are loaded by ooRexxShell at startup.
@@ -285,6 +289,27 @@ prompt: procedure
     if .ooRexxShell~interpreter~caselessEquals("ooRexx") then prompt ||= "["currentAddress"]" ; else prompt ||= "[ooRexx]"
     if .ooRexxShell~securityManager~isEnabledByUser then prompt ||= "> " ; else prompt ||= "!>"
     return prompt
+
+
+-------------------------------------------------------------------------------
+checkReadlineCapability: procedure
+    -- Bypass a bug in official ooRexx which delegates to system() when the passed address is bash.
+    -- The bug is that system() delegates to /bin/sh, and should be called only when the passed address is sh.
+    -- Because of this bug, the readline procedure (which depends on bash) is not working and must be deactivated.
+    if .ooRexxShell~isInteractive, .ooRexxShell~systemAddress~caselessEquals("bash") then do
+        address value .ooRexxShell~systemAddress
+            "echo $BASH_VERSION | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
+        address -- restore
+        bash_version = ""
+        if queued() <> 0 then parse pull bash_version
+        if bash_version == "" then do
+            .ooRexxShell~readline = .false
+            .color~select(.ooRexxShell~errorColor, .traceOutput)
+            .traceOutput~say("[readline] ooRexx bug detected, fallback to raw input (no more history, no more globbing)")
+            .color~select(.ooRexxShell~defaultColor, .traceOutput)
+        end
+    end
+    return
 
 
 -------------------------------------------------------------------------------
@@ -370,7 +395,7 @@ readline: procedure
         otherwise do
             call charout ,prompt
             parse pull inputrx -- Input queue or standard input or keyboard.
-            if .ooRexxShell~isInteractive then say inputrx
+            --if .ooRexxShell~isInteractive then say inputrx
         end
     end
     if .ooRexxShell~traceReadline then do
@@ -563,7 +588,8 @@ dumpResult: procedure
     if \.ooRexxShell~hasRgfUtil2 then say value
     else do
         if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
-        else if value~isA(.array), value~dimension == 1, value~hasMethod("ppRepresentation") then say value~ppRepresentation(100) -- condensed output, 100 items max
+        else if .ooRexxShell~isExtended, value~isA(.enclosedArray) then say value~ppRepresentation(100) -- condensed output, 100 items max
+        else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
         else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
         else say pp2(value)
     end
