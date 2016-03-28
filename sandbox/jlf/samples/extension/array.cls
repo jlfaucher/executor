@@ -3,21 +3,25 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 v0 = a(0)~of{index} -- equivalent to v()
+v0=
     []
     an Array (shape [0], 0 items)
 
 v1 = a(1)~of{index} -- equivalent to v(1)
+v1=
     [1]
     an Array (shape [1], 1 items)
     1 : 1
 
 v2 = a(2)~of{index} -- equivalent to v(1,2)
+v2=
     [1,2]
     an Array (shape [2], 2 items)
     1 : 1
     2 : 2
 
 v3 = a(3)~of{index} -- equivalent to v(1,2,3)
+v3=
     [1,2,3]
     an Array (shape [3], 3 items)
     1 : 1
@@ -25,6 +29,7 @@ v3 = a(3)~of{index} -- equivalent to v(1,2,3)
     3 : 3
 
 a33 = a(3,3)~of{index}
+a33=
     an Array (shape [3,3], 9 items)
     [1,1] : [1,1]
     [1,2] : [1,2]
@@ -40,7 +45,8 @@ APL     ,           ravel       monadic function (Comma)
 ooRexx  ~each
 inverse of reshape, which turns any data into a vector whose length is the product
 of the shape vector (the dimensions) of the operand array
-
+a33~each=
+[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3],[3,1],[3,2],[3,3]]
 
 */
 
@@ -161,7 +167,13 @@ of the shape vector (the dimensions) of the operand array
 ::method depth
     -- R←≡Y (Equal Underbar)
     -- Here, Y is an array. Y has depth 1 greater than that of its most deeply nested item.
-    return 1 + self~reduce(0){depth = item~depth; if depth > accu then depth}
+    use arg stack=(.queue~new)
+    level = stack~index(self)
+    if .nil <> level then return "+infinity"
+    stack~push(self)
+    depth = 1 + self~reduce(0){depth = item~depth; if depth > accu then depth}
+    stack~pull
+    return depth
 
 
 ::method enclose
@@ -172,7 +184,7 @@ of the shape vector (the dimensions) of the operand array
 
 
 /******************************************************************************/
-::class "EnclosedArray" public inherit ArrayOperators
+::class "EnclosedArray" public inherit ArrayOperators ArrayPrettyPrinter
 
 ::method init
     expose object
@@ -208,6 +220,11 @@ of the shape vector (the dimensions) of the operand array
 
 ::method rightElementWise
     -- Don't forward to the enclosed object, it's important to keep the class Enclosed
+    forward class (super)
+
+
+::method ppRepresentation
+    -- Don't forward to the enclosed object, the class ArrayPrettyPrinter takes care of the instances of EnclosedArray
     forward class (super)
 
 
@@ -437,8 +454,17 @@ of the shape vector (the dimensions) of the operand array
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
-    if val~isA(.array), val~dimension == 1 then do
-        -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
+    -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
+    if val~isA(.enclosedArray) then do
+        -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
+        level = stack~index(val)
+        if .nil <> level then return "*"level-1
+        stack~push(val)
+        valstr = "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, stack)">"
+        stack~pull
+        return valstr
+    end
+    else if val~isA(.array), val~dimension == 1 then do
         level = stack~index(val)
         if .nil <> level then return "*"level-1
         stack~push(val)
@@ -484,8 +510,8 @@ of the shape vector (the dimensions) of the operand array
         else do
             isnum = .false
             -- To make a distinction between a real string and other objects, surround by (...)
-            -- For the arrays, indicate their shape : (an Array 2x3)
-            if val~isA(.array) then valstr = "("valstr val~shape~toString("L", "x")")"
+            -- For the arrays, indicate their shape
+            if val~isA(.array) then valstr = "("valstr val~shapeToString")"
             else valstr = "("valstr")"
         end
         return valstr
