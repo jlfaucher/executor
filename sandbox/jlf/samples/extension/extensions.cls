@@ -4,6 +4,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::requires "extension/array.cls"
 ::requires "extension/complex.cls"
+::requires "extension/infinity.cls"
 ::requires "extension/file.cls"
 ::requires "extension/string.cls"
 ::requires "extension/doers.cls"
