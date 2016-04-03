@@ -59,23 +59,6 @@
 ::method makeComplex
     return self
 
-/* TO DELETE
-::method convert class
--- Should rely on request("complex")
--- and add a method makeComplex on String...
-    use strict arg x
-    if x~isA(self) then return x
-    if x~isA(.string) then do
-        if x~datatype("N") then return self~new(x)
-        if x~right(1)~caselessEquals("i") then do
-            imaginary = x~left(x~length-1)
-            if imaginary == "" then imaginary = 1
-            if imaginary~datatype("N") then return self~new(0, imaginary)
-        end
-    end
-    return .nil
-*/
-
 ::method init                                   /* initialize a complex number    */
     expose real imaginary                       /* expose the state data          */
     use arg first, second                       /* access the two numbers         */
@@ -109,7 +92,6 @@
 ::method equals
     expose real imaginary
     use strict arg right
-    --right = self~class~convert(right)
     right = right~request("complex")
     if .nil == right then return
     return real=right~real & imaginary=right~imaginary
@@ -117,7 +99,6 @@
 ::method notEquals
     expose real imaginary
     use strict arg right
-    --right = self~class~convert(right)
     right = right~request("complex")
     if .nil == right then return
     return real\=right~real | imaginary\=right~imaginary
@@ -125,7 +106,6 @@
 ::method strictEquals
     expose real imaginary
     use strict arg right
-    --right = self~class~convert(right)
     right = right~request("complex")
     if .nil == right then return
     return real==right~real & imaginary==right~imaginary
@@ -133,7 +113,6 @@
 ::method strictNotEquals
     expose real imaginary
     use strict arg right
-    --right = self~class~convert(right)
     right = right~request("complex")
     if .nil == right then return
     return real\==right~real | imaginary\==right~imaginary
@@ -143,7 +122,6 @@
     use arg adder                               /* get the operand                */
     if arg(1,'o') then                          /* prefix plus operation?         */
         return self                             /* don't do anything with this    */
-    --adder = self~class~convert(adder)
     adder = adder~request("complex")
     if .nil == adder then return
     tempreal = real + adder~real                /* add the real parts             */
@@ -158,7 +136,6 @@
     if arg(1,'o') then                          /* prefix minus operation?        */
                                                 /* negate the number              */
         return self~class~new(-real, -imaginary)
-    --adder = self~class~convert(adder)
     adder = adder~request("complex")
     if .nil == adder then return
     tempreal = real - adder~real                /* subtract the real part         */
@@ -171,7 +148,6 @@
     expose real imaginary                       /* access the state values        */
     use arg multiplier                          /* get the operand                */
                                                 /* calculate the real part        */
-    --multiplier = self~class~convert(multiplier)
     multiplier = multiplier~request("complex")
     if .nil == multiplier then return
     tempreal = (real * multiplier~real) - (imaginary * multiplier~imaginary)
@@ -183,7 +159,6 @@
 ::method '/'                                    /* division method                */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
-    --divisor = self~class~convert(divisor)
     divisor = divisor~request("complex")
     if .nil == divisor then return
     a=real                                      /* get real and imaginaries for   */
@@ -197,7 +172,6 @@
 ::method '%'                                    /* integer division method        */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
-    --divisor = self~class~convert(divisor)
     divisor = divisor~request("complex")
     if .nil == divisor then return
     a=real                                      /* get real and imaginaries for   */
@@ -211,7 +185,6 @@
 ::method '//'                                   /* remainder method               */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
-    --divisor = self~class~convert(divisor)
     divisor = divisor~request("complex")
     if .nil == divisor then return
     a=real                                      /* get real and imaginaries for   */
@@ -235,7 +208,6 @@
 
 ::method "+op:right"
     use strict arg left
-    --left = self~class~convert(left)
     left = left~request("complex")
     if .nil == left then return
     return left + self
@@ -243,7 +215,6 @@
 
 ::method "-op:right"
     use strict arg left
-    --left = self~class~convert(left)
     left = left~request("complex")
     if .nil == left then return
     return left - self
@@ -251,7 +222,6 @@
 
 ::method "*op:right"
     use strict arg left
-    --left = self~class~convert(left)
     left = left~request("complex")
     if .nil == left then return
     return left * self
@@ -259,7 +229,6 @@
 
 ::method "/op:right"
     use strict arg left
-    --left = self~class~convert(left)
     left = left~request("complex")
     if .nil == left then return
     return left / self
@@ -267,7 +236,6 @@
 
 ::method "%op:right"
     use strict arg left
-    --left = self~class~convert(left)
     left = left~request("complex")
     if .nil == left then return
     return left % self
@@ -275,7 +243,6 @@
 
 ::method "//op:right"
     use strict arg left
-    --left = self~class~convert(left)
     left = left~request("complex")
     if .nil == left then return
     return left // self
@@ -297,7 +264,6 @@
 /*
 ::method arg
     use strict arg -- none
-    --complex = .complex~convert(self)
     complex = self~request("complex")
     if .nil == complex then forward class (super)
     return complex~arg
@@ -305,24 +271,15 @@
 
 ::method "+op:left"
     -- For the moment, this message is sent only for the unary +
-    use arg right=.nil
-    --left = .complex~convert(self)
+    use strict arg -- none
     left = self~request("complex")
-    if .nil == left then return
-    if .nil == right then return left -- unary +
-    --right = .complex~convert(right)
-    right = right~request("complex")
-    if .nil == right then return
-    return left + right
+    if .nil <> left then return left -- unary +
 
 
 ::method "+op:right"
-    trace i
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
-    --right = .complex~convert(self)
     right = self~request("complex")
     if .nil == right then return
     return left + right
@@ -330,23 +287,15 @@
 
 ::method "-op:left"
     -- For the moment, this message is sent only for the unary -
-    use strict arg right=.nil
-    --left = .complex~convert(self)
+    use strict arg -- none
     left = self~request("complex")
-    if .nil == left then return
-    if .nil == right then return 0 - left
-    --right = .complex~convert(right)
-    right = right~request("complex")
-    if .nil == right then return
-    return left - right
+    if .nil <> left then return - left -- unary -
 
 
 ::method "-op:right"
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
-    --right = .complex~convert(self)
     right = self~request("complex")
     if .nil == right then return
     return left - right
@@ -354,10 +303,8 @@
 
 ::method "*op:right"
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
-    --right = .complex~convert(self)
     right = self~request("complex")
     if .nil == right then return
     return left * right
@@ -365,10 +312,8 @@
 
 ::method "/op:right"
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
-    --right = .complex~convert(self)
     right = self~request("complex")
     if .nil == right then return
     return left / right
@@ -376,10 +321,8 @@
 
 ::method "%op:right"
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
-    --right = .complex~convert(self)
     right = self~request("complex")
     if .nil == right then return
     return left % right
@@ -387,10 +330,8 @@
 
 ::method "//op:right"
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
-    --right = .complex~convert(self)
     right = self~request("complex")
     if .nil == right then return
     return left // right
@@ -399,7 +340,6 @@
 ::method "**op:right"
     -- Limited support, I want mainly support i**2
     use strict arg left
-    --left = .complex~convert(left)
     left = left~request("complex")
     if .nil == left then return
     if \ self~datatype("W") then return
