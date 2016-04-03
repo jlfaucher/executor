@@ -2609,7 +2609,7 @@ createCodeSnippet: procedure
   if \a1~isA(.string) & \a1.isaText then
   do
      -- JLF : condensed output, 100 items max
-     if a1~isA(.array), a1~dimension == 1, a1~hasMethod("ppRepresentation") then
+     if /*a1~isA(.array), a1~dimension == 1,*/ a1~hasMethod("ppRepresentation") then
         return a1~ppRepresentation(100)
      -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
      if a1~isA(.Collection) then do

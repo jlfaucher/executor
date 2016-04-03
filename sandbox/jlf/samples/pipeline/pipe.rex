@@ -766,12 +766,22 @@ end
 -- The first occurence of a shared value is represented by vN=<shared value representation>
 -- The next occurences of this shared value is just vN.
 use strict arg val, showPool, pool, values, stack=(.queue~new)
-if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
+-- if val~isA(.enclosedArray) then do -- Can't use this test because .enclosedArray is not a class here. I don't want to require "extension/array.cls"
+if val~class~id == "EnclosedArray" then do
+    level = stack~index(val)
+    if .nil <> level then return "*"level-1
+    stack~push(val)
+    valstr = "<"dataflow_representation(val~disclose, showPool, pool, values, stack)">"
+    stack~pull
+    return valstr
+end
+else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
     -- Remember : this part of code is a duplication of .array~ppRepresentation.
     -- Must find a way to avoid this duplication...
     -- One difference is the call to dataflow_representation instead of ppRepresentation,
     -- but the problem is that additional parameters are passed : showPool, pool, values.
     -- Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
+    -- Other difference : no management of sparse array. Most of the time, an array is iterated over using a supplier, which skips the holes.
 
     -- each item of the array is inserted.
     -- special care for recursive arrays
@@ -797,8 +807,8 @@ else do
     else do
         isnum = .false
         -- To make a distinction between a real string and other objects, surround by (...)
-        -- For the arrays, indicate their shape : (an Array 2x3)
-        if val~isA(.array) then valstr = "("valstr val~dimensions~toString("L", "x")")"
+        -- For the arrays, indicate their shape
+        if val~isA(.array) then valstr = "("valstr val~shapeToString")"
         else valstr = "("valstr")"
     end
     if isnum | \showPool then return valstr
