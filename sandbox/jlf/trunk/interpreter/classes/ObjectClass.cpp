@@ -1664,9 +1664,11 @@ RexxObject  *RexxObject::requestRexx(
     /* Get "MAKE"||class methodname      */
     RexxString *make_method = className->concatToCstring(CHAR_MAKE);
     /* find the MAKExxxx method          */
-    RexxMethod *method = this->behaviour->methodLookup(make_method);
+    // RexxMethod *method = this->behaviour->methodLookup(make_method);
+    RexxMethod *method = this->instanceMethod(make_method);
     /* have this method?                 */
-    if (method != OREF_NULL)
+    // if (method != OREF_NULL)
+    if (method != TheNilObject)
     {
         /* Return its results                */
         return this->sendMessage(make_method);
