@@ -169,7 +169,7 @@ a33~each=
     -- Here, Y is an array. Y has depth 1 greater than that of its most deeply nested item.
     use arg stack=(.queue~new)
     level = stack~index(self)
-    if .nil <> level then return "+infinity"
+    if .nil <> level then return infinity
     stack~push(self)
     depth = 1 + self~reduce(0){depth = item~depth; if depth > accu then depth}
     stack~pull

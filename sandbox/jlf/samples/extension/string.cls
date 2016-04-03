@@ -22,6 +22,163 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 /******************************************************************************/
+::requires "extension/complex.cls"
+::requires "extension/infinity.cls"
+
+::class "OperatorDispatcher" mixinclass Object public
+
+::method "+op:left"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "+op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "-op:left"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "-op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "*op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "/op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "**op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "=op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "\=op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "<>op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "==op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "\==op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "><op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method ">op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "<op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method ">=op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "\<op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "<=op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "\>op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method ">>op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "<<op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method ">>=op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "\<<op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "<<=op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "\>>op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "&op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "|op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "&&op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "%op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "//op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+
+/******************************************************************************/
 ::class "EncodedString" mixinclass Object public
 
 ::method text
