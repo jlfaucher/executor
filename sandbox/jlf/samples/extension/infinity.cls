@@ -10,6 +10,8 @@ direction=1     complex infinity
 
 .infinity~initialize
 
+--::options trace i
+
 ::class "infinity" public
 
 ::attribute negative class          -- singleton
@@ -126,6 +128,7 @@ Add support for theses notations:
     complexInfinity <operator> ...
     ... <operator> infinity
     ... <operator> complexInfinity
+    ... <operator> (an infinity)
 */
 
 ::class "InfinityString" mixinclass Object public
@@ -145,37 +148,61 @@ Add support for theses notations:
 ::method "+op:right"
     use strict arg left
     lefti = left~request("infinity")
-    if .nil <> lefti then return lefti + self
+    if .nil <> lefti then do
+        lefti~"+"(self) -- lefti + self
+        if var("result") then return result
+    end
     righti = self~request("infinity")
-    if .nil <> righti then return righti + left
+    if .nil <> righti then do
+        righti~"+"(left) -- righti + left
+        if var("result") then return result
+    end
 
 ::method "-op:left"
     -- For the moment, this message is sent only for the unary -
     use strict arg -- none
     left = self~request("infinity")
-    if .nil <> left then return -left
+    if .nil <> left then do
+        left~"-" -- -left
+        if var("result") then return result
+    end
 
 
 ::method "-op:right"
     use strict arg left
     lefti = left~request("infinity")
-    if .nil <> lefti then return lefti - self
+    if .nil <> lefti then do
+        lefti~"-"(self) -- lefti - self
+        if var("result") then return result
+    end
     righti = self~request("infinity")
-    if .nil <> righti then return -righti + left
+    if .nil <> righti then do
+        righti~"-"~"+"(left) -- -righti + left
+        if var("result") then return result
+    end
 
 
 ::method "*op:right"
     use strict arg left
     lefti = left~request("infinity")
-    if .nil <> lefti then return lefti * self
+    if .nil <> lefti then do
+        lefti~"*"(self) -- lefti * self
+        if var("result") then return result
+    end
     righti = self~request("infinity")
-    if .nil <> righti then return righti * left
+    if .nil <> righti then do
+        righti~"*"(left) -- righti * left
+        if var("result") then return result
+    end
 
 
 ::method "/op:right"
     use strict arg left
     lefti = left~request("infinity")
-    if .nil <> lefti then return lefti / self
+    if .nil <> lefti then do
+        lefti~"/"(self) -- lefti / self
+        if var("result") then return result
+    end
     righti = self~request("infinity")
     if .nil <> righti then do
         if left~datatype("N") then return 0     -- number / infinity = 0
@@ -185,7 +212,7 @@ Add support for theses notations:
 ::method "**op:right"
     use strict arg left
     lefti = left~request("complex")
-    if .nil <> lefti then return lefti ** self
+    if .nil <> lefti then return lefti~"**"(self) -- lefti ** self
     righti = self~request("infinity")
     if .nil <> righti then do
         if righti~isComplex then return                                         -- any ** complexInfinity is undefined
@@ -206,54 +233,41 @@ Add support for theses notations:
 
 /*
 Others operators
+*/
 
 /* Not activated
 ::method "="
 */
 
-/* Not activated
 ::method "=op:right"
-*/
 
 /* Not activated
 ::method "\="
 */
 
-/* Not activated
 ::method "\=op:right"
-*/
 
-/* Not activated
 ::method "<>"
-*/
 
-/* Not activated
 ::method "<>op:right"
-*/
 
 /* Not activated
 ::method "=="
 */
 
-/* Not activated
 ::method "==op:right"
-*/
 
 /* Not activated
 ::method "\=="
 */
 
-/* Not activated
 ::method "\==op:right"
-*/
 
 /* Not activated
 ::method "><"
 */
 
-/* Not activated
 ::method "><op:right"
-*/
 
 ::method "\"
     use strict arg -- none, no binary version
@@ -317,8 +331,6 @@ Others operators
 ::method "&&"
 
 ::method "&&op:right"
-
-*/
 
 /*
 Operators not needed for infinity

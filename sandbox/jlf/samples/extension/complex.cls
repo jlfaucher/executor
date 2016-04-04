@@ -56,9 +56,6 @@
     use arg first, second                       /* access the two numbers         */
     forward to (self) message('NEW')            /* just forward this as a new message */
 
-::method makeComplex
-    return self
-
 ::method init                                   /* initialize a complex number    */
     expose real imaginary                       /* expose the state data          */
     use arg first, second                       /* access the two numbers         */
@@ -210,42 +207,48 @@
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    return left + self
+    left~"+"(self) -- left + self
+    if var("result") then return result
 
 
 ::method "-op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    return left - self
+    left~"-"(self) -- left - self
+    if var("result") then return result
 
 
 ::method "*op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    return left * self
+    left~"*"(self) -- left * self
+    if var("result") then return result
 
 
 ::method "/op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    return left / self
+    left~"/"(self) -- left / self
+    if var("result") then return result
 
 
 ::method "%op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    return left % self
+    left~"%"(self) -- left % self
+    if var("result") then return result
 
 
 ::method "//op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    return left // self
+    left~"//"(self) -- left // self
+    if var("result") then return result
 
 
 /******************************************************************************/
@@ -282,14 +285,17 @@
     if .nil == left then return
     right = self~request("complex")
     if .nil == right then return
-    return left + right
+    left~"+"(right) -- left + right
+    if var("result") then return result
 
 
 ::method "-op:left"
     -- For the moment, this message is sent only for the unary -
     use strict arg -- none
     left = self~request("complex")
-    if .nil <> left then return - left -- unary -
+    if .nil == left then return
+    left~"-" -- -left -- unary -
+    if var("result") then return result
 
 
 ::method "-op:right"
@@ -298,7 +304,8 @@
     if .nil == left then return
     right = self~request("complex")
     if .nil == right then return
-    return left - right
+    left~"-"(right) -- left - right
+    if var("result") then return result
 
 
 ::method "*op:right"
@@ -307,7 +314,8 @@
     if .nil == left then return
     right = self~request("complex")
     if .nil == right then return
-    return left * right
+    left~"*"(right) -- left * right
+    if var("result") then return result
 
 
 ::method "/op:right"
@@ -316,7 +324,8 @@
     if .nil == left then return
     right = self~request("complex")
     if .nil == right then return
-    return left / right
+    left~"/"(right) -- left / right
+    if var("result") then return result
 
 
 ::method "%op:right"
@@ -325,7 +334,8 @@
     if .nil == left then return
     right = self~request("complex")
     if .nil == right then return
-    return left % right
+    left~"%"(right) -- left % right
+    if var("result") then return result
 
 
 ::method "//op:right"
@@ -334,7 +344,8 @@
     if .nil == left then return
     right = self~request("complex")
     if .nil == right then return
-    return left // right
+    left~"//"(right) -- left // right
+    if var("result") then return result
 
 
 ::method "**op:right"
@@ -352,56 +363,41 @@
 
 /*
 Others operators
-
-::method "**op:right"
+*/
 
 /* Not activated
 ::method "="
 */
 
-/* Not activated
 ::method "=op:right"
-*/
 
-/* Not activated
 ::method "\="
-*/
 
-/* Not activated
 ::method "\=op:right"
-*/
 
 /* Not activated
 ::method "<>"
 */
 
-/* Not activated
 ::method "<>op:right"
-*/
 
 /* Not activated
 ::method "=="
 */
 
-/* Not activated
 ::method "==op:right"
-*/
 
 /* Not activated
 ::method "\=="
 */
 
-/* Not activated
 ::method "\==op:right"
-*/
 
 /* Not activated
 ::method "><"
 */
 
-/* Not activated
 ::method "><op:right"
-*/
 
 ::method "\"
     use strict arg -- none, no binary version
@@ -466,7 +462,6 @@ Others operators
 
 ::method "&&op:right"
 
-*/
 
 /*
 Operators not needed for complex numbers
