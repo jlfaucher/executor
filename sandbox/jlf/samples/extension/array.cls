@@ -1,7 +1,4 @@
 /*
-This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
-
-
 v0 = a(0)~of{index} -- equivalent to v()
 v0=
     []
@@ -171,7 +168,7 @@ a33~each=
     level = stack~index(self)
     if .nil <> level then return infinity
     stack~push(self)
-    depth = 1 + self~reduce(0){depth = item~depth; if depth > accu then depth}
+    depth = 1 + self~reduce(0){expose stack; depth = item~depth(stack); if depth > accu then depth}
     stack~pull
     return depth
 
