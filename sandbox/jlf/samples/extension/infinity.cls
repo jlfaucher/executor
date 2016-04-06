@@ -12,6 +12,7 @@ direction=1     complex infinity
 
 --::options trace i
 
+/******************************************************************************/
 ::class "infinity" public
 
 ::attribute negative class          -- singleton
@@ -51,8 +52,7 @@ direction=1     complex infinity
 
 ::method "+"
     if arg(1,'o') then return self
-    use strict arg right
-    righti = right~request("infinity")
+    use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
         if self~isComplex | righti~isComplex then return    -- complexInfinity + any infinity is undefined
         if self~sign <> righti~sign then return             -- infinity + -infinity is undefined
@@ -60,10 +60,13 @@ direction=1     complex infinity
     end
     if right~datatype("N") then return self                 -- infinity + number = infinity
 
+::method "+op:right"
+    --use strict arg left, lefti=(left~request("infinity"))
+    forward message "+"                                     -- "+" is commutative : left+self == self+left
+
 ::method "-"
     if arg(1,'o') then return self~opposite
-    use strict arg right
-    righti = right~request("infinity")
+    use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
         if self~isComplex | righti~isComplex then return    -- complexInfinity - any infinity is undefined
         if self~sign == righti~sign then return             -- infinity - infinity is undefined
@@ -71,9 +74,12 @@ direction=1     complex infinity
     end
     if right~datatype("N") then return self                 -- infinity - number = infinity
 
+::method "-op:right"
+    --use strict arg left, lefti=(left~request("infinity"))
+    forward to (self~"-") message "+"                       -- left-self == -self+left
+
 ::method "*"
-    use strict arg right
-    righti = right~request("infinity")
+    use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
         if self~isComplex | righti~isComplex then return .infinity~complex  -- complexInfinity * any infinity is a complexInfinity
         if self~sign <> righti~sign then return .infinity~negative          -- infinity * -infinity = -infinity
@@ -85,9 +91,12 @@ direction=1     complex infinity
         if right > 0 then return self                       -- infinity * n = infinity
     end
 
+::method "*op:right"
+    --use strict arg left, lefti=(left~request("infinity"))
+    forward message "*"                                     -- "*" is commutative : left*self == self*left
+
 ::method "/"
-    use strict arg right
-    righti = right~request("infinity")
+    use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then return                           -- infinity / infinity is undefined
     if right~datatype("N") then do
         if right < 0 then return self~opposite              -- infinity / -n = -infinity
@@ -95,31 +104,74 @@ direction=1     complex infinity
         if right > 0 then return self                       -- infinity / n = infinity
     end
 
+::method "/op:right"
+    use strict arg left, lefti=(left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "/" array (self)   -- lefti / self
+    if left~datatype("N") then return 0                                 -- number / infinity = 0
+
 ::method "**"
-    use strict arg right
-    righti = right~request("infinity")
+    use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
-        if righti~isComplex then return                     -- infinity ^ complexInfinity is undefined
-        if righti~isPositive then return .infinity~complex  -- infinity ^ infinity = complexInfinity
-        if righti~isNegative then return 0                  -- infinity ** -infinity = 0
+        if righti~isComplex then return                             -- infinity ^ complexInfinity is undefined
+        if righti~isPositive then return .infinity~complex          -- infinity ^ infinity = complexInfinity
+        if righti~isNegative then return 0                          -- infinity ** -infinity = 0
     end
     if right~datatype("N") then do
-        if right < 0 then return 0                          -- infinity ** -n = 1 / (infinity ** n) = 0
-        if right == 0 then return                           -- infinity ** 0 is undefined
+        if right < 0 then return 0                                  -- infinity ** -n = 1 / (infinity ** n) = 0
+        if right == 0 then return                                   -- infinity ** 0 is undefined
         if right > 0 then do
-            if self~isComplex then return self              -- complexInfinity ** n = complexInfinity
-            if self~isPositive then return self             -- +infinity ** n = +infinity
+            if self~isComplex then return self                      -- complexInfinity ** n = complexInfinity
+            if self~isPositive then return self                     -- +infinity ** n = +infinity
             if self~isNegative then do
                 if right~datatype("W") then do
                     if right // 2 == 0 then return self~opposite    -- -infinity ** evenWholeNumber = +infinity
-                    return self                             -- -infinity ** oddWholeNumber = -infinity
+                    return self                                     -- -infinity ** oddWholeNumber = -infinity
                 end
             end
         end
     end
 
+::method "**op:right"
+    use strict arg left, lefti=(left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "**" array (self)      -- lefti ** self
+    if self~isComplex then return                                           -- any ** complexInfinity is undefined
+    if left~datatype("N") then do
+        if left == 0 then do
+            if self~isPositive then return 0                                -- 0 ** +infinity = 0
+            if self~isNegative then return .infinity~complex                -- 0 ** -infinity = complexInfinity
+        end
+        else if left == 1 then return                                       -- 1 ** infinity is undefined
+        else do
+            if self~isNegative then return 0                                -- number ** -infinity = 0
+            if self~isPositive, left > 0 then return .infinity~positive     -- +number ** +infinity = +infinity
+            if self~isPositive, left < 0 then return .infinity~negative     -- -number ** +infinity = -infinity
+        end
+    end
+
+::method ">"
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil <> righti then do
+        if self~isComplex | righti~isComplex then return -- todo
+        if self~isNegative then return .false
+        if self~isPositive then return righti~isNegative
+    end
+    if right~datatype("N") then do
+        if self~isNegative then return .false
+        if self~isPositive then return .true
+    end
+
+::method ">op:right"
+    use strict arg left, lefti=(left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message ">" array (self)       -- lefti > self
+    if left~datatype("N") then do
+        if self~isNegative then return .true
+        if self~isPositive then return .false
+    end
+
 
 /******************************************************************************/
+::class "InfinityString" mixinclass Object public
+
 /*
 Add support for theses notations:
     +infinity
@@ -128,10 +180,8 @@ Add support for theses notations:
     complexInfinity <operator> ...
     ... <operator> infinity
     ... <operator> complexInfinity
-    ... <operator> (an infinity)
 */
 
-::class "InfinityString" mixinclass Object public
 
 ::method makeInfinity
     string = self~changeStr(" ", "")~upper
@@ -146,94 +196,40 @@ Add support for theses notations:
     if .nil <> left then return left -- unary +
 
 ::method "+op:right"
-    use strict arg left
-    lefti = left~request("infinity")
-    if .nil <> lefti then do
-        lefti~"+"(self) -- lefti + self
-        if var("result") then return result
-    end
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "+" array (self)       -- lefti+self
     righti = self~request("infinity")
-    if .nil <> righti then do
-        righti~"+"(left) -- righti + left
-        if var("result") then return result
-    end
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 ::method "-op:left"
     -- For the moment, this message is sent only for the unary -
     use strict arg -- none
     left = self~request("infinity")
-    if .nil <> left then do
-        left~"-" -- -left
-        if var("result") then return result
-    end
-
+    if .nil <> left then forward to (left) message "-"                      -- -left
 
 ::method "-op:right"
-    use strict arg left
-    lefti = left~request("infinity")
-    if .nil <> lefti then do
-        lefti~"-"(self) -- lefti - self
-        if var("result") then return result
-    end
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "-" array (self)       -- lefti-self
     righti = self~request("infinity")
-    if .nil <> righti then do
-        righti~"-"~"+"(left) -- -righti + left
-        if var("result") then return result
-    end
-
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 ::method "*op:right"
-    use strict arg left
-    lefti = left~request("infinity")
-    if .nil <> lefti then do
-        lefti~"*"(self) -- lefti * self
-        if var("result") then return result
-    end
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "*" array (self)       -- lefti*self
     righti = self~request("infinity")
-    if .nil <> righti then do
-        righti~"*"(left) -- righti * left
-        if var("result") then return result
-    end
-
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 ::method "/op:right"
-    use strict arg left
-    lefti = left~request("infinity")
-    if .nil <> lefti then do
-        lefti~"/"(self) -- lefti / self
-        if var("result") then return result
-    end
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "/" array (self)       -- lefti/self
     righti = self~request("infinity")
-    if .nil <> righti then do
-        if left~datatype("N") then return 0     -- number / infinity = 0
-    end
-
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 ::method "**op:right"
-    use strict arg left
-    lefti = left~request("complex")
-    if .nil <> lefti then return lefti~"**"(self) -- lefti ** self
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "**" array (self)      -- lefti ** self
     righti = self~request("infinity")
-    if .nil <> righti then do
-        if righti~isComplex then return                                         -- any ** complexInfinity is undefined
-        if left~datatype("N") then do
-            if left == 0 then do
-                if right~isPositive then return 0                               -- 0 ** +infinity = 0
-                if right~isNegative then return .infinity~complex               -- 0 ** -infinity = complexInfinity
-            end
-            else if left == 1 then return                                       -- 1 ** infinity is undefined
-            else do
-                if right~isNegative then return 0                               -- number ** -infinity = 0
-                if right~isPositive, left > 0 then return .infinity~positive    -- +number ** +infinity = +infinity
-                if right~isPositive, left < 0 then return .infinity~negative    -- -number ** +infinity = -infinity
-            end
-        end
-    end
-
-
-/*
-Others operators
-*/
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 /* Not activated
 ::method "="
@@ -275,6 +271,10 @@ Others operators
 ::method ">"
 
 ::method ">op:right"
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message ">" array (self)       -- lefti > self
+    righti = self~request("infinity")
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 ::method "<"
 
