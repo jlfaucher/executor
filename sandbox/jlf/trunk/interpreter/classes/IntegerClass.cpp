@@ -698,7 +698,7 @@ wholenumber_t RexxInteger::strictComp(
  * @return true if the two objects compare equal, false for an
  *         unequal result.
  */
-wholenumber_t RexxInteger::comp(RexxObject *other)
+wholenumber_t RexxInteger::comp(RexxObject *other, RexxString *alternativeOperator, RexxInteger **alternativeOperatorResultPtr)
 {
     requiredArgument(other, ARG_ONE);            /* make sure this is really there    */
                                          /* able to compare here?             */
@@ -709,7 +709,7 @@ wholenumber_t RexxInteger::comp(RexxObject *other)
     }
     else                                 /* do a numberstring compare         */
     {
-        return this->numberString()->comp(other);
+        return this->numberString()->comp(other, alternativeOperator, alternativeOperatorResultPtr);
     }
 }
 
@@ -767,7 +767,11 @@ RexxInteger *RexxInteger::equal(
     {
         return TheFalseObject;
     }
-    return this->comp(other) == 0 ? TheTrueObject : TheFalseObject;
+    // return this->comp(other) == 0 ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result == 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::notEqual(
@@ -780,7 +784,11 @@ RexxInteger *RexxInteger::notEqual(
     {
         return TheTrueObject;
     }
-    return this->comp(other) != 0 ? TheTrueObject : TheFalseObject;
+    // return this->comp(other) != 0 ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_BACKSLASH_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result != 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isGreaterThan(
@@ -793,7 +801,11 @@ RexxInteger *RexxInteger::isGreaterThan(
     {
         return TheFalseObject;
     }
-    return this->comp(other) > 0 ? TheTrueObject : TheFalseObject;
+    // return this->comp(other) > 0 ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_GREATERTHAN_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result > 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isLessThan(
@@ -806,7 +818,11 @@ RexxInteger *RexxInteger::isLessThan(
     {
         return TheFalseObject;
     }
-    return this->comp(other) < 0 ? TheTrueObject : TheFalseObject;
+    // return this->comp(other) < 0 ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_LESSTHAN_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result < 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isGreaterOrEqual(
@@ -819,7 +835,11 @@ RexxInteger *RexxInteger::isGreaterOrEqual(
     {
         return TheFalseObject;
     }
-    return this->comp(other) >= 0 ? TheTrueObject : TheFalseObject;
+    // return this->comp(other) >= 0 ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_GREATERTHAN_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result >= 0) ? TheTrueObject : TheFalseObject;
 }
 
 RexxInteger *RexxInteger::isLessOrEqual(
@@ -832,7 +852,11 @@ RexxInteger *RexxInteger::isLessOrEqual(
     {
         return TheFalseObject;
     }
-    return this->comp(other) <= 0 ? TheTrueObject : TheFalseObject;
+    // return this->comp(other) <= 0 ? TheTrueObject : TheFalseObject;
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_LESSTHAN_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result <= 0) ? TheTrueObject : TheFalseObject;
 }
 
 
