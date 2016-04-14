@@ -302,7 +302,7 @@ a33~each=
             oneValue = .true
             value = arg(1)
         end
-        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg item, index, array")~arity(3)
+        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg item, index")~arity(2)
         else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
         else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
         else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
@@ -350,8 +350,7 @@ a33~each=
             else if .nil <> doer then do
                 if self~dimension == 1 then index = selfArrayIndex
                                        else index = selfArrayIndex~copy
-                if arity >= 3 then doer~do(selfIntegerIndex, index, self)
-                else if arity == 2 then doer~do(selfIntegerIndex, index)
+                if arity >= 2 then doer~do(selfIntegerIndex, index)
                 else if arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
@@ -521,8 +520,8 @@ a33~each=
 ::attribute defaultSparseValue
 
 ::method leftElementWise
-    use strict arg action, rightArg=.nil, recursion=(.identityTable~new)
-    counterpart = recursion[self]
+    use strict arg action, rightArg=.nil, depth=(infinity), stack=(.identityTable~new)
+    counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
     if \ arg(2, "e") then do
         -- unary operator (op self):
@@ -536,21 +535,21 @@ a33~each=
         if self~isA(.EnclosedArray) then do
             arg = self~disclose
             r = .array~new(arg~dimensions)
-            recursion[arg] = r -- will be used to build the resulting infinite array
+            stack[arg] = r -- will be used to build the resulting infinite array
             er = r~enclose
-            recursion[self] = er -- will be used to build the resulting enclosed infinite array
+            stack[self] = er -- will be used to build the resulting enclosed infinite array
         end
         else do
             arg = self
             r = .array~new(arg~dimensions)
-            recursion[arg] = r -- will be used to build the resulting infinite array
+            stack[arg] = r -- will be used to build the resulting infinite array
         end
         supplier = arg~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, , recursion)
+            if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+                r[index] = item~leftElementWise(doer, , depth-1, stack)
             end
             else do
                 if arity >= 2 then doer~do(item, index)
@@ -560,12 +559,12 @@ a33~each=
             supplier~next
         end
         if self~isA(.EnclosedArray) then do
-            recursion~remove(arg)
-            recursion~remove(self)
+            stack~remove(arg)
+            stack~remove(self)
             return er
         end
         else do
-            recursion~remove(self)
+            stack~remove(self)
             return r
         end
     end
@@ -578,7 +577,7 @@ a33~each=
     -- EnclosedArray op EnclosedArray : error
     -- EnclosedArray op Other : manage enclosedArray as a non enclosed array
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexLeft")~arity(4)
                                         else doer = action~doer
     arity = doer~arity
 
@@ -590,7 +589,7 @@ a33~each=
         end
         if rightArg~isA(.array) then do
             -- binary operator with enclosed array on left & not enclosed array on right : EnclosedArray op Array
-            return rightArg~rightElementWise(doer, self)
+            return rightArg~rightElementWise(doer, self, depth)
         end
     end
 
@@ -601,14 +600,14 @@ a33~each=
         -- binary operator with not enclosed array on left & right : Array op Array
         if \sameShapes(self, rightArg) then raise syntax 93.900 array("Shapes are not equal")
         r = .array~new(self~dimensions)
-        recursion[self] = r -- will be used to build the resulting infinite array
+        stack[self] = r -- will be used to build the resulting infinite array
         supplier = self~supplier
         -- TODO : sparse array not supported. Must use TWO suppliers.
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, rightArg[index], recursion)
+            if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+                r[index] = item~leftElementWise(doer, rightArg[index], depth-1, stack)
             end
             else do
                 if arity >= 4 then doer~do(item, rightArg[index], index, index)
@@ -617,7 +616,7 @@ a33~each=
             end
             supplier~next
         end
-        recursion~remove(self)
+        stack~remove(self)
         return r
     end
     else do
@@ -628,21 +627,21 @@ a33~each=
         if self~isA(.EnclosedArray) then do
             leftArg = self~disclose
             r = .array~new(leftArg~dimensions)
-            recursion[leftArg] = r -- will be used to build the resulting infinite array
+            stack[leftArg] = r -- will be used to build the resulting infinite array
             er = r~enclose
-            recursion[self] = er -- will be used to build the resulting enclosed infinite array
+            stack[self] = er -- will be used to build the resulting enclosed infinite array
         end
         else do
             leftArg = self
             r = .array~new(leftArg~dimensions)
-            recursion[leftArg] = r -- will be used to build the resulting infinite array
+            stack[leftArg] = r -- will be used to build the resulting infinite array
         end
         supplier = leftArg~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) | item~isA(.EnclosedArray) then do
-                r[index] = item~leftElementWise(doer, rightArg, recursion)
+            if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+                r[index] = item~leftElementWise(doer, rightArg, depth-1, stack)
             end
             else do
                 if arity >= 4 then doer~do(item, rightArg, index, index)
@@ -652,12 +651,12 @@ a33~each=
             supplier~next
         end
         if self~isA(.EnclosedArray) then do
-            recursion~remove(leftArg)
-            recursion~remove(self)
+            stack~remove(leftArg)
+            stack~remove(self)
             return er
         end
         else do
-            recursion~remove(self)
+            stack~remove(self)
             return r
         end
     end
@@ -671,15 +670,15 @@ a33~each=
     -- Other op Array : specific implementation
     -- Other op EnclosedArray : specific implementation
 
-    use strict arg action, leftArg, recursion=(.identityTable~new)
-    counterpart = recursion[self]
+    use strict arg action, leftArg, depth=(infinity), stack=(.identityTable~new)
+    counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item1, item2, index1, index2")~arity(4)
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight")~arity(4)
                                         else doer = action~doer
     arity = doer~arity
 
-    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self)
+    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, depth)
 
     if leftArg~isA(.EnclosedArray), self~isA(.EnclosedArray) then do
         -- binary operator with enclosed array on left & right : EnclosedArray op EnclosedArray
@@ -694,21 +693,21 @@ a33~each=
     if self~isA(.EnclosedArray) then do
         rightArg = self~disclose
         r = .array~new(rightArg~dimensions)
-        recursion[rightArg] = r -- will be used to build the resulting infinite array
+        stack[rightArg] = r -- will be used to build the resulting infinite array
         er = r~enclose
-        recursion[self] = er -- will be used to build the resulting enclosed infinite array
+        stack[self] = er -- will be used to build the resulting enclosed infinite array
     end
     else do
         rightArg = self
         r = .array~new(rightArg~dimensions)
-        recursion[rightArg] = r -- will be used to build the resulting infinite array
+        stack[rightArg] = r -- will be used to build the resulting infinite array
     end
     supplier = rightArg~supplier
     do while supplier~available
         index = supplier~index
         item = supplier~item
-        if item~isA(.array) | item~isA(.EnclosedArray) then do
-            r[index] = item~rightElementWise(doer, leftArg, recursion)
+        if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+            r[index] = item~rightElementWise(doer, leftArg, depth-1, stack)
         end
         else do
             if arity >= 4 then doer~do(leftArg, item, index, index)
@@ -718,12 +717,12 @@ a33~each=
         supplier~next
     end
     if self~isA(.EnclosedArray) then do
-        recursion~remove(rightArg)
-        recursion~remove(self)
+        stack~remove(rightArg)
+        stack~remove(self)
         return er
     end
     else do
-        recursion~remove(self)
+        stack~remove(self)
         return r
     end
 
