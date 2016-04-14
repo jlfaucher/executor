@@ -15,9 +15,14 @@ direction=1     complex infinity
 /******************************************************************************/
 ::class "infinity" public
 
-::attribute negative class          -- singleton
-::attribute positive class          -- singleton
-::attribute complex class           -- singleton
+::attribute negative class get         -- singleton
+::attribute negative class set private
+
+::attribute positive class get         -- singleton
+::attribute positive class set private
+
+::attribute complex class  get         -- singleton
+::attribute complex class set private
 
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     self~negative = self~new("The negative infinity", -1)
