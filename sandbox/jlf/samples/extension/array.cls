@@ -521,6 +521,7 @@ a33~each=
 
 ::method leftElementWise
     use strict arg action, rightArg=.nil, depth=(infinity), stack=(.identityTable~new)
+    if depth < 1 then return self
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
     if \ arg(2, "e") then do
@@ -533,6 +534,8 @@ a33~each=
         arity = doer~arity
 
         if self~isA(.EnclosedArray) then do
+            depth -= 1
+            if depth < 1 then return self
             arg = self~disclose
             r = .array~new(arg~dimensions)
             stack[arg] = r -- will be used to build the resulting infinite array
@@ -548,7 +551,7 @@ a33~each=
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, , depth-1, stack)
             end
             else do
@@ -606,7 +609,7 @@ a33~each=
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, rightArg[index], depth-1, stack)
             end
             else do
@@ -625,6 +628,8 @@ a33~each=
         -- Array op Other
         -- EnclosedArray op Other
         if self~isA(.EnclosedArray) then do
+            depth -= 1
+            if depth < 1 then return self
             leftArg = self~disclose
             r = .array~new(leftArg~dimensions)
             stack[leftArg] = r -- will be used to build the resulting infinite array
@@ -640,7 +645,7 @@ a33~each=
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, rightArg, depth-1, stack)
             end
             else do
@@ -663,14 +668,18 @@ a33~each=
 
 ::method "rightElementWise"
     -- no unary operator here.
-    -- Array op Array : delegate to leftElementWise
-    -- Array op EnclosedArray : delegate to leftElementWise
-    -- EnclosedArray op Array : specific implementation
+    -- Array op Array :                 delegate to leftElementWise
+    -- Array op EnclosedArray :         delegate to leftElementWise
+    -- Array op Other :                 can't happen (right is either Array or EnclosedArray)
+    -- EnclosedArray op Array :         specific implementation
     -- EnclosedArray op EnclosedArray : error
-    -- Other op Array : specific implementation
-    -- Other op EnclosedArray : specific implementation
+    -- EnclosedArray op Other :         can't happen (right is either Array or EnclosedArray)
+    -- Other op Array :                 specific implementation
+    -- Other op EnclosedArray :         specific implementation
+    -- Other op Other :                 can't happen (right is either Array or EnclosedArray)
 
     use strict arg action, leftArg, depth=(infinity), stack=(.identityTable~new)
+    if depth < 1 then return self
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
 
@@ -687,10 +696,12 @@ a33~each=
 
     -- Remaining cases:
     -- EnclosedArray op Array : enclosedArray managed as a whole
-    -- Other op Array : specific implementation
+    -- Other op Array :         specific implementation
     -- Other op EnclosedArray : disclose the enclosed array
 
     if self~isA(.EnclosedArray) then do
+        depth -= 1
+        if depth < 1 then return self
         rightArg = self~disclose
         r = .array~new(rightArg~dimensions)
         stack[rightArg] = r -- will be used to build the resulting infinite array
@@ -706,7 +717,7 @@ a33~each=
     do while supplier~available
         index = supplier~index
         item = supplier~item
-        if depth > 1, item~isA(.array) | item~isA(.EnclosedArray) then do
+        if item~isA(.array) | item~isA(.EnclosedArray) then do
             r[index] = item~rightElementWise(doer, leftArg, depth-1, stack)
         end
         else do
