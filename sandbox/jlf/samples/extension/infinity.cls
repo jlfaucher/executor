@@ -173,6 +173,26 @@ direction=1     complex infinity
         if self~isPositive then return .false
     end
 
+::method "<"
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil <> righti then do
+        if self~isComplex | righti~isComplex then return -- todo
+        if self~isNegative then return righti~isPositive
+        if self~isPositive then return .false
+    end
+    if right~datatype("N") then do
+        if self~isNegative then return .true
+        if self~isPositive then return .false
+    end
+
+::method "<op:right"
+    use strict arg left, lefti=(left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "<" array (self)       -- lefti < self
+    if left~datatype("N") then do
+        if self~isNegative then return .false
+        if self~isPositive then return .true
+    end
+
 
 /******************************************************************************/
 ::class "InfinityString" mixinclass Object public
@@ -284,6 +304,10 @@ Add support for theses notations:
 ::method "<"
 
 ::method "<op:right"
+    use strict arg left, lefti = (left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "<" array (self)       -- lefti < self
+    righti = self~request("infinity")
+    if .nil <> righti then forward to (righti) array (left, lefti)
 
 ::method ">="
 
