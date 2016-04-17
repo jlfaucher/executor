@@ -832,7 +832,35 @@ loadLibrary:
    self~traceCommand = .false
 
 
+::method unknownDisabled
+    -- This is an optimization available only with Executor.
+    -- If the method "unknownDisabled" exists, then the method "unknown" of the security manager is disabled (never called).
+
+    -- When a security manager is registered, the official ooRexx interpreter
+    -- raises an error if the following messages are not understood:
+    -- "call", "command", "environment", "local", "method", "requires", "stream".
+    -- So no choice with official ooRexx, either the corresponding method or the method "unknown" must be defined.
+
+    -- Optimizations with Executor:
+    -- When the security manager is registered, the methods
+    -- "call", "command", "environment", "local", "method", "requires", "stream"
+    -- are searched on the security manager. If not found, and "unknown" is not defined or "unknownDisabled" is defined
+    -- then the corresponding messages are flagged to be never sent.
+    -- The test of existence is done only when the security manager is registered, not at each checkpoint.
+
+
 ::method unknown
+    -- I assume that you used often the environment symbols .true, .false, .nil ?
+    -- I assume that you often create instances of predefined classes like .array, .list, .directory, etc... ?
+    -- If you are curious, then activate the following lines.
+    -- You will see that each access to the global .environment will raise two messages sent to the security manager:
+    -- "local" and then "environment".
+    -- Messages sent for nothing, since I return 0 to indicate that the program is authorized to perform the action.
+    -- do 1000000;x=.true;end   -- 5.440 sec
+    -- do 1000000;x=1;end       -- 0.080 sec (here, the security manager is not used)
+
+    -- use arg message, arguments
+    -- say message quoted(arguments[1]~name)
     return 0
 
 
