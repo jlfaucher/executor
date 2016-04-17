@@ -57,7 +57,7 @@ public:
     void *operator new(size_t);
     inline void  operator delete(void *) {;}
 
-    inline SecurityManager(RexxObject *m) { manager = m; }
+    SecurityManager(RexxObject *m);
     inline SecurityManager(RESTORETYPE restoreType) { ; };
 
     void         live(size_t);
@@ -75,6 +75,16 @@ protected:
     bool         callSecurityManager(RexxString *methodName, RexxDirectory *arguments);
 
     RexxObject *manager;       // the wrappered manager object
+    // Boolean indicators for optimization.
+    // They will be true if the corresponding method exists on the manager when the security manager is created.
+    // Later, the corresponding message will be sent only when the indicator is true.
+    bool supportCall;
+    bool supportCommand;
+    bool supportEnvironment;
+    bool supportLocal;
+    bool supportMethod;
+    bool supportRequires;
+    bool supportStream;
 };
 
 #endif

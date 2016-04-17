@@ -54,6 +54,35 @@ void *SecurityManager::operator new (size_t size)
 }
 
 
+SecurityManager::SecurityManager(RexxObject *m)
+{
+    manager = m;
+    supportCall = false;
+    supportCommand = false;
+    supportEnvironment = false;
+    supportLocal = false;
+    supportMethod = false;
+    supportRequires = false;
+    supportStream = false;
+
+    if (m == OREF_NULL) return;
+
+    const RexxMethod *TheNilMethod = (RexxMethod *)TheNilObject;
+
+    bool unknownDefined = TheNilMethod != m->instanceMethod(OREF_UNKNOWN);
+    bool unknownDisabledDefined = TheNilMethod != m->instanceMethod(OREF_UNKNOWNDISABLED);
+    bool supportUnknown = unknownDefined && !unknownDisabledDefined;
+
+    supportCall = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_CALL));
+    supportCommand = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_COMMAND));
+    supportEnvironment = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_ENVIRONMENT));
+    supportLocal = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_LOCAL));
+    supportMethod = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_METHODNAME));
+    supportRequires = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_REQUIRES));
+    supportStream = supportUnknown || (TheNilMethod != m->instanceMethod(OREF_STREAM));
+}
+
+
 void SecurityManager::live(size_t liveMark)
 /******************************************************************************/
 /* Function:  Normal garbage collection live marking                          */
@@ -80,7 +109,7 @@ void SecurityManager::liveGeneral(int reason)
  */
 RexxObject *SecurityManager::checkLocalAccess(RexxString *index)
 {
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportLocal == false)
     {
         return OREF_NULL;
     }
@@ -109,7 +138,7 @@ RexxObject *SecurityManager::checkLocalAccess(RexxString *index)
  */
 RexxObject *SecurityManager::checkEnvironmentAccess(RexxString *index)
 {
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportEnvironment == false)
     {
         return OREF_NULL;
     }
@@ -164,7 +193,7 @@ bool SecurityManager::callSecurityManager(RexxString *methodName, RexxDirectory 
 bool SecurityManager::checkProtectedMethod(RexxObject *target, RexxString *messageName, size_t count, RexxObject **arguments, ProtectedObject &result)
 {
     // no method here
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportMethod == false)
     {
         return false;
     }
@@ -199,7 +228,7 @@ bool SecurityManager::checkProtectedMethod(RexxObject *target, RexxString *messa
 bool SecurityManager::checkFunctionCall(RexxString *functionName, size_t count, RexxObject **arguments, ProtectedObject &result)
 {
     // no method here
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportCall == false)
     {
         return false;
     }
@@ -233,7 +262,7 @@ bool SecurityManager::checkFunctionCall(RexxString *functionName, size_t count, 
 bool SecurityManager::checkCommand(RexxActivity *activity, RexxString *address, RexxString *command, ProtectedObject &result, ProtectedObject &condition)
 {
     // no method here
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportCommand == false)
     {
         return false;
     }
@@ -280,7 +309,7 @@ bool SecurityManager::checkCommand(RexxActivity *activity, RexxString *address, 
  */
 RexxObject *SecurityManager::checkStreamAccess(RexxString *name)
 {
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportStream == false)
     {
         return OREF_NULL;
     }
@@ -310,7 +339,7 @@ RexxObject *SecurityManager::checkStreamAccess(RexxString *name)
 RexxString *SecurityManager::checkRequiresAccess(RexxString *name, RexxObject *&securityManager)
 {
     // just return the same name if no manager object set.
-    if (manager == OREF_NULL)
+    if (manager == OREF_NULL || supportRequires == false)
     {
         return name;
     }
