@@ -19,7 +19,7 @@ T_First_Transient_Class est utilisé dans
 
 T_Last_Transient_Class n'est pas utilisé
 
-T_Last_Primitive_Class est utilisé dans 
+T_Last_Primitive_Class est utilisé dans
     interpreter/behaviour/PrimitiveBehaviours.cpp
 
 T_Last_Class_Type est utilisé dans
@@ -212,8 +212,8 @@ Class instance methods
 
 ObjectClass.cpp
  * Return a supplier containing the methods implemented by an
- * object.  Depending on the argument, this is either 
- * A) all of the methods, 
+ * object.  Depending on the argument, this is either
+ * A) all of the methods,
  * B) just the explicitly set instance methods, or
  * C) the methods provided by a given class.
  */
@@ -242,3 +242,29 @@ Remember :
 [Oorexx-svn] SF.net SVN: oorexx: [2683] interpreter-3.x/trunk/kernel/classes/ClassClass. cpp
 [ 1144953 ] ooRexx multiple inheritance among metaclasses not working
 
+
+================================================================================
+Retrieving a class from inside the interpreter:
+use the global environment.
+TheEnvironment->at(CLASS_NAME)
+
+
+RexxActivation.cpp
+RexxObject *RexxActivation::resolveStream(RexxString *name, bool input, RexxString **fullName, bool *added)
+{
+    ...
+            /* get the stream class              */
+            RexxObject *streamClass = TheEnvironment->at(OREF_STREAM);
+            /* create a new stream object        */
+            stream = streamClass->sendMessage(OREF_NEW, name);
+    ...
+
+
+I use the same technique in
+BlockClass.cpp
+RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t startLine)
+{
+    ...
+    RexxObject *clauserClass = TheEnvironment->at(OREF_CLAUSER);
+    RexxObject *clauser = clauserClass->sendMessage(OREF_NEW, (RexxObject *)sourceArray); // must cast sourceArray, otherwise taken as array of arguments
+    ...
