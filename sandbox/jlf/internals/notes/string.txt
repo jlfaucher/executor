@@ -1,0 +1,155 @@
+--------------------------------------------------------------------------------
+RexxCore.h
+
+    #define isOfClass(t,r) (r)->isObjectType(The##t##Behaviour)
+
+    /* The next macro is specifically for REQUESTing a STRING, since there are    */
+    /* four primitive classes that are equivalents for strings.  It will trap on  */
+    /* OREF_NULL. */
+    inline RexxString *REQUEST_STRING(RexxObject *object)
+    {
+      return (isOfClass(String, object) ? (RexxString *)object : (object)->requestString());
+    }
+
+
+--------------------------------------------------------------------------------
+ObjectClass.hpp
+
+     inline bool   isObjectType(RexxBehaviour *b) { return b == behaviour; }
+     inline bool   isObjectType(size_t t) { return getObjectTypeNumber() == t; }
+
+--------------------------------------------------------------------------------
+ObjectClass.cpp
+
+    RexxString *RexxObject::requestString()
+    /******************************************************************************/
+    /* Function:  Handle a string request for a REXX object.  This will go        */
+    /*            through the whole search order to do the conversion.            */
+    /******************************************************************************/
+    {
+
+        /* primitive object?                 */
+        if (this->isBaseClass())
+        {
+            RexxString *string_value;            /* converted object                  */
+            /* get the string representation     */
+            string_value = this->primitiveMakeString();
+            if (string_value == TheNilObject)
+            {/* didn't convert?                   */
+             /* get the final string value        */
+                string_value = this->stringValue();
+                /* raise a NOSTRING condition        */
+                ActivityManager::currentActivity->raiseCondition(OREF_NOSTRING, OREF_NULL, string_value, this, OREF_NULL);
+            }
+            return string_value;               /* return the converted form         */
+        }
+        else
+        {                               /* do a real request for this        */
+            ProtectedObject string_value;
+
+            this->sendMessage(OREF_REQUEST, OREF_STRINGSYM, string_value);
+            // The returned value might be an Integer or NumberString value.  We need to
+            // force this to be a real string value.
+            string_value = ((RexxObject *)string_value)->primitiveMakeString();
+            if (string_value == TheNilObject)
+            {/* didn't convert?                   */
+             /* get the final string value        */
+                this->sendMessage(OREF_STRINGSYM, string_value);
+                // we're really dependent upon the program respecting the protocol
+                // here and returning a value.  It is possible there is a
+                // problem, so how to handle this.  We could just raise an error, but this
+                // isn't the most ideal message since the error is raised at the
+                // line where the string value is required, but this is a rare
+                // situation.  As a fallback, use the default object STRING method,
+                // then raise an error if we still don't get anything.  This at least
+                // keeps the interpreter from crashing, there's a good chance the
+                // program will run.  Frankly, there's something seriously wrong
+                // if this error ever gets issued.
+                if (((RexxObject *)string_value) == OREF_NULL)
+                {
+                    string_value = RexxObject::stringValue();
+                    if (((RexxObject *)string_value) == OREF_NULL)
+                    {
+                        reportException(Error_No_result_object_message, OREF_STRINGSYM);
+                    }
+                }
+                // The returned value might be an Integer or NumberString value.  We need to
+                // force this to be a real string value.
+                string_value = ((RexxObject *)string_value)->primitiveMakeString();
+                /* raise a NOSTRING condition        */
+                ActivityManager::currentActivity->raiseCondition(OREF_NOSTRING, OREF_NULL, (RexxString *)string_value, this, OREF_NULL);
+            }
+            return (RexxString *)string_value;   /* return the converted form         */
+        }
+    }
+
+
+--------------------------------------------------------------------------------
+StringClass.cpp
+
+    RexxString  *RexxString::primitiveMakeString()
+    /******************************************************************************/
+    /* Function:  Handle a REQUEST('STRING') request for a REXX string object     */
+    /******************************************************************************/
+    {
+        return this;                         /* this is easy                      */
+    }
+
+
+--------------------------------------------------------------------------------
+NumberStringClass.cpp
+
+    RexxString *RexxNumberString::primitiveMakeString()
+    /******************************************************************************/
+    /* Function:  Handle a REQUEST('STRING') request for a REXX numberstring      */
+    /******************************************************************************/
+    {
+        if (this->stringObject != OREF_NULL) /* already converted?                */
+        {
+            return this->stringObject;         /* all finished                      */
+        }
+        return this->stringValue();          /* return the string value           */
+    }
+
+
+--------------------------------------------------------------------------------
+IntegerClass.cpp
+
+    RexxString *RexxInteger::primitiveMakeString()
+    /******************************************************************************/
+    /* Function:  Handle a REQUEST('STRING') request for a REXX integer object    */
+    /******************************************************************************/
+    {
+        if (this->stringrep != OREF_NULL)    /* have a string already?            */
+        {
+            return this->stringrep;            /* return it directly                */
+        }
+        char        stringBuffer[32];        /* integer formatting buffer         */
+                                               /* convert value into string         */
+        Numerics::formatWholeNumber(this->value, stringBuffer);
+
+        /* return as a string                */
+        RexxString *string = new_string(stringBuffer, strlen(stringBuffer));
+        /* cache this away for later         */
+        OrefSet(this, this->stringrep, string);
+        this->setHasReferences();            // now have references that need marking
+        return string;                       /* return the new string             */
+    }
+
+
+--------------------------------------------------------------------------------
+MutableBufferClass.cpp
+
+    /**
+     * Handle the primitive class makeString optimization.  This
+     * is required because MutableBuffer implements a
+     * STRING method.
+     *
+     * @return The string value of the buffer
+     */
+    RexxString *RexxMutableBuffer::primitiveMakeString()
+    {
+        // go straight to the string handler
+        return this->makeString();
+    }
+
