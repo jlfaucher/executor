@@ -183,8 +183,8 @@ main: procedure
             when .ooRexxShell~inputrx == "" then
                 nop
 
-            when .ooRexxShell~inputrx == "?" then
-                call help
+            when .ooRexxShell~inputrx~left(1) == "?" then
+                .ooRexxShell~help(.ooRexxShell~inputrx~substr(2))
 
             when .ooRexxShell~inputrx~caselessEquals("coloroff") then
                 .ooRexxShell~showColor = .false
@@ -201,9 +201,6 @@ main: procedure
 
             when .ooRexxShell~inputrx~caselessEquals("exit") then
                 exit
-
-            when .ooRexxShell~inputrx~caselessEquals("interpreters") then
-                .ooRexxShell~sayInterpreters
 
             when .ooRexxShell~inputrx~caselessEquals("readlineoff") then
                 .ooRexxShell~readline = .false
@@ -351,7 +348,7 @@ readline: procedure
                 "HISTFILE=".ooRexxShell~historyFile" ;",
                 "history -r ;",
                 "read -r -e -p "quoted(prompt)" inputrx ;",
-                "history -s $inputrx ;",
+                "history -s -- $inputrx ;",
                 "history -w ;",
                 "(set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
             address -- restore
@@ -411,34 +408,6 @@ readline: procedure
         .color~select(.ooRexxShell~defaultColor, .traceOutput)
     end
     return inputrx
-
-
--------------------------------------------------------------------------------
-help: procedure
-    -- The current address can be anything, not necessarily the system address.
-    -- Switch to the system address
-    address value .ooRexxShell~systemAddress
-    select
-        when .platform~is("windows"), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
-            /* issue the pdf as a command using quotes because the install dir may contain blanks */
-            'start "Rexx Online Documentation"' '"' || value("REXX_HOME",,"ENVIRONMENT") || "\doc\rexxref.pdf" || '"'
-        end
-        when .platform~is("windows") then do
-            -- Fallback if REXX_HOME not defined: Web site
-            'start http://www.oorexx.org/docs'
-        end
-        when (.platform~is("aix") | .platform~is("linux") | .platform~is("sunos")), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
-            'acroread "' || value("REXX_HOME",,"ENVIRONMENT") || '"/doc/rexxref.pdf&'
-        end
-        when .platform~is("macosx") | .platform~is("darwin") then do
-            'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
-        end
-        otherwise do
-            .error~say(.platform~name "has no online help for ooRexx.")
-        end
-    end
-    address -- restore
-    return
 
 
 -------------------------------------------------------------------------------
@@ -561,6 +530,18 @@ transformSource: procedure
     end
     else do
         -- Manage the "=" shortcut at the end of the command (.clauser not available)
+        /*
+        This is a rudimentary support!
+        Examples of bad support:
+        say 1; say 2; 1=
+            --> call dumpResult .true, say 1; say 2; 1
+            SAY 1
+            2
+            bash: 1: not found
+        1,2,3=
+            --> call dumpResult .true, 1,2,3
+            Too many arguments in invocation of DUMPRESULT; maximum expected is 2
+        */
         command = command~strip
         if command~right(1) == "=" then command = "call dumpResult .true," command~left(command~length - 1)
     end
@@ -773,6 +754,141 @@ loadLibrary:
     drop lastResult
 
 
+::method help class
+    use strict arg query
+    parse var query word1 rest
+
+    if "" == word1 then do
+        say "Help:"
+        say "    ?: display help."
+        say "    ?c[lass] name1 name2 ... : list the methods of the specified classes."
+        say "    ?c[lasses]: list the loaded classes per package."
+        say "    ?d[ocumentation]: invoke ooRexx documentation."
+        say "    ?h[elp] name1 name2 ... : display the description of the specified classes."
+        say "    ?i[nterpreters]: list the interpreters that can be selected."
+        say "    ?p[ackages]: list the loaded packages."
+        .ooRexxShell~sayCommands
+    end
+
+    else if "class"~caselessAbbrev(word1) & rest <> "" then do
+        -- Display the methods of each specified class
+        do while rest <> ""
+            parse var rest classname rest
+            if classname~left(1) == "." then classname = classname~substr(2)
+            if classname == "" then iterate
+            class = .context~package~findClass(classname)
+            if class == .nil | \class~isa(.class) then do
+                .color~select(.ooRexxShell~errorColor, .error)
+                .error~say("Class" classname "not found.")
+                .error~say("")
+                .color~select(.ooRexxShell~defaultColor, .error)
+                iterate
+            end
+            .color~select(.ooRexxShell~infoColor)
+            say "Class" classname
+            .color~select(.ooRexxShell~defaultColor)
+            methods = .relation~new
+            class~pipe(.superclasses "mem.class" | .class.instancemethods | .do {expose methods; methods[index]=dataflow["class"]~item~id})
+            call dump2 methods
+            say
+        end
+    end
+
+    else if "classes"~caselessAbbrev(word1) & rest == "" then do
+        -- Public classes by package
+        .context~package~pipe(.importedPackages recursive once after mem.package | .inject {item~publicClasses} iterateAfter | .sort {item~id} {dataflow["package"]~item~name} | .console {.file~new(dataflow["package"]~item~name)~name} ":" item)
+    end
+
+    else if "documentation"~caselessAbbrev(word1) & rest == "" then do
+        -- The current address can be anything, not necessarily the system address.
+        -- Switch to the system address
+        address value .ooRexxShell~systemAddress
+        select
+            when .platform~is("windows"), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
+                /* issue the pdf as a command using quotes because the install dir may contain blanks */
+                'start "Rexx Online Documentation"' '"' || value("REXX_HOME",,"ENVIRONMENT") || "\doc\rexxref.pdf" || '"'
+            end
+            when .platform~is("windows") then do
+                -- Fallback if REXX_HOME not defined: Web site
+                'start http://www.oorexx.org/docs'
+            end
+            when (.platform~is("aix") | .platform~is("linux") | .platform~is("sunos")), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
+                'acroread "' || value("REXX_HOME",,"ENVIRONMENT") || '"/doc/rexxref.pdf&'
+            end
+            when .platform~is("macosx") | .platform~is("darwin") then do
+                'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
+            end
+            otherwise do
+                .color~select(.ooRexxShell~errorColor, .error)
+                .error~say(.platform~name "has no online help for ooRexx.")
+                .color~select(.ooRexxShell~defaultColor, .error)
+            end
+        end
+        address -- restore
+    end
+
+    else if "help"~caselessAbbrev(word1) then do
+        if rest == "" then do
+            -- All classes having their own _description_ method.
+            .object~pipe(.subClasses recursive once | .select {item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") } | .sort | .console item)
+        end
+        -- For each specified class, display the comment stored in the source of the method _description_, if any.
+        do while rest <> ""
+            parse var rest classname rest
+            if classname~left(1) == "." then classname = classname~substr(2)
+            if classname == "" then iterate
+            class = .context~package~findClass(classname)
+            if class == .nil | \class~isa(.class) then do
+                .color~select(.ooRexxShell~errorColor, .error)
+                .error~say("Class" classname "not found.")
+                .error~say("")
+                .color~select(.ooRexxShell~defaultColor, .error)
+                iterate
+            end
+            .color~select(.ooRexxShell~infoColor)
+            say "Class" classname
+            .color~select(.ooRexxShell~defaultColor)
+            if class~hasMethod("_description_") then do
+                description = class~instanceMethod("_description_")
+                if description <> .nil then do
+                    source = description~source -- an array
+                    items = source~items
+                    if items > 4 then do
+                        -- by necessity, the comment must have an instruction before and after, to be kept in the source (bug ?)
+                        -- by convention, a description is like that :
+                        -- nop
+                        -- /*
+                        -- description (several lines)
+                        -- */
+                        -- nop
+                        source = source~section(3, items - 4)
+                    end
+                    say source~toString
+                end
+            end
+            else say "no help"
+            say
+        end
+    end
+
+    else if "interpreters"~caselessAbbrev(word1) & rest == "" then do
+        .ooRexxShell~sayInterpreters
+    end
+
+    else if "packages"~caselessAbbrev(word1) & rest == "" then do
+        -- All packages that are visible from current context, including the current package (source of the pipeline).
+        .context~package~pipe(.importedPackages recursive once after | .sort {item~name} | .console {item~name})
+    end
+
+    else do
+        .color~select(.ooRexxShell~errorColor, .error)
+        .error~say("Query not understood:" query)
+        .color~select(.ooRexxShell~defaultColor, .error)
+    end
+
+    return
+
+
 ::method sayInterpreters class
     say "Interpreters:"
     do interpreter over .ooRexxShell~interpreters~allIndexes~sort
@@ -783,7 +899,6 @@ loadLibrary:
 ::method sayCommands class
     .ooRexxShell~sayInterpreters
     say "Other commands:"
-    say "    ?: to invoke ooRexx documentation."
     say "    bt: display the backtrace of the last error (same as tb)."
     say "    coloroff: deactivate the colors."
     say "    coloron: activate the colors."
@@ -791,7 +906,6 @@ loadLibrary:
     say "    debugoff: deactivate the full trace of the internals of ooRexxShell."
     say "    debugon: activate the full trace of the internals of ooRexxShell."
     say "    exit: exit ooRexxShell."
-    say "    interpreters: list of interpreters that can be selected."
     say "    readlineoff: use the raw parse pull for the input."
     say "    readlineon: delegate to the system readline (better support for history, tab completion)."
     say "    reload: exit the current session and start a new one, reloading all the packages/librairies."
