@@ -52,9 +52,11 @@
                                                 /* complex number data class      */
 ::class complex public
 
+::attribute real
+::attribute imaginary
+
 ::method '[]' class                             /* create a new complex number    */
-    use arg first, second                       /* access the two numbers         */
-    forward to (self) message('NEW')            /* just forward this as a new message */
+    forward message('NEW')                      /* just forward this as a new message */
 
 ::method init                                   /* initialize a complex number    */
     expose real imaginary                       /* expose the state data          */
@@ -69,13 +71,15 @@
     else
         imaginary = second + 0                  /* force rounding on the second   */
 
-::method real                                   /* return real part of a complex  */
-    expose real                                 /* access the state information   */
-    return real                                 /* return that value              */
+-- The lack of method makestring & string can have a HUGE impact on performances !
+-- See infinity.cls for a detailled explanation
+::method makestring                             /* format as a string value       */
+    expose real imaginary                       /* get the state info             */
+    if imaginary < 0 then return real||imaginary'i'
+    return real'+'imaginary'i'                  /* format as real+imaginaryi      */
 
-::method imaginary                              /* return imaginary part          */
-    expose imaginary                            /* access the state information   */
-    return imaginary                            /* return the value               */
+::method string
+    forward message "makestring"
 
 /*
 ::method arg
@@ -86,33 +90,18 @@
     return RxCalcArcTan(real / imaginary, , "r")
 */
 
-::method equals
-    expose real imaginary
-    use strict arg right
-    right = right~request("complex")
-    if .nil == right then return
-    return real=right~real & imaginary=right~imaginary
 
-::method notEquals
-    expose real imaginary
-    use strict arg right
-    right = right~request("complex")
-    if .nil == right then return
-    return real\=right~real | imaginary\=right~imaginary
+-- ::method " "
 
-::method strictEquals
-    expose real imaginary
-    use strict arg right
-    right = right~request("complex")
-    if .nil == right then return
-    return real==right~real & imaginary==right~imaginary
+-- ::method " op:right"
 
-::method strictNotEquals
-    expose real imaginary
-    use strict arg right
-    right = right~request("complex")
-    if .nil == right then return
-    return real\==right~real | imaginary\==right~imaginary
+-- ::method "||"
+
+-- ::method "||op:right"
+
+-- ::method "" -- abuttal
+
+-- ::method "op:right" -- abuttal
 
 ::method '+'                                    /* addition method                */
     expose real imaginary                       /* access the state values        */
@@ -126,6 +115,12 @@
     tempimaginary = imaginary + adder~imaginary
                                                 /* return a new item of same class*/
     return self~class~new(tempreal, tempimaginary)
+
+::method "+op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "+" array (self) -- left + self
 
 ::method '-'                                    /* subtraction method             */
     expose real imaginary                       /* access the state values        */
@@ -141,6 +136,12 @@
                                                 /* return a new item              */
     return self~class~new(tempreal, tempimaginary)
 
+::method "-op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "-" array (self) -- left - self
+
 ::method '*'                                    /* multiplication method          */
     expose real imaginary                       /* access the state values        */
     use arg multiplier                          /* get the operand                */
@@ -152,6 +153,13 @@
     tempimaginary = (real * multiplier~imaginary) + (imaginary * multiplier~real)
                                                 /* return a new item              */
     return self~class~new(tempreal, tempimaginary)
+
+::method "*op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    left~"*"(self) -- left * self
+    if var("result") then return result
 
 ::method '/'                                    /* division method                */
     expose real imaginary                       /* access the state values        */
@@ -166,6 +174,12 @@
     qi=((b*c)-(a*d))/(c**2+d**2)
     return self~class~new(qr,qi)                /* return the new value           */
 
+::method "/op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "/" array (self) -- left / self
+
 ::method '%'                                    /* integer division method        */
     expose real imaginary                       /* access the state values        */
     use arg divisor                             /* get the operand                */
@@ -178,6 +192,13 @@
     qr=((b*d)+(a*c))%(c**2+d**2)                /* generate the new result values */
     qi=((b*c)-(a*d))%(c**2+d**2)
     return self~class~new(qr,qi)                /* return the new value           */
+
+::method "%op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    left~"%"(self) -- left % self
+    if var("result") then return result
 
 ::method '//'                                   /* remainder method               */
     expose real imaginary                       /* access the state values        */
@@ -192,63 +213,151 @@
     qi=((b*c)-(a*d))//(c**2+d**2)
     return self~class~new(qr,qi)                /* return the new value           */
 
-::method string                                 /* format as a string value       */
-    expose real imaginary                       /* get the state info             */
-    if imaginary < 0 then return real||imaginary'i'
-    return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-
-
-/******************************************************************************/
--- ComplexOperators
--- A partial implementation of the operators is defined on the class 'complex'.
--- The following methods address only the missing functionalities.
-
-::method "+op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    left~"+"(self) -- left + self
-    if var("result") then return result
-
-
-::method "-op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    left~"-"(self) -- left - self
-    if var("result") then return result
-
-
-::method "*op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    left~"*"(self) -- left * self
-    if var("result") then return result
-
-
-::method "/op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    left~"/"(self) -- left / self
-    if var("result") then return result
-
-
-::method "%op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    left~"%"(self) -- left % self
-    if var("result") then return result
-
-
 ::method "//op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    left~"//"(self) -- left // self
-    if var("result") then return result
+    forward to (left) message "//" array (self) -- left // self
+
+::method "**"
+    -- Limited support, I want mainly support i**n
+    -- See http://mathworld.wolfram.com/ComplexNumber.html
+    use arg exponent
+    if \ exponent~datatype("W") then return
+    if exponent == 0 then return 1
+    r = 1
+    do abs(exponent) ; r *= self ; end -- naive calculation
+    if exponent < 0 then return 1/r
+    return r
+
+-- ::method "**op:right" -- complex exponent
+
+::method "="
+    expose real imaginary
+    use strict arg right
+    right = right~request("complex")
+    if .nil == right then return
+    return real=right~real & imaginary=right~imaginary
+
+::method "=op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "=" array (self) -- left = self
+
+::method "\="
+    expose real imaginary
+    use strict arg right
+    right = right~request("complex")
+    if .nil == right then return
+    return real\=right~real | imaginary\=right~imaginary
+
+::method "\=op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "\=" array (self) -- left \= self
+
+::method "<>"
+    forward message "\="
+
+::method "<>op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "<>" array (self) -- left <> self
+
+::method "=="
+    expose real imaginary
+    use strict arg right
+    right = right~request("complex")
+    if .nil == right then return
+    return real==right~real & imaginary==right~imaginary
+
+::method "==op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "==" array (self) -- left == self
+
+::method "\=="
+    expose real imaginary
+    use strict arg right
+    right = right~request("complex")
+    if .nil == right then return
+    return real\==right~real | imaginary\==right~imaginary
+
+::method "\==op:right"
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "\==" array (self) -- left \== self
+
+-- ::method "><"
+
+-- ::method "><op:right"
+
+-- ::method "\"
+
+-- ::method ">"
+
+-- ::method ">op:right"
+
+-- ::method "<"
+
+-- ::method "<op:right"
+
+-- ::method ">="
+
+-- ::method ">=op:right"
+
+-- ::method "\<"
+
+-- ::method "\<op:right"
+
+-- ::method "<="
+
+-- ::method "<=op:right"
+
+-- ::method "\>"
+
+-- ::method "\>op:right"
+
+-- ::method ">>"
+
+-- ::method ">>op:right"
+
+-- ::method "<<"
+
+-- ::method "<<op:right"
+
+-- ::method ">>="
+
+-- ::method ">>=op:right"
+
+-- ::method "\<<"
+
+-- ::method "\<<op:right"
+
+-- ::method "<<="
+
+-- ::method "<<=op:right"
+
+-- ::method "\>>"
+
+-- ::method "\>>op:right"
+
+-- ::method "&"
+
+-- ::method "&op:right"
+
+-- ::method "|"
+
+-- ::method "|op:right"
+
+-- ::method "&&"
+
+-- ::method "&&op:right"
 
 
 /******************************************************************************/
@@ -257,9 +366,11 @@
 
 ::method makeComplex
     if self~datatype("N") then return .complex~new(self)
-    if self~right(1)~caselessEquals("i") then do
-        imaginary = self~left(self~length-1)
-        if imaginary == "" then imaginary = 1
+    string = self~strip
+    if string~right(1)~caselessEquals("I") then do
+        imaginary = string~left(string~length-1)~strip
+        if imaginary == "" | imaginary == "+" then imaginary = 1
+        else if imaginary == "-" then imaginary = -1
         if imaginary~datatype("N") then return .complex~new(0, imaginary)
     end
     return .nil
@@ -272,210 +383,125 @@
     return complex~arg
 */
 
+-- ::method " op:right"
+
+-- ::method "||op:right"
+
+-- ::method "op:right" -- abuttal
+
 ::method "+op:left"
     -- For the moment, this message is sent only for the unary +
     use strict arg -- none
     left = self~request("complex")
     if .nil <> left then return left -- unary +
 
-
 ::method "+op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    right = self~request("complex")
-    if .nil == right then return
-    left~"+"(right) -- left + right
-    if var("result") then return result
-
+    forward to (left) message "+" array (self) -- left + self
 
 ::method "-op:left"
     -- For the moment, this message is sent only for the unary -
     use strict arg -- none
     left = self~request("complex")
     if .nil == left then return
-    left~"-" -- -left -- unary -
-    if var("result") then return result
-
+    forward to (left) message "-" -- unary -
 
 ::method "-op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    right = self~request("complex")
-    if .nil == right then return
-    left~"-"(right) -- left - right
-    if var("result") then return result
-
+    forward to (left) message "-" array (self) -- left - self
 
 ::method "*op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    right = self~request("complex")
-    if .nil == right then return
-    left~"*"(right) -- left * right
-    if var("result") then return result
-
+    forward to (left) message "*" array (self) -- left * self
 
 ::method "/op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    right = self~request("complex")
-    if .nil == right then return
-    left~"/"(right) -- left / right
-    if var("result") then return result
-
+    forward to (left) message "/" array (self) -- left / self
 
 ::method "%op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    right = self~request("complex")
-    if .nil == right then return
-    left~"%"(right) -- left % right
-    if var("result") then return result
-
+    forward to (left) message "%" array (self) -- left % self
 
 ::method "//op:right"
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    right = self~request("complex")
-    if .nil == right then return
-    left~"//"(right) -- left // right
-    if var("result") then return result
-
+    forward to (left) message "//" array (self) -- left // self
 
 ::method "**op:right"
-    -- Limited support, I want mainly support i**2
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
-    if \ self~datatype("W") then return
-    if self == 0 then return 1 -- not sure it's correct for a complex number
-    r = 1
-    do abs(self) ; r *= left ; end -- naive calculation
-    if self < 0 then return 1/r
-    return r
-
-
-/*
-Others operators
-*/
-
-/* Not activated
-::method "="
-*/
+    forward to (left) message "**" array (self) -- left ** self
 
 ::method "=op:right"
-
-::method "\="
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "=" array (self) -- left = self
 
 ::method "\=op:right"
-
-/* Not activated
-::method "<>"
-*/
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "\=" array (self) -- left \= self
 
 ::method "<>op:right"
-
-/* Not activated
-::method "=="
-*/
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "<>" array (self) -- left <> self
 
 ::method "==op:right"
-
-/* Not activated
-::method "\=="
-*/
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "==" array (self) -- left == self
 
 ::method "\==op:right"
-
-/* Not activated
-::method "><"
-*/
+    use strict arg left
+    left = left~request("complex")
+    if .nil == left then return
+    forward to (left) message "\==" array (self) -- left == self
 
 ::method "><op:right"
 
-::method "\"
-    use strict arg -- none, no binary version
-
-::method ">"
-
 ::method ">op:right"
-
-::method "<"
 
 ::method "<op:right"
 
-::method ">="
-
 ::method ">=op:right"
-
-::method "\<"
 
 ::method "\<op:right"
 
-::method "<="
-
 ::method "<=op:right"
-
-::method "\>"
 
 ::method "\>op:right"
 
-::method ">>"
-
 ::method ">>op:right"
-
-::method "<<"
 
 ::method "<<op:right"
 
-::method ">>="
-
 ::method ">>=op:right"
-
-::method "\<<"
 
 ::method "\<<op:right"
 
-::method "<<="
-
 ::method "<<=op:right"
-
-::method "\>>"
 
 ::method "\>>op:right"
 
-::method "&"
+-- ::method "&op:right"
 
-::method "&op:right"
+-- ::method "|op:right"
 
-::method "|"
-
-::method "|op:right"
-
-::method "&&"
-
-::method "&&op:right"
-
-
-/*
-Operators not needed for complex numbers
-
-::method " "
-
-::method " op:right"
-
-::method "||"
-
-::method "||op:right"
-
-::method "" -- abuttal
-
-::method "op:right" -- abuttal
-
-*/
+-- ::method "&&op:right"
