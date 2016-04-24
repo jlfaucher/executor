@@ -592,7 +592,7 @@ wholenumber_t RexxString::compareTo(RexxObject *other )
 }
 
 
-wholenumber_t RexxString::comp(RexxObject *other)
+wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperator, RexxInteger **alternativeOperatorResultPtr)
 /******************************************************************************/
 /* Function:  Do a value comparison of two strings for the non-strict         */
 /*            comparisons.  This returns for the compares:                    */
@@ -630,12 +630,44 @@ wholenumber_t RexxString::comp(RexxObject *other)
         return false;
     }
                                          /* try and convert both numbers      */
-    if (((firstNum = this->fastNumberString()) != OREF_NULL) && ((secondNum = other->numberString()) != OREF_NULL ))
+    firstNum = this->fastNumberString();
+    secondNum = other->numberString();
+    if (firstNum != OREF_NULL && secondNum != OREF_NULL)
+    //if (((firstNum = this->fastNumberString()) != OREF_NULL) && ((secondNum = other->numberString()) != OREF_NULL ))
     {
         /* yes, send converted numbers and do*/
         /* the compare                       */
         return firstNum->comp(secondNum);
     }
+
+    // Before doing a string comparison, try the alternative operator, if any.
+    // Note 1: There is no alternative operator when coming from RexxNumber::comp, so no risk of loop.
+    // Note 2: No message alternative operator is sent in case of String op String, to not degrade the performance.
+    // Consequence of note 2:
+    // Not possible to catch "infinity" > "pi".
+    // The result of the string comparison is .false: infinity not greater than pi...
+    if (firstNum != OREF_NULL ||            // Number op AnyObject (normally already trapped by RexxNumber::comp)
+        secondNum != OREF_NULL ||           // String op Number
+        isOfClass(String, other) == false)  // String op AnyObjectButString
+    {
+        if (alternativeOperator != OREF_NULL && alternativeOperatorResultPtr != NULL)
+        {
+            // Try an alternative operator
+            // CAREFUL! Here, the operator returns a boolean result, not a value -1,0,1.
+            // That's why a separated parameter is used to return this boolean result.
+            ProtectedObject result;
+            RexxObject *first = this;
+            RexxObject *second = other;
+            if (secondNum != OREF_NULL) second = second->stringValue(); // if second is a RexxInteger or a NumberString then must get its RexxString representation (only RexxString can be extended)
+            bool alternativeResult = second->messageSend(alternativeOperator, &first, 1, result, false);
+            if (alternativeResult && (RexxObject *)result != OREF_NULL)
+            {
+                *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
+                return 0; // You are not supposed to test this value, because *alternativeOperatorResultPtr is non NULL
+            }
+        }
+    }
+
     second = REQUEST_STRING(other);      /* yes, get a string object.         */
                                          /* objects are converted.  now strip */
                                          /* any leading/trailing blanks.      */
@@ -1146,7 +1178,11 @@ RexxInteger *RexxString::equal(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return ((this->comp(other) == 0) ? TheTrueObject : TheFalseObject);
+    // return ((this->comp(other) == 0) ? TheTrueObject : TheFalseObject);
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result == 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1159,7 +1195,11 @@ RexxInteger *RexxString::notEqual(RexxObject *other)
     {
         return TheTrueObject;
     }
-    return ((this->comp(other) != 0) ? TheTrueObject : TheFalseObject);
+    // return ((this->comp(other) != 0) ? TheTrueObject : TheFalseObject);
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_BACKSLASH_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result != 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1172,7 +1212,11 @@ RexxInteger *RexxString::isGreaterThan(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return ((this->comp(other) > 0) ? TheTrueObject : TheFalseObject);
+    // return ((this->comp(other) > 0) ? TheTrueObject : TheFalseObject);
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_GREATERTHAN_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result > 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1185,7 +1229,11 @@ RexxInteger *RexxString::isLessThan(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return ((this->comp(other) < 0) ? TheTrueObject : TheFalseObject);
+    // return ((this->comp(other) < 0) ? TheTrueObject : TheFalseObject);
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_LESSTHAN_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result < 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1198,7 +1246,11 @@ RexxInteger *RexxString::isGreaterOrEqual(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return ((this->comp(other) >= 0) ? TheTrueObject : TheFalseObject);
+    // return ((this->comp(other) >= 0) ? TheTrueObject : TheFalseObject);
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_GREATERTHAN_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result >= 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour
@@ -1211,7 +1263,11 @@ RexxInteger *RexxString::isLessOrEqual(RexxObject *other)
     {
         return TheFalseObject;
     }
-    return ((this->comp(other) <= 0) ? TheTrueObject : TheFalseObject);
+    // return ((this->comp(other) <= 0) ? TheTrueObject : TheFalseObject);
+    RexxInteger *alternativeResult = OREF_NULL;
+    wholenumber_t result = this->comp(other, OREF_LESSTHAN_EQUAL_RIGHT, &alternativeResult);
+    if (alternativeResult != OREF_NULL) return alternativeResult;
+    return (result <= 0) ? TheTrueObject : TheFalseObject;
 }
 
 // in behaviour

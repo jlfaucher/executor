@@ -172,7 +172,7 @@ inline char IntToHexDigit(int n)
    bool        primitiveIsEqual(RexxObject *);
    bool        primitiveCaselessIsEqual(RexxObject *);
    wholenumber_t strictComp(RexxObject *);
-   wholenumber_t comp(RexxObject *);
+   wholenumber_t comp(RexxObject *, RexxString *alternativeOperator=OREF_NULL, RexxInteger **alternativeOperatorResultPtr=NULL);
    wholenumber_t compareTo(RexxObject *);
    RexxInteger *equal(RexxObject *);
    RexxInteger *strictEqual(RexxObject *); // in behaviour
@@ -230,7 +230,7 @@ inline char IntToHexDigit(int n)
    RexxObject *format(RexxObject *Integers, RexxObject *Decimals, RexxObject *MathExp, RexxObject *ExpTrigger); // in behaviour
    RexxObject *isInteger();
    RexxObject *logicalOperation(RexxObject *, RexxObject *, unsigned int);
-   RexxString *extractB(sizeB_t offset, sizeB_t sublength) // Extract bytes 
+   RexxString *extractB(sizeB_t offset, sizeB_t sublength) // Extract bytes
    {
        return this->getEncoding()->get_bytes(this, offset, sublength);
    }
@@ -346,19 +346,19 @@ inline char IntToHexDigit(int n)
    inline sizeC_t  getCLength() { return this->clength; };
    inline void    setBLength(sizeB_t l) { this->blength = l; };
    inline void    setCLength(sizeC_t l) { this->clength = l; };
-   inline void finish(stringsizeB_t bl, ssizeC_t cl=-1) 
-   { 
+   inline void finish(stringsizeB_t bl, ssizeC_t cl=-1)
+   {
        this->blength = bl;
        this->clength =
            cl == -1 ?
                this->getEncoding()->codepoints(this->getStringData(), bl)
-               : 
+               :
                cl;
    }
    inline const char *getStringData() { return this->stringData; };
    inline char *getWritableData() { return &this->stringData[0]; };
    inline void put(sizeB_t s, const void *b, sizeB_t l) { memcpy(getWritableData() + s, b, l); };
-   inline void put(sizeB_t s, RexxString *o) { put(s, o->getStringData(), o->getBLength()); }; // todo m17n ? for the moment I use sizeB_t, like previous put method. 
+   inline void put(sizeB_t s, RexxString *o) { put(s, o->getStringData(), o->getBLength()); }; // todo m17n ? for the moment I use sizeB_t, like previous put method.
    inline void set(sizeB_t s,int c, sizeB_t l) { memset((this->stringData + s), c, l); };
    inline char getCharB(sizeB_t p) { return *(this->stringData+p); }; // m17n : returns a byte, not a codepoint
    inline codepoint_t getCharC(sizeC_t p) { return *(this->stringData+size_v(p)); }; // todo call m17n : convert charpos to bytepos and return a codepoint, not a byte
@@ -373,12 +373,12 @@ inline char IntToHexDigit(int n)
    inline bool  strCompare(const char * s) {return this->memCompare((s), strlen(s));};
    inline bool  strCaselessCompare(const char * s) { return this->blength == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
    inline bool  memCompare(const char * s, sizeB_t l) { return l == this->blength && memcmp(s, this->stringData, l) == 0; }
-   inline bool  memCompare(RexxString *other) 
-   { 
+   inline bool  memCompare(RexxString *other)
+   {
        return other->charset == this->charset &&
               other->encoding == this->encoding &&
               other->blength == this->blength &&
-              memcmp(other->stringData, this->stringData, blength) == 0; 
+              memcmp(other->stringData, this->stringData, blength) == 0;
    }
    inline void  memCopy(char * s) { memcpy(s, stringData, blength); }
    inline void  toRxstring(CONSTRXSTRING &r) { r.strptr = getStringData(); r.strlength = size_v(getBLength()); } // no encoding support, so better to use blength
@@ -679,12 +679,12 @@ class IRexxString {
     virtual void setEncoding(ENCODING *e) = 0;
     virtual sizeB_t getBLength() = 0;
     virtual sizeC_t getCLength() = 0;
-    virtual void setBLength(sizeB_t l) = 0; 
+    virtual void setBLength(sizeB_t l) = 0;
     virtual void setCLength(sizeC_t l) = 0;
     virtual const char *getStringData() = 0;
     virtual char *getWritableData() = 0;
 };
- 
+
  // Can't use multiple inheritance, so I use delegation...
 class RexxStringWrapper : public IRexxString {
   public:
