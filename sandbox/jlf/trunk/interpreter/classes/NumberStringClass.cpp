@@ -2805,8 +2805,8 @@ wholenumber_t RexxNumberString::comp(
             // CAREFUL! Here, the operator returns a boolean result, not a value -1,0,1.
             // That's why a separated parameter is used to return this boolean result.
             ProtectedObject result;
-            RexxObject *self = this;
-            bool alternativeResult = right->messageSend(alternativeOperator, &self, 1, result, false);
+            RexxObject *left = this;
+            bool alternativeResult = right->messageSend(alternativeOperator, &left, 1, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL)
             {
                 *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
