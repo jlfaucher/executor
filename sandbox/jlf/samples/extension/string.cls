@@ -27,6 +27,12 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::class "OperatorDispatcher" mixinclass Object public
 
+-- ::method " op:right"
+
+-- ::method "||op:right"
+
+-- ::method "op:right" -- abuttal
+
 ::method "+op:left"
     forward continue class (.complexString)
     if var("result") then return result
@@ -53,6 +59,16 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward class (.infinityString)
 
 ::method "/op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "%op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+
+::method "//op:right"
     forward continue class (.complexString)
     if var("result") then return result
     forward class (.infinityString)
@@ -152,30 +168,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if var("result") then return result
     forward class (.infinityString)
 
-::method "&op:right"
-    forward continue class (.complexString)
-    if var("result") then return result
-    forward class (.infinityString)
+-- ::method "&op:right"
 
-::method "|op:right"
-    forward continue class (.complexString)
-    if var("result") then return result
-    forward class (.infinityString)
+-- ::method "|op:right"
 
-::method "&&op:right"
-    forward continue class (.complexString)
-    if var("result") then return result
-    forward class (.infinityString)
-
-::method "%op:right"
-    forward continue class (.complexString)
-    if var("result") then return result
-    forward class (.infinityString)
-
-::method "//op:right"
-    forward continue class (.complexString)
-    if var("result") then return result
-    forward class (.infinityString)
+-- ::method "&&op:right"
 
 
 /******************************************************************************/
