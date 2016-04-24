@@ -48,6 +48,8 @@ a33~each=
 */
 
 --::options trace i
+::requires "extension/infinity.cls"
+
 
 ::routine a public
     -- Empty array of specified shape
@@ -166,7 +168,7 @@ a33~each=
     -- Here, Y is an array. Y has depth 1 greater than that of its most deeply nested item.
     use arg stack=(.queue~new)
     level = stack~index(self)
-    if .nil <> level then return infinity
+    if .nil <> level then return .infinity~positive
     stack~push(self)
     depth = 1 + self~reduce(0){expose stack; depth = item~depth(stack); if depth > accu then depth}
     stack~pull
@@ -178,6 +180,11 @@ a33~each=
     -- Here, Y is an array.  R is a scalar array whose item is the array Y.
     -- R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
     return .EnclosedArray~new(self)
+
+
+::method indexer
+    if arg() == 1 then return self[arg(1)]
+    return arg(1, "a")~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
 
 
 /******************************************************************************/
@@ -297,18 +304,18 @@ a33~each=
     supplier = .nil
 
     if arg() == 1 then do
-        if arg(1)~isA(.String) then do
+        if arg1~isA(.String) then do
             -- Do this test to not convert the strings to doers
             oneValue = .true
-            value = arg(1)
+            value = arg1
         end
-        else if arg(1)~hasMethod("functionDoer") then doer = arg(1)~functionDoer("use arg item, index")~arity(2)
-        else if arg(1)~hasMethod("doer") then doer = arg(1)~doer
-        else if arg(1)~isA(.array), arg(1)~dimension == 1 then arrayIn = arg(1) -- omitted item in the array passed as argument ==> no item in the array under initialization
-        else if arg(1)~hasMethod("supplier") then supplier = arg(1)~supplier -- omitted items are ignored, because not available from the supplier
+        else if arg1~hasMethod("functionDoer") then doer = arg1~functionDoer("use arg item, index")~arity(2)
+        else if arg1~hasMethod("doer") then doer = arg1~doer
+        else if arg1~isA(.array), arg1~dimension == 1 then arrayIn = arg1 -- omitted item in the array passed as argument ==> no item in the array under initialization
+        else if arg1~hasMethod("supplier") then supplier = arg1~supplier -- omitted items are ignored, because not available from the supplier
         else do
             oneValue = .true
-            value = arg(1)
+            value = arg1
         end
     end
     else arrayIn = arg(1, "a")
@@ -520,8 +527,8 @@ a33~each=
 ::attribute defaultSparseValue
 
 ::method leftElementWise
-    use strict arg action, rightArg=.nil, depth=(infinity), stack=(.identityTable~new)
-    if depth < 1 then return self
+    use strict arg action, rightArg=.nil, depth=(.infinity~positive), stack=(.identityTable~new)
+    if depth < 1 then raise syntax 93.900 array("Element-wise operation: depth must be >= 1")
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
     if \ arg(2, "e") then do
@@ -535,7 +542,6 @@ a33~each=
 
         if self~isA(.EnclosedArray) then do
             depth -= 1
-            if depth < 1 then return self
             arg = self~disclose
             r = .array~new(arg~dimensions)
             stack[arg] = r -- will be used to build the resulting infinite array
@@ -551,7 +557,7 @@ a33~each=
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) | item~isA(.EnclosedArray) then do
+            if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
                 r[index] = item~leftElementWise(doer, , depth-1, stack)
             end
             else do
@@ -609,7 +615,7 @@ a33~each=
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) | item~isA(.EnclosedArray) then do
+            if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
                 r[index] = item~leftElementWise(doer, rightArg[index], depth-1, stack)
             end
             else do
@@ -629,7 +635,6 @@ a33~each=
         -- EnclosedArray op Other
         if self~isA(.EnclosedArray) then do
             depth -= 1
-            if depth < 1 then return self
             leftArg = self~disclose
             r = .array~new(leftArg~dimensions)
             stack[leftArg] = r -- will be used to build the resulting infinite array
@@ -645,7 +650,7 @@ a33~each=
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if item~isA(.array) | item~isA(.EnclosedArray) then do
+            if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
                 r[index] = item~leftElementWise(doer, rightArg, depth-1, stack)
             end
             else do
@@ -678,8 +683,8 @@ a33~each=
     -- Other op EnclosedArray :         specific implementation
     -- Other op Other :                 can't happen (right is either Array or EnclosedArray)
 
-    use strict arg action, leftArg, depth=(infinity), stack=(.identityTable~new)
-    if depth < 1 then return self
+    use strict arg action, leftArg, depth=(.infinity~positive), stack=(.identityTable~new)
+    if depth < 1 then raise syntax 93.900 array("Element-wise operation: depth must be >= 1")
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
 
@@ -701,7 +706,6 @@ a33~each=
 
     if self~isA(.EnclosedArray) then do
         depth -= 1
-        if depth < 1 then return self
         rightArg = self~disclose
         r = .array~new(rightArg~dimensions)
         stack[rightArg] = r -- will be used to build the resulting infinite array
@@ -717,7 +721,7 @@ a33~each=
     do while supplier~available
         index = supplier~index
         item = supplier~item
-        if item~isA(.array) | item~isA(.EnclosedArray) then do
+        if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
             r[index] = item~rightElementWise(doer, leftArg, depth-1, stack)
         end
         else do
