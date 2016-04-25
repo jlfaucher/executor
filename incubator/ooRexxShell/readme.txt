@@ -107,6 +107,15 @@ If you typed a command in ooRexxShell, it will be executed first.
 Then each command read from the queue will be executed.
 
 
+Help
+====
+
+?: display help.
+?d[ocumentation]: invoke ooRexx documentation.
+?h[elp] name1 name2 ... : display the description of the specified classes.
+?i[nterpreters]: list the interpreters that can be selected.
+
+
 Commands
 ========
 
@@ -117,7 +126,6 @@ bt: display the backtrace of the last error (same as tb).
 cmd: select the cmd interpreter (if available : see interpreters).
 coloroff: deactivate the colors.
 coloron: activate the colors.
-commands: list the internal commands supported by ooRexxShell.
 debugoff: deactivate the full trace of the internals of ooRexxShell.
 debugon: activate the full trace of the internals of ooRexxShell.
 exit: exit ooRexxShell.
@@ -134,13 +142,6 @@ traceoff: deactivate the ligth trace of the internals of ooRexxShell.
 traceon: activate the ligth trace of the internals of ooRexxShell.
 trapoff: deactivate the conditions traps when interpreting the command.
 trapon: activate the conditions traps when interpreting the command.
-
-
-Known problems when bash is used for the input
-==============================================
-If the input starts with the dash ("-") character then the history command
-display this warning : bash: line 0: history:  invalid option
-and the input is not added to the history.
 
 
 Known problems under Windows

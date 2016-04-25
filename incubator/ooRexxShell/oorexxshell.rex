@@ -191,9 +191,6 @@ main: procedure
             when .ooRexxShell~inputrx~caselessEquals("coloron") then
                 .ooRexxShell~showColor = .true
 
-            when .ooRexxShell~inputrx~caselessEquals("commands") then
-                .ooRexxShell~sayCommands
-
             when .ooRexxShell~inputrx~caselessEquals("debugoff") then
                 .ooRexxShell~debug = .false
             when .ooRexxShell~inputrx~caselessEquals("debugon") then
@@ -722,6 +719,7 @@ loadLibrary:
 ::attribute debug class
 ::attribute trap class -- default true: the conditions are trapped when interpreting the command
 
+
 ::method init class
     self~debug = .false
     self~hasBsf = .false
@@ -745,9 +743,11 @@ loadLibrary:
     -- When possible, use a history file specific for ooRexxShell
     self~historyFile = HOME || "/.history_oorexxshell"
 
+
 ::method hasLastResult class
     expose lastResult
     return var("lastResult")
+
 
 ::method dropLastResult class
     expose lastResult
@@ -759,126 +759,23 @@ loadLibrary:
     parse var query word1 rest
 
     if "" == word1 then do
-        say "Help:"
-        say "    ?: display help."
-        say "    ?c[lass] name1 name2 ... : list the methods of the specified classes."
-        say "    ?c[lasses]: list the loaded classes per package."
-        say "    ?d[ocumentation]: invoke ooRexx documentation."
-        say "    ?h[elp] name1 name2 ... : display the description of the specified classes."
-        say "    ?i[nterpreters]: list the interpreters that can be selected."
-        say "    ?p[ackages]: list the loaded packages."
-        .ooRexxShell~sayCommands
+                                        say "Help:"
+                                        say "    ?: display help."
+        if .ooRexxShell~isExtended then say "    ?c[lass] name1 name2 ... : list the methods of the specified classes."
+        if .ooRexxShell~isExtended then say "    ?c[lasses]: list the loaded classes per package."
+                                        say "    ?d[ocumentation]: invoke ooRexx documentation."
+                                        say "    ?h[elp] name1 name2 ... : display the description of the specified classes."
+                                        say "    ?i[nterpreters]: list the interpreters that can be selected."
+        if .ooRexxShell~isExtended then say "    ?p[ackages]: list the loaded packages."
+        .ooRexxShell~helpCommands
     end
 
-    else if "class"~caselessAbbrev(word1) & rest <> "" then do
-        -- Display the methods of each specified class
-        do while rest <> ""
-            parse var rest classname rest
-            if classname~left(1) == "." then classname = classname~substr(2)
-            if classname == "" then iterate
-            class = .context~package~findClass(classname)
-            if class == .nil | \class~isa(.class) then do
-                .color~select(.ooRexxShell~errorColor, .error)
-                .error~say("Class" classname "not found.")
-                .error~say("")
-                .color~select(.ooRexxShell~defaultColor, .error)
-                iterate
-            end
-            .color~select(.ooRexxShell~infoColor)
-            say "Class" classname
-            .color~select(.ooRexxShell~defaultColor)
-            methods = .relation~new
-            class~pipe(.superclasses "mem.class" | .class.instancemethods | .do {expose methods; methods[index]=dataflow["class"]~item~id})
-            call dump2 methods
-            say
-        end
-    end
-
-    else if "classes"~caselessAbbrev(word1) & rest == "" then do
-        -- Public classes by package
-        .context~package~pipe(.importedPackages recursive once after mem.package | .inject {item~publicClasses} iterateAfter | .sort {item~id} {dataflow["package"]~item~name} | .console {.file~new(dataflow["package"]~item~name)~name} ":" item)
-    end
-
-    else if "documentation"~caselessAbbrev(word1) & rest == "" then do
-        -- The current address can be anything, not necessarily the system address.
-        -- Switch to the system address
-        address value .ooRexxShell~systemAddress
-        select
-            when .platform~is("windows"), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
-                /* issue the pdf as a command using quotes because the install dir may contain blanks */
-                'start "Rexx Online Documentation"' '"' || value("REXX_HOME",,"ENVIRONMENT") || "\doc\rexxref.pdf" || '"'
-            end
-            when .platform~is("windows") then do
-                -- Fallback if REXX_HOME not defined: Web site
-                'start http://www.oorexx.org/docs'
-            end
-            when (.platform~is("aix") | .platform~is("linux") | .platform~is("sunos")), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
-                'acroread "' || value("REXX_HOME",,"ENVIRONMENT") || '"/doc/rexxref.pdf&'
-            end
-            when .platform~is("macosx") | .platform~is("darwin") then do
-                'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
-            end
-            otherwise do
-                .color~select(.ooRexxShell~errorColor, .error)
-                .error~say(.platform~name "has no online help for ooRexx.")
-                .color~select(.ooRexxShell~defaultColor, .error)
-            end
-        end
-        address -- restore
-    end
-
-    else if "help"~caselessAbbrev(word1) then do
-        if rest == "" then do
-            -- All classes having their own _description_ method.
-            .object~pipe(.subClasses recursive once | .select {item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") } | .sort | .console item)
-        end
-        -- For each specified class, display the comment stored in the source of the method _description_, if any.
-        do while rest <> ""
-            parse var rest classname rest
-            if classname~left(1) == "." then classname = classname~substr(2)
-            if classname == "" then iterate
-            class = .context~package~findClass(classname)
-            if class == .nil | \class~isa(.class) then do
-                .color~select(.ooRexxShell~errorColor, .error)
-                .error~say("Class" classname "not found.")
-                .error~say("")
-                .color~select(.ooRexxShell~defaultColor, .error)
-                iterate
-            end
-            .color~select(.ooRexxShell~infoColor)
-            say "Class" classname
-            .color~select(.ooRexxShell~defaultColor)
-            if class~hasMethod("_description_") then do
-                description = class~instanceMethod("_description_")
-                if description <> .nil then do
-                    source = description~source -- an array
-                    items = source~items
-                    if items > 4 then do
-                        -- by necessity, the comment must have an instruction before and after, to be kept in the source (bug ?)
-                        -- by convention, a description is like that :
-                        -- nop
-                        -- /*
-                        -- description (several lines)
-                        -- */
-                        -- nop
-                        source = source~section(3, items - 4)
-                    end
-                    say source~toString
-                end
-            end
-            else say "no help"
-            say
-        end
-    end
-
-    else if "interpreters"~caselessAbbrev(word1) & rest == "" then do
-        .ooRexxShell~sayInterpreters
-    end
-
-    else if "packages"~caselessAbbrev(word1) & rest == "" then do
-        -- All packages that are visible from current context, including the current package (source of the pipeline).
-        .context~package~pipe(.importedPackages recursive once after | .sort {item~name} | .console {item~name})
-    end
+    else if "class"~caselessAbbrev(word1) & rest <> "" & .ooRexxShell~isExtended then .ooRexxShell~helpClass(rest)
+    else if "classes"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpClasses
+    else if "documentation"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpDocumentation
+    else if "help"~caselessAbbrev(word1) then .ooRexxShell~helpHelp(rest)
+    else if "interpreters"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpInterpreters
+    else if "packages"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpPackages
 
     else do
         .color~select(.ooRexxShell~errorColor, .error)
@@ -889,20 +786,46 @@ loadLibrary:
     return
 
 
-::method sayInterpreters class
-    say "Interpreters:"
-    do interpreter over .ooRexxShell~interpreters~allIndexes~sort
-        say "    "interpreter~lower": to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
+::method helpClass class
+    -- Display the methods of each specified class
+    use strict arg rest
+    do while rest <> ""
+        parse var rest classname rest
+        if classname~left(1) == "." then classname = classname~substr(2)
+        if classname == "" then iterate
+        class = .context~package~findClass(classname)
+        if class == .nil | \class~isa(.class) then do
+            .color~select(.ooRexxShell~errorColor, .error)
+            .error~say("Class" classname "not found.")
+            .error~say("")
+            .color~select(.ooRexxShell~defaultColor, .error)
+            iterate
+        end
+        .color~select(.ooRexxShell~infoColor)
+        say "Class" classname
+        .color~select(.ooRexxShell~defaultColor)
+        methods = .relation~new
+        -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
+        interpret 'class~pipe(.superclasses "recursive" "once" "after" "mem.class" | .class.instancemethods | .do {expose methods; methods[index] = dataflow["class"]~item~id})'
+        call dump2 methods
+        say
     end
 
 
-::method sayCommands class
-    .ooRexxShell~sayInterpreters
+::method helpClasses class
+    -- Public classes by package
+    classes = .relation~new
+    -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} iterateAfter | .do {expose classes; classes[item~id] = .file~new(dataflow["package"]~item~name)~name})'
+    call dump2 classes
+
+
+::method helpCommands class
+    .ooRexxShell~helpInterpreters
     say "Other commands:"
     say "    bt: display the backtrace of the last error (same as tb)."
     say "    coloroff: deactivate the colors."
     say "    coloron: activate the colors."
-    say "    commands: list the internal commands supported by ooRexxShell."
     say "    debugoff: deactivate the full trace of the internals of ooRexxShell."
     say "    debugon: activate the full trace of the internals of ooRexxShell."
     say "    exit: exit ooRexxShell."
@@ -917,6 +840,94 @@ loadLibrary:
     say "    trapoff: deactivate the conditions traps when interpreting the command"
     say "    trapon: activate the conditions traps when interpreting the command"
     say "Input queue name:" .ooRexxShell~queueName
+
+
+::method helpDocumentation class
+    -- The current address can be anything, not necessarily the system address.
+    -- Switch to the system address
+    address value .ooRexxShell~systemAddress
+    select
+        when .platform~is("windows"), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
+            /* issue the pdf as a command using quotes because the install dir may contain blanks */
+            'start "Rexx Online Documentation"' '"' || value("REXX_HOME",,"ENVIRONMENT") || "\doc\rexxref.pdf" || '"'
+        end
+        when .platform~is("windows") then do
+            -- Fallback if REXX_HOME not defined: Web site
+            'start http://www.oorexx.org/docs'
+        end
+        when (.platform~is("aix") | .platform~is("linux") | .platform~is("sunos")), value("REXX_HOME",,"ENVIRONMENT") <> "" then do
+            'acroread "' || value("REXX_HOME",,"ENVIRONMENT") || '"/doc/rexxref.pdf&'
+        end
+        when .platform~is("macosx") | .platform~is("darwin") then do
+            'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
+        end
+        otherwise do
+            .color~select(.ooRexxShell~errorColor, .error)
+            .error~say(.platform~name "has no online help for ooRexx.")
+            .color~select(.ooRexxShell~defaultColor, .error)
+        end
+    end
+    address -- restore
+
+
+::method helpHelp class
+    use strict arg rest
+    if rest == "" & .ooRexxShell~isExtended then do
+        -- All classes having their own _description_ method.
+        say "Classes with help text:"
+        -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
+        interpret '.object~pipe(.subClasses "recursive" "once" | .select {item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") } | .sort | .console "    " {item~id})'
+    end
+    -- For each specified class, display the comment stored in the source of the method _description_, if any.
+    do while rest <> ""
+        parse var rest classname rest
+        if classname~left(1) == "." then classname = classname~substr(2)
+        if classname == "" then iterate
+        class = .context~package~findClass(classname)
+        if class == .nil | \class~isa(.class) then do
+            .color~select(.ooRexxShell~errorColor, .error)
+            .error~say("Class" classname "not found.")
+            .error~say("")
+            .color~select(.ooRexxShell~defaultColor, .error)
+            iterate
+        end
+        .color~select(.ooRexxShell~infoColor)
+        say "Class" classname
+        .color~select(.ooRexxShell~defaultColor)
+        if class~hasMethod("_description_") then do
+            description = class~instanceMethod("_description_")
+            if description <> .nil then do
+                source = description~source -- an array
+                items = source~items
+                if items > 4 then do
+                    -- by necessity, the comment must have an instruction before and after, to be kept in the source (bug ?)
+                    -- by convention, a description is like that :
+                    -- nop
+                    -- /*
+                    -- description (several lines)
+                    -- */
+                    -- nop
+                    source = source~section(3, items - 4)
+                end
+                say source~toString
+            end
+        end
+        else say "no help"
+        say
+    end
+
+
+::method helpInterpreters class
+    say "Interpreters:"
+    do interpreter over .ooRexxShell~interpreters~allIndexes~sort
+        say "    "interpreter~lower": to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
+    end
+
+
+::method helpPackages class
+    -- All packages that are visible from current context, including the current package (source of the pipeline).
+    -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" | .sort {item~name} | .console {item~name})'
 
 
 ::method trace class
