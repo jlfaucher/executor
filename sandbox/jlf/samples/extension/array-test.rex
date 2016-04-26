@@ -90,8 +90,8 @@ say a~ppRepresentation
 -- --------------------------------------------------------------
 
 a = .array~of(10, 20, 30)
-b = .array~of(5, a, .complex[5,6])
-c = .array~of(.complex[15,16], b, 15)
+b = .array~of(5, a, 5+6i)
+c = .array~of(15+16i, b, 15)
 
 call dump2      -a
 call dump2      -b
@@ -103,12 +103,12 @@ call dump2      100 + c
 call dump2      a + 100
 call dump2      b + 100
 call dump2      c + 100
-call dump2      .complex[100,200] + a
-call dump2      .complex[100,200] + b
-call dump2      .complex[100,200] + c
-call dump2      a + .complex[100,200]
-call dump2      b + .complex[100,200]
-call dump2      c + .complex[100,200]
+call dump2      (100+200i) + a
+call dump2      (100+200i) + b
+call dump2      (100+200i) + c
+call dump2      a + (100+200i)
+call dump2      b + (100+200i)
+call dump2      c + (100+200i)
 call dump2      a + a
 call dump2      b + b
 call dump2      c + c
@@ -120,12 +120,12 @@ call dump2      100 - c
 call dump2      a - 100
 call dump2      b - 100
 call dump2      c - 100
-call dump2      .complex[100,200] - a
-call dump2      .complex[100,200] - b
-call dump2      .complex[100,200] - c
-call dump2      a - .complex[100,200]
-call dump2      b - .complex[100,200]
-call dump2      c - .complex[100,200]
+call dump2      (100+200i) - a
+call dump2      (100+200i) - b
+call dump2      (100+200i) - c
+call dump2      a - (100+200i)
+call dump2      b - (100+200i)
+call dump2      c - (100+200i)
 call dump2      a - a
 call dump2      b - b
 call dump2      c - c
@@ -137,12 +137,12 @@ call dump2      100 * c
 call dump2      a * 100
 call dump2      b * 100
 call dump2      c * 100
-call dump2      .complex[100,200] * a
-call dump2      .complex[100,200] * b
-call dump2      .complex[100,200] * c
-call dump2      a * .complex[100,200]
-call dump2      b * .complex[100,200]
-call dump2      c * .complex[100,200]
+call dump2      (100+200i) * a
+call dump2      (100+200i) * b
+call dump2      (100+200i) * c
+call dump2      a * (100+200i)
+call dump2      b * (100+200i)
+call dump2      c * (100+200i)
 call dump2      a * a
 call dump2      b * b
 call dump2      c * c
@@ -154,12 +154,12 @@ call dump2      100 / c
 call dump2      a / 100
 call dump2      b / 100
 call dump2      c / 100
-call dump2      .complex[100,200] / a
-call dump2      .complex[100,200] / b
-call dump2      .complex[100,200] / c
-call dump2      a / .complex[100,200]
-call dump2      b / .complex[100,200]
-call dump2      c / .complex[100,200]
+call dump2      (100+200i) / a
+call dump2      (100+200i) / b
+call dump2      (100+200i) / c
+call dump2      a / (100+200i)
+call dump2      b / (100+200i)
+call dump2      c / (100+200i)
 call dump2      a / a
 call dump2      b / b
 call dump2      c / c
@@ -171,12 +171,12 @@ call dump2      100 % c
 call dump2      a % 100
 call dump2      b % 100
 call dump2      c % 100
-call dump2      .complex[100,200] % a
-call dump2      .complex[100,200] % b
-call dump2      .complex[100,200] % c
-call dump2      a % .complex[100,200]
-call dump2      b % .complex[100,200]
-call dump2      c % .complex[100,200]
+call dump2      (100+200i) % a
+call dump2      (100+200i) % b
+call dump2      (100+200i) % c
+call dump2      a % (100+200i)
+call dump2      b % (100+200i)
+call dump2      c % (100+200i)
 call dump2      a % a
 call dump2      b % b
 call dump2      c % c
@@ -188,12 +188,12 @@ call dump2      100 // c
 call dump2      a // 100
 call dump2      b // 100
 call dump2      c // 100
-call dump2      .complex[100,200] // a
-call dump2      .complex[100,200] // b
-call dump2      .complex[100,200] // c
-call dump2      a // .complex[100,200]
-call dump2      b // .complex[100,200]
-call dump2      c // .complex[100,200]
+call dump2      (100+200i) // a
+call dump2      (100+200i) // b
+call dump2      (100+200i) // c
+call dump2      a // (100+200i)
+call dump2      b // (100+200i)
+call dump2      c // (100+200i)
 call dump2      a // a
 call dump2      b // b
 call dump2      c // c
@@ -205,12 +205,12 @@ call dump2      100 ** a
 call dump2      a ** 100
 --call dump2      b ** 100                  -- Object "a COMPLEX" does not understand message "**"
 --call dump2      c ** 100                  -- Object "a COMPLEX" does not understand message "**"
---call dump2      .complex[100,200] ** a    -- Object "a COMPLEX" does not understand message "**"
---call dump2      .complex[100,200] ** b    -- Object "a COMPLEX" does not understand message "**"
---call dump2      .complex[100,200] ** c    -- Object "a COMPLEX" does not understand message "**"
---call dump2      a ** .complex[100,200]    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
---call dump2      b ** .complex[100,200]    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
---call dump2      c ** .complex[100,200]    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      (100+200i) ** a    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      (100+200i) ** b    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      (100+200i) ** c    -- Object "a COMPLEX" does not understand message "**"
+--call dump2      a ** (100+200i)    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump2      b ** (100+200i)    -- Operand to the right of the power operator (**) must be a whole number; found "a COMPLEX"
+--call dump2      c ** (100+200i)    -- Object "a COMPLEX" does not understand message "**"
 call dump2      a ** a
 --call dump2      b ** b                    -- Object "a COMPLEX" does not understand message "**"
 --call dump2      c ** c                    -- Object "a COMPLEX" does not understand message "**"
@@ -222,12 +222,12 @@ call dump2      100 c
 call dump2      a 100
 call dump2      b 100
 call dump2      c 100
-call dump2      .complex[100,200] a
-call dump2      .complex[100,200] b
-call dump2      .complex[100,200] c
-call dump2      a .complex[100,200]
-call dump2      b .complex[100,200]
-call dump2      c .complex[100,200]
+call dump2      (100+200i) a
+call dump2      (100+200i) b
+call dump2      (100+200i) c
+call dump2      a (100+200i)
+call dump2      b (100+200i)
+call dump2      c (100+200i)
 call dump2      a a
 call dump2      b b
 call dump2      c c
@@ -239,12 +239,12 @@ call dump2      100 || c
 call dump2      a || 100
 call dump2      b || 100
 call dump2      c || 100
-call dump2      .complex[100,200] || a
-call dump2      .complex[100,200] || b
-call dump2      .complex[100,200] || c
-call dump2      a || .complex[100,200]
-call dump2      b || .complex[100,200]
-call dump2      c || .complex[100,200]
+call dump2      (100+200i) || a
+call dump2      (100+200i) || b
+call dump2      (100+200i) || c
+call dump2      a || (100+200i)
+call dump2      b || (100+200i)
+call dump2      c || (100+200i)
 call dump2      a || a
 call dump2      b || b
 call dump2      c || c
@@ -256,12 +256,12 @@ call dump2      (100)(c)
 call dump2      (a)(100)
 call dump2      (b)(100)
 call dump2      (c)(100)
-call dump2      (.complex[100,200])(a)
-call dump2      (.complex[100,200])(b)
-call dump2      (.complex[100,200])(c)
-call dump2      (a)(.complex[100,200])
-call dump2      (b)(.complex[100,200])
-call dump2      (c)(.complex[100,200])
+call dump2      ((100+200i))(a)
+call dump2      ((100+200i))(b)
+call dump2      ((100+200i))(c)
+call dump2      (a)((100+200i))
+call dump2      (b)((100+200i))
+call dump2      (c)((100+200i))
 call dump2      (a)(a)
 call dump2      (b)(b)
 call dump2      (c)(c)

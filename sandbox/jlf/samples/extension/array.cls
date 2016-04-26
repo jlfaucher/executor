@@ -49,7 +49,7 @@ a33~each=
 
 --::options trace i
 ::requires "extension/infinity.cls"
-
+::requires "rgf_util2/rgf_util2.rex"
 
 ::routine a public
     -- Empty array of specified shape
@@ -514,7 +514,7 @@ a33~each=
             isnum = .false
             -- To make a distinction between a real string and other objects, surround by (...)
             -- For the arrays, indicate their shape
-            if val~isA(.array) then valstr = "("valstr val~shapeToString")"
+            if val~isA(.array) then valstr = "("valstr shape(val, ", ") || val~items "items)"
             else valstr = "("valstr")"
         end
         return valstr

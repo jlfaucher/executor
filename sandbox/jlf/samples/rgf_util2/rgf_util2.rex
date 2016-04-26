@@ -1745,7 +1745,7 @@ syntax:              -- propagate condition
    JLF: Helper to display the shape of an array.
 */
 
-::routine shape private
+::routine shape public
     use arg coll, separator=""
     if coll~hasMethod("shapeToString"), coll~isA(.array) then do
         shape = coll~shapeToString
