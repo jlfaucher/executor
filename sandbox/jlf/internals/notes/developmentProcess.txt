@@ -1,6 +1,120 @@
-========================================================================
-From Mark
+===================
+Development process
+===================
+
+main
+    branches
+        4.1.1
+        4.1.2
+    releases
+        3.1.2
+        3.2.0
+        4.0.0
+        4.0.1
+        4.1.0
+        4.1.1
+        4.1.2
+        4.1.3
+        4.2.0
+    trunk
+
+docs
+    branches
+        3.1.2
+        4.1
+        4.2
+    releases
+        3.1.2
+        3.2.0
+        4.0.0
+        4.0.1
+        4.1.0
+        4.1.1
+        4.1.2
+        4.1.3
+        4.2.0
+    trunk
+
+oodialog
+    releases
+        4.0.0
+        4.1.0
+        4.2.0
+        4.2.1
+        4.2.2
+        4.2.3
+    trunk
+
+test
+    branches
+        4.1.2
+        4.2.0
+    releases
+        3.1.2
+        3.2.0
+        4.0.0
+        4.0.1
+        4.1.0
+    trunk
+
+A MAJOR release version is created from main/trunk (ex : rev 9665 "Branch main trunk to 4.2.0")
+A branch is created from a MAJOR release version (3.2.0, 4.0.0, 4.1.0, 4.2.0)
+main/trunk is never used to create a MINOR release version (4.0.1, 4.1.1, 4.1.2, 4.1.3).
+A MINOR release version is always created from a branch.
+Normally, only one branch is active : the branch to prepare the next MINOR release.
+
+The naming convention of the branches is not clear...
+From the mails exchanged by Rick & Mark, I understand that a branch will have 2 digits X.Y
+and will be used for all the minor releases X.Y.n dereived from the major release X.Y.0.
+But...
+In the svn log, I see something different:
+A branch 4.1.2 was created for the release 4.1.2.
+A branch 4.1.3 was created for the release 4.1.3.
+At the same time, the branch 4.1 existed and was updated...
+
+
+
+main                      main
+trunk                     releases
+  .                       4.1.0
+  .                   +---trunk         Create a copy of the 4.1.0 release branch in main/branches/4.1
+  .         main      |
+  .         branches  |
+  .         4.1       |
+  .         trunk <---+
+  .          x                          update the minor version number so this builds as 4.1.1
+  . ------> [x]                         optional: backport new functionalities & new bug fixes from main/trunk
+  x          x                          bug fix in main/trunk & main/branches/4.1
+  x          .                          bug fix only in main/trunk
+  x          x                          new functionality in main/trunk & main/branches/4.1
+  x          .                          new functionality only in main/trunk
+  .          .                          build 4.1.1 beta from main/branches/4.1
+  .          .                          ...
+  x          x                          fix bugs
+  .          .                          ...
+  .          .                          build 4.1.1 beta from main/branches/4.1
+  .          .                          ...
+  x          x                          fix bugs
+  .          .                          ...
+  .          . ---+                     copy main/branches/4.1 to main/releases/4.1.1/trunk
+  .          .    |       main
+  .          .    |       releases
+  .          .    |       4.1.1
+  .          .    +--->   trunk
+  .          x                          update the minor version number so this builds as 4.1.2
+  .          .                          ...
+  x          x                          same developement process : fix bugs, 4.1.2 beta
+  .          .                          ...
+  .          . ---+                     copy main/branches/4.1 to main/releases/4.1.2/trunk
+  .               |       main
+  .               |       releases
+  .               |       4.1.2
+  .               +--->   trunk
+
+================================================================================
+Mark
 https://mail.google.com/mail/?shva=1#inbox/13588b08b92a1a33
+================================================================================
 
 
 I've been assuming the release will be 4.1.1, seems to make the most
@@ -43,3 +157,992 @@ https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/branches/4.1/trunk
 and
 
 https://oorexx.svn.sourceforge.net/svnroot/oorexx/main/trunk
+
+================================================================================
+2011-01-11
+================================================================================
+
+Rick
+
+In most of the Apache projects I'm involved with in my day job, the
+svn source trees have the following organization:
+
+trunk -- the most recent working version of the code, with all new
+function and fixes applied.  The release number is generally a more
+major increment because there is new function involved.
+tags\* -- released versions of the code.  Once a tag version is
+created, it is never updated.  This corresponds to our "releases" svn
+directory.
+branches\* -- a working copy of a major release to which fixes for a
+released version can be applied.  This generally builds to the next
+minor increment.
+
+For example, with the Apache Geronimo server I work on, we have three
+major release branches that are currently considered active (2.1.x,
+2.2.x, and 3.x).  The 3.x line is developed on trunk, there are
+branches labeled 2.1 and 2.2 to which fixes to those versions get
+applied, and there is a tree in tags for each of releases for each
+version.  For the 2.1.x line, we're up to release 2.1.7 and the 2.1
+branch will build a 2.1.8 release (well, 2.1.8-SNAPSHOT actually, but
+that's a complication I don't really want to introduce here).
+
+The rxapi looping bug is a good example of this.  For testing
+purposes, it would be really nice to be able to create a version of
+4.1.x with the fixes applied without having to worry about any
+instabilities that might be in trunk due to in-progress enhancements.
+Additionally, it would be nice to have a branch where bug fixes can be
+applied immediately rather than retrofitting a whole pile of fixes
+should we decide that a bug fix release might be a good idea.
+
+So, here's what I propose:
+
+1)  Create a copy of the 4.1.0 release branch in branches/4.1
+2)  Change this code tree so it builds with release numbers 4.1.1
+3)  Bug fixes against 4,1.0 should be applied to both trunk and the
+4.1.1 branch immediately, if possible.  There may be situations, for
+example, where a fix might easier to fix in the trunk rather than in
+branch, so the backport is not necessarily automatic.
+4)  The process will repeat each time a new major release is rolled
+out (e.g., there will be branches/4.2, branches/4.3, etc.)
+
+I think this will make it easier to manage fixes, rollout test fix builds, etc.
+
+Thoughts?
+
+Rick
+
+---------------------------------------
+Mark
+
+This definitely sounds good to me.
+
+I'll need to study the details a little to grasp exactly how it works,
+but since it comes from a working model you're familiar with, I'm
+assuming it works.  It seems it is similar to what I was trying to do
+with the test suite.
+
+It would make it much easier to do one thing I'm really in favor of,
+and that is doing bug fix releases at relatively short intervals.  I'd
+like to do a bug fix release at least every 6 months.
+
+--
+Mark Miesfeld
+
+---------------------------------------
+Rick
+
+Well, the first step would be to copy the releases\4.1.0 to
+branches\4.1 and update the minor version number so this builds as
+4.1.1.  Then apply any fixes that have been made since 4.1.0 to this
+branch.  From there, we just use that branch for all 4.1.x bug fix
+releases.  When we release 4.2.0, we create releases\4.2.0 and
+branches\4.2 accordingly.  We might also want to delete branches/4.1
+at that point if we're certain that all subsequent bug fix releases
+will be based on the 4.2 stream.
+
+I'll see if I can find some time over the next couple of days to get
+the 4.1 branch created.
+
+Rick
+
+---------------------------------------
+Mark
+
+Then, if we end up doing a 4.1.1 release before 4.2, we copy 4.1.1 to
+releases and update branches\4.1 so it builds as 4.1.2, is that
+correct?
+
+---------------------------------------
+Rick
+
+Yep, you got it.
+
+
+
+
+
+
+
+
+
+
+================================================================================
+Main events from svn log, for release 5.0
+================================================================================
+
+------------------------------------------------------------------------
+r10464 | bigrixx | 2014-09-19 23:33:47 +0200 (Ven 19 sep 2014) | 1 ligne
+Chemins modifiés :
+   A /main/trunk (de /sandbox/rick/newsource:10463)
+
+promote sandbox version to trunk
+
+------------------------------------------------------------------------
+r10463 | bigrixx | 2014-09-19 23:32:44 +0200 (Ven 19 sep 2014) | 2 lignes
+Chemins modifiés :
+   A /main/branches/old-4.3 (de /main/trunk:10462)
+   D /main/trunk
+
+Save a snapshot of the old trunk
+
+
+================================================================================
+Main events from svn log, for release 4.3.0
+================================================================================
+
+------------------------------------------------------------------------
+r9940 | miesfeld | 2014-02-22 18:07:42 +0100 (Sam 22 fév 2014) | 6 lignes
+Chemins modifiés :
+   A /docs/branches/4.2 (de /docs/branches/4.2.0:9939)
+   D /docs/branches/4.2.0
+
+Move ooRexx 4.2.0 to release
+
+JLF : this comment is not accurate... Here, a branch 4.2 is created for the future
+releases based on 4.2.0
+
+------------------------------------------------------------------------
+r9937 | miesfeld | 2014-02-22 17:48:27 +0100 (Sam 22 fév 2014) | 6 lignes
+Chemins modifiés :
+   A /main/branches/4.2 (de /main/branches/4.2.0:9936)
+   D /main/branches/4.2.0
+
+Move ooRexx 4.2.0 to release
+
+JLF : this comment is not accurate... Here, a branch 4.2 is created for the future
+releases based on 4.2.0
+
+
+================================================================================
+Main events from svn log, for release 4.2.0
+================================================================================
+
+
+
+------------------------------------------------------------------------
+r9950 | sahananda | 2014-03-09 10:45:59 +0100 (Dim 09 mar 2014) | 1 ligne
+Chemins modifiés :
+   M /websites/main/trunk/docroot/announcement.html
+   M /websites/main/trunk/docroot/index.html
+
+added 4.2.0 announcment to ooRexx website.  Mainly just Marks text, but the previous anouncement had a link to download the docs, so I left an amended version of that. Jon
+
+------------------------------------------------------------------------
+r9939 | miesfeld | 2014-02-22 18:04:49 +0100 (Sam 22 fév 2014) | 6 lignes
+Chemins modifiés :
+   A /docs/releases/4.2.0/trunk (de /docs/branches/4.2.0/trunk:9938)
+
+Move ooRexx 4.2.0 to release
+
+------------------------------------------------------------------------
+r9938 | miesfeld | 2014-02-22 18:03:20 +0100 (Sam 22 fév 2014) | 6 lignes
+Chemins modifiés :
+   A /docs/releases/4.2.0
+
+Move ooRexx 4.2.0 to release
+
+------------------------------------------------------------------------
+r9936 | miesfeld | 2014-02-22 17:42:32 +0100 (Sam 22 fév 2014) | 6 lignes
+Chemins modifiés :
+   A /main/releases/4.2.0/trunk (de /main/branches/4.2.0/trunk:9935)
+
+Move ooRexx 4.2.0 to release
+
+------------------------------------------------------------------------
+r9935 | miesfeld | 2014-02-22 17:38:35 +0100 (Sam 22 fév 2014) | 1 ligne
+Chemins modifiés :
+   A /main/releases/4.2.0
+
+Move ooRexx 4.2.0 to release
+
+
+
+
+
+------------------------------------------------------------------------
+r9885 | bigrixx | 2014-01-30 11:35:10 +0100 (Jeu 30 jan 2014) | 1 ligne
+Chemins modifiés :
+   M /test/trunk/ooRexx/base/class/Class.testGroup
+   M /test/trunk/ooRexx/base/class/Queue.testGroup
+   M /test/trunk/ooRexx/base/class/class.testgroup.cls
+
+fix 4.2.0 test failures
+
+JLF : hmmm... it's trunk which is updated. No branch 4.2.0 yet for tests ?
+
+
+------------------------------------------------------------------------
+r9718 | bigrixx | 2013-12-17 01:04:27 +0100 (Mar 17 déc 2013) | 1 ligne
+Chemins modifiés :
+   M /main/trunk/oorexx.ver
+
+increment the revision number for trunk
+
+------------------------------------------------------------------------
+r9717 | bigrixx | 2013-12-17 00:59:52 +0100 (Mar 17 déc 2013) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.2.0/trunk/oorexx.ver
+
+increment the revision number for 4.2.0
+
+------------------------------------------------------------------------
+r9655 | miesfeld | 2013-12-09 04:39:09 +0100 (Lun 09 déc 2013) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.2.0/trunk (de /main/trunk:9654)
+
+Branch main trunk to 4.2.0
+------------------------------------------------------------------------
+r9654 | miesfeld | 2013-12-09 04:37:23 +0100 (Lun 09 déc 2013) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.2.0
+
+Create a branch for a 4.2.0 main
+------------------------------------------------------------------------
+r9653 | miesfeld | 2013-12-09 04:34:57 +0100 (Lun 09 déc 2013) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.2.0/trunk (de /docs/trunk:9652)
+
+Branch docs trunk for a 4.2.0 beta
+------------------------------------------------------------------------
+r9652 | miesfeld | 2013-12-09 04:32:36 +0100 (Lun 09 déc 2013) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.2.0
+
+Create a branch for the 4.2.0 docs
+
+
+
+
+
+------------------------------------------------------------------------
+r9651 | miesfeld | 2013-12-09 00:16:16 +0100 (Lun 09 déc 2013) | 1 ligne
+Chemins modifiés :
+   M /docs/trunk/readme/en-US/Article_Info.xml
+   M /docs/trunk/readme/en-US/newinrelease.xml
+   M /docs/trunk/readme/en-US/readme.ent
+   M /docs/trunk/readme/en-US/readme.xml
+   M /docs/trunk/readme/en-US/unix.xml
+   M /docs/trunk/readme/en-US/windows.xml
+
+Update the read me pdf doc for a 4.2.0 release
+
+------------------------------------------------------------------------
+r9648 | miesfeld | 2013-12-08 22:51:04 +0100 (Dim 08 déc 2013) | 1 ligne
+Chemins modifiés :
+   M /main/trunk/ReleaseNotes
+
+Update the ReleaseNotes file for a 4.2.0 release
+
+------------------------------------------------------------------------
+r9646 | miesfeld | 2013-12-08 22:16:53 +0100 (Dim 08 déc 2013) | 1 ligne
+Chemins modifiés :
+   M /main/trunk/CHANGES
+
+Update the CHANGES document for a 4.2.0 release
+
+================================================================================
+Main events from svn log, for release 4.1.3
+================================================================================
+
+------------------------------------------------------------------------
+r9338 | miesfeld | 2013-07-04 17:15:41 +0200 (Jeu 04 jul 2013) | 1 ligne
+Chemins modifiés :
+   D /main/branches/4.1.3
+   A /main/releases/4.1.3 (de /main/branches/4.1.3:9337)
+
+Move ooRexx 4.1.3 to release
+
+
+------------------------------------------------------------------------
+r9336 | miesfeld | 2013-07-04 17:02:03 +0200 (Jeu 04 jul 2013) | 1 ligne
+Chemins modifiés :
+   D /docs/branches/4.1.3
+   A /docs/releases/4.1.3 (de /docs/branches/4.1.3:9335)
+
+Move 4.1.3 docs to release
+
+
+
+
+JLF : branches/4.1 STILL USED.                                                  <--
+
+------------------------------------------------------------------------
+r9218 | miesfeld | 2013-05-19 06:00:59 +0200 (Dim 19 mai 2013) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/CHANGES
+   M /main/branches/4.1/trunk/ReleaseNotes
+   M /main/branches/4.1/trunk/api/oorexxapi.h
+   M /main/branches/4.1/trunk/configure.ac
+   M /main/branches/4.1/trunk/extensions/rxftp/rxftp.cls
+   M /main/branches/4.1/trunk/oorexx.ver
+   M /main/branches/4.1/trunk/platform/unix/oorexx-config.1
+   M /main/branches/4.1/trunk/platform/unix/rexx.1
+   M /main/branches/4.1/trunk/platform/unix/rexxc.1
+   M /main/branches/4.1/trunk/platform/unix/rxqueue.1
+   M /main/branches/4.1/trunk/platform/unix/rxsubcom.1
+
+
+
+
+------------------------------------------------------------------------
+r9215 | miesfeld | 2013-05-19 00:50:49 +0200 (Dim 19 mai 2013) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1.3/trunk/readme/newinrelease.xml
+   M /docs/branches/4.1.3/trunk/readme/readme.xml
+   M /docs/branches/4.1.3/trunk/readme/windows.xml
+
+Update the ooRexx 4.1.3 docs
+
+------------------------------------------------------------------------
+r9214 | miesfeld | 2013-05-19 00:30:56 +0200 (Dim 19 mai 2013) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.3/trunk/CHANGES
+   M /main/branches/4.1.3/trunk/ReleaseNotes
+
+Update ooRexx 4.1.3 release
+
+------------------------------------------------------------------------
+r9213 | miesfeld | 2013-05-19 00:30:19 +0200 (Dim 19 mai 2013) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1.3/trunk/shared/legalstuff.xml
+
+Update ooRexx 4.1.3 docs
+
+------------------------------------------------------------------------
+r9212 | miesfeld | 2013-05-18 23:43:03 +0200 (Sam 18 mai 2013) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.3/trunk (de /docs/branches/4.1/trunk:9211)
+
+Branch 4.1 fixes docs to 4.1.3
+
+------------------------------------------------------------------------
+r9211 | miesfeld | 2013-05-18 23:41:51 +0200 (Sam 18 mai 2013) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.3
+
+Create directory for 4.1.3 docs branch
+
+------------------------------------------------------------------------
+r9209 | miesfeld | 2013-05-18 23:27:05 +0200 (Sam 18 mai 2013) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.1.3/trunk (de /main/branches/4.1/trunk:9208)
+
+Branch ooRexx 4.1 fixes to ooRexx 4.1.3
+
+------------------------------------------------------------------------
+r9208 | miesfeld | 2013-05-18 23:24:12 +0200 (Sam 18 mai 2013) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.1.3
+
+create directory for 4.1.3 branch
+
+
+JLF : HERE TOO, THE PROCEDURE IS NOT FOLLOWED... CAN'T JUST USE branch 4.1 ?    ???
+
+
+================================================================================
+Main events from svn log, for release 4.1.2
+================================================================================
+
+
+------------------------------------------------------------------------
+r9210 | miesfeld | 2013-05-18 23:39:04 +0200 (Sam 18 mai 2013) | 1 ligne
+Chemins modifiés :
+   D /docs/branches/4.1.2
+
+Delete empty directory
+
+------------------------------------------------------------------------
+r9207 | miesfeld | 2013-05-18 23:20:55 +0200 (Sam 18 mai 2013) | 1 ligne
+Chemins modifiés :
+   D /main/branches/4.1.2
+
+Remove empty directory
+
+------------------------------------------------------------------------
+r8304 | miesfeld | 2012-08-29 01:16:51 +0200 (Mer 29 aoû 2012) | 1 ligne
+Chemins modifiés :
+   D /main/branches/4.1.2/trunk
+   A /main/releases/4.1.2/trunk (de /main/branches/4.1.2/trunk:8303)
+
+Move ooRexx 4.1.2 to release
+
+------------------------------------------------------------------------
+r8303 | miesfeld | 2012-08-29 01:15:52 +0200 (Mer 29 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /main/releases/4.1.2
+
+Get ready for the 4.1.2 ooRexx release
+
+------------------------------------------------------------------------
+r8302 | miesfeld | 2012-08-29 01:11:51 +0200 (Mer 29 aoû 2012) | 1 ligne
+Chemins modifiés :
+   D /docs/branches/4.1.2/trunk
+   A /docs/releases/4.1.2/trunk (de /docs/branches/4.1.2/trunk:8301)
+
+Move the 4.1.2 doc to release
+
+------------------------------------------------------------------------
+r8301 | miesfeld | 2012-08-29 01:11:19 +0200 (Mer 29 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/releases/4.1.2
+
+Get ready for the 4.1.2 doc release
+
+------------------------------------------------------------------------
+r8300 | miesfeld | 2012-08-29 01:08:08 +0200 (Mer 29 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1.2/trunk/oodialog/legalstuff.xml
+   M /docs/branches/4.1.2/trunk/shared/legalstuff.xml
+
+Get the 4.1.2 docs ready for release
+
+
+
+
+
+JLF: BACKPORT TO branches/4.1 ????
+WHAT ABOUT branches/4.1.2 ???
+
+------------------------------------------------------------------------
+r8175 | miesfeld | 2012-08-10 00:47:12 +0200 (Ven 10 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1/trunk/rexxref/rexutil.xml
+
+Back port the SysFileTree doc changes to the doc 4.1 fixes branch
+------------------------------------------------------------------------
+r8174 | miesfeld | 2012-08-10 00:45:35 +0200 (Ven 10 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/extensions/rexxutil/platform/unix/rexxutil.cpp
+   M /main/branches/4.1/trunk/extensions/rexxutil/platform/windows/rexxutil.cpp
+
+Back port the SysFileTree fixes to the 4.1 fixes branch
+
+
+
+
+------------------------------------------------------------------------
+r8169 | miesfeld | 2012-08-09 00:48:06 +0200 (Jeu 09 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/trunk/CHANGES
+   M /main/trunk/INSTALL
+   M /main/trunk/ReleaseNotes
+   M /main/trunk/configure.ac
+   M /main/trunk/extensions/rxftp/rxftp.cls
+   M /main/trunk/readme.version
+
+Pull in the text file changes in 4.1.2 branch to trunk, couple of trivial comment changes
+
+------------------------------------------------------------------------
+r8168 | miesfeld | 2012-08-09 00:45:30 +0200 (Jeu 09 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/CHANGES
+   M /main/branches/4.1/trunk/INSTALL
+   M /main/branches/4.1/trunk/ReleaseNotes
+   M /main/branches/4.1/trunk/api/oorexxapi.h
+   M /main/branches/4.1/trunk/configure.ac
+   M /main/branches/4.1/trunk/extensions/rxftp/rxftp.cls
+   M /main/branches/4.1/trunk/oorexx.ver
+   M /main/branches/4.1/trunk/platform/unix/oorexx-config.1
+   M /main/branches/4.1/trunk/platform/unix/rexx.1
+   M /main/branches/4.1/trunk/platform/unix/rexxc.1
+   M /main/branches/4.1/trunk/platform/unix/rxqueue.1
+   M /main/branches/4.1/trunk/platform/unix/rxsubcom.1
+   M /main/branches/4.1/trunk/readme.version
+
+Bump up the version number in the 4.1 fixes branch
+
+JLF:                                                                            <--
+WHY IS THERE A NEED TO MAINTAIN branches/4.1 ???                                <--
+NOW WE HAVE branches/4.1.2...                                                   <--
+
+
+------------------------------------------------------------------------
+r8167 | miesfeld | 2012-08-09 00:43:38 +0200 (Jeu 09 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.2/trunk/INSTALL
+   M /main/branches/4.1.2/trunk/ReleaseNotes
+   M /main/branches/4.1.2/trunk/readme.version
+
+Update a few text files, no change to source code.
+
+------------------------------------------------------------------------
+r8158 | miesfeld | 2012-08-07 21:57:21 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /test/branches/4.1.2/ooTest.frm
+
+This branch of ooTest requires ooRexx 4.1.2 for the tests to pass
+
+------------------------------------------------------------------------
+r8157 | miesfeld | 2012-08-07 21:43:48 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.2/trunk/api/oorexxapi.h
+   M /main/branches/4.1.2/trunk/readme.version
+
+Need to update oorexxapi.h when moving to new version of ooRexx
+
+------------------------------------------------------------------------
+r8155 | miesfeld | 2012-08-07 20:57:48 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   D /test/branches/4.1.0
+   A /test/releases/4.1.0 (de /test/branches/4.1.0:8154)
+
+Move 4.1.0 test branch to released
+
+------------------------------------------------------------------------
+r8154 | miesfeld | 2012-08-07 20:55:14 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /test/branches/4.1.2 (de /test/branches/4.1.0:8153)
+
+branch test/4.1.0 to 4.1.2 as testing 4.1.2 ooRexx needs some changes introduced by bug fixes
+
+------------------------------------------------------------------------
+r8147 | miesfeld | 2012-08-07 17:14:04 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.2/trunk/ReleaseNotes
+   M /main/branches/4.1.2/trunk/readme.version
+
+Update release notes file for 4.1.2 branch
+
+------------------------------------------------------------------------
+r8146 | miesfeld | 2012-08-07 17:03:52 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1.2/trunk/oodialog/legalstuff.xml
+   M /docs/branches/4.1.2/trunk/readme/newinrelease.xml
+   M /docs/branches/4.1.2/trunk/readme/readme.xml
+   M /docs/branches/4.1.2/trunk/readme/unix.xml
+   M /docs/branches/4.1.2/trunk/readme/windows.xml
+   M /docs/branches/4.1.2/trunk/shared/legalstuff.xml
+
+Update version numbers in the 4.1.2 docs branch
+
+------------------------------------------------------------------------
+r8145 | miesfeld | 2012-08-07 16:41:42 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.2/trunk/CHANGES
+   M /main/branches/4.1.2/trunk/configure.ac
+   M /main/branches/4.1.2/trunk/extensions/rxftp/rxftp.cls
+   M /main/branches/4.1.2/trunk/platform/unix/oorexx-config.1
+   M /main/branches/4.1.2/trunk/platform/unix/rexx.1
+   M /main/branches/4.1.2/trunk/platform/unix/rexxc.1
+   M /main/branches/4.1.2/trunk/platform/unix/rxqueue.1
+   M /main/branches/4.1.2/trunk/platform/unix/rxsubcom.1
+   M /main/branches/4.1.2/trunk/readme.version
+   M /main/branches/4.1.2/trunk/unix-like-build.txt
+   M /main/branches/4.1.2/trunk/windows-build.txt
+
+Fix version numbers for the 4.1.2 branch
+
+------------------------------------------------------------------------
+r8144 | miesfeld | 2012-08-07 01:05:26 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.2/trunk (de /docs/branches/4.1/trunk:8143)
+
+Branch docs 4.1 fixes to 4.1.2
+
+------------------------------------------------------------------------
+r8143 | miesfeld | 2012-08-07 01:03:24 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.2
+
+Make directory for 4.1.2 docs branch
+
+------------------------------------------------------------------------
+r8142 | miesfeld | 2012-08-07 00:43:29 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.1.2/trunk (de /main/branches/4.1/trunk:8141)
+
+Branch 4.1 fixes to 4.1.2
+
+------------------------------------------------------------------------
+r8141 | miesfeld | 2012-08-07 00:41:27 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.1.2
+
+Make directory for 4.1.2 branch
+JLF ==>
+STRANGE, THIS IS NOT THE NAMING CONVENTION DESCRIBED IN THE PROCEDURE
+WHY NOT DOING THE CHANGES IN THE EXISTING main/branches/4.1 ?                   ???
+MAYBE BECAUSE IT'S MORE CLEAR TO USE THE NAME OF THE NEXT RELEASE
+
+------------------------------------------------------------------------
+r8140 | miesfeld | 2012-08-07 00:37:15 +0200 (Mar 07 aoû 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/CHANGES
+
+Remove old list of fixes in the Changes document
+
+------------------------------------------------------------------------
+r7807 | bigrixx | 2012-05-28 15:38:25 +0200 (Lun 28 mai 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/interpreter/execution/RexxNativeActivation.cpp
+   M /main/branches/4.1/trunk/interpreter/execution/RexxNativeActivation.hpp
+
+backport fix for 3529966
+
+------------------------------------------------------------------------
+r7800 | miesfeld | 2012-05-26 23:11:27 +0200 (Sam 26 mai 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/platform/windows/install/oorexx.nsi
+
+Fix spelling error brought up in bug 3529234
+
+------------------------------------------------------------------------
+r7796 | miesfeld | 2012-05-16 17:34:44 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/oorexx.ver
+
+Bump up the version by 1 for the 4.1 ooRexx bug fixes branch
+
+------------------------------------------------------------------------
+r7792 | miesfeld | 2012-05-16 17:05:38 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1/trunk/shared/legalstuff.xml
+
+Bump up the version for the 4.1 doc bug fixes branch
+
+
+================================================================================
+Main events from svn log, for release 4.1.1
+================================================================================
+
+------------------------------------------------------------------------
+r7855 | wdashley | 2012-06-07 17:03:54 +0200 (Jeu 07 jui 2012) | 2 lignes
+Chemins modifiés :
+   M /websites/main/trunk/docroot/download.html
+
+Update for 4.1.1 downloads.
+
+------------------------------------------------------------------------
+r7795 | miesfeld | 2012-05-16 17:26:45 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /main/releases/4.1.1/trunk (de /main/branches/4.1/trunk:7794)
+
+Move ooRexx 4.1.1 files to relase tree
+(jlf : move ? I think it's a copy : see r7796, the files are still there )      <--
+
+------------------------------------------------------------------------
+r7794 | miesfeld | 2012-05-16 17:23:57 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /main/releases/4.1.1
+
+Prepare for ooRexx 4.1.1 release
+
+------------------------------------------------------------------------
+r7793 | miesfeld | 2012-05-16 17:14:38 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/releases/4.1.1/trunk/CPLv1.0.txt (de /docs/releases/4.1.1/trunk/trunk/CPLv1.0.txt:7792)
+   A /docs/releases/4.1.1/trunk/Makefile (de /docs/releases/4.1.1/trunk/trunk/Makefile:7792)
+   A /docs/releases/4.1.1/trunk/README.txt (de /docs/releases/4.1.1/trunk/trunk/README.txt:7792)
+   A /docs/releases/4.1.1/trunk/buildmachine (de /docs/releases/4.1.1/trunk/trunk/buildmachine:7792)
+   A /docs/releases/4.1.1/trunk/links with several words.txt (de /docs/releases/4.1.1/trunk/trunk/links with several words.txt:7792)
+   A /docs/releases/4.1.1/trunk/oodialog (de /docs/releases/4.1.1/trunk/trunk/oodialog:7792)
+   A /docs/releases/4.1.1/trunk/ootest (de /docs/releases/4.1.1/trunk/trunk/ootest:7792)
+   A /docs/releases/4.1.1/trunk/orxncurses (de /docs/releases/4.1.1/trunk/trunk/orxncurses:7792)
+   A /docs/releases/4.1.1/trunk/readme (de /docs/releases/4.1.1/trunk/trunk/readme:7792)
+   A /docs/releases/4.1.1/trunk/rexxextensions (de /docs/releases/4.1.1/trunk/trunk/rexxextensions:7792)
+   A /docs/releases/4.1.1/trunk/rexxgtk (de /docs/releases/4.1.1/trunk/trunk/rexxgtk:7792)
+   A /docs/releases/4.1.1/trunk/rexxpg (de /docs/releases/4.1.1/trunk/trunk/rexxpg:7792)
+   A /docs/releases/4.1.1/trunk/rexxref (de /docs/releases/4.1.1/trunk/trunk/rexxref:7792)
+   A /docs/releases/4.1.1/trunk/rxftp (de /docs/releases/4.1.1/trunk/trunk/rxftp:7792)
+   A /docs/releases/4.1.1/trunk/rxmath (de /docs/releases/4.1.1/trunk/trunk/rxmath:7792)
+   A /docs/releases/4.1.1/trunk/rxsock (de /docs/releases/4.1.1/trunk/trunk/rxsock:7792)
+   A /docs/releases/4.1.1/trunk/shared (de /docs/releases/4.1.1/trunk/trunk/shared:7792)
+   A /docs/releases/4.1.1/trunk/texmf.cnf (de /docs/releases/4.1.1/trunk/trunk/texmf.cnf:7792)
+   D /docs/releases/4.1.1/trunk/trunk
+   A /docs/releases/4.1.1/trunk/unixextensions (de /docs/releases/4.1.1/trunk/trunk/unixextensions:7792)
+   A /docs/releases/4.1.1/trunk/winextensions (de /docs/releases/4.1.1/trunk/trunk/winextensions:7792)
+
+Clean up the 4.1.1 release doc tree so it is not trunk/trunk
+
+------------------------------------------------------------------------
+r7791 | miesfeld | 2012-05-16 16:58:06 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/releases/4.1.1/trunk/trunk (de /docs/branches/4.1/trunk:7790)
+
+Move the 4.1.1 doc to the release tree, include trunk
+
+------------------------------------------------------------------------
+r7790 | miesfeld | 2012-05-16 16:57:14 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/releases/4.1.1
+   A /docs/releases/4.1.1/trunk
+
+Redo the commit of the 4.1.1 release docs again, I can't seem to get the copy command correct
+
+------------------------------------------------------------------------
+r7789 | miesfeld | 2012-05-16 16:55:08 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   D /docs/releases/4.1.1
+
+Redo the commit of the 4.1.1 release docs again, I can't seem to get the copy command correct
+
+------------------------------------------------------------------------
+r7788 | miesfeld | 2012-05-16 16:47:37 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/releases/4.1.1 (de /docs/branches/4.1/trunk:7787)
+
+Move the 4.1.1 doc to the release tree, include trunk
+
+------------------------------------------------------------------------
+r7787 | miesfeld | 2012-05-16 16:45:00 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   D /docs/releases/4.1.1
+
+Redo the commit of the 4.1.1 release docs, my copy command missed the trunk dir
+
+------------------------------------------------------------------------
+r7786 | miesfeld | 2012-05-16 16:41:50 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   A /docs/releases/4.1.1 (de /docs/branches/4.1/trunk:7785)
+
+Move the 4.1.1 doc to the release tree
+
+------------------------------------------------------------------------
+r7785 | miesfeld | 2012-05-16 16:40:03 +0200 (Mer 16 mai 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1/trunk/shared/legalstuff.xml
+
+Make the release date for 4.1.1 May
+
+------------------------------------------------------------------------
+r7571 | miesfeld | 2012-02-23 02:12:07 +0100 (Jeu 23 fév 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1/trunk/shared/legalstuff.xml
+
+Update version of doc for 4.1.1 beta
+
+------------------------------------------------------------------------
+r7557 | miesfeld | 2012-02-21 16:13:22 +0100 (Mar 21 fév 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/CHANGES
+
+Fill in CHANGES doc for 4.1.1
+
+------------------------------------------------------------------------
+r7548 | miesfeld | 2012-02-18 07:51:56 +0100 (Sam 18 fév 2012) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1/trunk/readme/newinrelease.xml
+   M /docs/branches/4.1/trunk/readme/readme.xml
+   M /docs/branches/4.1/trunk/readme/unix.xml
+   M /docs/branches/4.1/trunk/readme/windows.xml
+
+Update the ReadMe.pdf file for the 4.1.1 release
+
+------------------------------------------------------------------------
+r7547 | miesfeld | 2012-02-18 07:19:04 +0100 (Sam 18 fév 2012) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/NOTICE
+   M /main/branches/4.1/trunk/ReleaseNotes
+
+Update the ReleaseNotes file for release 4.1.1
+
+------------------------------------------------------------------------
+r7464 | miesfeld | 2012-02-03 03:08:22 +0100 (Ven 03 fév 2012) | 2 lignes
+Chemins modifiés :
+   A /docs/branches/4.1 (de /docs/releases/4.1.0:7463)
+
+Create 4.1 branch for applying fixes.
+
+
+
+EXAMPLE OF BUG FIX APPLIED BOTH TO TRUNK & BRANCH/4.1
+
+------------------------------------------------------------------------
+r6764 | bigrixx | 2011-02-14 13:57:19 +0100 (Lun 14 fév 2011) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1/trunk/interpreter/execution/RexxLocalVariables.cpp
+
+[ oorexx-Bugs-3178760 ] RexxLocalVariables::live - only mark if not NULL
+
+------------------------------------------------------------------------
+r6763 | bigrixx | 2011-02-14 13:39:59 +0100 (Lun 14 fév 2011) | 1 ligne
+Chemins modifiés :
+   M /main/trunk/interpreter/execution/RexxLocalVariables.cpp
+
+[ oorexx-Bugs-3178760 ] RexxLocalVariables::live - only mark if not NULL
+
+------------------------------------------------------------------------
+r6595 | bigrixx | 2011-01-17 14:54:14 +0100 (Lun 17 jan 2011) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.1 (de /main/releases/4.1.0:6594)
+   M /main/branches/4.1/trunk/CHANGES
+   M /main/branches/4.1/trunk/configure.ac
+   M /main/branches/4.1/trunk/extensions/rxftp/rxftp.cls
+   M /main/branches/4.1/trunk/oorexx.ver
+   M /main/branches/4.1/trunk/platform/unix/oorexx-config.1
+   M /main/branches/4.1/trunk/platform/unix/rexx.1
+   M /main/branches/4.1/trunk/platform/unix/rexxc.1
+   M /main/branches/4.1/trunk/platform/unix/rxqueue.1
+   M /main/branches/4.1/trunk/platform/unix/rxsubcom.1
+
+create 4.1 branch for applying fixes
+
+
+================================================================================
+Main events from svn log, for release 4.1.0
+================================================================================
+
+------------------------------------------------------------------------
+r6725 | miesfeld | 2011-02-09 02:13:43 +0100 (Mer 09 fév 2011) | 1 ligne
+Chemins modifiés :
+   A /test/branches/4.1.0 (de /test/releases/4.0.1:6724)
+
+Create a 4.1.0 ooTest branch
+
+------------------------------------------------------------------------
+r6445 | wdashley | 2010-12-07 18:27:25 +0100 (Mar 07 déc 2010) | 2 lignes
+Chemins modifiés :
+   M /websites/main/trunk/docroot/download.html
+   M /websites/main/trunk/docroot/index.html
+   M /websites/main/trunk/docroot/oorexx4.0.html
+
+Update the web site for 4.1.0.
+
+------------------------------------------------------------------------
+r6444 | wdashley | 2010-12-06 16:34:20 +0100 (Lun 06 déc 2010) | 2 lignes
+Chemins modifiés :
+   D /main/branches/4.1.0
+   A /main/releases/4.1.0 (de /main/branches/4.1.0:6436)
+
+Move thr 4.1.0 branch to production.
+
+------------------------------------------------------------------------
+r6437 | wdashley | 2010-12-03 20:19:24 +0100 (Ven 03 déc 2010) | 2 lignes
+Chemins modifiés :
+   D /docs/branches/4.1.0
+   A /docs/releases/4.1.0 (de /docs/branches/4.1.0:6436)
+
+Moved the 4.1.0 doc to the release tree.
+
+------------------------------------------------------------------------
+r6326 | miesfeld | 2010-10-29 05:05:50 +0200 (Ven 29 oct 2010) | 1 ligne
+Chemins modifiés :
+   M /docs/branches/4.1.0/trunk/readme/newinrelease.xml
+   M /docs/branches/4.1.0/trunk/readme/readme.xml
+   M /docs/branches/4.1.0/trunk/readme/unix.xml
+   M /docs/branches/4.1.0/trunk/readme/windows.xml
+
+Start updating the readme doc for 4.1.0
+
+------------------------------------------------------------------------
+r6323 | miesfeld | 2010-10-28 17:23:03 +0200 (Jeu 28 oct 2010) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/ReleaseNotes
+
+Fix typo in ReleaseNotes
+
+------------------------------------------------------------------------
+r6322 | miesfeld | 2010-10-28 17:10:24 +0200 (Jeu 28 oct 2010) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/CHANGES
+
+Clean up in CHANGES doc
+
+------------------------------------------------------------------------
+r6265 | miesfeld | 2010-10-10 23:54:22 +0200 (Dim 10 oct 2010) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.0/trunk/oodialog (de /docs/releases/4.0.1/trunk/oodialog:6264)
+
+Use the 4.0.1 ooDialog docs for the 4.1.0 branch
+
+------------------------------------------------------------------------
+r6264 | miesfeld | 2010-10-10 23:52:10 +0200 (Dim 10 oct 2010) | 1 ligne
+Chemins modifiés :
+   D /docs/branches/4.1.0/trunk/oodialog
+
+Remove 4.2.0 ooDialog docs from 4.1.0 branch
+
+------------------------------------------------------------------------
+r6263 | miesfeld | 2010-10-10 23:43:43 +0200 (Dim 10 oct 2010) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.0/trunk (de /docs/trunk:6262)
+
+Branch 4.1.0 docs from trunk
+
+------------------------------------------------------------------------
+r6262 | miesfeld | 2010-10-10 23:40:42 +0200 (Dim 10 oct 2010) | 1 ligne
+Chemins modifiés :
+   A /docs/branches/4.1.0
+
+Create directory for 4.1.0 docs branch
+
+------------------------------------------------------------------------
+r6194 | miesfeld | 2010-09-16 05:58:24 +0200 (Jeu 16 sep 2010) | 3 lignes
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/interpreter/memory/RexxMemory.cpp
+
+In 4.1.0, MaxImageSize is too small on a 64-bit Windows system.  So,
+increase it to match the value in trunk.
+
+------------------------------------------------------------------------
+r6193 | miesfeld | 2010-09-16 05:37:27 +0200 (Jeu 16 sep 2010) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/CHANGES
+
+Begin updating the CHANGES doc
+
+------------------------------------------------------------------------
+r6188 | bigrixx | 2010-09-12 17:47:37 +0200 (Dim 12 sep 2010) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/interpreter/RexxClasses/StreamClasses.orx
+   M /main/branches/4.1.0/trunk/interpreter/interpreter.mak
+   M /main/branches/4.1.0/trunk/interpreter/platform/unix/SysFileSystem.cpp
+   M /main/branches/4.1.0/trunk/interpreter/platform/unix/SysFileSystem.hpp
+   M /main/branches/4.1.0/trunk/interpreter/platform/windows/SysFileSystem.cpp
+   M /main/branches/4.1.0/trunk/interpreter/platform/windows/SysFileSystem.hpp
+   M /main/branches/4.1.0/trunk/interpreter/runtime/NativeMethods.h
+   A /main/branches/4.1.0/trunk/interpreter/streamLibrary/FileNative.cpp
+
+back port the File class
+
+------------------------------------------------------------------------
+r6187 | miesfeld | 2010-09-12 16:58:28 +0200 (Dim 12 sep 2010) | 1 ligne
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/ReleaseNotes
+
+Prepare the ReleaseNotes file for updating
+
+------------------------------------------------------------------------
+r6153 | wdashley | 2010-09-08 20:59:35 +0200 (Mer 08 sep 2010) | 2 lignes
+Chemins modifiés :
+   M /main/branches/4.1.0/trunk/CHANGES
+   M /main/branches/4.1.0/trunk/INSTALL
+   M /main/branches/4.1.0/trunk/configure.ac
+   M /main/branches/4.1.0/trunk/extensions/rxftp/rxftp.cls
+   M /main/branches/4.1.0/trunk/oorexx.ver
+   M /main/branches/4.1.0/trunk/platform/unix/oorexx-config.1
+   M /main/branches/4.1.0/trunk/platform/unix/oorexx.spec.in
+   M /main/branches/4.1.0/trunk/platform/unix/rexx.1
+   M /main/branches/4.1.0/trunk/platform/unix/rexxc.1
+   M /main/branches/4.1.0/trunk/platform/unix/rxqueue.1
+   M /main/branches/4.1.0/trunk/platform/unix/rxsubcom.1
+   M /main/branches/4.1.0/trunk/readme.version
+   M /main/branches/4.1.0/trunk/unix-like-build.txt
+   M /main/branches/4.1.0/trunk/windows-build.txt
+
+Update the version numbers in the branch.
+
+------------------------------------------------------------------------
+r6150 | bigrixx | 2010-09-07 19:56:59 +0200 (Mar 07 sep 2010) | 1 ligne
+Chemins modifiés :
+   A /main/branches/4.1.0 (de /main/releases/4.0.1:6149)
+
+create branch for pulling together the 4.1.0 release
+
+------------------------------------------------------------------------
+r5633 | wdashley | 2010-02-25 16:53:20 +0100 (Jeu 25 fév 2010) | 2 lignes
+Chemins modifiés :
+   M /main/trunk/CHANGES
+   M /main/trunk/configure.ac
+   M /main/trunk/extensions/rxftp/rxftp.cls
+   M /main/trunk/platform/unix/oorexx-config.1
+   M /main/trunk/platform/unix/oorexx.spec.in
+   M /main/trunk/platform/unix/rexx.1
+   M /main/trunk/platform/unix/rexxc.1
+   M /main/trunk/platform/unix/rxqueue.1
+   M /main/trunk/platform/unix/rxsubcom.1
+
+Fix the version number for the trunk. Set to 4.1.0.
+
+
