@@ -450,12 +450,17 @@ dispatchCommand:
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
-    condition = condition("O")
     if .ooRexxShell~error then do
         .color~select(.ooRexxShell~errorColor, .error)
+        condition = condition("O")
+        if condition~condition <> "SYNTAX" then .error~say(condition~condition)
+        if condition~description <> .nil, condition~description <> "" then .error~say(condition~description)
+
+        -- For SYNTAX conditions
         if condition~message <> .nil then .error~say(condition~message)
         else if condition~errortext <> .nil then .error~say(condition~errortext)
-        .error~say("Code=" condition~code)
+        if condition~code <> .nil then .error~say("Code=" condition~code)
+
         .ooRexxShell~traceback = condition~traceback
         .color~select(.ooRexxShell~defaultColor, .error)
     end
@@ -494,13 +499,18 @@ interpretCommand:
     end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                                   else drop result
-    if .ooRexxShell~trap then signal on syntax name interpretError
+    if .ooRexxShell~trap then do
+        signal on syntax name interpretError
+        signal on lostdigits
+    end
     interpret .ooRexxShell~command
     signal off syntax
+    signal off lostdigits
     if var("result") then .ooRexxShell~lastResult = result -- backup current result
                      else .ooRexxShell~dropLastResult
     signal return_to_dispatchCommand
 
+    lostdigits:
     interpretError:
     .ooRexxShell~error = .true
     signal return_to_dispatchCommand
