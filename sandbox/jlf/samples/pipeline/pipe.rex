@@ -765,13 +765,13 @@ end
 -- 'pool' is a collection which remembers the shared values (count > 1) already inserted in the representation.
 -- The first occurence of a shared value is represented by vN=<shared value representation>
 -- The next occurences of this shared value is just vN.
-use strict arg val, showPool, pool, values, stack=(.queue~new)
+use strict arg val, showPool, pool, values, surroundByQuotes=.true, stack=(.queue~new)
 -- if val~isA(.enclosedArray) then do -- Can't use this test because .enclosedArray is not a class here. I don't want to require "extension/array.cls"
 if val~class~id == "EnclosedArray" then do
     level = stack~index(val)
     if .nil <> level then return "*"level-1
     stack~push(val)
-    valstr = "<"dataflow_representation(val~disclose, showPool, pool, values, stack)">"
+    valstr = "<"dataflow_representation(val~disclose, showPool, pool, values, surroundByQuotes, stack)">"
     stack~pull
     return valstr
 end
@@ -791,7 +791,7 @@ else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMa
     valstr = "["
     separator = ""
     do v over val
-        valstr ||= separator || dataflow_representation(v, showPool, pool, values, stack)
+        valstr ||= separator || dataflow_representation(v, showPool, pool, values, surroundByQuotes, stack)
         separator = ","
     end
     valstr ||= "]"
@@ -802,7 +802,7 @@ else do
     valstr = val~string
     if val~isA(.String) then do
         isnum = val~dataType("N")
-        if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
+        if \isnum & surroundByQuotes then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
     end
     else do
         isnum = .false

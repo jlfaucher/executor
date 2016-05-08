@@ -1766,7 +1766,8 @@ syntax:              -- propagate condition
 */
 ::routine dump2 public
   -- JLF: I prefer a notation closer to the standard notation "a String" or "an Array"
-  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil
+  -- JLF: add surroundItemByQuotes, surroundIndexByQuotes
+  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true
 
   if .nil=comparator, title~isA(.comparator) then
   do
@@ -1812,16 +1813,24 @@ syntax:              -- propagate condition
   maxWidth=0
   s2=s~copy
   do while s2~available
-     maxWidth=max(maxWidth,length(ppIndex2(s2~index)))
+     maxWidth=max(maxWidth,length(ppIndex2(s2~index, surroundIndexByQuotes)))
      s2~next
   end
 
   count=0
   do while s~available
      count=count+1
-     -- JLF shorter output
-     -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
-     say ppIndex2(s~index)~left(maxWidth) ":" pp2(s~item)
+     if s~item~isa(.array) & iterateOverItem then do
+         -- JLF one line per subitem
+         do subitem over s~item~sort
+            say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
+         end
+     end
+     else do
+         -- JLF shorter output
+         -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
+         say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
+     end
      s~next
   end
   -- JLF say "-"~copies(50)
@@ -1854,7 +1863,7 @@ makeSortedSupplier: procedure
         if tmp~items=1 then
            arr2[i]=tmp~at(1)              -- save single item to show
         else
-           arr2[i]=coll~allAt(arr[i])     -- save collection of associated items
+           arr2[i]=tmp                    -- save collection of associated items (jlf: tmp)
      end
 
      return .supplier~new(arr2, arr)
@@ -2602,7 +2611,7 @@ createCodeSnippet: procedure
    If non-string object, then show its string value and hash-value.
 */
 ::routine pp2 public       -- rgf, 20091214
-  use strict arg a1
+  use strict arg a1, surroundByQuotes=.true
 
   -- JLF : can't use .Text, its package is not imported here
   a1.isaText = (a1~class~id=="Text")
@@ -2610,7 +2619,7 @@ createCodeSnippet: procedure
   do
      -- JLF : condensed output, 100 items max
      if /*a1~isA(.array), a1~dimension == 1,*/ a1~hasMethod("ppRepresentation") then
-        return a1~ppRepresentation(100)
+        return a1~ppRepresentation(100, surroundByQuotes)
      -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
      if a1~isA(.Collection) then do
         shape = shape(a1, ", ") -- JLF
@@ -2624,7 +2633,7 @@ createCodeSnippet: procedure
 
   -- JLF : strings are surrounded by quotes, except string numbers
   a1str = a1~string
-  if \a1str~dataType("N") then a1str = "'"a1str"'"
+  if \a1str~dataType("N") & surroundByQuotes then a1str = "'"a1str"'"
   -- JLF : texts are prefixed with "T"
   if a1.isaText then a1str = "T"a1str
   return escape2(a1str)
@@ -2637,7 +2646,7 @@ createCodeSnippet: procedure
    Formats Index-values.
 */
 ::routine ppIndex2 public  -- rgf, 20091214
-  use strict arg a1
+  use strict arg a1, surroundByQuotes=.true -- JLF: add surroundByQuotes
 
   if \a1~isA(.string) then
   do
@@ -2674,7 +2683,7 @@ createCodeSnippet: procedure
      return return "["a1~string"]"
   end
 
-  return pp2(a1)     -- rgf, 20091228
+  return pp2(a1, surroundByQuotes)     -- rgf, 20091228
 
 
 

@@ -456,14 +456,14 @@ a33~each=
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
     */
-    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
+    use strict arg maxItems=(-1), surroundByQuotes=.true, sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
         level = stack~index(val)
         if .nil <> level then return "*"level-1
         stack~push(val)
-        valstr = "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, stack)">"
+        valstr = "<"val~ppRepresentation(maxItems, surroundByQuotes, sparse, ellipsis, separator, val~disclose, stack)">"
         stack~pull
         return valstr
     end
@@ -489,7 +489,7 @@ a33~each=
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, stack)
+            valstr ||= sep || val~ppRepresentation(maxItems, surroundByQuotes, sparse, ellipsis, separator, item, stack)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -508,7 +508,7 @@ a33~each=
         valstr = val~string
         if val~isA(.String) then do
             isnum = valstr~dataType("N")
-            if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
+            if \isnum & surroundByQuotes then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
         end
         else do
             isnum = .false
