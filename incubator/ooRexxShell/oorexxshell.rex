@@ -668,12 +668,14 @@ loadLibrary:
 
 -------------------------------------------------------------------------------
 ::routine quoted public
+    -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
     use strict arg string, quote='"'
     return quote || string || quote
 
 
 -------------------------------------------------------------------------------
 ::routine unquoted public
+    -- Remember: keep it, because the method .String~unquoted is NOT available with standard ooRexx.
     use strict arg string, quote='"'
     if string~left(1) == quote & string~right(1) == quote then
         return string~substr(2, string~length - 2)
@@ -766,8 +768,17 @@ loadLibrary:
 
 ::method help class
     use strict arg query
-    parse var query word1 rest
 
+    filter = ""
+    -- filter specified ?
+    filterPos = .filteringMonitor~parse(query)[1]
+    if filterPos <> 0 then do
+        filter = query~substr(filterPos)
+        query = query~left(filterPos - 1)~strip
+    end
+    .output~destination(.filteringMonitor~new(.output~current, filter))
+
+    parse var query word1 rest
     if "" == word1 then do
                                         say "Help:"
                                         say "    ?: display help."
@@ -793,6 +804,8 @@ loadLibrary:
         .color~select(.ooRexxShell~defaultColor, .error)
     end
 
+    .output~destination -- restore the previous destination
+
     return
 
 
@@ -815,19 +828,44 @@ loadLibrary:
         say "Class" classname
         .color~select(.ooRexxShell~defaultColor)
         methods = .relation~new
-        -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
-        interpret 'class~pipe(.superclasses "recursive" "once" "after" "mem.class" | .class.instancemethods | .do {expose methods; methods[index] = dataflow["class"]~item~id})'
-        call dump2 methods
+        -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+        interpret 'class~pipe(.superclasses "recursive" "once" "after" "mem.class" | .class.instancemethods | .do { expose methods; methods[methodInfos(item)~left(10) index~quoted(x2c(27))] = dataflow["class"]~item~id~quoted(x2c(27)) "("packageInfos(item~package)")" } )'
+        call dump2 methods, /*title*/, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
         say
     end
+    return
 
 
 ::method helpClasses class
     -- Public classes by package
-    classes = .relation~new
-    -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
-    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} iterateAfter | .do {expose classes; classes[item~id] = .file~new(dataflow["package"]~item~name)~name})'
-    call dump2 classes
+    -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    publicClasses = .relation~new
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} iterateAfter | .do { expose publicClasses; publicClasses[classInfos(item, "public")~left(10) item~id~quoted(x2c(27))] = "(".file~new(dataflow["package"]~item~name)~name")" })'
+    -- Previous query does not return the predefined classes.
+    privateClasses = .relation~new
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} iterateAfter | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(classInfos(item, "public")~left(10) item~id~quoted(x2c(27))) then privateClasses[classInfos(item, "private")~left(10) item~id~quoted(x2c(27))] = "(".file~new(dataflow["package"]~item~name)~name")" })'
+    interpret '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(classInfos(item, "public")~left(10) item~id~quoted(x2c(27))) & \privateClasses~hasIndex(classInfos(item, "private")~left(10) item~id~quoted(x2c(27))) then publicClasses[classInfos(item, "public")~left(10) item~id~quoted(x2c(27))] = ""} )'
+    call dump2 publicClasses~union(privateClasses), /*title*/, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+
+
+-- Bug ?
+-- When creating a method on the fly, .context~package is "HELPCLASSES"
+-- and the collection publicClasses is empty.
+::method helpClasses_NOT_CALLED class
+    -- Public classes by package
+    -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    -- At first call, define the method and forward to the new definition.
+    -- The next calls will not enter here, they will go directly to the new method.
+    self~setMethod("helpClasses", .array~of(,
+        'publicClasses = .relation~new',,
+        '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} iterateAfter | .do {expose publicClasses; publicClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
+        '-- Previous query does not return the predefined classes.',,
+        'privateClasses = .relation~new',,
+        '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} iterateAfter | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) then privateClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
+        '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) & \privateClasses~hasIndex(item~id) then publicClasses[item~id] = ""} )',,
+        'call dump2 publicClasses',
+    ), "OBJECT")
+    forward message "helpClasses"
 
 
 ::method helpCommands class
@@ -885,7 +923,7 @@ loadLibrary:
     if rest == "" & .ooRexxShell~isExtended then do
         -- All classes having their own _description_ method.
         say "Classes with help text:"
-        -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
+        -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
         interpret '.object~pipe(.subClasses "recursive" "once" | .select {item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") } | .sort | .console "    " {item~id})'
     end
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
@@ -936,7 +974,7 @@ loadLibrary:
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
-    -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx.
+    -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
     interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" | .sort {item~name} | .console {item~name})'
 
 
@@ -1046,7 +1084,7 @@ loadLibrary:
         if command~caselessPos("set ") == 1 then return command -- variable assignment
         if command~caselessPos("cd ") == 1 then return command -- change directory
         if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return command -- change drive
-        args = .platform~string2args(command)
+        args = string2args(command)
         if args[1]~caselessEquals("cmd") then return command -- already prefixed by "cmd ..."
         if args[1]~caselessEquals("start") then return command -- already prefixed by "start ..."
         exepath = .platform~which(args[1])
@@ -1077,6 +1115,103 @@ loadLibrary:
         return "bash -O expand_aliases -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; history -r ; "command"'" -- the special characters have been already escaped by readline()
     end
     return command
+
+
+-------------------------------------------------------------------------------
+::class filteringMonitor
+-------------------------------------------------------------------------------
+
+::constant StrictDifferent      1
+::constant StrictEqual          2
+::constant CaselessDifferent    3
+::constant CaselessEqual        4
+
+
+::method parse class
+    use strict arg string
+    pos = string~pos("\=="); if pos <> 0 then return .array~of(pos, pos+3, self~StrictDifferent)
+    pos = string~pos("==");  if pos <> 0 then return .array~of(pos, pos+2, self~StrictEqual)
+    pos = string~pos("<>");  if pos <> 0 then return .array~of(pos, pos+2, self~CaselessDifferent)
+    pos = string~pos("=");   if pos <> 0 then return .array~of(pos, pos+1, self~CaselessEqual)
+    return .array~of(0,0,0)
+
+
+::attribute interceptedDestination
+::attribute strictInclude
+::attribute strictExclude
+::attribute caselessInclude
+::attribute caselessExclude
+
+
+::method init
+    -- Examples of valid filter:
+    -- ""
+    -- "value"
+    -- "=value"
+    -- "== value"
+    -- "<> value1 value2 = value3 \== value4 value5"
+    -- A value can be a string surrounded by quotes
+    use strict arg destination, filter
+    self~interceptedDestination = destination
+    self~strictExclude = .array~new
+    self~strictInclude = .array~new
+    self~caselessExclude = .array~new
+    self~caselessInclude = .array~new
+    currentOperator = self~CaselessEqual
+    do arg over string2args(filter)
+        filter = self~class~parse(arg)
+        startOperator = filter[1]
+        startArgument = filter[2]
+        operator = filter[3]
+        if startOperator == 1 then do
+            currentOperator = operator
+            arg = arg~substr(startArgument)
+        end
+        if arg <> "" then do
+            if currentOperator == self~StrictDifferent then self~strictExclude~append(arg)
+            else if currentOperator == self~StrictEqual then self~strictInclude~append(arg)
+            else if currentOperator == self~CaselessDifferent then self~caselessExclude~append(arg)
+            else if currentOperator == self~CaselessEqual then self~caselessInclude~append(arg)
+        end
+    end
+
+
+::method select
+    use strict arg string
+    do substring over self~strictExclude
+        if string~pos(substring) <> 0 then return .false
+    end
+    do substring over self~caselessExclude
+        if string~caselessPos(substring) <> 0 then return .false
+    end
+
+    if self~strictInclude~size == 0 & self~caselessInclude~size == 0 then return .true
+
+    do substring over self~strictInclude
+        if string~pos(substring) <> 0 then return .true
+    end
+    do substring over self~caselessInclude
+        if string~caselessPos(substring) <> 0 then return .true
+    end
+    return .false
+
+
+::method charOut
+    use strict arg string
+    if self~select(string) then forward to (self~interceptedDestination)
+    return 0
+
+
+::method lineOut
+    use strict arg string
+    if self~select(string) then forward to (self~interceptedDestination)
+    return 0
+
+
+::method say
+    use strict arg string
+    if self~select(string) then forward to (self~interceptedDestination)
+    return 0
 
 
 -------------------------------------------------------------------------------
@@ -1315,58 +1450,6 @@ Other change in gci_convert.win32.vc, to support 64 bits:
         if SysIsFile(filespec) then return filespec
     end
     return ""
-
-
-::method string2args
-    -- Converts a string to an array of arguments.
-    -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
-    use strict arg string
-
-    args = .Array~new
-    i = 1
-
-    loop label arguments
-        -- Skip whitespaces
-        loop
-            if i > string~length then return args
-            if string~subchar(i) > " " then leave
-            i += 1
-        end
-
-        current = .MutableBuffer~new
-        loop label current_argument
-            if string~subchar(i) == '"' then do
-                -- Chunk surrounded by quotes: whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote
-                loop label quoted_chunk
-                    i += 1
-                    if i > string~length then return args~~append(current~string)
-                    select
-                        when string~subchar(i) == '"' & string~subchar(i+1) == '"' then do
-                            current~append('"')
-                            i += 1
-                        end
-                        when string~subchar(i) == '"' then do
-                            i += 1
-                            leave quoted_chunk
-                        end
-                        otherwise current~append(string~subchar(i))
-                    end
-                end quoted_chunk
-            end
-            if string~subchar(i) <= " " then do
-                args~append(current~string)
-                leave current_argument
-            end
-            -- Chunk not surrounded by quotes: ends when a whitespace or quote is reached
-            loop
-                if i > string~length then return args~~append(current~string)
-                if string~subchar(i) <= " " | string~subchar(i) == '"' then leave
-                current~append(string~subchar(i))
-                i += 1
-            end
-        end current_argument
-    end arguments
-    return args
 
 
 ::method subsystem
@@ -1614,6 +1697,82 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     return integer32
 
 
+::routine string2args public
+    -- Converts a string to an array of arguments.
+    -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
+    use strict arg string
+
+    args = .Array~new
+    i = 1
+
+    loop label arguments
+        -- Skip whitespaces
+        loop
+            if i > string~length then return args
+            if string~subchar(i) > " " then leave
+            i += 1
+        end
+
+        current = .MutableBuffer~new
+        loop label current_argument
+            c = string~subchar(i)
+            quote = ""
+            if c == '"' | c == "'" then quote = c
+            if quote <> "" then do
+                -- Chunk surrounded by quotes: whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote
+                loop label quoted_chunk
+                    i += 1
+                    if i > string~length then return args~~append(current~string)
+                    select
+                        when string~subchar(i) == quote & string~subchar(i+1) == quote then do
+                            current~append(quote)
+                            i += 1
+                        end
+                        when string~subchar(i) == quote then do
+                            i += 1
+                            leave quoted_chunk
+                        end
+                        otherwise current~append(string~subchar(i))
+                    end
+                end quoted_chunk
+            end
+            if string~subchar(i) <= " " then do
+                args~append(current~string)
+                leave current_argument
+            end
+            -- Chunk not surrounded by quotes: ends when a whitespace or quote is reached
+            loop
+                if i > string~length then return args~~append(current~string)
+                c = string~subchar(i)
+                if c <= " " | c == '"' | c == "'" then leave
+                current~append(c)
+                i += 1
+            end
+        end current_argument
+    end arguments
+    return args
+
+
+::routine methodInfos public
+    use strict arg method
+    if method~isGuarded then guarded = "G"; else guarded = "."
+    if method~isPrivate then private = "P"; else private = "."
+    if method~isProtected then protected = "P"; else protected = "."
+    return guarded || private || protected
+
+
+::routine packageInfos public
+    use strict arg package
+    if package == .nil then return ""
+    return .file~new(package~name)~name
+
+
+::routine classInfos public
+    use strict arg class, visibility
+    if visibility == "private" then private = "P"; else private = "."
+    if class~queryMixinClass then mixin = "M"; else mixin = "."
+    return mixin || private
+
+
 -------------------------------------------------------------------------------
 ::requires "rxregexp.cls"
-

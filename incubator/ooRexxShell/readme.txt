@@ -111,9 +111,23 @@ Help
 ====
 
 ?: display help.
+?c[lass] name1 name2 ... : list the methods of the specified classes.
+?c[lasses]: list the loaded classes per package.
 ?d[ocumentation]: invoke ooRexx documentation.
 ?h[elp] name1 name2 ... : display the description of the specified classes.
 ?i[nterpreters]: list the interpreters that can be selected.
+?p[ackages]: list the loaded packages.
+
+The output of the help can be filtered:
+\==     strict different
+==      strict equal
+<>      caseless different
+=       caseless equal
+
+Examples:
+?c                  list all the classes
+?c =string          list all the classes for which the word "string" is displayed
+?c =rgf bsf java    list all the classes for which at least one of these words is displayed
 
 
 Commands
