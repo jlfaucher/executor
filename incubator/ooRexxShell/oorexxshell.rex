@@ -667,29 +667,6 @@ loadLibrary:
 
 
 -------------------------------------------------------------------------------
-::routine quoted public
-    -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
-    use strict arg string, quote='"'
-    return quote || string || quote
-
-
--------------------------------------------------------------------------------
-::routine unquoted public
-    -- Remember: keep it, because the method .String~unquoted is NOT available with standard ooRexx.
-    use strict arg string, quote='"'
-    if string~left(1) == quote & string~right(1) == quote then
-        return string~substr(2, string~length - 2)
-    else
-        return string
-
-
--------------------------------------------------------------------------------
-::routine paren public
-    use strict arg string
-    return "(" || string || ")"
-
-
--------------------------------------------------------------------------------
 ::class ooRexxShell
 -------------------------------------------------------------------------------
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
@@ -771,7 +748,7 @@ loadLibrary:
 
     filter = ""
     -- filter specified ?
-    filterPos = .filteringMonitor~parse(query)[1]
+    filterPos = .filteringMonitor~filterPos(query)
     if filterPos <> 0 then do
         filter = query~substr(filterPos)
         query = query~left(filterPos - 1)~strip
@@ -782,12 +759,14 @@ loadLibrary:
     if "" == word1 then do
                                         say "Help:"
                                         say "    ?: display help."
-        if .ooRexxShell~isExtended then say "    ?c[lass] name1 name2 ... : list the methods of the specified classes."
-        if .ooRexxShell~isExtended then say "    ?c[lasses]: list the loaded classes per package."
+        if .ooRexxShell~isExtended then say "    ?c[lass] class1 class2 ... : display the methods of each specified class."
+        if .ooRexxShell~isExtended then say "    ?c[lasses]: display all the classes with their package."
                                         say "    ?d[ocumentation]: invoke ooRexx documentation."
-                                        say "    ?h[elp] name1 name2 ... : display the description of the specified classes."
-                                        say "    ?i[nterpreters]: list the interpreters that can be selected."
-        if .ooRexxShell~isExtended then say "    ?p[ackages]: list the loaded packages."
+                                        say "    ?h[elp] class1 class2 ... : display the description of each specified class."
+                                        say "    ?i[nterpreters]: display the interpreters that can be selected."
+        if .ooRexxShell~isExtended then say "    ?m[ethod] method1 method2 ... : display the defining classes of each specified method."
+        if .ooRexxShell~isExtended then say "    ?m[ethods]: display all the methods with their defining classes."
+        if .ooRexxShell~isExtended then say "    ?p[ackages]: display the loaded packages."
         .ooRexxShell~helpCommands
     end
 
@@ -796,6 +775,8 @@ loadLibrary:
     else if "documentation"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpDocumentation
     else if "help"~caselessAbbrev(word1) then .ooRexxShell~helpHelp(rest)
     else if "interpreters"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpInterpreters
+    else if "method"~caselessAbbrev(word1) & rest <> "" & .ooRexxShell~isExtended then .ooRexxShell~helpMethod(rest)
+    else if "methods"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpMethods
     else if "packages"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpPackages
 
     else do
@@ -837,15 +818,28 @@ loadLibrary:
 
 
 ::method helpClasses class
-    -- Public classes by package
+    -- All classes (public & private) that are visible from current context, with their package
     -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
     publicClasses = .relation~new
-    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} iterateAfter | .do { expose publicClasses; publicClasses[classInfos(item, "public")~left(10) item~id~quoted(x2c(27))] = "(".file~new(dataflow["package"]~item~name)~name")" })'
-    -- Previous query does not return the predefined classes.
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} "iterateAfter" | .do { expose publicClasses; publicClasses[item] = dataflow["package"]~item })'
     privateClasses = .relation~new
-    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} iterateAfter | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(classInfos(item, "public")~left(10) item~id~quoted(x2c(27))) then privateClasses[classInfos(item, "private")~left(10) item~id~quoted(x2c(27))] = "(".file~new(dataflow["package"]~item~name)~name")" })'
-    interpret '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(classInfos(item, "public")~left(10) item~id~quoted(x2c(27))) & \privateClasses~hasIndex(classInfos(item, "private")~left(10) item~id~quoted(x2c(27))) then publicClasses[classInfos(item, "public")~left(10) item~id~quoted(x2c(27))] = ""} )'
-    call dump2 publicClasses~union(privateClasses), /*title*/, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} "iterateAfter" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item) then privateClasses[item] = dataflow["package"]~item })'
+    -- Previous queries do not return the predefined classes.
+    interpret '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item) & \privateClasses~hasIndex(item) then publicClasses[item] = .nil} )'
+    -- Now build a collection where the indexes are the class names preceded by some flags (mixing, private), and the items are the package filenames.
+    classes = .relation~new
+    s = publicClasses~supplier
+    do while s~available
+        classes[classInfos(s~index, "public")~left(10) s~index~id~quoted(x2c(27))] = "("packageInfos(s~item)")"
+        s~next
+    end
+    s = privateClasses~supplier
+    do while s~available
+        classes[classInfos(s~index, "private")~left(10) s~index~id~quoted(x2c(27))] = "("packageInfos(s~item)")"
+        s~next
+    end
+    -- Sort by class name, ignoring the 10 first characters which are class flags.
+    call dump2 classes, /*title*/, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
 
 
 -- Bug ?
@@ -858,10 +852,10 @@ loadLibrary:
     -- The next calls will not enter here, they will go directly to the new method.
     self~setMethod("helpClasses", .array~of(,
         'publicClasses = .relation~new',,
-        '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} iterateAfter | .do {expose publicClasses; publicClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
+        '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} "iterateAfter" | .do {expose publicClasses; publicClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
         '-- Previous query does not return the predefined classes.',,
         'privateClasses = .relation~new',,
-        '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} iterateAfter | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) then privateClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
+        '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} "iterateAfter" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) then privateClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
         '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) & \privateClasses~hasIndex(item~id) then publicClasses[item~id] = ""} )',,
         'call dump2 publicClasses',
     ), "OBJECT")
@@ -970,6 +964,30 @@ loadLibrary:
     do interpreter over .ooRexxShell~interpreters~allIndexes~sort
         say "    "interpreter~lower": to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
     end
+
+
+::method helpMethod class
+    -- Display the defining classes of each specified method
+    use strict arg rest
+    do while rest <> ""
+        parse var rest methodname rest
+        .color~select(.ooRexxShell~infoColor)
+        say "Method" methodname
+        .color~select(.ooRexxShell~defaultColor)
+        methods = .relation~new
+        interpret '.object~pipe(.subClasses "recursive" "once" "after" "mem.class" | .inject {item~instanceMethods(item)} "iterateAfter" | .select {expose methodname; index~caselessEquals(methodname)} | .do {expose methods; methods[methodInfos(item)~left(10) index~quoted(x2c(27))] = dataflow["class"]~item~id~quoted(x2c(27)) "("packageInfos(item~package)")" } )'
+        call dump2 methods, /*title*/, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+        say
+    end
+    return
+
+
+::method helpMethods class
+    -- All the methods with their defining classes
+    -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    methods = .relation~new
+    interpret '.object~pipe(.subClasses "recursive" "once" "after" "mem.class" | .inject {item~instanceMethods(item)} "iterateAfter" | .do {expose methods; methods[methodInfos(item)~left(10) index~quoted(x2c(27))] = dataflow["class"]~item~id~quoted(x2c(27)) "("packageInfos(item~package)")" } )'
+    call dump2 methods, /*title*/, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
 
 
 ::method helpPackages class
@@ -1134,6 +1152,18 @@ loadLibrary:
     pos = string~pos("<>");  if pos <> 0 then return .array~of(pos, pos+2, self~CaselessDifferent)
     pos = string~pos("=");   if pos <> 0 then return .array~of(pos, pos+1, self~CaselessEqual)
     return .array~of(0,0,0)
+
+
+::method filterPos class
+    use strict arg string
+    do arg over string2args(string, .true) -- true: each arg is an array [position, substring]
+        position = arg[1]
+        substring = arg[2]
+        filter = self~parse(substring)
+        startOperator = filter[1]
+        if startOperator == 1 then return position
+    end
+    return 0
 
 
 ::attribute interceptedDestination
@@ -1669,6 +1699,27 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 -------------------------------------------------------------------------------
 -- Helpers
 -------------------------------------------------------------------------------
+
+::routine quoted public
+    -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+    use strict arg string, quote='"'
+    return quote || string || quote
+
+
+::routine unquoted public
+    -- Remember: keep it, because the method .String~unquoted is NOT available with standard ooRexx.
+    use strict arg string, quote='"'
+    if string~left(1) == quote & string~right(1) == quote then
+        return string~substr(2, string~length - 2)
+    else
+        return string
+
+
+::routine paren public
+    use strict arg string
+    return "(" || string || ")"
+
+
 ::routine unsigned32 public
     use strict arg number
     numeric digits 10
@@ -1700,7 +1751,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 ::routine string2args public
     -- Converts a string to an array of arguments.
     -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
-    use strict arg string
+    use strict arg string, returnPosition=.false
 
     args = .Array~new
     i = 1
@@ -1714,6 +1765,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
         end
 
         current = .MutableBuffer~new
+        currentPos = i
         loop label current_argument
             c = string~subchar(i)
             quote = ""
@@ -1722,7 +1774,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
                 -- Chunk surrounded by quotes: whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote
                 loop label quoted_chunk
                     i += 1
-                    if i > string~length then return args~~append(current~string)
+                    if i > string~length then return args~~append(result(current~string))
                     select
                         when string~subchar(i) == quote & string~subchar(i+1) == quote then do
                             current~append(quote)
@@ -1737,12 +1789,12 @@ Other change in gci_convert.win32.vc, to support 64 bits:
                 end quoted_chunk
             end
             if string~subchar(i) <= " " then do
-                args~append(current~string)
+                args~append(result(current~string))
                 leave current_argument
             end
             -- Chunk not surrounded by quotes: ends when a whitespace or quote is reached
             loop
-                if i > string~length then return args~~append(current~string)
+                if i > string~length then return args~~append(result(current~string))
                 c = string~subchar(i)
                 if c <= " " | c == '"' | c == "'" then leave
                 current~append(c)
@@ -1751,6 +1803,10 @@ Other change in gci_convert.win32.vc, to support 64 bits:
         end current_argument
     end arguments
     return args
+
+    result:
+        if returnPosition then return .array~of(currentPos, arg(1))
+        return arg(1)
 
 
 ::routine methodInfos public

@@ -111,23 +111,29 @@ Help
 ====
 
 ?: display help.
-?c[lass] name1 name2 ... : list the methods of the specified classes.
-?c[lasses]: list the loaded classes per package.
+?c[lass] class1 class2 ... : display the methods of each specified class.
+?c[lasses]: display all the classes with their package.
 ?d[ocumentation]: invoke ooRexx documentation.
-?h[elp] name1 name2 ... : display the description of the specified classes.
-?i[nterpreters]: list the interpreters that can be selected.
-?p[ackages]: list the loaded packages.
+?h[elp] class1 class2 ... : display the description of each specified class.
+?i[nterpreters]: display the interpreters that can be selected.
+?m[ethod] method1 method2 ... : display the defining classes of each specified method.
+?m[ethods]: display all the methods with their defining classes.
+?p[ackages]: display the loaded packages.
 
-The output of the help can be filtered:
+The output of the help can be filtered using these operators:
 \==     strict different
 ==      strict equal
 <>      caseless different
 =       caseless equal
 
+Several operators can be specified.
+
 Examples:
-?c                  list all the classes
-?c =string          list all the classes for which the word "string" is displayed
-?c =rgf bsf java    list all the classes for which at least one of these words is displayed
+?c                              display all the classes.
+?c =string                      display all the classes for which the word "string" is displayed.
+?c =rgf bsf java                display all the classes for which at least one of these words is displayed.
+?c bsf = (bsf.cls)              display the methods of the class BSF for which the string "(bsf.cls)" is displayed.
+?c bsf = (bsf.cls)  <> invoke   same output as previous query, but without the lines containing "invoke".
 
 
 Commands
