@@ -188,7 +188,6 @@ return self                                 -- by returning self, let chain the 
 ::method append                             -- append a pipeStage to the entire chain
 expose next
 use strict arg follower
-if self == follower then return self        -- stop the infinite recursion that happens when using a splitter stage
 if .nil == next then do                     -- if we're the end already, just update the next
     follower~I1LinkFromO1(self)             -- link self primary output (O1) to follower primary input (I1)
 end
@@ -2284,11 +2283,13 @@ end
 
 ::method append                             -- override for the single append version
 expose stages
-use strict arg follower
-do stage over stages                        -- append the follower to each of the filter chains
-    stage~append(follower)
+if self~next == .nil then do                -- if first append
+    use strict arg follower
+    do stage over stages                    -- append the follower to each of the filter chains
+        stage~append(follower)
+    end
 end
-return self
+forward class (super)                       -- to update splitter's next. Nothing will go trough it, but useful to know what's the next stage.
 
 ::method insert                             -- this doesn't make sense for a splitter
 raise syntax 93.963                         -- Can't do this, so raise an unsupported error
@@ -2313,6 +2314,9 @@ do stage over stages                        -- send this down all of the branche
     stage~process(item, index, dataflow)
 end
 forward message ("checkEOP") arguments (stages)
+
+--::method reset
+-- Nothing to reset. Must keep the stages provided at creation.
 
 
 /******************************************************************************/
