@@ -49,7 +49,6 @@ a33~each=
 
 --::options trace i
 ::requires "extension/infinity.cls"
-::requires "rgf_util2/rgf_util2.rex"
 
 ::routine a public
     -- Empty array of specified shape
@@ -78,6 +77,19 @@ a33~each=
         if a1~dimension(i) <> a2~dimension(i) then return .false
     end
     return .true
+
+
+::routine shape public
+    -- Remember: same procedure is defined in rgf_util2
+    -- I don't want a dependency on rgf_util2 in this package,
+    -- must find a way to eliminate this double definition.
+    use arg coll, separator=""
+    if coll~hasMethod("shapeToString"), coll~isA(.array) then do
+        shape = coll~shapeToString
+        if shape <> "no shape" then shape = "shape" shape
+        return shape || separator
+    end
+    return ""
 
 
 /******************************************************************************/
