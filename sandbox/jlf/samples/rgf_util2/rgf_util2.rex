@@ -1780,7 +1780,7 @@ syntax:              -- propagate condition
   do
      s=coll
      len=5  -- define an arbitrary high width
-     say title
+     if title <> .nil then say title -- JLF .nil
   end
   else if \coll~isA(.Collection) then   -- make sure we have a Collection else
   do
@@ -1796,7 +1796,7 @@ syntax:              -- propagate condition
   else      -- a collection in hand
   do
      shape = shape(coll, ", ") -- JLF
-     say title" ("shape || coll~items "items)"
+     if title <> .nil then say title" ("shape || coll~items "items)" -- JLF .nil shape
      len=length(coll~items)
   end
 
