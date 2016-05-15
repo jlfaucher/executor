@@ -1780,7 +1780,9 @@ syntax:              -- propagate condition
   do
      s=coll
      len=5  -- define an arbitrary high width
-     if title <> .nil then say title -- JLF .nil
+     availability = "" --JLF
+     if \s~available then availability = "(nothing available)" -- JLF
+     if title <> .nil then say title availability -- JLF .nil
   end
   else if \coll~isA(.Collection) then   -- make sure we have a Collection else
   do
