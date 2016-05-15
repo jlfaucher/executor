@@ -106,12 +106,10 @@ return .ooRexxShell~RC <> 0
 error:
 condition = condition("O")
 if condition <> .nil then do
-    .color~select(.ooRexxShell~errorColor, .error)
-    if condition~message <> .nil then .error~say(condition~message)
-    else if condition~errortext <> .nil then .error~say(condition~errortext)
-    .error~say("Code=" condition~code)
-    .error~say(condition~traceback~makearray~tostring)
-    .color~select(.ooRexxShell~defaultColor, .error)
+    if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
+    else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
+    .ooRexxShell~sayError("Code=" condition~code)
+    .ooRexxShell~sayError(condition~traceback~makearray~tostring)
 end
 signal finalize
 
@@ -263,11 +261,9 @@ main: procedure
 -------------------------------------------------------------------------------
 intro: procedure
     parse version version
-    .color~select(.ooRexxShell~infoColor)
-    say
-    say version
-    say "Input queue name:" .ooRexxShell~queueName
-    .color~select(.ooRexxShell~defaultColor)
+    .ooRexxShell~sayInfo
+    .ooRexxShell~sayInfo(version)
+    .ooRexxShell~sayInfo("Input queue name:" .ooRexxShell~queueName)
     return
 
 
@@ -298,9 +294,7 @@ checkReadlineCapability: procedure
         if queued() <> 0 then parse pull bash_version
         if bash_version == "" then do
             .ooRexxShell~readline = .false
-            .color~select(.ooRexxShell~errorColor, .traceOutput)
-            .traceOutput~say("[readline] ooRexx bug detected, fallback to raw input (no more history, no more globbing)")
-            .color~select(.ooRexxShell~defaultColor, .traceOutput)
+            .ooRexxShell~sayError("[readline] ooRexx bug detected, fallback to raw input (no more history, no more globbing)")
         end
     end
     return
@@ -312,10 +306,8 @@ readline: procedure
     inputrx = ""
     RC = 0
     if .ooRexxShell~traceReadline then do
-        .color~select(.ooRexxShell~traceColor, .traceOutput)
-        .traceOutput~say("[readline] queued()=" queued())
-        .traceOutput~say("[readline] lines()=" lines())
-        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+        .ooRexxShell~sayTrace("[readline] queued()=" queued())
+        .ooRexxShell~sayTrace("[readline] lines()=" lines())
     end
     select
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
@@ -360,11 +352,9 @@ readline: procedure
                         -- we assume that this line has been sent by the read command.
                         parse var inputrx "inputrx=" inputrx1 "0"x inputrx2 "0"x inputrx3
                         if .ooRexxShell~traceReadline then do
-                            .color~select(.ooRexxShell~traceColor, .traceOutput)
-                            .traceOutput~say("[readline] inputrx1=" inputrx1)
-                            .traceOutput~say("[readline] inputrx2=" inputrx2)
-                            .traceOutput~say("[readline] inputrx3=" inputrx3) -- not used, I want just to compare with inputrx1
-                            .color~select(.ooRexxShell~defaultColor, .traceOutput)
+                            .ooRexxShell~sayTrace("[readline] inputrx1=" inputrx1)
+                            .ooRexxshell~sayTrace("[readline] inputrx2=" inputrx2)
+                            .ooRexxShell~sayTrace("[readline] inputrx3=" inputrx3) -- not used, I want just to compare with inputrx1
                         end
 
                         -- If inputrx1 contains more than one word, then it has been surrounded by quotes:
@@ -393,16 +383,12 @@ readline: procedure
         end
     end
     if .ooRexxShell~traceReadline then do
-        .color~select(.ooRexxShell~traceColor, .traceOutput)
-        .traceOutput~say("[readline] inputrx=" inputrx)
-        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+        .ooRexxShell~sayTrace("[readline] inputrx=" inputrx)
     end
     if RC <> 0 then do
         .ooRexxShell~readline = .false
-        .color~select(.ooRexxShell~errorColor, .traceOutput)
-        .traceOutput~say("[readline] RC="RC)
-        .traceOutput~say("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
-        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+        .ooRexxShell~sayError("[readline] RC="RC)
+        .ooRexxShell~sayError("[readline] Something is not working, fallback to raw input (no more history, no more globbing)")
     end
     return inputrx
 
@@ -426,9 +412,7 @@ systemAddress: procedure
 
 -------------------------------------------------------------------------------
 haltHandler:
-    .color~select(.ooRexxShell~infoColor)
-    say "Halt disabled."
-    .color~select(.ooRexxShell~defaultColor)
+    .ooRexxShell~sayInfo("Halt disabled.")
     return
 
 
@@ -451,36 +435,28 @@ dispatchCommand:
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
     if .ooRexxShell~error then do
-        .color~select(.ooRexxShell~errorColor, .error)
         condition = condition("O")
-        if condition~condition <> "SYNTAX" then .error~say(condition~condition)
-        if condition~description <> .nil, condition~description <> "" then .error~say(condition~description)
+        if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
+        if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
 
         -- For SYNTAX conditions
-        if condition~message <> .nil then .error~say(condition~message)
-        else if condition~errortext <> .nil then .error~say(condition~errortext)
-        if condition~code <> .nil then .error~say("Code=" condition~code)
+        if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
+        else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
+        if condition~code <> .nil then .ooRexxShell~sayError("Code=" condition~code)
 
         .ooRexxShell~traceback = condition~traceback
-        .color~select(.ooRexxShell~defaultColor, .error)
     end
     if RC <> 0 & \.ooRexxShell~error then do
         -- RC can be set by interpretCommand or by addressCommand
         -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
-        .color~select(.ooRexxShell~errorColor, .error)
-        .error~say("RC=" RC)
-        .color~select(.ooRexxShell~defaultColor, .error)
+        .ooRexxShell~sayError("RC=" RC)
     end
     if RC <> 0 | .ooRexxShell~error then do
-        .color~select(.ooRexxShell~infoColor, .error)
-        .error~say(.ooRexxShell~command)
-        .color~select(.ooRexxShell~defaultColor, .error)
+        .ooRexxShell~sayInfo(.ooRexxShell~command)
     end
     if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
-        .color~select(.ooRexxShell~infoColor)
-        say "Duration:" time('e') -- elapsed duration
-        if .ooRexxShell~isExtended then say "#Coactivities:" .Coactivity~count -- counter of coactivities
-        .color~select(.ooRexxShell~defaultColor)
+        .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
+        if .ooRexxShell~isExtended then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
     end
     signal CONTINUE_REPL
 
@@ -493,9 +469,7 @@ dispatchCommand:
 interpretCommand:
     .ooRexxShell~command =  transformSource(.ooRexxShell~command)
     if .ooRexxShell~traceDispatchCommand then do
-        .color~select(.ooRexxShell~traceColor, .traceOutput)
-        .traceOutput~say("[interpret] command=" .ooRexxShell~command)
-        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+        .ooRexxShell~sayTrace("[interpret] command=" .ooRexxShell~command)
     end
     if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
                                   else drop result
@@ -573,14 +547,13 @@ dumpResult: procedure
         say "[no result]"
         return
     end
-    if \.ooRexxShell~hasRgfUtil2 then say value
-    else do
-        if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say pp2(value) -- must not consume the datas
-        else if .ooRexxShell~isExtended, value~isA(.enclosedArray) then say value~ppRepresentation(100) -- condensed output, 100 items max
-        else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
-        else if value~isA(.Collection) | value~isA(.Supplier) then call dump2 value
-        else say pp2(value)
-    end
+
+    if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say mypp2(value) -- must not consume the datas
+    else if .ooRexxShell~isExtended, value~isA(.enclosedArray) then say value~ppRepresentation(100) -- condensed output, 100 items max
+    else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
+    else if value~isA(.Collection) | value~isA(.Supplier) then call mydump2 value
+    else say mypp2(value)
+
     return value -- To get this value in the variable RESULT
 
 
@@ -600,7 +573,7 @@ loadOptionalComponents:
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
-    call loadPackage("regex/regex.cls")
+    .ooRexxShell~hasRegex = loadPackage("regex/regex.cls")
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
@@ -631,18 +604,10 @@ loadPackage:
     use strict arg filename, silent=.false
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
-    if .ooRexxShell~isInteractive then do
-        .color~select(.ooRexxShell~infoColor)
-        say "loadPackage OK for" filename
-        .color~select(.ooRexxShell~defaultColor)
-    end
+    if .ooRexxShell~isInteractive then .ooRexxShell~sayInfo("loadPackage OK for" filename)
     return .true
     loadPackageError:
-    if \ silent then do
-        .color~select(.ooRexxShell~errorColor, .error)
-        .error~say("loadPackage KO for" filename)
-        .color~select(.ooRexxShell~defaultColor, .error)
-    end
+    if \ silent then .ooRexxShell~sayError("loadPackage KO for" filename)
     return .false
 
 
@@ -652,17 +617,11 @@ loadLibrary:
     use strict arg filename
     signal on syntax name loadLibraryError
     if .context~package~loadLibrary(filename) then do
-        if .ooRexxShell~isInteractive then do
-            .color~select(.ooRexxShell~infoColor)
-            say "loadLibrary OK for" filename
-            .color~select(.ooRexxShell~defaultColor)
-        end
+        if .ooRexxShell~isInteractive then .ooRexxShell~sayInfo("loadLibrary OK for" filename)
         return .true
     end
     loadLibraryError:
-    .color~select(.ooRexxShell~errorColor, .error)
-    .error~say("loadLibrary KO for" filename)
-    .color~select(.ooRexxShell~defaultColor, .error)
+    .ooRexxShell~sayError("loadLibrary KO for" filename)
     return .false
 
 
@@ -674,6 +633,7 @@ loadLibrary:
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
+::attribute hasRegex class -- Will be .true is regex.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute historyFile class
 ::attribute initialAddress class -- The initial address on startup, not necessarily the system address (can be "THE")
@@ -712,6 +672,7 @@ loadLibrary:
 ::method init class
     self~debug = .false
     self~hasBsf = .false
+    self~hasRegex = .false
     self~hasRgfUtil2 = .false
     self~isExtended = .false
     self~traceReadline = .false
@@ -743,6 +704,27 @@ loadLibrary:
     drop lastResult
 
 
+::method sayInfo class
+    use strict arg text=""
+    .color~select(.ooRexxShell~infoColor, .output)
+    .output~say(text)
+    .color~select(.ooRexxShell~defaultColor, .output)
+
+
+::method sayTrace class
+    use strict arg text=""
+    .color~select(.ooRexxShell~traceColor, .traceOutput)
+    .traceOutput~say(text)
+    .color~select(.ooRexxShell~defaultColor, .traceOutput)
+
+
+::method sayError class
+    use strict arg text=""
+    .color~select(.ooRexxShell~errorColor, .error)
+    .error~say(text)
+    .color~select(.ooRexxShell~defaultColor, .error)
+
+
 ::method help class
     use strict arg query
 
@@ -753,93 +735,80 @@ loadLibrary:
         filter = query~substr(filterPos)
         query = query~left(filterPos - 1)~strip
     end
-    .output~destination(.filteringMonitor~new(.output~current, filter))
+    filteringMonitor = .filteringMonitor~new(.output~current, filter)
+    if \filteringMonitor~valid then return -- Syntax error in regular expression
+    .output~destination(filteringMonitor)
 
     parse var query word1 rest
+    parse var word1 subword1 "." rest1
     if "" == word1 then do
-                                        say "Help:"
-                                        say "    ?: display help."
-        if .ooRexxShell~isExtended then say "    ?c[lass] class1 class2 ... : display the methods of each specified class."
-        if .ooRexxShell~isExtended then say "    ?c[lasses]: display all the classes with their package."
-                                        say "    ?d[ocumentation]: invoke ooRexx documentation."
-                                        say "    ?h[elp] class1 class2 ... : display the description of each specified class."
-                                        say "    ?i[nterpreters]: display the interpreters that can be selected."
-        if .ooRexxShell~isExtended then say "    ?m[ethod] method1 method2 ... : display the defining classes of each specified method."
-        if .ooRexxShell~isExtended then say "    ?m[ethods]: display all the methods with their defining classes."
-        if .ooRexxShell~isExtended then say "    ?p[ackages]: display the loaded packages."
+        say "Help:"
+        say "    ?: display help."
+        say "    ?c[lasses] class1 class2 ... : display the specified classes."
+        say "    ?c[lasses].m[ethods] class1 class2 ... : display the local methods of each specified class."
+        say "    ?c[lasses].m[ethods].i[nherited] c1 c2 ... : display the local & inherited methods of each specified class."
+        say "    ?d[ocumentation]: invoke ooRexx documentation."
+        say "    ?h[elp] class1 class2 ... : display the description of each specified class."
+        say "    ?i[nterpreters]: display the interpreters that can be selected."
+        say "    ?m[ethods] method1 method2 ... : display the specified methods."
+        say "    ?p[ackages]: display the loaded packages."
         .ooRexxShell~helpCommands
     end
 
-    else if "class"~caselessAbbrev(word1) & rest <> "" & .ooRexxShell~isExtended then .ooRexxShell~helpClass(rest)
-    else if "classes"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpClasses
+    else if "classes"~caselessAbbrev(subword1) then do
+        methods = .false
+        inherited = .false
+        do while rest1 <> ""
+            parse var rest1 first1 "." rest1
+            if "methods"~caselessAbbrev(first1) then methods = .true
+            else if "inherited"~caselessAbbrev(first1) then inherited = .true
+            else raise syntax 93.900 array(self~id ": Expected 'methods' or 'inherited' after "first". in "word1)
+        end
+        if inherited then methods = .true
+        if methods then .ooRexxShell~helpClassMethods(rest, inherited)
+        else .ooRexxShell~helpClasses(rest)
+    end
+
+    -- For convenience... cm is shorter than c.m, cmi is shorter than c.m.i
+    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false)
+    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true)
+
     else if "documentation"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpDocumentation
     else if "help"~caselessAbbrev(word1) then .ooRexxShell~helpHelp(rest)
     else if "interpreters"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpInterpreters
-    else if "method"~caselessAbbrev(word1) & rest <> "" & .ooRexxShell~isExtended then .ooRexxShell~helpMethod(rest)
-    else if "methods"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpMethods
-    else if "packages"~caselessAbbrev(word1) & rest == "" & .ooRexxShell~isExtended then .ooRexxShell~helpPackages
+    else if "methods"~caselessAbbrev(word1) then .ooRexxShell~helpMethods(rest)
+    else if "packages"~caselessAbbrev(word1) & rest == "" then .ooRexxShell~helpPackages
 
-    else do
-        .color~select(.ooRexxShell~errorColor, .error)
-        .error~say("Query not understood:" query)
-        .color~select(.ooRexxShell~defaultColor, .error)
-    end
+    else .ooRexxShell~sayError("Query not understood:" query)
 
     .output~destination -- restore the previous destination
+    if filteringMonitor~lineCount > 0 then .ooRexxShell~sayInfo("[Info]" singularPlural(filteringMonitor~lineCount, "line", "lines") "displayed")
 
-    return
-
-
-::method helpClass class
-    -- Display the methods of each specified class
-    use strict arg rest
-    do while rest <> ""
-        parse var rest classname rest
-        if classname~left(1) == "." then classname = classname~substr(2)
-        if classname == "" then iterate
-        class = .context~package~findClass(classname)
-        if class == .nil | \class~isa(.class) then do
-            .color~select(.ooRexxShell~errorColor, .error)
-            .error~say("Class" classname "not found.")
-            .error~say("")
-            .color~select(.ooRexxShell~defaultColor, .error)
-            iterate
-        end
-        .color~select(.ooRexxShell~infoColor)
-        say "Class" classname
-        .color~select(.ooRexxShell~defaultColor)
-        methods = .relation~new
-        -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
-        interpret 'class~pipe(.superclasses "recursive" "once" "after" "mem.class" | .class.instancemethods | .do { expose methods; methods[methodInfos(item)~left(10) index~quoted(x2c(27))] = dataflow["class"]~item~id~quoted(x2c(27)) "("packageInfos(item~package)")" } )'
-        call dump2 methods, /*title*/, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
-        say
-    end
     return
 
 
 ::method helpClasses class
-    -- All classes (public & private) that are visible from current context, with their package
-    -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
-    publicClasses = .relation~new
-    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} "iterateAfter" | .do { expose publicClasses; publicClasses[item] = dataflow["package"]~item })'
-    privateClasses = .relation~new
-    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} "iterateAfter" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item) then privateClasses[item] = dataflow["package"]~item })'
-    -- Previous queries do not return the predefined classes.
-    interpret '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item) & \privateClasses~hasIndex(item) then publicClasses[item] = .nil} )'
+    -- All or specified classes (public & private) that are visible from current context, with their package
+    -- Must hide a part of the code in a interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    use strict arg classnames
+    matchers = .array~new
+    do classname over string2args(classnames)
+        matcher = pattern2block(classname)
+        if matcher == .nil then return -- Syntax error in regular expression
+        matchers~append(matcher)
+    end
+    classInfos = .classInfo~collect(matchers)
     -- Now build a collection where the indexes are the class names preceded by some flags (mixing, private), and the items are the package filenames.
     classes = .relation~new
-    s = publicClasses~supplier
+    s = classInfos~supplier
     do while s~available
-        classes[classInfos(s~index, "public")~left(10) s~index~id~quoted(x2c(27))] = "("packageInfos(s~item)")"
-        s~next
-    end
-    s = privateClasses~supplier
-    do while s~available
-        classes[classInfos(s~index, "private")~left(10) s~index~id~quoted(x2c(27))] = "("packageInfos(s~item)")"
+        classInfo = s~item
+        classes[classInfos(classInfo~klass, classInfo~visibility)~left(10) classInfo~klass~id~quoted(x2c(27))] = "("packageInfos(classInfo~package)")"
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
-    call dump2 classes, /*title*/, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+    call mydump2 classes, /*title*/.nil, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
 
 
 -- Bug ?
@@ -847,7 +816,7 @@ loadLibrary:
 -- and the collection publicClasses is empty.
 ::method helpClasses_NOT_CALLED class
     -- Public classes by package
-    -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    -- Must hide a part of the code in an interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
     -- At first call, define the method and forward to the new definition.
     -- The next calls will not enter here, they will go directly to the new method.
     self~setMethod("helpClasses", .array~of(,
@@ -857,9 +826,48 @@ loadLibrary:
         'privateClasses = .relation~new',,
         '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} "iterateAfter" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) then privateClasses[item~id] = .file~new(dataflow["package"]~item~name)~name})',,
         '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item~id) & \privateClasses~hasIndex(item~id) then publicClasses[item~id] = ""} )',,
-        'call dump2 publicClasses',
+        'call mydump2 publicClasses',
     ), "OBJECT")
     forward message "helpClasses"
+
+
+::method helpClassMethods class
+    -- Display the methods of each specified class
+    -- Must hide a part of the code in an interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    use strict arg classnames, inherited
+    matchers = .array~new
+    do classname over string2args(classnames)
+        matcher = pattern2block(classname)
+        if matcher == .nil then return -- Syntax error in regular expression
+        matchers~append(matcher)
+    end
+    classInfos = .classInfo~collect -- don't filter with matchers here, must have ALL the classes, to get the right package of inherited methods.
+    classInfosSorted = .list~new
+    interpret 'classInfos~pipe(.select {expose matchers; matched = matchers~isEmpty; do matcher over matchers while \matched; matched = matcher~(index~id); end; matched} | .sort {item~klass~id} {item~visibility} {item~package} | .do {expose classInfosSorted; classInfosSorted~append(item)} )'
+    count = 1
+    do classInfo over classInfosSorted
+        say
+        .ooRexxShell~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        methods = .relation~new
+        call collectMethods
+        call mydump2 methods, /*title*/.nil, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+        .ooRexxShell~sayInfo("[Info]" "["count"]" "Class" "'"classInfo~klass~id"' has" singularPlural(methods~items, "method", "methods"))
+        count += 1
+    end
+    return
+
+    collectMethods:
+        signal on syntax name interpretError -- TEMPORARY : some classes don't understand message ~pipe
+        -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
+        -- Bypass this bug by using the package of the class.
+        if inherited then interpret 'classInfo~pipe(.inject {item~klass} | .superclasses "recursive" "once" "after" "mem.class" | .splitter[.inject {item~instanceMethods(item)} "iterateAfter" "mem.classMethod", .inject {item~methods(item)} "iterateAfter" "mem.instanceMethod"] | .do { expose classInfos methods; class = dataflow["class"]~item; package = classInfos[class]~package; instanceLevel = dataflow["instanceMethod"] <> .nil; methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")" })'
+        else              interpret 'classInfo~pipe(.inject {item~klass} "mem.class" | .splitter[.inject {item~instanceMethods(item)} "iterateAfter" "mem.classMethod", .inject {item~methods(item)} "iterateAfter" "mem.instanceMethod"] | .do { expose classInfos methods; class = dataflow["class"]~item; package = classInfos[class]~package; instanceLevel = dataflow["instanceMethod"] <> .nil; methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")" })'
+        return
+
+    interpretError:
+        .ooRexxShell~sayError("[Error]" condition("O")~message)
+        return
 
 
 ::method helpCommands class
@@ -903,39 +911,32 @@ loadLibrary:
         when .platform~is("macosx") | .platform~is("darwin") then do
             'open "http://www.oorexx.org/docs/"' -- not perfect: switch to Safari but the new window is not visible (at least on my machine).
         end
-        otherwise do
-            .color~select(.ooRexxShell~errorColor, .error)
-            .error~say(.platform~name "has no online help for ooRexx.")
-            .color~select(.ooRexxShell~defaultColor, .error)
-        end
+        otherwise .ooRexxShell~sayError(.platform~name "has no online help for ooRexx.")
     end
     address -- restore
 
 
 ::method helpHelp class
-    use strict arg rest
-    if rest == "" & .ooRexxShell~isExtended then do
-        -- All classes having their own _description_ method.
+    -- Must hide a part of the code in a interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    use strict arg classnames
+    if classnames == "" & .ooRexxShell~isExtended then do
+        -- All classes having their own "_description_" class method.
         say "Classes with help text:"
-        -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
         interpret '.object~pipe(.subClasses "recursive" "once" | .select {item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") } | .sort | .console "    " {item~id})'
     end
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
-    do while rest <> ""
-        parse var rest classname rest
+    do classname over string2args(classnames)
         if classname~left(1) == "." then classname = classname~substr(2)
         if classname == "" then iterate
+        --interpret '.object~pipe(.subClasses "recursive" "once" "after" "mem.class" | .select {expose classname; item~id~caselessEquals(classname)} |
         class = .context~package~findClass(classname)
         if class == .nil | \class~isa(.class) then do
-            .color~select(.ooRexxShell~errorColor, .error)
-            .error~say("Class" classname "not found.")
-            .error~say("")
-            .color~select(.ooRexxShell~defaultColor, .error)
+            .ooRexxShell~sayError("Class" classname "not found.")
+            .ooRexxShell~sayError
             iterate
         end
-        .color~select(.ooRexxShell~infoColor)
-        say "Class" classname
-        .color~select(.ooRexxShell~defaultColor)
+        .ooRexxShell~sayInfo("[Info] Class" classname)
         if class~hasMethod("_description_") then do
             description = class~instanceMethod("_description_")
             if description <> .nil then do
@@ -966,33 +967,32 @@ loadLibrary:
     end
 
 
-::method helpMethod class
-    -- Display the defining classes of each specified method
-    use strict arg rest
-    do while rest <> ""
-        parse var rest methodname rest
-        .color~select(.ooRexxShell~infoColor)
-        say "Method" methodname
-        .color~select(.ooRexxShell~defaultColor)
-        methods = .relation~new
-        interpret '.object~pipe(.subClasses "recursive" "once" "after" "mem.class" | .inject {item~instanceMethods(item)} "iterateAfter" | .select {expose methodname; index~caselessEquals(methodname)} | .do {expose methods; methods[methodInfos(item)~left(10) index~quoted(x2c(27))] = dataflow["class"]~item~id~quoted(x2c(27)) "("packageInfos(item~package)")" } )'
-        call dump2 methods, /*title*/, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
-        say
-    end
-    return
-
-
 ::method helpMethods class
-    -- All the methods with their defining classes
-    -- Must hide a part of the code in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    -- Display the defining classes of each specified method
+    -- Must hide a part of the code in an interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    use strict arg methodnames
+    matchers = .array~new
+    do methodname over string2args(methodnames)
+        matcher = pattern2block(methodname)
+        if matcher == .nil then return -- Syntax error in regular expression
+        matchers~append(matcher)
+    end
+
+    -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
+    -- Bypass this bug by using the package of the class.
+    classInfos = .classInfo~collect -- will be used to get the package of the class
+
     methods = .relation~new
-    interpret '.object~pipe(.subClasses "recursive" "once" "after" "mem.class" | .inject {item~instanceMethods(item)} "iterateAfter" | .do {expose methods; methods[methodInfos(item)~left(10) index~quoted(x2c(27))] = dataflow["class"]~item~id~quoted(x2c(27)) "("packageInfos(item~package)")" } )'
-    call dump2 methods, /*title*/, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+    interpret '.object~pipe(.subClasses "recursive" "once" "after" "mem.class" | .splitter[.inject {item~instanceMethods(item)} "iterateAfter" "mem.classMethod", .inject {item~methods(item)} "iterateAfter" "mem.instanceMethod"] | .select {expose matchers; matched = matchers~isEmpty; do matcher over matchers while \matched; matched = matcher~(index); end; matched}| .do {expose classInfos methods; class = dataflow["class"]~item; package = classInfos[class]~package; instanceLevel = dataflow["instanceMethod"] <> .nil; methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")" } )'
+    call mydump2 methods, /*title*/.nil, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false
+    return
 
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
-    -- Must hide the next one-liner in a string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    -- Must hide the next one-liner in an interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
     interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" | .sort {item~name} | .console {item~name})'
 
 
@@ -1001,6 +1001,130 @@ loadLibrary:
     self~traceReadline = trace
     self~traceDispatchCommand = trace
     self~securityManager~traceCommand = trace
+
+
+-------------------------------------------------------------------------------
+::class classInfo
+-------------------------------------------------------------------------------
+
+-- Bypass a missing feature in ooRexx < 5.0:
+-- There is no package associated to a predefined class.
+-- From ooRexx5, the package REXX is available.
+-- I simulate this package, but using a slightly different name to avoid confusion.
+::attribute REXXPackage class get
+
+::method init class
+    expose REXXPackage
+    REXXPackage = .package~new("_REXX_", "")
+
+
+::method predefinedClassNames class
+    return,
+        'Alarm',
+        'ArgUtil',
+        'Array',
+        'Bag',
+        'Buffer',
+        'CaselessColumnComparator',
+        'CaselessComparator',
+        'CaselessDescendingComparator',
+        'CircularQueue',
+        'Class',
+        'Clauser',
+        'Collection',
+        'ColumnComparator',
+        'Comparable',
+        'Comparator',
+        'DateTime',
+        'DescendingComparator',
+        'Directory',
+        'File',
+        'IdentityTable',
+        'InputOutputStream',
+        'InputStream',
+        'InvertingComparator',
+        'List',
+        'MapCollection',
+        'Message',
+        'Method',
+        'Monitor',
+        'MutableBuffer',
+        'NumericComparator',
+        'Object',
+        'Orderable',
+        'OrderedCollection',
+        'OutputStream',
+        'Package',
+        'Pointer',
+        'Properties',
+        'Queue',
+        'Relation',
+        'RexxBlock',
+        'RexxContext',
+        'RexxQueue',
+        'Routine',
+        'SERIALIZEFUNCTIONS',
+        'Serializable',
+        'Set',
+        'SetCollection',
+        'SourceLiteralParser',
+        'StackFrame',
+        'Stem',
+        'Stream',
+        'StreamSupplier',
+        'String',
+        'Supplier',
+        'Table',
+        'TimeSpan',
+        'WeakReference',
+        'server'
+
+
+::method isPredefinedClass class
+    use strict arg classname
+    return self~predefinedClassNames~wordpos(classname) <> 0
+
+
+::method collect class
+    use strict arg matchers=(.array~new)
+    publicClasses = .relation~new
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~publicClasses} "iterateAfter" | .do { expose publicClasses; publicClasses[item] = dataflow["package"]~item })'
+    privateClasses = .relation~new
+    interpret '.context~package~pipe(.importedPackages "recursive" "once" "after" "mem.package" | .inject {item~classes} "iterateAfter" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item) then privateClasses[item] = dataflow["package"]~item })'
+    -- Previous queries do not return the predefined classes.
+    interpret '.object~pipe(.subclasses "recursive" "once" "after" | .do {expose publicClasses privateClasses; if \publicClasses~hasIndex(item) & \privateClasses~hasIndex(item) then publicClasses[item] = .nil} )'
+    -- Now build a collection of classInfo.
+    classInfos = .table~new -- index is a class, item is a classInfo
+    s = publicClasses~supplier
+    do while s~available
+        matched = matchers~isEmpty
+        do matcher over matchers while \matched
+            matched = matcher~do(s~index~id)
+        end
+        if matched then classInfos[s~index] = .classInfo~new(s~index, s~item, "public")
+        s~next
+    end
+    s = privateClasses~supplier
+    do while s~available
+        matched = matchers~isEmpty
+        do matcher over matchers while \matched
+            matched = matcher~do(s~index~id)
+        end
+        if matched then classInfos[s~index] = .classInfo~new(s~index, s~item, "private")
+        s~next
+    end
+    return classInfos
+
+
+::attribute klass -- the class
+::attribute package get -- the package where the class is defined
+::attribute visibility get -- the visibility of the class in the package: "public", "private"
+
+
+::method init
+    expose klass package visibility
+    use strict arg klass, package, visibility
+    if package == .nil, self~class~isPredefinedClass(klass~id) then package = self~class~REXXPackage
 
 
 -------------------------------------------------------------------------------
@@ -1063,10 +1187,8 @@ loadLibrary:
     if isEnabled then status = "enabled" ; else status = "disabled"
 
     if self~traceCommand then do
-        .color~select(.ooRexxShell~traceColor, .traceOutput)
-        .traceOutput~say("[securityManager ("status")] address=" info~address)
-        .traceOutput~say("[securityManager ("status")] command=" info~command)
-        .color~select(.ooRexxShell~defaultColor, .traceOutput)
+        .ooRexxShell~sayTrace("[securityManager ("status")] address=" info~address)
+        .ooRexxShell~sayTrace("[securityManager ("status")] command=" info~command)
     end
 
     if \ isEnabled then return 0 -- delegate to system
@@ -1161,16 +1283,18 @@ loadLibrary:
         substring = arg[2]
         filter = self~parse(substring)
         startOperator = filter[1]
-        if startOperator == 1 then return position
+        if startOperator == 1 then return position -- This is a valid operator. Returns the position of this first operator.
     end
     return 0
 
 
+::attribute valid
 ::attribute interceptedDestination
 ::attribute strictInclude
 ::attribute strictExclude
 ::attribute caselessInclude
 ::attribute caselessExclude
+::attribute lineCount
 
 
 ::method init
@@ -1182,46 +1306,57 @@ loadLibrary:
     -- "<> value1 value2 = value3 \== value4 value5"
     -- A value can be a string surrounded by quotes
     use strict arg destination, filter
+    self~valid = .false -- Will become .true at the end, if no error
     self~interceptedDestination = destination
     self~strictExclude = .array~new
     self~strictInclude = .array~new
     self~caselessExclude = .array~new
     self~caselessInclude = .array~new
+    self~lineCount = 0
     currentOperator = self~CaselessEqual
     do arg over string2args(filter)
         filter = self~class~parse(arg)
         startOperator = filter[1]
         startArgument = filter[2]
         operator = filter[3]
-        if startOperator == 1 then do
+        if startOperator == 1 then do -- valid operator
             currentOperator = operator
             arg = arg~substr(startArgument)
         end
         if arg <> "" then do
-            if currentOperator == self~StrictDifferent then self~strictExclude~append(arg)
-            else if currentOperator == self~StrictEqual then self~strictInclude~append(arg)
-            else if currentOperator == self~CaselessDifferent then self~caselessExclude~append(arg)
-            else if currentOperator == self~CaselessEqual then self~caselessInclude~append(arg)
+            matcherCaselessInclude = pattern2block(arg, .false)
+            if matcherCaselessInclude == .nil then return -- Syntax error in regular expression
+
+            matcherStrictInclude = pattern2block(arg, .false, .false)
+            if matcherStrictInclude == .nil then return -- Syntax error in regular expression
+
+            if currentOperator == self~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
+            else if currentOperator == self~StrictEqual then self~strictInclude~append(matcherStrictInclude)
+            else if currentOperator == self~CaselessDifferent then self~caselessExclude~append(matcherCaselessInclude) -- will negate the result
+            else if currentOperator == self~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
         end
     end
+    self~valid = .true
 
 
 ::method select
+    if \self~valid then return .false
+
     use strict arg string
-    do substring over self~strictExclude
-        if string~pos(substring) <> 0 then return .false
+    do matcher over self~strictExclude
+        if matcher~do(string) then return .false
     end
-    do substring over self~caselessExclude
-        if string~caselessPos(substring) <> 0 then return .false
+    do matcher over self~caselessExclude
+        if matcher~do(string) then return .false
     end
 
     if self~strictInclude~size == 0 & self~caselessInclude~size == 0 then return .true
 
-    do substring over self~strictInclude
-        if string~pos(substring) <> 0 then return .true
+    do matcher over self~strictInclude
+        if matcher~do(string) then return .true
     end
-    do substring over self~caselessInclude
-        if string~caselessPos(substring) <> 0 then return .true
+    do matcher over self~caselessInclude
+        if matcher~do(string) then return .true
     end
     return .false
 
@@ -1234,13 +1369,19 @@ loadLibrary:
 
 ::method lineOut
     use strict arg string
-    if self~select(string) then forward to (self~interceptedDestination)
+    if self~select(string) then do
+        self~lineCount += 1
+        forward to (self~interceptedDestination)
+    end
     return 0
 
 
 ::method say
     use strict arg string
-    if self~select(string) then forward to (self~interceptedDestination)
+    if self~select(string) then do
+        self~lineCount += 1
+        forward to (self~interceptedDestination)
+    end
     return 0
 
 
@@ -1720,6 +1861,12 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     return "(" || string || ")"
 
 
+::routine singularPlural public
+    use strict arg count, singularText, pluralText
+    if abs(count) <= 1 then return count singularText
+    return count pluralText
+
+
 ::routine unsigned32 public
     use strict arg number
     numeric digits 10
@@ -1810,14 +1957,27 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 
 
 ::routine methodInfos public
-    use strict arg method
+    use strict arg method, instanceLevel
+    if method == .nil then return "----"
+    if instanceLevel then level = "I"; else level = "C"
     if method~isGuarded then guarded = "G"; else guarded = "."
     if method~isPrivate then private = "P"; else private = "."
     if method~isProtected then protected = "P"; else protected = "."
-    return guarded || private || protected
+    return level || guarded || private || protected
+
+
+::routine methodPackageInfos public
+    use strict arg method
+    if method == .nil then return "UNDEFINED"
+    return packageInfos(method~package)
 
 
 ::routine packageInfos public
+    -- With ooRexx < 5.0
+    -- The package of the predefined methods is .nil.
+    -- It's not possible to get directly the package of a class.
+    -- With ooRexx >= 5.0
+    -- The package of a class created dynamically is still .nil.
     use strict arg package
     if package == .nil then return ""
     return .file~new(package~name)~name
@@ -1828,6 +1988,65 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     if visibility == "private" then private = "P"; else private = "."
     if class~queryMixinClass then mixin = "M"; else mixin = "."
     return mixin || private
+
+
+::routine pattern2block
+    -- Pattern matching by equality (whole) or by inclusion (not whole), caseless or not.
+    -- The result is a block which implements the pattern matching, or .nil if error.
+    -- The pattern matching is tested when the block is evaluated with a string passed as argument.
+    -- If the package regex.cls is loaded, then the pattern can be a regular expression.
+    -- Example:
+    --   matcher = pattern2block("object") -- caseless equality
+    --   matcher~("ObjeCt") -- true
+    --   matcher~("my ObjeCt") -- false
+    --   matcher = pattern2block("object", false) -- caseless inclusion
+    --   matcher~("ObjeCt") -- true
+    --   matcher~("my ObjeCt") -- true
+    --   matcher = pattern2block("^object|object$", false) -- caseless inclusion. If regex is loaded, "object" at the begining or at the end.
+    --   matcher~("ObjeCt") -- true
+    --   matcher~("my ObjeCt") -- true
+    --   matcher~("my ObjeCts") -- false
+
+    -- Must hide a part of the code in an interpreted string, to let ooRexxShell be loaded by  the standard oorexx: {} are illegal characters.
+    use strict arg stringPattern, wholeString=.true, caseless=.true
+    block = .nil
+    if \.ooRexxShell~hasRegex then do
+        -- the pattern remains a string
+        if wholeString then do
+            if caseless then interpret 'block = {expose stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}'
+            else             interpret 'block = {expose stringPattern; use strict arg string; return string~equals(stringPattern)}'
+        end
+        else do
+            if caseless then interpret 'block = {expose stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}'
+            else             interpret 'block = {expose stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}'
+        end
+    end
+    else do
+        signal on syntax name patternCompileError
+        if caseless then pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
+        else             pattern = .Pattern~compile(stringPattern)
+
+        if wholeString then interpret 'block = {expose pattern; use strict arg string; return pattern~matches(string)}'
+        else                interpret 'block = {expose pattern; use strict arg string; return pattern~find(string)~matched}'
+    end
+    return block
+
+    patternCompileError:
+        .ooRexxShell~sayError("[Error] Regular expression" quoted(string))
+        .ooRexxShell~sayError("[Error]" condition("O")~message)
+        return .nil
+
+
+::routine mypp2
+    -- The package rgfutil2 is optional, use it if loaded.
+    if .ooRexxShell~hasRgfUtil2 then return .context~package~findroutine("pp2")~callWith(arg(1, "a"))
+    return arg(1)
+
+
+::routine mydump2
+    -- The package rgfutil2 is optional, use it if loaded.
+    if .ooRexxShell~hasRgfUtil2 then .context~package~findroutine("dump2")~callWith(arg(1, "a"))
+    else say arg(1)
 
 
 -------------------------------------------------------------------------------

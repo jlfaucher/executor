@@ -111,29 +111,65 @@ Help
 ====
 
 ?: display help.
-?c[lass] class1 class2 ... : display the methods of each specified class.
-?c[lasses]: display all the classes with their package.
+?c[lasses] class1 class2 ... : display the specified classes.
+?c[lasses].m[ethods] class1 class2 ... : display the local methods of each specified class.
+?c[lasses].m[ethods].i[nherited] c1 c2 ... : display the local & inherited methods of each specified class.
 ?d[ocumentation]: invoke ooRexx documentation.
 ?h[elp] class1 class2 ... : display the description of each specified class.
 ?i[nterpreters]: display the interpreters that can be selected.
-?m[ethod] method1 method2 ... : display the defining classes of each specified method.
-?m[ethods]: display all the methods with their defining classes.
+?m[ethods] method1 method2 ... : display the specified methods.
 ?p[ackages]: display the loaded packages.
 
-The output of the help can be filtered using these operators:
-\==     strict different
-==      strict equal
-<>      caseless different
-=       caseless equal
+A first level of filtering is done when specifying class names or method names.
+This is a filtering at objects level.
+If the package regex.cls is available, then the names are regular expressions
+which are compiled into a pattern:
+    pattern~matches(string)
+Otherwise the names are just string patterns:
+    string~caselessEquals(stringPattern)
 
-Several operators can be specified.
+Examples:
+?c bsf                          display only the class "BSF"
+?c .*bsf.*                      display the classes "BSF", "BSF.DIALOG", "BSF.InputStream", etc...
+?m left                         display only the method "LEFT" of the class "String"
+?m .*left.*                     display the methods "+OP:LEFT", "LEFT2", "LEFTELEMENTWISE", etc...
+
+A second level of filtering is done at line level.
+The output of the help can be filtered using these operators:
+\==     strict different: line selected if none of the patterns matches the line.
+==      strict equal : line selected if at least one pattern matches the lines.
+<>      caseless different: same as \== except caseless.
+=       caseless equal: same as == except caseless.
+
+Several operators can be specified in the query.
+For a given operator, several patterns can be specified.
+If the package regex.cls is available, then the names are regular expressions
+which are compiled into a pattern:
+    pattern~find(string)~matched}
+Otherwise the patterns are just string patterns:
+    string~caselessPos(stringPattern) <> 0
 
 Examples:
 ?c                              display all the classes.
 ?c =string                      display all the classes for which the word "string" is displayed.
 ?c =rgf bsf java                display all the classes for which at least one of these words is displayed.
-?c bsf = (bsf.cls)              display the methods of the class BSF for which the string "(bsf.cls)" is displayed.
-?c bsf = (bsf.cls)  <> invoke   same output as previous query, but without the lines containing "invoke".
+?c.m bsf = java                 display the methods of the class "BSF" for which the string "java" is displayed.
+?c.m.i string <> \(_rexx_\)     display all the methods of the class "String" for which the string "(_REXX_)" is not displayed.
+
+The last example display all the extension methods of the class "String".
+The package of the predefined methods is displayed (_REXX_).
+By filtering out the lines which contains "(_REXX_)", we have the extension methods.
+Note:
+From ooRexx5, it's possible to get the package of a class.
+The package will be displayed "(REXX)" instead of "(_REXX_)".
+
+
+Interpreters
+============
+cmd: to activate the cmd interpreter (if available).
+bash: to activate the bash interpreter (if available).
+hostemu: to activate the HostEmu interpreter (if available).
+oorexx: to activate the ooRexx interpreter.
 
 
 Commands
@@ -141,17 +177,12 @@ Commands
 
 To be recognized, these commands must be the first word of the input line.
 
-bash: select the bash interpreter (if available : see interpreters).
 bt: display the backtrace of the last error (same as tb).
-cmd: select the cmd interpreter (if available : see interpreters).
 coloroff: deactivate the colors.
 coloron: activate the colors.
 debugoff: deactivate the full trace of the internals of ooRexxShell.
 debugon: activate the full trace of the internals of ooRexxShell.
 exit: exit ooRexxShell.
-hostemu: select the hostemu interpreter (if available : see interpreters).
-interpreters: list the interpreters that can be selected.
-oorexx: select the ooRexx interpreter.
 readlineoff: use the raw parse pull for the input.
 readlineon: delegate to the system readline (better support for history, tab completion).
 reload: exit the current session and start a new one, reloading all the packages/librairies.
