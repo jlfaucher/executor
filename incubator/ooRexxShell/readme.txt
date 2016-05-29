@@ -111,11 +111,12 @@ Help
 ====
 
 ?: display help.
-?c[lasses] class1 class2 ... : display the specified classes.
-?c[lasses].m[ethods] class1 class2 ... : display the local methods of each specified class.
+?c[lasses] c1 c2 ... : display the specified classes.
+?c[lasses].m[ethods] c1 c2 ... : display the local methods of each specified class.
 ?c[lasses].m[ethods].i[nherited] c1 c2 ... : display the local & inherited methods of each specified class.
 ?d[ocumentation]: invoke ooRexx documentation.
-?h[elp] class1 class2 ... : display the description of each specified class.
+?h[elp] c1 c2 ... : display the local description of each specified class.
+?h[elp].i[nherited] c1 c2 ... : display the local & inherited description of each specified class.
 ?i[nterpreters]: display the interpreters that can be selected.
 ?m[ethods] method1 method2 ... : display the specified methods.
 ?p[ackages]: display the loaded packages.
@@ -179,20 +180,20 @@ To be recognized, these commands must be the first word of the input line.
 
 bt: display the backtrace of the last error (same as tb).
 coloroff: deactivate the colors.
-coloron: activate the colors.
+coloron : activate the colors.
 debugoff: deactivate the full trace of the internals of ooRexxShell.
-debugon: activate the full trace of the internals of ooRexxShell.
+debugon : activate the full trace of the internals of ooRexxShell.
 exit: exit ooRexxShell.
 readlineoff: use the raw parse pull for the input.
-readlineon: delegate to the system readline (better support for history, tab completion).
+readlineon : delegate to the system readline (better support for history, tab completion).
 reload: exit the current session and start a new one, reloading all the packages/librairies.
 securityoff: deactivate the security manager. The system commands are passed as-is to the system.
-securityon: activate the security manager. The system commands are transformed before passing them to the system.
+securityon : activate the security manager. The system commands are transformed before passing them to the system.
 tb: display the traceback of the last error (same as bt).
-traceoff: deactivate the ligth trace of the internals of ooRexxShell.
-traceon: activate the ligth trace of the internals of ooRexxShell.
-trapoff: deactivate the conditions traps when interpreting the command.
-trapon: activate the conditions traps when interpreting the command.
+traceoff [d[ispatchcommand]] [f[ilter]] [r[eadline]] [s[ecuritymanager]]: deactivate the ligth trace.
+traceon  [d[ispatchcommand]] [f[ilter]] [r[eadline]] [s[ecuritymanager]]: activate the ligth trace.
+trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps when interpreting the command
+trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps when interpreting the command
 
 
 Known problems under Windows
