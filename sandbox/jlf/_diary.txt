@@ -153,6 +153,226 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2016 may 29
+
+Summary of the changes made since the previous entry.
+
+ooRexxShell
+-----------
+
+Bypass a bug in official ooRexx which delegates to system() when the passed address is bash.
+The bug is that system() delegates to /bin/sh, and should be called only when the passed address is sh.
+Because of this bug, the readline procedure (which depends on bash) is not working and must be deactivated
+when the interpreter is the official ooRexx.
+
+Security manager: optimization
+It's no longer mandatory to implement all the methods of a security manager.
+When a check is not needed, just don't provide the corresponding method.
+That can reduce drastically the number of security checkpoint messages sent by the interpreter.
+Example:
+do 1000000;x=.true;end   -- 5.440 sec (before the optimization)
+do 1000000;x=.true;end   -- 0.300 sec (now, with the optimization)
+It's possible to still do better, that will be the next optimization to apply to ExpressionDotVariable.
+Should be as fast as
+do 1000000;x=1;end       -- 0.080 sec
+by calculating at parse-time the value of the predefined variables like .true, .false, .nil
+and the value of the predefined classes like .object, .class, .string, etc...
+
+Predefined queries allow to get the list of classes, methods, packages.
+A first level of filtering is done when specifying class names or method names.
+If the package regex.cls is available, then the names are regular expressions.
+Otherwise the names are just string patterns.
+A second level of filtering is possible at output line level.
+
+
+Complex numbers
+---------------
+
+Use request("complex") instead of .complex~convert.
+This is the technique recommended by the ooRexx reference documentation.
+But... it doesn't work when added by extension to the class String:
+    1~makeComplex returns a complex (good)
+    1~hasmethod("makecomplex")= returns .true (good)
+    1~request("complex") doesn't work, returns .nil (not good --> fixed).
+The implementation of RexxObject::requestRexx has been modified.
+    old: RexxMethod *method = this->behaviour->methodLookup(make_method);
+    now: RexxMethod *method = this->instanceMethod(make_method);
+Behind the scene, "1" is an instance of RexxInteger. The method "makecomplex"
+added by extension on String does not exist in the behaviour table of RexxInteger.
+When using instanceMethod, the interpreter automatically forward to the string
+representation when a method is not found :
+return stringValue()->instanceMethod(method_name);
+
+
+Infinity
+--------
+
+Added support for calculations.
+1 + infinity = infinity (first need for the array~depth method).
+infinity < 1 = .false (first need for depth of element-wise operations).
+And other arithmetic operators...
+
+
+Multiple extensions of operators on String
+------------------------------------------
+
+Both Complex and Infinity define extensions on String.
+The interpreter send messages for alternative operators to String.
+The dispatching to Complex & Infinity is hardcoded in string.cls.
+Example:
+::method "+op:right"
+    forward continue class (.complexString)
+    if var("result") then return result
+    forward class (.infinityString)
+Initially, I wanted to put the dispatching inside the interpreter, by iterating
+over the mixin classes inherited by String.
+But after thoughts, I realize it's better to keep the dispatching in the user code.
+Currently, String inherit from more than 10 mixin classes :
+    StringDoer
+    StringFilter
+    StringIterator
+    StringReducer
+    StringGenerator
+    StringMapper
+    StringHelpers
+    RepeaterCollector
+    RepeaterGenerator
+    LogicalExtension
+    EncodedString
+    OperatorDispatcher : mixin providing an extension of operators for dispatching.
+    ComplexString : mixin providing an extension of operators for complex numbers.
+    InfinityString : mixin providing an extension of operators for infinity.
+Dispatching to all these mixin classes would be costly.
+Dispatching to only 2 mixin classes is better.
+
+
+Alternative operators for comparisons
+-------------------------------------
+
+In short :
+A message for alternative comparison can be sent when two strings are compared.
+A string can be a RexxInteger or a RexxNumber or a RexxString.
+This message is sent BEFORE a string comparison happens (i.e. before a number or
+an object is converted to a string).
+If no alternative operator, or no result returned then do a string comparison.
+integer op integer      not impacted                    1 < 10
+integer op number       not impacted                    1 < 1e20
+integer op other        try alternative operator        1 < infinity            -- "INFINITY"~"<OP:RIGHT(1)
+number op number        not impacted                    1e20 < 1e19
+number op other         try alternative operator        1e20 < infinity         -- "INFINITY"~"<OP:RIGHT(1E20)
+string op number        try alternative operator        infinity < 1            -- 1~"<OP:RIGHT"("INFINITY")
+string op string        not impacted                    infinity < pi           -- true (yes... string comparison)
+string op other         try alternativeOperator         infinity < -infinity    -- (The negative infinity)~"<OP:RIGHT("INFINITY")
+
+Modification of the following methods to give a chance for an alternative operator
+before promoting the first argument from an integer|number to a string,
+or before requesting a string:
+    RexxInteger::comp               RexxNumberString::comp              RexxString::comp
+    RexxInteger::equal              RexxNumberString::equal             RexxString::equal               non-strict =
+    RexxInteger::notEqual           RexxNumberString::notEqual          RexxString::notEqual            non-strict \=
+    RexxInteger::isGreaterThan      RexxNumberString::isGreaterThan     RexxString::isGreaterThan       non-strict >
+    RexxInteger::isLessThan         RexxNumberString::isLessThan        RexxString::isLessThan          non-strict <
+    RexxInteger::isGreaterOrEqua    RexxNumberString::isGreaterOrEqual  RexxString::isGreaterOrEqual    non-scrict >=
+    RexxInteger::isLessOrEqual      RexxNumberString::isLessOrEqual     RexxString::isLessOrEqual       non-strict <=
+
+Evaluation of the expression (1 > -infinity) :
+    1 is a RexxInteger.
+    -infinity is evaluated as .infinity~negative.
+    RexxInteger::comp
+        Since .infinity~negative is not a RexxInteger, 1 is promoted to a RexxNumberString.
+    RexxNumber::comp
+        Since .infinity~negative is not a RexxNumberString, 1 is promoted to a RexxString.
+    RexxString::comp
+        A string comparison would return .false: "1" > "The negative infinity".
+        But thanks to the alternative operator, the result is correct:
+        .infinity~negative~">op:right"(1)= -- .true
+
+Evaluation of the expression (infinity > 0) :
+    infinity is a RexxString.
+    1 is a RexxInteger.
+    RexxString::comp (standard ooRexx)
+        If both arguments can be converted to a number then do a numeric comparison
+        otherwise do a string comparison.
+        -->
+        A string comparison would be done: "infinity" > "1"
+    RexxString::comp (executor)
+        Try the alternative operator
+        when only one of the arguments can be converted to a number.
+        when none of the arguments can be converted to a number and the right argument is not a string.
+        -->
+        An alternative operator is used: 0~">OP:RIGHT("INFINITY")
+
+
+Array programming
+-----------------
+
+Methods added to Object:
+
+rank
+    APL R←⍴⍴Y
+    An array may have 0 or more axes or dimensions.
+    The number of axes of an array is known as its rank.
+    An array with 0 axes (rank 0) is called a scalar
+    An array with 1 axis (rank 1) is called a vector.
+    An array with 2 axes (rank 2) is called a matrix or table.
+    An array with 3 axes (rank 3) is called a cube.
+    An array with more than 2 axes is called a multi-dimensional array
+
+    ooRexx:
+    Any object other than an array is a scalar.
+    In particular, a string is a scalar, not an array as in APL.
+    Special case which does not exist in APL : The rank of an array with no dimension yet assigned is -1.
+
+shape
+    APL R←⍴Y (Rho)
+    The shape of a scalar is an empty vector []
+    The shape of an array is an array which gives the size of each dimension.
+    The display of the shape has been reworked: no longer NxMx... because was not adapted to the case rank=0.
+    .array~new  -- an Array (no shape, 0 items)                 rank=-1
+    a()         -- an Array (shape [], 0 items)         scalar  rank=0
+    a(0)        -- an Array (shape [0], 0 items)        vector  rank=1
+    a(3,2)      -- an Array (shape [3,2], 0 items)      matrix  rank=2
+    a(3,2,1)    -- an Array (shape [3,2,1], 0 items)    cube    rank=3
+
+reshape
+    APL R←X⍴Y (Rho)
+    args : new dimension(s)
+
+depth
+    APL R←≡Y (Equal Underbar)
+    Depth (≡) indicates the degree of nesting within an array.
+    It returns a non-negative integer which defines the maximum number of levels
+    of structure to be penetrated in order to get to a simple scalar where simple means non-nested.
+    The depth of an array is 1 greater than that of its most deeply nested item.
+    Returns "infinity" when the array is self-referencing.
+
+enclose
+    (this method replaces ~isBoxed which is removed)
+    APL R←⊂Y (Left Shoe)
+    If Y is a simple scalar, R is the simple scalar unchanged.
+    Otherwise, R has a depth whose magnitude is one greater than the magnitude of the depth of Y.
+
+disclose
+    APL R←⊃Y (Right Shoe)
+    Disclose is the inverse of Enclose.
+
+Element wise calculations can be limited to a given depth.
+
+Examples:
+v1=v(1,2)
+v2=v(3,4)
+v3=v(3,4,5)
+v1+v2=                  -- [4,6]
+v1+v3=                  -- error: Shapes are not equal
+v1~enclose+v2=          -- [<[4,5]>,<[5,6]>]
+v1~enclose+v3=          -- [<[4,5]>,<[5,6]>,<[6,7]>]
+v1+v2~enclose=          -- <[4,5]>,<[5,6]>]
+v1+v3~enclose=          -- [<[4,5,6]>,<[5,6,7]>]
+v1~enclose+v2~enclose=  -- error Element-wise operation does not support two enclosed arrays
+                        -- (probably to support, Dyalog APL supports it)
+
+
+===============================================================================
 2015 dec 21
 
 RexxBlock: The removal of {::method...} allows more simplifications.
