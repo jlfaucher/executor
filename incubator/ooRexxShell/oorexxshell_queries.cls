@@ -158,10 +158,11 @@ loadPackage:
 
 ::method displayClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
+    -- classnames is an array of Argument
     use strict arg classnames, displayer, context
     matchers = .array~new
-    do classname. over classnames
-        matcher = pattern2block(classname.string) -- wholeString, caseless
+    do classname over classnames
+        matcher = pattern2block(classname) -- wholeString, caseless
         if matcher == .nil then return -- Syntax error in regular expression
         matchers~append(matcher)
     end
@@ -180,10 +181,11 @@ loadPackage:
 
 ::method displayClassMethods class
     -- Display the methods of each specified class
+    -- classnames is an array of Argument
     use strict arg classnames, inherited, displayer, context
     matchers = .array~new
-    do classname. over classnames
-        matcher = pattern2block(classname.string) -- wholeString, caseless
+    do classname over classnames
+        matcher = pattern2block(classname) -- wholeString, caseless
         if matcher == .nil then return -- Syntax error in regular expression
         matchers~append(matcher)
     end
@@ -237,6 +239,7 @@ loadPackage:
 
 
 ::method displayHelp class
+    -- classnames is an array of Argument
     use strict arg classnames, inherited, displayer, context
     if classnames~isEmpty then do
         if inherited then do
@@ -259,8 +262,8 @@ loadPackage:
 
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
     matchers = .array~new
-    do classname. over classnames
-        matcher = pattern2block(classname.string) -- wholeString, caseless
+    do classname over classnames
+        matcher = pattern2block(classname) -- wholeString, caseless
         if matcher == .nil then return -- Syntax error in regular expression
         matchers~append(matcher)
     end
@@ -311,10 +314,11 @@ loadPackage:
 
 ::method displayMethods class
     -- Display the defining classes of each specified method
+    -- methodnames is an array of Argument
     use strict arg methodnames, displayer, context
     matchers = .array~new
-    do methodname. over methodnames
-        matcher = pattern2block(methodname.string) -- wholeString caseless
+    do methodname over methodnames
+        matcher = pattern2block(methodname) -- wholeString caseless
         if matcher == .nil then return -- Syntax error in regular expression
         matchers~append(matcher)
     end
@@ -353,7 +357,7 @@ loadPackage:
 
 
 -------------------------------------------------------------------------------
-::class filteringStream public
+::class "Filter"
 -------------------------------------------------------------------------------
 
 ::constant StrictDifferent      1
@@ -361,35 +365,47 @@ loadPackage:
 ::constant CaselessDifferent    3
 ::constant CaselessEqual        4
 
-
 ::method parse class
     -- "=something"     not recognized as filter operator, because is quoted
     -- =something       recognized as filter operator
-    use strict arg arg.
-    if operator("\==", self~StrictDifferent) then return operator
-    if operator("==", self~StrictEqual) then return operator
-    if operator("<>", self~CaselessDifferent) then return operator
-    if operator("=", self~CaselessEqual) then return operator
-    return filter(0, arg.string)
-    operator: procedure expose arg. operator
-        use strict arg operatorString, operatorCode
-        if arg.isquoted then return .false
-        pos = arg.string~pos(operatorString)
-        if pos <> 1 then return .false
-        operator = filter(operatorCode, arg.string~substr(operatorString~length + 1))
-        return .true
-    filter: procedure
-        use strict arg operatorCode, operatorArgument
-        return .stem~new~~put(operatorCode, "OPERATOR")~~put(operatorArgument, "ARGUMENT")
+    -- arg is an Argument
+    use strict arg arg
+    if operator("\==", self~StrictDifferent) then return filter
+    if operator("==", self~StrictEqual) then return filter
+    if operator("<>", self~CaselessDifferent) then return filter
+    if operator("=", self~CaselessEqual) then return filter
+    return self~new(0, arg) -- no operator
 
+    operator: procedure expose arg filter
+        use strict arg operatorString, operatorCode
+        if arg~isquoted then return .false
+        pos = arg~value~pos(operatorString)
+        if pos <> 1 then return .false
+        argument = arg~substr(operatorString~length + 1)
+        filter = .Filter~new(operatorCode, argument)
+        return .true
+
+
+::attribute operator
+::attribute argument
+
+::method init
+    expose operator argument
+    use strict arg operator, argument
+
+
+-------------------------------------------------------------------------------
+::class "FilteringStream" public
+-------------------------------------------------------------------------------
 
 ::method firstFilterIndex class
+    -- args is an array of Argument
     use strict arg args
     index = 0
-    do arg. over args
+    do arg over args
         index += 1
-        filter. = self~parse(arg.)
-        if filter.operator <> 0 then return index -- This is the first filter operator. Returns its index.
+        filter = .Filter~parse(arg)
+        if filter~operator <> 0 then return index -- This is the first filter operator. Returns its index.
     end
     return 0
 
@@ -405,12 +421,14 @@ loadPackage:
 
 ::method init
     -- Examples of valid filters:
-    -- ""
-    -- "value"
-    -- "=value"
-    -- "== value"
-    -- "<> value1 value2 = value3 \== value4 value5"
+    -- ""                                 -- no filter
+    -- "value"                            -- caseless equals value
+    -- "=value"                           -- caseless equals value
+    -- "== value"                         -- casesensitive equals value
+    -- "<> value1 value2 = value3 value4" -- (<> value1 AND <> value2) AND (= value3 OR = value4)
     -- A value can be a string surrounded by quotes
+
+    -- filters is an array of Argument
     use strict arg destination, filters
     self~valid = .false -- Will become .true at the end, if no error
     self~interceptedDestination = destination
@@ -419,21 +437,21 @@ loadPackage:
     self~caselessExclude = .array~new
     self~caselessInclude = .array~new
     self~lineCount = 0
-    currentOperator = self~CaselessEqual
+    currentOperator = .Filter~CaselessEqual
     do filter over filters
-        filter. = self~class~parse(filter)
-        if filter.operator <> 0 then currentOperator = filter.operator
-        if filter.argument <> "" then do
-            matcherCaselessInclude = pattern2block(filter.argument, .false) -- not wholeString, caseless
+        filter = .Filter~parse(filter)
+        if filter~operator <> 0 then currentOperator = filter~operator
+        if filter~argument~value <> "" then do
+            matcherCaselessInclude = pattern2block(filter~argument, .false) -- not wholeString, caseless
             if matcherCaselessInclude == .nil then return -- Syntax error in regular expression
 
-            matcherStrictInclude = pattern2block(filter.argument, .false, .false) -- not wholeString, caseSensitive
+            matcherStrictInclude = pattern2block(filter~argument, .false, .false) -- not wholeString, caseSensitive
             if matcherStrictInclude == .nil then return -- Syntax error in regular expression
 
-            if currentOperator == self~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
-            else if currentOperator == self~StrictEqual then self~strictInclude~append(matcherStrictInclude)
-            else if currentOperator == self~CaselessDifferent then self~caselessExclude~append(matcherCaselessInclude) -- will negate the result
-            else if currentOperator == self~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
+            if currentOperator == .filter~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
+            else if currentOperator == .filter~StrictEqual then self~strictInclude~append(matcherStrictInclude)
+            else if currentOperator == .filter~CaselessDifferent then self~caselessExclude~append(matcherCaselessInclude) -- will negate the result
+            else if currentOperator == .filter~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
         end
     end
     self~valid = .true
@@ -467,7 +485,7 @@ loadPackage:
     traceMatcher:
         -- matcher is a closure created by pattern2block.
         -- The variables of pattern2block have been captured, and can be retrieved, in particular the description.
-        displayer~sayTrace(prefix matcher~variables["DESCRIPTION"])
+        displayer~sayTrace(prefix matcher~variables~description)
         do line over matcher~source
             displayer~sayTrace(prefix line)
         end
@@ -552,16 +570,17 @@ loadPackage:
     --   matcher~("my ObjeCt") -- true
     --   matcher~("my ObjeCts") -- false
 
+    -- stringPattern is an Argument
     use strict arg stringPattern, wholeString=.true, caseless=.true
     block = .nil
 
     -- Build a description of the matcher, will be displayed when tracing the filters
-    description = "stringPattern="stringPattern~quoted "wholeString="wholeString "caseless="caseless
+    description = "stringPattern="stringPattern~value~quoted "wholeString="wholeString "caseless="caseless
 
     if .Pattern~isa(.class), .Pattern~hasMethod("compile") then do
         signal on syntax name patternCompileError
-        if caseless then pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
-        else             pattern = .Pattern~compile(stringPattern)
+        if caseless then pattern = .Pattern~compile(stringPattern~value, .RegexCompiler~new(.RegexCompiler~caseless))
+        else             pattern = .Pattern~compile(stringPattern~value)
 
         if wholeString then block = {expose pattern; use strict arg string; return pattern~matches(string)}
         else                block = {expose pattern; use strict arg string; return pattern~find(string)~matched}
@@ -569,12 +588,12 @@ loadPackage:
     else do
         -- the pattern remains a string
         if wholeString then do
-            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
-            else             block = {expose stringPattern; use strict arg string; return string~equals(stringPattern)}
+            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessEquals(stringPattern~value)}
+            else             block = {expose stringPattern; use strict arg string; return string~equals(stringPattern~value)}
         end
         else do
-            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
-            else             block = {expose stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
+            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessPos(stringPattern~value) <> 0}
+            else             block = {expose stringPattern; use strict arg string; return string~pos(stringPattern~value) <> 0}
         end
     end
     return block

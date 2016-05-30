@@ -749,7 +749,7 @@ loadLibrary:
 
 ::method help class
     use strict arg queryFilter
-    queryFilterArgs = string2args(queryFilter, .true) -- true: with infos
+    queryFilterArgs = string2args(queryFilter, .true) -- true: array of Argument
     queryArgs = queryFilterArgs
     filteringStream = .nil
     if .filteringStream~isa(.class) then do
@@ -791,8 +791,8 @@ loadLibrary:
         return
     end
 
-    arg1. = queryArgs[1]
-    word1 = arg1.string
+    arg1 = queryArgs[1]
+    word1 = arg1~value
     parse var word1 subword1 "." rest1
     rest = queryArgs~section(2)
 
@@ -1543,63 +1543,34 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 
 
 -------------------------------------------------------------------------------
--- Helpers
+::class Argument
 -------------------------------------------------------------------------------
 
-::routine quoted public
-    -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
-    use strict arg string, quote='"'
-    return quote || string || quote
+::attribute end         -- index of last character in string
+::attribute isQuoted    -- true if the first character in string is a quote (this quote is not in value)
+::attribute start       -- index of first character in string
+::attribute string      -- the string from which the value has been extracted
+::attribute value       -- the value of the argument (the quotes are removed)
 
+::method init
+    expose end isQuoted start string value
+    use strict arg value, string, start, isQuoted, end
 
-::routine unquoted public
-    -- Remember: keep it, because the method .String~unquoted is NOT available with standard ooRexx.
-    use strict arg string, quote='"'
-    if string~left(1) == quote & string~right(1) == quote then
-        return string~substr(2, string~length - 2)
-    else
-        return string
-
-
-::routine paren public
-    use strict arg string
-    return "(" || string || ")"
-
-
-::routine unsigned32 public
-    use strict arg number
-    numeric digits 10
-    if number >= 0 then return number
-    return 4294967296 + number
-
-
-::routine littleendian2integer16 public
-    use strict arg string
-    byte2 = string~subchar(2)~c2d
-    byte1 = string~subchar(1)~c2d
-    integer16 = 256 * byte2 + byte1
-    if byte2 >= 128 then return integer16 - 65536
-    return integer16
-
-
-::routine littleendian2integer32 public
-    use strict arg string
-    numeric digits 10
-    byte4 = string~subchar(4)~c2d
-    byte3 = string~subchar(3)~c2d
-    byte2 = string~subchar(2)~c2d
-    byte1 = string~subchar(1)~c2d
-    integer32 = 16777216 * byte4 + 65536 * byte3 + 256 * byte2 + byte1
-    if byte4 >= 128 then return integer32 - 4294967296
-    return integer32
+::method substr
+    -- Extract a substring while keeping the contextual informations
+    use strict arg from
+    substr = self~value~substr(from)
+    copy = self~copy
+    copy~value = substr
+    return copy
 
 
 ::routine string2args public
     -- Converts a string to an array of arguments.
     -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
     -- An argument can be made of several quoted chunks. Ex : aa"bb"cc"dd"ee
-    -- If withInfos == .false then the result is an array of strings.
-    -- If withInfos == .true then the result is an array of stems with indexes "string", "start", "quoted", "end"
+    -- If withInfos == .false then the result is an array of String.
+    -- If withInfos == .true then the result is an array of Argument.
 
     -- Ex:
     -- 11111111111111111111111111 222222222222222 333333333333333333333
@@ -1666,12 +1637,64 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     return args
 
     result:
-        if withInfos then return .stem~new,
-                                        ~~put(current~string, "STRING"),
-                                        ~~put(firstCharPosition, "START"),
-                                        ~~put(firstCharIsQuote, "ISQUOTED"),
-                                        ~~put(i-1, "END")
+        if withInfos then return .Argument~new(/*value*/    current~string,,
+                                               /*string*/   string,,
+                                               /*start*/    firstCharPosition,,
+                                               /*isQuoted*/ firstCharIsQuote,,
+                                               /*end*/      i-1)
         else return current~string
+
+
+-------------------------------------------------------------------------------
+-- Helpers
+-------------------------------------------------------------------------------
+
+::routine quoted public
+    -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+    use strict arg string, quote='"'
+    return quote || string || quote
+
+
+::routine unquoted public
+    -- Remember: keep it, because the method .String~unquoted is NOT available with standard ooRexx.
+    use strict arg string, quote='"'
+    if string~left(1) == quote & string~right(1) == quote then
+        return string~substr(2, string~length - 2)
+    else
+        return string
+
+
+::routine paren public
+    use strict arg string
+    return "(" || string || ")"
+
+
+::routine unsigned32 public
+    use strict arg number
+    numeric digits 10
+    if number >= 0 then return number
+    return 4294967296 + number
+
+
+::routine littleendian2integer16 public
+    use strict arg string
+    byte2 = string~subchar(2)~c2d
+    byte1 = string~subchar(1)~c2d
+    integer16 = 256 * byte2 + byte1
+    if byte2 >= 128 then return integer16 - 65536
+    return integer16
+
+
+::routine littleendian2integer32 public
+    use strict arg string
+    numeric digits 10
+    byte4 = string~subchar(4)~c2d
+    byte3 = string~subchar(3)~c2d
+    byte2 = string~subchar(2)~c2d
+    byte1 = string~subchar(1)~c2d
+    integer32 = 16777216 * byte4 + 65536 * byte3 + 256 * byte2 + byte1
+    if byte4 >= 128 then return integer32 - 4294967296
+    return integer32
 
 
 -------------------------------------------------------------------------------
