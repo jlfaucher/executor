@@ -434,18 +434,7 @@ dispatchCommand:
     if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
     options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
     call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
-    if .ooRexxShell~error then do
-        condition = condition("O")
-        if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
-        if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
-
-        -- For SYNTAX conditions
-        if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
-        else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
-        if condition~code <> .nil then .ooRexxShell~sayError("Code=" condition~code)
-
-        .ooRexxShell~traceback = condition~traceback
-    end
+    if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"))
     if RC <> 0 & \.ooRexxShell~error then do
         -- RC can be set by interpretCommand or by addressCommand
         -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
@@ -729,6 +718,19 @@ loadLibrary:
     .color~select(.ooRexxShell~defaultColor, .error)
 
 
+::method sayCondition class
+    use strict arg condition
+    if condition~condition <> "SYNTAX" then .ooRexxShell~sayError(condition~condition)
+    if condition~description <> .nil, condition~description <> "" then .ooRexxShell~sayError(condition~description)
+
+    -- For SYNTAX conditions
+    if condition~message <> .nil then .ooRexxShell~sayError(condition~message)
+    else if condition~errortext <> .nil then .ooRexxShell~sayError(condition~errortext)
+    if condition~code <> .nil then .ooRexxShell~sayError("Code=" condition~code)
+
+    .ooRexxShell~traceback = condition~traceback
+
+
 ::method sayCollection class
     -- The package rgfutil2 is optional, use it if loaded.
     if .ooRexxShell~hasRgfUtil2 then .context~package~findroutine("dump2")~callWith(arg(1, "a"))
@@ -752,6 +754,7 @@ loadLibrary:
     queryFilterArgs = string2args(queryFilter, .true) -- true: array of Argument
     queryArgs = queryFilterArgs
     filteringStream = .nil
+    signal on syntax name helpError -- trap regular expression errors
     if .filteringStream~isa(.class) then do
         filterArgs = .array~new -- no filter by default (but will allow to display the lineCount)
         -- filter specified in the query ?
@@ -771,6 +774,12 @@ loadLibrary:
         .output~destination -- restore the previous destination
         if filteringStream~lineCount > 0 then .ooRexxShell~sayInfo("[Info]" .ooRexxShell~singularPlural(filteringStream~lineCount, "line", "lines") "displayed")
     end
+    return
+
+    helpError:
+    if filteringStream <> .nil then .output~destination -- restore the previous destination
+    .ooRexxShell~sayCondition(condition("O"))
+
 
 
 ::method dispatchHelp class
@@ -778,14 +787,14 @@ loadLibrary:
     if queryArgs[1] == .nil then do
         say "Help:"
         say "    ?: display help."
-        say "    ?c[lasses] c1 c2 ... : display the specified classes."
-        say "    ?c[lasses].m[ethods] c1 c2 ... : display the local methods of each specified class."
-        say "    ?c[lasses].m[ethods].i[nherited] c1 c2 ... : display the local & inherited methods of each specified class."
+        say "    ?c[lasses] c1 c2... : display classes."
+        say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes."
+        say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods"
         say "    ?d[ocumentation]: invoke ooRexx documentation."
-        say "    ?h[elp] c1 c2 ... : display the local description of each specified class."
-        say "    ?h[elp].i[nherited] c1 c2 ... : display the local & inherited description of each specified class."
-        say "    ?i[nterpreters]: display the interpreters that can be selected."
-        say "    ?m[ethods] method1 method2 ... : display the specified methods."
+        say "    ?h[elp] c1 c2 ... : local description of classes."
+        say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes."
+        say "    ?i[nterpreters]: interpreters that can be selected."
+        say "    ?m[ethods] method1 method2 ... : display methods."
         say "    ?p[ackages]: display the loaded packages."
         .ooRexxShell~helpCommands
         return
@@ -866,15 +875,15 @@ loadLibrary:
     say "    debugon : activate the full trace of the internals of ooRexxShell."
     say "    exit: exit ooRexxShell."
     say "    readlineoff: use the raw parse pull for the input."
-    say "    readlineon : delegate to the system readline (better support for history, tab completion)."
-    say "    reload: exit the current session and start a new one, reloading all the packages/librairies."
-    say "    securityoff: deactivate the security manager. The system commands are passed as-is to the system."
-    say "    securityon : activate the security manager. The system commands are transformed before passing them to the system."
+    say "    readlineon : delegate to the system readline (history, tab completion)."
+    say "    reload: exit the current session and reload all the packages/librairies."
+    say "    securityoff: deactivate the security manager. No transformation of commands."
+    say "    securityon : activate the security manager. Transformation of commands."
     say "    tb: display the traceback of the last error (same as bt)."
-    say "    traceoff [d[ispatchcommand]] [f[ilter]] [r[eadline]] [s[ecuritymanager]]: deactivate the ligth trace."
-    say "    traceon  [d[ispatchcommand]] [f[ilter]] [r[eadline]] [s[ecuritymanager]]: activate the ligth trace."
-    say "    trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps when interpreting the command"
-    say "    trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps when interpreting the command"
+    say "    traceoff [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate the trace."
+    say "    traceon  [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: activate the trace."
+    say "    trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps."
+    say "    trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps."
     say "Input queue name:" .ooRexxShell~queueName
 
 

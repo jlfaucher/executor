@@ -162,8 +162,7 @@ loadPackage:
     use strict arg classnames, displayer, context
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2block(classname) -- wholeString, caseless
-        if matcher == .nil then return -- Syntax error in regular expression
+        matcher = pattern2block(classname, /*wholestring*/ .false, /*caseless*/ .true)
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -185,8 +184,7 @@ loadPackage:
     use strict arg classnames, inherited, displayer, context
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2block(classname) -- wholeString, caseless
-        if matcher == .nil then return -- Syntax error in regular expression
+        matcher = pattern2block(classname, /*wholestring*/ .false, /*caseless*/ .true)
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context) -- don't filter with matchers here, must have ALL the classes, to get the right package of inherited methods.
@@ -263,8 +261,7 @@ loadPackage:
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2block(classname) -- wholeString, caseless
-        if matcher == .nil then return -- Syntax error in regular expression
+        matcher = pattern2block(classname, /*wholestring*/ .false, /*caseless*/ .true)
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -318,8 +315,7 @@ loadPackage:
     use strict arg methodnames, displayer, context
     matchers = .array~new
     do methodname over methodnames
-        matcher = pattern2block(methodname) -- wholeString caseless
-        if matcher == .nil then return -- Syntax error in regular expression
+        matcher = pattern2block(methodname, /*wholestring*/ .false, /*caseless*/ .true)
         matchers~append(matcher)
     end
 
@@ -354,6 +350,46 @@ loadPackage:
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     use strict arg displayer, context
     context~package~pipe(.importedPackages "recursive" "once" "after" | .sort {item~name} | .console {item~name})
+
+
+-------------------------------------------------------------------------------
+Helpers for ClassInfoQuery
+-------------------------------------------------------------------------------
+
+::routine methodInfos public
+    use strict arg method, instanceLevel
+    if method == .nil then return "----"
+    if instanceLevel then level = "I"; else level = "C"
+    if method~isGuarded then guarded = "G"; else guarded = "."
+    if method~isPrivate then private = "P"; else private = "."
+    if method~isProtected then protected = "P"; else protected = "."
+    return level || guarded || private || protected
+
+
+::routine methodPackageInfos public
+    -- Not used because
+    -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
+    use strict arg method
+    if method == .nil then return "UNDEFINED"
+    return packageInfos(method~package)
+
+
+::routine packageInfos public
+    -- With ooRexx < 5.0
+    -- The package of the predefined methods is .nil.
+    -- It's not possible to get directly the package of a class.
+    -- With ooRexx >= 5.0
+    -- The package of a class created dynamically is still .nil.
+    use strict arg package
+    if package == .nil then return ""
+    return .file~new(package~name)~name
+
+
+::routine classInfos public
+    use strict arg class, visibility
+    if visibility == "private" then private = "P"; else private = "."
+    if class~queryMixinClass then mixin = "M"; else mixin = "."
+    return mixin || private
 
 
 -------------------------------------------------------------------------------
@@ -442,11 +478,8 @@ loadPackage:
         filter = .Filter~parse(filter)
         if filter~operator <> 0 then currentOperator = filter~operator
         if filter~argument~value <> "" then do
-            matcherCaselessInclude = pattern2block(filter~argument, .false) -- not wholeString, caseless
-            if matcherCaselessInclude == .nil then return -- Syntax error in regular expression
-
-            matcherStrictInclude = pattern2block(filter~argument, .false, .false) -- not wholeString, caseSensitive
-            if matcherStrictInclude == .nil then return -- Syntax error in regular expression
+            matcherCaselessInclude = pattern2block(filter~argument, /*wholestring*/ .false, /*caseless*/ .true)
+            matcherStrictInclude = pattern2block(filter~argument, /*wholestring*/ .false, /*caseless*/ .false)
 
             if currentOperator == .filter~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
             else if currentOperator == .filter~StrictEqual then self~strictInclude~append(matcherStrictInclude)
@@ -543,29 +576,22 @@ loadPackage:
 -- Helpers
 --------------------------------------------------------------------------------
 
-::routine methodInfos public
-    use strict arg method, instanceLevel
-    if method == .nil then return "----"
-    if instanceLevel then level = "I"; else level = "C"
-    if method~isGuarded then guarded = "G"; else guarded = "."
-    if method~isPrivate then private = "P"; else private = "."
-    if method~isProtected then protected = "P"; else protected = "."
-    return level || guarded || private || protected
-
-
 ::routine pattern2block public
     -- Pattern matching by equality (whole) or by inclusion (not whole), caseless or not.
     -- The result is a block which implements the pattern matching, or .nil if error.
     -- The pattern matching is tested when the block is evaluated with a string passed as argument.
     -- If the package regex.cls is loaded, then the pattern can be a regular expression.
-    -- Example:
+    -- Examples:
+
     --   matcher = pattern2block("object") -- caseless equality
     --   matcher~("ObjeCt") -- true
     --   matcher~("my ObjeCt") -- false
+
     --   matcher = pattern2block("object", false) -- caseless inclusion
     --   matcher~("ObjeCt") -- true
     --   matcher~("my ObjeCt") -- true
-    --   matcher = pattern2block("^object|object$", false) -- caseless inclusion, regular expression: "object" at the begining or at the end.
+
+    --   matcher = pattern2block("/^object|object$", false) -- caseless inclusion, regular expression: "object" at the begining or at the end.
     --   matcher~("ObjeCt") -- true
     --   matcher~("my ObjeCt") -- true
     --   matcher~("my ObjeCts") -- false
@@ -574,13 +600,25 @@ loadPackage:
     use strict arg stringPattern, wholeString=.true, caseless=.true
     block = .nil
 
-    -- Build a description of the matcher, will be displayed when tracing the filters
-    description = "stringPattern="stringPattern~value~quoted "wholeString="wholeString "caseless="caseless
+    isQuoted = stringPattern~isQuoted
+    stringPattern = stringPattern~value
 
-    if .Pattern~isa(.class), .Pattern~hasMethod("compile") then do
+    -- Build a description of the matcher, will be displayed when tracing the filters
+    description = "stringPattern="stringPattern~quoted "wholeString="wholeString "caseless="caseless
+
+    regularExpression = \isQuoted & stringPattern~subchar(1) == "/"
+    if regularExpression then do
+        if .Pattern~isa(.class), .Pattern~hasMethod("compile") then do
+            -- Good, the package regex.cls is loaded
+            stringPattern = stringPattern~substr(2) -- remove the "/"
+        end
+        else raise syntax 93.900 array("Regular expression" stringPattern~quoted "not supported: The package regex.cls is not loaded")
+    end
+
+    if regularExpression then do
         signal on syntax name patternCompileError
-        if caseless then pattern = .Pattern~compile(stringPattern~value, .RegexCompiler~new(.RegexCompiler~caseless))
-        else             pattern = .Pattern~compile(stringPattern~value)
+        if caseless then pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
+        else             pattern = .Pattern~compile(stringPattern)
 
         if wholeString then block = {expose pattern; use strict arg string; return pattern~matches(string)}
         else                block = {expose pattern; use strict arg string; return pattern~find(string)~matched}
@@ -588,43 +626,15 @@ loadPackage:
     else do
         -- the pattern remains a string
         if wholeString then do
-            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessEquals(stringPattern~value)}
-            else             block = {expose stringPattern; use strict arg string; return string~equals(stringPattern~value)}
+            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
+            else             block = {expose stringPattern; use strict arg string; return string~equals(stringPattern)}
         end
         else do
-            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessPos(stringPattern~value) <> 0}
-            else             block = {expose stringPattern; use strict arg string; return string~pos(stringPattern~value) <> 0}
+            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
+            else             block = {expose stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
         end
     end
     return block
 
     patternCompileError:
-        displayer~sayError("[Error] Regular expression" string~quoted)
-        displayer~sayError("[Error]" condition("O")~message)
-        return .nil
-
-
-::routine methodPackageInfos public
-    -- Not used because
-    -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
-    use strict arg method
-    if method == .nil then return "UNDEFINED"
-    return packageInfos(method~package)
-
-
-::routine packageInfos public
-    -- With ooRexx < 5.0
-    -- The package of the predefined methods is .nil.
-    -- It's not possible to get directly the package of a class.
-    -- With ooRexx >= 5.0
-    -- The package of a class created dynamically is still .nil.
-    use strict arg package
-    if package == .nil then return ""
-    return .file~new(package~name)~name
-
-
-::routine classInfos public
-    use strict arg class, visibility
-    if visibility == "private" then private = "P"; else private = "."
-    if class~queryMixinClass then mixin = "M"; else mixin = "."
-    return mixin || private
+        raise syntax 93.900 array("Regular expression" stringPattern~quoted ":" condition("O")~message)

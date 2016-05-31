@@ -111,20 +111,20 @@ Help
 ====
 
 ?: display help.
-?c[lasses] c1 c2 ... : display the specified classes.
-?c[lasses].m[ethods] c1 c2 ... : display the local methods of each specified class.
-?c[lasses].m[ethods].i[nherited] c1 c2 ... : display the local & inherited methods of each specified class.
+?c[lasses] c1 c2... : display classes.
+?c[lasses].m[ethods] c1 c2... : display local methods per classes.
+?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods
 ?d[ocumentation]: invoke ooRexx documentation.
-?h[elp] c1 c2 ... : display the local description of each specified class.
-?h[elp].i[nherited] c1 c2 ... : display the local & inherited description of each specified class.
-?i[nterpreters]: display the interpreters that can be selected.
-?m[ethods] method1 method2 ... : display the specified methods.
+?h[elp] c1 c2 ... : local description of classes.
+?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes.
+?i[nterpreters]: interpreters that can be selected.
+?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
 
 A first level of filtering is done when specifying class names or method names.
 This is a filtering at objects level.
-If the package regex.cls is available, then the names are regular expressions
-which are compiled into a pattern:
+If the package regex.cls is available, then the names starting with "/" are
+regular expressions which are compiled into a pattern:
     pattern~matches(string)
 Otherwise the names are just string patterns:
     string~caselessEquals(stringPattern)
@@ -144,8 +144,8 @@ The output of the help can be filtered using these operators:
 
 Several operators can be specified in the query.
 For a given operator, several patterns can be specified.
-If the package regex.cls is available, then the names are regular expressions
-which are compiled into a pattern:
+If the package regex.cls is available, then the names starting with "/" are
+regular expressions which are compiled into a pattern:
     pattern~find(string)~matched}
 Otherwise the patterns are just string patterns:
     string~caselessPos(stringPattern) <> 0
@@ -185,15 +185,15 @@ debugoff: deactivate the full trace of the internals of ooRexxShell.
 debugon : activate the full trace of the internals of ooRexxShell.
 exit: exit ooRexxShell.
 readlineoff: use the raw parse pull for the input.
-readlineon : delegate to the system readline (better support for history, tab completion).
-reload: exit the current session and start a new one, reloading all the packages/librairies.
-securityoff: deactivate the security manager. The system commands are passed as-is to the system.
-securityon : activate the security manager. The system commands are transformed before passing them to the system.
+readlineon : delegate to the system readline (history, tab completion).
+reload: exit the current session and reload all the packages/librairies.
+securityoff: deactivate the security manager. No transformation of commands.
+securityon : activate the security manager. Transformation of commands.
 tb: display the traceback of the last error (same as bt).
-traceoff [d[ispatchcommand]] [f[ilter]] [r[eadline]] [s[ecuritymanager]]: deactivate the ligth trace.
-traceon  [d[ispatchcommand]] [f[ilter]] [r[eadline]] [s[ecuritymanager]]: activate the ligth trace.
-trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps when interpreting the command
-trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps when interpreting the command
+traceoff [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate the trace.
+traceon  [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: activate the trace.
+trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps.
+trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps.
 
 
 Known problems under Windows
@@ -266,10 +266,17 @@ History of changes
 ==================
 
 -----------------------------------------------
+2016 may 22
+
+Queries & filters.
+
+
+-----------------------------------------------
 2015 oct 6
 
 Since BSF4OORexx 4.5.0, it's no longer needed to call BsfAttachToTID and BsfDetach.
 Removed the useless code.
+
 
 -----------------------------------------------
 2015 sep 25
@@ -289,6 +296,7 @@ readlineoff : use the raw parse pull for the input.
 readlineon : delegate to the system readline (better support for history, tab completion).
 securityoff : deactivate the security manager. The system commands are passed as-is to the system.
 securityon : activate the security manager. The system commands are transformed before passing them to the system.
+
 
 -----------------------------------------------
 2015 Jul 5
