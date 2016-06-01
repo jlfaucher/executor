@@ -353,7 +353,7 @@ loadPackage:
 
 
 -------------------------------------------------------------------------------
-Helpers for ClassInfoQuery
+-- Helpers for ClassInfoQuery
 -------------------------------------------------------------------------------
 
 ::routine methodInfos public
@@ -453,7 +453,7 @@ Helpers for ClassInfoQuery
 ::attribute caselessInclude
 ::attribute caselessExclude
 ::attribute lineCount
-
+::attribute stringbuffer
 
 ::method init
     -- Examples of valid filters:
@@ -473,6 +473,7 @@ Helpers for ClassInfoQuery
     self~caselessExclude = .array~new
     self~caselessInclude = .array~new
     self~lineCount = 0
+    self~stringbuffer = .mutablebuffer~new
     currentOperator = .Filter~CaselessEqual
     do filter over filters
         filter = .Filter~parse(filter)
@@ -549,24 +550,45 @@ Helpers for ClassInfoQuery
 
 
 ::method charOut
+    expose stringbuffer
     use strict arg string
-    if self~select(string) then forward to (self~interceptedDestination)
+    stringbuffer~append(string)
     return 0
 
 
 ::method lineOut
+    expose stringbuffer
     use strict arg string
-    if self~select(string) then do
+    stringbuffer~append(string)
+    line = stringbuffer~string
+    stringbuffer~delete(1)
+    if self~select(line) then do
         self~lineCount += 1
-        forward to (self~interceptedDestination)
+        forward to (self~interceptedDestination) array (line)
     end
     return 0
 
 
 ::method say
+    expose stringbuffer
     use strict arg string
-    if self~select(string) then do
+    stringbuffer~append(string)
+    line = stringbuffer~string
+    stringbuffer~delete(1)
+    if self~select(line) then do
         self~lineCount += 1
+        forward to (self~interceptedDestination) array (line)
+    end
+    return 0
+
+
+::method flush
+    expose stringbuffer
+    line = stringbuffer~string
+    stringbuffer~delete(1)
+    if self~select(line) then do
+        -- self~lineCount += 1 -- incomplete line...
+        self~interceptedDestination~charOut(line)
         forward to (self~interceptedDestination)
     end
     return 0

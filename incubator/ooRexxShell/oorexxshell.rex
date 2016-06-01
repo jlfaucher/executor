@@ -771,13 +771,17 @@ loadLibrary:
     end
     .ooRexxShell~dispatchHelp(queryFilter, queryArgs)
     if filteringStream <> .nil then do
+        filteringStream~flush
         .output~destination -- restore the previous destination
-        if filteringStream~lineCount > 0 then .ooRexxShell~sayInfo("[Info]" .ooRexxShell~singularPlural(filteringStream~lineCount, "line", "lines") "displayed")
+        /*if filteringStream~lineCount > 0 then*/ .ooRexxShell~sayInfo("[Info]" .ooRexxShell~singularPlural(filteringStream~lineCount, "line", "lines") "displayed")
     end
     return
 
     helpError:
-    if filteringStream <> .nil then .output~destination -- restore the previous destination
+    if filteringStream <> .nil then do
+        filteringStream~flush
+        .output~destination -- restore the previous destination
+    end
     .ooRexxShell~sayCondition(condition("O"))
 
 
