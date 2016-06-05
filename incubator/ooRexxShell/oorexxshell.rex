@@ -792,11 +792,11 @@ loadLibrary:
         say "Help:"
         say "    ?: display help."
         say "    ?c[lasses] c1 c2... : display classes."
-        say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes."
-        say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods"
+        say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm)."
+        say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi)."
         say "    ?d[ocumentation]: invoke ooRexx documentation."
         say "    ?h[elp] c1 c2 ... : local description of classes."
-        say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes."
+        say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi)."
         say "    ?i[nterpreters]: interpreters that can be selected."
         say "    ?m[ethods] method1 method2 ... : display methods."
         say "    ?p[ackages]: display the loaded packages."
@@ -805,7 +805,7 @@ loadLibrary:
     end
 
     arg1 = queryArgs[1]
-    word1 = arg1~value
+    word1 = arg1~string
     parse var word1 subword1 "." rest1
     rest = queryArgs~section(2)
 
@@ -1559,22 +1559,45 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 ::class Argument
 -------------------------------------------------------------------------------
 
-::attribute end         -- index of last character in string
-::attribute isQuoted    -- true if the first character in string is a quote (this quote is not in value)
-::attribute start       -- index of first character in string
-::attribute string      -- the string from which the value has been extracted
-::attribute value       -- the value of the argument (the quotes are removed)
+::attribute container           -- the string container from which the string value has been extracted
+::attribute containerEnd        -- index of last character in container
+::attribute containerStart      -- index of first character in container
+::attribute quotedFlags         -- string of booleans : "1" when the corresponding character in string is part of a chunk surrounded by quotes
+::attribute string              -- the string value of the argument (the quotes are removed)
+
 
 ::method init
-    expose end isQuoted start string value
-    use strict arg value, string, start, isQuoted, end
+    expose container containerEnd containerStart quotedFlags string
+    use strict arg string, quotedFlags="", container="", containerStart=0, containerEnd=0
+
+
+::method left
+    -- Extract a left substring while keeping the contextual informations
+    copy = self~copy
+    forward to(self~string) continue
+    copy~string = result
+    forward to(self~quotedFlags) continue
+    copy~quotedFlags = result
+    return copy
+
+
+::method right
+    -- Extract a right substring while keeping the contextual informations
+    copy = self~copy
+    forward to(self~string) continue
+    copy~string = result
+    forward to(self~quotedFlags) continue
+    copy~quotedFlags = result
+    return copy
+
 
 ::method substr
     -- Extract a substring while keeping the contextual informations
-    use strict arg from
-    substr = self~value~substr(from)
     copy = self~copy
-    copy~value = substr
+    forward to(self~string) continue
+    copy~string = result
+    forward to(self~quotedFlags) continue
+    copy~quotedFlags = result
     return copy
 
 
@@ -1608,9 +1631,8 @@ Other change in gci_convert.win32.vc, to support 64 bits:
         end
 
         current = .MutableBuffer~new
+        quotedFlags = .MutableBuffer~new
         firstCharPosition = i
-        firstChar = string~subchar(i)
-        firstCharIsQuote = (firstChar == '"' | firstChar == "'")
         loop label current_argument
             c = string~subchar(i)
             quote = ""
@@ -1623,13 +1645,17 @@ Other change in gci_convert.win32.vc, to support 64 bits:
                     select
                         when string~subchar(i) == quote & string~subchar(i+1) == quote then do
                             current~append(quote)
+                            quotedFlags~append("1")
                             i += 1
                         end
                         when string~subchar(i) == quote then do
                             i += 1
                             leave quoted_chunk
                         end
-                        otherwise current~append(string~subchar(i))
+                        otherwise do
+                            current~append(string~subchar(i))
+                            quotedFlags~append("1")
+                        end
                     end
                 end quoted_chunk
             end
@@ -1643,6 +1669,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
                 c = string~subchar(i)
                 if c <= " " | c == '"' | c == "'" then leave
                 current~append(c)
+                quotedFlags~append("0")
                 i += 1
             end
         end current_argument
@@ -1650,11 +1677,11 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     return args
 
     result:
-        if withInfos then return .Argument~new(/*value*/    current~string,,
-                                               /*string*/   string,,
-                                               /*start*/    firstCharPosition,,
-                                               /*isQuoted*/ firstCharIsQuote,,
-                                               /*end*/      i-1)
+        if withInfos then return .Argument~new(/*string*/         current~string,,
+                                               /*quotedFlags*/    quotedFlags~string,,
+                                               /*container*/      string,,
+                                               /*containerStart*/ firstCharPosition,,
+                                               /*containerEnd*/   i-1)
         else return current~string
 
 

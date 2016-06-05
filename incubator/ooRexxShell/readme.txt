@@ -77,7 +77,7 @@ CMD> oorexxshell '"/Volumes/testCpp1/files.txt"~pipe(.fileLines | .inject {suffi
 Example
 By design, parse pull reads first the queue and then the standard input.
 In the next example, "say hello2" has been pushed to the input queue of ooRexxShell,
-and "say hello1" comes the standard input.
+and "say hello1" comes from the standard input.
 CMD> echo say hello1 | oorexxshell say hello2
 HELLO2
 HELLO1
@@ -122,47 +122,65 @@ Help
 ?p[ackages]: display the loaded packages.
 
 A first level of filtering is done when specifying class names or method names.
-This is a filtering at objects level.
+This is a filtering at object level.
+Several names can be specified, the interpretation is: name1 or name2 or ...
 If the package regex.cls is available, then the names starting with "/" are
-regular expressions which are compiled into a pattern:
+regular expressions which are compiled into a pattern. The matching with this
+pattern is then tested for each object's name (string):
     pattern~matches(string)
-Otherwise the names are just string patterns:
-    string~caselessEquals(stringPattern)
+Otherwise the names are just string patterns.
+The character "*" has a special meaning when first or last character, and not quoted:
+    * or **        : matches everything
+    "*" or "**"    : matches exactly "*" or "**", see case stringPattern
+    *"*"*          : matches all names containing "*", see case *stringPattern*
+    *"**"*         : matches all names containing "**", see case *stringPattern*
+    *stringPattern : string~right(stringPattern~length)~caselessEquals(stringPattern)
+    stringPattern* : string~left(stringPattern~length)~caselessEquals(stringPattern)
+    *stringPattern*: string~caselessPos(stringPattern) <> 0
+    stringPattern  : string~caselessEquals(stringPattern)
 
 Examples:
-?c bsf                          display only the class "BSF"
-?c .*bsf.*                      display the classes "BSF", "BSF.DIALOG", "BSF.InputStream", etc...
-?m left                         display only the method "LEFT" of the class "String"
-?m .*left.*                     display the methods "+OP:LEFT", "LEFT2", "LEFTELEMENTWISE", etc...
+?c bsf                          display the classes whose id is "bsf" (caseless)
+?c *bsf*                        display the classes whose id contains "bsf" (caseless)
+?c /.*bsf.*                     display the classes whose id contains "bsf" (caseless) (regular expression)
+?m left                         display the methods whose name is "left" (caseless)
+?m *left*                       display the methods whose name contains "left" (caseless)
+?m /.*left.*                    display the methods whose name contains "left" (caseless) (regular expression)
 
 A second level of filtering is done at line level.
-The output of the help can be filtered using these operators:
+The output of the help can be filtered line by line using these operators:
 \==     strict different: line selected if none of the patterns matches the line.
 ==      strict equal : line selected if at least one pattern matches the lines.
 <>      caseless different: same as \== except caseless.
 =       caseless equal: same as == except caseless.
 
 Several operators can be specified in the query.
-For a given operator, several patterns can be specified.
-If the package regex.cls is available, then the names starting with "/" are
-regular expressions which are compiled into a pattern:
+For a given operator, several operands can be specified.
+The interpretation of
+    = v1 v2 <> v3 = v4 <> v5 v6
+is
+    (=v1 OR =v2 OR =v4) AND <>v3 AND <>v5 AND <>v6
+If the package regex.cls is available, then the operands starting with "/" are
+regular expressions which are compiled into a pattern. The matching with this
+pattern is then tested for each line (string):
     pattern~find(string)~matched}
-Otherwise the patterns are just string patterns:
+Otherwise the patterns are just string patterns.
+The character "*" when first or last character, and not quoted, is ignored.
     string~caselessPos(stringPattern) <> 0
+    or
+    string~pos(stringPattern) <> 0
 
 Examples:
-?c                              display all the classes.
-?c =string                      display all the classes for which the word "string" is displayed.
-?c =rgf bsf java                display all the classes for which at least one of these words is displayed.
+?c =string                      display the classes for which the word "string" is displayed.
+?c =rgf bsf java                display the classes for which at least one of these words is displayed.
+?c == /^M                       display the mixin classes : all lines starting with "M".
 ?c.m bsf = java                 display the methods of the class "BSF" for which the string "java" is displayed.
-?c.m.i string <> \(_rexx_\)     display all the methods of the class "String" for which the string "(_REXX_)" is not displayed.
-
-The last example display all the extension methods of the class "String".
-The package of the predefined methods is displayed (_REXX_).
-By filtering out the lines which contains "(_REXX_)", we have the extension methods.
-Note:
-From ooRexx5, it's possible to get the package of a class.
-The package will be displayed "(REXX)" instead of "(_REXX_)".
+?c.m.i string \== (REXX)        display the extension methods of the class "String".
+                                The package of the predefined methods is displayed (REXX).
+                                By filtering out the lines which contains "(REXX)", we have the extension methods.
+?m =/^----                      Display the hidden methods: all lines starting with "----".
+?m \== /^.G == (REXX)           Display the methods not guarded whose package is REXX:
+                                all lines where second char <> "G" and which contains "(REXX)".
 
 
 Interpreters

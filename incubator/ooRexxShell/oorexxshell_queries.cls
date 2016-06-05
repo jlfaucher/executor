@@ -20,12 +20,11 @@ loadPackage:
 -- Bypass a missing feature in ooRexx < 5.0:
 -- There is no package associated to a predefined class.
 -- From ooRexx5, the package REXX is available.
--- I simulate this package, but using a slightly different name to avoid confusion.
 ::attribute REXXPackage class get
 
 ::method init class
     expose REXXPackage
-    REXXPackage = .package~new("_REXX_", "")
+    REXXPackage = .package~new("REXX", "")
 
 
 ::method predefinedClassNames class
@@ -162,7 +161,7 @@ loadPackage:
     use strict arg classnames, displayer, context
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2block(classname, /*wholestring*/ .false, /*caseless*/ .true)
+        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -184,7 +183,7 @@ loadPackage:
     use strict arg classnames, inherited, displayer, context
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2block(classname, /*wholestring*/ .false, /*caseless*/ .true)
+        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context) -- don't filter with matchers here, must have ALL the classes, to get the right package of inherited methods.
@@ -223,8 +222,10 @@ loadPackage:
           | .splitter[.inject {item~instanceMethods(item)} "iterateAfter" "mem.classMethod",,
                       .inject {item~methods(item)} "iterateAfter" "mem.instanceMethod"],
           | .do { expose classInfos methods
+                  package = .nil
+                  if item <> .nil then package = item~package -- if method not hidden
                   class = dataflow["class"]~item
-                  package = classInfos[class]~package
+                  if package == .nil then package = classInfos[class]~package
                   instanceLevel = dataflow["instanceMethod"] <> .nil
                   methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
                 },
@@ -261,7 +262,7 @@ loadPackage:
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2block(classname, /*wholestring*/ .false, /*caseless*/ .true)
+        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -315,7 +316,7 @@ loadPackage:
     use strict arg methodnames, displayer, context
     matchers = .array~new
     do methodname over methodnames
-        matcher = pattern2block(methodname, /*wholestring*/ .false, /*caseless*/ .true)
+        matcher = pattern2matcher(methodname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
         matchers~append(matcher)
     end
 
@@ -336,8 +337,10 @@ loadPackage:
                   matched
                 },
       | .do { expose classInfos methods
+              package = .nil
+                  if item <> .nil then package = item~package -- if method not hidden
               class = dataflow["class"]~item
-              package = classInfos[class]~package
+              if package == .nil then package = classInfos[class]~package
               instanceLevel = dataflow["instanceMethod"] <> .nil
               methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
             },
@@ -358,7 +361,7 @@ loadPackage:
 
 ::routine methodInfos public
     use strict arg method, instanceLevel
-    if method == .nil then return "----"
+    if method == .nil then return "----" -- Hidden method, see documentation of .class~methods
     if instanceLevel then level = "I"; else level = "C"
     if method~isGuarded then guarded = "G"; else guarded = "."
     if method~isPrivate then private = "P"; else private = "."
@@ -414,9 +417,9 @@ loadPackage:
 
     operator: procedure expose arg filter
         use strict arg operatorString, operatorCode
-        if arg~isquoted then return .false
-        pos = arg~value~pos(operatorString)
-        if pos <> 1 then return .false
+        left = arg~left(operatorString~length)
+        if left~string <> operatorString then return .false
+        if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
         argument = arg~substr(operatorString~length + 1)
         filter = .Filter~new(operatorCode, argument)
         return .true
@@ -478,9 +481,9 @@ loadPackage:
     do filter over filters
         filter = .Filter~parse(filter)
         if filter~operator <> 0 then currentOperator = filter~operator
-        if filter~argument~value <> "" then do
-            matcherCaselessInclude = pattern2block(filter~argument, /*wholestring*/ .false, /*caseless*/ .true)
-            matcherStrictInclude = pattern2block(filter~argument, /*wholestring*/ .false, /*caseless*/ .false)
+        if filter~argument~string <> "" then do
+            matcherCaselessInclude = pattern2matcher(filter~argument, /*wholestring*/ .false, /*caseless*/ .true)
+            matcherStrictInclude = pattern2matcher(filter~argument, /*wholestring*/ .false, /*caseless*/ .false)
 
             if currentOperator == .filter~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
             else if currentOperator == .filter~StrictEqual then self~strictInclude~append(matcherStrictInclude)
@@ -494,37 +497,30 @@ loadPackage:
 ::method traceFilter
     use strict arg displayer
 
-    prefix = "[filter]"
+    prefix = "[line filter]"
     first = .true
     do matcher over self~strictInclude
         if \first then displayer~sayTrace(prefix "OR")
-        call traceMatcher
+        call traceMatcher matcher, displayer, prefix
+        first = .false
     end
     do matcher over self~caselessInclude
         if \first then displayer~sayTrace(prefix "OR")
-        call traceMatcher
+        call traceMatcher matcher, displayer, prefix
+        first = .false
     end
     do matcher over self~strictExclude
         if first then displayer~sayTrace(prefix "NOT")
         else displayer~sayTrace(prefix "AND NOT")
-        call traceMatcher
+        call traceMatcher matcher, displayer, prefix
+        first = .false
     end
     do matcher over self~caselessExclude
         if first then displayer~sayTrace(prefix "NOT")
         else displayer~sayTrace(prefix "AND NOT")
-        call traceMatcher
-    end
-    return
-
-    traceMatcher:
-        -- matcher is a closure created by pattern2block.
-        -- The variables of pattern2block have been captured, and can be retrieved, in particular the description.
-        displayer~sayTrace(prefix matcher~variables~description)
-        do line over matcher~source
-            displayer~sayTrace(prefix line)
-        end
+        call traceMatcher matcher, displayer, prefix
         first = .false
-        return
+    end
 
 
 ::method select
@@ -598,37 +594,44 @@ loadPackage:
 -- Helpers
 --------------------------------------------------------------------------------
 
-::routine pattern2block public
+::routine pattern2matcher public
     -- Pattern matching by equality (whole) or by inclusion (not whole), caseless or not.
-    -- The result is a block which implements the pattern matching, or .nil if error.
+    -- If the package regex.cls is loaded, then the pattern can be a regular expression prefixed by "/".
+    -- When whole, and the pattern is not a regular expression, then the charecter "*" is recognized
+    -- as a generic character when first or last character.
+    -- The returned result is a block (matcher) which implements the pattern matching, or .nil if error.
     -- The pattern matching is tested when the block is evaluated with a string passed as argument.
-    -- If the package regex.cls is loaded, then the pattern can be a regular expression.
     -- Examples:
 
-    --   matcher = pattern2block("object") -- caseless equality
+    --   matcher = pattern2matcher("object") -- caseless equality
     --   matcher~("ObjeCt") -- true
     --   matcher~("my ObjeCt") -- false
 
-    --   matcher = pattern2block("object", false) -- caseless inclusion
+    --   matcher = pattern2matcher("*object") -- caseless equality with generic character
     --   matcher~("ObjeCt") -- true
     --   matcher~("my ObjeCt") -- true
 
-    --   matcher = pattern2block("/^object|object$", false) -- caseless inclusion, regular expression: "object" at the begining or at the end.
+    --   matcher = pattern2matcher("object", false) -- caseless inclusion
+    --   matcher~("ObjeCt") -- true
+    --   matcher~("my ObjeCt") -- true
+
+    --   matcher = pattern2matcher("/^object|object$", false) -- caseless inclusion, regular expression: "object" at the begining or at the end.
     --   matcher~("ObjeCt") -- true
     --   matcher~("my ObjeCt") -- true
     --   matcher~("my ObjeCts") -- false
 
     -- stringPattern is an Argument
-    use strict arg stringPattern, wholeString=.true, caseless=.true
-    block = .nil
+    use strict arg stringPattern, wholeString=.true, caseless=.true, displayer=.nil, prefix=""
+    matcher = .nil
 
-    isQuoted = stringPattern~isQuoted
-    stringPattern = stringPattern~value
+    firstCharIsQuoted = stringPattern~quotedFlags~subchar(1) == "1"
+    lastCharIsQuoted = stringPattern~quotedFlags~subchar(stringPattern~string~length) == "1"
+    stringPattern = stringPattern~string
 
     -- Build a description of the matcher, will be displayed when tracing the filters
     description = "stringPattern="stringPattern~quoted "wholeString="wholeString "caseless="caseless
 
-    regularExpression = \isQuoted & stringPattern~subchar(1) == "/"
+    regularExpression = \firstCharIsQuoted & stringPattern~subchar(1) == "/"
     if regularExpression then do
         if .Pattern~isa(.class), .Pattern~hasMethod("compile") then do
             -- Good, the package regex.cls is loaded
@@ -642,21 +645,50 @@ loadPackage:
         if caseless then pattern = .Pattern~compile(stringPattern, .RegexCompiler~new(.RegexCompiler~caseless))
         else             pattern = .Pattern~compile(stringPattern)
 
-        if wholeString then block = {expose pattern; use strict arg string; return pattern~matches(string)}
-        else                block = {expose pattern; use strict arg string; return pattern~find(string)~matched}
+        if wholeString then matcher = {expose pattern; use strict arg string; return pattern~matches(string)}
+        else                matcher = {expose pattern; use strict arg string; return pattern~find(string)~matched}
     end
     else do
         -- the pattern remains a string
-        if wholeString then do
-            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
-            else             block = {expose stringPattern; use strict arg string; return string~equals(stringPattern)}
+        leftStar = \firstCharIsQuoted & stringPattern~left(1) == "*"
+        rightStar = \lastCharIsQuoted & stringPattern~right(1) == "*"
+        if leftStar & rightStar then do
+            if stringPattern~length <= 2 then stringPattern = "" -- "*" or "**" --> ""
+            else stringPattern = stringPattern~substr(2, stringPattern~length - 2) -- "*...*" --> "..."
         end
-        else do
-            if caseless then block = {expose stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
-            else             block = {expose stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
+        else if leftStar then stringPattern = stringPattern~substr(2)
+        else if rightStar then stringPattern = stringPattern~left(stringPattern~length - 1)
+
+        if stringPattern == "" then return {expose description; return .true}
+        else if wholeString & \leftStar & \rightStar then do
+            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
+            else             matcher = {expose description stringPattern; use strict arg string; return string~equals(stringPattern)}
+        end
+        else if wholeString & \leftStar & rightStar then do
+            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~caselessEquals(stringPattern)}
+            else             matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~equals(stringPattern)}
+        end
+        else if wholeString & leftStar & \rightStar then do
+            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)}
+            else             matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~equals(stringPattern)}
+        end
+        else do -- \wholeString | (leftStar & rightStar)
+            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
+            else             matcher = {expose description stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
         end
     end
-    return block
+    if displayer <> .nil, displayer~traceFilter then call traceMatcher matcher, displayer, prefix
+    return matcher
 
     patternCompileError:
         raise syntax 93.900 array("Regular expression" stringPattern~quoted ":" condition("O")~message)
+
+
+::routine traceMatcher
+    use strict arg matcher, displayer, prefix
+    -- matcher is a closure created by pattern2matcher.
+    -- The variables of pattern2matcher have been captured, and can be retrieved, in particular the description.
+    displayer~sayTrace(prefix matcher~variables~description)
+    do line over matcher~source
+        displayer~sayTrace(prefix line)
+    end
