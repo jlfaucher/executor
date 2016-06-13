@@ -11,6 +11,8 @@ direction=1     complex infinity
 .infinity~initialize
 
 --::options trace i
+::requires "extension/indeterminate.cls"
+
 
 /******************************************************************************/
 ::class "infinity" public
@@ -97,11 +99,11 @@ direction=1     complex infinity
     if arg(1,'o') then return self
     use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
-        if self~isComplex | righti~isComplex then return    -- complexInfinity + any infinity is undefined
-        if self~sign <> righti~sign then return             -- infinity + -infinity is undefined
-        return self                                         -- infinity + infinity = infinity
+        if self~isComplex | righti~isComplex then return .indeterminate~value   -- complexInfinity + any infinity is undefined
+        if self~sign <> righti~sign then return .indeterminate~value            -- infinity + -infinity is undefined
+        return self                                                             -- infinity + infinity = infinity
     end
-    if right~datatype("N") then return self                 -- infinity + number = infinity
+    if right~datatype("N") then return self                                     -- infinity + number = infinity
 
 ::method "+op:right"
     --use strict arg left, lefti=(left~request("infinity"))
@@ -111,11 +113,11 @@ direction=1     complex infinity
     if arg(1,'o') then return self~opposite
     use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
-        if self~isComplex | righti~isComplex then return    -- complexInfinity - any infinity is undefined
-        if self~sign == righti~sign then return             -- infinity - infinity is undefined
-        return self                                         -- infinity - -infinity = infinity
+        if self~isComplex | righti~isComplex then return .indeterminate~value   -- complexInfinity - any infinity is undefined
+        if self~sign == righti~sign then return .indeterminate~value            -- infinity - infinity is undefined
+        return self                                                             -- infinity - -infinity = infinity
     end
-    if right~datatype("N") then return self                 -- infinity - number = infinity
+    if right~datatype("N") then return self                                     -- infinity - number = infinity
 
 ::method "-op:right"
     --use strict arg left, lefti=(left~request("infinity"))
@@ -130,7 +132,7 @@ direction=1     complex infinity
     end
     if right~datatype("N") then do
         if right < 0 then return self~opposite              -- infinity * -n = -infinity
-        if right == 0 then return                           -- infinity ** 0 is undefined
+        if right == 0 then return .indeterminate~value      -- infinity ** 0 is undefined
         if right > 0 then return self                       -- infinity * n = infinity
     end
 
@@ -140,7 +142,7 @@ direction=1     complex infinity
 
 ::method "/"
     use strict arg right, righti = (right~request("infinity"))
-    if .nil <> righti then return                           -- infinity / infinity is undefined
+    if .nil <> righti then return .indeterminate~value      -- infinity / infinity is undefined
     if right~datatype("N") then do
         if right < 0 then return self~opposite              -- infinity / -n = -infinity
         if right == 0 then return .infinity~complex         -- infinity / 0 = complexInfinity
@@ -163,13 +165,13 @@ direction=1     complex infinity
 ::method "**"
     use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then do
-        if righti~isComplex then return                             -- infinity ^ complexInfinity is undefined
+        if righti~isComplex then return .indeterminate~value        -- infinity ^ complexInfinity is undefined
         if righti~isPositive then return .infinity~complex          -- infinity ^ infinity = complexInfinity
         if righti~isNegative then return 0                          -- infinity ** -infinity = 0
     end
     if right~datatype("N") then do
         if right < 0 then return 0                                  -- infinity ** -n = 1 / (infinity ** n) = 0
-        if right == 0 then return                                   -- infinity ** 0 is undefined
+        if right == 0 then return .indeterminate~value              -- infinity ** 0 is undefined
         if right > 0 then do
             if self~isComplex then return self                      -- complexInfinity ** n = complexInfinity
             if self~isPositive then return self                     -- +infinity ** n = +infinity
@@ -185,13 +187,13 @@ direction=1     complex infinity
 ::method "**op:right"
     use strict arg left, lefti=(left~request("infinity"))
     if .nil <> lefti then forward to (lefti) message "**" array (self)      -- lefti ** self
-    if self~isComplex then return                                           -- any ** complexInfinity is undefined
+    if self~isComplex then return .indeterminate~value                      -- any ** complexInfinity is undefined
     if left~datatype("N") then do
         if left == 0 then do
             if self~isPositive then return 0                                -- 0 ** +infinity = 0
             if self~isNegative then return .infinity~complex                -- 0 ** -infinity = complexInfinity
         end
-        else if left == 1 then return                                       -- 1 ** infinity is undefined
+        else if left == 1 then return .indeterminate~value                  -- 1 ** infinity is undefined
         else do
             if self~isNegative then return 0                                -- number ** -infinity = 0
             if self~isPositive, left > 0 then return .infinity~positive     -- +number ** +infinity = +infinity
@@ -333,12 +335,10 @@ Add support for theses notations:
 
 
 ::method makeInfinity
-    string = self~changeStr(" ", "")~upper
+    string = self~strip~upper
     -- tests ordered from most frequent to less frequent
     if string == "INFINITY" then return .infinity~positive
     if string == "COMPLEXINFINITY" then return .infinity~complex
-    if string == "-INFINITY" then return .infinity~negative
-    if string == "+INFINITY" then return .infinity~positive
     return .nil
 
 -- ::method " op:right"

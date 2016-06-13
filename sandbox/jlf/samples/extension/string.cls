@@ -24,6 +24,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 /******************************************************************************/
 ::requires "extension/complex.cls"
 ::requires "extension/infinity.cls"
+::requires "extension/indeterminate.cls"
 
 ::class "OperatorDispatcher" mixinclass Object public
 
@@ -36,137 +37,191 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method "+op:left"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "+op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "-op:left"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "-op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "*op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "/op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "%op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "//op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "**op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "=op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "\=op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "<>op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "==op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "\==op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("continue result") then return result
+    forward class (.indeterminateString)
 
 ::method "><op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method ">op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "<op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method ">=op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "\<op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "<=op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "\>op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method ">>op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "<<op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method ">>=op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "\<<op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "<<=op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 ::method "\>>op:right"
     forward continue class (.complexString)
     if var("result") then return result
-    forward class (.infinityString)
+    forward continue class (.infinityString)
+    if var("result") then return result
+    forward class (.indeterminateString)
 
 -- ::method "&op:right"
 
