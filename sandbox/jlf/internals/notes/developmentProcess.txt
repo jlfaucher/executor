@@ -4,8 +4,11 @@ Development process
 
 main
     branches
-        4.1.1
-        4.1.2
+        4.1
+        4.2         was 4.2.0 r9655 copy of trunk r9654 on 2013-12-09
+                    copied 4.2.0 r9935 to release/4.2.0 r9936 on 2014-02-22
+                    moved 4.2.0 r9936 to 4.2 r9937 on 2014-02-22
+        old-4.3     snapshot of trunk r10462 on 2014-09-19
     releases
         3.1.2
         3.2.0
