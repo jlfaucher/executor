@@ -2682,7 +2682,7 @@ createCodeSnippet: procedure
      end
 
      if .local~rgf.showIdentityHash then return "["a1~string "id#_" || (a1~identityHash)"]"
-     return return "["a1~string"]"
+     return "["a1~string"]"
   end
 
   return pp2(a1, surroundByQuotes)     -- rgf, 20091228
