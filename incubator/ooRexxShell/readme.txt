@@ -120,15 +120,16 @@ Help
 ?i[nterpreters]: interpreters that can be selected.
 ?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
+?r[outines] routine1 routine2... : display routines.
 
 Class flags
     col 1: M=Mixin
-    col 2: P=Public p=private
+    col 2: P=Public
 Method flags
     col 3: space separator
     col 4: C=Class I=Instance
     col 5: G=Guarded
-    col 6: P=Public p=private
+    col 6: P=Public
     col 8: P=Protected
 
 A first level of filtering is done when specifying class names or method names.

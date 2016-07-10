@@ -152,6 +152,62 @@ loadPackage:
 
 
 -------------------------------------------------------------------------------
+::class "RoutineInfo" public
+-------------------------------------------------------------------------------
+
+::method collect class
+    use strict arg context, matchers=(.array~new)
+    publicRoutines = .relation~new
+    context~package~pipe(,
+        .importedPackages "recursive" "once" "after" "mem.package",
+      | .inject {item~publicRoutines} "iterateAfter",
+      | .do { expose publicRoutines
+              publicRoutines[item] = .routineInfo~new(index, item, dataflow["package"]~item, "public")
+            },
+    )
+    privateRoutines = .relation~new
+    context~package~pipe(,
+        .importedPackages "recursive" "once" "after" "mem.package",
+      | .inject {item~routines} "iterateAfter",
+      | .do { expose publicRoutines privateRoutines
+              if \publicRoutines~hasIndex(item) then privateRoutines[item] = .routineInfo~new(index, item, dataflow["package"]~item, "private")
+            },
+    )
+    -- Now build a collection of routineInfo.
+    routineInfos = .table~new -- index is a routine, item is a routineInfo
+    s = publicRoutines~supplier
+    do while s~available
+        matched = matchers~isEmpty
+        do matcher over matchers while \matched
+            matched = matcher~(s~item~name)
+        end
+        if matched then routineInfos[s~index] = s~item
+        s~next
+    end
+    s = privateRoutines~supplier
+    do while s~available
+        matched = matchers~isEmpty
+        do matcher over matchers while \matched
+            matched = matcher~(s~item~name)
+        end
+        if matched then routineInfos[s~index] = s~item
+        s~next
+    end
+    return routineInfos
+
+
+::attribute name -- the routine name
+::attribute routine -- the routine
+::attribute package get -- the package where the routine is defined
+::attribute visibility get -- the visibility of the routine in the package: "public", "private"
+
+
+::method init
+    expose name routine package visibility
+    use strict arg name, routine, package, visibility
+
+
+-------------------------------------------------------------------------------
 ::class "ClassInfoQuery" public
 -------------------------------------------------------------------------------
 
@@ -375,6 +431,29 @@ loadPackage:
     context~package~pipe(.importedPackages "recursive" "once" "after" | .sort {item~name} | .console {item~name})
 
 
+::method displayRoutines class
+    -- All or specified routines (public & private) that are visible from current context, with their package
+    -- routinenames is an array of Argument
+    use strict arg routinenames, displayer, context
+    matchers = .array~new
+    do routinename over routinenames
+        matcher = pattern2matcher(routinename, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matchers~append(matcher)
+    end
+    routineInfos = .routineInfo~collect(context, matchers)
+    -- Now build a collection where the indexes are the routine names preceded by some flags (visibility), and the items are the package filenames.
+    routines = .relation~new
+    s = routineInfos~supplier
+    do while s~available
+        routineInfo = s~item
+        routineFlags = routineInfos(routineInfo~routine, routineInfo~visibility)
+        routines[routineFlags~left(10) routineInfo~name~quoted(x2c(27))] = "("packageInfos(routineInfo~package)")"
+        s~next
+    end
+    -- Sort by routine name, ignoring the 10 first characters which are routine flags.
+    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
+
+
 -------------------------------------------------------------------------------
 -- Helpers for ClassInfoQuery
 -------------------------------------------------------------------------------
@@ -384,7 +463,7 @@ loadPackage:
     if method == .nil then return "----" -- Hidden method, see documentation of .class~methods
     if instanceLevel then level = "I"; else level = "C"
     if method~isGuarded then guarded = "G"; else guarded = "."
-    if method~isPrivate then visibility = "p"; else visibility = "P"
+    if method~isPrivate then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if method~isProtected then protected = "P"; else protected = "."
     return level || guarded || visibility || protected
 
@@ -410,9 +489,15 @@ loadPackage:
 
 ::routine classInfos public
     use strict arg class, visibility
-    if visibility == "private" then visibility = "p"; else visibility = "P"
+    if visibility == "private" then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if class~queryMixinClass then mixin = "M"; else mixin = "."
     return mixin || visibility
+
+
+::routine routineInfos public
+    use strict arg routine, visibility
+    if visibility == "private" then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
+    return visibility
 
 
 -------------------------------------------------------------------------------

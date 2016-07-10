@@ -803,6 +803,7 @@ loadLibrary:
         say "    ?i[nterpreters]: interpreters that can be selected."
         say "    ?m[ethods] method1 method2 ... : display methods."
         say "    ?p[ackages]: display the loaded packages."
+        say "    ?r[outines] routine1 routine2... : display routines."
         .ooRexxShell~helpCommands
         return
     end
@@ -856,6 +857,7 @@ loadLibrary:
     else if "interpreters"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpInterpreters
     else if "methods"~caselessAbbrev(word1) then .ooRexxShell~helpMethods(rest)
     else if "packages"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpPackages
+    else if "routines"~caselessAbbrev(word1) then .ooRexxShell~helpRoutines(rest)
 
     else .ooRexxShell~sayError("Query not understood:" queryFilter)
 
@@ -923,12 +925,12 @@ loadLibrary:
 ::method helpFlags class
     say "Class flags"
     say "    col 1: M=Mixin"
-    say "    col 2: P=Public p=private"
+    say "    col 2: P=Public"
     say "Method flags"
     say "    col 3: space separator"
     say "    col 4: C=Class I=Instance"
     say "    col 5: G=Guarded"
-    say "    col 6: P=Public p=private"
+    say "    col 6: P=Public"
     say "    col 8: P=Protected"
 
 
@@ -956,6 +958,13 @@ loadLibrary:
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
     .classInfoQuery~displayPackages(self, .context)
+
+
+::method helpRoutines class
+    -- Display the defining package of each specified routine
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    use strict arg routinenames
+    .classInfoQuery~displayRoutines(routinenames, self, .context)
 
 
 ::method trace class
