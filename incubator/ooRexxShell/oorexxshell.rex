@@ -616,7 +616,9 @@ loadLibrary:
 -------------------------------------------------------------------------------
 ::class ooRexxShell
 -------------------------------------------------------------------------------
+
 ::constant reload 200 -- Arbitrary value that will be returned to the system, to indicate that a restart of the shell is requested
+
 ::attribute command class -- The current command to interpret, can be a substring of inputrx
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
@@ -769,7 +771,7 @@ loadLibrary:
         if .ooRexxShell~traceFilter then filteringStream~traceFilter(self)
         .output~destination(filteringStream)
     end
-    .ooRexxShell~dispatchHelp(queryFilter, queryArgs)
+    .ooRexxShell~dispatchHelp(queryFilter, queryArgs, filteringStream)
     if filteringStream <> .nil then do
         filteringStream~flush
         .output~destination -- restore the previous destination
@@ -787,7 +789,7 @@ loadLibrary:
 
 
 ::method dispatchHelp class
-    use strict arg queryFilter, queryArgs
+    use strict arg queryFilter, queryArgs, filteringStream
     if queryArgs[1] == .nil then do
         say "Help:"
         say "    ?: display help."
@@ -795,6 +797,7 @@ loadLibrary:
         say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm)."
         say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi)."
         say "    ?d[ocumentation]: invoke ooRexx documentation."
+        say "    ?f[lags]: describe the flags displayed for classes & methods."
         say "    ?h[elp] c1 c2 ... : local description of classes."
         say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi)."
         say "    ?i[nterpreters]: interpreters that can be selected."
@@ -827,10 +830,12 @@ loadLibrary:
     end
 
     -- For convenience... cm is shorter than c.m, cmi is shorter than c.m.i
-    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false)
-    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true)
+    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, filteringStream)
+    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, filteringStream)
 
     else if "documentation"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpDocumentation
+
+    else if "flags"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpFlags
 
     else if "help"~caselessAbbrev(subword1) then do
         inherited = .false
@@ -865,8 +870,8 @@ loadLibrary:
 ::method helpClassMethods class
     -- Display the methods of each specified class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    use strict arg classnames, inherited
-    .classInfoQuery~displayClassMethods(classnames, inherited, self, .context)
+    use strict arg classnames, inherited, filteringStream
+    .classInfoQuery~displayClassMethods(classnames, inherited, self, .context, filteringStream)
 
 
 ::method helpCommands class
@@ -913,6 +918,18 @@ loadLibrary:
         otherwise .ooRexxShell~sayError(.platform~name "has no online help for ooRexx.")
     end
     address -- restore
+
+
+::method helpFlags class
+    say "Class flags"
+    say "    col 1: M=Mixin"
+    say "    col 2: P=Public p=private"
+    say "Method flags"
+    say "    col 3: space separator"
+    say "    col 4: C=Class I=Instance"
+    say "    col 5: G=Guarded"
+    say "    col 6: P=Public p=private"
+    say "    col 8: P=Protected"
 
 
 ::method helpHelp class
@@ -1171,6 +1188,7 @@ loadLibrary:
                 when color~caselessEquals("bwhite") then stream~charout(d2c(27)"[1;37m")
                 otherwise nop
             end
+            stream~flush -- to avoid filtering by filteringStream
         end
         otherwise nop
     end

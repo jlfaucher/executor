@@ -170,7 +170,8 @@ loadPackage:
     s = classInfos~supplier
     do while s~available
         classInfo = s~item
-        classes[classInfos(classInfo~klass, classInfo~visibility)~left(10) classInfo~klass~id~quoted(x2c(27))] = "("packageInfos(classInfo~package)")"
+        classFlags = classInfos(classInfo~klass, classInfo~visibility)
+        classes[classFlags~left(10) classInfo~klass~id~quoted(x2c(27))] = "("packageInfos(classInfo~package)")"
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
@@ -180,7 +181,7 @@ loadPackage:
 ::method displayClassMethods class
     -- Display the methods of each specified class
     -- classnames is an array of Argument
-    use strict arg classnames, inherited, displayer, context
+    use strict arg classnames, inherited, displayer, context, filteringStream
     matchers = .array~new
     do classname over classnames
         matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
@@ -201,12 +202,21 @@ loadPackage:
     )
     count = 1
     do classInfo over classInfosSorted
-        say
-        displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        --say
+        --displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        filteringStream~doBeforeNextLine = {
+            expose displayer count classInfo
+            say
+            displayer~sayInfo("[Info]" "["count"]" "Class" classInfo~klass~id~quoted(x2c(27)) classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        } -- This action will be executed before the first line of methods is displayed, if any (will depend on the filtering)
         methods = .relation~new
         call collectMethods
+        lineCount = filteringStream~lineCount
         displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
-        displayer~sayInfo("[Info]" "["count"]" "Class" "'"classInfo~klass~id"' has" displayer~singularPlural(methods~items, "method", "methods"))
+        filteringStream~doBeforeNextLine = .nil
+        if filteringStream~lineCount <> lineCount then do
+            displayer~sayInfo("[Info]" "["count"]" "Class" "'"classInfo~klass~id"' has" displayer~singularPlural(methods~items, "method", "methods"))
+        end
         count += 1
     end
     return
@@ -225,9 +235,15 @@ loadPackage:
                   package = .nil
                   if item <> .nil then package = item~package -- if method not hidden
                   class = dataflow["class"]~item
-                  if package == .nil then package = classInfos[class]~package
+                  classInfo = classInfos[class]
+                  if package == .nil then package = classInfo~package
                   instanceLevel = dataflow["instanceMethod"] <> .nil
-                  methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+                  -- Insert class flags at the begining to have the same format than displayClasses.
+                  -- That allows to reuse a filter applicable to classes.
+                  classFlags = classInfos(classInfo~klass, classInfo~visibility)
+                  methodFlags = methodInfos(item, instanceLevel)
+                  flags = classFlags methodFlags
+                  methods[flags~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
                 },
         )
         return
@@ -338,11 +354,15 @@ loadPackage:
                 },
       | .do { expose classInfos methods
               package = .nil
-                  if item <> .nil then package = item~package -- if method not hidden
+              if item <> .nil then package = item~package -- if method not hidden
               class = dataflow["class"]~item
-              if package == .nil then package = classInfos[class]~package
+              classInfo = classInfos[class]
+              if package == .nil then package = classInfo~package
               instanceLevel = dataflow["instanceMethod"] <> .nil
-              methods[methodInfos(item, instanceLevel)~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+              classFlags = classInfos(classInfo~klass, classInfo~visibility)
+              methodFlags = methodInfos(item, instanceLevel)
+              flags = classFlags methodFlags
+              methods[flags~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
             },
     )
     displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
@@ -364,9 +384,9 @@ loadPackage:
     if method == .nil then return "----" -- Hidden method, see documentation of .class~methods
     if instanceLevel then level = "I"; else level = "C"
     if method~isGuarded then guarded = "G"; else guarded = "."
-    if method~isPrivate then private = "P"; else private = "."
+    if method~isPrivate then visibility = "p"; else visibility = "P"
     if method~isProtected then protected = "P"; else protected = "."
-    return level || guarded || private || protected
+    return level || guarded || visibility || protected
 
 
 ::routine methodPackageInfos public
@@ -390,9 +410,9 @@ loadPackage:
 
 ::routine classInfos public
     use strict arg class, visibility
-    if visibility == "private" then private = "P"; else private = "."
+    if visibility == "private" then visibility = "p"; else visibility = "P"
     if class~queryMixinClass then mixin = "M"; else mixin = "."
-    return mixin || private
+    return mixin || visibility
 
 
 -------------------------------------------------------------------------------
@@ -457,6 +477,8 @@ loadPackage:
 ::attribute caselessExclude
 ::attribute lineCount
 ::attribute stringbuffer
+::attribute doBeforeNextLine -- doer triggered once, only if at least one line is displayed
+
 
 ::method init
     -- Examples of valid filters:
@@ -491,6 +513,7 @@ loadPackage:
             else if currentOperator == .filter~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
         end
     end
+    self~doBeforeNextLine = .nil
     self~valid = .true
 
 
@@ -527,6 +550,13 @@ loadPackage:
     if \self~valid then return .false
 
     use strict arg string
+
+    -- Empty lines are not filtered
+    if string == "" then return .true
+
+    -- Info lines are not filtered
+    if string~abbrev("[Info]") then return .true
+
     do matcher over self~strictExclude
         if matcher~(string) then return .false
     end
@@ -555,11 +585,17 @@ loadPackage:
 ::method lineOut
     expose stringbuffer
     use strict arg string
+
     stringbuffer~append(string)
     line = stringbuffer~string
     stringbuffer~delete(1)
     if self~select(line) then do
         self~lineCount += 1
+        if self~doBeforeNextLine <> .nil then do
+            action = self~doBeforeNextLine
+            self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
+            action~()
+        end
         forward to (self~interceptedDestination) array (line)
     end
     return 0
@@ -568,11 +604,17 @@ loadPackage:
 ::method say
     expose stringbuffer
     use strict arg string
+
     stringbuffer~append(string)
     line = stringbuffer~string
     stringbuffer~delete(1)
     if self~select(line) then do
         self~lineCount += 1
+        if self~doBeforeNextLine <> .nil then do
+            action = self~doBeforeNextLine
+            self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
+            action~()
+        end
         forward to (self~interceptedDestination) array (line)
     end
     return 0
@@ -582,7 +624,8 @@ loadPackage:
     expose stringbuffer
     line = stringbuffer~string
     stringbuffer~delete(1)
-    if self~select(line) then do
+    -- no filtering, to let always display the escape characters for colors
+    if .true /*self~select(line)*/ then do
         -- self~lineCount += 1 -- incomplete line...
         self~interceptedDestination~charOut(line)
         forward to (self~interceptedDestination)

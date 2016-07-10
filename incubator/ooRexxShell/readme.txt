@@ -121,6 +121,16 @@ Help
 ?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
 
+Class flags
+    col 1: M=Mixin
+    col 2: P=Public p=private
+Method flags
+    col 3: space separator
+    col 4: C=Class I=Instance
+    col 5: G=Guarded
+    col 6: P=Public p=private
+    col 8: P=Protected
+
 A first level of filtering is done when specifying class names or method names.
 This is a filtering at object level.
 Several names can be specified, the interpretation is: name1 or name2 or ...
@@ -178,9 +188,9 @@ Examples:
 ?c.m.i string \== (REXX)        display the extension methods of the class "String".
                                 The package of the predefined methods is displayed (REXX).
                                 By filtering out the lines which contains "(REXX)", we have the extension methods.
-?m =/^----                      Display the hidden methods: all lines starting with "----".
-?m \== /^.G == (REXX)           Display the methods not guarded whose package is REXX:
-                                all lines where second char <> "G" and which contains "(REXX)".
+?m =/"^...----"                 Display the hidden methods: all lines containing "----" from 4th character.
+?m \== /"^....G" == (REXX)      Display the methods not guarded whose package is REXX:
+                                all lines where 5th char <> "G" and which contains "(REXX)".
 
 
 Interpreters
