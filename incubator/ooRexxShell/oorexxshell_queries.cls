@@ -454,6 +454,20 @@ loadPackage:
     displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
 
 
+::method displayFlags class
+    say "Class flags"
+    say "    col 1: P=Public"
+    say "    col 2: M=Mixin"
+    say "Method flags"
+    say "    col 3: space separator"
+    say "    col 4: P=Public"
+    say "    col 5: C=Class I=Instance"
+    say "    col 6: G=Guarded"
+    say "    col 7: P=Protected"
+    say "Routine flags"
+    say "    col 1: P=Public"
+
+
 -------------------------------------------------------------------------------
 -- Helpers for ClassInfoQuery
 -------------------------------------------------------------------------------
@@ -465,7 +479,7 @@ loadPackage:
     if method~isGuarded then guarded = "G"; else guarded = "."
     if method~isPrivate then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if method~isProtected then protected = "P"; else protected = "."
-    return level || guarded || visibility || protected
+    return visibility || level || guarded || protected
 
 
 ::routine methodPackageInfos public
@@ -491,7 +505,7 @@ loadPackage:
     use strict arg class, visibility
     if visibility == "private" then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if class~queryMixinClass then mixin = "M"; else mixin = "."
-    return mixin || visibility
+    return visibility || mixin
 
 
 ::routine routineInfos public

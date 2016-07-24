@@ -923,15 +923,8 @@ loadLibrary:
 
 
 ::method helpFlags class
-    say "Class flags"
-    say "    col 1: M=Mixin"
-    say "    col 2: P=Public"
-    say "Method flags"
-    say "    col 3: space separator"
-    say "    col 4: C=Class I=Instance"
-    say "    col 5: G=Guarded"
-    say "    col 6: P=Public"
-    say "    col 8: P=Protected"
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    .classInfoQuery~displayFlags
 
 
 ::method helpHelp class

@@ -112,35 +112,44 @@ Help
 
 ?: display help.
 ?c[lasses] c1 c2... : display classes.
-?c[lasses].m[ethods] c1 c2... : display local methods per classes.
-?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods
+?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm).
+?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi).
 ?d[ocumentation]: invoke ooRexx documentation.
+?f[lags]: describe the flags displayed for classes & methods.
 ?h[elp] c1 c2 ... : local description of classes.
-?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes.
+?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).
 ?i[nterpreters]: interpreters that can be selected.
 ?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
 ?r[outines] routine1 routine2... : display routines.
 
+Format of an output line:
+?c[lasses]:  flags class package
+?m[ethods]:  flags method class package
+?p[ackages:  package (full path)
+?r[outines]: flags routine package
+
 Class flags
-    col 1: M=Mixin
-    col 2: P=Public
+    col 1: P=Public
+    col 2: M=Mixin
 Method flags
     col 3: space separator
-    col 4: C=Class I=Instance
-    col 5: G=Guarded
-    col 6: P=Public
-    col 8: P=Protected
+    col 4: P=Public
+    col 5: C=Class I=Instance
+    col 6: G=Guarded
+    col 7: P=Protected
+Routine flags
+    col 1: P=Public
 
-A first level of filtering is done when specifying class names or method names.
-This is a filtering at object level.
+A first level of filtering is done when specifying class names or method names
+or routine names. This is a filtering at object level.
 Several names can be specified, the interpretation is: name1 or name2 or ...
 If the package regex.cls is available, then the names starting with "/" are
 regular expressions which are compiled into a pattern. The matching with this
 pattern is then tested for each object's name (string):
     pattern~matches(string)
-Otherwise the names are just string patterns.
-The character "*" has a special meaning when first or last character, and not quoted:
+Otherwise the names are just string patterns. The character "*" has a special
+meaning when first or last character, and not quoted:
     * or **        : matches everything
     "*" or "**"    : matches exactly "*" or "**", see case stringPattern
     *"*"*          : matches all names containing "*", see case *stringPattern*
@@ -184,13 +193,13 @@ The character "*" when first or last character, and not quoted, is ignored.
 Examples:
 ?c =string                      display the classes for which the word "string" is displayed.
 ?c =rgf bsf java                display the classes for which at least one of these words is displayed.
-?c == /^M                       display the mixin classes : all lines starting with "M".
-?c.m bsf = java                 display the methods of the class "BSF" for which the string "java" is displayed.
-?c.m.i string \== (REXX)        display the extension methods of the class "String".
+?c == /^.M                      display the mixin classes : all lines where 2nd character is "M".
+?cm bsf = java                  display the methods of the class "BSF" for which the string "java" is displayed.
+?cmi string \== (REXX)          display the extension methods of the class "String".
                                 The package of the predefined methods is displayed (REXX).
                                 By filtering out the lines which contains "(REXX)", we have the extension methods.
-?m =/"^...----"                 Display the hidden methods: all lines containing "----" from 4th character.
-?m \== /"^....G" == (REXX)      Display the methods not guarded whose package is REXX:
+?m =/^...----                   Display the hidden methods: all lines containing "----" from 4th character.
+?m \== /^.....G == (REXX)       Display the methods not guarded whose package is REXX:
                                 all lines where 5th char <> "G" and which contains "(REXX)".
 
 
