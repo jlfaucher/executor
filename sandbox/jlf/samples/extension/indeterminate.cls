@@ -10,7 +10,7 @@
 
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     self~value = self~new("Indeterminate")
-    self~value~setMethod("makestring", "return '-INFINITY'", "OBJECT")
+    self~value~setMethod("makestring", "return 'INDETERMINATE'", "OBJECT")
 
 ::method init
     use strict arg objectName
