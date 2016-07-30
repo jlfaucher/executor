@@ -461,7 +461,7 @@ loadPackage:
     say "Method flags"
     say "    col 3: space separator"
     say "    col 4: P=Public"
-    say "    col 5: C=Class I=Instance"
+    say "    col 5: C=Class"
     say "    col 6: G=Guarded"
     say "    col 7: P=Protected"
     say "Routine flags"
@@ -475,7 +475,7 @@ loadPackage:
 ::routine methodInfos public
     use strict arg method, instanceLevel
     if method == .nil then return "----" -- Hidden method, see documentation of .class~methods
-    if instanceLevel then level = "I"; else level = "C"
+    if instanceLevel then level = "."; else level = "C" -- Remember: "I" not displayed because of "PIG"
     if method~isGuarded then guarded = "G"; else guarded = "."
     if method~isPrivate then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if method~isProtected then protected = "P"; else protected = "."

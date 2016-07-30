@@ -135,7 +135,7 @@ Class flags
 Method flags
     col 3: space separator
     col 4: P=Public
-    col 5: C=Class I=Instance
+    col 5: C=Class
     col 6: G=Guarded
     col 7: P=Protected
 Routine flags
@@ -200,7 +200,7 @@ Examples:
                                 By filtering out the lines which contains "(REXX)", we have the extension methods.
 ?m =/^...----                   Display the hidden methods: all lines containing "----" from 4th character.
 ?m \== /^.....G == (REXX)       Display the methods not guarded whose package is REXX:
-                                all lines where 5th char <> "G" and which contains "(REXX)".
+                                all lines where 6th char <> "G" and which contains "(REXX)".
 
 
 Interpreters
