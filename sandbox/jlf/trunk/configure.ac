@@ -35,6 +35,7 @@ dnl
 
 dnl Process this file with autoconf to produce a configure script
 AC_INIT(ooRexx, 4.3.0, , ooRexx)
+AC_CONFIG_MACRO_DIR([m4])
 AC_PREFIX_DEFAULT(/usr)
 
 PACKAGE=ooRexx

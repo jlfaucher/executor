@@ -37,6 +37,7 @@
 
 
 AUTOMAKE_OPTIONS	= foreign dist-zip
+ACLOCAL_AMFLAGS = -I m4
 
 MAINTAINERCLEANFILES 	= Makefile.in aclocal.m4 configure config.guess config.sub \
 			depcomp install-sh ltmain.sh missing mkinstalldirs config.h.in \
