@@ -1168,6 +1168,10 @@ install-exec-local:
 		sed -e "s-#PREF#-$(prefix)-" $(platform_unix_dir)/macosx/PackageInfo.in >$(platform_unix_dir)/macosx/PackageInfo; \
 		chmod 755 $(platform_unix_dir)/macosx/scripts/preflight $(platform_unix_dir)/macosx/scripts/postflight \
 		      $(platform_unix_dir)/macosx/MakeRexxPackage; \
+		install_name_tool -add_rpath "@executable_path/../lib" $(DESTDIR)$(prefix)/bin/rexx; \
+		install_name_tool -add_rpath "@executable_path/../lib" $(DESTDIR)$(prefix)/bin/rexxc; \
+		install_name_tool -add_rpath "@executable_path/../lib" $(DESTDIR)$(prefix)/bin/rxqueue; \
+		install_name_tool -add_rpath "@executable_path/../lib" $(DESTDIR)$(prefix)/bin/rxsubcom; \
 	fi
 
 	for a in $(build_samples_dir)/*.rex; do \
