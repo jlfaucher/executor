@@ -1633,9 +1633,9 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     -- "hello "John" how are you" good" bye "John "my name is ""BOND"""
     -- 0000000001111111111222222222233333333334444444444555555555566666
     -- 1234567890123456789012345678901234567890123456789012345678901234
-    -- arg1 = |hello John how are you|      firstCharPosition = 01      firstCharIsQuote = true     lastCharPosition = 26
-    -- arg2 = |good bye John|               firstCharPosition = 28      firstCharIsQuote = false    lastCharPosition = 42
-    -- arg3 = |my name is "BOND"|           firstCharPosition = 44      firstCharIsQuote = true     lastCharPosition = 64
+    -- arg1 = |hello John how are you|      containerStart = 01      containerEnd = 26      quotedFlags = 1111110000111111111111
+    -- arg2 = |good bye John|               containerStart = 28      containerEnd = 42      quotedFlags = 0000111110000
+    -- arg3 = |my name is "BOND"|           containerStart = 44      containerEnd = 64      quotedFlags = 11111111111111111
 
     use strict arg string, withInfos=.false
 
