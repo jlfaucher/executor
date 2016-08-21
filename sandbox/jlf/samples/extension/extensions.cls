@@ -35,6 +35,26 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Object
 
 ------------
+-- User data
+------------
+
+-- I wanted to define the class StringUserData, subclass of String, to let me
+-- associate a user data to a string. But ooRexx < 5 has a bug:
+-- The message "==" is sent with zero argument when requesting the hashcode of a string
+-- (this is a documented behavior in the sources: RexxString::hash, RexxString::strictEqual)
+-- and the implementation does not support the lack of argument when sent to a subclass of String.
+-- Seems to be fixed in ooRexx 5.
+-- In the meantime, I use this extension (applicable to any object, not just strings).
+
+::method setUserData
+    expose userData
+    use strict arg userData
+
+::method getUserData
+    expose userData
+    return userData
+
+------------
 -- Generator
 ------------
 
