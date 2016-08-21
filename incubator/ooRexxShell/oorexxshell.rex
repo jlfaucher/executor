@@ -1086,7 +1086,7 @@ loadLibrary:
         -- in SystemCommands.cpp) then the history is cleared...
         -- So add "cmd /c" in front of the command...
         -- But I don't want it for the commands directly managed by the systemCommandHandler.
-        if command~caselessPos("set ") == 1 then return command -- variable assignment
+        if command~caselessPos("set ") == 1, command~substr(5)~strip~pos("=") > 1 then return command -- variable assignment: "set <nospace>="
         if command~caselessPos("cd ") == 1 then return command -- change directory
         if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return command -- change drive
         args = string2args(command)
@@ -1101,6 +1101,7 @@ loadLibrary:
                    paren(command) ||,
                    ' & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL!' ||,
                    ' & echo OOREXXSHELL_DIRECTORY=!CD! > ' || quoted(temporarySettingsFile) ||,
+                   ' & doskey' ||, -- seems to help keeping the history when a command fails, don't ask me why
                    ' & exit /b !OOREXXSHELL_ERRORLEVEL!',
                )
     end
