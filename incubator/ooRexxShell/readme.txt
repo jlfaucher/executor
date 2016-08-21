@@ -122,6 +122,8 @@ Help
 ?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
 ?r[outines] routine1 routine2... : display routines.
+To display the source of methods, packages or routines: add the option .s[ource].
+    Short: ?cms, ?cmis, ?ms, ?ps, ?rs.
 
 Format of an output line:
 ?c[lasses]:  flags class package

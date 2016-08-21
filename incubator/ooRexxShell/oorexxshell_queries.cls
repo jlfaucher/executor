@@ -231,13 +231,13 @@ loadPackage:
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
-    displayer~sayCollection(classes, /*title*/.nil, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
+    displayer~sayCollection(classes, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
 
 
 ::method displayClassMethods class
     -- Display the methods of each specified class
     -- classnames is an array of Argument
-    use strict arg classnames, inherited, displayer, context, filteringStream
+    use strict arg classnames, inherited, displaySource, displayer, context, filteringStream
     matchers = .array~new
     do classname over classnames
         matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
@@ -268,7 +268,13 @@ loadPackage:
         methods = .relation~new
         call collectMethods
         lineCount = filteringStream~lineCount
-        displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
+        displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false){
+            expose displaySource
+            if displaySource then do
+                method = item~getUserData
+                if .nil <> method then method~source~each{say " >" index~right(4,0) item}
+            end
+        }
         filteringStream~doBeforeNextLine = .nil
         if filteringStream~lineCount <> lineCount then do
             displayer~sayInfo("[Info]" "["count"]" "Class" "'"classInfo~klass~id"' has" displayer~singularPlural(methods~items, "method", "methods"))
@@ -299,7 +305,12 @@ loadPackage:
                   classFlags = classInfos(classInfo~klass, classInfo~visibility)
                   methodFlags = methodInfos(item, instanceLevel)
                   flags = classFlags methodFlags
-                  methods[flags~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+                  methodDescription = flags~left(10) index~quoted(x2c(27))
+                  -- remember: the same key (methodDescription) can be used several times
+                  -- so don't store the method instance on the key ! Store it on the value (classDescription).
+                  classDescription = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+                  classDescription~setUserData(item) -- to let retrieve the method (yes!)
+                  methods[methodDescription] = classDescription
                 },
         )
         return
@@ -385,7 +396,7 @@ loadPackage:
 ::method displayMethods class
     -- Display the defining classes of each specified method
     -- methodnames is an array of Argument
-    use strict arg methodnames, displayer, context
+    use strict arg methodnames, displaySource, displayer, context
     matchers = .array~new
     do methodname over methodnames
         matcher = pattern2matcher(methodname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
@@ -418,23 +429,54 @@ loadPackage:
               classFlags = classInfos(classInfo~klass, classInfo~visibility)
               methodFlags = methodInfos(item, instanceLevel)
               flags = classFlags methodFlags
-              methods[flags~left(10) index~quoted(x2c(27))] = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+              methodDescription = flags~left(10) index~quoted(x2c(27))
+              -- remember: the same key (methodDescription) can be used several times
+              -- so don't store the method instance on the key ! Store it on the value (classDescription).
+              classDescription = class~id~quoted(x2c(27)) "("packageInfos(package)")"
+              classDescription~setUserData(item) -- to let retrieve the method (yes!)
+              methods[methodDescription] = classDescription
             },
     )
-    displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
-    return
+    displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false){
+        expose displaySource
+        if displaySource then do
+            method = item~getUserData
+            if .nil <> method then method~source~each{say " >" index~right(4,0) item}
+        end
+    }
 
 
 ::method displayPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
-    use strict arg displayer, context
-    context~package~pipe(.importedPackages "recursive" "once" "after" | .sort {item~name} | .console {item~name})
+    use strict arg packagenames, displaySource, displayer, context
+    matchers = .array~new
+    do packagename over packagenames
+        matcher = pattern2matcher(packagename, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matchers~append(matcher)
+    end
+    context~package~pipe(,
+        .importedPackages "recursive" "once" "after",
+      | .select { expose matchers
+                  matched = matchers~isEmpty
+                  do matcher over matchers while \matched
+                      matched = matcher~(item~name)
+                  end
+                  matched
+                },
+      | .sort {item~name},
+      | .console {item~name},
+      | .do { expose displaySource
+              if displaySource then do
+                item~source~each{say " >" index~right(4,0) item}
+              end
+            },
+    )
 
 
 ::method displayRoutines class
     -- All or specified routines (public & private) that are visible from current context, with their package
     -- routinenames is an array of Argument
-    use strict arg routinenames, displayer, context
+    use strict arg routinenames, displaySource, displayer, context
     matchers = .array~new
     do routinename over routinenames
         matcher = pattern2matcher(routinename, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
@@ -447,11 +489,22 @@ loadPackage:
     do while s~available
         routineInfo = s~item
         routineFlags = routineInfos(routineInfo~routine, routineInfo~visibility)
-        routines[routineFlags~left(10) routineInfo~name~quoted(x2c(27))] = "("packageInfos(routineInfo~package)")"
+        routineDescription = routineFlags~left(10) routineInfo~name~quoted(x2c(27))
+        -- remember: the same key (routineDescription) can be used several times
+        -- so don't store the routine instance on the key ! Store it on the value (packageDescription).
+        packageDescription = "("packageInfos(routineInfo~package)")"
+        packageDescription~setUserData(routineInfo~routine) -- to let retrieve the routine (yes!)
+        routines[routineDescription] = packageDescription
         s~next
     end
     -- Sort by routine name, ignoring the 10 first characters which are routine flags.
-    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(10,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
+    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false){
+        expose displaySource
+        if displaySource then do
+            routine = item~getUserData
+            routine~source~each{say " >" index~right(4,0) item}
+        end
+    }
 
 
 ::method displayFlags class

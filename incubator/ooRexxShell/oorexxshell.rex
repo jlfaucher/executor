@@ -797,13 +797,15 @@ loadLibrary:
         say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm)."
         say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi)."
         say "    ?d[ocumentation]: invoke ooRexx documentation."
-        say "    ?f[lags]: describe the flags displayed for classes & methods."
+        say "    ?f[lags]: describe the flags displayed for classes & methods & routines."
         say "    ?h[elp] c1 c2 ... : local description of classes."
         say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi)."
         say "    ?i[nterpreters]: interpreters that can be selected."
         say "    ?m[ethods] method1 method2 ... : display methods."
         say "    ?p[ackages]: display the loaded packages."
         say "    ?r[outines] routine1 routine2... : display routines."
+        say "    To display the source of methods, packages or routines: add the option .s[ource]."
+        say "        Short: ?cms, ?cmis, ?ms, ?ps, ?rs."
         .ooRexxShell~helpCommands
         return
     end
@@ -816,23 +818,27 @@ loadLibrary:
     if "classes"~caselessAbbrev(subword1) then do
         methods = .false
         inherited = .false
+        source = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
             if "methods"~caselessAbbrev(first1) then methods = .true
             else if "inherited"~caselessAbbrev(first1) then inherited = .true
+            else if "source"~caselessAbbrev(first1) then source = .true
             else do
-                .ooRexxShell~sayError("Expected 'methods' or 'inherited' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 'methods' or 'inherited' or 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
                 return
             end
         end
-        if inherited then methods = .true
-        if methods then .ooRexxShell~helpClassMethods(rest, inherited)
+        if inherited | source then methods = .true
+        if methods then .ooRexxShell~helpClassMethods(rest, inherited, source, filteringStream)
         else .ooRexxShell~helpClasses(rest)
     end
 
-    -- For convenience... cm is shorter than c.m, cmi is shorter than c.m.i
-    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, filteringStream)
-    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, filteringStream)
+    -- For convenience... cm is shorter than c.m, cms is shorter than c.m.s, cmi is shorter than c.m.i, cmis is shorter than c.m.i.s
+    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .false, filteringStream)
+    else if "cms"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .true, filteringStream)
+    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .false, filteringStream)
+    else if "cmis"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .true, filteringStream)
 
     else if "documentation"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpDocumentation
 
@@ -855,9 +861,54 @@ loadLibrary:
     else if "hi"~caselessEquals(word1) then .ooRexxShell~helpHelp(rest, .true)
 
     else if "interpreters"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpInterpreters
-    else if "methods"~caselessAbbrev(word1) then .ooRexxShell~helpMethods(rest)
-    else if "packages"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpPackages
-    else if "routines"~caselessAbbrev(word1) then .ooRexxShell~helpRoutines(rest)
+
+    else if "methods"~caselessAbbrev(word1) then do
+        source = .false
+        do while rest1 <> ""
+            parse var rest1 first1 "." rest1
+            if "source"~caselessAbbrev(first1) then source = .true
+            else do
+                .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                return
+            end
+        end
+        .ooRexxShell~helpMethods(rest, source)
+    end
+
+    -- For convenience... ms is shorter than m.s
+    else if "ms"~caselessEquals(word1) then .ooRexxShell~helpMethods(rest, .true)
+
+    else if "packages"~caselessAbbrev(word1) then do
+        source = .false
+        do while rest1 <> ""
+            parse var rest1 first1 "." rest1
+            if "source"~caselessAbbrev(first1) then source = .true
+            else do
+                .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                return
+            end
+        end
+        .ooRexxShell~helpPackages(rest, source)
+    end
+
+    -- For convenience... ps is shorter than p.s
+    else if "ps"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .true)
+
+    else if "routines"~caselessAbbrev(word1) then do
+        source = .false
+        do while rest1 <> ""
+            parse var rest1 first1 "." rest1
+            if "source"~caselessAbbrev(first1) then source = .true
+            else do
+                .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
+                return
+            end
+        end
+        .ooRexxShell~helpRoutines(rest, source)
+    end
+
+    -- For convenience... rs is shorter than r.s
+    else if "rs"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true)
 
     else .ooRexxShell~sayError("Query not understood:" queryFilter)
 
@@ -872,8 +923,8 @@ loadLibrary:
 ::method helpClassMethods class
     -- Display the methods of each specified class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    use strict arg classnames, inherited, filteringStream
-    .classInfoQuery~displayClassMethods(classnames, inherited, self, .context, filteringStream)
+    use strict arg classnames, inherited, displaySource, filteringStream
+    .classInfoQuery~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
 
 
 ::method helpCommands class
@@ -943,21 +994,22 @@ loadLibrary:
 ::method helpMethods class
     -- Display the defining classes of each specified method
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    use strict arg methodnames
-    .classInfoQuery~displayMethods(methodnames, self, .context)
+    use strict arg methodnames, displaySource
+    .classInfoQuery~displayMethods(methodnames, displaySource, self, .context)
 
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    .classInfoQuery~displayPackages(self, .context)
+    use strict arg packageNames, displaySource
+    .classInfoQuery~displayPackages(packageNames, displaySource, self, .context)
 
 
 ::method helpRoutines class
     -- Display the defining package of each specified routine
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    use strict arg routinenames
-    .classInfoQuery~displayRoutines(routinenames, self, .context)
+    use strict arg routinenames, displaySource
+    .classInfoQuery~displayRoutines(routinenames, displaySource, self, .context)
 
 
 ::method trace class
