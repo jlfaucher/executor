@@ -1767,7 +1767,8 @@ syntax:              -- propagate condition
 ::routine dump2 public
   -- JLF: I prefer a notation closer to the standard notation "a String" or "an Array"
   -- JLF: add surroundItemByQuotes, surroundIndexByQuotes
-  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true
+  -- JLF: add action, to let do something for each item
+  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, action=.nil
 
   if .nil=comparator, title~isA(.comparator) then
   do
@@ -1775,6 +1776,12 @@ syntax:              -- propagate condition
      title=(/*"type: The" coll~class~id "class"*/ coll~defaultName)
   end
 
+  -- JLF
+  doer = .nil
+  if .nil <> action then do
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+                                        else doer = action~doer
+  end
 
   if coll~isA(.supplier) then
   do
@@ -1826,12 +1833,22 @@ syntax:              -- propagate condition
          -- JLF one line per subitem
          do subitem over s~item~sort
             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
+            -- JLF
+            if .nil <> doer then do
+              if doer~arity >= 2 then doer~do(subitem, s~index)
+                                 else doer~do(subitem)
+            end
          end
      end
      else do
          -- JLF shorter output
          -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
          say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
+         -- JLF
+         if .nil <> doer then do
+           if doer~arity >= 2 then doer~do(s~item, s~index)
+                              else doer~do(s~item)
+         end
      end
      s~next
   end
