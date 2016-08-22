@@ -141,6 +141,8 @@ class RexxSource : public RexxInternalObject {
     RexxSource(RexxString *programname, const char *data, size_t length);
     RexxSource(RexxString *programname);
     inline RexxSource(RESTORETYPE restoreType) { ; };
+    void        setIsBlock(bool b) {isBlock = b;}
+    bool        getIsBlock() {return isBlock;}
     void        initBuffered(RexxBuffer *);
     void        initFile();
     void        extractNameInformation();
@@ -195,7 +197,7 @@ class RexxSource : public RexxInternalObject {
     PackageClass *loadRequires(RexxActivity *activity, RexxString *target, RexxArray *s);
     void        addPackage(PackageClass *package);
     PackageClass *getPackage();
-    void        inheritSourceContext(RexxSource *source, bool isBlock);
+    void        inheritSourceContext(RexxSource *source);
     RoutineClass *findRoutine(RexxString *);
     RoutineClass *findLocalRoutine(RexxString *);
     RoutineClass *findPublicRoutine(RexxString *);
@@ -468,7 +470,6 @@ protected:
     RexxList      *loadedPackages;       // packages imported by this package
     PackageClass  *package;              // our package wrapper
     RexxSource    *parentSource;         // a parent source context environment;
-    RexxSource    *toplevelSource;       // optimization, will be used when creating an activation for a block
     bool           isBlock;              // true if the current source has been created from a RexxBlock
     RexxDirectory *routines;             /* routines found on directives      */
     RexxDirectory *public_routines;      /* PUBLIC routines directive routines*/

@@ -70,6 +70,7 @@ public:
     RexxObject  *checkStreamAccess(RexxString *name);
     RexxString  *checkRequiresAccess(RexxString *name, RexxObject *&securityManager);
 
+    inline bool  isManaged() {return manager != OREF_NULL;}
 
 protected:
     bool         callSecurityManager(RexxString *methodName, RexxDirectory *arguments);

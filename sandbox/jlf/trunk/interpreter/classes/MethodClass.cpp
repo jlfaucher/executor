@@ -504,6 +504,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
 {
     // request this as an array.  If not convertable, then we'll use it as a string
     RexxArray *newSourceArray = source->requestArray();
+    ProtectedObject p_newSourceArray(newSourceArray);
     /* couldn't convert?                 */
     if (newSourceArray == (RexxArray *)TheNilObject)
     {
@@ -528,8 +529,6 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
             reportException(Error_Incorrect_method_noarray, position);
         }
         /*  element are strings.             */
-        /* Make a source array safe.         */
-        ProtectedObject p(newSourceArray);
         /* Make sure all elements in array   */
         for (size_t counter = 1; counter <= newSourceArray->size(); counter++)
         {
@@ -549,9 +548,11 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
             }
         }
     }
-    ProtectedObject p(newSourceArray);
+    p_newSourceArray = newSourceArray;
 
     RexxMethod *result = new RexxMethod(pgmname, newSourceArray);
+    ProtectedObject p(result);
+    result->getSourceObject()->setIsBlock(isBlock);
 
     // if we've been provided with a scope, use it
     if (parentSource == OREF_NULL)
@@ -567,7 +568,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
     // if there is a parent source, then merge in the scope information
     if (parentSource != OREF_NULL)
     {
-        result->getSourceObject()->inheritSourceContext(parentSource, isBlock);
+        result->getSourceObject()->inheritSourceContext(parentSource);
     }
 
     return result;

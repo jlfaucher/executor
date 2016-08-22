@@ -468,6 +468,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
     // create the routine
     RoutineClass *result = new RoutineClass(pgmname, newSourceArray);
     ProtectedObject p(result);
+	result->getSourceObject()->setIsBlock(isBlock);
 
     // if we've been provided with a scope, use it
     if (parentSource == OREF_NULL)
@@ -483,7 +484,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
     // if there is a parent source, then merge in the scope information
     if (parentSource != OREF_NULL)
     {
-        result->getSourceObject()->inheritSourceContext(parentSource, isBlock);
+        result->getSourceObject()->inheritSourceContext(parentSource);
     }
 
     return result;

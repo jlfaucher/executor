@@ -182,13 +182,23 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     _activity->allocateStackFrame(&this->stack, this->code->getMaxStackSize());
     this->setHasReferences();
 
+    RexxSource *referenceSource = this->sourceObject;
+    if (this->sourceObject->isBlock)
+    {
+        // get toplevelSource
+        RexxSource *parent = this->sourceObject->parentSource;
+        while (parent != OREF_NULL)
+        {
+            referenceSource = parent;
+            parent = parent->parentSource;
+        }
+    }
+
     // get initial settings template
     // NOTE:  Anything that alters information in the settings must happen AFTER
     // this point.
     this->settings = activationSettingsTemplate;
     // and override with the package-defined settings
-    RexxSource *referenceSource = sourceObject;
-    if (sourceObject->isBlock) referenceSource = sourceObject->toplevelSource;
     this->settings.numericSettings.digits = referenceSource->getDigits();
     this->settings.numericSettings.fuzz = referenceSource->getFuzz();
     this->settings.numericSettings.form = referenceSource->getForm();
@@ -217,6 +227,13 @@ RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, Re
     if (this->settings.securityManager == OREF_NULL)
     {
         this->settings.securityManager = activity->getInstanceSecurityManager();
+    }
+    if (sourceObject->isBlock)
+    {
+        if (this->settings.securityManager == OREF_NULL || this->settings.securityManager->isManaged() == false)
+        {
+            this->settings.securityManager = referenceSource->getSecurityManager();
+        }
     }
     // and the call type is METHOD
     this->settings.calltype = OREF_METHODNAME;
@@ -332,11 +349,22 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
                                          /* when creating the stack avoids it.*/
     _activity->allocateStackFrame(&stack, code->getMaxStackSize());
     this->setHasReferences();
+
+    RexxSource *referenceSource = this->sourceObject;
+    if (this->sourceObject->isBlock)
+    {
+        // get toplevelSource
+        RexxSource *parent = this->sourceObject->parentSource;
+        while (parent != OREF_NULL)
+        {
+            referenceSource = parent;
+            parent = parent->parentSource;
+        }
+    }
+
     /* get initial settings template     */
     this->settings = activationSettingsTemplate;
     // and override with the package-defined settings
-    RexxSource *referenceSource = sourceObject;
-    if (sourceObject->isBlock) referenceSource = sourceObject->toplevelSource;
     this->settings.numericSettings.digits = referenceSource->getDigits();
     this->settings.numericSettings.fuzz = referenceSource->getFuzz();
     this->settings.numericSettings.form = referenceSource->getForm();
@@ -365,6 +393,13 @@ RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, 
     if (this->settings.securityManager == OREF_NULL)
     {
         this->settings.securityManager = activity->getInstanceSecurityManager();
+    }
+    if (sourceObject->isBlock)
+    {
+        if (this->settings.securityManager == OREF_NULL || this->settings.securityManager->isManaged() == false)
+        {
+            this->settings.securityManager = referenceSource->getSecurityManager();
+        }
     }
 
     // if we have a default environment specified, apply the override.
