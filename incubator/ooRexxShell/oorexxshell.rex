@@ -143,6 +143,15 @@ end
 
 call loadOptionalComponents
 
+-- "a command"~pipe(.system) not caught by the security manager attached to SHELL, because .System is implemented in a different package.
+Class_System = .context~package~findclass("system")
+if .nil <> Class_System then do
+    Method_System_Process = Class_System~method("process")
+    if .nil <> Method_System_Process then do
+        Method_System_Process~package~setSecurityManager(.ooRexxShell~securityManager)
+    end
+end
+
 address value .ooRexxShell~initialAddress
 .ooRexxShell~interpreter = "oorexx"
 

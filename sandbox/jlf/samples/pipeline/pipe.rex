@@ -2424,7 +2424,7 @@ end
 if .nil == command then doer = .routines~UseItemAsCommand -- {use arg item; return item}~doer -- raise syntax 93.900 array(self~class~id ": No command specified")
 forward class (super) arguments (unknown) -- forward the initialization to super to process the unknown options
 
-::method process
+::method process protected
 expose command doer trace
 -- not a block do...end, to not see the 'end' in the trace output
 if trace then .traceOutput~say("       >I> Method .system~process")
