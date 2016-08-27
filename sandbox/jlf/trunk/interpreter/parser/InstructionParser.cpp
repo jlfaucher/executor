@@ -171,11 +171,13 @@ RexxInstruction *RexxSource::assignmentNew(
     this->needVariable(target);          /* must be a variable                */
                                          /* process the expression            */
     RexxObject *_expression = this->expression(TERM_EOC);
+#if 0 // Compatibility: v= is a valid rexx instruction (assign "")
     if (_expression == OREF_NULL)        /* no expression here?               */
     {
         /* this is invalid                   */
         syntaxError(Error_Invalid_expression_assign);
     }
+#endif
     /* create a new translator object    */
     RexxInstruction *newObject = new_instruction(ASSIGNMENT, Assignment);
     new ((void *)newObject) RexxInstructionAssignment((RexxVariableBase *)(this->addText(target)), _expression);

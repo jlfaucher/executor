@@ -107,7 +107,8 @@ void RexxInstructionAssignment::execute(
 /******************************************************************************/
 {
     /*RexxObject * */ ProtectedObject result;
-    result = this->expression->evaluate(context, stack);
+    if (this->expression == OREF_NULL) result = new_string(""); // Compatibility: v= is a shortcut of v=""
+    else result = this->expression->evaluate(context, stack);
     if (context->tracingInstructions())/* tracing?                          */
     {
         context->traceInstruction(this);   /* trace if necessary                */
