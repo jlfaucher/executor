@@ -348,7 +348,7 @@ readline: procedure
                 "read -r -e -p "quoted(prompt)" inputrx ;",
                 "history -s -- $inputrx ;",
                 "history -w ;",
-                "(set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
+                "(export LC_ALL=C; set | grep ^inputrx= | tr '\n' '\000' ; printf ""%s\000"" ""$inputrx"" ; printf ""%q"" ""$inputrx"") | rxqueue "quoted(.ooRexxShell~queueName)" /lifo"
             address -- restore
             if queued() <> 0 then do
                 -- inputrx1: quoted in a way that can be reused as shell input.
