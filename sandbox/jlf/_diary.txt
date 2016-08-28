@@ -300,7 +300,7 @@ Evaluation of the expression (infinity > 0) :
         when only one of the arguments can be converted to a number.
         when none of the arguments can be converted to a number and the right argument is not a string.
         -->
-        An alternative operator is used: 0~">OP:RIGHT("INFINITY")
+        An alternative operator is used: 1~">OP:RIGHT("INFINITY")
 
 
 Array programming
