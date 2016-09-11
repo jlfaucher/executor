@@ -29,7 +29,7 @@ say separator
 say "Summary"
 say separator
 do i=1 to countKo
-    say "Ko:" right(i,3) runKo.i
+    say "Ko:" runKo.i
 end
 say "countKo="countKo
 say "countSkip="countSkip
@@ -101,7 +101,7 @@ if RC = 0 then do
 end
 else do
     countKo = countKo + 1
-    runKo.countKo = solution
+    runKo.countKo = count~right(3) solution
 end
 return
 
@@ -209,6 +209,12 @@ call run "Anagrams/anagrams-6.rexx"
 
 return
 
+
+/*
+Regina documentation:
+UPPER is not part of the ANSI standard and is not common in other interpreters so should be avoided.
+It is provided to ease porting of programs from CMS.
+*/
 
 /*
 Error 40.23:  CENTER argument 3 must be a single character; found "═"
