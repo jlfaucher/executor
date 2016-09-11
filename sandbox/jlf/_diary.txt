@@ -2211,6 +2211,24 @@ and is quit faster than sleep(1) used in standard ooRexx.
 sleep(0) : rexx coactivity-stress.rex 100 --> global duration=1.671, duration per consumer=0.01671
 sleep(1) : rexx coactivity-stress.rex 100 --> global duration=24.625, duration per consumer=0.24625
 
+JLF 10/09/2016
+https://www.quora.com/What-is-the-difference-between-sleep-0-and-sched_yield
+sched_yield()
+    The sched_yield() function shall force the running thread to relinquish the
+    processor until it again becomes the head of its thread list.
+    This function has a standard C++ analog, std::this_thread::yield()
+sleep()
+    The sleep() function shall cause the calling thread to be suspended from
+    execution until either the number of realtime seconds specified by the
+    argument seconds has elapsed or a signal is delivered to the calling thread.
+sleep(0)
+    If you call sleep(0), the implementation is allowed to do exactly nothing
+    and return immediately.
+    The idea of sleeping for zero seconds probably comes from Windows API, where
+    Sleep(0) is specified to "cause the thread to relinquish the remainder of
+    its time slice to any other thread of equal priority that is ready to run.".
+    Until Windows XP introduced SwitchToThread, this was the only way to yield in WinAPI.
+
 
 Added counters for monitoring interpreter activities :
 .yieldCounter :              how many times SysActivity::yield has been called since the begining
