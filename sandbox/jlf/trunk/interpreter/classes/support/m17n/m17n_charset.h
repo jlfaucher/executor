@@ -117,8 +117,8 @@ public:
     virtual RexxString * convert(RexxString *src) = 0; // JLF : previous name was to_charset (not appropriate)
     virtual RexxString * compose(RexxString *src) = 0;
     virtual RexxString * decompose(RexxString *src) = 0;
-    virtual RexxString * upcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1) = 0;
-    virtual RexxString * downcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1) = 0;
+    virtual RexxString * upcase(RexxString *src, sizeC_t start=-1, sizeC_t length=-1) = 0;
+    virtual RexxString * downcase(RexxString *src, sizeC_t start=-1, sizeC_t length=-1) = 0;
     virtual RexxString * titlecase(RexxString *src) = 0;
     virtual RexxString * upcase_first(RexxString *src) = 0;
     virtual RexxString * downcase_first(RexxString *src) = 0;

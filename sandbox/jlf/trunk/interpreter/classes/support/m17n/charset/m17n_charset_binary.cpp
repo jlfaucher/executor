@@ -130,7 +130,7 @@ upper case.
 */
 
 RexxString*
-CHARSET_BINARY::upcase(RexxString *src, ssizeC_t start, ssizeC_t length)
+CHARSET_BINARY::upcase(RexxString *src, sizeC_t start, sizeC_t length)
 {
     reportException(Rexx_Error_Execution_user_defined, "Can't upcase binary data");
     return (RexxString *)TheNilObject;
@@ -148,7 +148,7 @@ lower-case.
 */
 
 RexxString*
-CHARSET_BINARY::downcase(RexxString *src, ssizeC_t start, ssizeC_t length)
+CHARSET_BINARY::downcase(RexxString *src, sizeC_t start, sizeC_t length)
 {
     reportException(Rexx_Error_Execution_user_defined, "Can't downcase binary data");
     return (RexxString *)TheNilObject;

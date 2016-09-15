@@ -211,7 +211,7 @@ Throws an exception if ICU is not installed.
 */
 
 RexxString*
-CHARSET_UNICODE::upcase(RexxString *src, ssizeC_t start, ssizeC_t length)
+CHARSET_UNICODE::upcase(RexxString *src, sizeC_t start, sizeC_t length)
 {
     if (src->getBLength()  == size_v(src->getCLength())
             && src->getEncoding() == m17n_utf8_encoding_ptr) {
@@ -304,7 +304,7 @@ Throws an exception if ICU is not installed.
 */
 
 RexxString*
-CHARSET_UNICODE::downcase(RexxString *src, ssizeC_t start, ssizeC_t length)
+CHARSET_UNICODE::downcase(RexxString *src, sizeC_t start, sizeC_t length)
 {
     if (src->getBLength()  == size_v(src->getCLength())
             && src->getEncoding() == m17n_utf8_encoding_ptr) {

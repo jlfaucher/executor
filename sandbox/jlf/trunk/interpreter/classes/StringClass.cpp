@@ -2238,7 +2238,7 @@ RexxObject  *RexxString::getRealValue(
 }
 
 
-RexxString *RexxString::newString(const char *string, sizeB_t blength, ssizeC_t clength, CHARSET *charset, ENCODING *encoding)
+RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t clength, CHARSET *charset, ENCODING *encoding)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
 /******************************************************************************/
@@ -2271,7 +2271,7 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, ssizeC_t 
     return newObj;                       /*having OREFs                       */
 }
 
-RexxString *RexxString::newString(const char *string, sizeB_t blength, ssizeC_t clength, const char *charsetName)
+RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t clength, const char *charsetName)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
 /* If the charset is unknown then raise an exception and return a string with */
@@ -2284,7 +2284,7 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, ssizeC_t 
   return RexxString::newString(string, blength, clength, charset, charset->preferred_encoding);
 }
 
-RexxString *RexxString::rawString(sizeB_t blength, ssizeC_t clength, CHARSET *charset, ENCODING *encoding)
+RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength, CHARSET *charset, ENCODING *encoding)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) an empty string object                */
 /******************************************************************************/
@@ -2314,7 +2314,7 @@ RexxString *RexxString::rawString(sizeB_t blength, ssizeC_t clength, CHARSET *ch
   return newObj;                       /*having OREFs                       */
 }
 
-RexxString *RexxString::rawString(sizeB_t blength, ssizeC_t clength, const char *charsetName)
+RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength, const char *charsetName)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) an empty string object                */
 /* If the charset is unknown then raise an exception and return a string with */
@@ -2342,7 +2342,7 @@ RexxString *RexxString::rawString(sizeB_t blength, ssizeC_t clength, const char 
  *
  * @return A newly constructed string object.
  */
-RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, sstringsizeC_t clength, CHARSET *charset, ENCODING *encoding)
+RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, stringsizeC_t clength, CHARSET *charset, ENCODING *encoding)
 {
     // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     /* calculate the size                */
@@ -2384,7 +2384,7 @@ RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blengt
     return newObj;                       /*having OREFs                       */
 }
 
-RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, sstringsizeC_t clength, const char *charsetName)
+RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, stringsizeC_t clength, const char *charsetName)
 {
     CHARSET *charset = NULL;
     if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown

@@ -624,7 +624,7 @@ Returns the bytes in string C<src> at position C<offset> and length C<count>.
 RexxString *
 ENCODING_UTF8::get_bytes(RexxString *src, sizeB_t offset, sizeB_t count)
 {
-    return new_string(src->getStringData() + offset, count, ssize_v(count), src->getCharset(), src->getEncoding()); 
+    return new_string(src->getStringData() + offset, count, size_v(count), src->getCharset(), src->getEncoding()); 
 }
 
 

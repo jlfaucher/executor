@@ -346,7 +346,7 @@ inline char IntToHexDigit(int n)
    inline sizeC_t  getCLength() { return this->clength; };
    inline void    setBLength(sizeB_t l) { this->blength = l; };
    inline void    setCLength(sizeC_t l) { this->clength = l; };
-   inline void finish(stringsizeB_t bl, ssizeC_t cl=-1)
+   inline void finish(stringsizeB_t bl, sizeC_t cl=-1)
    {
        this->blength = bl;
        this->clength =
@@ -501,12 +501,12 @@ inline char IntToHexDigit(int n)
    }
 
 
-   static RexxString *newString(const char *, sizeB_t bl, ssizeC_t cl=-1, const char *charsetName=NULL);
-   static RexxString *newString(const char *, sizeB_t bl, ssizeC_t cl, CHARSET *charset, ENCODING *encoding);
-   static RexxString *rawString(sizeB_t bl, ssizeC_t cl=-1, const char *charsetName=NULL);
-   static RexxString *rawString(sizeB_t bl, ssizeC_t cl, CHARSET *charset, ENCODING *encoding);
-   static RexxString *newUpperString(const char *, stringsizeB_t bl, sstringsizeC_t cl=-1, const char *charsetName=NULL);
-   static RexxString *newUpperString(const char *, stringsizeB_t bl, sstringsizeC_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *newString(const char *, sizeB_t bl, sizeC_t cl=-1, const char *charsetName=NULL);
+   static RexxString *newString(const char *, sizeB_t bl, sizeC_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *rawString(sizeB_t bl, sizeC_t cl=-1, const char *charsetName=NULL);
+   static RexxString *rawString(sizeB_t bl, sizeC_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *newUpperString(const char *, stringsizeB_t bl, stringsizeC_t cl=-1, const char *charsetName=NULL);
+   static RexxString *newUpperString(const char *, stringsizeB_t bl, stringsizeC_t cl, CHARSET *charset, ENCODING *encoding);
    static RexxString *newString(double d);
    static RexxString *newString(double d, size_t precision);
    static RexxString *newProxy(const char *);
@@ -569,17 +569,17 @@ inline char IntToHexDigit(int n)
 
 // String creation inline functions
 
-inline RexxString *new_string(const char *s, stringsizeB_t bl, ssizeC_t cl=-1, const char *charsetName=NULL)
+inline RexxString *new_string(const char *s, stringsizeB_t bl, sizeC_t cl=-1, const char *charsetName=NULL)
 {
     return RexxString::newString(s, bl, cl, charsetName);
 }
 
-inline RexxString *new_string(const char *s, stringsizeB_t bl, ssizeC_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_string(const char *s, stringsizeB_t bl, sizeC_t cl, CHARSET *charset, ENCODING *encoding)
 {
     return RexxString::newString(s, bl, cl, charset, encoding);
 }
 
-inline RexxString *raw_string(stringsizeB_t bl, sstringsizeC_t cl=-1, const char *charsetName=NULL)
+inline RexxString *raw_string(stringsizeB_t bl, stringsizeC_t cl=-1, const char *charsetName=NULL)
 {
     return RexxString::rawString(bl, cl, charsetName);
 }
@@ -645,12 +645,12 @@ inline RexxString *new_proxy(const char *name)
     return RexxString::newProxy(name);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, sstringsizeC_t cl=-1, const char *charsetName=NULL)
+inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, stringsizeC_t cl=-1, const char *charsetName=NULL)
 {
     return RexxString::newUpperString(s, bl, cl, charsetName);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, sstringsizeC_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, stringsizeC_t cl, CHARSET *charset, ENCODING *encoding)
 {
     return RexxString::newUpperString(s, bl, cl, charset, encoding);
 }

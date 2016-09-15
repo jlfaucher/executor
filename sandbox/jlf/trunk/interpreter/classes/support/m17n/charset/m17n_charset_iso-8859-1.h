@@ -54,8 +54,8 @@ public:
     RexxString * convert(RexxString *src);
     RexxString * compose(RexxString *src);
     RexxString * decompose(RexxString *src);
-    RexxString * upcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1);
-    RexxString * downcase(RexxString *src, ssizeC_t start=-1, ssizeC_t length=-1);
+    RexxString * upcase(RexxString *src, sizeC_t start=-1, sizeC_t length=-1);
+    RexxString * downcase(RexxString *src, sizeC_t start=-1, sizeC_t length=-1);
     RexxString * titlecase(RexxString *src);
     RexxString * upcase_first(RexxString *src);
     RexxString * downcase_first(RexxString *src);

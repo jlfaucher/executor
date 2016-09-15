@@ -166,7 +166,7 @@ graphemes that support cases.
 */
 
 RexxString*
-CHARSET_ISO_8859::upcase(RexxString *src, ssizeC_t start, ssizeC_t length)
+CHARSET_ISO_8859::upcase(RexxString *src, sizeC_t start, sizeC_t length)
 {
     unsigned char *buffer;
     sizeB_t        offset = 0;
@@ -200,7 +200,7 @@ that support cases.
 */
 
 RexxString*
-CHARSET_ISO_8859::downcase(RexxString *src, ssizeC_t start, ssizeC_t length)
+CHARSET_ISO_8859::downcase(RexxString *src, sizeC_t start, sizeC_t length)
 {
     unsigned char *buffer;
     sizeB_t        offset = 0;

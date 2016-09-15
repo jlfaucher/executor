@@ -188,7 +188,7 @@ Converts the RexxString C<src> to all uppercase.
 */
 
 RexxString*
-CHARSET_ASCII::upcase(RexxString *src, ssizeC_t start, ssizeC_t length) // todo : implement start, length
+CHARSET_ASCII::upcase(RexxString *src, sizeC_t start, sizeC_t length) // todo : implement start, length
 {
     RexxString * const result = (RexxString *) src->clone();
     const sizeB_t n = src->getBLength();
@@ -216,7 +216,7 @@ Converts the RexxString C<src> to all lower-case.
 */
 
 RexxString*
-CHARSET_ASCII::downcase(RexxString *src, ssizeC_t start, ssizeC_t length) // todo : implement start, length
+CHARSET_ASCII::downcase(RexxString *src, sizeC_t start, sizeC_t length) // todo : implement start, length
 {
     RexxString       *result = (RexxString *) src->clone();
     const sizeB_t n      = src->getBLength();

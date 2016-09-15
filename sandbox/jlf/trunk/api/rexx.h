@@ -226,7 +226,6 @@ typedef char *PEXIT;                  /* ptr to exit parameter block */
 #include "rexxplatformdefs.h"          // Platform specific stuff
 
 typedef size_t  stringsize_t;          // a Rexx string size
-typedef ssize_t sstringsize_t;         // a Rexx signed string size, which allows to pass -1 as default value
 typedef size_t  uwholenumber_t;        // a Rexx whole number (unsigned)
 typedef ssize_t wholenumber_t;         // a Rexx whole number (signed)
 typedef size_t  logical_t;             // a Rexx logical (1 or 0) value
@@ -236,51 +235,32 @@ typedef ssize_t codepoint_t;           // a Rexx signed codepoint, which allows 
 
 // Convert helpers (cast), to provide same services for weak and strong types
 #define size_v(X) size_t(X)
-#define ssize_v(X) ssize_t(X)
 #define stringsize_v(X) stringsize_t(X)
-#define sstringsize_v(X) sstringsize_t(X)
 
-// Weak type for unsigned size in chars
+// Weak type for string's size in chars
 typedef stringsize_t stringsizeC_t;
 typedef stringsizeC_t sizeC_t; // Often size_t is used instead of stringsize_t --> create a similar name
 #define stringsizeC_v(X) stringsizeC_t(X)  
 #define sizeC_v(X) sizeC_t(X)
 
-// Weak type for signed size in chars
-typedef sstringsize_t sstringsizeC_t;
-typedef sstringsizeC_t ssizeC_t; 
-#define sstringsizeC_v(X) sstringsizeC_t(X)  
-#define ssizeC_v(X) ssizeC_t(X)
-
-// Weak type for unsigned string's size in bytes
+// Weak type for string's size in bytes
 typedef stringsize_t stringsizeB_t;
 typedef stringsizeB_t sizeB_t;
 #define stringsizeB_v(X) stringsizeB_t(X)  
 #define sizeB_v(X) sizeB_t(X)
 
-// Weak type for signed string's size in bytes
-typedef sstringsize_t sstringsizeB_t;
-typedef sstringsizeB_t ssizeB_t;
-#define sstringsizeB_v(X) sstringsizeB_t(X)  
-#define ssizeB_v(X) ssizeB_t(X)
-
 #else
 
 // Temporary strong types to detect misuse between 'size in bytes' and 'size in chars'
-
-// Borrowed from Boost enable_if.hpp
-// I use it to declare specialized constructors, depending on the strong type currently built
-template <bool B, class T = void> struct enable_if_c { typedef T type; };
-template <class T> struct enable_if_c<false, T> {};
 
 // D is a discriminant wich is used to create different types for the same type T :
 // 'unsigned size in bytes' and 'unsigned size in chars' are both of type stringsize_t.
 // But I want two different types to let the compiler complain when I pass an 'unsigned size in bytes'
 // to a method wich expects an 'unsigned size in chars'.
-enum Discriminant {stringsizeC, sstringsizeC, stringsizeB, sstringsizeB};
+enum Discriminant {stringsizeC, stringsizeB};
 
-// T is supposed to be size_t or ssize_t.
-// That's why I add overloadings with int, to support constants like 0 or 1 or ... (whose implicit type is int, not size_t or ssize_t)
+// T is supposed to be size_t.
+// That's why I add overloadings with int, to support constants like 0 or 1 or ... (whose implicit type is int, not size_t)
 // That really removes errors of kind "ambiguous..."
 template <typename T, int D>
 class rxStringSize
@@ -293,12 +273,6 @@ public:
     rxStringSize(T t) : size(t) {}
     rxStringSize(int t) : size(t) {}
     rxStringSize(const rxStringSize<T, D> &s) : size(s.size) {}
-    // signed size and unsigned size are compatible (signed size is used to allow default argument -1)
-    template <typename T1> rxStringSize(T1 &s, typename enable_if_c< D == sstringsizeC && T1::ident == stringsizeC >::type *dummy=0) : size(s.value()) {}
-    template <typename T1> rxStringSize(T1 &s, typename enable_if_c< D == sstringsizeB && T1::ident == stringsizeB >::type *dummy=0) : size(s.value()) {}
-    template <typename T1> rxStringSize(T1 &s, typename enable_if_c< D == stringsizeC && T1::ident == sstringsizeC >::type *dummy=0) : size(s.value()) {}
-    template <typename T1> rxStringSize(T1 &s, typename enable_if_c< D == stringsizeB && T1::ident == sstringsizeB >::type *dummy=0) : size(s.value()) {}
-    //operator T() { return size; }
     T value() const { return size; }
     
     rxStringSize<T, D> &operator =(const rxStringSize<T, D> &other) { size = other.size; return *this; }
@@ -401,33 +375,19 @@ template <typename T, int D> rxStringSize<T, D> operator &(const rxStringSize<T,
 
 // Convert helpers (cast), to provide same services for weak and strong types
 #define size_v(X) size_t((X).value())
-#define ssize_v(X) ssize_t((X).value())
 #define stringsize_v(X) stringsize_t((X).value())
-#define sstringsize_v(X) sstringsize_t((X).value())
 
-// Strong type for unsigned size in chars
+// Strong type for string's size in chars
 typedef rxStringSize<stringsize_t, stringsizeC> stringsizeC_t;
 typedef stringsizeC_t sizeC_t; // Often size_t is used instead of stringsize_t --> create a similar name for the strong type 
 #define stringsizeC_v(X) stringsizeC_t::value(X)  
 #define sizeC_v(X) sizeC_t::value(X)
 
-// Strong type for signed size in chars
-typedef rxStringSize<sstringsize_t, sstringsizeC> sstringsizeC_t;
-typedef sstringsizeC_t ssizeC_t; 
-#define sstringsizeC_v(X) sstringsizeC_t::value(X)  
-#define ssizeC_v(X) ssizeC_t::value(X)
-
-// Strong type for unsigned string's size in bytes
+// Strong type for string's size in bytes
 typedef rxStringSize<stringsize_t, stringsizeB> stringsizeB_t;
 typedef stringsizeB_t sizeB_t;
 #define stringsizeB_v(X) stringsizeB_t::value(X)  
 #define sizeB_v(X) sizeB_t::value(X)
-
-// Strong type for signed string's size in bytes
-typedef rxStringSize<sstringsize_t, sstringsizeB> sstringsizeB_t;
-typedef sstringsizeB_t ssizeB_t;
-#define sstringsizeB_v(X) sstringsizeB_t::value(X)  
-#define ssizeB_v(X) ssizeB_t::value(X)
 
 inline char *&operator +=(char *&str, sizeB_t s) { str += s.value(); return str; }
 inline const char *&operator +=(const char *&str, sizeB_t s) { str += s.value(); return str; }
