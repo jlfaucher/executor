@@ -731,6 +731,7 @@ void RexxActivation::processTraps()
             this->pending_count--;           /* decrement the pending count       */
                                              /* get the current condition object  */
             RexxDirectory *conditionObj = (RexxDirectory *)this->condition_queue->pullRexx();
+            ProtectedObject p_conditionObj(conditionObj);
             RexxObject *rc = conditionObj->at(OREF_RC);  /* get any return code information   */
             if (rc != OREF_NULL)             /* have something to assign to RC?   */
             {

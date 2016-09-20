@@ -169,8 +169,9 @@ void RexxInstructionRaise::execute(
     size_t  count;                       /* count of array expressions        */
     size_t  i;                           /* loop counter                      */
     wholenumber_t  msgNum;               /* message number                    */
-    
+
     ProtectedObject p_result;
+    ProtectedObject p_rc;
     ProtectedObject p_description;
     ProtectedObject p_additional;
 
@@ -203,6 +204,7 @@ void RexxInstructionRaise::execute(
         /* and get integer object            */
         msgNum = Interpreter::messageNumber(errorcode);
         rc = (RexxObject *)new_integer(msgNum);
+        p_rc = rc;
     }
     if (this->description != OREF_NULL)  /* given a description?              */
     {
