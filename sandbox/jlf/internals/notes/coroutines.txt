@@ -1,5 +1,11 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://davidwalsh.name/es6-generators
+
+http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript
+https://github.com/jlongster/js-csp
+CSP, channel
+
 https://www.reddit.com/r/javascript/comments/3i1td3/how_does_yield_actually_pauseresume_the_flow_of_a/
 Implemented in the parser (yes !)
 Interesting technique to provide the info :

@@ -1,5 +1,19 @@
 http://www.jpaulmorrison.com/fbp/
 
+Javascript
+Introduction into Channels and Transducers in JavaScript
+https://medium.com/javascript-inside/introduction-into-channels-and-transducers-in-javascript-a1dfd0a09268#.hp9ijj3ta
+
+http://phuu.net/2014/08/31/csp-and-transducers.html
+Not bad to understand transducers.
+Application to functional.cls :
+~map and ~each differ only by the way to combine values.
+This hardcoded logic could be moved outside these 2 methods.
+And these 2 methods could be replaced by a new method ~transduce.
+
+Transducers.js: A JavaScript Library for Transformation of Data
+http://jlongster.com/Transducers.js--A-JavaScript-Library-for-Transformation-of-Data
+
 
 Ocaml pipes
 https://ocaml.janestreet.com/ocaml-core/111.28.00/doc/async_kernel/#Pipe
