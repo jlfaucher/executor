@@ -240,13 +240,13 @@ typedef ssize_t codepoint_t;           // a Rexx signed codepoint, which allows 
 // Weak type for string's size in chars
 typedef stringsize_t stringsizeC_t;
 typedef stringsizeC_t sizeC_t; // Often size_t is used instead of stringsize_t --> create a similar name
-#define stringsizeC_v(X) stringsizeC_t(X)  
+#define stringsizeC_v(X) stringsizeC_t(X)
 #define sizeC_v(X) sizeC_t(X)
 
 // Weak type for string's size in bytes
 typedef stringsize_t stringsizeB_t;
 typedef stringsizeB_t sizeB_t;
-#define stringsizeB_v(X) stringsizeB_t(X)  
+#define stringsizeB_v(X) stringsizeB_t(X)
 #define sizeB_v(X) sizeB_t(X)
 
 #else
@@ -274,26 +274,26 @@ public:
     rxStringSize(int t) : size(t) {}
     rxStringSize(const rxStringSize<T, D> &s) : size(s.size) {}
     T value() const { return size; }
-    
+
     rxStringSize<T, D> &operator =(const rxStringSize<T, D> &other) { size = other.size; return *this; }
     rxStringSize<T, D> &operator =(const T &other) { size = other; return *this; }
-    
+
     rxStringSize<T, D> &operator +=(const rxStringSize<T, D> &other) { size += other.size; return *this; }
     rxStringSize<T, D> &operator +=(const T &other) { size += other; return *this; }
-    
+
     rxStringSize<T, D> &operator -=(const rxStringSize<T, D> &other) { size -= other.size; return *this; }
     rxStringSize<T, D> &operator -=(const T &other) { size -= other; return *this; }
-    
+
     rxStringSize<T, D> &operator *=(const rxStringSize<T, D> &other) { size *= other.size; return *this; }
     rxStringSize<T, D> &operator *=(const T &other) { size *= other; return *this; }
-    
+
     rxStringSize<T, D> &operator >>=(const rxStringSize<T, D> &other) { size >>= other.size; return *this; }
     rxStringSize<T, D> &operator >>=(const T &other) { size >>= other; return *this; }
-    
+
 	// prefix
     rxStringSize<T, D> &operator ++() { ++size; return *this; }
     rxStringSize<T, D> &operator --() { --size; return *this; }
-    
+
 	// suffix
     rxStringSize<T, D> operator ++(int) { return size++; }
     rxStringSize<T, D> operator --(int) { return size--; }
@@ -379,14 +379,14 @@ template <typename T, int D> rxStringSize<T, D> operator &(const rxStringSize<T,
 
 // Strong type for string's size in chars
 typedef rxStringSize<stringsize_t, stringsizeC> stringsizeC_t;
-typedef stringsizeC_t sizeC_t; // Often size_t is used instead of stringsize_t --> create a similar name for the strong type 
-#define stringsizeC_v(X) stringsizeC_t::value(X)  
+typedef stringsizeC_t sizeC_t; // Often size_t is used instead of stringsize_t --> create a similar name for the strong type
+#define stringsizeC_v(X) stringsizeC_t::value(X)
 #define sizeC_v(X) sizeC_t::value(X)
 
 // Strong type for string's size in bytes
 typedef rxStringSize<stringsize_t, stringsizeB> stringsizeB_t;
 typedef stringsizeB_t sizeB_t;
-#define stringsizeB_v(X) stringsizeB_t::value(X)  
+#define stringsizeB_v(X) stringsizeB_t::value(X)
 #define sizeB_v(X) sizeB_t::value(X)
 
 inline char *&operator +=(char *&str, sizeB_t s) { str += s.value(); return str; }
@@ -398,6 +398,7 @@ inline const char *operator +(const char *str, sizeB_t s) { return str + s.value
 inline char *operator -(char *str, sizeB_t s) { return str - s.value(); }
 inline const char *operator -(const char *str, sizeB_t s) { return str - s.value(); }
 
+#include <string.h>
 inline int memcmp(const void *s1, const void *s2, sizeB_t n) { return memcmp(s1, s2, size_v(n)); }
 inline void *memcpy(void *dest, const void *src, sizeB_t n) { return memcpy(dest, src, size_v(n)); }
 inline void *memmove(void *dest, const void *src, sizeB_t n) { return memmove(dest, src, size_v(n)); }

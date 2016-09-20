@@ -892,7 +892,7 @@ void dumpTokensImpl(const char *from, RexxSource *source, RexxClause *clause)
     {
         RexxToken *token = (RexxToken *)clause->tokens->get(i);
         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
-        dbgprintf("(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i ", token->tokenLocation.getLineNumber(), token->tokenLocation.getOffset(), token->tokenLocation.getEndLine(), token->tokenLocation.getEndOffset());
+        dbgprintf("(Parsing)startLine=%i startCol=%i endLine=%i endCol=%i ", token->tokenLocation.getLineNumber(), size_v(token->tokenLocation.getOffset()), token->tokenLocation.getEndLine(), size_v(token->tokenLocation.getEndOffset()));
         dbgprintf("classId=%s subclass=%s numeric=%i ", RexxToken::codeText(token->classId), RexxToken::codeText(token->subclass), token->numeric);
         if (token->value == NULL)
             dbgprintf("token=NULL\n");
@@ -4868,7 +4868,7 @@ void RexxSource::addClause(
         ProtectedObject p(instructionSource);
         if (Utilities::traceConcurrency()) dbgprintf(CONCURRENCY_TRACE "...... ... ", Utilities::currentThreadId(), NULL, NULL, 0, ' ');
         dbgprintf("(Parsing)Add RexxInstruction : instructionType=\"%s\" instructionFlags=%i ", RexxToken::keywordText(_instruction->instructionType), _instruction->instructionFlags);
-        dbgprintf("startLine=%i startCol=%i endLine=%i endCol=%i ", _instruction->instructionLocation.getLineNumber(), _instruction->instructionLocation.getOffset(), _instruction->instructionLocation.getEndLine(), _instruction->instructionLocation.getEndOffset());
+        dbgprintf("startLine=%i startCol=%i endLine=%i endCol=%i ", _instruction->instructionLocation.getLineNumber(), size_v(_instruction->instructionLocation.getOffset()), _instruction->instructionLocation.getEndLine(), size_v(_instruction->instructionLocation.getEndOffset()));
         dbgprintf("instruction={%s}\n", instructionSource->getStringData());
     }
 #endif

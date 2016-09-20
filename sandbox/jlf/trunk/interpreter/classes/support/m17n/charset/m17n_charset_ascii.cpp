@@ -665,7 +665,6 @@ CHARSET_ASCII::find_not_cclass(wholenumber_t flags, IRexxString *src, sizeC_t of
     return end;
 }
 
-/*
 
 /*
 
