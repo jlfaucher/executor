@@ -198,7 +198,7 @@ RexxString *RexxString::stringValue()
     }
     else                                 /* need to build a new string        */
     {
-        return new_string(this->getStringData(), this->getBLength(), this->getCLength(), this->getCharset(), this->getEncoding());
+        return new_string(this->getStringData(), this->getBLength(), this->getCLength());
     }
 }
 
@@ -213,7 +213,7 @@ RexxString  *RexxString::makeString()
     }
     else                                 /* need to create a new string       */
     {
-        return new_string(this->getStringData(), this->getBLength(), this->getCLength(), this->getCharset(), this->getEncoding());
+        return new_string(this->getStringData(), this->getBLength(), this->getCLength());
     }
 }
 
@@ -1351,7 +1351,7 @@ RexxString *RexxString::concat(RexxString *other)
         return other;
     }
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2, this->getCharset(), this->getEncoding());
+    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
     data = result->getWritableData();    /* point to the string data          */
 
     // both lengths are non-zero because of the test above, so we can
@@ -1409,7 +1409,7 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
     blen2 = other->getBLength();              /* and the other length              */
     clen2 = other->getCLength();
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2, this->getCharset(), this->getEncoding());
+    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
     data = result->getWritableData();    /* point to the string data          */
     if (blen1 != 0)
     {                     /* have real data?                   */
@@ -1425,7 +1425,7 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
     return result;                       /* return the result                 */
 }
 
-RexxString *RexxString::concatToCstring(const char *other, CHARSET *_charset, ENCODING *_encoding)
+RexxString *RexxString::concatToCstring(const char *other)
 /******************************************************************************/
 /* Function:  Concatenate a string object onto an ASCII-Z string              */
 /******************************************************************************/
@@ -1441,9 +1441,9 @@ RexxString *RexxString::concatToCstring(const char *other, CHARSET *_charset, EN
     blen1 = this->getBLength();          /* get this length                   */
     clen1 = this->getCLength();
     blen2 = strlen(other);               /* and the other length              */
-    clen2 = _encoding->codepoints(other, blen2);
+    clen2 = sizeC_v(size_v(blen2)); // todo m17n: calculate clen
                                          /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2, _charset, _encoding);
+    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2);
     /* copy the front part               */
     memcpy(result->getWritableData(), other, blen2);
     /* and the second part               */
@@ -1451,20 +1451,7 @@ RexxString *RexxString::concatToCstring(const char *other, CHARSET *_charset, EN
     return result;
 }
 
-RexxString *RexxString::concatToCstring(const char *other, const char *charsetName)
-/******************************************************************************/
-/* Function:  Concatenate a string object onto an ASCII-Z string              */
-/* If the charset is unknown then raise an exception and return a string with */
-/* default charset & encoding.                                                */
-/******************************************************************************/
-{
-    CHARSET *_charset = NULL;
-    if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (_charset == NULL) _charset = m17n_default_charset();
-    return RexxString::concatToCstring(other, _charset, _charset->preferred_encoding);
-}
-
-RexxString *RexxString::concatWithCstring(const char *other, CHARSET *_charset, ENCODING *_encoding)
+RexxString *RexxString::concatWithCstring(const char *other)
 /******************************************************************************/
 /* Function:  Concatenate an ASCII-Z string onto a string object              */
 /******************************************************************************/
@@ -1480,27 +1467,14 @@ RexxString *RexxString::concatWithCstring(const char *other, CHARSET *_charset, 
     blen1 = this->getBLength();          /* get this length                   */
     clen1 = this->getCLength();
     blen2 = strlen(other);               /* and the other length              */
-    clen2 = _encoding->codepoints(other, blen2);
+    clen2 = sizeC_v(size_v(blen2)); // todo m17n: calculate clen
                                          /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2, this->getCharset(), this->getEncoding());
+    result = (RexxString *)raw_string(blen1+blen2, clen1+clen2); // todo m17n: clen to recalculate
     /* copy the string object            */
     memcpy(result->getWritableData(), this->getStringData(), blen1);
     /* copy the ASCII-Z string           */
     memcpy(result->getWritableData() + blen1, other, blen2);
     return result;
-}
-
-RexxString *RexxString::concatWithCstring(const char *other, const char *charsetName)
-/******************************************************************************/
-/* Function:  Concatenate an ASCII-Z string onto a string object              */
-/* If the charset is unknown then raise an exception and return a string with */
-/* default charset & encoding.                                                */
-/******************************************************************************/
-{
-    CHARSET *_charset = NULL;
-    if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (_charset == NULL) _charset = m17n_default_charset();
-    return RexxString::concatWithCstring(other, _charset, _charset->preferred_encoding);
 }
 
 // in behaviour
@@ -1549,7 +1523,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
     blen2 = other->getBLength();              /* and the other length              */
     clen2 = other->getCLength();
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1, this->getCharset(), this->getEncoding());
+    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1); // todo m17n: recalculate clen
     data = result->getWritableData();    /* point to the string data          */
     if (blen1 != 0)
     {                     /* have a first string?              */
@@ -1675,13 +1649,12 @@ RexxString *RexxString::upper()
                                          /* something to uppercase?           */
     if (!this->upperOnly() && (this->hasLower() || this->checkLower()))
     {
-#if 1
-        // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
+        // m17n todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
         /* create a new string               */
         const char *data;                    /* current data pointer              */
         char * outdata;                      /* output data                       */
         const char *endData;                 /* end of the data                   */
-        newstring = (RexxString *)raw_string(this->getBLength(), this->getCLength(), this->getCharset(), this->getEncoding());
+        newstring = (RexxString *)raw_string(this->getBLength(), this->getCLength());
         data = this->getStringData();      /* point to the data start           */
                                            /* point to output data              */
         outdata = newstring->getWritableData();
@@ -1692,10 +1665,6 @@ RexxString *RexxString::upper()
             data++;                          /* step the position                 */
             outdata++;                       /* and the output position           */
         }
-#else
-        newstring = this->getCharset()->upcase(this);
-        newstring->setUpperOnly();         /* flag the string as uppercased     */
-#endif
         return newstring;                  /* return the new string             */
     }
     return this;                         /* return this unchanged             */
@@ -1758,8 +1727,7 @@ RexxString *RexxString::lower()
 /* Function:  Translate a string to lower case                                */
 /******************************************************************************/
 {
-#if 1
-    // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
+    // Todo m17n : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     RexxString *newstring;               /* newly created string              */
     const char *   data;                 /* current data pointer              */
     char *         outdata;              /* output data                       */
@@ -1781,7 +1749,7 @@ RexxString *RexxString::lower()
     if (needTranslation)
     {               /* something to uppercase?           */
                     /* create a new string               */
-        newstring = (RexxString *)raw_string(this->getBLength(), this->getCLength(), this->getCharset(), this->getEncoding());
+        newstring = (RexxString *)raw_string(this->getBLength(), this->getCLength());
         data = this->getStringData();      /* point to the data start           */
                                            /* point to output data              */
         outdata = newstring->getWritableData();
@@ -1797,9 +1765,6 @@ RexxString *RexxString::lower()
     {
         newstring = this;                  /* return untranslated string        */
     }
-#else
-    RexxString *newstring = this->getCharset()->downcase(this);
-#endif
     return newstring;                    /* return the new copy               */
 }
 
@@ -1886,8 +1851,7 @@ RexxString *RexxString::upperRexx(RexxInteger *_start, RexxInteger *_length)
  */
 RexxString *RexxString::lower(sizeC_t offset, sizeC_t _length)
 {
-#if 1
-    // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
+    // Todo m17n: current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     // get a copy of the string
     RexxString *newstring = extractB(0, getBLength());
 
@@ -1898,9 +1862,6 @@ RexxString *RexxString::lower(sizeC_t offset, sizeC_t _length)
         *data = tolower(*data);
         data++;
     }
-#else
-    RexxString *newstring = this->getCharset()->downcase(this, offset, _length);
-#endif
     return newstring;
 }
 
@@ -1920,8 +1881,7 @@ RexxString *RexxString::lower(sizeC_t offset, sizeC_t _length)
  */
 RexxString *RexxString::upper(sizeC_t offset, sizeC_t _length)
 {
-#if 1
-    // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
+    // Todo m17n: current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     // get a copy of the string
     RexxString *newstring = extractB(0, getBLength());
 
@@ -1932,9 +1892,6 @@ RexxString *RexxString::upper(sizeC_t offset, sizeC_t _length)
         *data = toupper(*data);
         data++;
     }
-#else
-    RexxString *newstring = this->getCharset()->upcase(this, offset, _length);
-#endif
     return newstring;
 }
 
@@ -2008,7 +1965,7 @@ RexxString *RexxString::concatWith(RexxString *other,
     blen2 = other->getBLength();         /* and the other length              */
     clen2 = other->getCLength();
     /* create a new string               */
-    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1, this->getCharset(), this->getEncoding());
+    result = (RexxString *)raw_string(blen1+blen2+1, clen1+clen2+1);
     data = result->getWritableData();         /* point to the string data          */
     if (blen1 != 0)
     {                     /* have a first string?              */
@@ -2238,7 +2195,7 @@ RexxObject  *RexxString::getRealValue(
 }
 
 
-RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t clength, CHARSET *charset, ENCODING *encoding)
+RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t clength)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) a string object                       */
 /******************************************************************************/
@@ -2252,7 +2209,7 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t c
     RexxString *newObj = (RexxString *)new_object(size_v(size2), T_String);
     /* clear the front part              */
     newObj->setBLength(blength);         /* save the length in bytes          */
-    newObj->setCLength(clength == -1 ? encoding->codepoints(string, blength) : clength);
+    newObj->setCLength(clength == -1 ? clength : clength); // todo m17n: case -1
     newObj->hashValue = 0;               // make sure the hash value is zeroed
                                          /* Null terminate, allows faster     */
                                          /* conversion to ASCII-Z string      */
@@ -2262,29 +2219,13 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t c
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
 
-    newObj->setCharset(charset);
-    newObj->setEncoding(encoding);
-
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */
                                          /*we need to mark ourselves as       */
     return newObj;                       /*having OREFs                       */
 }
 
-RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t clength, const char *charsetName)
-/******************************************************************************/
-/* Function:  Allocate (and initialize) a string object                       */
-/* If the charset is unknown then raise an exception and return a string with */
-/* default charset & encoding.                                                */
-/******************************************************************************/
-{
-  CHARSET *charset = NULL;
-  if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-  if (charset == NULL) charset = m17n_default_charset();
-  return RexxString::newString(string, blength, clength, charset, charset->preferred_encoding);
-}
-
-RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength, CHARSET *charset, ENCODING *encoding)
+RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength)
 /******************************************************************************/
 /* Function:  Allocate (and initialize) an empty string object                */
 /******************************************************************************/
@@ -2305,28 +2246,11 @@ RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength, CHARSET *cha
                                        /* by  default, we don't need Live   */
   newObj->setHasNoReferences();        /*sent                               */
 
-  newObj->setCharset(charset);
-  newObj->setEncoding(encoding);
-
                                        /* NOTE: That if we can set          */
                                        /*  this->NumebrString elsewhere     */
                                        /*we need to mark ourselves as       */
   return newObj;                       /*having OREFs                       */
 }
-
-RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength, const char *charsetName)
-/******************************************************************************/
-/* Function:  Allocate (and initialize) an empty string object                */
-/* If the charset is unknown then raise an exception and return a string with */
-/* default charset & encoding.                                                */
-/******************************************************************************/
-{
-  CHARSET *charset = NULL;
-  if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-  if (charset == NULL) charset = m17n_default_charset();
-  return RexxString::rawString(blength, clength, charset, charset->preferred_encoding);
-}
-
 
 /**
  * Allocate an initialize a string object that will also
@@ -2337,12 +2261,10 @@ RexxString *RexxString::rawString(sizeB_t blength, sizeC_t clength, const char *
  * @param string The source string data.
  * @param blength The length in bytes of the string data.
  * @param clength The length in characters of the string data.
- * @param charset The charset of the string data.
- * @param encoding The encoding of the string data.
  *
  * @return A newly constructed string object.
  */
-RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, stringsizeC_t clength, CHARSET *charset, ENCODING *encoding)
+RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, stringsizeC_t clength)
 {
     // Todo : current implementation works only for ascii:fixed_8 and iso-8859-1:fixed_8
     /* calculate the size                */
@@ -2373,23 +2295,12 @@ RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blengt
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
 
-    newObj->setCLength(clength == -1 ? encoding->codepoints(string, blength) : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character.
-
-    newObj->setCharset(charset);
-    newObj->setEncoding(encoding);
+    newObj->setCLength(clength == -1 ? clength : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character. // todo m17n: case -1
 
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */
                                          /*we need to mark ourselves as       */
     return newObj;                       /*having OREFs                       */
-}
-
-RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blength, stringsizeC_t clength, const char *charsetName)
-{
-    CHARSET *charset = NULL;
-    if (charsetName != NULL) charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (charset == NULL) charset = m17n_default_charset();
-    return RexxString::newUpperString(string, blength, clength, charset, charset->preferred_encoding);
 }
 
 RexxString *RexxString::newString(double number)
@@ -2466,7 +2377,7 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
     RexxString *string = (RexxString *)stringArgument(stringObj, ARG_ONE);
     ProtectedObject p(string);
     /* create a new string object        */
-    string = new_string(string->getStringData(), string->getBLength(), string->getCLength(), string->getCharset(), string->getEncoding());
+    string = new_string(string->getStringData(), string->getBLength(), string->getCLength());
     p = string;
     string->setBehaviour(((RexxClass *)this)->getInstanceBehaviour());
     if (((RexxClass *)this)->hasUninitDefined())

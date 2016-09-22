@@ -64,10 +64,8 @@ class RexxMutableBufferClass : public RexxClass {
    inline void       *operator new(size_t size, void *ptr){return ptr;};
           void       *operator new(size_t size, RexxClass *bufferClass);
           void       *operator new(size_t size);
-                      RexxMutableBuffer(const char *charsetName=NULL);
-                      RexxMutableBuffer(CHARSET *charset, ENCODING *encoding);
-                      RexxMutableBuffer(sizeB_t, sizeB_t, const char *charsetName=NULL);
-                      RexxMutableBuffer(sizeB_t, sizeB_t, CHARSET *charset, ENCODING *encoding);
+                      RexxMutableBuffer();
+                      RexxMutableBuffer(sizeB_t, sizeB_t);
    inline             RexxMutableBuffer(RESTORETYPE restoreType) { ; };
 
    void               live(size_t);
@@ -126,10 +124,6 @@ class RexxMutableBufferClass : public RexxClass {
    RexxMutableBuffer *delWord(RexxInteger *position, RexxInteger *plength); // in behaviour
    RexxMutableBuffer *space(RexxInteger *space_count, RexxString  *pad);
 
-   inline CHARSET *getCharset() { return m17n_get_charset(this->charset); }
-   inline void setCharset(CHARSET *c) { this->charset = c ? (int8_t) c->number : -1; }
-   inline ENCODING *getEncoding() { return m17n_get_encoding(this->encoding); }
-   inline void setEncoding(ENCODING *e) { this->encoding = e ? (int8_t) e->number : -1; }
    inline const char *getStringData() { return data->getData(); }
    // inline size_t      getLength()     { return dataCLength; }
    inline sizeB_t     getBLength()    { return dataBLength; }
@@ -157,8 +151,6 @@ class RexxMutableBufferClass : public RexxClass {
    static RexxClass *classInstance;
 
  protected:
-   int8_t             encoding;        // string encoding (how the codepoints are serialized in stringData)
-   int8_t             charset;         // string charset (what is the semantic of the codepoints)
    sizeB_t            bufferLength;    /* buffer length in bytes          */
    sizeB_t            defaultSize;     /* default size when emptied       */
    sizeB_t            dataBLength;     // current length of data in bytes
@@ -173,10 +165,6 @@ class RexxMutableBufferClass : public RexxClass {
    RexxMutableBufferWrapper(RexxMutableBuffer *s) : str(s) {}
    inline RexxString *makeString() { return str->makeString(); }
    inline RexxMutableBuffer *makeMutableBuffer() { return str; }
-   inline CHARSET *getCharset() { return str->getCharset(); }
-   inline void setCharset(CHARSET *c) { return str->setCharset(c); }
-   inline ENCODING *getEncoding() { return str->getEncoding(); }
-   inline void setEncoding(ENCODING *e) { str->setEncoding(e); }
    inline sizeB_t getBLength() { return str->getBLength(); };
    inline sizeC_t getCLength() { return str->getCLength(); };
    // inline void setLength(size_t l) { str->setLength(l); };

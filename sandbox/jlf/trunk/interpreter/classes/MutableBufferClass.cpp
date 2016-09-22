@@ -50,7 +50,6 @@
 #include "MutableBufferClass.hpp"
 #include "ProtectedObject.hpp"
 #include "StringUtil.hpp"
-#include "m17n_charset.h"
 
 
 // singleton class instance
@@ -114,8 +113,6 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
     newBuffer = new ((RexxClass *)this) RexxMutableBuffer(bufferLength, defaultSize);
     newBuffer->setBLength(string->getBLength());
     newBuffer->setCLength(string->getCLength());
-    newBuffer->setCharset(string->getCharset());
-    newBuffer->setEncoding(string->getEncoding());
     /* copy the content                  */
     newBuffer->copyData(0, string->getStringData(), string->getBLength());
 
@@ -128,7 +125,7 @@ RexxMutableBuffer *RexxMutableBufferClass::newRexx(RexxObject **args, size_t arg
 /**
  * Default constructor.
  */
-RexxMutableBuffer::RexxMutableBuffer(const char *charsetName)
+RexxMutableBuffer::RexxMutableBuffer()
 {
     bufferLength = DEFAULT_BUFFER_LENGTH;   /* save the length of the buffer    */
     defaultSize  = bufferLength;            /* store the default buffer size    */
@@ -140,33 +137,6 @@ RexxMutableBuffer::RexxMutableBuffer(const char *charsetName)
     data->setDataLength(0); // strange to have dataLength equal to bufferSize by default... I assign 0 instead.
     dataBLength = 0;
     dataCLength = 0;
-
-    CHARSET *_charset = NULL;
-    if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (_charset == NULL) _charset = m17n_default_charset();
-    ENCODING *_encoding = _charset->preferred_encoding;
-    this->setCharset(_charset);
-    this->setEncoding(_encoding);
-}
-
-
-/**
- * Constructor with explicitly set charset and encoding.
- */
-RexxMutableBuffer::RexxMutableBuffer(CHARSET *_charset, ENCODING *_encoding)
-{
-    bufferLength = DEFAULT_BUFFER_LENGTH;   /* save the length of the buffer    */
-    defaultSize  = bufferLength;            /* store the default buffer size    */
-    // NB:  we clear this before we allocate the new buffer because allocating the
-    // new buffer might trigger a garbage collection, causing us to mark bogus
-    // reference.
-    data = OREF_NULL;
-    data = new_buffer(bufferLength);
-    this->setBLength(0);
-    this->setCLength(0);
-
-    this->setCharset(_charset ? _charset : m17n_default_charset());
-    this->setEncoding(_encoding ? _encoding : _charset->preferred_encoding);
 }
 
 
@@ -176,7 +146,7 @@ RexxMutableBuffer::RexxMutableBuffer(CHARSET *_charset, ENCODING *_encoding)
  * @param l      Initial length.
  * @param d      The explicit default size.
  */
-RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, const char *charsetName)
+RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d)
 {
     bufferLength = l;               /* save the length of the buffer    */
     defaultSize  = d;               /* store the default buffer size    */
@@ -186,35 +156,6 @@ RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, const char *charsetNa
     data = new_buffer(bufferLength);
     this->setBLength(0);
     this->setCLength(0);
-
-    CHARSET *_charset = NULL;
-    if (charsetName != NULL) _charset = m17n_find_charset(charsetName, true); // true : raise exception if unknown
-    if (_charset == NULL) _charset = m17n_default_charset();
-    ENCODING *_encoding = _charset->preferred_encoding;
-    this->setCharset(_charset);
-    this->setEncoding(_encoding);
-}
-
-
-/**
- * Constructor with explicitly set size and default, and explicitly set charset and encoding.
- *
- * @param l      Initial length.
- * @param d      The explicit default size.
- */
-RexxMutableBuffer::RexxMutableBuffer(sizeB_t l, sizeB_t d, CHARSET *_charset, ENCODING *_encoding)
-{
-    bufferLength = l;               /* save the length of the buffer    */
-    defaultSize  = d;               /* store the default buffer size    */
-    // NB: As in the default constructor, we clear this before we allocate the
-    // new buffer in case garbage collection is triggered.
-    data = OREF_NULL;
-    data = new_buffer(bufferLength);
-    this->setBLength(0);
-    this->setCLength(0);
-
-    this->setCharset(_charset ? _charset : m17n_default_charset());
-    this->setEncoding(_encoding ? _encoding : _charset->preferred_encoding);
 }
 
 
@@ -329,7 +270,7 @@ void RexxMutableBuffer::ensureCapacity(sizeB_t addedLength)
 #ifdef STRONG_TYPES
 void RexxMutableBuffer::ensureCapacity(sizeC_t addedLength)
 {
-    sizeB_t resultLength = this->dataBLength + (size_v(addedLength) * this->getEncoding()->max_bytes_per_codepoint);
+    sizeB_t resultLength = this->dataBLength + (size_v(addedLength));
 	this->ensureCapacity(resultLength);
 }
 #endif
@@ -430,7 +371,7 @@ RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *_data, sizeB_t b
 
     this->data->copyData(dataBLength, _data, blength);
     this->setBLength(this->dataBLength + blength);
-    this->setCLength(this->dataCLength + this->getEncoding()->codepoints(_data, blength));
+    this->setCLength(this->dataCLength + size_v(blength)); // todo m17n: clength
     return this;
 }
 
@@ -722,7 +663,7 @@ RexxString *RexxMutableBuffer::makeString()
 /* Function:  Handle a REQUEST('STRING') request for a mutablebuffer object   */
 /******************************************************************************/
 {
-    return new_string(this->data->getData(), this->dataBLength, this->dataCLength, this->getCharset(), this->getEncoding());
+    return new_string(this->data->getData(), this->dataBLength, this->dataCLength);
 }
 
 /**

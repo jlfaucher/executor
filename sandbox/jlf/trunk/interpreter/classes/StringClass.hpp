@@ -48,8 +48,6 @@
 #include "IntegerClass.hpp"
 #include "StringUtil.hpp"
 #include "Utilities.hpp"
-#include "m17n_charset.h"
-#include "m17n_encoding.h"
 
                                        /* return values from the is_symbol  */
                                        /* validation method                 */
@@ -191,10 +189,8 @@ inline char IntToHexDigit(int n)
    RexxObject *lengthRexx(); // in behaviour
    RexxString *concatRexx(RexxObject *); // in behaviour
    RexxString *concat(RexxString *);
-   RexxString *concatToCstring(const char *, const char *charsetName=NULL);
-   RexxString *concatToCstring(const char *, CHARSET *charset, ENCODING *encoding);
-   RexxString *concatWithCstring(const char *, const char *charsetName=NULL);
-   RexxString *concatWithCstring(const char *, CHARSET *charset, ENCODING *encoding);
+   RexxString *concatToCstring(const char *);
+   RexxString *concatWithCstring(const char *);
    RexxString *concatBlank(RexxObject *); // in behaviour
    bool        checkLower();
    RexxString *upper();
@@ -230,13 +226,14 @@ inline char IntToHexDigit(int n)
    RexxObject *format(RexxObject *Integers, RexxObject *Decimals, RexxObject *MathExp, RexxObject *ExpTrigger); // in behaviour
    RexxObject *isInteger();
    RexxObject *logicalOperation(RexxObject *, RexxObject *, unsigned int);
+   RexxString *extract(size_t offset, size_t sublength) { return newString(getStringData() + offset, sublength); }
    RexxString *extractB(sizeB_t offset, sizeB_t sublength) // Extract bytes
    {
-       return this->getEncoding()->get_bytes(this, offset, sublength);
+       return newString(getStringData() + offset, sublength);
    }
    RexxString *extractC(sizeC_t offset, sizeC_t sublength) // Extract characters
    {
-       return this->getEncoding()->get_codepoints(this, offset, sublength);
+       return newString(getStringData() + size_v(offset), size_v(sublength), sublength); // todo m17n
    }
    RexxObject *evaluate(RexxActivation *, RexxExpressionStack *);
    RexxObject *getValue(RexxActivation *);
@@ -338,10 +335,6 @@ inline char IntToHexDigit(int n)
 
 /* Inline_functions */
 
-   inline CHARSET *getCharset() { return m17n_get_charset(this->charset); }
-   inline void setCharset(CHARSET *c) { this->charset = c ? (int8_t) c->number : -1; }
-   inline ENCODING *getEncoding() { return m17n_get_encoding(this->encoding); }
-   inline void setEncoding(ENCODING *e) { this->encoding = e ? (int8_t) e->number : -1; }
    inline sizeB_t  getBLength() { return this->blength; };
    inline sizeC_t  getCLength() { return this->clength; };
    inline void    setBLength(sizeB_t l) { this->blength = l; };
@@ -351,7 +344,7 @@ inline char IntToHexDigit(int n)
        this->blength = bl;
        this->clength =
            cl == -1 ?
-               this->getEncoding()->codepoints(this->getStringData(), bl)
+               cl // todo m17n: calculate length in characters
                :
                cl;
    }
@@ -375,9 +368,7 @@ inline char IntToHexDigit(int n)
    inline bool  memCompare(const char * s, sizeB_t l) { return l == this->blength && memcmp(s, this->stringData, l) == 0; }
    inline bool  memCompare(RexxString *other)
    {
-       return other->charset == this->charset &&
-              other->encoding == this->encoding &&
-              other->blength == this->blength &&
+       return other->blength == this->blength &&
               memcmp(other->stringData, this->stringData, blength) == 0;
    }
    inline void  memCopy(char * s) { memcpy(s, stringData, blength); }
@@ -501,12 +492,9 @@ inline char IntToHexDigit(int n)
    }
 
 
-   static RexxString *newString(const char *, sizeB_t bl, sizeC_t cl=-1, const char *charsetName=NULL);
-   static RexxString *newString(const char *, sizeB_t bl, sizeC_t cl, CHARSET *charset, ENCODING *encoding);
-   static RexxString *rawString(sizeB_t bl, sizeC_t cl=-1, const char *charsetName=NULL);
-   static RexxString *rawString(sizeB_t bl, sizeC_t cl, CHARSET *charset, ENCODING *encoding);
-   static RexxString *newUpperString(const char *, stringsizeB_t bl, stringsizeC_t cl=-1, const char *charsetName=NULL);
-   static RexxString *newUpperString(const char *, stringsizeB_t bl, stringsizeC_t cl, CHARSET *charset, ENCODING *encoding);
+   static RexxString *newString(const char *, sizeB_t bl, sizeC_t cl=-1);
+   static RexxString *rawString(sizeB_t bl, sizeC_t cl=-1);
+   static RexxString *newUpperString(const char *, stringsizeB_t bl, stringsizeC_t cl=-1);
    static RexxString *newString(double d);
    static RexxString *newString(double d, size_t precision);
    static RexxString *newProxy(const char *);
@@ -519,8 +507,6 @@ inline char IntToHexDigit(int n)
 
  protected:
 
-   int8_t encoding;                    // string encoding (how the codepoints are serialized in stringData)
-   int8_t charset;                     // string charset (what is the semantic of the codepoints)
    HashCode hashValue;                 // stored has value
    sizeC_t clength;                    /* string length in characters     */
    sizeB_t blength;                    /* string length in bytes          */
@@ -569,24 +555,14 @@ inline char IntToHexDigit(int n)
 
 // String creation inline functions
 
-inline RexxString *new_string(const char *s, stringsizeB_t bl, sizeC_t cl=-1, const char *charsetName=NULL)
+inline RexxString *new_string(const char *s, stringsizeB_t bl, sizeC_t cl=-1)
 {
-    return RexxString::newString(s, bl, cl, charsetName);
+    return RexxString::newString(s, bl, cl);
 }
 
-inline RexxString *new_string(const char *s, stringsizeB_t bl, sizeC_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *raw_string(stringsizeB_t bl, stringsizeC_t cl=-1)
 {
-    return RexxString::newString(s, bl, cl, charset, encoding);
-}
-
-inline RexxString *raw_string(stringsizeB_t bl, stringsizeC_t cl=-1, const char *charsetName=NULL)
-{
-    return RexxString::rawString(bl, cl, charsetName);
-}
-
-inline RexxString *raw_string(stringsizeB_t bl, stringsizeC_t cl, CHARSET *charset, ENCODING *encoding)
-{
-    return RexxString::rawString(bl, cl, charset, encoding);
+    return RexxString::rawString(bl, cl);
 }
 
 inline RexxString *new_string(double d)
@@ -600,44 +576,24 @@ inline RexxString *new_string(double d, size_t p)
 }
 
 
-inline RexxString *new_string(const char *string, const char *charsetName=NULL)
+inline RexxString *new_string(const char *string)
 {
-    return new_string(string, strlen(string), -1, charsetName);
+    return new_string(string, strlen(string), -1);
 }
 
-inline RexxString *new_string(const char *string, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_string(char cc)
 {
-    return new_string(string, strlen(string), -1, charset, encoding);
+    return new_string(&cc, 1, 1);
 }
 
-inline RexxString *new_string(char cc, const char *charsetName=NULL)
+inline RexxString *new_string(RXSTRING &r)
 {
-    return new_string(&cc, 1, 1, charsetName);
+    return new_string(r.strptr, r.strlength, -1);
 }
 
-inline RexxString *new_string(char cc, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_string(CONSTRXSTRING &r)
 {
-    return new_string(&cc, 1, 1, charset, encoding);
-}
-
-inline RexxString *new_string(RXSTRING &r, const char *charsetName=NULL)
-{
-    return new_string(r.strptr, r.strlength, -1, charsetName);
-}
-
-inline RexxString *new_string(RXSTRING &r, CHARSET *charset, ENCODING *encoding)
-{
-    return new_string(r.strptr, r.strlength, -1, charset, encoding);
-}
-
-inline RexxString *new_string(CONSTRXSTRING &r, const char *charsetName=NULL)
-{
-    return new_string(r.strptr, r.strlength, -1, charsetName);
-}
-
-inline RexxString *new_string(CONSTRXSTRING &r, CHARSET *charset, ENCODING *encoding)
-{
-    return new_string(r.strptr, r.strlength, -1, charset, encoding);
+    return new_string(r.strptr, r.strlength, -1);
 }
 
 inline RexxString *new_proxy(const char *name)
@@ -645,38 +601,25 @@ inline RexxString *new_proxy(const char *name)
     return RexxString::newProxy(name);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, stringsizeC_t cl=-1, const char *charsetName=NULL)
+inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, stringsizeC_t cl=-1)
 {
-    return RexxString::newUpperString(s, bl, cl, charsetName);
+    return RexxString::newUpperString(s, bl, cl);
 }
 
-inline RexxString *new_upper_string(const char *s, stringsizeB_t bl, stringsizeC_t cl, CHARSET *charset, ENCODING *encoding)
+inline RexxString *new_upper_string(const char *string)
 {
-    return RexxString::newUpperString(s, bl, cl, charset, encoding);
-}
-
-inline RexxString *new_upper_string(const char *string, const char *charsetName=NULL)
-{
-    return new_upper_string(string, strlen(string), -1, charsetName);
-}
-
-inline RexxString *new_upper_string(const char *string, CHARSET *charset, ENCODING *encoding)
-{
-    return new_upper_string(string, strlen(string), -1, charset, encoding);
+    return new_upper_string(string, strlen(string), -1);
 }
 
 
 // For the needs of m17n, must have a common interface for RexxString and RexxMutableBuffer.
+class RexxMutableBuffer;
 class IRexxString {
   public:
     operator IRexxString *() { return this; } // Convenience operator to let write f(wrapper) instead of f(&wrapper) when calling a function f(IRexxString *str)
     IRexxString *operator ->() { return this; } // Convenience operator to let write macro(wrapper) instead of macro(&wrapper) when calling a macro which expands to str->m
     virtual RexxString *makeString() = 0;
     virtual RexxMutableBuffer *makeMutableBuffer() = 0;
-    virtual CHARSET *getCharset() = 0;
-    virtual void setCharset(CHARSET *c) = 0;
-    virtual ENCODING *getEncoding() = 0;
-    virtual void setEncoding(ENCODING *e) = 0;
     virtual sizeB_t getBLength() = 0;
     virtual sizeC_t getCLength() = 0;
     virtual void setBLength(sizeB_t l) = 0;
@@ -691,10 +634,6 @@ class RexxStringWrapper : public IRexxString {
     RexxStringWrapper(RexxString *s) : str(s) {}
     inline RexxString *makeString() { return str->makeString(); }
     RexxMutableBuffer *makeMutableBuffer();
-    inline CHARSET *getCharset() { return str->getCharset(); }
-    inline void setCharset(CHARSET *c) { return str->setCharset(c); }
-    inline ENCODING *getEncoding() { return str->getEncoding(); }
-    inline void setEncoding(ENCODING *e) { str->setEncoding(e); }
     inline sizeB_t getBLength() { return str->getBLength(); }
     inline sizeC_t getCLength() { return str->getCLength(); }
     inline void setBLength(sizeB_t l) { str->setBLength(l); }

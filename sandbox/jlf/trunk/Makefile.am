@@ -69,9 +69,6 @@ build_interpreter_api_dir = $(build_interpreter_dir)/api
 build_behaviour_dir = $(build_interpreter_dir)/behaviour
 build_classes_dir = $(build_interpreter_dir)/classes
 build_classes_support_dir = $(build_interpreter_dir)/classes/support
-build_m17n_dir = $(build_interpreter_dir)/classes/support/m17n
-build_m17n_charset_dir = $(build_interpreter_dir)/classes/support/m17n/charset
-build_m17n_encoding_dir = $(build_interpreter_dir)/classes/support/m17n/encoding
 build_concurrency_dir = $(build_interpreter_dir)/concurrency
 build_execution_dir = $(build_interpreter_dir)/execution
 build_expression_dir = $(build_interpreter_dir)/expression
@@ -219,22 +216,6 @@ classesSupportHeaders = $(build_classes_support_dir)/ProgramMetaData.hpp \
                         $(build_classes_support_dir)/RexxHashTable.hpp \
                         $(build_classes_support_dir)/RexxListTable.hpp \
                         $(build_classes_support_dir)/StringUtil.hpp
-m17nHeaders = $(build_m17n_dir)/m17n_cclass.h \
-              $(build_m17n_dir)/m17n_charset.h \
-			  $(build_m17n_dir)/m17n_encoding.h \
-			  $(build_m17n_dir)/m17n_string.h \
-			  $(build_m17n_dir)/m17n_string_funcs.h \
-			  $(build_m17n_dir)/m17n_unicode.h
-m17nCharsetHeaders = $(build_m17n_charset_dir)/m17n_charset_ascii.h \
-                     $(build_m17n_charset_dir)/m17n_charset_binary.h \
-					 $(build_m17n_charset_dir)/m17n_charset_iso-8859-1.h \
-					 $(build_m17n_charset_dir)/m17n_charset_tables.h \
-					 $(build_m17n_charset_dir)/m17n_charset_unicode.h
-m17nEncodingHeaders = $(build_m17n_encoding_dir)/m17n_encoding_fixed_8.h \
-                      $(build_m17n_encoding_dir)/m17n_encoding_ucs2.h \
-					  $(build_m17n_encoding_dir)/m17n_encoding_ucs4.h \
-					  $(build_m17n_encoding_dir)/m17n_encoding_utf8.h \
-					  $(build_m17n_encoding_dir)/m17n_encoding_utf16.h
 concurrencyHeaders = $(build_concurrency_dir)/ActivationApiContexts.hpp \
                      $(build_concurrency_dir)/ActivationFrame.hpp \
                      $(build_concurrency_dir)/ActivityDispatcher.hpp \
@@ -419,9 +400,6 @@ commonMiscFiles = $(top_srcdir)/CPLv1.0.txt \
                   $(behaviourHeaders) \
                   $(classesHeaders) \
                   $(classesSupportHeaders) \
-                  $(m17nHeaders) \
-                  $(m17nCharsetHeaders) \
-                  $(m17nEncodingHeaders) \
                   $(concurrencyHeaders) \
                   $(executionHeaders) \
                   $(expressionHeaders) \
@@ -546,19 +524,6 @@ classes_support_sources = $(build_classes_support_dir)/ProgramMetaData.cpp \
                           $(build_classes_support_dir)/RexxHashTable.cpp \
                           $(build_classes_support_dir)/RexxListTable.cpp \
                           $(build_classes_support_dir)/StringUtil.cpp
-m17n_sources = $(build_m17n_dir)/m17n_api.cpp \
-               $(build_m17n_dir)/m17n_charset.cpp \
-			   $(build_m17n_dir)/m17n_encoding.cpp
-m17n_charset_sources = $(build_m17n_charset_dir)/m17n_charset_ascii.cpp \
-                       $(build_m17n_charset_dir)/m17n_charset_binary.cpp \
-					   $(build_m17n_charset_dir)/m17n_charset_iso-8859-1.cpp \
-					   $(build_m17n_charset_dir)/m17n_charset_tables.cpp \
-					   $(build_m17n_charset_dir)/m17n_charset_unicode.cpp
-m17n_encoding_sources = $(build_m17n_encoding_dir)/m17n_encoding_fixed_8.cpp \
-                        $(build_m17n_encoding_dir)/m17n_encoding_ucs2.cpp \
-						$(build_m17n_encoding_dir)/m17n_encoding_ucs4.cpp \
-						$(build_m17n_encoding_dir)/m17n_encoding_utf8.cpp \
-						$(build_m17n_encoding_dir)/m17n_encoding_utf16.cpp
 classes_sources = $(build_classes_dir)/ArrayClass.cpp \
                   $(build_classes_dir)/BufferClass.cpp \
                   $(build_classes_dir)/ClassClass.cpp \
@@ -725,9 +690,6 @@ streamlibrary_sources = $(build_streamlibrary_dir)/StreamCommandParser.cpp \
                         $(build_streamlibrary_dir)/FileNative.cpp
 librexx_la_SOURCES = $(classes_sources) \
                      $(classes_support_sources) \
-					 $(m17n_sources) \
-					 $(m17n_charset_sources) \
-					 $(m17n_encoding_sources) \
                      $(interpreter_api_sources) \
                      $(behaviour_sources) \
                      $(execution_sources) \
@@ -765,9 +727,6 @@ librexx_la_CXXFLAGS  = $(COMMON_CPPFLAGS) \
                        -I$(build_instructions_dir) \
                        -I$(build_classes_dir) \
                        -I$(build_classes_support_dir) \
-					   -I$(build_m17n_dir) \
-					   -I$(build_m17n_charset_dir) \
-					   -I$(build_m17n_encoding_dir) \
                        -I$(build_runtime_dir) \
                        -I$(build_parser_dir) \
                        -I$(build_messages_dir) \
