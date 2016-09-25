@@ -2209,7 +2209,7 @@ RexxString *RexxString::newString(const char *string, sizeB_t blength, sizeC_t c
     RexxString *newObj = (RexxString *)new_object(size_v(size2), T_String);
     /* clear the front part              */
     newObj->setBLength(blength);         /* save the length in bytes          */
-    newObj->setCLength(clength == -1 ? clength : clength); // todo m17n: case -1
+    newObj->setCLength(clength == -1 ? sizeC_v(size_v(blength)) : clength); // todo m17n: case -1
     newObj->hashValue = 0;               // make sure the hash value is zeroed
                                          /* Null terminate, allows faster     */
                                          /* conversion to ASCII-Z string      */
@@ -2295,7 +2295,7 @@ RexxString *RexxString::newUpperString(const char * string, stringsizeB_t blengt
     /* by  default, we don't need Live   */
     newObj->setHasNoReferences();        /*sent                               */
 
-    newObj->setCLength(clength == -1 ? clength : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character. // todo m17n: case -1
+    newObj->setCLength(clength == -1 ? sizeC_v(size_v(blength)) : clength); // Do that after the conversion, in case an uppercase character is shorter/longer than the original character. // todo m17n: case -1
 
                                          /* NOTE: That if we can set          */
                                          /*  this->NumebrString elsewhere     */

@@ -344,7 +344,7 @@ inline char IntToHexDigit(int n)
        this->blength = bl;
        this->clength =
            cl == -1 ?
-               cl // todo m17n: calculate length in characters
+               sizeC_v(size_v(bl)) // todo m17n: calculate length in characters
                :
                cl;
    }
