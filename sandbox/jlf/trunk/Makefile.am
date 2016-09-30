@@ -69,6 +69,8 @@ build_interpreter_api_dir = $(build_interpreter_dir)/api
 build_behaviour_dir = $(build_interpreter_dir)/behaviour
 build_classes_dir = $(build_interpreter_dir)/classes
 build_classes_support_dir = $(build_interpreter_dir)/classes/support
+build_m17n_dir = $(build_classes_support_dir)/m17n
+build_utf8proc_dir = $(build_m17n_dir)/utf8proc
 build_concurrency_dir = $(build_interpreter_dir)/concurrency
 build_execution_dir = $(build_interpreter_dir)/execution
 build_expression_dir = $(build_interpreter_dir)/expression
@@ -216,6 +218,7 @@ classesSupportHeaders = $(build_classes_support_dir)/ProgramMetaData.hpp \
                         $(build_classes_support_dir)/RexxHashTable.hpp \
                         $(build_classes_support_dir)/RexxListTable.hpp \
                         $(build_classes_support_dir)/StringUtil.hpp
+utf8procHeaders = $(build_utf8proc_dir)/utf8proc.h
 concurrencyHeaders = $(build_concurrency_dir)/ActivationApiContexts.hpp \
                      $(build_concurrency_dir)/ActivationFrame.hpp \
                      $(build_concurrency_dir)/ActivityDispatcher.hpp \
@@ -400,6 +403,7 @@ commonMiscFiles = $(top_srcdir)/CPLv1.0.txt \
                   $(behaviourHeaders) \
                   $(classesHeaders) \
                   $(classesSupportHeaders) \
+                  $(utf8procHeaders) \
                   $(concurrencyHeaders) \
                   $(executionHeaders) \
                   $(expressionHeaders) \
@@ -524,6 +528,8 @@ classes_support_sources = $(build_classes_support_dir)/ProgramMetaData.cpp \
                           $(build_classes_support_dir)/RexxHashTable.cpp \
                           $(build_classes_support_dir)/RexxListTable.cpp \
                           $(build_classes_support_dir)/StringUtil.cpp
+utf8proc_sources = $(build_utf8proc_dir)/utf8proc.c \
+                   $(build_utf8proc_dir)/utf8proc_data
 classes_sources = $(build_classes_dir)/ArrayClass.cpp \
                   $(build_classes_dir)/BufferClass.cpp \
                   $(build_classes_dir)/ClassClass.cpp \
@@ -690,6 +696,7 @@ streamlibrary_sources = $(build_streamlibrary_dir)/StreamCommandParser.cpp \
                         $(build_streamlibrary_dir)/FileNative.cpp
 librexx_la_SOURCES = $(classes_sources) \
                      $(classes_support_sources) \
+                     $(utf8proc_sources) \
                      $(interpreter_api_sources) \
                      $(behaviour_sources) \
                      $(execution_sources) \
@@ -727,6 +734,7 @@ librexx_la_CXXFLAGS  = $(COMMON_CPPFLAGS) \
                        -I$(build_instructions_dir) \
                        -I$(build_classes_dir) \
                        -I$(build_classes_support_dir) \
+                       -I$(build_utf8proc_dir) \
                        -I$(build_runtime_dir) \
                        -I$(build_parser_dir) \
                        -I$(build_messages_dir) \
