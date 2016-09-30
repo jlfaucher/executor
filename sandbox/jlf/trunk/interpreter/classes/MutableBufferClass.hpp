@@ -74,9 +74,6 @@ class RexxMutableBufferClass : public RexxClass {
 
    RexxObject        *copy();
    void               ensureCapacity(sizeB_t addedLength);
-#ifdef STRONG_TYPES
-   void               ensureCapacity(sizeC_t addedLength);
-#endif
 
    RexxObject        *lengthRexx(); // in behaviour
 
@@ -125,12 +122,8 @@ class RexxMutableBufferClass : public RexxClass {
    RexxMutableBuffer *space(RexxInteger *space_count, RexxString  *pad);
 
    inline const char *getStringData() { return data->getData(); }
-   // inline size_t      getLength()     { return dataCLength; }
    inline sizeB_t     getBLength()    { return dataBLength; }
-   inline sizeC_t     getCLength()    { return dataCLength; }
-   // inline void        setLength(size_t l) { dataCLength = l; };
    inline void        setBLength(sizeB_t l) { dataBLength = l; data->setDataLength(size_v(l));};
-   inline void        setCLength(sizeC_t l) { dataCLength = l; };
    inline sizeB_t     getBufferLength() { return bufferLength; }
    RexxObject        *setBufferLength(sizeB_t);
    inline char *      getData()       { return data->getData(); }
@@ -141,7 +134,6 @@ class RexxMutableBufferClass : public RexxClass {
    inline void setData(sizeB_t offset, char character, sizeB_t l) { data->setData(offset, character, l); }
    inline char getCharB(sizeB_t offset) { return getData()[size_v(offset)]; }
    sizeB_t setDataLength(sizeB_t l);
-   inline codepoint_t getCharC(sizeC_t offset) { return getData()[size_v(offset)]; } // todo m17n : convert charpos to bytepos and return a codepoint, not a byte
    inline sizeB_t getCapacity() { return bufferLength; }
    char *setCapacity(sizeB_t newLength);
 
@@ -154,26 +146,7 @@ class RexxMutableBufferClass : public RexxClass {
    sizeB_t            bufferLength;    /* buffer length in bytes          */
    sizeB_t            defaultSize;     /* default size when emptied       */
    sizeB_t            dataBLength;     // current length of data in bytes
-   sizeC_t            dataCLength;     // current length of data in characters
    RexxBuffer        *data;            /* buffer used for the data        */
  };
- 
- // For the needs of m17n, must have a common interface for RexxString and RexxMutableBuffer.
- // Can't use multiple inheritance, so I use delegation...
- class RexxMutableBufferWrapper : public IRexxString {
-  public:
-   RexxMutableBufferWrapper(RexxMutableBuffer *s) : str(s) {}
-   inline RexxString *makeString() { return str->makeString(); }
-   inline RexxMutableBuffer *makeMutableBuffer() { return str; }
-   inline sizeB_t getBLength() { return str->getBLength(); };
-   inline sizeC_t getCLength() { return str->getCLength(); };
-   // inline void setLength(size_t l) { str->setLength(l); };
-   inline void setBLength(sizeB_t l) { str->setBLength(l); };
-   inline void setCLength(sizeC_t l) { str->setCLength(l); };
-   inline const char *getStringData() { return str->getStringData(); }
-   inline char *getWritableData() { return str->getData(); }
-  private:
-   RexxMutableBuffer *str;
- };
- 
+
 #endif

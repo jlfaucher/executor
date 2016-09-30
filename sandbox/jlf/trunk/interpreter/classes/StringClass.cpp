@@ -2390,13 +2390,6 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
 }
 
 
-RexxMutableBuffer *RexxStringWrapper::makeMutableBuffer()
-{
-    RexxObject *args[] = { this->str };
-    return ((RexxMutableBufferClass*) TheMutableBufferClass)->newRexx(args, 1); // array of 1 element
-}
-
-
 PCPPM RexxString::operatorMethods[] =
 {
    NULL,                               /* first entry not used              */

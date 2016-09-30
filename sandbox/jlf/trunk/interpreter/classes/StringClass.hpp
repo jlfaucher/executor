@@ -611,37 +611,4 @@ inline RexxString *new_upper_string(const char *string)
     return new_upper_string(string, strlen(string), -1);
 }
 
-
-// For the needs of m17n, must have a common interface for RexxString and RexxMutableBuffer.
-class RexxMutableBuffer;
-class IRexxString {
-  public:
-    operator IRexxString *() { return this; } // Convenience operator to let write f(wrapper) instead of f(&wrapper) when calling a function f(IRexxString *str)
-    IRexxString *operator ->() { return this; } // Convenience operator to let write macro(wrapper) instead of macro(&wrapper) when calling a macro which expands to str->m
-    virtual RexxString *makeString() = 0;
-    virtual RexxMutableBuffer *makeMutableBuffer() = 0;
-    virtual sizeB_t getBLength() = 0;
-    virtual sizeC_t getCLength() = 0;
-    virtual void setBLength(sizeB_t l) = 0;
-    virtual void setCLength(sizeC_t l) = 0;
-    virtual const char *getStringData() = 0;
-    virtual char *getWritableData() = 0;
-};
-
- // Can't use multiple inheritance, so I use delegation...
-class RexxStringWrapper : public IRexxString {
-  public:
-    RexxStringWrapper(RexxString *s) : str(s) {}
-    inline RexxString *makeString() { return str->makeString(); }
-    RexxMutableBuffer *makeMutableBuffer();
-    inline sizeB_t getBLength() { return str->getBLength(); }
-    inline sizeC_t getCLength() { return str->getCLength(); }
-    inline void setBLength(sizeB_t l) { str->setBLength(l); }
-    inline void setCLength(sizeC_t l) { str->setCLength(l); }
-    inline const char *getStringData() { return str->getStringData(); }
-    inline char *getWritableData() { return str->getWritableData(); }
-  private:
-    RexxString *str;
-};
-
 #endif
