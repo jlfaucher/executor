@@ -59,7 +59,7 @@
                                    else newItem = doResult
                     .yield[newItem]
                 end
-                -- else .yield[]
+                else .yield[]
                 use strict arg -- none
                 self~next
             end
@@ -509,7 +509,7 @@
             use strict arg -- none
             do i = self to upperLimit
                 doer~do(i)
-                if var("result") then .yield[result] -- ; else .yield[]
+                if var("result") then .yield[result]; else .yield[]
                 use strict arg -- none
             end
            }~doer
@@ -533,7 +533,7 @@
             use strict arg -- none
             do i = self to lowerLimit by -1
                 doer~do(i)
-                if var("result") then .yield[result] -- ; else .yield[]
+                if var("result") then .yield[result]; else .yield[]
                 use strict arg -- none
             end
            }~doer
@@ -784,12 +784,7 @@
         -- [JLF 8/10/2016]
         -- Today, I'm suprised to get [.nil] when running ""~generate{}~iterator~each
         -- Solution : don't yield if this is the last one (coactivity has the same behavior, see yieldLast).
-        -- [later]
-        -- Similar problem with ~each, where I decided to no longer yield when no result.
-        -- So... same decision here.
-        /*
         pendingYieldNoResult = .true
-        */
         return
     end
     doResult = result
@@ -865,12 +860,7 @@
         -- [JLF 8/10/2016]
         -- Today, I'm suprised to get [.nil] when running ""~generate{}~recursive("b")~iterator~each
         -- Solution : don't yield if this is the last one (coactivity has the same behavior, see yieldLast).
-        -- [later]
-        -- Similar problem with ~each, where I decided to no longer yield when no result.
-        -- So... same decision here.
-        /*
         pendingYieldNoResult = .true
-        */
         return
     end
     doResult = result
