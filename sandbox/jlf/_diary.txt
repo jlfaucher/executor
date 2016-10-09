@@ -153,6 +153,24 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2016 oct 09
+
+Generators : no longer yield when no result.
+I don't see any added value to have .nil each time no result is returned.
+Coactivity supplier not impacted: item=.nil, index=.nil when no result.
+
+This decision was taken while playing with executor to see how to split a string in substrings of 3 characters.
+The string below, when encoded in UTF-8, is made of 3 bytes per character.
+'こんにちは世界'~generate{if depth==0 then item; else if item <> "" then item~substr(4)}~recursive~each{if item <> "" then item~left(3)}~iterator~each=
+'こんにちは世界'~pipe{{::co expose item; loop while item <> "";call yield item~left(3); item=item~substr(4);end}}~iterator~each=
+
+
+samples/backtrack.rex is impacted: before the change, 4 ~do were needed, now only one.
+It's because a yield was done by ~each for each solution.
+Now, no more yield, so all the solutions are found without resuming.
+
+
+===============================================================================
 2016 may 29
 
 Summary of the changes made since the previous entry.

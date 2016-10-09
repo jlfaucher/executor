@@ -10,9 +10,6 @@ Produce 4. Select item 4 ? no.
 Produce 5. Select item 5 ? no. 
 Produce 6. Select item 6 ? yes. Reject item 6 ? no. --> 6
 
------
-c~do
-
 Produce 7. Select item 7 ? no. 
 Produce 8. Select item 8 ? no. 
 Produce 9. Select item 9 ? yes. Reject item 9 ? yes. 
@@ -20,18 +17,12 @@ Produce 10. Select item 10 ? no.
 Produce 11. Select item 11 ? no. 
 Produce 12. Select item 12 ? yes. Reject item 12 ? no. --> 12
 
------
-c~do
-
 Produce 13. Select item 13 ? no. 
 Produce 14. Select item 14 ? no. 
 Produce 15. Select item 15 ? yes. Reject item 15 ? yes. 
 Produce 16. Select item 16 ? no. 
 Produce 17. Select item 17 ? no. 
 Produce 18. Select item 18 ? yes. Reject item 18 ? no. --> 18
-
------
-c~do
 
 Produce 19. Select item 19 ? no. 
 Produce 20. Select item 20 ? no. 

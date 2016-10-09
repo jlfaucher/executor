@@ -59,7 +59,7 @@
                                    else newItem = doResult
                     .yield[newItem]
                 end
-                else .yield[]
+                -- else .yield[]
                 use strict arg -- none
                 self~next
             end
@@ -509,7 +509,7 @@
             use strict arg -- none
             do i = self to upperLimit
                 doer~do(i)
-                if var("result") then .yield[result] ; else .yield[]
+                if var("result") then .yield[result] -- ; else .yield[]
                 use strict arg -- none
             end
            }~doer
@@ -533,7 +533,7 @@
             use strict arg -- none
             do i = self to lowerLimit by -1
                 doer~do(i)
-                if var("result") then .yield[result] ; else .yield[]
+                if var("result") then .yield[result] -- ; else .yield[]
                 use strict arg -- none
             end
            }~doer
@@ -637,8 +637,8 @@
 ---------------------------------------------
 
 ::method init
-    expose action allowCommands depthFirst detectCycles doer iterateBefore iterateAfter limit once recursive returnIndex source trace
-    say "Generator~init : self=" self self~identityHash
+    expose action allowCommands depthFirst detectCycles doer iterateBefore iterateAfter limit once pendingYieldNoResult recursive returnIndex source trace
+    --say "Generator~init : self=" self self~identityHash
     self~init:super
     use strict arg source=.nil -- the seed of the generation, called "source" by analogy with pipes
     action = .nil
@@ -650,12 +650,13 @@
     iterateAfter = .false
     limit = -1
     once = .false
+    pendingYieldNoResult  = .false
     recursive = .false
     returnIndex = .false
     trace = .false
 
 ::method uninit
-    say "Generator~uninit" -- Temporary, for trying to understand why the GC is not working
+    --say "Generator~uninit" -- Temporary, for trying to understand why the GC is not working
     self~uninit:super
 
 ::method action unguarded
@@ -761,12 +762,17 @@
     end
 
 ::method processDepthFirst.2 private
-    expose doer iterateAfter trace
+    expose doer iterateAfter pendingYieldNoResult trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~processDepthFirst.2")
     if trace then trace i
     use strict arg item, index, previousItems, stack, depth
     if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported
+    if pendingYieldNoResult then do
+        pendingYieldNoResult = .false
+        self~yield
+        use strict arg -- none
+    end
     arity = doer~arity
     if arity >= 4 then doer~do(item, index, depth, stack)
     else if arity == 3 then doer~do(item, index, depth)
@@ -775,8 +781,15 @@
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
-        self~yield
-        use strict arg -- none
+        -- [JLF 8/10/2016]
+        -- Today, I'm suprised to get [.nil] when running ""~generate{}~iterator~each
+        -- Solution : don't yield if this is the last one (coactivity has the same behavior, see yieldLast).
+        -- [later]
+        -- Similar problem with ~each, where I decided to no longer yield when no result.
+        -- So... same decision here.
+        /*
+        pendingYieldNoResult = .true
+        */
         return
     end
     doResult = result
@@ -830,12 +843,17 @@
     end
 
 ::method processBreadthFirst.2 private
-    expose doer iterateAfter trace
+    expose doer iterateAfter pendingYieldNoResult trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~processBreadthFirst.2")
     if trace then trace i
     use strict arg item, index, toprocess, previousItems, stack, depth
     if doer~isA(.String), \item~hasMethod(doer) then return -- for convenience, a message is sent only if supported
+    if pendingYieldNoResult then do
+        pendingYieldNoResult = .false
+        self~yield
+        use strict arg -- none
+    end
     arity = doer~arity
     if arity >= 4 then doer~do(item, index, depth, stack)
     else if arity == 3 then doer~do(item, index, depth)
@@ -844,8 +862,15 @@
     if \ var("result") then do
         -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
         -- The next calculation will be done only on resume.
-        self~yield
-        use strict arg -- none
+        -- [JLF 8/10/2016]
+        -- Today, I'm suprised to get [.nil] when running ""~generate{}~recursive("b")~iterator~each
+        -- Solution : don't yield if this is the last one (coactivity has the same behavior, see yieldLast).
+        -- [later]
+        -- Similar problem with ~each, where I decided to no longer yield when no result.
+        -- So... same decision here.
+        /*
+        pendingYieldNoResult = .true
+        */
         return
     end
     doResult = result
