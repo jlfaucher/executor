@@ -157,12 +157,19 @@ made on the clause which contains it.
 
 Generator : don't yield when no result if this is the last yield before end.
 This is similar to the behavior of Coactivity, see yieldLast.
+Not applicable when iterating over a supplier (options iterateBefore, iterateAfter).
+Ex :
+--applicable: the last execution returns no result, we are not iterating over a supplier
+1~generate{}~iterator~each=                         -- empty array instead of [.nil]
+1~4~generate{if item//2=1 then item}~iterator~each= -- [1,(The NIL object),3,(The NIL object)]
+-- not applicable: we are iterating over a supplier. For 2 and 4, there was a yield of "no result", and the last one is not discarded.
 
 This decision was taken while playing with executor to see how to split a string in substrings of 3 characters.
 The string below, when encoded in UTF-8, is made of 3 bytes per character.
+Before applying the change, the first one-liner returned an array of 8 items, because the last one was .nil (because of the last yield).
 'こんにちは世界'~generate{if depth==0 then item; else do; item = item~substr(4); if item <> "" then item; end}~recursive~each{item~left(3)}~iterator~each=
 'こんにちは世界'~pipe{{::co expose item; loop while item <> "";call yield item~left(3); item=item~substr(4);end}}~iterator~each=
-Both one-liners return ['こ','ん','に','ち','は','世','界']
+After the change, both one-liners return ['こ','ん','に','ち','は','世','界']
 
 
 ===============================================================================

@@ -794,11 +794,17 @@
             self~processDepthFirst.3(supplier~item, supplier~index, previousItems, stack, depth)
             supplier~next
         end
+        -- We have iterated over a supplier. To be consistent, any "no result" must be yielded, including the last pending if any.
+        if pendingYieldNoResult then do
+            pendingYieldNoResult = .false
+            self~yield
+            use strict arg -- none
+        end
     end
     else self~processDepthFirst.3(doResult, index, previousItems, stack, depth)
 
 ::method processDepthFirst.1 private
-    expose iterateBefore trace
+    expose iterateBefore pendingYieldNoResult trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~processDepthFirst.1")
     if trace then trace i
@@ -808,6 +814,12 @@
         do while supplier~available
             self~processDepthFirst.2(supplier~item, supplier~index, previousItems, stack, depth)
             supplier~next
+        end
+        -- We have iterated over a supplier. To be consistent, any "no result" must be yielded, including the last pending if any.
+        if pendingYieldNoResult then do
+            pendingYieldNoResult = .false
+            self~yield
+            use strict arg -- none
         end
     end
     else self~processDepthFirst.2(item, index, previousItems, stack, depth)
@@ -870,11 +882,17 @@
             self~processBreadthFirst.3(supplier~item, supplier~index, toprocess, previousItems, stack, depth)
             supplier~next
         end
+        -- We have iterated over a supplier. To be consistent, any "no result" must be yielded, including the last pending if any.
+        if pendingYieldNoResult then do
+            pendingYieldNoResult = .false
+            self~yield
+            use strict arg -- none
+        end
     end
     else self~processBreadthFirst.3(doResult, index, toprocess, previousItems, stack, depth)
 
 ::method processBreadthFirst.1 private
-    expose iterateBefore trace
+    expose iterateBefore pendingYieldNoResult trace
     -- not a block do...end, to not see the 'end' in the trace output
     if trace then .traceOutput~say("       >I> Method .Generator~processBreadthFirst.1")
     if trace then trace i
@@ -887,6 +905,12 @@
             do while supplier~available
                 self~processBreadthFirst.2(supplier~item, supplier~index, toprocess, previousItems, stack, depth)
                 supplier~next
+            end
+            -- We have iterated over a supplier. To be consistent, any "no result" must be yielded, including the last pending if any.
+            if pendingYieldNoResult then do
+                pendingYieldNoResult = .false
+                self~yield
+                use strict arg -- none
             end
         end
         else self~processBreadthFirst.2(item, index, toprocess, previousItems, stack, depth)
