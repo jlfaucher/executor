@@ -637,7 +637,7 @@
 ---------------------------------------------
 
 ::method init
-    expose action allowCommands depthFirst detectCycles doer iterateBefore iterateAfter limit once pendingYieldNoResult recursive returnIndex source trace
+    expose action allowCommands depthFirst detectCycles doer iterateBefore iterateAfter limit once pendingYieldNoResult recursive returnIndex source stackSize trace
     --say "Generator~init : self=" self self~identityHash
     self~init:super
     use strict arg source=.nil -- the seed of the generation, called "source" by analogy with pipes
@@ -653,6 +653,7 @@
     pendingYieldNoResult  = .false
     recursive = .false
     returnIndex = .false
+    stackSize = 0
     trace = .false
 
 ::method uninit
@@ -716,6 +717,14 @@
     use strict arg -- none
     returnIndex = .true
     return self
+
+::method stack unguarded
+    expose stackSize
+    if self~isStarted then raise syntax 93.900 array(self~class~id ": has been started, too late to change the options! ")
+    guard on
+    use strict arg stackSize
+    if datatype(stackSize, "W"), stackSize >= 0 then return self
+    raise syntax 93.900 array("stack: argument must be an integer >= 0, got" stackSize~string)
 
 ::method trace unguarded
     expose trace
@@ -835,14 +844,14 @@
         if detectCycles, stack~hasItem(item) then return -- Recurse only if not already processed
         self~yieldResult(item, index, depth, stack)
         if once then previousItems~append(item)
-        if stack <> .nil then stack~push(item)
         toprocess~queue(item)
         toprocess~queue(index)
         if stack <> .nil then do
+            stack~push(item)
             toprocess~queue(stack~copy)
             stack~pull
         end
-        else toprocess~queue(depth+1)
+        toprocess~queue(depth+1)
     end
     else do
         self~yieldResult(item, index, depth, stack)
@@ -917,11 +926,8 @@
         if toprocess~isEmpty then leave
         item = toprocess~pull
         index = toprocess~pull
-        if stack <> .nil then do
-            stack = toprocess~pull
-            depth = stack~items
-        end
-        else depth = toprocess~pull
+        if stack <> .nil then stack = toprocess~pull
+        depth = toprocess~pull
     end
 
 ::method action2doer private
@@ -944,7 +950,7 @@
     raise syntax 93.900 array(self~class~id ":" action "is not a doer factory")
 
 ::method main
-    expose action depthFirst detectCycles doer once recursive source trace
+    expose action depthFirst detectCycles doer once recursive source stackSize trace
     use strict arg -- none
     doer = self~action2doer(action)
     action = .nil -- to let GC
@@ -959,8 +965,8 @@
     previousItems = .nil
     if once then previousItems = .array~new
     stack = .nil
-    if detectCycles then stack = .queue~new -- no limit, remember all the calculated items
-    else if recursive then stack = .circularQueue~new(3) -- remember the 3 last calculated items. Arbitrary value, should be enough for most recursive algorithms.
+    if detectCycles then stack = .queue~new -- no limit, remember all the calculated items whatever the value of stackSize
+    else if stackSize > 0 then stack = .circularQueue~new(stackSize) -- remember the <stackSize> last calculated items.
     if depthFirst then self~processDepthFirst.1(source, 1, previousItems, stack)
                   else self~processBreadthFirst.1(source, 1, previousItems, stack)
 

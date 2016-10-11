@@ -153,6 +153,22 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2016 oct 11
+
+Generator : provide the option ~stack for a better control of the stack size in case of recursion.
+Before the change, the stack size was arbitrarily 3 when the option ~detectCycles was not used.
+Now the default stack size is 0. That brings a good optimization.
+
+Benchmark, repeated 6 times:
+g=0~generate{depth}~stack(0)~recursive("b"); do 100000; g~(); end      8   8   8   8   8   8
+g=0~generate{depth}~stack(1)~recursive("b"); do 100000; g~(); end     20  22  24  29  27  27
+g=0~generate{depth}~stack(2)~recursive("b"); do 100000; g~(); end     20  30  30  28  28  28
+g=0~generate{depth}~stack(3)~recursive("b"); do 100000; g~(); end     14  18  21  29  29  29
+g=0~generate{depth}~stack(10)~recursive("b"); do 100000; g~(); end    14  27  30  29  29  29
+g=0~generate{depth}~stack(100)~recursive("b"); do 100000; g~(); end   15  26  40  41  42  'é
+
+
+===============================================================================
 2016 oct 09
 
 Generator : don't yield when no result if this is the last yield before end.
