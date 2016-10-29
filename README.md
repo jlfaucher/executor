@@ -684,9 +684,9 @@ Same example with kestrels, to log intermediate results:
 [railroad_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/railroad/_diary.txt "Railroad diary"
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/samples/pipeline/pipe_readme.txt
-[doc]: http://dl.dropbox.com/u/20049088/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
+[doc]: https://jlfaucher.github.io/oorexx/docs/trunk/index.html "Graphical syntax diagrams"
 [slides]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/slides-sandbox-jlf.pdf "slides-sandbox-jlf.pdf"
-[download]: http://dl.dropbox.com/u/20049088/oorexx/sandbox/index.html "Download"
+[download]: https://jlfaucher.github.io/oorexx/sandbox/index.html "Download"
 [wikipedia_breadth_first_search]: http://en.wikipedia.org/wiki/Breadth-first_search
 [wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
 [mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
