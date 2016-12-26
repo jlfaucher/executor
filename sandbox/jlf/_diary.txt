@@ -153,6 +153,161 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2016 dec 26
+
+Summary of the changes made since 2016 may 29, not yet listed.
+
+Compatibility with classic rexx
+-------------------------------
+
+Add support for variables # @ $ ¢
+Add support for assignment V=   -- assign ""
+
+Create a script to execute the classic rexx scripts of Rosetta code:
+RosettaCodeData.rex
+The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
+
+Take note of a problem with BIF center and UTF8 string.
+Error 40.23: CENTER argument 3 must be a single character; found "═".
+Here, "═" is the Unicode character BOX DRAWINGS DOUBLE HORIZONTAL, encoded E2 95 90 in UTF-8.
+I would like an intelligent support of UTF-8 here.
+The length in grapheme is 1, the interpreter should not complain, even if the length in bytes is <> 1.
+
+
+Extensions
+----------
+
+Add user-storage at object level.
+.Object~setUserData
+.Object~getUserData
+
+Blocks: the security manager is inherited from the toplevel source.
+First need in ooRexxShell, where the external command "xcommand" in the expression
+{ {"xcommand"}~() }~()
+must be trapped by the security manager.
+
+
+ooRexxShell
+-----------
+
+Add query ?r[outines]
+
+Add option to display the source of methods/routines/packages
+?cms    ?classes.methods.source
+?cmis   ?classes.methods.inherited.source
+?ms     ?methods.source
+?ps     ?packages.source
+?rs     ?routines.source
+
+string2args : returns an array of Argument instances.
+An Argument instance provides the start/end position in the container string,
+and a string of flags 0/1 per character. When "1", the character is part of a
+quoted chunk. This flag is used to decided if a character can be a special
+character.
+-- Ex:
+-- 11111111111111111111111111 222222222222222 333333333333333333333
+-- "hello "John" how are you" good" bye "John "my name is ""BOND"""
+-- 0000000001111111111222222222233333333334444444444555555555566666
+-- 1234567890123456789012345678901234567890123456789012345678901234
+-- arg1 = |hello John how are you|      containerStart = 01      containerEnd = 26      quotedFlags = 1111110000111111111111
+-- arg2 = |good bye John|               containerStart = 28      containerEnd = 42      quotedFlags = 0000111110000
+-- arg3 = |my name is "BOND"|           containerStart = 44      containerEnd = 64      quotedFlags = 11111111111111111
+
+Queries: The character "*" has a special meaning when first or last character,
+and not quoted:
+    * or **        : matches everything
+    "*" or "**"    : matches exactly "*" or "**"
+    *"text"*       : matches all names containing "text"
+Examples:
+?c bsf                          display the classes whose id is "bsf" (caseless)
+?c *bsf*                        display the classes whose id contains "bsf" (caseless)
+
+Queries: If the package regex.cls is available, then the patterns starting with
+"/" are regular expressions.
+?c /.*bsf.*                     display the classes whose id contains "bsf" (caseless) (regular expression)
+?c == /^.M                      display the mixin classes : all lines where 2nd character is "M".
+?m /.*left.*                    display the methods whose name contains "left" (caseless) (regular expression)
+?m =/^...----                   Display the hidden methods: all lines containing "----" from 4th character.
+?m \== /^.....G == (REXX)       Display the methods not guarded whose package is REXX:
+                                all lines where 6th char <> "G" and which contains "(REXX)".
+
+
+Indeterminate
+-------------
+
+Added support for indeterminate.
+Any calculation with inderminate returns inderminate.
+2*(indeterminate+1)+6=              -- (Indeterminate)
+
+
+Infinity
+--------
+
+When a calculation with infinite is undefined, then the result is indeterminate:
+complexInfinity + any infinity      -- (Indeterminate)
+complexInfinity - any infinity      -- (Indeterminate)
+infinity + -infinity                -- (Indeterminate)
+infinity - infinity                 -- (Indeterminate)
+infinity ** 0                       -- (Indeterminate)
+infinity / infinity                 -- (Indeterminate)
+infinity ** complexInfinity         -- (Indeterminate)
+infinity ** 0                       -- (Indeterminate)
+any ** complexInfinity              -- (Indeterminate)
+1 ** infinity                       -- (Indeterminate)
+
+
+m17n
+----
+
+Simplification of the STRONG_TYPES:
+No need to make a distinction between signed and unsigned size.
+
+Unplug the Parrot implementation.
+Replaced by utf8proc (http://julialang.org/utf8proc/), not yet plugged.
+
+MutableBuffer no longer in scope.
+Managing multibyte characters while filling the buffer would be too costly.
+
+
+GC
+--
+
+Some new ProtectedObject
+RexxActivation.cpp      RexxActivation::processTraps    conditionObj
+RaiseInstruction.cpp    RexxInstructionRaise::execute   rc
+
+
+Other
+-----
+
+Apply fix for SVN bug #1402
+// there is a subtle interaction between native and rexx activations when
+// native calls make calls to APIs that in turn invoke Rexx code.  When conditions
+// occur and the stack is being unwound, the ApiContext destructors will release
+// the kernel access, which can leave us with no active Activity.
+
+While working on this bug, I discover that the interpreter is client of his external API:
+
+StreamNative.cpp
+RexxMethod3(int, stream_lineout, CSELF, streamPtr, OPTIONAL_RexxStringObject, string, OPTIONAL_int64_t, position)
+int StreamInfo::lineout(RexxStringObject data, bool _setPosition, int64_t position)
+...
+    const char *stringData = context->StringData(data);
+    size_t length = context->StringLength(data);
+...
+
+These calls seems rather costly in term of performance.
+Any API entry starts with
+    ApiContext context(c);
+    which calls:
+        activity->enterCurrentThread();
+            requestAccess();
+On return from the API entry, the destructors calls:
+    activity->exitCurrentThread();
+        releaseAccess()
+
+
+===============================================================================
 2016 oct 11
 
 Generator : provide the option ~stack for a better control of the stack size in case of recursion.
@@ -165,7 +320,7 @@ g=0~generate{depth}~stack(1)~recursive("b"); do 100000; g~(); end     20  22  24
 g=0~generate{depth}~stack(2)~recursive("b"); do 100000; g~(); end     20  30  30  28  28  28
 g=0~generate{depth}~stack(3)~recursive("b"); do 100000; g~(); end     14  18  21  29  29  29
 g=0~generate{depth}~stack(10)~recursive("b"); do 100000; g~(); end    14  27  30  29  29  29
-g=0~generate{depth}~stack(100)~recursive("b"); do 100000; g~(); end   15  26  40  41  42  'é
+g=0~generate{depth}~stack(100)~recursive("b"); do 100000; g~(); end   15  26  40  41  42  42
 
 
 ===============================================================================
