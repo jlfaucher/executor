@@ -22,6 +22,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 
 /******************************************************************************/
+/*
 ::requires "extension/complex.cls"
 ::requires "extension/infinity.cls"
 ::requires "extension/indeterminate.cls"
@@ -228,7 +229,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- ::method "|op:right"
 
 -- ::method "&&op:right"
-
+*/
 
 /******************************************************************************/
 ::class "EncodedString" mixinclass Object public

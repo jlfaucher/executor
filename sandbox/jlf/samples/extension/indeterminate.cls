@@ -188,6 +188,16 @@
 
 
 /******************************************************************************/
+::requires "extension/novalue.cls"
+
+::extension novalue
+
+::method indeterminate class
+    return .indeterminate~value
+
+
+/******************************************************************************/
+/*
 ::class "IndeterminateString" mixinclass Object public
 
 /*
@@ -203,6 +213,8 @@ Add support for theses notations:
     if string == "INDETERMINATE" then return .indeterminate~value
     return .nil
 
+*/
+/*
 -- ::method " op:right"
 
 -- ::method "||op:right"
@@ -352,3 +364,4 @@ Add support for theses notations:
 -- ::method "|op:right"
 
 -- ::method "&&op:right"
+*/

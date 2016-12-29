@@ -47,16 +47,24 @@
 /*  ::class and ::method directives.                                          */
 /******************************************************************************/
 
+.complex~initialize
+
 --::options trace i
 ::requires "rxmath" library
                                                 /* complex number data class      */
 ::class complex public
 
-::attribute real
-::attribute imaginary
+::attribute i class get         -- singleton
+::attribute i class set private
+
+::method initialize class -- init not supported (can't instantiate itself or subclass from init)
+    self~i = self~new(0, 1)
 
 ::method '[]' class                             /* create a new complex number    */
     forward message('NEW')                      /* just forward this as a new message */
+
+::attribute real
+::attribute imaginary
 
 ::method init                                   /* initialize a complex number    */
     expose real imaginary                       /* expose the state data          */
@@ -97,7 +105,9 @@
 
 -- ::method "||"
 
--- ::method "||op:right"
+::method "||op:right"
+    -- 2i is equivalent to 2*i, but careful to operator precedence ! 1+2i is evaluated as (1+2)i = (0+3i)
+    forward message "*op:right"
 
 -- ::method "" -- abuttal
 
@@ -361,6 +371,15 @@
 
 
 /******************************************************************************/
+::requires "extension/novalue.cls"
+
+::extension novalue
+
+::method i class
+    return .complex~i
+
+
+/******************************************************************************/
 -- Add support for notation a+bi where a and b are numbers.
 ::class "ComplexString" mixinclass Object public
 
@@ -383,9 +402,11 @@
     return complex~arg
 */
 
+/*
 -- ::method " op:right"
 
--- ::method "||op:right"
+::method "||op:right"
+    say "||op:right :" self "||" arg(1)
 
 -- ::method "op:right" -- abuttal
 
@@ -505,3 +526,4 @@
 -- ::method "|op:right"
 
 -- ::method "&&op:right"
+*/

@@ -213,15 +213,24 @@ direction=1     complex infinity
 
 -- ::method "<>op:right"
 
--- ::method "=="
+::method "=="
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil <> righti then return self~direction == righti~direction
+    return .false
 
 -- ::method "==op:right"
 
--- ::method "\=="
+::method "\=="
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil == righti then return .true
+    return self~direction <> righti~direction
 
 -- ::method "\==op:right"
 
--- ::method "><"
+::method "><"
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil == righti then return .true
+    return self~direction <> righti~direction
 
 -- ::method "><op:right"
 
@@ -321,6 +330,19 @@ direction=1     complex infinity
 
 
 /******************************************************************************/
+::requires "extension/novalue.cls"
+
+::extension novalue
+
+::method infinity class
+    return .infinity~positive
+
+::method complexInfinity class
+    return .infinity~complex
+
+
+/******************************************************************************/
+/*
 ::class "InfinityString" mixinclass Object public
 
 /*
@@ -341,6 +363,8 @@ Add support for theses notations:
     if string == "COMPLEXINFINITY" then return .infinity~complex
     return .nil
 
+*/
+/*
 -- ::method " op:right"
 
 -- ::method "||op:right"
@@ -442,3 +466,4 @@ Add support for theses notations:
 -- ::method "|op:right"
 
 -- ::method "&&op:right"
+*/
