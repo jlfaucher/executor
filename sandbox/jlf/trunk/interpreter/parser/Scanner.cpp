@@ -692,6 +692,19 @@ RexxToken *RexxSource::sourceNextToken(
 #define EXP_E        5
 #define EXP_ESIGN    6
 #define EXP_EDIGIT   7
+// JLF : I want to stop immediatly after a VALID number, where a VALID number is such as datatype(number) = "NUM".
+// 2i is scanned as number 2 followed by symbol I.
+//     In official ooRexx, this is scanned as symbol 2I.
+// 2e is scanned as number 2 followed by symbol E. Why ? because datatype(2e) is CHAR, not NUM. So only 2 is a VALID number.
+//     In official ooRexx, this is scanned as symbol 2E.
+// 2e+ is scanned as number 2 followed by symbol E followed by operator +.
+//     In official ooRexx, this is scanned as symbol 2E followed by operator +.
+//     a=100; say 2e+a --> Nonnumeric value ("2E") used in arithmetic operation
+// 2e1 is scanned as number 2E1, same as official ooRexx.
+//     a=100; say 2e1+a --> 120
+// 2e+1 is scanned as number 2E+1, same as official ooRexx
+//     a=100; say 2e+1+a --> 120
+#define AFTER_NUMBER 8
 
     for (;;)
     {                           /* loop until we find a significant  */
@@ -763,66 +776,71 @@ RexxToken *RexxSource::sourceNextToken(
                             /* have a digit at the start?        */
                             if (inch >= '0' && inch <= '9')
                             {
-                                state = EXP_DIGIT;     /* now scanning digits               */
+                                state = EXP_DIGIT;     /* now scanning digits               */                              // 0..9                             ==> EXP_DIGIT
                             }
                             else if (inch == '.')    /* start with a decimal point?       */
                             {
-                                state = EXP_SPOINT;    /* now scanning after the decimal    */
+                                state = EXP_SPOINT;    /* now scanning after the decimal    */                              // .                                ==> EXP_SPOINT
                             }
                             else                     /* must be a non-numeric character   */
                             {
-                                state = EXP_EXCLUDED;  /* no longer a number                */
+                                state = EXP_EXCLUDED;  /* no longer a number                */                              // (neither 0..9 nor .)             ==> EXP_EXCLUDED
                             }
                             break;                   /* go process the next character     */
 
                         case EXP_DIGIT:            /* have at least one digit mantissa  */
                             if (inch=='.')           /* decimal point?                    */
                             {
-                                state = EXP_POINT;     /* we've hit a decimal point         */
+                                state = EXP_POINT;     /* we've hit a decimal point         */                              // (0..9)+ .                        ==> EXP_POINT
                             }
                             else if (tran=='E')      /* start of exponential?             */
                             {
-                                state = EXP_E;         /* remember we've had the 'E' form   */
+                                state = EXP_E;         /* remember we've had the 'E' form   */                              // (0..9)+ e|E                      ==> EXP_E
                             }
                                                        /* non-digit?                        */
                             else if (inch < '0' || inch > '9')
                             {
-                                state = EXP_EXCLUDED;  /* no longer scanning a number       */
+                                state = AFTER_NUMBER; // EXP_EXCLUDED;  /* no longer scanning a number       */             // (0..9)+ (not 0..9)               ==> AFTER_NUMBER
                             }
                             /* a digit leaves the state unchanged at EXP_DIGIT                      */
-                            break;                   /* go get the next character         */
+                            break;                   /* go get the next character         */                                // (0..9)+ (0..9)                   ==> EXP_DIGIT
 
                         case EXP_SPOINT:           /* leading decimal point             */
                             /* not a digit?                      */
                             if (inch < '0' || inch > '9')
                             {
-                                state = EXP_EXCLUDED;  /* not a number                      */
+                                state = EXP_EXCLUDED;  /* not a number                      */                              // . (not 0..9)                     ==> EXP_EXCLUDED
                             }
                             else                     /* digit character                   */
                             {
-                                state = EXP_POINT;     /* processing a decimal number       */
+                                state = EXP_POINT;     /* processing a decimal number       */                              // . (0..9)                         ==> EXP_POINT
                             }
                             break;                   /* go process the next character     */
 
                         case EXP_POINT:            /* have a decimal point              */
                             if (tran == 'E')         /* found the exponential?            */
                             {
-                                state = EXP_E;         /* set exponent state                */
+                                state = EXP_E;         /* set exponent state                */                              // (0..9)+ . (0..9)* e|E            ==> EXP_E (yes, can have ZERO digits after decimal point)
+                                                                                                                            // . (0..9)+ e|E                    ==> EXP_E
                             }
                                                        /* non-digit found?                  */
                             else if (inch < '0' || inch > '9')
                             {
-                                state = EXP_EXCLUDED;  /* can't be a number                 */
+                                state = AFTER_NUMBER; // EXP_EXCLUDED;  /* can't be a number                 */             // (0..9)+ . (0..9)* (not 0..9)     ==> AFTER_NUMBER (yes, can have ZERO digits after deciaml point)
+                                                                                                                            // . (0..9)+ (not 0..9)             ==> AFTER_NUMBER
                             }
                             /* a digit leaves the state unchanged at EXP_POINT                  */
-                            break;                   /* go get another character          */
-
+                            break;                   /* go get another character          */                                // (0..9)+ . (0..9)* (0..9)         ==> EXP_POINT
+                                                                                                                            // . (0..9)+ (0..9)                 ==> EXP_POINT
                         case EXP_E:                /* just had an exponent              */
                             /* next one a digit?                 */
                             if (inch >= '0' && inch <= '9')
                             {
-                                state = EXP_EDIGIT;    /* now looking for exponent digits   */
+                                state = EXP_EDIGIT;    /* now looking for exponent digits   */                              // (0..9)+ e|E (0..9)               ==> EXP_EDIGIT
+                                                                                                                            // (0..9)+ . (0..9)* e|E (0..9)     ==> EXP_EDIGIT
+                                                                                                                            // . (0..9)+ e|E (0..9)             ==> EXP_EDIGIT
                             }
+
                             /* a sign will be collected by the apparent end of symbol code below */
                             break;                   /* finished                          */
 
@@ -830,11 +848,15 @@ RexxToken *RexxSource::sourceNextToken(
                             /* got a digit?                      */
                             if (inch >= '0' && inch <= '9')
                             {
-                                state = EXP_EDIGIT;    /* now looking for the exponent      */
+                                state = EXP_EDIGIT;    /* now looking for the exponent      */                              // (0..9)+ e|E +|- (0..9)           ==> EXP_EDIGIT
+                                                                                                                            // (0..9)+ . (0..9)* e|E +|- (0..9) ==> EXP_EDIGIT
+                                                                                                                            // . (0..9)+ e|E +|- (0..9)         ==> EXP_EDIGIT
                             }
                             else
                             {
-                                state = EXP_EXCLUDED;  /* can't be a number                 */
+                                state = AFTER_NUMBER; // EXP_EXCLUDED;  /* can't be a number                 */             // (0..9)+ e|E +|- (not 0..9)                   ==> AFTER_NUMBER
+                                                                                                                            // (0..9)+ . (0..9)* e|E +|- (not 0..9)         ==> AFTER_NUMBER
+                                                                                                                            // . (0..9)+ e|E +|- (not 0..9)                 ==> AFTER_NUMBER
                             }
                             break;                   /* go get the next digits            */
 
@@ -842,20 +864,43 @@ RexxToken *RexxSource::sourceNextToken(
                             /* not a digit?                      */
                             if (inch < '0' || inch > '9')
                             {
-                                state = EXP_EXCLUDED;  /* can't be a number                 */
+                                state = AFTER_NUMBER; // EXP_EXCLUDED;  /* can't be a number                 */             // (0..9)+ e|E (0..9)+ (not 0..9)               ==> AFTER_NUMBER
+                                                                                                                            // (0..9)+ . (0..9)* e|E (0..9)+ (not 0..9)     ==> AFTER_NUMBER
+                                                                                                                            // . (0..9)+ e|E (0..9)+ (not 0..9)             ==> AFTER_NUMBER
+                                                                                                                            // (0..9)+ e|E +|- (0..9)+ (not 0..9)           ==> AFTER_NUMBER
+                                                                                                                            // (0..9)+ . (0..9)* e|E +|- (0..9)+ (not 0..9) ==> AFTER_NUMBER
+                                                                                                                            // . (0..9)+ e|E +|- (0..9)+ (not 0..9)         ==> AFTER_NUMBER
                             }
-                            break;                   /* go get the next character         */
+                            break;                   /* go get the next character         */                                // (0..9)+ e|E (0..9)+ (0..9)                   ==> EXP_EDIGIT
+                                                                                                                            // (0..9)+ . (0..9)* e|E (0..9)+ (0..9)         ==> EXP_EDIGIT
+                                                                                                                            // . (0..9)+ e|E (0..9)+ (0..9)                 ==> EXP_EDIGIT
+                                                                                                                            // (0..9)+ e|E +|- (0..9)+ (0..9)               ==> EXP_EDIGIT
+                                                                                                                            // (0..9)+ . (0..9)* e|E +|- (0..9)+ (0..9)     ==> EXP_EDIGIT
+                                                                                                                            // . (0..9)+ e|E +|- (0..9)+ (0..9)             ==> EXP_EDIGIT
 
                             /* once EXP_EXCLUDED is reached the state doesn't change */
                     }
-                    this->line_offset++;         /* step the source pointer           */
-                                                 /* had a bad exponent part?          */
-                    if (eoffset != 0 && state == EXP_EXCLUDED)
+
+                    if (state == AFTER_NUMBER)
                     {
-                        /* back up the scan pointer          */
-                        this->line_offset = eoffset;
-                        break;                     /* and we're finished with this      */
+                        break;
                     }
+
+                    if (state == EXP_E && eoffset == 0)
+                    {
+                        eoffset = this->line_offset; // JLF remember current position BEFORE skipping e|E : in case of bad exponent, I don't want to include e|E in the number.
+                    }
+
+                    this->line_offset++;         /* step the source pointer           */
+
+                                                 /* had a bad exponent part?          */
+                    //if (eoffset != 0 && state == EXP_EXCLUDED)
+                    //{
+                    //    /* back up the scan pointer          */
+                    //    this->line_offset = eoffset;
+                    //    break;                     /* and we're finished with this      */
+                    //}
+
                     if (!MORELINE())             /* reached the end of the line?      */
                     {
                         break;                     /* done processing                   */
@@ -870,13 +915,15 @@ RexxToken *RexxSource::sourceNextToken(
                                                    /* check for sign in correct state   */
                     if (state == EXP_E && (inch == '+' || inch == '-'))
                     {
-                        /* remember current position         */
-                        eoffset = this->line_offset;
-                        state = EXP_ESIGN;         /* now looking for the exponent      */
+                        // /* remember current position         */
+                        // eoffset = this->line_offset;
+                        state = EXP_ESIGN;         /* now looking for the exponent      */                                  // (0..9)+ e|E +|-              ==> EXP_ESIGN
+                                                                                                                            // (0..9)+ . (0..9)* e|E +|-    ==> EXP_ESIGN
+                                                                                                                            // . (0..9)+ e|E +|-            ==> EXP_ESIGN
                         this->line_offset++;       /* step past the sign                */
                         if (!MORELINE())
                         {         /* reached the end of the line?      */
-                            state = EXP_EXCLUDED;    /* can't be a number                 */
+                            state = AFTER_NUMBER; // EXP_EXCLUDED;    /* can't be a number                 */
                             break;                   /* quit looping                      */
                         }
                         inch = GETCHAR();          /* get the next character            */
@@ -887,7 +934,7 @@ RexxToken *RexxSource::sourceNextToken(
                         }
                         else
                         {                     /* bad character                     */
-                            state = EXP_EXCLUDED;    /* not a number                      */
+                            state = AFTER_NUMBER; // EXP_EXCLUDED;    /* not a number                      */
                             break;                   /* break out of here                 */
                         }
                     }
