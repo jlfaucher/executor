@@ -2345,7 +2345,8 @@ RexxObject *RexxActivation::handleNovalueEvent(RexxString *name, RexxObject *def
     RexxObject *value = this->novalueHandler(name);
     // If the handler returns anything other than .nil, this is a
     // value
-    if (value != TheNilObject)
+    // JLF : Make it more robust: test also OREF_NULL (value returned when nothing returned by the handler)
+    if (value != OREF_NULL && value != TheNilObject)
     {
         return value;
     }
