@@ -233,6 +233,7 @@
     -- Limited support, I want mainly support i**n
     -- See http://mathworld.wolfram.com/ComplexNumber.html
     use arg exponent
+    if \ exponent~isA(.String) then return -- datatype works only on string
     if \ exponent~datatype("W") then return
     if exponent == 0 then return 1
     r = 1

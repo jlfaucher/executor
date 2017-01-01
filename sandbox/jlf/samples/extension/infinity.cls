@@ -56,9 +56,9 @@ direction=1     complex infinity
     */
 
     --return
-    self~negative~setMethod("makestring", "return '-INFINITY'", "OBJECT")
-    self~positive~setMethod("makestring", "return 'INFINITY'", "OBJECT")
-    self~complex~setMethod("makestring", "return 'COMPLEXINFINITY'", "OBJECT")
+    self~negative~setMethod("makestring", "return self~objectName", "OBJECT")
+    self~positive~setMethod("makestring", "return self~objectName", "OBJECT")
+    self~complex~setMethod("makestring", "return self~objectName", "OBJECT")
 
 ::attribute direction   -- -1 or 0 or 1 (0 if complex)
 ::attribute opposite
@@ -103,7 +103,7 @@ direction=1     complex infinity
         if self~sign <> righti~sign then return .indeterminate~value            -- infinity + -infinity is undefined
         return self                                                             -- infinity + infinity = infinity
     end
-    if right~datatype("N") then return self                                     -- infinity + number = infinity
+    if right~isA(.String), right~datatype("N") then return self                 -- infinity + number = infinity
 
 ::method "+op:right"
     --use strict arg left, lefti=(left~request("infinity"))
@@ -117,7 +117,7 @@ direction=1     complex infinity
         if self~sign == righti~sign then return .indeterminate~value            -- infinity - infinity is undefined
         return self                                                             -- infinity - -infinity = infinity
     end
-    if right~datatype("N") then return self                                     -- infinity - number = infinity
+    if right~isA(.String), right~datatype("N") then return self                 -- infinity - number = infinity
 
 ::method "-op:right"
     --use strict arg left, lefti=(left~request("infinity"))
@@ -130,7 +130,7 @@ direction=1     complex infinity
         if self~sign <> righti~sign then return .infinity~negative          -- infinity * -infinity = -infinity
         return .infinity~positive                                           -- infinity * infinity = infinity
     end
-    if right~datatype("N") then do
+    if right~isA(.String), right~datatype("N") then do
         if right < 0 then return self~opposite              -- infinity * -n = -infinity
         if right == 0 then return .indeterminate~value      -- infinity ** 0 is undefined
         if right > 0 then return self                       -- infinity * n = infinity
@@ -143,7 +143,7 @@ direction=1     complex infinity
 ::method "/"
     use strict arg right, righti = (right~request("infinity"))
     if .nil <> righti then return .indeterminate~value      -- infinity / infinity is undefined
-    if right~datatype("N") then do
+    if right~isA(.String), right~datatype("N") then do
         if right < 0 then return self~opposite              -- infinity / -n = -infinity
         if right == 0 then return .infinity~complex         -- infinity / 0 = complexInfinity
         if right > 0 then return self                       -- infinity / n = infinity
@@ -152,7 +152,7 @@ direction=1     complex infinity
 ::method "/op:right"
     use strict arg left, lefti=(left~request("infinity"))
     if .nil <> lefti then forward to (lefti) message "/" array (self)   -- lefti / self
-    if left~datatype("N") then return 0                                 -- number / infinity = 0
+    if left~isA(.String), left~datatype("N") then return 0  -- number / infinity = 0
 
 -- ::method "%"
 
@@ -169,7 +169,7 @@ direction=1     complex infinity
         if righti~isPositive then return .infinity~complex          -- infinity ^ infinity = complexInfinity
         if righti~isNegative then return 0                          -- infinity ** -infinity = 0
     end
-    if right~datatype("N") then do
+    if right~isA(.String), right~datatype("N") then do
         if right < 0 then return 0                                  -- infinity ** -n = 1 / (infinity ** n) = 0
         if right == 0 then return .indeterminate~value              -- infinity ** 0 is undefined
         if right > 0 then do
@@ -188,7 +188,7 @@ direction=1     complex infinity
     use strict arg left, lefti=(left~request("infinity"))
     if .nil <> lefti then forward to (lefti) message "**" array (self)      -- lefti ** self
     if self~isComplex then return .indeterminate~value                      -- any ** complexInfinity is undefined
-    if left~datatype("N") then do
+    if left~isA(.String), left~datatype("N") then do
         if left == 0 then do
             if self~isPositive then return 0                                -- 0 ** +infinity = 0
             if self~isNegative then return .infinity~complex                -- 0 ** -infinity = complexInfinity
@@ -243,7 +243,7 @@ direction=1     complex infinity
         if self~isNegative then return .false
         if self~isPositive then return righti~isNegative
     end
-    if right~datatype("N") then do
+    if right~isA(.String), right~datatype("N") then do
         if self~isNegative then return .false
         if self~isPositive then return .true
     end
@@ -251,7 +251,7 @@ direction=1     complex infinity
 ::method ">op:right"
     use strict arg left, lefti=(left~request("infinity"))
     if .nil <> lefti then forward to (lefti) message ">" array (self)       -- lefti > self
-    if left~datatype("N") then do
+    if left~isA(.String), left~datatype("N") then do
         if self~isNegative then return .true
         if self~isPositive then return .false
     end
@@ -263,7 +263,7 @@ direction=1     complex infinity
         if self~isNegative then return righti~isPositive
         if self~isPositive then return .false
     end
-    if right~datatype("N") then do
+    if right~isA(.String), right~datatype("N") then do
         if self~isNegative then return .true
         if self~isPositive then return .false
     end
@@ -271,7 +271,7 @@ direction=1     complex infinity
 ::method "<op:right"
     use strict arg left, lefti=(left~request("infinity"))
     if .nil <> lefti then forward to (lefti) message "<" array (self)       -- lefti < self
-    if left~datatype("N") then do
+    if left~isA(.String), left~datatype("N") then do
         if self~isNegative then return .false
         if self~isPositive then return .true
     end

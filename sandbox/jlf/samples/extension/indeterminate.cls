@@ -9,8 +9,8 @@
 ::attribute value class set private
 
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
-    self~value = self~new("Indeterminate")
-    self~value~setMethod("makestring", "return 'INDETERMINATE'", "OBJECT")
+    self~value = self~new("The indeterminate value")
+    self~value~setMethod("makestring", "return self~objectName", "OBJECT")
 
 ::method init
     use strict arg objectName
