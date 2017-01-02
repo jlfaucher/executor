@@ -704,7 +704,8 @@ RexxToken *RexxSource::sourceNextToken(
 //     a=100; say 2e1+a --> 120
 // 2e+1 is scanned as number 2E+1, same as official ooRexx
 //     a=100; say 2e+1+a --> 120
-#define AFTER_NUMBER 8
+#define AFTER_INTEGER 8
+#define AFTER_NUMBER 9
 
     for (;;)
     {                           /* loop until we find a significant  */
@@ -800,7 +801,7 @@ RexxToken *RexxSource::sourceNextToken(
                                                        /* non-digit?                        */
                             else if (inch < '0' || inch > '9')
                             {
-                                state = AFTER_NUMBER; // EXP_EXCLUDED;  /* no longer scanning a number       */             // (0..9)+ (not 0..9)               ==> AFTER_NUMBER
+                                state = AFTER_INTEGER; // EXP_EXCLUDED;  /* no longer scanning a number       */             // (0..9)+ (not 0..9)               ==> AFTER_NUMBER
                             }
                             /* a digit leaves the state unchanged at EXP_DIGIT                      */
                             break;                   /* go get the next character         */                                // (0..9)+ (0..9)                   ==> EXP_DIGIT
@@ -881,7 +882,7 @@ RexxToken *RexxSource::sourceNextToken(
                             /* once EXP_EXCLUDED is reached the state doesn't change */
                     }
 
-                    if (state == AFTER_NUMBER)
+                    if (state == AFTER_INTEGER || state == AFTER_NUMBER)
                     {
                         break;
                     }
@@ -892,6 +893,11 @@ RexxToken *RexxSource::sourceNextToken(
                     }
 
                     this->line_offset++;         /* step the source pointer           */
+
+                    if (state == EXP_EDIGIT)
+                    {
+                        eoffset = this->line_offset; // JLF any digit after e|E is part of the number
+                    }
 
                                                  /* had a bad exponent part?          */
                     //if (eoffset != 0 && state == EXP_EXCLUDED)
@@ -987,7 +993,7 @@ RexxToken *RexxSource::sourceNextToken(
                 {
                     subclass = SYMBOL_CONSTANT;  /* have a constant symbol            */
                                                  /* can we optimize to an integer?    */
-                    if (state == EXP_DIGIT && length < Numerics::DEFAULT_DIGITS)
+                    if ((state == EXP_DIGIT || state == AFTER_INTEGER) && length < Numerics::DEFAULT_DIGITS)
                     {
                         /* no leading zero or only zero?     */
                         if (inch != '0' || length == 1)
