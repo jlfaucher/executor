@@ -56,7 +56,6 @@
 #include "StringUtil.hpp"
 #include "RexxCompoundTail.hpp"
 #include "SystemInterpreter.hpp"
-#include "MutableBufferClass.hpp"
 
 // singleton class instance
 RexxClass *RexxString::classInstance = OREF_NULL;
@@ -2393,40 +2392,38 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
 PCPPM RexxString::operatorMethods[] =
 {
    NULL,                               /* first entry not used              */
-   (PCPPM)&RexxString::plus,
-   (PCPPM)&RexxString::minus,
-   (PCPPM)&RexxString::multiply,
-   (PCPPM)&RexxString::divide,
-   (PCPPM)&RexxString::integerDivide,
-   (PCPPM)&RexxString::remainder,
-   (PCPPM)&RexxString::power,
-   (PCPPM)&RexxString::concatRexx,
-   (PCPPM)&RexxString::concatRexx,
-   (PCPPM)&RexxString::concatBlank,
-   (PCPPM)&RexxString::equal,
-   (PCPPM)&RexxString::notEqual,
-   (PCPPM)&RexxString::isGreaterThan,
-   (PCPPM)&RexxString::isLessOrEqual,
-   (PCPPM)&RexxString::isLessThan,
-   (PCPPM)&RexxString::isGreaterOrEqual,
-                              /* Duplicate entry neccessary        */
-   (PCPPM)&RexxString::isGreaterOrEqual,
-   (PCPPM)&RexxString::isLessOrEqual,
-   (PCPPM)&RexxString::strictEqual,
-   (PCPPM)&RexxString::strictNotEqual,
-   (PCPPM)&RexxString::strictGreaterThan,
-   (PCPPM)&RexxString::strictLessOrEqual,
-   (PCPPM)&RexxString::strictLessThan,
-   (PCPPM)&RexxString::strictGreaterOrEqual,
-                              /* Duplicate entry neccessary        */
-   (PCPPM)&RexxString::strictGreaterOrEqual,
-   (PCPPM)&RexxString::strictLessOrEqual,
-   (PCPPM)&RexxString::notEqual,
-   (PCPPM)&RexxString::notEqual, /* Duplicate entry neccessary        */
-   (PCPPM)&RexxString::andOp,
-   (PCPPM)&RexxString::orOp,
-   (PCPPM)&RexxString::xorOp,
-   (PCPPM)&RexxString::operatorNot,
+   (PCPPM)&RexxString::plus,                    //  "+"
+   (PCPPM)&RexxString::minus,                   //  "-"
+   (PCPPM)&RexxString::multiply,                //  "*"
+   (PCPPM)&RexxString::divide,                  //  "/"
+   (PCPPM)&RexxString::integerDivide,           //  "%"
+   (PCPPM)&RexxString::remainder,               //  "//"
+   (PCPPM)&RexxString::power,                   //  "**"
+   (PCPPM)&RexxString::concatRexx,              //  ""      should be ::abuttal
+   (PCPPM)&RexxString::concatRexx,              //  "||"
+   (PCPPM)&RexxString::concatBlank,             //  " "
+   (PCPPM)&RexxString::equal,                   //  "="
+   (PCPPM)&RexxString::notEqual,                //  "\="
+   (PCPPM)&RexxString::isGreaterThan,           //  ">"
+   (PCPPM)&RexxString::isLessOrEqual,           //  "\>"    should be ::isBackslashGreaterThan
+   (PCPPM)&RexxString::isLessThan,              //  "<"
+   (PCPPM)&RexxString::isGreaterOrEqual,        //  "\<"    should be ::isBackslashLessThan
+   (PCPPM)&RexxString::isGreaterOrEqual,        //  ">="
+   (PCPPM)&RexxString::isLessOrEqual,           //  "<="
+   (PCPPM)&RexxString::strictEqual,             //  "=="
+   (PCPPM)&RexxString::strictNotEqual,          //  "\=="
+   (PCPPM)&RexxString::strictGreaterThan,       //  ">>"
+   (PCPPM)&RexxString::strictLessOrEqual,       //  "\>>"   should be ::strictBackslashGreaterThan
+   (PCPPM)&RexxString::strictLessThan,          //  "<<"
+   (PCPPM)&RexxString::strictGreaterOrEqual,    //  "\<<"   should be ::strictBackslashLessThan
+   (PCPPM)&RexxString::strictGreaterOrEqual,    //  ">>="
+   (PCPPM)&RexxString::strictLessOrEqual,       //  "<<="
+   (PCPPM)&RexxString::notEqual,                //  "<>"    should be ::lessThanGreaterThan
+   (PCPPM)&RexxString::notEqual,                //  "><"    should be ::greaterThanLessThan
+   (PCPPM)&RexxString::andOp,                   //  "&"
+   (PCPPM)&RexxString::orOp,                    //  "|"
+   (PCPPM)&RexxString::xorOp,                   //  "&&"
+   (PCPPM)&RexxString::operatorNot,             //  "\"
 };
 
 

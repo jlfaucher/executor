@@ -1330,39 +1330,37 @@ void RexxInteger::createInstance()
 PCPPM RexxInteger::operatorMethods[] =
 {
    NULL,
-   (PCPPM)&RexxInteger::plus,
-   (PCPPM)&RexxInteger::minus,
-   (PCPPM)&RexxInteger::multiply,
-   (PCPPM)&RexxInteger::divide,
-   (PCPPM)&RexxInteger::integerDivide,
-   (PCPPM)&RexxInteger::remainder,
-   (PCPPM)&RexxInteger::power,
-   (PCPPM)&RexxInteger::concat,
-   (PCPPM)&RexxInteger::concat, /* Duplicate entry neccessary        */
-   (PCPPM)&RexxInteger::concatBlank,
-   (PCPPM)&RexxInteger::equal,
-   (PCPPM)&RexxInteger::notEqual,
-   (PCPPM)&RexxInteger::isGreaterThan,
-   (PCPPM)&RexxInteger::isLessOrEqual,
-   (PCPPM)&RexxInteger::isLessThan,
-   (PCPPM)&RexxInteger::isGreaterOrEqual,
-                              /* Duplicate entry neccessary        */
-   (PCPPM)&RexxInteger::isGreaterOrEqual,
-   (PCPPM)&RexxInteger::isLessOrEqual,
-   (PCPPM)&RexxInteger::strictEqual,
-   (PCPPM)&RexxInteger::strictNotEqual,
-   (PCPPM)&RexxInteger::strictGreaterThan,
-   (PCPPM)&RexxInteger::strictLessOrEqual,
-   (PCPPM)&RexxInteger::strictLessThan,
-   (PCPPM)&RexxInteger::strictGreaterOrEqual,
-                              /* Duplicate entry neccessary        */
-   (PCPPM)&RexxInteger::strictGreaterOrEqual,
-   (PCPPM)&RexxInteger::strictLessOrEqual,
-   (PCPPM)&RexxInteger::notEqual,
-   (PCPPM)&RexxInteger::notEqual,
-   (PCPPM)&RexxInteger::andOp,
-   (PCPPM)&RexxInteger::orOp,
-   (PCPPM)&RexxInteger::xorOp,
-   (PCPPM)&RexxInteger::operatorNot,
+   (PCPPM)&RexxInteger::plus,                   //  "+"
+   (PCPPM)&RexxInteger::minus,                  //  "-"
+   (PCPPM)&RexxInteger::multiply,               //  "*"
+   (PCPPM)&RexxInteger::divide,                 //  "/"
+   (PCPPM)&RexxInteger::integerDivide,          //  "%"
+   (PCPPM)&RexxInteger::remainder,              //  "//"
+   (PCPPM)&RexxInteger::power,                  //  "**"
+   (PCPPM)&RexxInteger::concat,                 //  ""      should be ::abuttal
+   (PCPPM)&RexxInteger::concat,                 //  "||"
+   (PCPPM)&RexxInteger::concatBlank,            //  " "
+   (PCPPM)&RexxInteger::equal,                  //  "="
+   (PCPPM)&RexxInteger::notEqual,               //  "\="
+   (PCPPM)&RexxInteger::isGreaterThan,          //  ">"
+   (PCPPM)&RexxInteger::isLessOrEqual,          //  "\>"    should be ::isBackslashGreaterThan
+   (PCPPM)&RexxInteger::isLessThan,             //  "<"
+   (PCPPM)&RexxInteger::isGreaterOrEqual,       //  "\<"    should be ::isBackslashLessThan
+   (PCPPM)&RexxInteger::isGreaterOrEqual,       //  ">="
+   (PCPPM)&RexxInteger::isLessOrEqual,          //  "<="
+   (PCPPM)&RexxInteger::strictEqual,            //  "=="
+   (PCPPM)&RexxInteger::strictNotEqual,         //  "\=="
+   (PCPPM)&RexxInteger::strictGreaterThan,      //  ">>"
+   (PCPPM)&RexxInteger::strictLessOrEqual,      //  "\>>"   should be ::strictBackslashGreaterThan
+   (PCPPM)&RexxInteger::strictLessThan,         //  "<<"
+   (PCPPM)&RexxInteger::strictGreaterOrEqual,   //  "\<<"   should be ::strictBackslashLessThan
+   (PCPPM)&RexxInteger::strictGreaterOrEqual,   //  ">>="
+   (PCPPM)&RexxInteger::strictLessOrEqual,      //  "<<="
+   (PCPPM)&RexxInteger::notEqual,               //  "<>"    should be ::lessThanGreaterThan
+   (PCPPM)&RexxInteger::notEqual,               //  "><"    should be ::greaterThanLessThan
+   (PCPPM)&RexxInteger::andOp,                  //  "&"
+   (PCPPM)&RexxInteger::orOp,                   //  "|"
+   (PCPPM)&RexxInteger::xorOp,                  //  "&&"
+   (PCPPM)&RexxInteger::operatorNot,            //  "\"
 };
 

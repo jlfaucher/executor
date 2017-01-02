@@ -3860,39 +3860,36 @@ RexxNumberString *RexxNumberString::newInstanceFromUint64(uint64_t integer)
 PCPPM RexxNumberString::operatorMethods[] =
 {
    NULL,                               /* first entry not used              */
-   (PCPPM)&RexxNumberString::plus,
-   (PCPPM)&RexxNumberString::minus,
-   (PCPPM)&RexxNumberString::multiply,
-   (PCPPM)&RexxNumberString::divide,
-   (PCPPM)&RexxNumberString::integerDivide,
-   (PCPPM)&RexxNumberString::remainder,
-   (PCPPM)&RexxNumberString::power,
-   (PCPPM)&RexxNumberString::concat,
-   (PCPPM)&RexxNumberString::concat, /* Duplicate entry neccessary        */
-   (PCPPM)&RexxNumberString::concatBlank,
-   (PCPPM)&RexxNumberString::equal,
-   (PCPPM)&RexxNumberString::notEqual,
-   (PCPPM)&RexxNumberString::isGreaterThan,
-   (PCPPM)&RexxNumberString::isLessOrEqual,
-   (PCPPM)&RexxNumberString::isLessThan,
-   (PCPPM)&RexxNumberString::isGreaterOrEqual,
-                           /* Duplicate entry neccessary        */
-   (PCPPM)&RexxNumberString::isGreaterOrEqual,
-   (PCPPM)&RexxNumberString::isLessOrEqual,
-   (PCPPM)&RexxNumberString::strictEqual,
-   (PCPPM)&RexxNumberString::strictNotEqual,
-   (PCPPM)&RexxNumberString::strictGreaterThan,
-   (PCPPM)&RexxNumberString::strictLessOrEqual,
-   (PCPPM)&RexxNumberString::strictLessThan,
-   (PCPPM)&RexxNumberString::strictGreaterOrEqual,
-                           /* Duplicate entry neccessary        */
-   (PCPPM)&RexxNumberString::strictGreaterOrEqual,
-   (PCPPM)&RexxNumberString::strictLessOrEqual,
-   (PCPPM)&RexxNumberString::notEqual,
-                           /* Duplicate entry neccessary        */
-   (PCPPM)&RexxNumberString::notEqual,
-   (PCPPM)&RexxNumberString::andOp,
-   (PCPPM)&RexxNumberString::orOp,
-   (PCPPM)&RexxNumberString::xorOp,
-   (PCPPM)&RexxNumberString::operatorNot,
+   (PCPPM)&RexxNumberString::plus,                  //  "+"
+   (PCPPM)&RexxNumberString::minus,                 //  "-"
+   (PCPPM)&RexxNumberString::multiply,              //  "*"
+   (PCPPM)&RexxNumberString::divide,                //  "/"
+   (PCPPM)&RexxNumberString::integerDivide,         //  "%"
+   (PCPPM)&RexxNumberString::remainder,             //  "//"
+   (PCPPM)&RexxNumberString::power,                 //  "**"
+   (PCPPM)&RexxNumberString::concat,                //  ""      should be ::abuttal
+   (PCPPM)&RexxNumberString::concat,                //  "||"
+   (PCPPM)&RexxNumberString::concatBlank,           //  " "
+   (PCPPM)&RexxNumberString::equal,                 //  "="
+   (PCPPM)&RexxNumberString::notEqual,              //  "\="
+   (PCPPM)&RexxNumberString::isGreaterThan,         //  ">"
+   (PCPPM)&RexxNumberString::isLessOrEqual,         //  "\>"    should be ::isBackslashGreaterThan
+   (PCPPM)&RexxNumberString::isLessThan,            //  "<"
+   (PCPPM)&RexxNumberString::isGreaterOrEqual,      //  "\<"    should be ::isBackslashLessThan
+   (PCPPM)&RexxNumberString::isGreaterOrEqual,      //  ">="
+   (PCPPM)&RexxNumberString::isLessOrEqual,         //  "<="
+   (PCPPM)&RexxNumberString::strictEqual,           //  "=="
+   (PCPPM)&RexxNumberString::strictNotEqual,        //  "\=="
+   (PCPPM)&RexxNumberString::strictGreaterThan,     //  ">>"
+   (PCPPM)&RexxNumberString::strictLessOrEqual,     //  "\>>"   should be ::strictBackslashGreaterThan
+   (PCPPM)&RexxNumberString::strictLessThan,        //  "<<"
+   (PCPPM)&RexxNumberString::strictGreaterOrEqual,  //  "\<<"   should be ::strictBackslashLessThan
+   (PCPPM)&RexxNumberString::strictGreaterOrEqual,  //  ">>="
+   (PCPPM)&RexxNumberString::strictLessOrEqual,     //  "<<="
+   (PCPPM)&RexxNumberString::notEqual,              //  "<>"    should be ::lessThanGreaterThan
+   (PCPPM)&RexxNumberString::notEqual,              //  "><"    should be ::greaterThanLessThan
+   (PCPPM)&RexxNumberString::andOp,                 //  "&"
+   (PCPPM)&RexxNumberString::orOp,                  //  "|"
+   (PCPPM)&RexxNumberString::xorOp,                 //  "&&"
+   (PCPPM)&RexxNumberString::operatorNot,           //  "\"
 };
