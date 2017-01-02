@@ -106,12 +106,16 @@
 -- ::method "||"
 
 ::method "||op:right"
+    -- CAREFUL ! This alternative message can be sent for "||" and "".
+    -- NO WAY to make a distinction between both... unless the interpreter is modified.
     -- 2i is equivalent to 2*i, but careful to operator precedence ! 1+2i is evaluated as (1+2)i = (0+3i)
     forward message "*op:right"
 
 -- ::method "" -- abuttal
 
 -- ::method "op:right" -- abuttal
+    -- NEVER SENT by the interpreter, because "" is implemented as "||".
+    -- Only "||op:right" can be sent by the interpreter.
 
 ::method '+'                                    /* addition method                */
     expose real imaginary                       /* access the state values        */
@@ -273,6 +277,8 @@
     forward message "\="
 
 ::method "<>op:right"
+    -- NEVER SENT by the interpreter, because "<>" is implemented as "\=".
+    -- Only "\=op:right" can be sent by the interpreter.
     use strict arg left
     left = left~request("complex")
     if .nil == left then return
@@ -307,6 +313,8 @@
 -- ::method "><"
 
 -- ::method "><op:right"
+    -- NEVER SENT by the interpreter, because "><" is implemented as "\=".
+    -- Only "\=op:right" can be sent by the interpreter.
 
 -- ::method "\"
 
@@ -323,6 +331,8 @@
 -- ::method ">=op:right"
 
 -- ::method "\<"
+    -- NEVER SENT by the interpreter, because "\<" is implemented as ">=".
+    -- Only ">=op:right" can be sent by the interpreter.
 
 -- ::method "\<op:right"
 
@@ -333,6 +343,8 @@
 -- ::method "\>"
 
 -- ::method "\>op:right"
+    -- NEVER SENT by the interpreter, because "\>" is implemented as "<=".
+    -- Only "<=op:right" can be sent by the interpreter.
 
 -- ::method ">>"
 
@@ -349,6 +361,8 @@
 -- ::method "\<<"
 
 -- ::method "\<<op:right"
+    -- NEVER SENT by the interpreter, because "\<<" is implemented as ">>=".
+    -- Only ">>=op:right" can be sent by the interpreter.
 
 -- ::method "<<="
 
@@ -357,6 +371,8 @@
 -- ::method "\>>"
 
 -- ::method "\>>op:right"
+    -- NEVER SENT by the interpreter, because "\>>" is implemented as "<<=".
+    -- Only "<<=op:right" can be sent by the interpreter.
 
 -- ::method "&"
 
