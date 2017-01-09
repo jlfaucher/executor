@@ -153,6 +153,39 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2017 jan 09
+
+The tokenizer has been modified to split a symbol of the form <number><after number> in two distinct tokens.
+Ex : 2a is the number 2 followed by the symbol a.
+Ex : 2a2b is the number 2 followed by the symbol a2b.
+Ex : 2e1a2b is the number 2e1 followed by the symbol a2b.
+
+The rule is to stop immediatly after a VALID number, where a VALID number is such as datatype(number) = "NUM".
+a)  2e is scanned as number 2 followed by symbol E because datatype(2e) is CHAR, not NUM. So only 2 is a VALID number.
+    In official ooRexx, this is scanned as symbol 2E.
+b)  2e+ is scanned as number 2 followed by symbol E followed by operator +.
+    In official ooRexx, this is scanned as symbol 2E followed by operator +.
+c)  2e1 is scanned as number 2E1, same as official ooRexx.
+d)  2e+1 is scanned as number 2E+1, same as official ooRexx
+
+An abuttal operator is inserted to re-concatenate <number> with <after number>.
+In this context, the precedence of this abuttal operator is very high, to ensure both tokens are always linked together.
+
+The end-user can provide his own implementation for abuttal, using the alternative operator's message "OP:RIGHT".
+This is how 2i can become 2 * .Complex~i when complex.cls is loaded.
+Thanks to the high precedence in this context, 1+2i is parsed as 1+(2i) instead of (1+2)i.
+
+Legacy programs are impacted when
+a)  <after number> is a valid variable symbol and the NOVALUE condition is enabled.
+b)  A label starts with a number:
+    raise 2a                    -- Data must not follow the SIGNAL label name; found ""
+    2a:                         -- Incorrect expression detected at ":"
+    do i=1 to 5; say i; end 2a  -- Data must not follow the END control variable name; found ""
+The case b) can be probably supported. Before raising the syntax error, check if the next token
+is an abuttal followed by a symbol. If yes then the parser can rebuild the orignal label.
+
+
+===============================================================================
 2016 dec 26
 
 Summary of the changes made since 2016 may 29, not yet listed.

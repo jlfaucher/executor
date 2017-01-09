@@ -61,6 +61,8 @@ RexxToken::RexxToken(
     this->classId = _classId;             /* no assigned token class           */
     this->subclass = _subclass;           /* no specialization yet             */
     this->tokenLocation = _location;      /* copy it over                      */
+    this->numeric = 0;
+    this->precedence = 0;
 }
 
 void RexxToken::live(size_t liveMark)

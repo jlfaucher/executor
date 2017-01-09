@@ -438,6 +438,7 @@ class RexxToken : public RexxInternalObject {
   int         classId;                 /* class of token                    */
   int         subclass;                /* specialized type of token         */
   int         numeric;                 /* even further specialization       */
+  int         precedence;              /* let override default operator precedence when not zero */
 };
 
 

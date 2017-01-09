@@ -48,12 +48,16 @@
 #include "ArrayClass.hpp"
 #include "SourceFile.hpp"
 
+#define HIGHEST_PRECEDENCE 100 // For abuttal inside symbol: 1+2i is parsed as 1+(2i) instead of (1+2)i
+
 int RexxSource::precedence(
     RexxToken  *token)                 /* target token                      */
 /******************************************************************************/
 /* Fucntion:  Determine a token's operator precedence                         */
 /******************************************************************************/
 {
+    if (token->precedence != 0) return token->precedence; // If default precedence has been overriden (ex: abuttal inside symbol)
+
     switch (token->subclass)
     {           /* process based on subclass         */
 
@@ -193,6 +197,16 @@ int RexxSource::characterTable[]={
 #define MORELINE() (this->line_offset < this->current_length)
 #define OPERATOR(op) (this->clause->newToken(TOKEN_OPERATOR, OPERATOR_##op, (RexxString *)OREF_##op, location))
 #define CHECK_ASSIGNMENT(op, token) (token->checkAssignment(this, (RexxString *)OREF_ASSIGNMENT_##op))
+
+void RexxSource::startLocation(
+  SourceLocation &location )           /* token location information        */
+/****************************************************************************/
+/* Function:  Record a tokens starting location                             */
+/****************************************************************************/
+{
+    // copy the start line location
+    location.setStart(line_number, line_offset);
+}
 
 void RexxSource::endLocation(
   SourceLocation &location )           /* token location information        */
@@ -692,20 +706,18 @@ RexxToken *RexxSource::sourceNextToken(
 #define EXP_E        5
 #define EXP_ESIGN    6
 #define EXP_EDIGIT   7
-// JLF : I want to stop immediatly after a VALID number, where a VALID number is such as datatype(number) = "NUM".
-// 2i is scanned as number 2 followed by symbol I.
-//     In official ooRexx, this is scanned as symbol 2I.
-// 2e is scanned as number 2 followed by symbol E. Why ? because datatype(2e) is CHAR, not NUM. So only 2 is a VALID number.
-//     In official ooRexx, this is scanned as symbol 2E.
-// 2e+ is scanned as number 2 followed by symbol E followed by operator +.
-//     In official ooRexx, this is scanned as symbol 2E followed by operator +.
-//     a=100; say 2e+a --> Nonnumeric value ("2E") used in arithmetic operation
-// 2e1 is scanned as number 2E1, same as official ooRexx.
-//     a=100; say 2e1+a --> 120
-// 2e+1 is scanned as number 2E+1, same as official ooRexx
-//     a=100; say 2e+1+a --> 120
+// When parsing a symbol having the form <number><after number>, stop immediatly
+// after number, where number is such as datatype(number) = "NUM".
+// Ex: 2a is the number 2 followed by the symbol A.
 #define AFTER_INTEGER 8
 #define AFTER_NUMBER 9
+
+    if (this->clause->cachedToken != OREF_NULL)
+    {
+        token = this->clause->cachedToken;
+        this->clause->cachedToken = OREF_NULL;
+        return token;
+    }
 
     for (;;)
     {                           /* loop until we find a significant  */
@@ -889,14 +901,14 @@ RexxToken *RexxSource::sourceNextToken(
 
                     if (state == EXP_E && eoffset == 0)
                     {
-                        eoffset = this->line_offset; // JLF remember current position BEFORE skipping e|E : in case of bad exponent, I don't want to include e|E in the number.
+                        eoffset = this->line_offset; // remember current position BEFORE skipping e|E : in case of bad exponent, I don't want to include e|E in the number.
                     }
 
                     this->line_offset++;         /* step the source pointer           */
 
                     if (state == EXP_EDIGIT)
                     {
-                        eoffset = this->line_offset; // JLF any digit after e|E is part of the number
+                        eoffset = this->line_offset; // any digit after e|E is part of the number
                     }
 
                                                  /* had a bad exponent part?          */
@@ -1030,6 +1042,20 @@ RexxToken *RexxSource::sourceNextToken(
                                                /* get a symbol token                */
                 token = this->clause->newToken(TOKEN_SYMBOL, subclass, value, location);
                 token->setNumeric(numeric);    /* record any numeric side info      */
+
+                if (state == AFTER_INTEGER || state == AFTER_NUMBER)
+                {
+                    // The tokenizer has splitted a symbol of the form <number><after number> in two distinct tokens.
+                    // An abuttal operator is inserted to re-concatenate <number> with <after number>.
+                    // In this context, the precedence of this abuttal operator is very high, to ensure both tokens are always linked together.
+                    SourceLocation location;
+                    this->startLocation(location); // The token abuttal starts at current source position
+                    this->endLocation(location); // The token abuttal ends at current source position (empty string)
+                    // Creates the token of the abuttal operator.
+                    RexxToken *token = this->clause->newToken(TOKEN_OPERATOR, OPERATOR_ABUTTAL, OREF_NULLSTRING, location);
+                    token->precedence = HIGHEST_PRECEDENCE;
+                    this->clause->cachedToken = token; // Will be returned on next call
+                }
             }
             /* start of a quoted string?         */
             else if (inch=='\'' || inch=='\"')

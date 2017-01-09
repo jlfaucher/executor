@@ -82,5 +82,13 @@ class RexxClause : public RexxInternalObject {
   RexxArray  *tokens;                  /* array of tokens in the clause     */
   size_t size;                         /* size of token array               */
   size_t free;                         /* location of first free token      */
+
+  // When two tokens are created at once by sourceNextToken, both tokens are put
+  // in the array of tokens, but only the first token is returned. The second is
+  // cached and returned at the next call of sourceNextToken. No need to protect
+  // this cached token from GC, it's proctected by the array of tokens.
+  // This cached token is cleared when returned by sourceNextToken, or when
+  // this->free is updated.
+  RexxToken *cachedToken;              /*  cached token */
 };
 #endif

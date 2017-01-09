@@ -16,8 +16,8 @@ RexxCode *RexxSource::translate
             this->directive();               /* process the directive             */
         }
 
-        
-        
+
+
 void RexxSource::directive
     switch (this->keyDirective(token))
     { /* match against the directive list  */
@@ -59,8 +59,8 @@ void RexxSource::directive
             break;
     }
 
-    
-    
+
+
 RexxInstruction *RexxSource::sourceNewObject
 RexxInstruction *RexxSource::instruction
 this->addClause(_instruction)
@@ -76,7 +76,7 @@ Refining token->subclass :
         parseOption : done
         keyDirective : done
         subDirective : done
-    
+
 
 Crash after changing builtin function codes from 1 to 2700
     CallInstruction.cpp
@@ -137,8 +137,16 @@ RexxInstructionSay::RexxInstructionSay
     RexxInstructionExpression::RexxInstructionExpression
         RexxInstruction::RexxInstruction
             RexxInternalObject::RexxInternalObject
-        
+
 ===================================================================
+
+The parsing is a two phases process :
+Phase 1 : the tokens are extracted from the source and accumulated in the list of tokens of the clause.
+    See RexxSource::nextClause
+        token = this->sourceNextToken
+Phase 2 : the tokens are retrieved from the list of tokens of the clause.
+    See all occurences of this->nextClause();
+
 
 interpreter\parser\SourceFile.cpp
 RexxInstruction *RexxSource::instruction()

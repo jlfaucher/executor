@@ -62,6 +62,7 @@ RexxClause::RexxClause()
     this->current = 1;                   /* no current token                  */
     this->size = INITIAL_SIZE;           /* set the token cache size          */
     this->free = 1;                      /* we have a free token              */
+    this->cachedToken = OREF_NULL;
 }
 
 void RexxClause::live(size_t liveMark)
@@ -136,6 +137,7 @@ void RexxClause::newClause()
     this->first = 1;                     /* first token is the start          */
     this->current = 1;                   /* no current token                  */
     this->free = 1;                      /* we have a free token              */
+    this->cachedToken = OREF_NULL;
 }
 
 RexxToken *RexxClause::newToken(
@@ -164,6 +166,11 @@ RexxToken *RexxClause::newToken(
     this->free++;                        /* step the free location            */
                                          /* fill in the token                 */
     new ((void *)token) RexxToken(classId, subclass, value, l);
+
+    // To avoid a pointer to the old array in case of reallocation
+    // and because the cached token is always the most recent token.
+    this->cachedToken = OREF_NULL;
+
     return token;                        /* send the token back               */
 }
 
