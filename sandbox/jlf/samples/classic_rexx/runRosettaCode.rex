@@ -7,14 +7,16 @@ rexx runRosettaCode                 -- run all
 rexx runRosettaCode 1 3 integer     -- run the solution 1 and 3, and all the solutions whone name contains "integer"
 rexx runRosettaCode -1              -- run the last solution
 
-KEEP THIS SCRIPT COMPATIBLE WITH REGINA
+This script must be executed from the directory which contains the directory Lang.
+You can create a symbolic link to the script, if needed:
+Windows: mklink runRosettaCode.rex <path to>\runRosettaCode.rex
+Linux, MacOs : ln -s <path to>/runRosettaCode .
+
+KEEP THIS SCRIPT COMPATIBLE WITH REGINA.
+REMEMBER : With Regina, use the executable 'regina', not 'rexx'. Only 'regina' has the function SysTempFileName.
 */
 
-path="RosettaCodeData/Lang/REXX/"
-/*
-From the directory REXX, find all the scripts;
-find -L . -type f
-*/
+path="Lang/REXX/"
 
 parse version version
 say "Your REXX interpreter is" version
@@ -22,6 +24,17 @@ say "Your REXX interpreter is" version
 parse var version "REXX-"ipret"_".
 isRegina = (ipret == "Regina")
 isooRexx = (ipret == "ooRexx")
+
+if isRegina then do
+    /*
+    Needed for SysTempFileName
+    but...
+    Regina includes two executables, one called ‘rexx’, and the other called ‘regina’.
+    RxFuncAdd works only with the ‘regina’ version of the interpreter.
+    */
+    call rxfuncadd 'sysloadfuncs', 'regutil', 'sysloadfuncs'
+    call sysloadfuncs
+end
 
 parse source system .
 system = upper(system)
@@ -158,8 +171,23 @@ say separator
 say "["indexSolution"]" solution
 say separator
 
+/* Under Windows, the symbolic links are not supported.
+   Git creates ordinary text files which contain the relative path.
+   Something like that:
+   ../../Task/9-billion-names-of-God-the-integer/REXX */
+if "" == stream(path || solution, "c", "query exists") then do
+    /* Solution not found, maybe the directory is a text file containing the relative path */
+    parse var solution directory "/" file
+    symbolicLink = path || directory
+    relativePath = linein(symbolicLink)
+    call stream symbolicLink, "c", "close"
+    solution = relativePath"/"file
+end
+
 if args == "stdin" then do
-    file = "solution_input.txt"
+    file = ""                                           /* In case SysTempFileName not loaded */
+    file = SysTempFileName("solution_input????.txt")    /* return "" if not possible to create a unique filename */
+    if file == "" then file = "solution_input.txt"      /* Default */
     call stream file, "c", "open write replace"
     do i=3 to arg()
         call lineout file, arg(i)
@@ -199,6 +227,12 @@ return
 
 /*----------------------------------------------------------------------------*/
 runall:
+
+/*
+The list of REXX solutions is found like that:
+cd Lang/REXX
+find -L . -type f
+*/
 
 call run "9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx"
 
@@ -295,10 +329,10 @@ call run "Anagrams/anagrams-1.rexx"
 call run "Anagrams/anagrams-2.rexx"
 call run "Anagrams/anagrams-3.rexx"
 
-/* upper var */
+/* [RC=0 but KO anyway] bash: UPPER: command not found */
 call run "Anagrams/anagrams-4.rexx"
 
-/* upper var */
+/* [RC=0 but KO anyway] bash: UPPER: command not found */
 call run "Anagrams/anagrams-5.rexx"
 
 call run "Anagrams/anagrams-6.rexx"
