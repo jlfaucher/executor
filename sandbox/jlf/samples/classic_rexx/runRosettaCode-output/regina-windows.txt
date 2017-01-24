@@ -1,0 +1,2517 @@
+Your REXX interpreter is REXX-Regina_3.9.1 5.00 5 Apr 2015
+Your system is WIN64
+================================================================================
+[1] 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
+================================================================================
+                                                1                                                 
+                                              1   1                                               
+                                            1   1   1                                             
+                                          1   2   1   1                                           
+                                        1   2   2   1   1                                         
+                                      1   3   3   2   1   1                                       
+                                    1   3   4   3   2   1   1                                     
+                                  1   4   5   5   3   2   1   1                                   
+                                1   4   7   6   5   3   2   1   1                                 
+                              1   5   8   9   7   5   3   2   1   1                               
+                            1   5  10  11  10   7   5   3   2   1   1                             
+                          1   6  12  15  13  11   7   5   3   2   1   1                           
+                        1   6  14  18  18  14  11   7   5   3   2   1   1                         
+                      1   7  16  23  23  20  15  11   7   5   3   2   1   1                       
+                    1   7  19  27  30  26  21  15  11   7   5   3   2   1   1                     
+                  1   8  21  34  37  35  28  22  15  11   7   5   3   2   1   1                   
+                1   8  24  39  47  44  38  29  22  15  11   7   5   3   2   1   1                 
+              1   9  27  47  57  58  49  40  30  22  15  11   7   5   3   2   1   1               
+            1   9  30  54  70  71  65  52  41  30  22  15  11   7   5   3   2   1   1             
+          1  10  33  64  84  90  82  70  54  42  30  22  15  11   7   5   3   2   1   1           
+        1  10  37  72 101 110 105  89  73  55  42  30  22  15  11   7   5   3   2   1   1         
+      1  11  40  84 119 136 131 116  94  75  56  42  30  22  15  11   7   5   3   2   1   1       
+    1  11  44  94 141 163 164 146 123  97  76  56  42  30  22  15  11   7   5   3   2   1   1     
+  1  12  48 108 164 199 201 186 157 128  99  77  56  42  30  22  15  11   7   5   3   2   1   1   
+1  12  52 120 192 235 248 230 201 164 131 100  77  56  42  30  22  15  11   7   5   3   2   1   1 
+         G(25): 1958
+partitions(25): 1958
+
+RC=0
+duration=.031000
+
+================================================================================
+[2] 24-game/24-game-1.rexx
+================================================================================
+
+───────── Using the digits  4912,  enter an expression that equals   24    (or QUIT):
+
+RC=0
+duration=.047000
+
+================================================================================
+[3] 24-game-Solve/24-game-solve.rexx
+================================================================================
+                               a solution: [1+1+1]*8
+                               a solution: [1+1+2]*6
+                               a solution: [1+1*2]*8
+                               a solution: [1*1+2]*8
+                               a solution: 1*[1+2]*8
+                               a solution: [1/1+2]*8
+
+6 unique solutions found for 1111-1129
+
+RC=0
+duration=.141000
+
+================================================================================
+[4] 99-Bottles-of-Beer/99-bottles-of-beer.rexx
+================================================================================
+99 bottles of beer on the wall,
+99 bottles of beer.
+Take one down, pass it around,
+98 bottles of beer on the wall.
+
+98 bottles of beer on the wall,
+98 bottles of beer.
+Take one down, pass it around,
+97 bottles of beer on the wall.
+
+97 bottles of beer on the wall,
+97 bottles of beer.
+Take one down, pass it around,
+96 bottles of beer on the wall.
+
+96 bottles of beer on the wall,
+96 bottles of beer.
+Take one down, pass it around,
+95 bottles of beer on the wall.
+
+95 bottles of beer on the wall,
+95 bottles of beer.
+Take one down, pass it around,
+94 bottles of beer on the wall.
+
+94 bottles of beer on the wall,
+94 bottles of beer.
+Take one down, pass it around,
+93 bottles of beer on the wall.
+
+93 bottles of beer on the wall,
+93 bottles of beer.
+Take one down, pass it around,
+92 bottles of beer on the wall.
+
+92 bottles of beer on the wall,
+92 bottles of beer.
+Take one down, pass it around,
+91 bottles of beer on the wall.
+
+91 bottles of beer on the wall,
+91 bottles of beer.
+Take one down, pass it around,
+90 bottles of beer on the wall.
+
+90 bottles of beer on the wall,
+90 bottles of beer.
+Take one down, pass it around,
+89 bottles of beer on the wall.
+
+89 bottles of beer on the wall,
+89 bottles of beer.
+Take one down, pass it around,
+88 bottles of beer on the wall.
+
+88 bottles of beer on the wall,
+88 bottles of beer.
+Take one down, pass it around,
+87 bottles of beer on the wall.
+
+87 bottles of beer on the wall,
+87 bottles of beer.
+Take one down, pass it around,
+86 bottles of beer on the wall.
+
+86 bottles of beer on the wall,
+86 bottles of beer.
+Take one down, pass it around,
+85 bottles of beer on the wall.
+
+85 bottles of beer on the wall,
+85 bottles of beer.
+Take one down, pass it around,
+84 bottles of beer on the wall.
+
+84 bottles of beer on the wall,
+84 bottles of beer.
+Take one down, pass it around,
+83 bottles of beer on the wall.
+
+83 bottles of beer on the wall,
+83 bottles of beer.
+Take one down, pass it around,
+82 bottles of beer on the wall.
+
+82 bottles of beer on the wall,
+82 bottles of beer.
+Take one down, pass it around,
+81 bottles of beer on the wall.
+
+81 bottles of beer on the wall,
+81 bottles of beer.
+Take one down, pass it around,
+80 bottles of beer on the wall.
+
+80 bottles of beer on the wall,
+80 bottles of beer.
+Take one down, pass it around,
+79 bottles of beer on the wall.
+
+79 bottles of beer on the wall,
+79 bottles of beer.
+Take one down, pass it around,
+78 bottles of beer on the wall.
+
+78 bottles of beer on the wall,
+78 bottles of beer.
+Take one down, pass it around,
+77 bottles of beer on the wall.
+
+77 bottles of beer on the wall,
+77 bottles of beer.
+Take one down, pass it around,
+76 bottles of beer on the wall.
+
+76 bottles of beer on the wall,
+76 bottles of beer.
+Take one down, pass it around,
+75 bottles of beer on the wall.
+
+75 bottles of beer on the wall,
+75 bottles of beer.
+Take one down, pass it around,
+74 bottles of beer on the wall.
+
+74 bottles of beer on the wall,
+74 bottles of beer.
+Take one down, pass it around,
+73 bottles of beer on the wall.
+
+73 bottles of beer on the wall,
+73 bottles of beer.
+Take one down, pass it around,
+72 bottles of beer on the wall.
+
+72 bottles of beer on the wall,
+72 bottles of beer.
+Take one down, pass it around,
+71 bottles of beer on the wall.
+
+71 bottles of beer on the wall,
+71 bottles of beer.
+Take one down, pass it around,
+70 bottles of beer on the wall.
+
+70 bottles of beer on the wall,
+70 bottles of beer.
+Take one down, pass it around,
+69 bottles of beer on the wall.
+
+69 bottles of beer on the wall,
+69 bottles of beer.
+Take one down, pass it around,
+68 bottles of beer on the wall.
+
+68 bottles of beer on the wall,
+68 bottles of beer.
+Take one down, pass it around,
+67 bottles of beer on the wall.
+
+67 bottles of beer on the wall,
+67 bottles of beer.
+Take one down, pass it around,
+66 bottles of beer on the wall.
+
+66 bottles of beer on the wall,
+66 bottles of beer.
+Take one down, pass it around,
+65 bottles of beer on the wall.
+
+65 bottles of beer on the wall,
+65 bottles of beer.
+Take one down, pass it around,
+64 bottles of beer on the wall.
+
+64 bottles of beer on the wall,
+64 bottles of beer.
+Take one down, pass it around,
+63 bottles of beer on the wall.
+
+63 bottles of beer on the wall,
+63 bottles of beer.
+Take one down, pass it around,
+62 bottles of beer on the wall.
+
+62 bottles of beer on the wall,
+62 bottles of beer.
+Take one down, pass it around,
+61 bottles of beer on the wall.
+
+61 bottles of beer on the wall,
+61 bottles of beer.
+Take one down, pass it around,
+60 bottles of beer on the wall.
+
+60 bottles of beer on the wall,
+60 bottles of beer.
+Take one down, pass it around,
+59 bottles of beer on the wall.
+
+59 bottles of beer on the wall,
+59 bottles of beer.
+Take one down, pass it around,
+58 bottles of beer on the wall.
+
+58 bottles of beer on the wall,
+58 bottles of beer.
+Take one down, pass it around,
+57 bottles of beer on the wall.
+
+57 bottles of beer on the wall,
+57 bottles of beer.
+Take one down, pass it around,
+56 bottles of beer on the wall.
+
+56 bottles of beer on the wall,
+56 bottles of beer.
+Take one down, pass it around,
+55 bottles of beer on the wall.
+
+55 bottles of beer on the wall,
+55 bottles of beer.
+Take one down, pass it around,
+54 bottles of beer on the wall.
+
+54 bottles of beer on the wall,
+54 bottles of beer.
+Take one down, pass it around,
+53 bottles of beer on the wall.
+
+53 bottles of beer on the wall,
+53 bottles of beer.
+Take one down, pass it around,
+52 bottles of beer on the wall.
+
+52 bottles of beer on the wall,
+52 bottles of beer.
+Take one down, pass it around,
+51 bottles of beer on the wall.
+
+51 bottles of beer on the wall,
+51 bottles of beer.
+Take one down, pass it around,
+50 bottles of beer on the wall.
+
+50 bottles of beer on the wall,
+50 bottles of beer.
+Take one down, pass it around,
+49 bottles of beer on the wall.
+
+49 bottles of beer on the wall,
+49 bottles of beer.
+Take one down, pass it around,
+48 bottles of beer on the wall.
+
+48 bottles of beer on the wall,
+48 bottles of beer.
+Take one down, pass it around,
+47 bottles of beer on the wall.
+
+47 bottles of beer on the wall,
+47 bottles of beer.
+Take one down, pass it around,
+46 bottles of beer on the wall.
+
+46 bottles of beer on the wall,
+46 bottles of beer.
+Take one down, pass it around,
+45 bottles of beer on the wall.
+
+45 bottles of beer on the wall,
+45 bottles of beer.
+Take one down, pass it around,
+44 bottles of beer on the wall.
+
+44 bottles of beer on the wall,
+44 bottles of beer.
+Take one down, pass it around,
+43 bottles of beer on the wall.
+
+43 bottles of beer on the wall,
+43 bottles of beer.
+Take one down, pass it around,
+42 bottles of beer on the wall.
+
+42 bottles of beer on the wall,
+42 bottles of beer.
+Take one down, pass it around,
+41 bottles of beer on the wall.
+
+41 bottles of beer on the wall,
+41 bottles of beer.
+Take one down, pass it around,
+40 bottles of beer on the wall.
+
+40 bottles of beer on the wall,
+40 bottles of beer.
+Take one down, pass it around,
+39 bottles of beer on the wall.
+
+39 bottles of beer on the wall,
+39 bottles of beer.
+Take one down, pass it around,
+38 bottles of beer on the wall.
+
+38 bottles of beer on the wall,
+38 bottles of beer.
+Take one down, pass it around,
+37 bottles of beer on the wall.
+
+37 bottles of beer on the wall,
+37 bottles of beer.
+Take one down, pass it around,
+36 bottles of beer on the wall.
+
+36 bottles of beer on the wall,
+36 bottles of beer.
+Take one down, pass it around,
+35 bottles of beer on the wall.
+
+35 bottles of beer on the wall,
+35 bottles of beer.
+Take one down, pass it around,
+34 bottles of beer on the wall.
+
+34 bottles of beer on the wall,
+34 bottles of beer.
+Take one down, pass it around,
+33 bottles of beer on the wall.
+
+33 bottles of beer on the wall,
+33 bottles of beer.
+Take one down, pass it around,
+32 bottles of beer on the wall.
+
+32 bottles of beer on the wall,
+32 bottles of beer.
+Take one down, pass it around,
+31 bottles of beer on the wall.
+
+31 bottles of beer on the wall,
+31 bottles of beer.
+Take one down, pass it around,
+30 bottles of beer on the wall.
+
+30 bottles of beer on the wall,
+30 bottles of beer.
+Take one down, pass it around,
+29 bottles of beer on the wall.
+
+29 bottles of beer on the wall,
+29 bottles of beer.
+Take one down, pass it around,
+28 bottles of beer on the wall.
+
+28 bottles of beer on the wall,
+28 bottles of beer.
+Take one down, pass it around,
+27 bottles of beer on the wall.
+
+27 bottles of beer on the wall,
+27 bottles of beer.
+Take one down, pass it around,
+26 bottles of beer on the wall.
+
+26 bottles of beer on the wall,
+26 bottles of beer.
+Take one down, pass it around,
+25 bottles of beer on the wall.
+
+25 bottles of beer on the wall,
+25 bottles of beer.
+Take one down, pass it around,
+24 bottles of beer on the wall.
+
+24 bottles of beer on the wall,
+24 bottles of beer.
+Take one down, pass it around,
+23 bottles of beer on the wall.
+
+23 bottles of beer on the wall,
+23 bottles of beer.
+Take one down, pass it around,
+22 bottles of beer on the wall.
+
+22 bottles of beer on the wall,
+22 bottles of beer.
+Take one down, pass it around,
+21 bottles of beer on the wall.
+
+21 bottles of beer on the wall,
+21 bottles of beer.
+Take one down, pass it around,
+20 bottles of beer on the wall.
+
+20 bottles of beer on the wall,
+20 bottles of beer.
+Take one down, pass it around,
+19 bottles of beer on the wall.
+
+19 bottles of beer on the wall,
+19 bottles of beer.
+Take one down, pass it around,
+18 bottles of beer on the wall.
+
+18 bottles of beer on the wall,
+18 bottles of beer.
+Take one down, pass it around,
+17 bottles of beer on the wall.
+
+17 bottles of beer on the wall,
+17 bottles of beer.
+Take one down, pass it around,
+16 bottles of beer on the wall.
+
+16 bottles of beer on the wall,
+16 bottles of beer.
+Take one down, pass it around,
+15 bottles of beer on the wall.
+
+15 bottles of beer on the wall,
+15 bottles of beer.
+Take one down, pass it around,
+14 bottles of beer on the wall.
+
+14 bottles of beer on the wall,
+14 bottles of beer.
+Take one down, pass it around,
+13 bottles of beer on the wall.
+
+13 bottles of beer on the wall,
+13 bottles of beer.
+Take one down, pass it around,
+12 bottles of beer on the wall.
+
+12 bottles of beer on the wall,
+12 bottles of beer.
+Take one down, pass it around,
+11 bottles of beer on the wall.
+
+11 bottles of beer on the wall,
+11 bottles of beer.
+Take one down, pass it around,
+10 bottles of beer on the wall.
+
+10 bottles of beer on the wall,
+10 bottles of beer.
+Take one down, pass it around,
+9 bottles of beer on the wall.
+
+9 bottles of beer on the wall,
+9 bottles of beer.
+Take one down, pass it around,
+8 bottles of beer on the wall.
+
+8 bottles of beer on the wall,
+8 bottles of beer.
+Take one down, pass it around,
+7 bottles of beer on the wall.
+
+7 bottles of beer on the wall,
+7 bottles of beer.
+Take one down, pass it around,
+6 bottles of beer on the wall.
+
+6 bottles of beer on the wall,
+6 bottles of beer.
+Take one down, pass it around,
+5 bottles of beer on the wall.
+
+5 bottles of beer on the wall,
+5 bottles of beer.
+Take one down, pass it around,
+4 bottles of beer on the wall.
+
+4 bottles of beer on the wall,
+4 bottles of beer.
+Take one down, pass it around,
+3 bottles of beer on the wall.
+
+3 bottles of beer on the wall,
+3 bottles of beer.
+Take one down, pass it around,
+2 bottles of beer on the wall.
+
+2 bottles of beer on the wall,
+2 bottles of beer.
+Take one down, pass it around,
+1 bottle of beer on the wall.
+
+1 bottle of beer on the wall,
+1 bottle of beer.
+Take one down, pass it around,
+no bottles of beer on the wall.
+
+No more bottles of beer on the wall,
+no more bottles of beer.
+Go to the store and buy some more,
+99 bottles of beer on the wall.
+
+RC=0
+duration=.031000
+
+================================================================================
+[5] 100-doors/100-doors-1.rexx
+================================================================================
+After  100  passes, the following doors are open:
+
+                   1
+                   4
+                   9
+                  16
+                  25
+                  36
+                  49
+                  64
+                  81
+                 100
+
+RC=0
+duration=.031000
+
+================================================================================
+[6] 100-doors/100-doors-2.rexx
+================================================================================
+After  100  passes, the following doors are open:
+
+                   1
+                   4
+                   9
+                  16
+                  25
+                  36
+                  49
+                  64
+                  81
+                 100
+
+RC=0
+duration=.031000
+
+================================================================================
+[7] 100-doors/100-doors-3.rexx
+================================================================================
+
+For the 100 doors problem, the following doors are open:
+
+                   1
+                   4
+                   9
+                  16
+                  25
+                  36
+                  49
+                  64
+                  81
+                 100
+
+RC=0
+duration=.032000
+
+================================================================================
+[8] 100-doors/100-doors-4.rexx
+================================================================================
+
+For the 1000 doors problem, the open doors are:
+
+                   1
+                   4
+                   9
+                  16
+                  25
+                  36
+                  49
+                  64
+                  81
+                 100
+                 121
+                 144
+                 169
+                 196
+                 225
+                 256
+                 289
+                 324
+                 361
+                 400
+                 441
+                 484
+                 529
+                 576
+                 625
+                 676
+                 729
+                 784
+                 841
+                 900
+                 961
+
+RC=0
+duration=.015000
+
+================================================================================
+[9] A+B/a+b-1.rexx
+================================================================================
+30
+
+RC=0
+duration=.031000
+
+================================================================================
+[10] A+B/a+b-2.rexx
+================================================================================
+30
+
+RC=0
+duration=.049000
+
+================================================================================
+[11] A+B/a+b-3.rexx
+================================================================================
+30
+
+RC=0
+duration=.036000
+
+================================================================================
+[12] A+B/a+b-4.rexx
+================================================================================
+enter some numbers to be summed:
+sum of  5  numbers =  150
+
+RC=0
+duration=.047000
+
+================================================================================
+[13] ABC-Problem/abc-problem-1.rexx
+================================================================================
+                             A    can be spelt.
+                          bark    can be spelt.
+                          bOOk  can't be spelt.
+                         treat    can be spelt.
+                        common  can't be spelt.
+                         squaD    can be spelt.
+                       conFuse    can be spelt.
+
+RC=0
+duration=.031000
+
+================================================================================
+[14] ABC-Problem/abc-problem-2.rexx
+================================================================================
+''        cannot be spelt.
+'$'       cannot be spelt.
+'A'       can be spelt in 2 ways.
+'BARK'    can be spelt in 8 ways.
+'BOOK'    cannot be spelt.
+'TREAT'   can be spelt in 8 ways.
+'COMMON'  cannot be spelt.
+'SQUAD'   can be spelt in 8 ways.
+'CONFUSE' can be spelt in 32 ways.
+
+RC=0
+duration=.031000
+
+================================================================================
+[15] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
+================================================================================
+     4 +++ say center('integers from '   low   " to "   high,  45,  "═")        /*display a header.*/
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Abundant,-deficient-and-perfect-number-classifications\REXX\abundant,-deficient-and-perfect-number-classifications-1.rexx", line 4: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+   191 *-*   "rexx" path || solution args
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+duration=.031000
+
+================================================================================
+[16] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
+================================================================================
+     4 +++ say center('integers from '   low   " to "   high,  45,  "═")        /*display a header.*/
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Abundant,-deficient-and-perfect-number-classifications\REXX\abundant,-deficient-and-perfect-number-classifications-2.rexx", line 4: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+duration=.032000
+
+================================================================================
+[18] Accumulator-factory/accumulator-factory.rexx
+================================================================================
+          X value is now 8.3
+Accumulator value is now 8.3
+
+RC=0
+duration=.031000
+
+================================================================================
+[19] Ackermann-function/ackermann-function-1.rexx
+================================================================================
+
+Ackermann(0,  0)=                       1              calls=                       1
+Ackermann(0,  1)=                       2              calls=                       1
+Ackermann(0,  2)=                       3              calls=                       1
+Ackermann(0,  3)=                       4              calls=                       1
+Ackermann(0,  4)=                       5              calls=                       1
+Ackermann(0,  5)=                       6              calls=                       1
+Ackermann(0,  6)=                       7              calls=                       1
+Ackermann(0,  7)=                       8              calls=                       1
+Ackermann(0,  8)=                       9              calls=                       1
+Ackermann(0,  9)=                      10              calls=                       1
+Ackermann(0, 10)=                      11              calls=                       1
+Ackermann(0, 11)=                      12              calls=                       1
+Ackermann(0, 12)=                      13              calls=                       1
+Ackermann(0, 13)=                      14              calls=                       1
+Ackermann(0, 14)=                      15              calls=                       1
+Ackermann(0, 15)=                      16              calls=                       1
+Ackermann(0, 16)=                      17              calls=                       1
+Ackermann(0, 17)=                      18              calls=                       1
+Ackermann(0, 18)=                      19              calls=                       1
+Ackermann(0, 19)=                      20              calls=                       1
+Ackermann(0, 20)=                      21              calls=                       1
+Ackermann(0, 21)=                      22              calls=                       1
+Ackermann(0, 22)=                      23              calls=                       1
+Ackermann(0, 23)=                      24              calls=                       1
+Ackermann(0, 24)=                      25              calls=                       1
+
+Ackermann(1,  0)=                       2              calls=                       2
+Ackermann(1,  1)=                       3              calls=                       4
+Ackermann(1,  2)=                       4              calls=                       6
+Ackermann(1,  3)=                       5              calls=                       8
+Ackermann(1,  4)=                       6              calls=                      10
+Ackermann(1,  5)=                       7              calls=                      12
+Ackermann(1,  6)=                       8              calls=                      14
+Ackermann(1,  7)=                       9              calls=                      16
+Ackermann(1,  8)=                      10              calls=                      18
+Ackermann(1,  9)=                      11              calls=                      20
+Ackermann(1, 10)=                      12              calls=                      22
+Ackermann(1, 11)=                      13              calls=                      24
+Ackermann(1, 12)=                      14              calls=                      26
+Ackermann(1, 13)=                      15              calls=                      28
+Ackermann(1, 14)=                      16              calls=                      30
+Ackermann(1, 15)=                      17              calls=                      32
+Ackermann(1, 16)=                      18              calls=                      34
+Ackermann(1, 17)=                      19              calls=                      36
+Ackermann(1, 18)=                      20              calls=                      38
+Ackermann(1, 19)=                      21              calls=                      40
+Ackermann(1, 20)=                      22              calls=                      42
+Ackermann(1, 21)=                      23              calls=                      44
+Ackermann(1, 22)=                      24              calls=                      46
+Ackermann(1, 23)=                      25              calls=                      48
+Ackermann(1, 24)=                      26              calls=                      50
+
+Ackermann(2,  0)=                       3              calls=                       5
+Ackermann(2,  1)=                       5              calls=                      14
+Ackermann(2,  2)=                       7              calls=                      27
+Ackermann(2,  3)=                       9              calls=                      44
+Ackermann(2,  4)=                      11              calls=                      65
+Ackermann(2,  5)=                      13              calls=                      90
+Ackermann(2,  6)=                      15              calls=                     119
+Ackermann(2,  7)=                      17              calls=                     152
+Ackermann(2,  8)=                      19              calls=                     189
+Ackermann(2,  9)=                      21              calls=                     230
+Ackermann(2, 10)=                      23              calls=                     275
+Ackermann(2, 11)=                      25              calls=                     324
+Ackermann(2, 12)=                      27              calls=                     377
+
+Ackermann(3,  0)=                       5              calls=                      15
+Ackermann(3,  1)=                      13              calls=                     106
+Ackermann(3,  2)=                      29              calls=                     541
+Ackermann(3,  3)=                      61              calls=                    2432
+Ackermann(3,  4)=                     125              calls=                   10307
+Ackermann(3,  5)=                     253              calls=                   42438
+Ackermann(3,  6)=                     509              calls=                  172233
+Ackermann(3,  7)=                    1021              calls=                  693964
+Ackermann(3,  8)=                    2045              calls=                 2785999
+
+RC=0
+duration=20.959000
+
+================================================================================
+[20] Ackermann-function/ackermann-function-2.rexx
+================================================================================
+
+Ackermann(0,  0)=                       1              calls=                       1
+Ackermann(0,  1)=                       2              calls=                       1
+Ackermann(0,  2)=                       3              calls=                       1
+Ackermann(0,  3)=                       4              calls=                       1
+Ackermann(0,  4)=                       5              calls=                       1
+Ackermann(0,  5)=                       6              calls=                       1
+Ackermann(0,  6)=                       7              calls=                       1
+Ackermann(0,  7)=                       8              calls=                       1
+Ackermann(0,  8)=                       9              calls=                       1
+Ackermann(0,  9)=                      10              calls=                       1
+Ackermann(0, 10)=                      11              calls=                       1
+Ackermann(0, 11)=                      12              calls=                       1
+Ackermann(0, 12)=                      13              calls=                       1
+Ackermann(0, 13)=                      14              calls=                       1
+Ackermann(0, 14)=                      15              calls=                       1
+Ackermann(0, 15)=                      16              calls=                       1
+Ackermann(0, 16)=                      17              calls=                       1
+Ackermann(0, 17)=                      18              calls=                       1
+Ackermann(0, 18)=                      19              calls=                       1
+Ackermann(0, 19)=                      20              calls=                       1
+Ackermann(0, 20)=                      21              calls=                       1
+Ackermann(0, 21)=                      22              calls=                       1
+Ackermann(0, 22)=                      23              calls=                       1
+Ackermann(0, 23)=                      24              calls=                       1
+Ackermann(0, 24)=                      25              calls=                       1
+
+Ackermann(1,  0)=                       2              calls=                       2
+Ackermann(1,  1)=                       3              calls=                       4
+Ackermann(1,  2)=                       4              calls=                       6
+Ackermann(1,  3)=                       5              calls=                       8
+Ackermann(1,  4)=                       6              calls=                      10
+Ackermann(1,  5)=                       7              calls=                      12
+Ackermann(1,  6)=                       8              calls=                      14
+Ackermann(1,  7)=                       9              calls=                      16
+Ackermann(1,  8)=                      10              calls=                      18
+Ackermann(1,  9)=                      11              calls=                      20
+Ackermann(1, 10)=                      12              calls=                      22
+Ackermann(1, 11)=                      13              calls=                      24
+Ackermann(1, 12)=                      14              calls=                      26
+Ackermann(1, 13)=                      15              calls=                      28
+Ackermann(1, 14)=                      16              calls=                      30
+Ackermann(1, 15)=                      17              calls=                      32
+Ackermann(1, 16)=                      18              calls=                      34
+Ackermann(1, 17)=                      19              calls=                      36
+Ackermann(1, 18)=                      20              calls=                      38
+Ackermann(1, 19)=                      21              calls=                      40
+Ackermann(1, 20)=                      22              calls=                      42
+Ackermann(1, 21)=                      23              calls=                      44
+Ackermann(1, 22)=                      24              calls=                      46
+Ackermann(1, 23)=                      25              calls=                      48
+Ackermann(1, 24)=                      26              calls=                      50
+
+Ackermann(2,  0)=                       3              calls=                       5
+Ackermann(2,  1)=                       5              calls=                       1
+Ackermann(2,  2)=                       7              calls=                       1
+Ackermann(2,  3)=                       9              calls=                       1
+Ackermann(2,  4)=                      11              calls=                       1
+Ackermann(2,  5)=                      13              calls=                       1
+Ackermann(2,  6)=                      15              calls=                       1
+Ackermann(2,  7)=                      17              calls=                       1
+Ackermann(2,  8)=                      19              calls=                       1
+Ackermann(2,  9)=                      21              calls=                       1
+Ackermann(2, 10)=                      23              calls=                       1
+Ackermann(2, 11)=                      25              calls=                       1
+Ackermann(2, 12)=                      27              calls=                       1
+
+Ackermann(3,  0)=                       5              calls=                       2
+Ackermann(3,  1)=                      13              calls=                       4
+Ackermann(3,  2)=                      29              calls=                       6
+Ackermann(3,  3)=                      61              calls=                       8
+Ackermann(3,  4)=                     125              calls=                      10
+Ackermann(3,  5)=                     253              calls=                      12
+Ackermann(3,  6)=                     509              calls=                      14
+Ackermann(3,  7)=                    1021              calls=                      16
+Ackermann(3,  8)=                    2045              calls=                      18
+
+RC=0
+duration=.234000
+
+================================================================================
+[21] Ackermann-function/ackermann-function-3.rexx
+================================================================================
+
+Ackermann(0,  0)=                       1              calls=                       1
+Ackermann(0,  1)=                       2              calls=                       1
+Ackermann(0,  2)=                       3              calls=                       1
+Ackermann(0,  3)=                       4              calls=                       1
+Ackermann(0,  4)=                       5              calls=                       1
+Ackermann(0,  5)=                       6              calls=                       1
+Ackermann(0,  6)=                       7              calls=                       1
+Ackermann(0,  7)=                       8              calls=                       1
+Ackermann(0,  8)=                       9              calls=                       1
+Ackermann(0,  9)=                      10              calls=                       1
+Ackermann(0, 10)=                      11              calls=                       1
+Ackermann(0, 11)=                      12              calls=                       1
+Ackermann(0, 12)=                      13              calls=                       1
+Ackermann(0, 13)=                      14              calls=                       1
+Ackermann(0, 14)=                      15              calls=                       1
+Ackermann(0, 15)=                      16              calls=                       1
+Ackermann(0, 16)=                      17              calls=                       1
+Ackermann(0, 17)=                      18              calls=                       1
+Ackermann(0, 18)=                      19              calls=                       1
+Ackermann(0, 19)=                      20              calls=                       1
+Ackermann(0, 20)=                      21              calls=                       1
+Ackermann(0, 21)=                      22              calls=                       1
+Ackermann(0, 22)=                      23              calls=                       1
+Ackermann(0, 23)=                      24              calls=                       1
+Ackermann(0, 24)=                      25              calls=                       1
+
+Ackermann(1,  0)=                       2              calls=                       1
+Ackermann(1,  1)=                       3              calls=                       1
+Ackermann(1,  2)=                       4              calls=                       1
+Ackermann(1,  3)=                       5              calls=                       1
+Ackermann(1,  4)=                       6              calls=                       1
+Ackermann(1,  5)=                       7              calls=                       1
+Ackermann(1,  6)=                       8              calls=                       1
+Ackermann(1,  7)=                       9              calls=                       1
+Ackermann(1,  8)=                      10              calls=                       1
+Ackermann(1,  9)=                      11              calls=                       1
+Ackermann(1, 10)=                      12              calls=                       1
+Ackermann(1, 11)=                      13              calls=                       1
+Ackermann(1, 12)=                      14              calls=                       1
+Ackermann(1, 13)=                      15              calls=                       1
+Ackermann(1, 14)=                      16              calls=                       1
+Ackermann(1, 15)=                      17              calls=                       1
+Ackermann(1, 16)=                      18              calls=                       1
+Ackermann(1, 17)=                      19              calls=                       1
+Ackermann(1, 18)=                      20              calls=                       1
+Ackermann(1, 19)=                      21              calls=                       1
+Ackermann(1, 20)=                      22              calls=                       1
+Ackermann(1, 21)=                      23              calls=                       1
+Ackermann(1, 22)=                      24              calls=                       1
+Ackermann(1, 23)=                      25              calls=                       1
+Ackermann(1, 24)=                      26              calls=                       1
+
+Ackermann(2,  0)=                       3              calls=                       1
+Ackermann(2,  1)=                       5              calls=                       1
+Ackermann(2,  2)=                       7              calls=                       1
+Ackermann(2,  3)=                       9              calls=                       1
+Ackermann(2,  4)=                      11              calls=                       1
+Ackermann(2,  5)=                      13              calls=                       1
+Ackermann(2,  6)=                      15              calls=                       1
+Ackermann(2,  7)=                      17              calls=                       1
+Ackermann(2,  8)=                      19              calls=                       1
+Ackermann(2,  9)=                      21              calls=                       1
+Ackermann(2, 10)=                      23              calls=                       1
+Ackermann(2, 11)=                      25              calls=                       1
+Ackermann(2, 12)=                      27              calls=                       1
+
+Ackermann(3,  0)=                       5              calls=                       1
+Ackermann(3,  1)=                      13              calls=                       1
+Ackermann(3,  2)=                      29              calls=                       1
+Ackermann(3,  3)=                      61              calls=                       1
+Ackermann(3,  4)=                     125              calls=                       1
+Ackermann(3,  5)=                     253              calls=                       1
+Ackermann(3,  6)=                     509              calls=                       1
+Ackermann(3,  7)=                    1021              calls=                       1
+Ackermann(3,  8)=                    2045              calls=                       1
+
+Ackermann(4,  0)=                      13              calls=                       1
+Ackermann(4,  1)=                   65533              calls=                       1
+Ackermann(4,  2)=89506130880933368E+19728              calls=                       1
+
+RC=0
+duration=.032000
+
+================================================================================
+[22] Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
+================================================================================
+ldapsearch -s base -H ldap://localhost:11389 -LLL -x -v -s sub -D uid=admin,ou=system -w ******** -b ou=users,o=mojo "(&(objectClass=person)(&(uid=*mil*)))" "dn" "cn" "sn" "uid" 
+    27 *-* address command ldapCommand
+       +++ RC=-2 +++
+
+RC=0
+duration=.031000
+
+================================================================================
+[24] AKS-test-for-primes/aks-test-for-primes-1.rexx
+================================================================================
+(x-1)**0 = 1
+(x-1)^1 = x   - 1
+(x-1)^2 = x^2 - 2*x   + 1
+(x-1)^3 = x^3 - 3*x^2 + 3*x   - 1
+(x-1)^4 = x^4 - 4*x^3 + 6*x^2 - 4*x   + 1
+(x-1)^5 = x^5 - 5*x^4 + 10*x^3 - 10*x^2 + 5*x   - 1
+(x-1)^6 = x^6 - 6*x^5 + 15*x^4 - 20*x^3 + 15*x^2 - 6*x   + 1
+(x-1)^7 = x^7 - 7*x^6 + 21*x^5 - 35*x^4 + 35*x^3 - 21*x^2 + 7*x   - 1
+(x-1)^8 = x^8 - 8*x^7 + 28*x^6 - 56*x^5 + 70*x^4 - 56*x^3 + 28*x^2 - 8*x   + 1
+ 
+Primes: 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103
+        107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199
+Largest coefficient: 45274257328051640582702088538742081937252294837706668420660
+This has 59 digits
+
+RC=0
+duration=.109000
+
+================================================================================
+[25] AKS-test-for-primes/aks-test-for-primes-2.rexx
+================================================================================
+
+primes:  2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199
+
+Found  46  primes and the largest coefficient has  59  decimal digits.
+
+RC=0
+duration=.047000
+
+================================================================================
+[26] Align-columns/align-columns-1.rexx
+================================================================================
+align left:
+
+Given      a          text       file   of     many      lines,     where    fields  within  a      line 
+are        delineated by         a      single 'dollar'  character, write    a       program             
+that       aligns     each       column of     fields    by         ensuring that    words   in     each 
+column     are        separated  by     at     least     one        space.                               
+Further,   allow      for        each   word   in        a          column   to      be      either left 
+justified, right      justified, or     center justified within     its      column.                     
+
+align right:
+
+      Given          a       text   file     of      many     lines,    where  fields  within      a line
+        are delineated         by      a single  'dollar' character,    write       a program            
+       that     aligns       each column     of    fields         by ensuring    that   words     in each
+     column        are  separated     by     at     least        one   space.                            
+   Further,      allow        for   each   word        in          a   column      to      be either left
+ justified,      right justified,     or center justified     within      its column.                    
+
+align center:
+
+   Given        a        text     file    of      many     lines,     where   fields  within    a   line 
+    are    delineated     by        a   single  'dollar' character,   write     a    program             
+   that      aligns      each    column   of     fields      by     ensuring   that   words    in   each 
+  column       are     separated   by     at     least       one     space.                              
+ Further,     allow       for     each   word      in         a      column     to      be   either left 
+justified,    right   justified,   or   center justified   within      its   column.                     
+
+RC=0
+duration=.031000
+
+================================================================================
+[27] Align-columns/align-columns-2.rexx
+================================================================================
+
+
+    23 +++    say center(word('left right center', j)  "aligned", size+cols-1, "═")
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Align-columns\REXX\align-columns-2.rexx", line 23: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+duration=.031000
+
+================================================================================
+[28] Align-columns/align-columns-3.rexx
+================================================================================
+
+
+    23 +++    say center(word('left right center', j)  "aligned", size+cols+1, "═")
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Align-columns\REXX\align-columns-3.rexx", line 23: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+duration=.032000
+
+================================================================================
+[29] Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
+================================================================================
+     8 +++ say center('numbers from '     low     " to "     high, 79, "═")
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Aliquot-sequence-classifications\REXX\aliquot-sequence-classifications.rexx", line 8: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+duration=.015000
+
+================================================================================
+[30] Almost-prime/almost-prime-1.rexx
+================================================================================
+10    1-almost primes: 2 3 5 7 11 13 17 19 23 29
+10    2-almost primes: 4 6 9 10 14 15 21 22 25 26
+10    3-almost primes: 8 12 18 20 27 28 30 42 44 45
+10    4-almost primes: 16 24 36 40 54 56 60 81 84 88
+10    5-almost primes: 32 48 72 80 108 112 120 162 168 176
+
+RC=0
+duration=.047000
+
+================================================================================
+[31] Almost-prime/almost-prime-2.rexx
+================================================================================
+10    1-almost primes: 2 3 5 7 11 13 17 19 23 29
+10    2-almost primes: 4 6 9 10 14 15 21 22 25 26
+10    3-almost primes: 8 12 18 20 27 28 30 42 44 45
+10    4-almost primes: 16 24 36 40 54 56 60 81 84 88
+10    5-almost primes: 32 48 72 80 108 112 120 162 168 176
+
+RC=0
+duration=.032000
+
+================================================================================
+[32] Almost-prime/almost-prime.rexx
+================================================================================
+1─almost (10) primes: 2 3 5 7 11 13 17 19 23 29
+2─almost (10) primes: 4 6 9 10 14 15 21 22 25 26
+3─almost (10) primes: 8 12 18 20 27 28 30 42 44 45
+4─almost (10) primes: 16 24 36 40 54 56 60 81 84 88
+5─almost (10) primes: 32 48 72 80 108 112 120 162 168 176
+
+RC=0
+duration=.031000
+
+================================================================================
+[33] Amb/amb-1.rexx
+================================================================================
+that thing grows slowly
+
+RC=0
+duration=.031000
+
+================================================================================
+[34] Amb/amb-2.rexx
+================================================================================
+Input:
+the  frog     walked  slowly
+that elephant treaded quickly
+a    thing    grows
+if            trots
+
+--> the elephant trots slowly
+--> that thing grows slowly
+--> if frog grows slowly
+
+RC=0
+duration=.031000
+
+================================================================================
+[36] Amicable-pairs/amicable-pairs-2.rexx
+================================================================================
+  220  and    284  are an amicable pair.
+ 1184  and   1210  are an amicable pair.
+ 2620  and   2924  are an amicable pair.
+ 5020  and   5564  are an amicable pair.
+ 6232  and   6368  are an amicable pair.
+10744  and  10856  are an amicable pair.
+12285  and  14595  are an amicable pair.
+17296  and  18416  are an amicable pair.
+
+8 amicable pairs found up to 20000
+
+RC=0
+duration=1.188000
+
+================================================================================
+[37] Amicable-pairs/amicable-pairs-3.rexx
+================================================================================
+  220  and    284  are an amicable pair.
+ 1184  and   1210  are an amicable pair.
+ 2620  and   2924  are an amicable pair.
+ 5020  and   5564  are an amicable pair.
+ 6232  and   6368  are an amicable pair.
+10744  and  10856  are an amicable pair.
+12285  and  14595  are an amicable pair.
+17296  and  18416  are an amicable pair.
+
+8 amicable pairs found up to 20000
+
+RC=0
+duration=.719000
+
+================================================================================
+[38] Amicable-pairs/amicable-pairs-4.rexx
+================================================================================
+  220  and    284  are an amicable pair.
+ 1184  and   1210  are an amicable pair.
+ 2620  and   2924  are an amicable pair.
+ 5020  and   5564  are an amicable pair.
+ 6232  and   6368  are an amicable pair.
+10744  and  10856  are an amicable pair.
+12285  and  14595  are an amicable pair.
+17296  and  18416  are an amicable pair.
+
+8 amicable pairs found up to 20000
+
+RC=0
+duration=.640000
+
+================================================================================
+[39] Amicable-pairs/amicable-pairs-5.rexx
+================================================================================
+ 5020  and   5564  are an amicable pair.
+17296  and  18416  are an amicable pair.
+
+2 amicable pairs found up to 20000
+
+RC=0
+duration=.474000
+
+================================================================================
+[40] Anagrams/anagrams-1.rexx
+================================================================================
+───────────────────────── 0 useable words in the dictionary file:  unixdict.txt
+
+
+───── Found 0 words  (each of which have -1 anagrams).
+
+RC=0
+duration=.031000
+
+================================================================================
+[41] Anagrams/anagrams-2.rexx
+================================================================================
+───────────────────────── 0 useable words in the dictionary file:  unixdict.txt
+
+
+───── Found 0 words  (each of which have -1 anagrams).
+
+RC=0
+duration=.031000
+
+================================================================================
+[42] Anagrams/anagrams-3.rexx
+================================================================================
+───────────────────────── 0 useable words in the dictionary file:  unixdict.txt
+
+
+───── Found 0 words  (each of which have -1 anagrams).
+
+RC=0
+duration=.031000
+
+================================================================================
+[43] Anagrams/anagrams-4.rexx
+================================================================================
+u= HALLOWEEN
+z= AEEHLLNOW
+
+RC=0
+duration=.031000
+
+================================================================================
+[44] Anagrams/anagrams-5.rexx
+================================================================================
+u= HALLOWEEN
+L= 9
+z= AEEHLLNOW
+
+RC=0
+duration=.032000
+
+================================================================================
+[45] Anagrams/anagrams-6.rexx
+================================================================================
+ 
+---------- 0 words in the dictionary file:  unixdict.txt
+           0 thereof are anagram candidates
+ 
+There are 1 set(s) of anagrams with 0 elements each:
+ 
+    
+.000000
+
+RC=0
+duration=.031000
+
+================================================================================
+[46] Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
+================================================================================
+────────────────────────────── 0 words in the dictionary file:  unixdict.txt
+
+RC=0
+duration=.031000
+
+================================================================================
+[47] Anonymous-recursion/anonymous-recursion-1.rexx
+================================================================================
+fibonacci( 0) = 0
+fibonacci( 1) = 1
+fibonacci( 2) = 1
+fibonacci( 3) = 2
+fibonacci( 4) = 3
+fibonacci( 5) = 5
+fibonacci( 6) = 8
+fibonacci( 7) = 13
+fibonacci( 8) = 21
+fibonacci( 9) = 34
+fibonacci(10) = 55
+fibonacci(11) = 89
+fibonacci(12) = 144
+
+RC=0
+duration=.031000
+
+================================================================================
+[48] Anonymous-recursion/anonymous-recursion-2.rexx
+================================================================================
+fibonacci( 0) = 0
+fibonacci( 1) = 1
+fibonacci( 2) = 1
+fibonacci( 3) = 2
+fibonacci( 4) = 3
+fibonacci( 5) = 5
+fibonacci( 6) = 8
+fibonacci( 7) = 13
+fibonacci( 8) = 21
+fibonacci( 9) = 34
+fibonacci(10) = 55
+fibonacci(11) = 89
+fibonacci(12) = 144
+
+RC=0
+duration=.047000
+
+================================================================================
+[49] Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[50] Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
+================================================================================
+before a.0=0
+before a.1=1
+before a.2=2
+before a.3=3
+before a.4=4
+before a.5=5
+before a.6=6
+before a.7=7
+before a.8=8
+before a.9=9
+before a.10=10
+
+ after a.0=0
+ after a.1=1
+ after a.2=2
+ after a.3=3
+ after a.4=4
+ after a.5=5
+ after a.6=6
+ after a.7=7
+ after a.8=8
+ after a.9=9
+ after a.10=10
+
+ after b.0=1
+ after b.1=1
+ after b.2=2
+ after b.3=6
+ after b.4=24
+ after b.5=120
+ after b.6=720
+ after b.7=5040
+ after b.8=40320
+ after b.9=362880
+ after b.10=3628800
+
+RC=0
+duration=.032000
+
+================================================================================
+[53] Arena-storage-pool/arena-storage-pool.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[54] Arithmetic-Complex/arithmetic-complex.rexx
+================================================================================
+      addition:    (5,3i)  +  ( .5,  6j)  =  [5.5,9j]
+   subtraction:    (5,3i)  -  ( .5,  6j)  =  [4.5,-3j]
+multiplication:    (5,3i)  *  ( .5,  6j)  =  [-15.5,31.5j]
+      division:    (5,3i)  ÷  ( .5,  6j)  =  [0.565517241,-0.786206897j]
+       inverse:    (5,3i)                          =  [0.147058824,-0.0882352941j]
+  conjugate of:    (5,3i)                          =  [5,-3j]
+   negation of:    (5,3i)                          =  [-5,-3j]
+
+RC=0
+duration=.031000
+
+================================================================================
+[55] Arithmetic-evaluation/arithmetic-evaluation.rexx
+================================================================================
+answer──► 0.333333333
+
+RC=0
+duration=.031000
+
+================================================================================
+[56] Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
+================================================================================
+1st # = 1
+2nd # = 0.70710678118654752440084436210484903928483593768847403658833986899536623923105351942519376716382078636750692312
+  AGM = 0.84721308479397908660649912348219163648144591032694218506057937265973400483413475972320029399461122994212228563
+
+RC=0
+duration=.047000
+
+================================================================================
+[57] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
+================================================================================
+3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491
+
+RC=0
+duration=.157000
+
+================================================================================
+[58] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
+================================================================================
+         iteration 1         1 digits
+         iteration 2         4 digits
+         iteration 3         7 digits
+         iteration 4        12 digits
+         iteration 5        23 digits
+         iteration 6        46 digits
+         iteration 7        89 digits
+         iteration 8       175 digits
+         iteration 9       351 digits
+        iteration 10       500 digits
+
+3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491
+
+RC=0
+duration=.166000
+
+================================================================================
+[59] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
+================================================================================
+10 3.141592654
+11 3.1415926536
+12 3.14159265359
+13 3.141592653590
+1000 3.141...20199
+1001 3.141...201989
+1002 3.141...2019894
+1003 3.141...20198938
+1004 3.141...201989381
+1005 3.141...2019893810
+
+RC=0
+duration=37.681000
+
+================================================================================
+[60] Arithmetic-Integer/arithmetic-integer.rexx
+================================================================================
+─────Enter two integer values  (separated by blanks):
+                 addition  100  +   200  ───►  300 
+              subtraction  100  -   200  ───►  -100 
+           multiplication  100  *   200  ───►  20000 
+            int  division  100  %   200  ───►  0     [rounds down]
+            real division  100  /   200  ───►  0.5 
+       division remainder  100  //  200  ───►  100     [sign from 1st operand]
+                    power  100  **  200  ───►  1.0000000000000000000E+400 
+═══════════════════════════════════════════════════════════════════════════════
+                 addition  200  +   100  ───►  300 
+              subtraction  200  -   100  ───►  100 
+           multiplication  200  *   100  ───►  20000 
+            int  division  200  %   100  ───►  2     [rounds down]
+            real division  200  /   100  ───►  2 
+       division remainder  200  //  100  ───►  0     [sign from 1st operand]
+                    power  200  **  100  ───►  1.2676506002282294015E+230 
+
+RC=0
+duration=.219000
+
+================================================================================
+[62] Array-concatenation/array-concatenation-1.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[63] Array-concatenation/array-concatenation-2.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[64] Array-concatenation/array-concatenation-3.rexx
+================================================================================
+elements= 23
+
+c.1=2
+c.2=3
+c.3=5
+c.4=7
+c.5=11
+c.6=13
+c.7=17
+c.8=19
+c.9=23
+c.10=27
+c.11=31
+c.12=37
+c.13=0
+c.14=1
+c.15=1
+c.16=2
+c.17=3
+c.18=5
+c.19=8
+c.20=13
+c.21=21
+c.22=34
+c.23=55
+
+RC=0
+duration=.031000
+
+================================================================================
+[65] Arrays/arrays-1.rexx
+================================================================================
+element 50 is: -50000
+element 3000 is: not found
+
+RC=0
+duration=.032000
+
+================================================================================
+[66] Arrays/arrays-2.rexx
+================================================================================
+element 50 is: -5000
+element 3000 is: not found
+
+RC=0
+duration=.031000
+
+================================================================================
+[67] Arrays/arrays-3.rexx
+================================================================================
+element 50 is: -5000
+element 3000 is: 00
+
+RC=0
+duration=.031000
+
+================================================================================
+[68] Arrays/arrays-4.rexx
+================================================================================
+-7 squared is: 49
+7000 squared is: out of range
+
+RC=0
+duration=.031000
+
+================================================================================
+[69] Arrays/arrays-5.rexx
+================================================================================
+DOB 1946 is: 1946 AD
+DOB 1744 is: year not supported
+
+RC=0
+duration=.032000
+
+================================================================================
+[70] Arrays/arrays-6.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[72] Associative-array-Creation/associative-array-creation-1.rexx
+================================================================================
+stem.key0= .
+stem.key1= value0
+
+RC=0
+duration=.031000
+
+================================================================================
+[73] Associative-array-Creation/associative-array-creation-2.rexx
+================================================================================
+capital of California is Sacramento
+capital of Oklahoma is  [not defined yet] 
+capital of Rhode Island and Providence Plantations is Providence
+
+RC=0
+duration=.016000
+
+================================================================================
+[74] Associative-array-Iteration/associative-array-iteration.rexx
+================================================================================
+the former capitol of  (AL)  Alabama         was  Tuscaloosa
+the former capitol of  (CA)  California      was  Benicia
+the former capitol of  (CO)  Colorado        was  Denver City
+the former capitol of  (CT)  Connecticut     was  Hartford and New Haven  (jointly)
+the former capitol of  (DE)  Delaware        was  New-Castle
+the former capitol of  (GA)  Georgia         was  Milledgeville
+the former capitol of  (IL)  Illinois        was  Vandalia
+the former capitol of  (IN)  Indiana         was  Corydon
+the former capitol of  (IA)  Iowa            was  Iowa City
+the former capitol of  (LA)  Louisiana       was  New Orleans
+the former capitol of  (ME)  Maine           was  Portland
+the former capitol of  (MI)  Michigan        was  Detroit
+the former capitol of  (MS)  Mississippi     was  Natchez
+the former capitol of  (MO)  Missouri        was  Saint Charles
+the former capitol of  (MT)  Montana         was  Virginia City
+the former capitol of  (NE)  Nebraska        was  Lancaster
+the former capitol of  (NH)  New Hampshire   was  Exeter
+the former capitol of  (NY)  New York        was  New York
+the former capitol of  (NC)  North Carolina  was  Fayetteville
+the former capitol of  (OH)  Ohio            was  Chillicothe
+the former capitol of  (OK)  Oklahoma        was  Guthrie
+the former capitol of  (PA)  Pennsylvania    was  Lancaster
+the former capitol of  (SC)  South Carolina  was  Charlestown
+the former capitol of  (TN)  Tennessee       was  Murfreesboro
+the former capitol of  (VT)  Vermont         was  Windsor
+
+RC=0
+duration=.031000
+
+================================================================================
+[76] Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
+================================================================================
+       numbers =  10 9 8 7 6 5 4 3 2 1
+       average =  5.5
+═══════════════════════════════════════════════════════════════════════════════
+       numbers =  10 9 8 7 6 5 4 3 2 1 0 0 0 0 .11
+       average =  3.674
+═══════════════════════════════════════════════════════════════════════════════
+       numbers =  10 20 30 40 50  -100  4.7  -11e2
+       average =  -130.6625
+═══════════════════════════════════════════════════════════════════════════════
+       numbers =  1 2 3 4  five  6 7 8 9  10.1.  ±2
+                                         ***error***  non-numeric:  five
+                                         ***error***  non-numeric:  10.1.
+                                         ***error***  non-numeric:  ±2
+       average =  5
+═══════════════════════════════════════════════════════════════════════════════
+       numbers =  World War I  &  World War II
+                                         ***error***  non-numeric:  World
+                                         ***error***  non-numeric:  War
+                                         ***error***  non-numeric:  I
+                                         ***error***  non-numeric:  &
+                                         ***error***  non-numeric:  World
+                                         ***error***  non-numeric:  War
+                                         ***error***  non-numeric:  II
+       average =  N/A: ───[no numeric values.]
+═══════════════════════════════════════════════════════════════════════════════
+       numbers =  
+       average =  N/A: ───[null vector.]
+═══════════════════════════════════════════════════════════════════════════════
+
+RC=0
+duration=.031000
+
+================================================================================
+[77] Averages-Mean-angle/averages-mean-angle.rexx
+================================================================================
+angles=350 10                  mean angle=    0
+angles=90 180 270 360          mean angle=  -90
+angles=10 20 30                mean angle=   20
+
+RC=0
+duration=.094000
+
+================================================================================
+[78] Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
+================================================================================
+23:47:43
+
+RC=0
+duration=.031000
+
+================================================================================
+[79] Averages-Median/averages-median.rexx
+================================================================================
+vector: 1 9 2 4               
+median──────► 3
+
+vector: 3 1 4 1 5 9 7 6       
+median──────► 4.5
+
+vector: 3 4 1 -8.4 7.2 4 1 1.2
+median──────► 2.1
+
+vector: -1.2345678e99  2.3e700
+median──────► 1.15000000E+700
+
+
+RC=0
+duration=.016000
+
+================================================================================
+[80] Averages-Mode/averages-mode-1.rexx
+================================================================================
+vector=1 8 6 0 1 9 4 6 1 9 9 9
+mode=9
+
+vector=1 2 3 4 5 6 7 8 9 11 10
+mode=1
+
+vector=8 8 8 2 2 2
+mode=2
+
+vector=cat kat Cat emu emu Kat
+mode=emu
+
+
+RC=0
+duration=.016000
+
+================================================================================
+[81] Averages-Mode/averages-mode-2.rexx
+================================================================================
+Vector: [10,9,8,7,6,5,4,3,2,1], Mode(s): [10,9,8,7,6,5,4,3,2,1]
+Vector: [10,9,8,7,6,5,4,3,2,1,0,0,0,0,0.11], Mode(s): [0]
+Vector: [30,10,20,30,40,50,-100,4.7,-11e+2], Mode(s): [30]
+Vector: [30,10,20,30,40,50,-100,4.7,-11e+2,-11e+2], Mode(s): [30,-11e+2]
+Vector: [1,8,6,0,1,9,4,6,1,9,9,9], Mode(s): [9]
+Vector: [1,2,3,4,5,6,7,8,9,10,11], Mode(s): [1,2,3,4,5,6,7,8,9,10,11]
+Vector: [8,8,8,2,2,2], Mode(s): [8,2]
+Vector: [cat,kat,Cat,emu,emu,Kat], Mode(s): [emu]
+Vector: [0,1,2,3,3,3,4,4,4,4,1,0], Mode(s): [4]
+Vector: [2,7,1,8,2], Mode(s): [2]
+Vector: [2,7,1,8,2,8], Mode(s): [2,8]
+Vector: [E,n,z,y,k,l,o,p,ä,d,i,e], Mode(s): [E,n,z,y,k,l,o,p,ä,d,i,e]
+Vector: [E,n,z,y,k,l,o,p,ä,d,i,e,ä], Mode(s): [ä]
+Vector: [3,1,4,1,5,9,7,6], Mode(s): [1]
+Vector: [3,1,4,1,5,9,7,6,3], Mode(s): [1,3]
+Vector: [1,3,6,6,6,6,7,7,12,12,17], Mode(s): [6]
+Vector: [1,1,2,4,4], Mode(s): [1,4]
+
+RC=0
+duration=.031000
+
+================================================================================
+[82] Averages-Pythagorean-means/averages-pythagorean-means.rexx
+================================================================================
+Amean = 5.5
+Gmean = 4.52872869
+Hmean = 3.41417153
+
+RC=0
+duration=.047000
+
+================================================================================
+[83] Averages-Root-mean-square/averages-root-mean-square.rexx
+================================================================================
+root mean square for 1──►10 is:  6.204836823
+
+RC=0
+duration=.031000
+
+================================================================================
+[84] Averages-Simple-moving-average/averages-simple-moving-average.rexx
+================================================================================
+            SMA with   SMA with 
+  number    period 3   period 5
+ ────────  ────────── ──────────
+    1      1           1          
+    2      1.5         1.5        
+    3      2           2          
+    4      3           2.5        
+    5      4           3          
+    5      4.66666667  3.8        
+    4      4.66666667  4.2        
+    3      4           4.2        
+    2      3           3.8        
+    1      2           3          
+
+RC=0
+duration=.032000
+
+================================================================================
+[85] Balanced-brackets/balanced-brackets-1.rexx
+================================================================================
+OK «null»
+OK [][][][[]]
+                                            not OK [][][][[]]][
+                                            not OK [
+                                            not OK ]
+OK []
+                                            not OK ][
+                                            not OK ][][
+OK [[]]
+OK [[[[[[[]]]]]]]
+                                            not OK [[[[[]]]][]
+OK [][]
+                                            not OK []][[]
+                                            not OK ]]][[[[]
+                                            not OK ][][][][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK ][[]][[]][[]
+                                            not OK ][[]][[]][[]][[]][[]
+                                            not OK []][[]][[]][
+                                            not OK ][][][][][][][][][][][][][][][][
+                                            not OK ][][][][][][][][][][][][][][
+                                            not OK ][[]
+OK [][][][][][][][][][]
+                                            not OK ][][][][][][][][][][][][
+OK [][][][][][][][]
+                                            not OK ][][][][][][][][][][][][][][][][][][][][
+                                            not OK []][[]][[]][[]][[]][
+OK [][][][][][][][][][][][][][]
+                                            not OK []][
+                                            not OK []][[]][[]][[]][[]][[]][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK ][][][][][][
+                                            not OK []][[]][[]][[]][
+                                            not OK ][][][][][][][][][][
+OK [][][][][][][][][][][][][][][][][][][][]
+OK [][][][][][][][][][][][]
+                                            not OK []][[]][
+                                            not OK ][[]][[]][[]][[]
+                                            not OK ][][][][][][][][][][][][][][][][][][
+OK [][][][][][]
+
+RC=0
+duration=.031000
+
+================================================================================
+[86] Balanced-brackets/balanced-brackets-2.rexx
+================================================================================
+ 1 10   balanced [][][][[]]
+ 2 12 unbalanced [][][][[]]][
+ 3  1 unbalanced [
+ 4  1 unbalanced ]
+ 5  2   balanced []
+ 6  2 unbalanced ][
+ 7  4 unbalanced ][][
+ 8  4   balanced [[]]
+ 9 14   balanced [[[[[[[]]]]]]]
+10 11 unbalanced [[[[[]]]][]
+11  4   balanced [][]
+12  6 unbalanced []][[]
+13  8 unbalanced ]]][[[[]
+14  1 unbalanced ]
+15  1 unbalanced [
+16 12 unbalanced []][[]][[]][
+17  8 unbalanced []][[]][
+18 16 unbalanced []][[]][[]][[]][
+19 20 unbalanced []][[]][[]][[]][[]][
+20 16 unbalanced ][][][][][][][][
+21 32 unbalanced []][[]][[]][[]][[]][[]][[]][[]][
+22 12 unbalanced ][[]][[]][[]
+23  4 unbalanced []][
+24 28   balanced [][][][][][][][][][][][][][]
+25 24 unbalanced ][[]][[]][[]][[]][[]][[]
+26 12   balanced [][][][][][]
+27 28 unbalanced ][[]][[]][[]][[]][[]][[]][[]
+28  8   balanced [][][][]
+29  8 unbalanced ][][][][
+30 20 unbalanced ][[]][[]][[]][[]][[]
+
+RC=0
+duration=.047000
+
+================================================================================
+[87] Balanced-brackets/balanced-brackets-3.rexx
+================================================================================
+125476  expressions were checked,  23713  were balanced,  101763  were unbalanced.
+
+RC=0
+duration=21.141000
+
+================================================================================
+[88] Balanced-ternary/balanced-ternary.rexx
+================================================================================
+   [a]                 +-0++0+ balanced ternary =       523 (decimal)
+   [b]                 -++-0-- balanced ternary =      -436 (decimal)
+   [c]                   +-++- balanced ternary =        65 (decimal)
+
+[a*(b-c)]         ----0+--0++0 balanced ternary =   -262023 (decimal)
+
+RC=0
+duration=.350000
+
+================================================================================
+[89] Benfords-law/benfords-law.rexx
+================================================================================
+
+    digit     observed     expected
+    27 +++    say pad  '─────'   pad  center("",w1,'─')   pad  center("",w2,'─')   pad  arg(1)
+     9 +++ call show @benny  N  'Fibonacci numbers'
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Benfords-law\REXX\benfords-law.rexx", line 27: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "─"
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+duration=.032000
+
+================================================================================
+[90] Bernoulli-numbers/bernoulli-numbers.rexx
+================================================================================
+B(n)                  Bernoulli number expressed as a fraction                 
+──── ────────────────────────────────────────────────────────────────────────────────
+   0                                                                        1/1
+   1                                                                       -1/2
+   2                                                                        1/6
+   4                                                                       -1/30
+   6                                                                        1/42
+   8                                                                       -1/30
+  10                                                                        5/66
+  12                                                                     -691/2730
+  14                                                                        7/6
+  16                                                                    -3617/510
+  18                                                                    43867/798
+  20                                                                  -174611/330
+  22                                                                   854513/138
+  24                                                               -236364091/2730
+  26                                                                  8553103/6
+  28                                                             -23749461029/870
+  30                                                            8615841276005/14322
+  32                                                           -7709321041217/510
+  34                                                            2577687858367/6
+  36                                                    -26315271553053477373/1919190
+  38                                                         2929993913841559/6
+  40                                                   -261082718496449122051/13530
+  42                                                   1520097643918070802691/1806
+  44                                                 -27833269579301024235023/690
+  46                                                 596451111593912163277961/282
+  48                                            -5609403368997817686249127547/46410
+  50                                              495057205241079648212477525/66
+  52                                          -801165718135489957347924991853/1590
+  54                                         29149963634884862421418123812691/798
+  56                                      -2479392929313226753685415739663229/870
+  58                                      84483613348880041862046775994036021/354
+  60                             -1215233140483755572040304994079820246041491/56786730
+
+RC=0
+duration=.156000
+
+================================================================================
+[91] Best-shuffle/best-shuffle-1.rexx
+================================================================================
+original: tree                 new: eert                 count: 0
+original: abracadabra          new: baaracadrab          count: 0
+original: seesaw               new: eswase               count: 0
+original: elk                  new: lke                  count: 0
+original: grrrrrr              new: rrrrrrg              count: 5
+original: up                   new: pu                   count: 0
+original: a                    new: a                    count: 1
+
+RC=0
+duration=.031000
+
+================================================================================
+[95] Binary-digits/binary-digits-1.rexx
+================================================================================
+                   0 decimal, and in binary: 0
+                   5 decimal, and in binary: 101
+                  50 decimal, and in binary: 110010
+                9000 decimal, and in binary: 10001100101000
+
+RC=0
+duration=.031000
+
+================================================================================
+[96] Binary-digits/binary-digits-2.rexx
+================================================================================
+                   0 decimal, and in binary: 0
+                   5 decimal, and in binary: 101
+                  50 decimal, and in binary: 110010
+                9000 decimal, and in binary: 10001100101000
+
+RC=0
+duration=.032000
+
+================================================================================
+[97] Binary-digits/binary-digits-3.rexx
+================================================================================
+                   0 decimal, and in binary: 0
+                   5 decimal, and in binary: 101
+                  50 decimal, and in binary: 110010
+                9000 decimal, and in binary: 10001100101000
+
+RC=0
+duration=.031000
+
+================================================================================
+[98] Binary-digits/binary-digits-4.rexx
+================================================================================
+                   0 decimal, and in binary: 0
+                   5 decimal, and in binary: 101
+                  50 decimal, and in binary: 110010
+                9000 decimal, and in binary: 10001100101000
+85674235000123456789 decimal, and in binary: 1011001101111010111011110101001101111000000000000110001100000100111110100010101
+               1E138 decimal, and in binary: 101010111111101001000101110110100000111011011011110111100110100100000100100001111101101110011101000101110110001101101000100100100110000111001010101011110010001111100011110100010101011011111111000110101110111100001011100111110000000010101100110101001010001001001011000000110000010010010100010010000001110100101000011111001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+RC=0
+duration=.031000
+
+================================================================================
+[99] Binary-search/binary-search-1.rexx
+================================================================================
+269 is in the list, its index is: 26
+
+arithmetic mean of the 76 values= 510
+
+RC=0
+duration=.031000
+
+================================================================================
+[100] Binary-search/binary-search-2.rexx
+================================================================================
+arithmetic mean of the 79 values= 508
+
+823 is in the list, its index is: 66
+
+RC=0
+duration=.032000
+
+================================================================================
+[101] Binary-strings/binary-strings.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[102] Bitmap/bitmap-1.rexx
+================================================================================
+pixel 10,40 = 111111110000000000000000
+pixel 10,40 = 11111111 00000000 00000000
+
+pixel 10,40 = FF0000
+pixel 10,40 = FF 00 00
+
+RC=0
+duration=.031000
+
+================================================================================
+[103] Bitmap/bitmap-2.rexx
+================================================================================
+lend: 600 -> 58020000 => 600
+lend: 300 -> 2C010000 => 300
+100 100 180 180 00FF00
+100 100 160 160 FF0000
+color at pixel 97/98=FF0000
+color at pixel 98/98=FFFFFF
+
+RC=0
+duration=.250000
+
+================================================================================
+[104] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
+================================================================================
+···│····················
+···│····················
+···│·······Θ············
+···│······Θ·Θ···········
+···│·····Θ···Θ··········
+···│····Θ·····Θ·········
+···│···Θ·······Θ········
+···│···Θ········Θ·······
+···│··Θ··········Θ······
+···│·Θ············Θ·····
+···│Θ··············Θ····
+···│·Θ············Θ·····
+···│··Θ··········Θ······
+···│···Θ·······ΘΘ·······
+···│····Θ·····Θ·········
+···│·····Θ···Θ··········
+···│······Θ·Θ···········
+···│·······Θ············
+───┼────────────────────
+···│····················
+
+RC=0
+duration=.031000
+
+================================================================================
+[105] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
+================================================================================
+11 ..|.......
+10 ..|.....X.
+ 9 ..|....X..
+ 8 ..|....X..
+ 7 ..|...X...
+ 6 ..|...X...
+ 5 ..|..X....
+ 4 ..|..X....
+ 3 ..|.X.....
+ 2 ..|.X.....
+ 1 ..|X......
+ 0 --+X------
+-1 ..X.......
+-2 ..X.......
+-3 .X|.......
+-4 ..|.......
+   2101234567
+
+RC=0
+duration=.032000
+
+================================================================================
+[106] Bitmap-Flood-fill/bitmap-flood-fill.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[107] Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
+================================================================================
+·······················│·······················
+·······················│·······················
+····················@@@@@@@····················
+·················@@@···│···@@@·················
+···············@@······│······@@···············
+··············@········│········@··············
+············@@·········│·········@@············
+···········@···········│···········@···········
+··········@············│············@··········
+·········@·············│·············@·········
+········@············$$$$$············@········
+········@··········$$··│··$$··········@········
+·······@··········$····│····$··········@·······
+······@·········$$····###····$$·········@······
+······@········$····##·│·##····$········@······
+·····@·········$···#···│···#···$·········@·····
+·····@········$···#····│····#···$········@·····
+·····@·······$···#·····│·····#···$·······@·····
+····@········$··#······│······#··$········@····
+····@·······$···#······│······#···$·······@····
+····@·······$··#·······│·······#··$·······@····
+────@───────$──#───────┼───────#──$───────@────
+····@·······$··#·······│·······#··$·······@····
+····@·······$···#······│······#···$·······@····
+····@········$··#······│······#··$········@····
+·····@·······$···#·····│·····#···$·······@·····
+·····@········$···#····│····#···$········@·····
+·····@·········$···#···│···#···$·········@·····
+······@········$····##·│·##····$········@······
+······@·········$$····###····$$·········@······
+·······@··········$····│····$··········@·······
+········@··········$$··│··$$··········@········
+········@············$$$$$············@········
+·········@·············│·············@·········
+··········@············│············@··········
+···········@···········│···········@···········
+············@@·········│·········@@············
+··············@········│········@··············
+···············@@······│······@@···············
+·················@@@···│···@@@·················
+····················@@@@@@@····················
+·······················│·······················
+·······················│·······················
+
+RC=0
+duration=.031000
+
+================================================================================
+[108] Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[109] Bitwise-IO/bitwise-io.rexx
+================================================================================
+s=STRING
+b=101001110101001010010100100110011101000111000000
+                                            000000 padding
+r=STRING
+
+RC=0
+duration=.032000
+
+================================================================================
+[110] Bitwise-operations/bitwise-operations.rexx
+================================================================================
+ decimal    value                          bits                       
+───────── ───────── ──────────────────────────────────────────────────
+       21     A                                                  10101
+        3     B                                                     11
+        1   A & B                                                    1
+       23   A | B                                                10111
+       22  A && B                                                10110
+       10   ¬ A                                                  1010
+      168  A [«B]                                            10101000
+        2  A [»B]                                                  10
+
+RC=0
+duration=.031000
+
+================================================================================
+[111] Boolean-values/boolean-values-1.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[112] Boolean-values/boolean-values-2.rexx
+================================================================================
+
+RC=0
+duration=.031000
+
+================================================================================
+[113] Boolean-values/boolean-values-3.rexx
+================================================================================
+
+RC=0
+duration=.016000
+
+================================================================================
+[114] Boolean-values/boolean-values-4.rexx
+================================================================================
+
+RC=0
+duration=.043000
+
+================================================================================
+[115] Boolean-values/boolean-values-5.rexx
+================================================================================
+Error 13 running "C:\jlf\local\RosettaCodeData\git\Task\Boolean-values\REXX\boolean-values-5.rexx", line 1: Invalid character in program
+Error 13.1: Invalid character in program "('c2'X)"
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741811 +++
+
+RC=-1073741811
+duration=.015000
+
+================================================================================
+[116] Boolean-values/boolean-values-6.rexx
+================================================================================
+
+RC=0
+duration=.015000
+
+================================================================================
+[117] Box-the-compass/box-the-compass.rexx
+================================================================================
+                      �heading   compass heading   
+      ════════ ════════════════════
+                        0.00�   north
+                       16.87�   north by east
+                       16.88�   north-northeast
+                       33.75�   northeast by north
+                       50.62�   northeast
+                       50.63�   northeast by east
+                       67.50�   east-northeast
+                       84.37�   east by north
+                       84.38�   east
+                      101.25�   east by south
+                      118.12�   east-southeast
+                      118.13�   southeast by east
+                      135.00�   southeast
+                      151.87�   southeast by south
+                      151.88�   south-southeast
+                      168.75�   south by east
+                      185.62�   south
+                      185.63�   south by west
+                      202.50�   south-southwest
+                      219.37�   southwest by south
+                      219.38�   southwest
+                      236.25�   southwest by west
+                      253.12�   west-southwest
+                      253.13�   west by south
+                      270.00�   west
+                      286.87�   west by north
+                      286.88�   west-northwest
+                      303.75�   northwest by west
+                      320.62�   northwest
+                      320.63�   northwest by north
+                      337.50�   north-northwest
+                      354.37�   north by west
+                      354.38�   north
+
+RC=0
+duration=.032000
+
+================================================================================
+[118] Brownian-tree/brownian-tree.rexx
+================================================================================
+'SCRSIZE' is not recognized as an internal or external command,
+operable program or batch file.
+    22 +++ height=word(_,1)-3  /*adjust useable height for the border.*/
+Error 41 running "C:\jlf\local\RosettaCodeData\git\Task\Brownian-tree\REXX\brownian-tree.rexx", line 22: Bad arithmetic conversion
+       *-*   "rexx" path || solution args
+       +++ RC=-1073741783 +++
+
+RC=-1073741783
+duration=.047000
+
+================================================================================
+[119] Bulls-and-cows/bulls-and-cows-1.rexx
+================================================================================
+
+───── [Bulls & Cows]  Please enter a 4-digit guess (with no zeroes)   [or Quit]:
+
+───── You got 0 bulls and 2 cows.
+
+───── [Bulls & Cows]  Please enter a 4-digit guess (with no zeroes)   [or Quit]:
+
+RC=0
+duration=.031000
+
+================================================================================
+[120] Bulls-and-cows/bulls-and-cows-2.rexx
+================================================================================
+<Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
+You got 0 bulls and 2 cows.
+<Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
+
+RC=0
+duration=.047000
+
+================================================================================
+[121] Bulls-and-cows-Player/bulls-and-cows-player.rexx
+================================================================================
+
+
+───── How many bulls and cows were guessed with  9876 ?    [─── or QUIT]
+
+
+───── How many bulls and cows were guessed with  9785 ?    [─── or QUIT]
+
+RC=0
+duration=.078000
+
+
+================================================================================
+Summary Ok
+================================================================================
+Ok:    1 ; .031000 ; 0 ; ../../Task/9-billion-names-of-God-the-integer/REXX/9-billion-names-of-god-the-integer.rexx
+Ok:    2 ; .047000 ; 0 ; ../../Task/24-game/REXX/24-game-1.rexx
+Ok:    3 ; .141000 ; 0 ; ../../Task/24-game-Solve/REXX/24-game-solve.rexx
+Ok:    4 ; .031000 ; 0 ; ../../Task/99-Bottles-of-Beer/REXX/99-bottles-of-beer.rexx
+Ok:    5 ; .031000 ; 0 ; ../../Task/100-doors/REXX/100-doors-1.rexx
+Ok:    6 ; .031000 ; 0 ; ../../Task/100-doors/REXX/100-doors-2.rexx
+Ok:    7 ; .032000 ; 0 ; ../../Task/100-doors/REXX/100-doors-3.rexx
+Ok:    8 ; .015000 ; 0 ; ../../Task/100-doors/REXX/100-doors-4.rexx
+Ok:    9 ; .031000 ; 0 ; ../../Task/A+B/REXX/a+b-1.rexx
+Ok:   10 ; .049000 ; 0 ; ../../Task/A+B/REXX/a+b-2.rexx
+Ok:   11 ; .036000 ; 0 ; ../../Task/A+B/REXX/a+b-3.rexx
+Ok:   12 ; .047000 ; 0 ; ../../Task/A+B/REXX/a+b-4.rexx
+Ok:   13 ; .031000 ; 0 ; ../../Task/ABC-Problem/REXX/abc-problem-1.rexx
+Ok:   14 ; .031000 ; 0 ; ../../Task/ABC-Problem/REXX/abc-problem-2.rexx
+Ok:   18 ; .031000 ; 0 ; ../../Task/Accumulator-factory/REXX/accumulator-factory.rexx
+Ok:   19 ; 20.959000 ; 0 ; ../../Task/Ackermann-function/REXX/ackermann-function-1.rexx
+Ok:   20 ; .234000 ; 0 ; ../../Task/Ackermann-function/REXX/ackermann-function-2.rexx
+Ok:   21 ; .032000 ; 0 ; ../../Task/Ackermann-function/REXX/ackermann-function-3.rexx
+Ok:   22 ; .031000 ; 0 ; ../../Task/Active-Directory-Search-for-a-user/REXX/active-directory-search-for-a-user.rexx
+Ok:   24 ; .109000 ; 0 ; ../../Task/AKS-test-for-primes/REXX/aks-test-for-primes-1.rexx
+Ok:   25 ; .047000 ; 0 ; ../../Task/AKS-test-for-primes/REXX/aks-test-for-primes-2.rexx
+Ok:   26 ; .031000 ; 0 ; ../../Task/Align-columns/REXX/align-columns-1.rexx
+Ok:   30 ; .047000 ; 0 ; ../../Task/Almost-prime/REXX/almost-prime-1.rexx
+Ok:   31 ; .032000 ; 0 ; ../../Task/Almost-prime/REXX/almost-prime-2.rexx
+Ok:   32 ; .031000 ; 0 ; ../../Task/Almost-prime/REXX/almost-prime.rexx
+Ok:   33 ; .031000 ; 0 ; ../../Task/Amb/REXX/amb-1.rexx
+Ok:   34 ; .031000 ; 0 ; ../../Task/Amb/REXX/amb-2.rexx
+Ok:   36 ; 1.188000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-2.rexx
+Ok:   37 ; .719000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-3.rexx
+Ok:   38 ; .640000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-4.rexx
+Ok:   39 ; .474000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-5.rexx
+Ok:   40 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-1.rexx
+Ok:   41 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-2.rexx
+Ok:   42 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-3.rexx
+Ok:   43 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-4.rexx
+Ok:   44 ; .032000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-5.rexx
+Ok:   45 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-6.rexx
+Ok:   46 ; .031000 ; 0 ; ../../Task/Anagrams-Deranged-anagrams/REXX/anagrams-deranged-anagrams.rexx
+Ok:   47 ; .031000 ; 0 ; ../../Task/Anonymous-recursion/REXX/anonymous-recursion-1.rexx
+Ok:   48 ; .047000 ; 0 ; ../../Task/Anonymous-recursion/REXX/anonymous-recursion-2.rexx
+Ok:   49 ; .031000 ; 0 ; ../../Task/Append-a-record-to-the-end-of-a-text-file/REXX/append-a-record-to-the-end-of-a-text-file.rexx
+Ok:   50 ; .032000 ; 0 ; ../../Task/Apply-a-callback-to-an-array/REXX/apply-a-callback-to-an-array.rexx
+Ok:   53 ; .031000 ; 0 ; ../../Task/Arena-storage-pool/REXX/arena-storage-pool.rexx
+Ok:   54 ; .031000 ; 0 ; ../../Task/Arithmetic-Complex/REXX/arithmetic-complex.rexx
+Ok:   55 ; .031000 ; 0 ; ../../Task/Arithmetic-evaluation/REXX/arithmetic-evaluation.rexx
+Ok:   56 ; .047000 ; 0 ; ../../Task/Arithmetic-geometric-mean/REXX/arithmetic-geometric-mean.rexx
+Ok:   57 ; .157000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-1.rexx
+Ok:   58 ; .166000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-2.rexx
+Ok:   59 ; 37.681000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-3.rexx
+Ok:   60 ; .219000 ; 0 ; ../../Task/Arithmetic-Integer/REXX/arithmetic-integer.rexx
+Ok:   62 ; .031000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-1.rexx
+Ok:   63 ; .031000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-2.rexx
+Ok:   64 ; .031000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-3.rexx
+Ok:   65 ; .032000 ; 0 ; ../../Task/Arrays/REXX/arrays-1.rexx
+Ok:   66 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-2.rexx
+Ok:   67 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-3.rexx
+Ok:   68 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-4.rexx
+Ok:   69 ; .032000 ; 0 ; ../../Task/Arrays/REXX/arrays-5.rexx
+Ok:   70 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-6.rexx
+Ok:   72 ; .031000 ; 0 ; ../../Task/Associative-array-Creation/REXX/associative-array-creation-1.rexx
+Ok:   73 ; .016000 ; 0 ; ../../Task/Associative-array-Creation/REXX/associative-array-creation-2.rexx
+Ok:   74 ; .031000 ; 0 ; ../../Task/Associative-array-Iteration/REXX/associative-array-iteration.rexx
+Ok:   76 ; .031000 ; 0 ; ../../Task/Averages-Arithmetic-mean/REXX/averages-arithmetic-mean.rexx
+Ok:   77 ; .094000 ; 0 ; ../../Task/Averages-Mean-angle/REXX/averages-mean-angle.rexx
+Ok:   78 ; .031000 ; 0 ; ../../Task/Averages-Mean-time-of-day/REXX/averages-mean-time-of-day.rexx
+Ok:   79 ; .016000 ; 0 ; ../../Task/Averages-Median/REXX/averages-median.rexx
+Ok:   80 ; .016000 ; 0 ; ../../Task/Averages-Mode/REXX/averages-mode-1.rexx
+Ok:   81 ; .031000 ; 0 ; ../../Task/Averages-Mode/REXX/averages-mode-2.rexx
+Ok:   82 ; .047000 ; 0 ; ../../Task/Averages-Pythagorean-means/REXX/averages-pythagorean-means.rexx
+Ok:   83 ; .031000 ; 0 ; ../../Task/Averages-Root-mean-square/REXX/averages-root-mean-square.rexx
+Ok:   84 ; .032000 ; 0 ; ../../Task/Averages-Simple-moving-average/REXX/averages-simple-moving-average.rexx
+Ok:   85 ; .031000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-1.rexx
+Ok:   86 ; .047000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-2.rexx
+Ok:   87 ; 21.141000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-3.rexx
+Ok:   88 ; .350000 ; 0 ; ../../Task/Balanced-ternary/REXX/balanced-ternary.rexx
+Ok:   90 ; .156000 ; 0 ; ../../Task/Bernoulli-numbers/REXX/bernoulli-numbers.rexx
+Ok:   91 ; .031000 ; 0 ; ../../Task/Best-shuffle/REXX/best-shuffle-1.rexx
+Ok:   95 ; .031000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-1.rexx
+Ok:   96 ; .032000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-2.rexx
+Ok:   97 ; .031000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-3.rexx
+Ok:   98 ; .031000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-4.rexx
+Ok:   99 ; .031000 ; 0 ; ../../Task/Binary-search/REXX/binary-search-1.rexx
+Ok:  100 ; .032000 ; 0 ; ../../Task/Binary-search/REXX/binary-search-2.rexx
+Ok:  101 ; .031000 ; 0 ; ../../Task/Binary-strings/REXX/binary-strings.rexx
+Ok:  102 ; .031000 ; 0 ; ../../Task/Bitmap/REXX/bitmap-1.rexx
+Ok:  103 ; .250000 ; 0 ; ../../Task/Bitmap/REXX/bitmap-2.rexx
+Ok:  104 ; .031000 ; 0 ; ../../Task/Bitmap-Bresenhams-line-algorithm/REXX/bitmap-bresenhams-line-algorithm-1.rexx
+Ok:  105 ; .032000 ; 0 ; ../../Task/Bitmap-Bresenhams-line-algorithm/REXX/bitmap-bresenhams-line-algorithm-2.rexx
+Ok:  106 ; .031000 ; 0 ; ../../Task/Bitmap-Flood-fill/REXX/bitmap-flood-fill.rexx
+Ok:  107 ; .031000 ; 0 ; ../../Task/Bitmap-Midpoint-circle-algorithm/REXX/bitmap-midpoint-circle-algorithm.rexx
+Ok:  108 ; .031000 ; 0 ; ../../Task/Bitmap-Write-a-PPM-file/REXX/bitmap-write-a-ppm-file.rexx
+Ok:  109 ; .032000 ; 0 ; ../../Task/Bitwise-IO/REXX/bitwise-io.rexx
+Ok:  110 ; .031000 ; 0 ; ../../Task/Bitwise-operations/REXX/bitwise-operations.rexx
+Ok:  111 ; .031000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-1.rexx
+Ok:  112 ; .031000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-2.rexx
+Ok:  113 ; .016000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-3.rexx
+Ok:  114 ; .043000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-4.rexx
+Ok:  116 ; .015000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-6.rexx
+Ok:  117 ; .032000 ; 0 ; ../../Task/Box-the-compass/REXX/box-the-compass.rexx
+Ok:  119 ; .031000 ; 0 ; ../../Task/Bulls-and-cows/REXX/bulls-and-cows-1.rexx
+Ok:  120 ; .047000 ; 0 ; ../../Task/Bulls-and-cows/REXX/bulls-and-cows-2.rexx
+Ok:  121 ; .078000 ; 0 ; ../../Task/Bulls-and-cows-Player/REXX/bulls-and-cows-player.rexx
+
+================================================================================
+Summary Skip
+================================================================================
+Skip:   17 ; 0 ; 0 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-3.rexx
+Skip:   23 ; 0 ; 0 ; Address-of-a-variable/address-of-a-variable.rexx
+Skip:   35 ; 0 ; 0 ; Amicable-pairs/amicable-pairs-1.rexx
+Skip:   51 ; 0 ; 0 ; Arbitrary-precision-integers--included-/arbitrary-precision-integers--included--1.rexx
+Skip:   52 ; 0 ; 0 ; Arbitrary-precision-integers--included-/arbitrary-precision-integers--included--2.rexx
+Skip:   61 ; 0 ; 0 ; Arithmetic-Rational/arithmetic-rational.rexx
+Skip:   71 ; 0 ; 0 ; Assertions/assertions.rexx
+Skip:   75 ; 0 ; 0 ; Average-loop-length/average-loop-length.rexx
+Skip:   92 ; 0 ; 0 ; Best-shuffle/best-shuffle-2.rexx
+Skip:   93 ; 0 ; 0 ; Best-shuffle/best-shuffle-3.rexx
+Skip:   94 ; 0 ; 0 ; Best-shuffle/best-shuffle-4.rexx
+
+================================================================================
+Summary Ko
+================================================================================
+Ko:   15 ; .031000 ; -1073741784 ; ../../Task/Abundant,-deficient-and-perfect-number-classifications/REXX/abundant,-deficient-and-perfect-number-classifications-1.rexx
+Ko:   16 ; .032000 ; -1073741784 ; ../../Task/Abundant,-deficient-and-perfect-number-classifications/REXX/abundant,-deficient-and-perfect-number-classifications-2.rexx
+Ko:   27 ; .031000 ; -1073741784 ; ../../Task/Align-columns/REXX/align-columns-2.rexx
+Ko:   28 ; .032000 ; -1073741784 ; ../../Task/Align-columns/REXX/align-columns-3.rexx
+Ko:   29 ; .015000 ; -1073741784 ; ../../Task/Aliquot-sequence-classifications/REXX/aliquot-sequence-classifications.rexx
+Ko:   89 ; .032000 ; -1073741784 ; ../../Task/Benfords-law/REXX/benfords-law.rexx
+Ko:  115 ; .015000 ; -1073741811 ; ../../Task/Boolean-values/REXX/boolean-values-5.rexx
+Ko:  118 ; .047000 ; -1073741783 ; ../../Task/Brownian-tree/REXX/brownian-tree.rexx
+
+================================================================================
+Summary counters
+================================================================================
+Ok=102
+Skip=11
+Ko=8
+duration=87.931000
+

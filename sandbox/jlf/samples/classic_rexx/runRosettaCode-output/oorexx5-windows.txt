@@ -1,0 +1,1871 @@
+Your REXX interpreter is REXX-ooRexx_5.0.0(MT)_64-bit 6.05 24 Jan 2017
+Your system is WINDOWSNT
+================================================================================
+[1] 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
+================================================================================
+     4 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\9-billion-names-of-God-the-integer\REXX\9-billion-names-of-god-the-integer.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[2] 24-game/24-game-1.rexx
+================================================================================
+    13 *-*  @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\24-game\REXX\24-game-1.rexx line 13:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.062000
+
+================================================================================
+[3] 24-game-Solve/24-game-solve.rexx
+================================================================================
+    41 *-* L.=   /*assume no left parenthesis so far.   */
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\24-game-Solve\REXX\24-game-solve.rexx line 41:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.031000
+
+================================================================================
+[4] 99-Bottles-of-Beer/99-bottles-of-beer.rexx
+================================================================================
+99 bottles of beer on the wall,
+99 bottles of beer.
+Take one down, pass it around,
+98 bottles of beer on the wall.
+
+98 bottles of beer on the wall,
+98 bottles of beer.
+Take one down, pass it around,
+97 bottles of beer on the wall.
+
+97 bottles of beer on the wall,
+97 bottles of beer.
+Take one down, pass it around,
+96 bottles of beer on the wall.
+
+96 bottles of beer on the wall,
+96 bottles of beer.
+Take one down, pass it around,
+95 bottles of beer on the wall.
+
+95 bottles of beer on the wall,
+95 bottles of beer.
+Take one down, pass it around,
+94 bottles of beer on the wall.
+
+94 bottles of beer on the wall,
+94 bottles of beer.
+Take one down, pass it around,
+93 bottles of beer on the wall.
+
+93 bottles of beer on the wall,
+93 bottles of beer.
+Take one down, pass it around,
+92 bottles of beer on the wall.
+
+92 bottles of beer on the wall,
+92 bottles of beer.
+Take one down, pass it around,
+91 bottles of beer on the wall.
+
+91 bottles of beer on the wall,
+91 bottles of beer.
+Take one down, pass it around,
+90 bottles of beer on the wall.
+
+90 bottles of beer on the wall,
+90 bottles of beer.
+Take one down, pass it around,
+89 bottles of beer on the wall.
+
+89 bottles of beer on the wall,
+89 bottles of beer.
+Take one down, pass it around,
+88 bottles of beer on the wall.
+
+88 bottles of beer on the wall,
+88 bottles of beer.
+Take one down, pass it around,
+87 bottles of beer on the wall.
+
+87 bottles of beer on the wall,
+87 bottles of beer.
+Take one down, pass it around,
+86 bottles of beer on the wall.
+
+86 bottles of beer on the wall,
+86 bottles of beer.
+Take one down, pass it around,
+85 bottles of beer on the wall.
+
+85 bottles of beer on the wall,
+85 bottles of beer.
+Take one down, pass it around,
+84 bottles of beer on the wall.
+
+84 bottles of beer on the wall,
+84 bottles of beer.
+Take one down, pass it around,
+83 bottles of beer on the wall.
+
+83 bottles of beer on the wall,
+83 bottles of beer.
+Take one down, pass it around,
+82 bottles of beer on the wall.
+
+82 bottles of beer on the wall,
+82 bottles of beer.
+Take one down, pass it around,
+81 bottles of beer on the wall.
+
+81 bottles of beer on the wall,
+81 bottles of beer.
+Take one down, pass it around,
+80 bottles of beer on the wall.
+
+80 bottles of beer on the wall,
+80 bottles of beer.
+Take one down, pass it around,
+79 bottles of beer on the wall.
+
+79 bottles of beer on the wall,
+79 bottles of beer.
+Take one down, pass it around,
+78 bottles of beer on the wall.
+
+78 bottles of beer on the wall,
+78 bottles of beer.
+Take one down, pass it around,
+77 bottles of beer on the wall.
+
+77 bottles of beer on the wall,
+77 bottles of beer.
+Take one down, pass it around,
+76 bottles of beer on the wall.
+
+76 bottles of beer on the wall,
+76 bottles of beer.
+Take one down, pass it around,
+75 bottles of beer on the wall.
+
+75 bottles of beer on the wall,
+75 bottles of beer.
+Take one down, pass it around,
+74 bottles of beer on the wall.
+
+74 bottles of beer on the wall,
+74 bottles of beer.
+Take one down, pass it around,
+73 bottles of beer on the wall.
+
+73 bottles of beer on the wall,
+73 bottles of beer.
+Take one down, pass it around,
+72 bottles of beer on the wall.
+
+72 bottles of beer on the wall,
+72 bottles of beer.
+Take one down, pass it around,
+71 bottles of beer on the wall.
+
+71 bottles of beer on the wall,
+71 bottles of beer.
+Take one down, pass it around,
+70 bottles of beer on the wall.
+
+70 bottles of beer on the wall,
+70 bottles of beer.
+Take one down, pass it around,
+69 bottles of beer on the wall.
+
+69 bottles of beer on the wall,
+69 bottles of beer.
+Take one down, pass it around,
+68 bottles of beer on the wall.
+
+68 bottles of beer on the wall,
+68 bottles of beer.
+Take one down, pass it around,
+67 bottles of beer on the wall.
+
+67 bottles of beer on the wall,
+67 bottles of beer.
+Take one down, pass it around,
+66 bottles of beer on the wall.
+
+66 bottles of beer on the wall,
+66 bottles of beer.
+Take one down, pass it around,
+65 bottles of beer on the wall.
+
+65 bottles of beer on the wall,
+65 bottles of beer.
+Take one down, pass it around,
+64 bottles of beer on the wall.
+
+64 bottles of beer on the wall,
+64 bottles of beer.
+Take one down, pass it around,
+63 bottles of beer on the wall.
+
+63 bottles of beer on the wall,
+63 bottles of beer.
+Take one down, pass it around,
+62 bottles of beer on the wall.
+
+62 bottles of beer on the wall,
+62 bottles of beer.
+Take one down, pass it around,
+61 bottles of beer on the wall.
+
+61 bottles of beer on the wall,
+61 bottles of beer.
+Take one down, pass it around,
+60 bottles of beer on the wall.
+
+60 bottles of beer on the wall,
+60 bottles of beer.
+Take one down, pass it around,
+59 bottles of beer on the wall.
+
+59 bottles of beer on the wall,
+59 bottles of beer.
+Take one down, pass it around,
+58 bottles of beer on the wall.
+
+58 bottles of beer on the wall,
+58 bottles of beer.
+Take one down, pass it around,
+57 bottles of beer on the wall.
+
+57 bottles of beer on the wall,
+57 bottles of beer.
+Take one down, pass it around,
+56 bottles of beer on the wall.
+
+56 bottles of beer on the wall,
+56 bottles of beer.
+Take one down, pass it around,
+55 bottles of beer on the wall.
+
+55 bottles of beer on the wall,
+55 bottles of beer.
+Take one down, pass it around,
+54 bottles of beer on the wall.
+
+54 bottles of beer on the wall,
+54 bottles of beer.
+Take one down, pass it around,
+53 bottles of beer on the wall.
+
+53 bottles of beer on the wall,
+53 bottles of beer.
+Take one down, pass it around,
+52 bottles of beer on the wall.
+
+52 bottles of beer on the wall,
+52 bottles of beer.
+Take one down, pass it around,
+51 bottles of beer on the wall.
+
+51 bottles of beer on the wall,
+51 bottles of beer.
+Take one down, pass it around,
+50 bottles of beer on the wall.
+
+50 bottles of beer on the wall,
+50 bottles of beer.
+Take one down, pass it around,
+49 bottles of beer on the wall.
+
+49 bottles of beer on the wall,
+49 bottles of beer.
+Take one down, pass it around,
+48 bottles of beer on the wall.
+
+48 bottles of beer on the wall,
+48 bottles of beer.
+Take one down, pass it around,
+47 bottles of beer on the wall.
+
+47 bottles of beer on the wall,
+47 bottles of beer.
+Take one down, pass it around,
+46 bottles of beer on the wall.
+
+46 bottles of beer on the wall,
+46 bottles of beer.
+Take one down, pass it around,
+45 bottles of beer on the wall.
+
+45 bottles of beer on the wall,
+45 bottles of beer.
+Take one down, pass it around,
+44 bottles of beer on the wall.
+
+44 bottles of beer on the wall,
+44 bottles of beer.
+Take one down, pass it around,
+43 bottles of beer on the wall.
+
+43 bottles of beer on the wall,
+43 bottles of beer.
+Take one down, pass it around,
+42 bottles of beer on the wall.
+
+42 bottles of beer on the wall,
+42 bottles of beer.
+Take one down, pass it around,
+41 bottles of beer on the wall.
+
+41 bottles of beer on the wall,
+41 bottles of beer.
+Take one down, pass it around,
+40 bottles of beer on the wall.
+
+40 bottles of beer on the wall,
+40 bottles of beer.
+Take one down, pass it around,
+39 bottles of beer on the wall.
+
+39 bottles of beer on the wall,
+39 bottles of beer.
+Take one down, pass it around,
+38 bottles of beer on the wall.
+
+38 bottles of beer on the wall,
+38 bottles of beer.
+Take one down, pass it around,
+37 bottles of beer on the wall.
+
+37 bottles of beer on the wall,
+37 bottles of beer.
+Take one down, pass it around,
+36 bottles of beer on the wall.
+
+36 bottles of beer on the wall,
+36 bottles of beer.
+Take one down, pass it around,
+35 bottles of beer on the wall.
+
+35 bottles of beer on the wall,
+35 bottles of beer.
+Take one down, pass it around,
+34 bottles of beer on the wall.
+
+34 bottles of beer on the wall,
+34 bottles of beer.
+Take one down, pass it around,
+33 bottles of beer on the wall.
+
+33 bottles of beer on the wall,
+33 bottles of beer.
+Take one down, pass it around,
+32 bottles of beer on the wall.
+
+32 bottles of beer on the wall,
+32 bottles of beer.
+Take one down, pass it around,
+31 bottles of beer on the wall.
+
+31 bottles of beer on the wall,
+31 bottles of beer.
+Take one down, pass it around,
+30 bottles of beer on the wall.
+
+30 bottles of beer on the wall,
+30 bottles of beer.
+Take one down, pass it around,
+29 bottles of beer on the wall.
+
+29 bottles of beer on the wall,
+29 bottles of beer.
+Take one down, pass it around,
+28 bottles of beer on the wall.
+
+28 bottles of beer on the wall,
+28 bottles of beer.
+Take one down, pass it around,
+27 bottles of beer on the wall.
+
+27 bottles of beer on the wall,
+27 bottles of beer.
+Take one down, pass it around,
+26 bottles of beer on the wall.
+
+26 bottles of beer on the wall,
+26 bottles of beer.
+Take one down, pass it around,
+25 bottles of beer on the wall.
+
+25 bottles of beer on the wall,
+25 bottles of beer.
+Take one down, pass it around,
+24 bottles of beer on the wall.
+
+24 bottles of beer on the wall,
+24 bottles of beer.
+Take one down, pass it around,
+23 bottles of beer on the wall.
+
+23 bottles of beer on the wall,
+23 bottles of beer.
+Take one down, pass it around,
+22 bottles of beer on the wall.
+
+22 bottles of beer on the wall,
+22 bottles of beer.
+Take one down, pass it around,
+21 bottles of beer on the wall.
+
+21 bottles of beer on the wall,
+21 bottles of beer.
+Take one down, pass it around,
+20 bottles of beer on the wall.
+
+20 bottles of beer on the wall,
+20 bottles of beer.
+Take one down, pass it around,
+19 bottles of beer on the wall.
+
+19 bottles of beer on the wall,
+19 bottles of beer.
+Take one down, pass it around,
+18 bottles of beer on the wall.
+
+18 bottles of beer on the wall,
+18 bottles of beer.
+Take one down, pass it around,
+17 bottles of beer on the wall.
+
+17 bottles of beer on the wall,
+17 bottles of beer.
+Take one down, pass it around,
+16 bottles of beer on the wall.
+
+16 bottles of beer on the wall,
+16 bottles of beer.
+Take one down, pass it around,
+15 bottles of beer on the wall.
+
+15 bottles of beer on the wall,
+15 bottles of beer.
+Take one down, pass it around,
+14 bottles of beer on the wall.
+
+14 bottles of beer on the wall,
+14 bottles of beer.
+Take one down, pass it around,
+13 bottles of beer on the wall.
+
+13 bottles of beer on the wall,
+13 bottles of beer.
+Take one down, pass it around,
+12 bottles of beer on the wall.
+
+12 bottles of beer on the wall,
+12 bottles of beer.
+Take one down, pass it around,
+11 bottles of beer on the wall.
+
+11 bottles of beer on the wall,
+11 bottles of beer.
+Take one down, pass it around,
+10 bottles of beer on the wall.
+
+10 bottles of beer on the wall,
+10 bottles of beer.
+Take one down, pass it around,
+9 bottles of beer on the wall.
+
+9 bottles of beer on the wall,
+9 bottles of beer.
+Take one down, pass it around,
+8 bottles of beer on the wall.
+
+8 bottles of beer on the wall,
+8 bottles of beer.
+Take one down, pass it around,
+7 bottles of beer on the wall.
+
+7 bottles of beer on the wall,
+7 bottles of beer.
+Take one down, pass it around,
+6 bottles of beer on the wall.
+
+6 bottles of beer on the wall,
+6 bottles of beer.
+Take one down, pass it around,
+5 bottles of beer on the wall.
+
+5 bottles of beer on the wall,
+5 bottles of beer.
+Take one down, pass it around,
+4 bottles of beer on the wall.
+
+4 bottles of beer on the wall,
+4 bottles of beer.
+Take one down, pass it around,
+3 bottles of beer on the wall.
+
+3 bottles of beer on the wall,
+3 bottles of beer.
+Take one down, pass it around,
+2 bottles of beer on the wall.
+
+2 bottles of beer on the wall,
+2 bottles of beer.
+Take one down, pass it around,
+1 bottle of beer on the wall.
+
+1 bottle of beer on the wall,
+1 bottle of beer.
+Take one down, pass it around,
+no bottles of beer on the wall.
+
+No more bottles of beer on the wall,
+no more bottles of beer.
+Go to the store and buy some more,
+99 bottles of beer on the wall.
+
+RC=0
+duration=0.047000
+
+================================================================================
+[5] 100-doors/100-doors-1.rexx
+================================================================================
+     7 *-* do #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\100-doors\REXX\100-doors-1.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.032000
+
+================================================================================
+[6] 100-doors/100-doors-2.rexx
+================================================================================
+     6 *-* do #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\100-doors\REXX\100-doors-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.046000
+
+================================================================================
+[7] 100-doors/100-doors-3.rexx
+================================================================================
+
+For the 100 doors problem, the following doors are open:
+
+                   1
+                   4
+                   9
+                  16
+                  25
+                  36
+                  49
+                  64
+                  81
+                 100
+
+RC=0
+duration=0.047000
+
+================================================================================
+[8] 100-doors/100-doors-4.rexx
+================================================================================
+
+For the 1000 doors problem, the open doors are:
+
+                   1
+                   4
+                   9
+                  16
+                  25
+                  36
+                  49
+                  64
+                  81
+                 100
+                 121
+                 144
+                 169
+                 196
+                 225
+                 256
+                 289
+                 324
+                 361
+                 400
+                 441
+                 484
+                 529
+                 576
+                 625
+                 676
+                 729
+                 784
+                 841
+                 900
+                 961
+
+RC=0
+duration=0.047000
+
+================================================================================
+[9] A+B/a+b-1.rexx
+================================================================================
+30
+
+RC=0
+duration=0.078000
+
+================================================================================
+[10] A+B/a+b-2.rexx
+================================================================================
+30
+
+RC=0
+duration=0.078000
+
+================================================================================
+[11] A+B/a+b-3.rexx
+================================================================================
+30
+
+RC=0
+duration=0.078000
+
+================================================================================
+[12] A+B/a+b-4.rexx
+================================================================================
+     6 *-* $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\A+B\REXX\a+b-4.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.079000
+
+================================================================================
+[13] ABC-Problem/abc-problem-1.rexx
+================================================================================
+                             A    can be spelt.
+                          bark    can be spelt.
+                          bOOk  can't be spelt.
+                         treat    can be spelt.
+                        common  can't be spelt.
+                         squaD    can be spelt.
+                       conFuse    can be spelt.
+
+RC=0
+duration=0.047000
+
+================================================================================
+[14] ABC-Problem/abc-problem-2.rexx
+================================================================================
+''        cannot be spelt.
+'$'       cannot be spelt.
+'A'       can be spelt in 2 ways.
+'BARK'    can be spelt in 8 ways.
+'BOOK'    cannot be spelt.
+'TREAT'   can be spelt in 8 ways.
+'COMMON'  cannot be spelt.
+'SQUAD'   can be spelt in 8 ways.
+'CONFUSE' can be spelt in 32 ways.
+
+RC=0
+duration=0.047000
+
+================================================================================
+[15] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
+================================================================================
+     6 *-*          $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Abundant,-deficient-and-perfect-number-classifications\REXX\abundant,-deficient-and-perfect-number-classifications-1.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[16] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
+================================================================================
+     6 *-*          $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Abundant,-deficient-and-perfect-number-classifications\REXX\abundant,-deficient-and-perfect-number-classifications-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[18] Accumulator-factory/accumulator-factory.rexx
+================================================================================
+          X value is now 8.3
+Accumulator value is now 8.3
+
+RC=0
+duration=0.078000
+
+================================================================================
+[19] Ackermann-function/ackermann-function-1.rexx
+================================================================================
+    16 *-*            #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Ackermann-function\REXX\ackermann-function-1.rexx line 16:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[20] Ackermann-function/ackermann-function-2.rexx
+================================================================================
+    11 *-*            #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Ackermann-function\REXX\ackermann-function-2.rexx line 11:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[21] Ackermann-function/ackermann-function-3.rexx
+================================================================================
+    18 *-*            #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Ackermann-function\REXX\ackermann-function-3.rexx line 18:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[22] Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
+================================================================================
+ldapsearch -s base -H ldap://localhost:11389 -LLL -x -v -s sub -D uid=admin,ou=system -w ******** -b ou=users,o=mojo "(&(objectClass=person)(&(uid=*mil*)))" "dn" "cn" "sn" "uid" 
+'ldapsearch' is not recognized as an internal or external command,
+operable program or batch file.
+
+RC=0
+duration=0.078000
+
+================================================================================
+[24] AKS-test-for-primes/aks-test-for-primes-1.rexx
+================================================================================
+(x-1)**0 = 1
+(x-1)^1 = x   - 1
+(x-1)^2 = x^2 - 2*x   + 1
+(x-1)^3 = x^3 - 3*x^2 + 3*x   - 1
+(x-1)^4 = x^4 - 4*x^3 + 6*x^2 - 4*x   + 1
+(x-1)^5 = x^5 - 5*x^4 + 10*x^3 - 10*x^2 + 5*x   - 1
+(x-1)^6 = x^6 - 6*x^5 + 15*x^4 - 20*x^3 + 15*x^2 - 6*x   + 1
+(x-1)^7 = x^7 - 7*x^6 + 21*x^5 - 35*x^4 + 35*x^3 - 21*x^2 + 7*x   - 1
+(x-1)^8 = x^8 - 8*x^7 + 28*x^6 - 56*x^5 + 70*x^4 - 56*x^3 + 28*x^2 - 8*x   + 1
+ 
+Primes: 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103
+        107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199
+Largest coefficient: 45274257328051640582702088538742081937252294837706668420660
+This has 59 digits
+
+RC=0
+duration=0.375000
+
+================================================================================
+[25] AKS-test-for-primes/aks-test-for-primes-2.rexx
+================================================================================
+     5 *-* $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\AKS-test-for-primes\REXX\aks-test-for-primes-2.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[26] Align-columns/align-columns-1.rexx
+================================================================================
+align left:
+
+Given      a          text       file   of     many      lines,     where    fields  within  a      line 
+are        delineated by         a      single 'dollar'  character, write    a       program             
+that       aligns     each       column of     fields    by         ensuring that    words   in     each 
+column     are        separated  by     at     least     one        space.                               
+Further,   allow      for        each   word   in        a          column   to      be      either left 
+justified, right      justified, or     center justified within     its      column.                     
+
+align right:
+
+      Given          a       text   file     of      many     lines,    where  fields  within      a line
+        are delineated         by      a single  'dollar' character,    write       a program            
+       that     aligns       each column     of    fields         by ensuring    that   words     in each
+     column        are  separated     by     at     least        one   space.                            
+   Further,      allow        for   each   word        in          a   column      to      be either left
+ justified,      right justified,     or center justified     within      its column.                    
+
+align center:
+
+   Given        a        text     file    of      many     lines,     where   fields  within    a   line 
+    are    delineated     by        a   single  'dollar' character,   write     a    program             
+   that      aligns      each    column   of     fields      by     ensuring   that   words    in   each 
+  column       are     separated   by     at     least       one     space.                              
+ Further,     allow       for     each   word      in         a      column     to      be   either left 
+justified,    right   justified,   or   center justified   within      its   column.                     
+
+RC=0
+duration=0.047000
+
+================================================================================
+[27] Align-columns/align-columns-2.rexx
+================================================================================
+     2 *-* t.=;
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Align-columns\REXX\align-columns-2.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.046000
+
+================================================================================
+[28] Align-columns/align-columns-3.rexx
+================================================================================
+     2 *-* t.=;
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Align-columns\REXX\align-columns-3.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[29] Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
+================================================================================
+     7 *-* #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Aliquot-sequence-classifications\REXX\aliquot-sequence-classifications.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[30] Almost-prime/almost-prime-1.rexx
+================================================================================
+     6 *-*     $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Almost-prime\REXX\almost-prime-1.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.032000
+
+================================================================================
+[31] Almost-prime/almost-prime-2.rexx
+================================================================================
+     6 *-*     $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Almost-prime\REXX\almost-prime-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.046000
+
+================================================================================
+[32] Almost-prime/almost-prime.rexx
+================================================================================
+     6 *-*      $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Almost-prime\REXX\almost-prime.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[33] Amb/amb-1.rexx
+================================================================================
+     2 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Amb\REXX\amb-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[34] Amb/amb-2.rexx
+================================================================================
+Input:
+the  frog     walked  slowly
+that elephant treaded quickly
+a    thing    grows
+if            trots
+
+--> the elephant trots slowly
+--> that thing grows slowly
+--> if frog grows slowly
+
+RC=0
+duration=0.051000
+
+================================================================================
+[36] Amicable-pairs/amicable-pairs-2.rexx
+================================================================================
+     4 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Amicable-pairs\REXX\amicable-pairs-2.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[37] Amicable-pairs/amicable-pairs-3.rexx
+================================================================================
+     5 *-*   $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Amicable-pairs\REXX\amicable-pairs-3.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[38] Amicable-pairs/amicable-pairs-4.rexx
+================================================================================
+     5 *-*   $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Amicable-pairs\REXX\amicable-pairs-4.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[39] Amicable-pairs/amicable-pairs-5.rexx
+================================================================================
+     5 *-*   $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Amicable-pairs\REXX\amicable-pairs-5.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[40] Anagrams/anagrams-1.rexx
+================================================================================
+     3 *-* $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Anagrams\REXX\anagrams-1.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[41] Anagrams/anagrams-2.rexx
+================================================================================
+     3 *-* $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Anagrams\REXX\anagrams-2.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[42] Anagrams/anagrams-3.rexx
+================================================================================
+     3 *-* $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Anagrams\REXX\anagrams-3.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.032000
+
+================================================================================
+[43] Anagrams/anagrams-4.rexx
+================================================================================
+     8 *-* _.=
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Anagrams\REXX\anagrams-4.rexx line 8:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[44] Anagrams/anagrams-5.rexx
+================================================================================
+     6 *-* _.=
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Anagrams\REXX\anagrams-5.rexx line 6:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.046000
+
+================================================================================
+[45] Anagrams/anagrams-6.rexx
+================================================================================
+ 
+---------- 0 words in the dictionary file:  unixdict.txt
+           0 thereof are anagram candidates
+ 
+There are 1 set(s) of anagrams with 0 elements each:
+ 
+    
+0
+
+RC=0
+duration=0.047000
+
+================================================================================
+[46] Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
+================================================================================
+     8 *-*       #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Anagrams-Deranged-anagrams\REXX\anagrams-deranged-anagrams.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[47] Anonymous-recursion/anonymous-recursion-1.rexx
+================================================================================
+    13 *-* parse arg #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Anonymous-recursion\REXX\anonymous-recursion-1.rexx line 13:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[48] Anonymous-recursion/anonymous-recursion-2.rexx
+================================================================================
+     5 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Anonymous-recursion\REXX\anonymous-recursion-2.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[49] Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[50] Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
+================================================================================
+     2 *-* a.=;
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Apply-a-callback-to-an-array\REXX\apply-a-callback-to-an-array.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[53] Arena-storage-pool/arena-storage-pool.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[54] Arithmetic-Complex/arithmetic-complex.rexx
+================================================================================
+    14 *-* call C#
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Arithmetic-Complex\REXX\arithmetic-complex.rexx line 14:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[55] Arithmetic-evaluation/arithmetic-evaluation.rexx
+================================================================================
+     3 *-*     $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Arithmetic-evaluation\REXX\arithmetic-evaluation.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[56] Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
+================================================================================
+    19 *-* do #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Arithmetic-geometric-mean\REXX\arithmetic-geometric-mean.rexx line 19:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[57] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
+================================================================================
+    16 *-* i=;
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Arithmetic-geometric-mean-Calculate-Pi\REXX\arithmetic-geometric-mean-calculate-pi-1.rexx line 16:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[58] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
+================================================================================
+    19 *-* i=;
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Arithmetic-geometric-mean-Calculate-Pi\REXX\arithmetic-geometric-mean-calculate-pi-2.rexx line 19:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[59] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
+================================================================================
+10 3.141592654
+11 3.1415926536
+12 3.14159265359
+13 3.141592653590
+1000 3.141...20199
+1001 3.141...201989
+1002 3.141...2019894
+1003 3.141...20198938
+1004 3.141...201989381
+1005 3.141...2019893810
+
+RC=0
+duration=7.191000
+
+================================================================================
+[60] Arithmetic-Integer/arithmetic-integer.rexx
+================================================================================
+    24 *-* show: parse arg c,o,#
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Arithmetic-Integer\REXX\arithmetic-integer.rexx line 24:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.062000
+
+================================================================================
+[62] Array-concatenation/array-concatenation-1.rexx
+================================================================================
+
+RC=0
+duration=0.031000
+
+================================================================================
+[63] Array-concatenation/array-concatenation-2.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[64] Array-concatenation/array-concatenation-3.rexx
+================================================================================
+     3 *-* p.=                                    /*(below) a short list of primes.*/
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Array-concatenation\REXX\array-concatenation-3.rexx line 3:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[65] Arrays/arrays-1.rexx
+================================================================================
+element 50 is: -50000
+element 3000 is: not found
+
+RC=0
+duration=0.047000
+
+================================================================================
+[66] Arrays/arrays-2.rexx
+================================================================================
+element 50 is: -5000
+element 3000 is: not found
+
+RC=0
+duration=0.046000
+
+================================================================================
+[67] Arrays/arrays-3.rexx
+================================================================================
+element 50 is: -5000
+element 3000 is: 00
+
+RC=0
+duration=0.047000
+
+================================================================================
+[68] Arrays/arrays-4.rexx
+================================================================================
+-7 squared is: 49
+7000 squared is: out of range
+
+RC=0
+duration=0.047000
+
+================================================================================
+[69] Arrays/arrays-5.rexx
+================================================================================
+DOB 1946 is: 1946 AD
+DOB 1744 is: year not supported
+
+RC=0
+duration=0.047000
+
+================================================================================
+[70] Arrays/arrays-6.rexx
+================================================================================
+
+RC=0
+duration=0.031000
+
+================================================================================
+[71] Assertions/assertions.rexx
+================================================================================
+Assertion fails in line 8
+expected: 42
+   found: 11
+  Call assert x.i,42
+Look around
+       +++ "WindowsNT COMMAND C:\jlf\local\RosettaCodeData\git\Task\Assertions\REXX\assertions.rexx"
+    20 *-*           Nop
++++ Interactive trace. "Trace Off" to end debug, ENTER to continue. +++
+    21 *-*           Signal Syntax
+    24 *-* Syntax:
+    24 *-* Say 'program terminated'
+       >>>   "program terminated"
+program terminated
+
+RC=0
+duration=0.062000
+
+================================================================================
+[72] Associative-array-Creation/associative-array-creation-1.rexx
+================================================================================
+stem.key0= .
+stem.key1= value0
+
+RC=0
+duration=0.047000
+
+================================================================================
+[73] Associative-array-Creation/associative-array-creation-2.rexx
+================================================================================
+capital of California is Sacramento
+capital of Oklahoma is  [not defined yet] 
+capital of Rhode Island and Providence Plantations is Providence
+
+RC=0
+duration=0.047000
+
+================================================================================
+[74] Associative-array-Iteration/associative-array-iteration.rexx
+================================================================================
+    11 *-* stateL=
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Associative-array-Iteration\REXX\associative-array-iteration.rexx line 11:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.047000
+
+================================================================================
+[76] Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
+================================================================================
+     2 *-* parse arg @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Arithmetic-mean\REXX\averages-arithmetic-mean.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[77] Averages-Mean-angle/averages-mean-angle.rexx
+================================================================================
+     5 *-* #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Mean-angle\REXX\averages-mean-angle.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[78] Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
+================================================================================
+23:47:43
+
+RC=0
+duration=0.032000
+
+================================================================================
+[79] Averages-Median/averages-median.rexx
+================================================================================
+     9 *-* eSORT:  procedure expose @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Median\REXX\averages-median.rexx line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[80] Averages-Mode/averages-mode-1.rexx
+================================================================================
+     9 *-* sort: procedure expose @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Mode\REXX\averages-mode-1.rexx line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.046000
+
+================================================================================
+[81] Averages-Mode/averages-mode-2.rexx
+================================================================================
+Vector: [10,9,8,7,6,5,4,3,2,1], Mode(s): [10,9,8,7,6,5,4,3,2,1]
+Vector: [10,9,8,7,6,5,4,3,2,1,0,0,0,0,0.11], Mode(s): [0]
+Vector: [30,10,20,30,40,50,-100,4.7,-11e+2], Mode(s): [30]
+Vector: [30,10,20,30,40,50,-100,4.7,-11e+2,-11e+2], Mode(s): [30,-11e+2]
+Vector: [1,8,6,0,1,9,4,6,1,9,9,9], Mode(s): [9]
+Vector: [1,2,3,4,5,6,7,8,9,10,11], Mode(s): [1,2,3,4,5,6,7,8,9,10,11]
+Vector: [8,8,8,2,2,2], Mode(s): [8,2]
+Vector: [cat,kat,Cat,emu,emu,Kat], Mode(s): [emu]
+Vector: [0,1,2,3,3,3,4,4,4,4,1,0], Mode(s): [4]
+Vector: [2,7,1,8,2], Mode(s): [2]
+Vector: [2,7,1,8,2,8], Mode(s): [2,8]
+Vector: [E,n,z,y,k,l,o,p,ä,d,i,e], Mode(s): [E,n,z,y,k,l,o,p,ä,d,i,e]
+Vector: [E,n,z,y,k,l,o,p,ä,d,i,e,ä], Mode(s): [ä]
+Vector: [3,1,4,1,5,9,7,6], Mode(s): [1]
+Vector: [3,1,4,1,5,9,7,6,3], Mode(s): [1,3]
+Vector: [1,3,6,6,6,6,7,7,12,12,17], Mode(s): [6]
+Vector: [1,1,2,4,4], Mode(s): [1,4]
+
+RC=0
+duration=0.047000
+
+================================================================================
+[82] Averages-Pythagorean-means/averages-pythagorean-means.rexx
+================================================================================
+     5 *-*    @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Pythagorean-means\REXX\averages-pythagorean-means.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.063000
+
+================================================================================
+[83] Averages-Root-mean-square/averages-root-mean-square.rexx
+================================================================================
+     7 *-* $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Root-mean-square\REXX\averages-root-mean-square.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.062000
+
+================================================================================
+[84] Averages-Simple-moving-average/averages-simple-moving-average.rexx
+================================================================================
+     6 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Averages-Simple-moving-average\REXX\averages-simple-moving-average.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.032000
+
+================================================================================
+[85] Balanced-brackets/balanced-brackets-1.rexx
+================================================================================
+     4 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Balanced-brackets\REXX\balanced-brackets-1.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.046000
+
+================================================================================
+[86] Balanced-brackets/balanced-brackets-2.rexx
+================================================================================
+ 1 10   balanced [][][][[]]
+ 2 12 unbalanced [][][][[]]][
+ 3  1 unbalanced [
+ 4  1 unbalanced ]
+ 5  2   balanced []
+ 6  2 unbalanced ][
+ 7  4 unbalanced ][][
+ 8  4   balanced [[]]
+ 9 14   balanced [[[[[[[]]]]]]]
+10 11 unbalanced [[[[[]]]][]
+11  4   balanced [][]
+12  6 unbalanced []][[]
+13  8 unbalanced ]]][[[[]
+14  1 unbalanced ]
+15  1 unbalanced [
+16 20 unbalanced ][][][][][][][][][][
+17 12   balanced [][][][][][]
+18 20 unbalanced ][[]][[]][[]][[]][[]
+19 16   balanced [][][][][][][][]
+20 20   balanced [][][][][][][][][][]
+21 24 unbalanced ][][][][][][][][][][][][
+22  4 unbalanced ][[]
+23  4 unbalanced []][
+24 32 unbalanced []][[]][[]][[]][[]][[]][[]][[]][
+25 32 unbalanced ][[]][[]][[]][[]][[]][[]][[]][[]
+26 32   balanced [][][][][][][][][][][][][][][][]
+27  8 unbalanced ][][][][
+28  8 unbalanced ][[]][[]
+29 24 unbalanced ][[]][[]][[]][[]][[]][[]
+30 16 unbalanced []][[]][[]][[]][
+
+RC=0
+duration=0.047000
+
+================================================================================
+[87] Balanced-brackets/balanced-brackets-3.rexx
+================================================================================
+     3 *-* #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Balanced-brackets\REXX\balanced-brackets-3.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[88] Balanced-ternary/balanced-ternary.rexx
+================================================================================
+     4 *-*      @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Balanced-ternary\REXX\balanced-ternary.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[89] Benfords-law/benfords-law.rexx
+================================================================================
+     4 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Benfords-law\REXX\benfords-law.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[90] Bernoulli-numbers/bernoulli-numbers.rexx
+================================================================================
+     6 *-* do #
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Bernoulli-numbers\REXX\bernoulli-numbers.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[91] Best-shuffle/best-shuffle-1.rexx
+================================================================================
+     2 *-* parse arg $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Best-shuffle\REXX\best-shuffle-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[95] Binary-digits/binary-digits-1.rexx
+================================================================================
+     3 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Binary-digits\REXX\binary-digits-1.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[96] Binary-digits/binary-digits-2.rexx
+================================================================================
+     2 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Binary-digits\REXX\binary-digits-2.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[97] Binary-digits/binary-digits-3.rexx
+================================================================================
+     2 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Binary-digits\REXX\binary-digits-3.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[98] Binary-digits/binary-digits-4.rexx
+================================================================================
+     3 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Binary-digits\REXX\binary-digits-4.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[99] Binary-search/binary-search-1.rexx
+================================================================================
+     2 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Binary-search\REXX\binary-search-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[100] Binary-search/binary-search-2.rexx
+================================================================================
+     2 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Binary-search\REXX\binary-search-2.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[101] Binary-strings/binary-strings.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[102] Bitmap/bitmap-1.rexx
+================================================================================
+     5 *-* image.=                                /*"allocate" an "array" to nulls.*/
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Bitmap\REXX\bitmap-1.rexx line 5:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.031000
+
+================================================================================
+[103] Bitmap/bitmap-2.rexx
+================================================================================
+lend: 600 -> 58020000 => 600
+lend: 300 -> 2C010000 => 300
+100 100 180 180 00FF00
+100 100 160 160 FF0000
+color at pixel 97/98=FF0000
+color at pixel 98/98=FFFFFF
+
+RC=0
+duration=0.104000
+
+================================================================================
+[104] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
+================================================================================
+     5 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Bitmap-Bresenhams-line-algorithm\REXX\bitmap-bresenhams-line-algorithm-1.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[105] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
+================================================================================
+11 ..|.......
+10 ..|.....X.
+ 9 ..|....X..
+ 8 ..|....X..
+ 7 ..|...X...
+ 6 ..|...X...
+ 5 ..|..X....
+ 4 ..|..X....
+ 3 ..|.X.....
+ 2 ..|.X.....
+ 1 ..|X......
+ 0 --+X------
+-1 ..X.......
+-2 ..X.......
+-3 .X|.......
+-4 ..|.......
+   2101234567
+
+RC=0
+duration=0.047000
+
+================================================================================
+[106] Bitmap-Flood-fill/bitmap-flood-fill.rexx
+================================================================================
+    14 *-* pixel=@
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Bitmap-Flood-fill\REXX\bitmap-flood-fill.rexx line 14:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[107] Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
+================================================================================
+     2 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Bitmap-Midpoint-circle-algorithm\REXX\bitmap-midpoint-circle-algorithm.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.031000
+
+================================================================================
+[108] Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[109] Bitwise-IO/bitwise-io.rexx
+================================================================================
+s=STRING
+b=101001110101001010010100100110011101000111000000
+                                            000000 padding
+r=STRING
+
+RC=0
+duration=0.047000
+
+================================================================================
+[110] Bitwise-operations/bitwise-operations.rexx
+================================================================================
+    26 *-*   $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Bitwise-operations\REXX\bitwise-operations.rexx line 26:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.046000
+
+================================================================================
+[111] Boolean-values/boolean-values-1.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[112] Boolean-values/boolean-values-2.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[113] Boolean-values/boolean-values-3.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[114] Boolean-values/boolean-values-4.rexx
+================================================================================
+
+RC=0
+duration=0.031000
+
+================================================================================
+[115] Boolean-values/boolean-values-5.rexx
+================================================================================
+     1 *-* false = �
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Boolean-values\REXX\boolean-values-5.rexx line 1:  Invalid character in program.
+Error 13.1:  Incorrect character in program "�" ('C2'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[116] Boolean-values/boolean-values-6.rexx
+================================================================================
+
+RC=0
+duration=0.047000
+
+================================================================================
+[117] Box-the-compass/box-the-compass.rexx
+================================================================================
+     2 *-* parse arg $
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Box-the-compass\REXX\box-the-compass.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[118] Brownian-tree/brownian-tree.rexx
+================================================================================
+    31 *-* @
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Brownian-tree\REXX\brownian-tree.rexx line 31:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.047000
+
+================================================================================
+[119] Bulls-and-cows/bulls-and-cows-1.rexx
+================================================================================
+     2 *-* ?=;
+Error 35 running C:\jlf\local\RosettaCodeData\git\Task\Bulls-and-cows\REXX\bulls-and-cows-1.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
+
+RC=-35
+duration=0.062000
+
+================================================================================
+[120] Bulls-and-cows/bulls-and-cows-2.rexx
+================================================================================
+<Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
+You got 0 bulls and 1 cow.
+<Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
+
+RC=0
+duration=0.062000
+
+================================================================================
+[121] Bulls-and-cows-Player/bulls-and-cows-player.rexx
+================================================================================
+     2 *-* call gen@
+Error 13 running C:\jlf\local\RosettaCodeData\git\Task\Bulls-and-cows-Player\REXX\bulls-and-cows-player.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=-13
+duration=0.063000
+
+
+================================================================================
+Summary Ok
+================================================================================
+Ok:    4 ; 0.047000 ; 0 ; ../../Task/99-Bottles-of-Beer/REXX/99-bottles-of-beer.rexx
+Ok:    7 ; 0.047000 ; 0 ; ../../Task/100-doors/REXX/100-doors-3.rexx
+Ok:    8 ; 0.047000 ; 0 ; ../../Task/100-doors/REXX/100-doors-4.rexx
+Ok:    9 ; 0.078000 ; 0 ; ../../Task/A+B/REXX/a+b-1.rexx
+Ok:   10 ; 0.078000 ; 0 ; ../../Task/A+B/REXX/a+b-2.rexx
+Ok:   11 ; 0.078000 ; 0 ; ../../Task/A+B/REXX/a+b-3.rexx
+Ok:   13 ; 0.047000 ; 0 ; ../../Task/ABC-Problem/REXX/abc-problem-1.rexx
+Ok:   14 ; 0.047000 ; 0 ; ../../Task/ABC-Problem/REXX/abc-problem-2.rexx
+Ok:   18 ; 0.078000 ; 0 ; ../../Task/Accumulator-factory/REXX/accumulator-factory.rexx
+Ok:   22 ; 0.078000 ; 0 ; ../../Task/Active-Directory-Search-for-a-user/REXX/active-directory-search-for-a-user.rexx
+Ok:   24 ; 0.375000 ; 0 ; ../../Task/AKS-test-for-primes/REXX/aks-test-for-primes-1.rexx
+Ok:   26 ; 0.047000 ; 0 ; ../../Task/Align-columns/REXX/align-columns-1.rexx
+Ok:   34 ; 0.051000 ; 0 ; ../../Task/Amb/REXX/amb-2.rexx
+Ok:   45 ; 0.047000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-6.rexx
+Ok:   49 ; 0.047000 ; 0 ; ../../Task/Append-a-record-to-the-end-of-a-text-file/REXX/append-a-record-to-the-end-of-a-text-file.rexx
+Ok:   53 ; 0.047000 ; 0 ; ../../Task/Arena-storage-pool/REXX/arena-storage-pool.rexx
+Ok:   59 ; 7.191000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-3.rexx
+Ok:   62 ; 0.031000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-1.rexx
+Ok:   63 ; 0.047000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-2.rexx
+Ok:   65 ; 0.047000 ; 0 ; ../../Task/Arrays/REXX/arrays-1.rexx
+Ok:   66 ; 0.046000 ; 0 ; ../../Task/Arrays/REXX/arrays-2.rexx
+Ok:   67 ; 0.047000 ; 0 ; ../../Task/Arrays/REXX/arrays-3.rexx
+Ok:   68 ; 0.047000 ; 0 ; ../../Task/Arrays/REXX/arrays-4.rexx
+Ok:   69 ; 0.047000 ; 0 ; ../../Task/Arrays/REXX/arrays-5.rexx
+Ok:   70 ; 0.031000 ; 0 ; ../../Task/Arrays/REXX/arrays-6.rexx
+Ok:   71 ; 0.062000 ; 0 ; ../../Task/Assertions/REXX/assertions.rexx
+Ok:   72 ; 0.047000 ; 0 ; ../../Task/Associative-array-Creation/REXX/associative-array-creation-1.rexx
+Ok:   73 ; 0.047000 ; 0 ; ../../Task/Associative-array-Creation/REXX/associative-array-creation-2.rexx
+Ok:   78 ; 0.032000 ; 0 ; ../../Task/Averages-Mean-time-of-day/REXX/averages-mean-time-of-day.rexx
+Ok:   81 ; 0.047000 ; 0 ; ../../Task/Averages-Mode/REXX/averages-mode-2.rexx
+Ok:   86 ; 0.047000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-2.rexx
+Ok:  101 ; 0.047000 ; 0 ; ../../Task/Binary-strings/REXX/binary-strings.rexx
+Ok:  103 ; 0.104000 ; 0 ; ../../Task/Bitmap/REXX/bitmap-2.rexx
+Ok:  105 ; 0.047000 ; 0 ; ../../Task/Bitmap-Bresenhams-line-algorithm/REXX/bitmap-bresenhams-line-algorithm-2.rexx
+Ok:  108 ; 0.047000 ; 0 ; ../../Task/Bitmap-Write-a-PPM-file/REXX/bitmap-write-a-ppm-file.rexx
+Ok:  109 ; 0.047000 ; 0 ; ../../Task/Bitwise-IO/REXX/bitwise-io.rexx
+Ok:  111 ; 0.047000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-1.rexx
+Ok:  112 ; 0.047000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-2.rexx
+Ok:  113 ; 0.047000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-3.rexx
+Ok:  114 ; 0.031000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-4.rexx
+Ok:  116 ; 0.047000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-6.rexx
+Ok:  120 ; 0.062000 ; 0 ; ../../Task/Bulls-and-cows/REXX/bulls-and-cows-2.rexx
+
+================================================================================
+Summary Skip
+================================================================================
+Skip:   17 ; 0 ; 0 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-3.rexx
+Skip:   23 ; 0 ; 0 ; Address-of-a-variable/address-of-a-variable.rexx
+Skip:   35 ; 0 ; 0 ; Amicable-pairs/amicable-pairs-1.rexx
+Skip:   51 ; 0 ; 0 ; Arbitrary-precision-integers--included-/arbitrary-precision-integers--included--1.rexx
+Skip:   52 ; 0 ; 0 ; Arbitrary-precision-integers--included-/arbitrary-precision-integers--included--2.rexx
+Skip:   61 ; 0 ; 0 ; Arithmetic-Rational/arithmetic-rational.rexx
+Skip:   75 ; 0 ; 0 ; Average-loop-length/average-loop-length.rexx
+Skip:   92 ; 0 ; 0 ; Best-shuffle/best-shuffle-2.rexx
+Skip:   93 ; 0 ; 0 ; Best-shuffle/best-shuffle-3.rexx
+Skip:   94 ; 0 ; 0 ; Best-shuffle/best-shuffle-4.rexx
+
+================================================================================
+Summary Ko
+================================================================================
+Ko:    1 ; 0.047000 ; -13 ; ../../Task/9-billion-names-of-God-the-integer/REXX/9-billion-names-of-god-the-integer.rexx
+Ko:    2 ; 0.062000 ; -13 ; ../../Task/24-game/REXX/24-game-1.rexx
+Ko:    3 ; 0.031000 ; -35 ; ../../Task/24-game-Solve/REXX/24-game-solve.rexx
+Ko:    5 ; 0.032000 ; -13 ; ../../Task/100-doors/REXX/100-doors-1.rexx
+Ko:    6 ; 0.046000 ; -13 ; ../../Task/100-doors/REXX/100-doors-2.rexx
+Ko:   12 ; 0.079000 ; -13 ; ../../Task/A+B/REXX/a+b-4.rexx
+Ko:   15 ; 0.047000 ; -13 ; ../../Task/Abundant,-deficient-and-perfect-number-classifications/REXX/abundant,-deficient-and-perfect-number-classifications-1.rexx
+Ko:   16 ; 0.047000 ; -13 ; ../../Task/Abundant,-deficient-and-perfect-number-classifications/REXX/abundant,-deficient-and-perfect-number-classifications-2.rexx
+Ko:   19 ; 0.031000 ; -13 ; ../../Task/Ackermann-function/REXX/ackermann-function-1.rexx
+Ko:   20 ; 0.047000 ; -13 ; ../../Task/Ackermann-function/REXX/ackermann-function-2.rexx
+Ko:   21 ; 0.047000 ; -13 ; ../../Task/Ackermann-function/REXX/ackermann-function-3.rexx
+Ko:   25 ; 0.047000 ; -13 ; ../../Task/AKS-test-for-primes/REXX/aks-test-for-primes-2.rexx
+Ko:   27 ; 0.046000 ; -35 ; ../../Task/Align-columns/REXX/align-columns-2.rexx
+Ko:   28 ; 0.047000 ; -35 ; ../../Task/Align-columns/REXX/align-columns-3.rexx
+Ko:   29 ; 0.047000 ; -13 ; ../../Task/Aliquot-sequence-classifications/REXX/aliquot-sequence-classifications.rexx
+Ko:   30 ; 0.032000 ; -13 ; ../../Task/Almost-prime/REXX/almost-prime-1.rexx
+Ko:   31 ; 0.046000 ; -13 ; ../../Task/Almost-prime/REXX/almost-prime-2.rexx
+Ko:   32 ; 0.047000 ; -13 ; ../../Task/Almost-prime/REXX/almost-prime.rexx
+Ko:   33 ; 0.047000 ; -13 ; ../../Task/Amb/REXX/amb-1.rexx
+Ko:   36 ; 0.031000 ; -13 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-2.rexx
+Ko:   37 ; 0.047000 ; -13 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-3.rexx
+Ko:   38 ; 0.047000 ; -13 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-4.rexx
+Ko:   39 ; 0.047000 ; -13 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-5.rexx
+Ko:   40 ; 0.047000 ; -13 ; ../../Task/Anagrams/REXX/anagrams-1.rexx
+Ko:   41 ; 0.031000 ; -13 ; ../../Task/Anagrams/REXX/anagrams-2.rexx
+Ko:   42 ; 0.032000 ; -13 ; ../../Task/Anagrams/REXX/anagrams-3.rexx
+Ko:   43 ; 0.047000 ; -35 ; ../../Task/Anagrams/REXX/anagrams-4.rexx
+Ko:   44 ; 0.046000 ; -35 ; ../../Task/Anagrams/REXX/anagrams-5.rexx
+Ko:   46 ; 0.047000 ; -13 ; ../../Task/Anagrams-Deranged-anagrams/REXX/anagrams-deranged-anagrams.rexx
+Ko:   47 ; 0.031000 ; -13 ; ../../Task/Anonymous-recursion/REXX/anonymous-recursion-1.rexx
+Ko:   48 ; 0.047000 ; -13 ; ../../Task/Anonymous-recursion/REXX/anonymous-recursion-2.rexx
+Ko:   50 ; 0.047000 ; -35 ; ../../Task/Apply-a-callback-to-an-array/REXX/apply-a-callback-to-an-array.rexx
+Ko:   54 ; 0.031000 ; -13 ; ../../Task/Arithmetic-Complex/REXX/arithmetic-complex.rexx
+Ko:   55 ; 0.031000 ; -13 ; ../../Task/Arithmetic-evaluation/REXX/arithmetic-evaluation.rexx
+Ko:   56 ; 0.047000 ; -13 ; ../../Task/Arithmetic-geometric-mean/REXX/arithmetic-geometric-mean.rexx
+Ko:   57 ; 0.047000 ; -35 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-1.rexx
+Ko:   58 ; 0.047000 ; -35 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-2.rexx
+Ko:   60 ; 0.062000 ; -13 ; ../../Task/Arithmetic-Integer/REXX/arithmetic-integer.rexx
+Ko:   64 ; 0.047000 ; -35 ; ../../Task/Array-concatenation/REXX/array-concatenation-3.rexx
+Ko:   74 ; 0.047000 ; -35 ; ../../Task/Associative-array-Iteration/REXX/associative-array-iteration.rexx
+Ko:   76 ; 0.047000 ; -13 ; ../../Task/Averages-Arithmetic-mean/REXX/averages-arithmetic-mean.rexx
+Ko:   77 ; 0.031000 ; -13 ; ../../Task/Averages-Mean-angle/REXX/averages-mean-angle.rexx
+Ko:   79 ; 0.047000 ; -13 ; ../../Task/Averages-Median/REXX/averages-median.rexx
+Ko:   80 ; 0.046000 ; -13 ; ../../Task/Averages-Mode/REXX/averages-mode-1.rexx
+Ko:   82 ; 0.063000 ; -13 ; ../../Task/Averages-Pythagorean-means/REXX/averages-pythagorean-means.rexx
+Ko:   83 ; 0.062000 ; -13 ; ../../Task/Averages-Root-mean-square/REXX/averages-root-mean-square.rexx
+Ko:   84 ; 0.032000 ; -13 ; ../../Task/Averages-Simple-moving-average/REXX/averages-simple-moving-average.rexx
+Ko:   85 ; 0.046000 ; -13 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-1.rexx
+Ko:   87 ; 0.047000 ; -13 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-3.rexx
+Ko:   88 ; 0.031000 ; -13 ; ../../Task/Balanced-ternary/REXX/balanced-ternary.rexx
+Ko:   89 ; 0.047000 ; -13 ; ../../Task/Benfords-law/REXX/benfords-law.rexx
+Ko:   90 ; 0.047000 ; -13 ; ../../Task/Bernoulli-numbers/REXX/bernoulli-numbers.rexx
+Ko:   91 ; 0.047000 ; -13 ; ../../Task/Best-shuffle/REXX/best-shuffle-1.rexx
+Ko:   95 ; 0.047000 ; -13 ; ../../Task/Binary-digits/REXX/binary-digits-1.rexx
+Ko:   96 ; 0.047000 ; -13 ; ../../Task/Binary-digits/REXX/binary-digits-2.rexx
+Ko:   97 ; 0.047000 ; -13 ; ../../Task/Binary-digits/REXX/binary-digits-3.rexx
+Ko:   98 ; 0.031000 ; -13 ; ../../Task/Binary-digits/REXX/binary-digits-4.rexx
+Ko:   99 ; 0.047000 ; -13 ; ../../Task/Binary-search/REXX/binary-search-1.rexx
+Ko:  100 ; 0.047000 ; -13 ; ../../Task/Binary-search/REXX/binary-search-2.rexx
+Ko:  102 ; 0.031000 ; -35 ; ../../Task/Bitmap/REXX/bitmap-1.rexx
+Ko:  104 ; 0.047000 ; -13 ; ../../Task/Bitmap-Bresenhams-line-algorithm/REXX/bitmap-bresenhams-line-algorithm-1.rexx
+Ko:  106 ; 0.047000 ; -13 ; ../../Task/Bitmap-Flood-fill/REXX/bitmap-flood-fill.rexx
+Ko:  107 ; 0.031000 ; -13 ; ../../Task/Bitmap-Midpoint-circle-algorithm/REXX/bitmap-midpoint-circle-algorithm.rexx
+Ko:  110 ; 0.046000 ; -13 ; ../../Task/Bitwise-operations/REXX/bitwise-operations.rexx
+Ko:  115 ; 0.047000 ; -13 ; ../../Task/Boolean-values/REXX/boolean-values-5.rexx
+Ko:  117 ; 0.047000 ; -13 ; ../../Task/Box-the-compass/REXX/box-the-compass.rexx
+Ko:  118 ; 0.047000 ; -13 ; ../../Task/Brownian-tree/REXX/brownian-tree.rexx
+Ko:  119 ; 0.062000 ; -35 ; ../../Task/Bulls-and-cows/REXX/bulls-and-cows-1.rexx
+Ko:  121 ; 0.063000 ; -13 ; ../../Task/Bulls-and-cows-Player/REXX/bulls-and-cows-player.rexx
+
+================================================================================
+Summary counters
+================================================================================
+Ok=42
+Skip=10
+Ko=69
+duration=13.049000
+
