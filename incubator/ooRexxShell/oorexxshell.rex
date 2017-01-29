@@ -268,7 +268,87 @@ main: procedure
 
 
 -------------------------------------------------------------------------------
-intro: procedure
+haltHandler:
+    .ooRexxShell~sayInfo("Halt disabled.")
+    return
+
+
+-------------------------------------------------------------------------------
+-- Remember: don't implement that as a procedure or routine or method !
+-- Moreover don't call it, you must jump to (signal) it...
+dispatchCommand:
+    call time('r') -- to see how long this takes
+    RC = 0
+    .ooRexxShell~error = .false
+    call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
+    if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .true
+    if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
+        signal interpretCommand -- don't call
+    else
+        signal addressCommand -- don't call
+
+    return_to_dispatchCommand:
+    if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
+    options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
+    call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
+    if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"))
+    if RC <> 0 & \.ooRexxShell~error then do
+        -- RC can be set by interpretCommand or by addressCommand
+        -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
+        .ooRexxShell~sayError("RC=" RC)
+    end
+    if RC <> 0 | .ooRexxShell~error then do
+        .ooRexxShell~sayInfo(.ooRexxShell~command)
+    end
+    if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
+        .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
+        if .ooRexxShell~isExtended then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
+    end
+    signal CONTINUE_REPL
+
+
+-------------------------------------------------------------------------------
+-- Remember: don't implement that as a procedure or routine or method !
+-- Any variable created by interpret would not be available to the next interpret,
+-- because not created in the same context.
+-- Moreover don't call it, you must jump to (signal) it...
+interpretCommand:
+    .ooRexxShell~command =  transformSource(.ooRexxShell~command)
+    if .ooRexxShell~traceDispatchCommand then do
+        .ooRexxShell~sayTrace("[interpret] command=" .ooRexxShell~command)
+    end
+    if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
+                                  else drop result
+    if .ooRexxShell~trapSyntax then signal on syntax name interpretError
+    if .ooRexxShell~trapLostdigits then signal on lostdigits
+    interpret .ooRexxShell~command
+    signal off syntax
+    signal off lostdigits
+    if var("result") then .ooRexxShell~lastResult = result -- backup current result
+                     else .ooRexxShell~dropLastResult
+    signal return_to_dispatchCommand
+
+    lostdigits:
+    interpretError:
+    .ooRexxShell~error = .true
+    signal return_to_dispatchCommand
+
+
+-------------------------------------------------------------------------------
+-- Remember: don't implement that as a procedure or routine or method !
+-- Moreover don't call it, you must jump to (signal) it...
+addressCommand:
+    address value .ooRexxShell~commandInterpreter
+    (.ooRexxShell~command)
+    address -- restore previous
+    signal return_to_dispatchCommand
+
+
+-------------------------------------------------------------------------------
+Helpers
+-------------------------------------------------------------------------------
+
+::routine intro
     parse version version
     .ooRexxShell~sayInfo
     .ooRexxShell~sayInfo(version)
@@ -277,7 +357,7 @@ intro: procedure
 
 
 -------------------------------------------------------------------------------
-prompt: procedure
+::routine prompt
     use strict arg currentAddress
     .color~select(.ooRexxShell~promptColor)
     say
@@ -291,7 +371,7 @@ prompt: procedure
 
 
 -------------------------------------------------------------------------------
-checkReadlineCapability: procedure
+::routine checkReadlineCapability
     -- Bypass a bug in official ooRexx which delegates to system() when the passed address is bash.
     -- The bug is that system() delegates to /bin/sh, and should be called only when the passed address is sh.
     -- Because of this bug, the readline procedure (which depends on bash) is not working and must be deactivated.
@@ -310,7 +390,7 @@ checkReadlineCapability: procedure
 
 
 -------------------------------------------------------------------------------
-readline: procedure
+::routine readline
     use strict arg prompt
     inputrx = ""
     RC = 0
@@ -409,7 +489,7 @@ readline: procedure
 -- and that command wouldn't work.
 -- With Regina, I could use ADDRESS SYSTEM, but there is no such generic environment
 -- in ooRexx (each platform has a different environment).
-systemAddress: procedure
+::routine systemAddress
     select
         when .platform~is("windows") then return "cmd"
         -- From here, calculated like SYSINITIALADDRESS in utilities\rexx\platform\unix\rexx.cpp
@@ -420,74 +500,7 @@ systemAddress: procedure
 
 
 -------------------------------------------------------------------------------
-haltHandler:
-    .ooRexxShell~sayInfo("Halt disabled.")
-    return
-
-
--------------------------------------------------------------------------------
--- Remember: don't implement that as a procedure or routine or method !
--- Moreover don't call it, you must jump to (signal) it...
-dispatchCommand:
-    call time('r') -- to see how long this takes
-    RC = 0
-    .ooRexxShell~error = .false
-    call rxqueue "set", .ooRexxShell~queueInitialName -- Reactivate the initial queue, for the command evaluation
-    if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .true
-    if .ooRexxShell~commandInterpreter~caselessEquals("ooRexx") then
-        signal interpretCommand -- don't call
-    else
-        signal addressCommand -- don't call
-
-    return_to_dispatchCommand:
-    if .ooRexxshell~securityManager~isEnabledByUser then .ooRexxShell~securityManager~isEnabled = .false
-    options "COMMANDS" -- Commands must be enabled for proper execution of ooRexxShell
-    call rxqueue "set", .ooRexxShell~queueName -- Back to the private ooRexxShell queue
-    if .ooRexxShell~error then .ooRexxShell~sayCondition(condition("O"))
-    if RC <> 0 & \.ooRexxShell~error then do
-        -- RC can be set by interpretCommand or by addressCommand
-        -- Not displayed in case of error, because the integer portion of Code already provides the same value as RC
-        .ooRexxShell~sayError("RC=" RC)
-    end
-    if RC <> 0 | .ooRexxShell~error then do
-        .ooRexxShell~sayInfo(.ooRexxShell~command)
-    end
-    if .ooRexxShell~isInteractive & .ooRexxShell~showInfos then do
-        .ooRexxShell~sayInfo("Duration:" time('e')) -- elapsed duration
-        if .ooRexxShell~isExtended then .ooRexxShell~sayInfo("#Coactivities:" .Coactivity~count) -- counter of coactivities
-    end
-    signal CONTINUE_REPL
-
-
--------------------------------------------------------------------------------
--- Remember: don't implement that as a procedure or routine or method !
--- Any variable created by interpret would not be available to the next interpret,
--- because not created in the same context.
--- Moreover don't call it, you must jump to (signal) it...
-interpretCommand:
-    .ooRexxShell~command =  transformSource(.ooRexxShell~command)
-    if .ooRexxShell~traceDispatchCommand then do
-        .ooRexxShell~sayTrace("[interpret] command=" .ooRexxShell~command)
-    end
-    if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
-                                  else drop result
-    if .ooRexxShell~trapSyntax then signal on syntax name interpretError
-    if .ooRexxShell~trapLostdigits then signal on lostdigits
-    interpret .ooRexxShell~command
-    signal off syntax
-    signal off lostdigits
-    if var("result") then .ooRexxShell~lastResult = result -- backup current result
-                     else .ooRexxShell~dropLastResult
-    signal return_to_dispatchCommand
-
-    lostdigits:
-    interpretError:
-    .ooRexxShell~error = .true
-    signal return_to_dispatchCommand
-
-
--------------------------------------------------------------------------------
-transformSource: procedure
+::routine transformSource
     use strict arg command
 
     signal on syntax name transformSourceError -- the clauser can raise an error
@@ -527,17 +540,7 @@ transformSource: procedure
 
 
 -------------------------------------------------------------------------------
--- Remember: don't implement that as a procedure or routine or method !
--- Moreover don't call it, you must jump to (signal) it...
-addressCommand:
-    address value .ooRexxShell~commandInterpreter
-    (.ooRexxShell~command)
-    address -- restore previous
-    signal return_to_dispatchCommand
-
-
--------------------------------------------------------------------------------
-dumpResult: procedure
+::routine dumpResult
     use strict arg hasValue, value
     if \hasValue then do
         say "[no result]"
@@ -555,8 +558,7 @@ dumpResult: procedure
 
 -------------------------------------------------------------------------------
 -- Load optional packages/libraries
--- Remember: don't implement that as a procedure or routine or method !
-loadOptionalComponents:
+::routine loadOptionalComponents
     if .platform~is("windows") then do
         call loadPackage("oodialog.cls")
         call loadPackage("winsystm.cls")
@@ -596,8 +598,7 @@ loadOptionalComponents:
 
 
 -------------------------------------------------------------------------------
--- Remember: don't implement that as a procedure or routine or method !
-loadPackage:
+::routine loadPackage
     use strict arg filename, silent=.false
     signal on syntax name loadPackageError
     .context~package~loadPackage(filename)
@@ -609,8 +610,7 @@ loadPackage:
 
 
 -------------------------------------------------------------------------------
--- Remember: don't implement that as a procedure or routine or method !
-loadLibrary:
+::routine loadLibrary
     use strict arg filename
     signal on syntax name loadLibraryError
     if .context~package~loadLibrary(filename) then do
@@ -1091,7 +1091,7 @@ loadLibrary:
 
 
 ::method unknown
-    -- I assume that you used often the environment symbols .true, .false, .nil ?
+    -- I assume that you often use the environment symbols .true, .false, .nil ?
     -- I assume that you often create instances of predefined classes like .array, .list, .directory, etc... ?
     -- If you are curious, then activate the following lines.
     -- You will see that each access to the global .environment will raise two messages sent to the security manager:
