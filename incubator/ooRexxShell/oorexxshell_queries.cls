@@ -208,7 +208,7 @@ loadPackage:
 
 
 -------------------------------------------------------------------------------
-::class "ClassInfoQuery" public
+::class "QueryManager" public
 -------------------------------------------------------------------------------
 
 ::method displayClasses class
@@ -521,8 +521,97 @@ loadPackage:
     say "    col 1: P=Public"
 
 
+::constant separators ": ~ @ |"
+
+
+::attribute classRoutineFilters     -- array of Argument
+::attribute defaultEntityFilters    -- array of Argument
+::attribute methodFilters           -- array of Argument
+::attribute packageFilters          -- array of Argument
+::attribute query                   -- string : the first token of the whole string. For example : "classes", "methods", "packages" etc... see dispatchHelp
+::attribute queryFilterArgs         -- array of Argument : the whole string splitted in Arguments
+::attribute streamFilters           -- array of Argument
+
+
+::method init
+    use strict arg queryFilter, string2args
+    /*
+    queryFilter is a string like "QueryWord PackageFilters : ClassRoutineFilters ~ MethodFilters | StreamFilter"
+    where :
+        - the filters are optional. See the class Filtering for the syntax.
+        - the separators between entities (package, class, method) are optional.
+        - when no separator then the filters are for the default entity of the query.
+        - the sequence of separators is always ":" "~" "|".
+        - a separator cannot appear several times.
+        - If a StreamFilter is provided, then it must be always preceded by "|" (otherwise the filter would be associated to the default entity).
+    */
+    self~query = .nil
+    self~defaultEntityFilters = .array~new
+    self~packageFilters = .array~new
+    self~classRoutineFilters = .array~new
+    self~methodFilters = .array~new
+    self~streamFilters = .array~new
+
+    entityLeft = .directory~new
+    entityLeft[":"] = "package"
+    entityLeft["~"] = "classRoutine"
+    entityLeft["|"] = "" -- no impact on the entity
+
+    entityRight = .directory~new
+    entityRight[":"] = "classRoutine"
+    entityRight["~"] = "method"
+    entityRight["|"] = "stream"
+
+    currentEntity = "defaultEntity"
+
+    separatorsAlreadySeen = .set~new
+
+    self~queryFilterArgs = string2args~call(queryFilter, /*withInfos*/ .true, /*breakTokens*/ .Filter~operators .QueryManager~separators)
+    do arg over self~queryFilterArgs
+        if self~query == .nil then self~query = arg -- the first arg is the query
+        else do
+            entity = entityLeft[arg~string]
+            if .nil <> entity then do
+                separator = arg~string
+                if separatorsAlreadySeen~hasIndex(separator) then raise syntax 93.900 array("Separator" separator "used more than once")
+                separatorsAlreadySeen~put(separator)
+                if currentEntity == "defaultEntity" then do
+                    if entity <> "" then do
+                        self~send(entity"Filters=", self~defaultEntityFilters) -- assign the default entity filters to the entity on the left of the separator
+                        self~defaultEntityFilters = .array~new -- no more default entity filters
+                    end
+                end
+                currentEntity = entityRight[separator] -- the next filters will be associated to the entity on the right of the separator
+            end
+            else self~send(currentEntity"Filters") ~ append(arg)
+        end
+    end
+
+
+::method dump
+    use strict arg displayer
+
+    displayer~sayInfo
+    displayer~sayInfo("query =" self~query)
+
+    displayer~sayInfo("defaultEntityFilters =")
+    displayer~sayCollection(self~defaultEntityFilters)
+
+    displayer~sayInfo("packageFilters =")
+    displayer~sayCollection(self~packageFilters)
+
+    displayer~sayInfo("classRoutineFilters =")
+    displayer~sayCollection(self~classRoutineFilters)
+
+    displayer~sayInfo("methodFilters =")
+    displayer~sayCollection(self~methodFilters)
+
+    displayer~sayInfo("streamFilters =")
+    displayer~sayCollection(self~streamFilters)
+
+
 -------------------------------------------------------------------------------
--- Helpers for ClassInfoQuery
+-- Helpers for QueryManager
 -------------------------------------------------------------------------------
 
 ::routine methodInfos public
@@ -575,6 +664,7 @@ loadPackage:
 ::constant StrictEqual          2
 ::constant CaselessDifferent    3
 ::constant CaselessEqual        4
+::constant Operators            "= <> == \=="
 
 ::method parse class
     -- "=something"     not recognized as filter operator, because is quoted
@@ -587,13 +677,13 @@ loadPackage:
     if operator("=", self~CaselessEqual) then return filter
     return self~new(0, arg) -- no operator
 
-    operator: procedure expose arg filter
+    operator: procedure expose arg filter self
         use strict arg operatorString, operatorCode
         left = arg~left(operatorString~length)
         if left~string <> operatorString then return .false
         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
         argument = arg~substr(operatorString~length + 1)
-        filter = .Filter~new(operatorCode, argument)
+        filter = self~new(operatorCode, argument)
         return .true
 
 
@@ -606,7 +696,7 @@ loadPackage:
 
 
 -------------------------------------------------------------------------------
-::class "FilteringStream" public
+::class "Filtering" private
 -------------------------------------------------------------------------------
 
 ::method firstFilterIndex class
@@ -621,15 +711,10 @@ loadPackage:
     return 0
 
 
-::attribute valid
-::attribute interceptedDestination
 ::attribute strictInclude
 ::attribute strictExclude
 ::attribute caselessInclude
 ::attribute caselessExclude
-::attribute lineCount
-::attribute stringbuffer
-::attribute doBeforeNextLine -- doer triggered once, only if at least one line is displayed
 
 
 ::method init
@@ -642,15 +727,11 @@ loadPackage:
     -- A value can be a string surrounded by quotes
 
     -- filters is an array of Argument
-    use strict arg destination, filters
-    self~valid = .false -- Will become .true at the end, if no error
-    self~interceptedDestination = destination
+    use strict arg filters
     self~strictExclude = .array~new
     self~strictInclude = .array~new
     self~caselessExclude = .array~new
     self~caselessInclude = .array~new
-    self~lineCount = 0
-    self~stringbuffer = .mutablebuffer~new
     currentOperator = .Filter~CaselessEqual
     do filter over filters
         filter = .Filter~parse(filter)
@@ -665,8 +746,6 @@ loadPackage:
             else if currentOperator == .filter~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
         end
     end
-    self~doBeforeNextLine = .nil
-    self~valid = .true
 
 
 ::method traceFilter
@@ -699,8 +778,6 @@ loadPackage:
 
 
 ::method select
-    if \self~valid then return .false
-
     use strict arg string
 
     -- Empty lines are not filtered
@@ -725,6 +802,26 @@ loadPackage:
         if matcher~(string) then return .true
     end
     return .false
+
+
+-------------------------------------------------------------------------------
+::class "FilteringStream" public subclass "Filtering"
+-------------------------------------------------------------------------------
+
+::attribute interceptedDestination
+::attribute lineCount
+::attribute stringbuffer
+::attribute doBeforeNextLine -- doer triggered once, only if at least one line is displayed
+
+
+::method init
+    -- filters is an array of Argument
+    use strict arg destination, filters
+    self~init:super(filters)
+    self~interceptedDestination = destination
+    self~lineCount = 0
+    self~stringbuffer = .mutablebuffer~new
+    self~doBeforeNextLine = .nil
 
 
 ::method charOut
@@ -792,8 +889,9 @@ loadPackage:
 ::routine pattern2matcher public
     -- Pattern matching by equality (whole) or by inclusion (not whole), caseless or not.
     -- If the package regex.cls is loaded, then the pattern can be a regular expression prefixed by "/".
-    -- When whole, and the pattern is not a regular expression, then the charecter "*" is recognized
-    -- as a generic character when first or last character.
+    -- When whole, and the pattern is not a regular expression, then the charecter "*" is recognized as a generic character when first or last character.
+    -- When not whole, and the pattern is not a regular expression, then the character "^" is recognized as the metacharacter 'begining of string' when first character.
+    -- When not whole, and the pattern is not a regular expression, then the character "$" is recognized as the metacharacter 'end of string' when last character.
     -- The returned result is a block (matcher) which implements the pattern matching, or .nil if error.
     -- The pattern matching is tested when the block is evaluated with a string passed as argument.
     -- Examples:
@@ -847,29 +945,53 @@ loadPackage:
         -- the pattern remains a string
         leftStar = \firstCharIsQuoted & stringPattern~left(1) == "*"
         rightStar = \lastCharIsQuoted & stringPattern~right(1) == "*"
-        if leftStar & rightStar then do
-            if stringPattern~length <= 2 then stringPattern = "" -- "*" or "**" --> ""
-            else stringPattern = stringPattern~substr(2, stringPattern~length - 2) -- "*...*" --> "..."
+        leftCaret = \firstCharIsQuoted & stringPattern~left(1) == "^"
+        rightDollar = \lastCharIsQuoted & stringPattern~right(1) == "$"
+        if (leftStar & rightStar) | (leftCaret & rightDollar) then do
+            if stringPattern~length <= 2 then stringPattern = "" -- "*" or "**" or "^" or "$" or "^$"--> ""
+            else stringPattern = stringPattern~substr(2, stringPattern~length - 2) -- "*...*" or "^...$" --> "..."
         end
-        else if leftStar then stringPattern = stringPattern~substr(2)
-        else if rightStar then stringPattern = stringPattern~left(stringPattern~length - 1)
+        else if leftStar | leftCaret then stringPattern = stringPattern~substr(2)
+        else if rightStar | rightDollar then stringPattern = stringPattern~left(stringPattern~length - 1)
 
         if stringPattern == "" then return {expose description; return .true}
-        else if wholeString & \leftStar & \rightStar then do
-            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
-            else             matcher = {expose description stringPattern; use strict arg string; return string~equals(stringPattern)}
+        else if wholeString then do
+            -- leftCaret and rightDollar have no impact
+            if \leftStar & \rightStar then do
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~equals(stringPattern)}
+            end
+            else if \leftStar & rightStar then do
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~caselessEquals(stringPattern)}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~equals(stringPattern)}
+            end
+            else if leftStar & \rightStar then do
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~equals(stringPattern)}
+            end
+            else do -- leftStar & rightStar
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
+            end
         end
-        else if wholeString & \leftStar & rightStar then do
-            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~caselessEquals(stringPattern)}
-            else             matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~equals(stringPattern)}
-        end
-        else if wholeString & leftStar & \rightStar then do
-            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)}
-            else             matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~equals(stringPattern)}
-        end
-        else do -- \wholeString | (leftStar & rightStar)
-            if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
-            else             matcher = {expose description stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
+        else do -- \wholeString
+            -- leftStar and rightStar have no impact
+            if \leftCaret & \rightDollar then do
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessPos(stringPattern) <> 0}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~pos(stringPattern) <> 0}
+            end
+            else if \leftCaret & rightDollar then do
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~caselessEquals(stringPattern)}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~right(stringPattern~length)~equals(stringPattern)}
+            end
+            else if leftCaret & \rightDollar then do
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~caselessEquals(stringPattern)}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~left(stringPattern~length)~equals(stringPattern)}
+            end
+            else do -- leftCarret & rightDollar
+                if caseless then matcher = {expose description stringPattern; use strict arg string; return string~caselessEquals(stringPattern)}
+                else             matcher = {expose description stringPattern; use strict arg string; return string~equals(stringPattern)}
+            end
         end
     end
     if displayer <> .nil, displayer~traceFilter then call traceMatcher matcher, displayer, prefix

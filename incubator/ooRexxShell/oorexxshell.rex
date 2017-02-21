@@ -69,7 +69,7 @@ HostEmu[ooRexx]> exit                               -- the exit command is suppo
 -- Use a security manager to trap the calls to the systemCommandHandler:
 -- Windows: don't call directly CreateProcess, to avoid loss of doskey history (prepend "cmd /c")
 -- Unix: support aliases (prepend "bash -O expand_aliases -c")
-.ooRexxShell~securityManager = .securityManager~new -- make it accessible from command line
+.ooRexxShell~securityManager = .SecurityManager~new -- make it accessible from command line
 shell = .context~package~findRoutine("SHELL")
 shell~setSecurityManager(.ooRexxShell~securityManager)
 
@@ -467,8 +467,9 @@ Helpers
         end
         otherwise do
             call charout ,prompt
+            queue_or_stdin = queued() <> 0 | lines() <> 0
             parse pull inputrx -- Input queue or standard input or keyboard.
-            --if .ooRexxShell~isInteractive then say inputrx
+            if .ooRexxShell~isInteractive & queue_or_stdin then say inputrx -- display the input only if coming from queue or from stdin
         end
     end
     if .ooRexxShell~traceReadline then do
@@ -586,7 +587,7 @@ Helpers
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
     if .ooRexxShell~isExtended then do
-        call loadPackage("oorexxshell_queries.cls")
+        .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
         -- regex.cls use the method .String~contains which is available only from ooRexx v5.
@@ -632,6 +633,7 @@ Helpers
 ::attribute commandInterpreter class -- The current interpreter, can be the first word of inputrx, or the default interpreter
 ::attribute error class -- Will be .true if the last command raised an error
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
+::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute historyFile class
@@ -673,10 +675,14 @@ Helpers
 
 ::method init class
     self~debug = .false
+    self~error = .false
     self~hasBsf = .false
+    self~hasQueries = .false
     self~hasRegex = .false
     self~hasRgfUtil2 = .false
     self~isExtended = .false
+    self~isInteractive = .false
+    self~readline = .false
     self~traceReadline = .false
     self~traceDispatchCommand = .false
     self~traceFilter = .false
@@ -706,6 +712,11 @@ Helpers
 ::method dropLastResult class
     expose lastResult
     drop lastResult
+
+
+---------------
+-- Displayer --
+---------------
 
 
 ::method sayInfo class
@@ -760,27 +771,57 @@ Helpers
     return count pluralText
 
 
+----------
+-- Help --
+----------
+
+
 ::method help class
-    use strict arg queryFilter
-    queryFilterArgs = string2args(queryFilter, .true) -- true: array of Argument
-    queryArgs = queryFilterArgs
-    filteringStream = .nil
-    signal on syntax name helpError -- trap regular expression errors
-    if .filteringStream~isa(.class) then do
-        filterArgs = .array~new -- no filter by default (but will allow to display the lineCount)
-        -- filter specified in the query ?
-        firstFilterIndex = .filteringStream~firstFilterIndex(queryFilterArgs)
-        if firstFilterIndex <> 0 then do
-            -- 2 sections : the query and the filter
-            queryArgs = queryFilterArgs~section(1, firstFilterIndex - 1)
-            filterArgs = queryFilterArgs~section(firstFilterIndex)
-        end
-        filteringStream = .filteringStream~new(.output~current, filterArgs)
-        if \filteringStream~valid then return -- Syntax error in regular expression
-        if .ooRexxShell~traceFilter then filteringStream~traceFilter(self)
-        .output~destination(filteringStream)
+    use strict arg queryFilter -- the string after '?'
+    debugQuery = .false
+    if queryFilter~left(1) == "?" then do
+        -- If another "?" after the first "?" then we enter in debug mode (query analyzed and dumped but not executed)
+        debugQuery = .true
+        queryFilter = queryFilter~substr(2) -- skip the second "?"
     end
+    if .ooRexxShell~hasQueries then do
+        .ooRexxShell~helpWithQueries(queryFilter, debugQuery)
+    end
+    else do
+        .ooRexxShell~helpNoQueries(queryFilter, debugQuery)
+    end
+
+
+::method helpWithQueries class
+    use strict arg queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
+
+    filteringStream = .nil
+
+    signal on syntax name helpError -- trap the exceptions that could be raised by the query manager
+
+    queryManager = .QueryManager~new(queryFilter, .routines~string2args)
+    if debugQueryFilter then do
+        queryManager~dump(self)
+        return
+    end
+
+    filterArgs = .array~new -- no filter by default (but will allow to display the lineCount)
+    -- filter specified in the query ?
+    firstFilterIndex = .filteringStream~firstFilterIndex(queryManager~queryFilterArgs)
+    if firstFilterIndex <> 0 then do
+        -- 2 sections : the query and the filter
+        queryArgs = queryManager~queryFilterArgs~section(1, firstFilterIndex - 1)
+        filterArgs = queryManager~queryFilterArgs~section(firstFilterIndex)
+    end
+    else do
+        queryArgs = queryManager~queryFilterArgs
+    end
+    filteringStream = .filteringStream~new(.output~current, filterArgs)
+    if .ooRexxShell~traceFilter then filteringStream~traceFilter(self)
+    .output~destination(filteringStream)
+
     .ooRexxShell~dispatchHelp(queryFilter, queryArgs, filteringStream)
+
     if filteringStream <> .nil then do
         filteringStream~flush
         .output~destination -- restore the previous destination
@@ -796,25 +837,19 @@ Helpers
     .ooRexxShell~sayCondition(condition("O"))
 
 
+::method helpNoQueries class
+    use strict arg queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
+    queryFilterArgs = string2args(queryFilter, .true) -- true: array of Argument
+    if debugQueryFilter then do
+        self~displayCollection(queryFilterArgs)
+        return
+    end
+    .ooRexxShell~dispatchHelp(queryFilter, queryFilterArgs)
+
 
 ::method dispatchHelp class
-    use strict arg queryFilter, queryArgs, filteringStream
+    use strict arg queryFilter, queryArgs, filteringStream=.nil
     if queryArgs[1] == .nil then do
-        say "Help:"
-        say "    ?: display help."
-        say "    ?c[lasses] c1 c2... : display classes."
-        say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm)."
-        say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi)."
-        say "    ?d[ocumentation]: invoke ooRexx documentation."
-        say "    ?f[lags]: describe the flags displayed for classes & methods & routines."
-        say "    ?h[elp] c1 c2 ... : local description of classes."
-        say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi)."
-        say "    ?i[nterpreters]: interpreters that can be selected."
-        say "    ?m[ethods] method1 method2 ... : display methods."
-        say "    ?p[ackages]: display the loaded packages."
-        say "    ?r[outines] routine1 routine2... : display routines."
-        say "    To display the source of methods, packages or routines: add the option .s[ource]."
-        say "        Short: ?cms, ?cmis, ?ms, ?ps, ?rs."
         .ooRexxShell~helpCommands
         return
     end
@@ -824,15 +859,15 @@ Helpers
     parse var word1 subword1 "." rest1
     rest = queryArgs~section(2)
 
-    if "classes"~caselessAbbrev(subword1) then do
+    if "classes"~caselessAbbrev(subword1,1) then do
         methods = .false
         inherited = .false
         source = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
-            if "methods"~caselessAbbrev(first1) then methods = .true
-            else if "inherited"~caselessAbbrev(first1) then inherited = .true
-            else if "source"~caselessAbbrev(first1) then source = .true
+            if "methods"~caselessAbbrev(first1,1) then methods = .true
+            else if "inherited"~caselessAbbrev(first1,1) then inherited = .true
+            else if "source"~caselessAbbrev(first1,1) then source = .true
             else do
                 .ooRexxShell~sayError("Expected 'methods' or 'inherited' or 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
                 return
@@ -849,15 +884,15 @@ Helpers
     else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .false, filteringStream)
     else if "cmis"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .true, filteringStream)
 
-    else if "documentation"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpDocumentation
+    else if "documentation"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpDocumentation
 
-    else if "flags"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpFlags
+    else if "flags"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpFlags
 
-    else if "help"~caselessAbbrev(subword1) then do
+    else if "help"~caselessAbbrev(subword1,1) then do
         inherited = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
-            if "inherited"~caselessAbbrev(first1) then inherited = .true
+            if "inherited"~caselessAbbrev(first1,1) then inherited = .true
             else do
                 .ooRexxShell~sayError("Expected 'inherited' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
                 return
@@ -869,13 +904,13 @@ Helpers
     -- For convenience... hi is shorter than h.i
     else if "hi"~caselessEquals(word1) then .ooRexxShell~helpHelp(rest, .true)
 
-    else if "interpreters"~caselessAbbrev(word1) & rest~isEmpty then .ooRexxShell~helpInterpreters
+    else if "interpreters"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpInterpreters
 
-    else if "methods"~caselessAbbrev(word1) then do
+    else if "methods"~caselessAbbrev(word1,1) then do
         source = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
-            if "source"~caselessAbbrev(first1) then source = .true
+            if "source"~caselessAbbrev(first1,1) then source = .true
             else do
                 .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
                 return
@@ -887,11 +922,11 @@ Helpers
     -- For convenience... ms is shorter than m.s
     else if "ms"~caselessEquals(word1) then .ooRexxShell~helpMethods(rest, .true)
 
-    else if "packages"~caselessAbbrev(word1) then do
+    else if "packages"~caselessAbbrev(word1,1) then do
         source = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
-            if "source"~caselessAbbrev(first1) then source = .true
+            if "source"~caselessAbbrev(first1,1) then source = .true
             else do
                 .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
                 return
@@ -903,11 +938,11 @@ Helpers
     -- For convenience... ps is shorter than p.s
     else if "ps"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .true)
 
-    else if "routines"~caselessAbbrev(word1) then do
+    else if "routines"~caselessAbbrev(word1,1) then do
         source = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
-            if "source"~caselessAbbrev(first1) then source = .true
+            if "source"~caselessAbbrev(first1,1) then source = .true
             else do
                 .ooRexxShell~sayError("Expected 'source' after" quoted(subword1".") "in" quoted(word1)". Got" quoted(first1))
                 return
@@ -922,21 +957,22 @@ Helpers
     else .ooRexxShell~sayError("Query not understood:" queryFilter)
 
 
-::method helpClasses class
-    -- All or specified classes (public & private) that are visible from current context, with their package
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    use strict arg classnames
-    .classInfoQuery~displayClasses(classnames, self, .context)
-
-
-::method helpClassMethods class
-    -- Display the methods of each specified class
-    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    use strict arg classnames, inherited, displaySource, filteringStream
-    .classInfoQuery~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
-
-
 ::method helpCommands class
+    say "Help:"
+    say "    ?: display help."
+    say "    ?c[lasses] c1 c2... : display classes."
+    say "    ?c[lasses].m[ethods] c1 c2... : display local methods per classes (cm)."
+    say "    ?c[lasses].m[ethods].i[nherited] c1 c2... : local & inherited methods (cmi)."
+    say "    ?d[ocumentation]: invoke ooRexx documentation."
+    say "    ?f[lags]: describe the flags displayed for classes & methods & routines."
+    say "    ?h[elp] c1 c2 ... : local description of classes."
+    say "    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi)."
+    say "    ?i[nterpreters]: interpreters that can be selected."
+    say "    ?m[ethods] method1 method2 ... : display methods."
+    say "    ?p[ackages]: display the loaded packages."
+    say "    ?r[outines] routine1 routine2... : display routines."
+    say "    To display the source of methods, packages or routines: add the option .s[ource]."
+    say "        Short: ?cms, ?cmis, ?ms, ?ps, ?rs."
     .ooRexxShell~helpInterpreters
     say "Other commands:"
     say "    bt: display the backtrace of the last error (same as tb)."
@@ -956,6 +992,22 @@ Helpers
     say "    trapoff [l[ostdigits]] [s[yntax]]: deactivate the conditions traps."
     say "    trapon  [l[ostdigits]] [s[yntax]]: activate the conditions traps."
     say "Input queue name:" .ooRexxShell~queueName
+
+
+::method helpClasses class
+    -- All or specified classes (public & private) that are visible from current context, with their package
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
+    use strict arg classnames
+    .QueryManager~displayClasses(classnames, self, .context)
+
+
+::method helpClassMethods class
+    -- Display the methods of each specified class
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
+    use strict arg classnames, inherited, displaySource, filteringStream
+    .QueryManager~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
 
 
 ::method helpDocumentation class
@@ -984,13 +1036,15 @@ Helpers
 
 ::method helpFlags class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
-    .classInfoQuery~displayFlags
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
+    .QueryManager~displayFlags
 
 
 ::method helpHelp class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames, inherited
-    .classInfoQuery~displayHelp(classnames, inherited, self, .context)
+    .QueryManager~displayHelp(classnames, inherited, self, .context)
 
 
 ::method helpInterpreters class
@@ -1003,22 +1057,30 @@ Helpers
 ::method helpMethods class
     -- Display the defining classes of each specified method
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg methodnames, displaySource
-    .classInfoQuery~displayMethods(methodnames, displaySource, self, .context)
+    .QueryManager~displayMethods(methodnames, displaySource, self, .context)
 
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg packageNames, displaySource
-    .classInfoQuery~displayPackages(packageNames, displaySource, self, .context)
+    .QueryManager~displayPackages(packageNames, displaySource, self, .context)
 
 
 ::method helpRoutines class
     -- Display the defining package of each specified routine
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg routinenames, displaySource
-    .classInfoQuery~displayRoutines(routinenames, displaySource, self, .context)
+    .QueryManager~displayRoutines(routinenames, displaySource, self, .context)
+
+
+-----------
+-- Other --
+-----------
 
 
 ::method trace class
@@ -1054,7 +1116,7 @@ Helpers
 
 
 -------------------------------------------------------------------------------
-::class securityManager
+::class SecurityManager
 -------------------------------------------------------------------------------
 -- Under the control of the user:
 
@@ -1113,8 +1175,8 @@ Helpers
     if isEnabled then status = "enabled" ; else status = "disabled"
 
     if self~traceCommand then do
-        .ooRexxShell~sayTrace("[securityManager ("status")] address=" info~address)
-        .ooRexxShell~sayTrace("[securityManager ("status")] command=" info~command)
+        .ooRexxShell~sayTrace("[SecurityManager ("status")] address=" info~address)
+        .ooRexxShell~sayTrace("[SecurityManager ("status")] command=" info~command)
     end
 
     if \ isEnabled then return 0 -- delegate to system
@@ -1149,8 +1211,10 @@ Helpers
         -- But I don't want it for the commands directly managed by the systemCommandHandler.
         if command~caselessPos("set ") == 1, command~substr(5)~strip~pos("=") > 1 then return command -- variable assignment: "set <nospace>="
         if command~caselessPos("cd ") == 1 then return command -- change directory
-        if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return command -- change drive
+        --if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return command -- change drive
+        if isDriveLetter(command) then return command -- change drive
         args = string2args(command)
+        if .nil == args[1] then return command
         if args[1]~caselessEquals("cmd") then return command -- already prefixed by "cmd ..."
         if args[1]~caselessEquals("start") then return command -- already prefixed by "start ..."
         exepath = .platform~which(args[1])
@@ -1638,6 +1702,26 @@ Other change in gci_convert.win32.vc, to support 64 bits:
 
 
 -------------------------------------------------------------------------------
+::CLASS 'LengthComparator' MIXINCLASS Object public
+-------------------------------------------------------------------------------
+
+::method init
+    expose direction
+    use strict arg criteria="ascending"
+    select
+        when "ascending"~caselessAbbrev(criteria, 1) then direction = 1
+        when "descending"~caselessAbbrev(criteria, 1) then direction = -1
+        otherwise raise syntax 93.900 array("LengthComparator: invalid criteria" criteria)
+    end
+
+
+::method compare
+    expose direction
+    use strict arg left, right
+    return direction * sign(left~length - right~length)
+
+
+-------------------------------------------------------------------------------
 ::class Argument
 -------------------------------------------------------------------------------
 
@@ -1687,6 +1771,7 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     -- Converts a string to an array of arguments.
     -- Arguments are separated by whitespaces (anything <= 32) and can be quoted.
     -- An argument can be made of several quoted chunks. Ex : aa"bb"cc"dd"ee
+    -- An unquoted chunk can be splitted in several parts, if it contains a break token.
     -- If withInfos == .false then the result is an array of String.
     -- If withInfos == .true then the result is an array of Argument.
 
@@ -1699,8 +1784,9 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     -- arg2 = |good bye John|               containerStart = 28      containerEnd = 42      quotedFlags = 0000111110000
     -- arg3 = |my name is "BOND"|           containerStart = 44      containerEnd = 64      quotedFlags = 11111111111111111
 
-    use strict arg string, withInfos=.false
+    use strict arg string, withInfos=.false, breakTokens=""
 
+    breakTokens = breakTokens~subwords~sortWith(.LengthComparator~new("d")) -- sort descending, from longer to shorter
     args = .Array~new
     i = 1
 
@@ -1715,12 +1801,13 @@ Other change in gci_convert.win32.vc, to support 64 bits:
         current = .MutableBuffer~new
         quotedFlags = .MutableBuffer~new
         firstCharPosition = i
+        breakTokenLength = 0 -- will receive the length of the break token, if a break token starts at current position i.
         loop label current_argument
             c = string~subchar(i)
             quote = ""
             if c == '"' | c == "'" then quote = c
             if quote <> "" then do
-                -- Chunk surrounded by quotes: whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote
+                -- Chunk surrounded by quotes: whitespaces are kept, double occurrence of quotes are replaced by a single embedded quote, break tokens are ignored
                 loop label quoted_chunk
                     i += 1
                     if i > string~length then return args~~append(result())
@@ -1741,22 +1828,41 @@ Other change in gci_convert.win32.vc, to support 64 bits:
                     end
                 end quoted_chunk
             end
+            if breakTokenLength == 0 then breakTokenLength = breakTokenLength() -- check if we have a break token at current position i
+            if breakTokenLength <> 0 then do
+                if current~length <> 0 then args~append(result())
+                -- Now creates an Argument for the break token
+                current = string~substr(i, breakTokenLength)
+                quotedFlags = 0~copies(breakTokenLength) -- The break tokens are detected only in unquoted chunks
+                firstCharPosition = i
+                i += breakTokenLength
+                args~append(result())
+                leave current_argument
+            end
             if string~subchar(i) <= " " then do
                 args~append(result())
                 leave current_argument
             end
-            -- Chunk not surrounded by quotes: ends when a whitespace or quote is reached
-            loop
+            -- Chunk not surrounded by quotes: ends when a whitespace or quote or break token is reached
+            loop label unquoted_chunk
                 if i > string~length then return args~~append(result())
                 c = string~subchar(i)
-                if c <= " " | c == '"' | c == "'" then leave
+                breakTokenLength = breakTokenLength()
+                if c <= " " | c == '"' | c == "'" | breakTokenLength <> 0 then leave unquoted_chunk
                 current~append(c)
                 quotedFlags~append("0")
                 i += 1
-            end
+            end unquoted_chunk
         end current_argument
     end arguments
     return args
+
+    breakTokenLength:
+        -- Assumption : the collection breakTokens is an ordered collection sorted from longest to shortest token
+        do breakToken over breakTokens
+            if string~substr(i, breakToken~length) == breakToken then return breakToken~length
+        end
+        return 0
 
     result:
         if withInfos then return .Argument~new(/*string*/         current~string,,
@@ -1819,5 +1925,10 @@ Other change in gci_convert.win32.vc, to support 64 bits:
     return integer32
 
 
--------------------------------------------------------------------------------
-::requires "rxregexp.cls"
+::routine isDriveLetter public
+    -- "A:", "a:", ..., "Z:", "z:"
+    use strict arg string
+    if string~length <> 2 then return .false
+    if string~subchar(2) <> ":" then return .false
+    letterDrive = string~subchar(1)~upper
+    return letterDrive >= "A" & letterDrive <= "Z"
