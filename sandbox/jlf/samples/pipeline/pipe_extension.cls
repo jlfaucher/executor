@@ -88,14 +88,68 @@ So I added the 'pipe' method which injects the object in the pipe :
 -- A 'yield' pipeStage, to yield the current item.
 -- Works only from a coactive pipe.
 -- This is a convenience pipeStage, equivalent to .do {.yield[item]}
+-- Options: (['index'] ['item'] [<expression-doer>])*
 
+-- Assumption: The class "yield" is already defined
 ::extension yield inherit pipeStage
 
+::method init
+    use strict arg -- none
+    forward class (super)
+
+::method initOptions
+    expose actions showPool showTags
+    actions = .array~new
+    unknown = .array~new
+    do a over arg(1, "a")
+        if a~isA(.String) then do
+            if "index"~caselessAbbrev(a, 1) then do
+                actions~append("yieldIndex")
+                iterate
+            end
+            if "item"~caselessAbbrev(a, 1) then do
+                actions~append("yieldItem")
+                iterate
+            end
+        end
+        -- "actionDoer" not candidate here, we want a result.
+        else if a~hasMethod("functionDoer") then do
+            function = a~functionDoer("use arg item, index, dataflow")~arity(3)
+            actions~append(function)
+            iterate
+        end
+        else if a~hasMethod("doer") then do
+            function = a~doer
+            actions~append(function)
+            iterate
+        end
+        unknown~append(a)
+    end
+    forward class (super) arguments (unknown)   -- forward the initialization to super to process the unknown options
+
+
 ::method process
-use strict arg item, index, dataflow        -- get the data item
-args = arg(1, "a") -- save the current arguments array because .yield will overwrite it
-.yield[item]
-forward class (super) arguments (args)
+    expose actions
+    use strict arg item, index, dataflow
+    args = arg(1, "a") -- save the current arguments array because .yield will overwrite it
+    if actions~items == 0 then do
+        .yield[item] -- default action
+        use strict arg -- none
+    end
+    else do action over actions
+        if action == "yieldIndex" then .yield[index]
+        else if action == "yieldItem" then .yield[item]
+        else do
+            action~do(item, index, dataflow)
+            if \var("result") then do
+                -- No result returned, nothing to yield, but the yield must be done, synchronisation is important !
+                .yield[]
+            end
+            else .yield[result]
+        end
+        use strict arg -- none
+    end
+    forward class (super) arguments (args)
 
 
 /******************************************************************************/

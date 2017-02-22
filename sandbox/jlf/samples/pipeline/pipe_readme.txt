@@ -55,7 +55,7 @@ pipeStages
 .duplicate : I1 --- O1
     [copies = 1]
 .console : I1 --- O1
-    (['index'] ['item'] [<any other string>] [<expression-doer>])*
+    (['index'[.width]] ['item'[.width]] ['dataflow'[.width]] [<any other string>] [<expression-doer>])*
 
 .all[patterns...] : I1 --- O1 (selected), O2 (not selected)
     ['caseless']
@@ -177,3 +177,4 @@ pipeStages
     <filter-doer>
 
 .yield : I1 -- O1
+    (['index'] ['item'] [<expression-doer>])*
