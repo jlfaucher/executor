@@ -1,3 +1,23 @@
+Developer list 17/02/2017
+
+Q from Erich)
+In 5.0, Array's string() method gives a different result than Array's makeString() method. I believe this is the only class with such a behavior.
+
+Is this to be regarded as a bug?
+
+say (1, 2)~string -- an Array
+say (1, 2)~makeString -- 1 nl 2
+
+A from Rick)
+They do not need to be the same and there is some history behind why array is special.
+
+As originally designed, the makeString method was meant to be used for automatic coercion to string values where request('STRING') is used, while a manual request should have been handled by providing a different method such as toString (which array also has). The string method is meant as an absolute fallback that does not do a lot of processing, used for things like error messages and trace. For example, you would not want an array makeString method called during processing of an error triggered by an out of memory condition.
+
+This was a bit bungled when makeString was originally added to array such that request('STRING') was still returning the result of the string method rather than the constructed string value and also resulted in array makeString being the only one that takes arguments. Typically a make<classname> method should not have arguments because it is really intended just for interaction with the request mechanism. This is why the array class also has a toString method today.
+
+Anyway, yes it is correct that they are different since the methods are intended for different purposes.
+
+
 --------------------------------------------------------------------------------
 RexxCore.h
 

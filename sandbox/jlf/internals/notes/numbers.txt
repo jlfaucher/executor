@@ -18,7 +18,7 @@ NumberStringMath.hpp
 Numerics.hpp
     class NumericSettings
     class Numerics
-    
+
 StringClass.hpp
     class RexxString : public RexxObject
 
@@ -252,4 +252,1194 @@ x2d                         X
 x2dC2d                      X
 xorOp                       X           X           X
 
+
+-------------------------------------------------------------------------------
+Notes moved from my daily raw notes
+-------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+Arithmetic
+
+Integer arithmetic possible only if (number_digits() == Numerics::DEFAULT_DIGITS )
+
+Rounding problems
+The iteration is stable for numbers above 6 but unstable below 6.
+If numerical computing were perfect, the ui values would never fall below 6;
+however, rounding error leads them to stumble into the unstable region, and then make a beeline for 100.
+u0=2.;u1=-4.;do i=0 to 18;u2 = (111 - (1130 / u1)) + (3000 / (u1 * u0)); say u2; u0=u1; u1=u2; end
+
+With IEEE-style floats, Rump’s formula gives the same answer, about 1.18E21, for
+single, double, and even quad precision, yet is massively wrong in all three cases.
+The correct answer is –0.827..., so floats don’t even get the sign of the answer right.
+Not to mention that little problem of being off by 21 orders of magnitude.
+ooRexx : must use 37 digits to get the right result.
+x = 77617; y = 33096; say 333.75 * y**6 + x**2 * (11 * x**2 * y**2 - y**6 - 121 * y**4 - 2) + (5.5) * y**8 + x / (2 * y)
+
+
+ObjectClass.hpp
+     virtual bool numberValue(wholenumber_t &result, size_t precision);
+     virtual bool numberValue(wholenumber_t &result);
+     virtual bool unsignedNumberValue(stringsize_t &result, size_t precision);
+     virtual bool unsignedNumberValue(stringsize_t &result);
+
+NumberStringClass.hpp
+    bool         numberValue(wholenumber_t &result, size_t precision);
+    bool         numberValue(wholenumber_t &result);
+    bool         unsignedNumberValue(uwholenumber_t &result, size_t precision);
+    bool         unsignedNumberValue(uwholenumber_t &result);
+
+NumberStringClass.cpp
+bool RexxNumberString::numberValue(wholenumber_t &result, size_t numDigits)
+    // is this easily within limits (very common)?
+    if (length <= numDigits && numberExp >= 0)
+    {
+        if (!createUnsignedValue(number, length, false, numberExp, Numerics::maxValueForDigits(numDigits), intnum))
+        {
+            return false;                   // too big to handle
+    ...
+    // this number either has decimals, or needs to be truncated/rounded because of
+    // the conversion digits value.  We need to make adjustments.
+
+    if (!checkIntegerDigits(numDigits, numberLength, numberExp, carry))
+    {
+        return false;
+
+
+========
+Settings
+========
+
+    ------------
+    Numerics.hpp
+    ------------
+        class NumericSettings                  // "global" numeric settings         */
+        {
+            public:
+              NumericSettings();
+              size_t digits;                       /* numeric digits setting            */
+              size_t fuzz;                         /* numeric fuzz setting              */
+              bool form;                           /* numeric form setting              */
+        };                                         /* global activation settings        */
+
+        Class Numerics
+        {
+            ...
+            static size_t digits() { return settings->digits; }
+            static size_t fuzz()   { return settings->fuzz; }
+            static bool   form()   { return settings->form; }
+            static void   setCurrentSettings(NumericSettings *s) { settings = s; }
+            static NumericSettings *setDefaultSettings() { settings = &defaultSettings; return settings; }
+            static NumericSettings *getDefaultSettings() { return &defaultSettings; }
+            ...
+        protected:
+
+            static NumericSettings *settings;
+            static NumericSettings  defaultSettings;
+        }
+        ...
+        inline size_t number_digits() { return Numerics::digits(); }
+        inline size_t number_fuzz()   { return Numerics::fuzz(); }
+        inline bool   number_form()   { return Numerics::form(); }
+        inline size_t number_fuzzydigits()   { return number_digits() - number_fuzz(); }
+
+
+    ------------
+    Numerics.cpp
+    ------------
+
+        NumericSettings Numerics::defaultSettings;
+        NumericSettings *Numerics::settings = &Numerics::defaultSettings;
+
+
+        NumericSettings::NumericSettings()
+        {
+            digits = Numerics::DEFAULT_DIGITS;
+            fuzz = Numerics::DEFAULT_FUZZ;
+            form = Numerics::DEFAULT_FORM;
+        }
+
+    -------------------
+    ActivityManager.cpp
+    -------------------
+
+        void ActivityManager::addWaitingActivity(RexxActivity *waitingAct, bool release )
+            Numerics::setCurrentSettings(waitingAct->getNumericSettings());
+
+
+    ------------------
+    RexxActivation.hpp
+    ------------------
+
+        class ActivationSettings
+        {
+            public:
+              NumericSettings numericSettings;     /* globally effective settings       */
+
+         class RexxActivation : public RexxActivationBase {
+           virtual NumericSettings *getNumericSettings();
+
+
+    ------------------
+    RexxActivation.cpp
+    ------------------
+
+        RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+            ...
+            this->settings.numericSettings.digits = referenceSource->getDigits();
+            this->settings.numericSettings.fuzz = referenceSource->getFuzz();
+            this->settings.numericSettings.form = referenceSource->getForm();
+            ...
+
+        RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code, RexxString *calltype, RexxString *env, int context)
+            ...
+            this->settings.numericSettings.digits = referenceSource->getDigits();
+            this->settings.numericSettings.fuzz = referenceSource->getFuzz();
+            this->settings.numericSettings.form = referenceSource->getForm();
+            ...
+
+        size_t RexxActivation::digits()
+        {
+            return this->settings.numericSettings.digits;
+        }
+
+        size_t RexxActivation::fuzz()
+        {
+            return this->settings.numericSettings.fuzz;
+        }
+
+        bool RexxActivation::form()
+        {
+            return this->settings.numericSettings.form;
+        }
+
+        void RexxActivation::setDigits(size_t digitsVal)
+        {
+            this->settings.numericSettings.digits = digitsVal;
+        }
+
+        void RexxActivation::setFuzz()
+        {
+            setFuzz(sourceObject->getFuzz());
+        }
+
+        void RexxActivation::setFuzz(size_t fuzzVal)
+        {
+            this->settings.numericSettings.fuzz = fuzzVal;
+        }
+
+        void RexxActivation::setForm()
+        {
+            setForm(sourceObject->getForm());
+        }
+
+        NumericSettings *RexxActivation::getNumericSettings()
+        {
+            return &(this->settings.numericSettings);
+        }
+
+
+        void RexxActivation::setForm(bool formVal)
+        {
+            this->settings.numericSettings.form = formVal;
+        }
+
+
+    ----------------
+    RexxActivity.hpp
+    ----------------
+
+       inline NumericSettings *getNumericSettings () {return this->numericSettings;}
+
+        protected
+           NumericSettings *numericSettings;   /* current activation setting values */
+
+
+    ----------------------
+    RexxNativeActivity.hpp
+    -----------------------
+        class RexxNativeActivation : public RexxActivationBase
+        {
+          virtual NumericSettings *getNumericSettings();
+
+    ------------------------
+    RexxNativeActivation.cpp
+    ------------------------
+        /**
+         * Get the numeric settings for this native activation.  If we're
+         * running in the direct call context from a Rexx activation, then
+         * the settings are those inherited from the Rexx context.  Otherwise,
+         * we just return the default numeric settings.
+         *
+         * @return The current Numeric settings.
+         */
+        NumericSettings *RexxNativeActivation::getNumericSettings()
+        {
+            if (activation == OREF_NULL)
+            {
+                return Numerics::getDefaultSettings();
+            }
+            else
+            {
+                return activation->getNumericSettings();
+            }
+        }
+
+=============================
+Occurences of "validMaxWhole"
+=============================
+
+    ----------------
+    IntegerClass.hpp
+    ----------------
+
+        class RexxInteger : public RexxObject {
+        protected:
+            static wholenumber_t validMaxWhole[];  // table of maximum values per digits setting        // JLF NOT USED, SHOULD BE REMOVED
+
+
+    ------------
+    Numerics.hpp
+    ------------
+
+        class Numerics
+        {
+        public:
+            static const wholenumber_t validMaxWhole[];      // table of maximum values per digits setting
+
+            static inline wholenumber_t maxValueForDigits(size_t d)
+            {
+                if (d > ARGUMENT_DIGITS)
+                {
+                    return validMaxWhole[ARGUMENT_DIGITS - 1];
+                }
+                else
+                {
+                    return validMaxWhole[d - 1];
+                }
+            }
+
+            static inline wholenumber_t multiplierForExponent(size_t e)
+            {
+                return validMaxWhole[e - 1];
+            }
+
+
+    ------------
+    Numerics.cpp
+    ------------
+
+        #ifdef __REXX64__
+        const wholenumber_t Numerics::MAX_WHOLENUMBER = __INT64_C(999999999999999999);
+        const wholenumber_t Numerics::MIN_WHOLENUMBER = __INT64_C(-999999999999999999);
+            // the digits setting used internally for function/method arguments to allow
+            // for the full range
+        const size_t Numerics::ARGUMENT_DIGITS  = ((size_t)18);
+        // this is the digits setting for full size binary settings
+        const size_t Numerics::SIZE_DIGITS  = ((size_t)20);
+
+
+        /* Array for valid whole number at various digits settings */
+        /*  for value 1-18.                                         */
+        const wholenumber_t Numerics::validMaxWhole[] = {10,
+                                                   100,
+                                                   1000,
+                                                   10000,
+                                                   100000,
+                                                   1000000,
+                                                   10000000,
+                                                   100000000,
+                                                   1000000000,
+                                                   10000000000,
+                                                   100000000000,
+                                                   1000000000000,
+                                                   10000000000000,
+                                                   100000000000000,
+                                                   1000000000000000,
+                                                   10000000000000000,
+                                                   100000000000000000,
+                                                   1000000000000000000};
+        #else
+        const wholenumber_t Numerics::MAX_WHOLENUMBER = 999999999;
+        const wholenumber_t Numerics::MIN_WHOLENUMBER = -999999999;
+            // the digits setting used internally for function/method arguments to allow
+            // for the full binary value range
+        const size_t Numerics::ARGUMENT_DIGITS  = ((size_t)9);
+        // this is the digits setting for full size binary settings
+        const size_t Numerics::SIZE_DIGITS  = ((size_t)10);
+
+
+        /* Array for valid whole number at various digits settings */
+        /*  for value 1-9.                                         */
+        const wholenumber_t Numerics::validMaxWhole[] = {10,
+                                                   100,
+                                                   1000,
+                                                   10000,
+                                                   100000,
+                                                   1000000,
+                                                   10000000,
+                                                   100000000,
+                                                   1000000000};
+        #endif
+
+        const wholenumber_t Numerics::MAX_EXPONENT = 999999999;
+        const wholenumber_t Numerics::MIN_EXPONENT = -999999999;
+        // this is the matching component to a whole number
+        const stringsize_t  Numerics::MAX_STRINGSIZE = MAX_WHOLENUMBER;
+            // max numeric digits value for explicit 64-bit conversions
+        const size_t Numerics::DIGITS64 = ((size_t)20);
+        // numeric digits 9 is always the default
+        const size_t Numerics::DEFAULT_DIGITS  = ((size_t)9);
+        const bool Numerics::FORM_SCIENTIFIC    = false;
+        const bool Numerics::FORM_ENGINEERING   = true;
+
+        const size_t Numerics::DEFAULT_FUZZ    = ((size_t)0); /* default numeric fuzz setting      */
+                                             /* default numeric form setting      */
+        const bool Numerics::DEFAULT_FORM = Numerics::FORM_SCIENTIFIC;
+
+
+===========================
+Occurrences of "numberValue" (a selection only)
+===========================
+
+    ----------------
+    IntegerClass.hpp
+    ----------------
+        class RexxInteger : public RexxObject {
+         public:
+              bool         numberValue(wholenumber_t &result, size_t precision);
+              bool         numberValue(wholenumber_t &result);
+              bool         unsignedNumberValue(stringsize_t &result, size_t precision);
+              bool         unsignedNumberValue(stringsize_t &result);
+
+
+    ----------------
+    IntegerClass.cpp
+    ----------------
+        bool RexxInteger::numberValue(wholenumber_t &result)
+        {
+                                               /* is the long value expressable as a*/
+                                               /*  whole number in REXX term.       */
+            if (Numerics::abs(value) > Numerics::MAX_WHOLENUMBER)
+            {
+                return false;                    /* nope, not a valid long.           */
+            }
+            result = value;                      // return the value
+            return true;                         // this was convertable
+        }
+
+
+        bool RexxInteger::numberValue(wholenumber_t &result, size_t digits)
+        {
+                                               /* is the long value expressable as a*/
+                                               /*  whole number in REXX term.       */
+            if (digits < Numerics::DEFAULT_DIGITS && Numerics::abs(value) >= Numerics::validMaxWhole[digits - 1])
+            {
+                return false;                      /* nope, not a valid long.           */
+            }
+            result = value;                     // return the value
+            return true;                         // this was convertable
+        }
+
+
+        bool RexxInteger::unsignedNumberValue(stringsize_t &result)
+        {
+            // this must be non-negative and not out of range
+            if (value < 0  || value > Numerics::MAX_WHOLENUMBER)
+            {
+                return false;
+            }
+            result = wholeNumber();              // return the value
+            return true;                         // this was convertable
+        }
+
+
+        bool RexxInteger::unsignedNumberValue(stringsize_t &result, size_t digits)
+        {
+                                               /* is the long value expressable as a*/
+                                               /*  whole number in REXX term.       */
+            if (value < 0 || (digits < Numerics::DEFAULT_DIGITS && value >= Numerics::validMaxWhole[digits - 1]))
+            {
+                return false;                      /* nope, not a valid long.           */
+            }
+            result = wholeNumber();              // return the value
+            return true;                         // this was convertable
+        }
+
+
+    ---------------------
+    NumberStringClass.hpp
+    ---------------------
+
+         class RexxNumberString : public RexxNumberStringBase {
+           public:
+            bool         numberValue(wholenumber_t &result, size_t precision);
+            bool         numberValue(wholenumber_t &result);
+            bool         unsignedNumberValue(uwholenumber_t &result, size_t precision);
+            bool         unsignedNumberValue(uwholenumber_t &result);
+
+
+    ---------------------
+    NumberStringClass.cpp
+    ---------------------
+
+        bool RexxNumberString::numberValue(wholenumber_t &result)
+        {
+            // convert using the default digits version
+            return this->numberValue(result, Numerics::DEFAULT_DIGITS);
+
+
+        bool RexxNumberString::unsignedNumberValue(uwholenumber_t &result)
+        {
+            // convert using the default digits version
+            return this->unsignedNumberValue(result, Numerics::DEFAULT_DIGITS);
+
+
+        bool RexxNumberString::numberValue(wholenumber_t &result, size_t numDigits)
+        // JLF see code. Sometimes return false; // too big to handle
+
+
+        bool RexxNumberString::unsignedNumberValue(uwholenumber_t &result, size_t numDigits)
+        // JLF see code. Sometimes return false; // too big to handle
+
+
+        RexxInteger *RexxNumberString::integerValue(
+            size_t digits )                    /* required precision                */
+        {
+            if (!numberValue(integerNumber, number_digits()))
+            {
+                return (RexxInteger *)TheNilObject;/* just return .nil                  */
+
+
+    ---------------------
+    NumberStringMath2.cpp
+    ---------------------
+
+        RexxNumberString *RexxNumberString::power(RexxObject *PowerObj)
+        {
+            if (!PowerObj->numberValue(powerValue, number_digits()))
+
+
+    ---------------
+    ObjectClass.hpp
+    ---------------
+
+      class RexxInternalObject : public RexxVirtualBase{
+        public:
+         virtual bool         numberValue(wholenumber_t &result, size_t precision);
+         virtual bool         numberValue(wholenumber_t &result);
+         virtual bool         unsignedNumberValue(stringsize_t &result, size_t precision);
+         virtual bool         unsignedNumberValue(stringsize_t &result);
+
+
+    class RexxObject : public RexxInternalObject {
+      public:
+         virtual bool numberValue(wholenumber_t &result, size_t precision);
+         virtual bool numberValue(wholenumber_t &result);
+         virtual bool unsignedNumberValue(stringsize_t &result, size_t precision);
+         virtual bool unsignedNumberValue(stringsize_t &result);
+
+
+    ---------------
+    ObjectClass.cpp
+    ---------------
+
+        wholenumber_t RexxObject::compareTo(RexxObject *other )
+        {
+            if (!((RexxObject *)result)->numberValue(comparison))
+            {
+                reportException(Error_Invalid_whole_number_compareto, (RexxObject *)result);
+
+
+        bool RexxInternalObject::unsignedNumberValue(stringsize_t &result, stringsize_t digits)
+        {
+          return false;                        /* give a "safe" default here        */
+        }
+
+
+        bool RexxInternalObject::unsignedNumberValue(stringsize_t &result)
+        {
+          return false;                        /* give a "safe" default here        */
+        }
+
+
+        bool RexxInternalObject::numberValue(wholenumber_t &result, stringsize_t digits)
+        {
+          return false;                        /* give a "safe" default here        */
+        }
+
+
+        bool RexxInternalObject::numberValue(wholenumber_t &result)
+        {
+          return false;                        /* give a "safe" default here        */
+        }
+
+
+        bool RexxObject::numberValue(wholenumber_t &result, stringsize_t digits)
+        {
+                                               /* get a string and convert          */
+          return REQUEST_STRING(this)->numberValue(result, digits);
+        }
+
+
+        bool RexxObject::numberValue(wholenumber_t &result)
+        {
+                                               /* get a string and convert          */
+          return REQUEST_STRING(this)->numberValue(result);
+        }
+
+
+        bool RexxObject::unsignedNumberValue(stringsize_t &result, stringsize_t digits)
+        {
+                                               /* get a string and convert          */
+          return REQUEST_STRING(this)->unsignedNumberValue(result, digits);
+        }
+
+
+        bool RexxObject::unsignedNumberValue(stringsize_t &result)
+        {
+                                               /* get a string and convert          */
+          return REQUEST_STRING(this)->unsignedNumberValue(result);
+        }
+
+
+        bool RexxObject::requestNumber(wholenumber_t &result, size_t precision)
+        {
+            if (isBaseClass())
+            {
+                // are we already a base class?
+                // the base classes can handle this directly.
+                return numberValue(result, precision);
+            }
+            else
+            {
+                // we need to perform the operation on the string value
+                return numberValue(result, precision);      // JLF same code... could be simplified, it's REQUEST_STRING which does the real test isBaseClass()
+            }
+        }
+
+
+        bool RexxObject::requestUnsignedNumber(stringsize_t &result, size_t precision)
+        {
+            if (isBaseClass())
+            {
+                // are we already a base class?
+                // the base classes can handle this directly.
+                return unsignedNumberValue(result, precision);
+            }
+            else
+            {
+                // we need to perform the operation on the string value
+                return unsignedNumberValue(result, precision);      // JLF same code... could be simplified, it's REQUEST_STRING which does the real test isBaseClass()
+            }
+        }
+
+
+    ---------------
+    StringClass.hpp
+    ---------------
+
+         class RexxString : public RexxObject {
+          public:
+           bool         numberValue(wholenumber_t &result, size_t precision);
+           bool         numberValue(wholenumber_t &result);
+           bool         unsignedNumberValue(uwholenumber_t &result, size_t precision);
+           bool         unsignedNumberValue(uwholenumber_t &result);
+
+
+    ---------------
+    StringClass.cpp
+    ---------------
+
+        bool RexxString::numberValue(wholenumber_t &result, stringsize_t digits)
+        {
+            if (!(isString(this)))               /* subclassed string object?         */
+            {
+                return this->requestString()->numberValue(result, digits);
+            }
+                                                 /* get the string value's long value */
+            RexxNumberString *numberstring = this->fastNumberString();
+            if (numberstring != OREF_NULL )      /* convert ok?                       */
+            {
+                                                 /* convert to integer with proper    */
+                                                 /* precision                         */
+                return numberstring->numberValue(result, digits);
+            }
+            return false;                        /* return the "not value long" value */
+        }
+
+
+        bool RexxString::numberValue(wholenumber_t &result)
+        {
+            if (!(isString(this)))               /* subclassed string object?         */
+            {
+                return this->requestString()->numberValue(result);
+            }
+                                                 /* get the string value's long value */
+            RexxNumberString *numberstring = this->fastNumberString();
+            if (numberstring != OREF_NULL )      /* convert ok?                       */
+            {
+                                                 /* convert to integer with proper    */
+                                                 /* precision                         */
+                return numberstring->numberValue(result);
+            }
+            return false;                        /* return the "not value long" value */
+        }
+
+
+        bool RexxString::unsignedNumberValue(uwholenumber_t &result, stringsize_t digits)
+        {
+            if (!(isString(this)))               /* subclassed string object?         */
+            {
+                return this->requestString()->unsignedNumberValue(result, digits);
+            }
+                                                 /* get the string value's long value */
+            RexxNumberString *numberstring = this->fastNumberString();
+            if (numberstring != OREF_NULL )      /* convert ok?                       */
+            {
+                                                 /* convert to integer with proper    */
+                                                 /* precision                         */
+                return numberstring->unsignedNumberValue(result, digits);
+            }
+            return false;                        /* return the "not value long" value */
+        }
+
+
+        bool RexxString::unsignedNumberValue(uwholenumber_t &result)
+        {
+            if (!(isString(this)))               /* subclassed string object?         */
+            {
+                return this->requestString()->unsignedNumberValue(result);
+            }
+                                                 /* get the string value's long value */
+            RexxNumberString *numberstring = this->fastNumberString();
+            if (numberstring != OREF_NULL )      /* convert ok?                       */
+            {
+                                                 /* convert to integer with proper    */
+                                                 /* precision                         */
+                return numberstring->unsignedNumberValue(result);
+            }
+            return false;                        /* return the "not value long" value */
+        }
+
+
+===============================
+Occurences of "OREF_LOSTDIGITS"
+===============================
+
+    ---------------------
+    NumberStringClass.cpp
+    ---------------------
+        RexxNumberString::comp
+            ...
+            NumberDigits = number_digits();
+
+            if (this->length > NumberDigits)
+            {
+                reportCondition(OREF_LOSTDIGITS, (RexxString *)this);
+            }
+            if (rightNumber->length > NumberDigits)
+            {
+                reportCondition(OREF_LOSTDIGITS, (RexxString *)rightNumber);
+            }
+            ...
+
+
+    --------------------
+    NumberStringMath.cpp
+    --------------------
+    RexxNumberString *RexxNumberString::prepareOperatorNumber(size_t targetLength, size_t numberDigits, bool rounding)
+
+    RexxNumberString *RexxNumberString::addSub(
+      RexxNumberString *other,             /* other addition/subtract target    */
+      unsigned int operation,              /* add or subtract operation         */
+      size_t NumberDigits )                /* precision to use                  */
+
+
+============================
+Occurences of "numberDigits" (this is the name of the parameter passed to indicate the number of digits)
+============================
+
+    ---------------------
+    NumberStringClass.hpp
+    ---------------------
+        static char *multiplyPower(char *leftPtr, RexxNumberStringBase *left, char *rightPtr, RexxNumberStringBase *right, char *OutPtr, size_t OutLen, size_t NumberDigits);
+        static char *dividePower(char *AccumPtr, RexxNumberStringBase *Accum, char *Output, size_t NumberDigits);
+
+
+    --------------------
+    NumberStringMath.cpp
+    --------------------
+        char *RexxNumberStringBase::adjustNumber(
+            char *NumPtr,                      /* pointer to number data            */
+            char  *result,                     /* result location                   */
+            size_t resultLen,                  /* result length                     */
+            size_t NumberDigits)               /* required digits setting           */
+
+
+        void RexxNumberString::adjustPrecision(char *resultPtr, size_t NumberDigits)
+
+
+        RexxNumberString *RexxNumberString::prepareNumber(size_t NumberDigits, bool rounding)
+
+
+        RexxNumberString *RexxNumberString::prepareOperatorNumber(size_t targetLength, size_t numberDigits, bool rounding)
+
+
+        RexxNumberString *RexxNumberString::addSub(
+          RexxNumberString *other,             /* other addition/subtract target    */
+          unsigned int operation,              /* add or subtract operation         */
+          size_t NumberDigits )                /* precision to use                  */
+        // JLF : long method !
+
+
+    ---------------------
+    NumberStringMath2.cpp
+    ---------------------
+        RexxNumberString *RexxNumberString::Multiply(RexxNumberString *other)
+        // JLF : the number of digits is not passed by parameter. Get it using number_digits().
+
+
+        RexxNumberString *RexxNumberString::Division(RexxNumberString *other, unsigned int DivOP)
+        // JLF : the number of digits is not passed by parameter. Get it using number_digits().
+
+
+        RexxNumberString *RexxNumberString::power(RexxObject *PowerObj)
+        // JLF : the number of digits is not passed by parameter. Get it using number_digits().
+
+
+        char *RexxNumberString::multiplyPower(char *leftPtr, RexxNumberStringBase *left,
+                             char *rightPtr, RexxNumberStringBase *right,
+                             char *OutPtr, size_t OutLen, size_t NumberDigits)
+
+
+        char *RexxNumberString::dividePower(char *AccumPtr, RexxNumberStringBase *Accum, char *Output, size_t NumberDigits)
+
+
+=============================
+Occurences of number_digits()
+=============================
+
+    --------------
+    ArrayClass.cpp
+    --------------
+    RexxArray::operator new
+            wholenumber_t total_size = current_dim->requiredNonNegative(ARG_ONE, number_digits());
+
+
+    ----------------
+    IntegerClass.cpp
+    ----------------
+        RexxObject *RexxInteger::plus(
+            RexxInteger *other)                /* target other object               */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+        RexxObject *RexxInteger::minus(
+            RexxInteger *other)                /* target other object               */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+        RexxObject *RexxInteger::multiply(
+            RexxInteger *other)                /* target other object               */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+        RexxObject *RexxInteger::integerDivide(
+            RexxInteger *other)                /* target other object               */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+        RexxObject *RexxInteger::remainder(
+            RexxInteger *other)                /* target other object               */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+        wholenumber_t RexxInteger::comp(RexxObject *other, RexxString *alternativeOperator, RexxInteger **alternativeOperatorResultPtr)
+        {
+            if (this->isSameType(other) && number_digits() == Numerics::DEFAULT_DIGITS)
+
+
+        RexxObject *RexxInteger::abs()
+        {
+         if (number_digits() == Numerics::DEFAULT_DIGITS) {
+
+
+        RexxObject *RexxInteger::Max(
+            RexxObject **args,                 /* array of comparison values        */
+            size_t argCount)                   /* count of arguments                */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+        RexxObject *RexxInteger::Min(
+            RexxObject **args,                 /* array of comparison values        */
+            size_t argCount)                   /* count of arguments                */
+        {
+          if (number_digits() != Numerics::DEFAULT_DIGITS )
+
+
+    ---------------------
+    NumberStringClass.hpp
+    ---------------------
+     class RexxNumberString : public RexxNumberStringBase {
+       public:
+        inline void       setupNumber()
+        {
+            /* inherit the current numeric settings */
+            setNumericSettings(number_digits(), number_form());
+            /* check for any required rounding */
+            checkPrecision();
+        }
+
+
+    ---------------------
+    NumberStringClass.cpp
+    ---------------------
+        RexxNumberString::RexxNumberString(size_t len)
+        {
+            this->NumDigits = number_digits();
+
+
+        RexxInteger *RexxNumberString::integerValue(
+            size_t digits )                    /* required precision                */
+        {
+            if (!numberValue(integerNumber, number_digits()))
+
+
+        RexxObject *RexxNumberString::trunc(
+          RexxObject *decimal_digits)          /* number of decimal digits        */
+        {
+            /* get the decimal count             */
+            size_t needed_digits = optionalNonNegative(decimal_digits, 0, ARG_ONE);
+            /* round to current digits setting   */
+            return this->prepareNumber(number_digits(), ROUND)->truncInternal(needed_digits);
+
+
+        RexxObject *RexxNumberString::floor()
+        {
+            /* round to current digits setting   */
+            return this->prepareNumber(number_digits(), ROUND)->floorInternal();
+
+
+        RexxObject *RexxNumberString::ceiling()
+        {
+            /* round to current digits setting   */
+            return this->prepareNumber(number_digits(), ROUND)->ceilingInternal();
+
+
+        RexxObject *RexxNumberString::round()
+        {
+            /* round to current digits setting   */
+            return this->prepareNumber(number_digits(), ROUND)->roundInternal();
+
+
+        RexxString  *RexxNumberString::formatRexx(
+          RexxObject *Integers,                /* space for integer part            */
+          RexxObject *Decimals,                /* number of decimals required       */
+          RexxObject *MathExp,                 /* the exponent size                 */
+          RexxObject *ExpTrigger )             /* the exponent trigger              */
+        {
+            digits = number_digits();            /* get the current digits value      */
+
+
+        wholenumber_t RexxNumberString::comp(
+            RexxObject *right, RexxString *alternativeOperator, RexxInteger **alternativeOperatorResultPtr)                 /* right hand side of compare      */
+        {
+            NumberDigits = number_digits();
+
+
+        RexxNumberString *RexxNumberString::plus(RexxObject *right)
+        {
+                return this->addSub(rightNumber, OT_PLUS, number_digits());
+            ...
+                if (this->stringObject != OREF_NULL || this->NumDigits != number_digits() ||
+            ...
+                    return this->prepareOperatorNumber(number_digits(), number_digits(), ROUND);
+
+
+        RexxNumberString *RexxNumberString::minus(RexxObject *right)
+                return this->addSub(rightNumber, OT_MINUS, number_digits());
+            ...
+                RexxNumberString *result = this->prepareOperatorNumber(number_digits(), number_digits(), ROUND);
+
+
+        RexxString *RexxNumberString::d2xD2c(
+             RexxObject *_length,              /* result length                     */
+             bool  type )                      /* D2C or D2X flag                   */
+        {
+            CurrentDigits = number_digits();     /* get the current digits setting    */
+
+
+        RexxNumberString *RexxNumberString::newInstanceFromFloat(float num)
+        {
+            return newInstanceFromDouble((double)num, number_digits());
+
+
+        RexxNumberString *RexxNumberString::newInstanceFromDouble(double number)
+        {
+            return newInstanceFromDouble(number, number_digits());
+
+
+    ---------------------
+    NumberStringMath2.cpp
+    ---------------------
+        RexxNumberString *RexxNumberString::Multiply(RexxNumberString *other)
+        {
+            NumberDigits = number_digits();       /* Get the current Numeric Digits    */
+
+
+        RexxNumberString *RexxNumberString::Division(RexxNumberString *other, unsigned int DivOP)
+        {
+            NumberDigits = number_digits();       /* get current digits setting.       */
+
+
+        RexxNumberString *RexxNumberString::power(RexxObject *PowerObj)
+        {
+            if (!PowerObj->numberValue(powerValue, number_digits()))
+            ...
+            NumberDigits = number_digits();      /* get the current Digits Setting.   */
+
+
+    -------------------------
+    StringClassConversion.cpp
+    -------------------------
+        RexxString *RexxString::x2dC2d(RexxInteger *_length,
+                                       bool type )
+        {
+            CurrentDigits = number_digits();     /* get the current digits setting    */
+
+
+    ------------------
+    DoInstrunction.cpp
+    ------------------
+        void RexxInstructionDo::execute(
+            RexxActivation      *context,      /* current activation context        */
+            RexxExpressionStack *stack)        /* evaluation stack                  */
+        {
+                            if (!result->requestNumber(count, number_digits()))
+                            {
+                                /* report an exception               */
+                                reportException(Error_Invalid_whole_number_repeat, object);
+                            }
+            ...
+                            if (!result->requestNumber(count, number_digits()))
+                            {
+                                /* report an exception               */
+                                reportException(Error_Invalid_whole_number_repeat, object);
+                            }
+
+
+        void RexxInstructionDo::controlSetup(
+             RexxActivation      *context,     /* current activation context        */
+             RexxExpressionStack *stack,       /* evaluation stack                  */
+             RexxDoBlock         *doblock )    /* stacked DO execution block        */
+        {
+                            RexxObject *temp = result->integerValue(number_digits());
+            ...
+                            if (!result->requestNumber(count, number_digits()))
+                            {
+                                /* report an exception               */
+                                reportException(Error_Invalid_whole_number_for, object);
+                            }
+
+
+    ----------------------
+    NumericInstruction.cpp
+    ----------------------
+
+    void RexxInstructionNumeric::execute(
+        RexxActivation      *context,      /* current activation context        */
+        RexxExpressionStack *stack )       /* evaluation stack                  */
+    {
+                    if (!result->requestUnsignedNumber(setting, number_digits()) || setting < 1)
+                    {
+                        /* report an exception               */
+                        reportException(Error_Invalid_whole_number_digits, result);
+                    }
+        ...
+                    if (!result->requestUnsignedNumber(setting, number_digits()))
+                    {
+                        /* report an exception               */
+                        reportException(Error_Invalid_whole_number_fuzz, result);
+                    }
+                    /* problem with the digits setting?  */
+                    if (setting >= context->digits())
+                    {
+                        /* and issue the error               */
+                        reportException(Error_Expression_result_digits, context->digits(), setting);
+                    }
+                    context->setFuzz(setting);     /* set the new value                 */
+
+
+    ----------------
+    ParseTrigger.cpp
+    ----------------
+
+    stringsize_t RexxTrigger::integerTrigger(
+        RexxObject *trigger)               /* value to be converted             */
+    {
+        if (!trigger->requestUnsignedNumber(result, number_digits()))
+        {
+            /* report an exception               */
+            reportException(Error_Invalid_whole_number_parse, trigger);
+        }
+
+
+    ---------------------
+    InstructionParser.cpp
+    ---------------------
+
+    RexxInstruction *RexxSource::traceNew()
+    {
+                    if (!value->requestNumber(debug_skip, number_digits()))
+        ...
+                if (!value->requestNumber(debug_skip, number_digits()))
+        ...
+                if (!value->requestNumber(debug_skip, number_digits()))
+                {
+                    /* have an error                     */
+                    syntaxError(Error_Invalid_whole_number_trace, value);
+                }
+
+
+    --------------
+    SourceFile.cpp
+    --------------
+
+    void RexxSource::optionsDirective()
+    {
+                        if (!value->requestUnsignedNumber(digits, number_digits()) || digits < 1)
+                        {
+                            /* report an exception               */
+                            syntaxError(Error_Invalid_whole_number_digits, value);
+                        }
+                        /* problem with the fuzz setting?    */
+                        if (digits <= fuzz)
+                        {
+                            /* this is an error                  */
+                            reportException(Error_Expression_result_digits, digits, fuzz);
+                        }
+        ...
+                        if (!value->requestUnsignedNumber(fuzz, number_digits()))
+                        {
+                            /* report an exception               */
+                            syntaxError(Error_Invalid_whole_number_fuzz, value);
+                        }
+                        /* problem with the digits setting?  */
+                        if (fuzz >= digits)
+                        {
+                            /* and issue the error               */
+                            reportException(Error_Expression_result_digits, digits, fuzz);
+                        }
+
+
+=======================
+Occurences of "digits("
+=======================
+
+    --------------------
+    CallContextStubs.cpp
+    --------------------
+
+        stringsize_t RexxEntry GetContextDigits(RexxCallContext *c)
+        {
+            ApiContext context(c);
+            try
+            {
+                return context.context->digits();
+            }
+            catch (RexxNativeActivation *)
+            {
+            }
+            return 0;
+        }
+
+
+    ----------------
+    ContextClass.hpp
+    ----------------
+
+        class RexxContext : public RexxObject
+        {
+        public:
+            RexxObject *getDigits();
+            RexxObject *getFuzz();
+            RexxObject *getForm();
+
+
+    ----------------
+    ContextClass.cpp
+    ----------------
+
+        RexxObject *RexxContext::getDigits()
+        {
+            checkValid();
+            return new_integer(activation->digits());
+        }
+
+
+    --------------------
+    NumberStringMath.cpp
+    --------------------
+
+        RexxNumberString *RexxNumberString::maxMin(RexxObject **args, size_t argCount, unsigned int operation)
+        {
+            saveFuzz = CurrentActivation->fuzz(); /* get the current fuzz and digits   */
+            saveDigits = CurrentActivation->digits();
+            CurrentActivation->setFuzz(0);        /* set the fuzz setting to 0         */
+
+
+    ---------------
+    ObjectClass.hpp
+    ---------------
+
+        class RexxActivationBase : public RexxInternalObject{
+        public:
+            virtual size_t digits() {return Numerics::DEFAULT_DIGITS;};
+            virtual size_t fuzz() {return Numerics::DEFAULT_FUZZ;};
+            virtual bool form() {return Numerics::DEFAULT_FORM;};
+            virtual NumericSettings *getNumericSettings() { return Numerics::getDefaultSettings(); }
+            ...
+            virtual void setDigits(size_t) {;};
+            virtual void setFuzz(size_t) {;};
+            virtual void setForm(bool) {;}
+
+
+    ----------------
+    PackageClass.hpp
+    ----------------
+
+        class PackageClass : public RexxObject
+        {
+        public:
+            RexxObject    *digits();
+            RexxObject    *fuzz();
+            RexxObject    *form();
+
+
+    ----------------
+    PackageClass.cpp
+    ----------------
+
+        RexxObject *PackageClass::digits()
+        {
+            return new_integer(source->getDigits());
+        }
+
+
+        RexxObject *PackageClass::fuzz()
+        {
+            return new_integer(source->getFuzz());
+        }
+
+
+        RexxObject *PackageClass::form()
+        {
+            return source->getForm() == Numerics::FORM_SCIENTIFIC ? OREF_SCIENTIFIC : OREF_ENGINEERING;
+        }
 

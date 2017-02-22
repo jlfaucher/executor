@@ -1,4 +1,306 @@
-﻿
+﻿Not limited to Unicode, also multibytes.
+
+=====================================================================================
+
+https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/StringsAndCharacters.html
+
+http://freecontent.manning.com/learn-julia-the-anatomy-of-a-string/
+
+http://kunststube.net/frontback/
+
+https://www.sitepoint.com/working-with-multibyte-strings/
+
+https://www.sitepoint.com/bringing-unicode-to-php-with-portable-utf8/
+https://github.com/voku/portable-utf8
+
+http://www.kanjidatabase.com/japanese_developer_tips.php
+
+http://php.net/manual/fr/ref.mbstring.php
+
+http://www.flamingruby.com/blog/handling-multibyte-encoding-in-php/
+
+http://php.net/manual/en/mbstring.overload.php
+
+http://blog.loftdigital.com/blog/php-utf-8-cheatsheet
+
+https://books.google.fr/books?id=03SpBgAAQBAJ&pg=PA104&lpg=PA104&dq=php+unicode+multibyte&source=bl&ots=_Ni8Y6OtGC&sig=-jSsc17acHB6IIFd8H0d1WgYIwo&hl=en&sa=X&ved=0ahUKEwjJ3_zOqbLPAhUML8AKHcRHAu04ChDoAQhdMAk#v=onepage&q=php%20unicode%20multibyte&f=false
+
+http://www.localizingjapan.com/blog/2012/01/30/detecting-and-conveting-japanese-multibyte-encodings-in-php/
+
+http://en.cppreference.com/w/cpp/string/multibyte
+
+http://api.rubyonrails.org/v3.2.9/classes/ActiveSupport/Multibyte/Chars.html
+
+https://blog.golang.org/strings
+
+http://docwiki.embarcadero.com/RADStudio/Berlin/en/String_Types_(Delphi)
+
+http://phptrends.com/dig_in/UTF8
+JLF : a list of libraries
+
+https://www.debian.org/doc/manuals/intro-i18n/index.en.html#contents
+
+M17N (multilingualization) model
+This model is to support many languages at the same time.
+For example, Mule (MULtilingual Enhancement to GNU Emacs) can handle a text file which contains multiple languages
+ - for example, a paper on differences between Korean and Chinese whose main text is written in Finnish
+Using international encodings is not sufficient to achieve the M17N model.
+You will have to prepare a mechanism to switch input methods.
+You will also want to prepare an encoding-guessing mechanism for input files, such as jless and emacs have.
+
+Mule is the best software which achieved M17N (though it does not use locale technology).
+http://ftp.kaist.ac.kr/hangul/mirror/mule/READMEDIR/FAQ-Mule
+
+
+=====================================================================================
+Review occurences of "clength"
+
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\api\ThreadContextStubs.cpp
+
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\DirectoryClass.cpp
+    RexxDirectory::unknown
+        getCharC
+        extractC
+
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\MutableBufferClass.cpp
+    remove support of CharC
+
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\MutableBufferClass.hpp
+    remove support of CharC
+
+C:\jlf\local\rexx\oorexx\executor\sandbox\jlf\trunk\interpreter\classes\StringClass.cpp
+
+<to continue>
+
+
+=====================================================================================
+
+Review occurrences of "codepoint"
+
+interpreter\expression\BuiltinFunctions.cpp
+    BUILTIN(XRANGE)
+    Build a string containing the codepoints from 0x00 (default) to 0xFF (default)
+
+
+MutableBufferClass.hpp
+   inline codepoint_t getCharC(sizeC_t offset) { return getData()[size_v(offset)]; } // todo m17n : convert charpos to bytepos and return a codepoint, not a byte
+
+
+MutableBufferClass.cpp
+    RexxMutableBuffer *RexxMutableBuffer::insert(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
+        codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+    RexxMutableBuffer *RexxMutableBuffer::overlay(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
+        codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+    RexxMutableBuffer *RexxMutableBuffer::replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad)
+        codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+    RexxMutableBuffer *RexxMutableBuffer::translate(RexxString *tableo, RexxString *tablei, RexxString *pad, RexxInteger *_start, RexxInteger *_range)
+        codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_THREE);
+
+    RexxInteger *RexxMutableBuffer::matchChar(RexxInteger *position_, RexxString *matchSet)
+        codepoint_t         _matchChar = getCharC(position - 1);
+
+    RexxInteger *RexxMutableBuffer::caselessMatchChar(RexxInteger *position_, RexxString *matchSet)
+        codepoint_t         _matchChar = getCharC(position - 1);
+
+    RexxMutableBuffer *RexxMutableBuffer::space(RexxInteger *space_count, RexxString *pad)
+        no use of codepoint
+        but use optionalPadArgument
+        pad declared as RexxString instead of RexxObject
+
+
+api\rexx.h
+    typedef ssize_t codepoint_t;           // a Rexx signed codepoint, which allows to pass -1 as default value or return -1 when error
+
+
+interpreter\concurrency\RexxActivity.cpp
+    RexxString *RexxActivity::messageSubstitution(
+            codepoint_t selector = message->getCharC(subposition);
+
+
+interpreter\runtime\RexxCore.h
+    codepoint_t padArgument(RexxObject *o, size_t p);
+
+    inline codepoint_t optionalPadArgument(RexxObject *o, codepoint_t d, size_t p)
+    {
+        return (o == OREF_NULL ? d : padArgument(o, p));
+    }
+
+
+interpreter\execution\RexxVariableDictionary.cpp
+RexxVariableBase  *RexxVariableDictionary::getDirectVariableRetriever(
+     RexxString *variable )            /* name of the variable              */
+    codepoint_t character = variable->getCharC(0);
+
+
+interpreter\parser\SourceFile.hpp
+    static inline bool isSymbolCharacter(codepoint_t ch)
+    static inline int translateChar(codepoint_t ch)
+
+
+interpreter\classes\StringClass.hpp
+   inline codepoint_t getCharC(sizeC_t p) { return *(this->stringData+size_v(p)); }; // todo call m17n : convert charpos to bytepos and return a codepoint, not a byte
+   inline char putCharB(sizeB_t p,char c) { return *(this->stringData+p) = c; }; // m17n : stores a byte, not a codepoint
+   //inline char putCharC(sizeC_t p,codepoint_t c) { return *(this->stringData+p) = c; }; // todo call m17n : stores a codepoint (ako replaceChar ? i.e. string can grow or shrink when utf-8 ? or is it limited to pure ascii chars <= 0x7F ?)
+   inline bool  endsWith(codepoint_t c) { return getCLength() > 0 && this->getCharC(this->getCLength() - 1) == c; }
+
+
+interpreter\classes\StringClassMisc.cpp
+    RexxInteger *RexxString::compare(
+        RexxString *string2,               /* other string to compare against   */
+        RexxString *pad)                   /* optional padding character        */
+    {
+        codepoint_t     PadChar;                    /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_TWO);/* get the pad character             */
+
+    RexxString *RexxString::translate(
+        RexxString *tableo,                /* output table                      */
+        RexxString *tablei,                /* input table                       */
+        RexxString *pad,                   /* pad character                     */
+        RexxInteger *_start,               // start position to translate
+        RexxInteger *_range)               // length to translate
+    {
+        codepoint_t      PadChar;                   /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_THREE);
+
+
+    RexxInteger *RexxString::matchChar(RexxInteger *position_, RexxString *matchSet)
+    {
+        codepoint_t         _matchChar = getCharC(position - 1);
+
+
+    RexxInteger *RexxString::caselessMatchChar(RexxInteger *position_, RexxString *matchSet)
+    {
+        codepoint_t         _matchChar = getCharC(position - 1);
+
+
+interpreter\classes\StringClassSub.cpp
+    RexxString *RexxString::center(RexxInteger *_length,
+                                   RexxString  *pad)
+    {
+        codepoint_t     PadChar;                    /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
+
+
+    RexxString *RexxString::insert(RexxString  *newStrObj,
+                                   RexxInteger *position,
+                                   RexxInteger *_length,
+                                   RexxString  *pad)
+    {
+        codepoint_t     PadChar;                    /* HugeString for Padding char       */
+        PadChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+
+    RexxString *RexxString::left(RexxInteger *_length,
+                                 RexxString  *pad)
+    {
+        codepoint_t      PadChar;                   /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
+
+
+    RexxString *RexxString::overlay(
+        RexxString  *newStrObj,            /* overlayed string                  */
+        RexxInteger *position,             /* overlay position                  */
+        RexxInteger *_length,               /* overlay length                    */
+        RexxString  *pad)                  /* pad character to use.             */
+    {
+        codepoint_t     PadChar;                    /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+
+    RexxString *RexxString::replaceAt(RexxString  *newStrObj, RexxInteger *position, RexxInteger *_length, RexxString  *pad)
+    {
+        codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+
+    RexxString *RexxString::right(RexxInteger *_length,
+                                  RexxString  *pad)
+    {
+        codepoint_t      PadChar;                   /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
+
+
+interpreter\classes\StringClassUtil.cpp
+    codepoint_t padArgument(
+        RexxObject *argument,              /* method argument                   */
+        size_t position )                  /* argument position                 */
+    {
+        RexxString *parameter = (RexxString *)stringArgument(argument, position);
+        /* is the string only 1 character?   */
+        if (parameter->getCLength() != 1)
+        {
+            /* argument not good, so raise an    */
+            /*error                              */
+            reportException(Error_Incorrect_method_pad, argument);
+        }
+        /* yes, return the character.        */
+        return parameter->getCharC(0); // todo m17n
+    }
+
+    Currently not using codepoint, but should. And should use getCharC.
+    char optionArgument(
+        RexxObject *argument,              /* method argument                   */
+        size_t position )                  /* argument position                 */
+    {
+        /* force option to string            */
+        RexxString *parameter = (RexxString *)stringArgument(argument, position);
+        /* return the first character        */
+        return toupper(parameter->getCharB(0)); // todo m17n
+    }
+
+
+interpreter\classes\StringClassWord.cpp
+    RexxString *RexxString::space(RexxInteger *space_count,
+                                  RexxString  *pad)
+    {
+        codepoint_t        PadChar;                 /* pad character                     */
+        PadChar = optionalPadArgument(pad, ' ', ARG_TWO);
+
+
+interpreter\classes\support\StringUtil.cpp
+RexxString *StringUtil::substr(const char *string, sizeB_t stringLength, RexxInteger *_position,
+    RexxInteger *_length, RexxString  *pad)
+{
+    codepoint_t padChar = optionalPadArgument(pad, ' ', ARG_THREE);
+
+
+=====================================================================================
+m17n unplug
+
+trunk/interpreter/interpreter.mak
+trunk/Makefile.am
+
+interpreter.cpp
+void Interpreter::startInterpreter(InterpreterStartupMode mode)
+{
+    ResourceSection lock("Interpreter::startInterpreter", 0);
+
+    // has everything been shutdown?
+    if (!isActive())
+    {
+        SystemInterpreter::startInterpreter();   // perform system specific initialization
+        m17n_init();
+
+bool Interpreter::terminateInterpreter()
+{
+    {
+        ...
+        m17n_deinit();
+
+        // perform system-specific cleanup
+        SystemInterpreter::terminateInterpreter();
+
+        // most interpreter resources will be cleanup automatically, but
+        // we need to poke the rxapi daemon and tell it to clean up our session
+        // resources.
+        RexxDeleteSessionQueue();
+    }
+    return true;
+}
+
+
 =========================================================================================
 
 rexx testOORexx.rex -s -S -R ooRexx\base\bif -f delstr
