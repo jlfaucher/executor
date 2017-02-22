@@ -108,14 +108,23 @@
 ::method "||op:right"
     -- CAREFUL ! This alternative message can be sent for "||" and "".
     -- NO WAY to make a distinction between both... unless the interpreter is modified.
-    -- 2i is equivalent to 2*i, but careful to operator precedence ! 1+2i is evaluated as (1+2)i = (0+3i)
-    forward message "*op:right"
+    forward message "op:right"
 
--- ::method "" -- abuttal
+--::method "" -- abuttal
+--    forward message "*"
 
--- ::method "op:right" -- abuttal
+::method "op:right" -- abuttal
     -- NEVER SENT by the interpreter, because "" is implemented as "||".
     -- Only "||op:right" can be sent by the interpreter.
+    -- 2i is equivalent to 2*i.
+    -- To clarify the semantic, I will probably add a new operator and no longer depend on abuttal.
+    -- Reason : (2)(i) should not be equivalent to 2*i, because it's not a split of symbol.
+    if self == i then do
+        -- The translation abuttal-->* is only applicable to i
+        use strict arg left
+        -- The translation abuttal-->* is only applicable if the multiplier is a number
+        if left~isA(.string), left~datatype("N") then forward message "*op:right"
+    end
 
 ::method '+'                                    /* addition method                */
     expose real imaginary                       /* access the state values        */
@@ -397,150 +406,9 @@
 
 
 /******************************************************************************/
--- Add support for notation a+bi where a and b are numbers.
+-- A number (i.e. an instance of String) can be converted to a complex
 ::class "ComplexString" mixinclass Object public
 
 ::method makeComplex
     if self~datatype("N") then return .complex~new(self)
-    string = self~strip
-    if string~right(1)~caselessEquals("I") then do
-        imaginary = string~left(string~length-1)~strip
-        if imaginary == "" | imaginary == "+" then imaginary = 1
-        else if imaginary == "-" then imaginary = -1
-        if imaginary~datatype("N") then return .complex~new(0, imaginary)
-    end
     return .nil
-
-/*
-::method arg
-    use strict arg -- none
-    complex = self~request("complex")
-    if .nil == complex then forward class (super)
-    return complex~arg
-*/
-
-/*
--- ::method " op:right"
-
-::method "||op:right"
-    say "||op:right :" self "||" arg(1)
-
--- ::method "op:right" -- abuttal
-
-::method "+op:left"
-    -- For the moment, this message is sent only for the unary +
-    use strict arg -- none
-    left = self~request("complex")
-    if .nil <> left then return left -- unary +
-
-::method "+op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "+" array (self) -- left + self
-
-::method "-op:left"
-    -- For the moment, this message is sent only for the unary -
-    use strict arg -- none
-    left = self~request("complex")
-    if .nil == left then return
-    forward to (left) message "-" -- unary -
-
-::method "-op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "-" array (self) -- left - self
-
-::method "*op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "*" array (self) -- left * self
-
-::method "/op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "/" array (self) -- left / self
-
-::method "%op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "%" array (self) -- left % self
-
-::method "//op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "//" array (self) -- left // self
-
-::method "**op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "**" array (self) -- left ** self
-
-::method "=op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "=" array (self) -- left = self
-
-::method "\=op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "\=" array (self) -- left \= self
-
-::method "<>op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "<>" array (self) -- left <> self
-
-::method "==op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "==" array (self) -- left == self
-
-::method "\==op:right"
-    use strict arg left
-    left = left~request("complex")
-    if .nil == left then return
-    forward to (left) message "\==" array (self) -- left == self
-
-::method "><op:right"
-
-::method ">op:right"
-
-::method "<op:right"
-
-::method ">=op:right"
-
-::method "\<op:right"
-
-::method "<=op:right"
-
-::method "\>op:right"
-
-::method ">>op:right"
-
-::method "<<op:right"
-
-::method ">>=op:right"
-
-::method "\<<op:right"
-
-::method "<<=op:right"
-
-::method "\>>op:right"
-
--- ::method "&op:right"
-
--- ::method "|op:right"
-
--- ::method "&&op:right"
-*/
