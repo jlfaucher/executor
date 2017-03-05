@@ -332,7 +332,7 @@ loadPackage:
             -- Classes having their own "_description_" class method (not an inherited one).
             selectClass = .select { item~instanceMethods(item)~allIndexes~hasItem("_DESCRIPTION_") }
         end
-        say "Classes with help text:"
+        displayer~sayInfo("Classes with help text:")
         .object~pipe(,
             .subClasses "recursive" "once",
           | selectClass,
@@ -388,7 +388,7 @@ loadPackage:
             end
             do line over source; say line; end -- better than say source~tostring, to have a good count of lines by a monitor
         end
-        else say "no help"
+        else displayer~sayInfo("no help")
         say
         return
 

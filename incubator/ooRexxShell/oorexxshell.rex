@@ -191,7 +191,7 @@ main: procedure
                 nop
 
             when .ooRexxShell~inputrx~left(1) == "?" then
-                .ooRexxShell~help(.ooRexxShell~inputrx~substr(2))
+                .ooRexxShell~help(.context, .ooRexxShell~inputrx~substr(2))
 
             when .ooRexxShell~inputrx~caselessEquals("coloroff") then
                 .ooRexxShell~showColor = .false
@@ -777,7 +777,7 @@ Helpers
 
 
 ::method help class
-    use strict arg queryFilter -- the string after '?'
+    use strict arg interpreterContext, queryFilter -- the string after '?'
     debugQuery = .false
     if queryFilter~left(1) == "?" then do
         -- If another "?" after the first "?" then we enter in debug mode (query analyzed and dumped but not executed)
@@ -785,15 +785,15 @@ Helpers
         queryFilter = queryFilter~substr(2) -- skip the second "?"
     end
     if .ooRexxShell~hasQueries then do
-        .ooRexxShell~helpWithQueries(queryFilter, debugQuery)
+        .ooRexxShell~helpWithQueries(interpreterContext, queryFilter, debugQuery)
     end
     else do
-        .ooRexxShell~helpNoQueries(queryFilter, debugQuery)
+        .ooRexxShell~helpNoQueries(interpreterContext, queryFilter, debugQuery)
     end
 
 
 ::method helpWithQueries class
-    use strict arg queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
+    use strict arg interpreterContext, queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
 
     filteringStream = .nil
 
@@ -820,7 +820,7 @@ Helpers
     if .ooRexxShell~traceFilter then filteringStream~traceFilter(self)
     .output~destination(filteringStream)
 
-    .ooRexxShell~dispatchHelp(queryFilter, queryArgs, filteringStream)
+    .ooRexxShell~dispatchHelp(interpreterContext, queryFilter, queryArgs, filteringStream)
 
     if filteringStream <> .nil then do
         filteringStream~flush
@@ -838,17 +838,17 @@ Helpers
 
 
 ::method helpNoQueries class
-    use strict arg queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
+    use strict arg interpreterContext, queryFilter, debugQueryFilter=.false -- queryFilter is the string after '?'
     queryFilterArgs = string2args(queryFilter, .true) -- true: array of Argument
     if debugQueryFilter then do
         self~displayCollection(queryFilterArgs)
         return
     end
-    .ooRexxShell~dispatchHelp(queryFilter, queryFilterArgs)
+    .ooRexxShell~dispatchHelp(interpreterContext, queryFilter, queryFilterArgs)
 
 
 ::method dispatchHelp class
-    use strict arg queryFilter, queryArgs, filteringStream=.nil
+    use strict arg interpreterContext, queryFilter, queryArgs, filteringStream=.nil
     if queryArgs[1] == .nil then do
         .ooRexxShell~helpCommands
         return
@@ -954,6 +954,8 @@ Helpers
     -- For convenience... rs is shorter than r.s
     else if "rs"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true)
 
+    else if "variables"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpVariables(interpreterContext)
+
     else .ooRexxShell~sayError("Query not understood:" queryFilter)
 
 
@@ -971,6 +973,7 @@ Helpers
     say "    ?m[ethods] method1 method2 ... : display methods."
     say "    ?p[ackages]: display the loaded packages."
     say "    ?r[outines] routine1 routine2... : display routines."
+    say "    ?v[ariables]: display the defined variables."
     say "    To display the source of methods, packages or routines: add the option .s[ource]."
     say "        Short: ?cms, ?cmis, ?ms, ?ps, ?rs."
     .ooRexxShell~helpInterpreters
@@ -1076,6 +1079,13 @@ Helpers
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg routinenames, displaySource
     .QueryManager~displayRoutines(routinenames, displaySource, self, .context)
+
+
+::method helpVariables class
+    -- Display the value of the defined variable
+    use strict arg interpreterContext
+    .ooRexxShell~sayCollection(interpreterContext~variables)
+    -- .ooRexxShell~sayCollection(.context~parentContext~parentContext~parentContext~parentContext~variables)
 
 
 -----------

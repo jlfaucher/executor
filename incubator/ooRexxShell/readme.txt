@@ -122,6 +122,7 @@ Help
 ?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
 ?r[outines] routine1 routine2... : display routines.
+?v[ariables]: display the defined variables.
 To display the source of methods, packages or routines: add the option .s[ource].
     Short: ?cms, ?cmis, ?ms, ?ps, ?rs.
 
