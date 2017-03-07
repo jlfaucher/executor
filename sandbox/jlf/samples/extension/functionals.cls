@@ -1120,13 +1120,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 ::routine controlledLoop
     use strict arg from, limit, step, count, action
-    -- parse only once, before iteration
+    if step == 0 then raise syntax 93.900 array ("The step in a controlled loop can't be zero")
     loop
         fps = from + step
         lps = limit + step
-        if fps <> from, fps <> step, lps <> limit, lps <> step then leave
+        if fps <> from, (from <> 0 & fps <> step), lps <> limit, (limit <> 0 & lps <> step) then leave
         numeric digits digits() + digits() % 2
     end
+    -- parse only once, before iteration
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, digits")~arity(2)
                                         else doer = action~doer
     arity = doer~arity
