@@ -209,3 +209,50 @@ RexxMethod *RexxBehaviour::superMethod(
     }
     return OREF_NULL;                    /* nothing found                     */
 }
+
+================================================================================
+use arg with defaults question
+================================================================================
+http://sourceforge.net/mailarchive/message.php?msg_name=5d74c5720809250931l38055c16u71c5c5df9d33a547%40mail.gmail.com
+
+I see that the following code generates an error:
+
+::method someMethod
+use strict arg num = 32, otherNum = -1
+...
+
+Incorrect expression detected at "-"
+
+It is easy enough to fix, otherNum = (-1)
+
+I was just surprised. Intuitively, it seems it should work without
+the parens. Is this intentional? Something too hard to change in the
+parser?
+
+--
+Mark Miesfeld
+
+
+http://sourceforge.net/mailarchive/message.php?msg_name=33bd05330809250951q36e457f4n9212736cb87b37c%40mail.gmail.com
+
+The default expression is what's known as a "constant expression".
+The expression must be either a single string or constant symbol
+(e.g., a number), or an expression contained in parentheses. This is
+a construct used in other places (for example, the forward and raise
+instructions). This is an expression syntax that allows additional
+subkeyword options to be added without compatibility breakage, since
+the parsing of the expression has a clearly defined beginning and end.
+That is, it is either a single token, or it is an expression in
+parens. An expression like -1 is a prefix operator followed by a
+number....two tokens (an operator + the number). This needs to be
+specified as either (-1) or "-1", which is a literal token that
+doesn't use the prefix operator.
+
+The ::CONSTANT directive had a similar problem. I relaxed the rules
+somewhat for that, allowing "+" or "-" followed by a valid numeric
+symbol to be used, but I almost regret doing this. This is going to
+be extremely difficult to describe what is valid for the directive
+because of the special exception. The rules could be relaxed to allow
+this in the constant expression case, but I'm very reluctant to do so.
+
+Rick

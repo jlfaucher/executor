@@ -1443,3 +1443,63 @@ Occurences of "digits("
             return source->getForm() == Numerics::FORM_SCIENTIFIC ? OREF_SCIENTIFIC : OREF_ENGINEERING;
         }
 
+================================================================================
+Default Numeric Digits in the 21st century
+================================================================================
+http://sourceforge.net/mailarchive/message.php?msg_name=5d74c5720807211338g56403d20j9728f9b4f2382a55%40mail.gmail.com
+
+Let me preface this by saying when it comes to the finer points of
+handling large numbers I'm not real knowledgeable.
+
+That being said, it somehow seems wrong to me that in the 21st
+century, the default numeric digits setting is too small to handle a
+32-bit number.
+
+I searched through the oorexx-devel list to see if there had been some
+discussion on changing this. But, the only thing I found was a
+comment from Rick stating that changing it would involve a lot of code
+rework.
+
+Since Rick just did a lot of code rework, I was wondering where we
+stand in respect to setting this default higher? <grin>
+
+Looking through Numerics.cpp, I see that the default numeric digits
+for a 64 bit compile looks to be 18. Isn't this just going to lead to
+the same problem on 64 bit systems?
+
+Is there anything that can be done about this?
+
+Mark Misfield
+
+--------------------------
+
+http://sourceforge.net/mailarchive/message.php?msg_name=33bd05330807211449u5f38d009gaf751734fedd422f%40mail.gmail.com
+
+Numeric Digits 9 was carefully chosen almost 30 years ago, and the
+reasons involved just as valid today as they were then. A value of 9
+means that the human readable limit on the values that can be
+represented are the more human memorable "9-nines" (i.e. 999,999,999
+to -999,999,999) AND the values within that range are usable for
+underlying binary values as well. Increasing this to 10 does not
+allow the full range of 10-nines to used for binary values....you'd
+have to express the limits in binary terms....and I can't even tell
+you what that limit is without resorting to a program or a calculator.
+Increasing to using larger binary types internally will not really
+work, since on 32-bit systems the underlying factilities are still
+limited to 32-bit values. The same problems occur when stepping up to
+64-bit, but I somehow suspect it will be some time before 18-nines
+becomes an issue :-)
+
+Rick
+
+----------------------------
+
+http://sourceforge.net/mailarchive/message.php?msg_name=OF5496D89F.8BF24633-ON8025748E.00275245-8025748E.0027BC64%40uk.ibm.com
+
+Indeed -- the 9 digits was chosen partly because it fits safely within 32
+bits, but also for readability etc. (it's easy to misread numbers with
+more than 9 digits). But the power-of-two-related limits and values are
+increasingly less interesting or relevant as fewer and fewer applications
+expose them.
+
+mfc

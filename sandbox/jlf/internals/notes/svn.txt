@@ -1,0 +1,152 @@
+================================================================================
+Sandbox
+================================================================================
+http://sourceforge.net/mailarchive/forum.php?thread_name=33bd05330711150446l30ee70b2m43978a99e5426068%40mail.gmail.com&forum_name=oorexx-devel
+
+From: Rick McGuire <object.rexx@gm...> - 2007-11-15 12:46
+
+Since we have some new committers on the team now, I thought it would be
+nice to give a little tutorial on using sandboxes to work on ooRexx changes.
+A sandbox is basically a private, working svn repository where you can
+check in changes without worrying about damaging the current build. There
+are a number of advantages to using sandbox builds for doing development:
+
+- You can check in the code frequently. This gives you a back up of
+your work in progress and also gives you checkpoints you can revert to if
+you discover you've made a mistake (it happens).
+- Code checked in to your sandbox doesn't even need to compile
+cleanly. This is your sandbox to play in, you decide what gets checked in.
+- A sandbox is a good vehicle for collaboration. Other committers can
+see what you're doing and can suggest improvements or keep you from
+wandering down dead-end paths. If you get stuck on something, your code is
+available for download so that the person assisting you can see exactly what
+you're doing.
+- Once you believe your changes are ready to be checked in to the
+trunk build, svn has some nice facilities to help you with the task.
+
+So, here's a step-by-step tutorial for working with the sandbox. For doing
+this, it might be handy to checkout a copy of the full svn tree. This can
+be done by using:
+
+svn co https://oorexx.svn.sourceforge.net/svnroot/oorexx
+
+This checks out everything. The interpreter, the tests, all release
+versions, the trunk, and all of the sandbox version. This is created in
+your current directory with the name "oorexx".
+
+Now change the current directory to "oorexx\sandbox". Create a new
+directory there with your name to be your private sandbox area. ("mkdir
+fred").
+
+Tell svn to add this directory to the repository using "svn add fred". Ok,
+you now have a committed private sandbox area in the tree.
+
+Now, to start working on a private copy, you must first make a copy of what
+you're working on into your private sandbox. The easiest way to do that is
+to make the copy on the server. So, to make a copy of the interpreter trunk
+version, you'd issue:
+
+svn copy
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/interpreter-3.x/trunk
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/sandbox/fred/temp
+
+where "temp" is the name of the sandbox version you want to create. (Handy
+tip: To find out the URL for any location in the build tree, go to that
+directory in the full version I had you check out and issue the "svn info"
+command).
+
+Ok, now you have a private version created in the tree. You'll need to
+either issue an "svn up" command to get this downloaded in your full tree,
+or if you wish to work from a different directory, issue
+
+svn co https://oorexx.svn.sourceforge.net/svnroot/oorexx/sandbox/fred/temp
+
+to get a fresh working copy of that build. Now that you have a sandbox
+version, start writing your code. You can check in changes at any time by
+issuing "svn --username me commit". Once you're ready to check this code
+backing into the trunk, we can use the svn merge capability to merge your
+changes.
+
+The first thing you need to do is get your sandbox copy caught up with any
+changes that may have been made to the trunk while you've been working on
+your branch. This is an important step. If you don't do this, you'll end
+up deleting any of the changes others have made while you've been working on
+your changes. I did this accidentally recently before I got the mechanics
+of using merge down. That's the main reason I'm writing this email. Some
+of the details are not completely obvious.
+
+I'm just about to do this on some changes I've been doing, so I'll describe
+the process as I'm doing it.
+
+So, to merge any updates that have occurred since you created your branch,
+you need to know the revision number of the branch. I subscribe to the SVN
+mailing list and keep all of the notices in a folder where I can refer to
+them. If you don't keep those notices around, they are archived here:
+
+http://sourceforge.net/mailarchive/forum.php?forum_name=oorexx-svn
+
+It should be fairly easy to spot the notice where you created your branch.
+Here's the notice for the one I'm working on currently:
+
+http://sourceforge.net/mailarchive/forum.php?thread_name=E1Is2gc-0006pp-8A%40sc8-pr-svn3.sourceforge.net&forum_name=oorexx-svn
+
+This is revision 1229.
+
+svn merge works by comparing all of the differences between two svn
+revisions, then applying those changes to a working copy. So, what I need
+to apply is all of the changes to the trunk version between revision 1229
+and the latest revision to my working sandbox build. So, I first change my
+current directory to the root of my sandbox build. From that directory, I
+issue the following command:
+svn merge
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/interpreter-3.x/trunk@1229
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/interpreter-3.x/trunk .
+
+I have asked SVN to figure out all of the differences between revision 1229
+of the trunk to the latest revision of the trunk and apply those changes to
+my working copy in the current directory (the "." at the end of the
+command). Here's what resulted:
+
+U platform\windows\ole\orexxole.c
+U makeorx.bat
+
+So, there have been two files updated since I took my snapshot. The
+characters on the lefthand side are status indicators. U means the file was
+updated and there was no conflict. New files are noted with "A", delete
+files with "D". If you see a "C", that means there was a conflict between a
+change you made and a change somebody else made. You'll need to fix up the
+conflict before you can check in again. I didn't have any conflicts, so I'm
+good to go. Rebuild and retest to make sure you stuff still works, then
+issue another "svn commit" to check in the merged changes to your sandbox.
+
+ok, now we need to merge your changes from the sandbox back into the trunk.
+This is very similar to the step we just ran to update your sandbox. To
+start, make sure you have an up-to-date checkout of the trunk build. Then,
+from that directory, issue the command:
+
+svn merge
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/interpreter-3.x/trunk
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/sandbox/rick/longjmp .
+
+Ok, we've asked svn to figure out all the differences between the current
+trunk version and your working sandbox version and apply those changes to
+the working copy in the current directory. This is the point where it's
+important that you've merged trunk changes into your sandbox first. Because
+svn works on file differences, the merge process would think that you had
+deleted all of the new stuff from trunk when you made your changes and
+delete those changes from the working copy. Not a good thing to have
+happen!
+
+Ok, once you've done the merge, rebuild, retest again, and finally commit
+the changes changes back in to trunk.
+
+And, as one last step, it's generally good form to delete your working
+sandbox build and create a fresh one for the next thing you're working on.
+
+svn delete
+https://oorexx.svn.sourceforge.net/svnroot/oorexx/sandbox/rick/longjmp
+
+I hope this is of use....if nothing else, I've documented it for myself so I
+remember the steps :-)
+
+Rick

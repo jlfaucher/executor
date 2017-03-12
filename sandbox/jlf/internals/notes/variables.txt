@@ -412,3 +412,226 @@ RexxObject * RexxDotVariable::evaluate
         /* try for a REXX defined name       */
         result = context->rexxVariable(this->variableName);
     }
+
+
+================================================================================
+Stems
+================================================================================
+JLF 12/03/2017: found that text in my old archives
+
+
+http://www.os2site.com/sw/dev/rexx/orexx/variables.txt
+
+ from the comp.lang.rexx  newsgroup
+
+The Author is Rick McGuire
+
+Sigh, ok, long explanation time. Just remember you said you "I am
+covering 101 ground this evening to make sure I know an area inside and
+out".
+
+                                 ----------
+                                 Background
+                                 ----------
+
+Ok, the first thing you need to understand is a variable in Object Rexx
+is really just a pointer to an object.  So when I do this
+
+a = 1
+b = a
+
+When you use a variable, the value of that variable is evaluated to
+generate a reference to the variable.  When you assign a variable, the
+object reference is assigned to the variable.  Variable A points to an
+instance of a Rexx string with the value "1", and the variable B points
+to the exact same instance.  In fact, the Classic Rexx interpreter
+implemented its internal storage the same way.  Now since Rexx strings
+are "immutable", there is nothing I can do to change the value of that
+string to anything other than "1".
+
+Now consider this.
+
+a = .array~new
+b = a
+
+The same principle applies as above.  Variables A and B now point to the
+same instance of a Rexx array.  Arrays are not immutable.  They have
+internal state that can be changed.  Thus
+
+a[1] = "Fred"
+say b[1]  -- displays "Fred"
+
+The assignment to a[1] does not change the value of A.  It still points
+to the same array created above.  The assignment does change the
+internal state of the array.  Since B points to the same array instance,
+the change is reflected in the Say statement.  Neither variable A nor B
+was changed in this process, only the array they both point to.
+
+ok, now lets extend this to calls.
+
+c = 1
+call fred a, c
+say a[1] c b[1]   -- displays "George 1 George"
+...
+
+fred: procedure
+use arg x, y
+
+x[1] = "George"
+y = 2
+
+When you make a call (included method calls), the argument expressions
+are evaluated from left to right, creating a list of object references
+that are passed to the call target.  So in my example above the array
+contains two elements, the value of the variable A and value of the
+variable C.  The target routine has no knowledge of where these values
+came from, it only receives the references.
+
+The use arg instruction is very simple, it merely assigns each listed
+variable to it's corresponding object reference.  So X points to the
+same array A and B point to, and Y points to the same string "1" that C
+points to.  USE ARG is functionally equivalent to "x = arg(1)", except
+for the special behavior that USE ARG has for omitted arguments.
+
+When I do x[1] = "George", this is just like my example above.  The
+variable X is unchanged, but the internal state of the array it points
+to is, and this change is seen in the calling routine.
+
+However, when I make the assignment "y = 2", this replaces the Y's
+object reference to "1" with a new reference to the string "2".  C back
+in the caller has not been touched, it still points to the string "1",
+which is reflected in the value that shows up on the Say statement.
+
+                                   -----
+                                   Stems
+                                   -----
+
+Ok, your question was about stems, and I'm getting there!  I wanted to
+give you the basics of how object references work without cluttering the
+discussion up with stem variables yet.
+
+Now let's look at stems.  A stem VARIABLE is just like a normal
+variable.  It also contains a reference to a Rexx object.  Stem
+VARIABLEs are special, however, as there is only a single type of object
+that can be assigned to a stem VARIABLE.  This single type is a STEM
+object.  Please try to keep in mind there is a difference between the
+stem OBJECT and the stem VARIABLE you use access to the object.
+
+You can actually use stem OBJECTS without using stem VARIABLES.  For
+example:
+
+a = .stem~new("A.")
+a[1] = "Fred"
+say a[1] a[2]  -- Displays "Fred A.2"
+
+is functionally equivalent to
+
+a.1 = "Fred"
+say a.1 a.2
+
+Any time you use either a stem variable or a compound variable, the stem
+part is evaluated to return the reference to its referenced stem object.
+ If this is the first time you've ever used this stem VARIABLE, then a
+STEM object is created and assigned to the variable first.  Once the
+stem OBJECT reference has been returned it is then used are the target
+for compound variable tail lookups.
+
+INTERMISSION:  Handy little tip.  A frequent topic of discussion on this
+newsgroup is the question of constant values within a compound variable.
+ Uses such as this
+
+x.i.name = "Rick"
+x.i.address = "Boston"
+
+a frequent convention tacks a digit on the front to prevent accidental
+uses of those variables.  ie,
+
+x.i.0name = "Rick"
+x.i.0address = "Boston"
+
+In Object Rexx, you can use literal strings by using the "[]" notation
+
+x.[i, "NAME"] = "Rick"
+x.[i, "ADDRESS"] = "Rick"
+
+note that this functions the same way Rexx arrays work.  The stem
+VARIABLE is evaluated, and the "[]=" method of the resulting stem OBJECT
+is invoked to do the assignment.
+
+You can also see this reference effect by using the following assignment":
+
+x = x.   -- TWO different variables here..."X" and "X."
+
+say x[i, "NAME"] x.i.name  -- displays "Rick Rick"
+
+Here we have a simple Rexx variable and a stem Rexx variable referencing
+the same stem OBJECT.
+
+END INTERMISSION
+
+Stem variable assignment also functions slightly differently from normal
+variable assignments.
+
+If you assign a stem variable to another stem variable
+
+a.1 = "Fred"
+a. = b.
+say b.1 b.2  -- displays "Fred A.2"
+
+The stem variable reference for A. is assigned to a second stem variable
+B.  And you can see this when I referenced the uninitialized stem
+element B...it displayed the value "A." because the original stem OBJECT
+was created with a name value of "A." originally.
+
+
+
+If you assign anything other than a stem OBJECT to a stem VARIABLE, then
+a new stem OBJECT is created and given that value as its default value.
+   This assignment will sever the link to the original stem object.  So
+given the above.
+
+say a.1 b.1 -- displays "Fred Fred"
+a. = "George"
+say a.1 b.1 -- displays "George Fred"
+
+Hang in there, I'm actually getting close to your original question!
+
+Now, how does use arg work with stem variables.
+
+a.1 = "Fred"
+c = 1
+call fred a., c
+say a1 c  -- displays "George 1"
+...
+
+fred: procedure
+use arg x., y
+
+x.1 = "George"
+y = 2
+
+
+This is the same as the example above.  The stem variable A. in the call
+evaluates to a reference to a stem OBJECT, which is passed to the target
+routine.  USE ARG accesses that argument list, and assigns the
+references to each variable in turn.  So the local variable X. is
+assigned the value of the first argument, which is a reference to a stem
+object.  If you recall from the discussion above, a stem object assigned
+to a stem variable just copies the reference into the variable.
+Variables X. and A. now point to the same stem OBJECT.  Stem objects
+have updatable internal state, so the assignment
+
+x.1 = "George" is visible back in the calling routine.
+
+Interestingly, you can do the same thing without even using a stem
+variable!  Try the following:
+
+fred: procedure
+use arg x, y    -- X is a simple variable, not a stem!
+
+x[1] = "George"
+y = 2
+
+Ok, thus concluded Rick's Friday night Object Rexx tutorial :-)
+x.[i, "NAME"] = "Rick"
+x.[i, "ADDRESS"] = "Rick"  {for "Boston"}

@@ -126,7 +126,7 @@ rexx -e '"echo test | rxqueue" ; say queued()'
 [rxapi 00034] userid=
 
 ====================================================================
-root> echo test | rxqueue myQueue 
+root> echo test | rxqueue myQueue
 REX124: The queue myQueue does not exist.
 
 
@@ -143,3 +143,44 @@ REX124: The queue myQueue does not exist.
 [rxapi 00037] nameArg=myQueue
 [rxapi 00037] userid=root
 [rxapi 00038] ServiceException caught
+
+================================================================================
+rxqueue question
+================================================================================
+http://sourceforge.net/projects/oorexx/forums/forum/408477/topic/4051816
+
+ubihga
+------
+10 years ago I had a problem on my AIX's with rexx if I had several rexx running simultaneous.
+The problem was that tne rexx's "snatch" data from each others rxqueue.
+I think we at that time used rexx version 1 or 2.
+
+Because of this I added following to my rexx's
+
+#! /usr/bin/rexx
+ init_prog:
+ /* define rexx queue */
+ newq = rxqueue('c')
+ oldq = rxqueue('s',newq)
+
+ doit:
+ /* the work to be done */
+ 'hostname | rxqueue ' newq
+
+prog_end: /*
+ del tmp queue */
+ rx = rxqueue('s',oldq)
+ ry = rxqueue('d',newq)
+
+ I have not been able to recreate the problem using oorexx 3.2 or oorexx 4.1)
+
+Can anyone tell me it this is still needed ?
+
+
+rick
+----
+It largely depends on how you are invoking the rexx programs.
+Each rexx process will create a private session queue for that process so it is a private queue.
+This also sets an environment variable for the process that will be inherited by child processes such as the rxqueue filter so they can determine which session queue to use.
+So, if you have a single top-level rexx program that starts a bunch of background processes, then each process will inherit the environment variables of the parent process and use the same session queue.
+If you are launching these programs as separate top-level rexx programs, then each one will use a different session queue and they will not interfere with each other.

@@ -1,13 +1,100 @@
 http://ironjs.wordpress.com/2011/03/26/javascript-quotations/
-What it does is it introduces a new symbol, @ – stolen from F#, which gives you access to the syntax tree of a function during runtime and allows you to modify it as you see fit and then compile it to a regular JavaScript function.
+What it does is it introduces a new symbol, @ – stolen from F#, which gives you
+access to the syntax tree of a function during runtime and allows you to modify
+it as you see fit and then compile it to a regular JavaScript function.
 
 
 http://msdn.microsoft.com/en-us/library/dd233212.aspx
 F# code quotation
-This topic describes code quotations, a language feature that enables you to generate and work with F# code expressions programmatically. This feature lets you generate an abstract syntax tree that represents F# code. The abstract syntax tree can then be traversed and processed according to the needs of your application. For example, you can use the tree to generate F# code or generate code in some other language.
+This topic describes code quotations, a language feature that enables you to
+generate and work with F# code expressions programmatically.
+This feature lets you generate an abstract syntax tree that represents F# code.
+The abstract syntax tree can then be traversed and processed according to the
+needs of your application. For example, you can use the tree to generate F# code
+or generate code in some other language.
 
 open Microsoft.FSharp.Quotations
 // A typed code quotation.
 let expr : Expr<int> = <@ 1 + 1 @>
 // An untyped code quotation.
 let expr2 : Expr = <@@ 1 + 1 @@>
+
+================================================================================
+Start script from command line
+================================================================================
+JLF 12/03/2017 : I put this section here, because thee is a comment of Rick
+about parse tree.
+
+
+http://sourceforge.net/mailarchive/forum.php?thread_name=63EE03AB-105A-4CA4-A104-E70147D84425%40xs4all.nl&forum_name=oorexx-devel
+
+            Re: [Oorexx-devel] start script from commandline
+From: Rick McGuire <object.rexx@gm...> - 2007-04-07 19:21
+
+Attachments: Message as HTML
+Boy, you like to jump into the deep end of the pool. Good questions. I
+suspect some of these may take multiple back-and-forth questions to answer,
+but I don't mind at all.
+
+On 4/7/07, Ren=E9 Jansen <rvjansen@xs...> wrote:
+>
+> ok.
+> Q: can the ooRexx interpreter run a program source that is supplied in an
+> RXSTRING, or are there dependencies on it being a File somewhere in the
+> interpreter?
+>
+
+Yes, this the instore argument to the RexxStart() API.
+
+
+
+Q: I observe in gdb that if I put a break in 'main', on my Mac it starts
+> running in code generated from platform/unix/rexx.cpp:107 (interestingly, a
+> few lines off). After processing the commandline, it calls RexxStart
+> in kernel/platform/unix/RexxMain.cpp:236. It there assembles
+> RexxStartArguments and proceeds to call RexxSendMessage in (the first
+> platform independnt) file kernel/runtime/RexxActivity.cpp:3781. Here an
+> activity is instantiated. Now a lot starts to happen and I do not readily
+> see where to put the next breakpoint.
+> This for the cases:
+> 1) I want to trace the startup of Rexx and see where it is opening the
+> file to read source from it, and lexes and parses it
+>
+
+The heart of the action in parsing takes place in the RexxSource class,
+which is actually scattered across several sournce files located in the
+kernel/parser subdirectory. Look at the RexxSource::classNewFile() method
+for the main starting point of the parsing process.
+
+
+2) When I want to see the start of the processing of parsed source (for
+> example if i want to set a stop at a certain source line (in the script)
+> because I suspect something goes wrong?
+>
+
+I've never had occasion to set a break point for a particular source line,
+and nothing jumps out at me immediately as a good place to do that. I
+generally set the break points on the place where particular instruction
+types get processed. The main source translation loop is in SourceFile.cpp=
+,
+the RexxSource::translateBlock() method.
+
+
+Q: If I wanted to use the interpreter up to the parser and then walk the
+> tree myself, would that be a viable approach (and where should I look)?
+>
+
+Not to sure that's really a viable approach. The parser doesn't actually
+create a parse tree in the traditional sense, but rather creates a
+self-executing parse. Each instruction has its own class (see the
+kernel/instructions directory). Each instruction object has references to
+the artifacts it requires to execute (such as a self-evaluating expression
+tree), and the instructions are all linked together to produce a running
+program. The kernel/expression directory holds the classes that make up
+elements of an expression tree (variables, functions, etc.).
+
+
+If you really want to look at these, then inside of the method object
+returned by the parser, follow the code-> link to the RexxCode object that
+holds the executable. The start field in RexxCode is the first instruction
+of the method, and everything runs from there.

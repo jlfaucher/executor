@@ -1149,3 +1149,65 @@ Chemins modifiés :
 Fix the version number for the trunk. Set to 4.1.0.
 
 
+================================================================================
+Some notes for release 4.0.0
+================================================================================
+
+oorexx:[5082] docs
+Log Message:
+-----------
+Move 4.0 docs to releases.
+
+Added Paths:
+-----------
+   docs/releases/4.0.0/
+
+Removed Paths:
+-------------
+   docs/branches/4.0.0/
+oorexx:[5083] main
+Log Message:
+-----------
+Move 4.0 main to releases.
+
+Added Paths:
+-----------
+   main/releases/4.0.0/
+   main/releases/4.0.0/trunk/
+
+Removed Paths:
+-------------
+   main/branches/4.0beta/
+oorexx:[5084] test
+Log Message:
+-----------
+Move 4.0 test to releases. One more commit needed for this move.
+
+Added Paths:
+-----------
+   test/releases/4.0.0/
+   test/releases/test.4.0.0/
+
+Removed Paths:
+-------------
+   test/branches/test.4.0.0/
+oorexx:[5085] test/releases/4.0.0/
+Log Message:
+-----------
+Remove old empty 4.0 test release.
+
+Removed Paths:
+-------------
+   test/releases/4.0.0/
+oorexx:[5086] test/releases
+Log Message:
+-----------
+Final rename for the 4.0 test release.
+
+Added Paths:
+-----------
+   test/releases/4.0.0/
+
+Removed Paths:
+-------------
+   test/releases/test.4.0.0/

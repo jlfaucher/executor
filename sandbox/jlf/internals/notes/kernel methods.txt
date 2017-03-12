@@ -1,0 +1,49 @@
+================================================================================
+HasMethod
+================================================================================
+
+[Rick McGuire]
+
+Most of the lower-level methods are intended to be called from internal code where
+it is ok to require that certain requirements are met by the call and error checks
+can be bypassed. Placing the upper call and argument check at the very lowest level
+means that lots of additional uppercasing calls are done for situations where it is
+absolutely unnecessary.
+
+The real gateway for the version of HASMETHOD callable by ooRexx code is the
+hasMethodRexx() method of object. For many methods, particularly ones with arguments,
+there will be a stub version that's the one exposed to the Rexx programmer that
+does appropriate argument checks and also does operations like folding string values
+to uppercase. That's the place where the uppercasing needs to be moved to.
+
+
+[Mark Miesfeld]
+
+Ah, yes. So, putting the check in hasMethod() was on the right track.
+But, I did notice those xxxRexx() functions and sort of had a clue as to what they were.
+So moving the required string check and upper casing should go in hasMethodRexx().
+These xxxRexx() stub functions are how the interpreter kernel calls the C++ objects?
+Is that sort of on the right track?
+
+[Rick McGuire]
+
+Yes, now you got it. The mapping between the symbolic name and the C++ methods is
+done in kernel/runtime/Setup.cpp. For example, the entry for HASMETHOD looks like this:
+
+defineKernelMethod(CHAR_HASMETHOD ,TheObjectBehaviour, CPPM(RexxObject::hasMethodRexx), 1);
+
+This defines HASMETHOD for the Object class as being a native CPP method that takes
+one argument. Not every method that's exported to Rexx code has a xxxxRexx variant,
+but there are a number of reason why one is required. Generally, an xxxxRexx version
+is created when a method of a class is used both within internal code and exported
+as a Rexx-callable method. In that case, the internal version doesn't do many argument
+checks and the rigorous argument checking is performed in the xxxxRexx version since
+you can't depend on pesky users to get
+things right the first time :-)
+
+Methods that don't take any arguments do not need this. Other methods that are mostly
+called from Rexx code rather than internal code also don't really require this split.
+One additional case which might be non-obvious. When the target of a method call is
+also implemented as a virtual method of the class, then the Rexx-callable version
+will need to be non-virtual stub. Don't worry about messing this one up....
+the compiler will tell you about it if you try to use a virtual method accidentally.

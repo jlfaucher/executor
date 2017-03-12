@@ -1,0 +1,34 @@
+================================================================================
+interpret 'self~sub' fails if sub is private
+================================================================================
+JLF 12/03/2017: keep track of an old fix
+
+
+The following program fails if "sub" is declared private, saying "Object "a C" does not understand message "SUB"" ...
+
+       signal on novalue
+       c = .C~new
+       c~main
+
+::class C
+::method sub private
+       say 'In sub'
+::method main
+       say 'In main'
+       self~sub
+       interpret 'self~sub'  -- <------------ fails
+       say 'In main'
+
+
+Modified Paths:
+--------------
+   main/trunk/interpreter/execution/RexxActivation.cpp
+
+RexxObject *RexxActivation::getReceiver()
+{
+     if (this->isInterpret())
+     {
+         return parent->getReceiver();
+     }
+    return receiver;
+}

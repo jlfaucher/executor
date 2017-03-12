@@ -1,0 +1,94 @@
+================================================================================
+Building ooRexx on z/OS
+================================================================================
+http://sourceforge.net/forum/message.php?msg_id=5088584
+
+By: David Crayford (dopc1) - 2008-07-11 06:02
+
+I'm attempting to build ooRexx on z/OS. I didn't think it would be trivial and it's not.
+I've tracked down some of the ASCII tables and replaced them with EBCDIC, but that's the
+least of my problems.
+
+ooRexx unix builds make extensive use of pthreads, which is great. Unfortunately there is
+a lot of casting of pthread_t to long, which wont work on z/OS, where pthread_t is an opaque
+type. I'm patching this as I go but I've now hit a dead end with the semaphores in rexxutil.cpp.
+
+I've now come to the conclusion that this is a full blown port and I need a plan. Here are my issues:
+
+Patch the configure scripts to correctly build on z. When I ran configure it didn't work smoothly, for
+example it doesn't know how to detect how to build DLLs. I'm no autoconf/automake expert, any help will
+be warmly received.
+
+pthreads are Z are not compatible with other nix's. Casting pthread_t to a long is not an option.
+
+ASCII issues - I've patched the parser, where else is there ASCII specific code/tables?
+
+Once I get a clean build I will then start to implement z/OS function package, such as:
+
+ZFile - function package to process z/OS files, QSAM, PDS, VSAM etc. This should be straightforward, just
+wrap the stdio C runtime functions.
+
+DB2 - function package to wrapper DB2 ODBC functions to provide access to DB2 data bases.
+
+XML - function packages to provide XML/XSLT processing utilizing Xerces/Xalan and the new XML systems services
+enabled DOM parser in the z/OS XML Toolkit.
+
+If and when I succeed I will provide a patch file and the binaries for you guys to host here. I think the best way
+to proceed is a seperate patch that I will maintain, otherwise the code may become obfuscated.
+
+What I'm looking for is advice on how to proceed, especially with the pthread issue.
+
+http://sourceforge.net/forum/message.php?msg_id=5089099
+
+---------------------------------------------
+By: Rick McGuire (bigrixx) - 2008-07-11 10:38
+David,
+
+First of all, a hearty welcome! People have been talking about a z/OS port for years,
+but it's nice to see somebody who's actually gotten beyond the "what compiler should I use question".
+
+You might want to subscribe to the developer's mailing list and start using that for questions.
+More people follow that list, including at least one person who's also interested in a z/OS port.
+You might pick up some help that way.
+
+I assume from your findings that you're working from the 3.2.0 code.
+You might want to consider working from the trunk version, even though that's less stable than the 3.2.0 version.
+The platform interface has been significantly reworked in trunk, with the pthread_t casting issue being one of
+many things that have been fixed. This code base is also (in theory at least) 64-bit clean.
+We've not gotten around to building/testing yet on a 64-bit platform, but we should be getting closer.
+
+Providing patches is perhaps another good reason for switching to trunk.
+The code has been significantly reworked since 3.2.0.
+I'm not sure we really want to be applying any patches to that code base any more.
+Also, if you're working off of trunk, a "patch-early-and-often" strategy might be better.
+If the changes you need are directly incorporated in the base code, the rest of the team
+can be more sensitive to what issues exist...for example the EBCDIC issue.
+It's pretty simple thing to have those conditionally compile using #ifdef ASCII/EBCDIC tags.
+We can put that sort of change in any time you find it is needed.
+
+Anyway, sounds like you're off to a pretty good start.
+I encourage you to ask lots of questions on the dev mailing list.
+The answers will help others, not just you.
+
+Rick
+
+===============================================================================
+z/OS
+===============================================================================
+http://fr.wikipedia.org/wiki/Z/OS
+
+z/OS est un système d'exploitation 64-bits développé pour les gros ordinateurs de type «  mainframes » zSeries par IBM en 2001. C'est le successeur du système OS/390. z/OS est une combinaison de MVS et UNIX System Services.
+z/OS a fait son apparition en 1960 et a changé plusieurs fois de nom (en fonction des versions) au cours des années :
+MFT (Multiprogramming with a Fixed number of Tasks),
+MVT (Multiprogramming with a Variable number of Tasks),
+SVS (Single Virtual Storage),
+MVS (Multiple Virtual Storage),
+MVS/370,
+MVS/XA (Extended Architecture) (1981)
+MVS/ESA (Enterprise Systems Architecture).
+OS/390 (1996)
+z/OS
+Toutes ces versions sont appelées indistinctement MVS dans la langue courante.
+Basé sur une architecture extrêmement fiable ayant fait ses preuves au cours des décennies, il est plébiscité par toutes les sociétés ayant de très gros besoins de disponibilité et de performances, on le retrouve comme site central (ordinateur central = Mainframe) chez la majorité des banques, assurances, mutuelles, industries automobiles, distributeurs car c'est le seul OS permettant de répondre à leurs attentes en termes de fiabilité, performances et accès concurrents.
+Le z/OS est un OS complètement différent des OS courants type Windows ou Unix. L'exemple le plus flagrant est la gestion des fichiers par catalogue et non de manière hiérarchique. Ainsi, sous z/OS , on ne trouve pas de répertoire. Les fichiers sont cataloguées mais non hiérarchisés dans des répertoires. Pour désigner un fichier, on parle de DSN, c'est à dire de Data Set Name. Le DSN est composé de plusieurs alias connectés par un point, dont seul le premier alias renvoie à un catalogue.
+Ces systèmes peuvent utiliser l'EBCDIC.
