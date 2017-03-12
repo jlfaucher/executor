@@ -154,6 +154,15 @@ a33~each=
     return self
 
 
+::method each
+    -- R←,Y (Ravel)
+    -- Y may be any array. R is a vector of the elements of Y taken in row-major order.
+    -- Seen in http://www.dyalog.com/mastering-dyalog-apl-errata.htm
+    -- B 51 debate: "A single number has no dimensions" .. what about ⍴,1 ?
+    -- ⍴,1 is 1, that's why I add this method
+    return v(self)
+
+
 /******************************************************************************/
 ::class "APLArray" mixinclass Object public
 
@@ -415,6 +424,19 @@ a33~each=
         arrayIndex[i] = 1
     end
     return arrayIndex -- for convenience
+
+
+::method deltaIndexes
+    use strict arg index1, index2
+    dimension = self~dimension
+    dimensions = self~dimensions
+    delta = 0
+    p = 1 -- Ex: for shape [2,3,4] the successive values of p are 1, 1*4, 1*4*3. It's the equivalent of 1, 1*10, 1*10*10 when you write a number in base 10.
+    do i = dimension to 1 by -1
+        delta += (index2[i] - index1[i]) * p
+        p *= dimensions[i]
+    end
+    return delta
 
 
 /******************************************************************************/
