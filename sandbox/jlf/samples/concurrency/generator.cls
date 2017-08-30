@@ -763,7 +763,7 @@
         if once then previousItems~append(item)
         if stack <> .nil then stack~push(item)
         self~processDepthFirst.1(item, index, previousItems, stack, depth+1)
-        stack~pull
+        if stack <> .nil then stack~pull
     end
     else do
         self~yieldResult(item, index, depth, stack)
