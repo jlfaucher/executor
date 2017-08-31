@@ -11,17 +11,17 @@ do count=1 to takeNumber
     duration = time('e') -- elapsed duration
     duration1 += duration
     stats1 = .stats~new("stats1", duration)
-    
+
     say "-----"
-    
+
     -- Less naive generation of factorials from 0! :
     call time('r')
-    g=0~generateI{if item == 0 then 1; else stack[1] * depth}~recursive
+    g=0~generateI{if item == 0 then 1; else stack[1] * depth}~stack(1)~recursive
     g~take(count)~iterator~each{say item[3]"! =" item[1]}
     duration = time('e') -- elapsed duration
     duration2 += duration
     stats2 = .stats~new("stats2", duration)
-    
+
     say "-----"
     stats1~display
     say "-----"
@@ -30,11 +30,11 @@ do count=1 to takeNumber
 
 end
 
-say "duration1="duration1 "mean="duration1/takeNumber 
+say "duration1="duration1 "mean="duration1/takeNumber
 say "duration2="duration2 "mean="duration2/takeNumber
 
 count = .Coactivity~endAll
-say ".Coactivity~endAll halted" count "coactivities" 
+say ".Coactivity~endAll halted" count "coactivities"
 
 return
 
@@ -46,7 +46,7 @@ return
 ::method init
     expose ident duration yieldCounter addWaitingActivityCounter relinquishCounter requestAccessCounter getAPIManagerCounter
     use strict arg ident, duration
-    -- Following variables are monitoring counters added to the interpreter 
+    -- Following variables are monitoring counters added to the interpreter
     yieldCounter = .yieldCounter
     addWaitingActivityCounter = .addWaitingActivityCounter
     relinquishCounter = .relinquishCounter
