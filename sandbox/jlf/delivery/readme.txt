@@ -196,7 +196,7 @@ Implementation notes :
 This directive delegates to the methods .class~define and .class~inherit.
 The changes are allowed on predefined classes, and are propagated to existing instances.
 
-If the same method appears several times in a given::extension directive, this is an error (because it's like that with ::class).
+If the same method appears several times in a given ::extension directive, this is an error (because it's like that with ::class).
 It's possible to extend a class several times in a same package.
 It's possible to extend a class in different packages.
 If the same method appears in several ::extension directives, there is no error : the most recent replaces the older (because 'define' works like that).
@@ -435,7 +435,7 @@ Big picture :
     a RexxBlock contains informations that depends on the evaluation context.
     In particular, when a RexxBlock is a closure's source, it will hold a snapshot of the context's variables :
     ~source : source of the RexxSourceLiteral, never changed even if ~functionDoer or ~actionDoer called.
-    ~variables : snapshot of the context's variables (a directory), created only if the source starts with "::closure".
+    ~variables : snapshot of the context's variables (a directory), created only if the source starts with "expose".
     ~rawExecutable : the raw executable of the RexxSourceLiteral, created at load-time (routine or method).
     ~executable : cached executable, managed by doers.cls. ~executable~source can be different from ~source.
 
@@ -443,40 +443,18 @@ Big picture :
 By default (no tag) the executable is a routine.
 Ex :
 {use strict arg name, greetings; say "hello" name || greetings}~("John", ", how are you ?") -- hello John, how are you ?
+If the source starts with "expose" then the doer is a closure.
 
 
-::method is a tag to indicate that the executable must be a method.
-The first argument passed with ~do is the object, available in self.
-The rest of the ~do's arguments are passed to the method as arg(1), arg(2), ...
-Minimal abbreviation is ::m
-Ex :
-{::method use strict arg greetings; say "hello" self || greetings}~doer~do("John", ", how are you ?") -- hello John, how are you ?
+::routine is a tag to indicate that the doer is a routine.
+Minimal abbreviation is ::r
+If the source after the tag starts with "expose" then the doer is a closure.
 
 
-::coactivity is a tag to indicate that the doer must be a coactivity (whose executable is a routine by default).
-Minimal abbreviation is ::c
+::coactivity is a tag to indicate that the doer is a coactivity.
+Minimal abbreviation is ::co
 Ex : See section coactivity.
-
-
-::routine.coactive (coactive routine) is equivalent to ::coactivity.
-Minimal abbreviation is ::r.c
-Ex : See section coactivity.
-
-
-::method.coactive is a tag to indicate that the doer must be a coactivity whose executable is a method.
-The object on which the method is run is passed using the ~doer method.
-Minimal abbreviation is ::m.c
-Ex : See section coactivity.
-
-
-::closure (closure by value)
-Minimal abbreviation is ::cl
-Ex : See section closure.
-
-
-::closure.coactive (coactive closure)
-Minimal abbreviation is ::cl.c
-Ex : See section closure.
+If the source after the tag starts with "expose" then the doer is a coactive closure.
 
 
 =====================================================================================
@@ -522,17 +500,6 @@ block~("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
 block~("Keith", ", bye") -- <nothing done, the coactivity is ended>
 
 
-block = {::method.coactive
-         say self 'says "hello' arg(1) || arg(2)'"'
-         .yield[]
-         say self 'says "good bye' arg(1) || arg(2)'"'
-        }
-doer = block~doer("The boss")
-doer~("John", ", how are you ?") -- The boss says "hello John, how are you ?"
-doer~("Kathie", ", see you soon.") -- The boss says "good bye Kathie, see you soon."
-doer~("Keith", ", bye") -- <nothing done, the coactivity is ended>
-
-
 /*
 Coactivities are implemented using threads.
 So we have the problem of thread termination...
@@ -560,9 +527,7 @@ must be called at the end of the script.
 Closures by value.
 =====================================================================================
 
-A closure is an object, created from a block with one of these tags
-    ::closure
-    ::closure.coactive
+A closure is an object, created from a block whose source first word after the optional tag is "expose".
 
 A closure remembers the values of the variables defined in the outer environment of the block.
 The behaviour of the closure is a method generated from the block, which is attached to
@@ -573,13 +538,13 @@ A closure can be passed as argument, or returned as result.
 
 
 Examples :
-    v = 1                                -- captured, belongs to the outer environment of the following blocks
-    {::closure expose v ; say v}~doer~do -- display 1
-    {::closure expose v ; say v}~do      -- display 1 (implicit call to ~doer)
-    {::closure expose v ; say v}~()      -- display 1 (alternative notation, more functional)
+    v = 1                      -- captured, belongs to the outer environment of the following blocks
+    {expose v ; say v}~doer~do -- display 1
+    {expose v ; say v}~do      -- display 1 (implicit call to ~doer)
+    {expose v ; say v}~()      -- display 1 (alternative notation, more functional)
 
 
-    range = { use arg min, max ; return { ::closure expose min max ; use arg num ; return min <= num & num <= max }}
+    range = { use arg min, max ; return { expose min max ; use arg num ; return min <= num & num <= max }}
     from5to8 = range~(5, 8)
     from20to30 = range~(20, 30)
     say from5to8~(6) -- 1
@@ -596,7 +561,7 @@ Examples :
     say from5to8~(6) -- from5to8 is a RexxBlock to which the message "~()" is sent
     ::routine range
     use arg min, max
-    return { ::closure expose min max ; use arg num ; return min <= num & num <= max }
+    return { expose min max ; use arg num ; return min <= num & num <= max }
 
 
 A coactive closure is both a closure and a coactivity :
@@ -607,44 +572,9 @@ It can be called several times, the execution is resumed after the last .yield[]
 Examples :
     v = 1
     w = 2
-    closure = {::closure.coactive expose v w ; .yield[v] ; .yield[w]}~doer
+    closure = {::coactivity expose v w ; .yield[v] ; .yield[w]}~doer
     say closure~do -- 1
     say closure~do -- 2
-
-
-The context of a closure can be a method. In this case, the outer environment contains
-the variables exposed by the method, as well as the SELF and SUPER variables. If the
-closure needs access to the SELF variable, it must expose it, as any other variable.
-    myInstance = .myClass~new("myAttributeValue")
-    myContextualSource = myInstance~myMethod
-    say myContextualSource~class
-    say myContextualSource~source~toString
-    do v over myContextualSource~variables
-        say v
-    end
-    doer = myContextualSource~doer
-    say doer~class
-    doer~do
-    ::class myClass
-    ::method init
-        expose a1
-        use strict arg a1
-    ::method myMethod
-        expose a1
-        local = "myLocal"
-        return {::closure expose self a1 local ; say self~class ; say a1 ; say local}
-    ::requires "extension/extensions.cls"
-Output :
-    The RexxBlock class
-    ::closure expose self a1 local ; say self~class ; say a1 ; say local
-    SELF
-    LOCAL
-    A1
-    SUPER
-    The Closure class
-    The MYCLASS class
-    myAttributeValue
-    myLocal
 
 
 =====================================================================================
@@ -665,7 +595,7 @@ Ex :
         use strict arg n, accu=1
         if n <= 1 then return accu
         executable = .context~executable
-        return {::closure
+        return {
             expose n accu executable
             return executable~(n-1, n*accu)
         }
@@ -1266,17 +1196,17 @@ Example of symetric operator :
         use strict arg right
         if right~isA(.array) then do
             if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-            return self~map{::closure expose right ; item + right[index]}
+            return self~map{expose right ; item + right[index]}
         end
-        return self~map{::closure expose right ; item + right}
+        return self~map{expose right ; item + right}
 
     ::method "+op:right"
         use strict arg left
         if left~isA(.array) then do
             if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-            return self~map{::closure expose left ; left[index] + item}
+            return self~map{expose left ; left[index] + item}
         end
-        return self~map{::closure expose left ; left + item}
+        return self~map{expose left ; left + item}
 
     ::extension Array inherit ArrayOperators
 
