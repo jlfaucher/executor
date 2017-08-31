@@ -84,3 +84,19 @@ Unix
 https://nixshell.wordpress.com/2009/09/08/get-the-width-of-the-terminal/
     A quick and easy way to get the width of your terminal is the command stty size. I have used it with diff like this:
     diff -y -W `stty size | cut -d” ” -f2` –suppress-common-lines oldfile newfile
+
+================================================================================
+https://www.quora.com/What-are-the-buffer-size-and-number-of-buffers-in-the-command-line
+
+The "Buffer Size" setting controls how many historical command lines are available
+when you use the up-arrow and down-arrow keys to scroll through past command lines.
+
+The "Number of Buffers" setting controls how many discrete processes can have their
+own individualized command buffers before the buffers get recycled for additional processes.
+
+-->
+test if the problem of history lost disappear when Number of buffers = 999
+
+21/02/2017
+Tested with command "" which breaks the history.
+With 999, the history is still broken : one time I see the good history, one time I see an older history.
