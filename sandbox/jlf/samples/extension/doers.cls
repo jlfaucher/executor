@@ -57,6 +57,13 @@ See doers-samples.rex
 ::method "~()" unguarded
     forward message "do"
 
+::method go unguarded
+    return self~startWith("do", arg(1,"a"))
+
+::method goWith unguarded
+    use strict arg array
+    return self~startWith("doWith", .array~of(array))
+
 ::method trampoline unguarded
     doer = self
     if self~hasMethod("functionDoer") then doer=self~functionDoer -- Add support for implicit return
