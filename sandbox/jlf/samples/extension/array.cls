@@ -204,8 +204,38 @@ a33~each=
 
 
 ::method indexer
-    if arg() == 1 then return self[arg(1)]
-    return arg(1, "a")~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
+    /*
+    Indexing a vector
+    -----------------
+    It is possible to extract several items in a single operation, and in any order:
+        vector = v(12,56,78,74,85,96,30,22,44,66,82,27)
+        vector~indexer(3,7,1,3,3,12) = -- [78,30,12,78,78,27]
+    The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
+    When a vector is indexed by an array, the result has exactly the same shape as the index
+    array, as if each item of the index had been replaced by the item it designates:
+        index = a(3,5)~of(5,5,4,4,8,6,12,6,11,12,10,6,1,4,9)
+        vector~indexer(index) = -- 85 85 74 74 22
+                                -- 96 27 96 82 27
+                                -- 66 96 12 74 44
+    Indexing an array
+    -----------------
+    Similar to vector indexing, but with one index for the row and one for the column:
+        array = a(6,3)~of(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
+        index = v(  v(1,1), v(2,2), v(3,3)  )
+        array~indexer(index) = -- [41,87,19]
+        array~indexer(a(2,3)~of(index)) = -- 41 87 19
+                                          -- 41 87 19
+    */
+    if arg() == 1 then do
+        use arg index
+        if index~isa(.string), index~datatype("W") then return self[index] -- one item, indexed by a wholenumber
+        if index~isa(.array) then do
+            if sameShapes(index, self~shape) then return self[index] -- one item, indexed by an array
+            return index~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
+        end
+        raise syntax 93.900 array("Unsupported index" index)
+    end
+    return self~indexer(arg(1, "a")) -- for convenience, indexer(i1,i2,...iN) equivalent to indexer(v(i1,i2,...iN))
 
 
 /******************************************************************************/
