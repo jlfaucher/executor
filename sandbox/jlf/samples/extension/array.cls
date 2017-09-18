@@ -225,21 +225,31 @@ a33~each=
         array~indexer(index) = -- [41,87,19]
         array~indexer(a(2,3)~of(index)) = -- 41 87 19
                                           -- 41 87 19
+    Remaining to implement
+    ----------------------
+    Vector[]                select the whole vector
+    Matrix[1 5 6;1 3]       select the values situated at the intersections of the specified rows and columns : rows 1 5 6, columns 1 3
+    Matrix[(2 3)(5 1)(1 2)] select several items which are not at the intersections of the same rows or columns :
+                            select Tests[2;3] together with Tests[5;1] and Tests[1;2].
+    Matrix[;]               select the whole matrix
     */
     if arg() == 1 then do
         use arg index
-        if index~isa(.string), index~datatype("W") then return self[index] -- one item, indexed by a wholenumber
+        if index~isa(.string), index~datatype("W") then do
+            if self~dimension <= 1 then return self[index] -- optimization: one item, indexed by a wholenumber.
+            index = v(index) -- here more complex... must return a subarray.
+        end
         if index~isa(.array) then do
             if sameShapes(index, self~shape) then return self[index] -- one item, indexed by an array
             return index~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
         end
-        raise syntax 93.900 array("Unsupported index" index)
+        raise syntax 93.900 array("Unsupported index:" index~string)
     end
     return self~indexer(arg(1, "a")) -- for convenience, indexer(i1,i2,...iN) equivalent to indexer(v(i1,i2,...iN))
 
 
 /******************************************************************************/
-::class "EnclosedArray" public inherit ArrayOperators ArrayPrettyPrinter
+::class "EnclosedArray" public inherit ArrayOperators ArrayPrettyPrinter -- remember : don't declare it subclass of Array !
 
 ::method init
     expose object
@@ -334,6 +344,7 @@ a33~each=
     I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
         1 . 3
         . 5 .
+    JLF 19/09/2017 : fixed.
 
     The items are a list of values that must be assigned to the cells of the array.
     Rules inspired by APL :
@@ -344,7 +355,7 @@ a33~each=
         1 2 1
         2 1 2
     */
-    use strict arg arg1, ... -- at least one argument
+    use arg ... -- optional 0..n arguments
 
     if self~dimension == 0 then raise syntax 93.900 array("Array with no dimension")
 
@@ -355,6 +366,7 @@ a33~each=
     supplier = .nil
 
     if arg() == 1 then do
+        use arg arg1
         if arg1~isA(.String) then do
             -- Do this test to not convert the strings to doers
             oneValue = .true
@@ -650,7 +662,7 @@ a33~each=
     -- EnclosedArray op EnclosedArray : error
     -- EnclosedArray op Other : manage enclosedArray as a non enclosed array
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexLeft")~arity(4)
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight")~arity(4)
                                         else doer = action~doer
     arity = doer~arity
 
