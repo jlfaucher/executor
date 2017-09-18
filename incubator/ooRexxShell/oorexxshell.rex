@@ -226,6 +226,9 @@ main: procedure
             when .ooRexxShell~inputrx~caselessEquals("securityon") then
                 .ooRexxShell~securityManager~isEnabledByUser = .true
 
+            when .ooRexxShell~inputrx~caselessEquals("sf") then
+                .oorexxShell~sayStackFrames
+
             when .ooRexxShell~inputrx~caselessEquals("tb") then
                 .error~say(.ooRexxShell~traceback~makearray~tostring)
             when .ooRexxShell~inputrx~caselessEquals("bt") then -- backtrace seems a better name (command "bt" in lldb)
@@ -653,6 +656,7 @@ Helpers
 ::attribute securityManager class
 ::attribute settingsFile class
 ::attribute showInfos class
+::attribute stackFrames class -- stackframes of last error
 ::attribute systemAddress class -- "CMD" under windows, "bash" under linux, etc...
 ::attribute traceback class -- traceback of last error
 
@@ -683,6 +687,8 @@ Helpers
     self~isExtended = .false
     self~isInteractive = .false
     self~readline = .false
+    self~showColor = .false
+    self~stackFrames = .list~new
     self~traceReadline = .false
     self~traceDispatchCommand = .false
     self~traceFilter = .false
@@ -751,6 +757,18 @@ Helpers
     if condition~code <> .nil then .ooRexxShell~sayError("Code=" condition~code)
 
     .ooRexxShell~traceback = condition~traceback
+    .ooRexxShell~stackFrames = condition~stackFrames
+
+
+::method sayStackFrames class
+    supplier = .ooRexxShell~stackFrames~supplier
+    do while supplier~available
+        stackFrame = supplier~item
+        if stackFrame~executable~package <> .nil then .error~say(stackFrame~executable~package~name)
+        -- .error~say(stackFrame~executable~class stackFrame~name)
+        .error~say(stackFrame~traceLine)
+        supplier~next
+    end
 
 
 ::method sayCollection class
@@ -989,6 +1007,7 @@ Helpers
     say "    reload: exit the current session and reload all the packages/librairies."
     say "    securityoff: deactivate the security manager. No transformation of commands."
     say "    securityon : activate the security manager. Transformation of commands."
+    say "    sf: display the stack frames of the last error."
     say "    tb: display the traceback of the last error (same as bt)."
     say "    traceoff [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: deactivate the trace."
     say "    traceon  [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity]]: activate the trace."
