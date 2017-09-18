@@ -261,3 +261,31 @@ RexxNativeActivation::run
     processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
 
 --> see "rexx args to C args.txt"
+
+=============================================================
+The problem of wrong argument number is not fixed in ooRexx5 :
+(10,20,30,)~dimensions= --> [4] (ok)
+.array~of(10,20,30,)~dimensions= --> [3] (not ok, should be 4)
+
+
+Review how to fix ooRexx 4.2:
+RexxSource::argList
+    called by
+    RexxSource::argArray
+
+ok, now fixed.
+
+Before fix:
+a(3,3)~of(,20,,40,,)=
+an Array (shape [3,3], 4 items)
+[1,2] : 20
+[2,1] : 40
+[2,3] : 20
+[3,2] : 40
+
+After fix:
+a(3,3)~of(,20,,40,,)=
+an Array (shape [3,3], 3 items)
+[1,2] : 20
+[2,1] : 40
+[3,2] : 20

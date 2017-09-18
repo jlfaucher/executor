@@ -5297,15 +5297,18 @@ size_t RexxSource::argList(
 /******************************************************************************/
 /* Function:  Parse off a list of argument expressions                        */
 /******************************************************************************/
+// jlf : keep the trailing omitted arguments !
+// .array~of(10,20,30,)~dimensions= --> [3] (not ok, should be [4])
+
 {
     RexxQueue    *arglist;               /* argument list                     */
     RexxObject   *subexpr;               /* current subexpression             */
     RexxToken    *token;                 /* current working token             */
-    size_t        realcount;             /* count of real arguments           */
+    //size_t        realcount;             /* count of real arguments           */
     size_t        total;                 /* total arguments                   */
 
     arglist = this->subTerms;            /* use the subterms list             */
-    realcount = 0;                       /* no arguments yet                  */
+    //realcount = 0;                       /* no arguments yet                  */
     total = 0;
 
     /* Shortcut syntax : f{...} is equivalent to f({...}) */
@@ -5313,8 +5316,7 @@ size_t RexxSource::argList(
     {
         RexxObject *expr = this->addText(_first);
         arglist->push(expr);             /* add next argument to list         */
-        realcount++;                     /* increment the total               */
-        return realcount;                /* return the argument count         */
+        return 1;                        /* return the argument count         */
     }
 
     /* get the first real token, which   */
@@ -5328,10 +5330,10 @@ size_t RexxSource::argList(
         arglist->push(subexpr);            /* add next argument to list         */
         this->pushTerm(subexpr);           /* add the term to the term stack    */
         total++;                           /* increment the total               */
-        if (subexpr != OREF_NULL)          /* real expression?                  */
-        {
-            realcount = total;               /* update the real count             */
-        }
+        //if (subexpr != OREF_NULL)          /* real expression?                  */
+        //{
+        //    realcount = total;               /* update the real count             */
+        //}
         token = nextToken();               /* get the next token                */
         if (token->classId != TOKEN_COMMA) /* start of next argument?           */
         {
@@ -5352,10 +5354,17 @@ size_t RexxSource::argList(
     }
     this->popNTerms(total);              /* pop all items off the term stack  */
     /* pop off any trailing omitteds     */
-    while (total > realcount)
+    //while (total > realcount)
+    //{
+    //    arglist->pop();                    /* just pop off the dummy            */
+    //    total--;                           /* reduce the total                  */
+    //}
+    if (total == 1 && subexpr == OREF_NULL)
     {
-        arglist->pop();                    /* just pop off the dummy            */
-        total--;                           /* reduce the total                  */
+        // case f() : no arg, must pop this OREF_NULL
+        // case f(,) : 2 omitted args, we don't enter here
+        arglist->pop();
+        total--;
     }
 
     if (!token->isEndOfClause())
@@ -5366,12 +5375,14 @@ size_t RexxSource::argList(
         {
             RexxObject *expr = this->addText(token);
             arglist->push(expr);             /* add next argument to list         */
-            realcount++;                     /* increment the total               */
+            //realcount++;                     /* increment the total               */
+            total++;
         }
         else previousToken();                /* put it back                       */
     }
 
-    return realcount;                    /* return the argument count         */
+    //return realcount;                    /* return the argument count         */
+    return total;
 }
 
 RexxObject *RexxSource::function(
