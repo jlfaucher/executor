@@ -532,12 +532,9 @@ Helpers
             SAY 1
             2
             bash: 1: not found
-        1,2,3=
-            --> call dumpResult .true, 1,2,3
-            Too many arguments in invocation of DUMPRESULT; maximum expected is 2
         */
         command = command~strip
-        if command~right(1) == "=" then command = "call dumpResult .true," command~left(command~length - 1)
+        if command~right(1) == "=" then command = "result =" command~left(command~length - 1) "; call dumpResult .true, result"
     end
     transformSourceError: -- in case of error, just return the original command: an error will be raised by interpret, and caught.
     return command
