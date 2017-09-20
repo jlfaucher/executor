@@ -59,7 +59,7 @@ a33~each=
     return .array~new(arg(1, "a")) -- dimension assigned, no longer possible to change it
     -- Remember :
     -- When called with no argument, this function returns an array
-    -- which is definitively an array with no dimension : an Array (no shape , 0 items)
+    -- which is definitively an array with no dimension : an Array (shape [] , 0 items)
     -- Any attempt to assign a value to this array raises the error
     -- "Too many subscripts for array; 0 expected"
 
@@ -166,13 +166,22 @@ a33~each=
 /******************************************************************************/
 ::class "APLArray" mixinclass Object public
 
+/*
+                  | value                         | dimension | dimensions                    | size | shape
+------------------+-------------------------------+-----------+-------------------------------+------+-----------------------------
+.array~new        | an Array (no shape, 0 items)  | 0         | [0]                           | 0    | an Array (shape [], 0 items)
+.array~new(a())   | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
+.array~new(v())   | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
+a()               | an Array (shape [], 0 items)  | 0         | an Array (no shape, 0 items)  | 1    | []
+v()               | []                            | 1         | [0]                           | 0    | [0]
+*/
 ::method shape
     -- The shape of an array is an array which gives the size of each dimension (APL).
     dimensions = self~dimensions
     if self~dimension == 0 then do
         -- Two cases:
 
-        -- array definitively with no dimension : .array~new(.array~new)
+        -- array definitively with no dimension : .array~new(.array~new), also returned by a()
         -- This case exist in APL : the scalars have no dimension, their shape is an empty vector
         if dimensions~items == 0 then return v() -- empty vector (1 dimension, 0 item)
 
@@ -207,31 +216,101 @@ a33~each=
     /*
     Indexing a vector
     -----------------
-    It is possible to extract several items in a single operation, and in any order:
-        vector = v(12,56,78,74,85,96,30,22,44,66,82,27)
-        vector~indexer(3,7,1,3,3,12) = -- [78,30,12,78,78,27]
+    It is possible to extract several items in a single operation, and in any order.
+    An item can be selected more than once.
+    APL
+        vector ← 41 26 38 14 87 52 30 28 19 65 40 55 19 31 64 45 82 74
+            41 26 38 14 87 52 30 28 19 65 40 55 19 31 64 45 82 74
+        vector[3] or 3 ⌷ vector
+            38
+        vector[3 7 1 3 3 12]
+            38 30 41 38 38 55
+    ooRexx
+        vector = v(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
+        vector[3] or vector~indexer(3) or vector~indexer(v3))
+        vector~indexer(3,7,1,3,3,12) =
+
     The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
     When a vector is indexed by an array, the result has exactly the same shape as the index
     array, as if each item of the index had been replaced by the item it designates:
+    APL
+        index ← 3 5 ⍴ 5 5 4 4 8 6 12 6 11 12 10 6 1 4 9
+             5  5 4  4  8
+             6 12 6 11 12
+            10  6 1  4  9
+        vector[index]
+            87 87 14 14 28
+            52 55 52 40 55
+            65 52 41 14 19
+    ooRexx
         index = a(3,5)~of(5,5,4,4,8,6,12,6,11,12,10,6,1,4,9)
-        vector~indexer(index) = -- 85 85 74 74 22
-                                -- 96 27 96 82 27
-                                -- 66 96 12 74 44
+        vector~indexer(index) =
+
     Indexing an array
     -----------------
     Similar to vector indexing, but with one index for the row and one for the column:
-        array = a(6,3)~of(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
+    APL
+        matrix ← 6 3 ⍴ 41 26 38 14 87 52 30 28 19 65 40 55 19 31 64 45 82 74
+            41 26 38
+            14 87 52
+            30 28 19
+            65 40 55
+            19 31 64
+            45 82 74
+        matrix[2;3] or 2 3 ⌷ matrix
+            52
+        index ← (1 1) (2 2) (3 3)
+             1 1  2 2  3 3
+        matrix[index]
+            41 87 19
+        matrix[2 3 ⍴ index]
+            41 87 19
+            41 87 19
+    ooRexx
+        matrix = a(6,3)~of(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
+        matrix[2,3] or matrix~indexer(2,3) or matrix~indexer(v(2,3))
         index = v(  v(1,1), v(2,2), v(3,3)  )
-        array~indexer(index) = -- [41,87,19]
-        array~indexer(a(2,3)~of(index)) = -- 41 87 19
-                                          -- 41 87 19
+        matrix~indexer(index) =
+        matrix~indexer(a(2,3)~of(index)) =
+
     Remaining to implement
     ----------------------
     Vector[]                select the whole vector
-    Matrix[1 5 6;1 3]       select the values situated at the intersections of the specified rows and columns : rows 1 5 6, columns 1 3
-    Matrix[(2 3)(5 1)(1 2)] select several items which are not at the intersections of the same rows or columns :
-                            select Tests[2;3] together with Tests[5;1] and Tests[1;2].
     Matrix[;]               select the whole matrix
+    Cube[;;]                select the whole cube
+    etc...
+
+    Select the values situated at the intersections of the specified rows and columns : rows 1 5 6, columns 1 3
+        matrix[1 5 6;1 3] or (1 5 6) (1 3) ⌷ matrix
+            41 38
+            19 64
+            45 74
+
+    To specify all the items of a dimension, you just omit the index for that dimension, but you must not omit the semi-colon attached to it.
+        cube ← 2 3 4 ⍴ 41 26 38 14 87 52 30 28 19 65 40 55 19 31 64 45 82 74
+            41 26 38 14
+            87 52 30 28
+            19 65 40 55
+
+            19 31 64 45
+            82 74 41 26
+            38 14 87 52
+        cube[1;;]
+            41 26 38 14
+            87 52 30 28
+            19 65 40 55
+        cube[;1;]
+            41 26 38 14
+            19 31 64 45
+        cube[;;1]
+            41 87 19
+            19 82 38
+        cube[1;1;]
+            41 26 38 14
+        cube[1;;1]
+            41 87 19
+        cube[;1;1]
+            41 19
     */
     if arg() == 1 then do
         use arg index
@@ -424,9 +503,9 @@ a33~each=
                 else if arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
                 if var("result") then self~put(result, selfArrayIndex)
-                -- next line is needed to offer the same behaviour for
-                -- .array~new(2,3)~of(1~upto(5))
-                -- .array~new(2,3)~of(1~generate.upto(5))
+                -- Needed to offer the same behaviour for
+                --     .array~new(2,3)~of(1~upto(5))
+                --     .array~new(2,3)~of(1~generate.upto(5))
                 else if doer~hasMethod("isEnded"), doer~isEnded then sourceEnd = selfIntegerIndex -- detection of end of coactivity
             end
 
