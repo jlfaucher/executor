@@ -246,6 +246,7 @@ expressionHeaders = $(build_expression_dir)/BuiltinFunctions.hpp \
                     $(build_expression_dir)/ExpressionCompoundVariable.hpp \
                     $(build_expression_dir)/ExpressionDotVariable.hpp \
                     $(build_expression_dir)/ExpressionFunction.hpp \
+                    $(build_expression_dir)/ExpressionList.hpp \
                     $(build_expression_dir)/ExpressionLogical.hpp \
                     $(build_expression_dir)/ExpressionMessage.hpp \
                     $(build_expression_dir)/ExpressionOperator.hpp \
@@ -606,6 +607,7 @@ expression_sources = $(build_expression_dir)/BuiltinFunctions.cpp \
                      $(build_expression_dir)/ExpressionCompoundVariable.cpp \
                      $(build_expression_dir)/ExpressionDotVariable.cpp \
                      $(build_expression_dir)/ExpressionFunction.cpp \
+                     $(build_expression_dir)/ExpressionList.cpp \
                      $(build_expression_dir)/ExpressionMessage.cpp \
                      $(build_expression_dir)/ExpressionOperator.cpp \
                      $(build_expression_dir)/ExpressionStack.cpp \

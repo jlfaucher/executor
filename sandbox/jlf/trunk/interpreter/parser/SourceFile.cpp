@@ -61,6 +61,7 @@
 #include "ExpressionMessage.hpp"
 #include "ExpressionOperator.hpp"
 #include "ExpressionLogical.hpp"
+#include "ExpressionList.hpp"
 
 #include "ExpressionBaseVariable.hpp"                   /* base variable management class    */
 #include "ExpressionCompoundVariable.hpp"
@@ -5091,8 +5092,70 @@ RexxObject *RexxSource::expression(
   nextReal();                          /* get the first real token          */
   previousToken();                     /* now put it back                   */
                                        /* parse off the subexpression       */
-  return this->subExpression(terminators);
+  // return this->subExpression(terminators);
+  return this->fullSubExpression(terminators);
 }
+
+/**
+ * Perform the parsing of an expression where the expression
+ * can be treated as a comma-separated list of subexpressions.
+ * If we have just a simple single subexpression, the
+ * return value is the parsed subexpression.  If a comma
+ * is found as a terminator, then we turn this expression
+ * into an operator that will create an array object from the
+ * list of expressions.  Omitted expressions are allowed and
+ * no effort is made to remove trailing null expressions.
+ *
+ * @param terminators
+ *               The list of terminators for this expression type.
+ *
+ * @return Either a simple expression, or an expression object for
+ *         creating an array item.
+ */
+RexxObject *RexxSource::fullSubExpression(int terminators)
+{
+    size_t total = 0;                // total is the full count of arguments we attempt to parse.
+    RexxToken *terminatorToken;      // the terminator token that ended a sub expression
+
+    // now loop until we get a terminator.  Note that COMMAs are always a terminator
+    // token now that list expressions are possible.
+    for (;;)
+    {
+        // parse off an argument expression
+        RexxObject *subExpr = subExpression(terminators | TERM_COMMA); // jlf: here I differ from ooRexx5 which FORCES "comma is separator" in the method terminator.
+        // We have two term stacks.  The main term stack is used for expression evaluation.
+        // the subTerm stack is used for processing expression lists like this.
+        // NOTE that we need to use pushSubTerm here so that the required expression stack
+        // calculation comes out right.
+        pushSubTerm(subExpr);
+
+        // now check the total.  Real count will be the last
+        // expression that requires evaluation.
+        total++;
+
+        // the next token will be our terminator.  If this is not
+        // a comma, we have more expressions to parse.
+        terminatorToken = nextToken();
+        if (!terminatorToken->isType(TOKEN_COMMA))
+        {
+            // push this token back and stop parsing
+            previousToken();
+            break;
+        }
+    }
+
+    // if we only saw the single expression, then return that expression
+    // as the result
+    if (total == 1)
+    {
+        return popSubTerm();
+    }
+
+    // we have an array creation list, so create the operator type for
+    // building the array.
+    return (RexxObject*) new (total) RexxExpressionList(total, subTerms);
+}
+
 
 RexxObject *RexxSource::subExpression(
   int   terminators )                  /* expression termination context    */
@@ -5325,6 +5388,9 @@ size_t RexxSource::argList(
     /* loop until get a full terminator  */
     for (;;)
     {
+        // JLF remember: for retrofit array literal, I can keep this part unchanged.
+        // In particular, I don't try to simplify and use pushSubTerm.
+
         /* parse off next argument expression*/
         subexpr = this->subExpression(terminators | TERM_COMMA);
         arglist->push(subexpr);            /* add next argument to list         */
@@ -5620,7 +5686,8 @@ RexxObject *RexxSource::messageTerm()
 
     size_t mark = markPosition();       // save the current position so we can reset cleanly
 
-    start = this->subTerm(TERM_EOC);     /* get the first term of instruction */
+    // jlf: add TERM_COMMA to support ",;" which is evaluated as an array of 2 elements
+    start = this->subTerm(TERM_EOC | TERM_COMMA);     /* get the first term of instruction */
     this->holdObject(start);             /* save the starting term            */
     term = OREF_NULL;                    /* default to no term                */
     token = nextToken();                 /* get the next token                */
@@ -5746,7 +5813,12 @@ RexxObject *RexxSource::subTerm(
 
         case  TOKEN_LEFT:                  /* have a left parentheses           */
             /* get the subexpression             */
-            term = this->subExpression(((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
+            //term = this->subExpression(((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
+
+            // parse off the parenthetical.  This might not return anything if there
+            // is nothing in the parens.  This is an error.  Also, in this context,
+            // we are back in a mode where the array-creation syntax is allowed.
+            term = fullSubExpression(TERM_RIGHT);
             if (term == OREF_NULL)           /* nothing found?                    */
             {
                 /* this is an error                  */
@@ -5859,6 +5931,45 @@ RexxObject *RexxSource::popTerm()
   this->holdObject(term);              /* give it a little protection     */
   return term;                         /* and return it                   */
 }
+
+/**
+ * Push a term on to the expression sub term stack.  The
+ * subterms normally contribute to the total required stack
+ * size, so make sure we account for these when calculating the
+ * total required stack size.  Only use this method of pushing
+ * the term when the max stack size is affected.
+ *
+ * @param term   The term object.
+ */
+void RexxSource::pushSubTerm(RexxObject *term )
+{
+    // push the term on to the stack.
+    subTerms->push(term);
+
+    // we keep track of how large the term stack gets during parsing.  This
+    // tells us how much stack space we need to allocate at run time.
+    currentstack++;
+    // maxStack = Numerics::maxVal(currentStack, maxStack);
+    if (currentstack > maxstack) maxstack = currentstack;
+}
+
+
+/**
+ * Pop a term off of the expression sub term stack.
+ *
+ * @return The popped object.
+ */
+RexxObject *RexxSource::popSubTerm()
+{
+    // reduce the stack count
+    currentstack--;
+    // pop the object off of the stack and give it some short-term
+    // GC protection.
+    RexxObject *term = subTerms->pop();
+    holdObject(term);
+    return term;
+}
+
 
 RexxObject *RexxSource::popNTerms(
      size_t count )                    /* number of terms to pop            */

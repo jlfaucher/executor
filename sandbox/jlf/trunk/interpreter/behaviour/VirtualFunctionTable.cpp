@@ -98,6 +98,7 @@
 #include "ExpressionMessage.hpp"
 #include "ExpressionOperator.hpp"
 #include "ExpressionLogical.hpp"
+#include "ExpressionList.hpp"
 #include "RexxInstruction.hpp"
 #include "AddressInstruction.hpp"
 #include "AssignmentInstruction.hpp"
@@ -414,6 +415,9 @@ void RexxMemory::buildVirtualFunctionTable()
    
    objectPtr = new (objectLoc) RexxExpressionLogical(RESTOREIMAGE);
    virtualFunctionTable[T_LogicalTerm] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) RexxExpressionList(RESTOREIMAGE);
+   virtualFunctionTable[T_ListTerm] = getVftPointer(objectLoc);
    
    objectPtr = new (objectLoc) RexxInstruction(RESTOREIMAGE);
    virtualFunctionTable[T_Instruction] = getVftPointer(objectLoc);

@@ -72,6 +72,7 @@
 #define   TERM_IF      (TERM_KEYWORD | TERM_THEN | TERM_EOC)
 
 /* token types */
+typedef int TokenClass;
 #define TOKEN_NULL        1201
 #define TOKEN_BLANK       TOKEN_NULL      + 1
 #define TOKEN_SYMBOL      TOKEN_BLANK     + 1
@@ -419,6 +420,10 @@ class RexxToken : public RexxInternalObject {
   void       flatten(RexxEnvelope *);
   inline void setStart(size_t l, size_t o) { tokenLocation.setStart(l, o); }
   inline void setEnd(size_t l, size_t o) { tokenLocation.setEnd(l, o); }
+
+    inline bool       isType(TokenClass t) { return classId == t; }
+    inline bool       isType(TokenClass t1, TokenClass t2) { return classId == t1 || classId == t2; }
+    inline bool       isType(TokenClass t1, TokenClass t2, TokenClass t3) { return classId == t1 || classId == t2 || classId == t3; }
 
   inline bool       isVariable() { return (this->subclass == SYMBOL_VARIABLE || this->subclass == SYMBOL_STEM || this->subclass == SYMBOL_COMPOUND); };
   inline bool       isLiteral()  { return (this->classId == TOKEN_LITERAL); };

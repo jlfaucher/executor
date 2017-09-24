@@ -250,6 +250,7 @@ class RexxSource : public RexxInternalObject {
     RexxObject *parenExpression(RexxToken *);
     RexxObject *expression(int);
     RexxObject *subExpression(int);
+    RexxObject *fullSubExpression(int);
     size_t      argList(RexxToken *, int);
     RexxArray  *argArray(RexxToken *, int);
     RexxObject *function(RexxToken *, RexxToken *, int);
@@ -262,7 +263,9 @@ class RexxSource : public RexxInternalObject {
     RexxObject *messageSubterm(int);
     RexxObject *subTerm(int);
     void        pushTerm(RexxObject *);
+    void        pushSubTerm(RexxObject *);
     RexxObject *popTerm();
+    RexxObject *popSubTerm();
     RexxObject *popNTerms(size_t);
     void        isExposeValid();
     RexxArray  *words(RexxString *);

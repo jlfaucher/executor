@@ -198,7 +198,7 @@ class RexxMemory : public RexxInternalObject
   void        addUninitObject(RexxObject *obj);
   bool        isPendingUninit(RexxObject *obj);
   inline void checkUninitQueue() { if (pendingUninits > 0) verboseMessage("Calling runUninits from checkUninitQueue (pendingUninits=%d%s)\n",
-                                                                          pendingUninits, 
+                                                                          pendingUninits,
                                                                           size_t(processingUninits ? " recursive" : ""));
                                    if (pendingUninits > 0) runUninits(); }
 
@@ -444,6 +444,50 @@ inline RexxArray *new_arrayOfObject(size_t s, size_t c, size_t t)  { return memo
 #define ObjectNeedsMarking(oref) ((oref) != OREF_NULL && !((oref)->isObjectMarked(liveMark)) )
 #define memory_mark(oref)  if (ObjectNeedsMarking(oref)) memoryObject.mark((RexxObject *)(oref))
 #define memory_mark_general(oref) (memoryObject.markGeneral((void *)&(oref)))
+
+// some convenience macros for marking arrays of objects.
+#define memory_mark_array(count, array) \
+  for (size_t i = 0; i < count; i++)    \
+  {                                     \
+      memory_mark(array[i]);            \
+  }
+
+#define memory_mark_general_array(count, array) \
+  for (size_t i = 0; i < count; i++)            \
+  {                                             \
+      memory_mark_general(array[i]);            \
+  }
+
+// Following macros are for Flattening and unflattening of objects
+// Some notes on what is going on here.  The flatten() method gets called on an object
+// after it has been moved into the envelope buffer, so the this pointer is
+// to the copied object, not the original.  On a call to flattenReference(), it might
+// be necessary to allocate a larger buffer.  When that happens, the copied object gets
+// moved to a new location and the newThis pointer gets updated to the new object location.
+// it is necessary to copy the this pointer and also declare the newThis pointer as volatile
+// so that the change in pointer value doesn't get optimized out by the compiler.
+
+// set up for flattening.  This sets up the newThis pointer and also gets some
+// information from the envelope.  The type argument allows newThis to be declared with
+// the correct type.
+#define setUpFlatten(type)        \
+  {                               \
+  size_t newSelf = envelope->currentOffset; \
+  type * volatile newThis = (type *)this;   // NB:  This is declared volatile to avoid optimizer problems.
+
+// just a block closer for the block created by setUpFlatten.
+#define cleanUpFlatten                    \
+ }
+
+// newer, simplified form.  Just give the name of the field.
+#define flattenRef(oref)  if ((newThis->oref) != OREF_NULL) envelope->flattenReference((void *)&newThis, newSelf, (void *)&(newThis->oref))
+
+// a version for flattening arrays of objects.  Give the count field and the name of the array.
+#define flattenArrayRefs(count, array)          \
+  for (size_t i = 0; i < count; i++)            \
+  {                                             \
+      flattenRef(array[i]);                     \
+  }
 
 /* Following macros are for Flattening and unflattening of objects  */
 #define flatten_reference(oref,envel)  if (oref) envel->flattenReference((void *)&newThis, newSelf, (void *)&(oref))
