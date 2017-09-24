@@ -576,7 +576,7 @@ RexxPackageObject RexxEntry GetRoutinePackage(RexxThreadContext *c, RexxRoutineO
     catch (RexxNativeActivation *)
     {
     }
-    return false;
+    return NULLOBJECT;
 }
 
 
@@ -591,7 +591,7 @@ RexxPackageObject RexxEntry GetMethodPackage(RexxThreadContext *c, RexxMethodObj
     catch (RexxNativeActivation *)
     {
     }
-    return false;
+    return NULLOBJECT;
 }
 
 
