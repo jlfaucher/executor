@@ -1794,7 +1794,7 @@ RexxVariableDictionary *RexxNativeActivation::methodVariables()
         if (receiver == OREF_NULL)
         {
             /* retrieve the method variables     */
-            this->objectVariables = ((RexxActivation *)this->receiver)->getLocalVariables();
+            this->objectVariables = ((RexxActivation *)this->receiver)->getLocalVariables(); // SUSPECT!
         }
         else
         {
@@ -2080,7 +2080,7 @@ void RexxNativeActivation::setDigits(
 /******************************************************************************/
 {
     /* have a real one?                  */
-    if (activation == OREF_NULL)
+    if (activation != OREF_NULL)
     {
         activation->setDigits(_digits);      /* just forward the set              */
     }
@@ -2106,7 +2106,7 @@ void RexxNativeActivation::setForm(
 /******************************************************************************/
 {
     /* have a real one?                  */
-    if (activation == OREF_NULL)
+    if (activation != OREF_NULL)
     {
         activation->setForm(_form);        /* just forward the set              */
     }
