@@ -307,6 +307,72 @@ History of changes
 ==================
 
 -----------------------------------------------
+2017 sep 24
+
+If an ooRexx clause ends with "==" then the command line is transformed
+to display the result **not condensed**.
+Standard ooRexx : '1+2==' becomes 'result = 1+2; call dumpResult .true, result, 2'
+Extended ooRexx : '1+2==' becomes 'options "NOCOMMANDS";1+2;call dumpResult var("result"), result, 2; options COMMANDS'
+The 3rd argument '2' indicates that the output is not condensed.
+The condensed output is available with extended ooRexx only.
+1,2,3=
+    [1,2,3]
+1,2,3==
+    an Array (shape [3], 3 items)
+    1 : 1
+    2 : 2
+    3 : 3
+
+
+-----------------------------------------------
+2017 sep 19
+
+Add command "sf" to display the stack frames of the last error.
+
+dumpResult modified to support 1,2,3= with ooRexx5.
+before : call dumpResult .true,1,2,3 --> raised "too many arguments"
+now : result = 1,2,3; call dumpResult .true, result
+
+
+-----------------------------------------------
+2017 mar 06
+
+Add query ?v[ariables]
+This is for convenience, equivalent to .context~variables=
+
+
+-----------------------------------------------
+2017 mar 01
+
+Light restructuration.
+The internal routines that don't need to stay internal are declared ::routine. They are moved after the routine SHELL
+
+
+-----------------------------------------------
+2016 aug 23
+
+Attach a security manager to the package pipe.
+Not enough to avoid loosing history (under Windows)
+
+
+-----------------------------------------------
+2016 aug 23
+
+Queries: add option to display the source of methods/routines/packages.
+
+
+-----------------------------------------------
+2016 aug 21
+
+history more robust under Windows (no problem under Linux & MacOs).
+a) To avoid a loss of history, the command "set var" is no longer passed as-is to the interpreter. Now transformed to prepend "cmd /c".
+b) After empirical trials, it seems that the history is no longer lost after command error when adding the command "doskey" after the main command.Don't ask me why...
+
+[later]
+History still lost under Windows :-(
+
+
+-----------------------------------------------
 2016 may 22
 
 Queries & filters.

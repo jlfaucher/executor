@@ -514,9 +514,14 @@ Helpers
         clauser = .Clauser~new(sourceArray)
         do while clauser~clauseAvailable
             clause = clauser~clause~strip
-            if clause~right(1) == "=" then do
-                clause = clause~left(clause~length - 1)
-                clauser~clause = 'options "NOCOMMANDS";' clause '; call dumpResult var("result"), result; options "COMMANDS"'
+
+            dumpLevel = 0
+            if clause~right(2) == "==" then dumpLevel = 2 -- no condensed output
+            else if clause~right(1) == "=" then dumpLevel = 1 -- condensed output when possible
+
+            if dumpLevel <> 0 then do
+                clause = clause~left(clause~length - dumpLevel)
+                clauser~clause = 'options "NOCOMMANDS";' clause '; call dumpResult var("result"), result,' dumpLevel '; options "COMMANDS"'
             end
             clauser~nextClause
         end
@@ -534,7 +539,12 @@ Helpers
             bash: 1: not found
         */
         command = command~strip
-        if command~right(1) == "=" then command = "result =" command~left(command~length - 1) "; call dumpResult .true, result"
+
+        dumpLevel = 0
+        if command~right(2) == "==" then dumpLevel = 2 -- no condensed output
+        else if command~right(1) == "=" then dumpLevel = 1 -- condensed output when possible
+
+        if dumpLevel <> 0 then command = "result =" command~left(command~length - dumpLevel) "; call dumpResult .true, result," dumpLevel
     end
     transformSourceError: -- in case of error, just return the original command: an error will be raised by interpret, and caught.
     return command
@@ -542,15 +552,15 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine dumpResult
-    use strict arg hasValue, value
+    use strict arg hasValue, value, dumpLevel
     if \hasValue then do
         say "[no result]"
         return
     end
 
     if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say .ooRexxShell~prettyString(value) -- must not consume the datas
-    else if .ooRexxShell~isExtended, value~isA(.enclosedArray) then say value~ppRepresentation(100) -- condensed output, 100 items max
-    else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
+    else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
+    else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
     else if value~isA(.Collection) | value~isA(.Supplier) then .ooRexxShell~sayCollection(value)
     else say .ooRexxShell~prettyString(value)
 
@@ -761,8 +771,14 @@ Helpers
     supplier = .ooRexxShell~stackFrames~supplier
     do while supplier~available
         stackFrame = supplier~item
-        if stackFrame~executable~package <> .nil then .error~say(stackFrame~executable~package~name)
-        -- .error~say(stackFrame~executable~class stackFrame~name)
+        executable = stackFrame~executable
+
+        package = .nil
+        if executable <> .nil then package = executable~package
+
+        if package <> .nil then .error~say(package~name)
+        else .error~say("<No package>")
+
         .error~say(stackFrame~traceLine)
         supplier~next
     end
