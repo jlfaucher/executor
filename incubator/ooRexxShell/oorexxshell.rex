@@ -405,6 +405,8 @@ Helpers
         when queued() == 0 & lines() == 0 & .ooRexxShell~systemAddress~caselessEquals("cmd") & .ooRexxShell~readline then do
             -- I want the doskey macros and filename tab autocompletion... Delegates the input to cmd.
             -- HKEY_CURRENT_USER/Software/Microsoft/Command Processor/CompletionChar = 9
+            -- Tried to call clink, but it doesn't solve the problem of history lost.
+            --    "(clink inject >nul 2>&1) &",
             address value .ooRexxShell~systemAddress
                 "(title ooRexxShell) &",
                 "(set inputrx=) &",
@@ -969,6 +971,8 @@ Helpers
     -- For convenience... ps is shorter than p.s
     else if "ps"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .true)
 
+    else if "path"~caselessEquals(word1) then .ooRexxShell~helpPath(rest)
+
     else if "routines"~caselessAbbrev(word1,1) then do
         source = .false
         do while rest1 <> ""
@@ -1003,6 +1007,7 @@ Helpers
     say "    ?i[nterpreters]: interpreters that can be selected."
     say "    ?m[ethods] method1 method2 ... : display methods."
     say "    ?p[ackages]: display the loaded packages."
+    say "    ?path v1 v2 ... : display value of system variable, splitted by path separator."
     say "    ?r[outines] routine1 routine2... : display routines."
     say "    ?v[ariables]: display the defined variables."
     say "    To display the source of methods, packages or routines: add the option .s[ource]."
@@ -1101,8 +1106,18 @@ Helpers
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
-    use strict arg packageNames, displaySource
-    .QueryManager~displayPackages(packageNames, displaySource, self, .context)
+    use strict arg packagenames, displaySource
+    .QueryManager~displayPackages(packagenames, displaySource, self, .context)
+
+
+::method helpPath class
+    -- Display the value of the specified system variables , one path per line.
+    -- Example of variables: LD_LIBRARY_PATH, MANPATH, PATH
+    -- Can be filtered, as any help output.
+    if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
+    use strict arg variablenames
+    .QueryManager~displayPath(variablenames)
 
 
 ::method helpRoutines class

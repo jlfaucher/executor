@@ -11,6 +11,7 @@ loadPackage:
     return .false
 
 ::requires "pipeline/pipe_extension.cls"
+::requires "extension/extensions.cls" -- first need: ~quoted
 --::options trace i
 
 -------------------------------------------------------------------------------
@@ -211,13 +212,28 @@ loadPackage:
 ::class "QueryManager" public
 -------------------------------------------------------------------------------
 
+/*
+The QueryManager uses a displayer passed as argument.
+Displayer:
+method sayInfo
+method sayTrace
+method sayError
+method sayCollection
+method sayCondition     (not used)
+method sayStackFrames   (not used)
+method singularPlural
+method prettyString     (not used)
+attribute traceFilter
+*/
+
+
 ::method displayClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
     -- classnames is an array of Argument
     use strict arg classnames, displayer, context
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -240,7 +256,7 @@ loadPackage:
     use strict arg classnames, inherited, displaySource, displayer, context, filteringStream
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context) -- don't filter with matchers here, must have ALL the classes, to get the right package of inherited methods.
@@ -345,7 +361,7 @@ loadPackage:
     -- For each specified class, display the comment stored in the source of the method _description_, if any.
     matchers = .array~new
     do classname over classnames
-        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matcher = pattern2matcher(classname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
         matchers~append(matcher)
     end
     classInfos = .classInfo~collect(context, matchers)
@@ -399,7 +415,7 @@ loadPackage:
     use strict arg methodnames, displaySource, displayer, context
     matchers = .array~new
     do methodname over methodnames
-        matcher = pattern2matcher(methodname, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matcher = pattern2matcher(methodname, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
         matchers~append(matcher)
     end
 
@@ -451,7 +467,7 @@ loadPackage:
     use strict arg packagenames, displaySource, displayer, context
     matchers = .array~new
     do packagename over packagenames
-        matcher = pattern2matcher(packagename, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matcher = pattern2matcher(packagename, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
         matchers~append(matcher)
     end
     context~package~pipe(,
@@ -479,7 +495,7 @@ loadPackage:
     use strict arg routinenames, displaySource, displayer, context
     matchers = .array~new
     do routinename over routinenames
-        matcher = pattern2matcher(routinename, /*wholestring*/ .true, /*caseless*/ .true, /*displayer*/ displayer, "[object filter]")
+        matcher = pattern2matcher(routinename, /*wholestring*/ .true, /*caseless*/ .true, displayer, "[object filter]")
         matchers~append(matcher)
     end
     routineInfos = .routineInfo~collect(context, matchers)
@@ -520,6 +536,20 @@ loadPackage:
     say "Routine flags"
     say "    col 1: P=Public"
 
+
+::method displayPath class
+    use strict arg variablenames
+    if variablenames~items == 0 then variablenames = .array~of("PATH")
+    -- Don't use matchers, because there is no portable way to get the list of all environment variables.
+    -- So if you specify a variable name like *path*, this name will be searched exactly as-is.
+    do variablename over variablenames
+        variablevalue = value(variablename,, "environment")
+        do path over variablevalue~makeArray(.File~pathSeparator)
+            say variablename path~quoted(x2c(27))
+        end
+        say variablename "length:" variablevalue~length
+        say
+    end
 
 ::constant separators ": ~ @ |"
 

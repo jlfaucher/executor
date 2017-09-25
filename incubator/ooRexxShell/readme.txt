@@ -121,6 +121,7 @@ Help
 ?i[nterpreters]: interpreters that can be selected.
 ?m[ethods] method1 method2 ... : display methods.
 ?p[ackages]: display the loaded packages.
+?path v1 v2 ... : display value of system variable, splitted by path separator.
 ?r[outines] routine1 routine2... : display routines.
 ?v[ariables]: display the defined variables.
 To display the source of methods, packages or routines: add the option .s[ource].
@@ -305,6 +306,32 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2017 sep 25
+
+Add query ?path v1 v2 ...
+Display the value of the specified system variables, splitted by path separator.
+The default variable name is PATH.
+The output can be filtered, as any help output.
+Example (under Windows):
+?path
+    PATH 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build'
+    PATH 'C:\jlf\local\rexx\bsf4oorexx\svn\trunk\bsf4oorexx.dev\source_cc\build\win\cl\release\64'
+    PATH 'C:\jlf\local\rexx\bsf4oorexx\svn\trunk\bsf4oorexx.dev\bin'
+    PATH 'C:\jlf\local\nsis\Nsis_longStrings'
+    PATH 'C:\jlf\local\rexx\GCI\gci-source.1.1\build\win\cl\release\64'
+    ... <cut>
+    PATH length: 2618
+?path include lib = rexx "length: "
+    include 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build\api'
+    include 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\api'
+    include length: 645
+
+    lib 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build\api'
+    lib 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\api'
+    lib length: 516
+
 
 -----------------------------------------------
 2017 sep 24
