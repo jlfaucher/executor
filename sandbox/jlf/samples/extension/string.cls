@@ -21,6 +21,47 @@ This script needs a modified ooRexx interpreter which support extension of prede
         return self
 
 
+/*
+Similar to ~makeArray(separator), with these differences:
+- Can be caseless (makeArray is always case sensitive).
+- If the string ends with a separator, an empty string item is added (makeArray does not).
+  This is consistent with the size of the array literals :
+      1,,2,3,               -- array of size 5, 3 items (sparse array)
+      "1,,2,3,"~split(",")  -- array of size 5, 5 items
+- If the separator is an empty string then the result is an array containing the whole string
+  (makeArray returns an array containing each character of the string).
+- When no separator is provided, the default value is the *current* platform end-of-line
+  (makeArray is splitting on *any supported* platform end-of-line).
+*/
+::method split
+    /*
+    ""~split(";")                                   -- ['']
+    ";"~split(";")                                  -- ['','']
+    ";;"~split(";")                                 -- ['','','']
+    "my first path;my second path"~split(";")       -- ['my first path','my second path']
+    "my first path;my second path;"~split(";")      -- ['my first path','my second path','']
+    "I go to school to learn english"~split("to")   -- ['I go ',' school ',' learn english']
+    */
+    use strict arg separator=.endofline, caseless=.false
+    collectedSubstrings = .Array~new
+    if self == "" then return collectedSubstrings
+    rest = self || separator -- because I want an empty string when the last separator is followed by nothing
+    do while rest <> ""
+       if caseless then parse caseless value rest with first (separator) rest
+       else             parse          value rest with first (separator) rest
+       collectedSubstrings~append(first)
+    end
+    return collectedSubstrings
+
+
+::method caselessSplit
+    /*
+    "I go TO school to learn english"~split("to")   -- ['I go ',' school ',' learn english']
+    */
+    use strict arg separator
+    return self~split(separator, .true)
+
+
 /******************************************************************************/
 ::class "EncodedString" mixinclass Object public
 
