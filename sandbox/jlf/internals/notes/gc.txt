@@ -1,11 +1,15 @@
 Remember :
 To activate the GC diagnostics, add these definitions in RexxCore.h :
-    #define CHECKOREFS
-    #define MEMPROFILE
-    #define VERBOSE_GC
+[later]
+no... RexxCore.h is not included by all the files !
+    #define CHECKOREFS      --> MemorySegment.hpp, used in RexxMemory.cpp
+    #define MEMPROFILE      --> RexxMemory.hpp, DeadObject.hpp, RexxMemory.cpp, DeadObject.cpp
+    #define VERBOSE_GC      --> RexxMemory.hpp, MemorySegment.cpp
 or better : could be added in lib/orxwin32.mak to my_cdebug, when debug mode.
     /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
-
+or added in CMakeCacheText.txt
+    CMAKE_CXX_FLAGS_DEBUG:STRING=/D_DEBUG /DCHECKOREFS /MDd /Zi /Ob0 /Od /RTC1
+    CMAKE_C_FLAGS_DEBUG:STRING=/D_DEBUG /DCHECKOREFS /MDd /Zi /Ob0 /Od /RTC1
 
 Remember :
 When the crash occurs during GC (ex : in ObjectHeader::isObjectMarked), it's possible
