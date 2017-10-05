@@ -51,17 +51,21 @@ a33~each=
 ::requires "extension/infinity.cls"
 
 ::routine a public
-    -- Empty array of specified shape
-
-    -- if arg() == 0 then return .array~new -- no dimension (yet), can be set later.
-    -- Bug ? .array~new~dimensions returns [0], should return an array with no dimension (not [] which is an empty vector returned for arrays definitively with 0 dimension).
-
-    return .array~new(arg(1, "a")) -- dimension assigned, no longer possible to change it
+    -- Empty array of specified shape.
     -- Remember :
     -- When called with no argument, this function returns an array
     -- which is definitively an array with no dimension : an Array (shape [] , 0 items)
     -- Any attempt to assign a value to this array raises the error
     -- "Too many subscripts for array; 0 expected"
+
+    -- if arg() == 0 then return .array~new -- no dimension (yet), can be set later.
+    -- Bug ? .array~new~dimensions returns [0], should return an array with no dimension (not [] which is an empty vector returned for arrays definitively with 0 dimension).
+
+    -- To support that : a(myMatrix~shape)
+    if arg() == 1, arg(1)~isa(.array) then return .array~new(arg(1))
+
+    return .array~new(arg(1, "a")) -- dimension assigned, no longer possible to change it
+
 
 ::routine v public
     -- Vector (rank = 1)
@@ -212,8 +216,80 @@ v()               | []                            | 1         | [0]             
     return .EnclosedArray~new(self)
 
 
+::method isSparse
+    /*
+    The sparse arrays in ooRexx are not so sparse... at least in term of storage optimization.
+    All the cells are allocated. A matrix 1000x1000 with no value inside will use 1 000 000 cells.
+    Not so bad for small arrays, that simplifies the implementation.
+        .array~new(2,2)~~put(12,1,2)
+            1,1     OREF_NULL   offset=0
+            1,2     12          offset=1
+            2,1     OREF_NULL   offset=2
+            2,2     OREF_NULL   offset=3
+    ALL the cells are allocated, the sparse cells have the value OREF_NULL.
+    In the C++ implementation, the only way to know if an array is sparse is to iterate over
+    all the cells (items) and test if there is at least one non-assigned cell.
+    For the ooRexx user, a possible way is to compare the number of items with the size.
+    Internally, the method ~items count the cells <> OREF_NULL (at each call, not stored).
+    The bigger the array, the longer it takes :
+        smallArray = .array~new(10,10); do 10000; n = smallArray~items; end -- near 0 sec
+        bigArray = .array~new(1000,1000); do 10000; n = bigArray~items; end -- around 8 sec
+    */
+    return self~items == self~size
+
+
+::method atIndex
+    -- An index is an indice (whole number), or a vector of [vector of] indices.
+    -- An index can be sparse: an omitted indice lets select all the items in the corresponding dimension.
+    -- For convenience, the items of the vector can be passed as arguments :
+    --     atIndex(1,,1) is the same as atIndex(v(1,,1)).
+    -- The result can be a scalar or an array.
+    if arg() == 1 then do
+        use arg index
+        if index~isa(.string), index~datatype("W") then do
+            if self~dimension <= 1 then return self[index] -- one item, indexed by a wholenumber.
+            -- here more complex... must return a subarray.
+            if index > self~dimension(1) then return .nil
+            subshape = self~shape~section(2) -- Ex : for a matrix whose shape is [6,3], the result is a vector of shape [3]
+            myIndex = index
+            -- REMEMBER ! If index is exposed in the closure, then it's overwritten by the implicit argument index.
+            subindexes = self~allindexes~select{expose myIndex; item[1] == myIndex}
+            subindexes = subindexes~reshape(subshape)
+            return subindexes~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
+            r = a(subshape)
+            i = self~first
+            do while i <> .nil
+            end
+            return r
+        end
+        if index~isa(.array) then do
+            -- Select the values situated at the intersections of the specified rows and columns : rows 1 5 6, columns 1 3
+            --     matrix[1 5 6;1 3] or (1 5 6) (1 3) ⌷ matrix
+            --         41 38
+            --         19 64
+            --         45 74
+            if sameShapes(index, self~shape), index~depth == 1 then do
+                -- TODO:
+                return self[index] -- Case one item, indexed by an array
+            end
+        end
+        if index~isa(.array) then indexString = index~ppRepresentation
+        else indexString = index~string
+        raise syntax 93.900 array("Unsupported index:" indexString)
+    end
+    return self~atIndex(arg(1, "a"))
+
+
 ::method indexer
     /*
+    This method takes an array of indexes as parameter.
+    The array of indexes can have any shape, the result will have the same shape.
+    For convenience, when the array of indexes is a vector, the items of the vector can be passed as arguments :
+        indexer(1,1,1) is the same as indexer(v(1,1,1)).
+    An index is an indice (whole number), or a vector of [vector of] indices.
+    An index can be sparse: an omitted item lets select all the items in the corresponding dimension.
+    The result is ALWAYS an array.
+
     Indexing a vector
     -----------------
     It is possible to extract several items in a single operation, and in any order.
@@ -227,7 +303,7 @@ v()               | []                            | 1         | [0]             
             38 30 41 38 38 55
     ooRexx
         vector = v(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
-        vector[3] or vector~indexer(3) or vector~indexer(v3))
+        vector~indexer(3) or vector~indexer(v3))
         vector~indexer(3,7,1,3,3,12) =
 
     The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
@@ -311,20 +387,114 @@ v()               | []                            | 1         | [0]             
             41 87 19
         cube[;1;1]
             41 19
+
+    To review
+    ---------
+    matrix~indexer(1,1,1)= -- Not enough subscripts for array; 2 expected
+    The error message is surprising : 3 indices and complains "not enough"
+    This is because the list of arguments is interpreted as a list of 3 indexes made of 1 indice each.
     */
-    if arg() == 1 then do
-        use arg index
-        if index~isa(.string), index~datatype("W") then do
-            if self~dimension <= 1 then return self[index] -- optimization: one item, indexed by a wholenumber.
-            index = v(index) -- here more complex... must return a subarray.
-        end
-        if index~isa(.array) then do
-            if sameShapes(index, self~shape) then return self[index] -- one item, indexed by an array
-            return index~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
-        end
-        raise syntax 93.900 array("Unsupported index:" index~string)
-    end
+    if arg() <> 1 then return self~indexer(arg(1, "a"))
+    use arg index
+    if \index~isa(.array) then index=v(index)
+
+    -- The shape of the result is the same as the shape of the index.
+    -- The depth of the result is always 1, would be too complicated to manage at the same time nested indexes and indexes as array.
+    -- Ex :
+    --     v( v(1), v(2) ) can be used with a vector : shape [2], depth 2. The indexes have 1 indice, the result is shape [2], depth 1.
+    --     v( v(1,2), v(3,4) ) can be used with a matrix : shape [2], depth 2. The indexes have 2 indices, the result is shape [2], depth 1.
+    return index~leftElementWise({itemRight~atIndex(itemLeft)}, self~enclose, 1)
+
+/*
+    args = arg(1, "a")
+    if args~depth == 1 then return self~indexer(v(args)) -- one index, maybe with omitted indices
     return self~indexer(arg(1, "a")) -- for convenience, indexer(i1,i2,...iN) equivalent to indexer(v(i1,i2,...iN))
+
+vector~indexer()=           Not enough arguments for method; 1 expected     ok
+vector~indexer(1)=          41                                              ok
+vector~indexer(1,1)=        Too many subscripts for array; 1 expected       ok
+vector~indexer(1,)=         [41]                                            should raise error too many subscripts
+vector~indexer(v())=        []                                              ok
+vector~indexer(v(1))=       41                                              expected [41]
+vector~indexer(v(1,1))=     [41,41]                                         ok
+vector~indexer(v(1,))=      [41,...]                                        should raise error too many subscripts
+
+
+matrix~indexer()=           Not enough arguments for method; 1 expected     ok
+matrix~indexer(1)=          Not enough arguments for method; 1 expected     ok
+matrix~indexer(1,1)=        [41]                                            expected 41
+matrix~indexer(1,1,1)=      Too many subscripts for array; 2 expected       ok
+matrix~indexer(v())=        []                                              ok
+matrix~indexer(v(1))=       Not enough subscripts for array; 2 expected     ok
+matrix~indexer(v(1,1))=     41                                              expected [41]. [later] no ! should return a vector of 2 values but the indexes don't have enough subscripts
+matrix~indexer(v(1,))=      Not enough subscripts for array; 2 expected     ok, to extend. [later] no ! attempts to return a vector of 1 value and 1 omitted
+matrix~indexer(v(1,1,1))=   Not enough subscripts for array; 2 expected     surprising ? no ! attempts to return a vector of 3 values
+matrix~indexer(v(1,1,))=    Not enough subscripts for array; 2 expected     surprising ? no ! attempts to return a vector of 2 values and 1 omitted
+
+
+    args = arg(1, "a")
+    --if args~depth == 1 then return self~indexer(v(args)) -- one index, maybe with omitted indices
+    return self~indexer(arg(1, "a")) -- for convenience, indexer(i1,i2,...iN) equivalent to indexer(v(i1,i2,...iN))
+
+vector~indexer()=           []
+vector~indexer(1)=          41
+vector~indexer(1,1)=        [41,41]
+vector~indexer(1,)=         [41,...]
+vector~indexer()=           []
+*/
+
+/*
+    An index is an indice (whole number), or a vector of indices.
+    An index can be sparse: an omitted indice lets select all the items in the corresponding dimension.
+    Zero parameter:
+        all indices are omitted, returns a copy of the whole array (copy because in all other cases, the result is new array).
+    One parameter:
+        if type whole number: indice
+            if array rank <=1 (vector) then return the corresponding item (can be .nil if no item).
+                vector~indexer(1)
+                vector[1] or 1 ⌷ vector
+                    41 (scalar: rank = 0)
+            otherwise return the corresponding sub-array (indice in 1st dimension is provided, indices in next dimensions are omitted).
+                matrix~indexer(1)
+                1 ⌷ matrix
+                    41 26 38
+        if type array: array of indexes, can have any shape, the result will have the same shape.
+            vector~indexer(v(1))
+            vector[1 ⍴ 1]
+                41 (vector: rank = 1)
+            vector~indexer(v(1,2,3))
+            vector[1 2 3]
+                41 26 38
+            matrix~indexer(v(index(1,1)))
+            APL ? matrix[(1 1)] rank error, why ?
+                41
+            matrix~indexer(v(index(1,1), index(1,2)))
+            matrix[(1 1)(1 2)]
+                41 26
+            matrix~indexer(v(1)) or matrix~indexer(v(1,))
+            matrix[1;])
+                41 26 38
+            matrix~indexer(v(1,2,3))
+            APL ? (matrix[1;]) (matrix[2;]) (matrix[3;])
+                41 26 38  14 87 52  30 28 19 (shape [1,3])
+
+        otherwise: unsupported index
+    More than one parameter: each parameter is an indice or a vector of indices (not an index). An indice can be omitted.
+        matrix~indexer(1,1)
+        matrix[1;1]
+            41      rank 0
+        matrix~indexer(1,)
+        matrix[1;]
+            41 26 38
+        matrix~indexer(v(1,1),1)
+        matrix[1 1;1] or (1 1) 1 ⌷ matrix
+            41 41   rank 1
+        matrix~indexer(v(1,1),v(1,1)]
+        matrix[1 1;1 1] or (1 1) (1 1) ⌷ matrix
+            41 41   rank 2
+            41 41
+
+*/
 
 
 /******************************************************************************/
@@ -398,7 +568,6 @@ v()               | []                            | 1         | [0]             
             Invariant: index == item.
             When the rank is > 1, the index is an array [i1,i2,...,iRank].
             Invariant:  1 + rank**(rank-1)*(i1-1) + rank**(rank-2)*(i2-1) + ... + rank**(0)*(iRank-1) == item
-        arg(3) : array : the array under construction.
     The value returned by the doer is the item for the current cell.
     If no value returned then the cell remains unassigned.
         .array~new(2,3)~of{if item//4 <> 0 then 10*item}
@@ -416,14 +585,9 @@ v()               | []                            | 1         | [0]             
         1 . 3
         . 5 6
 
-    For me, there is a problem (bug ?) when the last arguments are explicitely omitted : they are not counted by the interpreter !
         .array~new(2,3)~of(1,,3,,5,)
         1 . 3
-        . 5 1
-    I was expecting this result, because I passed explicitely 6 arguments, 3 of them being omitted :
-        1 . 3
         . 5 .
-    JLF 19/09/2017 : fixed.
 
     The items are a list of values that must be assigned to the cells of the array.
     Rules inspired by APL :
@@ -498,7 +662,7 @@ v()               | []                            | 1         | [0]             
             -- if initialization with a doer
             else if .nil <> doer then do
                 if self~dimension == 1 then index = selfArrayIndex
-                                       else index = selfArrayIndex~copy
+                                       else index = selfArrayIndex~copy -- to avoid any side effect from the doer
                 if arity >= 2 then doer~do(selfIntegerIndex, index)
                 else if arity == 1 then doer~do(selfIntegerIndex)
                 else doer~do
@@ -650,7 +814,8 @@ v()               | []                            | 1         | [0]             
             i = index + 1 -- next index
             s~next -- skip sparse section, if any
         end
-        if maxItems >= 0, items < maxItems then do -- if not truncated
+        if maxItems >= 0, items >= maxItems then nop -- truncated, ellipsis already added, don't add sparse
+        else do -- if not truncated
             if i <= val~size then do
                 valstr ||= sep || sparse
             end
