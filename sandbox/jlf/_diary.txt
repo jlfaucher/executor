@@ -81,10 +81,6 @@ For .stemCollector, I don't know.
 Is .stemCollector really needed ? I don't see the added value, compared to .arrayCollector
 
 Extension todo :
-During parsing, the extensions methods of an ::extension directive are accumulated in a table.
-Must use an ordered collection because the order of declaration is important.
-
-Extension todo :
 Forbids to replace a predefined method. The goal is to extend, not to alter the behavior.
 Maybe not so easy to do for 'inherit'.
 
@@ -150,6 +146,300 @@ That makes the transformation of clauses more difficult, since a clause can be
 multi-line.
 Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
+
+
+===============================================================================
+2017 oct 05
+
+Summary of changes since 2016 dec 26, not yet listed.
+
+ooRexxShell
+-----------
+
+Stand-alone: ooRexxShell has been adapted to be operational (with limited
+functionalities) even if one or more loaded packages/libraries are missing.
+
+If an ooRexx clause ends with "==" then the command line is transformed to
+display the result **not condensed**.
+1,2,3=
+    [1,2,3]
+1,2,3==
+    an Array (shape [3], 3 items)
+    1 : 1
+    2 : 2
+    3 : 3
+
+string2args:
+An unquoted chunk can be splitted in several parts, if it contains a break token.
+Ex:
+if "<>" is a break token then
+    'a<>b' is parsed as 3 tokens: "a", "<>", "b".
+    'a"<>"b' is parsed a 1 token: "a<>b"
+
+Add query ?path v1 v2 ...
+Display the value of the specified system variables, splitted by path separator.
+The default variable name is PATH.
+Example (under Windows):
+?path
+    PATH 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build'
+    PATH 'C:\jlf\local\rexx\bsf4oorexx\svn\trunk\bsf4oorexx.dev\source_cc\build\win\cl\release\64'
+    PATH 'C:\jlf\local\rexx\bsf4oorexx\svn\trunk\bsf4oorexx.dev\bin'
+    PATH 'C:\jlf\local\nsis\Nsis_longStrings'
+    PATH 'C:\jlf\local\rexx\GCI\gci-source.1.1\build\win\cl\release\64'
+    ... <cut>
+    PATH length: 2618
+?path include lib = rexx "length: "
+    include 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build\api'
+    include 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\api'
+    include length: 645
+
+    lib 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\build\api'
+    lib 'C:\jlf\local\rexx\oorexx\build\executor.master\sandbox\jlf\trunk\win\cl\release\64\delivery\api'
+    lib length: 516
+
+Add query ?v[ariables]
+This is for convenience, equivalent to .context~variables=
+
+
+No value
+--------
+
+The interpreter has an undocumented functionnality:
+When a variable has no value, the interpreter sends the message "NOVALUE" to the
+object .local["NOVALUE"].
+I use this functionality to manage special variable like i, infinity, indeterminate.
+i=              -- (0+1i)
+infinity=       -- (The positive infinity)
+indeterminate=  -- (The indeterminate value)
+
+
+Operators
+---------
+
+Take note of this:
+Some alternative messages are never sent by the interpreter, because there is a
+shared implementation for some operators.
+Ex:
+"" and "||" are implemented by the same method concat.
+The alternative message "||op:right" can be send, but the message "op:right" will NEVER be sent.
+
+OP    RexxObject                          RexxInteger           RexxNumberString      RexxString            Comment
+"+"   operator_plus                       plus                  plus                  plus
+"-"   operator_minus                      minus                 minus                 minus
+"*"   operator_multiply                   multiply              multiply              multiply
+"/"   operator_divide                     divide                divide                divide
+"%"   operator_integerDivide              integerDivide         integerDivide         integerDivide
+"//"  operator_remainder                  remainder             remainder             remainder
+"**"  operator_power                      power                 power                 power
+""    operator_abuttal                    concat                concat                concatRexx            should be ::abuttal everywhere
+"||"  operator_concat                     concat                concat                concatRexx
+" "   operator_concatBlank                concatBlank           concatBlank           concatBlank
+"="   operator_equal                      equal                 equal                 equal
+"\="  operator_notEqual                   notEqual              notEqual              notEqual
+">"   operator_isGreaterThan              isGreaterThan         isGreaterThan         isGreaterThan
+"\>"  operator_isBackslashGreaterThan     isLessOrEqual         isLessOrEqual         isLessOrEqual         should be ::isBackslashGreaterThan everywhere
+"<"   operator_isLessThan                 isLessThan            isLessThan            isLessThan
+"\<"  operator_isBackslashLessThan        isGreaterOrEqual      isGreaterOrEqual      isGreaterOrEqual      should be ::isBackslashLessThan everywhere
+">="  operator_isGreaterOrEqual           isGreaterOrEqual      isGreaterOrEqual      isGreaterOrEqual
+"<="  operator_isLessOrEqual              isLessOrEqual         isLessOrEqual         isLessOrEqual
+"=="  operator_strictEqual                strictEqual           strictEqual           strictEqual
+"\==" operator_strictNotEqual             strictNotEqual        strictNotEqual        strictNotEqual
+">>"  operator_strictGreaterThan          strictGreaterThan     strictGreaterThan     strictGreaterThan
+"\>>" operator_strictBackslashGreaterThan strictLessOrEqual     strictLessOrEqual     strictLessOrEqual     should be ::strictBackslashGreaterThan everywhere
+"<<"  operator_strictLessThan             strictLessThan        strictLessThan        strictLessThan
+"\<<" operator_strictBackslashLessThan    strictGreaterOrEqual  strictGreaterOrEqual  strictGreaterOrEqual  should be ::strictBackslashLessThan everywhere
+">>=" operator_strictGreaterOrEqual       strictGreaterOrEqual  strictGreaterOrEqual  strictGreaterOrEqual
+"<<=" operator_strictLessOrEqual          strictLessOrEqual     strictLessOrEqual     strictLessOrEqual
+"<>"  operator_lessThanGreaterThan        notEqual              notEqual              notEqual              should be ::lessThanGreaterThan everywhere
+"><"  operator_greaterThanLessThan        notEqual              notEqual              notEqual              should be ::greaterThanLessThan everywhere
+"&"   operator_and                        andOp                 andOp                 andOp
+"|"   operator_or                         orOp                  orOp                  orOp
+"&&"  operator_xor                        xorOp                 xorOp                 xorOp
+"\"   operator_not                        operatorNot           operatorNot           operatorNot
+
+
+Pipe
+----
+
+PipeStage Yield: new options
+(['index'] ['item'] [<expression-doer>])*
+
+
+Array programming
+-----------------
+
+~each now supported at Object level (APL: Ravel)
+-- Seen in http://www.dyalog.com/mastering-dyalog-apl-errata.htm
+-- B 51 debate: "A single number has no dimensions" .. what about ⍴,1 ?
+-- ⍴,1 is 1, that's why I add this method
+1~shape= []
+1~each= -- [1]
+1~each~shape= [1]
+
+Indexing a vector
+It is possible to extract several items in a single operation, and in any order.
+An item can be selected more than once.
+    vector = v(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
+        41 26 38 14 87 52 30 28 19 65 40 55 19 31 64 45 82 74
+    vector[3] or vector~atindex(3) or vector~atindex(v(3))
+        38
+    vector~indexer(3) or vector~indexer(v(3))
+        [38]
+    vector~indexer(3,7,1,3,3,12) =
+        38 30 41 38 38 55
+    'LE CHAT'~eachc~indexer(7, 5, 2, 3, 4, 6, 7)~tostring("c")=
+        'THE CAT'
+
+The index may be an array of any shape: scalar, vector, matrix, or an array of higher rank.
+When a vector is indexed by an array, the result has exactly the same shape as the index
+array, as if each item of the index had been replaced by the item it designates:
+    index = a(3,5)~of(5,5,4,4,8,6,12,6,11,12,10,6,1,4,9)
+         5  5 4  4  8
+         6 12 6 11 12
+        10  6 1  4  9
+    vector~indexer(index) =
+        87 87 14 14 28
+        52 55 52 40 55
+        65 52 41 14 19
+
+Indexing an array
+Similar to vector indexing, but with one index for the row and one for the column:
+    matrix = a(6,3)~of(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
+        41 26 38
+        14 87 52
+        30 28 19
+        65 40 55
+        19 31 64
+        45 82 74
+    matrix[2,3] or
+        52
+    matrix~indexer(2,3) or matrix~indexer(v(2,3))
+        [[14,87,52],[30,28,19]]
+    index = v(  v(1,1), v(2,2), v(3,3)  )
+         1 1  2 2  3 3
+    matrix~indexer(index) =
+        41 87 19
+    matrix~indexer(a(2,3)~of(index)) =
+        41 87 19
+        41 87 19
+
+
+Doers
+-----
+Asynchronous execution with go and goWith.
+repeat={use arg n,s; do n; say s; end}; repeat~do(2,"hello"); repeat~do(2,"world")
+    hello
+    hello
+    world
+    world
+repeat={use arg n,s; do n; say s; end}; repeat~go(2,"hello"); repeat~go(2,"world")
+    hello
+    world
+    hello
+    world
+
+
+Parser
+------
+
+Argument list:
+Keep the trailing omitted arguments.
+    .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
+This is consistent with the array literals:
+    v(1,2,) is the same as 1,2,
+
+Array literals:
+Retrofit from ooRexx5 the parsing of an expression where the expression can be
+treated as a comma-separated list of subexpressions.
+For an empty vector, or a vector of one element, the routine v is still needed :
+()=     -- Syntax error: Incorrect expression detected at "("
+v()=    -- []
+(1)=    -- 1
+v(1)    -- [1]
+
+
+String extension
+----------------
+
+Added the methods split and caselessSplit.
+Similar to ~makeArray(separator), with these differences:
+- Can be caseless (makeArray is always case sensitive).
+- If the string ends with a separator, an empty string item is added (makeArray does not).
+  This is consistent with the size of the array literals :
+      1,,2,3,               -- array of size 5, 3 items (sparse array)
+      "1,,2,3,"~split(",")  -- array of size 5, 5 items
+- If the separator is an empty string then the result is an array containing the whole string
+  (makeArray returns an array containing each character of the string).
+  This is closer to the semantics of the parse instruction.
+- When no separator is provided, the default value is the *current* platform end-of-line
+  (makeArray is splitting on *any supported* platform end-of-line).
+
+
+Compatibility with classic rexx
+-------------------------------
+
+Add support for instruction UPPER:
+- same syntax as instruction DROP
+- translate to upper case the value of each variable
+
+Rename the script which executes the classic rexx scripts of Rosetta code:
+RosettaCodeData.rex --> runRosettaCode.rex
+
+Align with RosettaCodeData commit of Dec 05 2016.
+The solutions starting with "A" and "B" are covered.
+
+The Rosetta solutions are installed locally from https://github.com/acmeism/RosettaCodeData
+Under Windows, Git doesn't create symbolic links.
+Instead, it creates ordinary text files which contain the relative path.
+Something like that: ../../Task/9-billion-names-of-God-the-integer/REXX
+The script has been adapted to support this indirection through text files.
+
+
+===============================================================================
+2017 oct 05
+
+RexxMessageNumbers.h
+Some message numbers are used twice --> fix rexxmsg.xml.
+
+    #define Error_Incomplete_do_loop_msg                                 725
+    #define Error_Invalid_expression_message_term_msg                    725 --> 740
+
+    #define Error_Unmatched_parenthesis_curly_msg                        735
+    #define Message_Translations_internal_code_msg                       735 --> 741
+
+    #define Error_Unexpected_curly_bracket_msg                           736
+    #define Message_Translations_sourceless_method_invocation_msg        736 --> 742
+
+    #define Error_Invalid_expression_after_tilde_msg                     737
+    #define Message_Translations_sourceless_routine_invocation_msg       737 --> 743
+
+
+List of message numbers not used:
+    1
+    2
+    12
+    32
+    50..87
+    89
+    92
+    94..96
+    101
+    134..199
+    399
+    403
+    430
+    477
+    487
+    495..499
+    527         (used in ooRexx5)
+    528         (used in ooRexx5)
+    567..579
+    582         (used in ooRex5)
+    585         (used in ooRexx5)
+    605..610
+    661         (used in ooRexx5)
+    662         (used in ooRexx5)
+    696         (used in ooRexx5)
 
 
 ===============================================================================
@@ -440,6 +730,16 @@ And other arithmetic operators...
 Multiple extensions of operators on String
 ------------------------------------------
 
+[JLF 2017 feb 22]
+<<
+This technique of dispatching from String is abandonned.
+Was needed to support the constants i, infinity, indeterminate.
+Now using novalue to get default values for i, infinity, indeterminate.
+These default values are instances of .Complex, .Infinity, .Indeterminate
+instead of being an instance of .String.
+>>
+
+
 Both Complex and Infinity define extensions on String.
 The interpreter send messages for alternative operators to String.
 The dispatching to Complex & Infinity is hardcoded in string.cls.
@@ -472,6 +772,16 @@ Dispatching to only 2 mixin classes is better.
 
 Alternative operators for comparisons
 -------------------------------------
+
+[JLF 2017 sep 23]
+<<
+The constants i, infinity and indeterminate are now evaluated as instances of
+specifc classes, not as strings.
+Probably to undo:
+- Sending an alternative message before a number is converted to a string.
+Probably to keep:
+- Sending an alternative message before an object is converted to a string.
+>>
 
 In short :
 A message for alternative comparison can be sent when two strings are compared.
@@ -771,6 +1081,7 @@ When the rank is > 1, the index is an array [i1,i2,...,iRank].
     The reduce calculates 2 values for each index.
     The 1st value is the expression as a string.
     The 2nd value is the calculation of the expression.
+    [JLF 2016 apr 14] Next line no longer works because the implicit parameter 'array' is no longer passed.
     a(2,2,3)~of{index~reduce(v("1",1)){::closure expose array ; r=array~rank ; e=r-index ; v(accu[1] "+" "("r"**"e")*("item"-1)", accu[2] + (r**e)*(item-1))}}
         type: The Array class: (shape 2x2x3, 12 items)
         [1,1,1] : ['1 + (3**2)*(1-1) + (3**1)*(1-1) + (3**0)*(1-1)',1]
