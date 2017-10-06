@@ -297,6 +297,7 @@ const char *RexxToken::keywordText(int code)
     CODE_TEXT(KEYWORD_FORWARD)
     CODE_TEXT(KEYWORD_LOOP)
     CODE_TEXT(KEYWORD_LIBRARY)
+    CODE_TEXT(KEYWORD_UPPER)
 
     default:
         Utilities::snprintf(buffer, sizeof(buffer), "%i", code);

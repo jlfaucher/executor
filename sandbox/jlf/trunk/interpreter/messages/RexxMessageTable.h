@@ -163,6 +163,7 @@ ERROR_MESSAGE Message_table[] = {      /* table of major and minor errors   */
       MINOR(Error_Symbol_expected_directive)
       MINOR(Error_Symbol_expected_colon)
       MINOR(Error_Symbol_expected_LABEL)
+      MINOR(Error_Symbol_expected_upper)
   MAJOR(Error_Invalid_data)
       MINOR(Error_Invalid_data_user_defined)
       MINOR(Error_Invalid_data_nop)

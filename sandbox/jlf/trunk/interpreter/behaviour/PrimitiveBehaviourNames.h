@@ -162,6 +162,7 @@
 #define TheSignalInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_SignalInstruction])
 #define TheThenInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_ThenInstruction])
 #define TheTraceInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_TraceInstruction])
+#define TheUpperInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_UpperInstruction])
 #define TheUseInstructionBehaviour      (&RexxBehaviour::primitiveBehaviours[T_UseInstruction])
 #define TheClassDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_ClassDirective])
 #define TheExtensionDirectiveBehaviour      (&RexxBehaviour::primitiveBehaviours[T_ExtensionDirective])

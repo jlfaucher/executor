@@ -629,7 +629,6 @@
 #define Message_Translations_compiled_routine_invocation_msg         723
 #define Message_Translations_no_source_available_msg                 724
 #define Error_Incomplete_do_loop_msg                                 725
-#define Error_Invalid_expression_message_term_msg                    725
 #define Error_Invalid_subkeyword_attribute_msg                       726
 #define Error_Translation_abstract_method_msg                        727
 #define Error_Translation_attribute_method_msg                       728
@@ -640,12 +639,14 @@
 #define Error_Translation_external_routine_msg                       733
 #define Error_Translation_abstract_attribute_msg                     734
 #define Error_Unmatched_parenthesis_curly_msg                        735
-#define Message_Translations_internal_code_msg                       735
 #define Error_Unexpected_curly_bracket_msg                           736
-#define Message_Translations_sourceless_method_invocation_msg        736
 #define Error_Invalid_expression_after_tilde_msg                     737
-#define Message_Translations_sourceless_routine_invocation_msg       737
 #define Message_Translations_sourceless_program_invocation_msg       738
+#define Error_Symbol_expected_upper_msg                              739
+#define Error_Invalid_expression_message_term_msg                    740
+#define Message_Translations_internal_code_msg                       741
+#define Message_Translations_sourceless_method_invocation_msg        742
+#define Message_Translations_sourceless_routine_invocation_msg       743
 
 
 #endif

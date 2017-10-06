@@ -79,6 +79,7 @@ class RexxCompoundVariable : public RexxVariableBase {
   void expose(RexxActivation *, RexxExpressionStack *, RexxVariableDictionary *);
   void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
   inline RexxString * variableStem() {return this->stemName;};
+  void upper(RexxActivation *);
 
   RexxString *stemName;                // the stem variable name
   size_t      index;                   /* lookaside table index             */

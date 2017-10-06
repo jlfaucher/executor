@@ -74,6 +74,7 @@ class RexxParseVariable : public RexxVariableBase {
   void expose(RexxActivation *, RexxExpressionStack *, RexxVariableDictionary *);
   void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
   RexxString *getName();
+  void upper(RexxActivation *);
 
 protected:
 

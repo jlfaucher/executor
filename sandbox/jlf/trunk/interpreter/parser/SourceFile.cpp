@@ -4496,6 +4496,11 @@ RexxInstruction *RexxSource::instruction()
                     syntaxError(Error_Unexpected_then_then);
                     break;
 
+                case KEYWORD_UPPER:         /* UPPER instruction                */
+                    refineSubclass(_first, IS_KEYWORD);
+                    /* add the instruction to the parse  */
+                    _instruction = this->upperNew();
+                    break;
             }
         }
         else
@@ -6424,7 +6429,7 @@ RexxString * RexxSource::formatTraceSetting(size_t source)
 size_t RexxSource::processVariableList(
   int        type )                    /* type of instruction               */
 /****************************************************************************/
-/* Function:  Process a variable list for PROCEDURE, DROP, and USE          */
+/* Function:  Process a variable list for PROCEDURE, DROP, UPPER and USE    */
 /****************************************************************************/
 {
     RexxToken   *token;                  /* current working token             */
@@ -6509,6 +6514,11 @@ size_t RexxSource::processVariableList(
                 /* give appropriate message          */
                 syntaxError(Error_Symbol_expected_drop);
             }
+            else if (type == KEYWORD_UPPER)        /* UPPER form?             */
+            {
+                /* give appropriate message          */
+                syntaxError(Error_Symbol_expected_upper);
+            }
             else                             /* else give message for EXPOSEs     */
             {
                 syntaxError(Error_Symbol_expected_expose);
@@ -6522,6 +6532,11 @@ size_t RexxSource::processVariableList(
         {
             /* give appropriate message          */
             syntaxError(Error_Symbol_expected_drop);
+        }
+        else if (type == KEYWORD_UPPER)          /* UPPER form?                */
+        {
+            /* give appropriate message          */
+            syntaxError(Error_Symbol_expected_upper);
         }
         else                               /* else give message for EXPOSEs     */
         {

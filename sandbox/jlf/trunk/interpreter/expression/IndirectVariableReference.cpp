@@ -218,3 +218,23 @@ void *RexxVariableReference::operator new(size_t size)
     return new_object(size, T_IndirectVariableTerm);
 }
 
+
+void RexxVariableReference::upper(
+  RexxActivation *context)             /* current activation context */
+/******************************************************************************/
+/* Function:  Translate to upper a subsidiary list of variables               */
+/******************************************************************************/
+{
+    RexxExpressionStack *stack = context->getStack();         /* get the stack from the context    */
+    /* evaluate into a variable list     */
+    RexxList *name_list = this->list(context, stack);
+    /* get the first list item           */
+    RexxVariableBase *variable = (RexxVariableBase *)name_list->removeFirst();
+    /* while more list items             */
+    while (variable != (RexxVariableBase *)TheNilObject)
+    {
+        variable->upper(context);          /* translate to upper this variable  */
+                                           /* get the next list item            */
+        variable = (RexxVariableBase *)name_list->removeFirst();
+    }
+}

@@ -107,6 +107,7 @@ KeywordEntry RexxSource::keywordInstructions[] = {     /* language keyword table
    KeywordEntry(CHAR_SIGNAL,     KEYWORD_SIGNAL),
    KeywordEntry(CHAR_THEN,       KEYWORD_THEN),
    KeywordEntry(CHAR_TRACE,      KEYWORD_TRACE),
+   KeywordEntry(CHAR_UPPER,      KEYWORD_UPPER),
    KeywordEntry(CHAR_USE,        KEYWORD_USE),
    KeywordEntry(CHAR_WHEN,       KEYWORD_WHEN),
 };

@@ -57,6 +57,7 @@ class RexxVariableBase : public RexxInternalObject {
   virtual void clearGuard(RexxActivation *) {;}
   virtual void expose(RexxActivation *, RexxExpressionStack *, RexxVariableDictionary *) {;}
   virtual void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *) {;}
+  virtual void upper(RexxActivation *) {;}
 };
 
 #endif

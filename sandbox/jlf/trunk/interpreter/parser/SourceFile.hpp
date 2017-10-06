@@ -370,6 +370,7 @@ class RexxSource : public RexxInternalObject {
     RexxInstruction *signalNew();
     RexxInstruction *thenNew(RexxToken *, RexxInstructionIf *);
     RexxInstruction *traceNew();
+    RexxInstruction *upperNew();
     RexxInstruction *useNew();
     void        holdObject(RexxObject *object) { this->holdstack->push(object);};
     void        saveObject(RexxObject *object) { this->savelist->put(object, object); };

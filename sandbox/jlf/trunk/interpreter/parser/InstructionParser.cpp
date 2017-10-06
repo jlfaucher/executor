@@ -85,6 +85,7 @@
 #include "QueueInstruction.hpp"
 #include "RaiseInstruction.hpp"
 #include "TraceInstruction.hpp"
+#include "UpperInstruction.hpp"
 #include "UseStrictInstruction.hpp"
 
 #include "CallInstruction.hpp"                 /* call/signal instructions          */
@@ -2443,6 +2444,20 @@ RexxInstruction *RexxSource::traceNew()
     RexxInstruction *newObject = new_instruction(TRACE, Trace);
     /* now complete this                 */
     new ((void *)newObject) RexxInstructionTrace(_expression, setting, trcFlags, debug_skip);
+    return newObject; /* done, return this                 */
+}
+
+RexxInstruction *RexxSource::upperNew()
+/****************************************************************************/
+/* Function:  Create a new UPPER translator object                           */
+/****************************************************************************/
+{
+    /* go process the list               */
+    size_t variableCount = this->processVariableList(KEYWORD_UPPER);
+    /* create a new translator object    */
+    RexxInstruction *newObject = new_variable_instruction(UPPER, Upper, sizeof(RexxInstructionUpper) + (variableCount - 1) * sizeof(RexxObject *));
+    /* now complete this                 */
+    new ((void *)newObject) RexxInstructionUpper(variableCount, this->subTerms);
     return newObject; /* done, return this                 */
 }
 

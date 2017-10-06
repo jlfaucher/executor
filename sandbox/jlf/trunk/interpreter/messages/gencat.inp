@@ -1778,9 +1778,6 @@ $ Message_Translations_no_source_available
 $ Error_Incomplete_do_loop
 725 LOOP instruction on line &1 requires matching END
 
-$ Error_Invalid_expression_message_term
-725 Missing message name or argument list
-
 $ Error_Invalid_subkeyword_attribute
 726 Unknown keyword on ::ATTRIBUTE directive; found "&1"
 
@@ -1811,23 +1808,29 @@ $ Error_Translation_abstract_attribute
 $ Error_Unmatched_parenthesis_curly
 735 Curly bracket "{" in position &1 on line &2 requires a corresponding right curly bracket "}"
 
-$ Message_Translations_internal_code
-735 Interpreter code (no source available)
-
 $ Error_Unexpected_curly_bracket
 736 Unexpected "}"
-
-$ Message_Translations_sourceless_method_invocation
-736 Method &1 with scope "&2" in package "&3" (no source available)
 
 $ Error_Invalid_expression_after_tilde
 737 String or symbol or ":" or "(" expected after tilde (~)
 
-$ Message_Translations_sourceless_routine_invocation
-737 Routine &1 in package "&2" (no source available)
-
 $ Message_Translations_sourceless_program_invocation
 738 Program in "&1" (no source available)
+
+$ Error_Symbol_expected_upper
+739 Symbol expected after UPPER keyword
+
+$ Error_Invalid_expression_message_term
+740 Missing message name or argument list
+
+$ Message_Translations_internal_code
+741 Interpreter code (no source available)
+
+$ Message_Translations_sourceless_method_invocation
+742 Method &1 with scope "&2" in package "&3" (no source available)
+
+$ Message_Translations_sourceless_routine_invocation
+743 Routine &1 in package "&2" (no source available)
 
 
 $ * -------------------------------------------------------------------------- */

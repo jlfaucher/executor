@@ -160,6 +160,7 @@
 #define Rexx_Error_Symbol_expected_directive                    20916
 #define Rexx_Error_Symbol_expected_colon                        20917
 #define Rexx_Error_Symbol_expected_LABEL                        20918
+#define Rexx_Error_Symbol_expected_upper                        20919
 #define Rexx_Error_Invalid_data                                 21000
 #define Rexx_Error_Invalid_data_user_defined                    21900
 #define Rexx_Error_Invalid_data_nop                             21901

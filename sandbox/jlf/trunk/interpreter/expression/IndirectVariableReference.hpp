@@ -62,6 +62,7 @@ class RexxVariableReference : public RexxVariableBase {
   void drop(RexxActivation *);
   void expose(RexxActivation *, RexxExpressionStack *, RexxVariableDictionary *);
   void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
+  void upper(RexxActivation *);
 
   RexxVariableBase *variableObject;   // The variable lookup object
 };

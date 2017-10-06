@@ -128,6 +128,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="SignalInstruction" class="RexxInstructionSignal" include="SignalInstruction.hpp"/>
 <Class id="ThenInstruction" class="RexxInstructionThen" include="ThenInstruction.hpp"/>
 <Class id="TraceInstruction" class="RexxInstructionTrace" include="TraceInstruction.hpp"/>
+<Class id="UpperInstruction" class="RexxInstructionUpper" include="UpperInstruction.hpp"/>
 <Class id="UseInstruction" class="RexxInstructionUseStrict" include="UseStrictInstruction.hpp"/>
 
 <Class id="ClassDirective" class="ClassDirective" include="ClassDirective.hpp"/>

@@ -198,6 +198,7 @@ typedef int TokenClass;
 #define KEYWORD_FORWARD            KEYWORD_INSTRUCTION       + 1
 #define KEYWORD_LOOP               KEYWORD_FORWARD           + 1
 #define KEYWORD_LIBRARY            KEYWORD_LOOP              + 1
+#define KEYWORD_UPPER              KEYWORD_LIBRARY           + 1
 
 /* token extended types - instruction option keywords */
 #define IS_SUBKEY          2200 // refined token subclass

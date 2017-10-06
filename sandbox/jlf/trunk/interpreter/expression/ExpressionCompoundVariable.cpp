@@ -429,3 +429,14 @@ void * RexxCompoundVariable::operator new(size_t size,
     }
 }
 
+void RexxCompoundVariable::upper(
+  RexxActivation *context)             /* current activation context          */
+/******************************************************************************/
+/* Function:  Translate to upper case the contents of a variable object                                          */
+/******************************************************************************/
+{
+  RexxObject *value = this->getValue(context);
+  RexxString *string = REQUEST_STRING(value);
+  ProtectedObject p(string);
+  this->set(context, string->upper());
+}

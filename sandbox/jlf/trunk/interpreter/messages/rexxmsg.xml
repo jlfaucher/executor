@@ -908,7 +908,7 @@ special character (such as a parenthesis).
     <Severity>Warning</Severity>
     <SymbolicName>Error_Symbol_expected</SymbolicName>
     <Text>Symbol expected</Text>
-    <Explanation><para>A symbol is expected after CALL ON, CALL OFF, END, ITERATE, LEAVE, NUMERIC, PARSE, SIGNAL ON, or SIGNAL OFF. Also, a list of symbols or variable references is expected after DROP, EXPOSE, and PROCEDURE EXPOSE. Either there was no symbol when one was required or the language processor found another token.</para></Explanation>
+    <Explanation><para>A symbol is expected after CALL ON, CALL OFF, END, ITERATE, LEAVE, NUMERIC, PARSE, SIGNAL ON, or SIGNAL OFF. Also, a list of symbols or variable references is expected after DROP, EXPOSE, UPPER and PROCEDURE EXPOSE. Either there was no symbol when one was required or the language processor found another token.</para></Explanation>
     <Subcodes>
       <SubMessage>
         <Code>20</Code>
@@ -1071,6 +1071,15 @@ special character (such as a parenthesis).
         <Severity>Warning</Severity>
         <SymbolicName>Error_Symbol_expected_LABEL</SymbolicName>
         <Text>Symbol expected after LABEL keyword</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>20</Code>
+        <Subcode>919</Subcode>
+        <MessageNumber>739</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Symbol_expected_upper</SymbolicName>
+        <Text>Symbol expected after UPPER keyword</Text>
       </SubMessage>
     </Subcodes>
   </Message>
@@ -2473,7 +2482,7 @@ special character (such as a parenthesis).
       <SubMessage>
         <Code>35</Code>
         <Subcode>934</Subcode>
-        <MessageNumber>725</MessageNumber>
+        <MessageNumber>740</MessageNumber>
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Invalid_expression_message_term</SymbolicName>
@@ -5413,7 +5422,7 @@ special character (such as a parenthesis).
       <SubMessage>
         <Code>101</Code>
         <Subcode>023</Subcode>
-        <MessageNumber>735</MessageNumber>
+        <MessageNumber>741</MessageNumber>
         <Component>Translation</Component>
         <Severity>Info</Severity>
         <SymbolicName>Message_Translations_internal_code</SymbolicName>
@@ -5422,7 +5431,7 @@ special character (such as a parenthesis).
       <SubMessage>
         <Code>101</Code>
         <Subcode>024</Subcode>
-        <MessageNumber>736</MessageNumber>
+        <MessageNumber>742</MessageNumber>
         <Component>Translation</Component>
         <Severity>Info</Severity>
         <SymbolicName>Message_Translations_sourceless_method_invocation</SymbolicName>
@@ -5431,7 +5440,7 @@ special character (such as a parenthesis).
       <SubMessage>
         <Code>101</Code>
         <Subcode>025</Subcode>
-        <MessageNumber>737</MessageNumber>
+        <MessageNumber>743</MessageNumber>
         <Component>Translation</Component>
         <Severity>Info</Severity>
         <SymbolicName>Message_Translations_sourceless_routine_invocation</SymbolicName>
