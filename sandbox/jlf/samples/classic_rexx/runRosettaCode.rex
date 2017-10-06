@@ -4,7 +4,7 @@ The solutions are installed locally from https://github.com/acmeism/RosettaCodeD
 This script has been written for the commit of Dec 05 2016.
 
 rexx runRosettaCode                 -- run all
-rexx runRosettaCode 1 3 integer     -- run the solution 1 and 3, and all the solutions whone name contains "integer"
+rexx runRosettaCode 1 3 integer     -- run the solution 1 and 3, and all the solutions whose name contains "integer"
 rexx runRosettaCode -1              -- run the last solution
 
 This script must be executed from the directory which contains the directory Lang.
@@ -66,6 +66,7 @@ end
 
 parse arg filter /* optional, let select which solution(s) to run */
 
+quote = '"'
 separator = copies("=", 80)
 runOk.0 = 0
 runKo.0 = 0
@@ -138,6 +139,23 @@ end
 return 0
 
 /*----------------------------------------------------------------------------*/
+escape: procedure expose isWindows
+parse arg args
+if isWindows then do
+    -- todo
+end
+else do
+    args = changestr('"', args, '\"')
+    args = changestr("'", args, "\'")
+    args = changestr('(', args, '\(')
+    args = changestr(')', args, '\)')
+    args = changestr('&', args, '\&')
+    args = changestr('>', args, '\>')
+    args = changestr('|', args, '\|')
+end
+return args
+
+/*----------------------------------------------------------------------------*/
 skip:
 
 if pass = 1 then do
@@ -202,7 +220,7 @@ if args == "stdin" then do
 end
 else do
     call time("reset")
-    "rexx" path || solution args
+    "rexx" path || solution escape(args)
     solution_RC = RC
     duration = time("elapsed")
 end
@@ -328,13 +346,8 @@ call run "Amicable-pairs/amicable-pairs-5.rexx", 20000
 call run "Anagrams/anagrams-1.rexx"
 call run "Anagrams/anagrams-2.rexx"
 call run "Anagrams/anagrams-3.rexx"
-
-/* [RC=0 but KO anyway] bash: UPPER: command not found */
 call run "Anagrams/anagrams-4.rexx"
-
-/* [RC=0 but KO anyway] bash: UPPER: command not found */
 call run "Anagrams/anagrams-5.rexx"
-
 call run "Anagrams/anagrams-6.rexx"
 
 call run "Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx"
@@ -389,7 +402,6 @@ else call run "Assertions/assertions.rexx", "stdin", "", "", "Trace Off"
 call run "Associative-array-Creation/associative-array-creation-1.rexx"
 call run "Associative-array-Creation/associative-array-creation-2.rexx"
 
-/* [RC=0 but KO anyway] bash: UPPER: command not found */
 call run "Associative-array-Iteration/associative-array-iteration.rexx"
 
 /* not activated: too long */
@@ -480,10 +492,13 @@ call run "Bulls-and-cows/bulls-and-cows-1.rexx", "stdin", "1234", "quit"
 call run "Bulls-and-cows/bulls-and-cows-2.rexx", "stdin", "1234", "quit"
 call run "Bulls-and-cows-Player/bulls-and-cows-player.rexx", "stdin", "1 2", "quit"
 
+call run "Caesar-cipher/caesar-cipher-1.rexx", "22 The definition of a trivial program is one that has no bugs"
+call run "Caesar-cipher/caesar-cipher-2.rexx", "31 Batman's hood is called a "quote"cowl"quote" (old meaning)."
+call run "Calendar/calendar.rexx", "1/1/1969 (noGrid smallest narrowest)"
+/* To investigate: why parse error if no space after 5 */
+/* The output is not correctly aligned. Font problem ? */
+call run "Calendar/calendar.rexx", "1/1/1969 (smallest narrowest width 156 calSpaces 5 )"
 /*
-call run "Caesar-cipher/caesar-cipher-1.rexx
-call run "Caesar-cipher/caesar-cipher-2.rexx
-call run "Calendar/calendar.rexx
 call run "Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx
 call run "Call-a-foreign-language-function/call-a-foreign-language-function.rexx
 call run "Call-a-function/call-a-function-1.rexx

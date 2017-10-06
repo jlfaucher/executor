@@ -1,4 +1,4 @@
-Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 8 Jan 2017
+Your REXX interpreter is REXX-ooRexx_4.3.0(MT)_64-bit 6.04 6 Oct 2017
 Your system is MACOSX
 ================================================================================
 [1] 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
@@ -32,16 +32,16 @@ Your system is MACOSX
 partitions(25): 1958
 
 RC=0
-duration=0.335907
+duration=0.203409
 
 ================================================================================
 [2] 24-game/24-game-1.rexx
 ================================================================================
 
-───────── Using the digits  9646,  enter an expression that equals   24    (or QUIT):
+───────── Using the digits  3729,  enter an expression that equals   24    (or QUIT):
 
 RC=0
-duration=0.057372
+duration=0.115148
 
 ================================================================================
 [3] 24-game-Solve/24-game-solve.rexx
@@ -56,7 +56,7 @@ duration=0.057372
 6 unique solutions found for 1111-1129
 
 RC=0
-duration=0.283275
+duration=0.326674
 
 ================================================================================
 [4] 99-Bottles-of-Beer/99-bottles-of-beer.rexx
@@ -562,7 +562,7 @@ Go to the store and buy some more,
 99 bottles of beer on the wall.
 
 RC=0
-duration=0.050597
+duration=0.100051
 
 ================================================================================
 [5] 100-doors/100-doors-1.rexx
@@ -581,7 +581,7 @@ After  100  passes, the following doors are open:
                  100
 
 RC=0
-duration=0.027043
+duration=0.073067
 
 ================================================================================
 [6] 100-doors/100-doors-2.rexx
@@ -600,7 +600,7 @@ After  100  passes, the following doors are open:
                  100
 
 RC=0
-duration=0.023516
+duration=0.058604
 
 ================================================================================
 [7] 100-doors/100-doors-3.rexx
@@ -620,7 +620,7 @@ For the 100 doors problem, the following doors are open:
                  100
 
 RC=0
-duration=0.039414
+duration=0.070187
 
 ================================================================================
 [8] 100-doors/100-doors-4.rexx
@@ -661,7 +661,7 @@ For the 1000 doors problem, the open doors are:
                  961
 
 RC=0
-duration=0.023642
+duration=0.056441
 
 ================================================================================
 [9] A+B/a+b-1.rexx
@@ -669,7 +669,7 @@ duration=0.023642
 30
 
 RC=0
-duration=0.029930
+duration=0.092303
 
 ================================================================================
 [10] A+B/a+b-2.rexx
@@ -677,7 +677,7 @@ duration=0.029930
 30
 
 RC=0
-duration=0.039871
+duration=0.066625
 
 ================================================================================
 [11] A+B/a+b-3.rexx
@@ -685,7 +685,7 @@ duration=0.039871
 30
 
 RC=0
-duration=0.027140
+duration=0.069851
 
 ================================================================================
 [12] A+B/a+b-4.rexx
@@ -694,7 +694,7 @@ enter some numbers to be summed:
 sum of  5  numbers =  150
 
 RC=0
-duration=0.026489
+duration=0.066358
 
 ================================================================================
 [13] ABC-Problem/abc-problem-1.rexx
@@ -708,7 +708,7 @@ duration=0.026489
                        conFuse    can be spelt.
 
 RC=0
-duration=0.080929
+duration=0.079402
 
 ================================================================================
 [14] ABC-Problem/abc-problem-2.rexx
@@ -724,7 +724,7 @@ duration=0.080929
 'CONFUSE' can be spelt in 32 ways.
 
 RC=0
-duration=0.043968
+duration=0.070974
 
 ================================================================================
 [15] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
@@ -734,7 +734,7 @@ REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-defici
 REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "═"
 
 RC=216
-duration=0.044380
+duration=0.089271
 
 ================================================================================
 [16] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
@@ -744,7 +744,7 @@ REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-defici
 REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "═"
 
 RC=216
-duration=0.028723
+duration=0.060892
 
 ================================================================================
 [18] Accumulator-factory/accumulator-factory.rexx
@@ -753,7 +753,7 @@ duration=0.028723
 Accumulator value is now 8.3
 
 RC=0
-duration=0.024314
+duration=0.055592
 
 ================================================================================
 [19] Ackermann-function/ackermann-function-1.rexx
@@ -833,6 +833,43 @@ Ackermann(3,  4)=                     125              calls=                   
 Ackermann(3,  5)=                     253              calls=                   42438
 Ackermann(3,  6)=                     509              calls=                  172233
 Ackermann(3,  7)=                    1021              calls=                  693964
+    24 *-*                                         return ackermann(m-1, 1)
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
+    25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
     25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
     25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
     25 *-*                                         return ackermann(m-1, ackermann(m, n-1) )
@@ -1891,11 +1928,11 @@ Ackermann(3,  7)=                    1021              calls=                  6
     25 *-*         return ackermann(m-1, ackermann(m, n-1) )
     17 *-*       say 'Ackermann('mm", "#')='right(ackermann(mm, nn), high),                                      left('', 12)     'calls='right(calls, high)
     10 *-*     call tell_Ack  j, k
-REX0011E: Error 11 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-1.rexx line 25:  Control stack full
+REX0011E: Error 11 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-1.rexx line 24:  Control stack full
 REX0218E: Error 11.1:  Insufficient control stack space; cannot continue execution
 
 RC=245
-duration=3.420626
+duration=3.387374
 
 ================================================================================
 [20] Ackermann-function/ackermann-function-2.rexx
@@ -1978,7 +2015,7 @@ Ackermann(3,  7)=                    1021              calls=                   
 Ackermann(3,  8)=                    2045              calls=                      18
 
 RC=0
-duration=0.026091
+duration=0.148505
 
 ================================================================================
 [21] Ackermann-function/ackermann-function-3.rexx
@@ -2065,7 +2102,7 @@ Ackermann(4,  1)=                   65533              calls=                   
 Ackermann(4,  2)=89506130880933348E+19728              calls=                       1
 
 RC=0
-duration=0.026159
+duration=0.058098
 
 ================================================================================
 [22] Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
@@ -2075,7 +2112,7 @@ ldap_initialize( ldap://localhost:11389/??base )
 ldap_sasl_bind(SIMPLE): Can't contact LDAP server (-1)
 
 RC=0
-duration=0.547408
+duration=1.725452
 
 ================================================================================
 [24] AKS-test-for-primes/aks-test-for-primes-1.rexx
@@ -2096,7 +2133,7 @@ Largest coefficient: 45274257328051640582702088538742081937252294837706668420660
 This has 59 digits
 
 RC=0
-duration=1.761714
+duration=1.675709
 
 ================================================================================
 [25] AKS-test-for-primes/aks-test-for-primes-2.rexx
@@ -2107,7 +2144,7 @@ primes:  2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 
 Found  46  primes and the largest coefficient has  59  decimal digits.
 
 RC=0
-duration=0.227718
+duration=0.179520
 
 ================================================================================
 [26] Align-columns/align-columns-1.rexx
@@ -2140,7 +2177,7 @@ align center:
 justified,    right   justified,   or   center justified   within      its   column.                     
 
 RC=0
-duration=0.030706
+duration=0.073904
 
 ================================================================================
 [27] Align-columns/align-columns-2.rexx
@@ -2152,7 +2189,7 @@ REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/al
 REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "═"
 
 RC=216
-duration=0.025449
+duration=0.059612
 
 ================================================================================
 [28] Align-columns/align-columns-3.rexx
@@ -2164,7 +2201,7 @@ REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/al
 REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "═"
 
 RC=216
-duration=0.024298
+duration=0.056902
 
 ================================================================================
 [29] Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
@@ -2174,7 +2211,7 @@ REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Aliquot-sequence
 REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "═"
 
 RC=216
-duration=0.053445
+duration=0.079105
 
 ================================================================================
 [30] Almost-prime/almost-prime-1.rexx
@@ -2186,7 +2223,7 @@ duration=0.053445
 10    5-almost primes: 32 48 72 80 108 112 120 162 168 176
 
 RC=0
-duration=0.043276
+duration=0.075596
 
 ================================================================================
 [31] Almost-prime/almost-prime-2.rexx
@@ -2198,7 +2235,7 @@ duration=0.043276
 10    5-almost primes: 32 48 72 80 108 112 120 162 168 176
 
 RC=0
-duration=0.030923
+duration=0.060526
 
 ================================================================================
 [32] Almost-prime/almost-prime.rexx
@@ -2210,7 +2247,7 @@ duration=0.030923
 5─almost (10) primes: 32 48 72 80 108 112 120 162 168 176
 
 RC=0
-duration=0.026488
+duration=0.074454
 
 ================================================================================
 [33] Amb/amb-1.rexx
@@ -2218,7 +2255,7 @@ duration=0.026488
 that thing grows slowly
 
 RC=0
-duration=0.027394
+duration=0.066236
 
 ================================================================================
 [34] Amb/amb-2.rexx
@@ -2234,7 +2271,7 @@ if            trots
 --> if frog grows slowly
 
 RC=0
-duration=0.030812
+duration=0.063726
 
 ================================================================================
 [36] Amicable-pairs/amicable-pairs-2.rexx
@@ -2251,7 +2288,7 @@ duration=0.030812
 8 amicable pairs found up to 20000
 
 RC=0
-duration=3.691945
+duration=3.575508
 
 ================================================================================
 [37] Amicable-pairs/amicable-pairs-3.rexx
@@ -2268,7 +2305,7 @@ duration=3.691945
 8 amicable pairs found up to 20000
 
 RC=0
-duration=1.435176
+duration=1.385110
 
 ================================================================================
 [38] Amicable-pairs/amicable-pairs-4.rexx
@@ -2285,7 +2322,7 @@ duration=1.435176
 8 amicable pairs found up to 20000
 
 RC=0
-duration=1.174325
+duration=1.134239
 
 ================================================================================
 [39] Amicable-pairs/amicable-pairs-5.rexx
@@ -2296,7 +2333,7 @@ duration=1.174325
 2 amicable pairs found up to 20000
 
 RC=0
-duration=0.345629
+duration=0.451964
 
 ================================================================================
 [40] Anagrams/anagrams-1.rexx
@@ -2307,7 +2344,7 @@ duration=0.345629
 ───── Found 0 words  (each of which have -1 anagrams).
 
 RC=0
-duration=0.093805
+duration=0.109992
 
 ================================================================================
 [41] Anagrams/anagrams-2.rexx
@@ -2318,7 +2355,7 @@ duration=0.093805
 ───── Found 0 words  (each of which have -1 anagrams).
 
 RC=0
-duration=0.027087
+duration=0.121727
 
 ================================================================================
 [42] Anagrams/anagrams-3.rexx
@@ -2329,34 +2366,26 @@ duration=0.027087
 ───── Found 0 words  (each of which have -1 anagrams).
 
 RC=0
-duration=0.029673
+duration=0.077267
 
 ================================================================================
 [43] Anagrams/anagrams-4.rexx
 ================================================================================
-bash: UPPER: command not found
-     2 *-* upper u                                          /*fast method to uppercase a variable. */
-       >>>   "UPPER Halloween"
-       +++   "RC(127)"
-u= Halloween
-z= H
+u= HALLOWEEN
+z= AEEHLLNOW
 
 RC=0
-duration=0.049997
+duration=0.058682
 
 ================================================================================
 [44] Anagrams/anagrams-5.rexx
 ================================================================================
-bash: UPPER: command not found
-     2 *-* upper u                                          /*fast method to uppercase a variable. */
-       >>>   "UPPER Halloween"
-       +++   "RC(127)"
-u= Halloween
+u= HALLOWEEN
 L= 9
-z= H
+z= AEEHLLNOW
 
 RC=0
-duration=0.033551
+duration=0.055565
 
 ================================================================================
 [45] Anagrams/anagrams-6.rexx
@@ -2368,10 +2397,10 @@ duration=0.033551
 There are 1 set(s) of anagrams with 0 elements each:
  
     
-0.000693
+0.000718
 
 RC=0
-duration=0.049101
+duration=0.225941
 
 ================================================================================
 [46] Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
@@ -2379,7 +2408,7 @@ duration=0.049101
 ────────────────────────────── 0 words in the dictionary file:  unixdict.txt
 
 RC=0
-duration=0.061186
+duration=0.088432
 
 ================================================================================
 [47] Anonymous-recursion/anonymous-recursion-1.rexx
@@ -2399,7 +2428,7 @@ fibonacci(11) = 89
 fibonacci(12) = 144
 
 RC=0
-duration=2.246866
+duration=2.524984
 
 ================================================================================
 [48] Anonymous-recursion/anonymous-recursion-2.rexx
@@ -2419,14 +2448,14 @@ fibonacci(11) = 89
 fibonacci(12) = 144
 
 RC=0
-duration=0.215845
+duration=0.131720
 
 ================================================================================
 [49] Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
 ================================================================================
 
 RC=0
-duration=0.045903
+duration=0.087824
 
 ================================================================================
 [50] Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
@@ -2468,14 +2497,14 @@ before a.10=10
  after b.10=3628800
 
 RC=0
-duration=0.054448
+duration=0.076260
 
 ================================================================================
 [53] Arena-storage-pool/arena-storage-pool.rexx
 ================================================================================
 
 RC=0
-duration=0.055479
+duration=0.079568
 
 ================================================================================
 [54] Arithmetic-Complex/arithmetic-complex.rexx
@@ -2489,7 +2518,7 @@ multiplication:    (5,3i)  *  ( .5,  6j)  =  [-15.5,31.5j]
    negation of:    (5,3i)                          =  [-5,-3j]
 
 RC=0
-duration=0.059986
+duration=0.069840
 
 ================================================================================
 [55] Arithmetic-evaluation/arithmetic-evaluation.rexx
@@ -2497,7 +2526,7 @@ duration=0.059986
 answer──► 0.333333333
 
 RC=0
-duration=0.032562
+duration=0.064815
 
 ================================================================================
 [56] Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
@@ -2507,7 +2536,7 @@ duration=0.032562
   AGM = 0.84721308479397908660649912348219163648144591032694218506057937265973400483413475972320029399461122994212228563
 
 RC=0
-duration=0.034099
+duration=0.096624
 
 ================================================================================
 [57] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
@@ -2515,7 +2544,7 @@ duration=0.034099
 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491
 
 RC=0
-duration=0.091974
+duration=0.129001
 
 ================================================================================
 [58] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
@@ -2534,7 +2563,7 @@ duration=0.091974
 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491
 
 RC=0
-duration=0.079569
+duration=0.105902
 
 ================================================================================
 [59] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
@@ -2551,7 +2580,7 @@ duration=0.079569
 1005 3.141...2019893810
 
 RC=0
-duration=13.544711
+duration=12.736497
 
 ================================================================================
 [60] Arithmetic-Integer/arithmetic-integer.rexx
@@ -2574,21 +2603,21 @@ duration=13.544711
                     power  200  **  100  ───►  1.2676506002282294015E+230 
 
 RC=0
-duration=0.106648
+duration=0.126193
 
 ================================================================================
 [62] Array-concatenation/array-concatenation-1.rexx
 ================================================================================
 
 RC=0
-duration=0.053541
+duration=0.075401
 
 ================================================================================
 [63] Array-concatenation/array-concatenation-2.rexx
 ================================================================================
 
 RC=0
-duration=0.024008
+duration=0.053306
 
 ================================================================================
 [64] Array-concatenation/array-concatenation-3.rexx
@@ -2620,7 +2649,7 @@ c.22=34
 c.23=55
 
 RC=0
-duration=0.021472
+duration=0.051864
 
 ================================================================================
 [65] Arrays/arrays-1.rexx
@@ -2629,7 +2658,7 @@ element 50 is: -50000
 element 3000 is: not found
 
 RC=0
-duration=0.027945
+duration=0.087519
 
 ================================================================================
 [66] Arrays/arrays-2.rexx
@@ -2638,7 +2667,7 @@ element 50 is: -5000
 element 3000 is: not found
 
 RC=0
-duration=0.023551
+duration=0.060574
 
 ================================================================================
 [67] Arrays/arrays-3.rexx
@@ -2647,7 +2676,7 @@ element 50 is: -5000
 element 3000 is: 00
 
 RC=0
-duration=0.022396
+duration=0.055494
 
 ================================================================================
 [68] Arrays/arrays-4.rexx
@@ -2656,7 +2685,7 @@ duration=0.022396
 7000 squared is: out of range
 
 RC=0
-duration=0.047531
+duration=0.072218
 
 ================================================================================
 [69] Arrays/arrays-5.rexx
@@ -2665,14 +2694,14 @@ DOB 1946 is: 1946 AD
 DOB 1744 is: year not supported
 
 RC=0
-duration=0.023214
+duration=0.056086
 
 ================================================================================
 [70] Arrays/arrays-6.rexx
 ================================================================================
 
 RC=0
-duration=0.021856
+duration=0.053868
 
 ================================================================================
 [71] Assertions/assertions.rexx
@@ -2692,7 +2721,7 @@ Look around
 program terminated
 
 RC=0
-duration=0.081277
+duration=0.102846
 
 ================================================================================
 [72] Associative-array-Creation/associative-array-creation-1.rexx
@@ -2701,7 +2730,7 @@ stem.key0= .
 stem.key1= value0
 
 RC=0
-duration=0.025436
+duration=0.101778
 
 ================================================================================
 [73] Associative-array-Creation/associative-array-creation-2.rexx
@@ -2711,139 +2740,39 @@ capital of Oklahoma is  [not defined yet]
 capital of Rhode Island and Providence Plantations is Providence
 
 RC=0
-duration=0.043991
+duration=0.055898
 
 ================================================================================
 [74] Associative-array-Iteration/associative-array-iteration.rexx
 ================================================================================
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER al"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ca"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER co"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ct"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER de"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ga"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER il"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER in"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ia"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER la"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER me"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER mi"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ms"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER mo"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER mt"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ne"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER nh"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ny"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER nc"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER oh"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER ok"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER pa"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER sc"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER tn"
-       +++     "RC(127)"
-bash: UPPER: command not found
-    51 *-*   upper code     /*get code, name & cap.; uppercase code*/
-       >>>     "UPPER vt"
-       +++     "RC(127)"
-the former capitol of  (al)  Alabama         was  Tuscaloosa
-the former capitol of  (ca)  California      was  Benicia
-the former capitol of  (co)  Colorado        was  Denver City
-the former capitol of  (ct)  Connecticut     was  Hartford and New Haven  (jointly)
-the former capitol of  (de)  Delaware        was  New-Castle
-the former capitol of  (ga)  Georgia         was  Milledgeville
-the former capitol of  (il)  Illinois        was  Vandalia
-the former capitol of  (in)  Indiana         was  Corydon
-the former capitol of  (ia)  Iowa            was  Iowa City
-the former capitol of  (la)  Louisiana       was  New Orleans
-the former capitol of  (me)  Maine           was  Portland
-the former capitol of  (mi)  Michigan        was  Detroit
-the former capitol of  (ms)  Mississippi     was  Natchez
-the former capitol of  (mo)  Missouri        was  Saint Charles
-the former capitol of  (mt)  Montana         was  Virginia City
-the former capitol of  (ne)  Nebraska        was  Lancaster
-the former capitol of  (nh)  New Hampshire   was  Exeter
-the former capitol of  (ny)  New York        was  New York
-the former capitol of  (nc)  North Carolina  was  Fayetteville
-the former capitol of  (oh)  Ohio            was  Chillicothe
-the former capitol of  (ok)  Oklahoma        was  Guthrie
-the former capitol of  (pa)  Pennsylvania    was  Lancaster
-the former capitol of  (sc)  South Carolina  was  Charlestown
-the former capitol of  (tn)  Tennessee       was  Murfreesboro
-the former capitol of  (vt)  Vermont         was  Windsor
+the former capitol of  (AL)  Alabama         was  Tuscaloosa
+the former capitol of  (CA)  California      was  Benicia
+the former capitol of  (CO)  Colorado        was  Denver City
+the former capitol of  (CT)  Connecticut     was  Hartford and New Haven  (jointly)
+the former capitol of  (DE)  Delaware        was  New-Castle
+the former capitol of  (GA)  Georgia         was  Milledgeville
+the former capitol of  (IL)  Illinois        was  Vandalia
+the former capitol of  (IN)  Indiana         was  Corydon
+the former capitol of  (IA)  Iowa            was  Iowa City
+the former capitol of  (LA)  Louisiana       was  New Orleans
+the former capitol of  (ME)  Maine           was  Portland
+the former capitol of  (MI)  Michigan        was  Detroit
+the former capitol of  (MS)  Mississippi     was  Natchez
+the former capitol of  (MO)  Missouri        was  Saint Charles
+the former capitol of  (MT)  Montana         was  Virginia City
+the former capitol of  (NE)  Nebraska        was  Lancaster
+the former capitol of  (NH)  New Hampshire   was  Exeter
+the former capitol of  (NY)  New York        was  New York
+the former capitol of  (NC)  North Carolina  was  Fayetteville
+the former capitol of  (OH)  Ohio            was  Chillicothe
+the former capitol of  (OK)  Oklahoma        was  Guthrie
+the former capitol of  (PA)  Pennsylvania    was  Lancaster
+the former capitol of  (SC)  South Carolina  was  Charlestown
+the former capitol of  (TN)  Tennessee       was  Murfreesboro
+the former capitol of  (VT)  Vermont         was  Windsor
 
 RC=0
-duration=0.249700
+duration=0.085842
 
 ================================================================================
 [76] Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
@@ -2878,7 +2807,7 @@ duration=0.249700
 ═══════════════════════════════════════════════════════════════════════════════
 
 RC=0
-duration=0.053521
+duration=0.074451
 
 ================================================================================
 [77] Averages-Mean-angle/averages-mean-angle.rexx
@@ -2888,7 +2817,7 @@ angles=90 180 270 360          mean angle=    0
 angles=10 20 30                mean angle=   20
 
 RC=0
-duration=0.082716
+duration=0.117317
 
 ================================================================================
 [78] Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
@@ -2896,7 +2825,7 @@ duration=0.082716
 23:47:43
 
 RC=0
-duration=0.036663
+duration=0.062931
 
 ================================================================================
 [79] Averages-Median/averages-median.rexx
@@ -2915,7 +2844,7 @@ median──────► 1.15E+700
 
 
 RC=0
-duration=0.024166
+duration=0.053847
 
 ================================================================================
 [80] Averages-Mode/averages-mode-1.rexx
@@ -2934,7 +2863,7 @@ mode=emu
 
 
 RC=0
-duration=0.025688
+duration=0.055485
 
 ================================================================================
 [81] Averages-Mode/averages-mode-2.rexx
@@ -2958,7 +2887,7 @@ Vector: [1,3,6,6,6,6,7,7,12,12,17], Mode(s): [6]
 Vector: [1,1,2,4,4], Mode(s): [1,4]
 
 RC=0
-duration=0.032513
+duration=0.053468
 
 ================================================================================
 [82] Averages-Pythagorean-means/averages-pythagorean-means.rexx
@@ -2968,7 +2897,7 @@ Gmean = 4.52872869
 Hmean = 3.41417153
 
 RC=0
-duration=0.072327
+duration=0.095236
 
 ================================================================================
 [83] Averages-Root-mean-square/averages-root-mean-square.rexx
@@ -2976,7 +2905,7 @@ duration=0.072327
 root mean square for 1──►10 is:  6.204836823
 
 RC=0
-duration=0.035084
+duration=0.065590
 
 ================================================================================
 [84] Averages-Simple-moving-average/averages-simple-moving-average.rexx
@@ -2996,7 +2925,7 @@ duration=0.035084
     1      2           3          
 
 RC=0
-duration=0.032824
+duration=0.063910
 
 ================================================================================
 [85] Balanced-brackets/balanced-brackets-1.rexx
@@ -3015,35 +2944,35 @@ OK [[[[[[[]]]]]]]
 OK [][]
                                             not OK []][[]
                                             not OK ]]][[[[]
-                                            not OK []][[]][
-OK [][][][][][][][]
                                             not OK ][][][][][][][][][][][][][][][][
-                                            not OK ][][][][][][
-OK [][][][][][][][][][][][]
-OK [][][][][][][][][][][][][][][][][][][][]
-OK [][][][][][][][][][]
-                                            not OK ][[]
-                                            not OK []][[]][[]][[]][[]][[]][[]][[]][[]][[]][
-                                            not OK ][[]][[]
-                                            not OK ][][][][][][][][][][
-OK [][][][][][][][][][][][][][][][]
-                                            not OK []][[]][[]][[]][[]][[]][[]][
-                                            not OK ][][][][][][][][][][][][][][
-                                            not OK []][
+                                            not OK ][[]][[]][[]][[]][[]][[]
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]][[]
                                             not OK []][[]][[]][[]][[]][
-                                            not OK ][[]][[]][[]][[]][[]
-                                            not OK []][[]][[]][
-                                            not OK ][][][][][][][][
-OK [][][][][][][][][][][][][][][][][][]
-                                            not OK ][][][][][][][][][][][][
-                                            not OK []][[]][[]][[]][[]][[]][[]][[]][[]][
+                                            not OK ][][][][][][][][][][][][][][][][][][][][
+OK [][][][][][][][]
+                                            not OK ][][][][][][][][][][][][][][
                                             not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]
-                                            not OK ][[]][[]][[]
+                                            not OK ][][][][][][][][
+OK [][][][][][][][][][][][][][]
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]
+                                            not OK ][][][][
+OK [][][][][][][][][][][][][][][][][][][][]
 OK [][][][]
-                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK []][
+                                            not OK ][][][][][][][][][][][][
+OK [][][][][][][][][][]
+                                            not OK ][][][][][][][][][][
+                                            not OK ][[]][[]
+                                            not OK []][[]][[]][[]][[]][[]][[]][[]][[]][[]][
+                                            not OK []][[]][[]][[]][[]][[]][[]][
+                                            not OK ][[]][[]][[]][[]
+                                            not OK []][[]][[]][
+                                            not OK ][[]][[]][[]][[]][[]
+                                            not OK []][[]][[]][[]][[]][[]][[]][[]][
+OK [][][][][][][][][][][][]
 
 RC=0
-duration=0.023398
+duration=0.055537
 
 ================================================================================
 [86] Balanced-brackets/balanced-brackets-2.rexx
@@ -3080,7 +3009,7 @@ duration=0.023398
 30 16 unbalanced []][[]][[]][[]][
 
 RC=0
-duration=0.038056
+duration=0.073115
 
 ================================================================================
 [87] Balanced-brackets/balanced-brackets-3.rexx
@@ -3088,7 +3017,7 @@ duration=0.038056
 125476  expressions were checked,  23713  were balanced,  101763  were unbalanced.
 
 RC=0
-duration=13.937404
+duration=14.048582
 
 ================================================================================
 [88] Balanced-ternary/balanced-ternary.rexx
@@ -3100,7 +3029,7 @@ duration=13.937404
 [a*(b-c)]         ----0+--0++0 balanced ternary =   -262023 (decimal)
 
 RC=0
-duration=0.190439
+duration=0.380333
 
 ================================================================================
 [89] Benfords-law/benfords-law.rexx
@@ -3113,7 +3042,7 @@ REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Benfords-law/ben
 REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "─"
 
 RC=216
-duration=0.045418
+duration=0.080507
 
 ================================================================================
 [90] Bernoulli-numbers/bernoulli-numbers.rexx
@@ -3154,7 +3083,7 @@ B(n)                  Bernoulli number expressed as a fraction
   60                             -1215233140483755572040304994079820246041491/56786730
 
 RC=0
-duration=0.217527
+duration=0.257587
 
 ================================================================================
 [91] Best-shuffle/best-shuffle-1.rexx
@@ -3168,7 +3097,7 @@ original: up                   new: pu                   count: 0
 original: a                    new: a                    count: 1
 
 RC=0
-duration=0.024822
+duration=0.081770
 
 ================================================================================
 [95] Binary-digits/binary-digits-1.rexx
@@ -3179,7 +3108,7 @@ duration=0.024822
                 9000 decimal, and in binary: 10001100101000
 
 RC=0
-duration=0.021860
+duration=0.077227
 
 ================================================================================
 [96] Binary-digits/binary-digits-2.rexx
@@ -3190,7 +3119,7 @@ duration=0.021860
                 9000 decimal, and in binary: 10001100101000
 
 RC=0
-duration=0.021762
+duration=0.056918
 
 ================================================================================
 [97] Binary-digits/binary-digits-3.rexx
@@ -3201,7 +3130,7 @@ duration=0.021762
                 9000 decimal, and in binary: 10001100101000
 
 RC=0
-duration=0.021124
+duration=0.053021
 
 ================================================================================
 [98] Binary-digits/binary-digits-4.rexx
@@ -3214,7 +3143,7 @@ duration=0.021124
                1E138 decimal, and in binary: 101010111111101001000101110110100000111011011011110111100110100100000100100001111101101110011101000101110110001101101000100100100110000111001010101011110010001111100011110100010101011011111111000110101110111100001011100111110000000010101100110101001010001001001011000000110000010010010100010010000001110100101000011111001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 RC=0
-duration=0.021651
+duration=0.059232
 
 ================================================================================
 [99] Binary-search/binary-search-1.rexx
@@ -3224,7 +3153,7 @@ duration=0.021651
 arithmetic mean of the 76 values= 510
 
 RC=0
-duration=0.036386
+duration=0.072139
 
 ================================================================================
 [100] Binary-search/binary-search-2.rexx
@@ -3234,14 +3163,14 @@ arithmetic mean of the 79 values= 508
 823 is in the list, its index is: 66
 
 RC=0
-duration=0.024079
+duration=0.051806
 
 ================================================================================
 [101] Binary-strings/binary-strings.rexx
 ================================================================================
 
 RC=0
-duration=0.038219
+duration=0.075723
 
 ================================================================================
 [102] Bitmap/bitmap-1.rexx
@@ -3253,7 +3182,7 @@ pixel 10,40 = FF0000
 pixel 10,40 = FF 00 00
 
 RC=0
-duration=0.037520
+duration=0.069708
 
 ================================================================================
 [103] Bitmap/bitmap-2.rexx
@@ -3270,7 +3199,7 @@ color at pixel 97/98=FF0000
 color at pixel 98/98=FFFFFF
 
 RC=0
-duration=0.200798
+duration=0.510953
 
 ================================================================================
 [104] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
@@ -3297,7 +3226,7 @@ duration=0.200798
 ···│····················
 
 RC=0
-duration=0.045234
+duration=0.066723
 
 ================================================================================
 [105] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
@@ -3321,14 +3250,14 @@ duration=0.045234
    2101234567
 
 RC=0
-duration=0.031320
+duration=0.065255
 
 ================================================================================
 [106] Bitmap-Flood-fill/bitmap-flood-fill.rexx
 ================================================================================
 
 RC=0
-duration=0.022729
+duration=0.054518
 
 ================================================================================
 [107] Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
@@ -3378,14 +3307,14 @@ duration=0.022729
 ·······················│·······················
 
 RC=0
-duration=0.026787
+duration=0.058032
 
 ================================================================================
 [108] Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
 ================================================================================
 
 RC=0
-duration=0.041524
+duration=0.098034
 
 ================================================================================
 [109] Bitwise-IO/bitwise-io.rexx
@@ -3396,7 +3325,7 @@ b=101001110101001010010100100110011101000111000000
 r=STRING
 
 RC=0
-duration=0.021964
+duration=0.073447
 
 ================================================================================
 [110] Bitwise-operations/bitwise-operations.rexx
@@ -3413,35 +3342,35 @@ duration=0.021964
         2  A [»B]                                                  10
 
 RC=0
-duration=0.042814
+duration=0.065198
 
 ================================================================================
 [111] Boolean-values/boolean-values-1.rexx
 ================================================================================
 
 RC=0
-duration=0.031369
+duration=0.075514
 
 ================================================================================
 [112] Boolean-values/boolean-values-2.rexx
 ================================================================================
 
 RC=0
-duration=0.023536
+duration=0.071031
 
 ================================================================================
 [113] Boolean-values/boolean-values-3.rexx
 ================================================================================
 
 RC=0
-duration=0.022550
+duration=0.062619
 
 ================================================================================
 [114] Boolean-values/boolean-values-4.rexx
 ================================================================================
 
 RC=0
-duration=0.026339
+duration=0.062563
 
 ================================================================================
 [115] Boolean-values/boolean-values-5.rexx
@@ -3451,14 +3380,14 @@ REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Boolean-values/b
 REX0219E: Error 13.1:  Incorrect character in program "�" ('C2'X)
 
 RC=243
-duration=0.026982
+duration=0.069612
 
 ================================================================================
 [116] Boolean-values/boolean-values-6.rexx
 ================================================================================
 
 RC=0
-duration=0.021480
+duration=0.064507
 
 ================================================================================
 [117] Box-the-compass/box-the-compass.rexx
@@ -3500,7 +3429,7 @@ duration=0.021480
                       354.38�   north
 
 RC=0
-duration=0.034461
+duration=0.071057
 
 ================================================================================
 [118] Brownian-tree/brownian-tree.rexx
@@ -3510,7 +3439,7 @@ REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Brownian-tree/br
 REX0417E: Error 43.1:  Could not find routine "SCRSIZE"
 
 RC=213
-duration=0.032908
+duration=0.139769
 
 ================================================================================
 [119] Bulls-and-cows/bulls-and-cows-1.rexx
@@ -3518,22 +3447,22 @@ duration=0.032908
 
 ───── [Bulls & Cows]  Please enter a 4-digit guess (with no zeroes)   [or Quit]:
 
-───── You got 0 bulls and 1 cow.
+───── You got 1 bull and 0 cows.
 
 ───── [Bulls & Cows]  Please enter a 4-digit guess (with no zeroes)   [or Quit]:
 
 RC=0
-duration=0.030830
+duration=0.080525
 
 ================================================================================
 [120] Bulls-and-cows/bulls-and-cows-2.rexx
 ================================================================================
 <Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
-You got 0 bulls and 1 cow.
+You got 1 bull and 0 cows.
 <Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
 
 RC=0
-duration=0.024639
+duration=0.069710
 
 ================================================================================
 [121] Bulls-and-cows-Player/bulls-and-cows-player.rexx
@@ -3546,114 +3475,231 @@ duration=0.024639
 ───── How many bulls and cows were guessed with  9785 ?    [─── or QUIT]
 
 RC=0
-duration=0.127427
+duration=0.189967
+
+================================================================================
+[122] Caesar-cipher/caesar-cipher-1.rexx
+================================================================================
+Caesar cypher key: 22
+       plain text: THEDEFINITIONOFATRIVIALPROGRAMISONETHATHASNOBUGS
+         cyphered: PDAZABEJEPEKJKBWPNEREWHLNKCNWIEOKJAPDWPDWOJKXQCO
+       uncyphered: THEDEFINITIONOFATRIVIALPROGRAMISONETHATHASNOBUGS
+
+RC=0
+duration=0.071677
+
+================================================================================
+[123] Caesar-cipher/caesar-cipher-2.rexx
+================================================================================
+Caesar cypher key: 31
+       plain text: Batman's hood is called a "cowl" (old meaning).
+         cyphered: g5%>5'I$e{~~8e}$e75<<98e5eV7~*<VeA~<8e>95'}')BZ
+       uncyphered: Batman's hood is called a "cowl" (old meaning).
+
+RC=0
+duration=0.053478
+
+================================================================================
+[124] Calendar/calendar.rexx
+================================================================================
+     January   1969          February   1969            March   1969     
+  Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa 
+             1    2                                                      
+   6    7    8    9         3    4    5    6         3    4    5    6    
+  13   14   15   16        10   11   12   13        10   11   12   13    
+  20   21   22   23        17   18   19   20        17   18   19   20    
+  27   28   29   30        24   25   26   27        24   25   26   27    
+                                                    31                   
+      April   1969              May   1969              June   1969      
+  Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa 
+        1    2    3                        1         2    3    4    5    
+   7    8    9   10         5    6    7    8         9   10   11   12    
+  14   15   16   17        12   13   14   15        16   17   18   19    
+  21   22   23   24        19   20   21   22        23   24   25   26    
+  28   29   30             26   27   28   29        30                   
+      July   1969             August   1969           September   1969   
+  Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa 
+        1    2    3                                  1    2    3    4    
+   7    8    9   10         4    5    6    7         8    9   10   11    
+  14   15   16   17        11   12   13   14        15   16   17   18    
+  21   22   23   24        18   19   20   21        22   23   24   25    
+  28   29   30   31        25   26   27   28        29   30              
+     October   1969          November   1969          December   1969    
+  Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa 
+             1    2                                  1    2    3    4    
+   6    7    8    9         3    4    5    6         8    9   10   11    
+  13   14   15   16        10   11   12   13        15   16   17   18    
+  20   21   22   23        17   18   19   20        22   23   24   25    
+  27   28   29   30        24   25   26   27        29   30   31         
+
+RC=0
+duration=0.064555
+
+================================================================================
+[125] Calendar/calendar.rexx
+================================================================================
+ �──────�     �──────�     �──────�     �──────�     �──────�
+ �   January   1969   �     �  February   1969   �     �    March   1969    �     �    April   1969    �     �     May   1969     �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
+ �  │  │ 1│ 2│�     �  │  │  │  │�     �  │  │  │  │�     �  │ 1│ 2│ 3│�     �  │  │  │ 1│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ � 6│ 7│ 8│ 9│�     � 3│ 4│ 5│ 6│�     � 3│ 4│ 5│ 6│�     � 7│ 8│ 9│10│�     � 5│ 6│ 7│ 8│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �13│14│15│16│�     �10│11│12│13│�     �10│11│12│13│�     �14│15│16│17│�     �12│13│14│15│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �20│21│22│23│�     �17│18│19│20│�     �17│18│19│20│�     �21│22│23│24│�     �19│20│21│22│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �27│28│29│30│�     �24│25│26│27│�     �24│25│26│27│�     �28│29│30│  │�     �26│27│28│29│�
+ �─┴──┴─┘     �─┴──┴─┘     �─┼──┼─┤     �─┴──┴─┘     �─┴──┴─┘
+                                                       �31│  │  │  │�
+                                                       �─┴──┴─┘
+ �──────�     �──────�     �──────�     �──────�     �──────�
+ �    June   1969     �     �    July   1969     �     �   August   1969    �     �  September   1969  �     �   October   1969   �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤     �─┬──┬─┤
+ � 2│ 3│ 4│ 5│�     �  │ 1│ 2│ 3│�     �  │  │  │  │�     � 1│ 2│ 3│ 4│�     �  │  │ 1│ 2│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ � 9│10│11│12│�     � 7│ 8│ 9│10│�     � 4│ 5│ 6│ 7│�     � 8│ 9│10│11│�     � 6│ 7│ 8│ 9│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �16│17│18│19│�     �14│15│16│17│�     �11│12│13│14│�     �15│16│17│18│�     �13│14│15│16│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �23│24│25│26│�     �21│22│23│24│�     �18│19│20│21│�     �22│23│24│25│�     �20│21│22│23│�
+ �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤     �─┼──┼─┤
+ �30│  │  │  │�     �28│29│30│31│�     �25│26│27│28│�     �29│30│  │  │�     �27│28│29│30│�
+ �─┴──┴─┘     �─┴──┴─┘     �─┼──┼─┤     �─┴──┴─┘     �─┴──┴─┘
+                                                       �  │  │  │  │�
+                                                       �─┴──┴─┘
+ �──────�     �──────�
+ �  November   1969   �     �  December   1969   �
+ �Su Mo Tu We Th Fr Sa�     �Su Mo Tu We Th Fr Sa�
+ �─┬──┬─┤     �─┬──┬─┤
+ �  │  │  │  │�     � 1│ 2│ 3│ 4│�
+ �─┼──┼─┤     �─┼──┼─┤
+ � 3│ 4│ 5│ 6│�     � 8│ 9│10│11│�
+ �─┼──┼─┤     �─┼──┼─┤
+ �10│11│12│13│�     �15│16│17│18│�
+ �─┼──┼─┤     �─┼──┼─┤
+ �17│18│19│20│�     �22│23│24│25│�
+ �─┼──┼─┤     �─┼──┼─┤
+ �24│25│26│27│�     �29│30│31│  │�
+ �─┼──┼─┤     �─┴──┴─┘
+ �  │  │  │  │�
+ �─┴──┴─┘
+
+RC=0
+duration=0.066060
 
 
 ================================================================================
 Summary Ok
 ================================================================================
-Ok:    1 ; 0.335907 ; 0 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
-Ok:    2 ; 0.057372 ; 0 ; 24-game/24-game-1.rexx
-Ok:    3 ; 0.283275 ; 0 ; 24-game-Solve/24-game-solve.rexx
-Ok:    4 ; 0.050597 ; 0 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
-Ok:    5 ; 0.027043 ; 0 ; 100-doors/100-doors-1.rexx
-Ok:    6 ; 0.023516 ; 0 ; 100-doors/100-doors-2.rexx
-Ok:    7 ; 0.039414 ; 0 ; 100-doors/100-doors-3.rexx
-Ok:    8 ; 0.023642 ; 0 ; 100-doors/100-doors-4.rexx
-Ok:    9 ; 0.029930 ; 0 ; A+B/a+b-1.rexx
-Ok:   10 ; 0.039871 ; 0 ; A+B/a+b-2.rexx
-Ok:   11 ; 0.027140 ; 0 ; A+B/a+b-3.rexx
-Ok:   12 ; 0.026489 ; 0 ; A+B/a+b-4.rexx
-Ok:   13 ; 0.080929 ; 0 ; ABC-Problem/abc-problem-1.rexx
-Ok:   14 ; 0.043968 ; 0 ; ABC-Problem/abc-problem-2.rexx
-Ok:   18 ; 0.024314 ; 0 ; Accumulator-factory/accumulator-factory.rexx
-Ok:   20 ; 0.026091 ; 0 ; Ackermann-function/ackermann-function-2.rexx
-Ok:   21 ; 0.026159 ; 0 ; Ackermann-function/ackermann-function-3.rexx
-Ok:   22 ; 0.547408 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
-Ok:   24 ; 1.761714 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
-Ok:   25 ; 0.227718 ; 0 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
-Ok:   26 ; 0.030706 ; 0 ; Align-columns/align-columns-1.rexx
-Ok:   30 ; 0.043276 ; 0 ; Almost-prime/almost-prime-1.rexx
-Ok:   31 ; 0.030923 ; 0 ; Almost-prime/almost-prime-2.rexx
-Ok:   32 ; 0.026488 ; 0 ; Almost-prime/almost-prime.rexx
-Ok:   33 ; 0.027394 ; 0 ; Amb/amb-1.rexx
-Ok:   34 ; 0.030812 ; 0 ; Amb/amb-2.rexx
-Ok:   36 ; 3.691945 ; 0 ; Amicable-pairs/amicable-pairs-2.rexx
-Ok:   37 ; 1.435176 ; 0 ; Amicable-pairs/amicable-pairs-3.rexx
-Ok:   38 ; 1.174325 ; 0 ; Amicable-pairs/amicable-pairs-4.rexx
-Ok:   39 ; 0.345629 ; 0 ; Amicable-pairs/amicable-pairs-5.rexx
-Ok:   40 ; 0.093805 ; 0 ; Anagrams/anagrams-1.rexx
-Ok:   41 ; 0.027087 ; 0 ; Anagrams/anagrams-2.rexx
-Ok:   42 ; 0.029673 ; 0 ; Anagrams/anagrams-3.rexx
-Ok:   43 ; 0.049997 ; 0 ; Anagrams/anagrams-4.rexx
-Ok:   44 ; 0.033551 ; 0 ; Anagrams/anagrams-5.rexx
-Ok:   45 ; 0.049101 ; 0 ; Anagrams/anagrams-6.rexx
-Ok:   46 ; 0.061186 ; 0 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
-Ok:   47 ; 2.246866 ; 0 ; Anonymous-recursion/anonymous-recursion-1.rexx
-Ok:   48 ; 0.215845 ; 0 ; Anonymous-recursion/anonymous-recursion-2.rexx
-Ok:   49 ; 0.045903 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
-Ok:   50 ; 0.054448 ; 0 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
-Ok:   53 ; 0.055479 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
-Ok:   54 ; 0.059986 ; 0 ; Arithmetic-Complex/arithmetic-complex.rexx
-Ok:   55 ; 0.032562 ; 0 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
-Ok:   56 ; 0.034099 ; 0 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
-Ok:   57 ; 0.091974 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
-Ok:   58 ; 0.079569 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
-Ok:   59 ; 13.544711 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
-Ok:   60 ; 0.106648 ; 0 ; Arithmetic-Integer/arithmetic-integer.rexx
-Ok:   62 ; 0.053541 ; 0 ; Array-concatenation/array-concatenation-1.rexx
-Ok:   63 ; 0.024008 ; 0 ; Array-concatenation/array-concatenation-2.rexx
-Ok:   64 ; 0.021472 ; 0 ; Array-concatenation/array-concatenation-3.rexx
-Ok:   65 ; 0.027945 ; 0 ; Arrays/arrays-1.rexx
-Ok:   66 ; 0.023551 ; 0 ; Arrays/arrays-2.rexx
-Ok:   67 ; 0.022396 ; 0 ; Arrays/arrays-3.rexx
-Ok:   68 ; 0.047531 ; 0 ; Arrays/arrays-4.rexx
-Ok:   69 ; 0.023214 ; 0 ; Arrays/arrays-5.rexx
-Ok:   70 ; 0.021856 ; 0 ; Arrays/arrays-6.rexx
-Ok:   71 ; 0.081277 ; 0 ; Assertions/assertions.rexx
-Ok:   72 ; 0.025436 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
-Ok:   73 ; 0.043991 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
-Ok:   74 ; 0.249700 ; 0 ; Associative-array-Iteration/associative-array-iteration.rexx
-Ok:   76 ; 0.053521 ; 0 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
-Ok:   77 ; 0.082716 ; 0 ; Averages-Mean-angle/averages-mean-angle.rexx
-Ok:   78 ; 0.036663 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
-Ok:   79 ; 0.024166 ; 0 ; Averages-Median/averages-median.rexx
-Ok:   80 ; 0.025688 ; 0 ; Averages-Mode/averages-mode-1.rexx
-Ok:   81 ; 0.032513 ; 0 ; Averages-Mode/averages-mode-2.rexx
-Ok:   82 ; 0.072327 ; 0 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
-Ok:   83 ; 0.035084 ; 0 ; Averages-Root-mean-square/averages-root-mean-square.rexx
-Ok:   84 ; 0.032824 ; 0 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
-Ok:   85 ; 0.023398 ; 0 ; Balanced-brackets/balanced-brackets-1.rexx
-Ok:   86 ; 0.038056 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
-Ok:   87 ; 13.937404 ; 0 ; Balanced-brackets/balanced-brackets-3.rexx
-Ok:   88 ; 0.190439 ; 0 ; Balanced-ternary/balanced-ternary.rexx
-Ok:   90 ; 0.217527 ; 0 ; Bernoulli-numbers/bernoulli-numbers.rexx
-Ok:   91 ; 0.024822 ; 0 ; Best-shuffle/best-shuffle-1.rexx
-Ok:   95 ; 0.021860 ; 0 ; Binary-digits/binary-digits-1.rexx
-Ok:   96 ; 0.021762 ; 0 ; Binary-digits/binary-digits-2.rexx
-Ok:   97 ; 0.021124 ; 0 ; Binary-digits/binary-digits-3.rexx
-Ok:   98 ; 0.021651 ; 0 ; Binary-digits/binary-digits-4.rexx
-Ok:   99 ; 0.036386 ; 0 ; Binary-search/binary-search-1.rexx
-Ok:  100 ; 0.024079 ; 0 ; Binary-search/binary-search-2.rexx
-Ok:  101 ; 0.038219 ; 0 ; Binary-strings/binary-strings.rexx
-Ok:  102 ; 0.037520 ; 0 ; Bitmap/bitmap-1.rexx
-Ok:  103 ; 0.200798 ; 0 ; Bitmap/bitmap-2.rexx
-Ok:  104 ; 0.045234 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
-Ok:  105 ; 0.031320 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
-Ok:  106 ; 0.022729 ; 0 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
-Ok:  107 ; 0.026787 ; 0 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
-Ok:  108 ; 0.041524 ; 0 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
-Ok:  109 ; 0.021964 ; 0 ; Bitwise-IO/bitwise-io.rexx
-Ok:  110 ; 0.042814 ; 0 ; Bitwise-operations/bitwise-operations.rexx
-Ok:  111 ; 0.031369 ; 0 ; Boolean-values/boolean-values-1.rexx
-Ok:  112 ; 0.023536 ; 0 ; Boolean-values/boolean-values-2.rexx
-Ok:  113 ; 0.022550 ; 0 ; Boolean-values/boolean-values-3.rexx
-Ok:  114 ; 0.026339 ; 0 ; Boolean-values/boolean-values-4.rexx
-Ok:  116 ; 0.021480 ; 0 ; Boolean-values/boolean-values-6.rexx
-Ok:  117 ; 0.034461 ; 0 ; Box-the-compass/box-the-compass.rexx
-Ok:  119 ; 0.030830 ; 0 ; Bulls-and-cows/bulls-and-cows-1.rexx
-Ok:  120 ; 0.024639 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
-Ok:  121 ; 0.127427 ; 0 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
+Ok:    1 ; 0.203409 ; 0 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
+Ok:    2 ; 0.115148 ; 0 ; 24-game/24-game-1.rexx
+Ok:    3 ; 0.326674 ; 0 ; 24-game-Solve/24-game-solve.rexx
+Ok:    4 ; 0.100051 ; 0 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
+Ok:    5 ; 0.073067 ; 0 ; 100-doors/100-doors-1.rexx
+Ok:    6 ; 0.058604 ; 0 ; 100-doors/100-doors-2.rexx
+Ok:    7 ; 0.070187 ; 0 ; 100-doors/100-doors-3.rexx
+Ok:    8 ; 0.056441 ; 0 ; 100-doors/100-doors-4.rexx
+Ok:    9 ; 0.092303 ; 0 ; A+B/a+b-1.rexx
+Ok:   10 ; 0.066625 ; 0 ; A+B/a+b-2.rexx
+Ok:   11 ; 0.069851 ; 0 ; A+B/a+b-3.rexx
+Ok:   12 ; 0.066358 ; 0 ; A+B/a+b-4.rexx
+Ok:   13 ; 0.079402 ; 0 ; ABC-Problem/abc-problem-1.rexx
+Ok:   14 ; 0.070974 ; 0 ; ABC-Problem/abc-problem-2.rexx
+Ok:   18 ; 0.055592 ; 0 ; Accumulator-factory/accumulator-factory.rexx
+Ok:   20 ; 0.148505 ; 0 ; Ackermann-function/ackermann-function-2.rexx
+Ok:   21 ; 0.058098 ; 0 ; Ackermann-function/ackermann-function-3.rexx
+Ok:   22 ; 1.725452 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
+Ok:   24 ; 1.675709 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
+Ok:   25 ; 0.179520 ; 0 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
+Ok:   26 ; 0.073904 ; 0 ; Align-columns/align-columns-1.rexx
+Ok:   30 ; 0.075596 ; 0 ; Almost-prime/almost-prime-1.rexx
+Ok:   31 ; 0.060526 ; 0 ; Almost-prime/almost-prime-2.rexx
+Ok:   32 ; 0.074454 ; 0 ; Almost-prime/almost-prime.rexx
+Ok:   33 ; 0.066236 ; 0 ; Amb/amb-1.rexx
+Ok:   34 ; 0.063726 ; 0 ; Amb/amb-2.rexx
+Ok:   36 ; 3.575508 ; 0 ; Amicable-pairs/amicable-pairs-2.rexx
+Ok:   37 ; 1.385110 ; 0 ; Amicable-pairs/amicable-pairs-3.rexx
+Ok:   38 ; 1.134239 ; 0 ; Amicable-pairs/amicable-pairs-4.rexx
+Ok:   39 ; 0.451964 ; 0 ; Amicable-pairs/amicable-pairs-5.rexx
+Ok:   40 ; 0.109992 ; 0 ; Anagrams/anagrams-1.rexx
+Ok:   41 ; 0.121727 ; 0 ; Anagrams/anagrams-2.rexx
+Ok:   42 ; 0.077267 ; 0 ; Anagrams/anagrams-3.rexx
+Ok:   43 ; 0.058682 ; 0 ; Anagrams/anagrams-4.rexx
+Ok:   44 ; 0.055565 ; 0 ; Anagrams/anagrams-5.rexx
+Ok:   45 ; 0.225941 ; 0 ; Anagrams/anagrams-6.rexx
+Ok:   46 ; 0.088432 ; 0 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
+Ok:   47 ; 2.524984 ; 0 ; Anonymous-recursion/anonymous-recursion-1.rexx
+Ok:   48 ; 0.131720 ; 0 ; Anonymous-recursion/anonymous-recursion-2.rexx
+Ok:   49 ; 0.087824 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
+Ok:   50 ; 0.076260 ; 0 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
+Ok:   53 ; 0.079568 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
+Ok:   54 ; 0.069840 ; 0 ; Arithmetic-Complex/arithmetic-complex.rexx
+Ok:   55 ; 0.064815 ; 0 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
+Ok:   56 ; 0.096624 ; 0 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
+Ok:   57 ; 0.129001 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
+Ok:   58 ; 0.105902 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
+Ok:   59 ; 12.736497 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
+Ok:   60 ; 0.126193 ; 0 ; Arithmetic-Integer/arithmetic-integer.rexx
+Ok:   62 ; 0.075401 ; 0 ; Array-concatenation/array-concatenation-1.rexx
+Ok:   63 ; 0.053306 ; 0 ; Array-concatenation/array-concatenation-2.rexx
+Ok:   64 ; 0.051864 ; 0 ; Array-concatenation/array-concatenation-3.rexx
+Ok:   65 ; 0.087519 ; 0 ; Arrays/arrays-1.rexx
+Ok:   66 ; 0.060574 ; 0 ; Arrays/arrays-2.rexx
+Ok:   67 ; 0.055494 ; 0 ; Arrays/arrays-3.rexx
+Ok:   68 ; 0.072218 ; 0 ; Arrays/arrays-4.rexx
+Ok:   69 ; 0.056086 ; 0 ; Arrays/arrays-5.rexx
+Ok:   70 ; 0.053868 ; 0 ; Arrays/arrays-6.rexx
+Ok:   71 ; 0.102846 ; 0 ; Assertions/assertions.rexx
+Ok:   72 ; 0.101778 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
+Ok:   73 ; 0.055898 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
+Ok:   74 ; 0.085842 ; 0 ; Associative-array-Iteration/associative-array-iteration.rexx
+Ok:   76 ; 0.074451 ; 0 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
+Ok:   77 ; 0.117317 ; 0 ; Averages-Mean-angle/averages-mean-angle.rexx
+Ok:   78 ; 0.062931 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
+Ok:   79 ; 0.053847 ; 0 ; Averages-Median/averages-median.rexx
+Ok:   80 ; 0.055485 ; 0 ; Averages-Mode/averages-mode-1.rexx
+Ok:   81 ; 0.053468 ; 0 ; Averages-Mode/averages-mode-2.rexx
+Ok:   82 ; 0.095236 ; 0 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
+Ok:   83 ; 0.065590 ; 0 ; Averages-Root-mean-square/averages-root-mean-square.rexx
+Ok:   84 ; 0.063910 ; 0 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
+Ok:   85 ; 0.055537 ; 0 ; Balanced-brackets/balanced-brackets-1.rexx
+Ok:   86 ; 0.073115 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
+Ok:   87 ; 14.048582 ; 0 ; Balanced-brackets/balanced-brackets-3.rexx
+Ok:   88 ; 0.380333 ; 0 ; Balanced-ternary/balanced-ternary.rexx
+Ok:   90 ; 0.257587 ; 0 ; Bernoulli-numbers/bernoulli-numbers.rexx
+Ok:   91 ; 0.081770 ; 0 ; Best-shuffle/best-shuffle-1.rexx
+Ok:   95 ; 0.077227 ; 0 ; Binary-digits/binary-digits-1.rexx
+Ok:   96 ; 0.056918 ; 0 ; Binary-digits/binary-digits-2.rexx
+Ok:   97 ; 0.053021 ; 0 ; Binary-digits/binary-digits-3.rexx
+Ok:   98 ; 0.059232 ; 0 ; Binary-digits/binary-digits-4.rexx
+Ok:   99 ; 0.072139 ; 0 ; Binary-search/binary-search-1.rexx
+Ok:  100 ; 0.051806 ; 0 ; Binary-search/binary-search-2.rexx
+Ok:  101 ; 0.075723 ; 0 ; Binary-strings/binary-strings.rexx
+Ok:  102 ; 0.069708 ; 0 ; Bitmap/bitmap-1.rexx
+Ok:  103 ; 0.510953 ; 0 ; Bitmap/bitmap-2.rexx
+Ok:  104 ; 0.066723 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
+Ok:  105 ; 0.065255 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
+Ok:  106 ; 0.054518 ; 0 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
+Ok:  107 ; 0.058032 ; 0 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
+Ok:  108 ; 0.098034 ; 0 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
+Ok:  109 ; 0.073447 ; 0 ; Bitwise-IO/bitwise-io.rexx
+Ok:  110 ; 0.065198 ; 0 ; Bitwise-operations/bitwise-operations.rexx
+Ok:  111 ; 0.075514 ; 0 ; Boolean-values/boolean-values-1.rexx
+Ok:  112 ; 0.071031 ; 0 ; Boolean-values/boolean-values-2.rexx
+Ok:  113 ; 0.062619 ; 0 ; Boolean-values/boolean-values-3.rexx
+Ok:  114 ; 0.062563 ; 0 ; Boolean-values/boolean-values-4.rexx
+Ok:  116 ; 0.064507 ; 0 ; Boolean-values/boolean-values-6.rexx
+Ok:  117 ; 0.071057 ; 0 ; Box-the-compass/box-the-compass.rexx
+Ok:  119 ; 0.080525 ; 0 ; Bulls-and-cows/bulls-and-cows-1.rexx
+Ok:  120 ; 0.069710 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
+Ok:  121 ; 0.189967 ; 0 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
+Ok:  122 ; 0.071677 ; 0 ; Caesar-cipher/caesar-cipher-1.rexx
+Ok:  123 ; 0.053478 ; 0 ; Caesar-cipher/caesar-cipher-2.rexx
+Ok:  124 ; 0.064555 ; 0 ; Calendar/calendar.rexx
+Ok:  125 ; 0.066060 ; 0 ; Calendar/calendar.rexx
 
 ================================================================================
 Summary Skip
@@ -3672,21 +3718,21 @@ Skip:   94 ; 0 ; 0 ; Best-shuffle/best-shuffle-4.rexx
 ================================================================================
 Summary Ko
 ================================================================================
-Ko:   15 ; 0.044380 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
-Ko:   16 ; 0.028723 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
-Ko:   19 ; 3.420626 ; 245 ; Ackermann-function/ackermann-function-1.rexx
-Ko:   27 ; 0.025449 ; 216 ; Align-columns/align-columns-2.rexx
-Ko:   28 ; 0.024298 ; 216 ; Align-columns/align-columns-3.rexx
-Ko:   29 ; 0.053445 ; 216 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
-Ko:   89 ; 0.045418 ; 216 ; Benfords-law/benfords-law.rexx
-Ko:  115 ; 0.026982 ; 243 ; Boolean-values/boolean-values-5.rexx
-Ko:  118 ; 0.032908 ; 213 ; Brownian-tree/brownian-tree.rexx
+Ko:   15 ; 0.089271 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
+Ko:   16 ; 0.060892 ; 216 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
+Ko:   19 ; 3.387374 ; 245 ; Ackermann-function/ackermann-function-1.rexx
+Ko:   27 ; 0.059612 ; 216 ; Align-columns/align-columns-2.rexx
+Ko:   28 ; 0.056902 ; 216 ; Align-columns/align-columns-3.rexx
+Ko:   29 ; 0.079105 ; 216 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
+Ko:   89 ; 0.080507 ; 216 ; Benfords-law/benfords-law.rexx
+Ko:  115 ; 0.069612 ; 243 ; Boolean-values/boolean-values-5.rexx
+Ko:  118 ; 0.139769 ; 213 ; Brownian-tree/brownian-tree.rexx
 
 ================================================================================
 Summary counters
 ================================================================================
-Ok=102
+Ok=106
 Skip=10
 Ko=9
-duration=47.819556
+duration=54.279738
 
