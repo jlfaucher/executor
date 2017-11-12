@@ -490,7 +490,7 @@ Create a script to execute the classic rexx scripts of Rosetta code:
 RosettaCodeData.rex
 The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
 
-Take note of a problem with BIF center and UTF8 string.
+Take note of a problem with BIF center and UTF-8 string.
 Error 40.23: CENTER argument 3 must be a single character; found "═".
 Here, "═" is the Unicode character BOX DRAWINGS DOUBLE HORIZONTAL, encoded E2 95 90 in UTF-8.
 I would like an intelligent support of UTF-8 here.
@@ -1185,7 +1185,10 @@ idem makeArray : done
 Start working on a prototype for encoded strings.
 This prototype will be only Rexx code, there is no need to modify the interpreter.
 The changes I made on the interpreter years ago (adding an encoding to the String
-class) is not used because I will need more than one encoding per string...
+class) is not used because
+ABANDONNED: I will need more than one encoding per string...
+NEW: the encoding is stored on the Text associated to the string.
+
 I will manage this additional information with Rexx code, thanks to the extensions
 mechanisms.
 
@@ -1195,11 +1198,14 @@ first chapter, page 5.
 Main ideas explored with this prototype :
 - No automatic conversion to Unicode by the interpreter.
 - The strings crossing the I/O barriers are kept unchanged.
-- A string is made of slices, where each slice has its own encoding.
-- Supported encodings : byte, utf-8, utf-16.
+- ABANDONNED: A string is made of slices, where each slice has its own encoding.
+- Supported encodings : byte, UTF-8, UTF-16.
 - When no encoding has been explicitely specified, a default encoding is used.
 - Initially, the default encoding is "byte". It can be changed at anytime.
-- Strings with different encodings can be concatenated, there is no need of conversion.
+- ABANDONNED: Strings with different encodings can be concatenated, there is no need of conversion.
+  NEW: Strings with different encodings can be concatenated if their encodings are compatible.
+       Example: a byte-encoded string containing only ASCII characters is compatible with UTF-8.
+       If not compatible then an error is raised.
 - The existing String class is kept unchanged, but its semantic becomes : "byte-oriented".
 - The prototype will add a layer of services working at grapheme level, provided by the Text class.
 - The Text class works on the bytes managed by the String class.
@@ -5491,7 +5497,7 @@ See makeorx_verbose.bat for more details to build from Visual Studio.
 
 Continue Unicode review : added notes about Falcon.
 
-Adapted ooRexxTry to use utf8 encoding and Arial Unicode MS.
+Adapted ooRexxTry to use UTF-8 encoding and Arial Unicode MS.
 Preloads all the main components (math, ftp, socket, bsf, hostemu, ...).
 
 
