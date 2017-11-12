@@ -280,13 +280,13 @@ Indexing a vector
 It is possible to extract several items in a single operation, and in any order.
 An item can be selected more than once.
     vector = v(41,26,38,14,87,52,30,28,19,65,40,55,19,31,64,45,82,74)
-        41 26 38 14 87 52 30 28 19 65 40 55 19 31 64 45 82 74
+        [41, 26, 38, 14, 87, 52, 30, 28, 19, 65, 40, 55, 19, 31, 64, 45, 82, 74]
     vector[3] or vector~atindex(3) or vector~atindex(v(3))
-        38
+        38 -- a scalar
     vector~indexer(3) or vector~indexer(v(3))
-        [38]
+        [38] -- an array
     vector~indexer(3,7,1,3,3,12) =
-        38 30 41 38 38 55
+        [38, 30, 41, 38, 38, 55]
     'LE CHAT'~eachc~indexer(7, 5, 2, 3, 4, 6, 7)~tostring("c")=
         'THE CAT'
 
@@ -311,14 +311,14 @@ Similar to vector indexing, but with one index for the row and one for the colum
         65 40 55
         19 31 64
         45 82 74
-    matrix[2,3] or
-        52
+    matrix[2,3] or matrix~atindex(2,3) or matrix~atindex(v(2,3))
+        52 -- a scalar
     matrix~indexer(2,3) or matrix~indexer(v(2,3))
-        [[14,87,52],[30,28,19]]
+        [[14,87,52],[30,28,19]] -- line 2, line 3
     index = v(  v(1,1), v(2,2), v(3,3)  )
-         1 1  2 2  3 3
+         [[1,1],[2,2],[3,3]
     matrix~indexer(index) =
-        41 87 19
+        [41,87,19]
     matrix~indexer(a(2,3)~of(index)) =
         41 87 19
         41 87 19

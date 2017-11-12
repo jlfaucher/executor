@@ -256,11 +256,6 @@ v()               | []                            | 1         | [0]             
             subindexes = self~allindexes~select{expose myIndex; item[1] == myIndex}
             subindexes = subindexes~reshape(subshape)
             return subindexes~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
-            r = a(subshape)
-            i = self~first
-            do while i <> .nil
-            end
-            return r
         end
         if index~isa(.array) then do
             -- Select the values situated at the intersections of the specified rows and columns : rows 1 5 6, columns 1 3
