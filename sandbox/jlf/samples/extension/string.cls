@@ -95,10 +95,11 @@ Similar to ~makeArray(separator), with these differences:
 ::class "Text" public
 
 ::method init
-    expose string encoding
+    expose string encoding analyzed
     use strict arg string, encoding="default"
     if \string~isA(.String) then raise syntax 93.900 array("Text:" string "is not a String")
     encoding = .Encoding~factory(encoding)
+    analyzed = .false
     string~text = self -- store itself as counterpart of string
 
 
@@ -129,6 +130,7 @@ I need to get the control when concatenating strings
     newEncoding = .Encoding~factory(newEncoding)
     if encoding <> newEncoding then do
         encoding = newEncoding
+        analyzed = .false
         -- todo : check the conformity of string
         -- todo: graphemes count & indexes
     end
@@ -150,48 +152,53 @@ I need to get the control when concatenating strings
     use strict arg right
     right = right~request("text")
     if .nil == right then return -- no result: try the alternative message
-    s = self~string right~string
-    return s~text
+    encoding = EncodingForConcatenation(self, right)
+    return encoding~concatenate(self, encoding~spaceCharacter, right)
 
 
 ::method " op:right"
     use strict arg left
     left = left~request("text")
     if .nil == left then return -- no result: try the alternative message
-    s = left~string self~string
-    return s~text
+    encoding = EncodingForConcatenation(left, self)
+    return encoding~concatenate(left, encoding~spaceCharacter, self)
 
 
 ::method "||"
     use strict arg right
     right = right~request("text")
     if .nil == right then return -- no result: try the alternative message
-    s = self~string || right~string
-    return s~text
+    encoding =EncodingForConcatenation(self, right)
+    return encoding~concatenate(self, right)
 
 
 ::method "||op:right"
     use strict arg left
     left = left~request("text")
     if .nil == left then return -- no result: try the alternative message
-    s = left~string || self~string
-    return s~text
+    encoding =EncodingForConcatenation(left, self)
+    return encoding~concatenate(left, self)
 
 
 ::method "" -- abuttal
     use strict arg right
     right = right~request("text")
     if .nil == right then return -- no result: try the alternative message
-    s = self~string || right~string
-    return s~text
+    encoding =EncodingForConcatenation(self, right)
+    return encoding~concatenate(self, right)
 
 
 ::method "op:right" -- abuttal
     use strict arg left
     left = left~request("text")
     if .nil == left then return -- no result: try the alternative message
-    s = left~string || self~string
-    return s~text
+    encoding = EncodingForConcatenation(left, self)
+    return encoding~concatenate(left, self)
+
+
+::routine EncodingForConcatenation
+    use strict arg leftText, rightText
+    return .Encoding~forConcatenation(leftText~encoding, leftText~isASCII, rightText~encoding, rightText~isASCII)
 
 
 /******************************************************************************/
@@ -222,14 +229,52 @@ I need to get the control when concatenating strings
     raise syntax 93.900 array("Encoding: '"encoding"' is not supported")
 
 
+::method forConcatenation class
+    use strict arg leftEncoding, leftIsASCII, rightEncoding, rightIsASCII
+    if leftEncoding == rightEncoding then return leftEncoding
+    if leftIsASCII, leftEncoding == .ByteEncoding, rightEncoding == .UTF8Encoding then return rightEncoding
+    if rightIsASCII, rightEncoding == .ByteEncoding, leftEncoding == .UTF8Encoding then return leftEncoding
+    raise syntax 93.900 array("Encoding: cannot concatenate" leftEncoding "with" rightEncoding)
+
+
+::method concatenate class
+    -- Arguments : zero to N text.
+    s = ""
+    do i = 1 to arg()
+        s ||= arg(i)~string
+    end
+    return .Text~new(s, self)
+
+
 /******************************************************************************/
 ::class "ByteEncoding" subclass Encoding public
+
+::attribute SpaceCharacter class get
+    expose spaceCharacter
+    -- The Strings constants are made unique by the interpreter (only one occurence).
+    -- Must memorize the Text with a copy of the string constant, otherwise error "a Text counterpart is already assigned"
+    if \var("spaceCharacter") then spaceCharacter = .Text~new(.String~new(" "), self)
+    return spaceCharacter
 
 
 /******************************************************************************/
 ::class "UTF8Encoding" subclass Encoding public
 
 
+::method SpaceCharacter class
+    expose spaceCharacter
+    -- The Strings constants are made unique by the interpreter (only one occurence).
+    -- Must memorize the Text with a copy of the string constant , otherwise error "a Text counterpart is already assigned"
+    if \var("spaceCharacter") then spaceCharacter = .Text~new(.String~new(" "), self)
+    return spaceCharacter
+
+
 /******************************************************************************/
 ::class "UTF16Encoding" subclass Encoding public
 
+::method SpaceCharacter class
+    expose spaceCharacter
+    -- The Strings constants are made unique by the interpreter (only one occurence).
+    -- Must memorize the Text with a copy of the string constant , otherwise error "a Text counterpart is already assigned"
+    if \var("spaceCharacter") then spaceCharacter = .Text~new(.String~new("0020"x), self)
+    return spaceCharacter
