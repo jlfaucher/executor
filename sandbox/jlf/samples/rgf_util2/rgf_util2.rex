@@ -2656,7 +2656,9 @@ createCodeSnippet: procedure
   if \a1str~dataType("N") & surroundByQuotes then a1str = "'"a1str"'"
   -- JLF : texts are prefixed with "T"
   if a1.isaText then a1str = "T"a1str
-  return escape2(a1str)
+  -- JLF : Use 0xXX notation for escaped characters
+  -- return escape2(a1str)
+  return escape3(a1str)
 
 
 /* ======================================================================= */
@@ -2745,6 +2747,54 @@ createCodeSnippet: procedure
      do
         if res<>""  then
            res=res '||' enquote2(a1)
+        else
+           res=a1
+
+        a1=""
+     end
+  end
+  return res
+
+
+
+/* Escape non-printable chars by printing them between square brackets []. */
+::routine escape3 public
+  parse arg a1
+
+  res=""
+
+  do while a1\==""
+     pos1=verify(a1, .rgf.non.printable, "M")
+     if pos1>0 then
+     do
+        pos2=verify(a1, .rgf.non.printable, "N" , pos1)
+
+        if pos2=0 then
+           pos2=length(a1)+1
+
+        if pos1=1 then
+        do
+           parse var a1 char +(pos2-pos1) a1
+           bef=""
+        end
+        else
+           parse var a1 bef +(pos1-1) char +(pos2-pos1) a1
+
+        if res=="" then
+        do
+           if bef \=="" then res=bef -- res=enquote2(bef) '|| '
+        end
+        else
+        do
+           res=res||bef -- res=res '||' enquote2(bef) '|| '
+        end
+
+        res=res || '['char~c2x']'
+     end
+     else
+     do
+        if res<>""  then
+           res=res||a1 -- res=res '||' enquote2(a1)
         else
            res=a1
 
