@@ -235,7 +235,7 @@ v()               | []                            | 1         | [0]             
         smallArray = .array~new(10,10); do 10000; n = smallArray~items; end -- near 0 sec
         bigArray = .array~new(1000,1000); do 10000; n = bigArray~items; end -- around 8 sec
     */
-    return self~items == self~size
+    return self~items <> self~size
 
 
 ::method atIndex
