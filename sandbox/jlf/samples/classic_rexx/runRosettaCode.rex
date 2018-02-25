@@ -1,7 +1,7 @@
 /*
 Run the Rosetta Code solutions for REXX.
 The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
-This script has been written for the commit of Dec 05 2016.
+This script has been written for the commit of Sep 23 2017.
 
 rexx runRosettaCode                 -- run all
 rexx runRosettaCode 1 3 integer     -- run the solution 1 and 3, and all the solutions whose name contains "integer"
@@ -252,25 +252,20 @@ cd Lang/REXX
 find -L . -type f
 */
 
-call run "9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx"
+call run "100-doors/100-doors-1.rexx"
+
+call run "100-doors/100-doors-2.rexx"   /* hard-way */
 
 /* interactive */
 call run "24-game/24-game-1.rexx", "stdin", "quit"
 
 /* 24-game-2.rexx: just a routine, nothing to execute */
-/* 24-game-3.rexx: same as 2 */
 
 call run "24-game-Solve/24-game-solve.rexx", "1111-1129"
 
+call run "9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx"
+
 call run "99-Bottles-of-Beer/99-bottles-of-beer.rexx"
-
-call run "100-doors/100-doors-1.rexx"
-
-call run "100-doors/100-doors-2.rexx"   /* hard-way */
-
-call run "100-doors/100-doors-3.rexx"   /* easy-way */
-
-call run "100-doors/100-doors-4.rexx"
 
 call run "A+B/a+b-1.rexx", "stdin", "10 20"
 
@@ -330,7 +325,6 @@ call run "Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
 
 call run "Almost-prime/almost-prime-1.rexx"
 call run "Almost-prime/almost-prime-2.rexx"
-call run "Almost-prime/almost-prime.rexx"
 
 call run "Amb/amb-1.rexx"
 call run "Amb/amb-2.rexx"
@@ -470,7 +464,8 @@ call run "Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
 
 call run "Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx"
 
-call run "Bitwise-IO/bitwise-io.rexx"
+call run "Bitwise-IO/bitwise-io-1.rexx"
+call run "Bitwise-IO/bitwise-io-2.rexx"
 
 call run "Bitwise-operations/bitwise-operations.rexx"
 
@@ -580,8 +575,6 @@ call run "Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
 call run "Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
 call run "Create-an-HTML-table/create-an-html-table.rexx
 call run "CSV-data-manipulation/csv-data-manipulation.rexx
-call run "CSV-to-HTML-translation/csv-to-html-translation-1.rexx
-call run "CSV-to-HTML-translation/csv-to-html-translation-2.rexx
 call run "CSV-to-HTML-translation/csv-to-html-translation.rexx
 call run "Currying/currying-1.rexx
 call run "Currying/currying-2.rexx
@@ -631,9 +624,6 @@ call run "Element-wise-operations/element-wise-operations-2.rexx
 call run "Empty-directory/empty-directory.rexx
 call run "Empty-program/empty-program-1.rexx
 call run "Empty-program/empty-program-2.rexx
-call run "Empty-program/empty-program-3.rexx
-call run "Empty-program/empty-program-4.rexx
-call run "Empty-program/empty-program-5.rexx
 call run "Empty-string/empty-string.rexx
 call run "Enforced-immutability/enforced-immutability.rexx
 call run "Entropy/entropy-1.rexx
@@ -655,7 +645,6 @@ call run "Even-or-odd/even-or-odd.rexx
 call run "Events/events.rexx
 call run "Evolutionary-algorithm/evolutionary-algorithm-1.rexx
 call run "Evolutionary-algorithm/evolutionary-algorithm-2.rexx
-call run "Evolutionary-algorithm/evolutionary-algorithm-3.rexx
 call run "Exceptions/exceptions.rexx
 call run "Exceptions-Catch-an-exception-thrown-in-a-nested-call/exceptions-catch-an-exception-thrown-in-a-nested-call.rexx
 call run "Executable-library/executable-library-1.rexx
@@ -765,6 +754,7 @@ call run "Greatest-element-of-a-list/greatest-element-of-a-list-1.rexx
 call run "Greatest-element-of-a-list/greatest-element-of-a-list-2.rexx
 call run "Greatest-element-of-a-list/greatest-element-of-a-list-3.rexx
 call run "Greatest-element-of-a-list/greatest-element-of-a-list-4.rexx
+call run "Greatest-element-of-a-list/greatest-element-of-a-list-5.rexx
 call run "Greatest-subsequential-sum/greatest-subsequential-sum-1.rexx
 call run "Greatest-subsequential-sum/greatest-subsequential-sum-2.rexx
 call run "Greatest-subsequential-sum/greatest-subsequential-sum-3.rexx
@@ -787,8 +777,6 @@ call run "Harshad-or-Niven-series/harshad-or-niven-series-3.rexx
 call run "Harshad-or-Niven-series/harshad-or-niven-series-4.rexx
 call run "Hash-from-two-arrays/hash-from-two-arrays.rexx
 call run "Hash-join/hash-join.rexx
-call run "Haversine-formula/haversine-formula-1.rexx
-call run "Haversine-formula/haversine-formula-2.rexx
 call run "Haversine-formula/haversine-formula.rexx
 call run "Hello-world-Graphical/hello-world-graphical-1.rexx
 call run "Hello-world-Graphical/hello-world-graphical-2.rexx
@@ -798,10 +786,10 @@ call run "Hello-world-Newline-omission/hello-world-newline-omission.rexx
 call run "Hello-world-Standard-error/hello-world-standard-error-1.rexx
 call run "Hello-world-Standard-error/hello-world-standard-error-2.rexx
 call run "Hello-world-Standard-error/hello-world-standard-error-3.rexx
-call run "Hello-world-Standard-error/hello-world-standard-error-4.rexx
 call run "Hello-world-Text/hello-world-text-1.rexx
 call run "Hello-world-Text/hello-world-text-2.rexx
 call run "Hello-world-Text/hello-world-text-3.rexx
+call run "Hello-world-Web-server/hello-world-web-server.rexx
 call run "Here-document/here-document.rexx
 call run "Heronian-triangles/heronian-triangles-1.rexx
 call run "Heronian-triangles/heronian-triangles-2.rexx
@@ -874,7 +862,6 @@ call run "Jump-anywhere/jump-anywhere-1.rexx
 call run "Jump-anywhere/jump-anywhere-2.rexx
 call run "Jump-anywhere/jump-anywhere-3.rexx
 call run "Jump-anywhere/jump-anywhere-4.rexx
-call run "Jump-anywhere/jump-anywhere-5.rexx
 call run "Kaprekar-numbers/kaprekar-numbers.rexx
 call run "Keyboard-input-Flush-the-keyboard-buffer/keyboard-input-flush-the-keyboard-buffer-1.rexx
 call run "Keyboard-input-Flush-the-keyboard-buffer/keyboard-input-flush-the-keyboard-buffer-2.rexx
@@ -949,6 +936,7 @@ call run "Loops-For/loops-for-1.rexx
 call run "Loops-For/loops-for-2.rexx
 call run "Loops-For-with-a-specified-step/loops-for-with-a-specified-step-1.rexx
 call run "Loops-For-with-a-specified-step/loops-for-with-a-specified-step-2.rexx
+call run "Loops-For-with-a-specified-step/loops-for-with-a-specified-step-3.rexx
 call run "Loops-Foreach/loops-foreach.rexx
 call run "Loops-Infinite/loops-infinite-1.rexx
 call run "Loops-Infinite/loops-infinite-2.rexx
@@ -985,7 +973,8 @@ call run "Matrix-arithmetic/matrix-arithmetic-1.rexx
 call run "Matrix-arithmetic/matrix-arithmetic-2.rexx
 call run "Matrix-arithmetic/matrix-arithmetic-3.rexx
 call run "Matrix-multiplication/matrix-multiplication.rexx
-call run "Matrix-transposition/matrix-transposition.rexx
+call run "Matrix-transposition/matrix-transposition-1.rexx
+call run "Matrix-transposition/matrix-transposition-2.rexx
 call run "Maximum-triangle-path-sum/maximum-triangle-path-sum.rexx
 call run "Maze-generation/maze-generation-1.rexx
 call run "Maze-generation/maze-generation-2.rexx
@@ -1003,7 +992,6 @@ call run "Metronome/metronome-2.rexx
 call run "Metronome/metronome-3.rexx
 call run "Middle-three-digits/middle-three-digits-1.rexx
 call run "Middle-three-digits/middle-three-digits-2.rexx
-call run "Miller-Rabin-primality-test/miller-rabin-primality-test.rexx
 call run "Modular-exponentiation/modular-exponentiation-1.rexx
 call run "Modular-exponentiation/modular-exponentiation-2.rexx
 call run "Modular-inverse/modular-inverse.rexx
@@ -1014,6 +1002,7 @@ call run "Move-to-front-algorithm/move-to-front-algorithm-1.rexx
 call run "Move-to-front-algorithm/move-to-front-algorithm-2.rexx
 call run "Multifactorial/multifactorial.rexx
 call run "Multiplication-tables/multiplication-tables.rexx
+call run "Multiplicative-order/multiplicative-order.rexx
 call run "Multisplit/multisplit.rexx
 call run "Mutual-recursion/mutual-recursion-1.rexx
 call run "Mutual-recursion/mutual-recursion-2.rexx
@@ -1028,8 +1017,6 @@ call run "Narcissistic-decimal-number/narcissistic-decimal-number-2.rexx
 call run "Narcissistic-decimal-number/narcissistic-decimal-number-3.rexx
 call run "Nautical-bell/nautical-bell.rexx
 call run "Non-continuous-subsequences/non-continuous-subsequences.rexx
-call run "Non-decimal-radices-Convert/non-decimal-radices-convert-1.rexx
-call run "Non-decimal-radices-Convert/non-decimal-radices-convert-2.rexx
 call run "Non-decimal-radices-Convert/non-decimal-radices-convert.rexx
 call run "Non-decimal-radices-Input/non-decimal-radices-input.rexx
 call run "Non-decimal-radices-Output/non-decimal-radices-output-1.rexx
@@ -1046,7 +1033,6 @@ call run "Odd-word-problem/odd-word-problem.rexx
 call run "Old-lady-swallowed-a-fly/old-lady-swallowed-a-fly.rexx
 call run "One-dimensional-cellular-automata/one-dimensional-cellular-automata.rexx
 call run "One-of-n-lines-in-a-file/one-of-n-lines-in-a-file.rexx
-call run "Operator-precedence/operator-precedence.rexx
 call run "Optional-parameters/optional-parameters-1.rexx
 call run "Optional-parameters/optional-parameters-2.rexx
 call run "Order-disjoint-list-items/order-disjoint-list-items.rexx
@@ -1086,14 +1072,17 @@ call run "Permutations-Rank-of-a-permutation/permutations-rank-of-a-permutation.
 call run "Pernicious-numbers/pernicious-numbers.rexx
 call run "Phrase-reversals/phrase-reversals-1.rexx
 call run "Phrase-reversals/phrase-reversals-2.rexx
-call run "Pi/pi.rexx
+call run "Pi/pi-1.rexx
+call run "Pi/pi-2.rexx
 call run "Pick-random-element/pick-random-element-1.rexx
 call run "Pick-random-element/pick-random-element-2.rexx
 call run "Pig-the-dice-game/pig-the-dice-game.rexx
 call run "Pig-the-dice-game-Player/pig-the-dice-game-player.rexx
 call run "Playing-cards/playing-cards-1.rexx
 call run "Playing-cards/playing-cards-2.rexx
-call run "Plot-coordinate-pairs/plot-coordinate-pairs.rexx
+call run "Plot-coordinate-pairs/plot-coordinate-pairs-1.rexx
+call run "Plot-coordinate-pairs/plot-coordinate-pairs-2.rexx
+call run "Polynomial-regression/polynomial-regression.rexx
 call run "Power-set/power-set.rexx
 call run "Price-fraction/price-fraction-1.rexx
 call run "Price-fraction/price-fraction-2.rexx
@@ -1137,8 +1126,6 @@ call run "Range-extraction/range-extraction-3.rexx
 call run "Ranking-methods/ranking-methods.rexx
 call run "Rate-counter/rate-counter.rexx
 call run "Ray-casting-algorithm/ray-casting-algorithm.rexx
-call run "Read-a-configuration-file/read-a-configuration-file-1.rexx
-call run "Read-a-configuration-file/read-a-configuration-file-2.rexx
 call run "Read-a-configuration-file/read-a-configuration-file.rexx
 call run "Read-a-file-line-by-line/read-a-file-line-by-line-1.rexx
 call run "Read-a-file-line-by-line/read-a-file-line-by-line-2.rexx
@@ -1189,14 +1176,9 @@ call run "Roman-numerals-Encode/roman-numerals-encode-1.rexx
 call run "Roman-numerals-Encode/roman-numerals-encode-2.rexx
 call run "Roots-of-a-function/roots-of-a-function-1.rexx
 call run "Roots-of-a-function/roots-of-a-function-2.rexx
-call run "Roots-of-a-function/roots-of-a-function.rexx
 call run "Roots-of-a-quadratic-function/roots-of-a-quadratic-function-1.rexx
 call run "Roots-of-a-quadratic-function/roots-of-a-quadratic-function-2.rexx
 call run "Roots-of-unity/roots-of-unity.rexx
-call run "Rosetta-Code-Fix-code-tags/rosetta-code-fix-code-tags-1.rexx
-call run "Rosetta-Code-Fix-code-tags/rosetta-code-fix-code-tags-2.rexx
-call run "Rosetta-Code-Fix-code-tags/rosetta-code-fix-code-tags.rexx
-call run "Rosetta-Code-Rank-languages-by-popularity/rosetta-code-rank-languages-by-popularity.rexx
 call run "Rot-13/rot-13.rexx
 call run "Run-length-encoding/run-length-encoding-1.rexx
 call run "Run-length-encoding/run-length-encoding-2.rexx
@@ -1224,6 +1206,7 @@ call run "Self-describing-numbers/self-describing-numbers-3.rexx
 call run "Self-referential-sequence/self-referential-sequence.rexx
 call run "Semiprime/semiprime-1.rexx
 call run "Semiprime/semiprime-2.rexx
+call run "Semiprime/semiprime-3.rexx
 call run "Semordnilap/semordnilap-1.rexx
 call run "Semordnilap/semordnilap-2.rexx
 call run "Sequence-of-non-squares/sequence-of-non-squares.rexx
@@ -1266,7 +1249,9 @@ call run "Sort-using-a-custom-comparator/sort-using-a-custom-comparator.rexx
 call run "Sorting-algorithms-Bead-sort/sorting-algorithms-bead-sort.rexx
 call run "Sorting-algorithms-Bogosort/sorting-algorithms-bogosort-1.rexx
 call run "Sorting-algorithms-Bogosort/sorting-algorithms-bogosort-2.rexx
-call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort.rexx
+call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-1.rexx
+call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-2.rexx
+call run "Sorting-algorithms-Bubble-sort/sorting-algorithms-bubble-sort-3.rexx
 call run "Sorting-algorithms-Cocktail-sort/sorting-algorithms-cocktail-sort-1.rexx
 call run "Sorting-algorithms-Cocktail-sort/sorting-algorithms-cocktail-sort-2.rexx
 call run "Sorting-algorithms-Comb-sort/sorting-algorithms-comb-sort.rexx
@@ -1320,8 +1305,9 @@ call run "Spiral-matrix/spiral-matrix-2.rexx
 call run "Stable-marriage-problem/stable-marriage-problem.rexx
 call run "Stack/stack-1.rexx
 call run "Stack/stack-2.rexx
+call run "Stack-traces/stack-traces-1.rexx
+call run "Stack-traces/stack-traces-2.rexx
 call run "Stair-climbing-puzzle/stair-climbing-puzzle.rexx
-call run "Standard-deviation/standard-deviation.rexx
 call run "Start-from-a-main-routine/start-from-a-main-routine.rexx
 call run "State-name-puzzle/state-name-puzzle.rexx
 call run "Statistics-Basic/statistics-basic.rexx
@@ -1349,7 +1335,6 @@ call run "Strip-a-set-of-characters-from-a-string/strip-a-set-of-characters-from
 call run "Strip-a-set-of-characters-from-a-string/strip-a-set-of-characters-from-a-string-2.rexx
 call run "Strip-a-set-of-characters-from-a-string/strip-a-set-of-characters-from-a-string-3.rexx
 call run "Strip-a-set-of-characters-from-a-string/strip-a-set-of-characters-from-a-string-4.rexx
-call run "Strip-a-set-of-characters-from-a-string/strip-a-set-of-characters-from-a-string-5.rexx
 call run "Strip-block-comments/strip-block-comments.rexx
 call run "Strip-comments-from-a-string/strip-comments-from-a-string-1.rexx
 call run "Strip-comments-from-a-string/strip-comments-from-a-string-2.rexx
@@ -1380,7 +1365,6 @@ call run "Symmetric-difference/symmetric-difference-3.rexx
 call run "System-time/system-time.rexx
 call run "Table-creation-Postal-addresses/table-creation-postal-addresses-1.rexx
 call run "Table-creation-Postal-addresses/table-creation-postal-addresses-2.rexx
-call run "Table-creation-Postal-addresses/table-creation-postal-addresses-3.rexx
 call run "Take-notes-on-the-command-line/take-notes-on-the-command-line.rexx
 call run "Temperature-conversion/temperature-conversion.rexx
 call run "Terminal-control-Clear-the-screen/terminal-control-clear-the-screen.rexx
@@ -1485,11 +1469,11 @@ call run "Write-float-arrays-to-a-text-file/write-float-arrays-to-a-text-file.re
 call run "Write-language-name-in-3D-ASCII/write-language-name-in-3d-ascii-1.rexx
 call run "Write-language-name-in-3D-ASCII/write-language-name-in-3d-ascii-2.rexx
 call run "Write-language-name-in-3D-ASCII/write-language-name-in-3d-ascii-3.rexx
-call run "Write-to-Windows-event-log/write-to-windows-event-log.rexx
+call run "Write-to-Windows-event-log/write-to-windows-event-log-1.rexx
+call run "Write-to-Windows-event-log/write-to-windows-event-log-2.rexx
 call run "Xiaolin-Wus-line-algorithm/xiaolin-wus-line-algorithm.rexx
 call run "XML-Input/xml-input-1.rexx
 call run "XML-Input/xml-input-2.rexx
-call run "XML-Input/xml-input-3.rexx
 call run "XML-Output/xml-output.rexx
 call run "XML-XPath/xml-xpath-1.rexx
 call run "XML-XPath/xml-xpath-2.rexx
