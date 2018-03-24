@@ -584,7 +584,11 @@ Helpers
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
+
+    -- regex.cls uses the class StringTable which is available only from ooRexx v5.
+    if \ .stringtable~isa(.class) then .environment["STRINGTABLE"] = .directory
     .ooRexxShell~hasRegex = loadPackage("regex/regex.cls")
+
     call loadPackage("smtp.cls")
     call loadPackage("socket.cls")
     call loadPackage("streamsocket.cls")
@@ -598,11 +602,12 @@ Helpers
         .ooRexxShell~isExtended = .false
         call loadPackage("extension/std/extensions-std.cls") -- works with standard ooRexx, but integration is weak
     end
+
     if .ooRexxShell~isExtended then do
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage("pipeline/pipe_extension.cls")
         call loadPackage("rgf_util2/rgf_util2_wrappers.rex")
-        -- regex.cls use the method .String~contains which is available only from ooRexx v5.
+        -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
         -- Add this method if not available.
         if \ ""~hasMethod("contains") then .String~define("contains", "use strict arg needle; return self~pos(needle) <> 0")
     end
