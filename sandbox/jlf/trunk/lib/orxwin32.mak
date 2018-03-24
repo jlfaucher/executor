@@ -41,6 +41,7 @@
 # These compiler defines allow the support of different versions of Mircrosoft's
 # Visual C++ compiler.  The build has not necessarily been tested on all of the
 # following versions, so some of the !IFDEF statements may need to be adjusted.
+# VCPP == 15 ==> Visual C++ 2017
 # VCPP == 14 ==> Visual C++ 2015
 # VCPP == 12 ==> Visual C++ 2013
 # VCPP == 11 ==> Visual C++ 2012
@@ -50,7 +51,13 @@
 # VCPP ==  7 ==> Visual C++ 2003
 # VCPP ==  6 ==> Visual C++ 6.0
 #
-!IF "$(MSVCVER)" == "14.0"
+!IF "$(MSVCVER)" == "15.5"
+VCPP = 15
+!ELSEIF "$(MSVCVER)" == "15.3"
+VCPP = 15
+!ELSEIF "$(MSVCVER)" == "15.0"
+VCPP = 15
+!ELSEIF "$(MSVCVER)" == "14.0"
 VCPP = 14
 !ELSEIF "$(MSVCVER)" == "12.0"
 VCPP = 12
