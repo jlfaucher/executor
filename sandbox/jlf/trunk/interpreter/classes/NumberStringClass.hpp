@@ -123,6 +123,8 @@
     virtual bool logicalValue(logical_t &);
 
     bool        isEqual(RexxObject *);
+    virtual wholenumber_t compareTo(RexxObject *);
+
     wholenumber_t strictComp(RexxObject *);
     wholenumber_t comp(RexxObject *, RexxString *alternativeOperator=OREF_NULL, RexxInteger **alternativeOperatorResultPtr=NULL);
     RexxInteger *equal(RexxObject *);

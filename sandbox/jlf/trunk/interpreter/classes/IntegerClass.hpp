@@ -63,12 +63,14 @@ class RexxInteger : public RexxObject {
   void liveGeneral(int reason);
   void flatten(RexxEnvelope*);
   virtual HashCode getHashValue();
+  virtual wholenumber_t compareTo(RexxObject *);
 
   bool         numberValue(wholenumber_t &result, size_t precision);
   bool         numberValue(wholenumber_t &result);
   bool         unsignedNumberValue(stringsize_t &result, size_t precision);
   bool         unsignedNumberValue(stringsize_t &result);
   bool         doubleValue(double &result);
+
   RexxNumberString *numberString();
   RexxInteger *integerValue(size_t);
   RexxString  *makeString();
