@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2017 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
 /* distribution. A copy is also available at the following address:           */
-/* http://www.oorexx.org/license.html                          */
+/* http://www.oorexx.org/license.html                                         */
 /*                                                                            */
 /* Redistribution and use in source and binary forms, with or                 */
 /* without modification, are permitted provided that the following            */
@@ -135,22 +135,6 @@
 *       SysShutDownSystem   -- Shutdown the system                    *
 *       SysSwitchSession    -- Switch to a named session              *
 *       SysDropLibrary      -- Drop a function package                *
-*       SysPi               -- Return Pi to given precision           *
-*       SysSqrt             -- Calculate a square root                *
-*       SysExp              -- Calculate an exponent                  *
-*       SysLog              -- Return natural log of a number         *
-*       SysLog10            -- Return log base 10 of a number         *
-*       SysSinh             -- Hyperbolic sine function               *
-*       SysCosh             -- Hyperbolic cosine function             *
-*       SysTanh             -- Hyperbolic tangent function            *
-*       SysPower            -- raise number to non-integer power      *
-*       SysSin              -- Sine function                          *
-*       SysCos              -- Cosine function                        *
-*       SysTan              -- Tangent function                       *
-*       SysCotan            -- Cotangent function                     *
-*       SysArcSin           -- ArcSine function                       *
-*       SysArcCos           -- ArcCosine function                     *
-*       SysArcTan           -- ArcTangent function                    *
 *       SysQueryProcess     -- Get information on current proc/thread *
 *       SysDumpVariables    -- Dump current variables to a file       *
 *       SysSetFileDateTime  -- Set the last modified date of a file   *
@@ -190,9 +174,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
-#include <math.h>
 #include <limits.h>
 #include <shlwapi.h>
+#include <math.h>                      // isnan(), HUGE_VAL
 
 #define OM_WAKEUP (WM_USER+10)
 VOID CALLBACK SleepTimerProc( HWND, UINT, UINT, DWORD);
@@ -214,27 +198,6 @@ VOID CALLBACK SleepTimerProc( HWND, UINT, UINT, DWORD);
 #define MAX_ENVVAR     1024
 #define MAX_LINE_LEN   4096            /* max line length            */
 #define MAX_CREATEPROCESS_CMDLINE (32 * 1024)
-
-/*********************************************************************/
-/*  Various definitions used by the math functions                   */
-/*********************************************************************/
-#define SINE        0                  /* trig function defines...   */
-#define COSINE      3                  /* the ordering is important, */
-#define TANGENT     1                  /* as these get transformed   */
-#define COTANGENT   2                  /* depending on the angle     */
-#define MAXTRIG     3                  /* value                      */
-#define ARCSINE     0                  /* defines for arc trig       */
-#define ARCCOSINE   1                  /* functions.  Ordering is    */
-#define ARCTANGENT  2                  /* not as important here      */
-
-#define pi  3.14159265358979323846l    /* pi value                   */
-
-#define DEGREES    'D'                 /* degrees option             */
-#define RADIANS    'R'                 /* radians option             */
-#define GRADES     'G'                 /* grades option              */
-
-#define DEFAULT_PRECISION  9           /* default precision to use   */
-#define MAX_PRECISION     16           /* maximum available precision*/
 
 /*********************************************************************/
 /*  Defines used by SysDriveMap                                      */
@@ -1609,7 +1572,7 @@ static void badSFTOptsException(RexxThreadContext *c, size_t pos, CSTRING actual
 {
     char buf[256] = {0};
     _snprintf(buf, sizeof(buf),
-             "SysFileTree argument %d must be a combination of F, D, B, S, T, L, I, or O; found \"%s\"",
+             "SysFileTree argument %zd must be a combination of F, D, B, S, T, L, I, or O; found \"%s\"",
              pos, actual);
 
     c->RaiseException1(Rexx_Error_Incorrect_call_user_defined, c->String(buf));
@@ -1626,7 +1589,7 @@ static void badMaskException(RexxThreadContext *c, size_t pos, CSTRING actual)
 {
     char buf[256] = {0};
     _snprintf(buf, sizeof(buf),
-             "SysFileTree argument %d must be 5 characters or less in length containing only '+', '-', or '*'; found \"%s\"",
+             "SysFileTree argument %zd must be 5 characters or less in length containing only '+', '-', or '*'; found \"%s\"",
              pos, actual);
 
     c->RaiseException1(Rexx_Error_Incorrect_call_user_defined, c->String(buf));
@@ -3511,6 +3474,7 @@ size_t RexxEntry SysGetErrortext(const char *name, size_t numargs, CONSTRXSTRING
 {
     DWORD  errnum;
     char  *errmsg;
+    size_t length;
 
     if (numargs != 1)
     {
@@ -3526,7 +3490,21 @@ size_t RexxEntry SysGetErrortext(const char *name, size_t numargs, CONSTRXSTRING
     }
     else
     {                               /* succeeded                  */
-        if (strlen(errmsg)>=retstr->strlength)
+        length = strlen(errmsg);
+
+        // FormatMessage returns strings with trailing CrLf, which we want removed
+        if (length >= 1 && errmsg[length - 1] == 0x0a)
+        {
+          errmsg[length - 1] = 0x00;
+          length--;
+        }
+        if (length >= 1 && errmsg[length - 1] == 0x0d)
+        {
+          errmsg[length - 1] = 0x00;
+          length--;
+        }
+
+        if (length >= retstr->strlength)
         {
             retstr->strptr = (PCH)GlobalAlloc(GMEM_ZEROINIT | GMEM_FIXED, strlen(errmsg+1));
         }
@@ -3828,74 +3806,52 @@ size_t RexxEntry SysSearchPath(const char *name, size_t numargs, CONSTRXSTRING a
 * Syntax:    call SysSleep secs                                          *
 *                                                                        *
 * Params:    secs - Number of seconds to sleep.                          *
+*                   must be in the range 0 .. 2147483                    *
 *                                                                        *
-* Return:    NO_UTIL_ERROR                                               *
+* Return:    0                                                           *
 *************************************************************************/
-
-size_t RexxEntry SysSleep(const char *name, size_t numargs, CONSTRXSTRING args[], const char *queuename, PRXSTRING retstr)
+RexxRoutine1(int, SysSleep, RexxStringObject, delay)
 {
-  LONG secs;                           /* Time to sleep in secs      */
-  MSG msg;
-
-  LONG milliseconds;
-  LONG secs_buf;
-  size_t length;
-  LONG digits;
-
-  if (numargs != 1)                    /* Must have one argument     */
-    return INVALID_ROUTINE;
-
-  /* code fragment taken from lrxutil.c: */
-  const char *string = args[0].strptr; /* point to the string        */
-  length = args[0].strlength;          /* get length of string       */
-  if (length == 0 ||                   /* if null string             */
-      length > MAX_DIGITS)             /* or too long                */
-    return INVALID_ROUTINE;            /* not valid                  */
-
-  secs = 0;                            /* start with zero            */
-
-  while (length) {                     /* while more digits          */
-    if (!isdigit(*string))             /* not a digit?               */
-      break;                           /* get out of this loop       */
-    secs = secs * 10 + (*string - '0');/* add to accumulator         */
-    length--;                          /* reduce length              */
-    string++;                          /* step pointer               */
+  double seconds;
+  // try to convert the provided delay to a valid floating point number
+  if (context->ObjectToDouble(delay, &seconds) == 0 ||
+      isnan(seconds) || seconds == HUGE_VAL || seconds == -HUGE_VAL)
+  {
+      // 88.902 The &1 argument must be a number; found "&2"
+      context->RaiseException2(Rexx_Error_Invalid_argument_number, context->String("delay"), delay);
+      return 1;
   }
-  secs_buf = secs;                     /* remember the seconds       */
-  secs = secs * 1000;                  /* convert to milliseconds    */
-  if (*string == '.') {                /* have a decimal number?     */
-    string++;                          /* step over the decimal      */
-    length--;                          /* reduce the length          */
-    milliseconds = 0;                  /* no milliseconds yet        */
-    digits = 0;                        /* and no digits              */
-    while (length) {                   /* while more digits          */
-      if (!isdigit(*string))           /* not a digit?               */
-        return INVALID_ROUTINE;        /* not a valid number         */
-      if (++digits <= 3)               /* still within precision?    */
-                                       /* add to accumulator         */
-        milliseconds = milliseconds * 10 + (*string - '0');
-      length--;                        /* reduce length              */
-      string++;                        /* step pointer               */
-    }
-    while (digits < 3) {               /* now adjust up              */
-      milliseconds = milliseconds * 10;/* by powers of 10            */
-      digits++;                        /* count the digit            */
-    }
-    secs += milliseconds;              /* now add in the milliseconds*/
-  }
-  else if (length != 0)                /* invalid character found?   */
-    return INVALID_ROUTINE;            /* this is invalid            */
 
+  // according to MSDN the maximum is USER_TIMER_MAXIMUM (0x7FFFFFFF) milliseconds,
+  // which translates to 2147483.647 seconds
+  if (seconds < 0.0 || seconds > 2147483.0)
+  {
+      // 88.907 The &1 argument must be in the range &2 to &3; found "&4"
+      context->RaiseException(Rexx_Error_Invalid_argument_range,
+          context->ArrayOfFour(context->String("delay"),
+          context->String("0"), context->String("2147483"), delay));
+      return 1;
+  }
+
+  // convert to milliseconds, no overflow possible
+  LONG milliseconds = (LONG) (seconds * 1000);
 
   /** Using Sleep with a long timeout risks sleeping on a thread with a message
    *  queue, which can make the system sluggish, or possibly deadlocked.  If the
    *  sleep is longer than 333 milliseconds use a window timer to avoid this
    *  risk.
    */
-  if ( secs > 333 )
+  if ( milliseconds > 333 )
   {
-      if ( !(SetTimer(NULL, 0, (secs), (TIMERPROC) SleepTimerProc)) )
-          return INVALID_ROUTINE;        /* no timer available, need to abort */
+      if ( !(SetTimer(NULL, 0, milliseconds, (TIMERPROC) SleepTimerProc)) )
+      {
+          // no timer available, need to abort
+          context->RaiseException1(Rexx_Error_System_resources_user_defined,
+              context->String("System resources exhausted: cannot start timer"));
+          return 1;
+      }
+
+      MSG msg;
       while ( GetMessage (&msg, NULL, 0, 0) )
       {
           if ( msg.message == OM_WAKEUP )  /* If our message, exit loop       */
@@ -3906,11 +3862,10 @@ size_t RexxEntry SysSleep(const char *name, size_t numargs, CONSTRXSTRING args[]
   }
   else
   {
-      Sleep(secs);
+      Sleep(milliseconds);
   }
 
-  BUILDRXSTRING(retstr, NO_UTIL_ERROR);
-  return VALID_ROUTINE;
+  return 0;
 }
 
 /*********************************************************************
@@ -4072,28 +4027,136 @@ RexxRoutine3(RexxStringObject, SysTextScreenRead, int, row, int, col, OPTIONAL_i
 /*************************************************************************
 * Function:  SysTextScreenSize                                           *
 *                                                                        *
-* Syntax:    call SysTextScreenSize                                      *
+* Syntax:    call SysTextScreenSize [option], [rows, colummns]          *
+*            call SysTextScreenSize [option], [top, left, bottom, right] *
 *                                                                        *
-* Return:    Size of screen in row and columns returned as:  row, col    *
+* Params:    option - "BUFFERSIZE", "WINDOWRECT", "MAXWINDOWSIZE"        *
+*               "BUFFERSIZE" (default) return or set console buffer size *
+*               "WINDOWRECT" return or set windows position              *
+*               "MAXWINDOWSIZE" return maximum window size               *
+*            lines, columns - set buffer size to lines by columns        *
+*            top, left, bottom, right - set window size and position     *
+*                                                                        *
+* Return:    "BUFFERSIZE" or "MAXWINDOWSIZE": rows columns               *
+*            "WINDOWRECT": top left bottom right                         *
 *************************************************************************/
 
-RexxRoutine0(RexxStringObject, SysTextScreenSize)
+RexxRoutine5(RexxStringObject, SysTextScreenSize,
+    OPTIONAL_CSTRING, optionString,
+    OPTIONAL_stringsize_t, rows, OPTIONAL_stringsize_t, columns,  
+    OPTIONAL_stringsize_t, rows2, OPTIONAL_stringsize_t, columns2)  
 {
-    CONSOLE_SCREEN_BUFFER_INFO csbiInfo; /* Console information        */
-
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    /* if in character mode       */
-    if (GetConsoleScreenBufferInfo(hStdout, &csbiInfo))
+    // check for valid option
+    typedef enum { BUFFERSIZE, WINDOWRECT, MAXWINDOWSIZE } console_option;
+    console_option option;
+    if (optionString == NULL || stricmp(optionString, "BUFFERSIZE") == 0)
     {
-        char buffer[100];
-
-        wsprintf(buffer, "%d %d", csbiInfo.dwSize.Y, csbiInfo.dwSize.X);
-        return context->NewStringFromAsciiz(buffer);
+        option = BUFFERSIZE;
+    }
+    else if (stricmp(optionString, "WINDOWRECT") == 0)
+    {
+        option = WINDOWRECT;
+    }
+    else if (stricmp(optionString, "MAXWINDOWSIZE") == 0)
+    {
+        option = MAXWINDOWSIZE;
     }
     else
     {
-        return context->NewStringFromAsciiz("0 0");
+        context->InvalidRoutine();
+        return 0;
     }
+
+    // check for valid SET arguments: either none, or two more, or four more
+    size_t setArgs;
+    bool omitted45 = argumentOmitted(4) && argumentOmitted(5);
+    bool exists23 = argumentExists(2) && argumentExists(3);
+    if (argumentOmitted(2) && argumentOmitted(3) && omitted45)
+    {
+        setArgs = 0;
+    }
+    else if (exists23 && omitted45)
+    {
+        setArgs = 2;
+    }
+    else if (exists23 && argumentExists(4) && argumentExists(5))
+    {
+        setArgs = 4;
+    }
+    else
+    {
+        context->InvalidRoutine();
+        return 0;
+    }
+
+    // check that all SET arguments fit a SHORT
+    if (!(setArgs == 0 ||
+         (setArgs == 2 && rows <= SHRT_MAX && columns <= SHRT_MAX) ||
+         (setArgs == 4 && rows <= SHRT_MAX && columns <= SHRT_MAX && rows2 <= SHRT_MAX && columns2 <= SHRT_MAX)))
+    {
+        context->InvalidRoutine();
+        return 0;
+    }
+
+    // real work starts here
+    CONSOLE_SCREEN_BUFFER_INFO csbi; // console screen buffer information
+    char buffer[100];
+
+    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (setArgs == 0)
+    {
+        // this is a GET requset, retrieve console information
+        if (GetConsoleScreenBufferInfo(hStdout, &csbi) == NULL)
+        {
+            // console not in character mode, return two or four zeroes
+            return context->NewStringFromAsciiz(option == WINDOWRECT ? "0 0 0 0" : "0 0");
+        }
+    }
+
+    if (option == BUFFERSIZE && setArgs == 0)
+    {
+        // this is a BUFFERSIZE GET, returns two values
+        sprintf(buffer, "%d %d", csbi.dwSize.Y, csbi.dwSize.X);
+    }
+    else if (option == WINDOWRECT && setArgs == 0)
+    {
+        // this is a WINDOWRECT GET, returns four values
+        sprintf(buffer, "%d %d %d %d", csbi.srWindow.Top, csbi.srWindow.Left, csbi.srWindow.Bottom, csbi.srWindow.Right);
+    }
+    else if (option == MAXWINDOWSIZE && setArgs == 0)
+    {
+        // this is a MAXWINDOWSIZE GET, returns two values
+        sprintf(buffer, "%d %d", csbi.dwMaximumWindowSize.Y, csbi.dwMaximumWindowSize.X);
+    }
+    else if (option == BUFFERSIZE && setArgs == 2)
+    {
+        // this is a BUFFERSIZE SET, requires two more arguments
+        COORD consoleBuffer;
+        consoleBuffer.Y = (SHORT)rows;
+        consoleBuffer.X = (SHORT)columns;
+        BOOL code = SetConsoleScreenBufferSize(hStdout, consoleBuffer);
+        sprintf(buffer, "%d", code == 0 ? GetLastError() : 0);
+    }
+    else if (option == WINDOWRECT  && setArgs == 4)
+    {
+        // this is a WINDOWRECT  SET, requires four more arguments
+        SMALL_RECT consoleWindow;
+        consoleWindow.Top =    (SHORT)rows;
+        consoleWindow.Left =   (SHORT)columns;
+        consoleWindow.Bottom = (SHORT)rows2;
+        consoleWindow.Right =  (SHORT)columns2;
+        BOOL code = SetConsoleWindowInfo(hStdout, 1, &consoleWindow);
+        sprintf(buffer, "%d", code == 0 ? GetLastError() : 0);
+    }
+    else
+    {
+        context->InvalidRoutine();
+        return 0;
+    }
+
+    // return the buffer as result
+    return context->NewStringFromAsciiz(buffer);
 }
 
 /*************************************************************************
@@ -5239,457 +5302,6 @@ RexxRoutine2(int, SysWaitNamedPipe, CSTRING, name, OPTIONAL_int, timeout)
 }
 
 
-// simple class for handling numeric values
-class NumericFormatter
-{
-public:
-    NumericFormatter(RexxCallContext *c, uint32_t p)
-    {
-        if (p == 0)
-        {
-            precision = DEFAULT_PRECISION;
-        }
-        else
-        {
-            precision = min(p, MAX_PRECISION);
-        }
-        context = c;
-    }
-
-    RexxObjectPtr format(double x)
-    {
-        return context->DoubleToObjectWithPrecision(x, precision);
-    }
-
-protected:
-    uint32_t precision;
-    RexxCallContext *context;
-};
-
-class TrigFormatter : public NumericFormatter
-{
-public:
-
-    TrigFormatter(RexxCallContext *c, int p) : NumericFormatter(c, p)
-    {
-        units = TRIG_DEGREES;
-    }
-
-    bool setUnits(const char *u)
-    {
-        if (u != NULL)
-        {
-            switch (*u)
-            {
-                case 'D':
-                case 'd':
-                    units = TRIG_DEGREES;
-                    break;
-
-                case 'R':
-                case 'r':
-                    units = TRIG_RADIANS;
-                    break;
-
-                case 'G':
-                case 'g':
-                    units = TRIG_GRADES;
-                    break;
-
-                default:
-                    context->InvalidRoutine();
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    RexxObjectPtr evaluate(double angle, int function)
-    {
-        double    nsi;                       /* convertion factor          */
-        double    nco;                       /* convertion factor          */
-        double    result;                    /* result                     */
-
-        nsi = 1.;                            /* set default conversion     */
-        nco = 1.;                            /* set default conversion     */
-
-        switch (units)
-        {
-            case TRIG_DEGREES:         {            /* need to convert degrees    */
-                    nsi = (angle < 0.) ? -1. : 1.;   /* get the direction          */
-                    angle = fmod(fabs(angle), 360.); /* make modulo 360            */
-                    if (angle <= 45.)                /* less than 45?              */
-                    {
-                        angle = angle * pi / 180.;
-                    }
-                    else if (angle < 135.)
-                    {         /* over on the other side?    */
-                        angle = (90. - angle) * pi / 180.;
-                        function = MAXTRIG - function; /* change the function        */
-                        nco = nsi;                     /* swap around the conversions*/
-                        nsi = 1.;
-                    }
-                    else if (angle <= 225.)
-                    {        /* around the other way?      */
-                        angle = (180. - angle) * pi / 180.;
-                        nco = -1.;
-                    }
-                    else if (angle < 315.)
-                    {         /* close to the origin?       */
-                        angle = (angle - 270.) * pi / 180.;
-                        function = MAXTRIG - function; /* change the function        */
-                        nco = -nsi;
-                        nsi = 1.;
-                    }
-                    else
-                    {
-                        angle = (angle - 360.) * pi / 180.;
-                    }
-                    break;
-                }
-
-            case TRIG_GRADES:              {        /* need to convert degrees    */
-                    nsi = (angle < 0.) ? -1. : 1.;   /* get the direction          */
-                    angle = fmod(fabs(angle), 400.); /* make modulo 400            */
-                    if (angle <= 50.)
-                    {
-                        angle = angle * pi / 200.;
-                    }
-                    else if (angle < 150.)
-                    {
-                        angle = (100. - angle) * pi / 200.;
-                        function = MAXTRIG - function; /* change the function        */
-                        nco = nsi;                     /* swap the conversions       */
-                        nsi = 1.;
-                    }
-                    else if (angle <= 250.)
-                    {
-                        angle = (200. - angle) * pi / 200.;
-                        nco = -1.;
-                    }
-                    else if (angle < 350.)
-                    {
-                        angle = (angle - 300.) * pi / 200.;
-                        function = MAXTRIG - function; /* change the function        */
-                        nco = -nsi;
-                        nsi = 1.;
-                    }
-                    else
-                    {
-                        angle = (angle - 400.) * pi / 200.;
-                    }
-                    break;
-                }
-
-            // radians are already ok
-            case TRIG_RADIANS:
-                break;
-        }
-        switch (function) {                /* process the function       */
-          case SINE:                       /* Sine function              */
-            result = nsi * sin(angle);
-            break;
-          case COSINE:                     /* Cosine function            */
-            result = nco * cos(angle);
-            break;
-          case TANGENT:                    /* Tangent function           */
-            result = nsi * nco * tan(angle);
-            break;
-          case COTANGENT:                  /* cotangent function         */
-                                           /* overflow?                  */
-            if ((result = tan(angle)) == 0.0)
-            {
-                context->InvalidRoutine();
-                return NULLOBJECT;
-            }
-            result = nsi * nco / result; /* real result                */
-            break;
-        }
-
-        // now format based on precision setting
-        return format(result);
-    }
-
-    RexxObjectPtr evaluateArc(double x, int function)
-    {
-        double    angle;                     /* working angle              */
-        double    nsi;                       /* convertion factor          */
-        double    nco;                       /* convertion factor          */
-
-        nsi = 1.;                            /* set default conversion     */
-        nco = 1.;                            /* set default conversion     */
-
-        switch (function) {                /* process the function       */
-          case ARCSINE:                    /* ArcSine function           */
-            angle = asin(x);
-            break;
-          case ARCCOSINE:                  /* ArcCosine function         */
-            angle = acos(x);
-            break;
-          case ARCTANGENT:                 /* ArcTangent function        */
-            angle = atan(x);
-            break;
-        }
-        if (units == TRIG_DEGREES)         /* have to convert the result?*/
-        {
-            angle = angle * 180. / pi;     /* make into degrees          */
-        }
-        else if (units == TRIG_GRADES)     /* need it in grades?         */
-        {
-            angle = angle * 200. / pi;     /* convert to base 400        */
-        }
-        // now format based on precision setting
-        return format(angle);
-    }
-
-protected:
-
-    typedef enum
-    {
-        TRIG_DEGREES,
-        TRIG_RADIANS,
-        TRIG_GRADES
-    } Units;
-
-
-    Units units;              // the type of units to process
-};
-
-
-/********************************************************************/
-/* Functions:           SysSqrt(), SysExp(), SysLog(), SysLog10,    */
-/* Functions:           SysSinH(), SysCosH(), SysTanH()             */
-/* Description:         Returns function value of argument.         */
-/* Input:               One number.                                 */
-/* Output:              Value of the function requested for arg.    */
-/*                      Returns 0 if the function executed OK,      */
-/*                      40 otherwise.  The interpreter will fail    */
-/*                      if the function returns a negative result.  */
-/* Notes:                                                           */
-/*   These routines take one to two parameters.                     */
-/*   The form of the call is:                                       */
-/*   result = func_name(x <, prec> <,angle>)                        */
-/*                                                                  */
-/********************************************************************/
-RexxRoutine2(RexxObjectPtr, SysSqrt, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(sqrt(x));
-}
-
-/*==================================================================*/
-RexxRoutine2(RexxObjectPtr, SysExp, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(exp(x));
-}
-
-/*==================================================================*/
-RexxRoutine2(RexxObjectPtr, SysLog, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(log(x));
-}
-
-/*==================================================================*/
-RexxRoutine2(RexxObjectPtr, SysLog10, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(log10(x));
-}
-
-/*==================================================================*/
-RexxRoutine2(RexxObjectPtr, SysSinH, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(sinh(x));
-}
-
-/*==================================================================*/
-RexxRoutine2(RexxObjectPtr, SysCosH, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(cosh(x));
-}
-
-
-/*==================================================================*/
-RexxRoutine2(RexxObjectPtr, SysTanH, double, x, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(tanh(x));
-}
-
-/********************************************************************/
-/* Functions:           SysPower()                                  */
-/* Description:         Returns function value of arguments.        */
-/* Input:               Two numbers.                                */
-/* Output:              Value of the x to the power y.              */
-/*                      Returns 0 if the function executed OK,      */
-/*                      -1 otherwise.  The interpreter will fail    */
-/*                      if the function returns a negative result.  */
-/* Notes:                                                           */
-/*   This routine takes two to three parameters.                    */
-/*   The form of the call is:                                       */
-/*   result = func_name(x, y <, prec>)                              */
-/*                                                                  */
-/********************************************************************/
-RexxRoutine3(RexxObjectPtr, SysPower, double, x, double, y, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    // calculate and return
-    return formatter.format(pow(x, y));
-}
-
-/********************************************************************/
-/* Functions:           RxSin(), RxCos(), RxTan(), RxCotan()        */
-/* Description:         Returns trigonometric angle value.          */
-/* Input:               Angle in radian or degree or grade          */
-/* Output:              Trigonometric function value for Angle.     */
-/*                      Returns 0 if the function executed OK,      */
-/*                      -1 otherwise.  The interpreter will fail    */
-/*                      if the function returns a negative result.  */
-/* Notes:                                                           */
-/*   These routines take one to three parameters.                   */
-/*   The form of the call is:                                       */
-/*   x = func_name(angle <, prec> <, [R | D | G]>)                  */
-/*                                                                  */
-/********************************************************************/
-RexxRoutine3(RexxObjectPtr, SysSin, double, angle, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluate(angle, SINE);
-}
-
-RexxRoutine3(RexxObjectPtr, SysCos, double, angle, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluate(angle, COSINE);
-}
-
-RexxRoutine3(RexxObjectPtr, SysTan, double, angle, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluate(angle, TANGENT);
-}
-
-RexxRoutine3(RexxObjectPtr, SysCotan, double, angle, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluate(angle, COTANGENT);
-}
-
-
-/********************************************************************/
-/* Functions:           SysPi()                                     */
-/* Description:         Returns value of pi for given precision     */
-/* Input:               Precision.   Default is 9                   */
-/* Output:              Value of the pi to given precision          */
-/* Notes:                                                           */
-/*   This routine takes one parameters.                             */
-/*   The form of the call is:                                       */
-/*   result = syspi(<precision>)                                    */
-/*                                                                  */
-/********************************************************************/
-RexxRoutine1(RexxObjectPtr, SysPi, OPTIONAL_uint32_t, precision)
-{
-    NumericFormatter formatter(context, precision);
-
-    return formatter.format(pi);
-}
-
-/********************************************************************/
-/* Functions:           SysArcSin(), SysArcCos(), SysArcTan()       */
-/* Description:         Returns angle from trigonometric value.     */
-/* Input:               Angle in radian or degree or grade          */
-/* Output:              Angle for matching trigonometric value.     */
-/*                      Returns 0 if the function executed OK,      */
-/*                      -1 otherwise.  The interpreter will fail    */
-/*                      if the function returns a negative result.  */
-/* Notes:                                                           */
-/*   These routines take one to three parameters.                   */
-/*   The form of the call is:                                       */
-/*   a = func_name(arg <, prec> <, [R | D | G]>)                    */
-/*                                                                  */
-/********************************************************************/
-RexxRoutine3(RexxObjectPtr, SysArcSin, double, x, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluateArc(x, ARCSINE);
-}
-
-/*==================================================================*/
-RexxRoutine3(RexxObjectPtr, SysArcCos, double, x, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluateArc(x, ARCCOSINE);
-}
-
-/*==================================================================*/
-RexxRoutine3(RexxObjectPtr, SysArcTan, double, x, OPTIONAL_uint32_t, precision, OPTIONAL_CSTRING, units)
-{
-    TrigFormatter formatter(context, precision);
-    if (!formatter.setUnits(units))
-    {
-        return NULLOBJECT;
-    }
-
-    // calculate and return
-    return formatter.evaluateArc(x, ARCTANGENT);
-}
-
-
 /*************************************************************************
 * Function:  SysDumpVariables                                            *
 *                                                                        *
@@ -5898,7 +5510,7 @@ RexxRoutine3(int, SysSetFileDateTime, CSTRING, name, OPTIONAL_CSTRING, newdate, 
 *            other - date and time as YYYY-MM-DD HH:MM:SS                *
 *************************************************************************/
 
-RexxRoutine2(RexxObjectPtr, SysGetFileDateTime, CSTRING, name, CSTRING, selector)
+RexxRoutine2(RexxObjectPtr, SysGetFileDateTime, CSTRING, name, OPTIONAL_CSTRING, selector)
 {
     FILETIME  sFileTime;
     FILETIME  sLocalFileTime;
@@ -5934,7 +5546,7 @@ RexxRoutine2(RexxObjectPtr, SysGetFileDateTime, CSTRING, name, CSTRING, selector
     }
 
     /* open file for read to query time */
-    HANDLE setFile = CreateFile(name, GENERIC_READ,
+    HANDLE setFile = CreateFile(name, FILE_READ_ATTRIBUTES,
                                 FILE_SHARE_READ | FILE_SHARE_WRITE,
                                 NULL, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH |
                                 FILE_FLAG_BACKUP_SEMANTICS, NULL);
@@ -6323,7 +5935,7 @@ RexxRoutine6(int, SysStemCopy, RexxStemObject, fromStem, RexxStemObject, toStem,
                 // return this as a failure
                 return -1;
             }
-            context->SetStemArrayElement(toStem, index, value);
+            context->SetStemArrayElement(toStem, index + count, value);
         }
 
 
@@ -7173,6 +6785,60 @@ RexxRoutine1(logical_t, SysFileExists, CSTRING, file)
 }
 
 
+/*************************************************************************
+* Function:  SysGetLongPathName                                          *
+*            Converts the specified path to its long form                *
+*                                                                        *
+* Syntax:    longPath = SysGetLongPathName(path)                         *
+*                                                                        *
+* Params:    path - a path to an existing file                           *
+*                                                                        *
+* Return:    longPath - path converted to its long form                  *
+*                       NULL string if path doesn't exist or call fails  *
+*************************************************************************/
+
+RexxRoutine1(RexxStringObject, SysGetLongPathName, CSTRING, path)
+{
+  CHAR  longPath[MAX];                 // long version of path
+  DWORD code = GetLongPathName(path, longPath, MAX);
+  if ((code == 0) || (code >= MAX))    // call failed of buffer too small
+  {
+    return context->NullString();
+  }
+  else
+  {
+    return context->NewStringFromAsciiz(longPath);
+  }
+}
+
+
+/*************************************************************************
+* Function:  SysGetShortPathName                                         *
+*            Converts the specified path to its short form               *
+*                                                                        *
+* Syntax:    shortPath = SysGetShortPathName(path)                       *
+*                                                                        *
+* Params:    path - a path to an existing file                           *
+*                                                                        *
+* Return:    shortPath - path converted to its short form                *
+*                        NULL string if path doesn't exist or call fails *
+*************************************************************************/
+
+RexxRoutine1(RexxStringObject, SysGetShortPathName, CSTRING, path)
+{
+  CHAR  shortPath[MAX];                // short version of path
+  DWORD code = GetShortPathName(path, shortPath, MAX);
+  if ((code == 0) || (code >= MAX))    // call failed of buffer too small
+  {
+    return context->NullString();
+  }
+  else
+  {
+    return context->NewStringFromAsciiz(shortPath);
+  }
+}
+
+
 // now build the actual entry list
 RexxRoutineEntry rexxutil_routines[] =
 {
@@ -7193,26 +6859,10 @@ RexxRoutineEntry rexxutil_routines[] =
     REXX_CLASSIC_ROUTINE(SysVersion,                  SysVersion),
     REXX_TYPED_ROUTINE(SysRmDir,                      SysRmDir),
     REXX_CLASSIC_ROUTINE(SysSearchPath,               SysSearchPath),
-    REXX_CLASSIC_ROUTINE(SysSleep,                    SysSleep),
+    REXX_TYPED_ROUTINE(SysSleep,                      SysSleep),
     REXX_CLASSIC_ROUTINE(SysTempFileName,             SysTempFileName),
     REXX_TYPED_ROUTINE(SysTextScreenRead,             SysTextScreenRead),
     REXX_TYPED_ROUTINE(SysTextScreenSize,             SysTextScreenSize),
-    REXX_TYPED_ROUTINE(SysPi,                         SysPi),
-    REXX_TYPED_ROUTINE(SysSqrt,                       SysSqrt),
-    REXX_TYPED_ROUTINE(SysExp,                        SysExp),
-    REXX_TYPED_ROUTINE(SysLog,                        SysLog),
-    REXX_TYPED_ROUTINE(SysLog10,                      SysLog10),
-    REXX_TYPED_ROUTINE(SysSinH,                       SysSinH),
-    REXX_TYPED_ROUTINE(SysCosH,                       SysCosH),
-    REXX_TYPED_ROUTINE(SysTanH,                       SysTanH),
-    REXX_TYPED_ROUTINE(SysPower,                      SysPower),
-    REXX_TYPED_ROUTINE(SysSin,                        SysSin),
-    REXX_TYPED_ROUTINE(SysCos,                        SysCos),
-    REXX_TYPED_ROUTINE(SysTan,                        SysTan),
-    REXX_TYPED_ROUTINE(SysCotan,                      SysCotan),
-    REXX_TYPED_ROUTINE(SysArcSin,                     SysArcSin),
-    REXX_TYPED_ROUTINE(SysArcCos,                     SysArcCos),
-    REXX_TYPED_ROUTINE(SysArcTan,                     SysArcTan),
     REXX_TYPED_ROUTINE(SysAddRexxMacro,               SysAddRexxMacro),
     REXX_TYPED_ROUTINE(SysDropRexxMacro,              SysDropRexxMacro),
     REXX_TYPED_ROUTINE(SysReorderRexxMacro,           SysReorderRexxMacro),
@@ -7271,6 +6921,8 @@ RexxRoutineEntry rexxutil_routines[] =
     REXX_TYPED_ROUTINE(SysIsFileSparse,               SysIsFileSparse),
     REXX_TYPED_ROUTINE(SysIsFileTemporary,            SysIsFileTemporary),
     REXX_TYPED_ROUTINE(SysFileExists,                 SysFileExists),
+    REXX_TYPED_ROUTINE(SysGetLongPathName,            SysGetLongPathName),
+    REXX_TYPED_ROUTINE(SysGetShortPathName,           SysGetShortPathName),
     REXX_LAST_ROUTINE()
 };
 
