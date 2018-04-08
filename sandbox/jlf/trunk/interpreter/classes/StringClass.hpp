@@ -62,6 +62,8 @@
 #define  STRING_HASLOWER       0x01    /* string does contain lowercase     */
 #define  STRING_NOLOWER        0x02    /* string does not contain lowercase */
 #define  STRING_NONNUMERIC     0x04    /* string is non-numeric             */
+#define  STRING_ISASCII_CHECKED 0x08    /* string is ASCII only checked     */
+#define  STRING_ISASCII        0x10    /* string is ASCII only              */
 
 #define  INITIAL_NAME_SIZE     10      /* first name table allocation       */
 #define  EXTENDED_NAME_SIZE    10      /* amount to extend table by         */
@@ -193,6 +195,8 @@ inline char IntToHexDigit(int n)
    RexxString *concatWithCstring(const char *);
    RexxString *concatBlank(RexxObject *); // in behaviour
    bool        checkLower();
+   bool        checkIsASCII();
+   RexxInteger *isASCIIRexx();
    RexxString *upper();
    RexxString *upper(sizeC_t, sizeC_t);
    RexxString *upperRexx(RexxInteger *, RexxInteger *); // in behaviour
@@ -357,12 +361,18 @@ inline char IntToHexDigit(int n)
    inline codepoint_t getCharC(sizeC_t p) { return *(this->stringData+size_v(p)); }; // todo call m17n : convert charpos to bytepos and return a codepoint, not a byte
    inline char putCharB(sizeB_t p,char c) { return *(this->stringData+p) = c; }; // m17n : stores a byte, not a codepoint
    //inline char putCharC(sizeC_t p,codepoint_t c) { return *(this->stringData+p) = c; }; // todo call m17n : stores a codepoint (ako replaceChar ? i.e. string can grow or shrink when utf-8 ? or is it limited to pure ascii chars <= 0x7F ?)
+
    inline bool upperOnly() {return (this->Attributes&STRING_NOLOWER) != 0;};
    inline bool hasLower() {return (this->Attributes&STRING_HASLOWER) != 0;};
    inline void  setUpperOnly() { this->Attributes |= STRING_NOLOWER;};
    inline void  setHasLower() { this->Attributes |= STRING_HASLOWER;};
    inline bool  nonNumeric() {return (this->Attributes&STRING_NONNUMERIC) != 0;};
    inline void  setNonNumeric() { this->Attributes |= STRING_NONNUMERIC;};
+   inline bool  isASCIIChecked() {return (this->Attributes & STRING_ISASCII_CHECKED) != 0;};
+   inline void  setIsASCIIChecked() {this->Attributes |= STRING_ISASCII_CHECKED;};
+   inline bool  isASCII() {return (this->Attributes & STRING_ISASCII) != 0;};
+   inline void  setIsASCII() {this->Attributes |= STRING_ISASCII;};
+
    inline bool  strCompare(const char * s) {return this->memCompare((s), strlen(s));};
    inline bool  strCaselessCompare(const char * s) { return this->blength == strlen(s) && Utilities::strCaselessCompare(s, this->stringData) == 0;}
    inline bool  memCompare(const char * s, sizeB_t l) { return l == this->blength && memcmp(s, this->stringData, l) == 0; }

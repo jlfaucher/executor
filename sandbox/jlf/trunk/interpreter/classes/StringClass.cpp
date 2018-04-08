@@ -1612,6 +1612,31 @@ bool RexxString::logicalValue(logical_t &result)
     return false;       // did not convert correctly
 }
 
+bool RexxString::checkIsASCII()
+{
+    if (this->isASCIIChecked()) return this->isASCII();
+
+    this->setIsASCIIChecked();
+
+    const char *data = this->getStringData();        /* point to the string               */
+    const char *endData = data + this->getBLength();  /* set the end point                 */
+
+    while (data < endData)
+    {             /* loop through entire string        */
+        if ( ((unsigned int)*data) >= 128) return false;
+        data++;                            /* step the position                 */
+    }
+    this->setIsASCII();
+    return true;
+}
+
+// In behaviour
+RexxInteger *RexxString::isASCIIRexx()
+{
+    return this->checkIsASCII() ? TheTrueObject : TheFalseObject;
+}
+
+
 bool RexxString::checkLower()
 /******************************************************************************/
 /* Function:  Tests for existence of lowercase characters                     */

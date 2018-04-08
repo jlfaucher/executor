@@ -811,6 +811,7 @@ CPPM(RexxString::xorOp),
 CPPM(RexxString::Max),
 CPPM(RexxString::Min),
 CPPM(RexxString::isInteger),
+CPPM(RexxString::isASCIIRexx),
 CPPM(RexxString::upperRexx),
 CPPM(RexxString::lowerRexx),
 
