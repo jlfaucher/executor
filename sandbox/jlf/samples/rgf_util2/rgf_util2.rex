@@ -2634,7 +2634,7 @@ createCodeSnippet: procedure
   use strict arg a1, surroundByQuotes=.true
 
   -- JLF : can't use .Text, its package is not imported here
-  a1.isaText = (a1~class~id=="Text")
+  a1.isaText = (a1~class~id=="RexxText")
   if \a1~isA(.string) & \a1.isaText then
   do
      -- JLF : condensed output, 100 items max

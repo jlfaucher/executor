@@ -69,7 +69,7 @@ Similar to ~makeArray(separator), with these differences:
     expose text -- attribute added on the String instance
     use strict arg -- none
     if \var("text") then do -- no stored counterpart
-        text = .Text~new(self) -- store the Text counterpart created from itself with default encoding
+        text = .RexxText~new(self) -- store the Text counterpart created from itself with default encoding
     end
     return text
 
@@ -77,7 +77,7 @@ Similar to ~makeArray(separator), with these differences:
     expose text -- attribute added on the String instance
     use strict arg aText
     if \var("text") then do -- no stored counterpart
-        if \aText~isA(.Text) then raise syntax 93.900 array("EncodeString: the counterpart must be a Text")
+        if \aText~isA(.RexxText) then raise syntax 93.900 array("EncodeString: the counterpart must be a Text")
         text = aText -- store the Text counterpart passed by argument
     end
     else do
@@ -87,12 +87,12 @@ Similar to ~makeArray(separator), with these differences:
     end
 
 
-::method makeText
+::method makeRexxText
     return self~text
 
 
 /******************************************************************************/
-::class "Text" public
+::extension "RexxText"
 
 ::method init
     expose string encoding analyzed
@@ -138,7 +138,7 @@ I need to get the control when concatenating strings
 
 ::method " "
     use strict arg right
-    right = right~request("text")
+    right = right~request("rexxtext")
     if .nil == right then return -- no result: try the alternative message
     encoding = EncodingForConcatenation(self, right)
     return encoding~concatenate(self, encoding~spaceCharacter, right)
@@ -146,7 +146,7 @@ I need to get the control when concatenating strings
 
 ::method " op:right"
     use strict arg left
-    left = left~request("text")
+    left = left~request("rexxtext")
     if .nil == left then return -- no result: try the alternative message
     encoding = EncodingForConcatenation(left, self)
     return encoding~concatenate(left, encoding~spaceCharacter, self)
@@ -154,7 +154,7 @@ I need to get the control when concatenating strings
 
 ::method "||"
     use strict arg right
-    right = right~request("text")
+    right = right~request("rexxtext")
     if .nil == right then return -- no result: try the alternative message
     encoding =EncodingForConcatenation(self, right)
     return encoding~concatenate(self, right)
@@ -162,7 +162,7 @@ I need to get the control when concatenating strings
 
 ::method "||op:right"
     use strict arg left
-    left = left~request("text")
+    left = left~request("rexxtext")
     if .nil == left then return -- no result: try the alternative message
     encoding =EncodingForConcatenation(left, self)
     return encoding~concatenate(left, self)
@@ -170,7 +170,7 @@ I need to get the control when concatenating strings
 
 ::method "" -- abuttal
     use strict arg right
-    right = right~request("text")
+    right = right~request("rexxtext")
     if .nil == right then return -- no result: try the alternative message
     encoding =EncodingForConcatenation(self, right)
     return encoding~concatenate(self, right)
@@ -178,7 +178,7 @@ I need to get the control when concatenating strings
 
 ::method "op:right" -- abuttal
     use strict arg left
-    left = left~request("text")
+    left = left~request("rexxtext")
     if .nil == left then return -- no result: try the alternative message
     encoding = EncodingForConcatenation(left, self)
     return encoding~concatenate(left, self)
@@ -231,7 +231,7 @@ I need to get the control when concatenating strings
     do i = 1 to arg()
         s ||= arg(i)~string
     end
-    return .Text~new(s, self)
+    return .RexxText~new(s, self)
 
 
 /******************************************************************************/
@@ -241,7 +241,7 @@ I need to get the control when concatenating strings
     expose spaceCharacter
     -- The Strings constants are made unique by the interpreter (only one occurence).
     -- Must memorize the Text with a copy of the string constant, otherwise error "a Text counterpart is already assigned"
-    if \var("spaceCharacter") then spaceCharacter = .Text~new(.String~new(" "), self)
+    if \var("spaceCharacter") then spaceCharacter = .RexxText~new(.String~new(" "), self)
     return spaceCharacter
 
 
@@ -253,7 +253,7 @@ I need to get the control when concatenating strings
     expose spaceCharacter
     -- The Strings constants are made unique by the interpreter (only one occurence).
     -- Must memorize the Text with a copy of the string constant , otherwise error "a Text counterpart is already assigned"
-    if \var("spaceCharacter") then spaceCharacter = .Text~new(.String~new(" "), self)
+    if \var("spaceCharacter") then spaceCharacter = .RexxText~new(.String~new(" "), self)
     return spaceCharacter
 
 
@@ -264,5 +264,5 @@ I need to get the control when concatenating strings
     expose spaceCharacter
     -- The Strings constants are made unique by the interpreter (only one occurence).
     -- Must memorize the Text with a copy of the string constant , otherwise error "a Text counterpart is already assigned"
-    if \var("spaceCharacter") then spaceCharacter = .Text~new(.String~new("0020"x), self)
+    if \var("spaceCharacter") then spaceCharacter = .RexxText~new(.String~new("0020"x), self)
     return spaceCharacter
