@@ -136,18 +136,6 @@ I need to get the control when concatenating strings
     end
 
 
-::attribute isASCII get
-    expose string isASCII
-    use strict arg -- none
-    if \var("isASCII") then do
-        isASCII = .true
-        do i=1 to string~length while isASCII
-            if string~subchar(i)~c2d >= 128 then isASCII = .false
-        end
-    end
-    return isASCII
-
-
 ::method " "
     use strict arg right
     right = right~request("text")
@@ -198,7 +186,7 @@ I need to get the control when concatenating strings
 
 ::routine EncodingForConcatenation
     use strict arg leftText, rightText
-    return .Encoding~forConcatenation(leftText~encoding, leftText~isASCII, rightText~encoding, rightText~isASCII)
+    return .Encoding~forConcatenation(leftText~encoding, leftText~string~isASCII, rightText~encoding, rightText~string~isASCII)
 
 
 /******************************************************************************/
