@@ -333,6 +333,12 @@ void RexxMemory::buildVirtualFunctionTable()
    objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
    virtualFunctionTable[T_RexxBlockClass] = getVftPointer(objectLoc);
    
+   objectPtr = new (objectLoc) RexxText(RESTOREIMAGE);
+   virtualFunctionTable[T_RexxText] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
+   virtualFunctionTable[T_RexxTextClass] = getVftPointer(objectLoc);
+   
    objectPtr = new (objectLoc) RexxNilObject(RESTOREIMAGE);
    virtualFunctionTable[T_NilObject] = getVftPointer(objectLoc);
    

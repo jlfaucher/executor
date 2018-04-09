@@ -222,6 +222,7 @@ void RexxMemory::createImage()
   WeakReference::createInstance();
   StackFrameClass::createInstance();
   RexxBlock::createInstance();
+  RexxText::createInstance();
 
                                        /* build the common retriever tables */
   TheCommonRetrievers = (RexxDirectory *)new_directory();
@@ -1403,6 +1404,23 @@ void RexxMemory::createImage()
   TheRexxBlockClass->subClassable(true);
 
   /***************************************************************************/
+  /*           RexxText                                                      */
+  /***************************************************************************/
+
+  defineKernelMethod(CHAR_NEW, TheRexxTextClassBehaviour, CPPM(RexxObject::newRexx), A_COUNT);
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheRexxTextClassBehaviour->setMethodDictionaryScope(TheRexxTextClass);
+
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheRexxTextBehaviour->setMethodDictionaryScope(TheRexxTextClass);
+
+                                       /* Now call the class subclassable   */
+                                       /* method                            */
+  TheRexxTextClass->subClassable(true);
+
+  /***************************************************************************/
   /***************************************************************************/
   /***************************************************************************/
     /* These classes don't have any class methods                            */
@@ -1424,6 +1442,7 @@ void RexxMemory::createImage()
   kernel_public(CHAR_PACKAGE          ,ThePackageClass ,TheEnvironment);
   kernel_public(CHAR_REXXCONTEXT      ,TheRexxContextClass ,TheEnvironment);
   kernel_public(CHAR_REXXBLOCK        ,TheRexxBlockClass ,TheEnvironment);
+  kernel_public(CHAR_REXXTEXT         ,TheRexxTextClass ,TheEnvironment);
   kernel_public(CHAR_NIL              ,TheNilObject    ,TheEnvironment);
   kernel_public(CHAR_OBJECT           ,TheObjectClass  ,TheEnvironment);
   kernel_public(CHAR_QUEUE            ,TheQueueClass   ,TheEnvironment);

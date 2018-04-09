@@ -553,7 +553,7 @@ void  RexxMemory::runUninits()
             uninitTable->put(TheFalseObject, zombieObj);
             {
                 // run this method with appropriate error trapping
-                verboseMessage("Calling uninit for object %s:%u\n", 
+                verboseMessage("Calling uninit for object %s:%u\n",
                                zombieObj->classObject()->getId()->getStringData(),
                                zombieObj->identityHash());
                 UninitDispatcher dispatcher(zombieObj);
@@ -2358,6 +2358,7 @@ void RexxMemory::restore()
     RESTORE_CLASS(WeakReference, RexxClass);
     RESTORE_CLASS(StackFrame, RexxClass);
     RESTORE_CLASS(RexxBlock, RexxClass);
+    RESTORE_CLASS(RexxText, RexxClass);
 
     memoryObject.setOldSpace();          /* Mark Memory Object as OldSpace    */
     /* initialize the tables used for garbage collection. */

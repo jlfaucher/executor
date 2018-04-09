@@ -99,6 +99,8 @@
 #define TheStackFrameClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_StackFrameClass])
 #define TheRexxBlockBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxBlock])
 #define TheRexxBlockClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxBlockClass])
+#define TheRexxTextBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxText])
+#define TheRexxTextClassBehaviour    (&RexxBehaviour::primitiveBehaviours[T_RexxTextClass])
 #define TheNilObjectBehaviour      (&RexxBehaviour::primitiveBehaviours[T_NilObject])
 #define TheBehaviourBehaviour      (&RexxBehaviour::primitiveBehaviours[T_Behaviour])
 #define TheRexxSourceBehaviour      (&RexxBehaviour::primitiveBehaviours[T_RexxSource])

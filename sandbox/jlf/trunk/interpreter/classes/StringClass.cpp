@@ -2452,3 +2452,40 @@ PCPPM RexxString::operatorMethods[] =
 };
 
 
+/******************************************************************************/
+/* REXX Kernel                                                                */
+/*                                                                            */
+/* Primitive RexxText Class                                                   */
+/*                                                                            */
+/******************************************************************************/
+
+// singleton class instance
+RexxClass *RexxText::classInstance = OREF_NULL;
+
+
+void RexxText::createInstance()
+{
+    CLASS_CREATE(RexxText, "RexxText", RexxClass);
+}
+
+void *RexxText::operator new(size_t size)
+{
+    return new_object(size, T_RexxText);
+}
+
+void RexxText::live(size_t liveMark)
+{
+    memory_mark(this->objectVariables);
+}
+
+void RexxText::liveGeneral(int reason)
+{
+    memory_mark_general(this->objectVariables);
+}
+
+void RexxText::flatten(RexxEnvelope *envelope)
+{
+    setUpFlatten(RexxText)
+    flatten_reference(newThis->objectVariables, envelope);
+    cleanUpFlatten
+}
