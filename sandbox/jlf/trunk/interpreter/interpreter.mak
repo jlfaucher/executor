@@ -179,7 +179,8 @@ OEPOBJS=$(OR_OUTDIR)\NumberStringMath.$(OBJ)   $(OR_OUTDIR)\NumberStringMath2.$(
 #part of rexx
 OKSOBJS=$(OR_OUTDIR)\StringClass.$(OBJ) $(OR_OUTDIR)\StringClassUtil.$(OBJ) $(OR_OUTDIR)\StringClassSub.$(OBJ)   \
         $(OR_OUTDIR)\StringClassWord.$(OBJ) $(OR_OUTDIR)\StringClassMisc.$(OBJ) $(OR_OUTDIR)\StringClassBit.$(OBJ)    \
-        $(OR_OUTDIR)\StringClassConversion.$(OBJ) $(OR_OUTDIR)\MutableBufferClass.$(OBJ) $(OR_OUTDIR)\StringUtil.$(OBJ)
+        $(OR_OUTDIR)\StringClassConversion.$(OBJ) $(OR_OUTDIR)\MutableBufferClass.$(OBJ) $(OR_OUTDIR)\StringUtil.$(OBJ) \
+        $(OR_OUTDIR)\utf8proc.$(OBJ)
 
 SYSERR= $(OR_OUTDIR)\ErrorMessages.$(OBJ)
 
@@ -549,6 +550,16 @@ ORXDOCFILES: $(ORXDOCFILES)
     $(OR_CC)  $(cflags_common) $(cflags_dll) /Fo$(@) $(Tp)$(**) $(OR_ORYXINCL)
 
 #
+# *** Inference Rule for C->OBJ
+# *** For .C files in CLASSES_SUPPORT_M17N_UTF8PROC directory
+# No $(Tp), must compile in C mode.
+#
+{$(CLASSES_SUPPORT_M17N_UTF8PROC)}.c{$(OR_OUTDIR)}.obj:
+    @ECHO .
+    @ECHO Compiling $(<)
+    $(OR_CC)  $(cflags_common) $(cflags_dll) /DUTF8PROC_EXPORTS /Fo$(@) $(<) $(OR_ORYXINCL)
+
+#
 # *** Inference Rule for CPP->OBJ
 # *** For .CPP files in OR_LIBSRC directory
 #
@@ -635,6 +646,13 @@ $(OR_OUTDIR)\MutableBufferClass.$(OBJ) : \
     $(INTERPRETER_CLASSES)\MutableBufferClass.cpp \
     MutableBufferClass_hpp
 
+$(OR_OUTDIR)\utf8proc_data.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_UTF8PROC)\utf8proc_data.c
+
+$(OR_OUTDIR)\utf8proc.$(OBJ) : \
+    $(CLASSES_SUPPORT_M17N_UTF8PROC)\utf8proc.c \
+    $(CLASSES_SUPPORT_M17N_UTF8PROC)\utf8proc.h \
+    $(CLASSES_SUPPORT_M17N_UTF8PROC)\utf8proc_data.c
 
 # Include depencies
 
