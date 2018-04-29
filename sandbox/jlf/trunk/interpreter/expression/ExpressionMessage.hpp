@@ -52,7 +52,7 @@ class RexxExpressionMessage : public RexxVariableBase {
   inline void  operator delete(void *, size_t) { ; }
   inline void  operator delete(void *, void *) { ; }
 
-  RexxExpressionMessage(RexxObject *, RexxString *, RexxObject *, size_t, RexxQueue *, bool);
+  RexxExpressionMessage(RexxObject *, RexxString *, RexxObject *, size_t, RexxQueue *, size_t, RexxQueue *, bool);
   inline RexxExpressionMessage(RESTORETYPE restoreType) { ; };
   void        live(size_t);
   void        liveGeneral(int reason);
@@ -64,8 +64,12 @@ class RexxExpressionMessage : public RexxVariableBase {
   RexxObject * target;                 /* target subexpression              */
   RexxString * messageName;            // the message name
   RexxObject * super;                  /* super class target                */
-  size_t argumentCount;                /* number of message arguments       */
+  size_t argumentCount;                /* number of positional arguments    */
+  size_t namedArgumentCount;           // 2 * number of named arguments (because 2 items per named argument: name,expression)
   bool   doubleTilde;                  // this is the double tilde form
+
+  // positional arguments (1 entry per arg: expression) : from 0 to min(0,argumentCount-1)
+  // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + min(0,namedArgumentCount-1)
   RexxObject * arguments[1];           /* list of argument subexpressions   */
 };
 #endif

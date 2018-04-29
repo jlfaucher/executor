@@ -1,0 +1,77 @@
+call myprocedure 1, 2, 3
+    positional count=3
+call myprocedure 1, 2, a3:3
+    positional count=2
+call myprocedure 1, a2:2, a3:3
+    positional count=1
+call myprocedure 1, a2:(2*5/4)**5, a3:.array~new(3,3)
+    positional count=1
+r = myprocedure(1, 2, 3)
+    positional count=3
+r = myprocedure(1, 2, a3:3)
+    positional count=2
+r = myprocedure(1, a2:2, a3:3)
+    positional count=1
+r = myprocedure(1, 2, 3){}
+    positional count=4
+r = myprocedure(1, 2, a3:3){}
+    positional count=3
+r = myprocedure(1, a2:2, a3:3){}
+    positional count=2
+call myroutine 1, 2, 3
+    positional count=3
+call myroutine 1, 2, a3:3
+    positional count=2
+call myroutine 1, a2:2, a3:3
+    positional count=1
+r = myroutine(1, 2, 3)
+    positional count=3
+r = myroutine(1, 2, a3:3)
+    positional count=2
+r = myroutine(1, a2:2, a3:3)
+    positional count=1
+r = myroutine(1, 2, 3){}
+    positional count=4
+r = myroutine(1, 2, a3:3){}
+    positional count=3
+r = myroutine(1, a2:2, a3:3){}
+    positional count=2
+r = .myclass~mymethod(1, 2, 3)
+    positional count=3
+r = .myclass~mymethod(1, 2, a3:3)
+    positional count=2
+r = .myclass~mymethod(1, a2:2, a3:3)
+    positional count=1
+r = .myclass~mymethod(1, 2, 3){}
+    positional count=4
+r = .myclass~mymethod(1, 2, a3:3){}
+    positional count=3
+r = .myclass~mymethod(1, a2:2, a3:3){}
+    positional count=2
+r = .myclass~forwardArray
+    forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) continue
+    positional count=3
+r = .myclass~forwardNamedArguments
+    forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+    positional count=0
+{call sayArg arg()}~rawExecutable~call()
+    positional count=0
+{call sayArg arg()}~rawExecutable~call{}
+    positional count=1
+{call sayArg arg()}~rawExecutable~call(1)
+    positional count=1
+{call sayArg arg()}~rawExecutable~call(a1:1)
+    positional count=0
+call myprocedure 1, a2:2, a3:
+    [trapped] Named argument: expected expression after colon
+    [trapped] Code= 35.900
+call myprocedure 1, a2:2, 3
+    [trapped] Named argument: expected symbol followed by colon
+    [trapped] Code= 35.900
+m = .method~new("", 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue')
+    [trapped] Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
+    [trapped] Code= 25.918
+r = .myclass~forwardNamedArgumentsNotDirectory
+    forward message "mymethod" namedArguments ("not a directory") continue
+    [trapped] FORWARD namedArguments must be a directory
+    [trapped] Code= 98.900

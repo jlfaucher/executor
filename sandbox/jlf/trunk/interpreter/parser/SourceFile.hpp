@@ -251,8 +251,8 @@ class RexxSource : public RexxInternalObject {
     RexxObject *expression(int);
     RexxObject *subExpression(int);
     RexxObject *fullSubExpression(int);
-    size_t      argList(RexxToken *, int);
-    RexxArray  *argArray(RexxToken *, int);
+    void        argList(RexxToken *, int, bool, size_t &, size_t &);
+    /*RexxArray* */ void argArray(RexxToken *, int, bool, RexxArray* &, RexxArray* &);
     RexxObject *function(RexxToken *, RexxToken *, int);
     RexxObject *functionCallMessage(RexxToken *, RexxObject *, int);
     RexxObject *collectionMessage(RexxToken *, RexxObject *, int);
@@ -511,6 +511,7 @@ protected:
     RexxQueue       *control;            /* queue of control structures       */
     RexxQueue       *terms;              /* stack of expression terms         */
     RexxQueue       *subTerms;           /* stack for arguments lists, et al. */
+    RexxQueue       *namedSubTerms;      /* stack for named arguments lists   */
     RexxQueue       *operators;          /* stack of expression terms         */
     RexxDirectory   *class_dependencies; /* dependencies between classes      */
     ClassDirective  *active_class;       /* currently active ::CLASS directive*/

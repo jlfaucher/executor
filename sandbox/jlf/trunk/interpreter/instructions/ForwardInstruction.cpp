@@ -48,6 +48,7 @@
 #include "RexxVariableDictionary.hpp"
 #include "RexxActivation.hpp"
 #include "ForwardInstruction.hpp"
+#include "DirectoryClass.hpp"
 
 void RexxInstructionForward::live(size_t liveMark)
 /******************************************************************************/
@@ -60,6 +61,8 @@ void RexxInstructionForward::live(size_t liveMark)
   memory_mark(this->superClass);
   memory_mark(this->arguments);
   memory_mark(this->array);
+  memory_mark(this->namedArgumentsExpression);
+  memory_mark(this->namedArgumentsArray);
 }
 
 void RexxInstructionForward::liveGeneral(int reason)
@@ -74,6 +77,8 @@ void RexxInstructionForward::liveGeneral(int reason)
   memory_mark_general(this->superClass);
   memory_mark_general(this->arguments);
   memory_mark_general(this->array);
+  memory_mark_general(this->namedArgumentsExpression);
+  memory_mark_general(this->namedArgumentsArray);
 }
 
 void RexxInstructionForward::flatten(RexxEnvelope *envelope)
@@ -89,6 +94,8 @@ void RexxInstructionForward::flatten(RexxEnvelope *envelope)
   flatten_reference(newThis->superClass, envelope);
   flatten_reference(newThis->arguments, envelope);
   flatten_reference(newThis->array, envelope);
+  flatten_reference(newThis->namedArgumentsExpression, envelope);
+  flatten_reference(newThis->namedArgumentsArray, envelope);
 
   cleanUpFlatten
 }
@@ -108,9 +115,10 @@ void RexxInstructionForward::execute(
     size_t      count = 0;               /* count of array expressions        */
     size_t      i;                       /* loop counter                      */
     RexxObject **_arguments;
+    RexxDirectory *_namedArguments;
 
     ProtectedObject p_message;
-    
+
     context->traceInstruction(this);     /* trace if necessary                */
     if (!context->inMethod())            /* is this a method clause?          */
     {
@@ -121,12 +129,14 @@ void RexxInstructionForward::execute(
     _message = OREF_NULL;                 /* no message over ride              */
     _superClass = OREF_NULL;              /* no super class over ride          */
     _arguments = OREF_NULL;               /* no argument over ride             */
+    _namedArguments = OREF_NULL;
 
     if (this->target != OREF_NULL)       /* sent to a different object?       */
     {
                                          /* get the expression value          */
         _target = this->target->evaluate(context, stack);
     }
+
     if (this->message != OREF_NULL)    /* sending a different message?      */
     {
         /* get the expression value          */
@@ -136,11 +146,13 @@ void RexxInstructionForward::execute(
         _message = _message->upper();       /* and force to uppercase            */
         p_message = _message;
     }
+
     if (this->superClass != OREF_NULL)   /* overriding the super class?       */
     {
                                          /* get the expression value          */
         _superClass = this->superClass->evaluate(context, stack);
     }
+
     if (this->arguments != OREF_NULL)  /* overriding the arguments?         */
     {
         /* get the expression value          */
@@ -156,6 +168,7 @@ void RexxInstructionForward::execute(
             reportException(Error_Execution_forward_arguments);
         }
         count = argArray->size();          /* get the size                      */
+#if 0 // jlf: keep omitted trailing arguments
                                            /* omitted trailing arguments?       */
         if (count != 0 && argArray->get(count) == OREF_NULL)
         {
@@ -170,8 +183,10 @@ void RexxInstructionForward::execute(
                 count--;                       /* step back the count               */
             }
         }
+#endif
         _arguments = argArray->data();    /* point directly to the argument data */
     }
+
     if (this->array != OREF_NULL)      /* have an array of extra info?      */
     {
         count = this->array->size();       /* get the expression count          */
@@ -193,7 +208,41 @@ void RexxInstructionForward::execute(
         /* now point at the stacked values */
         _arguments = stack->arguments(count);
     }
+
+    if (this->namedArgumentsExpression != OREF_NULL) /* overriding the named arguments? */
+    {
+        /* get the expression value          */
+        temp = this->namedArgumentsExpression->evaluate(context, stack);
+        /* get a directory version           */
+        RexxDirectory *argDirectory = (RexxDirectory *)(isOfClass(Directory, temp) ? temp : temp->sendMessage(OREF_REQUEST, OREF_DIRECTORY));
+        stack->push(argDirectory);       /* protect this on the stack         */
+        /* not a directory item ? */
+        if (argDirectory == TheNilObject)
+        {
+            /* this is an error                  */
+            reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory");
+        }
+        _namedArguments = argDirectory;
+    }
+
+    if (this->namedArgumentsArray != OREF_NULL)      /* have an array of named arguments?      */
+    {
+        RexxDirectory *argDirectory = new_directory();
+        stack->push(argDirectory);       /* protect this on the stack         */
+        size_t namedCount = this->namedArgumentsArray->size();       /* get the name,expression count          */
+        for (i = 1; i <= namedCount; i+=2)     /* loop through the name,expression list  */
+        {
+            RexxString *argName = (RexxString *)this->namedArgumentsArray->get(i);
+            RexxObject *argExpression = this->namedArgumentsArray->get(i+1); // can't be OREF_NULL
+            RexxObject *argValue = argExpression->evaluate(context, stack);
+            argDirectory->put(argValue, argName);
+            stack->pop(); // GC protection by stack of current argValue no longer needed
+        }
+        _namedArguments = argDirectory;
+    }
+
     /* go forward this                   */
+    // TODO: forward named arguments
     result = context->forward(_target, _message, _superClass, _arguments, count, instructionFlags&forward_continue);
     if (instructionFlags&forward_continue)  /* not exiting?                      */
     {

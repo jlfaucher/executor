@@ -59,7 +59,7 @@ class RexxExpressionFunction : public RexxInternalObject {
   inline void  operator delete(void *, size_t) { ; }
   inline void  operator delete(void *, void *) { ; }
 
-  RexxExpressionFunction(RexxString *, size_t, RexxQueue *, size_t, bool);
+  RexxExpressionFunction(RexxString *, size_t, RexxQueue *, size_t, RexxQueue *, size_t, bool);
   inline RexxExpressionFunction(RESTORETYPE restoreType) { ; };
   void        resolve(RexxDirectory *);
   void        live(size_t);
@@ -73,7 +73,11 @@ protected:
   RexxInstruction *target;             /* routine to call                   */
   int16_t builtin_index;               /* builtin function index            */
   uint8_t flags;                       /* bypass internal routine calls     */
-  uint8_t argument_count;              /* count of arguments                */
+  uint8_t argument_count;              /* count of positional arguments     */
+  uint8_t named_argument_count;        // 2 * number of named arguments (because 2 items per named argument: name,expression)
+
+  // positional arguments (1 entry per arg: expression) : from 0 to min(0,argument_count-1)
+  // followed by named arguments (2 entries per arg: name, expression) : from argument_count to argument_count + min(0,named_argument_count-1)
   RexxObject * arguments[1];           /* argument list                     */
 };
 #endif

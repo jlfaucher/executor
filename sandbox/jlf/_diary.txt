@@ -174,6 +174,46 @@ made on the clause which contains it.
 
 
 ===============================================================================
+2018 apr 29
+
+Start implementation of named arguments.
+step 1: [done] caller side
+step 2: [todo] from caller to callee, evaluation of the named arguments, storage in a directory.
+step 3: [todo] callee side, give access to the directory. First need : use auto named arg.
+
+call myprocedure 1, 2, 3                -- arg() == 3   Positional=1,2,3
+call myprocedure 1, 2, a3:3             -- arg() == 2   Positional=1,2
+call myprocedure 1, a2:2, a3:3          -- arg() == 1   Positional=1
+
+call myprocedure 1, a2:2, a3:           -- Error Named argument: expected expression after colon
+call myprocedure 1, a2:2, 3             -- Error Named argument: expected symbol followed by colon
+
+say myprocedure(1, 2, 3)                -- arg() == 3   Positional=1,2,3
+say myprocedure(1, 2, a3:3)             -- arg() == 2   Positional=1,2
+say myprocedure(1, a2:2, a3:3)          -- arg() == 1   Positional=1
+(same syntax supported for method call)
+
+say myprocedure(1, 2, 3){}              -- arg() == 4   Positional=1,2,3,{}
+say myprocedure(1, 2, a3:3){}           -- arg() == 3   Positional=1,2,{}
+say myprocedure(1, a2:2, a3:3){}        -- arg() == 2   Positional=1,{}
+(same syntax supported for method call)
+
+-- forward array can't be used with forward arguments and/or forward namedArguments
+forward array ( 1, 2, 3 )               -- arg() == 3   Positional=1,2,3
+forward array ( 1, 2, a3:3 )            -- arg() == 2   Positional=1,2
+forward array ( 1, a2:2, a3:3 )         -- arg() == 1   Positional=1
+
+forward namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+
+No impact on predefined method & functions:
+say "abcd"~left(2)                      -- "ab"
+say "abcd"~left(2, ignored:value)       -- "ab"
+say left("abcd", 2, ignored:value)      -- "ab"
+say 1~"+"(2)                            -- 3
+say 1~"+"(2, ignored:value)             -- 3
+
+
+===============================================================================
 2018 feb 26
 
 Rexx supports only positional arguments.
@@ -656,6 +696,11 @@ For an empty vector, or a vector of one element, the routine v is still needed :
 v()=    -- []
 (1)=    -- 1
 v(1)    -- [1]
+
+28/04/2018
+Align implementation of forward arguments to keep the trailing omitted arguments
+official: forward message "n" arguments ( (1,2,,) )     -- pass (1,2)
+executor: forward message "n" arguments ( (1,2,,) )     -- pass (1,2,,)
 
 
 String extension

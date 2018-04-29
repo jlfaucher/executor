@@ -226,6 +226,7 @@ RexxInstruction *RexxSource::callNew()
     /* RexxString * */ ProtectedObject _condition((RexxObject*)OREF_NULL); /* clear the condition               */
     RexxObject *name = OREF_NULL;                    /* no name yet                       */
     size_t argCount = 0;                        /* no arguments yet                  */
+    size_t namedArgCount = 0;
 
     RexxToken *token = nextReal();                  /* get the next token                */
     if (token->isEndOfClause())     /* no target specified?              */
@@ -393,7 +394,7 @@ RexxInstruction *RexxSource::callNew()
             builtin_index = this->builtin(token);
             if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
             /* get the argument list             */
-            argCount = this->argList(OREF_NULL, TERM_EOC);
+            /*argCount =*/ this->argList(OREF_NULL, TERM_EOC, true, /*byref*/argCount, /*byref*/namedArgCount);
         }
     }
     /* call with a string target         */
@@ -405,7 +406,7 @@ RexxInstruction *RexxSource::callNew()
         builtin_index = this->builtin(token);
         if (builtin_index != 0) refineSubclass(token, IS_BUILTIN);
         /* process the argument list         */
-        argCount = this->argList(OREF_NULL, TERM_EOC);
+        /*argCount =*/ this->argList(OREF_NULL, TERM_EOC, true, /*byref*/argCount, /*byref*/namedArgCount);
         _flags |= RexxInstructionCall::call_nointernal;          /* do not check for internal routines*/
     }
     /* indirect call case?               */
@@ -419,7 +420,7 @@ RexxInstruction *RexxSource::callNew()
             syntaxError(Error_Invalid_expression_call);
         }
         /* process the argument list         */
-        argCount = this->argList(OREF_NULL, TERM_EOC);
+        /*argCount =*/ this->argList(OREF_NULL, TERM_EOC, true, /*byref*/argCount, /*byref*/namedArgCount);
         /* NOTE:  this call is not added to  */
         /* the resolution list because it    */
         /* cannot be resolved until run time */
@@ -430,10 +431,10 @@ RexxInstruction *RexxSource::callNew()
         syntaxError(Error_Symbol_or_string_call);
     }
     /* create a new translator object    */
-    RexxInstruction *newObject = new_variable_instruction(CALL, Call, sizeof(RexxInstructionCallBase) + argCount * sizeof(RexxObject *));
-    ProtectedObject p(newObject);
+    RexxInstruction *newObject = new_variable_instruction(CALL, Call, sizeof(RexxInstructionCallBase) + (argCount + namedArgCount) * sizeof(RexxObject *));
+    ProtectedObject p(newObject); // jlf: probably not needed, already protected by this->currentInstruction
     /* Initialize this new object        */
-    new ((void *)newObject) RexxInstructionCall(name, _condition, argCount, this->subTerms, _flags, builtin_index);
+    new ((void *)newObject) RexxInstructionCall(name, _condition, argCount, this->subTerms, namedArgCount, this->namedSubTerms, _flags, builtin_index);
 
     if (!(flags&RexxInstructionCall::call_dynamic))           /* static name resolution?           */
     {
@@ -994,10 +995,30 @@ void RexxSource::RexxInstructionForwardCreate(
                 }
                 break;
 
+            case SUBKEY_NAMEDARGUMENTS:           /* FORWARD NAMEDARGUMENTS expr            */
+                refineSubclass(token, IS_SUBKEY);
+                /* have a additional already?        */
+                if (newObject->namedArgumentsExpression != OREF_NULL || newObject->namedArgumentsArray != OREF_NULL)
+                {
+                    /* this is invalid                   */
+                    syntaxError(Error_Invalid_subkeyword_arguments);
+                }
+                /* get the keyword value             */
+                OrefSet(newObject, newObject->namedArgumentsExpression, this->constantExpression());
+                /* no expression here?               */
+                if (newObject->namedArgumentsExpression == OREF_NULL)
+                {
+                    /* this is invalid                   */
+                    syntaxError(Error_Invalid_expression_user_defined,
+                                new_string("Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction"));
+                }
+                break;
+
             case SUBKEY_ARRAY:               /* FORWARD ARRAY (expr, expr)        */
                 refineSubclass(token, IS_SUBKEY);
                 /* have arguments already?           */
-                if (newObject->arguments != OREF_NULL || newObject->array != OREF_NULL)
+                if (newObject->arguments != OREF_NULL || newObject->namedArgumentsExpression != OREF_NULL ||
+                    newObject->array != OREF_NULL)
                 {
                     /* this is invalid                   */
                     syntaxError(Error_Invalid_subkeyword_arguments);
@@ -1010,7 +1031,15 @@ void RexxSource::RexxInstructionForwardCreate(
                     syntaxError(Error_Invalid_expression_raise_list);
                 }
                 /* process the array list            */
-                OrefSet(newObject, newObject->array, this->argArray(token, TERM_RIGHT));
+                {
+                    RexxArray *argArray = OREF_NULL;
+                    RexxArray *namedArgArray = OREF_NULL;
+                    this->argArray(token, TERM_RIGHT, true, /*byref*/argArray, /*byref*/namedArgArray);
+                    OrefSet(newObject, newObject->array, argArray);
+                    OrefSet(newObject, newObject->namedArgumentsArray, namedArgArray);
+                    // Now both array and namedArgumentsArray are != OREF_NULL
+                    // They can have 0 item.
+                }
                 break;
 
             case SUBKEY_CONTINUE:            /* FORWARD CONTINUE                  */
@@ -1036,7 +1065,7 @@ void RexxSource::RexxInstructionForwardCreate(
 
 RexxInstruction *RexxSource::forwardNew()
 /****************************************************************************/
-/* Function:  Create a new RAISE translator object                             */
+/* Function:  Create a new FORWARD translator object                        */
 /****************************************************************************/
 {
     /* create a new translator object    */
@@ -1957,7 +1986,10 @@ RexxInstruction *RexxSource::raiseNew()
                     syntaxError(Error_Invalid_expression_raise_list);
                 }
                 /* process the array list            */
-                arrayCount = this->argList(token, TERM_RIGHT);
+                {
+                    size_t namedArgCount=0; // named arguments not allowed, will be always 0
+                    /*arrayCount =*/ this->argList(token, TERM_RIGHT, false, /*byref*/arrayCount, /*byref*/namedArgCount);
+                }
                 break;
 
             case SUBKEY_RETURN:              /* RAISE ... RETURN expr             */
@@ -2302,7 +2334,7 @@ RexxInstruction *RexxSource::signalNew()
     }
     /* create a new translator object    */
     RexxInstruction *newObject = new_instruction(SIGNAL, Signal);
-    ProtectedObject p(newObject);
+    ProtectedObject p(newObject); // jlf: probably not neded, already protected by this->currentInstruction
     /* now complete this                 */
     new ((void *)newObject) RexxInstructionSignal(_expression, _condition, name, _flags);
     if (!signalOff)                      /* need to resolve later?            */

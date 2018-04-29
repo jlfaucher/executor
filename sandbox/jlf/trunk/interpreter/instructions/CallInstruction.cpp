@@ -56,8 +56,10 @@
 RexxInstructionCall::RexxInstructionCall(
     RexxObject *_name,                 /* CALL name                         */
     RexxString *_condition,            /* CALL ON/OFF condition             */
-    size_t      argCount,              /* count of arguments                */
-    RexxQueue  *argList,               /* call arguments                    */
+    size_t      argCount,              /* count of positional arguments     */
+    RexxQueue  *argList,               /* call positional arguments         */
+    size_t      namedArgCount,         /* 2 * number of named arguments      */
+    RexxQueue  *namedArgList,          /* call named arguments              */
     size_t      flags,                 /* CALL flags                        */
     size_t      builtin_index)         /* builtin routine index             */
 /******************************************************************************/
@@ -76,6 +78,14 @@ RexxInstructionCall::RexxInstructionCall(
                                        /* in reverse order                  */
     OrefSet(this, this->arguments[--argCount], argList->pop());
   }
+
+  // The named arguments are stored after the positional arguments
+  // Each named argument has 2 entries : name, expression
+  // namedArgumentCount = 2 * the number of named arguments
+  namedArgumentCount = (uint16_t)namedArgCount;
+  while (namedArgCount > 0) {
+    OrefSet(this, this->arguments[--namedArgCount + argumentCount], namedArgList->pop());
+  }
 }
 
 void RexxInstructionCall::live(size_t liveMark)
@@ -90,7 +100,7 @@ void RexxInstructionCall::live(size_t liveMark)
   memory_mark(this->name);
   memory_mark(this->target);
   memory_mark(this->condition);
-  for (i = 0, count = argumentCount; i < count; i++)
+  for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
   {
       memory_mark(this->arguments[i]);
   }
@@ -109,7 +119,7 @@ void RexxInstructionCall::liveGeneral(int reason)
   memory_mark_general(this->name);
   memory_mark_general(this->target);
   memory_mark_general(this->condition);
-  for (i = 0, count = argumentCount; i < count; i++)
+  for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
   {
       memory_mark_general(this->arguments[i]);
   }
@@ -129,7 +139,7 @@ void RexxInstructionCall::flatten(RexxEnvelope *envelope)
   flatten_reference(newThis->name, envelope);
   flatten_reference(newThis->target, envelope);
   flatten_reference(newThis->condition, envelope);
-  for (i = 0, count = argumentCount; i < count; i++)
+  for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
     flatten_reference(newThis->arguments[i], envelope);
 
   cleanUpFlatten
@@ -181,7 +191,7 @@ void RexxInstructionCall::execute(
     RexxDirectory    *labels;            /* labels table                      */
 
     ProtectedObject p_name;
-    
+
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
     context->traceInstruction(this);     /* trace if necessary                */
     if (this->condition != OREF_NULL)  /* is this the ON/OFF form?          */

@@ -1558,7 +1558,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Invalid_subkeyword_arguments</SymbolicName>
-        <Text>Duplicate ARGUMENTS or ARRAY keyword found</Text>
+        <Text>Duplicate [NAMED]ARGUMENTS or ARRAY keyword found</Text>
       </SubMessage>
       <SubMessage>
         <Code>25</Code>

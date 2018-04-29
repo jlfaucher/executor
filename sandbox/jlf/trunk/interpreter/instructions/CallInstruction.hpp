@@ -57,6 +57,7 @@ class RexxInstructionCallBase : public RexxInstruction {
   RexxInstruction * target;            /* routine to call                   */
   RexxString      * condition;         /* condition trap name               */
   uint16_t     argumentCount;          // number of arguments
+  uint16_t     namedArgumentCount;     // 2 * number of named arguments (because 2 items per named argument: name,expression)
   uint16_t     builtinIndex;           // builtin function index
 };
 
@@ -77,7 +78,7 @@ class RexxInstructionCall : public RexxInstructionCallBase {
   inline void operator delete(void *) { }
   inline void operator delete(void *, void *) { }
 
-  RexxInstructionCall(RexxObject *, RexxString *, size_t, RexxQueue *, size_t, size_t);
+  RexxInstructionCall(RexxObject *, RexxString *, size_t, RexxQueue *, size_t, RexxQueue *, size_t, size_t);
   inline RexxInstructionCall(RESTORETYPE restoreType) { ; };
   void live(size_t);
   void liveGeneral(int reason);
@@ -88,6 +89,8 @@ class RexxInstructionCall : public RexxInstructionCallBase {
 
 protected:
 
+    // positional arguments (1 entry per arg: expression) : from 0 to min(0,argumentCount-1)
+    // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + min(0,namedArgumentCount-1)
     RexxObject * arguments[1];           // argument list
 };
 #endif

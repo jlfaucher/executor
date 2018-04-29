@@ -56,8 +56,10 @@
 
 RexxExpressionFunction::RexxExpressionFunction(
     RexxString *function_name,         /* name of the function              */
-    size_t      argCount,              /* count of arguments                */
-    RexxQueue  *arglist,               /* function arguments                */
+    size_t      argCount,              /* count of positional arguments     */
+    RexxQueue  *arglist,               /* function positional arguments     */
+    size_t      namedArgCount,         /* 2 * number of named arguments     */
+    RexxQueue  *namedArglist,          /* function named arguments          */
     size_t      builtinIndex,          /* index of possible built-in func   */
     bool        string )               /* string or symbol invocation       */
 /******************************************************************************/
@@ -69,13 +71,26 @@ RexxExpressionFunction::RexxExpressionFunction(
                                          /* thing that might cause a gc       */
                                          /* set the default target            */
     OrefSet(this, this->functionName, function_name);
-    /* save the argument count           */
+
+    /* save the positional argument count           */
     this->argument_count = (uint8_t)argCount;
     while (argCount > 0)               /* now copy the argument pointers    */
     {
         /* in reverse order                  */
         OrefSet(this, this->arguments[--argCount], arglist->pop());
     }
+
+    // The named arguments are stored after the positional arguments
+    // Each named argument has 2 entries : name, expression
+    // named_argument_count = 2 * the number of named arguments
+    /* save the named argument count           */
+    this->named_argument_count = (uint8_t)namedArgCount;
+    while (namedArgCount > 0)               /* now copy the argument pointers    */
+    {
+        /* in reverse order                  */
+        OrefSet(this, this->arguments[--namedArgCount + this->argument_count], namedArglist->pop());
+    }
+
     /* set the builtin index for later   */
     /* resolution step                   */
     this->builtin_index = (uint16_t)builtinIndex;
@@ -126,7 +141,7 @@ void RexxExpressionFunction::live(size_t liveMark)
 
     memory_mark(this->functionName);
     memory_mark(this->target);
-    for (i = 0, count = this->argument_count; i < count; i++)
+    for (i = 0, count = this->argument_count + this->named_argument_count; i < count; i++)
     {
         memory_mark(this->arguments[i]);
     }
@@ -142,7 +157,7 @@ void RexxExpressionFunction::liveGeneral(int reason)
 
     memory_mark_general(this->functionName);
     memory_mark_general(this->target);
-    for (i = 0, count = this->argument_count; i < count; i++)
+    for (i = 0, count = this->argument_count + this->named_argument_count; i < count; i++)
     {
         memory_mark_general(this->arguments[i]);
     }
@@ -160,7 +175,7 @@ void RexxExpressionFunction::flatten(RexxEnvelope *envelope)
 
     flatten_reference(newThis->functionName, envelope);
     flatten_reference(newThis->target, envelope);
-    for (i = 0, count = this->argument_count; i < count; i++)
+    for (i = 0, count = this->argument_count + this->named_argument_count; i < count; i++)
     {
         flatten_reference(newThis->arguments[i], envelope);
     }

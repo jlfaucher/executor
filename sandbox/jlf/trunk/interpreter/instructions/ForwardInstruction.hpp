@@ -66,5 +66,7 @@ class RexxInstructionForward : public RexxInstruction {
   RexxObject * superClass;             /* message super class override      */
   RexxObject * arguments;              /* argument expression               */
   RexxArray  * array;                  /* argument array specification      */
+  RexxObject * namedArgumentsExpression;
+  RexxArray  * namedArgumentsArray;    /* name, value, name, value, etc...  */
 };
 #endif

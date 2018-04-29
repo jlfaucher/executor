@@ -405,7 +405,7 @@ special character (such as a parenthesis).
 <varlistentry><term>915</term><listitem><para>SIGNAL ON condition must be followed by the keyword NAME; found "<emphasis role="italic">word</emphasis>"</para></listitem></varlistentry>
 <varlistentry><term>916</term><listitem><para>Unknown keyword on FORWARD instruction; found "<emphasis role="italic">keyword</emphasis>"</para></listitem></varlistentry>
 <varlistentry><term>917</term><listitem><para>Duplicate TO keyword found</para></listitem></varlistentry>
-<varlistentry><term>918</term><listitem><para>Duplicate ARGUMENTS or ARRAY keyword found</para></listitem></varlistentry>
+<varlistentry><term>918</term><listitem><para>Duplicate [NAMED]ARGUMENTS or ARRAY keyword found</para></listitem></varlistentry>
 <varlistentry><term>919</term><listitem><para>Duplicate RETURN or CONTINUE keyword found</para></listitem></varlistentry>
 <varlistentry><term>921</term><listitem><para>Duplicate CLASS keyword found</para></listitem></varlistentry>
 <varlistentry><term>922</term><listitem><para>Duplicate MESSAGE keyword found</para></listitem></varlistentry>

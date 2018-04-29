@@ -55,8 +55,10 @@ RexxExpressionMessage::RexxExpressionMessage(
     RexxObject *_target,                /* message send target               */
     RexxString *name,                  /* message name                      */
     RexxObject *_super,                 /* message super class               */
-    size_t      argCount,              /* count of arguments                */
-    RexxQueue  *arglist,               /* message argument list             */
+    size_t      argCount,              /* count of positional arguments     */
+    RexxQueue  *arglist,               /* message positional argument list  */
+    size_t      namedArgCount,         /* 2 * number of named arguments     */
+    RexxQueue  *namedArglist,          /* message named argument list       */
     bool        double_form)           /* type of message send              */
 /******************************************************************************/
 /*  Function:  Create a new message expression object                         */
@@ -71,12 +73,23 @@ RexxExpressionMessage::RexxExpressionMessage(
     OrefSet(this, this->messageName, name->upper());
     OrefSet(this, this->super, _super);   /* the super class target            */
     doubleTilde = double_form;           // set the argument form
-    /* get the count of arguments        */
+
+    /* get the count of positional arguments        */
     this->argumentCount = argCount;
     while (argCount > 0)               /* now copy the argument pointers    */
     {
         /* in reverse order                  */
         OrefSet(this, this->arguments[--argCount], arglist->pop());
+    }
+
+    // The named arguments are stored after the positional argument
+    // Each named argument has 2 entries : name, expression
+    // named_argument_count = 2 * the number of named arguments
+    this->namedArgumentCount = namedArgCount;
+    while (namedArgCount > 0)            /* now copy the argument pointers    */
+    {
+        /* in reverse order                  */
+        OrefSet(this, this->arguments[--namedArgCount + this->argumentCount], namedArglist->pop());
     }
 }
 
@@ -173,7 +186,7 @@ void RexxExpressionMessage::live(size_t liveMark)
     memory_mark(this->messageName);
     memory_mark(this->target);
     memory_mark(this->super);
-    for (i = 0, count = this->argumentCount; i < count; i++)
+    for (i = 0, count = this->argumentCount + this->namedArgumentCount; i < count; i++)
     {
         memory_mark(this->arguments[i]);
     }
@@ -190,7 +203,7 @@ void RexxExpressionMessage::liveGeneral(int reason)
     memory_mark_general(this->messageName);
     memory_mark_general(this->target);
     memory_mark_general(this->super);
-    for (i = 0, count = this->argumentCount; i < count; i++)
+    for (i = 0, count = this->argumentCount + this->namedArgumentCount; i < count; i++)
     {
         memory_mark_general(this->arguments[i]);
     }
@@ -209,7 +222,7 @@ void RexxExpressionMessage::flatten(RexxEnvelope *envelope)
     flatten_reference(newThis->messageName, envelope);
     flatten_reference(newThis->target, envelope);
     flatten_reference(newThis->super, envelope);
-    for (i = 0, count = this->argumentCount; i < count; i++)
+    for (i = 0, count = this->argumentCount + this->namedArgumentCount; i < count; i++)
     {
         flatten_reference(newThis->arguments[i], envelope);
     }

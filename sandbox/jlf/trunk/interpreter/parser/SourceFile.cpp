@@ -616,6 +616,7 @@ void RexxSource::live(size_t liveMark)
   memory_mark(this->control);
   memory_mark(this->terms);
   memory_mark(this->subTerms);
+  memory_mark(this->namedSubTerms);
   memory_mark(this->operators);
   memory_mark(this->calls);
   memory_mark(this->routines);
@@ -689,6 +690,7 @@ void RexxSource::liveGeneral(int reason)
   memory_mark_general(this->control);
   memory_mark_general(this->terms);
   memory_mark_general(this->subTerms);
+  memory_mark_general(this->namedSubTerms);
   memory_mark_general(this->operators);
   memory_mark_general(this->calls);
   memory_mark_general(this->routines);
@@ -752,6 +754,7 @@ void RexxSource::flatten (RexxEnvelope *envelope)
     flatten_reference(newThis->control, envelope);
     flatten_reference(newThis->terms, envelope);
     flatten_reference(newThis->subTerms, envelope);
+    flatten_reference(newThis->namedSubTerms, envelope);
     flatten_reference(newThis->operators, envelope);
     flatten_reference(newThis->calls, envelope);
     flatten_reference(newThis->routines, envelope);
@@ -1249,6 +1252,7 @@ void RexxSource::globalSetup()
   OrefSet(this, this->control, new_queue());
   OrefSet(this, this->terms, new_queue());
   OrefSet(this, this->subTerms, new_queue());
+  OrefSet(this, this->namedSubTerms, new_queue());
   OrefSet(this, this->operators, new_queue());
   OrefSet(this, this->literals, new_directory());
   OrefSet(this, this->sourceLiterals, new_list());
@@ -1409,6 +1413,7 @@ void RexxSource::cleanup()
   OrefSet(this, this->control, OREF_NULL);
   OrefSet(this, this->terms, OREF_NULL);
   OrefSet(this, this->subTerms, OREF_NULL);
+  OrefSet(this, this->namedSubTerms, OREF_NULL);
   OrefSet(this, this->operators, OREF_NULL);
   OrefSet(this, this->class_dependencies, OREF_NULL);
   OrefSet(this, this->active_class, OREF_NULL);
@@ -5337,31 +5342,50 @@ RexxObject *RexxSource::subExpression(
     return this->popTerm();              /* expression is top of term stack   */
 }
 
-RexxArray *RexxSource::argArray(
+/*RexxArray* */ void RexxSource::argArray(
   RexxToken   *_first,                 /* token starting arglist            */
-  int          terminators )           /* expression termination context    */
+  int          terminators,            /* expression termination context    */
+  bool         namedArgumentAllowed,
+  RexxArray*  &_argArray,              // output argument: either OREF_NULL or an array
+  RexxArray*  &_namedArgArray)         // output argument: either OREF_NULL or an array
 /******************************************************************************/
 /* Function:  Parse off an array of argument expressions                      */
 /******************************************************************************/
 {
-    size_t     argCount;                 /* count of arguments                */
-    RexxArray *_argArray;                 /* returned array                    */
+    size_t     argCount=0;                 /* count of positional arguments     */
+    size_t     namedArgCount=0;            /* count of named arguments          */
+    //RexxArray *_argArray;                 /* returned array                    */
 
     /* scan off the argument list        */
-    argCount = this->argList(_first, terminators);
+    /*argCount =*/ this->argList(_first, terminators, namedArgumentAllowed, /*byref*/argCount, /*byref*/namedArgCount);
+
     _argArray = new_array(argCount);      /* get a new argument list           */
+    this->holdObject(_argArray); // protect
     /* now copy the argument pointers    */
     while (argCount > 0)
     {
         /* in reverse order                  */
         _argArray->put(this->subTerms->pop(), argCount--);
     }
-    return _argArray;                     /* return the argument array         */
+
+    _namedArgArray = new_array(namedArgCount);      /* get a new named argument list           */
+    this->holdObject(_namedArgArray); // protect
+    /* now copy the arguments name,expression    */
+    while (namedArgCount > 0)
+    {
+        /* in reverse order                  */
+        _namedArgArray->put(this->namedSubTerms->pop(), namedArgCount--);
+    }
+
+    //return _argArray;                     /* return the argument array         */
 }
 
-size_t RexxSource::argList(
+void RexxSource::argList(
   RexxToken   *_first,                  /* token starting arglist            */
-  int          terminators )           /* expression termination context    */
+  int          terminators,             /* expression termination context    */
+  bool         namedArgumentAllowed,
+  size_t      &positionalArgumentCount,
+  size_t      &namedArgumentCount)
 /******************************************************************************/
 /* Function:  Parse off a list of argument expressions                        */
 /******************************************************************************/
@@ -5369,22 +5393,30 @@ size_t RexxSource::argList(
 // .array~of(10,20,30,)~dimensions= --> [3] (not ok, should be [4])
 
 {
-    RexxQueue    *arglist;               /* argument list                     */
+    RexxQueue    *arglist;               /* positional argument list          */
+    RexxQueue    *namedArglist;          /* named argument list               */
     RexxObject   *subexpr;               /* current subexpression             */
     RexxToken    *token;                 /* current working token             */
     //size_t        realcount;             /* count of real arguments           */
-    size_t        total;                 /* total arguments                   */
+    size_t        total;                 /* total positional arguments        */
+    size_t        namedTotal;
 
-    arglist = this->subTerms;            /* use the subterms list             */
+    arglist = this->subTerms;            /* use the subterms list for the positional parameters */
+    namedArglist = this->namedSubTerms;  /* use the namedsubterms list for the named parameters */
+
     //realcount = 0;                       /* no arguments yet                  */
-    total = 0;
+    total = 0; // count positional arguments
+    namedTotal = 0; // count named arguments
+    bool namedArgument = false; // will become true when the first named argument is met
 
     /* Shortcut syntax : f{...} is equivalent to f({...}) */
     if (_first && _first->isSourceLiteral())
     {
         RexxObject *expr = this->addText(_first);
         arglist->push(expr);             /* add next argument to list         */
-        return 1;                        /* return the argument count         */
+        positionalArgumentCount = 1;
+        namedArgumentCount = 0;
+        return;
     }
 
     /* get the first real token, which   */
@@ -5393,36 +5425,79 @@ size_t RexxSource::argList(
     /* loop until get a full terminator  */
     for (;;)
     {
+        if (!namedArgument)
+        {
+            // The first named argument indicates the end of the positional arguments
+            // A named argument is a symbol followed by ":"
+            size_t position = markPosition();
+            token = nextReal();
+            if (token->classId == TOKEN_SYMBOL)
+            {
+                token = nextReal();
+                if (token->classId == TOKEN_COLON) namedArgument = true;
+            }
+            resetPosition(position);
+
+            if (namedArgument && !namedArgumentAllowed) syntaxError(Error_Invalid_expression_user_defined,
+                                                                    new_string("Named argument not supported"));
+        }
+
         // JLF remember: for retrofit array literal, I can keep this part unchanged.
         // In particular, I don't try to simplify and use pushSubTerm.
+        if (!namedArgument)
+        {
+            /* parse off next positional argument expression*/
+            subexpr = this->subExpression(terminators | TERM_COMMA);
+            arglist->push(subexpr);            /* add next argument to list         */
+            this->pushTerm(subexpr);           /* add the term to the term stack    */
+            total++;                           /* increment the total               */
+            //if (subexpr != OREF_NULL)          /* real expression?                  */
+            //{
+            //    realcount = total;               /* update the real count             */
+            //}
+        }
+        else
+        {
+            // A named argument is a symbol followed by ":"
+            token = nextReal();
+            if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Invalid_expression_user_defined,
+                                                            new_string("Named argument: expected symbol followed by colon"));
+            namedArglist->push(token->value);       /* add argument name to list */
+            namedTotal++;
 
-        /* parse off next argument expression*/
-        subexpr = this->subExpression(terminators | TERM_COMMA);
-        arglist->push(subexpr);            /* add next argument to list         */
-        this->pushTerm(subexpr);           /* add the term to the term stack    */
-        total++;                           /* increment the total               */
-        //if (subexpr != OREF_NULL)          /* real expression?                  */
-        //{
-        //    realcount = total;               /* update the real count             */
-        //}
+            token = nextReal();
+            if (token->classId != TOKEN_COLON) syntaxError(Error_Invalid_expression_user_defined,
+                                                           new_string("Named argument: expected symbol followed by colon"));
+
+            /* parse off named argument expression*/
+            RexxObject *subexpr = this->subExpression(terminators | TERM_COMMA);
+            if (subexpr == OREF_NULL) syntaxError(Error_Invalid_expression_user_defined,
+                                                  new_string("Named argument: expected expression after colon"));
+            namedArglist->push(subexpr);       /* add next argument to list         */
+            namedTotal++;
+        }
+
         token = nextToken();               /* get the next token                */
         if (token->classId != TOKEN_COMMA) /* start of next argument?           */
         {
             break;                           /* no, all finished                  */
         }
     }
+
     /* not closed with expected ')'?     */
     if (terminators & TERM_RIGHT && token->classId != TOKEN_RIGHT)
     {
         /* raise an error                    */
         syntaxErrorAt(Error_Unmatched_parenthesis_paren, _first);
     }
+
     /* not closed with expected ']'?     */
     if (terminators&TERM_SQRIGHT && token->classId != TOKEN_SQRIGHT)
     {
         /* have an unmatched bracket         */
         syntaxErrorAt(Error_Unmatched_parenthesis_square, _first);
     }
+
     this->popNTerms(total);              /* pop all items off the term stack  */
     /* pop off any trailing omitteds     */
     //while (total > realcount)
@@ -5452,8 +5527,11 @@ size_t RexxSource::argList(
         else previousToken();                /* put it back                       */
     }
 
+    positionalArgumentCount = total;
+    namedArgumentCount = namedTotal;
+
     //return realcount;                    /* return the argument count         */
-    return total;
+    //return total;
 }
 
 RexxObject *RexxSource::function(
@@ -5464,16 +5542,17 @@ RexxObject *RexxSource::function(
 /* Function:  Parse off a REXX function call                                  */
 /******************************************************************************/
 {
-  size_t        argCount;              /* count of function arguments       */
+  size_t        argCount=0;              /* count of function arguments       */
+  size_t        namedArgCount=0;
   RexxExpressionFunction *_function;    /* newly created function argument   */
 
   saveObject((RexxObject *)name);      // protect while parsing the argument list
 
                                        /* process the argument list         */
-  argCount = this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
+  /*argCount =*/ this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT), true, /*byref*/argCount, /*byref*/namedArgCount);
 
                                        /* create a new function item        */
-  _function = new (argCount) RexxExpressionFunction(name->value, argCount, this->subTerms, this->resolveBuiltin(name->value), name->isLiteral());
+  _function = new (argCount + namedArgCount) RexxExpressionFunction(name->value, argCount, this->subTerms, namedArgCount, this->namedSubTerms, this->resolveBuiltin(name->value), name->isLiteral());
                                        /* add to table of references        */
   this->addReference((RexxObject *)_function);
   removeObj((RexxObject *)name);       // end of protected windoww.
@@ -5491,14 +5570,15 @@ RexxObject *RexxSource::functionCallMessage(
 /* Function:  Process an expression term of the form "target(arg,arg)"        */
 /******************************************************************************/
 {
-  size_t     argCount;                 /* count of function arguments       */
+  size_t     argCount=0;                 /* count of function arguments       */
+  size_t     namedArgCount=0;
   RexxObject *_message;                /* new message term                  */
 
   this->saveObject((RexxObject *)target);   /* save target until it gets connected to message */
                                        /* process the argument list         */
-  argCount = this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
+  /*argCount =*/ this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT), true, /*byref*/argCount, /*byref*/namedArgCount);
                                        /* create a new message item        */
-  _message = (RexxObject *)new (argCount) RexxExpressionMessage(target, (RexxString *)OREF_ROUND_BRACKETS, (RexxObject *)OREF_NULL, argCount, this->subTerms, false);
+  _message = (RexxObject *)new (argCount + namedArgCount) RexxExpressionMessage(target, (RexxString *)OREF_ROUND_BRACKETS, (RexxObject *)OREF_NULL, argCount, this->subTerms, namedArgCount, this->namedSubTerms, false);
   this->holdObject(_message);          /* hold this here for a while        */
   this->removeObj((RexxObject *)target);   /* target is now connected to message, remove from savelist without hold */
   return _message;                     /* return the message item           */
@@ -5513,14 +5593,15 @@ RexxObject *RexxSource::collectionMessage(
 /* Function:  Process an expression term of the form "target[arg,arg]"        */
 /******************************************************************************/
 {
-  size_t     argCount;                 /* count of function arguments       */
+  size_t     argCount=0;                 /* count of function arguments       */
+  size_t     namedArgCount=0;
   RexxObject *_message;                /* new message term                  */
 
   this->saveObject((RexxObject *)target);   /* save target until it gets connected to message */
                                        /* process the argument list         */
-  argCount = this->argList(token, ((terminators | TERM_SQRIGHT) & ~TERM_RIGHT));
+  /*argCount =*/ this->argList(token, ((terminators | TERM_SQRIGHT) & ~TERM_RIGHT), true, /*byref*/argCount, /*byref*/namedArgCount);
                                        /* create a new message item        */
-  _message = (RexxObject *)new (argCount) RexxExpressionMessage(target, (RexxString *)OREF_BRACKETS, (RexxObject *)OREF_NULL, argCount, this->subTerms, false);
+  _message = (RexxObject *)new (argCount + namedArgCount) RexxExpressionMessage(target, (RexxString *)OREF_BRACKETS, (RexxObject *)OREF_NULL, argCount, this->subTerms, namedArgCount, this->namedSubTerms, false);
   this->holdObject(_message);          /* hold this here for a while        */
   this->removeObj((RexxObject *)target);   /* target is now connected to message, remove from savelist without hold */
   return _message;                     /* return the message item           */
@@ -5555,6 +5636,7 @@ RexxObject *RexxSource::message(
 /******************************************************************************/
 {
     size_t        argCount;              /* list of function arguments        */
+    size_t        namedArgCount;
     RexxString   *messagename = OREF_NULL;  /* message name                      */
     bool         messagenameProvided = true;
     RexxObject   *super;                 /* super class target                */
@@ -5563,6 +5645,7 @@ RexxObject *RexxSource::message(
 
     super = OREF_NULL;                   /* default no super class            */
     argCount = 0;                        /* and no arguments                  */
+    namedArgCount = 0;
     this->saveObject(target);   /* save target until it gets connected to message */
 
     /* add the term to the term stack so that the calculations */
@@ -5620,7 +5703,7 @@ RexxObject *RexxSource::message(
         if (token->classId == TOKEN_LEFT || token->isSourceLiteral())  /* have an argument list?            */
         {
             /* process the argument list         */
-            argCount = this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT));
+            /*argCount =*/ this->argList(token, ((terminators | TERM_RIGHT) & ~TERM_SQRIGHT), true, /*byref*/argCount, /*byref*/namedArgCount);
         }
         else
         {
@@ -5630,7 +5713,7 @@ RexxObject *RexxSource::message(
 
     this->popTerm();                     /* it is now safe to pop the message target */
                                          /* create a message send node        */
-    _message =  new (argCount) RexxExpressionMessage(target, messagename, super, argCount, this->subTerms, doubleTilde);
+    _message =  new (argCount + namedArgCount) RexxExpressionMessage(target, messagename, super, argCount, this->subTerms, namedArgCount, this->namedSubTerms, doubleTilde);
     /* protect for a bit                 */
     this->holdObject((RexxObject *)_message);
     this->removeObj(target);   /* target is now connected to message, remove from savelist without hold */
@@ -6639,7 +6722,9 @@ RexxObject *RexxSource::parseConditional(
  */
 RexxObject *RexxSource::parseLogical(RexxToken *_first, int terminators)
 {
-    size_t count = argList(_first, terminators);
+    size_t count;
+    size_t namedCount; // named arguments not allowed, will be always zero
+    argList(_first, terminators, false, /*byref*/count, /*byref*/namedCount);
     // arglist has swallowed the terminator token, so we need to back up one.
     previousToken();
     // let the caller deal with completely missing expressions

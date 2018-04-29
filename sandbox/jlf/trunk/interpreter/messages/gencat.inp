@@ -1326,7 +1326,7 @@ $ Error_Invalid_subkeyword_to
 550 Duplicate TO keyword found
 
 $ Error_Invalid_subkeyword_arguments
-551 Duplicate ARGUMENTS or ARRAY keyword found
+551 Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
 
 $ Error_Invalid_subkeyword_continue
 552 Duplicate RETURN or CONTINUE keyword found
