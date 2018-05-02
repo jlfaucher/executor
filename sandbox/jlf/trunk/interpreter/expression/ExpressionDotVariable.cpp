@@ -112,7 +112,6 @@ RexxObject * RexxDotVariable::evaluate(
 }
 
 
-#if 0
 RexxObject * RexxDotVariable::getValue(
     RexxActivation      *context)
 /****************************************************************************/
@@ -133,7 +132,6 @@ RexxObject * RexxDotVariable::getValue(
     }
     return result;                       /* also return the result            */
 }
-#endif
 
 void * RexxDotVariable::operator new(size_t size)
 /******************************************************************************/
