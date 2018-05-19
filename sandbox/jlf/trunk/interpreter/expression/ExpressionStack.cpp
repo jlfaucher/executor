@@ -122,6 +122,29 @@ void RexxExpressionStack::expandArgs(
     size_t       j;
     RexxObject **current;                /* pointer to the current stack item */
 
+    /*
+    The parser was modified to keep the trailing omitted arguments:
+        .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
+    The change above has an unexpected effect on the regression tests:
+    base/bif: [SYNTAX 40.5] raised unexpectedly
+    because
+        40.5 "Missing argument in invocation of XXX; argument 2 is required"
+    is raised instead of
+        40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
+    */
+
+    // Adjust argcount to be more compliant with the regression tests when reporting errors
+    size_t argcountBackup = argcount;
+    if (argcount >=2)
+    {
+        current = this->pointer(0); // last argument
+        while (argcount>=1 && *current == OREF_NULL)
+        {
+            argcount--;
+            current--;
+        }
+    }
+
     if (argcount < min)                  /* too few arguments?                */
     {
                                          /* report an error                   */
@@ -134,6 +157,7 @@ void RexxExpressionStack::expandArgs(
     }
     else                               /* need to expand number of args     */
     {
+        argcount = argcountBackup;
         /* address the stack elements        */
         current = this->pointer(argcount - 1);
         for (i = min; i; i--)            /* check on required arguments       */

@@ -687,6 +687,13 @@ Keep the trailing omitted arguments.
     .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
 This is consistent with the array literals:
     v(1,2,) is the same as 1,2,
+[01/05/2018]
+The change above has an unexpected effect on the regression tests:
+base/bif: [SYNTAX 40.5] raised unexpectedly
+40.5 "Missing argument in invocation of XXX; argument 2 is required"
+is raised instead of
+40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
+--> ExpressionStack.cpp: RexxExpressionStack::expandArgs updated to raise 40.3
 
 Array literals:
 Retrofit from ooRexx5 the parsing of an expression where the expression can be
