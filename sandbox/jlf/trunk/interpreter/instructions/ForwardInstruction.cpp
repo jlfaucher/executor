@@ -227,16 +227,20 @@ void RexxInstructionForward::execute(
 
     if (this->namedArgumentsArray != OREF_NULL)      /* have an array of named arguments?      */
     {
-        RexxDirectory *argDirectory = new_directory();
-        stack->push(argDirectory);       /* protect this on the stack         */
+        RexxDirectory *argDirectory = OREF_NULL;
         size_t namedCount = this->namedArgumentsArray->size();       /* get the name,expression count          */
-        for (i = 1; i <= namedCount; i+=2)     /* loop through the name,expression list  */
+        if (namedCount != 0)
         {
-            RexxString *argName = (RexxString *)this->namedArgumentsArray->get(i);
-            RexxObject *argExpression = this->namedArgumentsArray->get(i+1); // can't be OREF_NULL
-            RexxObject *argValue = argExpression->evaluate(context, stack);
-            argDirectory->put(argValue, argName);
-            stack->pop(); // GC protection by stack of current argValue no longer needed
+            argDirectory = new_directory();
+            stack->push(argDirectory);       /* protect this on the stack         */
+            for (i = 1; i <= namedCount; i+=2)     /* loop through the name,expression list  */
+            {
+                RexxString *argName = (RexxString *)this->namedArgumentsArray->get(i);
+                RexxObject *argExpression = this->namedArgumentsArray->get(i+1); // can't be OREF_NULL
+                RexxObject *argValue = argExpression->evaluate(context, stack);
+                argDirectory->put(argValue, argName);
+                stack->pop(); // GC protection by stack of current argValue no longer needed
+            }
         }
         _namedArguments = argDirectory;
     }

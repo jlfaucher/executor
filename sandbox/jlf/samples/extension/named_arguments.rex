@@ -34,6 +34,8 @@ call interpret 'r = .myclass~mymethod(1, 2, a3:3){}'
 call interpret 'r = .myclass~mymethod(1, a2:2, a3:3){}'
 call interpret 'r = .myclass~forwardArray'
 call interpret 'r = .myclass~forwardNamedArguments'
+call interpret 'r = .myclass~forwardPositionalNamedArguments'
+call interpret 'r = .myclass~forwardNamedPositionalArguments'
 
 call interpret '{call sayArg arg()}~rawExecutable~call()'
 call interpret '{call sayArg arg()}~rawExecutable~call{}'
@@ -43,6 +45,12 @@ call interpret '{call sayArg arg()}~rawExecutable~call(a1:1)'
 -- Error 35: Invalid expression
 call interpret 'call myprocedure 1, a2:2, a3:'                  -- Error 35.900:  Named argument: expected expression after colon
 call interpret 'call myprocedure 1, a2:2, 3'                    -- Error 35.900:  Named argument: expected symbol followed by colon
+
+-- Error 35: Invalid expression
+source = 'forward message "mymethod" namedArguments continue'
+call interpret 'm = .method~new("",' quoted(source)')'          -- Error 35.1:    Incorrect expression detected at "CONTINUE"
+source = 'forward message "mymethod" namedArguments'
+call interpret 'm = .method~new("",' quoted(source)')'          -- Error 35.900:  Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction
 
 -- Error 25: Invalid subkeyword found
 source = 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue'
@@ -99,6 +107,18 @@ return ""
 call indent
 say 'forward message "mymethod" namedArguments ("not a directory") continue'
      forward message "mymethod" namedArguments ("not a directory") continue
+return ""
+
+::method forwardPositionalNamedArguments class
+call indent
+say 'forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue'
+     forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+return ""
+
+::method forwardNamedPositionalArguments class
+call indent
+say 'forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue'
+     forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue
 return ""
 
 --------------------------------------------------------------------------------
