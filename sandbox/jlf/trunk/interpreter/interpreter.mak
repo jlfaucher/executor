@@ -353,7 +353,7 @@ $(BEHAVIOUR)\ClassTypeCodes.h: $(BEHAVIOUR)\ClassTypeCodes.xsl $(BEHAVIOUR)\Prim
     @ECHO Generating $(@)
     xalan -o $(@) $(BEHAVIOUR)\PrimitiveClasses.xml $(BEHAVIOUR)\ClassTypeCodes.xsl
 
-$(OR_OUTDIR)\winmsgtb.res: $(INT_PLATFORM)\winmsgtb.rc $(INTERPRETER_MESSAGES)\DocErrorMessages.sgml
+$(OR_OUTDIR)\winmsgtb.res: $(INT_PLATFORM)\winmsgtb.rc $(INTERPRETER_MESSAGES)\RexxErrorCodes.h
     @ECHO.
     @ECHO ResourceCompiling $(@)
         $(rc) $(rcflags_common) $(OR_ORYXRCINCL) -r -fo$(@) $(INT_PLATFORM)\winmsgtb.rc

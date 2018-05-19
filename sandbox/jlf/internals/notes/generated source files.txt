@@ -1,6 +1,33 @@
 ==========================================================================================
 Generated source files
-Those files are not in subversion.
+Those files are in subversion.
+
+01/05/2018
+Investigating why I have these files which are modified under Windows
+after a build made under MacOs.
+messages/DocErrorMessages.sgml      no longer used, but generated under Windows because of a wrong dependency (now fixed)
+messages/errnums.xml                xalanc vs xsltproc (I use xsltproc under MacOs and Linux, output is different from xalanc)
+messages/errnumsrexxc.xml           idem
+messages/errnumsrxqueue.xml         idem
+messages/errnumssubcom.xml          idem
+platform/windows/winmsgtb.rc        generated only under Windows (oorexx5: always generated, whatever the platform)
+
+
+DocErrorMessages.sgml no longer used ? 01/05/2018: confirmed, no longer used.
+Not used by the documentation, which includes other generated files
+    errnums.xml
+    errnumsrxqueue.xml
+    errnumssubcom.xml
+    errnumsrexxc.xml
+In the Makefile for MacOs & Linux, there is nothing that triggers its update.
+In interpreter.mak, the next rule triggers its update,
+but there is no reason to have a dependency on DocErrorMessages.sgml.
+The dependency should be on RexxErrorCodes.h which is included in winmsgtb.rc
+$(OR_OUTDIR)\winmsgtb.res: $(INT_PLATFORM)\winmsgtb.rc $(INTERPRETER_MESSAGES)\DocErrorMessages.sgml
+        $(rc) $(rcflags_common) $(OR_ORYXRCINCL) -r -fo$(@) $(INT_PLATFORM)\winmsgtb.rc
+--> 01/05/2018 updated dependency in interpreter.mak
+$(OR_OUTDIR)\winmsgtb.res: $(INT_PLATFORM)\winmsgtb.rc $(INTERPRETER_MESSAGES)\RexxErrorCodes.h
+
 
 Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\api\oorexxerrors.h
 	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\api\oorexxerrors.h d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\ApiErrorCodes.xsl
@@ -40,3 +67,20 @@ Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\errnu
 
 Generating d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\DocErrorMessages.sgml
 	xalan -o d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\DocErrorMessages.sgml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\rexxmsg.xml d:\local\Rexx\ooRexx\svn\sandbox\jlf\trunk\interpreter\messages\DocBookErrors.xsl
+
+
+[old build system]
+interpreter\interpreter.mak
+    Génération de fichiers à partir de rexxmsg.xml :
+    $(INT_PLATFORM)\winmsgtb.rc: $(INT_PLATFORM)\WinMessageResource.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\RexxErrorCodes.h: $(INTERPRETER_MESSAGES)\RexxErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\DocErrorMessages.sgml: $(INTERPRETER_MESSAGES)\DocBookErrors.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\RexxMessageNumbers.h: $(INTERPRETER_MESSAGES)\RexxMessageNumbers.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(INTERPRETER_MESSAGES)\RexxMessageTable.h: $(INTERPRETER_MESSAGES)\RexxMessageTable.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+    $(OR_APISRC)\oorexxerrors.h: $(INTERPRETER_MESSAGES)\ApiErrorCodes.xsl $(INTERPRETER_MESSAGES)\rexxmsg.xml
+
+    Génération de fichiers à partir de PrimitiveClasses.xml :
+    $(BEHAVIOUR)\PrimitiveBehaviourNames.h: $(BEHAVIOUR)\PrimitiveBehaviourNames.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+    $(BEHAVIOUR)\PrimitiveBehaviours.cpp: $(BEHAVIOUR)\PrimitiveBehaviours.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+    $(BEHAVIOUR)\VirtualFunctionTable.cpp: $(BEHAVIOUR)\VirtualFunctionTable.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
+    $(BEHAVIOUR)\ClassTypeCodes.h: $(BEHAVIOUR)\ClassTypeCodes.xsl $(BEHAVIOUR)\PrimitiveClasses.xml
