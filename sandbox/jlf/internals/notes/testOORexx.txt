@@ -37,7 +37,7 @@ merge 7390-7647 from main/trunk
 
 Tests after merge.
 
-rexx testOORexx.rex -s -S -R ooRexx\base\bif
+rexx testOORexx.rex -s -S -R ooRexx/base/bif
 Failures:            16
 Errors:              1
 
@@ -337,51 +337,51 @@ rexx testOORexx.rex -s -S -R ooRexx\base\class
     not in trunk
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\directives
+rexx testOORexx.rex -s -S -R ooRexx/base/directives
 ok
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\expressions
+rexx testOORexx.rex -s -S -R ooRexx/base/expressions
 ok
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\keyword
+rexx testOORexx.rex -s -S -R ooRexx/base/keyword
 Failures:            1
 same problem in trunk.
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\rexxutil
+rexx testOORexx.rex -s -S -R ooRexx/base/rexxutil
 Failures:            1
 same problem in trunk.
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\runtime.objects
+rexx testOORexx.rex -s -S -R ooRexx/base/runtime.objects
 ok
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\source.file
+rexx testOORexx.rex -s -S -R ooRexx/base/source.file
 ok
 
 
-rexx testOORexx.rex -s -S -R ooRexx\base\special.variables
+rexx testOORexx.rex -s -S -R ooRexx/base/special.variables
 ok
 
 
-rexx testOORexx.rex -s -S -R ooRexx\extensions
+rexx testOORexx.rex -s -S -R ooRexx/extensions
 Not launched (too much time !)
 
 
-rexx testOORexx.rex -s -S -R ooRexx\regressions
+rexx testOORexx.rex -s -S -R ooRexx/regressions
 ok
 
 
-rexx testOORexx.rex -s -S -R ooRexx\utilities
+rexx testOORexx.rex -s -S -R ooRexx/utilities
 ok
 
 ================================================================================
 Tests after merge 6500-6784
 
-rexx testOORexx.rex -s -S -R ooRexx\base\bif
+rexx testOORexx.rex -s -S -R ooRexx/base/bif
 [failure] [20110224 08:31:24.213000]
   svn:    r6434   Change date: 2010-12-01 09:02:15 +0100
   Test:   TEST_3
@@ -395,39 +395,64 @@ rexx testOORexx.rex -s -S -R ooRexx\base\bif
 no error in trunk
 Without STRONG_TYPES : no error  (except the 3 errors TEST_MANY_CHARS)
 
-rexx testOORexx.rex -s -S -R ooRexx\base\class
+rexx testOORexx.rex -s -S -R ooRexx/base/class
 2 errors rexx testOORexx.rex -s -S -R ooRexx\base\class
 same errors in trunk
 Without STRONG_TYPES : several erros because of new tests added for sort, section (must sync the snadbox)
 
-rexx testOORexx.rex -s -S -R ooRexx\base\directives
+rexx testOORexx.rex -s -S -R ooRexx/base/directives
 ok
 
-rexx testOORexx.rex -s -S -R ooRexx\base\expressions
+rexx testOORexx.rex -s -S -R ooRexx/base/expressions
 ok
 
-rexx testOORexx.rex -s -S -R ooRexx\base\keyword
+rexx testOORexx.rex -s -S -R ooRexx/base/keyword
 8 errors
 same errors in trunk
 
-rexx testOORexx.rex -s -S -R ooRexx\base\rexxutil
+rexx testOORexx.rex -s -S -R ooRexx/base/rexxutil
 1 error TEST_SETDEFAULTPRINTER_RET_OLD_STYLE
 same error in trunk
 
-rexx testOORexx.rex -s -S -R ooRexx\base\runtime.objects
+rexx testOORexx.rex -s -S -R ooRexx/base/runtime.objects
 ok
 
-rexx testOORexx.rex -s -S -R ooRexx\base\source.file
+rexx testOORexx.rex -s -S -R ooRexx/base/source.file
 ok
 
-rexx testOORexx.rex -s -S -R ooRexx\base\special.variables
+rexx testOORexx.rex -s -S -R ooRexx/base/special.variables
 ok
 
-rexx testOORexx.rex -s -S -R ooRexx\extensions      (ça prend du temps !)
+rexx testOORexx.rex -s -S -R ooRexx/extensions      (ça prend du temps !)
 18 failures because some file/directoy names are hardcode for english system.
 
-rexx testOORexx.rex -s -S -R ooRexx\regressions
+rexx testOORexx.rex -s -S -R ooRexx/regressions
 ok
 
-rexx testOORexx.rex -s -S -R ooRexx\utilities
+rexx testOORexx.rex -s -S -R ooRexx/utilities
 ok
+
+
+================================================================================
+Retrofit needed for
+
+::options novalue error
+    OOREXXUNIT.CLS
+    ooTest.frm
+    worker.rex
+
+base/bif/CONDITION.testGroup
+select case
+
+================================================================================
+Adjustment needed for
+
+RexxExpressionStack::expandArgs
+Argument list:
+Keep the trailing omitted arguments.
+    .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
+The change above has an unexpected effect on the regression tests:
+base/bif: [SYNTAX 40.5] raised unexpectedly
+40.5 "Missing argument in invocation of XXX; argument 2 is required"
+is raised instead of
+40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."

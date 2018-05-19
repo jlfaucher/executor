@@ -1,3 +1,19 @@
+The image is created by
+void RexxMemory::createImage()
+(memory/setup.cpp)
+
+      RexxString *symb = getGlobalName(BASEIMAGELOAD);   /* get a name version of the string  */
+                                           /* go resolve the program name       */
+      RexxString *programName = ActivityManager::currentActivity->resolveProgramName(symb, OREF_NULL, OREF_NULL);
+
+
+PlatformDefinitions.h (same for Windows & Unix)
+    // name of the image file that is saved and restored.
+    #define BASEIMAGE     "rexx.img"
+
+    // name of the program called to load create the saved image file.                                                                */
+    #define BASEIMAGELOAD "CoreClasses.orx"
+
 ================================================================================
 interpreter\runtime\RexxCore.h
 // this one is special, and is truly global.
