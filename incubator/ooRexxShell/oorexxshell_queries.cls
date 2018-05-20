@@ -670,7 +670,9 @@ attribute traceFilter
     -- The package of a class created dynamically is still .nil.
     use strict arg package
     if package == .nil then return ""
-    return .file~new(package~name)~name
+    packageName = package~name
+    if packageName == "" then return "" -- .file~new does not support an empty string, and the error message is cryptic: Incorrect position argument specified; found "0"
+    return .file~new(packageName)~name  -- return the filename only, not the full path
 
 
 ::routine classInfos public

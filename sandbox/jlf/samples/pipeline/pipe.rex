@@ -270,13 +270,21 @@ if profile then do
     profiler~push(self, "go")               -- the root message of the call stack
     .context~package~setSecurityManager(profiler)
 end
+anyErrorTrapped = .false
+signal on any name anyError                 -- In case of error, must ensure that the pipe is reset and the security manager is detached
 self~begin(source)                          -- now go feed the pipeline
 self~eof                                    -- signal that processing is finished
-self~reset
-if profile then do
-    profiler~reportResults(profiler~pull)
-    .context~package~setSecurityManager
-end
+finalize:
+    self~reset
+    if profile then do
+        profiler~reportResults(profiler~pull)
+        .context~package~setSecurityManager
+    end
+    if anyErrorTrapped then raise propagate
+    return
+anyError:
+    anyErrorTrapped = .true
+    signal finalize
 
 ::method begin                              -- start pumping the pipeline
 use strict arg source

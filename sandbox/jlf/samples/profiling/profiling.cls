@@ -44,8 +44,8 @@ Typical usage of the profiler :
 Exemple of output :
 .pipeProfiler~instrument("start", "process", "eof", "isEOP")
 .pipeProfiler~instrumentClassMethods(.pipeIndex, .array~of("create")) -- no effect with standard ooRexx
-(.sort byValue | .console)~go(.array~of(b, a, c), .true) -- standard ooRexx
-.array~of(b, a, c)~pipeProfile(.sort byValue | .console) -- extended ooRexx
+(.sort byItem | .console)~go(.array~of(b, a, c), .true) -- standard ooRexx
+.array~of(b, a, c)~pipeProfile(.sort byItem | .console) -- extended ooRexx
 (an Array),2 : A
 (an Array),1 : B
 (an Array),3 : C
@@ -94,7 +94,7 @@ nop
     newMessage = message"_unprotected"
     newMethod = class_method(class, newMessage)
     if .nil <> newMethod then return -- already done
-    newMethod = .Method~new("", "forward message("newMessage")")
+    newMethod = .Method~new(.context~package~name, "forward message("newMessage")")
     newMethod~setProtected
     class~define(message, newMethod)
     class~define(newMessage, method)
@@ -112,7 +112,7 @@ nop
     newMessage = message"_unprotected"
     newMethod = object_instanceMethod(class, newMessage)
     if .nil <> newMethod then return -- already done
-    newMethod = .Method~new("", "forward message("newMessage")")
+    newMethod = .Method~new(.context~package~name, "forward message("newMessage")")
     newMethod~setProtected
     class~setMethod1(message, newMethod)
     class~setMethod1(newMessage, method)
