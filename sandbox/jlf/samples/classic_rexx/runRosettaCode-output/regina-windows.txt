@@ -17,7 +17,6 @@ After  100  passes, the following doors are open:
                  100
 
 RC=0
-duration=.234000
 
 ================================================================================
 [2] 100-doors/100-doors-2.rexx
@@ -36,16 +35,14 @@ After  100  passes, the following doors are open:
                  100
 
 RC=0
-duration=.126000
 
 ================================================================================
 [3] 24-game/24-game-1.rexx
 ================================================================================
 
-───────── Using the digits  2428,  enter an expression that equals   24    (or QUIT):
+───────── Using the digits  7374,  enter an expression that equals   24    (or QUIT):
 
 RC=0
-duration=.158000
 
 ================================================================================
 [4] 24-game-Solve/24-game-solve.rexx
@@ -60,7 +57,6 @@ duration=.158000
 6 unique solutions found for 1111-1129
 
 RC=0
-duration=.390000
 
 ================================================================================
 [5] 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
@@ -94,7 +90,6 @@ duration=.390000
 partitions(25): 1958
 
 RC=0
-duration=.188000
 
 ================================================================================
 [6] 99-Bottles-of-Beer/99-bottles-of-beer.rexx
@@ -600,7 +595,6 @@ Go to the store and buy some more,
 99 bottles of beer on the wall.
 
 RC=0
-duration=.375000
 
 ================================================================================
 [7] A+B/a+b-1.rexx
@@ -608,7 +602,6 @@ duration=.375000
 30
 
 RC=0
-duration=.125000
 
 ================================================================================
 [8] A+B/a+b-2.rexx
@@ -616,7 +609,6 @@ duration=.125000
 30
 
 RC=0
-duration=.126000
 
 ================================================================================
 [9] A+B/a+b-3.rexx
@@ -624,7 +616,6 @@ duration=.126000
 30
 
 RC=0
-duration=.143000
 
 ================================================================================
 [10] A+B/a+b-4.rexx
@@ -633,7 +624,6 @@ enter some numbers to be summed:
 sum of  5  numbers =  150
 
 RC=0
-duration=.140000
 
 ================================================================================
 [11] ABC-Problem/abc-problem-1.rexx
@@ -647,7 +637,6 @@ duration=.140000
                        conFuse    can be spelt.
 
 RC=0
-duration=.111000
 
 ================================================================================
 [12] ABC-Problem/abc-problem-2.rexx
@@ -663,31 +652,28 @@ duration=.111000
 'CONFUSE' can be spelt in 32 ways.
 
 RC=0
-duration=.125000
 
 ================================================================================
 [13] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
 ================================================================================
      4 +++ say center('integers from '   low   " to "   high,  45,  "═")        /*display a header.*/
-Error 40 running "Y:\local\RosettaCodeData\git\Lang\REXX\Abundant,-deficient-and-perfect-number-classifications\abundant,-deficient-and-perfect-number-classifications-1.rexx", line 4: Incorrect call to routine
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Abundant,-deficient-and-perfect-number-classifications\REXX\abundant,-deficient-and-perfect-number-classifications-1.rexx", line 4: Incorrect call to routine
 Error 40.23: CENTER argument 3 must be a single character; found "═"
-   223 *-*   "rexx" path || solution escape(args)
+   264 *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741784 +++
 
 RC=-1073741784
-duration=.114000
 
 ================================================================================
 [14] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
 ================================================================================
      4 +++ say center('integers from '   low    " to "    high,  45,  "═")      /*display a header.*/
-Error 40 running "Y:\local\RosettaCodeData\git\Lang\REXX\Abundant,-deficient-and-perfect-number-classifications\abundant,-deficient-and-perfect-number-classifications-2.rexx", line 4: Incorrect call to routine
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Abundant,-deficient-and-perfect-number-classifications\REXX\abundant,-deficient-and-perfect-number-classifications-2.rexx", line 4: Incorrect call to routine
 Error 40.23: CENTER argument 3 must be a single character; found "═"
-       *-*   "rexx" path || solution escape(args)
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741784 +++
 
 RC=-1073741784
-duration=.120000
 
 ================================================================================
 [16] Accumulator-factory/accumulator-factory.rexx
@@ -696,7 +682,6 @@ duration=.120000
 Accumulator value is now 8.3
 
 RC=0
-duration=.109000
 
 ================================================================================
 [17] Ackermann-function/ackermann-function-1.rexx
@@ -779,7 +764,6 @@ Ackermann(3,  7)=                    1021              calls=                  6
 Ackermann(3,  8)=                    2045              calls=                 2785999
 
 RC=0
-duration=54.079000
 
 ================================================================================
 [18] Ackermann-function/ackermann-function-2.rexx
@@ -862,7 +846,6 @@ Ackermann(3,  7)=                    1021              calls=                   
 Ackermann(3,  8)=                    2045              calls=                      18
 
 RC=0
-duration=.470000
 
 ================================================================================
 [19] Ackermann-function/ackermann-function-3.rexx
@@ -949,7 +932,6 @@ Ackermann(4,  1)=                   65533              calls=                   
 Ackermann(4,  2)=89506130880933368E+19728              calls=                       1
 
 RC=0
-duration=.171000
 
 ================================================================================
 [20] Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
@@ -959,7 +941,6 @@ ldapsearch -s base -H ldap://localhost:11389 -LLL -x -v -s sub -D uid=admin,ou=s
        +++ RC=-2 +++
 
 RC=0
-duration=.250000
 
 ================================================================================
 [22] AKS-test-for-primes/aks-test-for-primes-1.rexx
@@ -980,18 +961,15 @@ Largest coefficient: 45274257328051640582702088538742081937252294837706668420660
 This has 59 digits
 
 RC=0
-duration=.266000
 
 ================================================================================
 [23] AKS-test-for-primes/aks-test-for-primes-2.rexx
 ================================================================================
 
-primes:  2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199
+primes found:  2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199
 
-Found  46  primes and the largest coefficient has  59  decimal digits.
 
 RC=0
-duration=.487000
 
 ================================================================================
 [24] Align-columns/align-columns-1.rexx
@@ -1024,7 +1002,6 @@ align center:
 justified,    right   justified,   or   center justified   within      its   column.                     
 
 RC=0
-duration=.219000
 
 ================================================================================
 [25] Align-columns/align-columns-2.rexx
@@ -1032,13 +1009,12 @@ duration=.219000
 
 
     23 +++    say center(word('left right center', j)  "aligned", size+cols-1, "═")     /*show title*/
-Error 40 running "Y:\local\RosettaCodeData\git\Lang\REXX\Align-columns\align-columns-2.rexx", line 23: Incorrect call to routine
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Align-columns\REXX\align-columns-2.rexx", line 23: Incorrect call to routine
 Error 40.23: CENTER argument 3 must be a single character; found "═"
-       *-*   "rexx" path || solution escape(args)
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741784 +++
 
 RC=-1073741784
-duration=.110000
 
 ================================================================================
 [26] Align-columns/align-columns-3.rexx
@@ -1046,25 +1022,23 @@ duration=.110000
 
 
     23 +++    say center(word('left right center', j)  "aligned", size+cols+1, "═")     /*show title*/
-Error 40 running "Y:\local\RosettaCodeData\git\Lang\REXX\Align-columns\align-columns-3.rexx", line 23: Incorrect call to routine
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Align-columns\REXX\align-columns-3.rexx", line 23: Incorrect call to routine
 Error 40.23: CENTER argument 3 must be a single character; found "═"
-       *-*   "rexx" path || solution escape(args)
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741784 +++
 
 RC=-1073741784
-duration=.125000
 
 ================================================================================
 [27] Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
 ================================================================================
      9 +++ say center('numbers from '      low      " to "      high, 79, "═")
-Error 40 running "Y:\local\RosettaCodeData\git\Lang\REXX\Aliquot-sequence-classifications\aliquot-sequence-classifications.rexx", line 9: Incorrect call to routine
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Aliquot-sequence-classifications\REXX\aliquot-sequence-classifications.rexx", line 9: Incorrect call to routine
 Error 40.23: CENTER argument 3 must be a single character; found "═"
-       *-*   "rexx" path || solution escape(args)
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741784 +++
 
 RC=-1073741784
-duration=.156000
 
 ================================================================================
 [28] Almost-prime/almost-prime-1.rexx
@@ -1076,7 +1050,6 @@ duration=.156000
 5─almost (10) primes: 32 48 72 80 108 112 120 162 168 176
 
 RC=0
-duration=.140000
 
 ================================================================================
 [29] Almost-prime/almost-prime-2.rexx
@@ -1090,7 +1063,6 @@ The highest prime computed:  157  (under the limit of  160).
 5─almost (10) primes:  32 48 72 80 108 112 120 162 168 176
 
 RC=0
-duration=.112000
 
 ================================================================================
 [30] Amb/amb-1.rexx
@@ -1098,7 +1070,6 @@ duration=.112000
 that thing grows slowly
 
 RC=0
-duration=.112000
 
 ================================================================================
 [31] Amb/amb-2.rexx
@@ -1114,7 +1085,6 @@ if            trots
 --> if frog grows slowly
 
 RC=0
-duration=.138000
 
 ================================================================================
 [33] Amicable-pairs/amicable-pairs-2.rexx
@@ -1131,7 +1101,6 @@ duration=.138000
 8 amicable pairs found up to 20000
 
 RC=0
-duration=2.435000
 
 ================================================================================
 [34] Amicable-pairs/amicable-pairs-3.rexx
@@ -1148,7 +1117,6 @@ duration=2.435000
 8 amicable pairs found up to 20000
 
 RC=0
-duration=1.577000
 
 ================================================================================
 [35] Amicable-pairs/amicable-pairs-4.rexx
@@ -1165,7 +1133,6 @@ duration=1.577000
 8 amicable pairs found up to 20000
 
 RC=0
-duration=1.719000
 
 ================================================================================
 [36] Amicable-pairs/amicable-pairs-5.rexx
@@ -1176,59 +1143,57 @@ duration=1.719000
 2 amicable pairs found up to 20000
 
 RC=0
-duration=.891000
 
 ================================================================================
 [37] Anagrams/anagrams-1.rexx
 ================================================================================
-───────────────────────── 0 useable words in the dictionary file:  unixdict.txt
+───────────────────────── 0 usable words in the dictionary file:  unixdict.txt
 
 
 ───── Found 0 words  (each of which have -1 anagrams).
 
 RC=0
-duration=.110000
 
 ================================================================================
 [38] Anagrams/anagrams-2.rexx
 ================================================================================
-───────────────────────── 0 useable words in the dictionary file:  unixdict.txt
+───────────────────────── 0 usable words in the dictionary file:  unixdict.txt
 
 
 ───── Found 0 words  (each of which have -1 anagrams).
 
 RC=0
-duration=.125000
 
 ================================================================================
 [39] Anagrams/anagrams-3.rexx
-================================================================================
-───────────────────────── 0 useable words in the dictionary file:  unixdict.txt
-
-
-───── Found 0 words  (each of which have -1 anagrams).
-
-RC=0
-duration=.140000
-
-================================================================================
-[40] Anagrams/anagrams-4.rexx
 ================================================================================
 u= HALLOWEEN
 z= AEEHLLNOW
 
 RC=0
-duration=.109000
 
 ================================================================================
-[41] Anagrams/anagrams-5.rexx
+[40] Anagrams/anagrams-4.rexx
 ================================================================================
 u= HALLOWEEN
 L= 9
 z= AEEHLLNOW
 
 RC=0
-duration=.126000
+
+================================================================================
+[41] Anagrams/anagrams-5.rexx
+================================================================================
+ 
+---------- 0 words in the dictionary file:  unixdict.txt
+           0 thereof are anagram candidates
+ 
+There are 1 set(s) of anagrams with 0 elements each:
+ 
+    
+.016000
+
+RC=0
 
 ================================================================================
 [42] Anagrams/anagrams-6.rexx
@@ -1243,7 +1208,6 @@ There are 1 set(s) of anagrams with 0 elements each:
 .000000
 
 RC=0
-duration=.156000
 
 ================================================================================
 [43] Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
@@ -1251,7 +1215,6 @@ duration=.156000
 ────────────────────────────── 0 words in the dictionary file:  unixdict.txt
 
 RC=0
-duration=.109000
 
 ================================================================================
 [44] Anonymous-recursion/anonymous-recursion-1.rexx
@@ -1271,7 +1234,6 @@ fibonacci(11) = 89
 fibonacci(12) = 144
 
 RC=0
-duration=.126000
 
 ================================================================================
 [45] Anonymous-recursion/anonymous-recursion-2.rexx
@@ -1291,14 +1253,12 @@ fibonacci(11) = 89
 fibonacci(12) = 144
 
 RC=0
-duration=.110000
 
 ================================================================================
 [46] Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
 ================================================================================
 
 RC=0
-duration=.125000
 
 ================================================================================
 [47] Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
@@ -1340,14 +1300,12 @@ before a.10=10
  after b.10=3628800
 
 RC=0
-duration=.248000
 
 ================================================================================
 [50] Arena-storage-pool/arena-storage-pool.rexx
 ================================================================================
 
 RC=0
-duration=.109000
 
 ================================================================================
 [51] Arithmetic-Complex/arithmetic-complex.rexx
@@ -1361,7 +1319,6 @@ multiplication:    (5,3i)  *  ( .5,  6j)  =  [-15.5,31.5j]
    negation of:    (5,3i)                          =  [-5,-3j]
 
 RC=0
-duration=.126000
 
 ================================================================================
 [52] Arithmetic-evaluation/arithmetic-evaluation.rexx
@@ -1369,7 +1326,6 @@ duration=.126000
 answer──► 0.333333333
 
 RC=0
-duration=.093000
 
 ================================================================================
 [53] Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
@@ -1379,7 +1335,6 @@ duration=.093000
   AGM = 0.84721308479397908660649912348219163648144591032694218506057937265973400483413475972320029399461122994212228563
 
 RC=0
-duration=.109000
 
 ================================================================================
 [54] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
@@ -1387,7 +1342,6 @@ duration=.109000
 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491
 
 RC=0
-duration=.266000
 
 ================================================================================
 [55] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
@@ -1406,7 +1360,6 @@ duration=.266000
 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491
 
 RC=0
-duration=.312000
 
 ================================================================================
 [56] Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
@@ -1423,7 +1376,6 @@ duration=.312000
 1005 3.141...2019893810
 
 RC=0
-duration=52.687000
 
 ================================================================================
 [57] Arithmetic-Integer/arithmetic-integer.rexx
@@ -1446,21 +1398,18 @@ duration=52.687000
                     power  200  **  100  ───►  1.2676506002282294015E+230 
 
 RC=0
-duration=.172000
 
 ================================================================================
 [59] Array-concatenation/array-concatenation-1.rexx
 ================================================================================
 
 RC=0
-duration=.109000
 
 ================================================================================
 [60] Array-concatenation/array-concatenation-2.rexx
 ================================================================================
 
 RC=0
-duration=.140000
 
 ================================================================================
 [61] Array-concatenation/array-concatenation-3.rexx
@@ -1492,7 +1441,6 @@ c.22=34
 c.23=55
 
 RC=0
-duration=.143000
 
 ================================================================================
 [62] Arrays/arrays-1.rexx
@@ -1501,7 +1449,6 @@ element 50 is: -50000
 element 3000 is: not found
 
 RC=0
-duration=.094000
 
 ================================================================================
 [63] Arrays/arrays-2.rexx
@@ -1510,7 +1457,6 @@ element 50 is: -5000
 element 3000 is: not found
 
 RC=0
-duration=.109000
 
 ================================================================================
 [64] Arrays/arrays-3.rexx
@@ -1519,7 +1465,6 @@ element 50 is: -5000
 element 3000 is: 00
 
 RC=0
-duration=.126000
 
 ================================================================================
 [65] Arrays/arrays-4.rexx
@@ -1528,7 +1473,6 @@ duration=.126000
 7000 squared is: out of range
 
 RC=0
-duration=.126000
 
 ================================================================================
 [66] Arrays/arrays-5.rexx
@@ -1537,14 +1481,12 @@ DOB 1946 is: 1946 AD
 DOB 1744 is: year not supported
 
 RC=0
-duration=.217000
 
 ================================================================================
 [67] Arrays/arrays-6.rexx
 ================================================================================
 
 RC=0
-duration=.111000
 
 ================================================================================
 [69] Associative-array-Creation/associative-array-creation-1.rexx
@@ -1553,7 +1495,6 @@ stem.key0= .
 stem.key1= value0
 
 RC=0
-duration=.234000
 
 ================================================================================
 [70] Associative-array-Creation/associative-array-creation-2.rexx
@@ -1563,7 +1504,6 @@ capital of Oklahoma is  [not defined yet]
 capital of Rhode Island and Providence Plantations is Providence
 
 RC=0
-duration=.109000
 
 ================================================================================
 [71] Associative-array-Iteration/associative-array-iteration.rexx
@@ -1595,7 +1535,6 @@ the former capitol of  (TN)  Tennessee       was  Murfreesboro
 the former capitol of  (VT)  Vermont         was  Windsor
 
 RC=0
-duration=.125000
 
 ================================================================================
 [73] Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
@@ -1630,7 +1569,6 @@ duration=.125000
 ═══════════════════════════════════════════════════════════════════════════════
 
 RC=0
-duration=.551000
 
 ================================================================================
 [74] Averages-Mean-angle/averages-mean-angle.rexx
@@ -1640,7 +1578,6 @@ angles=90 180 270 360          mean angle=  -90
 angles=10 20 30                mean angle=   20
 
 RC=0
-duration=.250000
 
 ================================================================================
 [75] Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
@@ -1648,26 +1585,24 @@ duration=.250000
 23:47:43
 
 RC=0
-duration=.111000
 
 ================================================================================
 [76] Averages-Median/averages-median.rexx
 ================================================================================
-vector: 1 9 2 4               
+vector: 1 9 2 4
 median──────► 3
 
-vector: 3 1 4 1 5 9 7 6       
+vector: 3 1 4 1 5 9 7 6
 median──────► 4.5
 
 vector: 3 4 1 -8.4 7.2 4 1 1.2
 median──────► 2.1
 
-vector: -1.2345678e99  2.3e700
+vector: -1.2345678E+99 2.3E700
 median──────► 1.15000000E+700
 
 
 RC=0
-duration=.123000
 
 ================================================================================
 [77] Averages-Mode/averages-mode-1.rexx
@@ -1686,7 +1621,6 @@ mode=emu
 
 
 RC=0
-duration=.205000
 
 ================================================================================
 [78] Averages-Mode/averages-mode-2.rexx
@@ -1710,7 +1644,6 @@ Vector: [1,3,6,6,6,6,7,7,12,12,17], Mode(s): [6]
 Vector: [1,1,2,4,4], Mode(s): [1,4]
 
 RC=0
-duration=.109000
 
 ================================================================================
 [79] Averages-Pythagorean-means/averages-pythagorean-means.rexx
@@ -1721,7 +1654,6 @@ Gmean = 4.5287286881167647622
 Hmean = 3.4141715214740550062
 
 RC=0
-duration=.141000
 
 ================================================================================
 [80] Averages-Root-mean-square/averages-root-mean-square.rexx
@@ -1729,7 +1661,6 @@ duration=.141000
 root mean square for 1──►10 is:  6.204836823
 
 RC=0
-duration=.172000
 
 ================================================================================
 [81] Averages-Simple-moving-average/averages-simple-moving-average.rexx
@@ -1749,7 +1680,6 @@ duration=.172000
     1      2           3          
 
 RC=0
-duration=.126000
 
 ================================================================================
 [82] Balanced-brackets/balanced-brackets-1.rexx
@@ -1768,35 +1698,34 @@ OK [[[[[[[]]]]]]]
 OK [][]
                                             not OK []][[]
                                             not OK ]]][[[[]
-                                            not OK []][[]][[]][[]][[]][
-                                            not OK ][][][][][][][][][][][][
-OK [][][][][][][][][][][][][][][][][][]
-                                            not OK ][[]][[]][[]][[]][[]
-                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]
                                             not OK ][][][][][][][][][][
-                                            not OK ][][][][][][][][][][][][][][
-OK [][][][][][][][][][][][][][]
+                                            not OK []][[]][[]][[]][[]][[]][
                                             not OK ][[]][[]][[]][[]][[]][[]
-                                            not OK ][][][][
-                                            not OK ][][][][][][][][
-OK [][][][][][]
-                                            not OK ][[]][[]
-                                            not OK []][[]][[]][
-OK [][][][][][][][][][]
-                                            not OK ][[]][[]][[]][[]][[]][[]][[]
-                                            not OK []][[]][[]][[]][[]][[]][[]][[]][
-                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]][[]
-                                            not OK ][[]][[]][[]
-                                            not OK ][][][][][][][][][][][][][][][][][][
-OK [][][][][][][][][][][][][][][][][][][][]
-                                            not OK ][][][][][][
+                                            not OK ][[]
 OK [][][][][][][][][][][][][][][][]
+OK [][][][][][][][][][][][]
+                                            not OK ][][][][][][][][][][][][][][][][
+                                            not OK ][][][][
+OK [][][][][][][][]
+OK [][][][][][][][][][]
+OK [][][][]
+OK [][][][][][][][][][][][][][][][][][]
+OK [][][][][][][][][][][][][][]
+                                            not OK ][][][][][][
+                                            not OK []][[]][[]][
+                                            not OK ][[]][[]][[]
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK []][[]][[]][[]][[]][[]][[]][[]][[]][
+                                            not OK ][][][][][][][][][][][][][][][][][][
+                                            not OK []][[]][[]][[]][[]][
+OK [][][][][][]
+                                            not OK ][][][][][][][][][][][][][][
                                             not OK ][[]][[]][[]][[]][[]][[]][[]][[]
+                                            not OK []][
                                             not OK []][[]][[]][[]][
-                                            not OK []][[]][
+                                            not OK ][[]][[]][[]][[]][[]][[]][[]
 
 RC=0
-duration=.127000
 
 ================================================================================
 [83] Balanced-brackets/balanced-brackets-2.rexx
@@ -1833,7 +1762,6 @@ duration=.127000
 30 20 unbalanced ][[]][[]][[]][[]][[]
 
 RC=0
-duration=.125000
 
 ================================================================================
 [84] Balanced-brackets/balanced-brackets-3.rexx
@@ -1841,7 +1769,6 @@ duration=.125000
 125476  expressions were checked,  23713  were balanced,  101763  were unbalanced.
 
 RC=0
-duration=43.561000
 
 ================================================================================
 [85] Balanced-ternary/balanced-ternary.rexx
@@ -1853,22 +1780,20 @@ duration=43.561000
 [a*(b-c)]         ----0+--0++0 balanced ternary =   -262023 (decimal)
 
 RC=0
-duration=.203000
 
 ================================================================================
 [86] Benfords-law/benfords-law.rexx
 ================================================================================
 
      digit       observed       expected 
-    25 +++    say pad  '───────'  pad   center("",w1,'─')  pad  center("",w2,'─')   pad  arg(1)
-     9 +++ call show @benny  N  'Fibonacci numbers'
-Error 40 running "Y:\local\RosettaCodeData\git\Lang\REXX\Benfords-law\benfords-law.rexx", line 25: Incorrect call to routine
+    31 +++    say pad  '───────'  pad   center("",w1,'─')  pad  center("",w2,'─')   pad  arg(1)
+    13 +++ call show "Benford's law applied to"      N      'Fibonacci numbers'
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Benfords-law\REXX\benfords-law.rexx", line 31: Incorrect call to routine
 Error 40.23: CENTER argument 3 must be a single character; found "─"
-       *-*   "rexx" path || solution escape(args)
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741784 +++
 
 RC=-1073741784
-duration=.125000
 
 ================================================================================
 [87] Bernoulli-numbers/bernoulli-numbers.rexx
@@ -1909,7 +1834,6 @@ B(n)                    Bernoulli number expressed as a fraction
   60                                    -1215233140483755572040304994079820246041491/56786730
 
 RC=0
-duration=.439000
 
 ================================================================================
 [88] Best-shuffle/best-shuffle-1.rexx
@@ -1923,10 +1847,22 @@ original: up                   new: pu                   count: 0
 original: a                    new: a                    count: 1
 
 RC=0
-duration=.144000
 
 ================================================================================
-[92] Binary-digits/binary-digits-1.rexx
+[92] Best-shuffle/best-shuffle.rexx
+================================================================================
+original: tree                 new: eert                 count: 0
+original: abracadabra          new: baaracadrab          count: 0
+original: seesaw               new: eswase               count: 0
+original: elk                  new: lke                  count: 0
+original: grrrrrr              new: rrrrrrg              count: 5
+original: up                   new: pu                   count: 0
+original: a                    new: a                    count: 1
+
+RC=0
+
+================================================================================
+[93] Binary-digits/binary-digits-1.rexx
 ================================================================================
                    0 decimal, and in binary: 0
                    5 decimal, and in binary: 101
@@ -1934,21 +1870,9 @@ duration=.144000
                 9000 decimal, and in binary: 10001100101000
 
 RC=0
-duration=.417000
 
 ================================================================================
-[93] Binary-digits/binary-digits-2.rexx
-================================================================================
-                   0 decimal, and in binary: 0
-                   5 decimal, and in binary: 101
-                  50 decimal, and in binary: 110010
-                9000 decimal, and in binary: 10001100101000
-
-RC=0
-duration=.143000
-
-================================================================================
-[94] Binary-digits/binary-digits-3.rexx
+[94] Binary-digits/binary-digits-2.rexx
 ================================================================================
                    0 decimal, and in binary: 0
                    5 decimal, and in binary: 101
@@ -1956,10 +1880,19 @@ duration=.143000
                 9000 decimal, and in binary: 10001100101000
 
 RC=0
-duration=.219000
 
 ================================================================================
-[95] Binary-digits/binary-digits-4.rexx
+[95] Binary-digits/binary-digits-3.rexx
+================================================================================
+                   0 decimal, and in binary: 0
+                   5 decimal, and in binary: 101
+                  50 decimal, and in binary: 110010
+                9000 decimal, and in binary: 10001100101000
+
+RC=0
+
+================================================================================
+[96] Binary-digits/binary-digits-4.rexx
 ================================================================================
                    0 decimal, and in binary: 0
                    5 decimal, and in binary: 101
@@ -1969,49 +1902,46 @@ duration=.219000
                1E138 decimal, and in binary: 101010111111101001000101110110100000111011011011110111100110100100000100100001111101101110011101000101110110001101101000100100100110000111001010101011110010001111100011110100010101011011111111000110101110111100001011100111110000000010101100110101001010001001001011000000110000010010010100010010000001110100101000011111001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
 RC=0
-duration=.155000
 
 ================================================================================
-[96] Binary-search/binary-search-1.rexx
+[97] Binary-search/binary-search-1.rexx
 ================================================================================
 269 is in the list, its index is: 26
 
 arithmetic mean of the 76 values= 510
 
 RC=0
-duration=.158000
 
 ================================================================================
-[97] Binary-search/binary-search-2.rexx
+[98] Binary-search/binary-search-2.rexx
 ================================================================================
 arithmetic mean of the 79 values= 508
 
 823 is in the list, its index is: 66
 
 RC=0
-duration=.110000
 
 ================================================================================
-[98] Binary-strings/binary-strings.rexx
+[99] Binary-strings/binary-strings.rexx
 ================================================================================
 
 RC=0
-duration=.235000
 
 ================================================================================
-[99] Bitmap/bitmap-1.rexx
+[100] Bitmap/bitmap-1.rexx
 ================================================================================
-pixel 10,40 = 111111110000000000000000
-pixel 10,40 = 11111111 00000000 00000000
+(10,40)  pixel in binary:  111111110000000000000000
+(10,40)  pixel in binary:  11111111 00000000 00000000
 
-pixel 10,40 = FF0000
-pixel 10,40 = FF 00 00
+(10,40)  pixel in hex:     FF0000
+(10,40)  pixel in hex:     FF 00 00
+
+The file  image.PPM   was created.
 
 RC=0
-duration=.177000
 
 ================================================================================
-[100] Bitmap/bitmap-2.rexx
+[101] Bitmap/bitmap-2.rexx
 ================================================================================
 lend: 600 -> 58020000 => 600
 lend: 300 -> 2C010000 => 300
@@ -2021,10 +1951,9 @@ color at pixel 97/98=FF0000
 color at pixel 98/98=FFFFFF
 
 RC=0
-duration=1.326000
 
 ================================================================================
-[101] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
+[102] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
 ================================================================================
 ···│····················
 ···│····················
@@ -2048,10 +1977,9 @@ duration=1.326000
 ···│····················
 
 RC=0
-duration=.142000
 
 ================================================================================
-[102] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
+[103] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
 ================================================================================
 11 ..|.......
 10 ..|.....X.
@@ -2072,17 +2000,15 @@ duration=.142000
    2101234567
 
 RC=0
-duration=.140000
 
 ================================================================================
-[103] Bitmap-Flood-fill/bitmap-flood-fill.rexx
+[104] Bitmap-Flood-fill/bitmap-flood-fill.rexx
 ================================================================================
 
 RC=0
-duration=.346000
 
 ================================================================================
-[104] Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
+[105] Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
 ================================================================================
 ·······················│·······················
 ·······················│·······················
@@ -2129,17 +2055,22 @@ duration=.346000
 ·······················│·······················
 
 RC=0
-duration=.174000
 
 ================================================================================
-[105] Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
+[106] Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx
+================================================================================
+File  greyscale.ppm  was created.
+
+RC=0
+
+================================================================================
+[107] Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
 ================================================================================
 
 RC=0
-duration=.296000
 
 ================================================================================
-[106] Bitwise-IO/bitwise-io-1.rexx
+[108] Bitwise-IO/bitwise-io-1.rexx
 ================================================================================
 s=STRING
 b=101001110101001010010100100110011101000111000000
@@ -2147,20 +2078,18 @@ b=101001110101001010010100100110011101000111000000
 r=STRING
 
 RC=0
-duration=.125000
 
 ================================================================================
-[107] Bitwise-IO/bitwise-io-2.rexx
+[109] Bitwise-IO/bitwise-io-2.rexx
 ================================================================================
    input string= STRING
  encoded string= 101001110101001010010100100110011101000111000000
  decoded string= STRING
 
 RC=0
-duration=.501000
 
 ================================================================================
-[108] Bitwise-operations/bitwise-operations.rexx
+[110] Bitwise-operations/bitwise-operations.rexx
 ================================================================================
  decimal    value                          bits                       
 ───────── ───────── ──────────────────────────────────────────────────
@@ -2174,56 +2103,49 @@ duration=.501000
         2  A [»B]                                                  10
 
 RC=0
-duration=.170000
 
 ================================================================================
-[109] Boolean-values/boolean-values-1.rexx
-================================================================================
-
-RC=0
-duration=.172000
-
-================================================================================
-[110] Boolean-values/boolean-values-2.rexx
+[111] Boolean-values/boolean-values-1.rexx
 ================================================================================
 
 RC=0
-duration=.266000
 
 ================================================================================
-[111] Boolean-values/boolean-values-3.rexx
-================================================================================
-
-RC=0
-duration=.157000
-
-================================================================================
-[112] Boolean-values/boolean-values-4.rexx
+[112] Boolean-values/boolean-values-2.rexx
 ================================================================================
 
 RC=0
-duration=.157000
 
 ================================================================================
-[113] Boolean-values/boolean-values-5.rexx
+[113] Boolean-values/boolean-values-3.rexx
 ================================================================================
-Error 13 running "Y:\local\RosettaCodeData\git\Lang\REXX\Boolean-values\boolean-values-5.rexx", line 1: Invalid character in program
+
+RC=0
+
+================================================================================
+[114] Boolean-values/boolean-values-4.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[115] Boolean-values/boolean-values-5.rexx
+================================================================================
+Error 13 running "C:\jlf\local\RosettaCodeData\git\Task\Boolean-values\REXX\boolean-values-5.rexx", line 1: Invalid character in program
 Error 13.1: Invalid character in program "('c2'X)"
-       *-*   "rexx" path || solution escape(args)
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741811 +++
 
 RC=-1073741811
-duration=.175000
 
 ================================================================================
-[114] Boolean-values/boolean-values-6.rexx
+[116] Boolean-values/boolean-values-6.rexx
 ================================================================================
 
 RC=0
-duration=.501000
 
 ================================================================================
-[115] Box-the-compass/box-the-compass.rexx
+[117] Box-the-compass/box-the-compass.rexx
 ================================================================================
                       �heading   compass heading   
       ════════ ════════════════════
@@ -2262,59 +2184,52 @@ duration=.501000
                       354.38�   north
 
 RC=0
-duration=.492000
 
 ================================================================================
-[116] Brownian-tree/brownian-tree.rexx
+[118] Brownian-tree/brownian-tree.rexx
 ================================================================================
 'SCRSIZE' is not recognized as an internal or external command,
 operable program or batch file.
     23 +++ height=word(_, 1)-3 /*adjust useable height for the border.*/
-Error 41 running "Y:\local\RosettaCodeData\git\Lang\REXX\Brownian-tree\brownian-tree.rexx", line 23: Bad arithmetic conversion
-       *-*   "rexx" path || solution escape(args)
+Error 41 running "C:\jlf\local\RosettaCodeData\git\Task\Brownian-tree\REXX\brownian-tree.rexx", line 23: Bad arithmetic conversion
+       *-*   rexxExecutable path || solution escape(args)
        +++ RC=-1073741783 +++
 
 RC=-1073741783
-duration=.608000
 
 ================================================================================
-[117] Bulls-and-cows/bulls-and-cows-1.rexx
+[119] Bulls-and-cows/bulls-and-cows-1.rexx
 ================================================================================
 
 ──────── [Bulls & Cows]   Please enter a 4-digit guess (with no zeroes)   [or Quit]:
 
-──────── [Bulls & Cows]   You got 1 bull and 1 cow.
+──────── [Bulls & Cows]   You got 2 bulls and 1 cow.
 
 ──────── [Bulls & Cows]   Please enter a 4-digit guess (with no zeroes)   [or Quit]:
 
 RC=0
-duration=.342000
 
 ================================================================================
-[118] Bulls-and-cows/bulls-and-cows-2.rexx
+[120] Bulls-and-cows/bulls-and-cows-2.rexx
 ================================================================================
 <Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
-You got 0 bulls and 1 cow.
+You got 0 bulls and 2 cows.
 <Bulls & Cows game>   Please enter a four-digit guess  (or QUIT):
 
 RC=0
-duration=.422000
 
 ================================================================================
-[119] Bulls-and-cows-Player/bulls-and-cows-player.rexx
+[121] Bulls-and-cows-Player/bulls-and-cows-player.rexx
 ================================================================================
 
+───── How many bulls and cows were guessed with  1294  ?            [─── or QUIT]
 
-───── How many bulls and cows were guessed with  9876 ?    [─── or QUIT]
-
-
-───── How many bulls and cows were guessed with  9785 ?    [─── or QUIT]
+───── How many bulls and cows were guessed with  9824  ?            [─── or QUIT]
 
 RC=0
-duration=.302000
 
 ================================================================================
-[120] Caesar-cipher/caesar-cipher-1.rexx
+[122] Caesar-cipher/caesar-cipher-1.rexx
 ================================================================================
 Caesar cypher key: 22
        plain text: THEDEFINITIONOFATRIVIALPROGRAMISONETHATHASNOBUGS
@@ -2322,10 +2237,9 @@ Caesar cypher key: 22
        uncyphered: THEDEFINITIONOFATRIVIALPROGRAMISONETHATHASNOBUGS
 
 RC=0
-duration=.141000
 
 ================================================================================
-[121] Caesar-cipher/caesar-cipher-2.rexx
+[123] Caesar-cipher/caesar-cipher-2.rexx
 ================================================================================
 Caesar cypher key: 31
        plain text: Batman's hood is called a cowl (old meaning).
@@ -2333,10 +2247,9 @@ Caesar cypher key: 31
        uncyphered: Batman's hood is called a cowl (old meaning).
 
 RC=0
-duration=.108000
 
 ================================================================================
-[122] Calendar/calendar.rexx
+[124] Calendar/calendar.rexx
 ================================================================================
      January   1969          February   1969            March   1969     
   Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa     Su Mo Tu We Th Fr Sa 
@@ -2369,10 +2282,9 @@ duration=.108000
   27   28   29   30        24   25   26   27        29   30   31         
 
 RC=0
-duration=.203000
 
 ================================================================================
-[123] Calendar/calendar.rexx
+[125] Calendar/calendar.rexx
 ================================================================================
  �──────�     �──────�     �──────�     �──────�     �──────�
  �   January   1969   �     �  February   1969   �     �    March   1969    �     �    April   1969    �     �     May   1969     �
@@ -2424,116 +2336,1609 @@ duration=.203000
  �─┴──┴─┘
 
 RC=0
-duration=.157000
+
+================================================================================
+[127] Call-a-function/call-a-function-1.rexx
+================================================================================
+year= 4  
+
+RC=0
+
+================================================================================
+[128] Call-a-function/call-a-function-2.rexx
+================================================================================
+f1 doesn't need an argument
+f2: Sum of 3 arguments: 6
+f2: Invalid invocation: 4 arguments. Needed: 3
+f3: Argument 2 omitted
+f3: Argument 3 omitted
+f3 sum= 5
+f4: Sum of 2 arguments is 3
+f4: Sum of 3 arguments is 6
+f5: Argument 1 (A) contains 4700
+f5: Argument 2 (B) contains 11
+f5: sum=4711
+f6: dir ft.rex
+ Volume in drive C is CSC ESOE
+ Volume Serial Number is E406-1B8D
+
+ Directory of C:\jlf\local\RosettaCodeData\git
+
+File Not Found
+f7 returns 7
+f8 returns arg(1)+arg(2)
+f8 returns arg(1)+arg(2)
+3 = 3
+date is my date function
+20180705 07/05/2018
+fa returns arg(1)+arg(2)
+fa returns arg(1)+arg(2)
+33 = 3
+fb: 1,2
+fb: 1,2
+Syntax raised in line 39
+x=fb(1,2)
+rc=44 (Function did not return data)
+fb cannot be invoked as function (it does not return a value
+
+RC=0
+
+================================================================================
+[129] Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
+================================================================================
+return code 60 from rxfuncadd
+
+RC=60
+
+================================================================================
+[130] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
+================================================================================
+Carmichael number:  3∙11∙17
+Carmichael number:  5∙13∙17 5∙17∙29 5∙29∙73
+Carmichael number:  7∙13∙19 7∙19∙67 7∙23∙41 7∙31∙73 7∙73∙103
+Carmichael number:  13∙37∙61 13∙61∙397 13∙97∙421
+Carmichael number:  17∙41∙233 17∙353∙1201
+Carmichael number:  19∙43∙409 19∙199∙271
+Carmichael number:  23∙199∙353
+Carmichael number:  29∙113∙1093 29∙197∙953
+Carmichael number:  31∙61∙211 31∙151∙1171 31∙181∙331 31∙271∙601 31∙991∙15361
+Carmichael number:  37∙73∙109 37∙109∙2017 37∙613∙1621
+Carmichael number:  41∙61∙101 41∙73∙137 41∙101∙461 41∙241∙521 41∙881∙12041 41∙1721∙35281
+Carmichael number:  43∙127∙211 43∙211∙337 43∙271∙5827 43∙433∙643 43∙547∙673 43∙631∙1597 43∙3361∙3907
+Carmichael number:  47∙1151∙1933 47∙3359∙6073 47∙3727∙5153
+Carmichael number:  53∙79∙599 53∙157∙521
+Carmichael number:  59∙1451∙2089
+Carmichael number:  61∙181∙1381 61∙241∙421 61∙271∙571 61∙277∙2113 61∙421∙12841 61∙541∙3001 61∙661∙2521 61∙1301∙19841 61∙3361∙4021
+
+────────  69  Carmichael numbers found.
+
+RC=0
+
+================================================================================
+[131] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
+================================================================================
+Carmichael number:  3∙11∙17
+Carmichael number:  5∙13∙17 5∙17∙29 5∙29∙73
+Carmichael number:  7∙13∙19 7∙19∙67 7∙23∙41 7∙31∙73 7∙73∙103
+Carmichael number:  13∙37∙61 13∙61∙397 13∙97∙421
+Carmichael number:  17∙41∙233 17∙353∙1201
+Carmichael number:  19∙43∙409 19∙199∙271
+Carmichael number:  23∙199∙353
+Carmichael number:  29∙113∙1093 29∙197∙953
+Carmichael number:  31∙61∙211 31∙151∙1171 31∙181∙331 31∙271∙601 31∙991∙15361
+Carmichael number:  37∙73∙109 37∙109∙2017 37∙613∙1621
+Carmichael number:  41∙61∙101 41∙73∙137 41∙101∙461 41∙241∙521 41∙881∙12041 41∙1721∙35281
+Carmichael number:  43∙127∙211 43∙211∙337 43∙271∙5827 43∙433∙643 43∙547∙673 43∙631∙1597 43∙3361∙3907
+Carmichael number:  47∙1151∙1933 47∙3359∙6073 47∙3727∙5153
+Carmichael number:  53∙79∙599 53∙157∙521
+Carmichael number:  59∙1451∙2089
+Carmichael number:  61∙181∙1381 61∙241∙421 61∙271∙571 61∙277∙2113 61∙421∙12841 61∙541∙3001 61∙661∙2521 61∙1301∙19841 61∙3361∙4021
+
+────────  69  Carmichael numbers found.
+
+RC=0
+
+================================================================================
+[132] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
+================================================================================
+Carmichael number:  3∙11∙17
+Carmichael number:  5∙13∙17 5∙17∙29 5∙29∙73
+Carmichael number:  7∙13∙19 7∙19∙67 7∙23∙41 7∙31∙73 7∙73∙103
+Carmichael number:  13∙37∙61 13∙61∙397 13∙97∙421
+Carmichael number:  17∙41∙233 17∙353∙1201
+Carmichael number:  19∙43∙409 19∙199∙271
+Carmichael number:  23∙199∙353
+Carmichael number:  29∙113∙1093 29∙197∙953
+Carmichael number:  31∙61∙211 31∙151∙1171 31∙181∙331 31∙271∙601 31∙991∙15361
+Carmichael number:  37∙73∙109 37∙109∙2017 37∙613∙1621
+Carmichael number:  41∙61∙101 41∙73∙137 41∙101∙461 41∙241∙521 41∙881∙12041 41∙1721∙35281
+Carmichael number:  43∙127∙211 43∙211∙337 43∙271∙5827 43∙433∙643 43∙547∙673 43∙631∙1597 43∙3361∙3907
+Carmichael number:  47∙1151∙1933 47∙3359∙6073 47∙3727∙5153
+Carmichael number:  53∙79∙599 53∙157∙521
+Carmichael number:  59∙1451∙2089
+Carmichael number:  61∙181∙1381 61∙241∙421 61∙271∙571 61∙277∙2113 61∙421∙12841 61∙541∙3001 61∙661∙2521 61∙1301∙19841 61∙3361∙4021
+
+────────  69  Carmichael numbers found.
+
+RC=0
+
+================================================================================
+[133] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
+================================================================================
+    10 +++ say center('using simple variables', 35, "─")     /*title.*/
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Case-sensitivity-of-identifiers\REXX\case-sensitivity-of-identifiers-1.rexx", line 10: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "─"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[134] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
+================================================================================
+    11 +++ say center('using compound variables', 35, "═")   /*title.*/
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Case-sensitivity-of-identifiers\REXX\case-sensitivity-of-identifiers-2.rexx", line 11: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[135] Casting-out-nines/casting-out-nines.rexx
+================================================================================
+For 1 through 1000, the following passed the cast-out-9 test:
+1 9 10 18 19 27 28 36 37 45 46 54 55 63 64 72 73 81 82 90 91 99 100 108 109 117 118 126 127 135 136 144 145 153 154 162 163 171 172 180 181 189 190 198 199 207 208 216 217 225 226 234 235 243 244 252 253 261 262 270 271 279 280 288 289 297 298 306 307 315 316 324 325 333 334 342 343 351 352 360 361 369 370 378 379 387 388 396 397 405 406 414 415 423 424 432 433 441 442 450 451 459 460 468 469 477 478 486 487 495 496 504 505 513 514 522 523 531 532 540 541 549 550 558 559 567 568 576 577 585 586 594 595 603 604 612 613 621 622 630 631 639 640 648 649 657 658 666 667 675 676 684 685 693 694 702 703 711 712 720 721 729 730 738 739 747 748 756 757 765 766 774 775 783 784 792 793 801 802 810 811 819 820 828 829 837 838 846 847 855 856 864 865 873 874 882 883 891 892 900 901 909 910 918 919 927 928 936 937 945 946 954 955 963 964 972 973 981 982 990 991 999 1000
+
+For 1000 numbers, 223 passed the cast-out-9 test (22.3%) for base 10.
+
+The Kaprekar numbers in the same range are: 1 9 45 55 99 297 703 999
+
+All Kaprekar numbers are in the cast-out-9 test numbers list.
+
+RC=0
+
+================================================================================
+[136] Catalan-numbers/catalan-numbers-1.rexx
+================================================================================
+
+    18 +++    say center('Catalan numbers, method' arg(1),79,'─')
+     7 +++ call hdr 1A
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Catalan-numbers\REXX\catalan-numbers-1.rexx", line 18: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "─"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[137] Catalan-numbers/catalan-numbers-2.rexx
+================================================================================
+ n       c1.n       c2.n       c3.n
+ 0          1          1          1
+ 1          1          1          1
+ 2          2          2          2
+ 3          5          5          5
+ 4         14         14         14
+ 5         42         42         42
+ 6        132        132        132
+ 7        429        429        429
+ 8       1430       1430       1430
+ 9       4862       4862       4862
+10      16796      16796      16796
+11      58786      58786      58786
+12     208012     208012     208012
+13     742900     742900     742900
+14    2674440    2674440    2674440
+15    9694845    9694845    9694845
+16   35357670   35357670   35357670
+17  129644790  129644790  129644790
+18  477638700  477638700  477638700
+19 1767263190 1767263190 1767263190
+20 6564120420 6564120420 6564120420
+ n       c1.n       c2.n       c3.n
+
+RC=0
+
+================================================================================
+[138] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
+================================================================================
+1
+2
+5
+14
+42
+132
+429
+1430
+4862
+16796
+58786
+208012
+742900
+2674440
+9694845
+
+RC=0
+
+================================================================================
+[139] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
+================================================================================
+1
+2
+5
+14
+42
+132
+429
+1430
+4862
+16796
+58786
+208012
+742900
+2674440
+9694845
+
+RC=0
+
+================================================================================
+[140] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
+================================================================================
+1
+2
+5
+14
+42
+132
+429
+1430
+4862
+16796
+58785
+208012
+742900
+2674439
+9694845
+
+RC=0
+
+================================================================================
+[141] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
+================================================================================
+1
+2
+5
+14
+42
+132
+429
+1430
+4862
+16796
+58785
+208012
+742900
+2674439
+9694845
+
+RC=0
+
+================================================================================
+[142] Catamorphism/catamorphism.rexx
+================================================================================
+list: 1 2 3 4 5 6 7 8 9 10
+ sum: 55
+prod: 3628800
+ cat: 12345678910
+ min: 1
+ max: 10
+ avg: 5.5
+ GCD: 1
+ LCM: 2520
+
+RC=0
+
+================================================================================
+[143] Character-codes/character-codes-1.rexx
+================================================================================
+from char, yyy code= c
+from  hex, yyy code= c
+from  hex, yyy code= c
+from  bin, yyy code= c
+from  dec, yyy code= c
+
+char code:  c
+ hex code:  63
+ dec code:  99
+ bin code:  01100011
+
+RC=0
+
+================================================================================
+[144] Character-codes/character-codes-2.rexx
+================================================================================
+�
+81
+129
+10000001
+
+RC=0
+
+================================================================================
+[145] Check-Machin-like-formulas/check-machin-like-formulas.rexx
+================================================================================
+ OK:  pi/4 =    atan(1/2)    +    atan(1/3)
+ OK:  pi/4 =  2*atan(1/3)    +    atan(1/7)
+ OK:  pi/4 =  4*atan(1/5)    -    atan(1/239)
+ OK:  pi/4 =  5*atan(1/7)    +  2*atan(3/79)
+ OK:  pi/4 =  5*atan(29/278) +  7*atan(3/79)
+ OK:  pi/4 =    atan(1/2)    +    atan(1/5)   +    atan(1/8)
+ OK:  pi/4 =  4*atan(1/5)    -    atan(1/70)  +    atan(1/99)
+ OK:  pi/4 =  5*atan(1/7)    +  4*atan(1/53)  +  2*atan(1/4443)
+ OK:  pi/4 =  6*atan(1/8)    +  2*atan(1/57)  +    atan(1/239)
+ OK:  pi/4 =  8*atan(1/10)   -    atan(1/239) -  4*atan(1/515)
+ OK:  pi/4 = 12*atan(1/18)   +  8*atan(1/57)  -  5*atan(1/239)
+ OK:  pi/4 = 16*atan(1/21)   +  3*atan(1/239) +  4*atan(3/1042)
+ OK:  pi/4 = 22*atan(1/28)   +  2*atan(1/443) -  5*atan(1/1393) - 10*atan(1/11018)
+ OK:  pi/4 = 22*atan(1/38)   + 17*atan(7/601) + 10*atan(7/8149)
+ OK:  pi/4 = 44*atan(1/57)   +  7*atan(1/239) - 12*atan(1/682)  + 24*atan(1/12943)
+ OK:  pi/4 = 88*atan(1/172)  + 51*atan(1/239) + 32*atan(1/682)  + 44*atan(1/5357)  + 68*atan(1/12943)
+bad:  pi/4 = 88*atan(1/172)  + 51*atan(1/239) + 32*atan(1/682)  + 44*atan(1/5357)  + 68*atan(1/12944)
+
+RC=0
+
+================================================================================
+[146] Check-that-file-exists/check-that-file-exists-1.rexx
+================================================================================
+
+file  input.txt  doesn't exist in the current directory
+'DOSISDIR' is not recognized as an internal or external command,
+operable program or batch file.
+    10 +++    if dosisdir(dn)  then say 'directory ' dn    " does exist in the" @.j
+Error 34 running "C:\jlf\local\RosettaCodeData\git\Task\Check-that-file-exists\REXX\check-that-file-exists-1.rexx", line 10: Logical value not "0" or "1"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741790 +++
+
+RC=-1073741790
+
+================================================================================
+[147] Check-that-file-exists/check-that-file-exists-2.rexx
+================================================================================
+Error 37 running "C:\jlf\local\RosettaCodeData\git\Task\Check-that-file-exists\REXX\check-that-file-exists-2.rexx", line 7: Unexpected "," or ")"
+Error 37.1: Unexpected ","
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741787 +++
+
+RC=-1073741787
+
+================================================================================
+[148] Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
+================================================================================
+Ns:  3,5,7
+As:  2,3,2
+
+found a solution with X= 23
+
+RC=0
+
+================================================================================
+[149] Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
+================================================================================
+Ns:  3,5,7
+As:  2,3,2
+
+found a solution with X= 23
+
+RC=0
+
+================================================================================
+[150] Cholesky-decomposition/cholesky-decomposition.rexx
+================================================================================
+
+
+
+    34 +++       say center(hdr, ((width + 1) * w) % ord,  sep)
+    13 +++    call tell 'input array',mat
+     5 +++ call Cholesky niner
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Cholesky-decomposition\REXX\cholesky-decomposition.rexx", line 34: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[151] Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
+================================================================================
+     x1        y1        x2        y2     radius          circle1x  circle1y  circle2x  circle2y
+  ════════  ════════  ════════  ════════  ══════          ════════  ════════  ════════  ════════
+   0.1234    0.9876    0.8765    0.2345     2     ───►     1.8631    1.9742   -0.8632   -0.7521
+   0         2         0         0          1     ───►     0         1         0         1     
+   0.1234    0.9876    0.1234    0.9876     2     ───►  coincident points give infinite circles.
+   0.1234    0.9876    0.8765    0.2345    0.5    ───►  points are too far apart for the specified radius.
+   0.1234    0.9876    0.1234    0.9876     0     ───►  radius of zero yields no circles.
+
+RC=0
+
+================================================================================
+[152] Closest-pair-problem/closest-pair-problem.rexx
+================================================================================
+    22 +++ say $ center("x", w, '═')" "      center('y', w, "═")      '  is: '     sqrt(abs(minDD))/1
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Closest-pair-problem\REXX\closest-pair-problem.rexx", line 22: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[153] Closures-Value-capture/closures-value-capture.rexx
+================================================================================
+the zero─based list is:  8 5 4 9 1 3 2 7 6 0
+function  .8  returned  0
+
+RC=0
+
+================================================================================
+[154] Collections/collections-1.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[155] Collections/collections-2.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[157] Collections/collections-4.rexx
+================================================================================
+prime 1 is 2
+prime 2 is 3
+prime 3 is 5
+prime 4 is 7
+prime 5 is 11
+prime 6 is 13
+prime 7 is 17
+prime 8 is 19
+prime 9 is 23
+prime 10 is 29
+prime 11 is 31
+prime 12 is 37
+prime 13 is 41
+prime 14 is 43
+
+RC=0
+
+================================================================================
+[159] Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
+================================================================================
+'CURSOR' is not recognized as an internal or external command,
+operable program or batch file.
+'SCRREAD' is not recognized as an internal or external command,
+operable program or batch file.
+screen location (,) color is: COLOR
+
+RC=0
+
+================================================================================
+[160] Colour-bars-Display/colour-bars-display.rexx
+================================================================================
+'SCRSIZE' is not recognized as an internal or external command,
+operable program or batch file.
+     3 +++ barWidth=sw%8                                         /*calculate the bar width.        */
+Error 41 running "C:\jlf\local\RosettaCodeData\git\Task\Colour-bars-Display\REXX\colour-bars-display.rexx", line 3: Bad arithmetic conversion
+Error 41.1: Non-numeric value ("") to left of arithmetic operation "%"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741783 +++
+
+RC=-1073741783
+
+================================================================================
+[161] Combinations/combinations.rexx
+================================================================================
+──────────── 5  things taken  3  at a time:
+ 1 2 3
+ 1 2 4
+ 1 2 5
+ 1 3 4
+ 1 3 5
+ 1 4 5
+ 2 3 4
+ 2 3 5
+ 2 4 5
+ 3 4 5
+──────────── 10  combinations.
+
+RC=0
+
+================================================================================
+[162] Combinations-and-permutations/combinations-and-permutations.rexx
+================================================================================
+P(1,1)=1
+P(2,1)=2  P(2,2)=2
+P(3,1)=3  P(3,2)=6  P(3,3)=6
+P(4,1)=4  P(4,2)=12  P(4,3)=24  P(4,4)=24
+P(5,1)=5  P(5,2)=20  P(5,3)=60  P(5,4)=120  P(5,5)=120
+P(6,1)=6  P(6,2)=30  P(6,3)=120  P(6,4)=360  P(6,5)=720  P(6,6)=720
+P(7,1)=7  P(7,2)=42  P(7,3)=210  P(7,4)=840  P(7,5)=2520  P(7,6)=5040  P(7,7)=5040
+P(8,1)=8  P(8,2)=56  P(8,3)=336  P(8,4)=1680  P(8,5)=6720  P(8,6)=20160  P(8,7)=40320  P(8,8)=40320
+P(9,1)=9  P(9,2)=72  P(9,3)=504  P(9,4)=3024  P(9,5)=15120  P(9,6)=60480  P(9,7)=181440  P(9,8)=362880  P(9,9)=362880
+P(10,1)=10  P(10,2)=90  P(10,3)=720  P(10,4)=5040  P(10,5)=30240  P(10,6)=151200  P(10,7)=604800  P(10,8)=1814400  P(10,9)=3628800  P(10,10)=3628800
+P(11,1)=11  P(11,2)=110  P(11,3)=990  P(11,4)=7920  P(11,5)=55440  P(11,6)=332640  P(11,7)=1663200  P(11,8)=6652800  P(11,9)=19958400  P(11,10)=39916800  P(11,11)=39916800
+P(12,1)=12  P(12,2)=132  P(12,3)=1320  P(12,4)=11880  P(12,5)=95040  P(12,6)=665280  P(12,7)=3991680  P(12,8)=19958400  P(12,9)=79833600  P(12,10)=239500800  P(12,11)=479001600  P(12,12)=479001600
+
+C(10,1)=10  C(10,3)=120  C(10,5)=252  C(10,7)=120  C(10,9)=10
+C(20,1)=20  C(20,5)=15504  C(20,9)=167960  C(20,13)=77520  C(20,17)=1140
+C(30,1)=30  C(30,7)=2035800  C(30,13)=119759850  C(30,19)=54627300  C(30,25)=142506
+C(40,1)=40  C(40,9)=273438880  C(40,17)=88732378800  C(40,25)=40225345056  C(40,33)=18643560
+C(50,1)=50  C(50,11)=37353738800  C(50,21)=67327446062800  C(50,31)=30405943383200  C(50,41)=2505433700
+C(60,1)=60  C(60,13)=5166863427600  C(60,25)=51915437974328292  C(60,37)=23385332420868600  C(60,49)=342700125300
+
+P(5,1)=5  P(5,1)=5  P(5,1)=5  P(5,1)=5  P(5,1)=5
+P(1005,1)=1005  P(1005,101)=9.1176524923776877363E+300  P(1005,201)=1.2772738260896333926E+594  P(1005,301)=6.9244021230613662196E+881  P(1005,401)=2.4492580742838357278E+1163
+P(2005,1)=2005  P(2005,201)=1.6533543480914610058E+659  P(2005,401)=3.0753126526205309249E+1305  P(2005,601)=7.9852540678709597130E+1940  P(2005,801)=8.0516979630356802995E+2563
+P(3005,1)=3005  P(3005,301)=1.1935689764209015622E+1040  P(3005,601)=1.5619600532077469150E+2062  P(3005,901)=1.0291767405881430479E+3068  P(3005,1201)=1.5669988662999668720E+4055
+P(4005,1)=4005  P(4005,401)=4.3808609526948101266E+1435  P(4005,801)=2.3060742016678396933E+2848  P(4005,1201)=2.2044072986703009755E+4239  P(4005,1601)=2.8973897505902543204E+5605
+P(5005,1)=5005  P(5005,501)=1.4180262672357809801E+1842  P(5005,1001)=2.8239356430641573722E+3656  P(5005,1501)=3.6832518654277810594E+5443  P(5005,2001)=3.9303728189857603162E+7199
+P(6005,1)=6005  P(6005,601)=2.4482219222979658097E+2257  P(6005,1201)=1.0247320583108167487E+4482  P(6005,1801)=1.0131515875595211375E+6674  P(6005,2401)=4.8762853043004294329E+8828
+P(7005,1)=7005  P(7005,701)=7.6900396347210828241E+2679  P(7005,1401)=1.2659048848290269952E+5322  P(7005,2101)=1.7753130713788487191E+7926  P(7005,2801)=7.2114365718218704695E+10486
+P(8005,1)=8005  P(8005,801)=3.9769062582658855959E+3108  P(8005,1601)=4.3272401446508603181E+6174  P(8005,2401)=1.4466844005282015778E+9197  P(8005,3201)=8.3354759867215982278E+12169
+P(9005,1)=9005  P(9005,901)=5.6135384805755901099E+3542  P(9005,1801)=1.1194389175552115248E+7038  P(9005,2701)=2.4737530806300682806E+10484  P(9005,3601)=5.6056491332873455398E+13874
+P(10005,1)=10005  P(10005,1001)=5.3580936683833889197E+3981  P(10005,2001)=1.3407350644082770778E+7911  P(10005,3001)=1.3407953461588097193E+11786  P(10005,4001)=8.1811569565040010437E+15598
+P(11005,1)=11005  P(11005,1101)=1.1340564277915775963E+4425  P(11005,2201)=7.9753039151558717610E+8792  P(11005,3301)=8.0842724022079710248E+13100  P(11005,4401)=2.9749926937463675736E+17340
+P(12005,1)=12005  P(12005,1201)=2.1391703159775094656E+4872  P(12005,2401)=3.7994859265471124812E+9682  P(12005,3601)=3.5081603331307865953E+14427  P(12005,4801)=6.9968644993020337359E+19097
+P(13005,1)=13005  P(13005,1301)=1.6832659142209713962E+5323  P(13005,2601)=3.1719005022749408296E+10579  P(13005,3901)=1.1206120643200361213E+15765  P(13005,5201)=5.0883658993886790178E+20869
+P(14005,1)=14005  P(14005,1401)=2.9074578200382556975E+5777  P(14005,2801)=1.2835011192416517281E+11483  P(14005,4201)=3.8312600202917546343E+17112  P(14005,5601)=8.7456467698123057261E+22654
+
+C(100,1)=100  C(100,21)=2.0418414110621321255E+21  C(100,41)=2.0116440213369968048E+28  C(100,61)=9.0139240300346304925E+27  C(100,81)=1.3234157293921226741E+20
+C(200,1)=200  C(200,41)=8.0006165666286406037E+42  C(200,81)=2.4404128184470558197E+57  C(200,121)=1.0891098528606695394E+57  C(200,161)=5.0935602365182339252E+41
+C(300,1)=300  C(300,61)=3.5574671252567510894E+64  C(300,121)=3.3878557197772169409E+86  C(300,181)=1.5098730832156289128E+86  C(300,241)=2.2510943427454545270E+63
+C(400,1)=400  C(400,81)=1.6703771503944415835E+86  C(400,161)=4.9770797199515347150E+115  C(400,241)=2.2166247162163128334E+115  C(400,321)=1.0537425948749981954E+85
+C(500,1)=500  C(500,101)=8.0859177660929770887E+107  C(500,201)=7.5447012685604958486E+144  C(500,301)=3.3587706644089915087E+144  C(500,401)=5.0915068227892187414E+106
+C(600,1)=600  C(600,121)=3.9913554739811382543E+129  C(600,241)=1.1667430218545073615E+174  C(600,361)=5.1927067085306791157E+173  C(600,481)=2.5101559893540422495E+128
+C(700,1)=700  C(700,141)=1.9971304197729039382E+151  C(700,281)=1.8294137562513979560E+203  C(700,421)=8.1403842518866639077E+202  C(700,561)=1.2548814134936695871E+150
+C(800,1)=800  C(800,161)=1.0093242166331589874E+173  C(800,321)=2.8977104736455704539E+232  C(800,481)=1.2892100651978213666E+232  C(800,641)=6.3378002682503352943E+171
+C(900,1)=900  C(900,181)=5.1402207737939392620E+194  C(900,361)=4.6256239559539226532E+261  C(900,541)=2.0577328996911473555E+261  C(900,721)=3.2260054093505652100E+193
+C(1000,1)=1000  C(1000,201)=2.6336937554862900107E+216  C(1000,401)=7.4293352412781479131E+290  C(1000,601)=3.3046738011675400053E+290  C(1000,801)=1.6522236106515115238E+215
+
+RC=0
+
+================================================================================
+[163] Combinations-with-repetitions/combinations-with-repetitions-1.rexx
+================================================================================
+─────────────── 3 doughnut selection taken 2 at a time:
+ iced iced
+ iced jam
+ iced plain
+ jam jam
+ jam plain
+ plain plain
+═══════════════ 6 combinations.
+
+
+─────────────── 10 doughnut selection taken 3 at a time:
+═══════════════ 220 combinations.
+
+
+
+RC=0
+
+================================================================================
+[164] Combinations-with-repetitions/combinations-with-repetitions-2.rexx
+================================================================================
+------------ 3 doughnut selection taken 2 at a time:
+ iced iced
+ iced jam
+ iced plain
+ jam jam
+ jam plain
+ plain plain
+------------ 6 combinations.
+
+------------ 10 doughnut selection taken 3 at a time:
+ list output suppressed
+------------ 220 combinations.
+
+------------ 10 doughnut selection taken 9 at a time:
+ list output suppressed
+------------ 48620 combinations.
+
+.531000 seconds
+
+RC=0
+
+================================================================================
+[165] Combinations-with-repetitions/combinations-with-repetitions-3.rexx
+================================================================================
+------------ 3 doughnut selection taken 2 at a time:
+ iced iced
+ iced jam
+ iced plain
+ jam jam
+ jam plain
+ plain plain
+6
+------------ 10 doughnut selection taken 3 at a time:
+ list output suppressed
+220
+------------ 10 doughnut selection taken 9 at a time:
+ list output suppressed
+48620
+.271000 seconds
+
+RC=0
+
+================================================================================
+[166] Comma-quibbling/comma-quibbling-1.rexx
+================================================================================
+{}
+{ABC}
+{ABC and DEF}
+{ABC,DEF,G and H}
+
+RC=0
+
+================================================================================
+[167] Comma-quibbling/comma-quibbling-2.rexx
+================================================================================
+{}
+{ABC}
+{ABC and DEF}
+{ABC, DEF, G and H}
+
+RC=0
+
+================================================================================
+[168] Comma-quibbling/comma-quibbling-3.rexx
+================================================================================
+
+                            [] : {}
+                       ["ABC"] : {ABC}
+                ["ABC", 'DEF'] : {ABC and DEF}
+              [ABC, DEF, G, H] : {ABC, DEF, G and H}
+
+RC=0
+
+================================================================================
+[169] Command-line-arguments/command-line-arguments-1.rexx
+================================================================================
+command arguments:
+
+
+RC=0
+
+================================================================================
+[170] Command-line-arguments/command-line-arguments-2.rexx
+================================================================================
+command arguments:
+ARG1 ARG2 ARG3
+
+options=
+   data=ARG1 ARG2 ARG3
+
+RC=0
+
+================================================================================
+[171] Comments/comments-1.rexx
+================================================================================
+     3 +++ say 44 / (7-y)      /* divide by some strange thingy.*/
+Error 42 running "C:\jlf\local\RosettaCodeData\git\Task\Comments\REXX\comments-1.rexx", line 3: Arithmetic overflow/underflow
+Error 42.3: Arithmetic overflow; divisor must not be zero
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741782 +++
+
+RC=-1073741782
+
+================================================================================
+[172] Comments/comments-2.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[173] Comments/comments-3.rexx
+================================================================================
+something
+
+RC=0
+
+================================================================================
+[174] Compile-time-calculation/compile-time-calculation.rexx
+================================================================================
+10! = 3628800
+
+RC=0
+
+================================================================================
+[175] Compound-data-type/compound-data-type-1.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[176] Compound-data-type/compound-data-type-2.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[180] Conjugate-transpose/conjugate-transpose.rexx
+================================================================================
+
+    73 +++    say center('matrix' matX, 79, '─')
+     6 +++ call showCmat 'M'        ,N                      /*display a nicely formatted matrix.   */
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Conjugate-transpose\REXX\conjugate-transpose.rexx", line 73: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "─"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[181] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
+================================================================================
+           ΘΘ   Θ
+        Θ Θ�Θ� Θ
+                ΘΘΘ
+       Θ      ΘΘΘ  Θ
+      Θ    Θ       �Θ  Θ
+                         Θ
+        �Θ               Θ
+  Θ��Θ                 Θ
+   Θ  Θ                   Θ
+  Θ                     Θ
+  Θ                       Θ
+ ��Θ                      Θ
+                            Θ�
+
+                         ΘΘΘ
+  Θ�                     Θ
+   Θ
+                          Θ
+  ΘΘ                      Θ
+   Θ                    Θ Θ
+    Θ                  Θ Θ�
+  Θ Θ
+       Θ             Θ Θ�
+     Θ�             �ΘΘΘ
+    Θ            ΘΘ
+             Θ
+                 �Θ
+         ΘΘ Θ      Θ
+          Θ   �Θ  Θ
+               Θ
+
+RC=0
+
+================================================================================
+[182] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
+================================================================================
+                              Θ
+
+                Θ    Θ  Θ          Θ
+            Θ      Θ  Θ    Θ
+                Θ      Θ          ΘΘΘ
+          Θ            Θ  Θ            Θ      Θ
+      Θ  Θ    Θ  Θ                  Θ
+          Θ      Θ                          Θ
+          Θ
+      Θ                                          Θ
+      ΘΘ                                          ΘΘ
+        ΘΘ                                            Θ
+          Θ                                            Θ
+      Θ                                          Θ    Θ
+                                                  Θ
+    ΘΘ                                            Θ
+  Θ  Θ
+                                                      Θ
+  Θ
+          Θ
+      Θ    Θ                                          Θ
+                                                ΘΘ
+    ΘΘ                                                Θ
+        Θ  Θ                                ΘΘΘ  Θ
+                Θ                        Θ  Θ  ΘΘ
+                          Θ    Θ              Θ
+                        ΘΘ        Θ          Θ
+                        Θ      Θ
+                  Θ  Θ    Θ      Θ    Θ
+                    Θ                Θ
+                              Θ
+
+RC=0
+
+================================================================================
+[183] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
+================================================================================
+                              O
+                    O     O O
+                        O     O     O   O   O
+                O   O O         O     O
+                          O             O
+              O     O             O     O           O
+      O         O   O                     O     O O
+          O O   O                             O   O O O
+                                                      O
+            O
+    O                                             O O   O
+                                                  O     O
+          O                                       O
+  O   O                                                   O
+      O                                           O       O
+  O                                                         O
+  O   O                                             O   O
+          O                                       O   O
+    O                                             O     O O
+        O O                                       O O     O
+            O                                   O     O   O
+                                                      O
+        O
+                  O                           O O O O
+                    O                             O
+          O       O
+          O O     O O O
+                  O   O           O     O
+                O   O           O O
+                    O   O         O O
+
+
+RC=0
+
+================================================================================
+[184] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
+================================================================================
+                              +
+                      +       +
+                            + +       +   +
+                          +       +
+          +         +       +       +   +     +
+                      +                         + + +
+      +   +                                       +
+                                          +   +
+                                                  + +
+          +                                     + +   + +
+  + +                                           +
+                                                          +
+  + +   +                                               +
+    + +                                             +   +
+                                                  +       +
+  +   + + +                                       +   +
+        + +                                           +
+    +                                                     +
+  + +   +                                               + +
+  + + +   +                                       +   + + +
+            +                                     +
+          + + +                               +       + +
+        +   + +
+          +   + + +                         + +     +
+                +                           +       +
+          +     +
+            +           +
+                +               +
+
+                              +     + +
+                              +
+100 points filled
+
+RC=0
+
+================================================================================
+[185] Continued-fraction/continued-fraction-1.rexx
+================================================================================
+    √2 = 1.414213562373095048801688724209698078569671875376948073176679737990732478462107038850387534327641573   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+    √3 = 1.732050807568877293527446341505872366942805253810380628055806979451933016908800037081146186757248576   α terms=1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 ...
+en √ 2 = 1.414213562373095048801688724209698078569671875376948073176679737990732478462107038850387534327641573   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+en √ 3 = 1.732050807568877293527446341505872366942805253810380628055806979451933016908800037081146186757248576   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+en √ 4 = 2                                                                                                       α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 ...
+en √ 5 = 2.236067977499789696409173668731276235440618359611525724270897245410520925637804899414414408378782275   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 ...
+en √ 6 = 2.449489742783178098197284074705891391965947480656670128432692567250960377457315026539859433104640235   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 ...
+en √ 7 = 2.645751311064590590501615753639260425710259183082450180368334459201068823230283627760392886474543611   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 ...
+en √ 8 = 2.828427124746190097603377448419396157139343750753896146353359475981464956924214077700775068655283145   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 ...
+en √ 9 = 3                                                                                                       α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 ...
+en √10 = 3.162277660168379331998893544432718533719555139325216826857504852792594438639238221344248108379300295   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 ...
+en √11 = 3.316624790355399849114932736670686683927088545589353597058682146116484642609043846708843399128290651   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 ...
+en √12 = 3.464101615137754587054892683011744733885610507620761256111613958903866033817600074162292373514497151   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 11 ...
+en √13 = 3.605551275463989293119221267470495946251296573845246212710453056227166948293010445204619082018490718   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12 ...
+en √14 = 3.741657386773941385583748732316549301756019807778726946303745467320035156306939027976809895194379572   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 13 ...
+en √15 = 3.872983346207416885179265399782399610832921705291590826587573766113483091936979033519287376858673518   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 14 ...
+en √16 = 4                                                                                                       α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 ...
+en √17 = 4.123105625617660549821409855974077025147199225373620434398633573094954346337621593587863650810684297   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=16 16 16 16 16 16 16 16 16 16 16 16 16 16 16 16 16 ...
+n √ ½ = 0.707106781186547524400844362104849039284835937688474036588339868995366239231053519425193767163820786   α terms=2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 ...
+                                                                                                                   ß terms=-0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5 ...
+       e = 2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427   α terms=1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ...
+ φ, phi = 1.618033988749894848204586834365638117720309179805762862135448622705260462818902449707207204189391137   α terms=1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ...
+  tan(1) = 1.557407724654902230506974807458360173087250772381520038383946605698861397151727289555099965202242984   α terms=1 1 3 1 5 1 7 1 9 1 11 1 13 1 15 1 17 1 19 1 21 1 ...
+ coth(1) = 1.313035285499331303636161246930847832912013941240452655543152967567084270461874382674679241480856303   α terms=3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 ...
+coth(½) = 2.163953413738652848770004010218023117093738602150792272533574119296087634783339486574409418809750115   α terms=6 10 14 18 22 26 30 34 38 42 46 50 54 58 62 66 70 ...
+  π, pi = 3.141592653589792988470143264530440384041017830472772036746332303472711537960073664096818977224037083   α terms=6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 ...
+
+RC=0
+
+================================================================================
+[186] Continued-fraction/continued-fraction-2.rexx
+================================================================================
+SQRT2=     1.41421356237309504880168872421
+NAPIER=    2.71828182845904523536028747135
+PI=        3.14159262280484694855146925223
+
+RC=0
+
+================================================================================
+[187] Continued-fraction/continued-fraction-3.rexx
+================================================================================
+PI =3.1415926535897932384626433832795028841971693993751...
+PIX=3.1415926535897932384626433832795028841971693993751...
+201 correct digits
+
+RC=0
+
+================================================================================
+[188] Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
+================================================================================
+              1/2  ──► CF:  0 2
+               3   ──► CF:  3
+             23/8  ──► CF:  2 1 7
+             13/11 ──► CF:  1 5 2
+             22/7  ──► CF:  3 7
+                       ___
+───────── attempts at √ 2.
+14142/1e4          ──► CF:  1 2 2 2 2 2 1 1 29
+141421/1e5         ──► CF:  1 2 2 2 2 2 2 3 1 1 3 1 7 2
+1414214/1e6        ──► CF:  1 2 2 2 2 2 2 2 3 6 1 2 1 12
+14142136/1e7       ──► CF:  1 2 2 2 2 2 2 2 2 2 6 1 2 4 1 1 2
+141421356/1e8      ──► CF:  1 2 2 2 2 2 2 2 2 2 2 3 4 1 1 2 6 8
+1414213562/1e9     ──► CF:  1 2 2 2 2 2 2 2 2 2 2 2 1 1 14 1 238 1 3
+14142135624/1e10   ──► CF:  1 2 2 2 2 2 2 2 2 2 2 2 2 2 5 4 1 8 4 2 1 4
+141421356237/1e11  ──► CF:  1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 1 4 1 2 1 63 2 1 1 1 4 2
+1414213562373/1e12 ──► CF:  1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 1 11 2 3 2 1 1 1 25 1 2 3
+√2                 ──► CF:  1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3
+
+───────── an attempt at pi
+pi                 ──► CF:  3 7 15 1 292 1 1 1 2 1 3 1 14 2 1 1 2 2 2 2 1 84 2 1 1 15 3 13 1 4 2 6 6 99 1 2 2 6 3 5 1 1 6 8 1 7 1 2 3 7 1 2 1 1 12 1 1 1 3 1 1 8 1 1 2 1 6 1 1 5 2 2 3 1 2 4 4 16 1 161 45 1 22 1 2 2 1 4 1 2 24 1 2 1 3 1 2 1 1 10 2 5 4 1 2 2 8 1 5 2 2 26 1 4 1 1 8 2 42 2 1 7 3 3 1 1 7 2 4 9 7 2 3 1 57 1 18 1 9 19 1 2 18 1 3 7 30 1 1 1 3 3 3 1 2 8 1 1 2 1 15 1 2 13 1 2 1 4 1 12 1 1 3 3 28 1 10 3 2 20 1 1 1 1 4 1 1 1 5 3 2 1 6 1 4 1 120 2 1 1 3 1 23 1 15 1 3 7 1 16 1 2 1 21 2 1 1 2 9 1 6 4
+
+RC=0
+
+================================================================================
+[189] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
+================================================================================
+old = 0.9054054054
+new = 67/74
+
+RC=0
+
+================================================================================
+[190] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
+================================================================================
+  0.9054054054 67/74
+ 
+  0.5185185185 14/27
+ 
+  0.75 3/4
+ 
+  0.905405400 693627417/766095958
+> 0.9054053996 is different
+ 
+  0.9054054054 67/74
+ 
+  0.1428571428 1/7
+> 0.1428571429 is different
+ 
+  35.000 35
+ 
+  35.001 35001/1000
+ 
+  0.00000000001 0
+                   not=?
+> 0 is different
+ 
+  0.000001000001 1/999999
+ 
+
+RC=0
+
+================================================================================
+[191] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
+================================================================================
+5.55555 = 111111/20000 ok
+3 = 3 ok
+0.03 = 3/100 ok
+0.9(054) = 67/74 ok
+0.(3) = 1/3 ok
+5.28(571428) = 37/7 ok
+5.28(571428) = 37/7 should be 38/7 (demonstrate error case)
+0.(518) = 14/27 ok
+0.75 = 3/4 ok
+0.(142857) = 1/7 ok
+0.1(428571) = 1/7 ok
+35.000 = 35 ok
+35.001 = 35001/1000 ok
+0.00000000001 = 1/100000000000 ok
+0.000001000001 = 1000001/1000000000000 ok
+
+RC=0
+
+================================================================================
+[192] Conways-Game-of-Life/conways-game-of-life-1.rexx
+================================================================================
+    45 +++    _=d2c(_)
+     8 +++ life! = pickChar(life!            '☼')     /*the gylph kinda looks like an amoeba.*/
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Conways-Game-of-Life\REXX\conways-game-of-life-1.rexx", line 45: Incorrect call to routine
+Error 40.12: D2C argument 1 must be a whole number; found "☼"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[193] Conways-Game-of-Life/conways-game-of-life-2.rexx
+================================================================================
+    92 +++    st=st||'-'right(s,2,'-')||copies('-',xmax-xmin)'+'
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Conways-Game-of-Life\REXX\conways-game-of-life-2.rexx", line 92: Incorrect call to routine
+Error 40.13: COPIES argument 2 must be zero or positive; found "-999"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[194] Copy-a-string/copy-a-string.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[195] Count-in-factors/count-in-factors-1.rexx
+================================================================================
+ 1 = {unity}  1
+ 2 = [prime]  2
+ 3 = [prime]  3
+ 4 =          2x2
+ 5 = [prime]  5
+ 6 =          2x3
+ 7 = [prime]  7
+ 8 =          2x2x2
+ 9 =          3x3
+10 =          2x5
+11 = [prime]  11
+12 =          2x2x3
+13 = [prime]  13
+14 =          2x7
+15 =          3x5
+16 =          2x2x2x2
+17 = [prime]  17
+18 =          2x3x3
+19 = [prime]  19
+20 =          2x2x5
+21 =          3x7
+22 =          2x11
+23 = [prime]  23
+24 =          2x2x2x3
+25 =          5x5
+26 =          2x13
+27 =          3x3x3
+28 =          2x2x7
+29 = [prime]  29
+30 =          2x3x5
+31 = [prime]  31
+32 =          2x2x2x2x2
+33 =          3x11
+34 =          2x17
+35 =          5x7
+36 =          2x2x3x3
+37 = [prime]  37
+38 =          2x19
+39 =          3x13
+40 =          2x2x2x5
+
+12  primes found.
+
+RC=0
+
+================================================================================
+[196] Count-in-factors/count-in-factors-2.rexx
+================================================================================
+ 1 = {unity}  1
+ 2 = [prime]  2
+ 3 = [prime]  3
+ 4 =          2x2
+ 5 = [prime]  5
+ 6 =          2x3
+ 7 = [prime]  7
+ 8 =          2x2x2
+ 9 =          3x3
+10 =          2x5
+11 = [prime]  11
+12 =          2x2x3
+13 = [prime]  13
+14 =          2x7
+15 =          3x5
+16 =          2x2x2x2
+17 = [prime]  17
+18 =          2x3x3
+19 = [prime]  19
+20 =          2x2x5
+21 =          3x7
+22 =          2x11
+23 = [prime]  23
+24 =          2x2x2x3
+25 =          5x5
+26 =          2x13
+27 =          3x3x3
+28 =          2x2x7
+29 = [prime]  29
+30 =          2x3x5
+31 = [prime]  31
+32 =          2x2x2x2x2
+33 =          3x11
+34 =          2x17
+35 =          5x7
+36 =          2x2x3x3
+37 = [prime]  37
+38 =          2x19
+39 =          3x13
+40 =          2x2x2x5
+
+12  primes found.
+
+RC=0
+
+================================================================================
+[197] Count-in-octal/count-in-octal.rexx
+================================================================================
+           number in base ten =   0            number in octal =     0
+           number in base ten =   1            number in octal =     1
+           number in base ten =   2            number in octal =     2
+           number in base ten =   3            number in octal =     3
+           number in base ten =   4            number in octal =     4
+           number in base ten =   5            number in octal =     5
+           number in base ten =   6            number in octal =     6
+           number in base ten =   7            number in octal =     7
+           number in base ten =   8            number in octal =    10
+           number in base ten =   9            number in octal =    11
+           number in base ten =  10            number in octal =    12
+           number in base ten =  11            number in octal =    13
+           number in base ten =  12            number in octal =    14
+           number in base ten =  13            number in octal =    15
+           number in base ten =  14            number in octal =    16
+           number in base ten =  15            number in octal =    17
+           number in base ten =  16            number in octal =    20
+           number in base ten =  17            number in octal =    21
+           number in base ten =  18            number in octal =    22
+           number in base ten =  19            number in octal =    23
+           number in base ten =  20            number in octal =    24
+           number in base ten =  21            number in octal =    25
+           number in base ten =  22            number in octal =    26
+           number in base ten =  23            number in octal =    27
+           number in base ten =  24            number in octal =    30
+           number in base ten =  25            number in octal =    31
+           number in base ten =  26            number in octal =    32
+           number in base ten =  27            number in octal =    33
+           number in base ten =  28            number in octal =    34
+           number in base ten =  29            number in octal =    35
+           number in base ten =  30            number in octal =    36
+           number in base ten =  31            number in octal =    37
+
+RC=0
+
+================================================================================
+[198] Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
+================================================================================
+           haystack                needle      count
+    23 +++    say left('', w, "═")      left('', w%2, "═")    left('', 5, "═")
+     3 +++ call showResult
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\Count-occurrences-of-a-substring\REXX\count-occurrences-of-a-substring.rexx", line 23: Incorrect call to routine
+Error 40.23: LEFT argument 3 must be a single character; found "═"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[199] Count-the-coins/count-the-coins-1.rexx
+================================================================================
+with an amount of  $1,  there are  242
+ways to make change with coins of the following denominations:  1 5 10 25
+
+RC=0
+
+================================================================================
+[200] Count-the-coins/count-the-coins-2.rexx
+================================================================================
+with an amount of  $1,  there are  242
+ways to make change with coins of the following denominations:  1 5 10 25
+
+RC=0
+
+================================================================================
+[201] Count-the-coins/count-the-coins-3.rexx
+================================================================================
+with an amount of  $1,  there are  242
+ways to make change with coins of the following denominations:  1 5 10 25
+
+RC=0
+
+================================================================================
+[202] CRC-32/crc-32.rexx
+================================================================================
+
+
+    29 +++    say center(' input string [length of' length(Xstring) "bytes] ", 79, '═')
+     3 +++ call show  'The quick brown fox jumps over the lazy dog'               /*the 1st string.*/
+Error 40 running "C:\jlf\local\RosettaCodeData\git\Task\CRC-32\REXX\crc-32.rexx", line 29: Incorrect call to routine
+Error 40.23: CENTER argument 3 must be a single character; found "═"
+       *-*   rexxExecutable path || solution escape(args)
+       +++ RC=-1073741784 +++
+
+RC=-1073741784
+
+================================================================================
+[203] Create-a-file/create-a-file.rexx
+================================================================================
+        1 file(s) copied.
+A subdirectory or file DOCS already exists.
+        1 file(s) copied.
+A subdirectory or file DOCS already exists.
+
+RC=0
+
+================================================================================
+[204] Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[205] Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
+================================================================================
+
+Enter two positive integers (a 2-dimensional array will be created).
+  ·   1~2  ·   1~4  · 
+  ·   ·   ·   ·   · 
+  ·   ·   3~3  3~4  · 
+  ·   ·   ·   ·   · 
+  ·   ·   ·   ·   · 
+
+RC=0
+
+================================================================================
+[206] Create-an-HTML-table/create-an-html-table.rexx
+================================================================================
+══► <html>
+══► <head></head>
+══► <body>
+══► <table border=5  cellpadding=20  cellspace=0>
+══► <tr><th></th>
+══► <th> X </th>
+══► <th> Y </th>
+══► <th> Z </th>
+══► <tr><th> 1 </th>
+══► <td align=right>  6956 </td>
+══► <td align=right>  -671 </td>
+══► <td align=right> -4743 </td>
+══► <tr><th> 2 </th>
+══► <td align=right> -7932 </td>
+══► <td align=right>  6952 </td>
+══► <td align=right>   250 </td>
+══► <tr><th> 3 </th>
+══► <td align=right>  -432 </td>
+══► <td align=right>  6425 </td>
+══► <td align=right>  2399 </td>
+══► <tr><th> 4 </th>
+══► <td align=right> -5344 </td>
+══► <td align=right>  -825 </td>
+══► <td align=right> -9643 </td>
+══► <tr><th> 5 </th>
+══► <td align=right> -1762 </td>
+══► <td align=right>  5584 </td>
+══► <td align=right>   848 </td>
+══► </table>
+══► </body>
+══► </html>
+
+31  records were written to the output file:  a_table.html
+
+RC=0
+
+================================================================================
+[207] CSV-data-manipulation/csv-data-manipulation.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[208] CSV-to-HTML-translation/csv-to-html-translation.rexx
+================================================================================
+
+RC=0
+
+================================================================================
+[209] Currying/currying-1.rexx
+================================================================================
+add 2 to 3:           5
+add 2 to 3 (curried): 5
+
+RC=0
+
+================================================================================
+[210] Currying/currying-2.rexx
+================================================================================
+add 2 to 3:           5
+add 2 to 3 (curried): 5
+
+RC=0
+
+================================================================================
+[211] Cut-a-rectangle/cut-a-rectangle-1.rexx
+================================================================================
+
+        2 x  1 rectangle can be cut              1 way.
+        2 x  2 rectangle can be cut              2 ways.
+
+        3 x  2 rectangle can be cut              3 ways.
+
+        4 x  1 rectangle can be cut              1 way.
+        4 x  2 rectangle can be cut              4 ways.
+        4 x  3 rectangle can be cut              9 ways.
+        4 x  4 rectangle can be cut             22 ways.
+
+        5 x  2 rectangle can be cut              5 ways.
+        5 x  4 rectangle can be cut             39 ways.
+
+        6 x  1 rectangle can be cut              1 way.
+        6 x  2 rectangle can be cut              6 ways.
+        6 x  3 rectangle can be cut             23 ways.
+        6 x  4 rectangle can be cut             90 ways.
+        6 x  5 rectangle can be cut            263 ways.
+        6 x  6 rectangle can be cut          1,018 ways.
+
+        7 x  2 rectangle can be cut              7 ways.
+        7 x  4 rectangle can be cut            151 ways.
+        7 x  6 rectangle can be cut          2,947 ways.
+
+        8 x  1 rectangle can be cut              1 way.
+        8 x  2 rectangle can be cut              8 ways.
+        8 x  3 rectangle can be cut             53 ways.
+        8 x  4 rectangle can be cut            340 ways.
+        8 x  5 rectangle can be cut          1,675 ways.
+        8 x  6 rectangle can be cut         11,174 ways.
+        8 x  7 rectangle can be cut         55,939 ways.
+        8 x  8 rectangle can be cut        369,050 ways.
+
+RC=0
+
+================================================================================
+[212] Cut-a-rectangle/cut-a-rectangle-2.rexx
+================================================================================
+
+        2 x  1 rectangle can be cut              1 way.
+        2 x  2 rectangle can be cut              2 ways.
+
+        3 x  2 rectangle can be cut              3 ways.
+
+        4 x  1 rectangle can be cut              1 way.
+        4 x  2 rectangle can be cut              4 ways.
+        4 x  3 rectangle can be cut              9 ways.
+        4 x  4 rectangle can be cut             22 ways.
+
+        5 x  2 rectangle can be cut              5 ways.
+        5 x  4 rectangle can be cut             39 ways.
+
+        6 x  1 rectangle can be cut              1 way.
+        6 x  2 rectangle can be cut              6 ways.
+        6 x  3 rectangle can be cut             23 ways.
+        6 x  4 rectangle can be cut             90 ways.
+        6 x  5 rectangle can be cut            263 ways.
+        6 x  6 rectangle can be cut          1,018 ways.
+
+        7 x  2 rectangle can be cut              7 ways.
+        7 x  4 rectangle can be cut            151 ways.
+        7 x  6 rectangle can be cut          2,947 ways.
+
+        8 x  1 rectangle can be cut              1 way.
+        8 x  2 rectangle can be cut              8 ways.
+        8 x  3 rectangle can be cut             53 ways.
+        8 x  4 rectangle can be cut            340 ways.
+        8 x  5 rectangle can be cut          1,675 ways.
+        8 x  6 rectangle can be cut         11,174 ways.
+        8 x  7 rectangle can be cut         55,939 ways.
+        8 x  8 rectangle can be cut        369,050 ways.
+
+RC=0
 
 
 ================================================================================
 Summary Ok
 ================================================================================
-Ok:    1 ; .234000 ; 0 ; 100-doors/100-doors-1.rexx
-Ok:    2 ; .126000 ; 0 ; 100-doors/100-doors-2.rexx
-Ok:    3 ; .158000 ; 0 ; 24-game/24-game-1.rexx
-Ok:    4 ; .390000 ; 0 ; 24-game-Solve/24-game-solve.rexx
-Ok:    5 ; .188000 ; 0 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
-Ok:    6 ; .375000 ; 0 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
-Ok:    7 ; .125000 ; 0 ; A+B/a+b-1.rexx
-Ok:    8 ; .126000 ; 0 ; A+B/a+b-2.rexx
-Ok:    9 ; .143000 ; 0 ; A+B/a+b-3.rexx
-Ok:   10 ; .140000 ; 0 ; A+B/a+b-4.rexx
-Ok:   11 ; .111000 ; 0 ; ABC-Problem/abc-problem-1.rexx
-Ok:   12 ; .125000 ; 0 ; ABC-Problem/abc-problem-2.rexx
-Ok:   16 ; .109000 ; 0 ; Accumulator-factory/accumulator-factory.rexx
-Ok:   17 ; 54.079000 ; 0 ; Ackermann-function/ackermann-function-1.rexx
-Ok:   18 ; .470000 ; 0 ; Ackermann-function/ackermann-function-2.rexx
-Ok:   19 ; .171000 ; 0 ; Ackermann-function/ackermann-function-3.rexx
-Ok:   20 ; .250000 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
-Ok:   22 ; .266000 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
-Ok:   23 ; .487000 ; 0 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
-Ok:   24 ; .219000 ; 0 ; Align-columns/align-columns-1.rexx
-Ok:   28 ; .140000 ; 0 ; Almost-prime/almost-prime-1.rexx
-Ok:   29 ; .112000 ; 0 ; Almost-prime/almost-prime-2.rexx
-Ok:   30 ; .112000 ; 0 ; Amb/amb-1.rexx
-Ok:   31 ; .138000 ; 0 ; Amb/amb-2.rexx
-Ok:   33 ; 2.435000 ; 0 ; Amicable-pairs/amicable-pairs-2.rexx
-Ok:   34 ; 1.577000 ; 0 ; Amicable-pairs/amicable-pairs-3.rexx
-Ok:   35 ; 1.719000 ; 0 ; Amicable-pairs/amicable-pairs-4.rexx
-Ok:   36 ; .891000 ; 0 ; Amicable-pairs/amicable-pairs-5.rexx
-Ok:   37 ; .110000 ; 0 ; Anagrams/anagrams-1.rexx
-Ok:   38 ; .125000 ; 0 ; Anagrams/anagrams-2.rexx
-Ok:   39 ; .140000 ; 0 ; Anagrams/anagrams-3.rexx
-Ok:   40 ; .109000 ; 0 ; Anagrams/anagrams-4.rexx
-Ok:   41 ; .126000 ; 0 ; Anagrams/anagrams-5.rexx
-Ok:   42 ; .156000 ; 0 ; Anagrams/anagrams-6.rexx
-Ok:   43 ; .109000 ; 0 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
-Ok:   44 ; .126000 ; 0 ; Anonymous-recursion/anonymous-recursion-1.rexx
-Ok:   45 ; .110000 ; 0 ; Anonymous-recursion/anonymous-recursion-2.rexx
-Ok:   46 ; .125000 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
-Ok:   47 ; .248000 ; 0 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
-Ok:   50 ; .109000 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
-Ok:   51 ; .126000 ; 0 ; Arithmetic-Complex/arithmetic-complex.rexx
-Ok:   52 ; .093000 ; 0 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
-Ok:   53 ; .109000 ; 0 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
-Ok:   54 ; .266000 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
-Ok:   55 ; .312000 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
-Ok:   56 ; 52.687000 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
-Ok:   57 ; .172000 ; 0 ; Arithmetic-Integer/arithmetic-integer.rexx
-Ok:   59 ; .109000 ; 0 ; Array-concatenation/array-concatenation-1.rexx
-Ok:   60 ; .140000 ; 0 ; Array-concatenation/array-concatenation-2.rexx
-Ok:   61 ; .143000 ; 0 ; Array-concatenation/array-concatenation-3.rexx
-Ok:   62 ; .094000 ; 0 ; Arrays/arrays-1.rexx
-Ok:   63 ; .109000 ; 0 ; Arrays/arrays-2.rexx
-Ok:   64 ; .126000 ; 0 ; Arrays/arrays-3.rexx
-Ok:   65 ; .126000 ; 0 ; Arrays/arrays-4.rexx
-Ok:   66 ; .217000 ; 0 ; Arrays/arrays-5.rexx
-Ok:   67 ; .111000 ; 0 ; Arrays/arrays-6.rexx
-Ok:   69 ; .234000 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
-Ok:   70 ; .109000 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
-Ok:   71 ; .125000 ; 0 ; Associative-array-Iteration/associative-array-iteration.rexx
-Ok:   73 ; .551000 ; 0 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
-Ok:   74 ; .250000 ; 0 ; Averages-Mean-angle/averages-mean-angle.rexx
-Ok:   75 ; .111000 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
-Ok:   76 ; .123000 ; 0 ; Averages-Median/averages-median.rexx
-Ok:   77 ; .205000 ; 0 ; Averages-Mode/averages-mode-1.rexx
-Ok:   78 ; .109000 ; 0 ; Averages-Mode/averages-mode-2.rexx
-Ok:   79 ; .141000 ; 0 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
-Ok:   80 ; .172000 ; 0 ; Averages-Root-mean-square/averages-root-mean-square.rexx
-Ok:   81 ; .126000 ; 0 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
-Ok:   82 ; .127000 ; 0 ; Balanced-brackets/balanced-brackets-1.rexx
-Ok:   83 ; .125000 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
-Ok:   84 ; 43.561000 ; 0 ; Balanced-brackets/balanced-brackets-3.rexx
-Ok:   85 ; .203000 ; 0 ; Balanced-ternary/balanced-ternary.rexx
-Ok:   87 ; .439000 ; 0 ; Bernoulli-numbers/bernoulli-numbers.rexx
-Ok:   88 ; .144000 ; 0 ; Best-shuffle/best-shuffle-1.rexx
-Ok:   92 ; .417000 ; 0 ; Binary-digits/binary-digits-1.rexx
-Ok:   93 ; .143000 ; 0 ; Binary-digits/binary-digits-2.rexx
-Ok:   94 ; .219000 ; 0 ; Binary-digits/binary-digits-3.rexx
-Ok:   95 ; .155000 ; 0 ; Binary-digits/binary-digits-4.rexx
-Ok:   96 ; .158000 ; 0 ; Binary-search/binary-search-1.rexx
-Ok:   97 ; .110000 ; 0 ; Binary-search/binary-search-2.rexx
-Ok:   98 ; .235000 ; 0 ; Binary-strings/binary-strings.rexx
-Ok:   99 ; .177000 ; 0 ; Bitmap/bitmap-1.rexx
-Ok:  100 ; 1.326000 ; 0 ; Bitmap/bitmap-2.rexx
-Ok:  101 ; .142000 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
-Ok:  102 ; .140000 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
-Ok:  103 ; .346000 ; 0 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
-Ok:  104 ; .174000 ; 0 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
-Ok:  105 ; .296000 ; 0 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
-Ok:  106 ; .125000 ; 0 ; Bitwise-IO/bitwise-io-1.rexx
-Ok:  107 ; .501000 ; 0 ; Bitwise-IO/bitwise-io-2.rexx
-Ok:  108 ; .170000 ; 0 ; Bitwise-operations/bitwise-operations.rexx
-Ok:  109 ; .172000 ; 0 ; Boolean-values/boolean-values-1.rexx
-Ok:  110 ; .266000 ; 0 ; Boolean-values/boolean-values-2.rexx
-Ok:  111 ; .157000 ; 0 ; Boolean-values/boolean-values-3.rexx
-Ok:  112 ; .157000 ; 0 ; Boolean-values/boolean-values-4.rexx
-Ok:  114 ; .501000 ; 0 ; Boolean-values/boolean-values-6.rexx
-Ok:  115 ; .492000 ; 0 ; Box-the-compass/box-the-compass.rexx
-Ok:  117 ; .342000 ; 0 ; Bulls-and-cows/bulls-and-cows-1.rexx
-Ok:  118 ; .422000 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
-Ok:  119 ; .302000 ; 0 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
-Ok:  120 ; .141000 ; 0 ; Caesar-cipher/caesar-cipher-1.rexx
-Ok:  121 ; .108000 ; 0 ; Caesar-cipher/caesar-cipher-2.rexx
-Ok:  122 ; .203000 ; 0 ; Calendar/calendar.rexx
-Ok:  123 ; .157000 ; 0 ; Calendar/calendar.rexx
+Ok:    1 ; .031000 ; 0 ; ../../Task/100-doors/REXX/100-doors-1.rexx
+Ok:    2 ; .031000 ; 0 ; ../../Task/100-doors/REXX/100-doors-2.rexx
+Ok:    3 ; .046000 ; 0 ; ../../Task/24-game/REXX/24-game-1.rexx
+Ok:    4 ; .125000 ; 0 ; ../../Task/24-game-Solve/REXX/24-game-solve.rexx
+Ok:    5 ; .047000 ; 0 ; ../../Task/9-billion-names-of-God-the-integer/REXX/9-billion-names-of-god-the-integer.rexx
+Ok:    6 ; .047000 ; 0 ; ../../Task/99-Bottles-of-Beer/REXX/99-bottles-of-beer.rexx
+Ok:    7 ; .031000 ; 0 ; ../../Task/A+B/REXX/a+b-1.rexx
+Ok:    8 ; .032000 ; 0 ; ../../Task/A+B/REXX/a+b-2.rexx
+Ok:    9 ; .031000 ; 0 ; ../../Task/A+B/REXX/a+b-3.rexx
+Ok:   10 ; .032000 ; 0 ; ../../Task/A+B/REXX/a+b-4.rexx
+Ok:   11 ; .031000 ; 0 ; ../../Task/ABC-Problem/REXX/abc-problem-1.rexx
+Ok:   12 ; .047000 ; 0 ; ../../Task/ABC-Problem/REXX/abc-problem-2.rexx
+Ok:   16 ; .027000 ; 0 ; ../../Task/Accumulator-factory/REXX/accumulator-factory.rexx
+Ok:   17 ; 23.714000 ; 0 ; ../../Task/Ackermann-function/REXX/ackermann-function-1.rexx
+Ok:   18 ; .031000 ; 0 ; ../../Task/Ackermann-function/REXX/ackermann-function-2.rexx
+Ok:   19 ; .031000 ; 0 ; ../../Task/Ackermann-function/REXX/ackermann-function-3.rexx
+Ok:   20 ; .047000 ; 0 ; ../../Task/Active-Directory-Search-for-a-user/REXX/active-directory-search-for-a-user.rexx
+Ok:   22 ; .110000 ; 0 ; ../../Task/AKS-test-for-primes/REXX/aks-test-for-primes-1.rexx
+Ok:   23 ; .053000 ; 0 ; ../../Task/AKS-test-for-primes/REXX/aks-test-for-primes-2.rexx
+Ok:   24 ; .021000 ; 0 ; ../../Task/Align-columns/REXX/align-columns-1.rexx
+Ok:   28 ; .047000 ; 0 ; ../../Task/Almost-prime/REXX/almost-prime-1.rexx
+Ok:   29 ; .031000 ; 0 ; ../../Task/Almost-prime/REXX/almost-prime-2.rexx
+Ok:   30 ; .031000 ; 0 ; ../../Task/Amb/REXX/amb-1.rexx
+Ok:   31 ; .031000 ; 0 ; ../../Task/Amb/REXX/amb-2.rexx
+Ok:   33 ; 1.279000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-2.rexx
+Ok:   34 ; .734000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-3.rexx
+Ok:   35 ; .652000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-4.rexx
+Ok:   36 ; .490000 ; 0 ; ../../Task/Amicable-pairs/REXX/amicable-pairs-5.rexx
+Ok:   37 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-1.rexx
+Ok:   38 ; .047000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-2.rexx
+Ok:   39 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-3.rexx
+Ok:   40 ; .032000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-4.rexx
+Ok:   41 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-5.rexx
+Ok:   42 ; .031000 ; 0 ; ../../Task/Anagrams/REXX/anagrams-6.rexx
+Ok:   43 ; .031000 ; 0 ; ../../Task/Anagrams-Deranged-anagrams/REXX/anagrams-deranged-anagrams.rexx
+Ok:   44 ; .047000 ; 0 ; ../../Task/Anonymous-recursion/REXX/anonymous-recursion-1.rexx
+Ok:   45 ; .031000 ; 0 ; ../../Task/Anonymous-recursion/REXX/anonymous-recursion-2.rexx
+Ok:   46 ; .032000 ; 0 ; ../../Task/Append-a-record-to-the-end-of-a-text-file/REXX/append-a-record-to-the-end-of-a-text-file.rexx
+Ok:   47 ; .031000 ; 0 ; ../../Task/Apply-a-callback-to-an-array/REXX/apply-a-callback-to-an-array.rexx
+Ok:   50 ; .031000 ; 0 ; ../../Task/Arena-storage-pool/REXX/arena-storage-pool.rexx
+Ok:   51 ; .031000 ; 0 ; ../../Task/Arithmetic-Complex/REXX/arithmetic-complex.rexx
+Ok:   52 ; .032000 ; 0 ; ../../Task/Arithmetic-evaluation/REXX/arithmetic-evaluation.rexx
+Ok:   53 ; .047000 ; 0 ; ../../Task/Arithmetic-geometric-mean/REXX/arithmetic-geometric-mean.rexx
+Ok:   54 ; .169000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-1.rexx
+Ok:   55 ; .167000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-2.rexx
+Ok:   56 ; 38.214000 ; 0 ; ../../Task/Arithmetic-geometric-mean-Calculate-Pi/REXX/arithmetic-geometric-mean-calculate-pi-3.rexx
+Ok:   57 ; .047000 ; 0 ; ../../Task/Arithmetic-Integer/REXX/arithmetic-integer.rexx
+Ok:   59 ; .031000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-1.rexx
+Ok:   60 ; .031000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-2.rexx
+Ok:   61 ; .047000 ; 0 ; ../../Task/Array-concatenation/REXX/array-concatenation-3.rexx
+Ok:   62 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-1.rexx
+Ok:   63 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-2.rexx
+Ok:   64 ; .031000 ; 0 ; ../../Task/Arrays/REXX/arrays-3.rexx
+Ok:   65 ; .032000 ; 0 ; ../../Task/Arrays/REXX/arrays-4.rexx
+Ok:   66 ; .046000 ; 0 ; ../../Task/Arrays/REXX/arrays-5.rexx
+Ok:   67 ; .032000 ; 0 ; ../../Task/Arrays/REXX/arrays-6.rexx
+Ok:   69 ; .031000 ; 0 ; ../../Task/Associative-array-Creation/REXX/associative-array-creation-1.rexx
+Ok:   70 ; .031000 ; 0 ; ../../Task/Associative-array-Creation/REXX/associative-array-creation-2.rexx
+Ok:   71 ; .057000 ; 0 ; ../../Task/Associative-array-Iteration/REXX/associative-array-iteration.rexx
+Ok:   73 ; .038000 ; 0 ; ../../Task/Averages-Arithmetic-mean/REXX/averages-arithmetic-mean.rexx
+Ok:   74 ; .093000 ; 0 ; ../../Task/Averages-Mean-angle/REXX/averages-mean-angle.rexx
+Ok:   75 ; .032000 ; 0 ; ../../Task/Averages-Mean-time-of-day/REXX/averages-mean-time-of-day.rexx
+Ok:   76 ; .031000 ; 0 ; ../../Task/Averages-Median/REXX/averages-median.rexx
+Ok:   77 ; .047000 ; 0 ; ../../Task/Averages-Mode/REXX/averages-mode-1.rexx
+Ok:   78 ; .031000 ; 0 ; ../../Task/Averages-Mode/REXX/averages-mode-2.rexx
+Ok:   79 ; .047000 ; 0 ; ../../Task/Averages-Pythagorean-means/REXX/averages-pythagorean-means.rexx
+Ok:   80 ; .031000 ; 0 ; ../../Task/Averages-Root-mean-square/REXX/averages-root-mean-square.rexx
+Ok:   81 ; .031000 ; 0 ; ../../Task/Averages-Simple-moving-average/REXX/averages-simple-moving-average.rexx
+Ok:   82 ; .031000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-1.rexx
+Ok:   83 ; .032000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-2.rexx
+Ok:   84 ; 23.655000 ; 0 ; ../../Task/Balanced-brackets/REXX/balanced-brackets-3.rexx
+Ok:   85 ; .079000 ; 0 ; ../../Task/Balanced-ternary/REXX/balanced-ternary.rexx
+Ok:   87 ; .157000 ; 0 ; ../../Task/Bernoulli-numbers/REXX/bernoulli-numbers.rexx
+Ok:   88 ; .031000 ; 0 ; ../../Task/Best-shuffle/REXX/best-shuffle-1.rexx
+Ok:   92 ; .031000 ; 0 ; ../../Task/Best-shuffle/REXX/best-shuffle.rexx
+Ok:   93 ; .031000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-1.rexx
+Ok:   94 ; .032000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-2.rexx
+Ok:   95 ; .016000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-3.rexx
+Ok:   96 ; .032000 ; 0 ; ../../Task/Binary-digits/REXX/binary-digits-4.rexx
+Ok:   97 ; .031000 ; 0 ; ../../Task/Binary-search/REXX/binary-search-1.rexx
+Ok:   98 ; .031000 ; 0 ; ../../Task/Binary-search/REXX/binary-search-2.rexx
+Ok:   99 ; .033000 ; 0 ; ../../Task/Binary-strings/REXX/binary-strings.rexx
+Ok:  100 ; 5.714000 ; 0 ; ../../Task/Bitmap/REXX/bitmap-1.rexx
+Ok:  101 ; .234000 ; 0 ; ../../Task/Bitmap/REXX/bitmap-2.rexx
+Ok:  102 ; .032000 ; 0 ; ../../Task/Bitmap-Bresenhams-line-algorithm/REXX/bitmap-bresenhams-line-algorithm-1.rexx
+Ok:  103 ; .031000 ; 0 ; ../../Task/Bitmap-Bresenhams-line-algorithm/REXX/bitmap-bresenhams-line-algorithm-2.rexx
+Ok:  104 ; .031000 ; 0 ; ../../Task/Bitmap-Flood-fill/REXX/bitmap-flood-fill.rexx
+Ok:  105 ; .031000 ; 0 ; ../../Task/Bitmap-Midpoint-circle-algorithm/REXX/bitmap-midpoint-circle-algorithm.rexx
+Ok:  106 ; .032000 ; 0 ; ../../Task/Bitmap-Read-a-PPM-file/REXX/bitmap-read-a-ppm-file.rexx
+Ok:  107 ; .031000 ; 0 ; ../../Task/Bitmap-Write-a-PPM-file/REXX/bitmap-write-a-ppm-file.rexx
+Ok:  108 ; .031000 ; 0 ; ../../Task/Bitwise-IO/REXX/bitwise-io-1.rexx
+Ok:  109 ; .031000 ; 0 ; ../../Task/Bitwise-IO/REXX/bitwise-io-2.rexx
+Ok:  110 ; .040000 ; 0 ; ../../Task/Bitwise-operations/REXX/bitwise-operations.rexx
+Ok:  111 ; .031000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-1.rexx
+Ok:  112 ; .032000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-2.rexx
+Ok:  113 ; .031000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-3.rexx
+Ok:  114 ; .031000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-4.rexx
+Ok:  116 ; .032000 ; 0 ; ../../Task/Boolean-values/REXX/boolean-values-6.rexx
+Ok:  117 ; .031000 ; 0 ; ../../Task/Box-the-compass/REXX/box-the-compass.rexx
+Ok:  119 ; .047000 ; 0 ; ../../Task/Bulls-and-cows/REXX/bulls-and-cows-1.rexx
+Ok:  120 ; .047000 ; 0 ; ../../Task/Bulls-and-cows/REXX/bulls-and-cows-2.rexx
+Ok:  121 ; .094000 ; 0 ; ../../Task/Bulls-and-cows-Player/REXX/bulls-and-cows-player.rexx
+Ok:  122 ; .031000 ; 0 ; ../../Task/Caesar-cipher/REXX/caesar-cipher-1.rexx
+Ok:  123 ; .031000 ; 0 ; ../../Task/Caesar-cipher/REXX/caesar-cipher-2.rexx
+Ok:  124 ; .047000 ; 0 ; ../../Task/Calendar/REXX/calendar.rexx
+Ok:  125 ; .031000 ; 0 ; ../../Task/Calendar/REXX/calendar.rexx
+Ok:  127 ; .031000 ; 0 ; ../../Task/Call-a-function/REXX/call-a-function-1.rexx
+Ok:  128 ; .047000 ; 0 ; ../../Task/Call-a-function/REXX/call-a-function-2.rexx
+Ok:  130 ; .063000 ; 0 ; ../../Task/Carmichael-3-strong-pseudoprimes/REXX/carmichael-3-strong-pseudoprimes-1.rexx
+Ok:  131 ; .062000 ; 0 ; ../../Task/Carmichael-3-strong-pseudoprimes/REXX/carmichael-3-strong-pseudoprimes-2.rexx
+Ok:  132 ; .047000 ; 0 ; ../../Task/Carmichael-3-strong-pseudoprimes/REXX/carmichael-3-strong-pseudoprimes.rexx
+Ok:  135 ; .035000 ; 0 ; ../../Task/Casting-out-nines/REXX/casting-out-nines.rexx
+Ok:  137 ; .031000 ; 0 ; ../../Task/Catalan-numbers/REXX/catalan-numbers-2.rexx
+Ok:  138 ; .031000 ; 0 ; ../../Task/Catalan-numbers-Pascals-triangle/REXX/catalan-numbers-pascals-triangle-1.rexx
+Ok:  139 ; .031000 ; 0 ; ../../Task/Catalan-numbers-Pascals-triangle/REXX/catalan-numbers-pascals-triangle-2.rexx
+Ok:  140 ; .031000 ; 0 ; ../../Task/Catalan-numbers-Pascals-triangle/REXX/catalan-numbers-pascals-triangle-3.rexx
+Ok:  141 ; .031000 ; 0 ; ../../Task/Catalan-numbers-Pascals-triangle/REXX/catalan-numbers-pascals-triangle-4.rexx
+Ok:  142 ; .032000 ; 0 ; ../../Task/Catamorphism/REXX/catamorphism.rexx
+Ok:  143 ; .031000 ; 0 ; ../../Task/Character-codes/REXX/character-codes-1.rexx
+Ok:  144 ; .031000 ; 0 ; ../../Task/Character-codes/REXX/character-codes-2.rexx
+Ok:  145 ; .047000 ; 0 ; ../../Task/Check-Machin-like-formulas/REXX/check-machin-like-formulas.rexx
+Ok:  148 ; .031000 ; 0 ; ../../Task/Chinese-remainder-theorem/REXX/chinese-remainder-theorem-1.rexx
+Ok:  149 ; .031000 ; 0 ; ../../Task/Chinese-remainder-theorem/REXX/chinese-remainder-theorem-2.rexx
+Ok:  151 ; .031000 ; 0 ; ../../Task/Circles-of-given-radius-through-two-points/REXX/circles-of-given-radius-through-two-points.rexx
+Ok:  153 ; .031000 ; 0 ; ../../Task/Closures-Value-capture/REXX/closures-value-capture.rexx
+Ok:  154 ; .032000 ; 0 ; ../../Task/Collections/REXX/collections-1.rexx
+Ok:  155 ; .031000 ; 0 ; ../../Task/Collections/REXX/collections-2.rexx
+Ok:  157 ; .031000 ; 0 ; ../../Task/Collections/REXX/collections-4.rexx
+Ok:  159 ; .078000 ; 0 ; ../../Task/Color-of-a-screen-pixel/REXX/color-of-a-screen-pixel.rexx
+Ok:  161 ; .031000 ; 0 ; ../../Task/Combinations/REXX/combinations.rexx
+Ok:  162 ; .149000 ; 0 ; ../../Task/Combinations-and-permutations/REXX/combinations-and-permutations.rexx
+Ok:  163 ; .032000 ; 0 ; ../../Task/Combinations-with-repetitions/REXX/combinations-with-repetitions-1.rexx
+Ok:  164 ; .578000 ; 0 ; ../../Task/Combinations-with-repetitions/REXX/combinations-with-repetitions-2.rexx
+Ok:  165 ; .307000 ; 0 ; ../../Task/Combinations-with-repetitions/REXX/combinations-with-repetitions-3.rexx
+Ok:  166 ; .020000 ; 0 ; ../../Task/Comma-quibbling/REXX/comma-quibbling-1.rexx
+Ok:  167 ; .032000 ; 0 ; ../../Task/Comma-quibbling/REXX/comma-quibbling-2.rexx
+Ok:  168 ; .031000 ; 0 ; ../../Task/Comma-quibbling/REXX/comma-quibbling-3.rexx
+Ok:  169 ; .031000 ; 0 ; ../../Task/Command-line-arguments/REXX/command-line-arguments-1.rexx
+Ok:  170 ; .031000 ; 0 ; ../../Task/Command-line-arguments/REXX/command-line-arguments-2.rexx
+Ok:  172 ; .031000 ; 0 ; ../../Task/Comments/REXX/comments-2.rexx
+Ok:  173 ; .032000 ; 0 ; ../../Task/Comments/REXX/comments-3.rexx
+Ok:  174 ; .047000 ; 0 ; ../../Task/Compile-time-calculation/REXX/compile-time-calculation.rexx
+Ok:  175 ; .031000 ; 0 ; ../../Task/Compound-data-type/REXX/compound-data-type-1.rexx
+Ok:  176 ; .031000 ; 0 ; ../../Task/Compound-data-type/REXX/compound-data-type-2.rexx
+Ok:  181 ; .031000 ; 0 ; ../../Task/Constrained-random-points-on-a-circle/REXX/constrained-random-points-on-a-circle-1.rexx
+Ok:  182 ; .031000 ; 0 ; ../../Task/Constrained-random-points-on-a-circle/REXX/constrained-random-points-on-a-circle-2.rexx
+Ok:  183 ; .047000 ; 0 ; ../../Task/Constrained-random-points-on-a-circle/REXX/constrained-random-points-on-a-circle-3.rexx
+Ok:  184 ; .047000 ; 0 ; ../../Task/Constrained-random-points-on-a-circle/REXX/constrained-random-points-on-a-circle-4.rexx
+Ok:  185 ; 54.624000 ; 0 ; ../../Task/Continued-fraction/REXX/continued-fraction-1.rexx
+Ok:  186 ; .063000 ; 0 ; ../../Task/Continued-fraction/REXX/continued-fraction-2.rexx
+Ok:  187 ; 7.626000 ; 0 ; ../../Task/Continued-fraction/REXX/continued-fraction-3.rexx
+Ok:  188 ; 1.364000 ; 0 ; ../../Task/Continued-fraction-Arithmetic-Construct-from-rational-number/REXX/continued-fraction-arithmetic-construct-from-rational-number.rexx
+Ok:  189 ; .032000 ; 0 ; ../../Task/Convert-decimal-number-to-rational/REXX/convert-decimal-number-to-rational-1.rexx
+Ok:  190 ; .031000 ; 0 ; ../../Task/Convert-decimal-number-to-rational/REXX/convert-decimal-number-to-rational-2.rexx
+Ok:  191 ; .031000 ; 0 ; ../../Task/Convert-decimal-number-to-rational/REXX/convert-decimal-number-to-rational-3.rexx
+Ok:  194 ; .031000 ; 0 ; ../../Task/Copy-a-string/REXX/copy-a-string.rexx
+Ok:  195 ; .031000 ; 0 ; ../../Task/Count-in-factors/REXX/count-in-factors-1.rexx
+Ok:  196 ; .031000 ; 0 ; ../../Task/Count-in-factors/REXX/count-in-factors-2.rexx
+Ok:  197 ; .047000 ; 0 ; ../../Task/Count-in-octal/REXX/count-in-octal.rexx
+Ok:  199 ; .032000 ; 0 ; ../../Task/Count-the-coins/REXX/count-the-coins-1.rexx
+Ok:  200 ; .031000 ; 0 ; ../../Task/Count-the-coins/REXX/count-the-coins-2.rexx
+Ok:  201 ; .048000 ; 0 ; ../../Task/Count-the-coins/REXX/count-the-coins-3.rexx
+Ok:  203 ; .141000 ; 0 ; ../../Task/Create-a-file/REXX/create-a-file.rexx
+Ok:  204 ; .045000 ; 0 ; ../../Task/Create-a-file-on-magnetic-tape/REXX/create-a-file-on-magnetic-tape.rexx
+Ok:  205 ; .053000 ; 0 ; ../../Task/Create-a-two-dimensional-array-at-runtime/REXX/create-a-two-dimensional-array-at-runtime.rexx
+Ok:  206 ; .031000 ; 0 ; ../../Task/Create-an-HTML-table/REXX/create-an-html-table.rexx
+Ok:  207 ; .078000 ; 0 ; ../../Task/CSV-data-manipulation/REXX/csv-data-manipulation.rexx
+Ok:  208 ; .032000 ; 0 ; ../../Task/CSV-to-HTML-translation/REXX/csv-to-html-translation.rexx
+Ok:  209 ; .062000 ; 0 ; ../../Task/Currying/REXX/currying-1.rexx
+Ok:  210 ; .050000 ; 0 ; ../../Task/Currying/REXX/currying-2.rexx
+Ok:  211 ; 2.452000 ; 0 ; ../../Task/Cut-a-rectangle/REXX/cut-a-rectangle-1.rexx
+Ok:  212 ; 2.105000 ; 0 ; ../../Task/Cut-a-rectangle/REXX/cut-a-rectangle-2.rexx
 
 ================================================================================
 Summary Skip
@@ -2549,24 +3954,45 @@ Skip:   72 ; 0 ; 0 ; Average-loop-length/average-loop-length.rexx
 Skip:   89 ; 0 ; 0 ; Best-shuffle/best-shuffle-2.rexx
 Skip:   90 ; 0 ; 0 ; Best-shuffle/best-shuffle-3.rexx
 Skip:   91 ; 0 ; 0 ; Best-shuffle/best-shuffle-4.rexx
+Skip:  126 ; 0 ; 0 ; Call-a-foreign-language-function/call-a-foreign-language-function.rexx
+Skip:  156 ; 0 ; 0 ; Collections/collections-3.rexx
+Skip:  158 ; 0 ; 0 ; Collections/collections-5.rexx
+Skip:  177 ; 0 ; 0 ; Conditional-structures/conditional-structures-1.rexx
+Skip:  178 ; 0 ; 0 ; Conditional-structures/conditional-structures-2.rexx
+Skip:  179 ; 0 ; 0 ; Conditional-structures/conditional-structures-3.rexx
 
 ================================================================================
 Summary Ko
 ================================================================================
-Ko:   13 ; .114000 ; -1073741784 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
-Ko:   14 ; .120000 ; -1073741784 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
-Ko:   25 ; .110000 ; -1073741784 ; Align-columns/align-columns-2.rexx
-Ko:   26 ; .125000 ; -1073741784 ; Align-columns/align-columns-3.rexx
-Ko:   27 ; .156000 ; -1073741784 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
-Ko:   86 ; .125000 ; -1073741784 ; Benfords-law/benfords-law.rexx
-Ko:  113 ; .175000 ; -1073741811 ; Boolean-values/boolean-values-5.rexx
-Ko:  116 ; .608000 ; -1073741783 ; Brownian-tree/brownian-tree.rexx
+Ko:   13 ; .032000 ; -1073741784 ; ../../Task/Abundant,-deficient-and-perfect-number-classifications/REXX/abundant,-deficient-and-perfect-number-classifications-1.rexx
+Ko:   14 ; .033000 ; -1073741784 ; ../../Task/Abundant,-deficient-and-perfect-number-classifications/REXX/abundant,-deficient-and-perfect-number-classifications-2.rexx
+Ko:   25 ; .031000 ; -1073741784 ; ../../Task/Align-columns/REXX/align-columns-2.rexx
+Ko:   26 ; .039000 ; -1073741784 ; ../../Task/Align-columns/REXX/align-columns-3.rexx
+Ko:   27 ; .032000 ; -1073741784 ; ../../Task/Aliquot-sequence-classifications/REXX/aliquot-sequence-classifications.rexx
+Ko:   86 ; .093000 ; -1073741784 ; ../../Task/Benfords-law/REXX/benfords-law.rexx
+Ko:  115 ; .031000 ; -1073741811 ; ../../Task/Boolean-values/REXX/boolean-values-5.rexx
+Ko:  118 ; .062000 ; -1073741783 ; ../../Task/Brownian-tree/REXX/brownian-tree.rexx
+Ko:  129 ; .031000 ; 60 ; ../../Task/Call-a-function-in-a-shared-library/REXX/call-a-function-in-a-shared-library.rexx
+Ko:  133 ; .055000 ; -1073741784 ; ../../Task/Case-sensitivity-of-identifiers/REXX/case-sensitivity-of-identifiers-1.rexx
+Ko:  134 ; .033000 ; -1073741784 ; ../../Task/Case-sensitivity-of-identifiers/REXX/case-sensitivity-of-identifiers-2.rexx
+Ko:  136 ; .032000 ; -1073741784 ; ../../Task/Catalan-numbers/REXX/catalan-numbers-1.rexx
+Ko:  146 ; .047000 ; -1073741790 ; ../../Task/Check-that-file-exists/REXX/check-that-file-exists-1.rexx
+Ko:  147 ; .031000 ; -1073741787 ; ../../Task/Check-that-file-exists/REXX/check-that-file-exists-2.rexx
+Ko:  150 ; .032000 ; -1073741784 ; ../../Task/Cholesky-decomposition/REXX/cholesky-decomposition.rexx
+Ko:  152 ; .031000 ; -1073741784 ; ../../Task/Closest-pair-problem/REXX/closest-pair-problem.rexx
+Ko:  160 ; .063000 ; -1073741783 ; ../../Task/Colour-bars-Display/REXX/colour-bars-display.rexx
+Ko:  171 ; .047000 ; -1073741782 ; ../../Task/Comments/REXX/comments-1.rexx
+Ko:  180 ; .047000 ; -1073741784 ; ../../Task/Conjugate-transpose/REXX/conjugate-transpose.rexx
+Ko:  192 ; .031000 ; -1073741784 ; ../../Task/Conways-Game-of-Life/REXX/conways-game-of-life-1.rexx
+Ko:  193 ; .047000 ; -1073741784 ; ../../Task/Conways-Game-of-Life/REXX/conways-game-of-life-2.rexx
+Ko:  198 ; .031000 ; -1073741784 ; ../../Task/Count-occurrences-of-a-substring/REXX/count-occurrences-of-a-substring.rexx
+Ko:  202 ; .031000 ; -1073741784 ; ../../Task/CRC-32/REXX/crc-32.rexx
 
 ================================================================================
 Summary counters
 ================================================================================
-Ok=104
-Skip=11
-Ko=8
-duration=180.324000
+Ok=172
+Skip=17
+Ko=23
+duration=171.619000
 
