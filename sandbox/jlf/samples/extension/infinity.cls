@@ -276,17 +276,49 @@ direction=1     complex infinity
         if self~isPositive then return .true
     end
 
--- ::method ">="
+::method ">="
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil <> righti then do
+        if self~isComplex | righti~isComplex then return -- todo
+        if self~isNegative then return .false | righti~isNegative           -- < always false, = can be true
+        if self~isPositive then return righti~isNegative | righti~isPositive
+    end
+    if right~isA(.String), right~datatype("N") then do
+        if self~isNegative then return .false
+        if self~isPositive then return .true
+    end
 
--- ::method ">=op:right"
+::method ">=op:right"
+    use strict arg left, lefti=(left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message ">=" array (self)      -- lefti >= self
+    if left~isA(.String), left~datatype("N") then do
+        if self~isNegative then return .false
+        if self~isPositive then return .true
+    end
 
 -- ::method "\<"
 
 -- ::method "\<op:right"
 
--- ::method "<="
+::method "<="
+    use strict arg right, righti = (right~request("infinity"))
+    if .nil <> righti then do
+        if self~isComplex | righti~isComplex then return -- todo
+        if self~isNegative then return righti~isPositive | righti~isNegative
+        if self~isPositive then return .false | righti~isPositive           -- < always false, = can be true
+    end
+    if right~isA(.String), right~datatype("N") then do
+        if self~isNegative then return .true
+        if self~isPositive then return .false
+    end
 
--- ::method "<=op:right"
+::method "<=op:right"
+    use strict arg left, lefti=(left~request("infinity"))
+    if .nil <> lefti then forward to (lefti) message "<=" array (self)      -- lefti <= self
+    if left~isA(.String), left~datatype("N") then do
+        if self~isNegative then return .false
+        if self~isPositive then return .true
+    end
 
 -- ::method "\>"
 

@@ -495,7 +495,28 @@ vector~indexer()=           []
 /******************************************************************************/
 ::class "EnclosedArray" public inherit ArrayOperators ArrayPrettyPrinter -- remember : don't declare it subclass of Array !
 
+/*
+How to create a self-referencing enclosed array:
+a=(1,2)                         -- [1,2]
+b=a                             -- [1,2]
+a~append(b)                     -- [1,2,*0]                         -- self reference to array
+b=a~enclose                     -- <[1,2,*0]>
+a~append(b)                     -- [1,2,*0,<*1>]                    -- enclosed self reference to array
+c = .EnclosedArray~new(.nil)    -- <(The NIL object)>
+d = c~enclose~enclose           -- <<<(The NIL object)>>>
+c~setEnclosed(d)                -- <<<*2>>>                         -- enclosed self reference to enclosed array
+a~append(c)                     -- [1,2,*0,<*1>,<<<*2>>>]
+b=a~enclose~enclose             -- <<[1,2,*0,<*1>,<<<*2>>>]>>
+a~append(b)                     -- [1,2,*0,<*1>,<<<*2>>>,<<*2>>]
+b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
+*/
+
 ::method init
+    expose object
+    use strict arg object
+
+
+::method setEnclosed
     expose object
     use strict arg object
 
@@ -842,38 +863,69 @@ vector~indexer()=           []
 ::attribute defaultSparseValue
 
 ::method leftElementWise
+    /*
+    A copy of all nested arrays is done. The self-references are adjusted.
+    The argument 'depth' lets control how many levels are impacted by the calculation.
+    level1 = (11,12)
+    level2 = (21,22)
+    level3 = (31,32)
+    level5 = (51,52)
+    level1~append(level2)
+    level2~append(level3)
+    level5e = level5~enclose
+    level2~append(level5e)
+    level2~append(level1)               -- self reference
+    level3~append(level5e)              -- indirect self reference part1
+    level5~append(level3)               -- indirect self reference part2.
+    a = level1                          -- [11,12,[21,22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
+    -a=                                 -- [-11,-12,[-21,-22,[-31,-32,<[-51,-52,*2]>],<[-51,-52,[-31,-32,*2]]>,*1]]
+    a~leftElementWise("-",,0)=          -- [11,12,[21,22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
+    a~leftElementWise("-",,1)=          -- [-11,-12,[21,22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
+    a~leftElementWise("-",,2)=          -- [-11,-12,[-21,-22,[31,32,<[51,52,*2]>],<[51,52,[31,32,*2]]>,*1]]
+    a~leftElementWise("-",,3)=          -- [-11,-12,[-21,-22,[-31,-32,<[51,52,*2]>],<[51,52,[-31,-32,*2]]>,*1]
+    a~leftElementWise("-",,4)=          -- [-11,-12,[-21,-22,[-31,-32,<[51,52,*2]>],<[51,52,[-31,-32,*2]]>,*1]]
+    a~leftElementWise("-",,5)=          -- [-11,-12,[-21,-22,[-31,-32,<[-51,-52,*2]>],<[-51,-52,[-31,-32,*2]]>,*1]]
+
+    Remember:
+    The stack is used to manage the mapping between the nested arrays and their copy.
+    It's possible to have self references that are not only vertical (between an item and a nested item inside this item),
+    but also horizontal (between 2 items that have no common root)
+    This is the case for the self reference created by level4~append(level3).
+    To adjust correctly this self reference, must not remove the mappings from the stack when returning from a recursive call.
+    */
     use strict arg action, rightArg=.nil, depth=(.infinity~positive), stack=(.identityTable~new)
-    if depth < 1 then raise syntax 93.900 array("Element-wise operation: depth must be >= 1")
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
     if \ arg(2, "e") then do
         -- unary operator (op self):
-        -- op Array
-        -- op EnclosedArray
+        --   op Array
+        --   op EnclosedArray
 
         if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
                                             else doer = action~doer
         arity = doer~arity
 
         if self~isA(.EnclosedArray) then do
-            depth -= 1
+            er = .EnclosedArray~new(.nil)
+            stack[self] = er -- in case of self reference, will be used to build the new self reference
             arg = self~disclose
-            r = .array~new(arg~dimensions)
-            stack[arg] = r -- will be used to build the resulting infinite array
-            er = r~enclose
-            stack[self] = er -- will be used to build the resulting enclosed infinite array
+            r = arg~leftElementWise(doer, , depth-1, stack)
+            --stack~remove(self)
+            er~setEnclosed(r)
+            return er
         end
-        else do
-            arg = self
-            r = .array~new(arg~dimensions)
-            stack[arg] = r -- will be used to build the resulting infinite array
-        end
-        supplier = arg~supplier
+        -- Here, self is an array
+        r = .array~new(self~dimensions)
+        stack[self] = r -- in case of self reference, will be used to build the new self reference
+        supplier = self~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, , depth-1, stack)
+            end
+            else if depth <= 0 then do
+                r[index] = item
             end
             else do
                 if arity >= 2 then doer~do(item, index)
@@ -882,24 +934,17 @@ vector~indexer()=           []
             end
             supplier~next
         end
-        if self~isA(.EnclosedArray) then do
-            stack~remove(arg)
-            stack~remove(self)
-            return er
-        end
-        else do
-            stack~remove(self)
-            return r
-        end
+        --stack~remove(self)
+        return r
     end
 
     -- binary operator (self op rightArg):
-    -- Array op Array : element wise
-    -- Array op EnclosedArray : manage enclosedArray as a whole
-    -- Array op Other
-    -- EnclosedArray op Array : return rightArg~rightElementWise(doer, self)
-    -- EnclosedArray op EnclosedArray : error
-    -- EnclosedArray op Other : manage enclosedArray as a non enclosed array
+    --   Array op Array : element wise
+    --   Array op EnclosedArray : manage enclosedArray as a whole
+    --   Array op Other
+    --   EnclosedArray op Array : return rightArg~rightElementWise(doer, self)
+    --   EnclosedArray op EnclosedArray : error
+    --   EnclosedArray op Other : manage enclosedArray as a non enclosed array
 
     if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight")~arity(4)
                                         else doer = action~doer
@@ -913,7 +958,7 @@ vector~indexer()=           []
         end
         if rightArg~isA(.array) then do
             -- binary operator with enclosed array on left & not enclosed array on right : EnclosedArray op Array
-            return rightArg~rightElementWise(doer, self, depth)
+            return rightArg~rightElementWise(doer, self, depth, stack)
         end
     end
 
@@ -924,14 +969,17 @@ vector~indexer()=           []
         -- binary operator with not enclosed array on left & right : Array op Array
         if \sameShapes(self, rightArg) then raise syntax 93.900 array("Shapes are not equal")
         r = .array~new(self~dimensions)
-        stack[self] = r -- will be used to build the resulting infinite array
+        stack[self] = r -- in case of self reference, will be used to build the new self reference
         supplier = self~supplier
         -- TODO : sparse array not supported. Must use TWO suppliers.
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, rightArg[index], depth-1, stack)
+            end
+            else if depth <= 0 then do
+                r[index] = item
             end
             else do
                 if arity >= 4 then doer~do(item, rightArg[index], index, index)
@@ -940,7 +988,7 @@ vector~indexer()=           []
             end
             supplier~next
         end
-        stack~remove(self)
+        --stack~remove(self)
         return r
     end
     else do
@@ -949,24 +997,26 @@ vector~indexer()=           []
         -- Array op Other
         -- EnclosedArray op Other
         if self~isA(.EnclosedArray) then do
-            depth -= 1
+            er = .EnclosedArray~new(.nil)
+            stack[self] = er -- in case of self reference, will be used to build the new self reference
             leftArg = self~disclose
-            r = .array~new(leftArg~dimensions)
-            stack[leftArg] = r -- will be used to build the resulting infinite array
-            er = r~enclose
-            stack[self] = er -- will be used to build the resulting enclosed infinite array
+            r = leftArg~leftElementWise(doer, rightArg, depth-1, stack)
+            --stack~remove(self)
+            er~setEnclosed(r)
+            return er
         end
-        else do
-            leftArg = self
-            r = .array~new(leftArg~dimensions)
-            stack[leftArg] = r -- will be used to build the resulting infinite array
-        end
-        supplier = leftArg~supplier
+        -- Here, self is an array
+        r = .array~new(self~dimensions)
+        stack[self] = r -- in case of self reference, will be used to build the new self reference
+        supplier = self~supplier
         do while supplier~available
             index = supplier~index
             item = supplier~item
-            if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
+            if item~isA(.array) | item~isA(.EnclosedArray) then do
                 r[index] = item~leftElementWise(doer, rightArg, depth-1, stack)
+            end
+            else if depth <= 0 then do
+                r[index] = item
             end
             else do
                 if arity >= 4 then doer~do(item, rightArg, index, index)
@@ -975,15 +1025,8 @@ vector~indexer()=           []
             end
             supplier~next
         end
-        if self~isA(.EnclosedArray) then do
-            stack~remove(leftArg)
-            stack~remove(self)
-            return er
-        end
-        else do
-            stack~remove(self)
-            return r
-        end
+        --stack~remove(self)
+        return r
     end
 
 ::method "rightElementWise"
@@ -999,7 +1042,6 @@ vector~indexer()=           []
     -- Other op Other :                 can't happen (right is either Array or EnclosedArray)
 
     use strict arg action, leftArg, depth=(.infinity~positive), stack=(.identityTable~new)
-    if depth < 1 then raise syntax 93.900 array("Element-wise operation: depth must be >= 1")
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
 
@@ -1007,7 +1049,7 @@ vector~indexer()=           []
                                         else doer = action~doer
     arity = doer~arity
 
-    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, depth)
+    if leftArg~isA(.array) then return leftArg~leftElementWise(doer, self, depth, stack)
 
     if leftArg~isA(.EnclosedArray), self~isA(.EnclosedArray) then do
         -- binary operator with enclosed array on left & right : EnclosedArray op EnclosedArray
@@ -1020,24 +1062,27 @@ vector~indexer()=           []
     -- Other op EnclosedArray : disclose the enclosed array
 
     if self~isA(.EnclosedArray) then do
-        depth -= 1
+        er = .EnclosedArray~new(.nil)
+        stack[self] = er -- in case of self reference, will be used to build the new self reference
         rightArg = self~disclose
-        r = .array~new(rightArg~dimensions)
-        stack[rightArg] = r -- will be used to build the resulting infinite array
-        er = r~enclose
-        stack[self] = er -- will be used to build the resulting enclosed infinite array
+        r = rightArg~rightElementWise(doer, leftArg, depth-1, stack)
+        --stack~remove(self)
+        er~setEnclosed(r)
+        return er
     end
-    else do
-        rightArg = self
-        r = .array~new(rightArg~dimensions)
-        stack[rightArg] = r -- will be used to build the resulting infinite array
-    end
+    -- Here, self is an array
+    rightArg = self
+    r = .array~new(rightArg~dimensions)
+    stack[rightArg] = r -- will be used to build the resulting infinite array
     supplier = rightArg~supplier
     do while supplier~available
         index = supplier~index
         item = supplier~item
-        if (item~isA(.array) | item~isA(.EnclosedArray)) & depth > 1 then do
+        if item~isA(.array) | item~isA(.EnclosedArray) then do
             r[index] = item~rightElementWise(doer, leftArg, depth-1, stack)
+        end
+        else if depth <= 0 then do
+            r[index] = item
         end
         else do
             if arity >= 4 then doer~do(leftArg, item, index, index)
@@ -1046,15 +1091,8 @@ vector~indexer()=           []
         end
         supplier~next
     end
-    if self~isA(.EnclosedArray) then do
-        stack~remove(rightArg)
-        stack~remove(self)
-        return er
-    end
-    else do
-        stack~remove(self)
-        return r
-    end
+    --stack~remove(rightArg)
+    return r
 
 ::method "+"
     if arg() == 0 then return self~leftElementWise("+")
