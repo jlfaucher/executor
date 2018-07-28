@@ -97,12 +97,12 @@ many times as necessary to fill the array.
 
 Generation of an identity matrix (1 on the diagonal, 0 everywhere else).  
 Works for any shape with rank >= 2.  
-When all the items of an index are equal then it's a diagonal index.  
-This can be tested by converting the index to a set and testing if the number of items is 1.
+When all the items of an index are equal then it's a diagonal index.
 
 - [1,1] is a diagonal index.
 - [1,2] is not a diagonal index.
 
+This can be tested by converting the index to a set and testing if the number of items is 1.
 
     .array~new(3,3)~of{ index~reduce(.set~new, "put")~items==1 }=
     1 0 0
