@@ -103,6 +103,7 @@ This can be tested by converting the index to a set and testing if the number of
 - [1,1] is a diagonal index.
 - [1,2] is not a diagonal index.
 
+
     .array~new(3,3)~of{ index~reduce(.set~new, "put")~items==1 }=
     1 0 0
     0 1 0
