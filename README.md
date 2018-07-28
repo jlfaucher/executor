@@ -96,14 +96,14 @@ many times as necessary to fill the array.
     2 1 2
 
 Generation of an identity matrix (1 on the diagonal, 0 everywhere else).  
-If (index - index[1])~reduce("+") == 0 is true then this is a diagonal index.
+Works for any shape with rank >= 2.  
+When all the items of an index are equal then it's a diagonal index.  
+This can be tested by converting the index to a set and testing if the number of items is 1.
 
-- [1,1] - 1 = [0,0], the sum of all items is 0 --> diagonal index
-- [1,2] - 1 = [0,1], the sum of all items is not 0 --> not a diagonal index
+- [1,1] is a diagonal index.
+- [1,2] is not a diagonal index.
 
-This example also illustrates the availability of operators for array.
-
-    .array~new(3,3)~of{ (index - index[1])~reduce("+") == 0 }=
+    .array~new(3,3)~of{ index~reduce(.set~new, "put")~items==1 }=
     1 0 0
     0 1 0
     0 0 1
