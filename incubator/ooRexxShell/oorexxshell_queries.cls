@@ -220,6 +220,7 @@ method sayTrace
 method sayError
 method sayCollection
 method sayCondition     (not used)
+method sayPrettyString  (not used)
 method sayStackFrames   (not used)
 method singularPlural
 method prettyString     (not used)
@@ -284,7 +285,7 @@ attribute traceFilter
         methods = .relation~new
         call collectMethods
         lineCount = filteringStream~lineCount
-        displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false){
+        displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
             expose displaySource
             if displaySource then do
                 method = item~getUserData
@@ -453,7 +454,7 @@ attribute traceFilter
               methods[methodDescription] = classDescription
             },
     )
-    displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false){
+    displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
         expose displaySource
         if displaySource then do
             method = item~getUserData
@@ -514,7 +515,7 @@ attribute traceFilter
         s~next
     end
     -- Sort by routine name, ignoring the 10 first characters which are routine flags.
-    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false){
+    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
         expose displaySource
         if displaySource then do
             routine = item~getUserData

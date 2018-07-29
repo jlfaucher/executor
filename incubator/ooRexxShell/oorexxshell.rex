@@ -560,11 +560,11 @@ Helpers
         return
     end
 
-    if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then say .ooRexxShell~prettyString(value) -- must not consume the datas
-    else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
-    else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then say value~ppRepresentation(100) -- condensed output, 100 items max
-    else if value~isA(.Collection) | value~isA(.Supplier) then .ooRexxShell~sayCollection(value)
-    else say .ooRexxShell~prettyString(value)
+    if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then .ooRexxShell~sayPrettyString(value) -- must not consume the datas
+    else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+    else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
+    else if value~isA(.Collection) | value~isA(.Supplier) then .ooRexxShell~sayCollection(value, /*title*/, /*comparator*/, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
 
@@ -662,6 +662,7 @@ Helpers
 ::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
 ::attribute isInteractive class -- Are we in interactive mode ?
 ::attribute lastResult class -- result's value from the last interpreted line
+::attribute maxItemsDisplayed class -- The maximum number of items to display when displaying a collection
 ::attribute prompt class -- The prompt to display
 ::attribute queueName class -- Private queue for no interference with the user commands
 ::attribute queueInitialName class -- Backup the initial external queue name (probably "SESSION")
@@ -700,6 +701,7 @@ Helpers
     self~hasRgfUtil2 = .false
     self~isExtended = .false
     self~isInteractive = .false
+    self~maxItemsDisplayed = 1000
     self~readline = .false
     self~showColor = .false
     self~stackFrames = .list~new
@@ -792,14 +794,29 @@ Helpers
 
 
 ::method sayCollection class
+    use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     -- The package rgfutil2 is optional, use it if loaded.
-    if .ooRexxShell~hasRgfUtil2 then .context~package~findroutine("dump2")~callWith(arg(1, "a"))
-    else say arg(1)
+    dump2 = .context~package~findroutine("dump2")
+    if dump2 <> .nil then dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
+    else say coll
+
+
+::method sayPPrepresentation class
+    use strict arg value /*enclosedArray or array*/, maxItems=(9~copies(digits())) /*no limit*/
+    if .ooRexxShell~isExtended then say value~ppRepresentation(maxItems) -- condensed output, limited to maxItems
+    else say value
+
+
+::method sayPrettyString class
+    use strict arg value
+    say self~prettyString(value)
 
 
 ::method prettyString class
+    use strict arg value, surroundByQuotes=.true
     -- The package rgfutil2 is optional, use it if loaded.
-    if .ooRexxShell~hasRgfUtil2 then return .context~package~findroutine("pp2")~callWith(arg(1, "a"))
+    pp2 = .context~package~findroutine("pp2")
+    if pp2 <> .nil then return pp2~call(value, surroundByQuotes)
     return arg(1)
 
 

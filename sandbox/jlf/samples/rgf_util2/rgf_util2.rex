@@ -1769,7 +1769,7 @@ syntax:              -- propagate condition
   -- JLF: I prefer a notation closer to the standard notation "a String" or "an Array"
   -- JLF: add surroundItemByQuotes, surroundIndexByQuotes
   -- JLF: add action, to let do something for each item
-  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, action=.nil
+  use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
 
   if .nil=comparator, title~isA(.comparator) then
   do
@@ -1801,13 +1801,14 @@ syntax:              -- propagate condition
      say "                       type:" pp2(coll~class)
      say "       default string value:" pp2(coll)
      -- .ArgUtil~validateClass("collection", coll, .Collection) -- must be of type Collection
-     return
+     return false -- nothing displayed
   end
   else      -- a collection in hand
   do
      shape = shape(coll, ", ") -- JLF
-     if title <> .nil then say title" ("shape || coll~items "items)" -- JLF .nil shape
-     len=length(coll~items)
+     items = coll~items -- calculate once, can be long for big array
+     if title <> .nil then say title" ("shape || items "items)" -- JLF .nil shape
+     len=length(items)
   end
 
   -- JLF say
@@ -1822,7 +1823,7 @@ syntax:              -- propagate condition
    -- determine maximum length of "pretty printed" index-value
   maxWidth=0
   s2=s~copy
-  do while s2~available
+  do maxCount while s2~available
      maxWidth=max(maxWidth,length(ppIndex2(s2~index, surroundIndexByQuotes)))
      s2~next
   end
@@ -1830,6 +1831,10 @@ syntax:              -- propagate condition
   count=0
   do while s~available
      count=count+1
+     if count > maxCount then do
+         say "..."
+         return false -- truncated
+     end
      if s~item~isa(.array) & iterateOverItem then do
          -- JLF one line per subitem
          do subitem over s~item~sort
@@ -1854,7 +1859,7 @@ syntax:              -- propagate condition
      s~next
   end
   -- JLF say "-"~copies(50)
-  return
+  return true -- not truncated
 
 
 /* Sort a collection considering its type and return a sorted supplier object. */
