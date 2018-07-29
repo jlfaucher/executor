@@ -130,8 +130,8 @@ typedef struct copyElementParm {
    void         flatten(RexxEnvelope *);
    RexxObject  *copy();
    RexxArray   *makeArray();
-   RexxArray   *allItems();
-   RexxArray   *allIndexes();
+   RexxArray   *allItems(RexxObject *maxItems=OREF_NULL);
+   RexxArray   *allIndexes(RexxObject *maxIndexes=OREF_NULL);
    RexxString  *toString(RexxString *, RexxString *);
    RexxString  *makeString(RexxString *, RexxString *);
 // Temporary bypass for BUG #1700606
@@ -169,7 +169,7 @@ typedef struct copyElementParm {
    RexxObject  *dimension(RexxObject *);
    RexxObject  *getDimensions();
    size_t       getDimension();
-   RexxObject  *supplier();
+   RexxObject  *supplier(RexxObject *maxItems=OREF_NULL);
    RexxObject  *join(RexxArray *);
    RexxArray   *extend(size_t);
    void         shrink(size_t);

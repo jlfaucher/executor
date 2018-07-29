@@ -374,7 +374,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_REMOVE       ,TheArrayBehaviour, CPPM(RexxArray::removeRexx), A_COUNT);
   defineKernelMethod(CHAR_SECTION      ,TheArrayBehaviour, CPPM(RexxArray::sectionRexx), 2);
   defineKernelMethod(CHAR_SIZE         ,TheArrayBehaviour, CPPM(RexxArray::sizeRexx), 0);
-  defineKernelMethod(CHAR_SUPPLIER     ,TheArrayBehaviour, CPPM(RexxArray::supplier), 0);
+  defineKernelMethod(CHAR_SUPPLIER     ,TheArrayBehaviour, CPPM(RexxArray::supplier), 1);
   defineKernelMethod(CHAR_FIRST        ,TheArrayBehaviour, CPPM(RexxArray::firstRexx), 0);
   defineKernelMethod(CHAR_FIRSTITEM    ,TheArrayBehaviour, CPPM(RexxArray::firstItem), 0);
   defineKernelMethod(CHAR_LAST         ,TheArrayBehaviour, CPPM(RexxArray::lastRexx), 0);
@@ -384,8 +384,8 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_APPEND       ,TheArrayBehaviour, CPPM(RexxArray::appendRexx), 1);
   defineKernelMethod(CHAR_MAKESTRING   ,TheArrayBehaviour, CPPM(RexxArray::makeString), 2);
   defineKernelMethod(CHAR_TOSTRING     ,TheArrayBehaviour, CPPM(RexxArray::toString), 2);
-  defineKernelMethod(CHAR_ALLINDEXES   ,TheArrayBehaviour, CPPM(RexxArray::allIndexes), 0);
-  defineKernelMethod(CHAR_ALLITEMS     ,TheArrayBehaviour, CPPM(RexxArray::allItems), 0);
+  defineKernelMethod(CHAR_ALLINDEXES   ,TheArrayBehaviour, CPPM(RexxArray::allIndexes), 1);
+  defineKernelMethod(CHAR_ALLITEMS     ,TheArrayBehaviour, CPPM(RexxArray::allItems), 1);
   defineKernelMethod(CHAR_EMPTY        ,TheArrayBehaviour, CPPM(RexxArray::empty), 0);
   defineKernelMethod(CHAR_ISEMPTY      ,TheArrayBehaviour, CPPM(RexxArray::isEmpty), 0);
   defineKernelMethod(CHAR_INDEX        ,TheArrayBehaviour, CPPM(RexxArray::index), 1);

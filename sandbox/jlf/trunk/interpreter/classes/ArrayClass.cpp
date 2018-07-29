@@ -77,6 +77,7 @@
 #include "ProtectedObject.hpp"
 
 #include <deque>
+#include <algorithm> // for std::min
 
 
 // singleton class instance
@@ -778,31 +779,39 @@ RexxObject *RexxArray::dimension(      /* query dimensions of an array      */
     }
 }
 
-RexxObject *RexxArray::supplier()
+RexxObject *RexxArray::supplier(RexxObject *maxItems)
 /******************************************************************************/
 /* Function:  create a supplier for this array                                */
 /******************************************************************************/
 {
+    size_t maxCount = this->size();
+    if (maxItems != OREF_NULL)
+    {
+        maxCount = maxItems->requiredNonNegative(ARG_ONE);
+    }
+
     size_t slotCount = this->size();            /* get the array size                */
     size_t itemCount = this->items();           /* and the actual count in the array */
+    size_t arraySize = std::min(itemCount, maxCount);
 
-    RexxArray *values = new_array(itemCount);       /* get the values array              */
-    RexxArray *indexes = new_array(itemCount);      /* and an index array                */
+    RexxArray *values = new_array(arraySize);       /* get the values array              */
+    RexxArray *indexes = new_array(arraySize);      /* and an index array                */
 
     ProtectedObject v(values);
     ProtectedObject s(indexes);
 
-    size_t count = 1;                           /* next place to add                 */
+    size_t count = 0;                           /* next place to add                 */
     for (size_t i = 1; i <= slotCount; i++)
     {   /* loop through the array            */
+        if (count > maxCount) break;
         RexxObject *item = this->get(i);     /* get the next item                 */
         if (item != OREF_NULL)
         {           /* got an item here                  */
-            values->put(item, count);        /* copy over to the values array     */
+            count++;
+            values->put(item, count);      /* copy over to the values array     */
 
                                              /* add the index location            */
             indexes->put((RexxObject*)convertIndex(i), count);
-            count++;                         /* step the location                 */
         }
     }
 
@@ -1454,10 +1463,17 @@ RexxArray *RexxArray::makeArray(void)
  *
  * @return An array with all of the array items (non-sparse).
  */
-RexxArray *RexxArray::allItems(void)
+RexxArray *RexxArray::allItems(RexxObject *maxItems)
 {
+    size_t maxCount = this->size();
+    if (maxItems != OREF_NULL)
+    {
+        maxCount = maxItems->requiredNonNegative(ARG_ONE);
+    }
+
     // get a result array of the appropriate size
-    RexxArray *newArray = (RexxArray *)new_array(this->items());
+    size_t arraySize = std::min(this->items(), maxCount);
+    RexxArray *newArray = (RexxArray *)new_array(arraySize);
 
     // we need to fill in based on actual items, not the index.
     size_t count = 0;
@@ -1465,6 +1481,7 @@ RexxArray *RexxArray::allItems(void)
     // loop through the array, copying all of the items.
     for (size_t iterator = 0; iterator < this->size(); iterator++ )
     {
+        if (count > maxCount) break;
         // if this is a real array item, copy over to the result
         if (item[iterator] != OREF_NULL)
         {
@@ -1481,10 +1498,17 @@ RexxArray *RexxArray::allItems(void)
  *
  * @return An array with all of the array indices (non-sparse).
  */
-RexxArray *RexxArray::allIndexes()
+RexxArray *RexxArray::allIndexes(RexxObject *maxIndexes)
 {
+    size_t maxCount = this->size();
+    if (maxIndexes != OREF_NULL)
+    {
+        maxCount = maxIndexes->requiredNonNegative(ARG_ONE);
+    }
+
     // get a result array of the appropriate size
-    RexxArray *newArray = (RexxArray *)new_array(this->items());
+    size_t arraySize = std::min(this->items(), maxCount);
+    RexxArray *newArray = (RexxArray *)new_array(arraySize);
     ProtectedObject p(newArray);
 
     // we need to fill in based on actual items, not the index.
@@ -1493,6 +1517,7 @@ RexxArray *RexxArray::allIndexes()
     // loop through the array, copying all of the items.
     for (size_t iterator = 0; iterator < this->size(); iterator++ )
     {
+        if (count > maxCount) break;
         // if this is a real array item, add an integer index item to the
         // result collection.
         if (item[iterator] != OREF_NULL)

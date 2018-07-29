@@ -1817,7 +1817,7 @@ syntax:              -- propagate condition
 
   if coll~isA(.Collection) then
   do
-     s=makeSortedSupplier(coll, comparator)
+     s=makeSortedSupplier(coll, comparator, maxCount)
   end
 
    -- determine maximum length of "pretty printed" index-value
@@ -1864,10 +1864,12 @@ syntax:              -- propagate condition
 
 /* Sort a collection considering its type and return a sorted supplier object. */
 makeSortedSupplier: procedure
-  use arg coll, comparator=.nil
+  use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
 
-  if coll~isA(.OrderedCollection) then    -- don't sort, just return the supplier
-     return coll~supplier
+  if coll~isA(.OrderedCollection) then do  -- don't sort, just return the supplier
+     if coll~isA(.array) then return coll~supplier(maxCount+1) -- +1 to let display the ellipsis
+     return coll~supplier -- optional argument maxCount not yet implemented
+  end
 
   if coll~isA(.SetCollection) then        -- use items part, sort it and return it as a supplier
   do

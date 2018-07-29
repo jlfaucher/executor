@@ -811,7 +811,8 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
                   -- Maybe a global count could be useful... Will see on usage.
         valstr = "["
         sep = ""
-        s = val~supplier
+        if maxItems >= 0 then s = val~supplier(maxItems+1) -- +1 to let display the ellipsis
+        else s = val~supplier
         i = 1 -- current index, will let detect sparse sections
         do while s~available
             item = s~item
