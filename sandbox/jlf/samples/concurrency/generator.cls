@@ -4,6 +4,27 @@
 ::requires "extension/functionals.cls"
 
 
+-------------------------------------------------------------------------------
+-- Object can't inherit from a mixinclass (would raise "cannot inherit from itself")
+::extension Object
+
+::method generate class
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)
+
+::method generateI class
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)~returnIndex
+
+::method generate
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)
+
+::method generateI
+    use strict arg action={item}
+    return .Generator~new(self)~action(action)~returnIndex
+
+
 -----------------------------------------------------------------------------
 -- Mixins
 -- Iterator, collector, filter.

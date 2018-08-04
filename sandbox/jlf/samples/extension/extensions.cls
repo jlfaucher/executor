@@ -54,26 +54,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
     expose userData
     return userData
 
-------------
--- Generator
-------------
-
-::method generate class
-    use strict arg action={item}
-    return .Generator~new(self)~action(action)
-
-::method generateI class
-    use strict arg action={item}
-    return .Generator~new(self)~action(action)~returnIndex
-
-::method generate
-    use strict arg action={item}
-    return .Generator~new(self)~action(action)
-
-::method generateI
-    use strict arg action={item}
-    return .Generator~new(self)~action(action)~returnIndex
-
 ----------
 -- Unknown
 ----------
