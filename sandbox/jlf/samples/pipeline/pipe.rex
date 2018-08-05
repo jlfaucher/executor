@@ -772,15 +772,17 @@ end
 ::routine dataflow_representation
 -- 'pool' is a collection which remembers the shared values (count > 1) already inserted in the representation.
 -- The first occurence of a shared value is represented by vN=<shared value representation>
--- The next occurences of this shared value is just vN.
-use strict arg val, showPool, pool, values, surroundByQuotes=.true, stack=(.queue~new)
+-- The next occurences of this shared value is just *vN.
+use strict arg val, showPool, pool, values, stack=(.queue~new)
 -- if val~isA(.enclosedArray) then do -- Can't use this test because .enclosedArray is not a class here. I don't want to require "extension/array.cls"
 if val~class~id == "EnclosedArray" then do
     level = stack~index(val)
-    if .nil <> level then return "*"level-1
-    stack~push(val)
-    valstr = "<"dataflow_representation(val~disclose, showPool, pool, values, surroundByQuotes, stack)">"
-    stack~pull
+    --if .nil <> level then return "*"level-1
+    if .nil <> level then return "*a"level
+    stack~append(val)
+    level = stack~index(val)
+    valstr = "a" || level || "=" || "<"dataflow_representation(val~disclose, showPool, pool, values, stack)">"
+    --stack~pull
     return valstr
 end
 else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
@@ -794,23 +796,25 @@ else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMa
     -- each item of the array is inserted.
     -- special care for recursive arrays
     level = stack~index(val)
-    if .nil <> level then return "*"level-1
-    stack~push(val)
-    valstr = "["
+    --if .nil <> level then return "*"level-1
+    if .nil <> level then return "*a"level
+    stack~append(val)
+    level = stack~index(val)
+    valstr = "a" || level || "=" || "["
     separator = ""
     do v over val
-        valstr ||= separator || dataflow_representation(v, showPool, pool, values, surroundByQuotes, stack)
+        valstr ||= separator || dataflow_representation(v, showPool, pool, values, stack)
         separator = ","
     end
     valstr ||= "]"
-    stack~pull
+    --stack~pull
     return valstr
 end
 else do
     valstr = val~string
     if val~isA(.String) then do
         isnum = val~dataType("N")
-        if \isnum & surroundByQuotes then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
+        if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
     end
     else do
         isnum = .false
@@ -830,7 +834,7 @@ else do
             end
             else return valstr
         end
-        else return "v"num
+        else return "*v"num
     end
 end
 

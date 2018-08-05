@@ -26,7 +26,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
 ::extension CoactivitySupplierForGeneration inherit                CoactivitySupplierForGenerationFilter CoactivitySupplierForGenerationIterator
 
-::extension Array                           inherit ArrayInitializer ArrayPrettyPrinter ArrayOperators APLArray
+::extension Array                           inherit ArrayInitializer    ArrayPrettyPrinter    ArrayOperators     APLArray
+::extension RexxText                        inherit RexxTextInitializer RexxTextPrettyPrinter RexxTextOperators
 ::extension File                            inherit FileExtension
 
 
@@ -53,6 +54,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method getUserData
     expose userData
     return userData
+
+---------------
+-- Pretty Print
+---------------
+
+::method ppString
+    -- Will be redefined by subclasses like array, string, etc...
+    return self~string
+
 
 ----------
 -- Unknown

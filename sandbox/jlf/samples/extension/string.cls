@@ -63,6 +63,18 @@ Similar to ~makeArray(separator), with these differences:
 
 
 /******************************************************************************/
+::class "StringPrettyPrinter" mixinclass Object public
+
+::method ppString
+    use strict arg surroundByQuotes=.true
+    -- strings are surrounded by quotes, except string numbers.
+    if self~dataType("N") then return self
+    pp = self
+    if surroundByQuotes then pp = pp~quoted("'")
+    return escape3(pp) -- JLF : Use 0xXX notation for escaped characters
+
+
+/******************************************************************************/
 ::class "EncodedString" mixinclass Object public
 
 ::attribute text get
@@ -92,7 +104,7 @@ Similar to ~makeArray(separator), with these differences:
 
 
 /******************************************************************************/
-::extension "RexxText"
+::class "RexxTextInitializer" mixinclass Object public
 
 ::method init
     expose string encoding analyzed
@@ -135,6 +147,19 @@ I need to get the control when concatenating strings
         -- todo: graphemes count & indexes
     end
 
+
+/******************************************************************************/
+::class "RexxTextPrettyPrinter" mixinclass Object public
+
+::method ppString
+    -- Texts are prefixed with "T"
+    pp = "T'"self~string"'"
+    -- Use 0xXX notation for escaped character
+    return escape3(pp)
+
+
+/******************************************************************************/
+::class "RexxTextOperators" mixinclass Object public
 
 ::method " "
     use strict arg right
@@ -266,3 +291,52 @@ I need to get the control when concatenating strings
     -- Must memorize the Text with a copy of the string constant , otherwise error "a Text counterpart is already assigned"
     if \var("spaceCharacter") then spaceCharacter = .RexxText~new(.String~new("0020"x), self)
     return spaceCharacter
+
+
+/******************************************************************************/
+-- Copied from rgf_util2
+-- Escape non-printable chars by printing them between square brackets [].
+::routine escape3 public
+  parse arg a1
+
+  res=""
+
+  do while a1\==""
+     pos1=verify(a1, .rgf.non.printable, "M")
+     if pos1>0 then
+     do
+        pos2=verify(a1, .rgf.non.printable, "N" , pos1)
+
+        if pos2=0 then
+           pos2=length(a1)+1
+
+        if pos1=1 then
+        do
+           parse var a1 char +(pos2-pos1) a1
+           bef=""
+        end
+        else
+           parse var a1 bef +(pos1-1) char +(pos2-pos1) a1
+
+        if res=="" then
+        do
+           if bef \=="" then res=bef -- res=enquote2(bef) '|| '
+        end
+        else
+        do
+           res=res||bef -- res=res '||' enquote2(bef) '|| '
+        end
+
+        res=res || '['char~c2x']'
+     end
+     else
+     do
+        if res<>""  then
+           res=res||a1 -- res=res '||' enquote2(a1)
+        else
+           res=a1
+
+        a1=""
+     end
+  end
+  return res

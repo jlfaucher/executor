@@ -2642,30 +2642,30 @@ createCodeSnippet: procedure
 
   -- JLF : can't use .Text, its package is not imported here
   a1.isaText = (a1~class~id=="RexxText")
-  if \a1~isA(.string) & \a1.isaText then
-  do
-     -- JLF : condensed output, 100 items max
-     if /*a1~isA(.array), a1~dimension == 1,*/ a1~hasMethod("ppRepresentation") then
-        return a1~ppRepresentation(100, surroundByQuotes)
-     -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
-     if a1~isA(.Collection) then do
-        shape = shape(a1, ", ") -- JLF
-        if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
-        else return "("a1~string "("shape || a1~items "items))"
-     end
-     else
-        if .local~rgf.showIdentityHash then return "("a1~string "id#_" || (a1~identityHash)")"
-        else return "("a1~string")"
+
+  -- JLF : texts are prefixed with "T"
+  if a1.isaText then return escape3("T'"a1~string"'") -- JLF : Use 0xXX notation for escaped characters
+
+  -- JLF : strings are surrounded by quotes, except string numbers.
+  if a1~isA(.string) then do
+      if a1~dataType("N") then return a1
+      if surroundByQuotes then a1 = "'"a1"'"
+      return escape3(a1) -- JLF : Use 0xXX notation for escaped characters
   end
 
-  -- JLF : strings are surrounded by quotes, except string numbers
-  a1str = a1~string
-  if \a1str~dataType("N") & surroundByQuotes then a1str = "'"a1str"'"
-  -- JLF : texts are prefixed with "T"
-  if a1.isaText then a1str = "T"a1str
-  -- JLF : Use 0xXX notation for escaped characters
-  -- return escape2(a1str)
-  return escape3(a1str)
+  -- JLF : condensed output, 100 items max
+  if a1~isA(.array), /*a1~dimension == 1,*/ a1~hasMethod("ppRepresentation") then
+     return a1~ppRepresentation(100, surroundByQuotes)
+
+  -- JLF : Since I pretty-print array using square brackets, I prefer to avoid square brackets
+  if a1~isA(.Collection) then do
+     shape = shape(a1, ", ") -- JLF
+     if .local~rgf.showIdentityHash then return "("a1~string "("shape || a1~items "items)" "id#_" || (a1~identityHash)")"
+     else return "("a1~string "("shape || a1~items "items))"
+  end
+  else
+     if .local~rgf.showIdentityHash then return "("a1~string "id#_" || (a1~identityHash)")"
+     else return "("a1~string")"
 
 
 /* ======================================================================= */
@@ -2682,6 +2682,7 @@ createCodeSnippet: procedure
      if a1~isA(.array), a1~dimension=1 then
      do
         -- if a1~dimension=1 then   -- create comma-delimited list of index-values?
+        -- jlf: works only for non-sparse array, which is the case of array indexes
         do
            tmpStr=""
            bFirst=.true
@@ -2698,11 +2699,11 @@ createCodeSnippet: procedure
                  bFirst=.false
               end
               else
-                 tmpStr=tmpStr","tmpVal
+                 tmpStr=tmpStr","tmpVal~string -- jlf: add ~string to support correctly an array
            end
            if a1~items>maxElements then
            do
-              tmpStr=", ..."
+              tmpStr=tmpStr", ..."
            end
            return "["tmpStr"]"
         end

@@ -791,25 +791,29 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
     */
-    use strict arg maxItems=(-1), surroundByQuotes=.true, sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
+    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
         level = stack~index(val)
-        if .nil <> level then return "*"level-1
-        stack~push(val)
-        valstr = "<"val~ppRepresentation(maxItems, surroundByQuotes, sparse, ellipsis, separator, val~disclose, stack)">"
-        stack~pull
+        --if .nil <> level then return "*"level-1
+        if .nil <> level then return "*a"level -- pointer to the array already displayed
+        stack~append(val)
+        level = stack~index(val)
+        valstr = "a" || level || "=" || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, stack)">"
+        --stack~pull
         return valstr
     end
     else if val~isA(.array), val~dimension == 1 then do
         level = stack~index(val)
-        if .nil <> level then return "*"level-1
-        stack~push(val)
+        --if .nil <> level then return "*"level-1
+        if .nil <> level then return "*a"level -- pointer to the array already displayed
+        stack~append(val)
+        level = stack~index(val)
         -- each item of the array is inserted.
         items = 0 -- Not global. Each item being an array will have maxItems items inserted.
                   -- Maybe a global count could be useful... Will see on usage.
-        valstr = "["
+        valstr = "a" || level || "=" || "["
         sep = ""
         if maxItems >= 0 then s = val~supplier(maxItems+1) -- +1 to let display the ellipsis
         else s = val~supplier
@@ -825,7 +829,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || val~ppRepresentation(maxItems, surroundByQuotes, sparse, ellipsis, separator, item, stack)
+            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, stack)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -838,14 +842,14 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             end
         end
         valstr ||= "]"
-        stack~pull
+        --stack~pull
         return valstr
     end
     else do
         valstr = val~string
         if val~isA(.String) then do
             isnum = valstr~dataType("N")
-            if \isnum & surroundByQuotes then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
+            if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
         end
         else do
             isnum = .false
@@ -871,9 +875,9 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     level2 = (21,22)
     level3 = (31,32)
     level5 = (51,52)
+    level5e = level5~enclose
     level1~append(level2)
     level2~append(level3)
-    level5e = level5~enclose
     level2~append(level5e)
     level2~append(level1)               -- self reference
     level3~append(level5e)              -- indirect self reference part1
@@ -902,7 +906,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         --   op Array
         --   op EnclosedArray
 
-        if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index")~arity(2)
+        if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg item, index, depth")~arity(3)
                                             else doer = action~doer
         arity = doer~arity
 
@@ -911,7 +915,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             arg = self~disclose
             r = arg~leftElementWise(doer, , depth-1, stack)
-            --stack~remove(self)
+            stack~remove(self)
             er~setEnclosed(r)
             return er
         end
@@ -929,13 +933,13 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
                 r[index] = item
             end
             else do
-                if arity >= 2 then doer~do(item, index)
+                if arity >= 3 then doer~do(item, index, depth)
                               else doer~do(item)
                 if var("result") then r[index] = result
             end
             supplier~next
         end
-        --stack~remove(self)
+        stack~remove(self)
         return r
     end
 
@@ -947,7 +951,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     --   EnclosedArray op EnclosedArray : error
     --   EnclosedArray op Other : manage enclosedArray as a non enclosed array
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight")~arity(4)
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight, depth")~arity(5)
                                         else doer = action~doer
     arity = doer~arity
 
@@ -983,13 +987,13 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
                 r[index] = item
             end
             else do
-                if arity >= 4 then doer~do(item, rightArg[index], index, index)
+                if arity >= 5 then doer~do(item, rightArg[index], index, index, depth)
                               else doer~do(item, rightArg[index])
                 if var("result") then r[index] = result
             end
             supplier~next
         end
-        --stack~remove(self)
+        stack~remove(self)
         return r
     end
     else do
@@ -1002,7 +1006,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             leftArg = self~disclose
             r = leftArg~leftElementWise(doer, rightArg, depth-1, stack)
-            --stack~remove(self)
+            stack~remove(self)
             er~setEnclosed(r)
             return er
         end
@@ -1020,13 +1024,13 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
                 r[index] = item
             end
             else do
-                if arity >= 4 then doer~do(item, rightArg, index, index)
+                if arity >= 5 then doer~do(item, rightArg, index, index, depth)
                               else doer~do(item, rightArg)
                 if var("result") then r[index] = result
             end
             supplier~next
         end
-        --stack~remove(self)
+        stack~remove(self)
         return r
     end
 
@@ -1046,7 +1050,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     counterpart = stack[self]
     if counterpart <> .nil then return counterpart -- stop infinite recursion
 
-    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight")~arity(4)
+    if action~hasMethod("functionDoer") then doer = action~functionDoer("use arg itemLeft, itemRight, indexLeft, indexRight, depth")~arity(5)
                                         else doer = action~doer
     arity = doer~arity
 
@@ -1067,7 +1071,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         stack[self] = er -- in case of self reference, will be used to build the new self reference
         rightArg = self~disclose
         r = rightArg~rightElementWise(doer, leftArg, depth-1, stack)
-        --stack~remove(self)
+        stack~remove(self)
         er~setEnclosed(r)
         return er
     end
@@ -1086,13 +1090,13 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             r[index] = item
         end
         else do
-            if arity >= 4 then doer~do(leftArg, item, index, index)
+            if arity >= 5 then doer~do(leftArg, item, index, index, depth)
                           else doer~do(leftArg, item)
             if var("result") then r[index] = result
         end
         supplier~next
     end
-    --stack~remove(rightArg)
+    stack~remove(rightArg)
     return r
 
 ::method "+"
