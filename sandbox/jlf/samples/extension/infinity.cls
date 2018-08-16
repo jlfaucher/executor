@@ -12,6 +12,7 @@ direction=1     complex infinity
 
 --::options trace i
 ::requires "extension/indeterminate.cls"
+::requires "extension/novalue.cls"
 
 
 /******************************************************************************/
@@ -34,6 +35,9 @@ direction=1     complex infinity
     self~negative~opposite = self~positive
     self~positive~opposite = self~negative
     self~complex~opposite = self~complex
+
+    .GlobalVariable~declare("INFINITY", self~positive)
+    .GlobalVariable~declare("COMPLEXINFINITY", self~complex)
 
     /*
         The lack of method makestring & string can have a HUGE impact on performances !
@@ -359,15 +363,3 @@ direction=1     complex infinity
 -- ::method "&&"
 
 -- ::method "&&op:right"
-
-
-/******************************************************************************/
-::requires "extension/novalue.cls"
-
-::extension novalue
-
-::method infinity class
-    return .infinity~positive
-
-::method complexInfinity class
-    return .infinity~complex

@@ -51,6 +51,7 @@
 
 --::options trace i
 ::requires "rxmath" library
+::requires "extension/novalue.cls"
                                                 /* complex number data class      */
 ::class complex public
 
@@ -59,6 +60,7 @@
 
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     self~i = self~new(0, 1)
+    .GlobalVariable~declare("I", self~i)
 
 ::method '[]' class                             /* create a new complex number    */
     forward message('NEW')                      /* just forward this as a new message */
@@ -394,15 +396,6 @@
 -- ::method "&&"
 
 -- ::method "&&op:right"
-
-
-/******************************************************************************/
-::requires "extension/novalue.cls"
-
-::extension novalue
-
-::method i class
-    return .complex~i
 
 
 /******************************************************************************/

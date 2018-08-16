@@ -1,6 +1,8 @@
 .indeterminate~initialize
 
 --::options trace i
+::requires "extension/novalue.cls"
+
 
 /******************************************************************************/
 ::class "indeterminate" public
@@ -11,6 +13,7 @@
 ::method initialize class -- init not supported (can't instantiate itself or subclass from init)
     self~value = self~new("The indeterminate value")
     self~value~setMethod("makestring", "return self~objectName", "OBJECT")
+    .GlobalVariable~declare("INDETERMINATE", self~value)
 
 ::method init
     use strict arg objectName
@@ -184,13 +187,4 @@
     return .indeterminate~value
 
 ::method "&&op:right"
-    return .indeterminate~value
-
-
-/******************************************************************************/
-::requires "extension/novalue.cls"
-
-::extension novalue
-
-::method indeterminate class
     return .indeterminate~value
