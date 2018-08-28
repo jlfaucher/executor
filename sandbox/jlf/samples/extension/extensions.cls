@@ -19,8 +19,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::extension RexxBlock                       inherit RexxBlockDoer
 
 ::extension Coactivity                      inherit CoactivityDoer CoactivityFilter                      CoactivityIterator                      CoactivityReducer    CoactivityGenerator
-::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
-::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper StringHelpers
+::extension String                          inherit StringDoer     StringFilter                          StringIterator                          StringReducer        StringGenerator        StringMapper        StringHelpers StringPrettyPrinter RepeaterCollector RepeaterGenerator LogicalExtension EncodedString ComplexString
+::extension MutableBuffer                   inherit                MutableBufferFilter                   MutableBufferIterator                   MutableBufferReducer MutableBufferGenerator MutableBufferMapper
 ::extension Collection                      inherit                CollectionFilter                      CollectionIterator                      CollectionReducer    CollectionGenerator    CollectionMapper
 ::extension OrderedCollection               inherit                OrderedCollectionFilter
 ::extension Supplier                        inherit                SupplierFilter                        SupplierIterator                        SupplierReducer      SupplierGenerator
@@ -59,9 +59,15 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- Pretty Print
 ---------------
 
+::method ppString class
+    -- To make a distinction between a real string and other objects, surround by (...)
+    return "("self~string")"
+
+
 ::method ppString
     -- Will be redefined by subclasses like array, string, etc...
-    return self~string
+    -- To make a distinction between a real string and other objects, surround by (...)
+    return "("self~string")"
 
 
 ----------

@@ -255,7 +255,8 @@ v()               | []                            | 1         | [0]             
             -- REMEMBER ! If index is exposed in the closure, then it's overwritten by the implicit argument index.
             subindexes = self~allindexes~select{expose myIndex; item[1] == myIndex}
             subindexes = subindexes~reshape(subshape)
-            return subindexes~leftElementWise({itemRight[itemLeft]}, self~enclose, 1)
+            -- replace in place each item by self[item]
+            return subIndexes~mapR{expose self; self[item]}
         end
         if index~isa(.array) then do
             -- Select the values situated at the intersections of the specified rows and columns : rows 1 5 6, columns 1 3
@@ -761,19 +762,19 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
            |                                     ^         ^
            V                                     |         |
         +---------+---------+-----+--+--+        |         |
-        | string1 | string2 |  .  |  .  |        |         |
+     a1=| string1 | string2 |  .  |  .  |        |         |
         +---------+---------+--|--+--|--+        |         |
                                |     |           |         |
-                               |     +---------->+         |    Reference current level : *0
+                               |     +---------->+         |    Reference array already displayed : *a1
                                V                           |
                            +---------+-----+               |
                            | string2 |  .  |               |
                            +---------+--|--+               |
                                         |                  |
-                                        +----------------->+    Reference one level above : *1
+                                        +----------------->+    Reference array already displayed : *a1
 
     say a~ppRepresentation
-        ['string1','string2',['string2',*1],*0]
+        a1=['string1','string2',['string2',*a1],*a1]
 
     a~pipe(.console dataflow)
         source:1,'string1'
@@ -791,29 +792,27 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
     */
-    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), stack=(.queue~new)
+    use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
+    if referencesTable == .nil then referencesTable = self~collectReferences -- do it before pretty printing, to display the reference identifiers only when needed
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
-        level = stack~index(val)
-        --if .nil <> level then return "*"level-1
-        if .nil <> level then return "*a"level -- pointer to the array already displayed
-        stack~append(val)
-        level = stack~index(val)
-        valstr = "a" || level || "=" || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, stack)">"
-        --stack~pull
-        return valstr
+        reference = referencesTable[val]
+        if reference~selfReferenceId <> 0, reference~displayed == .true then return "*a" || reference~selfReferenceId -- pointer to the array already displayed
+        reference~displayed(.true)
+        valstr = ""
+        if reference~selfReferenceId <> 0 then valstr = "a" || reference~selfReferenceId || "="
+        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable)">"
     end
     else if val~isA(.array), val~dimension == 1 then do
-        level = stack~index(val)
-        --if .nil <> level then return "*"level-1
-        if .nil <> level then return "*a"level -- pointer to the array already displayed
-        stack~append(val)
-        level = stack~index(val)
+        reference = referencesTable[val]
+        if reference~selfReferenceId <> 0, reference~displayed == .true then return "*a" || reference~selfReferenceId -- pointer to the array already displayed
+        reference~displayed(.true)
+        if reference~selfReferenceId <> 0 then valstr = "a" || reference~selfReferenceId || "=" || "["
+        else valstr = "["
         -- each item of the array is inserted.
         items = 0 -- Not global. Each item being an array will have maxItems items inserted.
                   -- Maybe a global count could be useful... Will see on usage.
-        valstr = "a" || level || "=" || "["
         sep = ""
         if maxItems >= 0 then s = val~supplier(maxItems+1) -- +1 to let display the ellipsis
         else s = val~supplier
@@ -829,7 +828,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, stack)
+            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -845,21 +844,78 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         --stack~pull
         return valstr
     end
-    else do
+    else if val~isA(.array) then do
+        -- for the arrays with dimension <> 1, indicate their shape and item number
         valstr = val~string
-        if val~isA(.String) then do
-            isnum = valstr~dataType("N")
-            if \isnum then valstr = "'"valstr"'" -- strings are surrounded by quotes, except string numbers
-        end
-        else do
-            isnum = .false
-            -- To make a distinction between a real string and other objects, surround by (...)
-            -- For the arrays, indicate their shape
-            if val~isA(.array) then valstr = "("valstr shape(val, ", ") || val~items "items)"
-            else valstr = "("valstr")"
-        end
-        return valstr
+        return "("valstr shape(val, ", ") || val~items "items)"
     end
+    else return val~ppString
+
+
+::method collectReferences
+    -- Collect all the references to array or encloseArray.
+    -- Same code organization as ppstring, to make easier joint updates.
+    -- Use the same logic as ppstring to limit the number of items to analyze.
+    -- When a referenced array is seen more than once, then the reference is marked as selfReference, to stop the infinite recursion.
+    use strict arg maxItems=(-1), val=(self), referencesTable=.nil, selfReferenceCount=0
+    if .nil == referencesTable then referencesTable = .identityTable~new
+    if val~isA(.enclosedArray) then do
+        reference = referencesTable[val]
+        if .nil <> reference then do
+            selfReferenceCount += 1
+            reference~selfReferenceId(selfReferenceCount)
+            return referencesTable
+        end
+        referencesTable[val] = .reference~new
+        val~collectReferences(maxItems, val~disclose, referencesTable)
+        return referencesTable
+    end
+    else if val~isA(.array), val~dimension == 1 then do
+        reference = referencesTable[val]
+        if .nil <> reference then do
+            selfReferenceCount +=1
+            reference~selfReferenceId(selfReferenceCount)
+            return referencesTable
+        end
+        referencesTable[val] = .reference~new
+        -- each item of the array is analyzed.
+        items = 0 -- Not global. Each item being an array will have maxItems items inserted.
+                  -- Maybe a global count could be useful... Will see on usage.
+        if maxItems >= 0 then s = val~supplier(maxItems+1) -- +1 to follow the logic of ppstring
+        else s = val~supplier
+        do while s~available
+            item = s~item
+            index = s~index
+            if maxItems >= 0, items >= maxItems then return
+            val~collectReferences(maxItems, item, referencesTable)
+            items += 1
+            s~next -- skip sparse section, if any
+        end
+        return referencesTable
+    end
+    return referencesTable
+
+
+::class reference private
+
+::method init
+    expose selfReferenceId displayed -- unique identifier, used for display of references by ppstring
+    selfReferenceId = 0 -- when not 0, it's an indicator of self reference.
+    displayed = .false -- will be set to .true by the pretty-printer when displaying the referenced array for the first time
+
+::method selfReferenceId
+    expose selfReferenceId
+    use strict arg newValue=.nil
+    oldValue = selfReferenceId
+    if .nil <> newValue then selfReferenceId = newValue
+    return oldValue
+
+::method displayed
+    expose displayed
+    use strict arg newValue=.nil
+    oldValue = displayed
+    if .nil <> newValue then displayed = newValue
+    return oldValue
 
 
 /******************************************************************************/
@@ -915,7 +971,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             arg = self~disclose
             r = arg~leftElementWise(doer, , depth-1, stack)
-            stack~remove(self)
+            -- stack~remove(self)
             er~setEnclosed(r)
             return er
         end
@@ -939,7 +995,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             end
             supplier~next
         end
-        stack~remove(self)
+        -- stack~remove(self)
         return r
     end
 
@@ -993,7 +1049,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             end
             supplier~next
         end
-        stack~remove(self)
+        -- stack~remove(self)
         return r
     end
     else do
@@ -1006,7 +1062,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             stack[self] = er -- in case of self reference, will be used to build the new self reference
             leftArg = self~disclose
             r = leftArg~leftElementWise(doer, rightArg, depth-1, stack)
-            stack~remove(self)
+            -- stack~remove(self)
             er~setEnclosed(r)
             return er
         end
@@ -1030,7 +1086,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
             end
             supplier~next
         end
-        stack~remove(self)
+        -- stack~remove(self)
         return r
     end
 
@@ -1071,7 +1127,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         stack[self] = er -- in case of self reference, will be used to build the new self reference
         rightArg = self~disclose
         r = rightArg~rightElementWise(doer, leftArg, depth-1, stack)
-        stack~remove(self)
+        -- stack~remove(self)
         er~setEnclosed(r)
         return er
     end
@@ -1096,7 +1152,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
         end
         supplier~next
     end
-    stack~remove(rightArg)
+    -- stack~remove(rightArg)
     return r
 
 ::method "+"
