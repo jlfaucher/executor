@@ -680,6 +680,15 @@ RexxObject *RexxClass::defineMethod(
     /* to redo their instance behaviour  */
     /* this also updates our own         */
     this->updateInstanceSubClasses();    /* behaviour table                   */
+
+    // .nil not updated when defining a method on the class Object.
+    // probably because the class of .nil is the special class RexxNilObject...
+    // Use the same technique than in setup.cpp: call defMethod
+    if (this == TheObjectClass)
+    {
+        TheNilObject->defMethod(method_name, method_object);
+    }
+
     return OREF_NULL;                    /* returns nothing                   */
 }
 
