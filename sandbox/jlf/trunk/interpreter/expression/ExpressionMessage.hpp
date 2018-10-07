@@ -68,8 +68,8 @@ class RexxExpressionMessage : public RexxVariableBase {
   size_t namedArgumentCount;           // 2 * number of named arguments (because 2 items per named argument: name,expression)
   bool   doubleTilde;                  // this is the double tilde form
 
-  // positional arguments (1 entry per arg: expression) : from 0 to min(0,argumentCount-1)
-  // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + min(0,namedArgumentCount-1)
+  // positional arguments (1 entry per arg: expression) : from 0 to argumentCount
+  // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + namedArgumentCount
   RexxObject * arguments[1];           /* list of argument subexpressions   */
 };
 #endif

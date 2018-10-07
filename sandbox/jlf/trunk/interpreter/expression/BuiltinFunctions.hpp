@@ -45,25 +45,68 @@
 #ifndef OTPBIF_INCLUDED
 #define OTPBIF_INCLUDED
 
-#define fix_args(x) stack->expandArgs(argcount, x##_MIN, x##_MAX, CHAR_##x)
-#define check_args(x) stack->expandArgs(argcount, x##_MIN, x##_MAX, CHAR_##x)
+void expandArgs(RexxObject **arguments, size_t argcount, size_t min, size_t max, const char *function);
+RexxString *requiredStringArg(size_t position, RexxObject **arguments, size_t argcount, const char *function);
+RexxString *optionalStringArg(size_t  position, RexxObject **arguments, size_t argcount, const char *function);
+RexxInteger *requiredIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function);
+RexxInteger *optionalIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function);
+RexxObject *requiredBigIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function);
+RexxObject *optionalBigIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function);
 
-#define get_arg(x,n) stack->peek(argcount - x##_##n)
+/*
+x is the name of the builtin function.
+n is the argument name.
 
-#define required_string(x,n) stack->requiredStringArg(argcount - x##_##n)
-#define optional_string(x,n) ((argcount >= x##_##n) ? stack->optionalStringArg(argcount - x##_##n) : OREF_NULL)
+#define ABBREV_MIN 2           // arg1 and arg2 are mandatory: at least 2 args
+#define ABBREV_MAX 3           // arg3 is optional: at max 3 args
+#define ABBREV_information 1   // arg1 is information
+#define ABBREV_info        2   // arg2 is info
+#define ABBREV_length      3   // arg3 length
 
-#define required_integer(x,n) stack->requiredIntegerArg(argcount - x##_##n, argcount, CHAR_##x)
-#define optional_integer(x,n) ((argcount >= x##_##n) ? stack->optionalIntegerArg(argcount - x##_##n, argcount, CHAR_##x) : OREF_NULL)
+BUILTIN(ABBREV)
+{
+    fix_args(ABBREV);
+    RexxString *information = required_string(ABBREV, information);
+    RexxString *info = required_string(ABBREV, info);
+    RexxInteger *length = optional_integer(ABBREV, length);
+    return information->abbrev(info, length);
+}
 
-#define required_big_integer(x,n) stack->requiredBigIntegerArg(argcount - x##_##n, argcount, CHAR_##x)
-#define optional_big_integer(x,n) ((argcount >= x##_##n) ? stack->optionalBigIntegerArg(argcount - x##_##n, argcount, CHAR_##x) : OREF_NULL)
+Macro expansion:
+RexxObject *builtin_function_abbrev ( RexxActivation * context, RexxObject **arguments, size_t argcount, RexxExpressionStack *stack )
+{
+    expandArgs(arguments, argcount, 2, 3, CHAR_ABBREV);
+    RexxString *information = requiredStringArg(argcount - 1)
+    RexxString *info = requiredStringArg(argcount - 2)
+    RexxInteger *length = ((argcount >= 3) ? optionalIntegerArg(argcount - 3, argcount, CHAR_ABBREV) : OREF_NULL)
+}
 
-#define optional_argument(x,n) ((argcount >= x##_##n) ? stack->peek(argcount - x##_##n) : OREF_NULL )
-#define arg_exists(x,n) ((argcount >= x##_##n) ? false : stack->peek(argcount - x##_##n) != OREF_NULL )
-#define arg_omitted(x,n) ((argcount < x##_##n) ? true : stack->peek(argcount - x##_##n) == OREF_NULL )
+ABBREV("Print","Pri")           ABBREV("Print","Pri",4)
+argcount == 2                   argcount == 3
+stack top       "Pri"           stack top       4
+stack top-1     "Print"         stack top-1     "Pri"
+                                stack top-2     "Print"
+*/
 
-#define BUILTIN(x) RexxObject *builtin_function_##x ( RexxActivation * context, size_t argcount, RexxExpressionStack *stack )
+#define fix_args(x) expandArgs(arguments, argcount, x##_MIN, x##_MAX, CHAR_##x)
+#define check_args(x) expandArgs(arguments, argcount, x##_MIN, x##_MAX, CHAR_##x)
+
+#define get_arg(x,n) arguments[x##_##n - 1]
+
+#define required_string(x,n) requiredStringArg(x##_##n, arguments, argcount, CHAR_##x)
+#define optional_string(x,n) optionalStringArg(x##_##n, arguments, argcount, CHAR_##x)
+
+#define required_integer(x,n) requiredIntegerArg(x##_##n, arguments, argcount, CHAR_##x)
+#define optional_integer(x,n) optionalIntegerArg(x##_##n, arguments, argcount, CHAR_##x)
+
+#define required_big_integer(x,n) requiredBigIntegerArg(x##_##n, arguments, argcount, CHAR_##x)
+#define optional_big_integer(x,n) optionalBigIntegerArg(x##_##n, arguments, argcount, CHAR_##x)
+
+#define optional_argument(x,n) ((argcount >= x##_##n) ? arguments[x##_##n -1] : OREF_NULL )
+#define arg_exists(x,n) ((argcount < x##_##n) ? false : arguments[x##_##n - 1] != OREF_NULL )
+#define arg_omitted(x,n) ((argcount < x##_##n) ? true : arguments[x##_##n - 1] == OREF_NULL )
+
+#define BUILTIN(x) RexxObject *builtin_function_##x ( RexxActivation * context, RexxObject **arguments, size_t argcount, RexxExpressionStack *stack )
 
 #define positive_integer(n,f,p) if (n <= 0) reportException(Error_Incorrect_call_positive, CHAR_##f, p, n)
 #define nonnegative_integer(n,f,p) if (n < 0) reportException(Error_Incorrect_call_nonnegative, CHAR_##f, p, n)

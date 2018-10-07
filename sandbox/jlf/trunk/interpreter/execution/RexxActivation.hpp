@@ -104,7 +104,7 @@ class ActivationSettings
       RexxDirectory * traps;               /* enabled condition traps           */
       RexxDirectory * conditionObj;        /* current condition object          */
       RexxObject   ** parent_arglist;      /* arguments to top level program    */
-      size_t          parent_argcount;     /* number of arguments to the top level program */
+      size_t          parent_argcount;     /* number of positional arguments to the top level program */
       RexxMethod    * parent_method;       /* method object for top level       */
       RexxCode      * parent_code;         /* source of the parent method       */
       RexxString    * current_env;         /* current address environment       */
@@ -247,8 +247,8 @@ class ActivationSettings
    void              trapDelay(RexxString *);
    void              trapUndelay(RexxString *);
    bool              callExternalRexx(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
-   RexxObject      * externalCall(RexxString *, size_t, RexxExpressionStack *, RexxString *, ProtectedObject &);
-   RexxObject      * internalCall(RexxString *, RexxInstruction *, size_t, RexxExpressionStack *, ProtectedObject &);
+   RexxObject      * externalCall(RexxString *, RexxObject **, size_t, RexxString *, ProtectedObject &);
+   RexxObject      * internalCall(RexxString *, RexxInstruction *, RexxObject **, size_t, ProtectedObject &);
    RexxObject      * internalCallTrap(RexxString *, RexxInstruction *, RexxDirectory *, ProtectedObject &);
    bool              callMacroSpaceFunction(RexxString *, RexxObject **, size_t, RexxString *, int, ProtectedObject &);
    static RoutineClass* getMacroCode(RexxString *macroName);
@@ -617,8 +617,13 @@ class ActivationSettings
    RexxActivity        *activity;      /* current running activation        */
    RexxActivation      *parent;        // previous running activation for internal call/interpret
    RexxArray           *arguments;     /* user-redefined, GC protected      */
+
+   // Positional arguments from arglist[0] to arglist[argcount-1]
+   // namedArgcount = arglist[argcount]
+   // Named arguments from arglist[argcount+1] to arglist[argcount+1 + namedArgcount-1]
    RexxObject         **arglist;       /* activity argument list            */
-   size_t               argcount;      /* the count of arguments            */
+
+   size_t               argcount;      /* the count of positional arguments */
    RexxDoBlock         *dostack;       /* stack of DO loops                 */
    RexxInstruction     *current;       /* current execution pointer         */
    RexxInstruction     *next;          /* next instruction to execute       */

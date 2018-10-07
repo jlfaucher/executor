@@ -283,6 +283,9 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args)
     args = arrayArgument(args, ARG_ONE);
     ProtectedObject p(args);
 
+    // TODO named arguments
+    // >>-callWith(array, namedArguments:namedArguments)----------------------------><
+
     ProtectedObject result;
 
     code->call(ActivityManager::currentActivity, this, executableName, args->data(), args->size(), result);

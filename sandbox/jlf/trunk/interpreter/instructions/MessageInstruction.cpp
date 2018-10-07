@@ -66,10 +66,11 @@ RexxInstructionMessage::RexxInstructionMessage(
     OrefSet(this, this->name, message->messageName);
     /* get the argument count            */
     argumentCount = message->argumentCount;
+    namedArgumentCount = message->namedArgumentCount;
     /* and pointer to arguments          */
     argument_pointer = (RexxObject **)message->arguments;
     /* copy each argument                */
-    for (i = 0; i < argumentCount; i++)
+    for (i = 0; i < (argumentCount + namedArgumentCount); i++)
     {
         /* into the message instruction      */
         OrefSet(this, this->arguments[i], argument_pointer[i]);
@@ -96,12 +97,13 @@ RexxInstructionMessage::RexxInstructionMessage(
     OrefSet(this, this->name, message->messageName);  /* get the name                      */
     /* get the argument count            */
     argumentCount = message->argumentCount + 1;
+    namedArgumentCount = message->namedArgumentCount;
     /* and the argument pointer          */
     argument_pointer = (RexxObject **)message->arguments;
     /* make the expression the first     */
     OrefSet(this, this->arguments[0], expression);
     /* copy each argument                */
-    for (i = 1; i < argumentCount; i++)
+    for (i = 1; i < (argumentCount + namedArgumentCount); i++)
     {
         /* into the message instruction      */
         OrefSet(this, this->arguments[i], argument_pointer[i - 1]);
@@ -124,7 +126,7 @@ void RexxInstructionMessage::live(size_t liveMark)
     memory_mark(this->name);
     memory_mark(this->target);
     memory_mark(this->super);
-    for (i = 0, count = argumentCount; i < count; i++)
+    for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
     {
         memory_mark(this->arguments[i]);
     }
@@ -143,7 +145,7 @@ void RexxInstructionMessage::liveGeneral(int reason)
     memory_mark_general(this->name);
     memory_mark_general(this->target);
     memory_mark_general(this->super);
-    for (i = 0, count = argumentCount; i < count; i++)
+    for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
     {
         memory_mark_general(this->arguments[i]);
     }
@@ -163,7 +165,7 @@ void RexxInstructionMessage::flatten(RexxEnvelope *envelope)
     flatten_reference(newThis->name, envelope);
     flatten_reference(newThis->target, envelope);
     flatten_reference(newThis->super, envelope);
-    for (i = 0, count = argumentCount; i < count; i++)
+    for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
     {
         flatten_reference(newThis->arguments[i], envelope);
     }
@@ -181,6 +183,7 @@ void RexxInstructionMessage::execute (
     ProtectedObject result;              /* message expression result         */
     RexxObject *_super;                  /* target super class                */
     size_t      argcount;                /* count of arguments                */
+    size_t      namedArgcount;           /* count of arguments                */
     RexxObject *_target;                 /* message target                    */
     size_t      i;                       /* loop counter                      */
 
@@ -223,17 +226,33 @@ void RexxInstructionMessage::execute (
             context->traceIntermediate(OREF_NULLSTRING, TRACE_PREFIX_ARGUMENT);
         }
     }
+
+    // Named arguments
+    namedArgcount = this->namedArgumentCount;
+    stack->push(new_integer(namedArgcount));
+    for (i = argcount; i < argcount + namedArgcount; i+=2)
+    {
+        // Argument name: string literal
+        RexxObject *name = this->arguments[i];
+        stack->push(name); // a string
+        context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+
+        // Argument expression
+        RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);
+        context->traceIntermediate(argResult, TRACE_PREFIX_ARGUMENT);
+    }
+
     if (super == OREF_NULL)              /* no super class override?          */
     {
                                          /* issue the fast message            */
-        stack->send(this->name, argcount, result);
+        stack->send(this->name, argcount, namedArgcount, result);
     }
     else
     {
         /* evaluate the message w/override   */
-        stack->send(this->name, _super, argcount, result);
+        stack->send(this->name, _super, argcount, namedArgcount, result);
     }
-    stack->popn(argcount);               /* remove any arguments              */
+    stack->popn(argcount + namedArgcount); /* remove any arguments              */
     if (instructionFlags&message_i_double) /* double twiddle form?              */
     {
         result = _target;                  /* get the target element            */

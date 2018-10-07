@@ -54,26 +54,19 @@ class RexxExpressionStack {
  public:
 
   inline void *operator new(size_t size, void *ptr) { return ptr;};
-  RexxExpressionStack(RexxObject **frames, size_t items) { stack = frames; size = items; top = stack; }
+  RexxExpressionStack(RexxObject **frames, size_t items) { stack = frames; size = items; top = stack; } // empty stack of size items
   RexxExpressionStack() { stack = OREF_NULL; size = 0; top = stack; }
   void live(size_t);
   void liveGeneral(int reason);
   void flatten(RexxEnvelope *);
-  void         expandArgs(size_t, size_t, size_t, const char *);
-  RexxString * requiredStringArg(size_t);
-  RexxString * optionalStringArg(size_t);
-  RexxInteger *requiredIntegerArg(size_t, size_t, const char *);
-  RexxInteger *optionalIntegerArg(size_t, size_t, const char *);
-  RexxObject *requiredBigIntegerArg(size_t, size_t, const char *);
-  RexxObject *optionalBigIntegerArg(size_t, size_t, const char *);
   void         migrate(RexxActivity *);
 
   inline void setFrame(RexxObject **frames, size_t items) { stack = frames; size = items; top = stack; *top = OREF_NULL; }
 
-  inline void send(RexxString *message, RexxObject *scope, size_t count, ProtectedObject &result) {
-                 (*(this->top - count))->messageSend(message, (RexxObject **)(this->top - count + 1), count, scope, result); };
-  inline void send(RexxString *message, size_t count, ProtectedObject &result) {
-                 (*(this->top - count))->messageSend(message, (RexxObject **)(this->top -count + 1), count, result); };
+  inline void send(RexxString *message, RexxObject *scope, size_t count, size_t namedCount, ProtectedObject &result) {
+                 (*(this->top - count - 1 - namedCount))->messageSend(message, (RexxObject **)(this->top - count - 1 - namedCount + 1), count, scope, result); };
+  inline void send(RexxString *message, size_t count, size_t namedCount, ProtectedObject &result) {
+                 (*(this->top - count - 1 - namedCount))->messageSend(message, (RexxObject **)(this->top -count - 1 - namedCount + 1), count, result); };
   inline void         push(RexxObject *value) { *(++this->top) = value; };
   inline RexxObject * pop() { return *(this->top--); };
   inline RexxObject * fastPop() { return *(this->top--); };

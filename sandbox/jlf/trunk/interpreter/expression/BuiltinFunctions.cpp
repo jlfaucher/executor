@@ -62,6 +62,246 @@
 #include "SysFileSystem.hpp"
 
 
+/**
+ * Verify that a function has received all of its required arguments, and did not receive extras.
+ *
+ * @param argcount The number of arguments passed to the function.
+ * @param min The minimum required arguments
+ * @param max The maximum required arguments
+ * @param function The function name
+ *
+ * @return Nothing.
+ */
+void expandArgs(RexxObject **arguments, size_t argcount, size_t min, size_t max, const char *function)
+{
+    /*
+    JLF
+    The parser was modified to keep the trailing omitted arguments:
+        .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
+    The change above has an unexpected effect on the regression tests:
+    base/bif: [SYNTAX 40.5] raised unexpectedly
+    because
+        40.5 "Missing argument in invocation of XXX; argument 2 is required"
+    is raised instead of
+        40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
+    */
+
+    // Adjust argcount to be more compliant with the regression tests when reporting errors
+    size_t argcountAdjusted = argcount;
+    if (argcount >=2)
+    {
+        while (argcountAdjusted >= 1 && arguments[argcountAdjusted - 1] == OREF_NULL)
+        {
+            argcountAdjusted--;
+        }
+    }
+
+    if (argcountAdjusted < min)                  /* too few arguments?                */
+    {
+                                         /* report an error                   */
+        reportException(Error_Incorrect_call_minarg, function, min);
+    }
+    else if (argcountAdjusted > max)             /* too many arguments?               */
+    {
+                                         /* report an error                   */
+        reportException(Error_Incorrect_call_maxarg, function, max);
+    }
+    else                               /* need to expand number of args     */
+    {
+        for (size_t i = min; i >= 1; i--)
+        {
+            if (arguments[i - 1] == OREF_NULL) reportException(Error_Incorrect_call_noarg, function, i);
+        }
+    }
+}
+
+
+/**
+ * Process a required argument and potentially convert it into a string argument
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return The string representation of the argument.
+ */
+RexxString *requiredStringArg(size_t position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL) reportException(Error_Incorrect_call_noarg, function, position);
+
+    if (isOfClass(String, argument))         /* string object already?            */
+    {
+        return(RexxString *)argument;     /* finished                          */
+    }
+                                          /* get the string form, raising a    */
+                                          /* NOSTRING condition if necessary   */
+    RexxString *newStr = argument->requestString();
+    arguments[position - 1] = newStr;     /* replace the argument              */
+    return newStr;                       /* return the replacement value      */
+}
+
+
+/**
+ * Process an optional argument and potentially convert it into a string argument
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return The string representation of the argument.
+ */
+RexxString *optionalStringArg(size_t  position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL)           /* missing a required argument?      */
+    {
+        return OREF_NULL;                  /* finished already                  */
+    }
+    if (isOfClass(String, argument))     /* string object already?            */
+    {
+        return(RexxString *)argument;     /* finished                          */
+    }
+                                          /* get the string form, raising a    */
+                                          /* NOSTRING condition if necessary   */
+    RexxString *newStr = argument->requestString();
+    arguments[position - 1] = newStr;     /* replace the argument              */
+    return newStr;                       /* return the replacement value      */
+}
+
+
+/**
+ * Process a required argument and ensure it is a valid integer
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return An object that can be converted to an integer argument.
+ */
+RexxInteger *requiredIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL) reportException(Error_Incorrect_call_noarg, function, position);
+
+    if (isOfClass(Integer, argument))    /* integer object already?           */
+    {
+        return(RexxInteger *)argument;    /* finished                          */
+    }
+    /* return the string form of argument*/
+    wholenumber_t numberValue;           /* converted long value              */
+    if (!argument->requestNumber(numberValue, Numerics::ARGUMENT_DIGITS))
+    {
+        /* report an exception               */
+        reportException(Error_Incorrect_call_whole, function, argcount - position, argument);
+    }
+    RexxInteger *newInt = new_integer(numberValue);   /* create an integer object          */
+    arguments[position - 1] = newInt;     /* replace the argument              */
+    return newInt;                       /* return the replacement value      */
+}
+
+
+/**
+ * Process an optional argument and ensure it is a valid integer
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return An object that can be converted to an integer argument.
+ */
+RexxInteger *optionalIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL)           /* missing an optional argument?     */
+    {
+        return OREF_NULL;                  /* nothing there                     */
+    }
+    if (isOfClass(Integer, argument))    /* integer object already?           */
+    {
+        return(RexxInteger *)argument;    /* finished                          */
+    }
+    /* return the string form of argument*/
+    wholenumber_t numberValue;           /* converted long value              */
+    if (!argument->requestNumber(numberValue, Numerics::ARGUMENT_DIGITS))
+    {
+        /* report an exception               */
+        reportException(Error_Incorrect_call_whole, function, position, argument);
+    }
+    RexxInteger *newInt = new_integer(numberValue);   /* create an integer object          */
+    arguments[position - 1] = newInt;     /* replace the argument              */
+    return newInt;                       /* return the replacement value      */
+}
+
+
+/**
+ * Process a required argument and ensure it is a valid integer
+ * that can be expressed as a 64-bit value.
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return An object that can be converted to a 64-bit value for
+ *         pass-on to a native function.
+ */
+RexxObject *requiredBigIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL) reportException(Error_Incorrect_call_noarg, function, position);
+
+    // get this in the form of an object that is valid as a 64-bit integer, ready to
+    // be passed along as an argument to native code.
+    RexxObject *newArgument = Numerics::int64Object(argument);
+    // returns a null value if it doesn't convert properly
+    if (newArgument == OREF_NULL)
+    {
+        /* report an exception               */
+        reportException(Error_Incorrect_call_whole, function, argcount - position, argument);
+    }
+    arguments[position - 1] = newArgument;   /* replace the argument              */
+    return newArgument;
+}
+
+
+/**
+ * Process an optional argument and ensure it is a valid integer
+ * that can be expressed as a 64-bit value.
+ *
+ * @param position The argument position for any error messages (1 to argcount).
+ * @param argcount The number of arguments passed to the function.
+ * @param function The function name
+ *
+ * @return An object that can be converted to a 64-bit value for
+ *         pass-on to a native function.
+ */
+RexxObject *optionalBigIntegerArg(size_t position, RexxObject **arguments, size_t argcount, const char *function)
+{
+    RexxObject *argument = OREF_NULL;
+    if (argcount >= position) argument = arguments[position - 1];     /* get the argument in question      */
+    if (argument == OREF_NULL)           /* missing an optional argument?     */
+    {
+        return OREF_NULL;                  /* nothing there                     */
+    }
+    // get this in the form of an object that is valid as a 64-bit integer, ready to
+    // be passed along as an argument to native code.
+    RexxObject *newArgument = Numerics::int64Object(argument);
+    // returns a null value if it doesn't convert properly
+    if (newArgument == OREF_NULL)
+    {
+        /* report an exception               */
+        reportException(Error_Incorrect_call_whole, function, position, argument);
+    }
+    arguments[position - 1] = newArgument;   /* replace the argument              */
+    return newArgument;
+}
+
+
 /* checks if pad is a single character string */
 void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *pad)
 {
@@ -1769,44 +2009,50 @@ BUILTIN(FORMAT)
     return number->format(before, after, expp, expt);
 }
 
+// Must use a prefix different from MAX because CHAR_MAX seems to be an integer instead of a char* (compilation error)
 #define ORXMAX_MIN 1
 #define ORXMAX_MAX argcount
-#define MAX_target 1
+#define ORXMAX_target 1
 
-BUILTIN(MAX)
+BUILTIN(ORXMAX)
 {
     check_args(ORXMAX);                     /* check on required args            */
     /* get the argument in question      */
-    RexxObject *argument = get_arg(MAX, target);
+    RexxObject *argument = get_arg(ORXMAX, target);
     if (isOfClass(NumberString, argument))
     { /* how about already numeric?        */
         /* we can process this without conversion */
-        return((RexxNumberString *)argument)->Max(stack->arguments(argcount - 1), argcount - 1);
+        // return((RexxNumberString *)argument)->Max(stack->arguments(argcount - 1), argcount - 1);
+        return((RexxNumberString *)argument)->Max(arguments + 1, argcount - 1);
     }
     /* get the target string             */
-    RexxString *target = required_string(MAX, target);
+    RexxString *target = required_string(ORXMAX, target);
     /* go perform the MIN function       */
-    return target->Max(stack->arguments(argcount - 1), argcount - 1);
+    // return target->Max(stack->arguments(argcount - 1), argcount - 1);
+    return target->Max(arguments + 1, argcount - 1);
 }
 
+// Must use a prefix different from MAX because CHAR_MAX seems to be an integer instead of a char* (compilation error)
 #define ORXMIN_MIN 1
 #define ORXMIN_MAX argcount
-#define MIN_target 1
+#define ORXMIN_target 1
 
-BUILTIN(MIN)
+BUILTIN(ORXMIN)
 {
     check_args(ORXMIN);                     /* check on required args            */
     /* get the argument in question      */
-    RexxObject *argument = get_arg(MIN, target);
+    RexxObject *argument = get_arg(ORXMIN, target);
     if (isOfClass(NumberString, argument))
     { /* how about already numeric?        */
         /* we can process this without conversion */
-        return((RexxNumberString *)argument)->Min(stack->arguments(argcount - 1), argcount - 1);
+        // return((RexxNumberString *)argument)->Min(stack->arguments(argcount - 1), argcount - 1);
+        return((RexxNumberString *)argument)->Min(arguments + 1, argcount - 1);
     }
     /* get the target string             */
-    RexxString *target = required_string(MIN, target);
+    RexxString *target = required_string(ORXMIN, target);
     /* go perform the MIN function       */
-    return target->Min(stack->arguments(argcount - 1), argcount - 1);
+    // return target->Min(stack->arguments(argcount - 1), argcount - 1);
+    return target->Min(arguments + 1, argcount - 1);
 }
 
 #define SOURCELINE_MIN 0
@@ -2605,8 +2851,8 @@ pbuiltin RexxSource::builtinTable[] = {
     &builtin_function_LINEIN           ,
     &builtin_function_LINEOUT          ,
     &builtin_function_LINES            ,
-    &builtin_function_MAX              ,
-    &builtin_function_MIN              ,
+    &builtin_function_ORXMAX              ,
+    &builtin_function_ORXMIN              ,
     &builtin_function_OVERLAY          ,
     &builtin_function_POS              ,
     &builtin_function_QUEUED           ,

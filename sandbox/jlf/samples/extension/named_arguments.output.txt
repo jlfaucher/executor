@@ -1,73 +1,208 @@
 call myprocedure 1, 2, 3
     positional count=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
 call myprocedure 1, 2, a3:3
     positional count=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
 call myprocedure 1, a2:2, a3:3
     positional count=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
 call myprocedure 1, a2:(2*5/4)**5, a3:.array~new(3,3)
     positional count=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
 r = myprocedure(1, 2, 3)
     positional count=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
 r = myprocedure(1, 2, a3:3)
     positional count=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
 r = myprocedure(1, a2:2, a3:3)
     positional count=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
 r = myprocedure(1, 2, 3){}
     positional count=4
+        1 : 1
+        2 : 2
+        3 : 3
+        4 : a RexxBlock
+    named count=0
 r = myprocedure(1, 2, a3:3){}
     positional count=3
+        1 : 1
+        2 : 2
+        3 : a RexxBlock
+    named count=1
+        A3 : 3
 r = myprocedure(1, a2:2, a3:3){}
     positional count=2
+        1 : 1
+        2 : a RexxBlock
+    named count=2
+        A2 : 2
+        A3 : 3
 call myroutine 1, 2, 3
     positional count=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
 call myroutine 1, 2, a3:3
     positional count=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
 call myroutine 1, a2:2, a3:3
     positional count=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
 r = myroutine(1, 2, 3)
     positional count=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
 r = myroutine(1, 2, a3:3)
     positional count=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
 r = myroutine(1, a2:2, a3:3)
     positional count=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
 r = myroutine(1, 2, 3){}
     positional count=4
+        1 : 1
+        2 : 2
+        3 : 3
+        4 : a RexxBlock
+    named count=0
 r = myroutine(1, 2, a3:3){}
     positional count=3
+        1 : 1
+        2 : 2
+        3 : a RexxBlock
+    named count=1
+        A3 : 3
 r = myroutine(1, a2:2, a3:3){}
     positional count=2
+        1 : 1
+        2 : a RexxBlock
+    named count=2
+        A2 : 2
+        A3 : 3
 r = .myclass~mymethod(1, 2, 3)
     positional count=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
 r = .myclass~mymethod(1, 2, a3:3)
     positional count=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
 r = .myclass~mymethod(1, a2:2, a3:3)
     positional count=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
 r = .myclass~mymethod(1, 2, 3){}
     positional count=4
+        1 : 1
+        2 : 2
+        3 : 3
+        4 : a RexxBlock
+    named count=0
 r = .myclass~mymethod(1, 2, a3:3){}
     positional count=3
+        1 : 1
+        2 : 2
+        3 : a RexxBlock
+    named count=1
+        A3 : 3
 r = .myclass~mymethod(1, a2:2, a3:3){}
     positional count=2
+        1 : 1
+        2 : a RexxBlock
+    named count=2
+        A2 : 2
+        A3 : 3
 r = .myclass~forwardArray
     forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) continue
     positional count=3
+        1 : 10
+        2 : 20
+        3 : 30
+    named count=2
+        A1 : 40
+        A2 : 50
 r = .myclass~forwardNamedArguments
     forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
     positional count=0
+    named count=2
+        a1 : 1
+        a2 : 2
 r = .myclass~forwardPositionalNamedArguments
     forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
     positional count=2
+        1 : 1
+        2 : 2
+    named count=2
+        a1 : 1
+        a2 : 2
 r = .myclass~forwardNamedPositionalArguments
     forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue
     positional count=2
-{call sayArg arg()}~rawExecutable~call()
+        1 : 1
+        2 : 2
+    named count=2
+        a1 : 1
+        a2 : 2
+{call sayArg .context}~rawExecutable~call()
     positional count=0
-{call sayArg arg()}~rawExecutable~call{}
+    named count=0
+{call sayArg .context}~rawExecutable~call{}
     positional count=1
-{call sayArg arg()}~rawExecutable~call(1)
+        1 : a RexxBlock
+    named count=0
+{call sayArg .context}~rawExecutable~call(1)
     positional count=1
-{call sayArg arg()}~rawExecutable~call(a1:1)
+        1 : 1
+    named count=0
+{call sayArg .context}~rawExecutable~call(a1:1)
     positional count=0
+    named count=1
+        A1 : 1
 call myprocedure 1, a2:2, a3:
     [trapped] Named argument: expected expression after colon
     [trapped] Code= 35.900

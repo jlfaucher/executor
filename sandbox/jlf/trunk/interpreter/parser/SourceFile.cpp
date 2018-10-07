@@ -5463,6 +5463,7 @@ void RexxSource::argList(
             if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Invalid_expression_user_defined,
                                                             new_string("Named argument: expected symbol followed by colon"));
             namedArglist->push(token->value);       /* add argument name to list */
+            this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
             namedTotal++;
 
             token = nextReal();
@@ -5474,6 +5475,7 @@ void RexxSource::argList(
             if (subexpr == OREF_NULL) syntaxError(Error_Invalid_expression_user_defined,
                                                   new_string("Named argument: expected expression after colon"));
             namedArglist->push(subexpr);       /* add next argument to list         */
+            this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
             namedTotal++;
         }
 
@@ -5483,6 +5485,11 @@ void RexxSource::argList(
             break;                           /* no, all finished                  */
         }
     }
+
+    // The count of named parameters (namedCount) will be always appended after the array of positional arguments
+    // p1, p2, ..., pP, namedCount, n1, v1, n2, V2, ..., nN, vN
+    // so push a dummy term to take into account this additional item for the calculation of the stack size
+    this->pushTerm(OREF_NULL);
 
     /* not closed with expected ')'?     */
     if (terminators & TERM_RIGHT && token->classId != TOKEN_RIGHT)
@@ -5498,7 +5505,7 @@ void RexxSource::argList(
         syntaxErrorAt(Error_Unmatched_parenthesis_square, _first);
     }
 
-    this->popNTerms(total);              /* pop all items off the term stack  */
+    this->popNTerms(total + (1 + namedTotal));              /* pop all items off the term stack  */
     /* pop off any trailing omitteds     */
     //while (total > realcount)
     //{

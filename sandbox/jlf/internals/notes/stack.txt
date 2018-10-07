@@ -3,6 +3,21 @@ Activation frame
 ================================================================================
 
 RexxActivity.hpp
+   inline void allocateStackFrame(RexxExpressionStack *stack, size_t entries)
+   {
+       stack->setFrame(frameStack.allocateFrame(entries), entries);
+   }
+
+   inline RexxObject **allocateFrame(size_t entries)
+   {
+       return frameStack.allocateFrame(entries);
+   }
+
+   inline void releaseStackFrame(RexxObject **frame)
+   {
+       frameStack.releaseFrame(frame);
+   }
+
    RexxActivationStack   frameStack;   /* our stack used for activation frames */
 
    // the activation frame stack.  This stack is one RexxActivation or
@@ -25,6 +40,230 @@ RexxActivity.hpp
 
    inline RexxActivation *getCurrentRexxFrame() {return currentRexxFrame;}
 
+
+
+RexxActivationStack.hpp
+    class RexxActivationFrameBuffer
+    {
+        ...
+         inline bool hasCapacity(size_t entries) { return size - next >= entries; }
+         inline RexxObject **allocateFrame(size_t entries)
+         {
+             RexxObject **frame = &buffer[next];
+             next += entries;
+             return frame;
+         }
+
+        size_t size;                        /* size of the buffer (in slots) */
+        size_t next;                        /* location of next allocation */
+        RexxActivationFrameBuffer *previous;/* previous entry in the stack */
+        RexxObject *buffer[1];              /* start of the buffer location */
+    };
+
+    class RexxActivationStack
+    {
+        ...
+        void expandCapacity(size_t entries);
+        inline void ensureCapacity(size_t entries) { if (!current->hasCapacity(entries)) { expandCapacity(entries); } }
+        inline RexxObject **allocateFrame(size_t entries)
+        {
+            /* make sure we have space first */
+            ensureCapacity(entries);
+            /* now allocate from the current stack buffer */
+            return current->allocateFrame(entries);
+        }
+
+        RexxActivationFrameBuffer *current;
+        RexxActivationFrameBuffer *unused;
+    };
+
+
+================================================================================
+callers of allocateStackFrame
+================================================================================
+
+ExpressionStack.cpp
+
+    void RexxExpressionStack::migrate(RexxActivity *activity)
+    /******************************************************************************/
+    /* Function:  Migrate the expression stack to a new activity                  */
+    /******************************************************************************/
+    {
+        RexxObject **oldFrame = stack;
+        /* allocate a new frame */
+        activity->allocateStackFrame(this, size);
+        /* copy the enties over to the new stack. */
+        memcpy(stack, oldFrame, sizeof(RexxObject *) * size);
+    }
+
+
+RexxActivation.cpp
+
+    /**
+     * Initialize an activation for a method invocation.
+     *
+     * @param _activity The activity we're running under.
+     * @param _method   The method being invoked.
+     * @param _code     The code to execute.
+     */
+    RexxActivation::RexxActivation(RexxActivity* _activity, RexxMethod * _method, RexxCode *_code)
+    {
+        ...
+        _activity->allocateStackFrame(&this->stack, this->code->getMaxStackSize());
+
+
+    /**
+     * Create a new Rexx activation for an internal level call.
+     * An internal level call is an internal call, a call trap,
+     * an Interpret statement, or a debug pause execution.
+     *
+     * @param _activity The current activity.
+     * @param _parent   The parent activation.
+     * @param _code     The code to be executed.  For interpret and debug pauses, this
+     *                  is a new code object.  For call activations, this is the
+     *                  parent code object.
+     * @param context   The type of call being made.
+     */
+    RexxActivation::RexxActivation(RexxActivity *_activity, RexxActivation *_parent, RexxCode *_code, int context)
+    {
+        ...
+        _activity->allocateStackFrame(&stack, code->getMaxStackSize());
+
+
+    /**
+     * Create a top-level activation of Rexx code.  This will
+     * either a toplevel program or an external call.
+     *
+     * @param _activity The current thread we're running on.
+     * @param _routine  The routine to invoke.
+     * @param _code     The code object to be executed.
+     * @param calltype  Type type of call being made (function or subroutine)
+     * @param env       The default address environment
+     * @param context   The type of call context.
+     */
+    RexxActivation::RexxActivation(RexxActivity *_activity, RoutineClass *_routine, RexxCode *_code,
+        RexxString *calltype, RexxString *env, int context)
+    {
+        _activity->allocateStackFrame(&stack, code->getMaxStackSize());
+
+
+================================================================================
+getMaxStackSize (= maxStack which is calculated during parsing)
+================================================================================
+
+RexxCode.hpp
+    class RexxCode
+    {
+       inline size_t getMaxStackSize() { return maxStack; }
+       ...
+    protected:
+
+      size_t            maxStack;          /* maximum stack depth               */
+
+RexxCode.cpp
+    RexxCode::RexxCode(
+         RexxSource      * _source,        /* source object                     */
+         RexxInstruction * _start,         /* start of the code tree            */
+         RexxDirectory   * _labels,        /* method labels                     */
+         size_t            maxstack,       /* max operator stack size           */
+         size_t            variable_index) /* save of the vdict                 */
+    /******************************************************************************/
+    /* Function:  Initialize a rexxmethod code object                             */
+    /******************************************************************************/
+    {
+      OrefSet(this, this->source, _source); /* save the program source         */
+      OrefSet(this, this->start, _start);   /* the parse tree                    */
+      OrefSet(this, this->labels, _labels); /* the method's labels               */
+      /* save the stack info               */
+      this->maxStack = maxstack;
+      this->vdictSize = variable_index;    /* save the initial vdict size       */
+    }
+
+
+SourceFile.cpp
+    /**
+     * Perform a non-contextual install of a package.
+     */
+    void RexxSource::install()
+    {
+        if (needsInstallation())
+        {
+            // In order to install, we need to call something.  We manage this by
+            // creating a dummy stub routine that we can call to force things to install
+            RexxCode *stub = new RexxCode(this, OREF_NULL, OREF_NULL, 10, FIRST_VARIABLE_INDEX);
+            ProtectedObject p2(stub);
+            RoutineClass *code = new RoutineClass(programName, stub);
+            p2 = code;
+            ProtectedObject dummy;
+            code->call(ActivityManager::currentActivity, programName, NULL, 0, dummy);
+        }
+    }
+
+
+    RexxCode *RexxSource::translateBlock(
+        RexxDirectory *_labels )            /* labels (for interpret)            */
+    /******************************************************************************/
+    /* Function:  Translate a block of REXX code (delimited by possible           */
+    /*            directive instructions                                          */
+    /******************************************************************************/
+    {
+        ...
+        return new RexxCode(this, this->first, this->labels, (this->maxstack+ 10), this->variableindex);
+    }
+
+
+================================================================================
+maxStack, currentstack
+================================================================================
+
+SourceFile.hpp
+
+    class RexxSource
+    {
+        ...
+        size_t           currentstack;       /* current expression stack depth    */
+        size_t           maxstack;           /* maximum stack depth               */
+
+
+SourceFile.cpp
+
+    void RexxSource::pushTerm(
+        RexxObject *term )                 /* term to push                      */
+    /******************************************************************************/
+    /* Function:  Push a term onto the expression term stack                      */
+    /******************************************************************************/
+    {
+        this->terms->push(term);             /* push the term on the stack      */
+        this->currentstack++;                /* step the stack depth              */
+                                             /* new "high water" mark?            */
+        if (this->currentstack > this->maxstack)
+        {
+            /* make it the highest point         */
+            this->maxstack = this->currentstack;
+        }
+    }
+
+
+    /**
+     * Push a term on to the expression sub term stack.  The
+     * subterms normally contribute to the total required stack
+     * size, so make sure we account for these when calculating the
+     * total required stack size.  Only use this method of pushing
+     * the term when the max stack size is affected.
+     *
+     * @param term   The term object.
+     */
+    void RexxSource::pushSubTerm(RexxObject *term )
+    {
+        // push the term on to the stack.
+        subTerms->push(term);
+
+        // we keep track of how large the term stack gets during parsing.  This
+        // tells us how much stack space we need to allocate at run time.
+        currentstack++;
+        // maxStack = Numerics::maxVal(currentStack, maxStack);
+        if (currentstack > maxstack) maxstack = currentstack;
+    }
 
 ===================================================================
 

@@ -233,8 +233,11 @@ void CallProgramDispatcher::run()
 
     if (arguments != OREF_NULL)
     {
+        RexxArray *argumentsCopy = (RexxArray *)arguments->copy();
+        ProtectedObject p(argumentsCopy);
+        argumentsCopy->append(new_integer(0)); // no named arguments
         // use the provided name for the call name
-        routine->runProgram(activity, arguments->data(), arguments->size(), result);
+        routine->runProgram(activity, argumentsCopy->data(), argumentsCopy->size() - 1, result);
     }
     else
     {

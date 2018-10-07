@@ -1292,7 +1292,7 @@ RexxInstruction *RexxSource::messageNew(
 {
     ProtectedObject p(_message);
     /* allocate a new object             */
-    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount - 1) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount - 1 + _message->namedArgumentCount) * sizeof(RexxObject *));
     /* Initialize this new method        */
     new ((void *)newObject) RexxInstructionMessage(_message);
     return newObject; /* done, return this                 */
@@ -1308,7 +1308,7 @@ RexxInstruction *RexxSource::messageAssignmentNew(
     ProtectedObject p(_message);        // protect this
     _message->makeAssignment(this);       // convert into an assignment message
     // allocate a new object.  NB:  a message instruction gets an extra argument, so we don't subtract one.
-    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount + _message->namedArgumentCount) * sizeof(RexxObject *));
     /* Initialize this new method        */
     new ((void *)newObject) RexxInstructionMessage(_message, _expression);
     return newObject; /* done, return this                 */
@@ -1339,9 +1339,10 @@ RexxInstruction *RexxSource::messageAssignmentOpNew(RexxExpressionMessage *_mess
 
     // now add a binary operator to this expression tree
     _expression = (RexxObject *)new RexxBinaryOperator(operation->subclass, retriever, _expression);
+    p2 = _expression;
 
     // allocate a new object.  NB:  a message instruction gets an extra argument, so we don't subtract one.
-    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount + _message->namedArgumentCount) * sizeof(RexxObject *));
     /* Initialize this new method        */
     new ((void *)newObject) RexxInstructionMessage(_message, _expression);
     return newObject; /* done, return this                 */

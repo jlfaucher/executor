@@ -2,6 +2,7 @@
 Coactivity is an emulation of coroutines in ooRexx.
 This script needs a modified ooRexx interpreter, because depends on :
 .context~args = <array>
+.context~namedArgs = <directory>
 .threadLocal
 
 This is not a "real" coroutine implementation, because it's based on ooRexx activities
@@ -266,6 +267,7 @@ Status transitions :
 -- ::attribute proxy private
 -- ::attribute status private
 -- ::attribute arguments private
+-- ::attribute namedArguments private
 -- ::attribute yieldItem private
 -- ::attribute yieldIndex private
 
@@ -291,7 +293,7 @@ Status transitions :
 
 
 ::method start
-    expose arguments doer object status
+    expose arguments namedArguments doer object status
     use strict arg -- no arg
     if status <> .CoactivityObj~notStarted then return
     status = .CoactivityObj~suspended
@@ -304,9 +306,9 @@ Status transitions :
     guard on when status <> .CoactivityObj~suspended
     if status == .CoactivityObj~running then do
         guard off
-        -- arguments are coming from 'resume' (the first resume activates the coactivity)
-        if doer~needsObject then doer~doWith(object, arguments) -- object needed (message, method)
-        else doer~doWith(arguments) -- no object needed (routine)
+        -- arguments and namedArguments are coming from 'resume' (the first resume activates the coactivity)
+        if doer~needsObject then doer~doWith(object, arguments, namedArguments: namedArguments) -- object needed (message, method)
+        else doer~doWith(arguments, namedArguments: namedArguments) -- no object needed (routine)
         guard on
         if var("result") then self~yieldLast(result)
         else self~yieldLast
@@ -318,6 +320,7 @@ Status transitions :
     -- Fighting against objects which are not GC'ed...
     -- Should be done in uninit, but uninit rarely called by the interpreter...
     arguments = .nil
+    namedArguments = .nil
     doer = .nil -- I was surprised to get .nil when doing myBlock~executable~executable after the end of {::cl.co}
                 -- but no choice... If I don't do this assignment, some coactivities are never GC'ed.
     object = .nil
@@ -325,7 +328,7 @@ Status transitions :
 
 
 ::method yield --private
-    expose arguments status yieldIndex yieldItem
+    expose arguments namedArguments status yieldIndex yieldItem
     drop yieldItem
     if status == .CoactivityObj~killed then raise syntax 93.900 array ("Can't yield, the coactivity is killed") -- this is to unwind any nested invocation and return to 'start'
     if status == .CoactivityObj~ended then raise syntax 93.900 array ("Can't yield, the coactivity is ended") -- this is to unwind any nested invocation and return to 'start'
@@ -346,7 +349,8 @@ Status transitions :
         context = context~parentContext -- .nil if native or top-level activation.
     end
     if .nil == context then raise syntax 93.900 array ("Can't update the arguments, yield's context not found")
-    context~args = arguments -- assigns the arguments that the coactivity's client passed to 'resume'
+    context~args = arguments -- assigns the positional arguments that the coactivity's client passed to 'resume'
+    context~namedArgs = namedArguments -- assigns the named arguments that the coactivity's client passed to 'resume'
 
 
 ::method yieldLast private
@@ -362,11 +366,12 @@ Status transitions :
 
 
 ::method resume
-    expose arguments status yieldItem
+    expose arguments namedArguments status yieldItem
     if status == .CoactivityObj~notStarted then self~start
     if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed")
     if status == .CoactivityObj~ended then return -- raise syntax 93.900 array ("Coactivity is ended")
-    arguments = arg(1, "a")
+    arguments = .context~args
+    namedArguments = .context~namedArgs
     status = .CoactivityObj~running
     guard off
     guard on when status <> .CoactivityObj~running
@@ -375,11 +380,12 @@ Status transitions :
 
 
 ::method resumeWithIndex
-    expose arguments status yieldIndex yieldItem
+    expose arguments namedArguments status yieldIndex yieldItem
     if status == .CoactivityObj~notStarted then self~start
     if status == .CoactivityObj~killed then raise syntax 93.900 array ("Coactivity is killed")
     if status == .CoactivityObj~ended then return -- raise syntax 93.900 array ("Coactivity is ended")
-    arguments = arg(1, "a")
+    arguments = .context~args
+    namedArguments = .context~namedArgs
     status = .CoactivityObj~running
     guard off
     guard on when status <> .CoactivityObj~running

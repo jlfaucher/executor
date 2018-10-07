@@ -691,10 +691,11 @@ void RexxObject::sendMessage(
 /* Function:  Send a message with two arguments                               */
 /******************************************************************************/
 {
-  RexxObject *arguments[2];            /* argument array                    */
+  RexxObject *arguments[2+1];            /* argument array                    */
 
   arguments[0] = argument1;            /* set each argument                 */
   arguments[1] = argument2;
+  arguments[2] = IntegerZero;
                                        /* just pass on to message send      */
   this->messageSend(message, arguments, 2, result);
 }
@@ -709,11 +710,12 @@ void RexxObject::sendMessage(
 /* Function:  Send a message with three arguments                             */
 /******************************************************************************/
 {
-  RexxObject *arguments[3];            /* argument array                    */
+  RexxObject *arguments[3+1];            /* argument array                    */
 
   arguments[0] = argument1;            /* set each argument                 */
   arguments[1] = argument2;
   arguments[2] = argument3;
+  arguments[3] = IntegerZero;
                                        /* just pass on to message send      */
   this->messageSend(message, arguments, 3, result);
 }
@@ -729,12 +731,13 @@ void RexxObject::sendMessage(
 /* Function:  Send a message with four arguments                              */
 /******************************************************************************/
 {
-  RexxObject *arguments[4];            /* argument array                    */
+  RexxObject *arguments[4+1];            /* argument array                    */
 
   arguments[0] = argument1;            /* set each argument                 */
   arguments[1] = argument2;
   arguments[2] = argument3;
   arguments[3] = argument4;
+  arguments[4] = IntegerZero;
                                        /* just pass on to message send      */
   this->messageSend(message, arguments, 4, result);
 }
@@ -751,13 +754,14 @@ void RexxObject::sendMessage(
 /* Function:  Send a message with five arguments                              */
 /******************************************************************************/
 {
-  RexxObject *arguments[5];            /* argument array                    */
+  RexxObject *arguments[5+1];            /* argument array                    */
 
   arguments[0] = argument1;            /* set each argument                 */
   arguments[1] = argument2;
   arguments[2] = argument3;
   arguments[3] = argument4;
   arguments[4] = argument5;
+  arguments[5] = IntegerZero;
                                        /* just pass on to message send      */
   this->messageSend(message, arguments, 5, result);
 }
@@ -890,18 +894,27 @@ void RexxObject::processUnknown(
     {
         reportNomethod(messageName, this); /* fails, it is an error message     */
     }
-    RexxArray *argumentArray = new_array(count);    /* get an array for the arguments    */
+
+    RexxArray *argumentArray = new_array(count);    /* get an array for the positional arguments    */
     ProtectedObject p(argumentArray);
 
-    for (size_t i = 1; i <= count; i++)         /* copy the arguments into an array  */
+    for (size_t i = 1; i <= count; i++)         /* copy the positional arguments into an array  */
     {
         argumentArray->put(arguments[i - 1], i);
     }
 
-    RexxObject     *unknown_arguments[2];/* arguments to the unknown method   */
+    // TODO named argument : 'namedArgument' could be lost when passing through a CPP method (see CPPCode::run).
+    size_t named_count = 0;
+    arguments[count]->unsignedNumberValue(named_count);
+    RexxDirectory *namedArgumentDirectory = RexxDirectory::fromIndexItemArray(arguments + count + 1, named_count);
+
+    RexxObject     *unknown_arguments[2 + (1 + 1*2)];/* positional & named arguments to the unknown method   */
     unknown_arguments[0] = messageName;  /* method name is first argument     */
                                          /* second argument is array of       */
     unknown_arguments[1] = argumentArray;/* arguments for the original call   */
+    unknown_arguments[2] = IntegerOne; // 1 named argument
+    unknown_arguments[3] = OREF_NAMEDARGUMENTS;
+    unknown_arguments[4] = namedArgumentDirectory;
                                          /* run the unknown method            */
     method_save->run(ActivityManager::currentActivity, this, OREF_UNKNOWN, unknown_arguments, 2, result);
 }
@@ -1700,6 +1713,10 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments)
     arguments = arrayArgument(arguments, ARG_TWO);
     ProtectedObject p(arguments);
 
+    // Assumption for named arguments: arguments->lastIndex() gives the count
+    // of positional arguments. The named arguments are stored in the array
+    // after lastIndex.
+
     ProtectedObject r;
     if (startScope == OREF_NULL)
     {
@@ -1769,6 +1786,11 @@ RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments)
     arguments = arrayArgument(arguments, ARG_TWO);
     ProtectedObject p(arguments);
     // the rest is handled by code common to startWith();
+
+    // Assumption for named arguments: arguments->lastIndex() gives the count
+    // of positional arguments. The named arguments are stored in the array
+    // after lastIndex.
+
     return startCommon(message, arguments->data(), arguments->size());
 }
 

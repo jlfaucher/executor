@@ -89,8 +89,8 @@ class RexxInstructionCall : public RexxInstructionCallBase {
 
 protected:
 
-    // positional arguments (1 entry per arg: expression) : from 0 to min(0,argumentCount-1)
-    // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + min(0,namedArgumentCount-1)
+    // positional arguments (1 entry per arg: expression) : from 0 to argumentCount-1
+    // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + namedArgumentCount-1
     RexxObject * arguments[1];           // argument list
 };
 #endif

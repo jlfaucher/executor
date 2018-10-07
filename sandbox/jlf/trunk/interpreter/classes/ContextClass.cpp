@@ -236,9 +236,9 @@ RexxObject *RexxContext::getExecutable()
 
 
 /**
- * Return the arguments used to invoke the current context
+ * Return the positional arguments used to invoke the current context
  *
- * @return The array of arguments
+ * @return The array of positional arguments
  */
 RexxObject *RexxContext::getArgs()
 {
@@ -250,7 +250,7 @@ RexxObject *RexxContext::getArgs()
 
 
 /**
- * Set the arguments used to invoke the current context
+ * Set the positional arguments used to invoke the current context
  */
 RexxObject *RexxContext::setArgs(RexxObject *arguments)
 {
@@ -258,6 +258,42 @@ RexxObject *RexxContext::setArgs(RexxObject *arguments)
     // this is required and must be an array
     RexxArray *argumentsArray = arrayArgument(arguments, ARG_ONE);
     activation->setArguments(argumentsArray);
+    return OREF_NULL; // no return value
+}
+
+
+/**
+ * Return the named arguments used to invoke the current context
+ *
+ * @return The directory of named arguments
+ */
+RexxObject *RexxContext::getNamedArgs()
+{
+    checkValid();
+    RexxObject **arglist = activation->getMethodArgumentList();
+    if (arglist == OREF_NULL) return RexxDirectory::fromIndexItemArray(OREF_NULL, 0);
+
+    size_t argcount = activation->getMethodArgumentCount();
+    size_t namedArgcount = 0;
+    arglist[argcount]->unsignedNumberValue(namedArgcount);
+
+    return RexxDirectory::fromIndexItemArray(arglist + argcount + 1, namedArgcount);
+}
+
+
+/**
+ * Set the named arguments used to invoke the current context
+ */
+RexxObject *RexxContext::setNamedArgs(RexxObject *namedArguments)
+{
+    checkValid();
+    // this is required and must be a directory
+
+    /* TODO named arguments
+    RexxDirectory *namedArgumentsDirectory = directoryArgument(namedArguments);
+    activation->setNamedArguments(namedArgumentsDirectory);
+    */
+
     return OREF_NULL; // no return value
 }
 

@@ -813,3 +813,144 @@ RexxDirectory *RexxDirectory::newInstance()
     return (RexxDirectory *)new_hashCollection(RexxHashTable::DEFAULT_HASH_SIZE, sizeof(RexxDirectory), T_Directory);
 }
 
+/**
+ * Helper for named arguments.
+ * Create a new directory from an array of(index1, item1, index2, item2, ...)
+ *
+ * @return A directory
+ */
+RexxDirectory *RexxDirectory::fromIndexItemArray(RexxObject **arglist, size_t count)
+{
+    RexxDirectory *directory = new_directory();
+    ProtectedObject p(directory);
+
+    for (size_t i = 0; i < count; i+=2)     /* loop through the index,item list  */
+    {
+        RexxObject *index = arglist[i];
+        RexxObject *item = arglist[i+1];
+        directory->put(item, REQUEST_STRING(index));
+    }
+
+    return directory;
+}
+
+
+/**
+ * Helper for named arguments.
+ * Create an array of all of the directory indices &items, including those
+ * of all the SETMETHOD methods.
+ *
+ * @return An array containing all of the directory indices & items: index1, item1, index2, item2, ...
+ */
+RexxArray *RexxDirectory::allIndexesItems(void)
+{
+    // get a result array of the appropriate size
+    size_t count = this->items();
+    RexxArray *result = (RexxArray *)new_array(2 * count);
+    ProtectedObject p(result);
+    size_t out = 1;
+    // we're working directly off of the contents.
+    RexxHashTable *hashTab = this->contents;
+
+    // traverse the entire table coping over the items.
+    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i))
+    {
+        result->put(hashTab->index(i), out++);
+        result->put(hashTab->value(i), out++);
+    }
+    // if has a method table, we need to copy those indices also
+    if (this->method_table != OREF_NULL)
+    {
+        RexxTable *methodTable = this->method_table;
+        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i))
+        {
+            RexxString *name = (RexxString *)methodTable->index(i);
+            result->put(name, out++);
+
+            RexxMethod *method = (RexxMethod *)methodTable->value(i);
+            ProtectedObject v;
+            /* run the method                    */
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            result->put((RexxObject *)v, out++);  /* add to the array                  */
+        }
+    }
+    return result;                       /* send back the array               */
+}
+
+
+/**
+ * Helper for named arguments.
+ * Push on the stack all the directory indices &items, including those
+ * of all the SETMETHOD methods: index1, item1, index2, item2, ...
+ *
+ * @return The count of pushed index & item (2 * this->items())
+ */
+size_t RexxDirectory::allIndexesItems(RexxExpressionStack *stack)
+{
+    size_t out = 0;
+    // we're working directly off of the contents.
+    RexxHashTable *hashTab = this->contents;
+
+    // traverse the entire table coping over the items.
+    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i))
+    {
+        stack->push(hashTab->index(i)); out++;
+        stack->push(hashTab->value(i)); out ++;
+    }
+    // if has a method table, we need to copy those indices also
+    if (this->method_table != OREF_NULL)
+    {
+        RexxTable *methodTable = this->method_table;
+        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i))
+        {
+            RexxString *name = (RexxString *)methodTable->index(i);
+            stack->push(name); out ++;
+
+            RexxMethod *method = (RexxMethod *)methodTable->value(i);
+            ProtectedObject v;
+            /* run the method                    */
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            stack->push(v); out ++;
+        }
+    }
+    return out;
+}
+
+
+/**
+ * Helper for named arguments.
+ * Append to the array all the directory indices &items, including those
+ * of all the SETMETHOD methods: index1, item1, index2, item2, ...
+ *
+ * @return The count of appended index & item (2 * this->items())
+ */
+size_t RexxDirectory::allIndexesItems(RexxArray *array)
+{
+    size_t out = 0;
+    // we're working directly off of the contents.
+    RexxHashTable *hashTab = this->contents;
+
+    // traverse the entire table coping over the items.
+    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i))
+    {
+        array->append(hashTab->index(i)); out++;
+        array->append(hashTab->value(i)); out ++;
+    }
+    // if has a method table, we need to copy those indices also
+    if (this->method_table != OREF_NULL)
+    {
+        RexxTable *methodTable = this->method_table;
+        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i))
+        {
+            RexxString *name = (RexxString *)methodTable->index(i);
+            array->append(name); out ++;
+
+            RexxMethod *method = (RexxMethod *)methodTable->value(i);
+            ProtectedObject v;
+            /* run the method                    */
+            method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
+            array->append(v); out ++;
+        }
+    }
+    return out;
+}

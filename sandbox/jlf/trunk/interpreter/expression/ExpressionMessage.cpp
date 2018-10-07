@@ -102,7 +102,8 @@ RexxObject *RexxExpressionMessage::evaluate(
 {
     ProtectedObject result;              /* message expression result         */
     RexxObject *_super;                  /* target super class                */
-    size_t      argcount;                /* count of arguments                */
+    size_t      argcount;                /* count of positional arguments     */
+    size_t      namedArgcount;           /* count of named arguments          */
     RexxObject *_target;                 /* message target                    */
     size_t      i;                       /* loop counter                      */
 
@@ -126,6 +127,7 @@ RexxObject *RexxExpressionMessage::evaluate(
         _super = OREF_NULL;                /* use the default lookup            */
     }
 
+    // Postional arguments
     argcount = this->argumentCount;      /* get the argument count            */
     /* loop through the argument list    */
     for (i = 0; i < (size_t)argcount; i++)
@@ -145,17 +147,34 @@ RexxObject *RexxExpressionMessage::evaluate(
             context->traceIntermediate(OREF_NULLSTRING, TRACE_PREFIX_ARGUMENT);
         }
     }
+
+    // Named arguments
+    namedArgcount = this->namedArgumentCount;
+    stack->push(new_integer(namedArgcount));
+    for (i = argcount; i < argcount + namedArgcount; i+=2)
+    {
+        // Argument name: string literal
+        RexxObject *name = this->arguments[i];
+        stack->push(name); // a string
+        context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+
+        // Argument expression
+        RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);
+        context->traceIntermediate(argResult, TRACE_PREFIX_ARGUMENT);
+    }
+
     if (_super == OREF_NULL)             /* no super class override?          */
     {
                                          /* issue the fast message            */
-        stack->send(this->messageName, argcount, result);
+        stack->send(this->messageName, argcount, namedArgcount, result);
     }
     else
     {
         /* evaluate the message w/override   */
-        stack->send(this->messageName, _super, argcount, result);
+        stack->send(this->messageName, _super, argcount, namedArgcount, result);
     }
-    stack->popn(argcount);               /* remove any arguments              */
+    stack->popn(argcount + 1 + namedArgcount);  /* remove any arguments              */
+
     if (this->doubleTilde)               /* double twiddle form?              */
     {
         result = _target;                  /* get the target element            */
@@ -287,23 +306,39 @@ void RexxExpressionMessage::assign(
         }
     }
 
+    // Named arguments
+    size_t namedArgcount = this->namedArgumentCount;
+    stack->push(new_integer(namedArgcount));
+    for (size_t i = argcount; i < argcount + namedArgcount; i+=2)
+    {
+        // Argument name: string literal
+        RexxObject *name = this->arguments[i];
+        stack->push(name); // a string
+        context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+
+        // Argument expression
+        RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);
+        context->traceIntermediate(argResult, TRACE_PREFIX_ARGUMENT);
+    }
+
     ProtectedObject result;
 
     // now send the message the appropriate way
     if (_super == OREF_NULL)
     {
         // normal message send
-        stack->send(this->messageName, argcount + 1, result);
+        stack->send(this->messageName, argcount + 1, namedArgcount, result);
     }
     else
     {
         // send with an override
-        stack->send(this->messageName, _super, argcount + 1, result);
+        stack->send(this->messageName, _super, argcount + 1, namedArgcount, result);
     }
                                        /* trace if necessary                */
     context->traceAssignment(messageName, (RexxObject *)result);
     // remove all arguments (arguments + target + assignment value)
-    stack->popn(argcount + 2);
+    // and all named arguments
+    stack->popn((argcount + 2) + (1 + namedArgcount));
 }
 
 

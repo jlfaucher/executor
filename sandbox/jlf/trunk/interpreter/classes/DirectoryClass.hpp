@@ -90,6 +90,12 @@ class RexxDirectory : public RexxHashTableCollection {
   RexxTable  *method_table;            /* table of added methods            */
   RexxMethod *unknown_method;          /* unknown method entry              */
 
+  // Helpers for named arguments
+  RexxArray *allIndexesItems(void); // return an array containing all of the directory indices & items: index1, item1, index2, item2, ...
+  size_t allIndexesItems(RexxExpressionStack *stack); // Push on the stack all the directory indices & items: index1, item1, index2, item2, ...
+  size_t allIndexesItems(RexxArray *array); // Append to the array all the directory indices & items: index1, item1, index2, item2, ...
+  static RexxDirectory *fromIndexItemArray(RexxObject **arglist, size_t count); // return a directory made from an array of(index1, item1, index2, item2, ...)
+
   static RexxDirectory *newInstance();
 
   static void createInstance();

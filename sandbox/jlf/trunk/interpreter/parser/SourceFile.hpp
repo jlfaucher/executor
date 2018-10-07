@@ -109,7 +109,7 @@ const size_t TRACE_DEBUG_MASK  = 0xff00;
 #define no_clause        0x00000040    /* last clause of a block reached    */
 
                                        /* builtin function prototype        */
-typedef RexxObject *builtin_func(RexxActivation *, size_t, RexxExpressionStack *);
+typedef RexxObject *builtin_func(RexxActivation *, RexxObject **, size_t, RexxExpressionStack *);
 typedef builtin_func *pbuiltin;        /* pointer to a builtin function     */
 
 /**

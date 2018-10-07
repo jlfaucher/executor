@@ -71,8 +71,15 @@ public:
     RexxObject *getForm();
     RexxObject *getVariables();
     RexxObject *getExecutable();
-    RexxObject *getArgs();
-    RexxObject *setArgs(RexxObject *);
+
+    // Positional arguments
+    RexxObject *getArgs(); // return an array (item1, item2, ...)
+    RexxObject *setArgs(RexxObject *); // take an array (item1, item2, ...)
+
+    // Named arguments
+    RexxObject *getNamedArgs(); // return a directory (index1=item1, index2=item2, ...)
+    RexxObject *setNamedArgs(RexxObject *); // take a directory (index1=item1, index2=item2, ...)
+
     RexxObject *getCondition();
     RexxObject *getLine();
     RexxObject *getRS();

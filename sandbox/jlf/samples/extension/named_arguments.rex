@@ -37,10 +37,10 @@ call interpret 'r = .myclass~forwardNamedArguments'
 call interpret 'r = .myclass~forwardPositionalNamedArguments'
 call interpret 'r = .myclass~forwardNamedPositionalArguments'
 
-call interpret '{call sayArg arg()}~rawExecutable~call()'
-call interpret '{call sayArg arg()}~rawExecutable~call{}'
-call interpret '{call sayArg arg()}~rawExecutable~call(1)'
-call interpret '{call sayArg arg()}~rawExecutable~call(a1:1)'
+call interpret '{call sayArg .context}~rawExecutable~call()'
+call interpret '{call sayArg .context}~rawExecutable~call{}'
+call interpret '{call sayArg .context}~rawExecutable~call(1)'
+call interpret '{call sayArg .context}~rawExecutable~call(a1:1)'
 
 -- Error 35: Invalid expression
 call interpret 'call myprocedure 1, a2:2, a3:'                  -- Error 35.900:  Named argument: expected expression after colon
@@ -64,7 +64,7 @@ return
 --------------------------------------------------------------------------------
 
 myprocedure:
-call sayArg arg()
+call sayArg .context
 return ""
 
 --------------------------------------------------------------------------------
@@ -81,14 +81,14 @@ return
 --------------------------------------------------------------------------------
 
 ::routine myroutine
-call sayArg arg()
+call sayArg .context
 return ""
 
 --------------------------------------------------------------------------------
 
 ::class myclass
 ::method mymethod class
-call sayArg arg()
+call sayArg .context
 return ""
 
 ::method forwardArray class
@@ -128,13 +128,30 @@ return "'"arg(1)"'"
 
 
 ::routine indent
-call charout , "    "
+use strict arg level=1
+do level
+    call charout , "    "
+end
 
 
 ::routine sayArg
-use strict arg positionalCount
-call indent
-say "positional count="positionalCount
+use strict arg context
+positionalArgs = context~args
+namedArgs = context~namedArgs
+call sayCollection "positional", positionalArgs
+call sayCollection "named", namedArgs
+
+
+::routine sayCollection
+use strict arg kind, collection
+call indent 1
+say kind "count="collection~items
+supplier = collection~supplier
+do while supplier~available
+    call indent 2
+    say supplier~index ":" supplier~item
+    supplier~next
+end
 
 
 ::routine sayCondition

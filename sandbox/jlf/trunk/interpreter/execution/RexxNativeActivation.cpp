@@ -1244,6 +1244,8 @@ void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, Rex
     uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
     processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
 
+    // TODO named arguments
+
     size_t activityLevel = this->activity->getActivationLevel();
     trapErrors = true;                       // we trap errors from here
     try

@@ -191,7 +191,8 @@ RexxObject *RexxExpressionFunction::evaluate(
 /******************************************************************************/
 {
     ProtectedObject result;              /* returned result                   */
-    size_t      argcount;                /* count of arguments                */
+    size_t      argcount;                /* count of positional arguments     */
+    size_t      namedArgcount;           /* count of named arguments          */
     size_t      i;                       /* loop counter                      */
     size_t      stacktop;                /* top location on the stack         */
 
@@ -199,6 +200,7 @@ RexxObject *RexxExpressionFunction::evaluate(
 
     stacktop = stack->location();        /* save the stack top                */
 
+    // Positional arguments
     argcount = this->argument_count;     /* get the argument count            */
     for (i = 0; i < argcount; i++)     /* loop through the argument list    */
     {
@@ -218,23 +220,41 @@ RexxObject *RexxExpressionFunction::evaluate(
         }
     }
 
+    // Named arguments
+    namedArgcount = this->named_argument_count;
+    stack->push(new_integer(namedArgcount));
+    for (i = argcount; i < argcount + namedArgcount; i+=2)
+    {
+        // Argument name: string literal
+        RexxObject *name = this->arguments[i];
+        stack->push(name); // a string
+        context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+
+        // Argument expression
+        RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);
+        context->traceIntermediate(argResult, TRACE_PREFIX_ARGUMENT);
+    }
+
+    // More easy to work with an array of arguments (address of the first argument) than a stack of arguments (address of the last argument).
+    RexxObject **_arguments = stack->arguments(argcount + 1 + namedArgcount);
+
     /* process various call types        */
     switch (this->flags&function_type_mask)
     {
 
         case function_internal:            /* need to process internal routine  */
             /* go process the internal call      */
-            context->internalCall(this->functionName, this->target, argcount, stack, result);
+            context->internalCall(this->functionName, this->target, _arguments, argcount, result);
             break;
 
         case function_builtin:             /* builtin function call             */
             /* call the function                 */
-            result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, argcount, stack);
+            result = (RexxObject *) (*(RexxSource::builtinTable[this->builtin_index]))(context, _arguments, argcount, stack);
             break;
 
         case function_external:            /* need to call externally           */
             /* go process the internal call      */
-            context->externalCall(this->functionName, argcount, stack, OREF_FUNCTIONNAME, result);
+            context->externalCall(this->functionName, _arguments, argcount, OREF_FUNCTIONNAME, result);
             break;
     }
     if ((RexxObject *)result == OREF_NULL)    /* result returned?                  */
@@ -269,6 +289,10 @@ void *RexxExpressionFunction::operator new(size_t size,
     }
     else
     {
+        // argCount = positionalCount + namedCount, where namedCount = 2 * name:value
+        // Ex: (p1, p2, p3, n1:v1, n2:v2, n3:v3)
+        //     positionalCount = 3
+        //     namedCount = 2*3 = 6
         /* Get new object                    */
         return new_object(size + (argCount - 1) * sizeof(RexxObject *), T_FunctionCallTerm);
     }

@@ -181,8 +181,6 @@ void RexxInstructionCall::execute(
 /* Function:  Execute a REXX CALL instruction                                 */
 /******************************************************************************/
 {
-    size_t  argcount;                    /* count of arguments                */
-    size_t  i;                           /* loop counter                      */
     int     type;                        /* type of call                      */
     size_t  builtin_index;               /* builtin function index            */
     ProtectedObject   result;            /* returned result                   */
@@ -250,8 +248,8 @@ void RexxInstructionCall::execute(
             type = instructionFlags&call_type_mask;   /* just copy the type info           */
         }
 
-        argcount = argumentCount;          /* get the argument count            */
-        for (i = 0; i < argcount; i++)   /* loop through the argument list    */
+        // Positional arguments
+        for (size_t i = 0; i < argumentCount; i++)   /* loop through the argument list    */
         {
             /* real argument?                    */
             if (this->arguments[i] != OREF_NULL)
@@ -269,22 +267,40 @@ void RexxInstructionCall::execute(
                 context->traceIntermediate(OREF_NULLSTRING, TRACE_PREFIX_ARGUMENT);
             }
         }
+
+        // Named arguments
+        stack->push(new_integer(namedArgumentCount));
+        for (size_t i = argumentCount; i < argumentCount + namedArgumentCount; i+=2)
+        {
+            // Argument name: string literal
+            RexxObject *name = this->arguments[i];
+            stack->push(name); // a string
+            context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+
+            // Argument expression
+            RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);
+            context->traceIntermediate(argResult, TRACE_PREFIX_ARGUMENT);
+        }
+
+        // More easy to work with an array of arguments (address of the first argument) than a stack of arguments (address of the last argument).
+        RexxObject **_arguments = stack->arguments(argumentCount + 1 + namedArgumentCount);
+
         switch (type)                    /* process various call types        */
         {
 
             case call_internal:              /* need to process internal routine  */
                 /* go process the internal call      */
-                context->internalCall(_name, _target, argcount, stack, result);
+                context->internalCall(_name, _target, _arguments, argumentCount, result);
                 break;
 
             case call_builtin:               /* builtin function call             */
                 /* call the function                 */
-                result = (*(RexxSource::builtinTable[builtin_index]))(context, argcount, stack);
+                result = (*(RexxSource::builtinTable[builtin_index]))(context, _arguments, argumentCount, stack);
                 break;
 
             case call_external:              /* need to call externally           */
                 /* go process the external call      */
-                context->externalCall(_name, argcount, stack, OREF_ROUTINENAME, result);
+                context->externalCall(_name, _arguments, argumentCount, OREF_ROUTINENAME, result);
                 break;
         }
         if ((RexxObject *)result != OREF_NULL)   /* result returned?                  */
@@ -322,12 +338,12 @@ void RexxInstructionCall::trap(
 
         case call_builtin:                 /* builtin function call             */
             /* call the function                 */
-            (*(RexxSource::builtinTable[builtinIndex]))(context, 0, context->getStack());
+            (*(RexxSource::builtinTable[builtinIndex]))(context, NULL, 0, context->getStack());
             break;
 
         case call_external:                /* need to call externally           */
             /* go process the externnl call      */
-            context->externalCall((RexxString *)this->name, 0, context->getStack(), OREF_ROUTINENAME, result);
+            context->externalCall((RexxString *)this->name, NULL, 0, OREF_ROUTINENAME, result);
             break;
     }
     /* restore the trap state            */

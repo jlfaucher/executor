@@ -115,7 +115,7 @@ Review the extension mechanisms :
 - An extension made on .Object is not available on a class.
   There is a workaround in pipe_extensions.cls.
 - An extension made on .Object is not available on the .nil object.
-  No workaround so far.
+  2018 aug 11: workaround implemented.
 - The class .stream doesn't have the methods ~pipe, ~generate.
   Problem of propagation ?
     ----- Generate the list of all classes and the list of classes having the method ~pipe
@@ -171,6 +171,32 @@ That makes the transformation of clauses more difficult, since a clause can be
 multi-line.
 Remember : a multi-line source literal is flattened only if a transformation is
 made on the clause which contains it.
+
+
+===============================================================================
+2018 oct 07
+
+Continue implementation of named arguments.
+step 1: [done] caller side
+step 2: [partially done 80%] from caller to callee, evaluation of the named arguments, storage in a directory.
+    Message term
+    Expression function
+    Instruction call
+    Instruction forward
+step 3: [partially done 10%] callee side, give access to the directory. First need : use auto named arg.
+    Context~namedArgs
+
+For a demo, see
+sandbox/jlf/samples/extension/named_arguments.output.txt
+
+
+===============================================================================
+2018 aug 05
+
+Rework the pretty print of objects.
+- ppRepresentation renamed ppString
+- Add ppString at object level and class level
+- Remove option surroundByQuotes, now it's always true.
 
 
 ===============================================================================
@@ -336,6 +362,10 @@ Instruction CALL
            +-(expr)-+
 
 
+--------
+Function
+--------
+
 >>-function_name(----| Arguments |----)-------------------><
 
 
@@ -413,25 +443,26 @@ There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mand
 Object~sendWith
 ---------------
 
->>-sendWith(messagename,arguments,namedArguments:namedArgument)---><
+>>-sendWith(messagename,arguments,namedArguments:namedArguments)---><
 
 
 ----------------
 Object~startWith
 ----------------
 
->>-startWith(messagename,arguments, namedArguments:namedArgument)---><
+>>-startWith(messagename,arguments, namedArguments:namedArguments)---><
 
 
 ----------------
 Routine~callWith
 ----------------
 
->>-callWith(array, namedArguments:namedArgument)----------------------------><
+>>-callWith(array, namedArguments:namedArguments)----------------------------><
 
 
 -----------------
 Context~namedArgs
+Context~namedArgs=  (remember: coactivity.cls reassign the arguments passed by the resume's caller)
 -----------------
 
 Why not ~namedArguments ?
@@ -667,12 +698,12 @@ Similar to vector indexing, but with one index for the row and one for the colum
 Doers
 -----
 Asynchronous execution with go and goWith.
-repeat={use arg n,s; do n; say s; end}; repeat~do(2,"hello"); repeat~do(2,"world")
+{loop 2; say "hello"; end}~do; {loop 2; say "world"; end}~do
     hello
     hello
     world
     world
-repeat={use arg n,s; do n; say s; end}; repeat~go(2,"hello"); repeat~go(2,"world")
+{loop 2; say "hello"; end}~go; {loop 2; say "world"; end}~go
     hello
     world
     hello

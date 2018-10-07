@@ -76,8 +76,8 @@ protected:
   uint8_t argument_count;              /* count of positional arguments     */
   uint8_t named_argument_count;        // 2 * number of named arguments (because 2 items per named argument: name,expression)
 
-  // positional arguments (1 entry per arg: expression) : from 0 to min(0,argument_count-1)
-  // followed by named arguments (2 entries per arg: name, expression) : from argument_count to argument_count + min(0,named_argument_count-1)
+  // positional arguments (1 entry per arg: expression) : from 0 to argument_count
+  // followed by named arguments (2 entries per arg: name, expression) : from argument_count to argument_count + named_argument_count-1
   RexxObject * arguments[1];           /* argument list                     */
 };
 #endif

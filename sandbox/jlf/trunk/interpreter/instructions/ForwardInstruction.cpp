@@ -113,11 +113,14 @@ void RexxInstructionForward::execute(
     RexxObject *result;                  /* message result                    */
     RexxObject *temp;                    /* temporary object                  */
     size_t      count = 0;               /* count of array expressions        */
+    size_t      namedCount = 0;          /* count of named arguments          */
     size_t      i;                       /* loop counter                      */
     RexxObject **_arguments;
-    RexxDirectory *_namedArguments;
+    RexxArray *newArguments;
 
-    ProtectedObject p_message;
+    ProtectedObject p_newArguments;
+    ProtectedObject p_argArray;
+    ProtectedObject p_argDirectory;
 
     context->traceInstruction(this);     /* trace if necessary                */
     if (!context->inMethod())            /* is this a method clause?          */
@@ -129,7 +132,6 @@ void RexxInstructionForward::execute(
     _message = OREF_NULL;                 /* no message over ride              */
     _superClass = OREF_NULL;              /* no super class over ride          */
     _arguments = OREF_NULL;               /* no argument over ride             */
-    _namedArguments = OREF_NULL;
 
     if (this->target != OREF_NULL)       /* sent to a different object?       */
     {
@@ -142,9 +144,9 @@ void RexxInstructionForward::execute(
         /* get the expression value          */
         temp = this->message->evaluate(context, stack);
         _message = REQUEST_STRING(temp);    /* get the string version            */
-        p_message = _message;
+        stack->replace(0, _message);
         _message = _message->upper();       /* and force to uppercase            */
-        p_message = _message;
+        stack->replace(0, _message);
     }
 
     if (this->superClass != OREF_NULL)   /* overriding the super class?       */
@@ -153,100 +155,190 @@ void RexxInstructionForward::execute(
         _superClass = this->superClass->evaluate(context, stack);
     }
 
-    if (this->arguments != OREF_NULL)  /* overriding the arguments?         */
+    // Overriding the positional or named arguments ?
+    if (this->arguments != OREF_NULL ||
+        this->array != OREF_NULL ||
+        this->namedArgumentsExpression != OREF_NULL ||
+        this->namedArgumentsArray != OREF_NULL)
     {
-        /* get the expression value          */
-        temp = this->arguments->evaluate(context, stack);
-        /* get an array version              */
-        RexxArray *argArray = REQUEST_ARRAY(temp);
-        stack->push(argArray);           /* protect this on the stack         */
-        /* not an array item or a multiple   */
-        /* dimension one?                    */
-        if (argArray == TheNilObject || argArray->getDimension() != 1)
+
+        // From here, I build an array of positional and named arguments.
+        // Initially, I pushed the arguments onto the stack.
+        // But I realized that I can't use the stack to store the items because the stack has a limited size, decided at parse time.
+        // When the items are calculated by an expression, there is no way to guess the right size at parse time.
+        // TODO:
+        // Optimize by calculating the size of the array before creating it.
+
+        newArguments = new_array(10);
+        p_newArguments = newArguments; // GC protect
+
+        // *************************
+        // * Positional Parameters *
+        // *************************
+
+        // Remember :
+        // - this->arguments: an expression returning an array
+        // - this->array: a literal array
+        // They are exclusive (enforced by the parser).
+
+        if (this->arguments != OREF_NULL)  /* overriding the arguments?         */
         {
-            /* this is an error                  */
-            reportException(Error_Execution_forward_arguments);
-        }
-        count = argArray->size();          /* get the size                      */
+            /* get the expression value          */
+            temp = this->arguments->evaluate(context, stack);
+            /* get an array version              */
+            RexxArray *argArray = REQUEST_ARRAY(temp);
+            // stack->push(argArray);           /* protect this on the stack         */
+            p_argArray = argArray; // GC protect without using the stack
+            stack->toss(); // pop the temp array, the items of argArray will be pushed.
+
+            /* not an array item or a multiple   */
+            /* dimension one?                    */
+            if (argArray == TheNilObject || argArray->getDimension() != 1)
+            {
+                /* this is an error                  */
+                reportException(Error_Execution_forward_arguments);
+            }
+            count = argArray->size();          /* get the size                      */
 #if 0 // jlf: keep omitted trailing arguments
-                                           /* omitted trailing arguments?       */
-        if (count != 0 && argArray->get(count) == OREF_NULL)
-        {
-            count--;                         /* decrement the count               */
-            while (count > 0)              /* loop down to first full one       */
+                                               /* omitted trailing arguments?       */
+            if (count != 0 && argArray->get(count) == OREF_NULL)
             {
-                /* find a real argument              */
-                if (argArray->get(count) != OREF_NULL)
+                count--;                         /* decrement the count               */
+                while (count > 0)              /* loop down to first full one       */
                 {
-                    break;                       /* break out of here                 */
+                    /* find a real argument              */
+                    if (argArray->get(count) != OREF_NULL)
+                    {
+                        break;                       /* break out of here                 */
+                    }
+                    count--;                       /* step back the count               */
                 }
-                count--;                       /* step back the count               */
             }
-        }
 #endif
-        _arguments = argArray->data();    /* point directly to the argument data */
-    }
+            // _arguments = argArray->data();    /* point directly to the argument data */
 
-    if (this->array != OREF_NULL)      /* have an array of extra info?      */
-    {
-        count = this->array->size();       /* get the expression count          */
-        for (i = 1; i <= count; i++)     /* loop through the expression list  */
-        {
-            RexxObject *argElement = this->array->get(i);
-            /* real argument?                    */
-            if (argElement != OREF_NULL)
+            // JLF: Push each item on the stack.
+            // Reason: I may need to append named arguments, so use ALWAYS the stack,
+            // even when the array already exists, like here.
+            for (i = 1; i <= count; i++)
             {
-                /* evaluate the expression           */
-                argElement->evaluate(context, stack);
-            }
-            else
-            {
-                /* just push a null reference for the missing ones */
-                stack->push(OREF_NULL);
+                RexxObject *item = argArray->get(i);
+                // stack->push(item);
+                newArguments->append(item);
             }
         }
-        /* now point at the stacked values */
-        _arguments = stack->arguments(count);
-    }
 
-    if (this->namedArgumentsExpression != OREF_NULL) /* overriding the named arguments? */
-    {
-        /* get the expression value          */
-        temp = this->namedArgumentsExpression->evaluate(context, stack);
-        /* get a directory version           */
-        RexxDirectory *argDirectory = (RexxDirectory *)(isOfClass(Directory, temp) ? temp : temp->sendMessage(OREF_REQUEST, OREF_DIRECTORY));
-        stack->push(argDirectory);       /* protect this on the stack         */
-        /* not a directory item ? */
-        if (argDirectory == TheNilObject)
+        else if (this->array != OREF_NULL)      /* have an array of extra info?      */
         {
-            /* this is an error                  */
-            reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory");
+            count = this->array->size();       /* get the expression count          */
+            for (i = 1; i <= count; i++)     /* loop through the expression list  */
+            {
+                RexxObject *argElement = this->array->get(i);
+                /* real argument?                    */
+                if (argElement != OREF_NULL)
+                {
+                    /* evaluate the expression           */
+                    RexxObject * value = argElement->evaluate(context, stack);
+                    newArguments->append(value);
+                    stack->toss();
+                }
+                else
+                {
+                    /* just push a null reference for the missing ones */
+                    // stack->push(OREF_NULL);
+                    newArguments->append(OREF_NULL);
+                }
+            }
+            /* now point at the stacked values */
+            // _arguments = stack->arguments(count);
         }
-        _namedArguments = argDirectory;
-    }
 
-    if (this->namedArgumentsArray != OREF_NULL)      /* have an array of named arguments?      */
-    {
-        RexxDirectory *argDirectory = OREF_NULL;
-        size_t namedCount = this->namedArgumentsArray->size();       /* get the name,expression count          */
-        if (namedCount != 0)
+        else // not overriding the positional arguments, get them from the context
         {
-            argDirectory = new_directory();
-            stack->push(argDirectory);       /* protect this on the stack         */
+            RexxObject **arglist = context->getMethodArgumentList();
+            size_t argcount = context->getMethodArgumentCount();
+            for (i = 0; i < argcount; i++)
+            {
+                RexxObject *arg = arglist[i];
+                // stack->push(arg);
+                newArguments->append(arg);
+            }
+        }
+
+        // ********************
+        // * Named Parameters *
+        // ********************
+
+        // Remember:
+        // - this->namedArgumentsExpression: an expression returning a directory
+        // - this->namedArgumentsArray: an array of name, value, name, value, etc...
+        // Both are exclusive (enforced by the parser)
+
+        // Placeholder for namedCount (not yet known)
+        // stack->push(IntegerZero);
+        // RexxObject **namedCountPtr = stack->pointer(0);
+        size_t namedCountIndex = newArguments->append(IntegerZero);
+
+        if (this->namedArgumentsExpression != OREF_NULL) /* overriding the named arguments? */
+        {
+            /* get the expression value          */
+            temp = this->namedArgumentsExpression->evaluate(context, stack);
+            /* get a directory version           */
+            RexxDirectory *argDirectory = (RexxDirectory *)(isOfClass(Directory, temp) ? temp : temp->sendMessage(OREF_REQUEST, OREF_DIRECTORY));
+            p_argDirectory = argDirectory; // GC protect without using the stack
+            stack->toss(); // pop the temp directory, the indexes-items of argDirectory will be pushed.
+
+            /* not a directory item ? */
+            if (argDirectory == TheNilObject)
+            {
+                reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory");
+            }
+            // Push each index, item on the stack
+            // namedCount = argDirectory->allIndexesItems(stack);
+            namedCount = argDirectory->allIndexesItems(newArguments);
+        }
+
+        else if (this->namedArgumentsArray != OREF_NULL)      /* have an array of named arguments?      */
+        {
+            namedCount = this->namedArgumentsArray->size();       /* get the name,expression count          */
             for (i = 1; i <= namedCount; i+=2)     /* loop through the name,expression list  */
             {
                 RexxString *argName = (RexxString *)this->namedArgumentsArray->get(i);
+                // stack->push(argName);
+                newArguments->append(argName);
+
                 RexxObject *argExpression = this->namedArgumentsArray->get(i+1); // can't be OREF_NULL
                 RexxObject *argValue = argExpression->evaluate(context, stack);
-                argDirectory->put(argValue, argName);
-                stack->pop(); // GC protection by stack of current argValue no longer needed
+                newArguments->append(argValue);
+                stack->toss();
             }
         }
-        _namedArguments = argDirectory;
+        else // not overriding the named arguments, get them from the context
+        {
+            RexxObject **arglist = context->getMethodArgumentList();
+            size_t argcount = context->getMethodArgumentCount();
+            if (arglist != OREF_NULL) arglist[argcount]->unsignedNumberValue(namedCount);
+            for (i = 1 + argcount; i < argcount + 1 + namedCount; i += 2)
+            {
+                RexxString *argName = (RexxString *)arglist[i];
+                // stack->push(argName);
+                newArguments->append(argName);
+
+                RexxObject *argValue = arglist[i+1];
+                // stack->push(argValue);
+                newArguments->append(argValue);
+            }
+        }
+
+        // Now we can store namedCount
+        // *namedCountPtr = new_integer(namedCount);
+        newArguments->put(new_integer(namedCount), namedCountIndex);
+
+        // _arguments = stack->arguments(count + 1 + namedCount);
+        _arguments = newArguments->data();
     }
 
     /* go forward this                   */
-    // TODO: forward named arguments
     result = context->forward(_target, _message, _superClass, _arguments, count, instructionFlags&forward_continue);
     if (instructionFlags&forward_continue)  /* not exiting?                      */
     {

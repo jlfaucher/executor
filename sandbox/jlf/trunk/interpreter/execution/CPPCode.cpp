@@ -117,6 +117,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
                                        /* expecting a pointer/count pair?   */
     if (this->argumentCount == A_COUNT)
     {
+      // Here, named arguments are automatically supported
                                        /* we can pass this right on         */
       result = (receiver->*((PCPPMC1)methodEntry))(argPtr, count);
     }
@@ -126,6 +127,27 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         {
             reportException(Error_Incorrect_method_maxarg, this->argumentCount);
         }
+
+        // JLF: I don't understand why this temporary list is needed...
+        // ha, yes: it's to pass NULL for the omitted parameters at the end.
+        // Not needed when count == argumentCount, because here no omitted paramaters.
+
+        // Here, the named arguments passed via argPtr are lost (with current implementation).
+        // Will see if something must be done to pass them explicitely.
+
+        // The unknown method is correctly supported, because the arguments are passed in the
+        // 2nd argument which is an array of arguments followed by the named arguments.
+        // RexxObject::processUnknown : put all the positional & named arguments in the same array, passed in 2nd arg
+        //     calls RexxMethod::run : forward the 2 positional args + 0 named arg to the code object
+        //         calls CPPCode::run : call a CPP method by passing only the 2 positional args as C++ parameters
+        //             calls RexxObject::unknownRexx : forward to the virtual function (message, arguments)
+        //                 calls RexxInteger::unknown : just reissue to the string value (message, arguments)
+        //                     calls RexxObject::sendMessage(RexxString *message, RexxArray *args)
+        //                         calls RexxObject::sendMessage(RexxString *message, RexxArray  *arguments, ProtectedObject &result
+        //                         Now we are back to the standard way to pass arguments:
+        //                             passing arguments->data(), arguments->size()
+        //                             where the named arguments are after the positional arguments.
+
         // This is the temporary list of arguments
         RexxObject * argument_list[7];
         if (count < argumentCount)              /* need to pad these out?            */
@@ -1001,6 +1023,8 @@ CPPM(RexxContext::getVariables),
 CPPM(RexxContext::getExecutable),
 CPPM(RexxContext::getArgs),
 CPPM(RexxContext::setArgs),
+CPPM(RexxContext::getNamedArgs),
+CPPM(RexxContext::setNamedArgs),
 CPPM(RexxContext::getCondition),
 CPPM(RexxContext::getLine),
 CPPM(RexxContext::getRS),
