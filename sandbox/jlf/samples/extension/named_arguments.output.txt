@@ -54,6 +54,12 @@ r = .myclass~forwardArray
 r = .myclass~forwardNamedArguments
     forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
     positional count=0
+r = .myclass~forwardPositionalNamedArguments
+    forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+    positional count=2
+r = .myclass~forwardNamedPositionalArguments
+    forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue
+    positional count=2
 {call sayArg arg()}~rawExecutable~call()
     positional count=0
 {call sayArg arg()}~rawExecutable~call{}
@@ -67,6 +73,12 @@ call myprocedure 1, a2:2, a3:
     [trapped] Code= 35.900
 call myprocedure 1, a2:2, 3
     [trapped] Named argument: expected symbol followed by colon
+    [trapped] Code= 35.900
+m = .method~new("", 'forward message "mymethod" namedArguments continue')
+    [trapped] Incorrect expression detected at "CONTINUE"
+    [trapped] Code= 35.1
+m = .method~new("", 'forward message "mymethod" namedArguments')
+    [trapped] Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction
     [trapped] Code= 35.900
 m = .method~new("", 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue')
     [trapped] Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
