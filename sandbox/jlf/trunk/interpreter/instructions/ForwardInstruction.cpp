@@ -169,7 +169,7 @@ void RexxInstructionForward::execute(
         // TODO:
         // Optimize by calculating the size of the array before creating it.
 
-        newArguments = new_array(10);
+        newArguments = new_array(10); // Arbitrary size
         p_newArguments = newArguments; // GC protect
 
         // *************************
@@ -283,19 +283,25 @@ void RexxInstructionForward::execute(
         {
             /* get the expression value          */
             temp = this->namedArgumentsExpression->evaluate(context, stack);
-            /* get a directory version           */
-            RexxDirectory *argDirectory = (RexxDirectory *)(isOfClass(Directory, temp) ? temp : temp->sendMessage(OREF_REQUEST, OREF_DIRECTORY));
-            p_argDirectory = argDirectory; // GC protect without using the stack
-            stack->toss(); // pop the temp directory, the indexes-items of argDirectory will be pushed.
 
-            /* not a directory item ? */
-            if (argDirectory == TheNilObject)
+            // Due to the optimization in processUnknown (returning .nil instead of a directory when 0 named arguments), accept .nil
+            if (temp == TheNilObject) namedCount = 0;
+            else
             {
-                reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory");
+                /* get a directory version           */
+                RexxDirectory *argDirectory = (RexxDirectory *)(isOfClass(Directory, temp) ? temp : temp->sendMessage(OREF_REQUEST, OREF_DIRECTORY));
+                p_argDirectory = argDirectory; // GC protect without using the stack
+                stack->toss(); // pop the temp directory, the indexes-items of argDirectory will be pushed.
+
+                /* not a directory item ? */
+                if (argDirectory == TheNilObject)
+                {
+                    reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory");
+                }
+                // Push each index, item on the stack
+                // namedCount = argDirectory->appendAllIndexesItemsTo(stack);
+                namedCount = argDirectory->appendAllIndexesItemsTo(newArguments);
             }
-            // Push each index, item on the stack
-            // namedCount = argDirectory->allIndexesItems(stack);
-            namedCount = argDirectory->allIndexesItems(newArguments);
         }
 
         else if (this->namedArgumentsArray != OREF_NULL)      /* have an array of named arguments?      */

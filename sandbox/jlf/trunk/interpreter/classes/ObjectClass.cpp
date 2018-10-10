@@ -903,10 +903,13 @@ void RexxObject::processUnknown(
         argumentArray->put(arguments[i - 1], i);
     }
 
-    // TODO named argument : 'namedArgument' could be lost when passing through a CPP method (see CPPCode::run).
+    // The case no named argument is very common.
+    // To avoid any performance loss, avoid to create a directory when named_count = 0.
+    // This is managed by RexxDirectory::fromIndexItemArray which returns OREF_NULL when count = 0.
     size_t named_count = 0;
     arguments[count]->unsignedNumberValue(named_count);
     RexxDirectory *namedArgumentDirectory = RexxDirectory::fromIndexItemArray(arguments + count + 1, named_count);
+    ProtectedObject p1(namedArgumentDirectory);
 
     RexxObject     *unknown_arguments[2 + (1 + 1*2)];/* positional & named arguments to the unknown method   */
     unknown_arguments[0] = messageName;  /* method name is first argument     */
@@ -914,7 +917,7 @@ void RexxObject::processUnknown(
     unknown_arguments[1] = argumentArray;/* arguments for the original call   */
     unknown_arguments[2] = IntegerOne; // 1 named argument
     unknown_arguments[3] = OREF_NAMEDARGUMENTS;
-    unknown_arguments[4] = namedArgumentDirectory;
+    unknown_arguments[4] = namedArgumentDirectory ? namedArgumentDirectory : TheNilObject;
                                          /* run the unknown method            */
     method_save->run(ActivityManager::currentActivity, this, OREF_UNKNOWN, unknown_arguments, 2, result);
 }
@@ -1960,6 +1963,14 @@ RexxObject  *RexxObject::run(
     // one or a copy
     ProtectedObject p(methobj);
 
+    /*
+        TODO named arguments
+        >>-run(method-+---------------------------------------------+-)--><
+                      +-,Individual---| Arguments |-----------------+
+                      +--+-----------------+--+---------------------+
+                         +-,Array,argument-+  +-,Directory,argument-+
+    */
+
     if (argCount > 1)                    /* if any arguments passed           */
     {
         /* get the 1st one, its the option   */
@@ -1971,6 +1982,9 @@ RexxObject  *RexxObject::run(
         {
             case 'A':                        /* args are an array                 */
                 {
+                    // TODO named arguments
+                    // arguments[2] or arguments[5] is an array
+
                     /* so they say, make sure we have an */
                     /* array and we were only passed 3   */
                     /*args                               */
@@ -1997,6 +2011,9 @@ RexxObject  *RexxObject::run(
                     argcount = arglist->size();
                     break;
                 }
+
+            // TODO named arguments:
+            // add case 'D' similar to 'A', where arguments[2] or arguments[5] is a directory
 
             case 'I':                        /* args are "strung out"             */
                 /* point to the array data for the second value */
@@ -2384,12 +2401,18 @@ RexxObject *RexxInternalObject::clone()
 #define operatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
 {\
     ProtectedObject result;              /* returned result                   */\
+    RexxObject *args[2];                                                        \
+    args[0] = operand; /* 1 positional argument */                              \
+    args[1] = IntegerZero; /* 0 named argument */                               \
                                          /* do a real message send            */\
-    this->messageSend(OREF_##message, &operand, 1, result);                      \
+    /* this->messageSend(OREF_##message, &operand, 1, result);  */              \
+    this->messageSend(OREF_##message, (RexxObject **)&args, 1, result);                        \
     if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
     {  \
         RexxObject *self = this; \
-        bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \
+        args[0] = self; \
+        /* bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); */ \
+        bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, (RexxObject **)&args, 1, result, false); \
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
                                          /* need to raise an exception        */ \
         reportException(Error_No_result_object_message, OREF_##message); \
@@ -2402,14 +2425,20 @@ RexxObject *RexxInternalObject::clone()
 #define prefixOperatorMethod(name, message) RexxObject * RexxObject::name(RexxObject *operand) \
 {\
     ProtectedObject result;              /* returned result                   */\
+    RexxObject *args[2];                                                        \
+    args[0] = operand; /* 1 positional argument */                              \
+    args[1] = IntegerZero; /* 0 named argument */                               \
                                          /* do a real message send            */\
-    this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); \
+    /* this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); */ \
+    this->messageSend(OREF_##message, (RexxObject **)&args, operand == OREF_NULL ? 0 : 1, result); \
     if ((RexxObject *)result == OREF_NULL)             /* in an expression and need a result*/ \
     {  \
         if (operand != OREF_NULL) \
         { \
             RexxObject *self = this; \
-            bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); \
+            args[0] = self; \
+            /* bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); */ \
+            bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, (RexxObject **)&args, 1, result, false); \
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
         } \
                                          /* need to raise an exception        */ \
@@ -2562,13 +2591,14 @@ RexxObject *RexxObject::copyRexx()
 
 RexxObject *RexxObject::unknownRexx(
     RexxString *message,               /* unknown message                   */
-    RexxArray  *arguments )            /* message arguments                 */
+    RexxArray  *arguments,             /* message arguments                 */
+    RexxDirectory *namedArguments )
 /******************************************************************************/
 /* Function:  Exported access to an object virtual function                   */
 /******************************************************************************/
 {
                                        /* forward to the virtual function   */
-  return this->unknown(message, arguments);
+  return this->unknown(message, arguments, namedArguments);
 }
 
 RexxObject *RexxObject::hasMethodRexx(

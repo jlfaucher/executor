@@ -459,6 +459,17 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
         }
         this->arglist = _arglist;           /* set the argument list             */
         this->argcount = _argcount;
+
+        if (arglist != OREF_NULL)
+        {
+            // Temporary : I have crashes when running live or liveGeneral
+            // because arglist has no named argument count after the positional argumenst.
+            // Get the count of named arguments now, to have a crash now.
+            // TODO: to remove when no more crashes...
+            size_t namedArgcount = 0;
+            arglist[argcount]->unsignedNumberValue(namedArgcount);
+        }
+
         /* first entry into here?            */
         if (this->isTopLevelCall())
         {

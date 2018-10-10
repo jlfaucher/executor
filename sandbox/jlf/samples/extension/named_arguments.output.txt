@@ -1,224 +1,654 @@
+call myprocedure
+    positional count=0 size=0
+    named count=0
+
+
 call myprocedure 1, 2, 3
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : 3
     named count=0
+
+
 call myprocedure 1, 2, a3:3
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=1
         A3 : 3
+
+
 call myprocedure 1, a2:2, a3:3
-    positional count=1
+    positional count=1 size=1
         1 : 1
     named count=2
         A2 : 2
         A3 : 3
+
+
 call myprocedure 1, a2:(2*5/4)**5, a3:.array~new(3,3)
-    positional count=1
+    positional count=1 size=1
         1 : 1
     named count=2
         A2 : 97.65625
         A3 : an Array
+
+
+call myprocedure , , 3, ,
+    positional count=1 size=4
+        3 : 3
+    named count=0
+
+
+call myprocedure , , 3, , a5:5
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+r = myprocedure()
+    positional count=0 size=0
+    named count=0
+
+
 r = myprocedure(1, 2, 3)
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : 3
     named count=0
+
+
 r = myprocedure(1, 2, a3:3)
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=1
         A3 : 3
+
+
 r = myprocedure(1, a2:2, a3:3)
-    positional count=1
+    positional count=1 size=1
         1 : 1
     named count=2
         A2 : 2
         A3 : 3
+
+
+r = myprocedure(1, a2:(2*5/4)**5, a3:.array~new(3,3))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
 r = myprocedure(1, 2, 3){}
-    positional count=4
+    positional count=4 size=4
         1 : 1
         2 : 2
         3 : 3
         4 : a RexxBlock
     named count=0
+
+
 r = myprocedure(1, 2, a3:3){}
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : a RexxBlock
     named count=1
         A3 : 3
+
+
 r = myprocedure(1, a2:2, a3:3){}
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : a RexxBlock
     named count=2
         A2 : 2
         A3 : 3
+
+
+r = myprocedure( , , 3, ,)
+    positional count=1 size=5
+        3 : 3
+    named count=0
+
+
+r = myprocedure( , , 3, , a5:5)
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+call myroutine
+    positional count=0 size=0
+    named count=0
+
+
 call myroutine 1, 2, 3
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : 3
     named count=0
+
+
 call myroutine 1, 2, a3:3
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=1
         A3 : 3
+
+
 call myroutine 1, a2:2, a3:3
-    positional count=1
+    positional count=1 size=1
         1 : 1
     named count=2
         A2 : 2
         A3 : 3
+
+
+call myroutine 1, a2:(2*5/4)**5, a3:.array~new(3,3)
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
+call myroutine , , 3, ,
+    positional count=1 size=4
+        3 : 3
+    named count=0
+
+
+call myroutine , , 3, , a5:5
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+r = myroutine()
+    positional count=0 size=0
+    named count=0
+
+
 r = myroutine(1, 2, 3)
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : 3
     named count=0
+
+
 r = myroutine(1, 2, a3:3)
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=1
         A3 : 3
+
+
 r = myroutine(1, a2:2, a3:3)
-    positional count=1
+    positional count=1 size=1
         1 : 1
     named count=2
         A2 : 2
         A3 : 3
+
+
+r = myroutine(1, a2:(2*5/4)**5, a3:.array~new(3,3))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
 r = myroutine(1, 2, 3){}
-    positional count=4
+    positional count=4 size=4
         1 : 1
         2 : 2
         3 : 3
         4 : a RexxBlock
     named count=0
+
+
 r = myroutine(1, 2, a3:3){}
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : a RexxBlock
     named count=1
         A3 : 3
+
+
 r = myroutine(1, a2:2, a3:3){}
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : a RexxBlock
     named count=2
         A2 : 2
         A3 : 3
+
+
+r = myroutine( , , 3, ,)
+    positional count=1 size=5
+        3 : 3
+    named count=0
+
+
+r = myroutine( , , 3, , a5:5)
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+r = .myclass~mymethod
+    positional count=0 size=0
+    named count=0
+
+
+r = .myclass~mymethod()
+    positional count=0 size=0
+    named count=0
+
+
 r = .myclass~mymethod(1, 2, 3)
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : 3
     named count=0
+
+
 r = .myclass~mymethod(1, 2, a3:3)
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=1
         A3 : 3
+
+
 r = .myclass~mymethod(1, a2:2, a3:3)
-    positional count=1
+    positional count=1 size=1
         1 : 1
     named count=2
         A2 : 2
         A3 : 3
+
+
+r = .myclass~mymethod(1, a2:(2*5/4)**5, a3:.array~new(3,3))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
 r = .myclass~mymethod(1, 2, 3){}
-    positional count=4
+    positional count=4 size=4
         1 : 1
         2 : 2
         3 : 3
         4 : a RexxBlock
     named count=0
+
+
 r = .myclass~mymethod(1, 2, a3:3){}
-    positional count=3
+    positional count=3 size=3
         1 : 1
         2 : 2
         3 : a RexxBlock
     named count=1
         A3 : 3
+
+
 r = .myclass~mymethod(1, a2:2, a3:3){}
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : a RexxBlock
     named count=2
         A2 : 2
         A3 : 3
+
+
+r = .myclass~mymethod( , , 3, ,)
+    positional count=1 size=5
+        3 : 3
+    named count=0
+
+
+r = .myclass~mymethod( , , 3, , a5:5)
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
 r = .myclass~forwardArray
     forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) continue
-    positional count=3
+    positional count=3 size=3
         1 : 10
         2 : 20
         3 : 30
     named count=2
         A1 : 40
         A2 : 50
+
+
 r = .myclass~forwardNamedArguments
     forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
-    positional count=0
+    positional count=0 size=0
     named count=2
         a1 : 1
         a2 : 2
+
+
 r = .myclass~forwardPositionalNamedArguments
     forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=2
         a1 : 1
         a2 : 2
+
+
 r = .myclass~forwardNamedPositionalArguments
     forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue
-    positional count=2
+    positional count=2 size=2
         1 : 1
         2 : 2
     named count=2
         a1 : 1
         a2 : 2
-{call sayArg .context}~rawExecutable~call()
-    positional count=0
+
+
+r = .myclass~foo
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : The NIL object
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=0 size=0
+        named count=0
+
+
+r = .myclass~foo()
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : The NIL object
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=0 size=0
+        named count=0
+
+
+r = .myclass~foo(1, 2, 3)
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : The NIL object
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=3 size=3
+            1 : 1
+            2 : 2
+            3 : 3
+        named count=0
+
+
+r = .myclass~foo(1, 2, a3:3)
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : a Directory
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=2 size=2
+            1 : 1
+            2 : 2
+        named count=1
+            A3 : 3
+
+
+r = .myclass~foo(1, a2:2, a3:3)
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : a Directory
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=1 size=1
+            1 : 1
+        named count=2
+            A2 : 2
+            A3 : 3
+
+
+r = .myclass~foo(1, a2:(2*5/4)**5, a3:.array~new(3,3))
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : a Directory
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=1 size=1
+            1 : 1
+        named count=2
+            A2 : 97.65625
+            A3 : an Array
+
+
+r = .myclass~foo(1, 2, 3){}
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : The NIL object
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=4 size=4
+            1 : 1
+            2 : 2
+            3 : 3
+            4 : a RexxBlock
+        named count=0
+
+
+r = .myclass~foo(1, 2, a3:3){}
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : a Directory
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=3 size=3
+            1 : 1
+            2 : 2
+            3 : a RexxBlock
+        named count=1
+            A3 : 3
+
+
+r = .myclass~foo(1, a2:2, a3:3){}
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : a Directory
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=2 size=2
+            1 : 1
+            2 : a RexxBlock
+        named count=2
+            A2 : 2
+            A3 : 3
+
+
+r = .myclass~foo( , , 3, ,)
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : The NIL object
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=1 size=5
+            3 : 3
+        named count=0
+
+
+r = .myclass~foo( , , 3, , a5:5)
+    method 'unknown'
+        positional count=2 size=2
+            1 : FOO
+            2 : an Array
+        named count=1
+            NAMEDARGUMENTS : a Directory
+    method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+        positional count=1 size=4
+            3 : 3
+        named count=1
+            A5 : 5
+
+
+{call sayArg .context}~rawExecutable~call
+    positional count=0 size=0
     named count=0
+
+
 {call sayArg .context}~rawExecutable~call{}
-    positional count=1
+    positional count=1 size=1
         1 : a RexxBlock
     named count=0
-{call sayArg .context}~rawExecutable~call(1)
-    positional count=1
+
+
+{call sayArg .context}~rawExecutable~call(1, 2, a3:3)
+    positional count=2 size=2
         1 : 1
-    named count=0
-{call sayArg .context}~rawExecutable~call(a1:1)
-    positional count=0
+        2 : 2
     named count=1
-        A1 : 1
+        A3 : 3
+
+
+{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3)
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
+
+
+{call sayArg .context}~rawExecutable~call(1, a2:(2*5/4)**5, a3:.array~new(3,3))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
+{call sayArg .context}~rawExecutable~call(1, 2, 3){}
+    positional count=4 size=4
+        1 : 1
+        2 : 2
+        3 : 3
+        4 : a RexxBlock
+    named count=0
+
+
+{call sayArg .context}~rawExecutable~call(1, 2, a3:3){}
+    positional count=3 size=3
+        1 : 1
+        2 : 2
+        3 : a RexxBlock
+    named count=1
+        A3 : 3
+
+
+{call sayArg .context}~rawExecutable~call(1, a2:2, a3:3){}
+    positional count=2 size=2
+        1 : 1
+        2 : a RexxBlock
+    named count=2
+        A2 : 2
+        A3 : 3
+
+
+{call sayArg .context}~rawExecutable~call( , , 3, ,)
+    positional count=1 size=5
+        3 : 3
+    named count=0
+
+
+{call sayArg .context}~rawExecutable~call( , , 3, , a5:5)
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+call myprocedure , , 3, , a5:5,
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+call myroutine , , 3, , a5:5,
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
 call myprocedure 1, a2:2, a3:
     [trapped] Named argument: expected expression after colon
     [trapped] Code= 35.900
+
+
 call myprocedure 1, a2:2, 3
     [trapped] Named argument: expected symbol followed by colon
     [trapped] Code= 35.900
+
+
 m = .method~new("", 'forward message "mymethod" namedArguments continue')
     [trapped] Incorrect expression detected at "CONTINUE"
     [trapped] Code= 35.1
+
+
 m = .method~new("", 'forward message "mymethod" namedArguments')
     [trapped] Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction
     [trapped] Code= 35.900
+
+
 m = .method~new("", 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue')
     [trapped] Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
     [trapped] Code= 25.918
+
+
 r = .myclass~forwardNamedArgumentsNotDirectory
     forward message "mymethod" namedArguments ("not a directory") continue
     [trapped] FORWARD namedArguments must be a directory
     [trapped] Code= 98.900
+
+

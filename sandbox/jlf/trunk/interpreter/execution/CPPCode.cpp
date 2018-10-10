@@ -128,18 +128,15 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
             reportException(Error_Incorrect_method_maxarg, this->argumentCount);
         }
 
-        // JLF: I don't understand why this temporary list is needed...
-        // ha, yes: it's to pass NULL for the omitted parameters at the end.
-        // Not needed when count == argumentCount, because here no omitted paramaters.
-
-        // Here, the named arguments passed via argPtr are lost (with current implementation).
+        // JLF: Here, the named arguments passed via argPtr are lost (with current implementation).
         // Will see if something must be done to pass them explicitely.
 
-        // The unknown method is correctly supported, because the arguments are passed in the
-        // 2nd argument which is an array of arguments followed by the named arguments.
-        // RexxObject::processUnknown : put all the positional & named arguments in the same array, passed in 2nd arg
-        //     calls RexxMethod::run : forward the 2 positional args + 0 named arg to the code object
-        //         calls CPPCode::run : call a CPP method by passing only the 2 positional args as C++ parameters
+        // JLF: example with UNKNOWN method
+        // RexxObject::processUnknown : put all the positional arguments in the 2nd arg, put all the named arguments in the named argument NAMEDARGUMENT
+        //     calls RexxMethod::run : forward the 2 positional args + 1 named arg to the code object
+        //         calls CPPCode::run : call a CPP method by passing only the 2 positional args as C++ parameters,
+        //                              EXCEPT if the message is UNKOWN.
+        //                              In this case, pass the value of the named argument "NAMEDARGUMENT" as 3rd C++ parameter.
         //             calls RexxObject::unknownRexx : forward to the virtual function (message, arguments)
         //                 calls RexxInteger::unknown : just reissue to the string value (message, arguments)
         //                     calls RexxObject::sendMessage(RexxString *message, RexxArray *args)
@@ -147,6 +144,10 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         //                         Now we are back to the standard way to pass arguments:
         //                             passing arguments->data(), arguments->size()
         //                             where the named arguments are after the positional arguments.
+
+        // JLF: I don't understand why this temporary list is needed...
+        // ha, yes: it's to pass NULL for the omitted parameters at the end.
+        // Not needed when count == argumentCount, because here no omitted paramaters.
 
         // This is the temporary list of arguments
         RexxObject * argument_list[7];
@@ -160,7 +161,19 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
             argPtr = &argument_list[0];
         }
         // now we make the actual call
-        switch (argumentCount)
+
+        if (count == 2 && messageName == OREF_UNKNOWN)
+        {
+            // See processUnknown
+            // argPtr[0] = message name
+            // argPtr[1] = array of positional arguments
+            // argPtr[2] = 1 (count of named parameters)
+            // argPtr[3] = "NAMEDARGUMENTS"
+            // argPtr[4] = directory of named arguments or OREF_NULL
+            result = (receiver->*((PCPPM3)methodEntry))(argPtr[0], argPtr[1], argPtr[4]);
+        }
+
+        else switch (argumentCount)
         {
           case 0:                        /* zero                              */
             result = (receiver->*((PCPPM0)methodEntry))();

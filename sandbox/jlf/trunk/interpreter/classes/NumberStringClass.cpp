@@ -53,6 +53,7 @@
 #include "NumberStringMath.hpp"
 #include "Numerics.hpp"
 #include "StringUtil.hpp"
+#include "DirectoryClass.hpp"
 
 
 
@@ -2644,13 +2645,29 @@ void RexxNumberString::formatUnsignedInt64(uint64_t integer)
 }
 
 
-RexxObject *RexxNumberString::unknown(RexxString *msgname, RexxArray *arguments)
+RexxObject *RexxNumberString::unknown(RexxString *msgname, RexxArray *arguments, RexxDirectory *namedArguments)
 /******************************************************************************/
 /* Function:  Forward all unknown messages to the numberstring's string       */
 /*            representation                                                  */
 /******************************************************************************/
 {
-    return this->stringValue()->sendMessage(msgname, arguments);
+    // return this->stringValue()->sendMessage(msgname, arguments);
+
+    size_t argumentsCount = arguments ? arguments->size() : 0;
+    size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
+
+    if (argumentsCount + namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject*)OREF_NULL, (size_t)0);
+
+    RexxArray *args = new_array(argumentsCount + 1 + namedArgumentsCount);
+    ProtectedObject p(args);
+    for (size_t i = 1; i <= argumentsCount; i++)
+    {
+        RexxObject *arg = arguments->get(i);
+        args->put(arg, i);
+    }
+    args->append(new_integer(namedArgumentsCount));
+    if (namedArgumentsCount != 0) namedArguments->appendAllIndexesItemsTo(args);
+    return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
 }
 
 

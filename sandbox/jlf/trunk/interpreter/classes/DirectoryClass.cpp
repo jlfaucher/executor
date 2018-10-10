@@ -456,7 +456,8 @@ RexxObject *RexxDirectory::remove(
 
 RexxObject *RexxDirectory::unknown(
   RexxString *msgname,                 /* name of unknown message           */
-  RexxArray  *arguments)               /* arguments to the message          */
+  RexxArray  *arguments,               /* arguments to the message          */
+  RexxDirectory *namedArguments)
 /******************************************************************************/
 /* Function:     This is the REXX version of unknown.  It invokes entry_rexx  */
 /*               instead of entry, to ensure the proper error checking and    */
@@ -482,6 +483,9 @@ RexxObject *RexxDirectory::unknown(
             reportException(Error_Incorrect_method_noarray, IntegerTwo);
         }
         ProtectedObject p(arguments);
+
+        // TODO named arguments: not used?
+
         /* extract the name part of the msg  */
         message_value = (RexxString *)message_value->extractC(0, message_length - 1);
         /* do this as an assignment          */
@@ -595,6 +599,8 @@ RexxObject *RexxDirectory::at(
         /* got an unknown method?            */
         if (this->unknown_method != OREF_NULL)
         {
+            // TODO named arguments: must append the count of named arguments = 0
+
             RexxObject *arg = _index;
             ProtectedObject v;
             /* run it                            */
@@ -816,11 +822,14 @@ RexxDirectory *RexxDirectory::newInstance()
 /**
  * Helper for named arguments.
  * Create a new directory from an array of(index1, item1, index2, item2, ...)
+ * When count = 0, no directory is created, returns OREF_NULL.
  *
  * @return A directory
  */
 RexxDirectory *RexxDirectory::fromIndexItemArray(RexxObject **arglist, size_t count)
 {
+    if (count == 0) return OREF_NULL;
+
     RexxDirectory *directory = new_directory();
     ProtectedObject p(directory);
 
@@ -885,7 +894,7 @@ RexxArray *RexxDirectory::allIndexesItems(void)
  *
  * @return The count of pushed index & item (2 * this->items())
  */
-size_t RexxDirectory::allIndexesItems(RexxExpressionStack *stack)
+size_t RexxDirectory::appendAllIndexesItemsTo(RexxExpressionStack *stack)
 {
     size_t out = 0;
     // we're working directly off of the contents.
@@ -924,7 +933,7 @@ size_t RexxDirectory::allIndexesItems(RexxExpressionStack *stack)
  *
  * @return The count of appended index & item (2 * this->items())
  */
-size_t RexxDirectory::allIndexesItems(RexxArray *array)
+size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
 {
     size_t out = 0;
     // we're working directly off of the contents.

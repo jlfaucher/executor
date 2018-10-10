@@ -74,7 +74,7 @@ class RexxDirectory : public RexxHashTableCollection {
   RexxObject   *removeRexx(RexxString *);
   RexxObject   *setEntry(RexxString *, RexxObject *);
   RexxObject   *setMethod(RexxString *, RexxMethod *);
-  RexxObject   *unknown(RexxString *, RexxArray *);
+  RexxObject   *unknown(RexxString *, RexxArray *, RexxDirectory *);
   RexxSupplier *supplier();
   RexxArray    *allItems();
   RexxArray    *allIndexes();
@@ -92,9 +92,9 @@ class RexxDirectory : public RexxHashTableCollection {
 
   // Helpers for named arguments
   RexxArray *allIndexesItems(void); // return an array containing all of the directory indices & items: index1, item1, index2, item2, ...
-  size_t allIndexesItems(RexxExpressionStack *stack); // Push on the stack all the directory indices & items: index1, item1, index2, item2, ...
-  size_t allIndexesItems(RexxArray *array); // Append to the array all the directory indices & items: index1, item1, index2, item2, ...
-  static RexxDirectory *fromIndexItemArray(RexxObject **arglist, size_t count); // return a directory made from an array of(index1, item1, index2, item2, ...)
+  size_t appendAllIndexesItemsTo(RexxExpressionStack *stack); // Push on the stack all the directory indices & items: index1, item1, index2, item2, ...
+  size_t appendAllIndexesItemsTo(RexxArray *array); // Append to the array all the directory indices & items: index1, item1, index2, item2, ...
+  static RexxDirectory *fromIndexItemArray(RexxObject **arglist, size_t count); // return REF_NULL when count==0, otherwise return a directory made from an array of(index1, item1, index2, item2, ...)
 
   static RexxDirectory *newInstance();
 

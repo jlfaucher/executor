@@ -1221,6 +1221,16 @@ void RexxNativeActivation::run(RexxMethod *_method, RexxNativeMethod *_code, Rex
     argcount = _argcount;
     activationType = METHOD_ACTIVATION;      // this is for running a method
 
+    if (arglist != OREF_NULL)
+    {
+        // Temporary : I have crashes when running live or liveGeneral
+        // because arglist has no named argument count after the positional argumenst.
+        // Get the count of named arguments now, to have a crash now.
+        // TODO: to remove when no more crashes...
+        size_t namedArgcount = 0;
+        arglist[argcount]->unsignedNumberValue(namedArgcount);
+    }
+
     ValueDescriptor arguments[MAX_NATIVE_ARGUMENTS];
 
     MethodContext context;               // the passed out method context
@@ -1331,6 +1341,13 @@ void RexxNativeActivation::callNativeRoutine(RoutineClass *_routine, RexxNativeR
     activationType = FUNCTION_ACTIVATION;      // this is for running a method
     accessCallerContext();                   // we need this to access the caller's context
 
+    // Temporary : I have crashes when running live or liveGeneral
+    // because arglist has no named argument count after the positional argumenst.
+    // Get the count of named arguments now, to have a crash now.
+    // TODO: o remove when no more crashes...
+    size_t namedArgcount = 0;
+    arglist[argcount]->unsignedNumberValue(namedArgcount);
+
     ValueDescriptor arguments[MAX_NATIVE_ARGUMENTS];
 
     CallContext context;               // the passed out method context
@@ -1427,6 +1444,13 @@ void RexxNativeActivation::callRegisteredRoutine(RoutineClass *_routine, Registe
     arglist = list;
     argcount = count;
     accessCallerContext();                   // we need this to access the caller's context
+
+    // Temporary : I have crashes when running live or liveGeneral
+    // because arglist has no named argument count after the positional argumenst.
+    // Get the count of named arguments now, to have a crash now.
+    // TODO: o remove when no more crashes...
+    size_t namedArgcount = 0;
+    arglist[argcount]->unsignedNumberValue(namedArgcount);
 
     activationType = FUNCTION_ACTIVATION;      // this is for running a method
     // use the default security manager

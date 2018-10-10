@@ -1511,7 +1511,10 @@ void RexxMemory::createImage()
           RoutineClass *loader = new RoutineClass(programName);
 
 
-          RexxObject *args = kernel_methods;   // temporary to avoid type-punning warnings
+          // RexxObject *args = kernel_methods;   // temporary to avoid type-punning warnings
+          RexxObject *args[2];
+          args[0] = kernel_methods; // 1 positional argument
+          args[1] = IntegerZero; // 0 named arguments
           ProtectedObject result;
                                                /* now call BaseClasses to finish the image*/
           loader->runProgram(ActivityManager::currentActivity, OREF_PROGRAM, OREF_NULL, (RexxObject **)&args, 1, result);

@@ -271,12 +271,15 @@ RexxObject *RexxContext::getNamedArgs()
 {
     checkValid();
     RexxObject **arglist = activation->getMethodArgumentList();
-    if (arglist == OREF_NULL) return RexxDirectory::fromIndexItemArray(OREF_NULL, 0);
+    if (arglist == OREF_NULL) return new_directory(); // Empty directory
 
     size_t argcount = activation->getMethodArgumentCount();
     size_t namedArgcount = 0;
     arglist[argcount]->unsignedNumberValue(namedArgcount);
 
+    if (namedArgcount == 0) return new_directory(); // Empty directory
+
+    // Now we are sure to have a directory on return (and not OREF_NULL)
     return RexxDirectory::fromIndexItemArray(arglist + argcount + 1, namedArgcount);
 }
 

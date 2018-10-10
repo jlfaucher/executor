@@ -127,7 +127,7 @@ RexxObject *RexxExpressionMessage::evaluate(
         _super = OREF_NULL;                /* use the default lookup            */
     }
 
-    // Postional arguments
+    // Positional arguments
     argcount = this->argumentCount;      /* get the argument count            */
     /* loop through the argument list    */
     for (i = 0; i < (size_t)argcount; i++)

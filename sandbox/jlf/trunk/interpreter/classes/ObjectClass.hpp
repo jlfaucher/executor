@@ -369,7 +369,11 @@ class RexxObject : public RexxInternalObject {
 
      virtual RexxObject  *defMethod(RexxString *, RexxMethod *, RexxString *a = OREF_NULL);
      virtual RexxString  *defaultName();
-     virtual RexxObject  *unknown(RexxString *msg, RexxArray *args){return OREF_NULL;};
+
+     // 2 positional arguments, plus a directory of named arguments
+     // See the explanations for unknownRexx below.
+     virtual RexxObject  *unknown(RexxString *msg, RexxArray *args, RexxDirectory *){return OREF_NULL;};
+
      virtual RexxInteger *hasMethod(RexxString *msg);
              bool         hasUninitMethod();
 
@@ -490,7 +494,12 @@ class RexxObject : public RexxInternalObject {
      RexxObject  *makeArrayRexx();
      RexxString  *defaultNameRexx();
      RexxObject  *copyRexx();
-     RexxObject  *unknownRexx(RexxString *, RexxArray *);
+
+     // In setup.cpp, the methods "UNKOWN" are declared with 2 positional parameters.
+     // CPPCode::run has a special case for the message "UNKNOWN":
+     // Pass 2 positional arguments, plus a directory of named arguments
+     RexxObject  *unknownRexx(RexxString *, RexxArray *, RexxDirectory *);
+
      RexxObject  *hasMethodRexx(RexxString *);
      void *getCSelf();
      void *getCSelf(RexxObject *scope);

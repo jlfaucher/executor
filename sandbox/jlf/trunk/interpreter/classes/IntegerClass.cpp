@@ -52,6 +52,7 @@
 #include "RexxActivity.hpp"
 #include "Numerics.hpp"
 #include "RexxCompoundTail.hpp"
+#include "DirectoryClass.hpp"
 
 
 
@@ -409,14 +410,31 @@ bool RexxInteger::logicalValue(logical_t &result)
 
 RexxObject *RexxInteger::unknown(
     RexxString *msgname,               /* unknown message name              */
-    RexxArray *arguments)              /* arguments to the unknown message  */
+    RexxArray *arguments,              /* arguments to the unknown message  */
+    RexxDirectory *namedArguments)
 /******************************************************************************/
 /* Function:  Intercept unknown messages to an integer object and reissue     */
 /*            them against the string value.                                  */
 /******************************************************************************/
 {
                                        /* just reissue this                 */
-  return this->stringValue()->sendMessage(msgname, arguments);
+    // return this->stringValue()->sendMessage(msgname, arguments);
+
+    size_t argumentsCount = arguments ? arguments->size() : 0;
+    size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
+
+    if (argumentsCount + namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject*)OREF_NULL, (size_t)0);
+
+    RexxArray *args = new_array(argumentsCount + 1 + namedArgumentsCount);
+    ProtectedObject p(args);
+    for (size_t i = 1; i <= argumentsCount; i++)
+    {
+        RexxObject *arg = arguments->get(i);
+        args->put(arg, i);
+    }
+    args->append(new_integer(namedArgumentsCount));
+    if (namedArgumentsCount != 0) namedArguments->appendAllIndexesItemsTo(args);
+    return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
 }
 
 
