@@ -72,6 +72,27 @@ call interpret 'r = .myclass~foo(1, a2:2, a3:3){}'
 call interpret 'r = .myclass~foo( , , 3, ,)'
 call interpret 'r = .myclass~foo( , , 3, , a5:5)'
 
+-- floating method
+myFloatingMethod = .methods["MYFLOATINGMETHOD"]
+call interpret 'r = .myclass~myrun(myFloatingMethod)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I")'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, 2, 3)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, 2, a3:3)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, a2:2, a3:3)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, a2:(2*5/4)**5, a3:.array~new(3,3))'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, 2, 3){}'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, 2, a3:3){}'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", 1, a2:2, a3:3){}'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", , , 3, ,)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "I", , , 3, , a5:5)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", .array~new)'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", (1, 2, 3))'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", (1, 2), "D", .directory~of(a3:3))'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:2, a3:3))'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", ( , , 3, ,))'
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", ( , , 3, ,), "D", .directory~of(a5:5))'
+
 -- Block
 call interpret '{call sayArg .context}~rawExecutable~call'
 call interpret '{call sayArg .context}~rawExecutable~call{}'
@@ -99,11 +120,20 @@ source = 'forward message "mymethod" namedArguments'
 call interpret 'm = .method~new("",' quoted(source)')'          -- Error 35.900:  Missing expression following NAMEDARGUMENTS keyword of a FORWARD instruction
 
 -- Error 25: Invalid subkeyword found
-source = 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue'
+source = 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~of(a1:1, a2:2) continue'
 call interpret 'm = .method~new("",' quoted(source)')'          -- Error 25.918: Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
 
 -- Error 98: Execution error
-call interpret 'r = .myclass~forwardNamedArgumentsNotDirectory' -- Error 98.900: FORWARD namedArguments must be a directory
+call interpret 'r = .myclass~forwardNamedArgumentsNotDirectory' -- Error 98.900: FORWARD namedArguments must be a directory or NIL
+
+-- Error 93.938: Method argument 4 must have a string value
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", (1, 2, 3)){}'
+
+-- Error 93.902: Too many arguments in invocation of method; 5 expected
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", (1, 2), "D", .directory~of(a3:3)){}'
+
+-- Error 93.902: Too many arguments in invocation of method; 5 expected
+call interpret 'r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:2, a3:3)){}'
 
 return
 
@@ -134,6 +164,12 @@ interpret:
 
 --------------------------------------------------------------------------------
 
+::method myFloatingMethod
+    call sayArg .context
+    return ""
+
+--------------------------------------------------------------------------------
+
 ::class myclass
 ::method mymethod class
     call sayArg .context
@@ -147,8 +183,8 @@ interpret:
 
 ::method forwardNamedArguments class
     call indent
-    say 'forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue'
-         forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+    say 'forward message "mymethod" namedArguments (.directory~of(a1:1, a2:2)) continue'
+         forward message "mymethod" namedArguments (.directory~of(a1:1, a2:2)) continue
     return ""
 
 ::method forwardNamedArgumentsNotDirectory class
@@ -159,15 +195,19 @@ interpret:
 
 ::method forwardPositionalNamedArguments class
     call indent
-    say 'forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue'
-         forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+    say 'forward message "mymethod" arguments ((1,2)) namedArguments (.directory~of(a1:1, a2:2)) continue'
+         forward message "mymethod" arguments ((1,2)) namedArguments (.directory~of(a1:1, a2:2)) continue
     return ""
 
 ::method forwardNamedPositionalArguments class
     call indent
-    say 'forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue'
-         forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue
+    say 'forward message "mymethod" namedArguments (.directory~of(a1:1, a2:2)) arguments ((1,2)) continue'
+         forward message "mymethod" namedArguments (.directory~of(a1:1, a2:2)) arguments ((1,2)) continue
     return ""
+
+::method myrun class
+    -- 'run' is a private method, must be called from another method of myclass, hence 'myrun'
+    forward message ("run")
 
 ::method unknown class
     use arg name, arguments
@@ -197,13 +237,11 @@ interpret:
 ::routine quoted
     return "'"arg(1)"'"
 
-
 ::routine indent
     use strict arg level=1
     do level
         call charout , "    "
     end
-
 
 ::routine sayArg
     use strict arg context, indentLevel=0
@@ -211,7 +249,6 @@ interpret:
     namedArgs = context~namedArgs
     call sayCollection "positional", positionalArgs, indentLevel
     call sayCollection "named", namedArgs, indentLevel
-
 
 ::routine sayCollection
     use strict arg kind, collection, indentLevel=0
@@ -229,7 +266,6 @@ interpret:
         supplier~next
     end
 
-
 ::routine sayCondition
     use strict arg condition
     if condition~condition <> "SYNTAX" then call sayTrapped condition~condition
@@ -239,8 +275,16 @@ interpret:
     else if condition~errortext <> .nil then call sayTrapped condition~errortext
     if condition~code <> .nil then call sayTrapped "Code=" condition~code
 
-
 ::routine sayTrapped
     use strict arg value
     call indent
     say "[trapped]" value
+
+--------------------------------------------------------------------------------
+
+-- .directory~of(a1:1, a2,2)
+-- Next step : Modify the parser to support directly a directory literal (a1:1, a2:2)
+::extension Directory
+::method of class
+    use strict arg -- no positional argument
+    return .context~namedArgs

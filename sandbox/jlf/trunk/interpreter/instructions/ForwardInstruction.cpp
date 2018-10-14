@@ -289,14 +289,14 @@ void RexxInstructionForward::execute(
             else
             {
                 /* get a directory version           */
-                RexxDirectory *argDirectory = (RexxDirectory *)(isOfClass(Directory, temp) ? temp : temp->sendMessage(OREF_REQUEST, OREF_DIRECTORY));
+                RexxDirectory *argDirectory = temp->requestDirectory();
                 p_argDirectory = argDirectory; // GC protect without using the stack
                 stack->toss(); // pop the temp directory, the indexes-items of argDirectory will be pushed.
 
                 /* not a directory item ? */
                 if (argDirectory == TheNilObject)
                 {
-                    reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory");
+                    reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory or NIL");
                 }
                 // Push each index, item on the stack
                 // namedCount = argDirectory->appendAllIndexesItemsTo(stack);

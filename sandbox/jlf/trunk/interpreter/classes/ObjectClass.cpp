@@ -1505,6 +1505,15 @@ RexxArray *RexxObject::requestArray()
   }
 }
 
+RexxDirectory *RexxObject::requestDirectory()
+/******************************************************************************/
+/* Function:  Request a directory value from an object.                          */
+/******************************************************************************/
+{
+    if (this->isBaseClass() && isOfClass(Directory, this)) return (RexxDirectory *)this;
+    return (RexxDirectory *)this->sendMessage(OREF_REQUEST, OREF_DIRECTORY);
+}
+
 RexxString *RexxObject::objectName()
 /******************************************************************************/
 /* Function:  Retrieve the object name for a primitive object                 */
@@ -1941,8 +1950,14 @@ RexxObject  *RexxObject::run(
 /****************************************************************************/
 {
     RexxArray  *arglist = OREF_NULL;     /* forwarded option string           */
+    RexxDirectory *argdirectory = OREF_NULL;
     RexxObject **argumentPtr = NULL;     /* default to no arguments passed along */
     size_t argcount = 0;
+    size_t named_argcount = 0;
+
+    ProtectedObject p_arglist;
+    ProtectedObject p_argdirectory;
+    ProtectedObject p_args;
 
     /* get the method object             */
     RexxMethod *methobj = (RexxMethod *)arguments[0];
@@ -1964,7 +1979,7 @@ RexxObject  *RexxObject::run(
     ProtectedObject p(methobj);
 
     /*
-        TODO named arguments
+        Named arguments
         >>-run(method-+---------------------------------------------+-)--><
                       +-,Individual---| Arguments |-----------------+
                       +--+-----------------+--+---------------------+
@@ -1982,38 +1997,101 @@ RexxObject  *RexxObject::run(
         {
             case 'A':                        /* args are an array                 */
                 {
-                    // TODO named arguments
-                    // arguments[2] or arguments[5] is an array
-
                     /* so they say, make sure we have an */
                     /* array and we were only passed 3   */
-                    /*args                               */
+                    /* or 5 args                         */
                     if (argCount < 3)              /* not enough arguments?             */
                     {
                         missingArgument(ARG_THREE); /* this is an error                  */
                     }
-                    if (argCount > 3)              /* too many arguments?               */
+                    if (argCount > 3)
                     {
-                        reportException(Error_Incorrect_method_maxarg, IntegerThree);
+                        option = (RexxString *)arguments[3];
+                        option = stringArgument(option, ARG_FOUR);
+                        if (toupper(option->getCharC(0)) != 'D') reportException(Error_Incorrect_method_option, "D", option);
+                        if (argCount > 5) reportException(Error_Incorrect_method_maxarg, IntegerFive);
+                        // now get the directory
+                        argdirectory = (RexxDirectory *)arguments[4];
+                        if (argdirectory == TheNilObject) named_argcount = 0; // Allow NIL (same as forward)
+                        else
+                        {
+                            argdirectory = argdirectory->requestDirectory();
+                            p_argdirectory = argdirectory;
+                            if (argdirectory == TheNilObject)
+                            {
+                                reportException(Error_Execution_user_defined , "Directory must be a directory or NIL");
+                            }
+                            named_argcount = 2 * argdirectory->items();
+                        }
                     }
                     /* now get the array                 */
                     arglist = (RexxArray *)arguments[2];
                     /* force to array form               */
                     arglist = REQUEST_ARRAY(arglist);
+                    p_arglist = arglist;
                     /* not an array?                     */
                     if (arglist == TheNilObject || arglist->getDimension() != 1)
                     {
                         /* raise an error                    */
                         reportException(Error_Incorrect_method_noarray, arguments[2]);
                     }
+
                     /* grab the argument information */
-                    argumentPtr = arglist->data();
+                    // argumentPtr = arglist->data();
                     argcount = arglist->size();
+
+                    if (argcount == 0 &&  named_argcount == 0)
+                    {
+                        // Optimization: no need to allocate an intermediary array
+                        argumentPtr = OREF_NULL;
+                    }
+                    else
+                    {
+                        RexxArray *args = new_array(argcount + 1 + named_argcount);
+                        p_args = args;
+                        for (size_t i = 1; i <= argcount; i++)
+                        {
+                            RexxObject *arg = arglist->get(i);
+                            args->put(arg, i);
+                        }
+                        args->append(new_integer(named_argcount));
+                        if (named_argcount != 0) argdirectory->appendAllIndexesItemsTo(args);
+                        argumentPtr = args->data();
+                    }
                     break;
                 }
 
-            // TODO named arguments:
-            // add case 'D' similar to 'A', where arguments[2] or arguments[5] is a directory
+            case 'D':
+                {
+                    if (argCount < 3) missingArgument(ARG_THREE);
+                    if (argCount > 3) reportException(Error_Incorrect_method_maxarg, IntegerThree);
+                    argcount = 0;
+                    argdirectory = (RexxDirectory *)arguments[2];
+                    if (argdirectory == TheNilObject) named_argcount = 0; // Allow NIL (same as forward)
+                    else
+                    {
+                        argdirectory = argdirectory->requestDirectory();
+                        p_argdirectory = argdirectory;
+                        if (argdirectory == TheNilObject)
+                        {
+                            reportException(Error_Execution_user_defined , "Directory must be a directory or NIL");
+                        }
+                        named_argcount = 2 * argdirectory->items();
+                    }
+                    if (named_argcount == 0)
+                    {
+                        // Optimization: no need to allocate an intermediary array
+                        argumentPtr = OREF_NULL;
+                    }
+                    else
+                    {
+                        RexxArray *args = new_array(1 + named_argcount);
+                        p_args = args;
+                        args->append(new_integer(named_argcount));
+                        if (named_argcount != 0) argdirectory->appendAllIndexesItemsTo(args);
+                        argumentPtr = args->data();
+                    }
+                }
 
             case 'I':                        /* args are "strung out"             */
                 /* point to the array data for the second value */
@@ -2023,11 +2101,11 @@ RexxObject  *RexxObject::run(
 
             default:
                 /* invalid option                    */
-                reportException(Error_Incorrect_method_option, "AI", option);
+                reportException(Error_Incorrect_method_option, "ADI", option);
                 break;
         }
     }
-    ProtectedObject p1(arglist); // argumentPtr may refer to arglist...keep it safe
+    // ProtectedObject p1(arglist); // argumentPtr may refer to arglist...keep it safe
     ProtectedObject result;
     /* now just run the method....       */
     methobj->run(ActivityManager::currentActivity, this, OREF_NONE, argumentPtr, argcount, result);

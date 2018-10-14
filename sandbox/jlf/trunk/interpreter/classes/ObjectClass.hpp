@@ -404,6 +404,7 @@ class RexxObject : public RexxInternalObject {
      bool         requestNumber(wholenumber_t &, size_t);
      bool         requestUnsignedNumber(stringsize_t &, size_t);
      RexxArray   *requestArray();
+     RexxDirectory *requestDirectory();
      RexxString  *requiredString(size_t);
      RexxString  *requiredString(const char *);
      RexxString  *requiredString();

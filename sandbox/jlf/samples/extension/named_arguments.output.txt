@@ -346,31 +346,31 @@ r = .myclass~forwardArray
 
 
 r = .myclass~forwardNamedArguments
-    forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+    forward message "mymethod" namedArguments (.directory~of(a1:1, a2:2)) continue
     positional count=0 size=0
     named count=2
-        a1 : 1
-        a2 : 2
+        A1 : 1
+        A2 : 2
 
 
 r = .myclass~forwardPositionalNamedArguments
-    forward message "mymethod" arguments ((1,2)) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue
+    forward message "mymethod" arguments ((1,2)) namedArguments (.directory~of(a1:1, a2:2)) continue
     positional count=2 size=2
         1 : 1
         2 : 2
     named count=2
-        a1 : 1
-        a2 : 2
+        A1 : 1
+        A2 : 2
 
 
 r = .myclass~forwardNamedPositionalArguments
-    forward message "mymethod" namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) arguments ((1,2)) continue
+    forward message "mymethod" namedArguments (.directory~of(a1:1, a2:2)) arguments ((1,2)) continue
     positional count=2 size=2
         1 : 1
         2 : 2
     named count=2
-        a1 : 1
-        a2 : 2
+        A1 : 1
+        A2 : 2
 
 
 r = .myclass~foo
@@ -532,6 +532,138 @@ r = .myclass~foo( , , 3, , a5:5)
             A5 : 5
 
 
+r = .myclass~myrun(myFloatingMethod)
+    positional count=0 size=0
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "I")
+    positional count=0 size=0
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, 2, 3)
+    positional count=3 size=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, 2, a3:3)
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, a2:2, a3:3)
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, a2:(2*5/4)**5, a3:.array~new(3,3))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, 2, 3){}
+    positional count=4 size=4
+        1 : 1
+        2 : 2
+        3 : 3
+        4 : a RexxBlock
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, 2, a3:3){}
+    positional count=3 size=3
+        1 : 1
+        2 : 2
+        3 : a RexxBlock
+    named count=1
+        A3 : 3
+
+
+r = .myclass~myrun(myFloatingMethod, "I", 1, a2:2, a3:3){}
+    positional count=2 size=2
+        1 : 1
+        2 : a RexxBlock
+    named count=2
+        A2 : 2
+        A3 : 3
+
+
+r = .myclass~myrun(myFloatingMethod, "I", , , 3, ,)
+    positional count=1 size=5
+        3 : 3
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "I", , , 3, , a5:5)
+    positional count=1 size=4
+        3 : 3
+    named count=1
+        A5 : 5
+
+
+r = .myclass~myrun(myFloatingMethod, "A", .array~new)
+    positional count=0 size=0
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "A", (1, 2, 3))
+    positional count=3 size=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "A", (1, 2), "D", .directory~of(a3:3))
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=1
+        A3 : 3
+
+
+r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:2, a3:3))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 2
+        A3 : 3
+
+
+r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))
+    positional count=1 size=1
+        1 : 1
+    named count=2
+        A2 : 97.65625
+        A3 : an Array
+
+
+r = .myclass~myrun(myFloatingMethod, "A", ( , , 3, ,))
+    positional count=1 size=5
+        3 : 3
+    named count=0
+
+
+r = .myclass~myrun(myFloatingMethod, "A", ( , , 3, ,), "D", .directory~of(a5:5))
+    positional count=1 size=5
+        3 : 3
+    named count=1
+        A5 : 5
+
+
 {call sayArg .context}~rawExecutable~call
     positional count=0 size=0
     named count=0
@@ -641,14 +773,29 @@ m = .method~new("", 'forward message "mymethod" namedArguments')
     [trapped] Code= 35.900
 
 
-m = .method~new("", 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~new~~put(1,"a1")~~put(2,"a2")) continue')
+m = .method~new("", 'forward message "mymethod" array ( 10, 20, 30, a1:40, a2:50 ) namedArguments (.directory~of(a1:1, a2:2) continue')
     [trapped] Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
     [trapped] Code= 25.918
 
 
 r = .myclass~forwardNamedArgumentsNotDirectory
     forward message "mymethod" namedArguments ("not a directory") continue
-    [trapped] FORWARD namedArguments must be a directory
+    [trapped] FORWARD namedArguments must be a directory or NIL
     [trapped] Code= 98.900
+
+
+r = .myclass~myrun(myFloatingMethod, "A", (1, 2, 3)){}
+    [trapped] Method argument 4 must have a string value
+    [trapped] Code= 93.938
+
+
+r = .myclass~myrun(myFloatingMethod, "A", (1, 2), "D", .directory~of(a3:3)){}
+    [trapped] Too many arguments in invocation of method; 5 expected
+    [trapped] Code= 93.902
+
+
+r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:2, a3:3)){}
+    [trapped] Too many arguments in invocation of method; 5 expected
+    [trapped] Code= 93.902
 
 
