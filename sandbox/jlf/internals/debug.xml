@@ -130,3 +130,12 @@ __asm __emit 0xCD; __asm __emit 0×03;]]></programlisting>
     </section>
   </section>
 </chapter>
+
+
+TODO : add this text
+From Rony
+While working on Linux and using gdb for debugging, there were constantly SIGSEGV errors that gdb reported and stopped execution.
+
+Researching this problem on the net it turns out that Java may refer to inaccessible memory addresses which it will handle when SIGSEGV occur. In the case of running it under gdb such exceptions are intercepted by gdb. In order to let Java handle the SIGSEGV exceptions one needs to add the following line before starting the program that uses Java:
+
+handle SIGSEGV nostop noprint pas
