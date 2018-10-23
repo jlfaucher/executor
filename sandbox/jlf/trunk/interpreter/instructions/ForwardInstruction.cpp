@@ -306,8 +306,8 @@ void RexxInstructionForward::execute(
 
         else if (this->namedArgumentsArray != OREF_NULL)      /* have an array of named arguments?      */
         {
-            namedCount = this->namedArgumentsArray->size();       /* get the name,expression count          */
-            for (i = 1; i <= namedCount; i+=2)     /* loop through the name,expression list  */
+            namedCount = this->namedArgumentsArray->size() / 2;       /* get the count of pairs(name,expression) */
+            for (i = 1; i <= (2 * namedCount); i+=2)     /* loop through the name,expression list  */
             {
                 RexxString *argName = (RexxString *)this->namedArgumentsArray->get(i);
                 // stack->push(argName);
@@ -324,7 +324,7 @@ void RexxInstructionForward::execute(
             RexxObject **arglist = context->getMethodArgumentList();
             size_t argcount = context->getMethodArgumentCount();
             if (arglist != OREF_NULL) arglist[argcount]->unsignedNumberValue(namedCount);
-            for (i = 1 + argcount; i < argcount + 1 + namedCount; i += 2)
+            for (i = argcount + 1; i < argcount + 1 + (2 * namedCount); i += 2)
             {
                 RexxString *argName = (RexxString *)arglist[i];
                 // stack->push(argName);
@@ -340,7 +340,7 @@ void RexxInstructionForward::execute(
         // *namedCountPtr = new_integer(namedCount);
         newArguments->put(new_integer(namedCount), namedCountIndex);
 
-        // _arguments = stack->arguments(count + 1 + namedCount);
+        // _arguments = stack->arguments(count + 1 + (2 * namedCount));
         _arguments = newArguments->data();
     }
 

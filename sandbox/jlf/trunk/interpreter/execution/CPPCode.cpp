@@ -65,12 +65,14 @@ void *CPPCode::operator new(size_t size)
  * @param index    The index of the method used to restore unflattened internal method.
  * @param entry    The entry point address.
  * @param argcount The number of arguments this method expects.
+ * @param named_argcount The number of named arguments this method expects.
  */
-CPPCode::CPPCode(size_t index, PCPPM entry, size_t argcount)
+CPPCode::CPPCode(size_t index, PCPPM entry, size_t argcount, size_t named_argcount)
 {
     methodIndex = (uint16_t)index;
     cppEntry = entry;
     argumentCount = (uint16_t)argcount;
+    named_argumentCount = (uint16_t)named_argcount;
 }
 
 
@@ -125,18 +127,25 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
     {
         if (count > argumentCount)
         {
-            reportException(Error_Incorrect_method_maxarg, this->argumentCount);
+            reportException(Error_Incorrect_method_maxarg, "positional", this->argumentCount);
         }
 
-        // JLF: Here, the named arguments passed via argPtr are lost (with current implementation).
-        // Will see if something must be done to pass them explicitely.
+        // Remember: get named_count NOW, before building argument_list
+        // because argPtr may refer to argument_list where ALL the arguments after named_count are NULLified.
+        size_t named_count = 0;
+        if (argPtr != OREF_NULL) argPtr[count]->unsignedNumberValue(named_count);
+        RexxObject **named_argPtr = argPtr + count + 1;
+
+        // -1 means "ignore the name arguments"
+        if (named_argumentCount != (uint16_t)-1 && named_count > named_argumentCount)
+        {
+            reportException(Error_Incorrect_method_maxarg, "named", this->named_argumentCount);
+        }
 
         // JLF: example with UNKNOWN method
         // RexxObject::processUnknown : put all the positional arguments in the 2nd arg, put all the named arguments in the named argument NAMEDARGUMENT
         //     calls RexxMethod::run : forward the 2 positional args + 1 named arg to the code object
-        //         calls CPPCode::run : call a CPP method by passing only the 2 positional args as C++ parameters,
-        //                              EXCEPT if the message is UNKOWN.
-        //                              In this case, pass the value of the named argument "NAMEDARGUMENT" as 3rd C++ parameter.
+        //         calls CPPCode::run : call a CPP method by passing the positional & named args as C++ parameters,
         //             calls RexxObject::unknownRexx : forward to the virtual function (message, arguments)
         //                 calls RexxInteger::unknown : just reissue to the string value (message, arguments)
         //                     calls RexxObject::sendMessage(RexxString *message, RexxArray *args)
@@ -149,7 +158,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         // ha, yes: it's to pass NULL for the omitted parameters at the end.
         // Not needed when count == argumentCount, because here no omitted paramaters.
 
-        // This is the temporary list of arguments
+        // This is the temporary list of positional arguments
         RexxObject * argument_list[7];
         if (count < argumentCount)              /* need to pad these out?            */
         {
@@ -160,8 +169,27 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
             // now switch the argument pointer to the temporary
             argPtr = &argument_list[0];
         }
+
+        // This is the temporary list of named arguments
+        const size_t NAMED_ARGUMENT_MAX = 2; // 2 named arguments supported
+        RexxObject * named_argument_list[2 * NAMED_ARGUMENT_MAX]; // 2 items per named argument: name, value
+        if (named_argumentCount != (uint16_t)-1 && named_count < named_argumentCount)
+        {
+            // null out the argument list
+            memset(named_argument_list, 0, sizeof(named_argument_list));
+            // and copy over the provided argument pointers
+            memcpy(named_argument_list, named_argPtr, 2 * named_count * sizeof(RexxObject *));
+            // now switch the argument pointer to the temporary
+            named_argPtr = &named_argument_list[0];
+        }
+
+        // Helper macros for named arguments
+        #define NAMED_ARG_NAME(n)  named_argPtr[(2 * n) + 0]
+        #define NAMED_ARG_VALUE(n) named_argPtr[(2 * n) + 1]
+
         // now we make the actual call
 
+        /*
         if (count == 2 && messageName == OREF_UNKNOWN)
         {
             // See processUnknown
@@ -172,43 +200,139 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
             // argPtr[4] = directory of named arguments or OREF_NULL
             result = (receiver->*((PCPPM3)methodEntry))(argPtr[0], argPtr[1], argPtr[4]);
         }
+        else
+        */
 
-        else switch (argumentCount)
+        if (named_argumentCount == (uint16_t)-1 // if no need to pass named arguments
+            || named_argumentCount == 0)        // or if no named argument expected
         {
-          case 0:                        /* zero                              */
-            result = (receiver->*((PCPPM0)methodEntry))();
-            break;
+            switch (argumentCount)
+            {
+              case 0:                        /* zero                              */
+                result = (receiver->*((PCPPM0)methodEntry))();
+                break;
 
-          case 1:
-            result = (receiver->*((PCPPM1)methodEntry))(argPtr[0]);
-            break;
+              case 1:
+                result = (receiver->*((PCPPM1)methodEntry))(argPtr[0]);
+                break;
 
-          case 2:
-            result = (receiver->*((PCPPM2)methodEntry))(argPtr[0], argPtr[1]);
-            break;
+              case 2:
+                result = (receiver->*((PCPPM2)methodEntry))(argPtr[0], argPtr[1]);
+                break;
 
-          case 3:
-            result = (receiver->*((PCPPM3)methodEntry))(argPtr[0], argPtr[1], argPtr[2]);
-            break;
+              case 3:
+                result = (receiver->*((PCPPM3)methodEntry))(argPtr[0], argPtr[1], argPtr[2]);
+                break;
 
-          case 4:
-            result = (receiver->*((PCPPM4)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3]);
-            break;
+              case 4:
+                result = (receiver->*((PCPPM4)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3]);
+                break;
 
-          case 5:
-            result = (receiver->*((PCPPM5)methodEntry))(argPtr[0], argPtr[1], argPtr[2],
-                argPtr[3], argPtr[4]);
-            break;
+              case 5:
+                result = (receiver->*((PCPPM5)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3], argPtr[4]);
+                break;
 
-          case 6:
-            result = (receiver->*((PCPPM6)methodEntry))(argPtr[0], argPtr[1], argPtr[2],
-                argPtr[3], argPtr[4], argPtr[5]);
-            break;
+              case 6:
+                result = (receiver->*((PCPPM6)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3], argPtr[4], argPtr[5]);
+                break;
 
-          case 7:
-            result = (receiver->*((PCPPM7)methodEntry))(argPtr[0], argPtr[1], argPtr[2],
-                argPtr[3], argPtr[4], argPtr[5], argPtr[6]);
-            break;
+              case 7:
+                result = (receiver->*((PCPPM7)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3], argPtr[4], argPtr[5], argPtr[6]);
+                break;
+            }
+        }
+        else
+        if (named_argumentCount == 1)
+        {
+            switch (argumentCount)
+            {
+              case 0:                        /* zero                              */
+                result = (receiver->*((PCPPM2)methodEntry))(NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0));
+                break;
+
+              case 1:
+                result = (receiver->*((PCPPM3)methodEntry))(argPtr[0],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0));
+                break;
+
+              case 2:
+                result = (receiver->*((PCPPM4)methodEntry))(argPtr[0], argPtr[1],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0));
+                break;
+
+              case 3:
+                result = (receiver->*((PCPPM5)methodEntry))(argPtr[0], argPtr[1], argPtr[2],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0));
+                break;
+
+              case 4:
+                result = (receiver->*((PCPPM6)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0));
+                break;
+
+              case 5:
+                result = (receiver->*((PCPPM7)methodEntry))(argPtr[0], argPtr[1], argPtr[2], argPtr[3], argPtr[4],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0));
+                break;
+
+              case 6:
+                reportException(Error_Interpretation_user_defined, "A native method with 6 positional arguments doesn't support a named argument");
+                break;
+
+              case 7:
+                reportException(Error_Interpretation_user_defined, "A native method with 7 positional arguments doesn't support a named argument");
+                break;
+            }
+        }
+        else
+        if (named_argumentCount == 2)
+        {
+            switch (argumentCount)
+            {
+              case 0:                        /* zero                              */
+                result = (receiver->*((PCPPM4)methodEntry))(NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0),
+                                                            NAMED_ARG_NAME(1), NAMED_ARG_VALUE(1));
+                break;
+
+              case 1:
+                result = (receiver->*((PCPPM5)methodEntry))(argPtr[0],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0),
+                                                            NAMED_ARG_NAME(1), NAMED_ARG_VALUE(1));
+                break;
+
+              case 2:
+                result = (receiver->*((PCPPM6)methodEntry))(argPtr[0], argPtr[1],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0),
+                                                            NAMED_ARG_NAME(1), NAMED_ARG_VALUE(1));
+                break;
+
+              case 3:
+                result = (receiver->*((PCPPM7)methodEntry))(argPtr[0], argPtr[1], argPtr[2],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0),
+                                                            NAMED_ARG_NAME(1), NAMED_ARG_VALUE(1));
+                break;
+
+              case 4:
+                reportException(Error_Interpretation_user_defined, "A native method with 4 positional arguments supports only 1 named argument");
+                break;
+
+              case 5:
+                reportException(Error_Interpretation_user_defined, "A native method with 5 positional arguments supports only 1 named argument");
+                break;
+
+              case 6:
+                reportException(Error_Interpretation_user_defined, "A native method with 6 positional arguments doesn't support a named argument");
+                break;
+
+              case 7:
+                reportException(Error_Interpretation_user_defined, "A native method with 7 positional arguments doesn't support a named argument");
+                break;
+            }
+        }
+        else
+        {
+            // Should not happen...
+            reportException(Error_Interpretation_user_defined, "A native method supports up to 2 named arguments");
         }
     }
 }
@@ -274,7 +398,7 @@ void AttributeGetterCode::run(RexxActivity *activity, RexxMethod *method, RexxOb
     // validate the number of arguments
     if (count > 0)
     {
-        reportException(Error_Incorrect_method_maxarg, (wholenumber_t)0);
+        reportException(Error_Incorrect_method_maxarg, "positional", (wholenumber_t)0);
     }
     // this is simplier if the method is not guarded
     if (!method->isGuarded())
@@ -324,7 +448,7 @@ void AttributeSetterCode::run(RexxActivity *activity, RexxMethod *method, RexxOb
     // validate the number of arguments
     if (count > 1)
     {
-        reportException(Error_Incorrect_method_maxarg, 1);
+        reportException(Error_Incorrect_method_maxarg, "positional", 1);
     }
 
     if (count == 0 || *argPtr == OREF_NULL)
@@ -410,7 +534,7 @@ void ConstantGetterCode::run(RexxActivity *activity, RexxMethod *method, RexxObj
     // validate the number of arguments
     if (count > 0)
     {
-        reportException(Error_Incorrect_method_maxarg, (wholenumber_t)0);
+        reportException(Error_Incorrect_method_maxarg, "positional", (wholenumber_t)0);
     }
     result = constantValue;
 }
@@ -1078,14 +1202,14 @@ NULL                                   /* final terminating method          */
  *
  * @return A CPPCode object for the wrappered method.
  */
-CPPCode *CPPCode::resolveExportedMethod(const char *name, PCPPM targetMethod, size_t argumentCount)
+CPPCode *CPPCode::resolveExportedMethod(const char *name, PCPPM targetMethod, size_t argumentCount, size_t named_argumentCount)
 {
     for (size_t i = 0; exportedMethods[i] != NULL; i++)
     {
         // found the one we need?  Wrap a CPPCode object around it
         if (exportedMethods[i] == targetMethod)
         {
-            return new CPPCode(i, targetMethod, argumentCount);
+            return new CPPCode(i, targetMethod, argumentCount, named_argumentCount);
         }
     }
 

@@ -68,8 +68,8 @@ class RexxInstructionMessage : public RexxInstruction {
   size_t      argumentCount;           // number of positional arguments
   size_t      namedArgumentCount;      // number of named arguments
 
-  // positional arguments (1 entry per arg: expression) : from 0 to argumentCount
-  // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + namedArgumentCount
+  // positional arguments (1 entry per arg: expression) : from 0 to argumentCount-1
+  // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + (2 * namedArgumentCount)-1
   RexxObject *arguments[1];            /* list of argument subexpressions   */
 };
 #endif

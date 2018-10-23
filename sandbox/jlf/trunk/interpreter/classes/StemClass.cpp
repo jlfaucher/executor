@@ -185,7 +185,8 @@ RexxObject *RexxStem::getStemValue()
 RexxObject *RexxStem::unknown(
     RexxString *msgname,               /* unknown message name              */
     RexxArray  *arguments,             /* message arguments                 */
-    RexxDirectory *namedArguments)
+    RexxString *_name1,                // name of 1st named argument
+    RexxDirectory *namedArguments)     // value of 1st named argument
 /******************************************************************************/
 /* Function:  Forward an unknown message to the value of the stem.            */
 /******************************************************************************/

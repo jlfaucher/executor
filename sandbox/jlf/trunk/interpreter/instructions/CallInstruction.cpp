@@ -58,7 +58,7 @@ RexxInstructionCall::RexxInstructionCall(
     RexxString *_condition,            /* CALL ON/OFF condition             */
     size_t      argCount,              /* count of positional arguments     */
     RexxQueue  *argList,               /* call positional arguments         */
-    size_t      namedArgCount,         /* 2 * number of named arguments      */
+    size_t      namedArgCount,         /* count of named arguments          */
     RexxQueue  *namedArgList,          /* call named arguments              */
     size_t      flags,                 /* CALL flags                        */
     size_t      builtin_index)         /* builtin routine index             */
@@ -81,10 +81,12 @@ RexxInstructionCall::RexxInstructionCall(
 
   // The named arguments are stored after the positional arguments
   // Each named argument has 2 entries : name, expression
-  // namedArgumentCount = 2 * the number of named arguments
+  // namedArgumentCount = the number of named arguments
   namedArgumentCount = (uint16_t)namedArgCount;
   while (namedArgCount > 0) {
-    OrefSet(this, this->arguments[--namedArgCount + argumentCount], namedArgList->pop());
+    --namedArgCount;
+    OrefSet(this, this->arguments[argumentCount + (2 * namedArgCount) + 1], namedArgList->pop()); // expression
+    OrefSet(this, this->arguments[argumentCount + (2 * namedArgCount) + 0], namedArgList->pop()); // name
   }
 }
 
@@ -100,7 +102,7 @@ void RexxInstructionCall::live(size_t liveMark)
   memory_mark(this->name);
   memory_mark(this->target);
   memory_mark(this->condition);
-  for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
+  for (i = 0, count = argumentCount + (2 * namedArgumentCount); i < count; i++)
   {
       memory_mark(this->arguments[i]);
   }
@@ -119,7 +121,7 @@ void RexxInstructionCall::liveGeneral(int reason)
   memory_mark_general(this->name);
   memory_mark_general(this->target);
   memory_mark_general(this->condition);
-  for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
+  for (i = 0, count = argumentCount + (2 * namedArgumentCount); i < count; i++)
   {
       memory_mark_general(this->arguments[i]);
   }
@@ -139,7 +141,7 @@ void RexxInstructionCall::flatten(RexxEnvelope *envelope)
   flatten_reference(newThis->name, envelope);
   flatten_reference(newThis->target, envelope);
   flatten_reference(newThis->condition, envelope);
-  for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
+  for (i = 0, count = argumentCount + (2 * namedArgumentCount); i < count; i++)
     flatten_reference(newThis->arguments[i], envelope);
 
   cleanUpFlatten
@@ -270,7 +272,7 @@ void RexxInstructionCall::execute(
 
         // Named arguments
         stack->push(new_integer(namedArgumentCount));
-        for (size_t i = argumentCount; i < argumentCount + namedArgumentCount; i+=2)
+        for (size_t i = argumentCount; i < argumentCount + (2 * namedArgumentCount); i+=2)
         {
             // Argument name: string literal
             RexxObject *name = this->arguments[i];
@@ -283,7 +285,7 @@ void RexxInstructionCall::execute(
         }
 
         // More easy to work with an array of arguments (address of the first argument) than a stack of arguments (address of the last argument).
-        RexxObject **_arguments = stack->arguments(argumentCount + 1 + namedArgumentCount);
+        RexxObject **_arguments = stack->arguments(argumentCount + 1 + (2 * namedArgumentCount));
 
         switch (type)                    /* process various call types        */
         {

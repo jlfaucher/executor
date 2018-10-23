@@ -370,9 +370,9 @@ class RexxObject : public RexxInternalObject {
      virtual RexxObject  *defMethod(RexxString *, RexxMethod *, RexxString *a = OREF_NULL);
      virtual RexxString  *defaultName();
 
-     // 2 positional arguments, plus a directory of named arguments
+     // 2 positional arguments, plus one named argument: directory of named arguments
      // See the explanations for unknownRexx below.
-     virtual RexxObject  *unknown(RexxString *msg, RexxArray *args, RexxDirectory *){return OREF_NULL;};
+     virtual RexxObject  *unknown(RexxString *msg, RexxArray *args, RexxString *, RexxDirectory *){return OREF_NULL;};
 
      virtual RexxInteger *hasMethod(RexxString *msg);
              bool         hasUninitMethod();
@@ -429,7 +429,7 @@ class RexxObject : public RexxInternalObject {
      RexxMessage *start(RexxObject **, size_t);
      RexxMessage *startWith(RexxObject *, RexxArray *);
      RexxObject  *send(RexxObject **, size_t);
-     RexxObject  *sendWith(RexxObject *, RexxArray *);
+     RexxObject  *sendWith(RexxObject *, RexxArray *, RexxString *, RexxDirectory *);
      RexxMessage *startCommon(RexxObject *message, RexxObject **arguments, size_t argCount);
      static void decodeMessageName(RexxObject *target, RexxObject *message, RexxString *&messageName, RexxObject *&startScope);
      RexxString  *oref();
@@ -444,8 +444,7 @@ class RexxObject : public RexxInternalObject {
      void         sendMessage(RexxString *, RexxArray *, ProtectedObject &);
      inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, result); };
      inline void  sendMessage(RexxString *message, RexxObject **args, size_t argCount, ProtectedObject &result) { this->messageSend(message, args, argCount, result); };
-     inline void  sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result)
-         { this->messageSend(message, &argument1, 1, result); }
+     void         sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, ProtectedObject &);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
      void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
@@ -496,10 +495,9 @@ class RexxObject : public RexxInternalObject {
      RexxString  *defaultNameRexx();
      RexxObject  *copyRexx();
 
-     // In setup.cpp, the methods "UNKOWN" are declared with 2 positional parameters.
-     // CPPCode::run has a special case for the message "UNKNOWN":
-     // Pass 2 positional arguments, plus a directory of named arguments
-     RexxObject  *unknownRexx(RexxString *, RexxArray *, RexxDirectory *);
+     // In setup.cpp, the methods "UNKOWN" are declared with 2 positional arguments and 1 named argument.
+     // See CPPCode::run to see how the named arguments are passed to the native methods.
+     RexxObject  *unknownRexx(RexxString *, RexxArray *, RexxString *, RexxDirectory *);
 
      RexxObject  *hasMethodRexx(RexxString *);
      void *getCSelf();

@@ -103,7 +103,7 @@ class RexxInteger : public RexxObject {
   RexxInteger *strictLessOrEqual(RexxObject *);
   RexxObject  *hashCode();
 
-  RexxObject *unknown(RexxString *, RexxArray *, RexxDirectory *);
+  RexxObject *unknown(RexxString *, RexxArray *, RexxString *, RexxDirectory *);
   RexxObject *plus(RexxInteger *);
   RexxObject *minus(RexxInteger *);
   RexxObject *multiply(RexxInteger *);

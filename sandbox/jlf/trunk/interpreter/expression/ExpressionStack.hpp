@@ -64,9 +64,9 @@ class RexxExpressionStack {
   inline void setFrame(RexxObject **frames, size_t items) { stack = frames; size = items; top = stack; *top = OREF_NULL; }
 
   inline void send(RexxString *message, RexxObject *scope, size_t count, size_t namedCount, ProtectedObject &result) {
-                 (*(this->top - count - 1 - namedCount))->messageSend(message, (RexxObject **)(this->top - count - 1 - namedCount + 1), count, scope, result); };
+                 (*(this->top - count - 1 - (2 * namedCount)))->messageSend(message, (RexxObject **)(this->top - count - 1 - (2 * namedCount) + 1), count, scope, result); };
   inline void send(RexxString *message, size_t count, size_t namedCount, ProtectedObject &result) {
-                 (*(this->top - count - 1 - namedCount))->messageSend(message, (RexxObject **)(this->top -count - 1 - namedCount + 1), count, result); };
+                 (*(this->top - count - 1 - (2 * namedCount)))->messageSend(message, (RexxObject **)(this->top -count - 1 - (2 * namedCount) + 1), count, result); };
   inline void         push(RexxObject *value) { *(++this->top) = value; };
   inline RexxObject * pop() { return *(this->top--); };
   inline RexxObject * fastPop() { return *(this->top--); };

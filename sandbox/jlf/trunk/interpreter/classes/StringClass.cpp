@@ -658,7 +658,10 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
             RexxObject *first = this;
             RexxObject *second = other;
             if (secondNum != OREF_NULL) second = second->stringValue(); // if second is a RexxInteger or a NumberString then must get its RexxString representation (only RexxString can be extended)
-            bool alternativeResult = second->messageSend(alternativeOperator, &first, 1, result, false);
+            RexxObject *args[2];
+            args[0] = first; // positional argument
+            args[1] = IntegerZero; // 0 named arguments
+            bool alternativeResult = second->messageSend(alternativeOperator, args, 1, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL)
             {
                 *alternativeOperatorResultPtr = (RexxInteger *)(RexxObject *)result;
@@ -798,13 +801,19 @@ RexxObject *RexxString::plus(RexxObject *right_term)
         RexxObject *self = this;
         if (right_term == OREF_NULL)
         {
-            bool alternativeResult = this->messageSend(OREF_PLUS_LEFT, &right_term, 0, result, false);
+            RexxObject *args[2];
+            args[0] = right_term; // positional argument
+            args[1] = IntegerZero; // 0 named arguments
+            bool alternativeResult = this->messageSend(OREF_PLUS_LEFT, args, 0, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         }
         else
         {
             if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-            bool alternativeResult = right_term->messageSend(OREF_PLUS_RIGHT, &self, 1, result, false);
+            RexxObject *args[2];
+            args[0] = self; // positional argument
+            args[1] = IntegerZero; // 0 named arguments
+            bool alternativeResult = right_term->messageSend(OREF_PLUS_RIGHT, args, 1, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         }
         /* this is a conversion error        */
@@ -829,13 +838,19 @@ RexxObject *RexxString::minus(RexxObject *right_term)
         RexxObject *self = this;
         if (right_term == OREF_NULL)
         {
-            bool alternativeResult = this->messageSend(OREF_SUBTRACT_LEFT, &right_term, 0, result, false);
+            RexxObject *args[2];
+            args[0] = right_term; // positional argument
+            args[1] = IntegerZero; // 0 named arguments
+            bool alternativeResult = this->messageSend(OREF_SUBTRACT_LEFT, args, 0, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         }
         else
         {
             if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-            bool alternativeResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, &self, 1, result, false);
+            RexxObject *args[2];
+            args[0] = self; // positional argument
+            args[1] = IntegerZero; // 0 named arguments
+            bool alternativeResult = right_term->messageSend(OREF_SUBTRACT_RIGHT, args, 1, result, false);
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         }
         /* this is a conversion error        */
@@ -859,7 +874,10 @@ RexxObject *RexxString::multiply(RexxObject *right_term)
         ProtectedObject result;
         RexxObject *self = this;
         if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-        bool alternativeResult = right_term->messageSend(OREF_MULTIPLY_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = right_term->messageSend(OREF_MULTIPLY_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
@@ -882,7 +900,10 @@ RexxObject *RexxString::divide(RexxObject *right_term)
         ProtectedObject result;
         RexxObject *self = this;
         if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-        bool alternativeResult = right_term->messageSend(OREF_DIVIDE_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = right_term->messageSend(OREF_DIVIDE_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
@@ -905,7 +926,10 @@ RexxObject *RexxString::integerDivide(RexxObject *right_term)
         ProtectedObject result;
         RexxObject *self = this;
         if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-        bool alternativeResult = right_term->messageSend(OREF_INTDIV_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = right_term->messageSend(OREF_INTDIV_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
@@ -928,7 +952,10 @@ RexxObject *RexxString::remainder(RexxObject *right_term)
         ProtectedObject result;
         RexxObject *self = this;
         if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-        bool alternativeResult = right_term->messageSend(OREF_REMAINDER_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = right_term->messageSend(OREF_REMAINDER_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
@@ -951,7 +978,10 @@ RexxObject *RexxString::power(RexxObject *right_term)
         ProtectedObject result;
         RexxObject *self = this;
         if (right_term->classObject() == TheIntegerClass || right_term->classObject() == TheNumberStringClass) right_term = right_term->stringValue();
-        bool alternativeResult = right_term->messageSend(OREF_POWER_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = right_term->messageSend(OREF_POWER_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result;
         /* this is a conversion error        */
         reportException(Error_Conversion_operator, this);
@@ -1387,7 +1417,10 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
         ProtectedObject result;
         RexxObject *self = this;
         if (otherObj->classObject() == TheIntegerClass || otherObj->classObject() == TheNumberStringClass) otherObj = otherObj->stringValue();
-        bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = otherObj->messageSend(OREF_CONCATENATE_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
     }
 
@@ -1501,7 +1534,10 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
         ProtectedObject result;
         RexxObject *self = this;
         if (otherObj->classObject() == TheIntegerClass || otherObj->classObject() == TheNumberStringClass) otherObj = otherObj->stringValue();
-        bool alternativeResult = otherObj->messageSend(OREF_BLANK_RIGHT, &self, 1, result, false);
+        RexxObject *args[2];
+        args[0] = self; // positional argument
+        args[1] = IntegerZero; // 0 named arguments
+        bool alternativeResult = otherObj->messageSend(OREF_BLANK_RIGHT, args, 1, result, false);
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxString *)(RexxObject *)result;
     }
                                          /* ensure a string value             */

@@ -70,7 +70,7 @@ RexxInstructionMessage::RexxInstructionMessage(
     /* and pointer to arguments          */
     argument_pointer = (RexxObject **)message->arguments;
     /* copy each argument                */
-    for (i = 0; i < (argumentCount + namedArgumentCount); i++)
+    for (i = 0; i < (argumentCount + (2 * namedArgumentCount)); i++)
     {
         /* into the message instruction      */
         OrefSet(this, this->arguments[i], argument_pointer[i]);
@@ -103,7 +103,7 @@ RexxInstructionMessage::RexxInstructionMessage(
     /* make the expression the first     */
     OrefSet(this, this->arguments[0], expression);
     /* copy each argument                */
-    for (i = 1; i < (argumentCount + namedArgumentCount); i++)
+    for (i = 1; i < (argumentCount + (2 * namedArgumentCount)); i++)
     {
         /* into the message instruction      */
         OrefSet(this, this->arguments[i], argument_pointer[i - 1]);
@@ -126,7 +126,7 @@ void RexxInstructionMessage::live(size_t liveMark)
     memory_mark(this->name);
     memory_mark(this->target);
     memory_mark(this->super);
-    for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
+    for (i = 0, count = argumentCount + (2 * namedArgumentCount); i < count; i++)
     {
         memory_mark(this->arguments[i]);
     }
@@ -145,7 +145,7 @@ void RexxInstructionMessage::liveGeneral(int reason)
     memory_mark_general(this->name);
     memory_mark_general(this->target);
     memory_mark_general(this->super);
-    for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
+    for (i = 0, count = argumentCount + (2 * namedArgumentCount); i < count; i++)
     {
         memory_mark_general(this->arguments[i]);
     }
@@ -165,7 +165,7 @@ void RexxInstructionMessage::flatten(RexxEnvelope *envelope)
     flatten_reference(newThis->name, envelope);
     flatten_reference(newThis->target, envelope);
     flatten_reference(newThis->super, envelope);
-    for (i = 0, count = argumentCount + namedArgumentCount; i < count; i++)
+    for (i = 0, count = argumentCount + (2 * namedArgumentCount); i < count; i++)
     {
         flatten_reference(newThis->arguments[i], envelope);
     }
@@ -230,7 +230,7 @@ void RexxInstructionMessage::execute (
     // Named arguments
     namedArgcount = this->namedArgumentCount;
     stack->push(new_integer(namedArgcount));
-    for (i = argcount; i < argcount + namedArgcount; i+=2)
+    for (i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
         RexxObject *name = this->arguments[i];
@@ -252,7 +252,7 @@ void RexxInstructionMessage::execute (
         /* evaluate the message w/override   */
         stack->send(this->name, _super, argcount, namedArgcount, result);
     }
-    stack->popn(argcount + namedArgcount); /* remove any arguments              */
+    stack->popn(argcount + (2 * namedArgcount)); /* remove any arguments              */
     if (instructionFlags&message_i_double) /* double twiddle form?              */
     {
         result = _target;                  /* get the target element            */

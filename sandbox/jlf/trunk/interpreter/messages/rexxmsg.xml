@@ -3912,7 +3912,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_maxarg</SymbolicName>
-        <Text>Too many arguments in invocation of method; <Sub position="1" name="number"/> expected</Text>
+        <Text>Too many <Sub position="1" name="kind"/> arguments in invocation of method; <Sub position="2" name="number"/> expected</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>

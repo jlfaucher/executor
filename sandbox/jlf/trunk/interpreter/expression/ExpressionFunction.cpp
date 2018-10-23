@@ -58,7 +58,7 @@ RexxExpressionFunction::RexxExpressionFunction(
     RexxString *function_name,         /* name of the function              */
     size_t      argCount,              /* count of positional arguments     */
     RexxQueue  *arglist,               /* function positional arguments     */
-    size_t      namedArgCount,         /* 2 * number of named arguments     */
+    size_t      namedArgCount,         /* count of named arguments     */
     RexxQueue  *namedArglist,          /* function named arguments          */
     size_t      builtinIndex,          /* index of possible built-in func   */
     bool        string )               /* string or symbol invocation       */
@@ -82,13 +82,14 @@ RexxExpressionFunction::RexxExpressionFunction(
 
     // The named arguments are stored after the positional arguments
     // Each named argument has 2 entries : name, expression
-    // named_argument_count = 2 * the number of named arguments
-    /* save the named argument count           */
+    // named_argument_count = the number of named arguments
     this->named_argument_count = (uint8_t)namedArgCount;
     while (namedArgCount > 0)               /* now copy the argument pointers    */
     {
         /* in reverse order                  */
-        OrefSet(this, this->arguments[--namedArgCount + this->argument_count], namedArglist->pop());
+        --namedArgCount;
+        OrefSet(this, this->arguments[this->argument_count + (2 * namedArgCount) + 1], namedArglist->pop()); // expression
+        OrefSet(this, this->arguments[this->argument_count + (2 * namedArgCount) + 0], namedArglist->pop()); // name
     }
 
     /* set the builtin index for later   */
@@ -141,7 +142,7 @@ void RexxExpressionFunction::live(size_t liveMark)
 
     memory_mark(this->functionName);
     memory_mark(this->target);
-    for (i = 0, count = this->argument_count + this->named_argument_count; i < count; i++)
+    for (i = 0, count = this->argument_count + (2 * this->named_argument_count); i < count; i++)
     {
         memory_mark(this->arguments[i]);
     }
@@ -157,7 +158,7 @@ void RexxExpressionFunction::liveGeneral(int reason)
 
     memory_mark_general(this->functionName);
     memory_mark_general(this->target);
-    for (i = 0, count = this->argument_count + this->named_argument_count; i < count; i++)
+    for (i = 0, count = this->argument_count + (2 * this->named_argument_count); i < count; i++)
     {
         memory_mark_general(this->arguments[i]);
     }
@@ -175,7 +176,7 @@ void RexxExpressionFunction::flatten(RexxEnvelope *envelope)
 
     flatten_reference(newThis->functionName, envelope);
     flatten_reference(newThis->target, envelope);
-    for (i = 0, count = this->argument_count + this->named_argument_count; i < count; i++)
+    for (i = 0, count = this->argument_count + (2 * this->named_argument_count); i < count; i++)
     {
         flatten_reference(newThis->arguments[i], envelope);
     }
@@ -223,7 +224,7 @@ RexxObject *RexxExpressionFunction::evaluate(
     // Named arguments
     namedArgcount = this->named_argument_count;
     stack->push(new_integer(namedArgcount));
-    for (i = argcount; i < argcount + namedArgcount; i+=2)
+    for (i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
         RexxObject *name = this->arguments[i];
@@ -236,7 +237,7 @@ RexxObject *RexxExpressionFunction::evaluate(
     }
 
     // More easy to work with an array of arguments (address of the first argument) than a stack of arguments (address of the last argument).
-    RexxObject **_arguments = stack->arguments(argcount + 1 + namedArgcount);
+    RexxObject **_arguments = stack->arguments(argcount + 1 + (2 * namedArgcount));
 
     /* process various call types        */
     switch (this->flags&function_type_mask)
@@ -289,10 +290,11 @@ void *RexxExpressionFunction::operator new(size_t size,
     }
     else
     {
-        // argCount = positionalCount + namedCount, where namedCount = 2 * name:value
+        // argCount = positionalCount + (2 * namedCount)
         // Ex: (p1, p2, p3, n1:v1, n2:v2, n3:v3)
         //     positionalCount = 3
-        //     namedCount = 2*3 = 6
+        //     namedCount = 3
+        //     argCount = 3 + 2*3 = 9
         /* Get new object                    */
         return new_object(size + (argCount - 1) * sizeof(RexxObject *), T_FunctionCallTerm);
     }

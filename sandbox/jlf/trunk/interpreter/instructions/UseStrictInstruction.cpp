@@ -165,7 +165,7 @@ void RexxInstructionUseStrict::execute(RexxActivation *context, RexxExpressionSt
         {
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_maxarg, variableCount);
+                reportException(Error_Incorrect_method_maxarg, "positional", variableCount);
             }
             else
             {

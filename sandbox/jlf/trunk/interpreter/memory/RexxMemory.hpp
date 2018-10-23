@@ -368,9 +368,9 @@ enum
   bool objectReferenceOK(RexxObject *o);
   void restoreImage();
 
-  static void defineKernelMethod(const char *name, RexxBehaviour * behaviour, PCPPM entryPoint, size_t arguments);
-  static void defineProtectedKernelMethod(const char *name, RexxBehaviour * behaviour, PCPPM entryPoint, size_t arguments);
-  static void definePrivateKernelMethod(const char *name, RexxBehaviour * behaviour, PCPPM entryPoint, size_t arguments);
+  static void defineKernelMethod(const char *name, RexxBehaviour * behaviour, PCPPM entryPoint, size_t arguments, size_t named_arguments=-1);
+  static void defineProtectedKernelMethod(const char *name, RexxBehaviour * behaviour, PCPPM entryPoint, size_t arguments, size_t named_arguments=-1);
+  static void definePrivateKernelMethod(const char *name, RexxBehaviour * behaviour, PCPPM entryPoint, size_t arguments, size_t named_arguments=-1);
 
   RexxStack  *liveStack;
   RexxStack  *flattenStack;

@@ -620,7 +620,7 @@ class ActivationSettings
 
    // Positional arguments from arglist[0] to arglist[argcount-1]
    // namedArgcount = arglist[argcount]
-   // Named arguments from arglist[argcount+1] to arglist[argcount+1 + namedArgcount-1]
+   // Named arguments from arglist[argcount+1] to arglist[argcount+1 + (2*namedArgcount)-1]
    RexxObject         **arglist;       /* activity argument list            */
 
    size_t               argcount;      /* the count of positional arguments */

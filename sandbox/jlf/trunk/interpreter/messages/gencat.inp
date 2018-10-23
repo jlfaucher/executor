@@ -996,7 +996,7 @@ $ Error_Incorrect_method_minarg
 431 Not enough arguments for method; &1 expected
 
 $ Error_Incorrect_method_maxarg
-432 Too many arguments in invocation of method; &1 expected
+432 Too many &1 arguments in invocation of method; &2 expected
 
 $ Error_Incorrect_method_noarg
 433 Missing argument in method; argument &1 is required

@@ -411,7 +411,8 @@ bool RexxInteger::logicalValue(logical_t &result)
 RexxObject *RexxInteger::unknown(
     RexxString *msgname,               /* unknown message name              */
     RexxArray *arguments,              /* arguments to the unknown message  */
-    RexxDirectory *namedArguments)
+    RexxString *name1,                 // name of 1st named argument
+    RexxDirectory *namedArguments)     // value of 1st named argument
 /******************************************************************************/
 /* Function:  Intercept unknown messages to an integer object and reissue     */
 /*            them against the string value.                                  */
@@ -423,9 +424,10 @@ RexxObject *RexxInteger::unknown(
     size_t argumentsCount = arguments ? arguments->size() : 0;
     size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
 
-    if (argumentsCount + namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject*)OREF_NULL, (size_t)0);
+    // Optimization: don't create an intermediate array if no arg
+    if (argumentsCount == 0 && namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
 
-    RexxArray *args = new_array(argumentsCount + 1 + namedArgumentsCount);
+    RexxArray *args = new_array(argumentsCount + 1 + (2 * namedArgumentsCount));
     ProtectedObject p(args);
     for (size_t i = 1; i <= argumentsCount; i++)
     {

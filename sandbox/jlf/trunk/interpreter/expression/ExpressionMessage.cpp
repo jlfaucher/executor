@@ -57,7 +57,7 @@ RexxExpressionMessage::RexxExpressionMessage(
     RexxObject *_super,                 /* message super class               */
     size_t      argCount,              /* count of positional arguments     */
     RexxQueue  *arglist,               /* message positional argument list  */
-    size_t      namedArgCount,         /* 2 * number of named arguments     */
+    size_t      namedArgCount,         /* count of named arguments          */
     RexxQueue  *namedArglist,          /* message named argument list       */
     bool        double_form)           /* type of message send              */
 /******************************************************************************/
@@ -84,12 +84,14 @@ RexxExpressionMessage::RexxExpressionMessage(
 
     // The named arguments are stored after the positional argument
     // Each named argument has 2 entries : name, expression
-    // named_argument_count = 2 * the number of named arguments
+    // named_argument_count = the number of named arguments
     this->namedArgumentCount = namedArgCount;
     while (namedArgCount > 0)            /* now copy the argument pointers    */
     {
         /* in reverse order                  */
-        OrefSet(this, this->arguments[--namedArgCount + this->argumentCount], namedArglist->pop());
+        --namedArgCount;
+        OrefSet(this, this->arguments[this->argumentCount + (2 * namedArgCount) + 1], namedArglist->pop()); // expression
+        OrefSet(this, this->arguments[this->argumentCount + (2 * namedArgCount) + 0], namedArglist->pop()); // name
     }
 }
 
@@ -151,7 +153,7 @@ RexxObject *RexxExpressionMessage::evaluate(
     // Named arguments
     namedArgcount = this->namedArgumentCount;
     stack->push(new_integer(namedArgcount));
-    for (i = argcount; i < argcount + namedArgcount; i+=2)
+    for (i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
         RexxObject *name = this->arguments[i];
@@ -173,7 +175,7 @@ RexxObject *RexxExpressionMessage::evaluate(
         /* evaluate the message w/override   */
         stack->send(this->messageName, _super, argcount, namedArgcount, result);
     }
-    stack->popn(argcount + 1 + namedArgcount);  /* remove any arguments              */
+    stack->popn(argcount + 1 + (2 * namedArgcount));  /* remove any arguments              */
 
     if (this->doubleTilde)               /* double twiddle form?              */
     {
@@ -205,7 +207,7 @@ void RexxExpressionMessage::live(size_t liveMark)
     memory_mark(this->messageName);
     memory_mark(this->target);
     memory_mark(this->super);
-    for (i = 0, count = this->argumentCount + this->namedArgumentCount; i < count; i++)
+    for (i = 0, count = this->argumentCount + (2 * this->namedArgumentCount); i < count; i++)
     {
         memory_mark(this->arguments[i]);
     }
@@ -222,7 +224,7 @@ void RexxExpressionMessage::liveGeneral(int reason)
     memory_mark_general(this->messageName);
     memory_mark_general(this->target);
     memory_mark_general(this->super);
-    for (i = 0, count = this->argumentCount + this->namedArgumentCount; i < count; i++)
+    for (i = 0, count = this->argumentCount + (2 * this->namedArgumentCount); i < count; i++)
     {
         memory_mark_general(this->arguments[i]);
     }
@@ -241,7 +243,7 @@ void RexxExpressionMessage::flatten(RexxEnvelope *envelope)
     flatten_reference(newThis->messageName, envelope);
     flatten_reference(newThis->target, envelope);
     flatten_reference(newThis->super, envelope);
-    for (i = 0, count = this->argumentCount + this->namedArgumentCount; i < count; i++)
+    for (i = 0, count = this->argumentCount + (2 * this->namedArgumentCount); i < count; i++)
     {
         flatten_reference(newThis->arguments[i], envelope);
     }
@@ -309,7 +311,7 @@ void RexxExpressionMessage::assign(
     // Named arguments
     size_t namedArgcount = this->namedArgumentCount;
     stack->push(new_integer(namedArgcount));
-    for (size_t i = argcount; i < argcount + namedArgcount; i+=2)
+    for (size_t i = argcount; i < argcount + (2 * namedArgcount); i+=2)
     {
         // Argument name: string literal
         RexxObject *name = this->arguments[i];
@@ -338,7 +340,7 @@ void RexxExpressionMessage::assign(
     context->traceAssignment(messageName, (RexxObject *)result);
     // remove all arguments (arguments + target + assignment value)
     // and all named arguments
-    stack->popn((argcount + 2) + (1 + namedArgcount));
+    stack->popn((argcount + 2) + (1 + (2 * namedArgcount)));
 }
 
 

@@ -64,7 +64,7 @@
   RexxObject *copy();
   void        copyBehaviour(RexxBehaviour *source);
   RexxObject *define(RexxString *, RexxMethod *);
-  RexxMethod *define(const char *, PCPPM, size_t);
+  RexxMethod *define(const char *, PCPPM, size_t, size_t);
   void        addMethod(RexxString *, RexxMethod *);
   void        removeMethod(RexxString *);
   RexxMethod *methodObject(RexxString *);

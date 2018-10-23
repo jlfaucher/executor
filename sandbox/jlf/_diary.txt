@@ -174,6 +174,113 @@ made on the clause which contains it.
 
 
 ===============================================================================
+(next)
+
+todo
+----
+
+Message~new
+add support for named arguments
+Changes in ooRexx5 that I don't need to support:
+Message~send allows to pass arguments
+Message~sendWith: new method
+Message~start allows to pass arguments
+Message~startWith: new method
+
+
+RexxContext::setNamedArgs
+store the named arguments on the activation
+
+
+Maybe to rework
+---------------
+
+forward : use a single array for positional & named
+instead of 2 as currently
+  RexxArray  * array;                  /* argument array specification      */
+  RexxArray  * namedArgumentsArray;    /* name, value, name, value, etc...  */
+Reason :
+1) there is only one keyword ARRAY(...), so both positional & named must be managed as a whole
+2) Message~new and Object~run supports the option "I" which is followed by a list of positional & named arguments
+   managed as a whole, not as 2 distincts subsets
+
+
+Option "Directory" for Message~new and Object~run :
+should I specify a named argument Directory:argument
+instead of 2 positional arguments "Directory", argument ?
+Probably yes, I should not impact the positional arguments.
+
+
+To investigate
+--------------
+
+RexxDirectory::unknown
+see if named arguments must be supported
+
+
+RexxStem::unknown
+see if named arguments must be supported
+
+
+RexxNativeActivation::run
+see if named arguments must be supported here:
+    // retrieve the argument signatures and process them
+    uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
+    processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+
+===============================================================================
+2018 oct 23
+
+Continue implementation of named arguments:
+
+
+Object~sendWith
+supports the named argument "namedArguments".
+
+
+Object~run
+supports a new option "Directory" that can be passed after the option "Array".
+
+
+Routine~callWith
+supports the named argument "namedArguments".
+
+
+The error Error_Incorrect_method_maxarg now takes 2 arguments:
+kind (new) and argcount.
+kind can be "positional" or "named".
+Ex:
+Too many positional arguments in invocation of method; 5 expected
+
+
+Declaration of native methods in setup.cpp : now can declare the number of named
+arguments supported by the method. The default value is -1, which means "no need
+to pass named arguments".
+Native methods that support 1 named argument:
+  defineKernelMethod("SENDWITH"         , TheObjectBehaviour,       CPPM(RexxObject::sendWith), 2, 1);
+  defineKernelMethod(CHAR_CALLWITH      , TheRoutineBehaviour,      CPPM(RoutineClass::callWithRexx), 1, 1);
+  defineKernelMethod(CHAR_UNKNOWN       , TheDirectoryBehaviour,    CPPM(RexxObject::unknownRexx), 2, 1);
+  defineKernelMethod(CHAR_UNKNOWN       , TheStemBehaviour,         CPPM(RexxObject::unknownRexx), 2, 1);
+  defineKernelMethod(CHAR_UNKNOWN       , TheIntegerBehaviour,      CPPM(RexxObject::unknownRexx), 2, 1);
+  defineKernelMethod(CHAR_UNKNOWN       , TheNumberStringBehaviour, CPPM(RexxObject::unknownRexx), 2, 1);
+
+
+CPPCode::run pass named arguments to the native methods that support them.
+Each named argument is passed as 2 C++ parameters : name, value.
+Currently the maximum number of named arguments that can be passed is 2.
+
+
+The native methods ::unknown now takes 2 additional C++ parameters for the named
+arguments. Ex:
+RexxObject *RexxInteger::unknown(
+    RexxString *msgname,               /* unknown message name              */
+    RexxArray *arguments,              /* arguments to the unknown message  */
+    RexxString *name1,                 // name of 1st named argument
+    RexxDirectory *namedArguments)     // value of 1st named argument
+
+
+===============================================================================
 2018 oct 07
 
 Continue implementation of named arguments.
@@ -402,7 +509,7 @@ UNKNOWN method
     use arg name, arguments
     use named arg namedArguments -- not passed as 3rd positional argument to avoid impacts
     -- send along the message with the original args and named args
-    forward to(target) message(name) arguments(arguments) namedArguments(namedArguments)
+    forward to (target) message (name) arguments (arguments) namedArguments (namedArguments)
 
 
 -------------

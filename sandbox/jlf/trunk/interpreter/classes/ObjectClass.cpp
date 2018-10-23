@@ -671,6 +671,14 @@ RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, 
 }
 
 
+void RexxObject::sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result)
+{
+    RexxObject *arguments[2];
+    arguments[0] = argument1; // positional argument
+    arguments[1] = IntegerZero; // 0 named argument
+    this->messageSend(message, arguments, 1, result);
+}
+
 void RexxObject::sendMessage(
     RexxString      *message,          /* name of the message to process    */
     RexxArray  *arguments,             /* array of arguments                */
@@ -907,7 +915,7 @@ void RexxObject::processUnknown(
     // To avoid any performance loss, avoid to create a directory when named_count = 0.
     // This is managed by RexxDirectory::fromIndexItemArray which returns OREF_NULL when count = 0.
     size_t named_count = 0;
-    arguments[count]->unsignedNumberValue(named_count);
+    if (arguments != OREF_NULL) arguments[count]->unsignedNumberValue(named_count);
     RexxDirectory *namedArgumentDirectory = RexxDirectory::fromIndexItemArray(arguments + count + 1, named_count);
     ProtectedObject p1(namedArgumentDirectory);
 
@@ -1714,7 +1722,8 @@ RexxObject  *RexxObject::requestRexx(
  *
  * @return The method result.
  */
-RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments)
+RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
+                                 RexxString *_name1, RexxDirectory *named_arguments)
 {
     RexxString *messageName;
     RexxObject *startScope;
@@ -1724,19 +1733,47 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments)
 
     arguments = arrayArgument(arguments, ARG_TWO);
     ProtectedObject p(arguments);
+    size_t count = arguments->size();
 
-    // Assumption for named arguments: arguments->lastIndex() gives the count
-    // of positional arguments. The named arguments are stored in the array
-    // after lastIndex.
+    // Named arguments
+    // >>-sendWith(messagename,arguments,namedArguments:namedArguments)---><
+
+    // Should check that _name1 = "NAMEDARGUMENTS"
+
+    ProtectedObject p_named_arguments;
+    size_t named_count = 0;
+    if (named_arguments != OREF_NULL && named_arguments != TheNilObject)
+    {
+        /* get a directory version           */
+        named_arguments = named_arguments->requestDirectory();
+        p_named_arguments = named_arguments; // GC protect
+
+        /* not a directory item ? */
+        if (named_arguments == TheNilObject)
+        {
+            reportException(Error_Execution_user_defined , "sendWith namedArguments must be a directory or NIL");
+        }
+        named_count = named_arguments->items();
+    }
+
+    RexxArray *new_arguments = new_array(count + 1 + (2 * named_count));
+    ProtectedObject p_new_arguments(new_arguments);
+    for (size_t i = 1; i <= count; i++)
+    {
+        RexxObject *arg = arguments->get(i);
+        new_arguments->put(arg, i);
+    }
+    new_arguments->append(new_integer(named_count));
+    if (named_count != 0) named_arguments->appendAllIndexesItemsTo(new_arguments);
 
     ProtectedObject r;
     if (startScope == OREF_NULL)
     {
-        this->messageSend(messageName, arguments->data(), arguments->size(), r);
+        this->messageSend(messageName, new_arguments->data(), count, r);
     }
     else
     {
-        this->messageSend(messageName, arguments->data(), arguments->size(), startScope, r);
+        this->messageSend(messageName, new_arguments->data(), count, startScope, r);
     }
     return (RexxObject *)r;
 }
@@ -1799,10 +1836,6 @@ RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments)
     ProtectedObject p(arguments);
     // the rest is handled by code common to startWith();
 
-    // Assumption for named arguments: arguments->lastIndex() gives the count
-    // of positional arguments. The named arguments are stored in the array
-    // after lastIndex.
-
     return startCommon(message, arguments->data(), arguments->size());
 }
 
@@ -1851,7 +1884,7 @@ RexxMessage *RexxObject::startCommon(RexxObject *message, RexxObject **arguments
     ProtectedObject m(messageName);
 
     /* Create the new message object.    */
-    RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, new (argCount, arguments) RexxArray);
+    RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, arguments, argCount);
     ProtectedObject p(newMessage);
     newMessage->start(OREF_NULL);        /* Tell the message object to start  */
     return newMessage;                   /* return the new message object     */
@@ -2009,7 +2042,7 @@ RexxObject  *RexxObject::run(
                         option = (RexxString *)arguments[3];
                         option = stringArgument(option, ARG_FOUR);
                         if (toupper(option->getCharC(0)) != 'D') reportException(Error_Incorrect_method_option, "D", option);
-                        if (argCount > 5) reportException(Error_Incorrect_method_maxarg, IntegerFive);
+                        if (argCount > 5) reportException(Error_Incorrect_method_maxarg, "positional", IntegerFive);
                         // now get the directory
                         argdirectory = (RexxDirectory *)arguments[4];
                         if (argdirectory == TheNilObject) named_argcount = 0; // Allow NIL (same as forward)
@@ -2021,7 +2054,7 @@ RexxObject  *RexxObject::run(
                             {
                                 reportException(Error_Execution_user_defined , "Directory must be a directory or NIL");
                             }
-                            named_argcount = 2 * argdirectory->items();
+                            named_argcount = argdirectory->items();
                         }
                     }
                     /* now get the array                 */
@@ -2047,7 +2080,7 @@ RexxObject  *RexxObject::run(
                     }
                     else
                     {
-                        RexxArray *args = new_array(argcount + 1 + named_argcount);
+                        RexxArray *args = new_array(argcount + 1 + (2 * named_argcount));
                         p_args = args;
                         for (size_t i = 1; i <= argcount; i++)
                         {
@@ -2064,7 +2097,7 @@ RexxObject  *RexxObject::run(
             case 'D':
                 {
                     if (argCount < 3) missingArgument(ARG_THREE);
-                    if (argCount > 3) reportException(Error_Incorrect_method_maxarg, IntegerThree);
+                    if (argCount > 3) reportException(Error_Incorrect_method_maxarg, "positional", IntegerThree);
                     argcount = 0;
                     argdirectory = (RexxDirectory *)arguments[2];
                     if (argdirectory == TheNilObject) named_argcount = 0; // Allow NIL (same as forward)
@@ -2076,7 +2109,7 @@ RexxObject  *RexxObject::run(
                         {
                             reportException(Error_Execution_user_defined , "Directory must be a directory or NIL");
                         }
-                        named_argcount = 2 * argdirectory->items();
+                        named_argcount = argdirectory->items();
                     }
                     if (named_argcount == 0)
                     {
@@ -2085,7 +2118,7 @@ RexxObject  *RexxObject::run(
                     }
                     else
                     {
-                        RexxArray *args = new_array(1 + named_argcount);
+                        RexxArray *args = new_array(1 + (2 * named_argcount));
                         p_args = args;
                         args->append(new_integer(named_argcount));
                         if (named_argcount != 0) argdirectory->appendAllIndexesItemsTo(args);
@@ -2480,17 +2513,18 @@ RexxObject *RexxInternalObject::clone()
 {\
     ProtectedObject result;              /* returned result                   */\
     RexxObject *args[2];                                                        \
-    args[0] = operand; /* 1 positional argument */                              \
+    args[0] = operand; /* positional argument */                                \
     args[1] = IntegerZero; /* 0 named argument */                               \
                                          /* do a real message send            */\
     /* this->messageSend(OREF_##message, &operand, 1, result);  */              \
-    this->messageSend(OREF_##message, (RexxObject **)&args, 1, result);                        \
+    this->messageSend(OREF_##message, args, 1, result);                         \
     if ((RexxObject *)result == OREF_NULL)   /* in an expression and need a result*/ \
     {  \
         RexxObject *self = this; \
         args[0] = self; \
+        args[1] = IntegerZero; /* 0 named argument */ \
         /* bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); */ \
-        bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, (RexxObject **)&args, 1, result, false); \
+        bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, args, 1, result, false); \
         if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
                                          /* need to raise an exception        */ \
         reportException(Error_No_result_object_message, OREF_##message); \
@@ -2504,19 +2538,27 @@ RexxObject *RexxInternalObject::clone()
 {\
     ProtectedObject result;              /* returned result                   */\
     RexxObject *args[2];                                                        \
-    args[0] = operand; /* 1 positional argument */                              \
-    args[1] = IntegerZero; /* 0 named argument */                               \
+    if (operand == OREF_NULL)                                                   \
+    {                                                                           \
+        args[0] = IntegerZero; /* 0 named argument */                           \
+    }                                                                           \
+    else                                                                        \
+    {                                                                           \
+        args[0] = operand; /* positional argument */                            \
+        args[1] = IntegerZero; /* 0 named argument */                           \
+    }                                                                           \
                                          /* do a real message send            */\
     /* this->messageSend(OREF_##message, &operand, operand == OREF_NULL ? 0 : 1, result); */ \
-    this->messageSend(OREF_##message, (RexxObject **)&args, operand == OREF_NULL ? 0 : 1, result); \
+    this->messageSend(OREF_##message, args, operand == OREF_NULL ? 0 : 1, result); \
     if ((RexxObject *)result == OREF_NULL)             /* in an expression and need a result*/ \
     {  \
         if (operand != OREF_NULL) \
         { \
             RexxObject *self = this; \
             args[0] = self; \
+            args[1] = IntegerZero; \
             /* bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, &self, 1, result, false); */ \
-            bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, (RexxObject **)&args, 1, result, false); \
+            bool alternativeResult = operand->messageSend(OREF_##message##_RIGHT, args, 1, result, false); \
             if (alternativeResult && (RexxObject *)result != OREF_NULL) return (RexxObject *)result; \
         } \
                                          /* need to raise an exception        */ \
@@ -2670,13 +2712,14 @@ RexxObject *RexxObject::copyRexx()
 RexxObject *RexxObject::unknownRexx(
     RexxString *message,               /* unknown message                   */
     RexxArray  *arguments,             /* message arguments                 */
-    RexxDirectory *namedArguments )
+    RexxString *_name1,                // name of 1st named argument
+    RexxDirectory *namedArguments )    // value of 1st named argument
 /******************************************************************************/
 /* Function:  Exported access to an object virtual function                   */
 /******************************************************************************/
 {
                                        /* forward to the virtual function   */
-  return this->unknown(message, arguments, namedArguments);
+  return this->unknown(message, arguments, _name1, namedArguments);
 }
 
 RexxObject *RexxObject::hasMethodRexx(

@@ -457,7 +457,8 @@ RexxObject *RexxDirectory::remove(
 RexxObject *RexxDirectory::unknown(
   RexxString *msgname,                 /* name of unknown message           */
   RexxArray  *arguments,               /* arguments to the message          */
-  RexxDirectory *namedArguments)
+  RexxString *_name1,                  // name of 1st named argument
+  RexxDirectory *namedArguments)       // value of 1st named argument
 /******************************************************************************/
 /* Function:     This is the REXX version of unknown.  It invokes entry_rexx  */
 /*               instead of entry, to ensure the proper error checking and    */
@@ -599,12 +600,13 @@ RexxObject *RexxDirectory::at(
         /* got an unknown method?            */
         if (this->unknown_method != OREF_NULL)
         {
-            // TODO named arguments: must append the count of named arguments = 0
-
             RexxObject *arg = _index;
+            RexxObject *args[2];
+            args[0] = _index; // positional argument
+            args[1] = IntegerZero; // 0 named arguments
             ProtectedObject v;
             /* run it                            */
-            this->unknown_method->run(ActivityManager::currentActivity, this, OREF_UNKNOWN, (RexxObject **)&arg, 1, v);
+            this->unknown_method->run(ActivityManager::currentActivity, this, OREF_UNKNOWN, args, 1, v);
             return(RexxObject *)v;
         }
     }
@@ -833,7 +835,7 @@ RexxDirectory *RexxDirectory::fromIndexItemArray(RexxObject **arglist, size_t co
     RexxDirectory *directory = new_directory();
     ProtectedObject p(directory);
 
-    for (size_t i = 0; i < count; i+=2)     /* loop through the index,item list  */
+    for (size_t i = 0; i < (2 * count); i+=2)     /* loop through the index,item list  */
     {
         RexxObject *index = arglist[i];
         RexxObject *item = arglist[i+1];
@@ -892,7 +894,7 @@ RexxArray *RexxDirectory::allIndexesItems(void)
  * Push on the stack all the directory indices &items, including those
  * of all the SETMETHOD methods: index1, item1, index2, item2, ...
  *
- * @return The count of pushed index & item (2 * this->items())
+ * @return The count of pushed pairs index & item (= this->items())
  */
 size_t RexxDirectory::appendAllIndexesItemsTo(RexxExpressionStack *stack)
 {
@@ -901,25 +903,25 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxExpressionStack *stack)
     RexxHashTable *hashTab = this->contents;
 
     // traverse the entire table coping over the items.
-    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i))
+    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i), out++)
     {
-        stack->push(hashTab->index(i)); out++;
-        stack->push(hashTab->value(i)); out ++;
+        stack->push(hashTab->index(i));
+        stack->push(hashTab->value(i));
     }
     // if has a method table, we need to copy those indices also
     if (this->method_table != OREF_NULL)
     {
         RexxTable *methodTable = this->method_table;
-        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i))
+        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i), out++)
         {
             RexxString *name = (RexxString *)methodTable->index(i);
-            stack->push(name); out ++;
+            stack->push(name);
 
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
             method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
-            stack->push(v); out ++;
+            stack->push(v);
         }
     }
     return out;
@@ -931,7 +933,7 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxExpressionStack *stack)
  * Append to the array all the directory indices &items, including those
  * of all the SETMETHOD methods: index1, item1, index2, item2, ...
  *
- * @return The count of appended index & item (2 * this->items())
+ * @return The count of appended pairs index & item (= this->items())
  */
 size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
 {
@@ -940,25 +942,25 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
     RexxHashTable *hashTab = this->contents;
 
     // traverse the entire table coping over the items.
-    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i))
+    for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i), out++)
     {
-        array->append(hashTab->index(i)); out++;
-        array->append(hashTab->value(i)); out ++;
+        array->append(hashTab->index(i));
+        array->append(hashTab->value(i));
     }
     // if has a method table, we need to copy those indices also
     if (this->method_table != OREF_NULL)
     {
         RexxTable *methodTable = this->method_table;
-        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i))
+        for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i), out++)
         {
             RexxString *name = (RexxString *)methodTable->index(i);
-            array->append(name); out ++;
+            array->append(name);
 
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
             method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
-            array->append(v); out ++;
+            array->append(v);
         }
     }
     return out;

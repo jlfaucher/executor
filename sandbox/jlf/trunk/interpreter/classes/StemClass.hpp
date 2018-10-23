@@ -100,7 +100,7 @@ class RexxNativeActivation;
 
   void        dropValue();
   RexxObject *getStemValue();
-  RexxObject *unknown (RexxString *, RexxArray *, RexxDirectory *);
+  RexxObject *unknown (RexxString *, RexxArray *, RexxString *, RexxDirectory *);
   RexxObject *bracket (RexxObject **, size_t);
   RexxObject *bracketEqual(RexxObject **, size_t);
 

@@ -654,10 +654,10 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
                 {
                     size_t namedArgcount = 0;
                     arglist[argcount]->unsignedNumberValue(namedArgcount);
-                    if ((argcount + 1 + namedArgcount) > 0) // ok, I could remove this test because always true, but I prefer to keep it in case I undo some changes
+                    if ((argcount + 1 + (2 * namedArgcount)) > 0) // ok, I could remove this test because always true, but I prefer to keep it in case I undo some changes
                     {
-                        RexxObject **newArguments = activity->allocateFrame(argcount + 1 + namedArgcount);
-                        memcpy(newArguments, arglist, sizeof(RexxObject *) * (argcount + 1 + namedArgcount));
+                        RexxObject **newArguments = activity->allocateFrame(argcount + 1 + (2 * namedArgcount));
+                        memcpy(newArguments, arglist, sizeof(RexxObject *) * (argcount + 1 + (2 * namedArgcount)));
                         this->arglist = newArguments;  /* must be set on "this"  */
                         settings.parent_arglist = newArguments;
                     }
@@ -1039,7 +1039,7 @@ void RexxActivation::live(size_t liveMark)
     {
         size_t namedArgcount = 0;
         arglist[argcount]->unsignedNumberValue(namedArgcount);
-        for (i = 0; i < (argcount + 1 + namedArgcount); i++)
+        for (i = 0; i < (argcount + 1 + (2 * namedArgcount)); i++)
         {
             memory_mark(arglist[i]);
         }
@@ -1049,7 +1049,7 @@ void RexxActivation::live(size_t liveMark)
     {
         size_t parent_namedArgcount = 0;
         settings.parent_arglist[settings.parent_argcount]->unsignedNumberValue(parent_namedArgcount);
-        for (i = 0; i < (settings.parent_argcount + 1 + parent_namedArgcount); i++)
+        for (i = 0; i < (settings.parent_argcount + 1 + (2 * parent_namedArgcount)); i++)
         {
             memory_mark(settings.parent_arglist[i]);
         }
@@ -1101,7 +1101,7 @@ void RexxActivation::liveGeneral(int reason)
     {
         size_t namedArgcount = 0;
         arglist[argcount]->unsignedNumberValue(namedArgcount);
-        for (i = 0; i < (argcount + 1 + namedArgcount); i++)
+        for (i = 0; i < (argcount + 1 + (2 * namedArgcount)); i++)
         {
             memory_mark_general(arglist[i]);
         }
@@ -1111,7 +1111,7 @@ void RexxActivation::liveGeneral(int reason)
     {
         size_t parent_namedArgcount = 0;
         settings.parent_arglist[settings.parent_argcount]->unsignedNumberValue(parent_namedArgcount);
-        for (i = 0; i < (settings.parent_argcount + 1 + parent_namedArgcount); i++)
+        for (i = 0; i < (settings.parent_argcount + 1 + (2 * parent_namedArgcount)); i++)
         {
             memory_mark_general(settings.parent_arglist[i]);
         }
@@ -4580,7 +4580,7 @@ void RexxActivation::setArguments(RexxArray *arguments)
     {
         size_t named_argcount = 0;
         this->arglist[this->argcount]->unsignedNumberValue(named_argcount);
-        for (size_t i = this->argcount; i < this->argcount + 1 + named_argcount; i++)
+        for (size_t i = this->argcount; i < this->argcount + 1 + (2 * named_argcount); i++)
         {
             RexxObject *item = this->arglist[i];
             arguments->append(item);

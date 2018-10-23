@@ -790,12 +790,12 @@ r = .myclass~myrun(myFloatingMethod, "A", (1, 2, 3)){}
 
 
 r = .myclass~myrun(myFloatingMethod, "A", (1, 2), "D", .directory~of(a3:3)){}
-    [trapped] Too many arguments in invocation of method; 5 expected
+    [trapped] Too many positional arguments in invocation of method; 5 expected
     [trapped] Code= 93.902
 
 
 r = .myclass~myrun(myFloatingMethod, "A", .array~of(1), "D", .directory~of(a2:2, a3:3)){}
-    [trapped] Too many arguments in invocation of method; 5 expected
+    [trapped] Too many positional arguments in invocation of method; 5 expected
     [trapped] Code= 93.902
 
 

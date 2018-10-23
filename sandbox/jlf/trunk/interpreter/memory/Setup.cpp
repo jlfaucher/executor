@@ -93,24 +93,28 @@ void RexxMemory::defineKernelMethod(
     const char    * name,              /* ASCII-Z name for the method       */
     RexxBehaviour * behaviour,         /* behaviour to use                  */
     PCPPM           entryPoint,        /* method's entry point              */
-    size_t          arguments )        /* count of arguments                */
+    size_t          arguments,         /* count of arguments                */
+    size_t          named_arguments    /* count of named arguments. By default, don't care */
+)
 /******************************************************************************/
 /* Function:  Add a C++ method to an object's behaviour                       */
 /******************************************************************************/
 {
-    behaviour->define(name, entryPoint, arguments);
+    behaviour->define(name, entryPoint, arguments, named_arguments);
 }
 
 void RexxMemory::defineProtectedKernelMethod(
     const char    * name,              /* ASCII-Z name for the method       */
     RexxBehaviour * behaviour,         /* behaviour to use                  */
     PCPPM           entryPoint,        /* method's entry point              */
-    size_t          arguments )        /* count of arguments                */
+    size_t          arguments,         /* count of arguments                */
+    size_t          named_arguments    /* count of named arguments          */
+)
 /******************************************************************************/
 /* Function:  Add a C++ method to an object's behaviour                       */
 /******************************************************************************/
 {
-    RexxMethod *method = behaviour->define(name, entryPoint, arguments);
+    RexxMethod *method = behaviour->define(name, entryPoint, arguments, named_arguments);
     method->setProtected();              /* make this protected               */
 }
 
@@ -119,12 +123,14 @@ void RexxMemory::definePrivateKernelMethod(
     const char    * name,              /* ASCII-Z name for the method       */
     RexxBehaviour * behaviour,         /* behaviour to use                  */
     PCPPM           entryPoint,        /* method's entry point              */
-    size_t          arguments )        /* count of arguments                */
+    size_t          arguments,         /* count of arguments                */
+    size_t          named_arguments    /* count of named arguments          */
+)
 /******************************************************************************/
 /* Function:  Add a C++ method to an object's behaviour                       */
 /******************************************************************************/
 {
-    RexxMethod *method = behaviour->define(name, entryPoint, arguments);
+    RexxMethod *method = behaviour->define(name, entryPoint, arguments, named_arguments);
     method->setProtected();              /* make this protected               */
     method->setPrivate();                /* make this protected               */
 }
@@ -331,7 +337,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_START                  ,TheObjectBehaviour, CPPM(RexxObject::start), A_COUNT);
   defineKernelMethod("STARTWITH"                 ,TheObjectBehaviour, CPPM(RexxObject::startWith), 2);
   defineKernelMethod("SEND"                      ,TheObjectBehaviour, CPPM(RexxObject::send), A_COUNT);
-  defineKernelMethod("SENDWITH"                  ,TheObjectBehaviour, CPPM(RexxObject::sendWith), 2);
+  defineKernelMethod("SENDWITH"                  ,TheObjectBehaviour, CPPM(RexxObject::sendWith), 2, 1);
   defineKernelMethod(CHAR_STRING                 ,TheObjectBehaviour, CPPM(RexxObject::stringRexx), 0);
   defineKernelMethod(CHAR_ISINSTANCEOF           ,TheObjectBehaviour, CPPM(RexxObject::isInstanceOfRexx), 1);
   defineKernelMethod(CHAR_ISA                    ,TheObjectBehaviour, CPPM(RexxObject::isInstanceOfRexx), 1);
@@ -436,7 +442,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SETENTRY      , TheDirectoryBehaviour, CPPM(RexxDirectory::setEntry), 2);
   defineProtectedKernelMethod(CHAR_SETMETHOD   , TheDirectoryBehaviour, CPPM(RexxDirectory::setMethod), 2);
   defineKernelMethod(CHAR_SUPPLIER      , TheDirectoryBehaviour, CPPM(RexxDirectory::supplier), 0);
-  defineKernelMethod(CHAR_UNKNOWN       , TheDirectoryBehaviour, CPPM(RexxObject::unknownRexx), 2);
+  defineKernelMethod(CHAR_UNKNOWN       , TheDirectoryBehaviour, CPPM(RexxObject::unknownRexx), 2, 1);
   defineProtectedKernelMethod(CHAR_UNSETMETHOD   , TheDirectoryBehaviour, CPPM(RexxDirectory::removeRexx), 1);
   defineKernelMethod(CHAR_INDEX        , TheDirectoryBehaviour, CPPM(RexxDirectory::indexRexx), 1);
   defineKernelMethod(CHAR_HASITEM      , TheDirectoryBehaviour, CPPM(RexxDirectory::hasItem), 1);
@@ -585,7 +591,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_SOURCE       ,TheRoutineBehaviour, CPPM(BaseExecutable::source), 0);
   defineKernelMethod(CHAR_PACKAGE      ,TheRoutineBehaviour, CPPM(BaseExecutable::getPackage), 0);
   defineKernelMethod(CHAR_CALL         ,TheRoutineBehaviour, CPPM(RoutineClass::callRexx), A_COUNT);
-  defineKernelMethod(CHAR_CALLWITH     ,TheRoutineBehaviour, CPPM(RoutineClass::callWithRexx), 1);
+  defineKernelMethod(CHAR_CALLWITH     ,TheRoutineBehaviour, CPPM(RoutineClass::callWithRexx), 1, 1);
                                        /* set the scope of the methods to   */
                                        /* this classes oref                 */
   TheRoutineBehaviour->setMethodDictionaryScope(TheRoutineClass);
@@ -805,7 +811,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_ALLITEMS      ,TheStemBehaviour, CPPM(RexxStem::allItems), 0);
   defineKernelMethod(CHAR_EMPTY         ,TheStemBehaviour, CPPM(RexxStem::empty), 0);
   defineKernelMethod(CHAR_ISEMPTY       ,TheStemBehaviour, CPPM(RexxStem::isEmpty), 0);
-  defineKernelMethod(CHAR_UNKNOWN       ,TheStemBehaviour, CPPM(RexxObject::unknownRexx), 2);
+  defineKernelMethod(CHAR_UNKNOWN       ,TheStemBehaviour, CPPM(RexxObject::unknownRexx), 2, 1);
 
   defineKernelMethod(CHAR_ITEMS         ,TheStemBehaviour, CPPM(RexxStem::itemsRexx), 0);
   defineKernelMethod(CHAR_HASINDEX      ,TheStemBehaviour, CPPM(RexxStem::hasIndex), A_COUNT);
@@ -1050,7 +1056,7 @@ void RexxMemory::createImage()
   defineKernelMethod(CHAR_AND                          ,TheIntegerBehaviour, CPPM(RexxInteger::andOp), 1);
   defineKernelMethod(CHAR_OR                           ,TheIntegerBehaviour, CPPM(RexxInteger::orOp), 1);
   defineKernelMethod(CHAR_XOR                          ,TheIntegerBehaviour, CPPM(RexxInteger::xorOp), 1);
-  defineKernelMethod(CHAR_UNKNOWN                      ,TheIntegerBehaviour, CPPM(RexxObject::unknownRexx), 2);
+  defineKernelMethod(CHAR_UNKNOWN                      ,TheIntegerBehaviour, CPPM(RexxObject::unknownRexx), 2, 1);
   defineKernelMethod(CHAR_D2C                          ,TheIntegerBehaviour, CPPM(RexxInteger::d2c), 1);
   defineKernelMethod(CHAR_D2X                          ,TheIntegerBehaviour, CPPM(RexxInteger::d2x), 1);
   defineKernelMethod(CHAR_ABS                          ,TheIntegerBehaviour, CPPM(RexxInteger::abs), 0);
@@ -1108,7 +1114,7 @@ void RexxMemory::createImage()
 
                                        /* Add the instance methods to this  */
                                        /* instance behaviour mdict          */
-  defineKernelMethod(CHAR_UNKNOWN                      ,TheNumberStringBehaviour, CPPM(RexxObject::unknownRexx), 2);
+  defineKernelMethod(CHAR_UNKNOWN                      ,TheNumberStringBehaviour, CPPM(RexxObject::unknownRexx), 2, 1);
   defineKernelMethod(CHAR_ABS                          ,TheNumberStringBehaviour, CPPM(RexxNumberString::abs), 0);
   defineKernelMethod(CHAR_ORXMAX                          ,TheNumberStringBehaviour, CPPM(RexxNumberString::Max), A_COUNT);
   defineKernelMethod(CHAR_ORXMIN                          ,TheNumberStringBehaviour, CPPM(RexxNumberString::Min), A_COUNT);
@@ -1497,7 +1503,7 @@ void RexxMemory::createImage()
                                            /* create a kernel methods directory */
       RexxDirectory *kernel_methods = new_directory();
       ProtectedObject p1(kernel_methods);   // protect from GC
-      kernel_methods->put(new RexxMethod(getGlobalName(CHAR_LOCAL), CPPCode::resolveExportedMethod(CHAR_LOCAL, CPPM(RexxLocal::local), 0)), getGlobalName(CHAR_LOCAL));
+      kernel_methods->put(new RexxMethod(getGlobalName(CHAR_LOCAL), CPPCode::resolveExportedMethod(CHAR_LOCAL, CPPM(RexxLocal::local), 0, -1)), getGlobalName(CHAR_LOCAL));
 
                                            /* create the BaseClasses method and run it*/
       RexxString *symb = getGlobalName(BASEIMAGELOAD);   /* get a name version of the string  */

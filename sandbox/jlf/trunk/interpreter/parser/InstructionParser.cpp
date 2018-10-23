@@ -431,7 +431,7 @@ RexxInstruction *RexxSource::callNew()
         syntaxError(Error_Symbol_or_string_call);
     }
     /* create a new translator object    */
-    RexxInstruction *newObject = new_variable_instruction(CALL, Call, sizeof(RexxInstructionCallBase) + (argCount + namedArgCount) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(CALL, Call, sizeof(RexxInstructionCallBase) + (argCount + (2 * namedArgCount)) * sizeof(RexxObject *));
     ProtectedObject p(newObject); // jlf: probably not needed, already protected by this->currentInstruction
     /* Initialize this new object        */
     new ((void *)newObject) RexxInstructionCall(name, _condition, argCount, this->subTerms, namedArgCount, this->namedSubTerms, _flags, builtin_index);
@@ -1292,7 +1292,7 @@ RexxInstruction *RexxSource::messageNew(
 {
     ProtectedObject p(_message);
     /* allocate a new object             */
-    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount - 1 + _message->namedArgumentCount) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount - 1 + (2 * _message->namedArgumentCount)) * sizeof(RexxObject *));
     /* Initialize this new method        */
     new ((void *)newObject) RexxInstructionMessage(_message);
     return newObject; /* done, return this                 */
@@ -1308,7 +1308,7 @@ RexxInstruction *RexxSource::messageAssignmentNew(
     ProtectedObject p(_message);        // protect this
     _message->makeAssignment(this);       // convert into an assignment message
     // allocate a new object.  NB:  a message instruction gets an extra argument, so we don't subtract one.
-    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount + _message->namedArgumentCount) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount + (2 * _message->namedArgumentCount)) * sizeof(RexxObject *));
     /* Initialize this new method        */
     new ((void *)newObject) RexxInstructionMessage(_message, _expression);
     return newObject; /* done, return this                 */
@@ -1342,7 +1342,7 @@ RexxInstruction *RexxSource::messageAssignmentOpNew(RexxExpressionMessage *_mess
     p2 = _expression;
 
     // allocate a new object.  NB:  a message instruction gets an extra argument, so we don't subtract one.
-    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount + _message->namedArgumentCount) * sizeof(RexxObject *));
+    RexxInstruction *newObject = new_variable_instruction(MESSAGE, Message, sizeof(RexxInstructionMessage) + (_message->argumentCount + (2 * _message->namedArgumentCount)) * sizeof(RexxObject *));
     /* Initialize this new method        */
     new ((void *)newObject) RexxInstructionMessage(_message, _expression);
     return newObject; /* done, return this                 */

@@ -56,8 +56,8 @@ class RexxInstructionCallBase : public RexxInstruction {
   RexxObject      * name;              /* name to call                      */
   RexxInstruction * target;            /* routine to call                   */
   RexxString      * condition;         /* condition trap name               */
-  uint16_t     argumentCount;          // number of arguments
-  uint16_t     namedArgumentCount;     // 2 * number of named arguments (because 2 items per named argument: name,expression)
+  uint16_t     argumentCount;          // number of positional arguments
+  uint16_t     namedArgumentCount;     // number of named arguments
   uint16_t     builtinIndex;           // builtin function index
 };
 
@@ -90,7 +90,7 @@ class RexxInstructionCall : public RexxInstructionCallBase {
 protected:
 
     // positional arguments (1 entry per arg: expression) : from 0 to argumentCount-1
-    // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + namedArgumentCount-1
+    // followed by named arguments (2 entries per arg: name, expression) : from argumentCount to argumentCount + (2 * namedArgumentCount)-1
     RexxObject * arguments[1];           // argument list
 };
 #endif

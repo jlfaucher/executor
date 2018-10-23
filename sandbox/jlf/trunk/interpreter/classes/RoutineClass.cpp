@@ -277,18 +277,48 @@ RexxObject *RoutineClass::callRexx(RexxObject **args, size_t count)
  *
  * @return The call result (if any).
  */
-RexxObject *RoutineClass::callWithRexx(RexxArray *args)
+RexxObject *RoutineClass::callWithRexx(RexxArray *args,
+                                       RexxString *_name1, RexxDirectory *named_args)
 {
     // this is required and must be an array
     args = arrayArgument(args, ARG_ONE);
     ProtectedObject p(args);
+    size_t count = args->size();
 
-    // TODO named arguments
+    // Named arguments
     // >>-callWith(array, namedArguments:namedArguments)----------------------------><
+
+    // Should check that _name1 = "NAMEDARGUMENTS"
+
+    ProtectedObject p_named_args;
+    size_t named_count = 0;
+    if (named_args != OREF_NULL && named_args != TheNilObject)
+    {
+        /* get a directory version           */
+        named_args = named_args->requestDirectory();
+        p_named_args = named_args; // GC protect
+
+        /* not a directory item ? */
+        if (named_args == TheNilObject)
+        {
+            reportException(Error_Execution_user_defined , "callWith namedArguments must be a directory or NIL");
+        }
+        named_count = named_args->items();
+    }
+
+    RexxArray *new_args = new_array(count + 1 + (2 * named_count));
+    ProtectedObject p_new_args(new_args);
+    for (size_t i = 1; i <= count; i++)
+    {
+        RexxObject *arg = args->get(i);
+        new_args->put(arg, i);
+    }
+    new_args->append(new_integer(named_count));
+    if (named_count != 0) named_args->appendAllIndexesItemsTo(new_args);
 
     ProtectedObject result;
 
-    code->call(ActivityManager::currentActivity, this, executableName, args->data(), args->size(), result);
+    code->call(ActivityManager::currentActivity, this, executableName, new_args->data(), count, result);
     return (RexxObject *)result;
 }
 

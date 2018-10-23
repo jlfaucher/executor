@@ -1018,7 +1018,7 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
             {
                 /* Yes, number of dims can't change  */
                 /* report apropriate bounds          */
-                reportException(Error_Incorrect_method_maxarg, numSize);
+                reportException(Error_Incorrect_method_maxarg, "positional", numSize);
             }
             else
             {
@@ -1596,7 +1596,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
     {
         if (separator != OREF_NULL)
         {
-            reportException(Error_Incorrect_method_maxarg, IntegerOne);
+            reportException(Error_Incorrect_method_maxarg, "positional", IntegerOne);
 
         }
 

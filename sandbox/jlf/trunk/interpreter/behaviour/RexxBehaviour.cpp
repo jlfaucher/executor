@@ -235,13 +235,14 @@ void RexxBehaviour::copyBehaviour(RexxBehaviour *source)
  * @param name       The method name.
  * @param entryPoint The method entry point
  * @param arguments  The argument definition.
+ * @param named_arguments  The named argument definition.
  *
  * @return The created method object.
  */
-RexxMethod *RexxBehaviour::define(const char *name, PCPPM entryPoint, size_t arguments)
+RexxMethod *RexxBehaviour::define(const char *name, PCPPM entryPoint, size_t arguments, size_t named_arguments)
 {
     RexxString *n = RexxMemory::getGlobalName(name);
-    RexxMethod *method = new RexxMethod(n, CPPCode::resolveExportedMethod(name, entryPoint, arguments));
+    RexxMethod *method = new RexxMethod(n, CPPCode::resolveExportedMethod(name, entryPoint, arguments, named_arguments));
     define(n, method);
     return method;
 }
