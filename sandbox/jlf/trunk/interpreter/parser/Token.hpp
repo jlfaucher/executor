@@ -250,6 +250,8 @@ typedef int TokenClass;
 #define SUBKEY_TRUE        SUBKEY_STRICT      + 1
 #define SUBKEY_FALSE       SUBKEY_TRUE        + 1
 #define SUBKEY_NAMEDARGUMENTS SUBKEY_TRUE     + 1
+#define SUBKEY_NAMED       SUBKEY_NAMEDARGUMENTS + 1
+#define SUBKEY_AUTO        SUBKEY_NAMED       + 1
 
 /* token extended types - end of clause */
 #define CLAUSEEND_EOF         2301

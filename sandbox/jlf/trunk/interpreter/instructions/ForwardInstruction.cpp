@@ -296,7 +296,7 @@ void RexxInstructionForward::execute(
                 /* not a directory item ? */
                 if (argDirectory == TheNilObject)
                 {
-                    reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory or NIL");
+                    reportException(Error_Execution_user_defined , "FORWARD: The value of 'NAMEDARGUMENTS' must be a directory or NIL");
                 }
                 // Push each index, item on the stack
                 // namedCount = argDirectory->appendAllIndexesItemsTo(stack);

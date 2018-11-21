@@ -204,10 +204,38 @@ RexxObject *RexxStem::unknown(
         reportException(Error_Incorrect_method_noarray, IntegerTwo);
     }
 
-    // TODO named arguments
+    // Should check that _name1 = "NAMEDARGUMENTS"
 
-    /* just send the message on          */
-    return this->value->sendMessage(msgname, arguments);
+    ProtectedObject p_namedArguments;
+    if (namedArguments != OREF_NULL && namedArguments != TheNilObject)
+    {
+        /* get a directory version           */
+        namedArguments = namedArguments->requestDirectory();
+        p_namedArguments = namedArguments; // GC protect
+
+        /* not a directory item ? */
+        if (namedArguments == TheNilObject)
+        {
+            reportException(Error_Execution_user_defined , "UNKNOWN: The value of 'NAMEDARGUMENTS' must be a directory or NIL");
+        }
+    }
+
+    size_t argumentsCount = arguments ? arguments->size() : 0;
+    size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
+
+    // Optimization: don't create an intermediate array if no arg
+    if (argumentsCount == 0 && namedArgumentsCount == 0) return this->value->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
+
+    RexxArray *args = new_array(argumentsCount + 1 + (2 * namedArgumentsCount));
+    ProtectedObject p_args(args);
+    for (size_t i = 1; i <= argumentsCount; i++)
+    {
+        RexxObject *arg = arguments->get(i);
+        args->put(arg, i);
+    }
+    args->append(new_integer(namedArgumentsCount));
+    if (namedArgumentsCount != 0) namedArguments->appendAllIndexesItemsTo(args);
+    return this->value->sendMessage(msgname, args->data(), argumentsCount);
 }
 
 RexxObject *RexxStem::bracket(

@@ -1723,7 +1723,7 @@ RexxObject  *RexxObject::requestRexx(
  * @return The method result.
  */
 RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
-                                 RexxString *_name1, RexxDirectory *named_arguments)
+                                 RexxString *name1, RexxDirectory *named_arguments)
 {
     RexxString *messageName;
     RexxObject *startScope;
@@ -1738,7 +1738,6 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
     // Named arguments
     // >>-sendWith(messagename,arguments,namedArguments:namedArguments)---><
 
-    // Should check that _name1 = "NAMEDARGUMENTS"
 
     ProtectedObject p_named_arguments;
     size_t named_count = 0;
@@ -1751,7 +1750,7 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
         /* not a directory item ? */
         if (named_arguments == TheNilObject)
         {
-            reportException(Error_Execution_user_defined , "sendWith namedArguments must be a directory or NIL");
+            reportException(Error_Execution_user_defined , "sendWith: The value of NAMEDARGUMENTS must be a directory or NIL");
         }
         named_count = named_arguments->items();
     }
@@ -2052,7 +2051,7 @@ RexxObject  *RexxObject::run(
                             p_argdirectory = argdirectory;
                             if (argdirectory == TheNilObject)
                             {
-                                reportException(Error_Execution_user_defined , "Directory must be a directory or NIL");
+                                reportException(Error_Execution_user_defined , "RUN: The value passed after 'Directory' must be a directory or NIL");
                             }
                             named_argcount = argdirectory->items();
                         }
@@ -2107,7 +2106,7 @@ RexxObject  *RexxObject::run(
                         p_argdirectory = argdirectory;
                         if (argdirectory == TheNilObject)
                         {
-                            reportException(Error_Execution_user_defined , "Directory must be a directory or NIL");
+                            reportException(Error_Execution_user_defined , "RUN: The value passed after 'Directory' must be a directory or NIL");
                         }
                         named_argcount = argdirectory->items();
                     }

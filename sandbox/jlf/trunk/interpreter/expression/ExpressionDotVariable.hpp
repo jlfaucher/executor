@@ -60,6 +60,7 @@ class RexxDotVariable : public RexxVariableBase {
   void flatten(RexxEnvelope *);
   RexxObject *evaluate(RexxActivation *, RexxExpressionStack *);
   RexxObject *getValue(RexxActivation *);
+  RexxString *getName() {return variableName;}
 
   RexxString *variableName;     // name of the environment symbol
 

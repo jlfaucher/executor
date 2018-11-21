@@ -301,7 +301,7 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
         /* not a directory item ? */
         if (named_args == TheNilObject)
         {
-            reportException(Error_Execution_user_defined , "callWith namedArguments must be a directory or NIL");
+            reportException(Error_Execution_user_defined , "CALLWITH: The value of 'NAMEDARGUMENTS' must be a directory or NIL");
         }
         named_count = named_args->items();
     }

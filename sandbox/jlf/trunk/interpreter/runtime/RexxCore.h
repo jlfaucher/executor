@@ -262,6 +262,10 @@ const int NONNEGATIVE = 2;             /* integer must be non-negative      */
 const int WHOLE       = 3;             /* integer must be whole             */
 
 
+/******************************************************************************/
+/* Argument helpers                                                           */
+/******************************************************************************/
+
 // some very common class tests
 inline bool isString(RexxObject *o) { return isOfClass(String, o); }
 inline bool isInteger(RexxObject *o) { return isOfClass(Integer, o); }
@@ -460,6 +464,63 @@ inline RexxArray * REQUEST_ARRAY(RexxObject *obj) { return ((obj)->requestArray(
 
 /* The next macro is specifically for REQUESTing an INTEGER,                  */
 inline RexxInteger * REQUEST_INTEGER(RexxObject *obj) { return ((obj)->requestInteger(Numerics::ARGUMENT_DIGITS));}
+
+
+/******************************************************************************/
+/* Named argument helpers                                                     */
+/******************************************************************************/
+
+struct NamedArgument
+{
+    NamedArgument(const char *name=NULL, size_t minimumLength=-1, RexxObject *value=OREF_NULL, bool assigned=false)
+    : name(name), minimumLength(minimumLength), value(value), assigned(assigned) {};
+
+    const char *name;       // name to search
+    size_t minimumLength;   // abbreviation supported, pass -1 if no abbreviation
+    RexxObject *value;      // you can pass OREF_NULL or a default value
+    bool assigned;          // true if already assigned
+};
+
+class NamedArguments
+{
+  public:
+    NamedArguments(size_t count): count(count)
+    {
+        this->namedArguments = new NamedArgument[count];
+    }
+
+    ~NamedArguments()
+    {
+        delete[] this->namedArguments;
+        this->namedArguments = NULL;
+    }
+
+    NamedArgument &operator[](size_t index)
+    {
+        return this->namedArguments[index];
+    }
+
+    void clearAssigned()
+    {
+        for (size_t i=0; i < this->count; i++)
+        {
+            namedArguments[i].assigned = false;
+        }
+    }
+
+    const size_t count;
+
+  private:
+    NamedArgument *namedArguments;
+};
+
+// Resides in UseStrictInstruction.cpp.
+// name: name of the argument passed by the caller, to search in namedArguments.
+// value: value of the argument passed by the caller, to store in namedArguments if name is found.
+// namedArguments : expected names, typically the names declared with USE NAMED ARG.
+// strict: raise error if true and name not found.
+bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expectedNamedArguments, bool strict=true);
+
 
 /******************************************************************************/
 /* Typed method invocation macros                                             */

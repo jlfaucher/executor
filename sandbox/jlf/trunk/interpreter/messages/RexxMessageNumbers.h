@@ -647,6 +647,11 @@
 #define Message_Translations_internal_code_msg                       741
 #define Message_Translations_sourceless_method_invocation_msg        742
 #define Message_Translations_sourceless_routine_invocation_msg       743
+#define Error_Incorrect_call_nonamedarg_msg                          744
+#define Error_Incorrect_method_nonamedarg_msg                        745
+#define Error_Simple_variable_symbol_expected_msg                    746
+#define Error_Skipped_variable_not_allowed_USE_NAMED_msg             747
+#define Error_Variable_symbol_expected_USE_NAMED_msg                 748
 
 
 #endif

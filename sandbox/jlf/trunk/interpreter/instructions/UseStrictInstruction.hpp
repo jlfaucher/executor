@@ -60,12 +60,14 @@ public:
     inline void  operator delete(void *) { }
     inline void  operator delete(void *, void *) { }
 
-    RexxInstructionUseStrict(size_t, bool, bool, RexxQueue *, RexxQueue *);
+    RexxInstructionUseStrict(size_t, bool, bool, bool, bool, RexxQueue *, RexxQueue *);
     inline RexxInstructionUseStrict(RESTORETYPE restoreType) { ; };
     void live(size_t);
     void liveGeneral(int reason);
     void flatten(RexxEnvelope *);
     void execute(RexxActivation *, RexxExpressionStack *);
+    void executePositionalArguments(RexxActivation *, RexxExpressionStack *);
+    void executeNamedArguments(RexxActivation *, RexxExpressionStack *);
 
 protected:
     RexxObject *getArgument(RexxObject **arglist, size_t count, size_t target);
@@ -74,6 +76,8 @@ protected:
     size_t minimumRequired;          // the minimum number of require arguments
     bool variableSize;               // additional arguments allowed after last
     bool strictChecking;             // determines whether to apply strict argument checks
+    bool autoCreation;               // use auto named arg
+    bool namedArg;                   // use named arg
     UseVariable variables[1];        // List of variables for USE
 };
 #endif

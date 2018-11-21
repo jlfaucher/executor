@@ -58,7 +58,7 @@ class RexxCompoundVariable : public RexxVariableBase {
   inline void  operator delete(void *, size_t) { ; }
   inline void  operator delete(void *, void *) { ; }
 
-  RexxCompoundVariable(RexxString *, size_t, RexxQueue *, size_t);
+  RexxCompoundVariable(RexxString *, RexxString *, size_t, RexxQueue *, size_t);
   inline RexxCompoundVariable(RESTORETYPE restoreType) { ; };
   void live(size_t);
   void liveGeneral(int reason);
@@ -80,7 +80,9 @@ class RexxCompoundVariable : public RexxVariableBase {
   void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *);
   inline RexxString * variableStem() {return this->stemName;};
   void upper(RexxActivation *);
+  RexxString *getName() {return compoundName;}
 
+  RexxString *compoundName;            // The compound name from which the stem name and tails have been extracted
   RexxString *stemName;                // the stem variable name
   size_t      index;                   /* lookaside table index             */
   size_t      tailCount;               /* count of tails.                   */

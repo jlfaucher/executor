@@ -808,5 +808,5 @@ RexxObject *RexxVariableDictionary::buildCompoundVariable(
         }
     }
     /* create and return a new compound  */
-    return(RexxObject *)new (tails->getSize()) RexxCompoundVariable(stem, 0, tails, tails->getSize());
+    return(RexxObject *)new (tails->getSize()) RexxCompoundVariable(variable_name, stem, 0, tails, tails->getSize());
 }

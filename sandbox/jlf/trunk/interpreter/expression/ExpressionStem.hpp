@@ -76,6 +76,7 @@ class RexxStemVariable : public RexxVariableBase {
   bool sort(RexxActivation *context, RexxString *prefix, int order, int type, size_t start, size_t end, size_t firstcol, size_t lastcol);
   inline size_t getIndex() {return this->index;};
   void upper(RexxActivation *);
+  RexxString *getName() {return stem;}
 
   RexxString  *stem;                   // the stem variable name
   size_t      index;                   /* lookaside table index             */

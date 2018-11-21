@@ -2502,17 +2502,32 @@ RexxInstruction *RexxSource::upperNew()
 RexxInstruction *RexxSource::useNew()
 {
     bool strictChecking = false;  // no strict checking enabled yet
+    bool autoCreation = false;
+    bool namedArg = false;
 
     // The STRICT keyword turns this into a different instruction with different
     // syntax rules
     RexxToken *token = nextReal();
-    int subkeyword = this->subKeyword(token);
 
-    if (subkeyword == SUBKEY_STRICT)
+    if (subKeyword(token) == SUBKEY_STRICT)
     {
         refineSubclass(token, IS_SUBKEY);
         token = nextReal();        // skip over the token
         strictChecking = true;     // apply the strict checks.
+    }
+
+    if (subKeyword(token) == SUBKEY_AUTO)
+    {
+        refineSubclass(token, IS_SUBKEY);
+        token = nextReal();        // skip over the token
+        autoCreation = true;
+    }
+
+    if (subKeyword(token) == SUBKEY_NAMED)
+    {
+        refineSubclass(token, IS_SUBKEY);
+        token = nextReal();        // skip over the token
+        namedArg = true;
     }
 
     // the only subkeyword supported is ARG
@@ -2538,6 +2553,8 @@ RexxInstruction *RexxSource::useNew()
         // this could be a token to skip a variable
         if (token->classId == TOKEN_COMMA)
         {
+            if (namedArg) syntaxError(Error_Skipped_variable_not_allowed_USE_NAMED);
+
             // this goes on as a variable, but an empty entry to process.
             // we also need to push empty entries on the other queues to keep everything in sync.
             variable_list->push(OREF_NULL);
@@ -2574,6 +2591,11 @@ RexxInstruction *RexxSource::useNew()
             if (retriever == OREF_NULL)
             {
                 syntaxError(Error_Variable_expected_USE, token);
+            }
+            // A message term assignment is not allowed for USE NAMED
+            if (namedArg && ((RexxVariableBase *)retriever)->isAllowedForUseNamed() == false)
+            {
+                syntaxError(Error_Variable_symbol_expected_USE_NAMED);
             }
             variable_list->push(retriever);
             variableCount++;
@@ -2630,7 +2652,7 @@ RexxInstruction *RexxSource::useNew()
     }
 
     RexxInstruction *newObject = new_variable_instruction(USE, Use, sizeof(RexxInstructionUseStrict) + (variableCount == 0 ? 0 : (variableCount - 1)) * sizeof(UseVariable));
-    new ((void *)newObject) RexxInstructionUseStrict(variableCount, strictChecking, allowOptionals, variable_list, defaults_list);
+    new ((void *)newObject) RexxInstructionUseStrict(variableCount, strictChecking, allowOptionals, autoCreation, namedArg, variable_list, defaults_list);
 
     // release the object locks and return;
     removeObj(variable_list);

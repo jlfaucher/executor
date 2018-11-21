@@ -654,7 +654,8 @@ special character (such as a parenthesis).
 <varlistentry><term>916</term><listitem><para>Cannot read from a write-only property.</para></listitem></varlistentry>
 <varlistentry><term>917</term><listitem><para>Cannot write to a read-only property or typelib element.</para></listitem></varlistentry>
 <varlistentry><term>918</term><listitem><para>Invalid native function signature specification</para></listitem></varlistentry>
-<varlistentry><term>919</term><listitem><para>Argument <emphasis role="italic">argument</emphasis> must have a stem object or stem name value; found "<emphasis role="italic">value</emphasis>"</para></listitem></varlistentry></variablelist>
+<varlistentry><term>919</term><listitem><para>Argument <emphasis role="italic">argument</emphasis> must have a stem object or stem name value; found "<emphasis role="italic">value</emphasis>"</para></listitem></varlistentry>
+<varlistentry><term>920</term><listitem><para>Missing named argument in invocation of <emphasis role="italic">routine</emphasis>; argument "<emphasis role="italic">argument_name</emphasis>" is required</para></listitem></varlistentry></variablelist>
 </section>
 <section id="ERR41"><title>Error 41 - Bad arithmetic conversion</title>
 <para><emphasis role="bold">Explanation:</emphasis></para>
@@ -745,6 +746,14 @@ special character (such as a parenthesis).
 <variablelist>
 <varlistentry><term>001</term><listitem><para>Interpretation error: unexpected failure initializing the interpreter</para></listitem></varlistentry>
 <varlistentry><term>900</term><listitem><para><emphasis role="italic">message</emphasis></para></listitem></varlistentry></variablelist>
+</section>
+<section id="ERR87"><title>Error 87 - Variable symbol expected</title>
+<para><emphasis role="bold">Explanation:</emphasis></para>
+<para>An instruction was expecting a Rexx variable symbol to be used for an assignment.</para>
+<para>The associated subcodes are: </para>
+<variablelist>
+<varlistentry><term>001</term><listitem><para>Skipped variables are not allowed by the USE NAMED instruction</para></listitem></varlistentry>
+<varlistentry><term>002</term><listitem><para>The USE NAMED instruction requires a comma-separated list of variable symbols</para></listitem></varlistentry></variablelist>
 </section>
 <section id="ERR88"><title>Error 88 - Invalid argument</title>
 <para><emphasis role="bold">Explanation:</emphasis></para>
@@ -887,7 +896,8 @@ special character (such as a parenthesis).
 <varlistentry><term>968</term><listitem><para>Invalid native method signature specification</para></listitem></varlistentry>
 <varlistentry><term>969</term><listitem><para>Method argument <emphasis role="italic">argument</emphasis> must have a stem object value; found "<emphasis role="italic">value</emphasis>"</para></listitem></varlistentry>
 <varlistentry><term>970</term><listitem><para>COPY method is not supported for object <emphasis role="italic">object</emphasis></para></listitem></varlistentry>
-<varlistentry><term>971</term><listitem><para>Method argument <emphasis role="italic">argument</emphasis> cannot have more than a single dimension</para></listitem></varlistentry></variablelist>
+<varlistentry><term>971</term><listitem><para>Method argument <emphasis role="italic">argument</emphasis> cannot have more than a single dimension</para></listitem></varlistentry>
+<varlistentry><term>972</term><listitem><para>Missing named argument in method; argument "<emphasis role="italic">argument</emphasis>" is required</para></listitem></varlistentry></variablelist>
 </section>
 <section id="ERR97"><title>Error 97 - Object method not found</title>
 <para><emphasis role="bold">Explanation:</emphasis></para>

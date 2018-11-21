@@ -1832,6 +1832,21 @@ $ Message_Translations_sourceless_method_invocation
 $ Message_Translations_sourceless_routine_invocation
 743 Routine &1 in package "&2" (no source available)
 
+$ Error_Incorrect_call_nonamedarg
+744 Missing named argument in invocation of &1; argument "&2" is required
+
+$ Error_Incorrect_method_nonamedarg
+745 Missing named argument in method; argument "&1" is required
+
+$ Error_Simple_variable_symbol_expected
+746 Variable symbol expected
+
+$ Error_Skipped_variable_not_allowed_USE_NAMED
+747 Skipped variables are not allowed by the USE NAMED instruction
+
+$ Error_Variable_symbol_expected_USE_NAMED
+748 The USE NAMED instruction requires a comma-separated list of variable symbols
+
 
 $ * -------------------------------------------------------------------------- */
 $ * --            ==================================================        -- */

@@ -58,6 +58,17 @@ class RexxVariableBase : public RexxInternalObject {
   virtual void expose(RexxActivation *, RexxExpressionStack *, RexxVariableDictionary *) {;}
   virtual void procedureExpose(RexxActivation *, RexxActivation *, RexxExpressionStack *) {;}
   virtual void upper(RexxActivation *) {;}
+  virtual RexxString *getName() { return OREF_NULL;}
+  virtual bool isAllowedForUseNamed() {return true;};
 };
 
+/*
+Subclasses:
+RexxCompoundVariable        ExpressionCompoundVariable.hpp
+RexxDotVariable             ExpressionDotVariable.hpp
+RexxExpressionMessage       ExpressionMessage.hpp
+RexxParseVariable           ExpressionVariable.hp
+RexxStemVariable            ExpressionStem.hpp
+RexxVariableReference       IndirectVariableReference.hpp
+*/
 #endif

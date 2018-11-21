@@ -50,13 +50,15 @@
 #include "ExpressionBaseVariable.hpp"
 
 
-RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, RexxQueue *variable_list, RexxQueue *defaults)
+RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, bool autoCreate, bool named, RexxQueue *variable_list, RexxQueue *defaults)
 {
     // set the variable count and the option flag
     variableCount = count;
     variableSize = extraAllowed; // we might allow an unchecked number of additional arguments
     minimumRequired = 0;         // do don't necessarily require any of these.
     strictChecking = strict;     // record if this is the strict form
+    autoCreation = autoCreate;
+    namedArg = named;
 
     // items are added to the queues in reverse order, so we pop them off and add
     // them to the end of the list as we go.
@@ -139,6 +141,13 @@ void RexxInstructionUseStrict::flatten(RexxEnvelope *envelope)
 
 
 void RexxInstructionUseStrict::execute(RexxActivation *context, RexxExpressionStack *stack)
+{
+    if (this->namedArg) this->executeNamedArguments(context, stack);
+    else this->executePositionalArguments(context, stack);
+}
+
+
+void RexxInstructionUseStrict::executePositionalArguments(RexxActivation *context, RexxExpressionStack *stack)
 {
     context->traceInstruction(this);     // trace if necessary
     // get the argument information from the context
@@ -254,4 +263,171 @@ RexxObject *RexxInstructionUseStrict::getArgument(RexxObject **arglist, size_t c
     return arglist[target];
 }
 
+
+void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, RexxExpressionStack *stack)
+{
+    context->traceInstruction(this);     // trace if necessary
+    // get the argument information from the context
+    RexxObject **arglist = context->getMethodArgumentList();
+    size_t argcount = context->getMethodArgumentCount();
+    size_t named_argcount = 0;
+    arglist[argcount]->unsignedNumberValue(named_argcount);
+
+    // Helper storage to associate the values passed by the caller to the expected arguments declared in the USE instruction
+    NamedArguments namedArguments(this->variableCount);
+
+    // Iterate over the named arguments declared by the callee with the instruction USE NAMED ARG.
+    // Collect their names.
+    for (size_t i = 0; i < this->variableCount; i++)
+    {
+        RexxVariableBase *variable = this->variables[i].variable;
+        namedArguments[i].name = variable->getName()->getStringData();
+    }
+
+    // Iterate over the named arguments passed by the caller, match them with the names declared by the callee.
+    // In case of additional argument not declared by the callee (no match):
+    // - If strict without ellipsis (...) then an error is raised by the function namedArgument
+    // - otherwise if mode auto then a variable is created.
+    for (size_t i= argcount + 1; i < (argcount + 1 + (2 * named_argcount)); i+=2)
+    {
+        RexxString *argName = (RexxString *)arglist[i];
+        RexxObject *argValue = arglist[i+1];
+        bool match = namedArgument(argName, argValue, namedArguments, this->strictChecking && !this->variableSize);
+        if (!match && this->autoCreation)
+        {
+            context->traceResult(argValue); // trace if necessary
+            RexxVariableBase *retriever = RexxVariableDictionary::getVariableRetriever(argName);
+            retriever->assign(context, stack, argValue);
+        }
+    }
+
+    // Now that we have matched each named argument of the caller, we can decide if a default value on callee side is needed.
+    // There is no evaluation of a default value when a value has been provided by the caller.
+    // The order of evaluation is the order of declaration in USE NAMED ARG (left-to-right).
+    // The automatic variables are already created and can be used during the evaluation of a default value.
+    for (size_t i=0;  i < this->variableCount; i++)
+    {
+        RexxVariableBase *variable = this->variables[i].variable;
+        NamedArgument &namedArgument = namedArguments[i];
+        if (namedArgument.assigned)
+        {
+            RexxObject *argValue = namedArgument.value;
+            context->traceResult(argValue); // trace if necessary
+            variable->assign(context, stack, argValue);
+        }
+        else
+        {
+            // grab a potential default value
+            RexxObject *defaultValue = this->variables[i].defaultValue;
+
+            // and omitted argument is only value if we've marked it as optional
+            // by giving it a default value
+            if (defaultValue != OREF_NULL)
+            {
+                // evaluate the default value now
+                defaultValue = defaultValue->evaluate(context, stack);
+                context->traceResult(defaultValue);  // trace if necessary
+                // assign the value
+                variable->assign(context, stack, defaultValue);
+                stack->pop();    // remove the value from the stack
+            }
+            else
+            {
+                if (!this->strictChecking)
+                {
+                    // not doing strict checks, revert to old rules and drop the variable.
+                    variable->drop(context);
+
+                }
+                else
+                {
+                    if (context->inMethod())
+                    {
+                        reportException(Error_Incorrect_method_nonamedarg, variable->getName());
+                    }
+                    else
+                    {
+                        reportException(Error_Incorrect_call_noarg, context->getCallname(), variable->getName());
+                    }
+                }
+            }
+        }
+    }
+
+    context->pauseInstruction();    // do debug pause if necessary
+}
+
+
+/*============================================================================*/
+/* Named argument helpers for internal methods                                */
+/*============================================================================*/
+
+/*
+Store the value of the named argument in the right box, if recognized (abbreviation supported)
+Assumption: you will not call this helper with the same name twice, because once a name has been matched, it is skipped.
+Example:
+    // USE NAMED ARG ITEM, INDEX=2, MAXDEPTH=10
+    NamedArguments namedArguments(3);
+    namedArguments[0] = NamedArgument("ITEM", 2, OREF_NULL);        // At least 2 characters, no default value
+    namedArguments[1] = NamedArgument("INDEX", 2, IntegerZero);     // At least 2 characters, default value = 0
+    namedArguments[2] = NamedArgument("MAXDEPTH", 1, IntegerTen);   // At least 1 character, default value = 10
+    // For each named argument passed by the caller
+    namedArgument(name1, value1, namedArguments);
+    namedArgument(name2, value2, namedArguments);
+    namedArgument(name3, value3, namedArguments);
+*/
+bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expectedNamedArguments, bool strict)
+{
+    if (name == OREF_NULL) return false;
+
+    // The logic is similar to RexxString::abbrev, but here I avoid to use strlen.
+    // For a given expected argument name, there is only one loop over the characters, which stops as soon as possible.
+    // So, passing a named argument like N:value where the expected argument name is "NAMEDPARAMETERS" with abbrev=1
+    // should be *almost* as efficient as testing if the first character is equal to "N".
+    // (this kind of test is done in RexxObject::run: testing only the first character and ignoring the rest of the characters)
+
+    // There is no order for the named argument, so try all the expected names
+    for (size_t i=0; i < expectedNamedArguments.count; i++)
+    {
+        const char *nameIterator = name->getStringData();
+        const char *expectedNameIterator = expectedNamedArguments[i].name;
+
+        if (expectedNamedArguments[i].assigned) continue; // Already matched
+
+        size_t minimumLength = expectedNamedArguments[i].minimumLength;
+        while(1)
+        {
+            if (minimumLength > 0)
+            {
+                // Checking the mandatory characters
+                if (*nameIterator != *expectedNameIterator) break; // no match
+                if (*nameIterator == '\0')
+                {
+                    // good, the name matches an expected argument name
+                    expectedNamedArguments[i].value = value;
+                    expectedNamedArguments[i].assigned = true;
+                    return true;
+                }
+                minimumLength--;
+            }
+            else
+            {
+                // Checking the optional characters
+                if (*nameIterator == '\0')
+                {
+                    // good, the name matches an expected argument name
+                    expectedNamedArguments[i].value = value;
+                    expectedNamedArguments[i].assigned = true;
+                    return true;
+                }
+                if (*nameIterator != *expectedNameIterator) break; // no match
+            }
+            nameIterator++;
+            expectedNameIterator++;
+        }
+    }
+    // The name did not match an expected argument name
+    if (strict) reportException(Error_Invalid_argument_general, name, "is not an expected argument name");
+    return false;
+}
 

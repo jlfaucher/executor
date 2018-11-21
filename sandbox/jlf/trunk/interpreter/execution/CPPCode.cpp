@@ -171,7 +171,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         }
 
         // This is the temporary list of named arguments
-        const size_t NAMED_ARGUMENT_MAX = 2; // 2 named arguments supported
+        const size_t NAMED_ARGUMENT_MAX = 3; // 3 named arguments supported
         RexxObject * named_argument_list[2 * NAMED_ARGUMENT_MAX]; // 2 items per named argument: name, value
         if (named_argumentCount != (uint16_t)-1 && named_count < named_argumentCount)
         {
@@ -330,9 +330,52 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
             }
         }
         else
+        if (named_argumentCount == 3)
+        {
+            switch (argumentCount)
+            {
+              case 0:                        /* zero                              */
+                result = (receiver->*((PCPPM6)methodEntry))(NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0),
+                                                            NAMED_ARG_NAME(1), NAMED_ARG_VALUE(1),
+                                                            NAMED_ARG_NAME(2), NAMED_ARG_VALUE(2));
+                break;
+
+              case 1:
+                result = (receiver->*((PCPPM7)methodEntry))(argPtr[0],
+                                                            NAMED_ARG_NAME(0), NAMED_ARG_VALUE(0),
+                                                            NAMED_ARG_NAME(1), NAMED_ARG_VALUE(1),
+                                                            NAMED_ARG_NAME(2), NAMED_ARG_VALUE(2));
+                break;
+
+              case 2:
+                reportException(Error_Interpretation_user_defined, "A native method with 2 positional arguments supports only 2 named argument");
+                break;
+
+              case 3:
+                reportException(Error_Interpretation_user_defined, "A native method with 3 positional arguments supports only 2 named argument");
+                break;
+
+              case 4:
+                reportException(Error_Interpretation_user_defined, "A native method with 4 positional arguments supports only 1 named argument");
+                break;
+
+              case 5:
+                reportException(Error_Interpretation_user_defined, "A native method with 5 positional arguments supports only 1 named argument");
+                break;
+
+              case 6:
+                reportException(Error_Interpretation_user_defined, "A native method with 6 positional arguments doesn't support a named argument");
+                break;
+
+              case 7:
+                reportException(Error_Interpretation_user_defined, "A native method with 7 positional arguments doesn't support a named argument");
+                break;
+            }
+        }
+        else
         {
             // Should not happen...
-            reportException(Error_Interpretation_user_defined, "A native method supports up to 2 named arguments");
+            reportException(Error_Interpretation_user_defined, "A native method supports up to 3 named arguments");
         }
     }
 }

@@ -60,6 +60,7 @@ class RexxExpressionMessage : public RexxVariableBase {
   RexxObject *evaluate(RexxActivation *, RexxExpressionStack *);
   void assign(RexxActivation *, RexxExpressionStack *, RexxObject *);
   void makeAssignment(RexxSource *source);
+  bool isAllowedForUseNamed() {return false;}
 
   RexxObject * target;                 /* target subexpression              */
   RexxString * messageName;            // the message name

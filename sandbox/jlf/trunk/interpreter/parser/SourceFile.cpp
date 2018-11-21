@@ -4657,7 +4657,7 @@ RexxCompoundVariable *RexxSource::addCompound(
         tailCount++;                       /* up the tail count                 */
     } while (_position < end);
     /* finally, create the compound var  */
-    return new (tailCount) RexxCompoundVariable(stemName, stemRetriever->index, this->subTerms, tailCount);
+    return new (tailCount) RexxCompoundVariable(name, stemName, stemRetriever->index, this->subTerms, tailCount);
 }
 
 
@@ -5464,6 +5464,8 @@ void RexxSource::argList(
             token = nextReal();
             if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Invalid_expression_user_defined,
                                                             new_string("Named argument: expected symbol followed by colon"));
+            if (namedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Invalid_expression_user_defined,
+                                                                                   token->value->concatToCstring("Named argument: The name \"")->concatWithCstring("\" is passed more than once"));
             namedArglist->push(token->value);       /* add argument name to list */
             this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
 

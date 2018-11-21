@@ -366,6 +366,7 @@
 #define Error_Incorrect_call_write_to_readonly             40917
 #define Error_Incorrect_call_signature                     40918
 #define Error_Incorrect_call_nostem                        40919
+#define Error_Incorrect_call_nonamedarg                    40920
 #define Error_Conversion                                   41000
 #define Error_Conversion_operator                          41001
 #define Error_Conversion_prefix                            41003
@@ -405,6 +406,9 @@
 #define Error_Interpretation                               49000
 #define Error_Interpretation_initialization                49001
 #define Error_Interpretation_user_defined                  49900
+#define Error_Simple_variable_symbol_expected              87000
+#define Error_Skipped_variable_not_allowed_USE_NAMED       87001
+#define Error_Variable_symbol_expected_USE_NAMED           87002
 #define Error_Invalid_argument                             88000
 #define Error_Invalid_argument_user_defined                88900
 #define Error_Invalid_argument_noarg                       88901
@@ -520,6 +524,7 @@
 #define Error_Incorrect_method_nostem                      93969
 #define Error_Unsupported_copy_method                      93970
 #define Error_Incorrect_method_multi_dimension             93971
+#define Error_Incorrect_method_nonamedarg                  93972
 #define Error_No_method                                    97000
 #define Error_No_method_name                               97001
 #define Error_No_method_user_defined                       97900

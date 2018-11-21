@@ -56,6 +56,7 @@
 #include "RexxCompoundTail.hpp"
 
 RexxCompoundVariable::RexxCompoundVariable(
+    RexxString * _compoundName,
     RexxString * _stemName,            /* stem retriever                    */
     size_t       stemIndex,            /* stem lookaside index              */
     RexxQueue  * tailList,             /* list of tails                     */
@@ -65,6 +66,7 @@ RexxCompoundVariable::RexxCompoundVariable(
 /******************************************************************************/
 {
     this->tailCount= TailCount;          /* set the count (and hash value)    */
+    OrefSet(this, this->compoundName, _compoundName);
     OrefSet(this, this->stemName, _stemName); /* save the associate value          */
     this->index = stemIndex;             /* set the stem index                */
 
@@ -151,7 +153,7 @@ RexxObject * build(
         }
     }
     /* create and return a new compound  */
-    return(RexxObject *)new (tails->getSize()) RexxCompoundVariable(stem, 0, tails, tails->getSize());
+    return(RexxObject *)new (tails->getSize()) RexxCompoundVariable(variable_name, stem, 0, tails, tails->getSize());
 }
 
 void RexxCompoundVariable::live(size_t liveMark)
@@ -166,6 +168,7 @@ void RexxCompoundVariable::live(size_t liveMark)
     {
         memory_mark(this->tails[i]);
     }
+    memory_mark(this->compoundName);
     memory_mark(this->stemName);
 }
 
@@ -181,6 +184,7 @@ void RexxCompoundVariable::liveGeneral(int reason)
     {
         memory_mark_general(this->tails[i]);
     }
+    memory_mark_general(this->compoundName);
     memory_mark_general(this->stemName);
 }
 
@@ -194,6 +198,7 @@ void RexxCompoundVariable::flatten(RexxEnvelope *envelope)
 
     setUpFlatten(RexxCompoundVariable)
 
+    flatten_reference(newThis->compoundName, envelope);
     flatten_reference(newThis->stemName, envelope);
     for (i = 0, count = this->tailCount; i < count; i++)
     {

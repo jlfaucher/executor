@@ -3019,6 +3019,16 @@ special character (such as a parenthesis).
         <SymbolicName>Error_Incorrect_call_nostem</SymbolicName>
         <Text>Argument <Sub position="1" name="argument"/> must have a stem object or stem name value; found <q><Sub position="2" name="value"/></q></Text>
       </SubMessage>
+      <!-- use strict named arg-->
+      <SubMessage>
+        <Code>40</Code>
+        <Subcode>920</Subcode>
+        <MessageNumber>744</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Incorrect_call_nonamedarg</SymbolicName>
+        <Text>Missing named argument in invocation of <Sub position="1" name="routine"/>; argument <q><Sub position="2" name="argument_name"/></q> is required</Text>
+      </SubMessage>
     </Subcodes>
   </Message>
   <Message>
@@ -3407,6 +3417,36 @@ special character (such as a parenthesis).
         <Severity>Warning</Severity>
         <SymbolicName>Error_Interpretation_user_defined</SymbolicName>
         <Text><Sub position="1" name="message"/></Text>
+      </SubMessage>
+    </Subcodes>
+  </Message>
+  <Message>
+    <Code>87</Code>
+    <Subcode>000</Subcode>
+    <MessageNumber>746</MessageNumber>
+    <Component>Rexx</Component>
+    <Severity>Warning</Severity>
+    <SymbolicName>Error_Simple_variable_symbol_expected</SymbolicName>
+    <Text>Variable symbol expected</Text>
+    <Explanation><para>An instruction was expecting a Rexx variable symbol to be used for an assignment.</para></Explanation>
+    <Subcodes>
+      <SubMessage>
+        <Code>87</Code>
+        <Subcode>001</Subcode>
+        <MessageNumber>747</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Skipped_variable_not_allowed_USE_NAMED</SymbolicName>
+        <Text>Skipped variables are not allowed by the USE NAMED instruction</Text>
+      </SubMessage>
+      <SubMessage>
+        <Code>87</Code>
+        <Subcode>002</Subcode>
+        <MessageNumber>748</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Variable_symbol_expected_USE_NAMED</SymbolicName>
+        <Text>The USE NAMED instruction requires a comma-separated list of variable symbols</Text>
       </SubMessage>
     </Subcodes>
   </Message>
@@ -4462,6 +4502,16 @@ special character (such as a parenthesis).
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_multi_dimension</SymbolicName>
         <Text>Method argument <Sub position="1" name="argument"/> cannot have more than a single dimension</Text>
+      </SubMessage>
+      <!-- use strict named arg -->
+      <SubMessage>
+        <Code>93</Code>
+        <Subcode>972</Subcode>
+        <MessageNumber>745</MessageNumber>
+        <Component>Rexx</Component>
+        <Severity>Warning</Severity>
+        <SymbolicName>Error_Incorrect_method_nonamedarg</SymbolicName>
+        <Text>Missing named argument in method; argument <q><Sub position="1" name="argument"/></q> is required</Text>
       </SubMessage>
     </Subcodes>
   </Message>
