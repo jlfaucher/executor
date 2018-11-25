@@ -31,39 +31,5 @@ They could be optionally be declared with the 'use' instruction :
 use strict named args by, initial=.nil
 
 
-RexxCore.h
-inline RexxArray *arrayArgument(RexxObject *object, size_t position)
-    RexxObject *RoutineClass::callWithRexx(RexxArray *args)
-
-ObjectClass.cpp
-RexxArray *RexxObject::requestArray()
-Il n'y a pas de ::requestDirectory --> à ajouter
-
-
-void RexxCode::call
-appelé si call myroutine ...
-    appelé par void RoutineClass::runProgram
-    appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
-        appelle RexxInstructionCall::execute
-            --> CallInstruction.hpp : il y a un tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
-            Evalue chaque argument (push stack)
-            puis appelle context->externalCall (mais il peut y avoir d'autres formes d'appel)
-                RexxActivation::externalCall
-                    RoutineClass::call
-                        RexxCode::call
-appelé si myroutine~call(...)
-    appelé par void RoutineClass::runProgram
-    appelle RexxActivation::run (avec argount = 0, donc ce n'est pas encore les user args)
-        appelle RexxInstructionMessage::execute
-            --> MessageInstruction.hpp : il y a le tableau des arguments, c'est là qu'il faut ajouter le tableau des noms
-            Evalue chaque argument (push stack)
-            puis appelle stack->send(this->name, argcount, result);
-                RexxObject::messageSend
-                    RexxMethod::run
-                        RexxCode::run
-
-
-Evaluation des arguments
-RexxInstructionCall
-
-
+24/11/2018
+Named arguments are implemented.

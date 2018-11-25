@@ -21,6 +21,55 @@ Miscellaneous notes:
 Examples of extensions
 ----------------------
 
+### Named arguments
+
+A positional argument list is a serie of optional expressions, separated by commas.
+
+    caller: put("one", 1)
+    callee: use arg item, index -- order is important
+
+The position of each argument within the argument list identifies the corresponding
+parameter in the parameter list of the routine/method being invoked.
+
+This is in contrast to named argument lists, where the correspondence between
+argument and parameter is done using the parameter's name.
+
+    caller: put(index:1, item:"one")
+    callee: use named arg item, index -- order is not important
+
+[Specification of named arguments][named_arguments_spec]
+
+#### Caller side
+
+Positional and named arguments can be used in the same call.  
+Named arguments are after the last positional argument.
+
+    caller: "one two three one"~reduce("put", by:"word", initial:.set~new)
+
+Arguments:
+
+![Arguments](sandbox/jlf/docs/NamedArguments/SyntaxDiagram/sd_Arguments.png)
+
+
+Positional arguments:
+
+![Arguments](sandbox/jlf/docs/NamedArguments/SyntaxDiagram/sd_Positional_arguments.png)
+
+
+Named arguments:
+
+![Arguments](sandbox/jlf/docs/NamedArguments/SyntaxDiagram/sd_Named_arguments.png)
+
+
+#### Called side
+
+    use strict arg doer
+    use strict named arg by, initial
+    
+The named arguments are declared separately from the positional arguments.
+
+![USE NAMED ARG](sandbox/jlf/docs/NamedArguments/SyntaxDiagram/sd_Instruction_USE.png)
+
 ### Blocks (source literals)
 
 A RexxBlock is a piece of source code surrounded by curly brackets.
@@ -683,6 +732,7 @@ Same example with kestrels, to log intermediate results:
 [doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
 [doc_transformation_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/transformxml/_diary.txt "Doc XML transformations diary"
 [railroad_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/railroad/_diary.txt "Railroad diary"
+[named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.txt "Specification of named arguments"
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/samples/pipeline/pipe_readme.txt
 [doc]: https://www.dropbox.com/sh/5yjl44kulrrvvua/AAA_3d4flzAlZHwCSGxk9-G9a?dl=0 "Graphical syntax diagrams"

@@ -260,10 +260,6 @@ RexxDirectory::unknown
 see if named arguments must be supported
 
 
-RexxStem::unknown
-see if named arguments must be supported
-
-
 RexxNativeActivation::run
 see if named arguments must be supported here:
     // retrieve the argument signatures and process them
@@ -428,8 +424,8 @@ Arguments:
 
 |----+----------------------------------------------------+----|
      +--| Positional arguments |--------------------------+
-     +--| Positional arguments |--,--| Named arguments |--+
      +-------------------------------| Named arguments |--+
+     +--| Positional arguments |--,--| Named arguments |--+
 
 
 Positional arguments:
@@ -494,8 +490,8 @@ use strict auto named arg by, initial=.nil, ...     -- 'by' is mandatory.
 Message term
 ------------
 
->>-receiver-+- ~ --+-messagename--+---------+--+---------------------+---><
-            +- ~~ -+              +-:symbol-+  +-(--| Arguments |--)-+
+>>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
+            +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
 
 
 >>-receiver[--| Arguments |--]----------------------------><
@@ -521,8 +517,8 @@ Not impacted.
 Instruction CALL
 ----------------
 
->>-CALL----+-name---+----| Arguments |--------------------><
-           +-(expr)-+
+>>-CALL----+-name-----+----| Arguments |--------------------><
+           +-(-expr-)-+
 
 
 --------
@@ -542,19 +538,19 @@ There, "Array" is followed by a mandatory array. "Individual" is followed by a l
 
 exprn is a directory of named arguments.
 
->>-FORWARD--+----------+--+------------------------------------------+--+-------------------------------------+--+----------------+--+--------------+--+-----------+----><
-            +-CONTINUE-+  +-ARGUMENTS--expra-------------------------+  +-NAMEDARGUMENTS--exprn---------------+  +-MESSAGE--exprm-+  +-CLASS--exprs-+  +-TO--exprt-+
-                          +-ARRAY----(--| Arguments |--)------------------------------------------------------+
+>>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
+            +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprn--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
+                            +--------------ARRAY----(--| Arguments |--)---------------+
 
 ---------------
 Instruction USE
 ---------------
                                                        +-,----------------------+
                                                        V                        |
->>-USE--+----------+--+---------------------+--ARG--+----+--------------------+-+--+----------+---+-----><
-        +--STRICT--+  +--+--------+--NAMED--+       |    +-name-+----------+--+    +--,--...--+   |
-                         +--AUTO--+                 |           +-=--expr--+                      |
-                                                    +--...----------------------------------------+
+>>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+----------+----+--+----------+---+-----><
+        +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+   |
+                                                    +--+-------+----------------------------------+
+                                                       +--...--+
 
 When the option 'NAMED' is specified:
 - name is a simple symbol, a stem or a compound symbol.
@@ -584,10 +580,10 @@ Inconsistency with the instruction 'forward'.
 Here, "Array" is followed by a mandatory array.
 There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
 
->>-new(target,messagename-+---------------------------------------------+-)--><
-                          +-,Individual--| Arguments |------------------+
-                          +--+-----------------+--+---------------------+
-                             +-,Array,argument-+  +-,Directory,argument-+
+>>-new(-target-,-messagename-+----------------------------------------------------+-)--><
+                             +-,-"Individual"--| Arguments |----------------------+
+                             +--+-------------------+--+-----------------------+--+
+                                +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
 
 -------------
 Message~namedArguments
@@ -604,24 +600,24 @@ Inconsistency with the instruction 'forward'.
 Here, "Array" is followed by a mandatory array.
 There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
 
->>-run(method-+---------------------------------------------+-)--><
-              +-,Individual---| Arguments |-----------------+
-              +--+-----------------+--+---------------------+
-                 +-,Array,argument-+  +-,Directory,argument-+
+>>-run(-method-+----------------------------------------------------+-)--><
+               +-,-"Individual"---| Arguments |---------------------+
+               +--+-------------------+--+-----------------------+--+
+                  +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
 
 
 ---------------
 Object~sendWith
 ---------------
 
->>-sendWith(messagename,arguments,namedArguments:namedArguments)---><
+>>-sendWith(-messagename-,-arguments-,-namedArguments-:-namedArguments-)---><
 namedArguments: can be abreviated to 1 letter
 
 ----------------
 Object~startWith
 ----------------
 
->>-startWith(messagename,arguments, namedArguments:namedArguments)---><
+>>-startWith(-messagename-,-arguments-,-namedArguments-:-namedArguments-)---><
 namedArguments: can be abreviated to 1 letter
 
 
@@ -629,7 +625,7 @@ namedArguments: can be abreviated to 1 letter
 Routine~callWith
 ----------------
 
->>-callWith(array, namedArguments:namedArguments)----------------------------><
+>>-callWith(-array-,-namedArguments-:-namedArguments-)----------------------><
 namedArguments: can be abreviated to 1 letter
 
 
