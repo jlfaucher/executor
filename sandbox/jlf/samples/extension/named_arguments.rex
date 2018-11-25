@@ -2,8 +2,6 @@
 Named arguments
 */
 
--- call interpret 'call useStrictPositionalNamed 1, , 3, , a5:5, a6:6'
-
 -------------------
 -- Instruction CALL
 -------------------
