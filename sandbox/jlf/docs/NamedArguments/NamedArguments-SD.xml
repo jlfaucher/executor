@@ -1,0 +1,161 @@
+<!--
+rexx transformxml/transformfile -syntdiag NamedArguments.xml
+-->
+
+
+<programlisting>
+<![CDATA[
+Arguments:
+
+|----+----------------------------------------------------+----|
+     +--| Positional arguments |--------------------------+
+     +-------------------------------| Named arguments |--+
+     +--| Positional arguments |--,--| Named arguments |--+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Positional arguments:
+
+    +-,--------------+
+    V                |
+|-----+------------+-+----|
+      |            |
+      +-expression-+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Named arguments:
+
+    +-,-----------------------+
+    V                         |
+|-----argName-:-argExpression-+----|
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Message term:
+
+>>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
+            +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
+
+Message term index:
+
+>>-receiver[--| Arguments |--]----------------------------><
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Instruction CALL:
+
+>>-CALL----+-name-----+----| Arguments |--------------------><
+           +-(-expr-)-+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Function:
+
+>>-function_name(----| Arguments |----)-------------------><
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Instruction FORWARD:
+
+>>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
+            +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprn--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
+                            +--------------ARRAY----(--| Arguments |--)---------------+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Instruction USE:
+
+                                                       +-,----------------------+
+                                                       V                        |
+>>-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+----------+----+--+----------+---+-----><
+        +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+   |
+                                                    +--+-------+----------------------------------+
+                                                       +--...--+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Message~new:
+
+>>-new(-target-,-messagename-+----------------------------------------------------+-)--><
+                             +-,-"Individual"--| Arguments |----------------------+
+                             +--+-------------------+--+-----------------------+--+
+                                +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Object~run:
+
+>>-run(-method-+----------------------------------------------------+-)--><
+               +-,-"Individual"---| Arguments |---------------------+
+               +--+-------------------+--+-----------------------+--+
+                  +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Object~sendWith:
+
+>>-sendWith(-messagename-,-arguments-,-namedArguments -:-namedArguments-)---><
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Object~startWith:
+
+>>-startWith(-messagename-,-arguments-,-namedArguments-:-namedArguments-)---><
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Routine~callWith:
+
+>>-callWith(-array-,-namedArguments-:-namedArguments-)----------------------><
+
+]]>
+</programlisting>
