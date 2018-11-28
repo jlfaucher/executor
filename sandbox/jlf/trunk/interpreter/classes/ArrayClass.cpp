@@ -922,7 +922,7 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
         else if (indexCount == 0)
         {
             /* report apropriate bounds          */
-            reportException(Error_Incorrect_method_minarg, _start);
+            reportException(Error_Incorrect_method_minarg, "positional", _start);
         }
         /* validate integer index            */
         position = _index[0]->requiredPositive((int)_start);

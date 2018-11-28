@@ -831,10 +831,10 @@ $ Error_Incorrect_call_result
 373 Result returned by &1 is longer than &2:  "&3"
 
 $ Error_Incorrect_call_minarg
-374 Not enough arguments in invocation of &1; minimum expected is &2
+374 Not enough &1 arguments in invocation of &2; minimum expected is &3
 
 $ Error_Incorrect_call_maxarg
-375 Too many arguments in invocation of &1; maximum expected is &2
+375 Too many &1 arguments in invocation of &2; maximum expected is &3
 
 $ Error_Incorrect_call_noarg
 376 Missing argument in invocation of &1; argument &2 is required
@@ -993,7 +993,7 @@ $ Error_No_result_object_message
 429 Message "&1" did not return a result
 
 $ Error_Incorrect_method_minarg
-431 Not enough arguments for method; &1 expected
+431 Not enough &1 arguments for method; &2 expected
 
 $ Error_Incorrect_method_maxarg
 432 Too many &1 arguments in invocation of method; &2 expected

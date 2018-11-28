@@ -552,7 +552,7 @@ RexxObject *RexxMessage::newRexx(
     if (num_args < 2 )                   /* passed less than 2 args?          */
     {
         /* Yes, this is an error.            */
-        reportException(Error_Incorrect_method_minarg,  IntegerTwo);
+        reportException(Error_Incorrect_method_minarg,  "positional", IntegerTwo);
     }
     RexxObject *_target   = msgArgs[0];              /* Get the receiver object           */
     requiredArgument(_target, ARG_ONE);
@@ -602,7 +602,7 @@ RexxObject *RexxMessage::newRexx(
                 /*args?                              */
                 if (num_args < 4)              /* this is an error                  */
                 {
-                    reportException(Error_Incorrect_method_minarg, IntegerFour);
+                    reportException(Error_Incorrect_method_minarg, "positional", IntegerFour);
                 }
 
                 /* are there more than 4 required    */

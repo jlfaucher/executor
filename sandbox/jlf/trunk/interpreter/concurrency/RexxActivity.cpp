@@ -622,6 +622,20 @@ void RexxActivity::reportAnException(
 
 void RexxActivity::reportAnException(
     wholenumber_t errcode,             /* REXX error code                   */
+    const char *string1,
+    const char *string2,
+    wholenumber_t integer)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  this->reportAnException(errcode, new_string(string1), new_string(string2), new_integer(integer));
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
     const char *string,                /* single string sustitution parm    */
     wholenumber_t  integer )           /* single integer substitution parm  */
 /******************************************************************************/

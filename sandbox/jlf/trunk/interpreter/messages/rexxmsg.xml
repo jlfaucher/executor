@@ -2711,7 +2711,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_minarg</SymbolicName>
-        <Text>Not enough arguments in invocation of <Sub position="1" name="routine"/>; minimum expected is <Sub position="2" name="number"/></Text>
+        <Text>Not enough <Sub position="1" name="kind"/> arguments in invocation of <Sub position="2" name="routine"/>; minimum expected is <Sub position="3" name="number"/></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2720,7 +2720,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_maxarg</SymbolicName>
-        <Text>Too many arguments in invocation of <Sub position="1" name="routine"/>; maximum expected is <Sub position="2" name="number"/></Text>
+        <Text>Too many <Sub position="1" name="kind"/> arguments in invocation of <Sub position="2" name="routine"/>; maximum expected is <Sub position="3" name="number"/></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -3934,7 +3934,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_minarg</SymbolicName>
-        <Text>Not enough arguments for method; <Sub position="1" name="number"/> expected</Text>
+        <Text>Not enough <Sub position="1" name="kind"/> arguments for method; <Sub position="2" name="number"/> expected</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>

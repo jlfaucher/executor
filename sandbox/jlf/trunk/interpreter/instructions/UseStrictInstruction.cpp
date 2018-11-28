@@ -162,11 +162,11 @@ void RexxInstructionUseStrict::executePositionalArguments(RexxActivation *contex
             // this is a pain, but there are different errors for method errors vs. call errors.
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_minarg, minimumRequired);
+                reportException(Error_Incorrect_method_minarg, "positional", minimumRequired);
             }
             else
             {
-                reportException(Error_Incorrect_call_minarg, context->getCallname(), minimumRequired);
+                reportException(Error_Incorrect_call_minarg, "positional", context->getCallname(), minimumRequired);
             }
         }
         // potentially too many?
@@ -178,7 +178,7 @@ void RexxInstructionUseStrict::executePositionalArguments(RexxActivation *contex
             }
             else
             {
-                reportException(Error_Incorrect_call_maxarg, context->getCallname(), variableCount);
+                reportException(Error_Incorrect_call_maxarg, "positional", context->getCallname(), variableCount);
             }
         }
     }
@@ -272,6 +272,35 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     size_t argcount = context->getMethodArgumentCount();
     size_t named_argcount = 0;
     arglist[argcount]->unsignedNumberValue(named_argcount);
+
+    // strict checking means we need to enforce min/max limits
+    if (strictChecking)
+    {
+        // not enough of the required arguments?  That's an error
+        if (named_argcount < minimumRequired)
+        {
+            if (context->inMethod())
+            {
+                reportException(Error_Incorrect_method_minarg, "named", minimumRequired);
+            }
+            else
+            {
+                reportException(Error_Incorrect_call_minarg, "named", context->getCallname(), minimumRequired);
+            }
+        }
+        // potentially too many?
+        if (!variableSize && named_argcount > variableCount)
+        {
+            if (context->inMethod())
+            {
+                reportException(Error_Incorrect_method_maxarg, "named", variableCount);
+            }
+            else
+            {
+                reportException(Error_Incorrect_call_maxarg, "named", context->getCallname(), variableCount);
+            }
+        }
+    }
 
     // Helper storage to associate the values passed by the caller to the expected arguments declared in the USE instruction
     NamedArguments namedArguments(this->variableCount);

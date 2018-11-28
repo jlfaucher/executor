@@ -1330,7 +1330,7 @@ RexxObject *RexxClass::enhanced(
     if (argCount == 0)                   /* make sure an arg   was passed in  */
     {
         /* if not report an error            */
-        reportException(Error_Incorrect_method_minarg, IntegerOne);
+        reportException(Error_Incorrect_method_minarg, "positional", IntegerOne);
     }
     /* get the value of the arg          */
     RexxTable *enhanced_instance_mdict = (RexxTable *)args[0];
@@ -1624,7 +1624,7 @@ RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount)
     if (argCount == 0)                   /* make sure an arg   was passed in  */
     {
         /* if not report an error            */
-        reportException(Error_Incorrect_method_minarg, IntegerOne);
+        reportException(Error_Incorrect_method_minarg, "positional", IntegerOne);
     }
     RexxString *class_id = (RexxString *)args[0];    /* get the id parameter              */
     class_id = stringArgument(class_id, ARG_ONE);   /* and that it can be a string       */

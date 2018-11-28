@@ -152,6 +152,7 @@ typedef enum
    void        generateProgramInformation(RexxDirectory *exObj);
    void        reportAnException(wholenumber_t, const char *);
    void        reportAnException(wholenumber_t, const char *, const char *);
+   void        reportAnException(wholenumber_t, const char *, const char *, wholenumber_t);
    void        reportAnException(wholenumber_t, RexxObject *, const char *);
    void        reportAnException(wholenumber_t, RexxObject *, wholenumber_t);
    void        reportAnException(wholenumber_t, const char *, RexxObject *);

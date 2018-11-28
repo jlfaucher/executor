@@ -99,12 +99,12 @@ void expandArgs(RexxObject **arguments, size_t argcount, size_t min, size_t max,
     if (argcountAdjusted < min)                  /* too few arguments?                */
     {
                                          /* report an error                   */
-        reportException(Error_Incorrect_call_minarg, function, min);
+        reportException(Error_Incorrect_call_minarg, "positional", function, min);
     }
     else if (argcountAdjusted > max)             /* too many arguments?               */
     {
                                          /* report an error                   */
-        reportException(Error_Incorrect_call_maxarg, function, max);
+        reportException(Error_Incorrect_call_maxarg, "positional", function, max);
     }
     else                               /* need to expand number of args     */
     {
@@ -2442,7 +2442,7 @@ BUILTIN(STREAM)
                 if (argcount > 2)
                 {              /* given a third argument?           */
                                /* raise an error                    */
-                    reportException(Error_Incorrect_call_maxarg, OREF_STREAM, IntegerTwo);
+                    reportException(Error_Incorrect_call_maxarg, "positional", OREF_STREAM, IntegerTwo);
                 }
                 RexxObject *stream = context->resolveStream(name, true, NULL, NULL);
                 /* get the stream state              */
@@ -2455,7 +2455,7 @@ BUILTIN(STREAM)
                 if (argcount > 2)
                 {              /* given a third argument?           */
                                /* raise an error                    */
-                    reportException(Error_Incorrect_call_maxarg, OREF_STREAM, IntegerTwo);
+                    reportException(Error_Incorrect_call_maxarg, "positional", OREF_STREAM, IntegerTwo);
                 }
                 RexxObject *stream = context->resolveStream(name, true, NULL, NULL);
                 /* get the stream description        */
@@ -2468,7 +2468,7 @@ BUILTIN(STREAM)
                 if (argcount < 3)
                 {              /* given a third argument?           */
                                /* raise an error                    */
-                    reportException(Error_Incorrect_call_minarg, OREF_STREAM, IntegerThree);
+                    reportException(Error_Incorrect_call_minarg, "positional", OREF_STREAM, IntegerThree);
                 }
                 /* get the stream description        */
                 ProtectedObject p(command);

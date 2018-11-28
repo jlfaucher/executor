@@ -619,8 +619,8 @@ special character (such as a parenthesis).
 <para>The associated subcodes are: </para>
 <variablelist>
 <varlistentry><term>001</term><listitem><para>External routine "<emphasis role="italic">routine</emphasis>" failed</para></listitem></varlistentry>
-<varlistentry><term>003</term><listitem><para>Not enough arguments in invocation of <emphasis role="italic">routine</emphasis>; minimum expected is <emphasis role="italic">number</emphasis></para></listitem></varlistentry>
-<varlistentry><term>004</term><listitem><para>Too many arguments in invocation of <emphasis role="italic">routine</emphasis>; maximum expected is <emphasis role="italic">number</emphasis></para></listitem></varlistentry>
+<varlistentry><term>003</term><listitem><para>Not enough <emphasis role="italic">kind</emphasis> arguments in invocation of <emphasis role="italic">routine</emphasis>; minimum expected is <emphasis role="italic">number</emphasis></para></listitem></varlistentry>
+<varlistentry><term>004</term><listitem><para>Too many <emphasis role="italic">kind</emphasis> arguments in invocation of <emphasis role="italic">routine</emphasis>; maximum expected is <emphasis role="italic">number</emphasis></para></listitem></varlistentry>
 <varlistentry><term>005</term><listitem><para>Missing argument in invocation of <emphasis role="italic">routine</emphasis>; argument <emphasis role="italic">argument_number</emphasis> is required</para></listitem></varlistentry>
 <varlistentry><term>011</term><listitem><para><emphasis role="italic">function_name</emphasis> argument <emphasis role="italic">argument_number</emphasis> must be a number; found "<emphasis role="italic">value</emphasis>"</para></listitem></varlistentry>
 <varlistentry><term>012</term><listitem><para><emphasis role="italic">function_name</emphasis> argument <emphasis role="italic">argument_number</emphasis> must be a whole number; found "<emphasis role="italic">value</emphasis>"</para></listitem></varlistentry>
@@ -833,7 +833,7 @@ special character (such as a parenthesis).
 <para>The associated subcodes are: </para>
 <variablelist>
 <varlistentry><term>900</term><listitem><para><emphasis role="italic">message</emphasis></para></listitem></varlistentry>
-<varlistentry><term>901</term><listitem><para>Not enough arguments for method; <emphasis role="italic">number</emphasis> expected</para></listitem></varlistentry>
+<varlistentry><term>901</term><listitem><para>Not enough <emphasis role="italic">kind</emphasis> arguments for method; <emphasis role="italic">number</emphasis> expected</para></listitem></varlistentry>
 <varlistentry><term>902</term><listitem><para>Too many <emphasis role="italic">kind</emphasis> arguments in invocation of method; <emphasis role="italic">number</emphasis> expected</para></listitem></varlistentry>
 <varlistentry><term>903</term><listitem><para>Missing argument in method; argument <emphasis role="italic">argument</emphasis> is required</para></listitem></varlistentry>
 <varlistentry><term>904</term><listitem><para>Method argument <emphasis role="italic">argument</emphasis> must be a number; found "<emphasis role="italic">value</emphasis>"</para></listitem></varlistentry>
