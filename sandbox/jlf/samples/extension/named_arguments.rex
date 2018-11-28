@@ -176,11 +176,36 @@ call interpret 'r = .myclass~forwardNamedPositionalArguments'
 call title "Instruction USE"
 call interpret 'call usePositionalNamed 1, , 3, , a5:5, a6:6'
 call interpret 'call useStrictPositionalNamed 1, , 3, , a5:5, a6:6'
+call interpret 'call useStrictZeroNamed'
+call interpret 'call useStrictOneNamed_NoDefault a1:1'
+call interpret 'call useStrictOneNamed_WithDefault'
+call interpret 'call useStrictOneNamed_WithDefault a1:2'
+call interpret 'call useStrictOneNamed_WithDefaultExpression'
+call interpret 'call useStrictOneNamed_WithDefaultExpression a1:2'
 call interpret 'call useNamed_SimpleSymbol v1:1, v3:3, v5:5'
 call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5'
 call interpret 'call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5'
 call interpret 'call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5' -
              , 'The automatic variables stem.v3 and stem.v5 should be created (TODO)'
+
+say "Testing the display of trace"
+{
+    call sayCollection "source", .context~executable~source
+    say "-----------------------------------------"
+    trace i
+    -- the names of the compound symbols are used for matching, independently of the values of their components.
+    -- Not clear ? even if a==50, stem.a will be matched as "STEM.A", not "STEM.50"
+    a = 50
+    b = 51
+    c = 52
+    use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+    trace o
+    say "-----------------------------------------"
+    call sayArg .context
+    call sayCollection "variables", .context~variables
+    call sayCollection "stem", stem.
+    say; say
+}~rawexecutable~call(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)
 
 
 -----------------
@@ -359,6 +384,20 @@ call interpret 'call useNamed_MessageTermNotAllowed' -
              , 'Error 87.2: The USE NAMED instruction requires a comma-separated list of variable symbols'
 call interpret 'call useNamed_SkippedArgumentNotAllowed' -
              , 'Error 87.1: Skipped variables are not allowed by the USE NAMED instruction'
+
+-- Instruction 'use'
+call interpret 'call useStrictZeroNamed a1:1' -
+             , 'Error 40.4:  Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0'
+call interpret 'call useStrictOneNamed_NoDefault' -
+             , 'Error 40.3:  Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1'
+call interpret 'call useStrictOneNamed_NoDefault b1:1' -
+             , 'Error 88.917:  Argument B1 is not an expected argument name'
+call interpret 'call useStrictOneNamed_NoDefault b1:1, b2:2' -
+             , 'Error 40.4:  Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1'
+call interpret 'call useStrictOneNamed_WithDefault b2:2' -
+             , 'Error 88.917:  Argument B2 is not an expected argument name'
+call interpret 'call useStrictOneNamed_WithDefaultExpression b2:2' -
+             , 'Error 88.917:  Argument B2 is not an expected argument name'
 return
 
 --------------------------------------------------------------------------------
@@ -411,6 +450,42 @@ interpret: procedure
     call indent
     say 'use strict named arg a5, a6'
          use strict named arg a5, a6
+    call sayCollection "variables", .context~variables
+    return ""
+
+--------------------------------------------------------------------------------
+::routine useStrictZeroNamed
+    call sayArg .context
+    call indent
+    say 'use strict named arg'
+         use strict named arg
+    call sayCollection "variables", .context~variables
+    return ""
+
+--------------------------------------------------------------------------------
+::routine useStrictOneNamed_NoDefault
+    call sayArg .context
+    call indent
+    say 'use strict named arg a1'
+         use strict named arg a1
+    call sayCollection "variables", .context~variables
+    return ""
+
+--------------------------------------------------------------------------------
+::routine useStrictOneNamed_WithDefault
+    call sayArg .context
+    call indent
+    say 'use strict named arg a1=1'
+         use strict named arg a1=1
+    call sayCollection "variables", .context~variables
+    return ""
+
+--------------------------------------------------------------------------------
+::routine useStrictOneNamed_WithDefaultExpression
+    call sayArg .context
+    call indent
+    say 'use strict named arg a1=(1+0)'
+         use strict named arg a1=(1+0)
     call sayCollection "variables", .context~variables
     return ""
 

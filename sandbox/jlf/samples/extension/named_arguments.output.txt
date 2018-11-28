@@ -614,6 +614,56 @@ call useStrictPositionalNamed 1, , 3, , a5:5, a6:6
         P4 : 4
 
 
+call useStrictZeroNamed
+    positional count=0 size=0
+    named count=0
+    use strict named arg
+    variables count=0
+
+
+call useStrictOneNamed_NoDefault a1:1
+    positional count=0 size=0
+    named count=1
+        A1 : 1
+    use strict named arg a1
+    variables count=1
+        A1 : 1
+
+
+call useStrictOneNamed_WithDefault
+    positional count=0 size=0
+    named count=0
+    use strict named arg a1=1
+    variables count=1
+        A1 : 1
+
+
+call useStrictOneNamed_WithDefault a1:2
+    positional count=0 size=0
+    named count=1
+        A1 : 2
+    use strict named arg a1=1
+    variables count=1
+        A1 : 2
+
+
+call useStrictOneNamed_WithDefaultExpression
+    positional count=0 size=0
+    named count=0
+    use strict named arg a1=(1+0)
+    variables count=1
+        A1 : 1
+
+
+call useStrictOneNamed_WithDefaultExpression a1:2
+    positional count=0 size=0
+    named count=1
+        A1 : 2
+    use strict named arg a1=(1+0)
+    variables count=1
+        A1 : 2
+
+
 call useNamed_SimpleSymbol v1:1, v3:3, v5:5
     positional count=0 size=0
     named count=3
@@ -668,7 +718,74 @@ call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5
     stem count=2
         V1 : 1
         V2 : 2
-Expected: The automatic variables stem.v3 and stem.v5 should be created... TODO
+Expected: The automatic variables stem.v3 and stem.v5 should be created (TODO)
+
+
+Testing the display of trace
+    source count=15 size=15
+        1 : call sayCollection "source", .context~executable~source
+        10 :     trace o
+        11 :     say "-----------------------------------------"
+        12 :     call sayArg .context
+        13 :     call sayCollection "variables", .context~variables
+        14 :     call sayCollection "stem", stem.
+        15 :     say; say
+        2 :     say "-----------------------------------------"
+        3 :     trace i
+        4 :     -- the names of the compound symbols are used for matching, independently of the values of their components.
+        5 :     -- Not clear ? even if a==50, stem.a will be matched as "STEM.A", not "STEM.50"
+        6 :     a = 50
+        7 :     b = 51
+        8 :     c = 52
+        9 :     use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+-----------------------------------------
+       >L>   "50"
+     7 *-* a = 50
+       >>>   "50"
+       >=>   A <= "50"
+       >L>   "51"
+     8 *-* b = 51
+       >>>   "51"
+       >=>   B <= "51"
+       >L>   "52"
+     9 *-* c = 52
+       >>>   "52"
+       >=>   C <= "52"
+    10 *-* use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+       >>>   "1"
+       >=>   A <= "1"
+       >>>   "letter b"
+       >=>   B <= "letter b"
+       >>>   "default"
+       >=>   STEM. <= "default"
+       >>>   "100"
+       >C>   STEM.A => "STEM.1"
+       >=>   STEM.A <= "100"
+       >>>   "200"
+       >C>   STEM.B => "STEM.letter b"
+       >=>   STEM.B <= "200"
+       >>>   "300"
+       >C>   STEM.C => "STEM.52"
+       >=>   STEM.C <= "300"
+    11 *-* trace o
+-----------------------------------------
+    positional count=0 size=0
+    named count=6
+        A : 1
+        B : letter b
+        STEM. : default
+        STEM.A : 100
+        STEM.B : 200
+        STEM.C : 300
+    variables count=4
+        A : 1
+        B : letter b
+        C : 52
+        STEM. : default
+    stem count=3
+        1 : 100
+        52 : 300
+        letter b : 200
 
 
 ********************************************************************************
@@ -1161,7 +1278,7 @@ call myprocedure .envSymbol:1
     positional count=0 size=0
     named count=1
         .ENVSYMBOL : 1
-Expected: Should raise an error because an environment symbol is not allowed
+Expected: Should raise an error because an environment symbol is not allowed (TODO)
 
 
 call myprocedure 1, a2:2, a3:
@@ -1273,5 +1390,65 @@ call useNamed_SkippedArgumentNotAllowed
     [trapped] Skipped variables are not allowed by the USE NAMED instruction
     [trapped] Code= 87.1
 Expected: Error 87.1: Skipped variables are not allowed by the USE NAMED instruction
+
+
+call useStrictZeroNamed a1:1
+    positional count=0 size=0
+    named count=1
+        A1 : 1
+    use strict named arg
+    [trapped] Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
+    [trapped] Code= 40.4
+Expected: Error 40.4:  Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
+
+
+call useStrictOneNamed_NoDefault
+    positional count=0 size=0
+    named count=0
+    use strict named arg a1
+    [trapped] Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
+    [trapped] Code= 40.3
+Expected: Error 40.3:  Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
+
+
+call useStrictOneNamed_NoDefault b1:1
+    positional count=0 size=0
+    named count=1
+        B1 : 1
+    use strict named arg a1
+    [trapped] Argument B1 is not an expected argument name
+    [trapped] Code= 88.917
+Expected: Error 88.917:  Argument B1 is not an expected argument name
+
+
+call useStrictOneNamed_NoDefault b1:1, b2:2
+    positional count=0 size=0
+    named count=2
+        B1 : 1
+        B2 : 2
+    use strict named arg a1
+    [trapped] Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
+    [trapped] Code= 40.4
+Expected: Error 40.4:  Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
+
+
+call useStrictOneNamed_WithDefault b2:2
+    positional count=0 size=0
+    named count=1
+        B2 : 2
+    use strict named arg a1=1
+    [trapped] Argument B2 is not an expected argument name
+    [trapped] Code= 88.917
+Expected: Error 88.917:  Argument B2 is not an expected argument name
+
+
+call useStrictOneNamed_WithDefaultExpression b2:2
+    positional count=0 size=0
+    named count=1
+        B2 : 2
+    use strict named arg a1=(1+0)
+    [trapped] Argument B2 is not an expected argument name
+    [trapped] Code= 88.917
+Expected: Error 88.917:  Argument B2 is not an expected argument name
 
 
