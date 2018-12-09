@@ -3371,7 +3371,10 @@ StackFrameClass *RexxNativeActivation::createStackFrame()
     }
     else
     {
-        RexxArray *info = new_array(getMessageName(), ((RexxMethod *)getExecutableObject())->getScope()->getId());
+        RexxClass *scope = ((RexxMethod *)getExecutableObject())->getScope();
+        RexxString *scopeName = (scope == TheNilObject ? scope->requestString() : scope->getId());
+        ProtectedObject pscopeName(scopeName);
+        RexxArray *info = new_array(getMessageName(), scopeName);
         ProtectedObject p(info);
 
         RexxString *message = activity->buildMessage(Message_Translations_compiled_method_invocation, info);

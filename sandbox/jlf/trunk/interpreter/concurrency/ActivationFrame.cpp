@@ -94,7 +94,10 @@ RexxMethod *InternalActivationFrame::method()
 
 StackFrameClass *InternalActivationFrame::createStackFrame()
 {
-    RexxArray *info = new_array(name, frameMethod->getScope()->getId());
+    RexxClass *scope = frameMethod->getScope();
+    RexxString *scopeName = (scope == TheNilObject ? scope->requestString() : scope->getId());
+    ProtectedObject pscopeName(scopeName);
+    RexxArray *info = new_array(name, scopeName);
     ProtectedObject p(info);
 
     RexxString *message = activity->buildMessage(Message_Translations_compiled_method_invocation, info);

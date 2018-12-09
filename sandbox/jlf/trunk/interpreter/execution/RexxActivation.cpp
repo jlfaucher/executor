@@ -3323,7 +3323,9 @@ void RexxActivation::traceEntry()
 
     if (isMethod())
     {
-        info = new_array(getMessageName(), scope->getId(), getPackage()->getName());
+        RexxString *scopeName = (scope == TheNilObject ? scope->requestString() : scope->getId());
+        ProtectedObject pscopeName(scopeName);
+        info = new_array(getMessageName(), scopeName, getPackage()->getName());
     }
     else
     {
@@ -4531,7 +4533,9 @@ RexxString *RexxActivation::formatSourcelessTraceLine(RexxString *packageName)
     // if this is a method invocation, then we can give the method name and scope.
     if (isMethod())
     {
-        RexxArray *info = new_array(getMessageName(), scope->getId(), packageName);
+        RexxString *scopeName = (scope == TheNilObject ? scope->requestString() : scope->getId());
+        ProtectedObject pscopeName(scopeName);
+        RexxArray *info = new_array(getMessageName(), scopeName, packageName);
         ProtectedObject p(info);
 
         return activity->buildMessage(Message_Translations_sourceless_method_invocation, info);
