@@ -1,3 +1,34 @@
+15/12/2018
+[bugs:#1404] Some method args don't honor REQUEST("STRING")
+
+Erich:
+neither Bag nor Stem have a makeString() method, so all of those three examples should fail, but they pass instead.
+
+.Stream~new(.Stem~new)
+1~append(.Bag~new)
+1~caselessEquals(.Bag~new)
+
+Rick:
+Stem doesn't have a makeString method, but it overrides request() and sends the request on to the default value. That one is working correctly.
+
+I'm a bit leery about fixing this. There are basically two mechanisms at play here:
+1) a method requires a string argument.
+   This mechanism uses request('STRING') on the argument and raises an error if a string value is not obtained.
+2) a method, or command, builtin function, or operator requires a string value always.
+   In this case, request('STRING') is tried first, a NOSTRING condition is raised and then the objects STRING value is used.
+
+Originally it was envisioned that all "classic" Rexx situations would use 2) and methods would use 1).
+However, a lot of the classic Rexx features, such as all of the operators, are implemented as methods
+of the string class, so these methods, at least, need to use 2) because they fall into the other category.
+
+It appears that most of the methods in the string class got implemented using mechanism 2).
+We can't convert everything to 1) because the operator methods still need to use 2).
+I'm not sure I'm comfortable having mixed modes here.
+Perhaps it would be better to just defined that the string methods always use 2)
+when a string argument is used and do a trawl through the code to make sure they are all consistent.
+
+
+--------------------------------------------------------------------------------
 Developer list 17/02/2017
 
 Q from Erich)
