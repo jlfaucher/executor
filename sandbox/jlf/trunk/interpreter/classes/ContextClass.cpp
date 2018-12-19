@@ -250,19 +250,6 @@ RexxObject *RexxContext::getArgs()
 
 
 /**
- * Set the positional arguments used to invoke the current context
- */
-RexxObject *RexxContext::setArgs(RexxObject *arguments)
-{
-    checkValid();
-    // this is required and must be an array
-    RexxArray *argumentsArray = arrayArgument(arguments, ARG_ONE);
-    activation->setArguments(argumentsArray);
-    return OREF_NULL; // no return value
-}
-
-
-/**
  * Return the named arguments used to invoke the current context
  *
  * @return The directory of named arguments
@@ -285,18 +272,28 @@ RexxObject *RexxContext::getNamedArgs()
 
 
 /**
- * Set the named arguments used to invoke the current context
+ * Set the positional & named arguments used to invoke the current context
  */
-RexxObject *RexxContext::setNamedArgs(RexxObject *namedArguments)
+RexxObject *RexxContext::setArgs(RexxObject *positionalArguments, RexxString *namedArgumentsName, RexxObject *namedArgumentsValue)
 {
     checkValid();
-    // this is required and must be a directory
 
-    /* TODO named arguments
-    RexxDirectory *namedArgumentsDirectory = directoryArgument(namedArguments);
-    activation->setNamedArguments(namedArgumentsDirectory);
-    */
+    RexxArray *positionalArgumentsArray = arrayArgument(positionalArguments, OREF_positional, ARG_ONE);
+    ProtectedObject p1(positionalArgumentsArray);
 
+    ProtectedObject p2;
+    RexxDirectory *namedArgumentsDirectory = OREF_NULL;
+    if (namedArgumentsValue != OREF_NULL && namedArgumentsValue != TheNilObject)
+    {
+        namedArgumentsDirectory = namedArgumentsValue->requestDirectory();
+        p2 = namedArgumentsDirectory;
+        if (namedArgumentsDirectory == TheNilObject)
+        {
+            reportException(Error_Execution_user_defined , "SETARGS namedArguments must be a directory or NIL");
+        }
+    }
+
+    activation->setArguments(positionalArgumentsArray, namedArgumentsDirectory);
     return OREF_NULL; // no return value
 }
 

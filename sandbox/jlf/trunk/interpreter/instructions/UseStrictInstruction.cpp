@@ -52,6 +52,12 @@
 
 RexxInstructionUseStrict::RexxInstructionUseStrict(size_t count, bool strict, bool extraAllowed, bool autoCreate, bool named, RexxQueue *variable_list, RexxQueue *defaults)
 {
+    if (strict && autoCreate && named && !extraAllowed)
+    {
+        // use strict auto named arg
+        reportException(Error_Translation_user_defined, "STRICT AUTO requires the \"...\" argument marker at the end of the argument list");
+    }
+
     // set the variable count and the option flag
     variableCount = count;
     variableSize = extraAllowed; // we might allow an unchecked number of additional arguments
@@ -162,11 +168,11 @@ void RexxInstructionUseStrict::executePositionalArguments(RexxActivation *contex
             // this is a pain, but there are different errors for method errors vs. call errors.
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_minarg, "positional", minimumRequired);
+                reportException(Error_Incorrect_method_minarg, OREF_positional, minimumRequired);
             }
             else
             {
-                reportException(Error_Incorrect_call_minarg, "positional", context->getCallname(), minimumRequired);
+                reportException(Error_Incorrect_call_minarg, OREF_positional, context->getCallname(), minimumRequired);
             }
         }
         // potentially too many?
@@ -174,11 +180,11 @@ void RexxInstructionUseStrict::executePositionalArguments(RexxActivation *contex
         {
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_maxarg, "positional", variableCount);
+                reportException(Error_Incorrect_method_maxarg, OREF_positional, variableCount);
             }
             else
             {
-                reportException(Error_Incorrect_call_maxarg, "positional", context->getCallname(), variableCount);
+                reportException(Error_Incorrect_call_maxarg, OREF_positional, context->getCallname(), variableCount);
             }
         }
     }
@@ -227,11 +233,11 @@ void RexxInstructionUseStrict::executePositionalArguments(RexxActivation *contex
                     {
                         if (context->inMethod())
                         {
-                            reportException(Error_Incorrect_method_noarg, i + 1);
+                            reportException(Error_Incorrect_method_noarg, OREF_positional, i + 1);
                         }
                         else
                         {
-                            reportException(Error_Incorrect_call_noarg, context->getCallname(), i + 1);
+                            reportException(Error_Incorrect_call_noarg, context->getCallname(), OREF_positional, i + 1);
                         }
                     }
                 }
@@ -271,7 +277,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     RexxObject **arglist = context->getMethodArgumentList();
     size_t argcount = context->getMethodArgumentCount();
     size_t named_argcount = 0;
-    arglist[argcount]->unsignedNumberValue(named_argcount);
+    if (arglist != OREF_NULL) arglist[argcount]->unsignedNumberValue(named_argcount);
 
     // strict checking means we need to enforce min/max limits
     if (strictChecking)
@@ -281,11 +287,11 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
         {
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_minarg, "named", minimumRequired);
+                reportException(Error_Incorrect_method_minarg, OREF_positional, minimumRequired);
             }
             else
             {
-                reportException(Error_Incorrect_call_minarg, "named", context->getCallname(), minimumRequired);
+                reportException(Error_Incorrect_call_minarg, OREF_positional, context->getCallname(), minimumRequired);
             }
         }
         // potentially too many?
@@ -293,11 +299,11 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
         {
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_maxarg, "named", variableCount);
+                reportException(Error_Incorrect_method_maxarg, OREF_positional, variableCount);
             }
             else
             {
-                reportException(Error_Incorrect_call_maxarg, "named", context->getCallname(), variableCount);
+                reportException(Error_Incorrect_call_maxarg, OREF_positional, context->getCallname(), variableCount);
             }
         }
     }
@@ -372,11 +378,11 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
                 {
                     if (context->inMethod())
                     {
-                        reportException(Error_Incorrect_method_nonamedarg, variable->getName());
+                        reportException(Error_Incorrect_method_noarg, OREF_positional, variable->getName());
                     }
                     else
                     {
-                        reportException(Error_Incorrect_call_noarg, context->getCallname(), variable->getName());
+                        reportException(Error_Incorrect_call_noarg, context->getCallname(), OREF_positional, variable->getName());
                     }
                 }
             }
@@ -456,7 +462,7 @@ bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expected
         }
     }
     // The name did not match an expected argument name
-    if (strict) reportException(Error_Invalid_argument_general, name, "is not an expected argument name");
+    if (strict) reportException(Error_Invalid_argument_general, OREF_positional, name, "is not an expected argument name");
     return false;
 }
 

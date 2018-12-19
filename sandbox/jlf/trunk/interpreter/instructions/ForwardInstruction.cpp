@@ -296,7 +296,9 @@ void RexxInstructionForward::execute(
                 /* not a directory item ? */
                 if (argDirectory == TheNilObject)
                 {
-                    reportException(Error_Execution_user_defined , "FORWARD: The value of 'NAMEDARGUMENTS' must be a directory or NIL");
+                    // Similar to Error_Execution_forward_arguments 98.946 "FORWARD arguments must be a single-dimensional array of values"
+                    // todo: Should create the error Error_Execution_forward_namedarguments
+                    reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory or NIL");
                 }
                 // Push each index, item on the stack
                 // namedCount = argDirectory->appendAllIndexesItemsTo(stack);

@@ -127,7 +127,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
     {
         if (count > argumentCount)
         {
-            reportException(Error_Incorrect_method_maxarg, "positional", this->argumentCount);
+            reportException(Error_Incorrect_method_maxarg, OREF_positional, this->argumentCount);
         }
 
         // Remember: get named_count NOW, before building argument_list
@@ -139,7 +139,7 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         // -1 means "ignore the name arguments"
         if (named_argumentCount != (uint16_t)-1 && named_count > named_argumentCount)
         {
-            reportException(Error_Incorrect_method_maxarg, "named", this->named_argumentCount);
+            reportException(Error_Incorrect_method_maxarg, OREF_named, this->named_argumentCount);
         }
 
         // JLF: example with UNKNOWN method
@@ -188,20 +188,6 @@ void CPPCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *receiv
         #define NAMED_ARG_VALUE(n) named_argPtr[(2 * n) + 1]
 
         // now we make the actual call
-
-        /*
-        if (count == 2 && messageName == OREF_UNKNOWN)
-        {
-            // See processUnknown
-            // argPtr[0] = message name
-            // argPtr[1] = array of positional arguments
-            // argPtr[2] = 1 (count of named parameters)
-            // argPtr[3] = "NAMEDARGUMENTS"
-            // argPtr[4] = directory of named arguments or OREF_NULL
-            result = (receiver->*((PCPPM3)methodEntry))(argPtr[0], argPtr[1], argPtr[4]);
-        }
-        else
-        */
 
         if (named_argumentCount == (uint16_t)-1 // if no need to pass named arguments
             || named_argumentCount == 0)        // or if no named argument expected
@@ -441,7 +427,7 @@ void AttributeGetterCode::run(RexxActivity *activity, RexxMethod *method, RexxOb
     // validate the number of arguments
     if (count > 0)
     {
-        reportException(Error_Incorrect_method_maxarg, "positional", (wholenumber_t)0);
+        reportException(Error_Incorrect_method_maxarg, OREF_positional, (wholenumber_t)0);
     }
     // this is simplier if the method is not guarded
     if (!method->isGuarded())
@@ -491,12 +477,12 @@ void AttributeSetterCode::run(RexxActivity *activity, RexxMethod *method, RexxOb
     // validate the number of arguments
     if (count > 1)
     {
-        reportException(Error_Incorrect_method_maxarg, "positional", 1);
+        reportException(Error_Incorrect_method_maxarg, OREF_positional, 1);
     }
 
     if (count == 0 || *argPtr == OREF_NULL)
     {
-        missingArgument(1);
+        missingArgument(OREF_positional, 1);
     }
     // this is simplier if the method is not guarded
     if (!method->isGuarded())
@@ -577,7 +563,7 @@ void ConstantGetterCode::run(RexxActivity *activity, RexxMethod *method, RexxObj
     // validate the number of arguments
     if (count > 0)
     {
-        reportException(Error_Incorrect_method_maxarg, "positional", (wholenumber_t)0);
+        reportException(Error_Incorrect_method_maxarg, OREF_positional, (wholenumber_t)0);
     }
     result = constantValue;
 }
@@ -1204,7 +1190,6 @@ CPPM(RexxContext::getExecutable),
 CPPM(RexxContext::getArgs),
 CPPM(RexxContext::setArgs),
 CPPM(RexxContext::getNamedArgs),
-CPPM(RexxContext::setNamedArgs),
 CPPM(RexxContext::getCondition),
 CPPM(RexxContext::getLine),
 CPPM(RexxContext::getRS),

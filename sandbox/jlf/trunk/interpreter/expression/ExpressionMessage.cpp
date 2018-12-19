@@ -158,7 +158,7 @@ RexxObject *RexxExpressionMessage::evaluate(
         // Argument name: string literal
         RexxObject *name = this->arguments[i];
         stack->push(name); // a string
-        context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+        context->traceIntermediate(name, TRACE_PREFIX_NAMED_ARGUMENT);
 
         // Argument expression
         RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);
@@ -316,7 +316,7 @@ void RexxExpressionMessage::assign(
         // Argument name: string literal
         RexxObject *name = this->arguments[i];
         stack->push(name); // a string
-        context->traceIntermediate((RexxObject *)this, TRACE_PREFIX_NAMED_ARGUMENT);
+        context->traceIntermediate(name, TRACE_PREFIX_NAMED_ARGUMENT);
 
         // Argument expression
         RexxObject *argResult = this->arguments[i+1]->evaluate(context, stack);

@@ -182,23 +182,56 @@ call interpret 'call useStrictOneNamed_WithDefault'
 call interpret 'call useStrictOneNamed_WithDefault a1:2'
 call interpret 'call useStrictOneNamed_WithDefaultExpression'
 call interpret 'call useStrictOneNamed_WithDefaultExpression a1:2'
+call interpret 'call useStrictAutoNamed_WithEllipse'
 call interpret 'call useNamed_SimpleSymbol v1:1, v3:3, v5:5'
-call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5'
-call interpret 'call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5'
-call interpret 'call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5' -
-             , 'The automatic variables stem.v3 and stem.v5 should be created (TODO)'
+
+call interpret 'call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"' -
+             , 'The automatic variables are created first (here v3=3, v5=5, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
+             , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
+             , 'So it''s possible to initialize a named argument with an automatic variable (here v2 is assigned the value of index).'
+
+call interpret 'call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
+             , 'The option auto is not used, so stem.v4, index and item are not created as local variables.' -
+             , 'The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
+             , 'The assignment stem.=0 resets the stem.' -
+             , 'Then the assignments stem.v1=1, stem.v2="ITEM" (default) and stem.v3=3 are made.'
+
+call interpret 'call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
+             , 'Same test case as previous, except the option auto which is used.' -
+             , 'The automatic variables are created first (here stem.v4=4, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
+             , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
+             , 'The assignment stem.=0 resets the stem, and erase the automatic variables stem.v4.' -
+             , 'Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.'
+
+call interpret 'call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
+             , 'Same test case as previous, except that stem.:0 is no longer passed by the caller.' -
+             , 'The automatic variables are created first (here stem.v4=4, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
+             , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
+             , 'The stem is dropped, which drops the automatic variables stem.v4.' -
+             , 'Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.'
+
+call interpret 'call useAutoNamed_CompoundSymbol stem.v1:1, stem.v3:3, stem.v4:4, index:"My index", item:"My item"' -
+             , 'Same test case as previous, except that the named argument ''stem.'' is no longer declared by the callee, so no longer reset.' -
+             , 'The automatic variables are created first (here stem.v4=4, index="My index" and item="My item"), in the order of declaration on caller side (left to right).' -
+             , 'Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).' -
+             , 'Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.' -
+             , 'Note that the automatic variable stem.v4 is available, since the stem is not reset.'
 
 say "Testing the display of trace"
+say '{...<source>..}~(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)'
+a = 10
+b = 11
+c = 12
 {
-    call sayCollection "source", .context~executable~source
+    call sayCollection "source", .context~executable~source, displayHeader:.false, displayIndex:.false, displayIndent:.false
     say "-----------------------------------------"
     trace i
     -- the names of the compound symbols are used for matching, independently of the values of their components.
-    -- Not clear ? even if a==50, stem.a will be matched as "STEM.A", not "STEM.50"
+    -- Even if a==50, stem.a will be matched as "STEM.A", not "STEM.50"
     a = 50
     b = 51
     c = 52
-    use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+    use strict /*auto*/ named arg a, b, stem., stem.a, stem.b, stem.c
     trace o
     say "-----------------------------------------"
     call sayArg .context
@@ -332,14 +365,20 @@ call interpret 'call myprocedure , , 3, , a5:5,' -
              , 'Should raise an error because of the trailing comma (TODO)'
 call interpret 'call myroutine , , 3, , a5:5,' -
              , 'Should raise an error because of the trailing comma (TODO)'
+
+-- only assignable variable symbols are allowed
 call interpret 'call myprocedure .envSymbol:1' -
-             , 'Should raise an error because an environment symbol is not allowed (TODO)'
+             , 'Error 31.003 Variable symbol must not start with a ''.''; found ''.envSymbol'''
+call interpret 'call myprocedure 1.2:1' -
+             , 'Error 35.1: Incorrect expression detected at ":"'
+call interpret 'call myprocedure 1.2.3:1' -
+             , 'Error 35.1: Incorrect expression detected at ":"'
 
 -- call with named arguments
 call interpret 'call myprocedure 1, a2:2, a3:' -
              , 'Error 35.900:  Named argument: expected expression after colon'
 call interpret 'call myprocedure 1, a2:2, 3' -
-             , 'Error 35.900:  Named argument: expected symbol followed by colon'
+             , 'Error 31.2:  Variable symbol must not start with a number; found "3'
 call interpret 'call myprocedure a1:1, a1:2' -
                'Error 35.900:  Named argument: the name "A1" is passed more than once'
 call interpret 'call myprocedure a1:1, , a3:3' -
@@ -398,6 +437,8 @@ call interpret 'call useStrictOneNamed_WithDefault b2:2' -
              , 'Error 88.917:  Argument B2 is not an expected argument name'
 call interpret 'call useStrictOneNamed_WithDefaultExpression b2:2' -
              , 'Error 88.917:  Argument B2 is not an expected argument name'
+call interpret 'call useStrictAutoNamed_WithoutEllipse' -
+             , 'Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list'
 return
 
 --------------------------------------------------------------------------------
@@ -411,17 +452,21 @@ myprocedure:
 interpret: procedure
     signal on syntax name error
     source = arg(1)
-    expected = arg(2)
     say source
     interpret source
-    if expected <> "" then say "Expected:" expected
+    expected:
+    if arg() == 2 then say "Expected:" arg(2)
+    if arg() > 2 then do
+        say "Expected:"
+        do i=2 to arg()
+            say arg(i)
+        end
+    end
     say; say
     return
     error:
     call sayCondition condition("O")
-    if expected <> "" then say "Expected:" expected
-    say; say
-    return
+    signal expected
 
 --------------------------------------------------------------------------------
 
@@ -499,11 +544,32 @@ interpret: procedure
     return ""
 
 --------------------------------------------------------------------------------
+::routine useStrictAutoNamed_WithoutEllipse
+    source = ( -
+    'call sayArg .context'              ,-
+    'call indent'                       ,-
+    'say "use strict auto named arg"'   ,-
+    '     use strict auto named arg'    ,-
+    )
+    -- raise an error at parse time'
+    -- Error 99.900:  STRICT AUTO requires the "..." argument marker at the end of the argument list'
+    routine = .routine~new("useStrictAutoNamed_WithoutEllipse", source)
+
+--------------------------------------------------------------------------------
+::routine useStrictAutoNamed_WithEllipse
+    call sayArg .context
+    call indent
+    say 'use strict auto named arg ...'
+         use strict auto named arg ...
+    call sayCollection "variables", .context~variables
+    return ""
+
+--------------------------------------------------------------------------------
 :: routine useAutoNamed_SimpleSymbol
     call sayArg .context
     call indent
-    say 'use auto named arg v1, v2=2'
-         use auto named arg v1, v2=2
+    say 'use auto named arg v1=item, v2=index'
+         use auto named arg v1=(item), v2=(index)
     call sayCollection "variables", .context~variables
     return ""
 
@@ -511,8 +577,8 @@ interpret: procedure
 :: routine useNamed_Stem_CompoundSymbol
     call sayArg .context
     call indent
-    say 'use named arg stem., stem.v1, stem.v2=2'
-         use named arg stem., stem.v1, stem.v2=2
+    say 'use named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)'
+         use named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)
     call sayCollection "variables", .context~variables
     call sayCollection "stem", stem.
     return ""
@@ -521,8 +587,18 @@ interpret: procedure
 :: routine useAutoNamed_Stem_CompoundSymbol
     call sayArg .context
     call indent
-    say 'use auto named arg stem., stem.v1, stem.v2=2'
-         use auto named arg stem., stem.v1, stem.v2=2
+    say 'use auto named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)'
+         use auto named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)
+    call sayCollection "variables", .context~variables
+    call sayCollection "stem", stem.
+    return ""
+
+--------------------------------------------------------------------------------
+:: routine useAutoNamed_CompoundSymbol
+    call sayArg .context
+    call indent
+    say 'use auto named arg stem.v1, stem.v2=(item), stem.v3=(index)'
+         use auto named arg stem.v1, stem.v2=(item), stem.v3=(index)
     call sayCollection "variables", .context~variables
     call sayCollection "stem", stem.
     return ""
@@ -599,7 +675,7 @@ interpret: procedure
 
     call indent 1
     say "method 'unknown'"
-    call sayArg .context, 1
+    call sayArg .context, indentLevel:1
 
     -- call sayCollection "initial positional", arguments, 1
     -- call sayCollection "initial named", namedArguments, 1
@@ -612,7 +688,7 @@ interpret: procedure
 
 ::class myfooclass
 ::method foo class
-    call sayArg .context, 1
+    call sayArg .context, indentLevel:1
     return ""
 
 --------------------------------------------------------------------------------
@@ -627,24 +703,32 @@ interpret: procedure
     end
 
 ::routine sayArg
-    use strict arg context, indentLevel=0
+    use strict arg context
+    use strict named arg indentLevel=0
     positionalArgs = context~args
     namedArgs = context~namedArgs
-    call sayCollection "positional", positionalArgs, indentLevel
-    call sayCollection "named", namedArgs, indentLevel
+    call sayCollection "positional", positionalArgs, indentLevel:indentLevel
+    call sayCollection "named", namedArgs, indentLevel:indentLevel
 
 ::routine sayCollection
-    use strict arg kind, collection, indentLevel=0
-    call indent indentLevel+1
-    if collection~isa(.array) then say kind "count="collection~items "size="collection~size
-    else if collection <> .nil then say kind "count="collection~items
-    else say kind "count=0"
+    use strict arg kind, collection
+    use strict named arg displayHeader=.true, displayIndex=.true, displayIndent=.true, indentLevel=0
+
+    if displayHeader then do
+        if displayIndent then call indent indentLevel+1
+        if collection~isa(.array) then say kind "count="collection~items "size="collection~size
+        else if collection <> .nil then say kind "count="collection~items
+        else say kind "count=0"
+    end
 
     if collection == .nil then return
 
-    do i over collection~allIndexes~sort
-        call indent indentLevel+2
-        say i ":" collection[i]
+    indexes = collection~allIndexes
+    if \collection~isa(.orderedCollection) then indexes = indexes~sort
+    do i over indexes
+        if displayIndent then call indent indentLevel+2
+        if displayIndex then call charout , i ": "
+        say collection[i]
     end
 
 ::routine sayCondition

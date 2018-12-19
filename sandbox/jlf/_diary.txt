@@ -185,15 +185,11 @@ add support for named arguments: option "Directory"
 Message~namedArguments
 to implement
 
-Changes in ooRexx5 that I don't need to support:
+Changes in ooRexx5 that I don't need to support until retrofitting:
 Message~send allows to pass arguments
 Message~sendWith: new method
 Message~start allows to pass arguments
 Message~startWith: new method
-
-Context~namedArgs=
-RexxContext::setNamedArgs
-store the named arguments on the activation
 
 StackFrame~namedArguments
 to implement
@@ -206,6 +202,16 @@ Security manager METHOD
 Add NAMEDARGUMENTS: a directory of the method named arguments
 to the information directory.
 
+The source location reported for this error
+        10 *-* use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+           *-* Compiled method NEW with scope "Routine"
+        97 *-*     Method RAWEXECUTABLE with scope "SourceLiteralParser" in package "REXX" (no source available)
+       225 *-* {
+    REX0099E: Error 99:  Translation error
+    REX0648E: Error 99.900:  STRICT AUTO requires the "..." argument marker at the end of the argument list
+is not good when inside a block.
+The line number is relative to the opening bracket of the block, should be
+relative to the begining of the file.
 
 Maybe to rework
 ---------------
@@ -265,6 +271,28 @@ see if named arguments must be supported here:
     // retrieve the argument signatures and process them
     uint16_t *types = (*methp)((RexxMethodContext *)&context, NULL);
     processArguments(argcount, arglist, types, arguments, MAX_NATIVE_ARGUMENTS);
+
+
+===============================================================================
+2018 dec 19
+
+Continue implementation of named arguments:
+
+USE STRICT AUTO NAMED ARG
+now raises
+Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
+This error is raised during the parsing of the Rexx program.
+Without an ellipsis, the keyword 'auto' is useless in strict mode.
+
+The method RexxContext~setArgs is partially implemented.
+Still to do: Store the named arguments on the activation.
+
+The method Context~args= is removed, because replaced by setArgs:
+More efficient to have one call to set the positional & named arguments,
+instead of 2 calls Context~args= and Context~namedArgs=.
+
+All the error messages about arguments have been modified to add the kind of argument:
+positional or named.
 
 
 ===============================================================================

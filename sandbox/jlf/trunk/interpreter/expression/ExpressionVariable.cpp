@@ -231,6 +231,8 @@ void RexxParseVariable::drop(
 {
                                        /* drop the variable value           */
   context->dropLocalVariable(variableName, index);
+  // jlf: I want a trace
+  context->traceAssignment(variableName, OREF_TRACEDROPPED);
 }
 
 /**

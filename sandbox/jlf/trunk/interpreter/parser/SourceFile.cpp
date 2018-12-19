@@ -5430,10 +5430,10 @@ void RexxSource::argList(
         if (!namedArgument)
         {
             // The first named argument indicates the end of the positional arguments
-            // A named argument is a symbol followed by ":"
+            // A named argument is a variable symbol followed by ":"
             size_t position = markPosition();
             token = nextReal();
-            if (token->classId == TOKEN_SYMBOL)
+            if (token->isVariable())
             {
                 token = nextReal();
                 if (token->classId == TOKEN_COLON) namedArgument = true;
@@ -5464,6 +5464,7 @@ void RexxSource::argList(
             token = nextReal();
             if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Invalid_expression_user_defined,
                                                             new_string("Named argument: expected symbol followed by colon"));
+            this->needVariable(token);
             if (namedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Invalid_expression_user_defined,
                                                                                    token->value->concatToCstring("Named argument: The name \"")->concatWithCstring("\" is passed more than once"));
             namedArglist->push(token->value);       /* add argument name to list */

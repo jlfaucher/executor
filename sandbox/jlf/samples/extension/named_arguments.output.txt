@@ -664,6 +664,13 @@ call useStrictOneNamed_WithDefaultExpression a1:2
         A1 : 2
 
 
+call useStrictAutoNamed_WithEllipse
+    positional count=0 size=0
+    named count=0
+    use strict auto named arg ...
+    variables count=0
+
+
 call useNamed_SimpleSymbol v1:1, v3:3, v5:5
     positional count=0 size=0
     named count=3
@@ -676,82 +683,159 @@ call useNamed_SimpleSymbol v1:1, v3:3, v5:5
         V2 : 2
 
 
-call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5
+call useAutoNamed_SimpleSymbol v1:1, v3:3, v5:5, index:"My index", item:"My item"
     positional count=0 size=0
-    named count=3
+    named count=5
+        INDEX : My index
+        ITEM : My item
         V1 : 1
         V3 : 3
         V5 : 5
-    use auto named arg v1, v2=2
-    variables count=4
+    use auto named arg v1=item, v2=index
+    variables count=6
+        INDEX : My index
+        ITEM : My item
         V1 : 1
-        V2 : 2
+        V2 : My index
         V3 : 3
         V5 : 5
+Expected:
+The automatic variables are created first (here v3=3, v5=5, index="My index" and item="My item"), in the order of declaration on caller side (left to right).
+Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
+So it's possible to initialize a named argument with an automatic variable (here v2 is assigned the value of index).
 
 
-call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5
+call useNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
     positional count=0 size=0
-    named count=4
+    named count=6
+        INDEX : My index
+        ITEM : My item
         STEM. : 0
         STEM.V1 : 1
         STEM.V3 : 3
-        STEM.V5 : 5
-    use named arg stem., stem.v1, stem.v2=2
+        STEM.V4 : 4
+    use named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)
     variables count=1
         STEM. : 0
-    stem count=2
+    stem count=3
         V1 : 1
-        V2 : 2
+        V2 : ITEM
+        V3 : 3
+Expected:
+The option auto is not used, so stem.v4, index and item are not created as local variables.
+The declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
+The assignment stem.=0 resets the stem.
+Then the assignments stem.v1=1, stem.v2="ITEM" (default) and stem.v3=3 are made.
 
 
-call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v5:5
+call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.:0, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
     positional count=0 size=0
-    named count=4
+    named count=6
+        INDEX : My index
+        ITEM : My item
         STEM. : 0
         STEM.V1 : 1
         STEM.V3 : 3
-        STEM.V5 : 5
-    use auto named arg stem., stem.v1, stem.v2=2
-    variables count=1
+        STEM.V4 : 4
+    use auto named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)
+    variables count=3
+        INDEX : My index
+        ITEM : My item
         STEM. : 0
-    stem count=2
+    stem count=3
         V1 : 1
-        V2 : 2
-Expected: The automatic variables stem.v3 and stem.v5 should be created (TODO)
+        V2 : My item
+        V3 : 3
+Expected:
+Same test case as previous, except the option auto which is used.
+The automatic variables are created first (here stem.v4=4, index="My index" and item="My item"), in the order of declaration on caller side (left to right).
+Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
+The assignment stem.=0 resets the stem, and erase the automatic variables stem.v4.
+Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.
+
+
+call useAutoNamed_Stem_CompoundSymbol stem.v1:1, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
+    positional count=0 size=0
+    named count=5
+        INDEX : My index
+        ITEM : My item
+        STEM.V1 : 1
+        STEM.V3 : 3
+        STEM.V4 : 4
+    use auto named arg stem., stem.v1, stem.v2=(item), stem.v3=(index)
+    variables count=3
+        INDEX : My index
+        ITEM : My item
+        STEM. : STEM.
+    stem count=3
+        V1 : 1
+        V2 : My item
+        V3 : 3
+Expected:
+Same test case as previous, except that stem.:0 is no longer passed by the caller.
+The automatic variables are created first (here stem.v4=4, index="My index" and item="My item"), in the order of declaration on caller side (left to right).
+Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
+The stem is dropped, which drops the automatic variables stem.v4.
+Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.
+
+
+call useAutoNamed_CompoundSymbol stem.v1:1, stem.v3:3, stem.v4:4, index:"My index", item:"My item"
+    positional count=0 size=0
+    named count=5
+        INDEX : My index
+        ITEM : My item
+        STEM.V1 : 1
+        STEM.V3 : 3
+        STEM.V4 : 4
+    use auto named arg stem.v1, stem.v2=(item), stem.v3=(index)
+    variables count=3
+        INDEX : My index
+        ITEM : My item
+        STEM. : STEM.
+    stem count=4
+        V1 : 1
+        V2 : My item
+        V3 : 3
+        V4 : 4
+Expected:
+Same test case as previous, except that the named argument 'stem.' is no longer declared by the callee, so no longer reset.
+The automatic variables are created first (here stem.v4=4, index="My index" and item="My item"), in the order of declaration on caller side (left to right).
+Then the declared named arguments are assigned with the passed values, in the order of declaration on called side (left to right).
+Then the assignments stem.v1=1, stem.v2="My index" (default) and stem.v3=3 are made.
+Note that the automatic variable stem.v4 is available, since the stem is not reset.
 
 
 Testing the display of trace
-    source count=15 size=15
-        1 : call sayCollection "source", .context~executable~source
-        10 :     trace o
-        11 :     say "-----------------------------------------"
-        12 :     call sayArg .context
-        13 :     call sayCollection "variables", .context~variables
-        14 :     call sayCollection "stem", stem.
-        15 :     say; say
-        2 :     say "-----------------------------------------"
-        3 :     trace i
-        4 :     -- the names of the compound symbols are used for matching, independently of the values of their components.
-        5 :     -- Not clear ? even if a==50, stem.a will be matched as "STEM.A", not "STEM.50"
-        6 :     a = 50
-        7 :     b = 51
-        8 :     c = 52
-        9 :     use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+{...<source>..}~(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)
+call sayCollection "source", .context~executable~source, displayHeader:.false, displayIndex:.false, displayIndent:.false
+    say "-----------------------------------------"
+    trace i
+    -- the names of the compound symbols are used for matching, independently of the values of their components.
+    -- Even if a==50, stem.a will be matched as "STEM.A", not "STEM.50"
+    a = 50
+    b = 51
+    c = 52
+    use strict /*auto*/ named arg a, b, stem., stem.a, stem.b, stem.c
+    trace o
+    say "-----------------------------------------"
+    call sayArg .context
+    call sayCollection "variables", .context~variables
+    call sayCollection "stem", stem.
+    say; say
 -----------------------------------------
-       >L>   "50"
      7 *-* a = 50
+       >L>   "50"
        >>>   "50"
        >=>   A <= "50"
-       >L>   "51"
      8 *-* b = 51
+       >L>   "51"
        >>>   "51"
        >=>   B <= "51"
-       >L>   "52"
      9 *-* c = 52
+       >L>   "52"
        >>>   "52"
        >=>   C <= "52"
-    10 *-* use strict auto named arg a, b, stem., stem.a, stem.b, stem.c
+    10 *-* use strict /*auto*/ named arg a, b, stem., stem.a, stem.b, stem.c
        >>>   "1"
        >=>   A <= "1"
        >>>   "letter b"
@@ -1275,10 +1359,21 @@ Expected: Should raise an error because of the trailing comma (TODO)
 
 
 call myprocedure .envSymbol:1
-    positional count=0 size=0
-    named count=1
-        .ENVSYMBOL : 1
-Expected: Should raise an error because an environment symbol is not allowed (TODO)
+    [trapped] Incorrect expression detected at ":"
+    [trapped] Code= 35.1
+Expected: Error 31.003 Variable symbol must not start with a '.'; found '.envSymbol'
+
+
+call myprocedure 1.2:1
+    [trapped] Incorrect expression detected at ":"
+    [trapped] Code= 35.1
+Expected: Error <TODO>
+
+
+call myprocedure 1.2.3:1
+    [trapped] Incorrect expression detected at ":"
+    [trapped] Code= 35.1
+Expected: Error 35.1: Incorrect expression detected at ":"
 
 
 call myprocedure 1, a2:2, a3:
@@ -1288,8 +1383,8 @@ Expected: Error 35.900:  Named argument: expected expression after colon
 
 
 call myprocedure 1, a2:2, 3
-    [trapped] Named argument: expected symbol followed by colon
-    [trapped] Code= 35.900
+    [trapped] Variable symbol must not start with a number; found "3"
+    [trapped] Code= 31.2
 Expected: Error 35.900:  Named argument: expected symbol followed by colon
 
 
@@ -1311,19 +1406,19 @@ Expected: Error 20.917: Symbol expected after superclass colon (:)
 
 
 r = .myclass~sendWith("mymethod")
-    [trapped] Missing argument in method; argument 2 is required
+    [trapped] Missing positional argument in method; argument 2 is required
     [trapped] Code= 93.903
 Expected: Error 93.903: Missing argument in method; argument 2 is required
 
 
 r = .myclass~sendWith("mymethod", .object /* not an array */, namedArguments:.directory~of(a3:3))
-    [trapped] Unable to convert object "The Object class" to a single-dimensional array value
-    [trapped] Code= 98.913
+    [trapped] positional Argument 2 must have a single-dimensional array value; found "The Object class"
+    [trapped] Code= 88.913
 Expected: Error 98.913: Unable to convert object "The Object class" to a single-dimensional array value
 
 
 r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a directory")
-    [trapped] sendWith: The value of NAMEDARGUMENTS must be a directory or NIL
+    [trapped] SENDWITH namedArguments must be a directory or NIL
     [trapped] Code= 98.900
 Expected: Error 98.900: sendWith: The value of NAMEDARGUMENTS must be a directory or NIL
 
@@ -1348,13 +1443,13 @@ Expected: Error 25.918: Duplicate [NAMED]ARGUMENTS or ARRAY keyword found
 
 r = .myclass~forwardNamedArgumentsNotDirectory
     forward message "mymethod" namedArguments ("not a directory") continue
-    [trapped] FORWARD: The value of 'NAMEDARGUMENTS' must be a directory or NIL
+    [trapped] FORWARD namedArguments must be a directory or NIL
     [trapped] Code= 98.900
 Expected: Error 98.900: FORWARD: The value of 'NAMEDARGUMENTS' must be a directory or NIL
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3)){}
-    [trapped] Method argument 4 must have a string value
+    [trapped] Method positional argument 4 must have a string value
     [trapped] Code= 93.938
 Expected: Error 93.938: Method argument 4 must have a string value
 
@@ -1397,7 +1492,7 @@ call useStrictZeroNamed a1:1
     named count=1
         A1 : 1
     use strict named arg
-    [trapped] Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
+    [trapped] Too many positional arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
     [trapped] Code= 40.4
 Expected: Error 40.4:  Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
 
@@ -1406,7 +1501,7 @@ call useStrictOneNamed_NoDefault
     positional count=0 size=0
     named count=0
     use strict named arg a1
-    [trapped] Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
+    [trapped] Not enough positional arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
     [trapped] Code= 40.3
 Expected: Error 40.3:  Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
 
@@ -1416,7 +1511,7 @@ call useStrictOneNamed_NoDefault b1:1
     named count=1
         B1 : 1
     use strict named arg a1
-    [trapped] Argument B1 is not an expected argument name
+    [trapped] positional Argument B1 is not an expected argument name
     [trapped] Code= 88.917
 Expected: Error 88.917:  Argument B1 is not an expected argument name
 
@@ -1427,7 +1522,7 @@ call useStrictOneNamed_NoDefault b1:1, b2:2
         B1 : 1
         B2 : 2
     use strict named arg a1
-    [trapped] Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
+    [trapped] Too many positional arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
     [trapped] Code= 40.4
 Expected: Error 40.4:  Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
 
@@ -1437,7 +1532,7 @@ call useStrictOneNamed_WithDefault b2:2
     named count=1
         B2 : 2
     use strict named arg a1=1
-    [trapped] Argument B2 is not an expected argument name
+    [trapped] positional Argument B2 is not an expected argument name
     [trapped] Code= 88.917
 Expected: Error 88.917:  Argument B2 is not an expected argument name
 
@@ -1447,8 +1542,14 @@ call useStrictOneNamed_WithDefaultExpression b2:2
     named count=1
         B2 : 2
     use strict named arg a1=(1+0)
-    [trapped] Argument B2 is not an expected argument name
+    [trapped] positional Argument B2 is not an expected argument name
     [trapped] Code= 88.917
 Expected: Error 88.917:  Argument B2 is not an expected argument name
+
+
+call useStrictAutoNamed_WithoutEllipse
+    [trapped] STRICT AUTO requires the "..." argument marker at the end of the argument list
+    [trapped] Code= 99.900
+Expected: Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
 
 
