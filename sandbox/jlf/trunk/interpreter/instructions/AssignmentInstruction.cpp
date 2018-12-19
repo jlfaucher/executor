@@ -106,20 +106,22 @@ void RexxInstructionAssignment::execute(
 /*            heavily executed instruction.                                   */
 /******************************************************************************/
 {
-    /*RexxObject * */ ProtectedObject result;
-    if (this->expression == OREF_NULL) result = new_string(""); // Compatibility: v= is a shortcut of v=""
-    else result = this->expression->evaluate(context, stack);
-    if (context->tracingInstructions())/* tracing?                          */
+	RexxObject *result;
+	if (context->tracingInstructions())/* tracing?                          */
     {
         context->traceInstruction(this);   /* trace if necessary                */
                                            /* get the expression value          */
-        context->traceResult(result);      /* trace if necessary                */
+		if (this->expression == OREF_NULL) result = OREF_NULLSTRING; // Compatibility: v= is a shortcut of v=""
+		else result = this->expression->evaluate(context, stack);
+		context->traceResult(result);      /* trace if necessary                */
                                            /* do the assignment                 */
         this->variable->assign(context, stack, result);
         context->pauseInstruction();       /* do debug pause if necessary       */
     }
     else                                 /* non-traced execution              */
     {
+		if (this->expression == OREF_NULL) result = OREF_NULLSTRING; // Compatibility: v= is a shortcut of v=""
+		else result = this->expression->evaluate(context, stack);
                                          /* do the assignment                 */
         this->variable->assign(context, stack, result);
     }
