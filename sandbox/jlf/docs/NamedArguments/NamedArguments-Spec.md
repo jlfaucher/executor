@@ -23,11 +23,11 @@ Named arguments are after the last positional argument.
 
     caller: "one two three one"~reduce("put", by:"word", initial:.set~new)
 
-The abbreviated syntax of arguments list is still available:  
+The abbreviated syntax of arguments list is still available:
 
     f(a1,a2,n1:v1,n2:v2){...}
 
-is equivalent to 
+is equivalent to
 
     f(a1,a2,{...},n1:v1,n2:v2)
 
@@ -95,12 +95,9 @@ The named arguments are declared separately from the positional arguments.
                                                         -- The named arguments passed by the caller are available as local variables.
                                                         -- They are also available in .Context~namedArgs.
 
-    use strict auto named arg by, initial=.nil          -- 'by' is mandatory.
-                                                        -- 'initial' is optional, default value is .nil.
-                                                        -- Only 'by' and 'initial' are accepted.
-                                                        -- The keyword 'auto' is useless here. Should raise an error when strict without ellipsis ... ?
-                                                        -- The named arguments passed by the caller are available as local variables.
-                                                        -- They are also available in .Context~namedArgs.
+    use strict auto named arg                           -- Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
+                                                        -- This error is raised during the parsing of the Rexx program.
+                                                        -- Without an ellipsis, the keyword 'auto' is useless in strict mode.
 
     use strict auto named arg by, initial=.nil, ...     -- 'by' is mandatory.
                                                         -- 'initial' is optional, default value is .nil.
@@ -129,7 +126,7 @@ Instruction ARG
 
     ARG template_list
 
-Not impacted.
+Not impacted, no access to named arguments.
 
 
 ---------------------
@@ -138,7 +135,7 @@ Instruction PARSE ARG
 
     PARSE ARG template_list
 
-Not impacted.
+Not impacted, no access to named arguments.
 
 
 ----------------
@@ -171,7 +168,7 @@ There, "Array" is followed by a mandatory array. "Individual" is followed by a l
 exprn is a directory of named arguments.
 
     >>-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----><
-                +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprn--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
+                +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                                 +--------------ARRAY----(--| Arguments |--)---------------+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Instruction_FORWARD.png)
@@ -274,7 +271,8 @@ see the questions for Message~new.
 Object~sendWith
 ---------------
 
-    >>-sendWith(-messagename-,-arguments-,-namedArguments-:-namedArguments-)---><
+    >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
+                                         +-,-namedArguments-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_sendWith.png)
 
@@ -286,11 +284,12 @@ namedArguments: no reason to name it "Directory", right ?
 Object~startWith
 ----------------
 
-    >>-startWith(-messagename-,-arguments-,-namedArguments-:-namedArguments-)---><
+    >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
+                                          +-,-namedArguments-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_startWith.png)
 
-namedArguments: can be abreviated to 1 letter (n:).
+namedArguments: can be abreviated to 1 letter (n:).  
 namedArguments: no reason to name it "Directory", right ?
 
 
@@ -298,11 +297,12 @@ namedArguments: no reason to name it "Directory", right ?
 Routine~callWith
 ----------------
 
-    >>-callWith(-array-,-namedArguments-:-namedArguments-)----------------------><
+    >>-callWith(-array-+--------------------------+-)---><
+                       +-,-namedArguments-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Routine_callWith.png)
 
-namedArguments: can be abreviated to 1 letter (n:).
+namedArguments: can be abreviated to 1 letter (n:).  
 namedArguments: no reason to name it "Directory", right ?
 
 
@@ -311,7 +311,7 @@ Context~namedArgs
 -----------------
 
 Why not ~namedArguments ?  
-Because following the naming convention used for the method Args.
+Because I follow the naming convention used for the method Args.
 
 Returns a directory of named arguments used to invoke the current context.  
 There is no equivalent as built-in function.  
@@ -319,11 +319,35 @@ The ARG built-in function doesn't give access to the named arguments.
 
 
 ------------------
-Context~namedArgs=
+Context~setArgs
 -----------------
 
-Remember: coactivity.cls reassign the arguments passed by the resume's caller.
+    >>-setArgs(-array-,-namedArguments-:-exprd-)--------------------><
 
+![USE NAMED ARG](SyntaxDiagram/sd_Context_setArgs.png)
+
+namedArguments: can be abreviated to 1 letter (n:).  
+namedArguments: no reason to name it "Directory", right ?
+
+Used to transfer to a coactivity the arguments passed with 'resume'.  
+A coactivity can be suspended, and can receive a new set of arguments after each resume.
+
+    client (thread1)                            coactivity (thread2)
+    ================                            ====================
+                                                <SUSPENDED>
+    Result = resume(<Arguments>) ------------>  <ACTIVE>
+    <SUSPENDED>                                 use arg ...; use named arg ...
+                                                ...
+                                                call yield value
+    <ACTIVE>                     <---result---  <SUSPENDED>
+    ...                                                     
+    Result = resume(<Arguments>) ------------>  <ACTIVE>
+                                                use arg ...; use named arg ...
+                                                ...
+                                                call yield value
+    <ACTIVE>                     <---result---  <SUSPENDED>
+    etc...
+    
 
 ------------------------
 StackFrame~nameArguments

@@ -1,5 +1,6 @@
 <!--
-rexx transformxml/transformfile -syntdiag NamedArguments.xml
+The graphical syntax diagrams (.png) are generated using this command:
+rexx transformxml/transformfile -syntdiag NamedArguments-SD.xml
 -->
 
 
@@ -156,6 +157,16 @@ Object~startWith:
 Routine~callWith:
 
 >>-callWith(-array-,-namedArguments-:-namedArguments-)----------------------><
+
+]]>
+</programlisting>
+
+
+<programlisting>
+<![CDATA[
+Context~setArgs:
+
+>>-setArgs(-array-,-namedArguments-:-namedArguments-)--------------------><
 
 ]]>
 </programlisting>
