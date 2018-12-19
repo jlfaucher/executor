@@ -93,11 +93,11 @@ RexxNumberString *RexxNumberString::maxMin(RexxObject **args, size_t argCount, u
             CurrentActivation->setFuzz(saveFuzz);
             if (operation == OT_MAX)            /*  doing a MAX operation?           */
             {
-                reportException(Error_Incorrect_call_noarg, CHAR_ORXMAX, arg + 1);
+                reportException(Error_Incorrect_call_noarg, CHAR_ORXMAX, OREF_positional, arg + 1);
             }
             else                                /*  nope must be min.                */
             {
-                reportException(Error_Incorrect_call_noarg, CHAR_ORXMIN, arg + 1);
+                reportException(Error_Incorrect_call_noarg, CHAR_ORXMIN, OREF_positional, arg + 1);
             }
         }
 
@@ -138,7 +138,8 @@ RexxNumberString *RexxNumberString::maxMin(RexxObject **args, size_t argCount, u
                                         /* be sure we restore original Fuzz  */
             CurrentActivation->setFuzz(saveFuzz);
             /* keep maxminobj around just a      */
-            reportException(Error_Incorrect_method_number, arg + 1, args[arg]);
+            // jlf : few GC risk with new_integer because should be cached...
+            reportException(Error_Incorrect_method_number, OREF_positional, new_integer(arg + 1), args[arg]);
         }
     }
     CurrentActivation->setFuzz(saveFuzz); /* be sure we restore original Fuzz  */

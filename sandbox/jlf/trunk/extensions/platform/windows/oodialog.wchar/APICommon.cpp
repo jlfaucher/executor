@@ -226,7 +226,7 @@ void userDefinedMsgException(RexxMethodContext *c, size_t pos, CSTRING msg)
  */
 RexxObjectPtr wrongClassException(RexxThreadContext *c, size_t pos, const char *n)
 {
-    c->RaiseException2(Rexx_Error_Invalid_argument_noclass, c->WholeNumber(pos), c->String(n));
+    c->RaiseException3(Rexx_Error_Invalid_argument_noclass, c->String("positional"), c->WholeNumber(pos), c->String(n));
     return NULLOBJECT;
 }
 
@@ -484,22 +484,22 @@ void nullObjectException(RexxThreadContext *c, CSTRING name)
 
 void nullPointerException(RexxThreadContext *c, int pos)
 {
-    c->RaiseException1(Rexx_Error_Invalid_argument_null, c->WholeNumber(pos));
+    c->RaiseException2(Rexx_Error_Invalid_argument_null, c->String("positional"), c->WholeNumber(pos));
 }
 
 void notNonNegativeException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual)
 {
-    c->RaiseException2(Rexx_Error_Invalid_argument_nonnegative, c->StringSize(pos), actual);
+    c->RaiseException3(Rexx_Error_Invalid_argument_nonnegative, c->String("positional"), c->StringSize(pos), actual);
 }
 
 void notPositiveException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual)
 {
-    c->RaiseException2(Rexx_Error_Invalid_argument_positive, c->StringSize(pos), actual);
+    c->RaiseException3(Rexx_Error_Invalid_argument_positive, c-String("positional"), c->StringSize(pos), actual);
 }
 
 RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int max, RexxObjectPtr actual)
 {
-    c->RaiseException(Rexx_Error_Invalid_argument_range,
+    c->RaiseException(Rexx_Error_Invalid_argument_range, c->String("positional",
                       c->ArrayOfFour(c->WholeNumber(pos), c->WholeNumber(min), c->WholeNumber(max), actual));
     return NULLOBJECT;
 }
@@ -512,7 +512,7 @@ RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int
 RexxObjectPtr wrongArgValueException(RexxThreadContext *c, size_t pos, const char *list, RexxObjectPtr actual)
 {
     c->RaiseException(Rexx_Error_Invalid_argument_list,
-                      c->ArrayOfThree(c->WholeNumber(pos), c->String(list), actual));
+                      c->ArrayOfFour(c->String("positional"), c->WholeNumber(pos), c->String(list), actual));
     return NULLOBJECT;
 }
 

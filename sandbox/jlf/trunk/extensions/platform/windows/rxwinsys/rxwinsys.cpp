@@ -2174,7 +2174,7 @@ inline void outOfMemoryException(RexxMethodContext *c)
 void wrongArgValueException(RexxMethodContext *c, int pos, const char *list, RexxObjectPtr actual)
 {
     c->RaiseException(Rexx_Error_Incorrect_method_list,
-                      c->ArrayOfThree(c->WholeNumberToObject(pos), c->String(list), actual));
+                      c->ArrayOfFour(c-String("positional"), c->WholeNumberToObject(pos), c->String(list), actual));
 }
 
 void wrongArgValueException(RexxMethodContext *c, int pos, const char *list, const char *actual)
@@ -2184,7 +2184,7 @@ void wrongArgValueException(RexxMethodContext *c, int pos, const char *list, con
 
 inline unsigned int wrongClassException(RexxMethodContext *c, int pos, const char *n)
 {
-    c->RaiseException2(Rexx_Error_Incorrect_method_noclass, c->WholeNumberToObject(pos), c->NewStringFromAsciiz(n));
+    c->RaiseException3(Rexx_Error_Incorrect_method_noclass, c->String("positional"), c->WholeNumberToObject(pos), c->NewStringFromAsciiz(n));
     return 0;
 }
 
@@ -2496,13 +2496,13 @@ bool checkReadRecordsArgs(RexxMethodContext *context, HANDLE hLog, CSTRING direc
     {
         if ( argumentOmitted(4) )
         {
-            context->RaiseException1(Rexx_Error_Incorrect_method_noarg, context->WholeNumberToObject(4));
+            context->RaiseException2(Rexx_Error_Incorrect_method_noarg, context->String("positional"), context->WholeNumberToObject(4));
             return false;
         }
         if ( argumentOmitted(5) )
         {
 
-            context->RaiseException1(Rexx_Error_Incorrect_method_noarg, context->WholeNumberToObject(5));
+            context->RaiseException2(Rexx_Error_Incorrect_method_noarg, context->String("positional"), context->WholeNumberToObject(5));
             return false;
         }
         *flags |= EVENTLOG_SEEK_READ;
@@ -2951,7 +2951,8 @@ RexxMethod1(int, WSEventLog_minimumReadSet, uint32_t, countKB)
     {
         context->RaiseException(
             Rexx_Error_Invalid_argument_range,
-            context->ArrayOfFour(context->Int32ToObject(1),
+            context->ArrayOfFive(context->String("positional"),
+                                 context->Int32ToObject(1),
                                  context->Int32ToObject(MIN_READ_KB_COUNT),
                                  context->Int32ToObject(MAX_READ_KB_COUNT),
                                  context->Int32ToObject(countKB)));

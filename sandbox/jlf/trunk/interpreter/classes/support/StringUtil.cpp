@@ -130,7 +130,7 @@ RexxString *StringUtil::substr(const char *string, sizeB_t stringLength, RexxInt
 RexxInteger *StringUtil::posRexx(const char *stringData, sizeB_t length, RexxString *needle, RexxInteger *pstart, RexxInteger *range)
 {
     /* force needle to a string          */
-    needle = stringArgument(needle, ARG_ONE);
+    needle = stringArgument(needle, OREF_positional, ARG_ONE);
     /* get the starting position         */
     size_t _start = optionalPositionArgument(pstart, 1, ARG_TWO);
     size_t _range = optionalLengthArgument(range, size_v(length - _start + 1), ARG_THREE);
@@ -254,7 +254,7 @@ sizeB_t StringUtil::caselessPos(const char *stringData, sizeB_t haystack_length,
  */
 RexxInteger *StringUtil::lastPosRexx(const char *stringData, sizeB_t haystackLen, RexxString  *needle, RexxInteger *_start, RexxInteger *_range)
 {
-    needle = stringArgument(needle, ARG_ONE);
+    needle = stringArgument(needle, OREF_positional, ARG_ONE);
     // find out where to start the search. The default is at the very end.
     sizeB_t startPos = optionalPositionArgument(_start, haystackLen, ARG_TWO);
     size_t range = optionalLengthArgument(_range, size_v(haystackLen), ARG_THREE);
@@ -500,7 +500,7 @@ RexxArray *StringUtil::makearray(const char *start, sizeB_t length, RexxString *
     if (separator != OREF_NULL)
     {
         // make sure this is really a string value
-        separator = stringArgument(separator, ARG_ONE);
+        separator = stringArgument(separator, OREF_positional, ARG_ONE);
         sepData = separator->getStringData();
         sepSize = separator->getBLength();
         checkCR = false;                 // if explicitly given, only use the given one
@@ -739,7 +739,7 @@ size_t StringUtil::validateSet(const char *String, sizeB_t Length, const char *S
         if (Hex)                           /* hex version?                      */
         {
             /* raise the hex message             */
-            reportException(Error_Incorrect_method_hexblank, IntegerOne);
+            reportException(Error_Incorrect_method_hexblank, OREF_positional, IntegerOne);
         }
         else
         {
@@ -776,7 +776,7 @@ size_t StringUtil::validateSet(const char *String, sizeB_t Length, const char *S
                     if (Hex)                     /* hex version?                      */
                     {
                         /* raise the hex message             */
-                        reportException(Error_Incorrect_method_hexblank, SpaceLocation - String);
+                        reportException(Error_Incorrect_method_hexblank, OREF_positional, SpaceLocation - String);
                     }
                     else
                     {
@@ -806,7 +806,7 @@ size_t StringUtil::validateSet(const char *String, sizeB_t Length, const char *S
         if (Hex)                           /* hex version?                      */
         {
             /* raise the hex message             */
-            reportException(Error_Incorrect_method_hexblank, SpaceLocation - String);
+            reportException(Error_Incorrect_method_hexblank, OREF_positional, SpaceLocation - String);
         }
         else
         {
@@ -1420,7 +1420,7 @@ size_t StringUtil::memPos(
 RexxInteger *StringUtil::verify(const char *data, sizeB_t stringLen, RexxString  *ref, RexxString  *option, RexxInteger *_start, RexxInteger *range)
 {
     // get the reference string information
-    ref = stringArgument(ref, ARG_ONE);
+    ref = stringArgument(ref, OREF_positional, ARG_ONE);
     sizeB_t referenceLen = ref->getBLength();
     const char *refSet = ref->getStringData();
                                          /* get the option, default 'Nomatch' */
@@ -1746,7 +1746,7 @@ RexxInteger *StringUtil::wordLength(const char *data, sizeB_t length, RexxIntege
  */
 RexxInteger *StringUtil::wordPos(const char *data, sizeB_t length, RexxString  *phrase, RexxInteger *pstart)
 {
-    phrase = stringArgument(phrase, ARG_ONE);/* get the phrase we are looking for */
+    phrase = stringArgument(phrase, OREF_positional, ARG_ONE);/* get the phrase we are looking for */
     stringsizeB_t needleLength = phrase->getBLength();       /* get the length also               */
                                          /* get starting position, the default*/
                                          /* is the first word                 */
@@ -1852,7 +1852,7 @@ RexxInteger *StringUtil::wordPos(const char *data, sizeB_t length, RexxString  *
  */
 RexxInteger *StringUtil::caselessWordPos(const char *data, sizeB_t length, RexxString  *phrase, RexxInteger *pstart)
 {
-    phrase = stringArgument(phrase, ARG_ONE);/* get the phrase we are looking for */
+    phrase = stringArgument(phrase, OREF_positional, ARG_ONE);/* get the phrase we are looking for */
     stringsizeB_t needleLength = phrase->getBLength();       /* get the length also               */
                                          /* get starting position, the default*/
                                          /* is the first word                 */

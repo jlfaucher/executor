@@ -515,7 +515,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
         if (sourceString == (RexxString *)TheNilObject)
         {
             /* raise an error                    */
-            reportException(Error_Incorrect_method_no_method, position);
+            reportException(Error_Incorrect_method_no_method, OREF_positional, position);
         }
         /* wrap an array around the value    */
         newSourceArray = new_array(sourceString);
@@ -526,7 +526,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
         if (newSourceArray->getDimension() != 1)
         {
             /* raise an error                    */
-            reportException(Error_Incorrect_method_noarray, position);
+            reportException(Error_Incorrect_method_noarray, OREF_positional, position);
         }
         /*  element are strings.             */
         /* Make sure all elements in array   */
@@ -539,7 +539,7 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
             if (sourceString == (RexxString *)TheNilObject)
             {
                 /* and report the error.             */
-                reportException(Error_Incorrect_method_nostring_inarray, IntegerTwo);
+                reportException(Error_Incorrect_method_nostring_inarray, OREF_positional, IntegerTwo);
             }
             else
             {
@@ -593,9 +593,9 @@ RexxMethod *RexxMethod::newRexx(
 
     RexxClass::processNewArgs(init_args, argCount, &init_args, &initCount, 2, (RexxObject **)&pgmname, (RexxObject **)&_source);
     /* get the method name as a string   */
-    RexxString *nameString = stringArgument(pgmname, ARG_ONE);
+    RexxString *nameString = stringArgument(pgmname, OREF_positional, ARG_ONE);
     ProtectedObject p_nameString(nameString);
-    requiredArgument(_source, ARG_TWO);          /* make sure we have the second too  */
+    requiredArgument(_source, OREF_positional, ARG_TWO);          /* make sure we have the second too  */
 
     RexxSource *sourceContext = OREF_NULL;
     // retrieve extra parameter if exists
@@ -621,12 +621,16 @@ RexxMethod *RexxMethod::newRexx(
             ProtectedObject p(option);
             if (option == TheNilObject)
             {
-                reportException(Error_Incorrect_method_argType, IntegerThree, "Method, Routine, Package, or String object");
+                RexxString *info = new_string("Method, Routine, Package, or String object");
+                ProtectedObject p(info);
+                reportException(Error_Incorrect_method_argType, OREF_positional, IntegerThree, info);
             }
             // default given? set option to NULL (see code below)
             if (!((RexxString *)option)->strCaselessCompare("PROGRAMSCOPE"))
             {
-                reportException(Error_Incorrect_call_list, "NEW", IntegerThree, "\"PROGRAMSCOPE\", Method, Routine, Package object", option);
+                RexxString *info = new_string("\"PROGRAMSCOPE\", Method, Routine, Package object");
+                ProtectedObject p(info);
+                reportException(Error_Incorrect_call_list, OREF_NEW, OREF_positional, IntegerThree, info, option);
             }
         }
     }
@@ -660,7 +664,7 @@ RexxMethod *RexxMethod::newFileRexx(RexxString *filename)
 /******************************************************************************/
 {
     /* get the method name as a string   */
-    filename = stringArgument(filename, ARG_ONE);
+    filename = stringArgument(filename, OREF_positional, ARG_ONE);
     ProtectedObject p1(filename);
     /* create a source object            */
     RexxMethod *newMethod = new RexxMethod(filename);
@@ -860,9 +864,9 @@ PackageClass *BaseCode::getPackage()
  */
 RexxMethod *RexxMethod::loadExternalMethod(RexxString *name, RexxString *descriptor)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p1(name);
-    descriptor = stringArgument(descriptor, "descriptor");
+    descriptor = stringArgument(descriptor, OREF_positional, "descriptor");
     ProtectedObject p2(descriptor);
     /* convert external into words       */
     RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());

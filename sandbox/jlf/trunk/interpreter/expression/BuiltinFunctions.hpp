@@ -108,8 +108,8 @@ stack top-1     "Print"         stack top-1     "Pri"
 
 #define BUILTIN(x) RexxObject *builtin_function_##x ( RexxActivation * context, RexxObject **arguments, size_t argcount, RexxExpressionStack *stack )
 
-#define positive_integer(n,f,p) if (n <= 0) reportException(Error_Incorrect_call_positive, CHAR_##f, p, n)
-#define nonnegative_integer(n,f,p) if (n < 0) reportException(Error_Incorrect_call_nonnegative, CHAR_##f, p, n)
+#define positive_integer(n,f,p) if (n <= 0) reportException(Error_Incorrect_call_positive, CHAR_##f, OREF_positional, p, n)
+#define nonnegative_integer(n,f,p) if (n < 0) reportException(Error_Incorrect_call_nonnegative, CHAR_##f, OREF_positional, p, n)
 
 #define  ALPHANUM "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 #endif

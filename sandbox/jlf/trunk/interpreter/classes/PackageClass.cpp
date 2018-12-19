@@ -359,7 +359,7 @@ RexxArray *PackageClass::getImportedPackages()
 PackageClass *PackageClass::loadPackage(RexxString *name, RexxArray *s)
 {
     // make sure we have a valid name and delegate to the source object
-    name = stringArgument(name, 1);
+    name = stringArgument(name, OREF_positional, 1);
     ProtectedObject p(name);
     // if no source provided, this comes from a file
     if (s == OREF_NULL)
@@ -368,7 +368,7 @@ PackageClass *PackageClass::loadPackage(RexxString *name, RexxArray *s)
     }
     else
     {
-        s = arrayArgument(s, "source");
+        s = arrayArgument(s, OREF_positional, OREF_SOURCE);
         ProtectedObject p(s);
         return source->loadRequires(ActivityManager::currentActivity, name, s);
     }
@@ -384,7 +384,7 @@ PackageClass *PackageClass::loadPackage(RexxString *name, RexxArray *s)
  */
 RexxObject *PackageClass::addPackage(PackageClass *package)
 {
-    classArgument(package, ThePackageClass, "package");
+    classArgument(package, ThePackageClass, OREF_positional, OREF_PACKAGE);
     source->addPackage(package);
     return this;
 }
@@ -399,9 +399,9 @@ RexxObject *PackageClass::addPackage(PackageClass *package)
  */
 RexxObject *PackageClass::addRoutine(RexxString *name, RoutineClass *routine)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p(name);
-    classArgument(routine, TheRoutineClass, "routine");
+    classArgument(routine, TheRoutineClass, OREF_positional, OREF_ROUTINE);
     source->addInstalledRoutine(name, routine, false);
     return this;
 }
@@ -416,9 +416,9 @@ RexxObject *PackageClass::addRoutine(RexxString *name, RoutineClass *routine)
  */
 RexxObject *PackageClass::addPublicRoutine(RexxString *name, RoutineClass *routine)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p(name);
-    classArgument(routine, TheRoutineClass, "routine");
+    classArgument(routine, TheRoutineClass, OREF_positional, OREF_ROUTINE);
     source->addInstalledRoutine(name, routine, true);
     return this;
 }
@@ -433,9 +433,9 @@ RexxObject *PackageClass::addPublicRoutine(RexxString *name, RoutineClass *routi
  */
 RexxObject *PackageClass::addClass(RexxString *name, RexxClass *clazz)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p(name);
-    classArgument(clazz, TheClassClass, "class");
+    classArgument(clazz, TheClassClass, OREF_positional, OREF_CLASS);
     source->addInstalledClass(name, clazz, false);
     return this;
 }
@@ -450,9 +450,9 @@ RexxObject *PackageClass::addClass(RexxString *name, RexxClass *clazz)
  */
 RexxObject *PackageClass::addPublicClass(RexxString *name, RexxClass *clazz)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p(name);
-    classArgument(clazz, TheClassClass, "class");
+    classArgument(clazz, TheClassClass, OREF_positional, OREF_CLASS);
     source->addInstalledClass(name, clazz, true);
     return this;
 }
@@ -486,7 +486,7 @@ RexxClass *PackageClass::findClass(RexxString *name)
  */
 RexxClass *PackageClass::findClassRexx(RexxString *name)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     RexxClass *cls = source->findClass(name);
     if (cls == OREF_NULL)
     {
@@ -518,7 +518,7 @@ RoutineClass *PackageClass::findRoutine(RexxString *name)
  */
 RoutineClass *PackageClass::findRoutineRexx(RexxString *name)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     RoutineClass *routine = findRoutine(name);
     if (routine == OREF_NULL)
     {
@@ -563,7 +563,7 @@ PackageClass *PackageClass::newRexx(
     PackageClass *package = OREF_NULL;
 
     /* get the package name as a string   */
-    RexxString *nameString = stringArgument(pgmname, "name");
+    RexxString *nameString = stringArgument(pgmname, OREF_positional, "name");
     ProtectedObject p_nameString(nameString);
     if (_source == OREF_NULL)
     {
@@ -576,7 +576,7 @@ PackageClass *PackageClass::newRexx(
     else
     {
         // add this to the instance context
-        RexxArray *sourceArray = arrayArgument(_source, "source");
+        RexxArray *sourceArray = arrayArgument(_source, OREF_positional, OREF_SOURCE);
         ProtectedObject p(sourceArray);
         package = instance->loadRequires(activity, nameString, sourceArray);
     }
@@ -605,7 +605,7 @@ PackageClass *PackageClass::newRexx(
  */
 RexxObject *PackageClass::loadLibrary(RexxString *name)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p(name);
     // have we already loaded this package?
     // may need to bootstrap it up first.

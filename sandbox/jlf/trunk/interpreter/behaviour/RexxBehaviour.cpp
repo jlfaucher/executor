@@ -358,7 +358,7 @@ RexxMethod *RexxBehaviour::methodObject(
 {
     /* force to a string version (upper  */
     /* case required)                    */
-    messageName = stringArgument(messageName, ARG_ONE)->upper();
+    messageName = stringArgument(messageName, OREF_positional, ARG_ONE)->upper();
     /* now just do a method lookup       */
     return this->methodLookup(messageName);
 }

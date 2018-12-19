@@ -166,7 +166,7 @@ static void convertToVT(RexxMethodContext *context,  RexxObjectPtr v_type, int p
         vtString = stringToVT(context, vtString);
         if ( ! vtString )
         {
-            context->RaiseException2(Rexx_Error_Incorrect_method_argType, context->WholeNumberToObject(position), context->NewStringFromAsciiz("VARTYPE"));
+            context->RaiseException3(Rexx_Error_Incorrect_method_argType, context->String("positional"), context->WholeNumberToObject(position), context->NewStringFromAsciiz("VARTYPE"));
         }
     }
 
@@ -195,7 +195,7 @@ static void convertToParamFlag(RexxMethodContext *context,  RexxObjectPtr param_
         flagsString = stringToFlags(context, flagsString);
         if ( ! flagsString )
         {
-            context->RaiseException2(Rexx_Error_Incorrect_method_argType, context->WholeNumberToObject(position), context->NewStringFromAsciiz("PARAMFLAG"));
+            context->RaiseException3(Rexx_Error_Incorrect_method_argType, context->String("positional"), context->WholeNumberToObject(position), context->NewStringFromAsciiz("PARAMFLAG"));
         }
     }
 

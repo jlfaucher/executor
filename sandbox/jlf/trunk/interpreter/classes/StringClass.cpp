@@ -492,7 +492,7 @@ bool RexxString::isEqual(
 /*            only strict equality, not greater or less than values.          */
 /******************************************************************************/
 {
-    requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
+    requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
     if (!this->isBaseClass())            /* not a primitive?                  */
     {
         /* do the full lookup compare        */
@@ -526,7 +526,7 @@ bool RexxString::primitiveIsEqual(
 /*            only strict equality, not greater or less than values.          */
 /******************************************************************************/
 {
-    requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
+    requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
     if (otherObj == TheNilObject)        // strings never compare equal to the NIL object
     {
         return false;
@@ -553,7 +553,7 @@ bool RexxString::primitiveIsEqual(
 bool RexxString::primitiveCaselessIsEqual(RexxObject *otherObj)
 {
     // we have one required string object
-    requiredArgument(otherObj, ARG_ONE);
+    requiredArgument(otherObj, OREF_positional, ARG_ONE);
     if (otherObj == TheNilObject)        // strings never compare equal to the NIL object
     {
         return false;
@@ -623,7 +623,7 @@ wholenumber_t RexxString::comp(RexxObject *other, RexxString *alternativeOperato
                                          /* will call, we must make sure a    */
                                          /* call to NumberString succeeds or  */
                                          /* we will get into a loop.          */
-    requiredArgument(other, ARG_ONE);            /* make sure we have a real argument */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure we have a real argument */
     if (other == TheNilObject)           // all conditionals return .false when compared to .nil
     {
         return false;
@@ -754,7 +754,7 @@ wholenumber_t RexxString::strictComp(RexxObject *otherObj)
 {
     wholenumber_t result;                /* compare result                    */
 
-    requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
+    requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
     RexxString *other = REQUEST_STRING(otherObj);    /* force into string form            */
     sizeB_t otherLen = other->getBLength();       /* get length of second string.      */
     const char *otherData = other->getStringData();  /* get pointer to start of data.     */
@@ -1408,7 +1408,7 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
     RexxString *other;
     char *data;                          /* character pointer                 */
 
-    requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
+    requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
                                          /* ensure a string value             */
 
     if (!isOfClass(String, otherObj))
@@ -1429,7 +1429,7 @@ RexxString *RexxString::concatRexx(RexxObject *otherObj)
     /* added error checking for NULL pointer (from NilObject) */
     if (other == OREF_NULL)
     {
-        reportException(Error_Incorrect_method_nostring, IntegerOne);
+        reportException(Error_Incorrect_method_nostring, OREF_positional, IntegerOne);
     }
 
     /* the following logic also appears  */
@@ -1526,7 +1526,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
     RexxString *other;                   /* result string                     */
     char *data;                          /* character pointer                 */
 
-    requiredArgument(otherObj, ARG_ONE);         /* this is required.                 */
+    requiredArgument(otherObj, OREF_positional, ARG_ONE);         /* this is required.                 */
 
     if (!isOfClass(String, otherObj))
     {
@@ -1546,7 +1546,7 @@ RexxString *RexxString::concatBlank(RexxObject *otherObj)
     /* added error checking for NULL pointer (from NilObject) */
     if (other == OREF_NULL)
     {
-        reportException(Error_Incorrect_method_nostring, IntegerOne);
+        reportException(Error_Incorrect_method_nostring, OREF_positional, IntegerOne);
     }
 
     /* the following logic also appears  */
@@ -2050,7 +2050,7 @@ RexxObject *RexxString::andOp(RexxObject *other)
 {
     RexxObject *otherTruth;              /* truth value of the other object   */
 
-    requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                          /* validate the boolean              */
     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
     /* perform the operation             */
@@ -2065,7 +2065,7 @@ RexxObject *RexxString::orOp(RexxObject *other)
 {
     RexxObject *otherTruth;              /* truth value of the other object   */
 
-    requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                          /* validate the boolean              */
     otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
     /* perform the operation             */
@@ -2078,7 +2078,7 @@ RexxObject *RexxString::xorOp(RexxObject *other)
 /* Function:  Logical XOR of a string with another logical value              */
 /******************************************************************************/
 {
-    requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                          /* get as a boolean                  */
     bool truth = other->truthValue(Error_Logical_value_method);
     /* first one false?                  */
@@ -2434,7 +2434,7 @@ RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
                                          /* break up the arguments            */
     RexxClass::processNewArgs(init_args, argCount, &init_args, &argCount, 1, (RexxObject **)&stringObj, NULL);
     /* force argument to string value    */
-    RexxString *string = (RexxString *)stringArgument(stringObj, ARG_ONE);
+    RexxString *string = (RexxString *)stringArgument(stringObj, OREF_positional, ARG_ONE);
     ProtectedObject p(string);
     /* create a new string object        */
     string = new_string(string->getStringData(), string->getBLength(), string->getCLength());

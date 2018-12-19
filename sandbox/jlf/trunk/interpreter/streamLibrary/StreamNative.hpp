@@ -97,6 +97,9 @@ public:
     void  raiseException(int err);
     void  raiseException(int err, RexxObjectPtr sub1);
     void  raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2);
+    void  raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2, RexxObjectPtr sub3);
+    void  raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2, RexxObjectPtr sub3, RexxObjectPtr sub4);
+    void  raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2, RexxObjectPtr sub3, RexxObjectPtr sub4, RexxObjectPtr sub5);
     void  eof(RexxObjectPtr);
     void  eof();
     void  checkEof();

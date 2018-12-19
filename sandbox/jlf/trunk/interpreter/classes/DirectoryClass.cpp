@@ -305,7 +305,7 @@ RexxObject *RexxDirectory::entryRexx(
 /******************************************************************************/
 {
                                          /* get a string parameter (uppercase)*/
-    entryName = stringArgument(entryName, ARG_ONE)->upper();
+    entryName = stringArgument(entryName, OREF_positional, ARG_ONE)->upper();
     RexxObject *temp = this->at(entryName);          /* retrieve the name                 */
 
                                          /* if we found nothing or the method */
@@ -324,7 +324,7 @@ RexxObject *RexxDirectory::hasIndex(
 /******************************************************************************/
 {
     /* get as a string parameter         */
-    indexName = stringArgument(indexName, ARG_ONE);
+    indexName = stringArgument(indexName, OREF_positional, ARG_ONE);
     /* got a value?                      */
     if (this->contents->stringGet(indexName) != OREF_NULL)
     {
@@ -356,7 +356,7 @@ RexxObject *RexxDirectory::hasEntry(
 /******************************************************************************/
 {
     /* get as a string parameter         */
-    entryName = stringArgument(entryName, ARG_ONE)->upper();
+    entryName = stringArgument(entryName, OREF_positional, ARG_ONE)->upper();
     /* in the table?                     */
     if (this->contents->stringGet(entryName) != OREF_NULL)
     {
@@ -388,7 +388,7 @@ RexxObject *RexxDirectory::setEntry(
 /******************************************************************************/
 {
     /* get as a string parameter         */
-    entryname = stringArgument(entryname, ARG_ONE)->upper();
+    entryname = stringArgument(entryname, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(entryname);
     if (entryobj != OREF_NULL)
     {         /* have a new value?                 */
@@ -423,7 +423,7 @@ RexxObject *RexxDirectory::setEntry(
 RexxObject *RexxDirectory::removeRexx(RexxString *entryname)
 {
     /* get as a string parameter         */
-    entryname = stringArgument(entryname, ARG_ONE);
+    entryname = stringArgument(entryname, OREF_positional, ARG_ONE);
     RexxObject *oldVal = remove(entryname);
     if (oldVal == OREF_NULL)
     {
@@ -457,8 +457,8 @@ RexxObject *RexxDirectory::remove(
 RexxObject *RexxDirectory::unknown(
   RexxString *msgname,                 /* name of unknown message           */
   RexxArray  *arguments,               /* arguments to the message          */
-  RexxString *_name1,                  // name of 1st named argument
-  RexxDirectory *namedArguments)       // value of 1st named argument
+  RexxString *namedArgumentsName,      // name of 1st named argument
+  RexxDirectory *namedArgumentsValue)  // value of 1st named argument
 /******************************************************************************/
 /* Function:     This is the REXX version of unknown.  It invokes entry_rexx  */
 /*               instead of entry, to ensure the proper error checking and    */
@@ -466,8 +466,8 @@ RexxObject *RexxDirectory::unknown(
 /******************************************************************************/
 {
     /* validate the name                 */
-    RexxString *message_value = stringArgument(msgname, ARG_ONE);
-    requiredArgument(arguments, ARG_TWO);        /* need an argument array            */
+    RexxString *message_value = stringArgument(msgname, OREF_positional, ARG_ONE);
+    requiredArgument(arguments, OREF_positional, ARG_TWO);        /* need an argument array            */
                                          /* get the length                    */
     stringsizeC_t message_length = message_value->getCLength();
     /* assignment form of access?        */
@@ -481,7 +481,7 @@ RexxObject *RexxDirectory::unknown(
         if (arguments == TheNilObject || arguments->getDimension() != 1 || arguments->size() != 1 )
         {
             /* raise an error                    */
-            reportException(Error_Incorrect_method_noarray, IntegerTwo);
+            reportException(Error_Incorrect_method_noarray, OREF_positional, IntegerTwo);
         }
         ProtectedObject p(arguments);
 
@@ -506,7 +506,7 @@ RexxObject *RexxDirectory::setMethod(
 /******************************************************************************/
 {
     /* get as a string parameter         */
-    entryname = stringArgument(entryname, ARG_ONE)->upper();
+    entryname = stringArgument(entryname, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(entryname);
     if (methodobj != OREF_NULL)          /* have a method object?             */
     {
@@ -625,7 +625,7 @@ RexxObject *RexxDirectory::atRexx(
     RexxObject *temp;                    /* Temporary holder for return value */
 
                                          /* get as a string parameter         */
-    _index = stringArgument(_index, ARG_ONE);
+    _index = stringArgument(_index, OREF_positional, ARG_ONE);
     // is this the .local object?  We'll need to check with the security manager
     if (ActivityManager::getLocal() == this)
     {
@@ -653,7 +653,7 @@ RexxObject *RexxDirectory::put(
 /******************************************************************************/
 {
     /* get as a string parameter         */
-    _index = stringArgument(_index, ARG_TWO);
+    _index = stringArgument(_index, OREF_positional, ARG_TWO);
     ProtectedObject p(_index);
     if (this->method_table != OREF_NULL) /* have a table?                     */
     {
@@ -721,7 +721,7 @@ RexxObject *RexxDirectory::isEmpty()
 RexxObject *RexxDirectory::indexRexx(RexxObject *target)
 {
     // required argument
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
     // retrieve this from the hash table
     RexxObject *result = this->contents->getIndex(target);
     // not found, return .nil
@@ -761,7 +761,7 @@ RexxObject *RexxDirectory::indexRexx(RexxObject *target)
  */
 RexxObject *RexxDirectory::hasItem(RexxObject *target)
 {
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
     // the lookup is more complicated, so just delegate to the index lookup code.
     return indexRexx(target) != TheNilObject ? TheTrueObject : TheFalseObject;
 }
@@ -776,7 +776,7 @@ RexxObject *RexxDirectory::hasItem(RexxObject *target)
  */
 RexxObject *RexxDirectory::removeItem(RexxObject *target)
 {
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
     // the lookup is more complicated, so just delegate to the index lookup code.
     RexxObject *i = indexRexx(target);
     // just use the retrieved index to remove.

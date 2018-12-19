@@ -195,7 +195,7 @@ RexxObject *WeakReference::newRexx(RexxObject **init_args, size_t argCount)
                                        /* break up the arguments            */
   RexxClass::processNewArgs(init_args, argCount, &init_args, &argCount, 1, &refObj, NULL);
   // must have a value
-  requiredArgument(refObj, ARG_ONE);
+  requiredArgument(refObj, OREF_positional, ARG_ONE);
   // create a new weakReference
   RexxObject *newObj = new WeakReference(refObj);
   ProtectedObject p(newObj);

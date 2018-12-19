@@ -696,7 +696,7 @@ RexxNumberString *RexxNumberString::power(RexxObject *PowerObj)
     size_t    AccumLen;
 
     NegativePower = false;               /* Initialize the flags.             */
-    requiredArgument(PowerObj, ARG_ONE);         /* must have one argument            */
+    requiredArgument(PowerObj, OREF_positional, ARG_ONE);         /* must have one argument            */
                                          /* get the whole number value        */
     if (!PowerObj->numberValue(powerValue, number_digits()))
     {

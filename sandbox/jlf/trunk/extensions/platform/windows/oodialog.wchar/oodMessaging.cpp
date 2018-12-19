@@ -2434,12 +2434,12 @@ static keyPressErr_t connectKeyPressHook(RexxMethodContext *c, pCEventNotificati
 {
     if ( *methodName == '\0' )
     {
-        c->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
+        c->RaiseException2(Rexx_Error_Invalid_argument_null, c->String("positional"), TheOneObj);
         return nameErr;
     }
     if ( *keys == '\0' )
     {
-        c->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
+        c->RaiseException2(Rexx_Error_Invalid_argument_null, c->String("positional"), TheTwoObj);
         return nameErr;
     }
 
@@ -3080,7 +3080,7 @@ RexxMethod3(int32_t, en_connectCommandEvents, RexxObjectPtr, rxID, CSTRING, meth
     }
     if ( *methodName == '\0' )
     {
-        context->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
+        context->RaiseException2(Rexx_Error_Invalid_argument_null, context->String("positional"), TheTwoObj);
         return 1;
     }
     return (addCommandMessage(pcen, id, 0x0000FFFF, 0, 0, methodName, 0) ? 0 : 1);
@@ -3337,7 +3337,7 @@ RexxMethod9(uint32_t, en_addUserMessage, CSTRING, methodName, CSTRING, wm, OPTIO
 
     if ( *methodName == '\0' )
     {
-        context->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
+        context->RaiseException2(Rexx_Error_Invalid_argument_null, context->String("positional"), TheOneObj);
         goto done_out;
     }
 

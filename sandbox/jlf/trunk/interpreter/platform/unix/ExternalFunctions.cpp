@@ -292,7 +292,7 @@ RexxRoutine2(RexxStringObject, sysFilespec, CSTRING, option, CSTRING, name)
             {                                /* compatibility to windows, no drive   */
                 return context->NullString();
             }
-        
+
         case FILESPEC_LOCATION:          /* extract the file name               */
             {                                /* everything to left of slash        */
                 return context->String(name, pathEnd - name);
@@ -321,7 +321,7 @@ RexxRoutine2(RexxStringObject, sysFilespec, CSTRING, option, CSTRING, name)
             optionChar[0] = *option;
             optionChar[1] = '\0';
 
-            RexxArrayObject subs = context->Array(context->String("FILESPEC"), context->WholeNumberToObject(1),
+            RexxArrayObject subs = context->Array(context->String("FILESPEC"), (RexxStringObject)OREF_positional, context->WholeNumberToObject(1),
                 context->String("ELNP"), context->String(optionChar));
             /* raise an error                    */
             context->RaiseException(Rexx_Error_Incorrect_call_list, subs);

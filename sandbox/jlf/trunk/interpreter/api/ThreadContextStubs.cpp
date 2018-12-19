@@ -1259,7 +1259,7 @@ RexxObjectPtr RexxEntry ArrayAt(RexxThreadContext *c, RexxArrayObject a, size_t 
     {
         if (i == 0)
         {
-            reportException(Error_Incorrect_method_positive, 1);
+            reportException(Error_Incorrect_method_positive, OREF_positional, 1);
         }
         return (RexxObjectPtr)context.ret(((RexxArray *)a)->getApi(i));
     }
@@ -1277,7 +1277,7 @@ void RexxEntry ArrayPut(RexxThreadContext *c, RexxArrayObject a, RexxObjectPtr o
     {
         if (i == 0)
         {
-            reportException(Error_Incorrect_method_positive, 2);
+            reportException(Error_Incorrect_method_positive, OREF_positional, 2);
         }
         ((RexxArray *)a)->putApi((RexxObject *)o, i);
     }
@@ -1415,6 +1415,20 @@ RexxArrayObject RexxEntry ArrayOfFour(RexxThreadContext *c, RexxObjectPtr o1, Re
     try
     {
         return (RexxArrayObject)context.ret(new_array((RexxObject *)o1, (RexxObject *)o2, (RexxObject *)o3, (RexxObject *)o4));
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+    return NULLOBJECT;
+}
+
+
+RexxArrayObject RexxEntry ArrayOfFive(RexxThreadContext *c, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+{
+    ApiContext context(c);
+    try
+    {
+        return (RexxArrayObject)context.ret(new_array((RexxObject *)o1, (RexxObject *)o2, (RexxObject *)o3, (RexxObject *)o4, (RexxObject *)o5));
     }
     catch (RexxNativeActivation *)
     {
@@ -1763,6 +1777,42 @@ void RexxEntry RaiseException2(RexxThreadContext *c, size_t n, RexxObjectPtr o1,
     }
 }
 
+void RexxEntry RaiseException3(RexxThreadContext *c, size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3)
+{
+    ApiContext context(c);
+    try
+    {
+        reportException((wholenumber_t)n, (RexxObject *)o1, (RexxObject *)o2, (RexxObject *)o3);
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+}
+
+void RexxEntry RaiseException4(RexxThreadContext *c, size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
+{
+    ApiContext context(c);
+    try
+    {
+        reportException((wholenumber_t)n, (RexxObject *)o1, (RexxObject *)o2, (RexxObject *)o3, (RexxObject *)o4);
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+}
+
+void RexxEntry RaiseException5(RexxThreadContext *c, size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+{
+    ApiContext context(c);
+    try
+    {
+        reportException((wholenumber_t)n, (RexxObject *)o1, (RexxObject *)o2, (RexxObject *)o3, (RexxObject *)o4, (RexxObject *)o5);
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+}
+
 void RexxEntry APIRaiseException(RexxThreadContext *c, size_t n, RexxArrayObject a)
 {
     ApiContext context(c);
@@ -2049,6 +2099,7 @@ RexxThreadInterface RexxActivity::threadContextFunctions =
     ArrayOfTwo,
     ArrayOfThree,
     ArrayOfFour,
+    ArrayOfFive,
     IsArray,
 
     BufferData,
@@ -2080,6 +2131,9 @@ RexxThreadInterface RexxActivity::threadContextFunctions =
     RaiseException0,
     RaiseException1,
     RaiseException2,
+    RaiseException3,
+    RaiseException4,
+    RaiseException5,
     APIRaiseException,
     RaiseCondition,
     CheckCondition,

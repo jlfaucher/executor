@@ -411,8 +411,8 @@ bool RexxInteger::logicalValue(logical_t &result)
 RexxObject *RexxInteger::unknown(
     RexxString *msgname,               /* unknown message name              */
     RexxArray *arguments,              /* arguments to the unknown message  */
-    RexxString *name1,                 // name of 1st named argument
-    RexxDirectory *namedArguments)     // value of 1st named argument
+    RexxString *namedArgumentsName,    // name of 1st named argument
+    RexxDirectory *namedArgumentsValue)// value of 1st named argument
 /******************************************************************************/
 /* Function:  Intercept unknown messages to an integer object and reissue     */
 /*            them against the string value.                                  */
@@ -422,7 +422,7 @@ RexxObject *RexxInteger::unknown(
     // return this->stringValue()->sendMessage(msgname, arguments);
 
     size_t argumentsCount = arguments ? arguments->size() : 0;
-    size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
+    size_t namedArgumentsCount = (namedArgumentsValue && namedArgumentsValue != TheNilObject) ? namedArgumentsValue->items() : 0;
 
     // Optimization: don't create an intermediate array if no arg
     if (argumentsCount == 0 && namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
@@ -435,7 +435,7 @@ RexxObject *RexxInteger::unknown(
         args->put(arg, i);
     }
     args->append(new_integer(namedArgumentsCount));
-    if (namedArgumentsCount != 0) namedArguments->appendAllIndexesItemsTo(args);
+    if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);
     return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
 }
 
@@ -509,7 +509,7 @@ RexxString *RexxInteger::concatBlank(
   // JLF same as RexxNumberString, give a chance for an alternative operator
   return this->stringValue()->concatBlank(other);
 
-  requiredArgument(other, ARG_ONE);            /* this is required                  */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* this is required                  */
   other = REQUEST_STRING(other);       /* ensure a string value             */
   ProtectedObject p(other);
                                        /* do the concatenate                */
@@ -525,7 +525,7 @@ RexxString *RexxInteger::concat(
   // JLF same as RexxNumberString, give a chance for an alternative operator
   return this->stringValue()->concatRexx(other);
 
-  requiredArgument(other, ARG_ONE);            /* this is required                  */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* this is required                  */
   other = REQUEST_STRING(other);       /* ensure a string value             */
   ProtectedObject p(other);
                                        /* do the concatenate                */
@@ -594,7 +594,7 @@ RexxObject *RexxInteger::multiply(
   if (number_digits() != Numerics::DEFAULT_DIGITS )
                                        /* nope, we can't do integer math    */
     return integer_forward(this, multiply, other);
-  requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                        /* is the other an integer and will  */
                                        /* the result be in a good range?    */
   if (isOfClass(Integer, other) && Numerics::abs(this->value) <= 99999 && Numerics::abs(other->value) <= 9999)
@@ -626,7 +626,7 @@ RexxObject *RexxInteger::integerDivide(
   if (number_digits() != Numerics::DEFAULT_DIGITS )
                                        /* nope, we can't do integer arith   */
     return integer_forward(this, integerDivide, other);
-  requiredArgument(other, ARG_ONE);            /* make sure this is really there    */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure this is really there    */
 
   if (isOfClass(Integer, other)) {         /* is right object an integer?       */
                                        /* is right number 0?                */
@@ -653,7 +653,7 @@ RexxObject *RexxInteger::remainder(
   if (number_digits() != Numerics::DEFAULT_DIGITS )
                                        /* nope, we can't do integer arith   */
     return integer_forward(this, remainder, other);
-  requiredArgument(other, ARG_ONE);            /* make sure this is really there    */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure this is really there    */
 
   if (isOfClass(Integer, other)) {         /* is right object an integer?       */
                                        /* is right number 0?                */
@@ -715,7 +715,7 @@ wholenumber_t RexxInteger::strictComp(
 /*             return >0 if this is greater than other                        */
 /******************************************************************************/
 {
-  requiredArgument(other, ARG_ONE);            /* make sure this is really there    */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure this is really there    */
   if (isOfClass(Integer, other))           /* string compare is simple          */
                                        /* just return their difference      */
     return this->value - ((RexxInteger *)other)->value;
@@ -735,7 +735,7 @@ wholenumber_t RexxInteger::strictComp(
  */
 wholenumber_t RexxInteger::comp(RexxObject *other, RexxString *alternativeOperator, RexxInteger **alternativeOperatorResultPtr)
 {
-    requiredArgument(other, ARG_ONE);            /* make sure this is really there    */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure this is really there    */
                                          /* able to compare here?             */
     if (this->isSameType(other) && number_digits() == Numerics::DEFAULT_DIGITS)
     {
@@ -974,7 +974,7 @@ RexxObject *RexxInteger::andOp(
 {
   RexxObject *otherTruth;              /* truth value of the other object   */
 
-  requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                        /* validate the boolean              */
   otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
                                        /* perform the operation             */
@@ -989,7 +989,7 @@ RexxObject *RexxInteger::orOp(
 {
   RexxObject *otherTruth;              /* truth value of the other object   */
 
-  requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                        /* validate the boolean              */
   otherTruth = other->truthValue(Error_Logical_value_method) ? TheTrueObject : TheFalseObject;
                                        /* perform the operation             */
@@ -1002,7 +1002,7 @@ RexxObject *RexxInteger::xorOp(
 /* Function:  Logically XOR two objects together                              */
 /******************************************************************************/
 {
-  requiredArgument(other, ARG_ONE);            /* make sure the argument is there   */
+  requiredArgument(other, OREF_positional, ARG_ONE);            /* make sure the argument is there   */
                                        /* get as a boolean                  */
   bool truth = other->truthValue(Error_Logical_value_method);
                                        /* first one false?                  */
@@ -1075,7 +1075,7 @@ RexxObject *RexxInteger::Max(
 
     if (argument == OREF_NULL)         /* was argument missging ?           */
                                        /* Yes, report the error.            */
-      reportException(Error_Incorrect_method_noarg, arg);
+      reportException(Error_Incorrect_method_noarg, OREF_positional, arg);
 
     if (isOfClass(Integer, argument)) {    /* is this an INTEGER object?        */
                                        /* yes, gets its value.              */
@@ -1122,7 +1122,7 @@ RexxObject *RexxInteger::Min(
 
     if (argument == OREF_NULL)         /* was argument missging ?           */
                                        /* Yes, report the error.            */
-      reportException(Error_Incorrect_method_noarg, arg);
+      reportException(Error_Incorrect_method_noarg, OREF_positional, arg);
 
     if (isOfClass(Integer, argument)) {    /* is this an INTEGER object?        */
                                        /* yes, gets its value.              */

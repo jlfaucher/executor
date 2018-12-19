@@ -2729,7 +2729,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_noarg</SymbolicName>
-        <Text>Missing argument in invocation of <Sub position="1" name="routine"/>; argument <Sub position="2" name="argument_number"/> is required</Text>
+        <Text>Missing argument in invocation of <Sub position="1" name="routine"/>; <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> is required</Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2738,7 +2738,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_number</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a number; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a number; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2747,7 +2747,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_whole</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a whole number; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a whole number; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2756,7 +2756,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_nonnegative</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be zero or positive; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be zero or positive; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2765,7 +2765,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_positive</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be positive; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be positive; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2774,7 +2774,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_toobig</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must not exceed the whole number limit.</Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must not exceed the whole number limit.</Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2783,7 +2783,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_range</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be in the range 0-99; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be in the range 0-99; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2792,7 +2792,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_null</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must not be a null string</Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must not be a null string</Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2801,7 +2801,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_option</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a single character or null; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a single character or null; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2810,7 +2810,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_pad</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a single character; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a single character; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2819,7 +2819,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_binary</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a binary string; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a binary string; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2828,7 +2828,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_hex</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a hexadecimal string; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a hexadecimal string; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2837,7 +2837,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_symbol</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a valid symbol; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a valid symbol; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2846,7 +2846,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_list</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be one of <Sub position="3" name="values"/>; found <q><Sub position="4" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be one of <Sub position="4" name="values"/>; found <q><Sub position="5" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2891,7 +2891,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_format_invalid</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument 2, <q><Sub position="2" name="value"/></q>, is not in the format described by argument 3, <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument 2, <q><Sub position="3" name="value"/></q>, is not in the format described by argument 3, <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2936,7 +2936,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_array</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must be a single-dimensional array; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must be a single-dimensional array; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2945,7 +2945,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_nostring</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="argument_number"/> must have a string value; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="argument_number"/> must have a string value; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2963,7 +2963,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Error</Severity>
         <SymbolicName>Error_Incorrect_call_parm_wrong_sep</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="number"/> must be a single non-alphanumeric character or the null string; found <q><Sub position="3" name="value"/></q></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="number"/> must be a single non-alphanumeric character or the null string; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -2972,7 +2972,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Error</Severity>
         <SymbolicName>Error_Incorrect_call_format_incomp_sep</SymbolicName>
-        <Text><Sub position="1" name="function_name"/> argument <Sub position="2" name="number"/>, <q><Sub position="3" name="value"/></q>, is a format incompatible with the separator specified in argument <Sub position="4" name="number"/></Text>
+        <Text><Sub position="1" name="function_name"/> <Sub position="2" name="kind"/> argument <Sub position="3" name="number"/>, <q><Sub position="4" name="value"/></q>, is a format incompatible with the separator specified in argument <Sub position="5" name="number"/></Text>
       </SubMessage>
       <SubMessage>
         <Code>40</Code>
@@ -3017,17 +3017,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_call_nostem</SymbolicName>
-        <Text>Argument <Sub position="1" name="argument"/> must have a stem object or stem name value; found <q><Sub position="2" name="value"/></q></Text>
-      </SubMessage>
-      <!-- use strict named arg-->
-      <SubMessage>
-        <Code>40</Code>
-        <Subcode>920</Subcode>
-        <MessageNumber>744</MessageNumber>
-        <Component>Rexx</Component>
-        <Severity>Warning</Severity>
-        <SymbolicName>Error_Incorrect_call_nonamedarg</SymbolicName>
-        <Text>Missing named argument in invocation of <Sub position="1" name="routine"/>; argument <q><Sub position="2" name="argument_name"/></q> is required</Text>
+        <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must have a stem object or stem name value; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
     </Subcodes>
   </Message>
@@ -3476,7 +3466,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_noarg</SymbolicName>
-          <Text>Missing argument; argument <Sub position="1" name="argument"/> is required</Text>
+          <Text>Missing argument; <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> is required</Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3485,7 +3475,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_number</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be a number; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be a number; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3494,7 +3484,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_whole</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be a whole number; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be a whole number; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3503,7 +3493,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_nonnegative</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be zero or a positive whole number; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be zero or a positive whole number; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3512,7 +3502,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_positive</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be a positive whole number; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be a positive whole number; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3521,7 +3511,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_toobig</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must not exceed <Sub position="2" name="limit"/>; found <q><Sub position="3" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must not exceed <Sub position="3" name="limit"/>; found <q><Sub position="4" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3530,7 +3520,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_range</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be in the range <Sub position="2" name="min"/> to <Sub position="3" name="max"/>; found <q><Sub position="4" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be in the range <Sub position="3" name="min"/> to <Sub position="4" name="max"/>; found <q><Sub position="5" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3539,7 +3529,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_null</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must not be a null string</Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must not be a null string</Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3548,7 +3538,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_string</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must have a string value</Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must have a string value</Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3557,7 +3547,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_pad</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> is an incorrect pad or character argument; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> is an incorrect pad or character argument; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3566,7 +3556,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_length</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> is an incorrect length argument; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> is an incorrect length argument; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3575,7 +3565,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_position</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> is an incorrect position argument; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> is an incorrect position argument; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3584,7 +3574,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_noarray</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must have a single-dimensional array value</Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must have a single-dimensional array value; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3593,7 +3583,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_noclass</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be of the <Sub position="2" name="class"/> class</Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be of the <Sub position="3" name="class"/> class</Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3602,7 +3592,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_argType</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> could not be converted to type <Sub position="2" name="type"/></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> could not be converted to type <Sub position="3" name="type"/></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3611,7 +3601,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_list</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be one of <Sub position="2" name="values"/>; found <q><Sub position="3" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be one of <Sub position="3" name="values"/>; found <q><Sub position="4" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3620,7 +3610,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_general</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> <Sub position="2" name="reason"/></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> <Sub position="3" name="reason"/></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3629,7 +3619,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_format</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> is not in a valid format; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> is not in a valid format; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3638,7 +3628,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_pointer</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> is not in valid pointer format; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> is not in valid pointer format; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3647,7 +3637,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_nostem</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must have a stem object or stem name value; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must have a stem object or stem name value; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3656,7 +3646,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_double</SymbolicName>
-          <Text>Argument <Sub position="1" name="argument"/> must be a valid double value; found <q><Sub position="2" name="value"/></q></Text>
+          <Text><Sub position="1" name="kind"/> Argument <Sub position="2" name="argument"/> must be a valid double value; found <q><Sub position="3" name="value"/></q></Text>
         </SubMessage>
         <SubMessage>
           <Code>88</Code>
@@ -3665,7 +3655,7 @@ special character (such as a parenthesis).
           <Component>Rexx</Component>
           <Severity>Warning</Severity>
           <SymbolicName>Error_Invalid_argument_maxarg</SymbolicName>
-          <Text>Too many arguments in invocation; <Sub position="1" name="number"/> expected</Text>
+          <Text>Too many <Sub position="1" name="kind"/> arguments in invocation; <Sub position="2" name="number"/> expected</Text>
         </SubMessage>
     </Subcodes>
   </Message>
@@ -3961,7 +3951,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_noarg</SymbolicName>
-        <Text>Missing argument in method; argument <Sub position="1" name="argument"/> is required</Text>
+        <Text>Missing <Sub position="1" name="kind"/> argument in method; argument <Sub position="2" name="argument"/> is required</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -3970,7 +3960,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_number</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be a number; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be a number; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -3979,7 +3969,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_whole</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be a whole number; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be a whole number; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -3988,7 +3978,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_nonnegative</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be zero or a positive whole number; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be zero or a positive whole number; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -3997,7 +3987,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_positive</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be a positive whole number; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be a positive whole number; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4006,7 +3996,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_toobig</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must not exceed <Sub position="2" name="limit"/>; found <q><Sub position="3" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must not exceed <Sub position="" name="limit"/>; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4015,7 +4005,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_range</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be in the range 0-99; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="" name="argument"/> must be in the range 0-99; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4024,7 +4014,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_null</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must not be null</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must not be null</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4033,7 +4023,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_hex</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be a hexadecimal string; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be a hexadecimal string; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4042,7 +4032,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_symbol</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be a valid symbol; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="" name="argument"/> must be a valid symbol; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4051,7 +4041,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_list</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be one of <Sub position="2" name="arguments"/>; found <q><Sub position="3" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be one of <Sub position="3" name="arguments"/>; found <q><Sub position="4" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4069,7 +4059,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_string</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must have a string value</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must have a string value</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4249,7 +4239,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_nostring</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must have a string value</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must have a string value</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4258,7 +4248,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_noarray</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must have a single-dimensional array value</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must have a single-dimensional array value</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4294,7 +4284,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_nomessage</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be a message object</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be a message object</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4303,7 +4293,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_message_noarg</SymbolicName>
-        <Text>Missing argument in message array; argument <Sub position="1" name="argument"/> is required</Text>
+        <Text>Missing <Sub position="1" name="kind"/> argument in message array; argument <Sub position="2" name="argument"/> is required</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4330,7 +4320,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_noclass</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must be of the <Sub position="2" name="class"/> class</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be of the <Sub position="3" name="class"/> class</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4357,7 +4347,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_no_method</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must have a string value or an array value</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must have a string value or an array value</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4366,7 +4356,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_argType</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> could not be converted to type <Sub position="2" name="type"/></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> could not be converted to type <Sub position="3" name="type"/></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4384,7 +4374,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_nostring_inarray</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> is an array and does not contain all string values</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> is an array and does not contain all string values</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4483,7 +4473,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_nostem</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> must have a stem object value; found <q><Sub position="2" name="value"/></q></Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must have a stem object value; found <q><Sub position="3" name="value"/></q></Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>
@@ -4501,17 +4491,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_multi_dimension</SymbolicName>
-        <Text>Method argument <Sub position="1" name="argument"/> cannot have more than a single dimension</Text>
-      </SubMessage>
-      <!-- use strict named arg -->
-      <SubMessage>
-        <Code>93</Code>
-        <Subcode>972</Subcode>
-        <MessageNumber>745</MessageNumber>
-        <Component>Rexx</Component>
-        <Severity>Warning</Severity>
-        <SymbolicName>Error_Incorrect_method_nonamedarg</SymbolicName>
-        <Text>Missing named argument in method; argument <q><Sub position="1" name="argument"/></q> is required</Text>
+        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> cannot have more than a single dimension</Text>
       </SubMessage>
     </Subcodes>
   </Message>

@@ -106,6 +106,7 @@ typedef struct copyElementParm {
    void * operator new(size_t, RexxObject *, RexxObject *);
    void * operator new(size_t, RexxObject *, RexxObject *, RexxObject *);
    void * operator new(size_t, RexxObject *, RexxObject *, RexxObject *, RexxObject *);
+   void * operator new(size_t, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *);
    void * operator new(size_t, size_t, RexxObject **);
    void * operator new(size_t, size_t, size_t, RexxClass *cls = TheArrayClass);
 
@@ -116,6 +117,7 @@ typedef struct copyElementParm {
    inline void operator delete(void *, RexxObject *, RexxObject *) {;}
    inline void operator delete(void *, RexxObject *, RexxObject *, RexxObject *) {;}
    inline void operator delete(void *, RexxObject *, RexxObject *, RexxObject *, RexxObject *) {;}
+   inline void operator delete(void *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *) {;}
    inline void operator delete(void *, size_t, RexxObject **) {;}
    inline void operator delete(void *, size_t, size_t, RexxClass *cls) {;}
    inline void operator delete(void *, RexxObject **) { ; }
@@ -275,6 +277,11 @@ inline RexxArray *new_array(RexxObject *o1, RexxObject *o2, RexxObject *o3)
 inline RexxArray *new_array(RexxObject *o1, RexxObject *o2, RexxObject *o3, RexxObject *o4)
 {
     return new (o1, o2, o3, o4) RexxArray;
+}
+
+inline RexxArray *new_array(RexxObject *o1, RexxObject *o2, RexxObject *o3, RexxObject *o4, RexxObject *o5)
+{
+    return new (o1, o2, o3, o4, o5) RexxArray;
 }
 
  #endif

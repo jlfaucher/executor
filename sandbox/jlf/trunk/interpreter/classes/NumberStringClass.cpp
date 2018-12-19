@@ -1301,7 +1301,7 @@ RexxObject *RexxNumberString::trunc(
 /******************************************************************************/
 {
     /* get the decimal count             */
-    size_t needed_digits = optionalNonNegative(decimal_digits, 0, ARG_ONE);
+    size_t needed_digits = optionalNonNegative(decimal_digits, 0, OREF_positional, ARG_ONE);
     /* round to current digits setting   */
     return this->prepareNumber(number_digits(), ROUND)->truncInternal(needed_digits);
 }
@@ -1860,13 +1860,13 @@ RexxString  *RexxNumberString::formatRexx(
     digits = number_digits();            /* get the current digits value      */
     form = number_form();                /* and the exponential form          */
                                          /* get the space for integer part    */
-    integers = optionalNonNegative(Integers, -1, ARG_ONE);
+    integers = optionalNonNegative(Integers, -1, OREF_positional, ARG_ONE);
     /* and the decimal part              */
-    decimals = optionalNonNegative(Decimals, -1, ARG_TWO);
+    decimals = optionalNonNegative(Decimals, -1, OREF_positional, ARG_TWO);
     /* also the exponent size            */
-    mathexp = optionalNonNegative(MathExp, -1, ARG_THREE);
+    mathexp = optionalNonNegative(MathExp, -1, OREF_positional, ARG_THREE);
     /* and the trigger                   */
-    exptrigger = optionalNonNegative(ExpTrigger, digits, ARG_FOUR);
+    exptrigger = optionalNonNegative(ExpTrigger, digits, OREF_positional, ARG_FOUR);
     /* round to current digits setting   */
     return this->prepareNumber(digits, ROUND)->formatInternal(integers, decimals, mathexp, exptrigger, this, digits, form);
 }
@@ -2646,7 +2646,7 @@ void RexxNumberString::formatUnsignedInt64(uint64_t integer)
 
 
 RexxObject *RexxNumberString::unknown(RexxString *msgname, RexxArray *arguments,
-                                      RexxString *_name1, RexxDirectory *namedArguments)
+                                      RexxString *namedArgumentsName, RexxDirectory *namedArgumentsValue)
 /******************************************************************************/
 /* Function:  Forward all unknown messages to the numberstring's string       */
 /*            representation                                                  */
@@ -2655,7 +2655,7 @@ RexxObject *RexxNumberString::unknown(RexxString *msgname, RexxArray *arguments,
     // return this->stringValue()->sendMessage(msgname, arguments);
 
     size_t argumentsCount = arguments ? arguments->size() : 0;
-    size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
+    size_t namedArgumentsCount = (namedArgumentsValue && namedArgumentsValue != TheNilObject) ? namedArgumentsValue->items() : 0;
 
     // Optimization: don't create an intermediate array if no arg
     if (argumentsCount == 0 && namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
@@ -2668,7 +2668,7 @@ RexxObject *RexxNumberString::unknown(RexxString *msgname, RexxArray *arguments,
         args->put(arg, i);
     }
     args->append(new_integer(namedArgumentsCount));
-    if (namedArgumentsCount != 0) namedArguments->appendAllIndexesItemsTo(args);
+    if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);
     return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
 }
 
@@ -2827,7 +2827,7 @@ wholenumber_t RexxNumberString::comp(
                                          /* subtracting the two numbers, the  */
                                          /* sign of the result obj will be our*/
                                          /* return value.                     */
-    requiredArgument(right, ARG_ONE);            /* make sure we have a real value    */
+    requiredArgument(right, OREF_positional, ARG_ONE);            /* make sure we have a real value    */
                                          /* get a numberstring object from    */
                                          /*right                              */
     rightNumber = right->numberString();
@@ -3232,7 +3232,7 @@ RexxNumberString *RexxNumberString::multiply(RexxObject *right)
 /* Function:  Multiply two numbers                                  */
 /********************************************************************/
 {
-    requiredArgument(right, ARG_ONE);            /* must have an argument             */
+    requiredArgument(right, OREF_positional, ARG_ONE);            /* must have an argument             */
                                          /* get a numberstring object from    */
                                          /*right                              */
     RexxNumberString *rightNumber = right->numberString();
@@ -3257,7 +3257,7 @@ RexxNumberString *RexxNumberString::divide(RexxObject *right)
 /* Function:  Divide two numbers                                    */
 /********************************************************************/
 {
-    requiredArgument(right, ARG_ONE);            /* must have an argument             */
+    requiredArgument(right, OREF_positional, ARG_ONE);            /* must have an argument             */
 
                                          /* get a numberstring object from    */
                                          /*right                              */
@@ -3284,7 +3284,7 @@ RexxNumberString *RexxNumberString::integerDivide(RexxObject *right)
 /* Function:  Integer division between two numbers                  */
 /********************************************************************/
 {
-    requiredArgument(right, ARG_ONE);            /* must have an argument             */
+    requiredArgument(right, OREF_positional, ARG_ONE);            /* must have an argument             */
                                          /* get a numberstring object from    */
                                          /*right                              */
     RexxNumberString *rightNumber = right->numberString();
@@ -3310,7 +3310,7 @@ RexxNumberString *RexxNumberString::remainder(RexxObject *right)
 /* Function:  Remainder division between two numbers                */
 /********************************************************************/
 {
-    requiredArgument(right, ARG_ONE);            /* must have an argument             */
+    requiredArgument(right, OREF_positional, ARG_ONE);            /* must have an argument             */
 
                                          /* get a numberstring object from    */
                                          /*right                              */

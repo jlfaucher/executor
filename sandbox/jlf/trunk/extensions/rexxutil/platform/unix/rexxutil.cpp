@@ -1074,7 +1074,7 @@ RexxRoutine1(int, SysSleep, RexxStringObject, delay)
       isnan(seconds) || seconds == HUGE_VAL || seconds == -HUGE_VAL)
   {
       // 88.902 The &1 argument must be a number; found "&2"
-      context->RaiseException2(Rexx_Error_Invalid_argument_number, context->String("delay"), delay);
+      context->RaiseException3(Rexx_Error_Invalid_argument_number, context->String("positional"), context->String("delay"), delay);
       return 1;
   }
 
@@ -1083,7 +1083,7 @@ RexxRoutine1(int, SysSleep, RexxStringObject, delay)
   {
       // 88.907 The &1 argument must be in the range &2 to &3; found "&4"
       context->RaiseException(Rexx_Error_Invalid_argument_range,
-          context->ArrayOfFour(context->String("delay"),
+          context->ArrayOfFive(context->String("positional"), context->String("delay"),
           context->String("0"), context->String("999999999"), delay));
       return 1;
   }
@@ -2263,7 +2263,7 @@ void inline outOfMemoryException(RexxThreadContext *c)
  */
 void inline nullStringException(RexxThreadContext *c, CSTRING fName, size_t pos)
 {
-    c->RaiseException2(Rexx_Error_Incorrect_call_null, c->String(fName), c->StringSize(pos));
+    c->RaiseException3(Rexx_Error_Incorrect_call_null, c->String(fName), c->String("positional"), c->StringSize(pos));
 }
 
 /**

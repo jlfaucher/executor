@@ -602,12 +602,12 @@ static keyPressErr_t connectKeyPressSubclass(RexxMethodContext *c, CSTRING metho
     }
     if ( *methodName == '\0' )
     {
-        c->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
+        c->RaiseException2(Rexx_Error_Invalid_argument_null, c->String("positional"), TheOneObj);
         goto done_out;
     }
     if ( *keys == '\0' )
     {
-        c->RaiseException1(Rexx_Error_Invalid_argument_null, TheTwoObj);
+        c->RaiseException2(Rexx_Error_Invalid_argument_null, c->String("positional"), TheTwoObj);
         goto done_out;
     }
 
@@ -919,7 +919,7 @@ RexxMethod2(RexxObjectPtr, dlgctrl_connectKeyEvent, CSTRING, methodName, CSELF, 
     }
     if ( *methodName == '\0' )
     {
-        context->RaiseException1(Rexx_Error_Invalid_argument_null, TheOneObj);
+        context->RaiseException2(Rexx_Error_Invalid_argument_null, context->String("positional"), TheOneObj);
         goto done_out;
     }
 

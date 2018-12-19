@@ -200,7 +200,7 @@ void RexxNativeActivation::reportStemError(size_t position, RexxObject *object)
     }
     else
     {
-        reportException(Error_Incorrect_call_nostem, position + 1, object);
+        reportException(Error_Incorrect_call_nostem, OREF_POSITIONAL, position + 1, object);
     }
 }
 
@@ -459,7 +459,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
                         case REXX_VALUE_RexxStringObject: /* Required STRING object            */
                         {
                             /* force to a string value           */
-                            RexxString *temp = stringArgument(argument, inputIndex + 1) ;
+                            RexxString *temp = stringArgument(argument, OREF_POSITIONAL, inputIndex + 1) ;
                             // if this forced a string object to be created,
                             // we need to protect it here.
                             if (temp != argument)
@@ -476,7 +476,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
                         case REXX_VALUE_RexxArrayObject: /* Required ARRAY object            */
                         {
                             /* force to a string value           */
-                            RexxArray *temp = arrayArgument(argument, inputIndex + 1) ;
+                            RexxArray *temp = arrayArgument(argument, OREF_POSITIONAL, inputIndex + 1) ;
                             // if this forced a string object to be created,
                             // we need to protect it here.
                             if (temp != argument)
@@ -544,7 +544,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
                             // this must be a class object
                             if (!argument->isInstanceOf(TheClassClass))
                             {
-                                reportException(Error_Invalid_argument_noclass, inputIndex + 1, TheClassClass->getId());
+                                reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, TheClassClass->getId());
                             }
                             /* set the result in                 */
                             descriptors[outputIndex].value.value_RexxClassObject = (RexxClassObject)argument;
@@ -556,7 +556,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
                             // this must be a pointer object
                             if (!argument->isInstanceOf(ThePointerClass))
                             {
-                                reportException(Error_Invalid_argument_noclass, inputIndex + 1, ThePointerClass->getId());
+                                reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, ThePointerClass->getId());
                             }
                             descriptors[outputIndex].value.value_POINTER = this->pointer(argument);
                             break;
@@ -573,7 +573,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
                             // this must be a pointer object
                             if (!argument->isInstanceOf(TheMutableBufferClass))
                             {
-                                reportException(Error_Invalid_argument_noclass, inputIndex + 1, TheMutableBufferClass->getId());
+                                reportException(Error_Invalid_argument_noclass, OREF_POSITIONAL, inputIndex + 1, TheMutableBufferClass->getId());
                             }
                             descriptors[outputIndex].value.value_RexxMutableBufferObject = (RexxMutableBufferObject)argument;
                             break;
@@ -592,7 +592,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
                     if (!isOptional)
                     {
                                        /* just raise the error              */
-                        reportException(Error_Invalid_argument_noarg, inputIndex + 1);
+                        reportException(Error_Invalid_argument_noarg, OREF_POSITIONAL, inputIndex + 1);
                     }
 
                     // this is a non-specified argument
@@ -658,7 +658,7 @@ void RexxNativeActivation::processArguments(size_t _argcount, RexxObject **_argl
     if (inputIndex < _argcount && !usedArglist)    /* extra, unwanted arguments?        */
     {
                                          /* got too many                      */
-        reportException(Error_Invalid_argument_maxarg, inputIndex);
+        reportException(Error_Invalid_argument_maxarg, OREF_POSITIONAL, inputIndex);
     }
 }
 
@@ -1047,7 +1047,7 @@ bool RexxNativeActivation::objectToValue(RexxObject *o, ValueDescriptor *value)
         case REXX_VALUE_RexxStringObject: /* Required STRING object            */
         {
             /* force to a string value           */
-            RexxString *temp = stringArgument(o, 1) ;
+            RexxString *temp = stringArgument(o, OREF_POSITIONAL, 1) ;
             // if this forced a string object to be created,
             // we need to protect it here.
             if (temp != o)
@@ -1064,7 +1064,7 @@ bool RexxNativeActivation::objectToValue(RexxObject *o, ValueDescriptor *value)
         case REXX_VALUE_RexxArrayObject: /* Required ARRAY object            */
         {
             /* force to a string value           */
-            RexxArray *temp = arrayArgument(o, 1) ;
+            RexxArray *temp = arrayArgument(o, OREF_positional, 1) ;
             // if this forced a string object to be created,
             // we need to protect it here.
             if (temp != o)
@@ -1103,7 +1103,7 @@ bool RexxNativeActivation::objectToValue(RexxObject *o, ValueDescriptor *value)
             }
 
             /* force to a string value           */
-            RexxString *temp = stringArgument(o, 1) ;
+            RexxString *temp = stringArgument(o, OREF_positional, 1) ;
             // if this forced a string object to be created,
             // we need to protect it here.
             if (temp != o)
@@ -1869,7 +1869,7 @@ wholenumber_t RexxNativeActivation::signedIntegerValue(RexxObject *o, size_t pos
     // convert using the whole value range
     if (!Numerics::objectToSignedInteger(o, temp, maxValue, minValue))
     {
-        reportException(Error_Invalid_argument_range, new_array(new_integer(position + 1), Numerics::wholenumberToObject(minValue), Numerics::wholenumberToObject(maxValue), o));
+        reportException(Error_Invalid_argument_range, new_array(OREF_positional, new_integer(position + 1), Numerics::wholenumberToObject(minValue), Numerics::wholenumberToObject(maxValue), o));
     }
     return temp;
 }
@@ -1892,7 +1892,7 @@ size_t RexxNativeActivation::unsignedIntegerValue(RexxObject *o, size_t position
     // convert using the whole value range
     if (!Numerics::objectToUnsignedInteger(o, temp, maxValue))
     {
-        reportException(Error_Invalid_argument_range, new_array(new_integer(position + 1), IntegerZero, Numerics::stringsizeToObject(maxValue), o));
+        reportException(Error_Invalid_argument_range, OREF_positional, new_array(new_integer(position + 1), IntegerZero, Numerics::stringsizeToObject(maxValue), o));
     }
     return temp;
 }
@@ -1913,7 +1913,7 @@ int64_t RexxNativeActivation::int64Value(RexxObject *o, size_t position)
     // convert using the whole value range
     if (!Numerics::objectToInt64(o, temp))
     {
-        reportException(Error_Invalid_argument_range, new_array(new_integer(position + 1), Numerics::int64ToObject(INT64_MAX), Numerics::int64ToObject(INT64_MIN), o));
+        reportException(Error_Invalid_argument_range, OREF_positional, new_array(new_integer(position + 1), Numerics::int64ToObject(INT64_MAX), Numerics::int64ToObject(INT64_MIN), o));
     }
     return temp;
 }
@@ -1934,7 +1934,7 @@ uint64_t RexxNativeActivation::unsignedInt64Value(RexxObject *o, size_t position
     // convert using the whole value range
     if (!Numerics::objectToUnsignedInt64(o, temp))
     {
-        reportException(Error_Invalid_argument_range, new_array(new_integer(position + 1), IntegerZero, Numerics::int64ToObject(INT64_MAX), o));
+        reportException(Error_Invalid_argument_range, OREF_positional, new_array(new_integer(position + 1), IntegerZero, Numerics::int64ToObject(INT64_MAX), o));
     }
     return temp;
 }
@@ -1972,7 +1972,7 @@ void *RexxNativeActivation::pointerString(RexxObject *object, size_t position)
     void *pointerVal;
     if (sscanf(string->getStringData(), "0x%p", &pointerVal) != 1)
     {
-        reportException(Error_Invalid_argument_pointer, position + 1, string);
+        reportException(Error_Invalid_argument_pointer, OREF_positional, position + 1, string);
     }
 
     return pointerVal;
@@ -1989,7 +1989,7 @@ double RexxNativeActivation::getDoubleValue(RexxObject *object, size_t position)
     if (!object->doubleValue(r))
     {
         /* conversion error                  */
-        reportException(Error_Invalid_argument_double, position + 1, object);
+        reportException(Error_Invalid_argument_double, OREF_positional, position + 1, object);
     }
     return r;                            /* return converted number           */
 }
@@ -2567,7 +2567,7 @@ RexxStem *RexxNativeActivation::resolveStemVariable(RexxObject *s)
     }
 
     /* force to a string value           */
-    RexxString *temp = stringArgument(s, 1);
+    RexxString *temp = stringArgument(s, OREF_positional, 1);
     // see if we can retrieve this stem
     return (RexxStem *)getContextStem(temp);
 }

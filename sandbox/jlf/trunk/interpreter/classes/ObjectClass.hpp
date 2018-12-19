@@ -405,13 +405,13 @@ class RexxObject : public RexxInternalObject {
      bool         requestUnsignedNumber(stringsize_t &, size_t);
      RexxArray   *requestArray();
      RexxDirectory *requestDirectory();
-     RexxString  *requiredString(size_t);
-     RexxString  *requiredString(const char *);
+     RexxString  *requiredString(RexxString *kind, size_t);
+     RexxString  *requiredString(RexxString *kind, const char *);
      RexxString  *requiredString();
-     RexxInteger *requiredInteger(size_t, size_t);
-     wholenumber_t requiredNumber(size_t position, size_t precision = Numerics::ARGUMENT_DIGITS);
-     stringsize_t requiredPositive(size_t position, size_t precision = Numerics::ARGUMENT_DIGITS);
-     stringsize_t requiredNonNegative(size_t position, size_t precision = Numerics::ARGUMENT_DIGITS);
+     RexxInteger *requiredInteger(RexxString *kind, size_t, size_t);
+     wholenumber_t requiredNumber(RexxString *kind, size_t position, size_t precision = Numerics::ARGUMENT_DIGITS);
+     stringsize_t requiredPositive(RexxString *kind, size_t position, size_t precision = Numerics::ARGUMENT_DIGITS);
+     stringsize_t requiredNonNegative(RexxString *kind, size_t position, size_t precision = Numerics::ARGUMENT_DIGITS);
 
      bool         isEqual(RexxObject *);
      bool         isInstanceOf(RexxClass *);

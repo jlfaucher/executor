@@ -204,7 +204,7 @@ RexxObject *RexxClass::equal(
 /* Function:  Compare two classes                                             */
 /******************************************************************************/
 {
-    requiredArgument(other, ARG_ONE);            /* must have the other argument      */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* must have the other argument      */
                                          /* this is direct object equality    */
 
                                          /* comparing string/int/numstr to    */
@@ -226,7 +226,7 @@ RexxObject *RexxClass::notEqual(
 /* Function:  Compare two classes                                             */
 /******************************************************************************/
 {
-    requiredArgument(other, ARG_ONE);            /* must have the other argument      */
+    requiredArgument(other, OREF_positional, ARG_ONE);            /* must have the other argument      */
                                          /* this is direct object equality    */
 
                                          /* comparing string/int/numstr to    */
@@ -637,7 +637,7 @@ RexxObject *RexxClass::defineMethod(
 #endif
     /* make sure there is at least one   */
     /* parameter                         */
-    method_name = stringArgument(method_name, ARG_ONE)->upper();
+    method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p_method_name(method_name);
     ProtectedObject p_method_object(method_object);
     if ( OREF_NULL == method_object)     /* 2nd arg omitted?                  */
@@ -742,9 +742,9 @@ RexxObject *RexxClass::defineMethods(
 RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *newMethod)
 {
     // validate the arguments
-    method_name = stringArgument(method_name, ARG_ONE)->upper();
+    method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(method_name);
-    requiredArgument(newMethod, ARG_TWO);
+    requiredArgument(newMethod, OREF_positional, ARG_TWO);
     newMethod->newScope(this);        // change the scope to the class // JLF newScope instead of setScope
     /* now add this to the behaviour     */
     this->behaviour->getMethodDictionary()->stringPut(newMethod, method_name);
@@ -792,7 +792,7 @@ RexxObject *RexxClass::deleteMethod(
         reportNomethod(lastMessageName(), this);
     }
     /* and that it can be a string        */
-    method_name = stringArgument(method_name, ARG_ONE)->upper();
+    method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(method_name);
     /* make a copy of the instance        */
     /* behaviour so any previous objects  */
@@ -816,7 +816,7 @@ RexxMethod *RexxClass::method(
 /*****************************************************************************/
 {
     /* make sure we have a proper name    */
-    method_name = stringArgument(method_name, ARG_ONE)->upper();
+    method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(method_name);
     RexxMethod *method_object = (RexxMethod *)this->instanceBehaviour->getMethodDictionary()->stringGet(method_name);
     /* check if it is in the mdict        */
@@ -1165,7 +1165,7 @@ RexxObject *RexxClass::inherit(
         reportNomethod(lastMessageName(), this);
     }
 #endif
-    requiredArgument(mixin_class, ARG_ONE);      /* make sure it was passed in        */
+    requiredArgument(mixin_class, OREF_positional, ARG_ONE);      /* make sure it was passed in        */
 
                                          /* check the mixin class is really a */
                                          /* good class for this               */
@@ -1268,7 +1268,7 @@ RexxObject *RexxClass::uninherit(
         /* report as a nomethod condition    */
         reportNomethod(lastMessageName(), this);
     }
-    requiredArgument(mixin_class, ARG_ONE);      /* make sure it was passed in        */
+    requiredArgument(mixin_class, OREF_positional, ARG_ONE);      /* make sure it was passed in        */
 
                                          /* check that the mixin class is a   */
                                          /* superclass of the receiver class  */
@@ -1330,12 +1330,12 @@ RexxObject *RexxClass::enhanced(
     if (argCount == 0)                   /* make sure an arg   was passed in  */
     {
         /* if not report an error            */
-        reportException(Error_Incorrect_method_minarg, "positional", IntegerOne);
+        reportException(Error_Incorrect_method_minarg, OREF_positional, IntegerOne);
     }
     /* get the value of the arg          */
     RexxTable *enhanced_instance_mdict = (RexxTable *)args[0];
     /* make sure it was a real value     */
-    requiredArgument(enhanced_instance_mdict, ARG_ONE);
+    requiredArgument(enhanced_instance_mdict, OREF_positional, ARG_ONE);
     /* subclass the reciever class       */
     RexxClass *dummy_subclass = this->subclass(new_string("Enhanced Subclass"), OREF_NULL, OREF_NULL);
     ProtectedObject p(dummy_subclass);
@@ -1561,7 +1561,7 @@ bool RexxClass::isCompatibleWith(RexxClass *other)
  */
 RexxObject *RexxClass::isSubclassOf(RexxClass *other)
 {
-    requiredArgument(other, ARG_ONE);            // must have the other argument
+    requiredArgument(other, OREF_positional, ARG_ONE);            // must have the other argument
     return isCompatibleWith(other) ? TheTrueObject : TheFalseObject;
 }
 
@@ -1624,10 +1624,10 @@ RexxClass  *RexxClass::newRexx(RexxObject **args, size_t argCount)
     if (argCount == 0)                   /* make sure an arg   was passed in  */
     {
         /* if not report an error            */
-        reportException(Error_Incorrect_method_minarg, "positional", IntegerOne);
+        reportException(Error_Incorrect_method_minarg, OREF_positional, IntegerOne);
     }
     RexxString *class_id = (RexxString *)args[0];    /* get the id parameter              */
-    class_id = stringArgument(class_id, ARG_ONE);   /* and that it can be a string       */
+    class_id = stringArgument(class_id, OREF_positional, ARG_ONE);   /* and that it can be a string       */
     ProtectedObject p1(class_id);
     /* get a copy of this class object   */
     RexxClass *new_class = (RexxClass *)this->clone();

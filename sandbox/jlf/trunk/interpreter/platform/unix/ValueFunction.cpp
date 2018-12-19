@@ -94,7 +94,7 @@ bool SystemInterpreter::valueFunction(RexxString *name, RexxObject *newValue, Re
         // we need a string value for the set.
         else
         {
-            setenv(name->getStringData(), stringArgument(newValue, ARG_TWO)->getStringData(), true) ;
+            setenv(name->getStringData(), stringArgument(newValue, OREF_positional, ARG_TWO)->getStringData(), true) ;
         }
     }
     return true;

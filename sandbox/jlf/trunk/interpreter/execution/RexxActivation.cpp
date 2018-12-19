@@ -3177,7 +3177,7 @@ uint64_t RexxActivation::getRandomSeed(RexxInteger * seed )
         if (seed_value < 0)                /* negative value?                   */
         {
             /* got an error                      */
-            reportException(Error_Incorrect_call_nonnegative, CHAR_RANDOM, IntegerThree, seed);
+            reportException(Error_Incorrect_call_nonnegative, CHAR_RANDOM, OREF_positional, IntegerThree, seed);
         }
         /* set the saved seed value          */
         this->random_seed = seed_value;
@@ -4417,6 +4417,13 @@ void RexxActivation::dropLocalCompoundVariable(RexxString *stemName, size_t inde
     RexxStem *stem_table = getLocalStem(stemName, index);   /* get the stem entry from this dictionary */
     /* and set the value                 */
     stem_table->dropCompoundVariable(&resolved_tail);
+    // jlf: I want a trace
+    if (tracingIntermediates())
+    {
+        traceCompoundName(stemName, tail, tailCount, &resolved_tail);
+        /* trace variable value              */
+        traceCompoundAssignment(stemName, tail, tailCount, OREF_TRACEDROPPED);
+    }
 }
 
 
@@ -4571,15 +4578,12 @@ RexxArray *RexxActivation::getStackFrames(bool skipFirst)
 /**
  * Store user-redefined arguments.
  */
-void RexxActivation::setArguments(RexxArray *arguments)
+void RexxActivation::setArguments(RexxArray *positionalArguments, RexxDirectory *namedArguments)
 {
-    size_t count = arguments->size(); // count of positional arguments
-    ProtectedObject p_arguments(arguments); // Protect against GC before doing a copy
-    arguments = (RexxArray *)arguments->copy() ;  // Get a copy
-    p_arguments = arguments; // and protect it
-    // The current method is for positional arguments only.
-    // Merge with named arguments currently stored on the Activation
-    // by appending the count and the pairs name/value.
+    size_t count = positionalArguments->size(); // count of positional arguments
+    this->arguments = (RexxArray *)positionalArguments->copy(); // Protect against GC as long as the activation exists and uses it
+    this->arglist = this->arguments->data();
+    this->argcount = count; // yes, only the count of positional arguments.
     if (this->arglist != OREF_NULL)
     {
         size_t named_argcount = 0;
@@ -4595,8 +4599,5 @@ void RexxActivation::setArguments(RexxArray *arguments)
         // No named arguments, must append count=0
         arguments->append(IntegerZero);
     }
-    this->arguments = arguments; // Protect against GC as long as the activation exists and uses it
-    this->arglist = arguments->data();
-    this->argcount = count; // yes, only the count of positional arguments.
 }
 

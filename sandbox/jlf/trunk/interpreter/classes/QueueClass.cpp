@@ -82,7 +82,7 @@ RexxObject *RexxQueue::pushRexx(RexxObject *item)
 /******************************************************************************/
 {
 
-  requiredArgument(item, ARG_ONE);             /* make sure we have an argument     */
+  requiredArgument(item, OREF_positional, ARG_ONE);             /* make sure we have an argument     */
   this->push(item);                    /* push onto the queue               */
   return OREF_NULL;                    /* return nothing                    */
 }
@@ -99,7 +99,7 @@ RexxObject *RexxQueue::pushRexx(RexxObject *item)
 RexxObject *RexxQueue::append(RexxObject *item)
 {
 
-  requiredArgument(item, ARG_ONE);             /* make sure we have an argument     */
+  requiredArgument(item, OREF_positional, ARG_ONE);             /* make sure we have an argument     */
   this->queue(item);                   /* push onto the queue               */
   // the insertion index is the position.
   return new_integer(this->count);
@@ -111,7 +111,7 @@ RexxObject *RexxQueue::queueRexx(RexxObject *item)
 /* Function:  Push an item onto the queue                                     */
 /******************************************************************************/
 {
-  requiredArgument(item, ARG_ONE);             /* make sure we have an argument     */
+  requiredArgument(item, OREF_positional, ARG_ONE);             /* make sure we have an argument     */
                                        /* add to the end of the queue       */
   this->queue(item);
   return OREF_NULL;                    /* return nothing                    */
@@ -126,7 +126,7 @@ LISTENTRY *RexxQueue::locateEntry(RexxObject *_index, RexxObject *position)
     // we must have an index
     if (_index == OREF_NULL)
     {
-        reportException(Error_Incorrect_method_noarg, position);
+        reportException(Error_Incorrect_method_noarg, OREF_positional, position);
     }
 
     // and it must be a valid whole number
@@ -166,7 +166,7 @@ RexxObject *RexxQueue::put(
 /* Function:  Replace the value of an item already in the queue.              */
 /******************************************************************************/
 {
-    requiredArgument(_value, ARG_ONE);           /* must have a value also            */
+    requiredArgument(_value, OREF_positional, ARG_ONE);           /* must have a value also            */
                                          /* locate this entry                 */
     LISTENTRY *list_index = this->locateEntry(_index, IntegerTwo);
     if (list_index == NULL)              /* not a valid index?                */
@@ -214,7 +214,7 @@ RexxObject *RexxQueue::insert(RexxObject *_value, RexxObject *_index)
     LISTENTRY *new_element;              /* new insertion element             */
     size_t     new_index;                /* index of new inserted item        */
 
-    requiredArgument(_value, ARG_ONE);           /* must have a value to insert       */
+    requiredArgument(_value, OREF_positional, ARG_ONE);           /* must have a value to insert       */
 
                                          /* make sure we have room to insert  */
     new_index = this->getFree();
@@ -370,7 +370,7 @@ RexxArray *RexxQueue::allIndexes()
 RexxObject *RexxQueue::index(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
 
     // ok, now run the list looking for the target item
     size_t nextEntry = this->first;
@@ -517,7 +517,7 @@ RexxObject *RexxQueue::section(RexxObject *_index, RexxObject *_count )
     if (_count != OREF_NULL)
     {           /* have a count?                     */
                 /* Make sure it's a good integer     */
-        counter = _count->requiredNonNegative(ARG_TWO);
+        counter = _count->requiredNonNegative(OREF_positional, ARG_TWO);
     }
     else
     {
@@ -624,7 +624,7 @@ RexxQueue *RexxQueue::ofRexx(
             if (item == OREF_NULL)
             {         /* omitted item?                     */
                       /* raise an error on this            */
-                reportException(Error_Incorrect_method_noarg, i + 1);
+                reportException(Error_Incorrect_method_noarg, OREF_positional, i + 1);
             }
             /* add this to the list end          */
             newQueue->addLast(item);
@@ -644,7 +644,7 @@ RexxQueue *RexxQueue::ofRexx(
             if (item == OREF_NULL)
             {         /* omitted item?                     */
                       /* raise an error on this            */
-                reportException(Error_Incorrect_method_noarg, i + 1);
+                reportException(Error_Incorrect_method_noarg, OREF_positional, i + 1);
             }
             /* add this to the list end          */
             newQueue->sendMessage(OREF_QUEUENAME, item);

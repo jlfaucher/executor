@@ -108,7 +108,6 @@ class RexxArray;
 class RexxMemory;
 class RexxString;
 
-
 /******************************************************************************/
 /* Change EXTERN definition if not already created by GDATA                   */
 /******************************************************************************/
@@ -287,11 +286,11 @@ inline RexxString *REQUEST_STRING(RexxObject *object)
 
 // The next routine checks for required arguments and raises a missing argument
 // error for the given position.
-inline void requiredArgument(RexxObject *object, size_t position)
+inline void requiredArgument(RexxObject *object, RexxString *kind, size_t position)
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        missingArgument(position);        /* raise an error                    */
+        missingArgument(kind, position);        /* raise an error                    */
     }
 }
 
@@ -299,40 +298,40 @@ inline void requiredArgument(RexxObject *object, size_t position)
 /* The next routine is specifically for REQUESTing a STRING needed as a method*/
 /* argument.  This raises an error if the object cannot be converted to a     */
 /* string value.                                                              */
-inline RexxString * stringArgument(RexxObject *object, size_t position)
+inline RexxString * stringArgument(RexxObject *object, RexxString *kind, size_t position)
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        missingArgument(position);        /* raise an error                    */
+        missingArgument(kind, position);        /* raise an error                    */
     }
                                            /* force to a string value           */
-    return object->requiredString(position);
+    return object->requiredString(kind, position);
 }
 
 
 /* The next routine is specifically for REQUESTing a STRING needed as a method*/
 /* argument.  This raises an error if the object cannot be converted to a     */
 /* string value.                                                              */
-inline RexxString * stringArgument(RexxObject *object, const char *name)
+inline RexxString * stringArgument(RexxObject *object, RexxString *kind, const char *name)
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        reportException(Error_Invalid_argument_noarg, name);
+        reportException(Error_Invalid_argument_noarg, kind, name);
     }
                                            /* force to a string value           */
-    return object->requiredString(name);
+    return object->requiredString(kind, name);
 }
 
 
-inline RexxString *optionalStringArgument(RexxObject *o, RexxString *d, size_t p)
+inline RexxString *optionalStringArgument(RexxObject *o, RexxString *d, RexxString *kind, size_t p)
 {
-    return (o == OREF_NULL ? d : stringArgument(o, p));
+    return (o == OREF_NULL ? d : stringArgument(o, kind, p));
 }
 
 
-inline RexxString *optionalStringArgument(RexxObject *o, RexxString *d, const char *p)
+inline RexxString *optionalStringArgument(RexxObject *o, RexxString *d, RexxString *kind, const char *p)
 {
-    return (o == OREF_NULL ? d : stringArgument(o, p));
+    return (o == OREF_NULL ? d : stringArgument(o, kind, p));
 }
 
 
@@ -390,24 +389,24 @@ inline char optionalOptionArgument(RexxObject *o, char d, size_t p)
     return (o == OREF_NULL ? d : optionArgument(o, p));
 }
 
-inline size_t optionalNonNegative(RexxObject *o, size_t d, size_t p)
+inline size_t optionalNonNegative(RexxObject *o, size_t d, RexxString *kind, size_t p)
 {
-    return (o == OREF_NULL ? d : o->requiredNonNegative(p));
+    return (o == OREF_NULL ? d : o->requiredNonNegative(kind, p));
 }
 
-inline size_t optionalPositive(RexxObject *o, size_t d, size_t p)
+inline size_t optionalPositive(RexxObject *o, size_t d, RexxString *kind, size_t p)
 {
-    return (o == OREF_NULL ? d : o->requiredPositive(p));
+    return (o == OREF_NULL ? d : o->requiredPositive(kind, p));
 }
 
 /* The next routine is specifically for REQUESTing an ARRAY needed as a method*/
 /* argument.  This raises an error if the object cannot be converted to a     */
 /* single dimensional array item                                              */
-inline RexxArray *arrayArgument(RexxObject *object, size_t position)
+inline RexxArray *arrayArgument(RexxObject *object, RexxString *kind, size_t position)
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        missingArgument(position);      /* raise an error                    */
+        missingArgument(kind, position);      /* raise an error                    */
     }
     /* force to array form               */
     RexxArray *array = object->requestArray();
@@ -415,17 +414,22 @@ inline RexxArray *arrayArgument(RexxObject *object, size_t position)
     if (array == TheNilObject || array->getDimension() != 1)
     {
         /* raise an error                    */
-        reportException(Error_Execution_noarray, object);
+        // reportException(Error_Execution_noarray, object);
+        // jlf: don't impact Error_Execution_noarray with kind, because used in several places where kind has no meaning
+        // jlf: instead, use Error_Invalid_argument_noarray (where I added a 3rd parameter: object)
+        // jlf: drawback, some test cases may fail because of this change, will see...
+        // jlf: about new_integer, few risks to create a new instance, so no need to protect it against GC
+        reportException(Error_Invalid_argument_noarray, kind, new_integer(position), object);
     }
     return array;
 }
 
 
-inline RexxArray * arrayArgument(RexxObject *object, const char *name)
+inline RexxArray * arrayArgument(RexxObject *object, RexxString *kind, RexxString *name)
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        reportException(Error_Invalid_argument_noarg, name);
+        reportException(Error_Invalid_argument_noarg, kind, name);
     }
 
     /* force to array form               */
@@ -433,8 +437,8 @@ inline RexxArray * arrayArgument(RexxObject *object, const char *name)
     /* not an array?                     */
     if (array == TheNilObject || array->getDimension() != 1)
     {
-        /* raise an error                    */
-        reportException(Error_Invalid_argument_noarray, name);
+        /* raise an error */
+        reportException(Error_Invalid_argument_noarray, kind, name, object);
     }
     return array;
 }
@@ -443,16 +447,16 @@ inline RexxArray * arrayArgument(RexxObject *object, const char *name)
 /* The next routine is specifically for REQUESTing a STRING needed as a method*/
 /* argument.  This raises an error if the object cannot be converted to a     */
 /* string value.                                                              */
-inline void classArgument(RexxObject *object, RexxClass *clazz, const char *name)
+inline void classArgument(RexxObject *object, RexxClass *clazz, RexxString *kind, RexxString *name)
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        reportException(Error_Invalid_argument_noarg, name);
+        reportException(Error_Invalid_argument_noarg, kind, name);
     }
 
     if (!object->isInstanceOf(clazz))
     {
-        reportException(Error_Invalid_argument_noclass, name, clazz->getId());
+        reportException(Error_Invalid_argument_noclass, kind, name, clazz->getId());
     }
 }
 

@@ -542,7 +542,9 @@ void RexxActivity::reportAnException(
 /* Function:  Forward on an exception condition                               */
 /******************************************************************************/
 {
-  this->raiseException(errcode, OREF_NULL, new_array(substitution1), OREF_NULL);
+  RexxArray *substitutions = new_array(substitution1);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
 }
 
 void RexxActivity::reportAnException(
@@ -553,7 +555,41 @@ void RexxActivity::reportAnException(
 /* Function:  Forward on an exception condition                               */
 /******************************************************************************/
 {
-  this->raiseException(errcode, OREF_NULL, new_array(substitution1, substitution2), OREF_NULL);
+  RexxArray *substitutions = new_array(substitution1, substitution2);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    RexxObject *substitution1,         /* substitution information          */
+    RexxObject *substitution2,         /* substitution information          */
+    wholenumber_t integer)
+/******************************************************************************/
+/* Function:  Forward on an exception condition                               */
+/******************************************************************************/
+{
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  RexxArray *substitutions = new_array(substitution1, substitution2, iinteger);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    RexxObject *substitution1,         /* substitution information          */
+    RexxObject *substitution2,         /* substitution information          */
+    const char *string)
+/******************************************************************************/
+/* Function:  Forward on an exception condition                               */
+/******************************************************************************/
+{
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxArray *substitutions = new_array(substitution1, substitution2, sstring);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
 }
 
 void RexxActivity::reportAnException(
@@ -565,7 +601,9 @@ void RexxActivity::reportAnException(
 /* Function:  Forward on an exception condition                               */
 /******************************************************************************/
 {
-  this->raiseException(errcode, OREF_NULL, new_array(substitution1, substitution2, substitution3), OREF_NULL);
+  RexxArray *substitutions = new_array(substitution1, substitution2, substitution3);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
 }
 
 void RexxActivity::reportAnException(
@@ -578,7 +616,25 @@ void RexxActivity::reportAnException(
 /* Function:  Forward on an exception condition                               */
 /******************************************************************************/
 {
-  this->raiseException(errcode, OREF_NULL, new_array(substitution1, substitution2, substitution3, substitution4), OREF_NULL);
+  RexxArray *substitutions = new_array(substitution1, substitution2, substitution3, substitution4);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    RexxObject *substitution1,         /* substitution information          */
+    RexxObject *substitution2,         /* substitution information          */
+    RexxObject *substitution3,         /* substitution information          */
+    RexxObject *substitution4,         /* substitution information          */
+    RexxObject *substitution5 )        /* substitution information          */
+/******************************************************************************/
+/* Function:  Forward on an exception condition                               */
+/******************************************************************************/
+{
+  RexxArray *substitutions = new_array(substitution1, substitution2, substitution3, substitution4, substitution5);
+  ProtectedObject p(substitutions);
+  this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
 }
 
 void RexxActivity::reportAnException(
@@ -591,7 +647,13 @@ void RexxActivity::reportAnException(
 /* Function:  Forward on an exception condition                               */
 /******************************************************************************/
 {
-    this->raiseException(errcode, OREF_NULL, new_array(new_string(substitution1), substitution2, new_string(substitution3), substitution4), OREF_NULL);
+    RexxString *ssubstitution1 = new_string(substitution1);
+    ProtectedObject psubstitution1 = ssubstitution1;
+    RexxString *ssubstitution3 = new_string(substitution3);
+    ProtectedObject psubstitution3 = ssubstitution3;
+    RexxArray *substitutions = new_array(ssubstitution1, substitution2, ssubstitution3, substitution4);
+    ProtectedObject p(substitutions);
+    this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
 }
 
 void RexxActivity::reportAnException(
@@ -617,7 +679,11 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_string(string1), new_string(string2));
+  RexxString *sstring1 = new_string(string1);
+  ProtectedObject pstring1(sstring1);
+  RexxString *sstring2 = new_string(string2);
+  ProtectedObject pstring2(sstring2);
+  this->reportAnException(errcode, sstring1, sstring2);
 }
 
 void RexxActivity::reportAnException(
@@ -631,7 +697,13 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_string(string1), new_string(string2), new_integer(integer));
+  RexxString *sstring1 = new_string(string1);
+  ProtectedObject pstring1(sstring1);
+  RexxString *sstring2 = new_string(string2);
+  ProtectedObject pstring2(sstring2);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring1, sstring2, iinteger);
 }
 
 void RexxActivity::reportAnException(
@@ -644,7 +716,11 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_string(string), new_integer(integer));
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring, iinteger);
 }
 
 void RexxActivity::reportAnException(
@@ -658,7 +734,27 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_string(string), new_integer(integer), obj);
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring, iinteger, obj);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    RexxObject *obj1  ,                /* object value  sustitution parm    */
+    wholenumber_t integer,             /* single integer substitution parm  */
+    RexxObject   *obj2)                /* and object sub parm               */
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, obj1, iinteger, obj2);
 }
 
 void RexxActivity::reportAnException(
@@ -672,7 +768,48 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_string(string), obj, new_integer(integer));
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring, obj, iinteger);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char *string,                /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    wholenumber_t integer,             /* single integer substitution parm  */
+    RexxObject   *obj2)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring, obj1, iinteger, obj2);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    RexxObject   *obj,                 /* object value  sustitution parm    */
+    const char   *string,              /* and object sub parm               */
+    wholenumber_t integer)             /* single integer substitution parm  */
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, obj, sstring, iinteger);
 }
 
 void RexxActivity::reportAnException(
@@ -685,7 +822,9 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, obj, new_integer(integer));
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, obj, iinteger);
 }
 
 void RexxActivity::reportAnException(
@@ -698,7 +837,9 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, obj, new_string(string));
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  this->reportAnException(errcode, obj, sstring);
 }
 
 void RexxActivity::reportAnException(
@@ -711,7 +852,119 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_string(string), obj);
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  this->reportAnException(errcode, sstring, obj);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char *string,                /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    RexxObject   *obj2)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  this->reportAnException(errcode, sstring, obj1, obj2);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char   *string1,             /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    RexxObject   *obj2,
+    const char   *string2,
+    RexxObject   *obj3)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring1 = new_string(string1);
+  ProtectedObject pstring1(sstring1);
+  RexxString *sstring2 = new_string(string2);
+  ProtectedObject pstring2(sstring2);
+  this->reportAnException(errcode, sstring1, obj1, obj2, sstring2, obj3);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char *string,                /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    RexxObject   *obj2,
+    wholenumber_t integer)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring, obj1, obj2, iinteger);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char *string,                /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    RexxObject   *obj2,
+    RexxObject   *obj3)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  this->reportAnException(errcode, sstring, obj1, obj2, obj3);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char *string,                /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    RexxObject   *obj2,
+    RexxObject   *obj3,
+    wholenumber_t integer)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, sstring, obj1, obj2, obj3, iinteger);
+}
+
+void RexxActivity::reportAnException(
+    wholenumber_t errcode,             /* REXX error code                   */
+    const char *string,                /* string value  sustitution parm    */
+    RexxObject   *obj1,                /* and object sub parm               */
+    RexxObject   *obj2,
+    RexxObject   *obj3,
+    RexxObject   *obj4)
+/******************************************************************************/
+/* Function:  Raise an error using a single REXX character string only        */
+/*            as a substitution parameter                                     */
+/******************************************************************************/
+{
+                                       /* convert and forward along         */
+  RexxString *sstring = new_string(string);
+  ProtectedObject pstring(sstring);
+  this->reportAnException(errcode, sstring, obj1, obj2, obj3, obj4);
 }
 
 void RexxActivity::reportAnException(
@@ -723,7 +976,9 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_integer(integer));
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  this->reportAnException(errcode, iinteger);
 }
 
 void RexxActivity::reportAnException(
@@ -736,7 +991,11 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_integer(integer), new_integer(integer2));
+  RexxInteger *iinteger = new_integer(integer);
+  ProtectedObject pinteger(iinteger);
+  RexxInteger *iinteger2 = new_integer(integer2);
+  ProtectedObject pinteger2(iinteger2);
+  this->reportAnException(errcode, iinteger, iinteger2);
 }
 
 void RexxActivity::reportAnException(
@@ -749,7 +1008,9 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
                                        /* convert and forward along         */
-  this->reportAnException(errcode, new_integer(a1), a2);
+  RexxInteger *ia1 = new_integer(a1);
+  ProtectedObject pa1(ia1);
+  this->reportAnException(errcode, ia1, a2);
 }
 
 

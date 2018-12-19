@@ -191,7 +191,7 @@ LISTENTRY * RexxList::getEntry(
     if (_index == OREF_NULL)             /* must have one here                */
     {
         /* else an error                     */
-        reportException(Error_Incorrect_method_noarg, position);
+        reportException(Error_Incorrect_method_noarg, OREF_positional, position);
     }
     /* force to integer form             */
     RexxInteger *integer_index = (RexxInteger *)REQUEST_INTEGER(_index);
@@ -295,7 +295,7 @@ RexxObject *RexxList::put(
 {
     /* locate this entry                 */
     LISTENTRY *element = this->getEntry(_index, (RexxObject *)IntegerTwo);
-    requiredArgument(_value, ARG_ONE);           /* must have a value also            */
+    requiredArgument(_value, OREF_positional, ARG_ONE);           /* must have a value also            */
     if (element == NULL)                 /* not a valid index?                */
     {
         /* raise an error                    */
@@ -319,7 +319,7 @@ RexxObject *RexxList::section(
     if (_count != OREF_NULL)
     {           /* have a count?                     */
                 /* Make sure it's a good integer     */
-        counter = _count->requiredNonNegative(ARG_TWO);
+        counter = _count->requiredNonNegative(OREF_positional, ARG_TWO);
     }
     else
     {
@@ -522,7 +522,7 @@ RexxObject *RexxList::insertRexx(
 /* Function:  Publicly accessible version of the list insert function.        */
 /******************************************************************************/
 {
-    requiredArgument(_value, ARG_ONE);           /* must have a value to insert       */
+    requiredArgument(_value, OREF_positional, ARG_ONE);           /* must have a value to insert       */
                                          /* go do the real insert             */
     return this->insert(_value, _index);
 }
@@ -537,7 +537,7 @@ RexxObject *RexxList::insertRexx(
  */
 RexxObject *RexxList::append(RexxObject *_value)
 {
-    requiredArgument(_value, ARG_ONE);
+    requiredArgument(_value, OREF_positional, ARG_ONE);
     // this is just an insertion operation with an ommitted index.
     return insert(_value, OREF_NULL);
 }
@@ -964,7 +964,7 @@ RexxArray *RexxList::allIndexes(void)
 RexxObject *RexxList::index(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
 
     // ok, now run the list looking for the target item
     size_t nextEntry = this->first;
@@ -994,7 +994,7 @@ RexxObject *RexxList::index(RexxObject *target)
 RexxObject *RexxList::hasItem(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
 
     // ok, now run the list looking for the target item
     size_t nextEntry = this->first;
@@ -1023,7 +1023,7 @@ RexxObject *RexxList::hasItem(RexxObject *target)
 RexxObject *RexxList::removeItem(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
 
     // ok, now run the list looking for the target item
     size_t nextEntry = this->first;
@@ -1058,7 +1058,7 @@ RexxObject *RexxList::removeItem(RexxObject *target)
 RexxObject *RexxList::removeObject(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
 
     // ok, now run the list looking for the target item
     size_t nextEntry = this->first;
@@ -1258,7 +1258,7 @@ RexxList *RexxList::classOf(
             if (item == OREF_NULL)
             {         /* omitted item?                     */
                       /* raise an error on this            */
-                reportException(Error_Incorrect_method_noarg, i + 1);
+                reportException(Error_Incorrect_method_noarg, OREF_positional, i + 1);
             }
             /* add this to the list end          */
             newList->addLast(item);
@@ -1277,7 +1277,7 @@ RexxList *RexxList::classOf(
             if (item == OREF_NULL)
             {         /* omitted item?                     */
                       /* raise an error on this            */
-                reportException(Error_Incorrect_method_noarg, i + 1);
+                reportException(Error_Incorrect_method_noarg, OREF_positional, i + 1);
             }
             /* add this to the list end          */
             newList->sendMessage(OREF_INSERT, item);

@@ -837,46 +837,46 @@ $ Error_Incorrect_call_maxarg
 375 Too many &1 arguments in invocation of &2; maximum expected is &3
 
 $ Error_Incorrect_call_noarg
-376 Missing argument in invocation of &1; argument &2 is required
+376 Missing argument in invocation of &1; &2 argument &3 is required
 
 $ Error_Incorrect_call_number
-377 &1 argument &2 must be a number; found "&3"
+377 &1 &2 argument &3 must be a number; found "&4"
 
 $ Error_Incorrect_call_whole
-378 &1 argument &2 must be a whole number; found "&3"
+378 &1 &2 argument &3 must be a whole number; found "&4"
 
 $ Error_Incorrect_call_nonnegative
-379 &1 argument &2 must be zero or positive; found "&3"
+379 &1 &2 argument &3 must be zero or positive; found "&4"
 
 $ Error_Incorrect_call_positive
-380 &1 argument &2 must be positive; found "&3"
+380 &1 &2 argument &3 must be positive; found "&4"
 
 $ Error_Incorrect_call_toobig
-381 &1 argument &2 must not exceed the whole number limit.
+381 &1 &2 argument &3 must not exceed the whole number limit.
 
 $ Error_Incorrect_call_range
-382 &1 argument &2 must be in the range 0-99; found "&3"
+382 &1 &2 argument &3 must be in the range 0-99; found "&4"
 
 $ Error_Incorrect_call_null
-383 &1 argument &2 must not be a null string
+383 &1 &2 argument &3 must not be a null string
 
 $ Error_Incorrect_call_option
-384 &1 argument &2 must be a single character or null; found "&3"
+384 &1 &2 argument &3 must be a single character or null; found "&4"
 
 $ Error_Incorrect_call_pad
-385 &1 argument &2 must be a single character; found "&3"
+385 &1 &2 argument &3 must be a single character; found "&4"
 
 $ Error_Incorrect_call_binary
-386 &1 argument &2 must be a binary string; found "&3"
+386 &1 &2 argument &3 must be a binary string; found "&4"
 
 $ Error_Incorrect_call_hex
-387 &1 argument &2 must be a hexadecimal string; found "&3"
+387 &1 &2 argument &3 must be a hexadecimal string; found "&4"
 
 $ Error_Incorrect_call_symbol
-388 &1 argument &2 must be a valid symbol; found "&3"
+388 &1 &2 argument &3 must be a valid symbol; found "&4"
 
 $ Error_Incorrect_call_list
-389 &1 argument &2 must be one of &3; found "&4"
+389 &1 &2 argument &3 must be one of &4; found "&5"
 
 $ Error_Incorrect_call_trace
 390 TRACE setting letter must be one of "ACEFILNOR"; found "&1"
@@ -891,7 +891,7 @@ $ Error_Incorrect_call_x2d
 393 X2D argument 1 cannot be expressed as a whole number; found "&1"
 
 $ Error_Incorrect_call_format_invalid
-394 &1 argument 2, "&2", is not in the format described by argument 3, "&3"
+394 &1 &2 argument 2, "&3", is not in the format described by argument 3, "&4"
 
 $ Error_Incorrect_call_invalid_conversion
 395 &1 conversion to format "&2" is not allowed
@@ -906,10 +906,10 @@ $ Error_Incorrect_method_stream_type
 398 Positioning of transient streams is not valid
 
 $ Error_Incorrect_call_array
-400 &1 argument &2 must be a single-dimensional array; found "&3"
+400 &1 &2 argument &3 must be a single-dimensional array; found "&4"
 
 $ Error_Incorrect_call_nostring
-401 &1 argument &2 must have a string value; found "&3"
+401 &1 &2 argument &3 must have a string value; found "&4"
 
 $ Error_Incorrect_call_selector
 402 Unknown VALUE function variable environment selector; found "&1"
@@ -999,43 +999,43 @@ $ Error_Incorrect_method_maxarg
 432 Too many &1 arguments in invocation of method; &2 expected
 
 $ Error_Incorrect_method_noarg
-433 Missing argument in method; argument &1 is required
+433 Missing &1 argument in method; argument &2 is required
 
 $ Error_Incorrect_method_number
-434 Method argument &1 must be a number; found "&2"
+434 Method &1 argument &2 must be a number; found "&3"
 
 $ Error_Incorrect_method_whole
-435 Method argument &1 must be a whole number; found "&2"
+435 Method &1 argument &2 must be a whole number; found "&3"
 
 $ Error_Incorrect_method_nonnegative
-436 Method argument &1 must be zero or a positive whole number; found "&2"
+436 Method &1 argument &2 must be zero or a positive whole number; found "&3"
 
 $ Error_Incorrect_method_positive
-437 Method argument &1 must be a positive whole number; found "&2"
+437 Method &1 argument &2 must be a positive whole number; found "&3"
 
 $ Error_Incorrect_method_toobig
-438 Method argument &1 must not exceed &2; found "&3"
+438 Method &1 argument &2 must not exceed &; found "&4"
 
 $ Error_Incorrect_method_range
-439 Method argument &1 must be in the range 0-99; found "&2"
+439 Method &1 argument & must be in the range 0-99; found "&3"
 
 $ Error_Incorrect_method_null
-440 Method argument &1 must not be null
+440 Method &1 argument &2 must not be null
 
 $ Error_Incorrect_method_hex
-441 Method argument &1 must be a hexadecimal string; found "&2"
+441 Method &1 argument &2 must be a hexadecimal string; found "&3"
 
 $ Error_Incorrect_method_symbol
-442 Method argument &1 must be a valid symbol; found "&2"
+442 Method &1 argument & must be a valid symbol; found "&3"
 
 $ Error_Incorrect_method_list
-443 Method argument &1 must be one of &2; found "&3"
+443 Method &1 argument &2 must be one of &3; found "&4"
 
 $ Error_Incorrect_method_option
 444 Method option must be one of "&1"; found "&2"
 
 $ Error_Incorrect_method_string
-445 Method argument &1 must have a string value
+445 Method &1 argument &2 must have a string value
 
 $ Error_Incorrect_method_methodname
 446 Method &1 does not exist
@@ -1095,10 +1095,10 @@ $ Error_Incorrect_method_supplier
 464 No more supplier items available
 
 $ Error_Incorrect_method_nostring
-465 Method argument &1 must have a string value
+465 Method &1 argument &2 must have a string value
 
 $ Error_Incorrect_method_noarray
-466 Method argument &1 must have a single-dimensional array value
+466 Method &1 argument &2 must have a single-dimensional array value
 
 $ Error_Incorrect_method_exponent_oversize
 467 Exponent "&1" is too large for &2 spaces
@@ -1110,10 +1110,10 @@ $ Error_Incorrect_method_string_nonumber
 469 &1 method target must be a number; found "&2"
 
 $ Error_Incorrect_method_nomessage
-470 Method argument &1 must be a message object
+470 Method &1 argument &2 must be a message object
 
 $ Error_Incorrect_method_message_noarg
-471 Missing argument in message array; argument &1 is required
+471 Missing &1 argument in message array; argument &2 is required
 
 $ Error_Incorrect_method_message
 472 A message array must be a single-dimensional array with 2 elements
@@ -1122,7 +1122,7 @@ $ Error_Incorrect_method_section
 473 Method SECTION can be used only on single-dimensional arrays
 
 $ Error_Incorrect_method_noclass
-474 Method argument &1 must be of the &2 class
+474 Method &1 argument &2 must be of the &3 class
 
 $ Error_Incorrect_method_nomatch
 475 The index and value objects must be the same for PUT to an index-only collection
@@ -1290,16 +1290,16 @@ $ Error_Translation_requires
 538 ::REQUIRES directives must appear before other directive instructions
 
 $ Error_Incorrect_method_no_method
-539 Method argument &1 must have a string value or an array value
+539 Method &1 argument &2 must have a string value or an array value
 
 $ Error_Incorrect_method_argType
-540 Method argument &1 could not be converted to type &2
+540 Method &1 argument &2 could not be converted to type &3
 
 $ Error_Incorrect_method_array_dimension
 541 Method "&1" can be used only on a single-dimensional array
 
 $ Error_Incorrect_method_nostring_inarray
-542 Method argument &1 is an array and does not contain all string values
+542 Method &1 argument &2 is an array and does not contain all string values
 
 $ Error_Incorrect_method_array_nostring
 543 Element &1 of the array must be a string
@@ -1386,10 +1386,10 @@ $ Error_Translation_class_external_bad_class_server
 584 Incorrect class external; invalid class server "&1"
 
 $ Error_Incorrect_call_parm_wrong_sep
-586 &1 argument &2 must be a single non-alphanumeric character or the null string; found "&3"
+586 &1 &2 argument &3 must be a single non-alphanumeric character or the null string; found "&4"
 
 $ Error_Incorrect_call_format_incomp_sep
-587 &1 argument &2, "&3", is a format incompatible with the separator specified in argument &4
+587 &1 &2 argument &3, "&4", is a format incompatible with the separator specified in argument &5
 
 $ Error_Incorrect_call_queue_no_char
 588 &1 cannot be used with QUEUE:
@@ -1620,61 +1620,61 @@ $ Error_Invalid_argument_user_defined
 671 &1
 
 $ Error_Invalid_argument_noarg
-672 Missing argument; argument &1 is required
+672 Missing argument; &1 argument &2 is required
 
 $ Error_Invalid_argument_number
-673 Argument &1 must be a number; found "&2"
+673 &1 Argument &2 must be a number; found "&3"
 
 $ Error_Invalid_argument_whole
-674 Argument &1 must be a whole number; found "&2"
+674 &1 Argument &2 must be a whole number; found "&3"
 
 $ Error_Invalid_argument_nonnegative
-675 Argument &1 must be zero or a positive whole number; found "&2"
+675 &1 Argument &2 must be zero or a positive whole number; found "&3"
 
 $ Error_Invalid_argument_positive
-676 Argument &1 must be a positive whole number; found "&2"
+676 &1 Argument &2 must be a positive whole number; found "&3"
 
 $ Error_Invalid_argument_toobig
-677 Argument &1 must not exceed &2; found "&3"
+677 &1 Argument &2 must not exceed &3; found "&4"
 
 $ Error_Invalid_argument_range
-678 Argument &1 must be in the range &2 to &3; found "&4"
+678 &1 Argument &2 must be in the range &3 to &4; found "&5"
 
 $ Error_Invalid_argument_null
-679 Argument &1 must not be a null string
+679 &1 Argument &2 must not be a null string
 
 $ Error_Invalid_argument_string
-680 Argument &1 must have a string value
+680 &1 Argument &2 must have a string value
 
 $ Error_Invalid_argument_pad
-681 Argument &1 is an incorrect pad or character argument; found "&2"
+681 &1 Argument &2 is an incorrect pad or character argument; found "&3"
 
 $ Error_Invalid_argument_length
-682 Argument &1 is an incorrect length argument; found "&2"
+682 &1 Argument &2 is an incorrect length argument; found "&3"
 
 $ Error_Invalid_argument_position
-683 Argument &1 is an incorrect position argument; found "&2"
+683 &1 Argument &2 is an incorrect position argument; found "&3"
 
 $ Error_Invalid_argument_noarray
-684 Argument &1 must have a single-dimensional array value
+684 &1 Argument &2 must have a single-dimensional array value; found "&3"
 
 $ Error_Invalid_argument_noclass
-685 Argument &1 must be of the &2 class
+685 &1 Argument &2 must be of the &3 class
 
 $ Error_Invalid_argument_argType
-686 Argument &1 could not be converted to type &2
+686 &1 Argument &2 could not be converted to type &3
 
 $ Error_Invalid_argument_list
-687 Argument &1 must be one of &2; found "&3"
+687 &1 Argument &2 must be one of &3; found "&4"
 
 $ Error_Invalid_argument_general
-688 Argument &1 &2
+688 &1 Argument &2 &3
 
 $ Error_Translation_duplicate_attribute
 689 Duplicate ::ATTRIBUTE directive instruction
 
 $ Error_Invalid_argument_format
-690 Argument &1 is not in a valid format; found "&2"
+690 &1 Argument &2 is not in a valid format; found "&3"
 
 $ Error_Unsupported_new_method
 691 NEW method is not supported for the &1 class
@@ -1707,22 +1707,22 @@ $ Error_Incorrect_method_signature
 701 Invalid native method signature specification
 
 $ Error_Incorrect_call_nostem
-702 Argument &1 must have a stem object or stem name value; found "&2"
+702 &1 Argument &2 must have a stem object or stem name value; found "&3"
 
 $ Error_Incorrect_method_nostem
-703 Method argument &1 must have a stem object value; found "&2"
+703 Method &1 argument &2 must have a stem object value; found "&3"
 
 $ Error_Invalid_argument_pointer
-704 Argument &1 is not in valid pointer format; found "&2"
+704 &1 Argument &2 is not in valid pointer format; found "&3"
 
 $ Error_Invalid_argument_nostem
-705 Argument &1 must have a stem object or stem name value; found "&2"
+705 &1 Argument &2 must have a stem object or stem name value; found "&3"
 
 $ Error_Invalid_argument_double
-706 Argument &1 must be a valid double value; found "&2"
+706 &1 Argument &2 must be a valid double value; found "&3"
 
 $ Error_Invalid_argument_maxarg
-707 Too many arguments in invocation; &1 expected
+707 Too many &1 arguments in invocation; &2 expected
 
 $ Error_Invalid_data_constant_dir
 708 Data must not follow the ::CONSTANT value; found "&1"
@@ -1764,7 +1764,7 @@ $ Message_Translations_method_invocation
 720 Method &1 with scope "&2" in package &3
 
 $ Error_Incorrect_method_multi_dimension
-721 Method argument &1 cannot have more than a single dimension
+721 Method &1 argument &2 cannot have more than a single dimension
 
 $ Message_Translations_compiled_method_invocation
 722        *-* Compiled method &1 with scope "&2"
@@ -1831,12 +1831,6 @@ $ Message_Translations_sourceless_method_invocation
 
 $ Message_Translations_sourceless_routine_invocation
 743 Routine &1 in package "&2" (no source available)
-
-$ Error_Incorrect_call_nonamedarg
-744 Missing named argument in invocation of &1; argument "&2" is required
-
-$ Error_Incorrect_method_nonamedarg
-745 Missing named argument in method; argument "&1" is required
 
 $ Error_Simple_variable_symbol_expected
 746 Variable symbol expected

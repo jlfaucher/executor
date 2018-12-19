@@ -1294,7 +1294,7 @@ RexxMethod4(RexxObjectPtr, image_fromFiles_cls, RexxArrayObject, files, OPTIONAL
         if ( f == NULLOBJECT || ! context->IsString(f) )
         {
             rxReleaseAllImages(c, result, i - 1);
-            c->RaiseException1(Rexx_Error_Incorrect_method_nostring_inarray , c->WholeNumber(1));
+            c->RaiseException2(Rexx_Error_Incorrect_method_nostring_inarray , c->String("positional"), c->WholeNumber(1));
             result = NULLOBJECT;
             goto out;
         }

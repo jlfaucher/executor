@@ -231,7 +231,7 @@ RexxObject  *RexxArray::putRexx(RexxObject **arguments, size_t argCount)
     if (argCount == 0 || value == OREF_NULL)
     {
         /* this is an error                  */
-        missingArgument(ARG_ONE);         /* this is an error                  */
+        missingArgument(OREF_positional, ARG_ONE);         /* this is an error                  */
     }
     /* go validate the index             */
     /* have array expanded if necessary  */
@@ -249,7 +249,7 @@ RexxObject  *RexxArray::putRexx(RexxObject **arguments, size_t argCount)
  */
 RexxObject *RexxArray::fill(RexxObject *value)
 {
-    requiredArgument(value, ARG_ONE);
+    requiredArgument(value, OREF_positional, ARG_ONE);
     // sigh, we have to use OrefSet
     for (size_t i = 0; i < this->size(); i++)
     {
@@ -310,7 +310,7 @@ RexxObject *RexxArray::isEmpty()
  */
 RexxObject  *RexxArray::appendRexx(RexxObject *value)
 {
-    requiredArgument(value, ARG_ONE);
+    requiredArgument(value, OREF_positional, ARG_ONE);
 
     // this is not intended for multi-dimensional arrays since they can't expand
     if (isMultiDimensional())
@@ -752,7 +752,7 @@ RexxObject *RexxArray::dimension(      /* query dimensions of an array      */
     else
     {
         /* convert to a number               */
-        size_t position = target->requiredPositive(ARG_ONE);
+        size_t position = target->requiredPositive(OREF_positional, ARG_ONE);
         /* asking for dimension of single?   */
         if (isSingleDimensional())
         {
@@ -788,7 +788,7 @@ RexxObject *RexxArray::supplier(RexxObject *maxItems)
     size_t maxCount = this->size();
     if (maxItems != OREF_NULL)
     {
-        maxCount = maxItems->requiredNonNegative(ARG_ONE);
+        maxCount = maxItems->requiredNonNegative(OREF_positional, ARG_ONE);
     }
 
     size_t slotCount = this->size();            /* get the array size                */
@@ -922,10 +922,10 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
         else if (indexCount == 0)
         {
             /* report apropriate bounds          */
-            reportException(Error_Incorrect_method_minarg, "positional", _start);
+            reportException(Error_Incorrect_method_minarg, OREF_positional, _start);
         }
         /* validate integer index            */
-        position = _index[0]->requiredPositive((int)_start);
+        position = _index[0]->requiredPositive(OREF_positional, (int)_start);
         /* out of bounds?                    */
         if (position > this->size() )
         {
@@ -970,10 +970,10 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
                 if (value == OREF_NULL)        /* not given?                        */
                 {
                     /* this is an error too              */
-                    reportException(Error_Incorrect_method_noarg, i + _start);
+                    reportException(Error_Incorrect_method_noarg, OREF_positional, i + _start);
                 }
                 /* validate integer index            */
-                position = value->requiredPositive((int)i);
+                position = value->requiredPositive(OREF_positional, (int)i);
                 /* get the current dimension         */
                 _dimension = ((RexxInteger *)this->dimensions->get(i))->getValue();
                 if (position > _dimension)
@@ -1018,7 +1018,7 @@ bool  RexxArray::validateIndex(        /* validate an array index           */
             {
                 /* Yes, number of dims can't change  */
                 /* report apropriate bounds          */
-                reportException(Error_Incorrect_method_maxarg, "positional", numSize);
+                reportException(Error_Incorrect_method_maxarg, OREF_positional, numSize);
             }
             else
             {
@@ -1132,7 +1132,7 @@ RexxObject *RexxArray::sectionRexx(RexxObject * _start, RexxObject * _end)
     }
 
     // the index is required
-    requiredArgument(_start, ARG_ONE);
+    requiredArgument(_start, OREF_positional, ARG_ONE);
     size_t nstart;                    // array position
 
     // validate the index and expand if necessary.
@@ -1144,7 +1144,7 @@ RexxObject *RexxArray::sectionRexx(RexxObject * _start, RexxObject * _end)
     }
     else
     {                               /* End specified - check it out      */
-        nend = _end->requiredNonNegative(ARG_TWO);
+        nend = _end->requiredNonNegative(OREF_positional, ARG_TWO);
     }
 
     if (!isOfClass(Array, this))             /* actually an array subclass?       */
@@ -1469,7 +1469,7 @@ RexxArray *RexxArray::allItems(RexxObject *maxItems)
     size_t maxCount = this->size();
     if (maxItems != OREF_NULL)
     {
-        maxCount = maxItems->requiredNonNegative(ARG_ONE);
+        maxCount = maxItems->requiredNonNegative(OREF_positional, ARG_ONE);
     }
 
     // get a result array of the appropriate size
@@ -1504,7 +1504,7 @@ RexxArray *RexxArray::allIndexes(RexxObject *maxIndexes)
     size_t maxCount = this->size();
     if (maxIndexes != OREF_NULL)
     {
-        maxCount = maxIndexes->requiredNonNegative(ARG_ONE);
+        maxCount = maxIndexes->requiredNonNegative(OREF_positional, ARG_ONE);
     }
 
     // get a result array of the appropriate size
@@ -1572,7 +1572,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
     if (format != OREF_NULL)
     {
         // a string value is required here
-        format = stringArgument(format, ARG_ONE);
+        format = stringArgument(format, OREF_positional, ARG_ONE);
     }
 
     if (format == OREF_NULL)
@@ -1596,7 +1596,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
     {
         if (separator != OREF_NULL)
         {
-            reportException(Error_Incorrect_method_maxarg, "positional", IntegerOne);
+            reportException(Error_Incorrect_method_maxarg, OREF_positional, IntegerOne);
 
         }
 
@@ -1618,7 +1618,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
     {
         if (separator != OREF_NULL)
         {
-            line_end_string = stringArgument(separator, ARG_TWO);
+            line_end_string = stringArgument(separator, OREF_positional, ARG_TWO);
         }
         else
         {
@@ -1872,7 +1872,7 @@ RexxObject* RexxArray::indexToArray(size_t idx)
 RexxObject *RexxArray::index(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
     // see if we have this item.  If not, then
     // we return .nil.
     size_t _index = findSingleIndexItem(target);
@@ -1896,7 +1896,7 @@ RexxObject *RexxArray::index(RexxObject *target)
 RexxObject *RexxArray::removeItem(RexxObject *target)
 {
     // we require the index to be there.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
     // see if we have this item.  If not, then
     // we return .nil.
     size_t _index = findSingleIndexItem(target);
@@ -1923,7 +1923,7 @@ RexxObject *RexxArray::hasItem(RexxObject *target)
 {
     // this is pretty simple.  One argument, required, and just search to see
     // if we have it.
-    requiredArgument(target, ARG_ONE);
+    requiredArgument(target, OREF_positional, ARG_ONE);
     return findSingleIndexItem(target) == 0 ? TheFalseObject : TheTrueObject;
 }
 
@@ -2062,7 +2062,7 @@ RexxArray *RexxArray::extendMulti(     /* Extend multi array                */
         /* Get value for 1st dimension       */
         /*  its the last element             */
         i = newDimArraySize - 1;
-        newDimSize = _index[i]->requiredPositive((int)i);
+        newDimSize = _index[i]->requiredPositive(OREF_positional, (int)i);
         /* Yes, is 1st Dimension going to    */
         /* be bigger than current size?      */
         if (newDimSize > this->size())
@@ -2086,7 +2086,7 @@ RexxArray *RexxArray::extendMulti(     /* Extend multi array                */
             currDimSize = ((RexxInteger *)this->dimensions->get(oldDimension))->getValue();
             /* Get indexd  size of this dimension*/
 
-            newDimSize = _index[newDimension - 1]->requiredPositive((int)newDimension);
+            newDimSize = _index[newDimension - 1]->requiredPositive(OREF_positional, (int)newDimension);
             /* does this dimension need to be    */
             /*  expanded.                        */
             if (newDimSize > currDimSize)
@@ -2294,7 +2294,7 @@ void *RexxArray::operator new(size_t size, RexxObject **args, size_t argCount, R
             return RexxArray::createMultidimensional(((RexxArray *)current_dim)->data(), ((RexxArray *)current_dim)->items(), arrayClass);
         }
         /* Make sure it's an integer         */
-        wholenumber_t total_size = current_dim->requiredNonNegative(ARG_ONE, number_digits());
+        wholenumber_t total_size = current_dim->requiredNonNegative(OREF_positional, ARG_ONE, number_digits());
         if (total_size < 0)
         {
             reportException(Error_Incorrect_method_array, total_size);
@@ -2346,10 +2346,10 @@ RexxArray *RexxArray::createMultidimensional(RexxObject **dims, size_t count, Re
         RexxObject *current_dim = (RexxInteger *)dims[i];
         if (current_dim == OREF_NULL)      /* was this one omitted?             */
         {
-            missingArgument(i+1);           /* must have this value              */
+            missingArgument(OREF_positional, i+1);           /* must have this value              */
         }
                                              /* get the long value                */
-        size_t cur_size = current_dim->requiredNonNegative((int)(i+1));
+        size_t cur_size = current_dim->requiredNonNegative(OREF_positional, (int)(i+1));
         /* going to do an overflow?          */
         if (cur_size != 0 && ((MAX_FIXEDARRAY_SIZE / cur_size) < total_size))
         {
@@ -2617,7 +2617,7 @@ RexxArray *RexxArray::stableSortRexx()
  */
 RexxArray *RexxArray::stableSortWithRexx(RexxObject *comparator)
 {
-    requiredArgument(comparator, ARG_ONE);
+    requiredArgument(comparator, OREF_positional, ARG_ONE);
 
     size_t count = items();
     if (count <= 1)         // if the count is zero, sorting is easy!
@@ -2704,6 +2704,28 @@ void *   RexxArray::operator new(size_t size,
   aref->put(second, 2);
   aref->put(third,  3);
   aref->put(fourth, 4);
+
+  return aref;
+}
+
+void *   RexxArray::operator new(size_t size,
+    RexxObject *first,
+    RexxObject *second,
+    RexxObject *third,
+    RexxObject *fourth,
+    RexxObject *fifth)
+/******************************************************************************/
+/* Function:  Create an array with 5 elements (new_array5)                    */
+/******************************************************************************/
+{
+  RexxArray *aref;
+
+  aref = new_array(5);
+  aref->put(first,  1);
+  aref->put(second, 2);
+  aref->put(third,  3);
+  aref->put(fourth, 4);
+  aref->put(fifth,  5);
 
   return aref;
 }

@@ -556,6 +556,7 @@ typedef struct
     RexxArrayObject (RexxEntry *ArrayOfTwo)(RexxThreadContext *, RexxObjectPtr, RexxObjectPtr);
     RexxArrayObject (RexxEntry *ArrayOfThree)(RexxThreadContext *, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr);
     RexxArrayObject (RexxEntry *ArrayOfFour)(RexxThreadContext *, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr);
+    RexxArrayObject (RexxEntry *ArrayOfFive)(RexxThreadContext *, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr);
     logical_t       (RexxEntry *IsArray)(RexxThreadContext *, RexxObjectPtr);
 
     POINTER (RexxEntry *BufferData)(RexxThreadContext *, RexxBufferObject);
@@ -587,6 +588,9 @@ typedef struct
     void             (RexxEntry *RaiseException0)(RexxThreadContext *, size_t);
     void             (RexxEntry *RaiseException1)(RexxThreadContext *, size_t, RexxObjectPtr);
     void             (RexxEntry *RaiseException2)(RexxThreadContext *, size_t, RexxObjectPtr, RexxObjectPtr);
+    void             (RexxEntry *RaiseException3)(RexxThreadContext *, size_t, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr);
+    void             (RexxEntry *RaiseException4)(RexxThreadContext *, size_t, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr);
+    void             (RexxEntry *RaiseException5)(RexxThreadContext *, size_t, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr, RexxObjectPtr);
     void             (RexxEntry *RaiseException)(RexxThreadContext *, size_t, RexxArrayObject);
     void             (RexxEntry *RaiseCondition)(RexxThreadContext *, CSTRING, RexxStringObject, RexxObjectPtr, RexxObjectPtr);
     logical_t        (RexxEntry *CheckCondition)(RexxThreadContext *);
@@ -1194,6 +1198,10 @@ struct RexxThreadContext_
     {
         return functions->ArrayOfFour(this, o1, o2, o3, o4);
     }
+    RexxArrayObject ArrayOfFive(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return functions->ArrayOfFive(this, o1, o2, o3, o4, o5);
+    }
     RexxArrayObject Array(RexxObjectPtr o)
     {
         return functions->ArrayOfOne(this, o);
@@ -1209,6 +1217,10 @@ struct RexxThreadContext_
     RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
     {
         return functions->ArrayOfFour(this, o1, o2, o3, o4);
+    }
+    RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return functions->ArrayOfFive(this, o1, o2, o3, o4, o5);
     }
     logical_t IsArray(RexxObjectPtr o)
     {
@@ -1352,6 +1364,18 @@ struct RexxThreadContext_
     void RaiseException2(size_t n, RexxObjectPtr o1, RexxObjectPtr o2)
     {
         functions->RaiseException2(this, n, o1, o2);
+    }
+    void RaiseException3(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3)
+    {
+        functions->RaiseException3(this, n, o1, o2, o3);
+    }
+    void RaiseException4(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
+    {
+        functions->RaiseException4(this, n, o1, o2, o3, o4);
+    }
+    void RaiseException5(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        functions->RaiseException5(this, n, o1, o2, o3, o4, o5);
     }
     void RaiseException(size_t n, RexxArrayObject ao)
     {
@@ -1881,6 +1905,10 @@ struct RexxMethodContext_
     {
         return threadContext->ArrayOfFour(o1, o2, o3, o4);
     }
+    RexxArrayObject ArrayOfFive(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return threadContext->ArrayOfFive(o1, o2, o3, o4, o5);
+    }
     RexxArrayObject Array(RexxObjectPtr o)
     {
         return threadContext->ArrayOfOne(o);
@@ -1896,6 +1924,10 @@ struct RexxMethodContext_
     RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
     {
         return threadContext->ArrayOfFour(o1, o2, o3, o4);
+    }
+    RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return threadContext->ArrayOfFive(o1, o2, o3, o4, o5);
     }
     logical_t IsArray(RexxObjectPtr o)
     {
@@ -2041,6 +2073,18 @@ struct RexxMethodContext_
     void RaiseException2(size_t n, RexxObjectPtr o1, RexxObjectPtr o2)
     {
         threadContext->RaiseException2(n, o1, o2);
+    }
+    void RaiseException3(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3)
+    {
+        threadContext->RaiseException3(n, o1, o2, o3);
+    }
+    void RaiseException4(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
+    {
+        threadContext->RaiseException4(n, o1, o2, o3, o4);
+    }
+    void RaiseException5(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        threadContext->RaiseException5(n, o1, o2, o3, o4, o5);
     }
     void RaiseException(size_t n, RexxArrayObject ao)
     {
@@ -2631,6 +2675,10 @@ struct RexxCallContext_
     {
         return threadContext->ArrayOfFour(o1, o2, o3, o4);
     }
+    RexxArrayObject ArrayOfFive(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return threadContext->ArrayOfFive(o1, o2, o3, o4, o5);
+    }
     RexxArrayObject Array(RexxObjectPtr o)
     {
         return threadContext->ArrayOfOne(o);
@@ -2646,6 +2694,10 @@ struct RexxCallContext_
     RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
     {
         return threadContext->ArrayOfFour(o1, o2, o3, o4);
+    }
+    RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return threadContext->ArrayOfFive(o1, o2, o3, o4, o5);
     }
     logical_t IsArray(RexxObjectPtr o)
     {
@@ -2791,6 +2843,18 @@ struct RexxCallContext_
     void RaiseException2(size_t n, RexxObjectPtr o1, RexxObjectPtr o2)
     {
         threadContext->RaiseException2(n, o1, o2);
+    }
+    void RaiseException3(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3)
+    {
+        threadContext->RaiseException3(n, o1, o2, o3);
+    }
+    void RaiseException4(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
+    {
+        threadContext->RaiseException4(n, o1, o2, o3, o4);
+    }
+    void RaiseException5(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        threadContext->RaiseException5(n, o1, o2, o3, o4, o5);
     }
     void RaiseException(size_t n, RexxArrayObject ao)
     {
@@ -3383,6 +3447,10 @@ struct RexxExitContext_
     {
         return threadContext->ArrayOfFour(o1, o2, o3, o4);
     }
+    RexxArrayObject ArrayOfFive(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return threadContext->ArrayOfFive(o1, o2, o3, o4, o5);
+    }
     RexxArrayObject Array(RexxObjectPtr o)
     {
         return threadContext->ArrayOfOne(o);
@@ -3398,6 +3466,10 @@ struct RexxExitContext_
     RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
     {
         return threadContext->ArrayOfFour(o1, o2, o3, o4);
+    }
+    RexxArrayObject Array(RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        return threadContext->ArrayOfFive(o1, o2, o3, o4, o5);
     }
     logical_t IsArray(RexxObjectPtr o)
     {
@@ -3543,6 +3615,18 @@ struct RexxExitContext_
     void RaiseException2(size_t n, RexxObjectPtr o1, RexxObjectPtr o2)
     {
         threadContext->RaiseException2(n, o1, o2);
+    }
+    void RaiseException3(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3)
+    {
+        threadContext->RaiseException3(n, o1, o2, o3);
+    }
+    void RaiseException4(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4)
+    {
+        threadContext->RaiseException4(n, o1, o2, o3, o4);
+    }
+    void RaiseException5(size_t n, RexxObjectPtr o1, RexxObjectPtr o2, RexxObjectPtr o3, RexxObjectPtr o4, RexxObjectPtr o5)
+    {
+        threadContext->RaiseException5(n, o1, o2, o3, o4, o5);
     }
     void RaiseException(size_t n, RexxArrayObject ao)
     {

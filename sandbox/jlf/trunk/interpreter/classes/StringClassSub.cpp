@@ -208,7 +208,7 @@ RexxString *RexxString::insert(RexxString  *newStrObj,
 
     TCharLen = this->getCLength();             /* get the target string length      */
     /* get the needle string (and length)*/
-    newStr = stringArgument(newStrObj, ARG_ONE);
+    newStr = stringArgument(newStrObj, OREF_positional, ARG_ONE);
     ProtectedObject p(newStr);
     NCharLen = newStr->getCLength();
     /* use optionalLengthArgument for starting  */
@@ -358,7 +358,7 @@ RexxString *RexxString::overlay(
 
     TargetLen = this->getCLength();       /* get the haystack length           */
                                          /* get the overlay string value      */
-    newStr = stringArgument(newStrObj, ARG_ONE);
+    newStr = stringArgument(newStrObj, OREF_positional, ARG_ONE);
     ProtectedObject p(newStr);
     NewLen = newStr->getCLength();
     /* get the overlay position          */
@@ -458,7 +458,7 @@ RexxString *RexxString::replaceAt(RexxString  *newStrObj, RexxInteger *position,
 {
     sizeC_t targetLen = this->getCLength();   // get the length of the replacement target
     // the replacement value is required and must be a string
-    RexxString *newStr = stringArgument(newStrObj, ARG_ONE);
+    RexxString *newStr = stringArgument(newStrObj, OREF_positional, ARG_ONE);
     ProtectedObject p(newStr);
     // the length of the replacement string is the default replacement length
     sizeC_t newLen = newStr->getCLength();
@@ -630,7 +630,7 @@ RexxString *RexxString::strip(RexxString *optionString, RexxString *stripchar)
     }
     // get the strip character set.  The default is to remove spaces and
     // horizontal tabs
-    stripchar = optionalStringArgument(stripchar, OREF_NULL, ARG_TWO);
+    stripchar = optionalStringArgument(stripchar, OREF_NULL, OREF_positional, ARG_TWO);
 
     // the default is to strip whitespace characters
     const char *chars = stripchar == OREF_NULL ? " \t" : stripchar->getStringData();

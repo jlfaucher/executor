@@ -212,11 +212,11 @@ RexxObject *RexxMessage::notify(RexxMessage *_message)
     {                                /* nope, its and error, report it.   */
         if ( message == OREF_NULL)
         {
-            reportException(Error_Incorrect_method_noarg, IntegerOne);
+            reportException(Error_Incorrect_method_noarg, OREF_positional, IntegerOne);
         }
         else
         {
-            reportException(Error_Incorrect_method_nomessage, _message);
+            reportException(Error_Incorrect_method_nomessage, OREF_positional, _message);
         }
     }
     return OREF_NULL;                     /* all done, we return nothing       */
@@ -552,12 +552,12 @@ RexxObject *RexxMessage::newRexx(
     if (num_args < 2 )                   /* passed less than 2 args?          */
     {
         /* Yes, this is an error.            */
-        reportException(Error_Incorrect_method_minarg,  "positional", IntegerTwo);
+        reportException(Error_Incorrect_method_minarg,  OREF_positional, IntegerTwo);
     }
     RexxObject *_target   = msgArgs[0];              /* Get the receiver object           */
-    requiredArgument(_target, ARG_ONE);
+    requiredArgument(_target, OREF_positional, ARG_ONE);
     RexxObject *_message  = msgArgs[1];              /* get the message .                 */
-    requiredArgument(_message, ARG_TWO);
+    requiredArgument(_message, OREF_positional, ARG_TWO);
     RexxString *msgName;
     RexxObject *_startScope;
     // decode the message argument into name and scope
@@ -593,7 +593,7 @@ RexxObject *RexxMessage::newRexx(
         else
         {
             /* Convert it into a string.         */
-            optionString = stringArgument(optionString, ARG_THREE);
+            optionString = stringArgument(optionString, OREF_positional, ARG_THREE);
             /*  char and make it lower case      */
             char option = tolower(optionString->getCharC(0));
             if (option == 'a')               /* args passed as an array?          */
@@ -602,14 +602,14 @@ RexxObject *RexxMessage::newRexx(
                 /*args?                              */
                 if (num_args < 4)              /* this is an error                  */
                 {
-                    reportException(Error_Incorrect_method_minarg, "positional", IntegerFour);
+                    reportException(Error_Incorrect_method_minarg, OREF_positional, IntegerFour);
                 }
 
                 /* are there more than 4 required    */
                 /*args?                              */
                 if (num_args > 4)              /* this is an error                  */
                 {
-                    reportException(Error_Incorrect_method_maxarg, "positional", IntegerFour);
+                    reportException(Error_Incorrect_method_maxarg, OREF_positional, IntegerFour);
                 }
 
                 /* get the array of arguments        */
@@ -617,7 +617,7 @@ RexxObject *RexxMessage::newRexx(
                 if (argPtr == OREF_NULL)       /* no array given?                   */
                 {
                     /* this is an error                  */
-                    reportException(Error_Incorrect_method_noarg, IntegerFour);
+                    reportException(Error_Incorrect_method_noarg, OREF_positional, IntegerFour);
                 }
                 /* force to array form               */
                 argPtr = (RexxArray *)REQUEST_ARRAY(argPtr);
@@ -625,7 +625,7 @@ RexxObject *RexxMessage::newRexx(
                 if (argPtr == TheNilObject || argPtr->getDimension() != 1)
                 {
                     /* raise an error                    */
-                    reportException(Error_Incorrect_method_noarray, msgArgs[3]);
+                    reportException(Error_Incorrect_method_noarray, OREF_positional, msgArgs[3]);
                 }
 
                 p_argPtr = argPtr; // Protected against GC

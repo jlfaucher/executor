@@ -61,7 +61,7 @@ stringsize_t lengthArgument(
 {
     if (argument == OREF_NULL)            /* have a real argument?             */
     {
-        missingArgument(position);       /* raise an error                    */
+        missingArgument(OREF_positional, position);       /* raise an error                    */
     }
     stringsize_t    value;                /* converted number value            */
 
@@ -85,7 +85,7 @@ stringsize_t positionArgument(
 {
     if (argument == OREF_NULL)            /* have a real argument?             */
     {
-        missingArgument(position);         /* raise an error                    */
+        missingArgument(OREF_positional, position);         /* raise an error                    */
     }
     stringsize_t    value;                /* converted number value            */
 
@@ -106,7 +106,7 @@ codepoint_t padArgument(
     RexxObject *argument,              /* method argument                   */
     size_t position )                  /* argument position                 */
 {
-    RexxString *parameter = (RexxString *)stringArgument(argument, position);
+    RexxString *parameter = (RexxString *)stringArgument(argument, OREF_positional, position);
     /* is the string only 1 character?   */
     if (parameter->getCLength() != 1)
     {
@@ -128,7 +128,7 @@ char optionArgument(
     size_t position )                  /* argument position                 */
 {
     /* force option to string            */
-    RexxString *parameter = (RexxString *)stringArgument(argument, position);
+    RexxString *parameter = (RexxString *)stringArgument(argument, OREF_positional, position);
     /* return the first character        */
     return toupper(parameter->getCharB(0)); // todo m17n
 }

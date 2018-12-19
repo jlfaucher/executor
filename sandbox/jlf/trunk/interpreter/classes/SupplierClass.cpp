@@ -219,19 +219,19 @@ void *RexxSupplier::operator new(size_t size)
  */
 RexxObject *RexxSupplier::initRexx(RexxArray *_values, RexxArray *_indexes)
 {
-    requiredArgument(_values, ARG_ONE);           // both values are required
-    requiredArgument(_indexes, ARG_TWO);
+    requiredArgument(_values, OREF_positional, ARG_ONE);           // both values are required
+    requiredArgument(_indexes, OREF_positional, ARG_TWO);
 
     // now verify both values
     RexxArray *new_values = REQUEST_ARRAY(_values);
     RexxArray *new_indexes = REQUEST_ARRAY(_indexes);
     if (new_values == (RexxArray  *)TheNilObject || new_values->getDimension() != 1)
     {
-        reportException(Error_Incorrect_method_noarray, values);
+        reportException(Error_Incorrect_method_noarray, OREF_positional, values);
     }
     if (new_indexes == (RexxArray  *)TheNilObject || new_indexes->getDimension() != 1)
     {
-        reportException(Error_Incorrect_method_noarray, indexes);
+        reportException(Error_Incorrect_method_noarray, OREF_positional, indexes);
     }
 
     OrefSet(this, this->values, new_values);

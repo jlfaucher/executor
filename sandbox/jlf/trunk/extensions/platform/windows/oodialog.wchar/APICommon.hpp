@@ -128,7 +128,7 @@ extern void            dbgPrintClassID(RexxMethodContext *c, RexxObjectPtr obj);
  */
 inline RexxObjectPtr missingArgException(RexxThreadContext *c, size_t argPos)
 {
-    c->RaiseException1(Rexx_Error_Invalid_argument_noarg, c->WholeNumber(argPos));
+    c->RaiseException1(Rexx_Error_Invalid_argument_noarg, c->String("positional"), c->WholeNumber(argPos));
     return NULLOBJECT;
 }
 
@@ -146,7 +146,7 @@ inline RexxObjectPtr missingArgException(RexxThreadContext *c, size_t argPos)
  */
 inline RexxObjectPtr tooManyArgsException(RexxThreadContext *c, size_t max)
 {
-    c->RaiseException1(Rexx_Error_Invalid_argument_maxarg, c->WholeNumber(max));
+    c->RaiseException2(Rexx_Error_Invalid_argument_maxarg, c->String("positional"), c->WholeNumber(max));
     return NULLOBJECT;
 }
 
@@ -165,7 +165,7 @@ inline RexxObjectPtr tooManyArgsException(RexxThreadContext *c, size_t max)
  */
 inline RexxObjectPtr notPositiveArgException(RexxThreadContext *c, size_t argPos, RexxObjectPtr actual)
 {
-    c->RaiseException2(Rexx_Error_Incorrect_method_nonnegative, c->WholeNumber(argPos), actual);
+    c->RaiseException3(Rexx_Error_Incorrect_method_nonnegative, c->String("positional"), c->WholeNumber(argPos), actual);
     return NULLOBJECT;
 }
 

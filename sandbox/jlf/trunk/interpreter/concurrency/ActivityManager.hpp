@@ -206,7 +206,22 @@ inline void reportException(wholenumber_t error, const char *a1, wholenumber_t a
     ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
 }
 
+inline void reportException(wholenumber_t error, RexxObject *a1, wholenumber_t a2, RexxObject *a3)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
+}
+
 inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, wholenumber_t a3)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
+}
+
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, wholenumber_t a3, RexxObject *a4)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4);
+}
+
+inline void reportException(wholenumber_t error, RexxObject *a1, const char *a2, wholenumber_t a3)
 {
     ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
 }
@@ -214,6 +229,16 @@ inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2,
 inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2)
 {
     ActivityManager::currentActivity->reportAnException(error, a1, a2);
+}
+
+inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2, wholenumber_t a3)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
+}
+
+inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2, const char *a3)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
 }
 
 inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2, RexxObject *a3)
@@ -226,19 +251,39 @@ inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2,
     ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4);
 }
 
+inline void reportException(wholenumber_t error, RexxObject *a1, RexxObject *a2, RexxObject *a3, RexxObject *a4, RexxObject *a5)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4, a5);
+}
+
 inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, const char *a3, RexxObject *a4)
 {
     ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4);
 }
 
-inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3, RexxObject *a4)
-{
-    ActivityManager::currentActivity->reportAnException(error, new_string(a1), a2, a3, a4);
-}
-
 inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3)
 {
-    ActivityManager::currentActivity->reportAnException(error, new_string(a1), a2, a3);
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3);
+}
+
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3, RexxObject *a4)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4);
+}
+
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3, RexxObject *a4, RexxObject *a5)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4, a5);
+}
+
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3, const char *a4, RexxObject *a5)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4, a5);
+}
+
+inline void reportException(wholenumber_t error, const char *a1, RexxObject *a2, RexxObject *a3, wholenumber_t a4)
+{
+    ActivityManager::currentActivity->reportAnException(error, a1, a2, a3, a4);
 }
 
 inline void reportNomethod(RexxString *message, RexxObject *receiver)
@@ -251,10 +296,10 @@ inline void reportNomethod(RexxString *message, RexxObject *receiver)
 }
 
 
-inline void missingArgument(size_t argumentPosition)
+inline void missingArgument(RexxString *kind, size_t argumentPosition)
 {
                                        /* just raise the error              */
-    reportException(Error_Incorrect_method_noarg, argumentPosition);
+    reportException(Error_Incorrect_method_noarg, kind, argumentPosition);
 }
 
 

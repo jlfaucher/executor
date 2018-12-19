@@ -75,7 +75,7 @@ RexxString *RexxString::bitAnd(RexxString *string2,
 
                                          /* get string we will be doing bit   */
                                          /* stuff to...                       */
-    string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
+    string2 = optionalStringArgument(string2, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p(string2);
     String2Len = string2->getBLength();        /* get the string length             */
     String2 = string2->getStringData();       /* get the string data pointer       */
@@ -146,7 +146,7 @@ RexxString *RexxString::bitOr(RexxString *string2,
 
     /* get string we will be doing bit   */
     /* stuff to...                       */
-    string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
+    string2 = optionalStringArgument(string2, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p(string2);
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */
@@ -217,7 +217,7 @@ RexxString *RexxString::bitXor(RexxString *string2,
 
     /* get string we will be doing bit   */
     /* stuff to...                       */
-    string2 = optionalStringArgument(string2, OREF_NULLSTRING, ARG_ONE);
+    string2 = optionalStringArgument(string2, OREF_NULLSTRING, OREF_positional, ARG_ONE);
     ProtectedObject p(string2);
     String2Len = string2->getBLength();   /* get the string length             */
     String2 = string2->getStringData();  /* get the string data pointer       */

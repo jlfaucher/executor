@@ -366,7 +366,6 @@
 #define Error_Incorrect_call_write_to_readonly             40917
 #define Error_Incorrect_call_signature                     40918
 #define Error_Incorrect_call_nostem                        40919
-#define Error_Incorrect_call_nonamedarg                    40920
 #define Error_Conversion                                   41000
 #define Error_Conversion_operator                          41001
 #define Error_Conversion_prefix                            41003
@@ -524,7 +523,6 @@
 #define Error_Incorrect_method_nostem                      93969
 #define Error_Unsupported_copy_method                      93970
 #define Error_Incorrect_method_multi_dimension             93971
-#define Error_Incorrect_method_nonamedarg                  93972
 #define Error_No_method                                    97000
 #define Error_No_method_name                               97001
 #define Error_No_method_user_defined                       97900

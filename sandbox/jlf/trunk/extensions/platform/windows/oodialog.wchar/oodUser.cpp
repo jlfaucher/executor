@@ -208,7 +208,7 @@ static bool adjustDialogFont(RexxMethodContext *c, RexxArrayObject args, pCPlain
         uint32_t fontSize;
         if ( ! c->UnsignedInt32(size, &fontSize) )
         {
-            c->RaiseException2(Rexx_Error_Invalid_argument_positive, c->WholeNumber(FONT_SIZE_ARG_POS), size);
+            c->RaiseException3(Rexx_Error_Invalid_argument_positive, c-String("positional"), c->WholeNumber(FONT_SIZE_ARG_POS), size);
             return false;
         }
         if ( fontSize != 0 )
@@ -228,7 +228,7 @@ static uint32_t getExpectedCount(RexxMethodContext *c, RexxArrayObject args)
     {
         if ( ! c->UnsignedInt32(count, &expected) || expected == 0 )
         {
-            c->RaiseException2(Rexx_Error_Invalid_argument_positive, c->WholeNumber(EXPECTED_ITEM_COUNT_ARG_POS), count);
+            c->RaiseException3(Rexx_Error_Invalid_argument_positive, c-String("positional"), c->WholeNumber(EXPECTED_ITEM_COUNT_ARG_POS), count);
             expected = 0;
         }
     }
@@ -2640,7 +2640,7 @@ RexxMethod8(logical_t, catdlg_createCategoryDialog, int32_t, x, int32_t, y, uint
     pcdd->expected = expected;
 
     DLGTEMPLATEEX *pBase;
-    RXCA2T(fontName); 
+    RXCA2T(fontName);
     if ( ! startDialogTemplate(context, &pBase, pcdd, x, y, cx, cy, NULL, NULL, fontNameT, fontSize, style) )
     {
         return FALSE;

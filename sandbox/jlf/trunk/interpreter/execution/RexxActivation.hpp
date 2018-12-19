@@ -441,7 +441,7 @@ class ActivationSettings
        }
    }
 
-   void                     setArguments(RexxArray *arguments);
+   void                     setArguments(RexxArray *positionalArguments, RexxDirectory *namedArguments);
    inline RexxArray        *getArguments() { return new_array(argcount, arglist); }
 
    inline RexxObject      **getProgramArgumentlist() {return this->settings.parent_arglist;};

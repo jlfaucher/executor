@@ -51,6 +51,9 @@
 #include <string.h>
 #include <errno.h>
 
+// jlf: I assume I can't include the constants...
+#define CHAR_positional "positional"
+
 /********************************************************************************/
 /*                                                                              */
 /* Data area's for open routines                                                */
@@ -373,6 +376,57 @@ void StreamInfo::raiseException(int err, RexxObjectPtr sub1)
 void StreamInfo::raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2)
 {
     context->RaiseException2(err, sub1, sub2);
+    // and throw a C++ exception to go back to base camp.
+    throw err;
+}
+
+
+/**
+ * Raise an exception for the stream code.
+ *
+ * @param err     The raised error code.
+ * @param sub1    First error substitution value.
+ * @param sub2    Second error substitution value.
+ * @param sub3    Third error substitution value.
+ */
+void StreamInfo::raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2, RexxObjectPtr sub3)
+{
+    context->RaiseException3(err, sub1, sub2, sub3);
+    // and throw a C++ exception to go back to base camp.
+    throw err;
+}
+
+
+/**
+ * Raise an exception for the stream code.
+ *
+ * @param err     The raised error code.
+ * @param sub1    First error substitution value.
+ * @param sub2    Second error substitution value.
+ * @param sub3    Third error substitution value.
+ * @param sub4    Fourth error substitution value.
+ */
+void StreamInfo::raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2, RexxObjectPtr sub3, RexxObjectPtr sub4)
+{
+    context->RaiseException4(err, sub1, sub2, sub3, sub4);
+    // and throw a C++ exception to go back to base camp.
+    throw err;
+}
+
+
+/**
+ * Raise an exception for the stream code.
+ *
+ * @param err     The raised error code.
+ * @param sub1    First error substitution value.
+ * @param sub2    Second error substitution value.
+ * @param sub3    Third error substitution value.
+ * @param sub4    Fourth error substitution value.
+ * @param sub5    Fifth error substitution value.
+ */
+void StreamInfo::raiseException(int err, RexxObjectPtr sub1, RexxObjectPtr sub2, RexxObjectPtr sub3, RexxObjectPtr sub4, RexxObjectPtr sub5)
+{
+    context->RaiseException5(err, sub1, sub2, sub3, sub4, sub5);
     // and throw a C++ exception to go back to base camp.
     throw err;
 }
@@ -1212,7 +1266,7 @@ void StreamInfo::setCharReadPosition(int64_t position)
 
     if (position < 1)                  /* too small?                        */
     {
-        raiseException(Rexx_Error_Incorrect_method_positive, context->WholeNumberToObject(1), context->Int64ToObject(position));
+        raiseException(Rexx_Error_Incorrect_method_positive, context->String(CHAR_positional), context->WholeNumberToObject(1), context->Int64ToObject(position));
     }
                                        /* make sure we're within the bounds */
     if (size() >= position)
@@ -1242,7 +1296,7 @@ void StreamInfo::setLineReadPosition(int64_t position)
 
     if (position < 1)                  /* too small?                        */
     {
-        raiseException(Rexx_Error_Incorrect_method_positive, context->WholeNumberToObject(1), context->Int64ToObject(position));
+        raiseException(Rexx_Error_Incorrect_method_positive, context->String(CHAR_positional), context->WholeNumberToObject(1), context->Int64ToObject(position));
     }
 
     // go set the new locations information.
@@ -1264,7 +1318,7 @@ void StreamInfo::setCharWritePosition(int64_t position)
     }
     if (position < 1)                  /* too small?                        */
     {
-        raiseException(Rexx_Error_Incorrect_method_positive, context->WholeNumberToObject(1), context->Int64ToObject(position));
+        raiseException(Rexx_Error_Incorrect_method_positive, context->String(CHAR_positional), context->WholeNumberToObject(1), context->Int64ToObject(position));
     }
     // go move to this position
     setWritePosition(position);
@@ -1287,7 +1341,7 @@ void StreamInfo::setLineWritePosition(int64_t position)
     if (position < 1)                  /* too small?                        */
     {
         /* report an error also              */
-        raiseException(Rexx_Error_Incorrect_method_positive, context->WholeNumberToObject(1), context->Int64ToObject(position));
+        raiseException(Rexx_Error_Incorrect_method_positive, context->String(CHAR_positional), context->WholeNumberToObject(1), context->Int64ToObject(position));
 
     }
 
@@ -2654,7 +2708,7 @@ int64_t StreamInfo::streamPosition(const char *options)
     /* position offset must be specified */
     if (offset == -1)
     {
-        raiseException(Rexx_Error_Incorrect_method_noarg, context->NewStringFromAsciiz("SEEK"), context->NewStringFromAsciiz("offset"));
+        raiseException(Rexx_Error_Incorrect_method_noarg, context->String(CHAR_positional), context->NewStringFromAsciiz("SEEK"), context->NewStringFromAsciiz("offset"));
     }
     // clear any error state...the positioning operation might clear other
     // status, such as EOF conditions

@@ -79,7 +79,7 @@ RexxStem::RexxStem(
     else
     {
         /* must get a string here            */
-        name = stringArgument(name, ARG_ONE);
+        name = stringArgument(name, OREF_positional, ARG_ONE);
     }
     OrefSet(this, this->stemName, name); /* fill in the name                  */
     OrefSet(this, this->value, name);    /* fill in the default value         */
@@ -185,43 +185,43 @@ RexxObject *RexxStem::getStemValue()
 RexxObject *RexxStem::unknown(
     RexxString *msgname,               /* unknown message name              */
     RexxArray  *arguments,             /* message arguments                 */
-    RexxString *_name1,                // name of 1st named argument
-    RexxDirectory *namedArguments)     // value of 1st named argument
+    RexxString *namedargumentsName,    // name of 1st named argument
+    RexxDirectory *namedArgumentsValue)// value of 1st named argument
 /******************************************************************************/
 /* Function:  Forward an unknown message to the value of the stem.            */
 /******************************************************************************/
 {
     /* validate the name                 */
-    msgname = stringArgument(msgname, ARG_ONE);
+    msgname = stringArgument(msgname, OREF_positional, ARG_ONE);
     ProtectedObject p(msgname);
-    requiredArgument(arguments, ARG_TWO);        /* need an argument array            */
+    requiredArgument(arguments, OREF_positional, ARG_TWO);        /* need an argument array            */
                                          /* get this as an array              */
     arguments = (RexxArray  *)REQUEST_ARRAY(arguments);
     ProtectedObject p2(arguments);
     if (arguments == TheNilObject)       /* didn't convert?                   */
     {
         /* raise an error                    */
-        reportException(Error_Incorrect_method_noarray, IntegerTwo);
+        reportException(Error_Incorrect_method_noarray, OREF_positional, IntegerTwo);
     }
 
-    // Should check that _name1 = "NAMEDARGUMENTS"
+    // Should check that namedargumentsName = "NAMEDARGUMENTS"
 
-    ProtectedObject p_namedArguments;
-    if (namedArguments != OREF_NULL && namedArguments != TheNilObject)
+    ProtectedObject p_namedArgumentsValue;
+    if (namedArgumentsValue != OREF_NULL && namedArgumentsValue != TheNilObject)
     {
         /* get a directory version           */
-        namedArguments = namedArguments->requestDirectory();
-        p_namedArguments = namedArguments; // GC protect
+        namedArgumentsValue = namedArgumentsValue->requestDirectory();
+        p_namedArgumentsValue = namedArgumentsValue; // GC protect
 
         /* not a directory item ? */
-        if (namedArguments == TheNilObject)
+        if (namedArgumentsValue == TheNilObject)
         {
-            reportException(Error_Execution_user_defined , "UNKNOWN: The value of 'NAMEDARGUMENTS' must be a directory or NIL");
+            reportException(Error_Execution_user_defined , "UNKNOWN namedArguments must be a directory or NIL");
         }
     }
 
     size_t argumentsCount = arguments ? arguments->size() : 0;
-    size_t namedArgumentsCount = (namedArguments && namedArguments != TheNilObject) ? namedArguments->items() : 0;
+    size_t namedArgumentsCount = (namedArgumentsValue && namedArgumentsValue != TheNilObject) ? namedArgumentsValue->items() : 0;
 
     // Optimization: don't create an intermediate array if no arg
     if (argumentsCount == 0 && namedArgumentsCount == 0) return this->value->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
@@ -234,7 +234,7 @@ RexxObject *RexxStem::unknown(
         args->put(arg, i);
     }
     args->append(new_integer(namedArgumentsCount));
-    if (namedArgumentsCount != 0) namedArguments->appendAllIndexesItemsTo(args);
+    if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);
     return this->value->sendMessage(msgname, args->data(), argumentsCount);
 }
 
@@ -405,13 +405,13 @@ RexxObject *RexxStem::bracketEqual(
     if (argCount == 0)                   /* have nothing at all?              */
     {
         /* this is an error                  */
-        reportException(Error_Incorrect_method_noarg, IntegerOne);
+        reportException(Error_Incorrect_method_noarg, OREF_positional, IntegerOne);
     }
     new_value = tailElements[0];         /* get the new value                 */
     if (new_value == OREF_NULL)          /* nothing given?                    */
     {
         /* this is an error also             */
-        reportException(Error_Incorrect_method_noarg, IntegerOne);
+        reportException(Error_Incorrect_method_noarg, OREF_positional, IntegerOne);
     }
 
     if (argCount == 1)
@@ -517,7 +517,7 @@ RexxObject *RexxStem::request(
 {
     ProtectedObject result;
     /* Verify we have a string parm      */
-    makeclass = stringArgument(makeclass, ARG_ONE)->upper();
+    makeclass = stringArgument(makeclass, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(makeclass);
     /* array request?                    */
     if (makeclass->strCompare(CHAR_ARRAY))
