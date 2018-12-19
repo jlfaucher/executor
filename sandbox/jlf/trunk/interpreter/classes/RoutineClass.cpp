@@ -278,32 +278,32 @@ RexxObject *RoutineClass::callRexx(RexxObject **args, size_t count)
  * @return The call result (if any).
  */
 RexxObject *RoutineClass::callWithRexx(RexxArray *args,
-                                       RexxString *_name1, RexxDirectory *named_args)
+                                       RexxString *named_args_name, RexxDirectory *named_args_value)
 {
     // this is required and must be an array
-    args = arrayArgument(args, ARG_ONE);
+    args = arrayArgument(args, OREF_positional, ARG_ONE);
     ProtectedObject p(args);
     size_t count = args->size();
 
     // Named arguments
     // >>-callWith(array, namedArguments:namedArguments)----------------------------><
 
-    // Should check that _name1 = "NAMEDARGUMENTS"
+    // Should check that named_args_name = "NAMEDARGUMENTS"
 
-    ProtectedObject p_named_args;
+    ProtectedObject p_named_args_value;
     size_t named_count = 0;
-    if (named_args != OREF_NULL && named_args != TheNilObject)
+    if (named_args_value != OREF_NULL && named_args_value != TheNilObject)
     {
         /* get a directory version           */
-        named_args = named_args->requestDirectory();
-        p_named_args = named_args; // GC protect
+        named_args_value = named_args_value->requestDirectory();
+        p_named_args_value = named_args_value; // GC protect
 
         /* not a directory item ? */
-        if (named_args == TheNilObject)
+        if (named_args_value == TheNilObject)
         {
-            reportException(Error_Execution_user_defined , "CALLWITH: The value of 'NAMEDARGUMENTS' must be a directory or NIL");
+            reportException(Error_Execution_user_defined , "CALLWITH namedArguments must be a directory or NIL");
         }
-        named_count = named_args->items();
+        named_count = named_args_value->items();
     }
 
     RexxArray *new_args = new_array(count + 1 + (2 * named_count));
@@ -314,7 +314,7 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
         new_args->put(arg, i);
     }
     new_args->append(new_integer(named_count));
-    if (named_count != 0) named_args->appendAllIndexesItemsTo(new_args);
+    if (named_count != 0) named_args_value->appendAllIndexesItemsTo(new_args);
 
     ProtectedObject result;
 
@@ -464,7 +464,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
         if (sourceString == (RexxString *)TheNilObject)
         {
             /* raise an error                    */
-            reportException(Error_Incorrect_method_no_method, position);
+            reportException(Error_Incorrect_method_no_method, OREF_positional, position);
         }
         /* wrap an array around the value    */
         newSourceArray = new_array(sourceString);
@@ -475,19 +475,20 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxObject *so
         if (newSourceArray->getDimension() != 1)
         {
             /* raise an error                    */
-            reportException(Error_Incorrect_method_noarray, position);
+            reportException(Error_Incorrect_method_noarray, OREF_positional, position);
         }
         /*  element are strings.             */
         /* Make sure all elements in array   */
         for (size_t counter = 1; counter <= newSourceArray->size(); counter++)
         {
             /* Get element as string object      */
-            RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            RexxObject *item = newSourceArray ->get(counter);
+            RexxString *sourceString = (item == OREF_NULL) ? OREF_NULLSTRING : item->makeString();
             /* Did it convert?                   */
             if (sourceString == (RexxString *)TheNilObject)
             {
                 /* and report the error.             */
-                reportException(Error_Incorrect_method_nostring_inarray, IntegerTwo);
+                reportException(Error_Incorrect_method_nostring_inarray, OREF_positional, IntegerTwo);
             }
             else
             {
@@ -553,7 +554,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *sou
         if (newSourceArray->getDimension() != 1)
         {
             /* raise an error                    */
-            reportException(Error_Incorrect_method_noarray, position);
+            reportException(Error_Incorrect_method_noarray, OREF_positional, position);
         }
         /*  element are strings.             */
         /* Make a source array safe.         */
@@ -568,7 +569,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *sou
             if (sourceString == (RexxString *)TheNilObject)
             {
                 /* and report the error.             */
-                reportException(Error_Incorrect_method_nostring_inarray, IntegerTwo);
+                reportException(Error_Incorrect_method_nostring_inarray, OREF_positional, IntegerTwo);
             }
             else
             {
@@ -600,9 +601,9 @@ RoutineClass *RoutineClass::newRexx(
 
     RexxClass::processNewArgs(init_args, argCount, &init_args, &initCount, 2, (RexxObject **)&pgmname, (RexxObject **)&_source);
     /* get the method name as a string   */
-    RexxString *nameString = stringArgument(pgmname, ARG_ONE);
+    RexxString *nameString = stringArgument(pgmname, OREF_positional, ARG_ONE);
     ProtectedObject p_nameString(nameString);
-    requiredArgument(_source, ARG_TWO);          /* make sure we have the second too  */
+    requiredArgument(_source, OREF_positional, ARG_TWO);          /* make sure we have the second too  */
 
     RexxSource *sourceContext = OREF_NULL;
     // retrieve extra parameter if exists
@@ -623,7 +624,9 @@ RoutineClass *RoutineClass::newRexx(
         }
         else
         {
-            reportException(Error_Incorrect_method_argType, IntegerThree, "Method, Routine, or Package object");
+            RexxString *info = new_string("Method, Routine, or Package object");
+            ProtectedObject p(info);
+            reportException(Error_Incorrect_method_argType, OREF_positional, IntegerThree, info);
         }
     }
 
@@ -656,7 +659,7 @@ RoutineClass *RoutineClass::newFileRexx(
 /******************************************************************************/
 {
                                        /* get the method name as a string   */
-  filename = stringArgument(filename, ARG_ONE);
+  filename = stringArgument(filename, OREF_positional, ARG_ONE);
                                        /* finish up processing of this      */
   RoutineClass * newMethod = new RoutineClass(filename);
   ProtectedObject p2(newMethod);
@@ -919,9 +922,9 @@ RoutineClass *RoutineClass::fromFile(RexxString *filename)
  */
 RoutineClass *RoutineClass::loadExternalRoutine(RexxString *name, RexxString *descriptor)
 {
-    name = stringArgument(name, "name");
+    name = stringArgument(name, OREF_positional, "name");
     ProtectedObject p1(name);
-    descriptor = stringArgument(descriptor, "descriptor");
+    descriptor = stringArgument(descriptor, OREF_positional, "descriptor");
     ProtectedObject p2(descriptor);
     /* convert external into words       */
     RexxArray *_words = StringUtil::words(descriptor->getStringData(), descriptor->getBLength());
