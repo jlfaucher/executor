@@ -382,7 +382,7 @@ void inline outOfMemoryException(RexxThreadContext *c)
  */
 void inline nullStringException(RexxThreadContext *c, CSTRING fName, size_t pos)
 {
-    c->RaiseException3(Rexx_Error_Incorrect_call_null, c->String(fName), "positional", c->StringSize(pos));
+    c->RaiseException3(Rexx_Error_Incorrect_call_null, c->String(fName), c->String("positional"), c->StringSize(pos));
 }
 
 inline void safeLocalFree(void *p)

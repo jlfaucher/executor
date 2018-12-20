@@ -2174,7 +2174,7 @@ inline void outOfMemoryException(RexxMethodContext *c)
 void wrongArgValueException(RexxMethodContext *c, int pos, const char *list, RexxObjectPtr actual)
 {
     c->RaiseException(Rexx_Error_Incorrect_method_list,
-                      c->ArrayOfFour(c-String("positional"), c->WholeNumberToObject(pos), c->String(list), actual));
+                      c->ArrayOfFour(c->String("positional"), c->WholeNumberToObject(pos), c->String(list), actual));
 }
 
 void wrongArgValueException(RexxMethodContext *c, int pos, const char *list, const char *actual)

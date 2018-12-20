@@ -105,7 +105,7 @@ RexxRoutine2(CSTRING, sysBeep, wholenumber_t, Frequency, wholenumber_t, Duration
     if (Frequency > MAX_FREQUENCY || Frequency < MIN_FREQUENCY)
     {
         RexxArrayObject subs = context->NewArray(5);
-        context->ArrayAppend(subs, OREF_positional);
+        context->ArrayAppend(subs, (RexxStringObject)OREF_positional);
         context->ArrayAppend(subs, context->NewStringFromAsciiz("frequency"));
         context->ArrayAppend(subs, context->WholeNumberToObject(MIN_FREQUENCY));
         context->ArrayAppend(subs, context->WholeNumberToObject(MAX_FREQUENCY));
@@ -117,7 +117,7 @@ RexxRoutine2(CSTRING, sysBeep, wholenumber_t, Frequency, wholenumber_t, Duration
     if (Duration > MAX_DURATION || Duration < MIN_DURATION)
     {
         RexxArrayObject subs = context->NewArray(5);
-        context->ArrayAppend(subs, OREF_positional);
+        context->ArrayAppend(subs, (RexxStringObject)OREF_positional);
         context->ArrayAppend(subs, context->NewStringFromAsciiz("duration"));
         context->ArrayAppend(subs, context->WholeNumberToObject(MIN_DURATION));
         context->ArrayAppend(subs, context->WholeNumberToObject(MAX_DURATION));
@@ -236,7 +236,7 @@ RexxRoutine2(RexxStringObject, sysFilespec, CSTRING, option, CSTRING, name)
             optionChar[0] = *option;
             optionChar[1] = '\0';
 
-            RexxArrayObject subs = context->Array(context->String("FILESPEC"), OREF_positional, context->WholeNumberToObject(1),
+            RexxArrayObject subs = context->Array(context->String("FILESPEC"), (RexxStringObject)OREF_positional, context->WholeNumberToObject(1),
                 context->String("DELNP"), context->String(optionChar));
             /* raise an error                    */
             context->RaiseException(Rexx_Error_Incorrect_call_list, subs);
