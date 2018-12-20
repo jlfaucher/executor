@@ -252,7 +252,7 @@ void RexxStemVariable::drop(
     /* drop the stem value */
     context->dropLocalStem(stem, index);
     // jlf: I want a trace
-    context->traceAssignment(stem, OREF_TRACEDROPPED);
+    context->traceAssignment(stem, OREF_TRACE_is_dropped, false);
 }
 
 /**

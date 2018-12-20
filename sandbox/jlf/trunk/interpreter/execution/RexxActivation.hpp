@@ -262,8 +262,8 @@ class ActivationSettings
    size_t            currentLine();
    void              traceValue(RexxObject *, int);
    void              traceCompoundValue(int prefix, RexxString *stemName, RexxObject **tails, size_t tailCount, RexxCompoundTail *tail);
-   void              traceCompoundValue(int prefix, RexxString *stem, RexxObject **tails, size_t tailCount, const char *marker, RexxObject * value);
-   void              traceTaggedValue(int prefix, const char *tagPrefix, bool quoteTag, RexxString *tag, const char *marker, RexxObject * value);
+   void              traceCompoundValue(int prefix, RexxString *stem, RexxObject **tails, size_t tailCount, const char *marker, RexxObject * value, bool quoteValue=true);
+   void              traceTaggedValue(int prefix, const char *tagPrefix, bool quoteTag, RexxString *tag, const char *marker, RexxObject * value, bool quoteValue =true);
    void              traceOperatorValue(int prefix, const char *tag, RexxObject *value);
    void              traceSourceString();
    void              traceClause(RexxInstruction *, int);
@@ -389,12 +389,12 @@ class ActivationSettings
        { if (this->settings.intermediate_trace) { this->traceOperatorValue(TRACE_PREFIX_OPERATOR, n, v); } };
    inline void              tracePrefix(const char *n, RexxObject *v)
        { if (this->settings.intermediate_trace) { this->traceOperatorValue(TRACE_PREFIX_PREFIX, n, v); } };
-   inline void              traceAssignment(RexxString *n, RexxObject *v)
-       { if (this->settings.intermediate_trace) { this->traceTaggedValue(TRACE_PREFIX_ASSIGNMENT, NULL, false, n, ASSIGNMENT_MARKER, v); } };
+   inline void              traceAssignment(RexxString *n, RexxObject *v, bool quoteValue =true)
+       { if (this->settings.intermediate_trace) { this->traceTaggedValue(TRACE_PREFIX_ASSIGNMENT, NULL, false, n, ASSIGNMENT_MARKER, v, quoteValue); } };
    inline void              traceCompoundName(RexxString *stemVar, RexxObject **tails, size_t tailCount, RexxCompoundTail *tail) { if (this->settings.intermediate_trace) this->traceCompoundValue(TRACE_PREFIX_COMPOUND, stemVar, tails, tailCount, VALUE_MARKER, tail->createCompoundName(stemVar)); };
    inline void              traceCompoundName(RexxString *stemVar, RexxObject **tails, size_t tailCount, RexxString *tail) { if (this->settings.intermediate_trace) this->traceCompoundValue(TRACE_PREFIX_COMPOUND, stemVar, tails, tailCount, VALUE_MARKER, stemVar->concat(tail)); };
    inline void              traceCompound(RexxString *stemVar, RexxObject **tails, size_t tailCount, RexxObject *value) { if (this->settings.intermediate_trace) this->traceCompoundValue(TRACE_PREFIX_VARIABLE, stemVar, tails, tailCount, VALUE_MARKER, value); };
-   inline void              traceCompoundAssignment(RexxString *stemVar, RexxObject **tails, size_t tailCount, RexxObject *value) { if (this->settings.intermediate_trace) this->traceCompoundValue(TRACE_PREFIX_ASSIGNMENT, stemVar, tails, tailCount, ASSIGNMENT_MARKER, value); };
+   inline void              traceCompoundAssignment(RexxString *stemVar, RexxObject **tails, size_t tailCount, RexxObject *value, bool quoteValue =true) { if (this->settings.intermediate_trace) this->traceCompoundValue(TRACE_PREFIX_ASSIGNMENT, stemVar, tails, tailCount, ASSIGNMENT_MARKER, value, quoteValue); };
    inline void              traceResult(RexxObject * v) { if ((this->settings.flags&trace_results)) this->traceValue(v, TRACE_PREFIX_RESULT); };
    inline bool              tracingInstructions(void) { return (this->settings.flags&trace_all) != 0; }
    inline bool              tracingErrors(void) { return (this->settings.flags&trace_errors) != 0; }

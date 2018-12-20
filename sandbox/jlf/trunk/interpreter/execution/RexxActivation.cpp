@@ -3398,9 +3398,10 @@ void RexxActivation::traceValue(       /* trace an intermediate value       */
  *                  names are quoted.
  * @param tag       The tag name.
  * @param value     The associated trace value.
+ * @param quoteValue Indicates whether the value should be quoted or not.
  */
 void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool quoteTag,
-     RexxString *tag, const char *marker, RexxObject * value)
+     RexxString *tag, const char *marker, RexxObject * value, bool quoteValue)
 {
     // the trace settings would normally require us to trace this, but there are conditions
     // where we just skip doing this anyway.
@@ -3422,6 +3423,8 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     outLength += quoteTag ? QUOTES_OVERHEAD : 0;
     // this is usually null, but dot variables add a "." to the tag.
     outLength += tagPrefix == NULL ? 0 : strlen(tagPrefix);
+    // jlf: by default, TRACE_OVERHEAD includes 2 for the quotes around the value. Must substract 2 if quotes not displayed.
+    if (quoteValue == false) outLength -= 2;
 
     // now get a buffer to write this out into
     RexxString *buffer = raw_string(outLength);
@@ -3464,16 +3467,22 @@ void RexxActivation::traceTaggedValue(int prefix, const char *tagPrefix, bool qu
     dataOffset += strlen(marker);
 
     // the leading quote around the value
-    buffer->putCharB(dataOffset, '\"');
-    dataOffset++;
+	if (quoteValue)
+	{
+        buffer->putCharB(dataOffset, '\"');
+        dataOffset++;
+	}
 
     // the traced value
     buffer->put(dataOffset, stringVal);
     dataOffset += stringVal->getBLength();
 
     // and finally, the trailing quote
-    buffer->putCharB(dataOffset, '\"');
-    dataOffset++;
+	if (quoteValue)
+	{
+        buffer->putCharB(dataOffset, '\"');
+        dataOffset++;
+	}
                                        /* write out the line                */
     this->activity->traceOutput(this, buffer);
 }
@@ -3580,70 +3589,79 @@ void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxOb
  * @param tails     The array of tail elements (unresolved).
  * @param tailCount The count of tail elements.
  * @param value     The associated trace value.
+ * @quoteValue      Indicates whether the value should be quoted or not.
  */
 void RexxActivation::traceCompoundValue(int prefix, RexxString *stemName, RexxObject **tails, size_t tailCount, const char *marker,
-     RexxObject * value)
+	RexxObject * value, bool quoteValue)
 {
-    // the trace settings would normally require us to trace this, but there are conditions
-    // where we just skip doing this anyway.
-    if (this->settings.flags&trace_suppress || this->debug_pause || value == OREF_NULL || !code->isTraceable())
-    {
-        return;
-    }
+	// the trace settings would normally require us to trace this, but there are conditions
+	// where we just skip doing this anyway.
+	if (this->settings.flags&trace_suppress || this->debug_pause || value == OREF_NULL || !code->isTraceable())
+	{
+		return;
+	}
 
-    // get the string value from the traced object.
-    RexxString *stringVal = value->stringValue();
+	// get the string value from the traced object.
+	RexxString *stringVal = value->stringValue();
 
-    // now calculate the length of the traced string
-    stringsizeB_t outLength = stemName->getBLength() + stringVal->getBLength();
+	// now calculate the length of the traced string
+	stringsizeB_t outLength = stemName->getBLength() + stringVal->getBLength();
 
-    // build an unresolved tail name
-    RexxCompoundTail tail(tails, tailCount, false);
+	// build an unresolved tail name
+	RexxCompoundTail tail(tails, tailCount, false);
 
-    outLength += tail.getLength();
+	outLength += tail.getLength();
 
-    // add in the number of added dots
-    outLength += tailCount - 1;
+	// add in the number of added dots
+	// [jlf: the dots are already included] outLength += tailCount - 1;
 
-    // these are fixed overheads
-    outLength += TRACE_OVERHEAD + strlen(marker);
+	// these are fixed overheads
+	outLength += TRACE_OVERHEAD + strlen(marker);
+    // jlf: by default, TRACE_OVERHEAD includes 2 for the quotes around the value. Must substract 2 if quotes not displayed.
+    if (quoteValue == false) outLength -= 2;
     // now the indent spacing
-    outLength += this->settings.traceindent * INDENT_SPACING;
+	outLength += this->settings.traceindent * INDENT_SPACING;
 
-    // now get a buffer to write this out into
-    RexxString *buffer = raw_string(outLength);
-    ProtectedObject p(buffer);
+	// now get a buffer to write this out into
+	RexxString *buffer = raw_string(outLength);
+	ProtectedObject p(buffer);
 
-    // get a cursor for filling in the formatted data
-    stringsizeB_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
-                                       /* insert the leading blanks         */
-    buffer->set(0, ' ', TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING);
-                                       /* add the trace prefix              */
-    buffer->put(PREFIX_OFFSET, trace_prefix_table[prefix], PREFIX_LENGTH);
+	// get a cursor for filling in the formatted data
+	stringsizeB_t dataOffset = TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING - 2;
+	/* insert the leading blanks         */
+	buffer->set(0, ' ', TRACE_OVERHEAD + this->settings.traceindent * INDENT_SPACING);
+	/* add the trace prefix              */
+	buffer->put(PREFIX_OFFSET, trace_prefix_table[prefix], PREFIX_LENGTH);
 
-    // add in the stem name
-    buffer->put(dataOffset, stemName);
-    dataOffset += stemName->getBLength();
+	// add in the stem name
+	buffer->put(dataOffset, stemName);
+	dataOffset += stemName->getBLength();
 
-    // copy the tail portion of the compound name
-    buffer->put(dataOffset, tail.getTail(), tail.getLength());
-    dataOffset += tail.getLength();
+	// copy the tail portion of the compound name
+	buffer->put(dataOffset, tail.getTail(), tail.getLength());
+	dataOffset += tail.getLength();
 
-    // now add the data marker
-    buffer->put(dataOffset, marker, strlen(marker));
-    dataOffset += strlen(marker);
+	// now add the data marker
+	buffer->put(dataOffset, marker, strlen(marker));
+	dataOffset += strlen(marker);
 
     // the leading quote around the value
-    buffer->putCharB(dataOffset, '\"');
-    dataOffset++;
+    if (quoteValue)
+	{
+        buffer->putCharB(dataOffset, '\"');
+        dataOffset++;
+    }
 
     // the traced value
     buffer->put(dataOffset, stringVal);
     dataOffset += stringVal->getBLength();
 
     // and finally, the trailing quote
-    buffer->putCharB(dataOffset, '\"');
-    dataOffset++;
+    if (quoteValue)
+	{
+        buffer->putCharB(dataOffset, '\"');
+        dataOffset++;
+	}
                                        /* write out the line                */
     this->activity->traceOutput(this, buffer);
 }
@@ -4422,7 +4440,7 @@ void RexxActivation::dropLocalCompoundVariable(RexxString *stemName, size_t inde
     {
         traceCompoundName(stemName, tail, tailCount, &resolved_tail);
         /* trace variable value              */
-        traceCompoundAssignment(stemName, tail, tailCount, OREF_TRACEDROPPED);
+        traceCompoundAssignment(stemName, tail, tailCount, OREF_TRACE_is_dropped, false);
     }
 }
 
