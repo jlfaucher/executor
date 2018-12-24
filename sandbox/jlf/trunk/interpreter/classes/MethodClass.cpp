@@ -533,7 +533,8 @@ RexxMethod *RexxMethod::newMethodObject(RexxString *pgmname, RexxObject *source,
         for (size_t counter = 1; counter <= newSourceArray->size(); counter++)
         {
             /* Get element as string object      */
-            RexxString *sourceString = newSourceArray ->get(counter)->makeString();
+            RexxObject *item = newSourceArray ->get(counter);
+            RexxString *sourceString = (item == OREF_NULL) ? OREF_NULLSTRING : item->makeString();
             ProtectedObject p(sourceString);
             /* Did it convert?                   */
             if (sourceString == (RexxString *)TheNilObject)
