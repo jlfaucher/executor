@@ -1,2 +1,31 @@
 http://software.intel.com/en-us/articles/collection-of-examples-of-64-bit-errors-in-real-programs/
 A Collection of Examples of 64-bit Errors in Real Programs
+
+
+
+René 04/06/2015
+Thinking along lines of memory model, you once faced the decision of having a 64 or 32 bit size for Rexx objects,
+and I remember the discussion on the list in which we (iirc) all were in favor of 64 bitness and did not realize
+this meant something for compatibility with RexxSAA.
+Without wanting to return to that discussion, I would like to pose as an hypothetical a model
+in which we can address the full address space but limit the pointers to the objects to 32 bits
+ - or 31 in a particular environment that I have in mind.
+Would that be at least thinkable?
+
+
+Rick 04/06/2015
+Good luck finding somebody to implement this.  I certainly would not try this.
+And I also do not agree with the assertion that this lbroke RexxSAA compatibility.
+The only compatibility problem was between ooRexx and Regina because Mark chose
+to continue using 32-bit lengths for string values in the interface (long before
+ooRexx was made 32-bit capable).
+The ooRexx version of the API made the change to use ansi-defined portable
+integer types so that sizes were appropriate to the compilation environment.
+At the point I took up that work, I had a considerable amount of experience with
+32/64-bit portability issues from my years working on the IBM JVM, not to mention
+my prior experience in moving from 16-bit to 32-bit on OS/2.
+I believed (and still believed) that the approach taken with the APIs was the appropriate one.
+And the issue was not one of pointer size, but rather how the sizes of string lengths are defined.
+Restricting the lengths to 32-bits would really not help with compatibility and would just
+cause grief to any developers who were wishing to make the transition to 64-bit....
+and they would get a crippled implementation that would not be fully capable of exploiting the 64-bit addressing.
