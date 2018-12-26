@@ -4228,7 +4228,7 @@ RexxMethod9(RexxObjectPtr, userpspdlg_init, OPTIONAL_RexxObjectPtr, dlgData, OPT
         {
             if ( fontSize == 0 )
             {
-                context->RaiseException3(Rexx_Error_Invalid_argument_positive, context-String("positional"), context->WholeNumber(5), TheZeroObj);
+                context->RaiseException3(Rexx_Error_Invalid_argument_positive, context->String("positional"), context->WholeNumber(5), TheZeroObj);
                 goto done_out;
             }
             pcpbd->fontSize = fontSize;

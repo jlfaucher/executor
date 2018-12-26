@@ -494,13 +494,13 @@ void notNonNegativeException(RexxThreadContext *c, size_t pos, RexxObjectPtr act
 
 void notPositiveException(RexxThreadContext *c, size_t pos, RexxObjectPtr actual)
 {
-    c->RaiseException3(Rexx_Error_Invalid_argument_positive, c-String("positional"), c->StringSize(pos), actual);
+    c->RaiseException3(Rexx_Error_Invalid_argument_positive, c->String("positional"), c->StringSize(pos), actual);
 }
 
 RexxObjectPtr wrongRangeException(RexxThreadContext *c, size_t pos, int min, int max, RexxObjectPtr actual)
 {
-    c->RaiseException(Rexx_Error_Invalid_argument_range, c->String("positional",
-                      c->ArrayOfFour(c->WholeNumber(pos), c->WholeNumber(min), c->WholeNumber(max), actual));
+    c->RaiseException(Rexx_Error_Invalid_argument_range,
+                      c->ArrayOfFive(c->String("positional"), c->WholeNumber(pos), c->WholeNumber(min), c->WholeNumber(max), actual));
     return NULLOBJECT;
 }
 

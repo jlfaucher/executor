@@ -128,7 +128,7 @@ extern void            dbgPrintClassID(RexxMethodContext *c, RexxObjectPtr obj);
  */
 inline RexxObjectPtr missingArgException(RexxThreadContext *c, size_t argPos)
 {
-    c->RaiseException1(Rexx_Error_Invalid_argument_noarg, c->String("positional"), c->WholeNumber(argPos));
+    c->RaiseException2(Rexx_Error_Invalid_argument_noarg, c->String("positional"), c->WholeNumber(argPos));
     return NULLOBJECT;
 }
 
