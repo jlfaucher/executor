@@ -1364,10 +1364,22 @@ call myprocedure .envSymbol:1
 Expected: Error 31.003 Variable symbol must not start with a '.'; found '.envSymbol'
 
 
+call myprocedure 3:1
+    [trapped] Incorrect expression detected at ":"
+    [trapped] Code= 35.1
+Expected: Error 31.2:  Variable symbol must not start with a number; found "3
+
+
+call myprocedure 1, a2:2, 3
+    [trapped] Variable symbol must not start with a number; found "3"
+    [trapped] Code= 31.2
+Expected: Error 31.2:  Variable symbol must not start with a number; found "3
+
+
 call myprocedure 1.2:1
     [trapped] Incorrect expression detected at ":"
     [trapped] Code= 35.1
-Expected: Error <TODO>
+Expected: Error 35.1: Incorrect expression detected at ":"
 
 
 call myprocedure 1.2.3:1
@@ -1380,12 +1392,6 @@ call myprocedure 1, a2:2, a3:
     [trapped] Named argument: expected expression after colon
     [trapped] Code= 35.900
 Expected: Error 35.900:  Named argument: expected expression after colon
-
-
-call myprocedure 1, a2:2, 3
-    [trapped] Variable symbol must not start with a number; found "3"
-    [trapped] Code= 31.2
-Expected: Error 35.900:  Named argument: expected symbol followed by colon
 
 
 call myprocedure a1:1, a1:2 Error 35.900:  Named argument: the name "A1" is passed more than once

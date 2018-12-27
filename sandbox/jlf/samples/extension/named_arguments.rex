@@ -369,6 +369,10 @@ call interpret 'call myroutine , , 3, , a5:5,' -
 -- only assignable variable symbols are allowed
 call interpret 'call myprocedure .envSymbol:1' -
              , 'Error 31.003 Variable symbol must not start with a ''.''; found ''.envSymbol'''
+call interpret 'call myprocedure 3:1' -
+             , 'Error 31.2:  Variable symbol must not start with a number; found "3'
+call interpret 'call myprocedure 1, a2:2, 3' -
+             , 'Error 31.2:  Variable symbol must not start with a number; found "3'
 call interpret 'call myprocedure 1.2:1' -
              , 'Error 35.1: Incorrect expression detected at ":"'
 call interpret 'call myprocedure 1.2.3:1' -
@@ -377,8 +381,6 @@ call interpret 'call myprocedure 1.2.3:1' -
 -- call with named arguments
 call interpret 'call myprocedure 1, a2:2, a3:' -
              , 'Error 35.900:  Named argument: expected expression after colon'
-call interpret 'call myprocedure 1, a2:2, 3' -
-             , 'Error 31.2:  Variable symbol must not start with a number; found "3'
 call interpret 'call myprocedure a1:1, a1:2' -
                'Error 35.900:  Named argument: the name "A1" is passed more than once'
 call interpret 'call myprocedure a1:1, , a3:3' -
