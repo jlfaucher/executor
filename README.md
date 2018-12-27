@@ -17,6 +17,7 @@ Miscellaneous notes:
 - [Doc XML transformation][doc_transformation_diary]
 - [Railroad][railroad_diary]
 - [Internal notes][internal_notes]
+- [Instructions to build Executor from scratch][build_executor]
 
 Examples of extensions
 ----------------------
@@ -730,6 +731,7 @@ Same example with kestrels, to log intermediate results:
     -- return  6250000
 
 
+[build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [doc_musings_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/_diary.txt "DocMusings diary"
 [doc_transformation_diary]: https://github.com/jlfaucher/executor/blob/master/incubator/DocMusings/transformxml/_diary.txt "Doc XML transformations diary"
