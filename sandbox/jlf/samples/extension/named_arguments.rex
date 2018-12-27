@@ -370,7 +370,7 @@ call interpret 'call myroutine , , 3, , a5:5,' -
 call interpret 'call myprocedure .envSymbol:1' -
              , 'Error 31.003 Variable symbol must not start with a ''.''; found ''.envSymbol'''
 call interpret 'call myprocedure 3:1' -
-             , 'Error 31.2:  Variable symbol must not start with a number; found "3'
+             , 'Error 35.1:  Incorrect expression detected at ":"'
 call interpret 'call myprocedure 1, a2:2, 3' -
              , 'Error 31.2:  Variable symbol must not start with a number; found "3'
 call interpret 'call myprocedure 1.2:1' -
