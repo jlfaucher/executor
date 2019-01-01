@@ -1,0 +1,62 @@
+JLF:
+file generated with
+grep A_COUNT Setup.cpp > A_COUNT.txt
+
+This is the list of native method that take a list of arguments.
+They are declared with number of arguments = A_COUNT (arbitrary value 127)
+
+
+  defineKernelMethod(CHAR_NEW, TheClassClassBehaviour, CPPM(RexxClass::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_ENHANCED        ,TheClassBehaviour, CPPM(RexxClass::enhanced), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheObjectClassBehaviour, CPPM(RexxObject::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_START                  ,TheObjectBehaviour, CPPM(RexxObject::start), A_COUNT);
+  defineKernelMethod("SEND"                      ,TheObjectBehaviour, CPPM(RexxObject::send), A_COUNT);
+  definePrivateKernelMethod(CHAR_RUN             ,TheObjectBehaviour, CPPM(RexxObject::run), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheArrayClassBehaviour, CPPM(RexxArray::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_OF,  TheArrayClassBehaviour, CPPM(RexxArray::of), A_COUNT);
+  defineKernelMethod(CHAR_BRACKETS     ,TheArrayBehaviour, CPPM(RexxArray::getRexx), A_COUNT);
+  defineKernelMethod(CHAR_BRACKETSEQUAL,TheArrayBehaviour, CPPM(RexxArray::putRexx), A_COUNT);
+  defineKernelMethod(CHAR_AT           ,TheArrayBehaviour, CPPM(RexxArray::getRexx), A_COUNT);
+  defineKernelMethod(CHAR_HASINDEX     ,TheArrayBehaviour, CPPM(RexxArray::hasIndexRexx), A_COUNT);
+  defineKernelMethod(CHAR_PUT          ,TheArrayBehaviour, CPPM(RexxArray::putRexx), A_COUNT);
+  defineKernelMethod(CHAR_REMOVE       ,TheArrayBehaviour, CPPM(RexxArray::removeRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEXT         ,TheArrayBehaviour, CPPM(RexxArray::nextRexx), A_COUNT);
+  defineKernelMethod(CHAR_PREVIOUS     ,TheArrayBehaviour, CPPM(RexxArray::previousRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW           , TheDirectoryClassBehaviour, CPPM(RexxDirectory::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW           , TheListClassBehaviour, CPPM(RexxList::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_OF            , TheListClassBehaviour, CPPM(RexxList::classOf), A_COUNT);
+  defineKernelMethod(CHAR_NEW      , TheMessageClassBehaviour, CPPM(RexxMessage::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW     , TheMethodClassBehaviour, CPPM(RexxMethod::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW     , TheRoutineClassBehaviour, CPPM(RoutineClass::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_CALL         ,TheRoutineBehaviour, CPPM(RoutineClass::callRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW     , ThePackageClassBehaviour, CPPM(PackageClass::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW     ,TheRexxContextClassBehaviour, CPPM(RexxContext::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheQueueClassBehaviour, CPPM(RexxQueue::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_OF,  TheQueueClassBehaviour, CPPM(RexxQueue::ofRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW          , TheRelationClassBehaviour, CPPM(RexxRelation::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheStemClassBehaviour, CPPM(RexxStem::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_BRACKETS      ,TheStemBehaviour, CPPM(RexxStem::bracket), A_COUNT);
+  defineKernelMethod(CHAR_BRACKETSEQUAL ,TheStemBehaviour, CPPM(RexxStem::bracketEqual), A_COUNT);
+  defineKernelMethod(CHAR_AT            ,TheStemBehaviour, CPPM(RexxStem::bracket), A_COUNT);
+  defineKernelMethod(CHAR_PUT           ,TheStemBehaviour, CPPM(RexxStem::bracketEqual), A_COUNT);
+  defineKernelMethod(CHAR_HASINDEX      ,TheStemBehaviour, CPPM(RexxStem::hasIndex), A_COUNT);
+  defineKernelMethod(CHAR_REMOVE        ,TheStemBehaviour, CPPM(RexxStem::remove), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheStringClassBehaviour, CPPM(RexxString::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_ORXMAX                          ,TheStringBehaviour, CPPM(RexxString::Max), A_COUNT);
+  defineKernelMethod(CHAR_ORXMIN                          ,TheStringBehaviour, CPPM(RexxString::Min), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheMutableBufferClassBehaviour, CPPM(RexxMutableBufferClass::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheIntegerClassBehaviour, CPPM(RexxString::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_ORXMAX                          ,TheIntegerBehaviour, CPPM(RexxInteger::Max), A_COUNT);
+  defineKernelMethod(CHAR_ORXMIN                          ,TheIntegerBehaviour, CPPM(RexxInteger::Min), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheNumberStringClassBehaviour, CPPM(RexxString::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_ORXMAX                          ,TheNumberStringBehaviour, CPPM(RexxNumberString::Max), A_COUNT);
+  defineKernelMethod(CHAR_ORXMIN                          ,TheNumberStringBehaviour, CPPM(RexxNumberString::Min), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheSupplierClassBehaviour, CPPM(RexxSupplierClass::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW          , TheTableClassBehaviour, CPPM(RexxTable::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW          , TheIdentityTableClassBehaviour, CPPM(RexxIdentityTable::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, ThePointerClassBehaviour, CPPM(RexxPointer::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheBufferClassBehaviour, CPPM(RexxBuffer::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheWeakReferenceClassBehaviour, CPPM(WeakReference::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheStackFrameClassBehaviour, CPPM(StackFrameClass::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW     ,TheRexxBlockClassBehaviour, CPPM(RexxBlock::newRexx), A_COUNT);
+  defineKernelMethod(CHAR_NEW, TheRexxTextClassBehaviour, CPPM(RexxObject::newRexx), A_COUNT);
