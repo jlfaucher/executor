@@ -67,11 +67,14 @@
                                        /* Macro for argv[1] compares */
 #define CASE(x) if(!strcasecmp(x,argv[1]))
 
-#ifdef LINUX                   /*  AIX already defined               */
+#ifdef LINUX                           /*  AIX already defined               */
 #define SECOND_PARAMETER 1             /* different sign. Lin-AIX    */
-#define CATD_ERR -1
 #else
 #define SECOND_PARAMETER 0             /* 0 for no  NL_CAT_LOCALE    */
+#endif
+
+#ifndef CATD_ERR
+#define CATD_ERR ((nl_catd)-1)         /* Duplicate for AIX                 */
 #endif
 
 void parmerr(int );

@@ -83,9 +83,12 @@ typedef struct msgEntry {              /* define for error table entries    */
 #ifdef LINUX
 //#define SECOND_PARAMETER MCLoadAll   /* different sign. Lin-AIX           */
 #define SECOND_PARAMETER 1             /* different sign. Lin-AIX           */
-#define CATD_ERR -1                    /* Duplicate for AIX                 */
 #else
 #define SECOND_PARAMETER 0             /* 0 for no  NL_CAT_LOCALE           */
+#endif
+
+#ifndef CATD_ERR
+#define CATD_ERR ((nl_catd)-1)         /* Duplicate for AIX                 */
 #endif
 
 

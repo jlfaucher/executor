@@ -81,14 +81,12 @@
 #endif
 #endif
 
+#define psock_errno(s) fprintf(stderr, "RxSOCK Error: %s\n", s)
+
 #if defined(WIN32)                     // define errno equivalents for windows
    #define sock_errno() WSAGetLastError()
-   #define psock_errno(s) fprintf(stderr, "RxSOCK Error: %s\n", s)
-#endif
-
-#if defined(OPSYS_AIX) || defined(OPSYS_LINUX)
+#else
    #define sock_errno() errno
-   #define psock_errno(s) printf("\nSocket error %s\n",s)
 #endif
 
 /*------------------------------------------------------------------

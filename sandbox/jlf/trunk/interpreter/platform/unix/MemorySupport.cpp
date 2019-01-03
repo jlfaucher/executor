@@ -50,9 +50,7 @@
 #include "SystemInterpreter.hpp"
 
 #define MEMSIZE     4194304            /* memory pool                       */
-#ifdef LINUX
 #define PAGESIZE    4096               /* page size                         */
-#endif
 
 /*********************************************************************/
 /*                                                                   */
