@@ -52,6 +52,9 @@
 void SysLocalAPIManager::startServerProcess()
 {
     char apiExeName[] = "rxapi";
+    char *apiExeArg[2];
+    apiExeArg[0] = apiExeName;
+    apiExeArg[1] = NULL;
 
 	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
 		return;
@@ -71,14 +74,14 @@ void SysLocalAPIManager::startServerProcess()
 	setsid();
 
     // housekeeping - chdir to the root subdir and close all open files
-	chdir("/");
+	int ignore = chdir("/");
 	umask(0);
 	for(int i = 0; i < 1024; i++) {
 		close(i);
 	}
 
     // now start rxapi
-    if (execvp(apiExeName, NULL) == -1) {
+    if (execvp(apiExeName, apiExeArg) == -1) {
         throw new ServiceException(API_FAILURE, "Unable to start API server");
     }
 

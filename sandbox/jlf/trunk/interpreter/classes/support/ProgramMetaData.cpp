@@ -228,9 +228,10 @@ void ProgramMetaData::write(FILE *handle, RexxBuffer *program)
 RexxBuffer *ProgramMetaData::read(RexxString *fileName, FILE *handle)
 {
     bool badVersion = false;
+    size_t readSize;
 
     // now read the control info
-    fread((char *)this, 1, getHeaderSize(), handle);
+    readSize = fread((char *)this, 1, getHeaderSize(), handle);
     // validate all of the meta information
     if (!validate(badVersion))
     {
@@ -264,7 +265,7 @@ RexxBuffer *ProgramMetaData::read(RexxString *fileName, FILE *handle)
                 }
                 // ok, try to read the control information one more time.
                 // if this doesn't work, no point in being pushy about it.
-                fread((char *)this, 1, getHeaderSize(), handle);
+                readSize = fread((char *)this, 1, getHeaderSize(), handle);
                 // validate all of the meta information
                 if (!validate(badVersion))
                 {
@@ -280,6 +281,6 @@ RexxBuffer *ProgramMetaData::read(RexxString *fileName, FILE *handle)
         }
     }
     RexxBuffer *buffer = new_buffer(imageSize);
-    fread(buffer->getData(), 1, imageSize, handle);
+    readSize = fread(buffer->getData(), 1, imageSize, handle);
     return buffer;
 }

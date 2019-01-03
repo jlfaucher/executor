@@ -107,7 +107,10 @@ bool SysFileSystem::searchFileName(
     }
 
     /* there was no leading path so try the current directory */
-    getcwd(tempPath, MaximumFileNameBuffer);
+    if (getcwd(tempPath, MaximumFileNameBuffer) == NULL)
+    {
+        return false;
+    }
     strcat(tempPath, "/");
     strcat(tempPath, name);
     if (fileExists(name) == true)
@@ -635,7 +638,10 @@ bool SysFileSystem::canonicalizeName(char *name)
         char tempName[PATH_MAX + 2];
         // make a copy of the name
         strncpy(tempName, name, PATH_MAX + 1);
-        getcwd(name, PATH_MAX + 1);
+        if (getcwd(name, PATH_MAX + 1) == NULL)
+        {
+            return false;
+        }
         strncat(name, "/", PATH_MAX - strlen(name));
         strncat(name, tempName, PATH_MAX - strlen(name));
     }
