@@ -8,7 +8,7 @@
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
-/* Copyright (c) 2005-2009 Rexx Language Association. All rights reserved.    */
+/* Copyright (c) 2005-2018 Rexx Language Association. All rights reserved.    */
 /*                                                                            */
 /* This program and the accompanying materials are made available under       */
 /* the terms of the Common Public License v1.0 which accompanies this         */
@@ -43,13 +43,9 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 /******************************************************************************/
-/* REXX WIN 95 / NT support                                                   */
-/*                                                                            */
-/*                                                                            */
 /*             -- Message resource file for ooRexx interpreter                */
 /******************************************************************************/
 
-#include "RexxErrorCodes.h"
 STRINGTABLE
 BEGIN
 
@@ -63,14 +59,14 @@ BEGIN
 </xsl:text>
    <xsl:for-each select="Message | Message/Subcodes/SubMessage">
        <xsl:sort select="MessageNumber" data-type="number"/>
-<xsl:value-of select="SymbolicName"/><xsl:text>    </xsl:text>&quot;<xsl:apply-templates select="Text"/>&quot;
+<xsl:value-of select="Code"/> <xsl:value-of select="Subcode"/><xsl:text>    </xsl:text>&quot;<xsl:apply-templates select="Text"/>&quot;
    </xsl:for-each>
 <xsl:text>
 END
 
 1 VERSIONINFO
- FILEVERSION OOREXX_VER,OOREXX_REL,OOREXX_SUB,OOREXX_BLD
- PRODUCTVERSION OOREXX_VER,OOREXX_REL,OOREXX_SUB,OOREXX_BLD
+ FILEVERSION ORX_VER,ORX_REL,ORX_MOD,ORX_BLD
+ PRODUCTVERSION ORX_VER,ORX_REL,ORX_MOD,ORX_BLD
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -87,12 +83,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Rexx Language Association\0"
             VALUE "FileDescription", "Open Object Rexx Interpreter (main)\0"
-            VALUE "FileVersion", OOREXX_VER_STR "\0"
+            VALUE "FileVersion", ORX_VER_STR "\0"
             VALUE "InternalName", "REXX\0"
             VALUE "LegalCopyright", "Copyright © RexxLA " OOREXX_COPY_YEAR ".\0"
             VALUE "OriginalFilename", "REXX.DLL\0"
             VALUE "ProductName", "Open Object Rexx for Windows\0"
-            VALUE "ProductVersion",  OOREXX_VER_STR "\0"
+            VALUE "ProductVersion",  ORX_VER_STR "\0"
         END
     END
     BLOCK "VarFileInfo"

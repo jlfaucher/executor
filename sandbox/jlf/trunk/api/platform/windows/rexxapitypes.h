@@ -41,6 +41,10 @@
 #include "windows.h"
 #include "limits.h"
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 typedef SSIZE_T   ssize_t;
 typedef INT_PTR   intptr_t;
 typedef UINT_PTR  uintptr_t;
@@ -97,6 +101,7 @@ typedef DWORD thread_id_t;
 typedef DWORD process_id_t;
 
 #define REXXENTRY APIENTRY
+#define REXXEXPORT __declspec(dllexport)
 
 #ifdef __cplusplus
 extern "C" {
