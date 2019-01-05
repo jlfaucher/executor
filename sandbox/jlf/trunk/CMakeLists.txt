@@ -1031,6 +1031,7 @@ install(PROGRAMS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rexx.img COMPONENT Core DESTI
 if (WIN32)
    set (platform_rxapi_sources
             ${build_rexxapi_server_platform_dir}/APIService.cpp
+            ${build_rexxapi_common_platform_dir}/SysCSStream.cpp                                    # executor, I think I need it
 #            ${build_rexxapi_common_platform_dir}/SysCSNamedPipeStream.cpp                          # official only
             ${build_rexxapi_server_platform_dir}/rxapi.rc
             ${build_rexxapi_server_platform_dir}/rxapi.ico)
@@ -1392,13 +1393,10 @@ endif ()
 #################### orexxole.dll ################
 if (WIN32)
 # Sources for orexxole.dll
-add_library(orexxole SHARED
-#            ${build_extensions_ole_dir}/orexxole.cpp                                               # official only (renamed)
-            ${build_extensions_ole_dir}/orexxole.c
-#             ${build_extensions_ole_dir}/OLEVariant.cpp                                            # official only (renamed)
-             ${build_extensions_ole_dir}/OLEVariant.c                                               # executor
-             ${build_extensions_ole_dir}/events.cpp
-             ${build_extensions_ole_dir}/orexxole.def
+add_library(orexxole SHARED ${build_extensions_ole_dir}/orexxole.cpp
+            ${build_extensions_ole_dir}/OLEVariant.cpp
+            ${build_extensions_ole_dir}/events.cpp
+            ${build_extensions_ole_dir}/orexxole.def
             ${build_platform_dir}/verinfo.rc)
 # Include file definition
 target_include_directories(orexxole PUBLIC
@@ -1983,8 +1981,8 @@ endif ()
    install(FILES ${DOC_SOURCE_DIR}/rxsock.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
    install(FILES ${DOC_SOURCE_DIR}/rxftp.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
 #   install(FILES ${DOC_SOURCE_DIR}/oodialog.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})                                             # oodialog not included in Executor
-   install(FILES ${build_extensions_oodialog_dir}/ooDialog_ReleaseNotes.txt COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
-   install(FILES ${DOC_SOURCE_DIR}/oodguide.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
+#   install(FILES ${build_extensions_oodialog_dir}/ooDialog_ReleaseNotes.txt COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})                 # oodialog not included in Executor
+#   install(FILES ${DOC_SOURCE_DIR}/oodguide.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})                                             # oodialog not included in Executor
    install(FILES ${DOC_SOURCE_DIR}/rexxextensions.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
    install(FILES ${DOC_SOURCE_DIR}/winextensions.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})
 #   install(FILES ${SAMPLES_SOURCE}/windows/oodialog/ooRexxTry/doc/ooRexxTry.pdf COMPONENT Docs DESTINATION ${INSTALL_DOC_DIR})             # oodialog samples not included in Executor

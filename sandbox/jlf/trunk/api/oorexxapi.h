@@ -231,7 +231,7 @@ typedef struct _RexxMethodEntry
 
 #define OOREXX_GET_PACKAGE(name) \
     BEGIN_EXTERN_C()\
-    RexxPackageEntry *RexxEntry RexxGetPackage(void) { return &name##_package_entry; }\
+    REXXEXPORT RexxPackageEntry *RexxGetPackage(void) { return &name##_package_entry; }\
     END_EXTERN_C()
 
 
