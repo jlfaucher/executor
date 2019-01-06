@@ -4599,23 +4599,16 @@ RexxArray *RexxActivation::getStackFrames(bool skipFirst)
 void RexxActivation::setArguments(RexxArray *positionalArguments, RexxDirectory *namedArguments)
 {
     size_t count = positionalArguments->size(); // count of positional arguments
-    this->arguments = (RexxArray *)positionalArguments->copy(); // Protect against GC as long as the activation exists and uses it
-    this->arglist = this->arguments->data();
+    RexxArray *arguments = (RexxArray *)positionalArguments->copy();
+    ProtectedObject p(arguments);
+    size_t namedCountIndex = arguments->append(IntegerZero); // Placeholder of the count of named arguments
+    if (namedArguments != OREF_NULL && namedArguments != TheNilObject)
+    {
+        size_t namedCount = namedArguments->appendAllIndexesItemsTo(arguments);
+        arguments->put(new_integer(namedCount), namedCountIndex);
+    }
+    this->arglist = arguments->data();
     this->argcount = count; // yes, only the count of positional arguments.
-    if (this->arglist != OREF_NULL)
-    {
-        size_t named_argcount = 0;
-        this->arglist[this->argcount]->unsignedNumberValue(named_argcount);
-        for (size_t i = this->argcount; i < this->argcount + 1 + (2 * named_argcount); i++)
-        {
-            RexxObject *item = this->arglist[i];
-            arguments->append(item);
-        }
-    }
-    else
-    {
-        // No named arguments, must append count=0
-        arguments->append(IntegerZero);
-    }
+    this->arguments = arguments; // Protect against GC as long as the activation exists and uses it
 }
 

@@ -281,11 +281,16 @@ RexxObject *RexxContext::setArgs(RexxObject *positionalArguments, RexxString *na
     RexxArray *positionalArgumentsArray = arrayArgument(positionalArguments, OREF_positional, ARG_ONE);
     ProtectedObject p1(positionalArgumentsArray);
 
+    // use strict named arg namedArguments=.NIL
+    NamedArguments namedArguments(1); // At most, one named argument
+    namedArguments[0] = NamedArgument("NAMEDARGUMENTS", 1, TheNilObject); // At least 1 characters, default value = .NIL
+    namedArgument(namedArgumentsName, namedArgumentsValue, namedArguments, true); // Strict, will raise an error if no match
+
     ProtectedObject p2;
-    RexxDirectory *namedArgumentsDirectory = OREF_NULL;
-    if (namedArgumentsValue != OREF_NULL && namedArgumentsValue != TheNilObject)
+    RexxDirectory *namedArgumentsDirectory = (RexxDirectory *)namedArguments[0].value;
+    if (namedArgumentsDirectory != TheNilObject)
     {
-        namedArgumentsDirectory = namedArgumentsValue->requestDirectory();
+        namedArgumentsDirectory = namedArgumentsDirectory->requestDirectory();
         p2 = namedArgumentsDirectory;
         if (namedArgumentsDirectory == TheNilObject)
         {
