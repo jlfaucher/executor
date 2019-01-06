@@ -48,7 +48,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dispex.h>
-#include <agtctl_i.c> /* include to get the ID of ControlAgent events */
+// no more required for MSVC 2015/2017
+// #include <agtctl_i.c> /* include to get the ID of ControlAgent events */
 
 #include "oorexxapi.h"
 #include "events.h"
