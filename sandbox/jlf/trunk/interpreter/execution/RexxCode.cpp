@@ -112,7 +112,7 @@ void RexxCode::call(
     RexxActivation *newacta = ActivityManager::newActivation(activity, routine, this, calltype, environment, context);
     activity->pushStackFrame(newacta);
                 /* run the method and return result  */
-    newacta->run(OREF_NULL, msgname, argPtr, argcount, OREF_NULL, result);
+    newacta->run(OREF_NULL, msgname, OREF_NULL, argPtr, argcount, OREF_NULL, result);
 }
 
 
@@ -132,7 +132,7 @@ void RexxCode::run(
                                        /* add to the activity stack         */
     activity->pushStackFrame(newacta);
                                        /* run the method and return result  */
-    newacta->run(receiver, msgname, argPtr, argcount, OREF_NULL, result);
+    newacta->run(receiver, msgname, OREF_NULL, argPtr, argcount, OREF_NULL, result);
     activity->relinquish();            /* yield control now */
 }
 

@@ -422,11 +422,11 @@ RexxObject * RexxActivation::dispatch()
 {
     ProtectedObject r;
                                        /* go run this                       */
-    return this->run(receiver, settings.msgname, arglist, argcount, OREF_NULL, r);
+    return this->run(receiver, settings.msgname, arguments, arglist, argcount, OREF_NULL, r);
 }
 
 
-RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,
+RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, RexxArray *_arguments, RexxObject **_arglist,
      size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj)
 /******************************************************************************/
 /* Function:  Run a REXX method...this is it!  This is the heart of the       */
@@ -457,6 +457,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
             /* remember that we have sys exits   */
             this->settings.flags |= clause_exits;
         }
+        this->arguments = _arguments; // Protect arglist against GC
         this->arglist = _arglist;           /* set the argument list             */
         this->argcount = _argcount;
 
@@ -476,6 +477,7 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
             /* save entry argument list for      */
             /* variable pool fetch private       */
             /* access                            */
+            settings.parent_arguments = _arguments;
             settings.parent_arglist = arglist;
             settings.parent_argcount = argcount;
             this->code->install(this);       /* do any required installations     */
@@ -659,7 +661,9 @@ RexxObject * RexxActivation::run(RexxObject *_receiver, RexxString *msgname, Rex
                         RexxObject **newArguments = activity->allocateFrame(argcount + 1 + (2 * namedArgcount));
                         memcpy(newArguments, arglist, sizeof(RexxObject *) * (argcount + 1 + (2 * namedArgcount)));
                         this->arglist = newArguments;  /* must be set on "this"  */
+                        this->arguments = OREF_NULL; // no need of protection against GC, the newArguments are not shared
                         settings.parent_arglist = newArguments;
+                        settings.parent_arguments = OREF_NULL;
                     }
                 }
                 /* return our stack frame space back to the old activity. */
@@ -1045,6 +1049,7 @@ void RexxActivation::live(size_t liveMark)
         }
     }
 
+    memory_mark(settings.parent_arguments); // arguments can be user-redefined (ex : yield), must be marked
     if (settings.parent_arglist != OREF_NULL)
     {
         size_t parent_namedArgcount = 0;
@@ -1107,6 +1112,7 @@ void RexxActivation::liveGeneral(int reason)
         }
     }
 
+    memory_mark_general(settings.parent_arguments); // arguments can be user-redefined (ex : yield), must be marked
     if (settings.parent_arglist != OREF_NULL)
     {
         size_t parent_namedArgcount = 0;
@@ -2493,7 +2499,7 @@ void RexxActivation::interpret(RexxString * codestring)
     ProtectedObject r;
     /* run the internal routine on the   */
     /* new activation                    */
-    newActivation->run(OREF_NULL, OREF_NULL, arglist, argcount, OREF_NULL, r);
+    newActivation->run(OREF_NULL, OREF_NULL, arguments, arglist, argcount, OREF_NULL, r);
 }
 
 
@@ -2514,7 +2520,7 @@ void RexxActivation::debugInterpret(   /* interpret interactive debug input */
         ProtectedObject r;
                                              /* run the internal routine on the   */
                                              /* new activation                    */
-        newActivation->run(receiver, settings.msgname, arglist, argcount, OREF_NULL, r);
+        newActivation->run(receiver, settings.msgname, arguments, arglist, argcount, OREF_NULL, r);
         // turn this off when done executing
         this->debug_pause = false;
     }
@@ -3024,7 +3030,7 @@ RexxObject * RexxActivation::internalCall(RexxString *name, RexxInstruction *tar
     this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
     /* run the internal routine on the   */
     /* new activation                    */
-    return newActivation->run(receiver, name, _arguments, _argcount, target, returnObject);
+    return newActivation->run(receiver, name, OREF_NULL, _arguments, _argcount, target, returnObject);
 }
 
 /**
@@ -3053,7 +3059,7 @@ RexxObject * RexxActivation::internalCallTrap(RexxString *name, RexxInstruction 
     this->activity->pushStackFrame(newActivation); /* push on the activity stack        */
     /* run the internal routine on the   */
     /* new activation                    */
-    return newActivation->run(OREF_NULL, name, NULL, 0, target, resultObj);
+    return newActivation->run(OREF_NULL, name, OREF_NULL, NULL, 0, target, resultObj);
 }
 
 

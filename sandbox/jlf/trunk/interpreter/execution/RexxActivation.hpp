@@ -103,6 +103,7 @@ class ActivationSettings
 
       RexxDirectory * traps;               /* enabled condition traps           */
       RexxDirectory * conditionObj;        /* current condition object          */
+      RexxArray     * parent_arguments;    /* protect parent_arglist against GC */
       RexxObject   ** parent_arglist;      /* arguments to top level program    */
       size_t          parent_argcount;     /* number of positional arguments to the top level program */
       RexxMethod    * parent_method;       /* method object for top level       */
@@ -211,12 +212,38 @@ class ActivationSettings
    inline bool isProgramOrMethod() { return (activation_context & PROGRAM_OR_METHOD) != 0; }
    inline bool isMethodOrRoutine() { return isMethod() || isRoutine(); }
 
-   RexxObject *run(RexxObject *_receiver, RexxString *msgname, RexxObject **_arglist,
+   /*
+   In the next 2 declarations, the parameter 'RexxArray *_arguments' is not existing in official ooRexx.
+   Needed for Executor because of RexxContext::setArgs which allows to redefine the arguments of an activation during its execution
+   (this is a new functionality for the coactivities).
+   The following ooRexx code, when run from ooRexxShell, makes the interpreter crash during a GC:
+       do 1000000; .context~setargs(.array~new, namedarguments:.nil); end
+   Reason:
+   This code is executed by an interpret instruction.
+        #0	0x000000010031e564 in RexxContext::setArgs(RexxObject*, RexxString*, RexxObject*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/ContextClass.cpp:301
+        #1	0x000000010038c36c in CPPCode::run(RexxActivity*, RexxMethod*, RexxObject*, RexxString*, RexxObject**, unsigned long, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/CPPCode.cpp:240
+        #2	0x000000010032a96d in RexxMethod::run(RexxActivity*, RexxObject*, RexxString*, RexxObject**, unsigned long, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/MethodClass.cpp:324
+        #3	0x000000010033fa0a in RexxObject::messageSend(RexxString*, RexxObject**, unsigned long, ProtectedObject&, bool) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/classes/ObjectClass.cpp:810
+        #4	0x00000001003dffc8 in RexxExpressionStack::send(RexxString*, unsigned long, unsigned long, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/expression/ExpressionStack.hpp:69
+        #5	0x00000001003ef191 in RexxInstructionMessage::execute(RexxActivation*, RexxExpressionStack*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/instructions/MessageInstruction.cpp:248
+        #6	0x000000010038fd3f in RexxActivation::run(RexxObject*, RexxString*, RexxObject**, unsigned long, RexxInstruction*, ProtectedObject&) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:595
+        #7	0x00000001003951f6 in RexxActivation::interpret(RexxString*) at /local/rexx/oorexx/executor/sandbox/jlf/trunk/interpreter/execution/RexxActivation.cpp:2496
+   In frame #7, a new activation is created for the interpret, which is executed with the arguments of the parent activation:
+       newActivation->run(OREF_NULL, OREF_NULL, arglist, argcount, OREF_NULL, r);
+   The arglist of the parent activation is stored on the new activation in frame #6.
+   In frame #0, the arguments of the parent activation are replaced by new arguments.
+   At this moment, the arglist stored on the new activation is no longer protected against GC.
+   By passing the parent activity's array of arguments in the parameter 'RexxArray *arguments',
+   it's possible to store this array on the new activation, which protects its arglist against GC
+   even when the parent activity's array of arguments is replaced by a new array.
+   */
+   RexxObject *run(RexxObject *_receiver, RexxString *msgname, RexxArray *_arguments, RexxObject **_arglist,
        size_t _argcount, RexxInstruction * start, ProtectedObject &resultObj);
-   inline     RexxObject *run(RexxObject **_arglist, size_t _argcount, ProtectedObject &_result)
+   inline     RexxObject *run(RexxArray *_arguments, RexxObject **_arglist, size_t _argcount, ProtectedObject &_result)
    {
-       return run(OREF_NULL, OREF_NULL, _arglist, _argcount, OREF_NULL, _result);
+       return run(OREF_NULL, OREF_NULL, _arguments, _arglist, _argcount, OREF_NULL, _result);
    }
+
    void              reply(RexxObject *);
    RexxObject      * forward(RexxObject *, RexxString *, RexxObject *, RexxObject **, size_t, bool);
    void              returnFrom(RexxObject *result);
