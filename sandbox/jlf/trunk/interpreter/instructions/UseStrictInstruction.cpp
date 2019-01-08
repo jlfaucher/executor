@@ -462,7 +462,7 @@ bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expected
         }
     }
     // The name did not match an expected argument name
-    if (strict) reportException(Error_Invalid_argument_general, OREF_positional, name, "is not an expected argument name");
+    if (strict) reportException(Error_Invalid_argument_general, OREF_named, name, "is not an expected argument name");
     return false;
 }
 

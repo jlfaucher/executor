@@ -1623,58 +1623,58 @@ $ Error_Invalid_argument_noarg
 672 Missing argument; &1 argument &2 is required
 
 $ Error_Invalid_argument_number
-673 &1 Argument &2 must be a number; found "&3"
+673 &1 argument &2 must be a number; found "&3"
 
 $ Error_Invalid_argument_whole
-674 &1 Argument &2 must be a whole number; found "&3"
+674 &1 argument &2 must be a whole number; found "&3"
 
 $ Error_Invalid_argument_nonnegative
-675 &1 Argument &2 must be zero or a positive whole number; found "&3"
+675 &1 argument &2 must be zero or a positive whole number; found "&3"
 
 $ Error_Invalid_argument_positive
-676 &1 Argument &2 must be a positive whole number; found "&3"
+676 &1 argument &2 must be a positive whole number; found "&3"
 
 $ Error_Invalid_argument_toobig
-677 &1 Argument &2 must not exceed &3; found "&4"
+677 &1 argument &2 must not exceed &3; found "&4"
 
 $ Error_Invalid_argument_range
-678 &1 Argument &2 must be in the range &3 to &4; found "&5"
+678 &1 argument &2 must be in the range &3 to &4; found "&5"
 
 $ Error_Invalid_argument_null
-679 &1 Argument &2 must not be a null string
+679 &1 argument &2 must not be a null string
 
 $ Error_Invalid_argument_string
-680 &1 Argument &2 must have a string value
+680 &1 argument &2 must have a string value
 
 $ Error_Invalid_argument_pad
-681 &1 Argument &2 is an incorrect pad or character argument; found "&3"
+681 &1 argument &2 is an incorrect pad or character argument; found "&3"
 
 $ Error_Invalid_argument_length
-682 &1 Argument &2 is an incorrect length argument; found "&3"
+682 &1 argument &2 is an incorrect length argument; found "&3"
 
 $ Error_Invalid_argument_position
-683 &1 Argument &2 is an incorrect position argument; found "&3"
+683 &1 argument &2 is an incorrect position argument; found "&3"
 
 $ Error_Invalid_argument_noarray
-684 &1 Argument &2 must have a single-dimensional array value; found "&3"
+684 &1 argument &2 must have a single-dimensional array value; found "&3"
 
 $ Error_Invalid_argument_noclass
-685 &1 Argument &2 must be of the &3 class
+685 &1 argument &2 must be of the &3 class
 
 $ Error_Invalid_argument_argType
-686 &1 Argument &2 could not be converted to type &3
+686 &1 argument &2 could not be converted to type &3
 
 $ Error_Invalid_argument_list
-687 &1 Argument &2 must be one of &3; found "&4"
+687 &1 argument &2 must be one of &3; found "&4"
 
 $ Error_Invalid_argument_general
-688 &1 Argument &2 &3
+688 &1 argument &2 &3
 
 $ Error_Translation_duplicate_attribute
 689 Duplicate ::ATTRIBUTE directive instruction
 
 $ Error_Invalid_argument_format
-690 &1 Argument &2 is not in a valid format; found "&3"
+690 &1 argument &2 is not in a valid format; found "&3"
 
 $ Error_Unsupported_new_method
 691 NEW method is not supported for the &1 class
@@ -1707,19 +1707,19 @@ $ Error_Incorrect_method_signature
 701 Invalid native method signature specification
 
 $ Error_Incorrect_call_nostem
-702 &1 Argument &2 must have a stem object or stem name value; found "&3"
+702 &1 argument &2 must have a stem object or stem name value; found "&3"
 
 $ Error_Incorrect_method_nostem
 703 Method &1 argument &2 must have a stem object value; found "&3"
 
 $ Error_Invalid_argument_pointer
-704 &1 Argument &2 is not in valid pointer format; found "&3"
+704 &1 argument &2 is not in valid pointer format; found "&3"
 
 $ Error_Invalid_argument_nostem
-705 &1 Argument &2 must have a stem object or stem name value; found "&3"
+705 &1 argument &2 must have a stem object or stem name value; found "&3"
 
 $ Error_Invalid_argument_double
-706 &1 Argument &2 must be a valid double value; found "&3"
+706 &1 argument &2 must be a valid double value; found "&3"
 
 $ Error_Invalid_argument_maxarg
 707 Too many &1 arguments in invocation; &2 expected
