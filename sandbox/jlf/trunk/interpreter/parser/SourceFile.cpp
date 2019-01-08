@@ -5468,7 +5468,7 @@ void RexxSource::argList(
             if (namedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Invalid_expression_user_defined,
                                                                                    token->value->concatToCstring("Named argument: The name \"")->concatWithCstring("\" is passed more than once"));
             namedArglist->push(token->value);       /* add argument name to list */
-            this->pushTerm(subexpr); // For a proper stack size, must count also the named parameters
+            this->pushTerm(token->value); // For a proper stack size, must count also the named parameters
 
             token = nextReal();
             if (token->classId != TOKEN_COLON) syntaxError(Error_Invalid_expression_user_defined,
