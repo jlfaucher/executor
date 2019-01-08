@@ -1253,6 +1253,88 @@ r = .myclass~sendWith("mymethod", (1, {}), namedArguments:.directory~of(a2:2, a3
 
 
 ********************************************************************************
+*                             Change the arguments                             *
+********************************************************************************
+
+Initial arguments
+    positional count=0 size=0
+    named count=0
+INTERPRET call sayArg .context
+    positional count=0 size=0
+    named count=0
+
+.context~setArgs(.array~of(1,2))
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=0
+INTERPRET call sayArg .context
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=0
+use arg a1, a2; say "a1="a1 "a2="a2
+a1=1 a2=2
+INTERPRET say "a1="arg(1) "a2="arg(2)
+a1=1 a2=2
+
+.context~setArgs(.array~of(1,2), namedArguments:.directory~of(n1:1, n2:2))
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=2
+        N1 : 1
+        N2 : 2
+INTERPRET call sayArg .context
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=2
+        N1 : 1
+        N2 : 2
+use arg a1, a2; say "a1="a1 "a2="a2
+a1=1 a2=2
+INTERPRET say "a1="arg(1) "a2="arg(2)
+a1=1 a2=2
+use named arg n1, n2; say "n1="n1 "n2="n2
+n1=1 n2=2
+
+
+.myclass~reply(.array~of(1, 2), namedArguments:.directory~of(n1:1, n2:2))
+    On entry in the method
+    positional count=1 size=1
+        1 : an Array
+    named count=1
+        NAMEDARGUMENTS : a Directory
+
+    After setArgs
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=2
+        N1 : 1
+        N2 : 2
+
+
+    On entry in the thread (migrated arguments)
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=2
+        N1 : 1
+        N2 : 2
+    After setArgs in thread
+    positional count=3 size=3
+        1 : 1
+        2 : 2
+        3 : 3
+    named count=3
+        N1 : 1
+        N2 : 2
+        N3 : 3
+
+
+********************************************************************************
 *                                 Call a block                                 *
 ********************************************************************************
 
@@ -1367,7 +1449,7 @@ Expected: Error 31.003 Variable symbol must not start with a '.'; found '.envSym
 call myprocedure 3:1
     [trapped] Incorrect expression detected at ":"
     [trapped] Code= 35.1
-Expected: Error 31.2:  Variable symbol must not start with a number; found "3
+Expected: Error 35.1:  Incorrect expression detected at ":"
 
 
 call myprocedure 1, a2:2, 3
@@ -1418,9 +1500,9 @@ Expected: Error 93.903: Missing argument in method; argument 2 is required
 
 
 r = .myclass~sendWith("mymethod", .object /* not an array */, namedArguments:.directory~of(a3:3))
-    [trapped] positional Argument 2 must have a single-dimensional array value; found "The Object class"
+    [trapped] positional argument 2 must have a single-dimensional array value; found "The Object class"
     [trapped] Code= 88.913
-Expected: Error 98.913: Unable to convert object "The Object class" to a single-dimensional array value
+Expected: Error 88.913: positional argument 2 must have a single-dimensional array value; found "The Object class"
 
 
 r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a directory")
@@ -1500,7 +1582,7 @@ call useStrictZeroNamed a1:1
     use strict named arg
     [trapped] Too many positional arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
     [trapped] Code= 40.4
-Expected: Error 40.4:  Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
+Expected: Error 40.4: Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
 
 
 call useStrictOneNamed_NoDefault
@@ -1509,7 +1591,7 @@ call useStrictOneNamed_NoDefault
     use strict named arg a1
     [trapped] Not enough positional arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
     [trapped] Code= 40.3
-Expected: Error 40.3:  Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
+Expected: Error 40.3: Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1
 
 
 call useStrictOneNamed_NoDefault b1:1
@@ -1517,9 +1599,9 @@ call useStrictOneNamed_NoDefault b1:1
     named count=1
         B1 : 1
     use strict named arg a1
-    [trapped] positional Argument B1 is not an expected argument name
+    [trapped] named argument B1 is not an expected argument name
     [trapped] Code= 88.917
-Expected: Error 88.917:  Argument B1 is not an expected argument name
+Expected: Error 88.917: named argument B1 is not an expected argument name
 
 
 call useStrictOneNamed_NoDefault b1:1, b2:2
@@ -1530,7 +1612,7 @@ call useStrictOneNamed_NoDefault b1:1, b2:2
     use strict named arg a1
     [trapped] Too many positional arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
     [trapped] Code= 40.4
-Expected: Error 40.4:  Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
+Expected: Error 40.4: Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
 
 
 call useStrictOneNamed_WithDefault b2:2
@@ -1538,9 +1620,9 @@ call useStrictOneNamed_WithDefault b2:2
     named count=1
         B2 : 2
     use strict named arg a1=1
-    [trapped] positional Argument B2 is not an expected argument name
+    [trapped] named argument B2 is not an expected argument name
     [trapped] Code= 88.917
-Expected: Error 88.917:  Argument B2 is not an expected argument name
+Expected: Error 88.917: named argument B2 is not an expected argument name
 
 
 call useStrictOneNamed_WithDefaultExpression b2:2
@@ -1548,14 +1630,56 @@ call useStrictOneNamed_WithDefaultExpression b2:2
     named count=1
         B2 : 2
     use strict named arg a1=(1+0)
-    [trapped] positional Argument B2 is not an expected argument name
+    [trapped] named argument B2 is not an expected argument name
     [trapped] Code= 88.917
-Expected: Error 88.917:  Argument B2 is not an expected argument name
+Expected: Error 88.917: named argument B2 is not an expected argument name
 
 
 call useStrictAutoNamed_WithoutEllipse
     [trapped] STRICT AUTO requires the "..." argument marker at the end of the argument list
     [trapped] Code= 99.900
 Expected: Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
+
+
+.context~setArgs
+    [trapped] Missing positional argument in method; argument 1 is required
+    [trapped] Code= 93.903
+Expected: Error 93.903: Missing positional argument in method; argument 1 is required
+
+
+.context~setArgs(.nil)
+    [trapped] positional argument 1 must have a single-dimensional array value; found "The NIL object"
+    [trapped] Code= 88.913
+Expected: Error 88.913: positional argument 1 must have a single-dimensional array value; found "The NIL object"
+
+
+.context~setArgs(,)
+    [trapped] Too many positional arguments in invocation of method; 1 expected
+    [trapped] Code= 93.902
+Expected: Error 93.902: Too many positional arguments in invocation of method; 1 expected
+
+
+.context~setArgs(,,)
+    [trapped] Too many positional arguments in invocation of method; 1 expected
+    [trapped] Code= 93.902
+Expected: Error 93.902: Too many positional arguments in invocation of method; 1 expected
+
+
+.context~setArgs(.array~of(1), .directory~of(n1:1))
+    [trapped] Too many positional arguments in invocation of method; 1 expected
+    [trapped] Code= 93.902
+Expected: Error 93.902: Too many positional arguments in invocation of method; 1 expected
+
+
+.context~setArgs(.array~of(1), namedArguments:"not a directory")
+    [trapped] SETARGS namedArguments must be a directory or NIL
+    [trapped] Code= 98.900
+Expected: Error 98.900: SETARGS namedArguments must be a directory or NIL
+
+
+.context~setArgs(.array~of(1), NOT_namedArguments:.directory~of(n1:1))
+    [trapped] named argument NOT_NAMEDARGUMENTS is not an expected argument name
+    [trapped] Code= 88.917
+Expected: Error 88.917: named argument NOT_NAMEDARGUMENTS is not an expected argument name
 
 

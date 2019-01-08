@@ -319,9 +319,43 @@ call interpret 'r = .myclass~sendWith("mymethod", (1, {}), namedArguments:.direc
 -- todo...
 
 ---------------------
--- Context~namedArgs=
+-- Context~setArgs
 ---------------------
--- todo...
+call title "Change the arguments"
+say "Initial arguments"
+call sayArg .context
+say interpret 'call sayArg .context'
+interpret 'call sayArg .context'
+
+say
+say '.context~setArgs(.array~of(1,2))'
+.context~setArgs(.array~of(1,2))
+call sayArg .context
+say interpret 'call sayArg .context'
+interpret 'call sayArg .context'
+say 'use arg a1, a2; say "a1="a1 "a2="a2'
+use arg a1, a2; say "a1="a1 "a2="a2
+say interpret 'say "a1="arg(1) "a2="arg(2)'
+interpret 'say "a1="arg(1) "a2="arg(2)'
+
+say
+say '.context~setArgs(.array~of(1,2), namedArguments:.directory~of(n1:1, n2:2))'
+.context~setArgs(.array~of(1,2), namedArguments:.directory~of(n1:1, n2:2))
+call sayArg .context
+say interpret 'call sayArg .context'
+interpret 'call sayArg .context'
+say 'use arg a1, a2; say "a1="a1 "a2="a2'
+use arg a1, a2; say "a1="a1 "a2="a2
+say interpret 'say "a1="arg(1) "a2="arg(2)'
+interpret 'say "a1="arg(1) "a2="arg(2)'
+say 'use named arg n1, n2; say "n1="n1 "n2="n2'
+use arg n1, n2; say "n1="n1 "n2="n2
+say
+say
+
+-- When creating a thread, the arguments are migrated to the thread. Check that it works as expected after using setArgs
+call interpret '.myclass~reply(.array~of(1, 2), namedArguments:.directory~of(n1:1, n2:2))'
+call SysSleep 1 -- wait one second to be sure that the messages after reply are displayed before continuing
 
 ---------------------------
 -- StackFrame~nameArguments
@@ -392,7 +426,7 @@ call interpret 'call myprocedure instance~method:1' -
 call interpret 'r = .myclass~sendWith("mymethod")' -
              , 'Error 93.903: Missing argument in method; argument 2 is required'
 call interpret 'r = .myclass~sendWith("mymethod", .object /* not an array */, namedArguments:.directory~of(a3:3))' -
-             , 'Error 98.913: Unable to convert object "The Object class" to a single-dimensional array value'
+             , 'Error 88.913: positional argument 2 must have a single-dimensional array value; found "The Object class"'
 call interpret 'r = .myclass~sendWith("mymethod", (1, 2), namedArguments: "not a directory")' -
              , 'Error 98.900: sendWith: The value of NAMEDARGUMENTS must be a directory or NIL'
 
@@ -428,19 +462,36 @@ call interpret 'call useNamed_SkippedArgumentNotAllowed' -
 
 -- Instruction 'use'
 call interpret 'call useStrictZeroNamed a1:1' -
-             , 'Error 40.4:  Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0'
+             , 'Error 40.4: Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0'
 call interpret 'call useStrictOneNamed_NoDefault' -
-             , 'Error 40.3:  Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1'
+             , 'Error 40.3: Not enough named arguments in invocation of USESTRICTONENAMED_NODEFAULT; minimum expected is 1'
 call interpret 'call useStrictOneNamed_NoDefault b1:1' -
-             , 'Error 88.917:  Argument B1 is not an expected argument name'
+             , 'Error 88.917: named argument B1 is not an expected argument name'
 call interpret 'call useStrictOneNamed_NoDefault b1:1, b2:2' -
-             , 'Error 40.4:  Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1'
+             , 'Error 40.4: Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1'
 call interpret 'call useStrictOneNamed_WithDefault b2:2' -
-             , 'Error 88.917:  Argument B2 is not an expected argument name'
+             , 'Error 88.917: named argument B2 is not an expected argument name'
 call interpret 'call useStrictOneNamed_WithDefaultExpression b2:2' -
-             , 'Error 88.917:  Argument B2 is not an expected argument name'
+             , 'Error 88.917: named argument B2 is not an expected argument name'
 call interpret 'call useStrictAutoNamed_WithoutEllipse' -
              , 'Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list'
+
+-- Change arguments
+call interpret '.context~setArgs' -
+             , 'Error 93.903: Missing positional argument in method; argument 1 is required'
+call interpret '.context~setArgs(.nil)' -
+             , 'Error 88.913: positional argument 1 must have a single-dimensional array value; found "The NIL object"'
+call interpret '.context~setArgs(,)' -
+             , 'Error 93.902: Too many positional arguments in invocation of method; 1 expected'
+call interpret '.context~setArgs(,,)' -
+             , 'Error 93.902: Too many positional arguments in invocation of method; 1 expected'
+call interpret '.context~setArgs(.array~of(1), .directory~of(n1:1))' -
+             , 'Error 93.902: Too many positional arguments in invocation of method; 1 expected'
+call interpret '.context~setArgs(.array~of(1), namedArguments:"not a directory")' -
+             , 'Error 98.900: SETARGS namedArguments must be a directory or NIL'
+call interpret '.context~setArgs(.array~of(1), NOT_namedArguments:.directory~of(n1:1))' -
+             , 'Error 88.917: named argument NOT_NAMEDARGUMENTS is not an expected argument name'
+
 return
 
 --------------------------------------------------------------------------------
@@ -685,6 +736,32 @@ interpret: procedure
     call indent 1
     say "method 'unknown' forward to (.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)"
     forward to(.myfooclass) message (name) arguments (arguments) namedArguments (namedArguments)
+
+::method reply class
+    call indent 1
+    say "On entry in the method"
+    call sayArg .context
+    say
+
+    use arg positionalArguments
+    use named arg namedArguments
+    .context~setArgs(positionalArguments, n:namedArguments)
+    call indent 1
+    say "After setArgs"
+    call sayArg .context
+
+    reply
+    call indent 1
+    say "On entry in the thread (migrated arguments)"
+    call sayArg .context
+
+    .context~setArgs(.array~of(1, 2, 3), n:.directory~of(n1:1, n2:2, n3:3))
+    call indent 1
+    say "After setArgs in thread"
+    call sayArg .context
+
+    say
+    say
 
 --------------------------------------------------------------------------------
 
