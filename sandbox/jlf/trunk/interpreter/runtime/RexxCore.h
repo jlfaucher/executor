@@ -504,26 +504,18 @@ class NamedArguments
         return this->namedArguments[index];
     }
 
-    void clearAssigned()
-    {
-        for (size_t i=0; i < this->count; i++)
-        {
-            namedArguments[i].assigned = false;
-        }
-    }
+    // Resides in UseStrictInstruction.cpp.
+    // name: name of the argument passed by the caller, to search in expectedNamedArguments.
+    // value: value of the argument passed by the caller, to store in expectedNamedArguments if name is found.
+    // expectedNamedArguments : expected names, typically the names declared with USE NAMED ARG.
+    // strict: raise error if true and name not found.
+    bool check(RexxString *name, RexxObject *value, bool strict = true);
 
     const size_t count;
 
   private:
     NamedArgument *namedArguments;
 };
-
-// Resides in UseStrictInstruction.cpp.
-// name: name of the argument passed by the caller, to search in namedArguments.
-// value: value of the argument passed by the caller, to store in namedArguments if name is found.
-// namedArguments : expected names, typically the names declared with USE NAMED ARG.
-// strict: raise error if true and name not found.
-bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expectedNamedArguments, bool strict=true);
 
 
 /******************************************************************************/

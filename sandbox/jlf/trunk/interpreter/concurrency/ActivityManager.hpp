@@ -303,6 +303,12 @@ inline void missingArgument(RexxString *kind, size_t argumentPosition)
 }
 
 
+inline void missingArgument(RexxString *kind, const char *argumentPosition)
+{
+    reportException(Error_Invalid_argument_noarg, kind, argumentPosition);
+}
+
+
 inline RexxActivity *new_activity()  { return ActivityManager::createNewActivity(); }
 inline RexxActivity *new_activity(RexxActivity *parent)  { return ActivityManager::createNewActivity(parent); }
 

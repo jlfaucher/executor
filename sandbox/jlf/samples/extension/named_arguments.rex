@@ -2,6 +2,7 @@
 Named arguments
 */
 
+
 -------------------
 -- Instruction CALL
 -------------------
@@ -279,6 +280,8 @@ call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:(2*5/4)**5, a3:.array~new(3,3))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", , , 3, ,)'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", , , 3, , a5:5)'
+-- Here, namedArguments is just an ordinary argument, unlike when used with the 'A' option
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, a3:3, namedArguments:.directory~of(a2:2, a3:3))'
 ---
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, 3){}'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, a3:3){}'
@@ -286,11 +289,11 @@ call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, a2:2, a
 ---
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~new)'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3))'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), "D", .directory~of(a3:3))'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .directory~of(a2:2, a3:3))'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3))'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3))'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,))'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,), "D", .directory~of(a5:5))'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,), namedArguments:.directory~of(a5:5))'
 
 ------------------
 -- Object~SendWith
@@ -446,11 +449,11 @@ call interpret 'r = .myclass~forwardNamedArgumentsNotDirectory' -
 
 -- Method 'run'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3)){}' -
-             , 'Error 93.938: Method argument 4 must have a string value'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), "D", .directory~of(a3:3)){}' -
-             , 'Error 93.902: Too many arguments in invocation of method; 5 expected'
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .directory~of(a2:2, a3:3)){}' -
-             , 'Error 93.902: Too many arguments in invocation of method; 5 expected'
+             , 'Error XX.XXX: ...'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3)){}' -
+             , 'Error XX.XXX: ...'
+call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3)){}' -
+             , 'Error XX.XXX: ...'
 
 -- Instruction 'use named'
 call interpret 'call useNamed_EnvironmentSymbolNotAllowed' -

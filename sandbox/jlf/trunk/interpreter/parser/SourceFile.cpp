@@ -5406,6 +5406,21 @@ void RexxSource::argList(
     arglist = this->subTerms;            /* use the subterms list for the positional parameters */
     namedArglist = this->namedSubTerms;  /* use the namedsubterms list for the named parameters */
 
+    /*
+    JLF
+    I don't really understand how is working subTerms and namedSubTerms...
+    I added namedSubTerms by replicating the code I saw for subTerms.
+    And one day, I stumbled on this bug:
+        r = myroutine(1, 2, a1:1, a2:2, a3:myroutine(10, 20, a1:10, a2:20))
+        Error 35.900: Named argument: The name "A1" is passed more than once
+    It's because this->namedSubTerms contains : ("A1", 1, "A2", 2) when parsing the inner call of myroutine...
+    Seems correct because it's the same for this->subTerms which contains (1, 2) when parsing the inner call.
+    I bypassed this bug by using a queue local to this method, but I should investigate more !
+    */
+    RexxQueue *localNamedArglist = new_queue();
+    ProtectedObject p(localNamedArglist);
+
+
     //realcount = 0;                       /* no arguments yet                  */
     total = 0; // count positional arguments
     namedTotal = 0; // count named arguments
@@ -5465,8 +5480,9 @@ void RexxSource::argList(
             if (token->classId != TOKEN_SYMBOL) syntaxError(Error_Invalid_expression_user_defined,
                                                             new_string("Named argument: expected symbol followed by colon"));
             this->needVariable(token);
-            if (namedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Invalid_expression_user_defined,
+            if (localNamedArglist->hasItem(token->value) == TheTrueObject) syntaxError(Error_Invalid_expression_user_defined,
                                                                                    token->value->concatToCstring("Named argument: The name \"")->concatWithCstring("\" is passed more than once"));
+            localNamedArglist->push(token->value); // Bypass the bug described above by using a queue local to this method.
             namedArglist->push(token->value);       /* add argument name to list */
             this->pushTerm(token->value); // For a proper stack size, must count also the named parameters
 

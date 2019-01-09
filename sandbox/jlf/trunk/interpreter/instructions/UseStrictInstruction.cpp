@@ -299,24 +299,24 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
         {
             if (context->inMethod())
             {
-                reportException(Error_Incorrect_method_maxarg, OREF_positional, variableCount);
+                reportException(Error_Incorrect_method_maxarg, OREF_named, variableCount);
             }
             else
             {
-                reportException(Error_Incorrect_call_maxarg, OREF_positional, context->getCallname(), variableCount);
+                reportException(Error_Incorrect_call_maxarg, OREF_named, context->getCallname(), variableCount);
             }
         }
     }
 
     // Helper storage to associate the values passed by the caller to the expected arguments declared in the USE instruction
-    NamedArguments namedArguments(this->variableCount);
+    NamedArguments expectedNamedArguments(this->variableCount);
 
     // Iterate over the named arguments declared by the callee with the instruction USE NAMED ARG.
     // Collect their names.
     for (size_t i = 0; i < this->variableCount; i++)
     {
         RexxVariableBase *variable = this->variables[i].variable;
-        namedArguments[i].name = variable->getName()->getStringData();
+        expectedNamedArguments[i].name = variable->getName()->getStringData();
     }
 
     // Iterate over the named arguments passed by the caller, match them with the names declared by the callee.
@@ -327,7 +327,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     {
         RexxString *argName = (RexxString *)arglist[i];
         RexxObject *argValue = arglist[i+1];
-        bool match = namedArgument(argName, argValue, namedArguments, this->strictChecking && !this->variableSize);
+        bool match = expectedNamedArguments.check(argName, argValue, this->strictChecking && !this->variableSize);
         if (!match && this->autoCreation)
         {
             context->traceResult(argValue); // trace if necessary
@@ -343,7 +343,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
     for (size_t i=0;  i < this->variableCount; i++)
     {
         RexxVariableBase *variable = this->variables[i].variable;
-        NamedArgument &namedArgument = namedArguments[i];
+        NamedArgument &namedArgument = expectedNamedArguments[i];
         if (namedArgument.assigned)
         {
             RexxObject *argValue = namedArgument.value;
@@ -407,11 +407,11 @@ Example:
     namedArguments[1] = NamedArgument("INDEX", 2, IntegerZero);     // At least 2 characters, default value = 0
     namedArguments[2] = NamedArgument("MAXDEPTH", 1, IntegerTen);   // At least 1 character, default value = 10
     // For each named argument passed by the caller
-    namedArgument(name1, value1, namedArguments);
-    namedArgument(name2, value2, namedArguments);
-    namedArgument(name3, value3, namedArguments);
+    checkNamedArgument(name1, value1, namedArguments);
+    checkNamedArgument(name2, value2, namedArguments);
+    checkNamedArgument(name3, value3, namedArguments);
 */
-bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expectedNamedArguments, bool strict)
+bool NamedArguments::check(RexxString *name, RexxObject *value, bool strict)
 {
     if (name == OREF_NULL) return false;
 
@@ -422,14 +422,14 @@ bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expected
     // (this kind of test is done in RexxObject::run: testing only the first character and ignoring the rest of the characters)
 
     // There is no order for the named argument, so try all the expected names
-    for (size_t i=0; i < expectedNamedArguments.count; i++)
+    for (size_t i=0; i < this->count; i++)
     {
         const char *nameIterator = name->getStringData();
-        const char *expectedNameIterator = expectedNamedArguments[i].name;
+        const char *expectedNameIterator = this->namedArguments[i].name;
 
-        if (expectedNamedArguments[i].assigned) continue; // Already matched
+        if (this->namedArguments[i].assigned) continue; // Already matched
 
-        size_t minimumLength = expectedNamedArguments[i].minimumLength;
+        size_t minimumLength = this->namedArguments[i].minimumLength;
         while(1)
         {
             if (minimumLength > 0)
@@ -439,8 +439,8 @@ bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expected
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
-                    expectedNamedArguments[i].value = value;
-                    expectedNamedArguments[i].assigned = true;
+                    this->namedArguments[i].value = value;
+                    this->namedArguments[i].assigned = true;
                     return true;
                 }
                 minimumLength--;
@@ -451,8 +451,8 @@ bool namedArgument(RexxString *name, RexxObject *value, NamedArguments &expected
                 if (*nameIterator == '\0')
                 {
                     // good, the name matches an expected argument name
-                    expectedNamedArguments[i].value = value;
-                    expectedNamedArguments[i].assigned = true;
+                    this->namedArguments[i].value = value;
+                    this->namedArguments[i].assigned = true;
                     return true;
                 }
                 if (*nameIterator != *expectedNameIterator) break; // no match
