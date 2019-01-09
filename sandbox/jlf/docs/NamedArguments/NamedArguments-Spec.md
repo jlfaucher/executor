@@ -218,27 +218,14 @@ Inconsistency with the instruction 'forward'.
 Here, "Array" is followed by a mandatory array.  
 There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
 
-    >>-new(-target-,-messagename-+----------------------------------------------------+-)--><
-                                 +-,-"Individual"--| Arguments |----------------------+
-                                 +--+-------------------+--+-----------------------+--+
-                                    +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
+    >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
+                                 +-,-"Individual"--| Arguments |-------------------------+
+                                 +--+-------------------+--+--------------------------+--+
+                                    +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Message_new.png)
 
-Option "Directory":  
-should I specify a named argument Directory:argument  
-instead of 2 positional arguments "Directory", argument ?  
-Probably yes, I should not impact the positional arguments.  
-[later]  
-Probably no. There is no impact for the ooRexx user, and the option "Directory"  
-is a natural extension of "Array".
-
-Option "Directory":  
-should I specify "NamedArgument" to be consistent with  
-sendWith  
-startWith  
-callWith  
-?
+namedArguments: can be abreviated to 1 letter (n:).  
 
 
 -------------
@@ -256,15 +243,14 @@ Inconsistency with the instruction 'forward'.
 Here, "Array" is followed by a mandatory array.  
 There, ARRAY is followed by a list of arguments. ARGUMENTS is followed by a mandatory array.
 
-    >>-run(-method-+----------------------------------------------------+-)--><
-                   +-,-"Individual"---| Arguments |---------------------+
-                   +--+-------------------+--+-----------------------+--+
-                      +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
+    >>-run(-method-+-------------------------------------------------------+-)--><
+                   +-,-"Individual"---| Arguments |------------------------+
+                   +--+-------------------+--+--------------------------+--+
+                      +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_run.png)
 
-Option "Directory":  
-see the questions for Message~new.
+namedArguments: can be abreviated to 1 letter (n:).  
 
 
 ---------------
@@ -277,7 +263,6 @@ Object~sendWith
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_sendWith.png)
 
 namedArguments: can be abreviated to 1 letter (n:).  
-namedArguments: no reason to name it "Directory", right ?
 
 
 ----------------
@@ -290,7 +275,6 @@ Object~startWith
 ![USE NAMED ARG](SyntaxDiagram/sd_Object_startWith.png)
 
 namedArguments: can be abreviated to 1 letter (n:).  
-namedArguments: no reason to name it "Directory", right ?
 
 
 ----------------
@@ -303,7 +287,6 @@ Routine~callWith
 ![USE NAMED ARG](SyntaxDiagram/sd_Routine_callWith.png)
 
 namedArguments: can be abreviated to 1 letter (n:).  
-namedArguments: no reason to name it "Directory", right ?
 
 
 -----------------
@@ -322,12 +305,12 @@ The ARG built-in function doesn't give access to the named arguments.
 Context~setArgs
 -----------------
 
-    >>-setArgs(-array-,-namedArguments-:-exprd-)--------------------><
+    >>-setArgs(-array-+--------------------------+-)---><
+                      +-,-namedArguments-:-exprd-+
 
 ![USE NAMED ARG](SyntaxDiagram/sd_Context_setArgs.png)
 
 namedArguments: can be abreviated to 1 letter (n:).  
-namedArguments: no reason to name it "Directory", right ?
 
 Used to transfer to a coactivity the arguments passed with 'resume'.  
 A coactivity can be suspended, and can receive a new set of arguments after each resume.
@@ -369,7 +352,7 @@ Security manager CALL
 ---------------------
 
 The information directory contains:  
-NAMEDARGUMENTS: a directory of the function named arguments
+NAMEDARGUMENTS: a directory of the function's named arguments
 
 
 -----------------------
@@ -377,4 +360,4 @@ Security manager METHOD
 -----------------------
 
 The information directory contains:  
-NAMEDARGUMENTS: a directory of the method named arguments
+NAMEDARGUMENTS: a directory of the method's named arguments

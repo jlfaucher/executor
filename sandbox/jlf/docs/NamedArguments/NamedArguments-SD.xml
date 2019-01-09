@@ -110,10 +110,10 @@ Instruction USE:
 <![CDATA[
 Message~new:
 
->>-new(-target-,-messagename-+----------------------------------------------------+-)--><
-                             +-,-"Individual"--| Arguments |----------------------+
-                             +--+-------------------+--+-----------------------+--+
-                                +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
+>>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
+                             +-,-"Individual"--| Arguments |-------------------------+
+                             +--+-------------------+--+--------------------------+--+
+                                +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
 
 ]]>
 </programlisting>
@@ -123,10 +123,10 @@ Message~new:
 <![CDATA[
 Object~run:
 
->>-run(-method-+----------------------------------------------------+-)--><
-               +-,-"Individual"---| Arguments |---------------------+
-               +--+-------------------+--+-----------------------+--+
-                  +-,-"Array"-,-expra-+  +-,-"Directory"-,-exprd-+
+>>-run(-method-+-------------------------------------------------------+-)--><
+               +-,-"Individual"---| Arguments |------------------------+
+               +--+-------------------+--+--------------------------+--+
+                  +-,-"Array"-,-expra-+  +-,-namedArguments-:-exprd-+
 
 ]]>
 </programlisting>
@@ -166,7 +166,8 @@ Routine~callWith:
 <![CDATA[
 Context~setArgs:
 
->>-setArgs(-array-,-namedArguments-:-namedArguments-)--------------------><
+>>-setArgs(-array-+--------------------------+-)---><
+                  +-,-namedArguments-:-exprd-+
 
 ]]>
 </programlisting>
