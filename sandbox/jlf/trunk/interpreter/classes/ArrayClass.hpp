@@ -149,6 +149,7 @@ typedef struct copyElementParm {
    RexxObject  *removeRexx(RexxObject **, size_t);
    RexxObject  *appendRexx(RexxObject *);
    size_t       append(RexxObject *);
+   size_t       appendEndmost(RexxObject *);
    void         setExpansion(RexxObject * expansion);
    RexxInteger *available(size_t position);
    bool         validateIndex(RexxObject **, size_t, size_t, size_t, stringsize_t &);

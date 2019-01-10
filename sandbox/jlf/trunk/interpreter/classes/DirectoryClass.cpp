@@ -896,7 +896,7 @@ RexxArray *RexxDirectory::allIndexesItems(void)
  *
  * @return The count of pushed pairs index & item (= this->items())
  */
-size_t RexxDirectory::appendAllIndexesItemsTo(RexxExpressionStack *stack)
+size_t RexxDirectory::pushAllIndexesItemsTo(RexxExpressionStack *stack)
 {
     size_t out = 0;
     // we're working directly off of the contents.
@@ -930,12 +930,12 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxExpressionStack *stack)
 
 /**
  * Helper for named arguments.
- * Append to the array all the directory indices &items, including those
+ * Append endmost to the array all the directory indices &items, including those
  * of all the SETMETHOD methods: index1, item1, index2, item2, ...
  *
  * @return The count of appended pairs index & item (= this->items())
  */
-size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
+size_t RexxDirectory::appendEndmostAllIndexesItemsTo(RexxArray *array)
 {
     size_t out = 0;
     // we're working directly off of the contents.
@@ -944,8 +944,8 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
     // traverse the entire table coping over the items.
     for (HashLink i = hashTab->first(); hashTab->index(i) != OREF_NULL; i = hashTab->next(i), out++)
     {
-        array->append(hashTab->index(i));
-        array->append(hashTab->value(i));
+        array->appendEndmost(hashTab->index(i));
+        array->appendEndmost(hashTab->value(i));
     }
     // if has a method table, we need to copy those indices also
     if (this->method_table != OREF_NULL)
@@ -954,13 +954,13 @@ size_t RexxDirectory::appendAllIndexesItemsTo(RexxArray *array)
         for (HashLink i = methodTable->first(); methodTable->available(i); i = methodTable->next(i), out++)
         {
             RexxString *name = (RexxString *)methodTable->index(i);
-            array->append(name);
+            array->appendEndmost(name);
 
             RexxMethod *method = (RexxMethod *)methodTable->value(i);
             ProtectedObject v;
             /* run the method                    */
             method->run(ActivityManager::currentActivity, this, name, NULL, 0, v);
-            array->append(v);
+            array->appendEndmost(v);
         }
     }
     return out;

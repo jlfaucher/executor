@@ -1770,8 +1770,8 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
         RexxObject *arg = arguments->get(i);
         new_arguments->put(arg, i);
     }
-    new_arguments->append(new_integer(named_count));
-    if (named_count != 0) named_arguments_value->appendAllIndexesItemsTo(new_arguments);
+    new_arguments->appendEndmost(new_integer(named_count));
+    if (named_count != 0) named_arguments_value->appendEndmostAllIndexesItemsTo(new_arguments);
 
     ProtectedObject r;
     if (startScope == OREF_NULL)
@@ -2105,7 +2105,7 @@ RexxObject  *RexxObject::run(
         size_t named_argumentsCount = 0;
         arguments[argumentsCount]->unsignedNumberValue(named_argumentsCount);
         if (named_argumentsCount > 1) reportException(Error_Incorrect_method_maxarg, OREF_named, 1); // Only zero or one named argument is supported by Object~run
-        RexxObject **named_arguments = arguments + named_argumentsCount + 1;
+        RexxObject **named_arguments = arguments + argumentsCount + 1;
         RexxString *argName0 = (0 < named_argumentsCount) ? (RexxString *)named_arguments[(2*0)] : OREF_NULL;
         RexxObject *argValue0 = (0 < named_argumentsCount) ? named_arguments[(2 * 0) + 1] : OREF_NULL;
         NamedArguments expectedNamedArguments(1); // At most, one named argument
@@ -2136,8 +2136,8 @@ RexxObject  *RexxObject::run(
                 arglist = new_array(argcount + 1 + (2 * named_argcount));
                 p_arglist = arglist;
             }
-            arglist->append(new_integer(named_argcount));
-            if (named_argcount != 0) argdirectory->appendAllIndexesItemsTo(arglist);
+            arglist->appendEndmost(new_integer(named_argcount));
+            if (named_argcount != 0) argdirectory->appendEndmostAllIndexesItemsTo(arglist);
             argumentPtr = arglist->data();
         }
     }

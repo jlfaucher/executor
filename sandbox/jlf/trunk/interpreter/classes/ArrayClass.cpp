@@ -491,6 +491,24 @@ size_t RexxArray::append(RexxObject *value)
 
 
 /**
+ * Append an item after the endmost item in the array.
+ *
+ * @param value  The value to append.
+ *
+ * @return The index of the appended item.
+ */
+size_t RexxArray::appendEndmost(RexxObject *value)
+{
+    size_t newIndex = this->size() + 1;
+
+    ensureSpace(newIndex);
+    put(value, newIndex);
+    return newIndex;
+}
+
+
+
+/**
  * The Rexx stub for the Array GET method.  This does full
  * checking for the array.
  *

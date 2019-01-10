@@ -434,8 +434,8 @@ RexxObject *RexxInteger::unknown(
         RexxObject *arg = arguments->get(i);
         args->put(arg, i);
     }
-    args->append(new_integer(namedArgumentsCount));
-    if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);
+    args->appendEndmost(new_integer(namedArgumentsCount));
+    if (namedArgumentsCount != 0) namedArgumentsValue->appendEndmostAllIndexesItemsTo(args);
     return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
 }
 

@@ -639,7 +639,7 @@ RexxObject *RexxMessage::newRexx(
                     RexxObject *arg = argPtr->get(i);
                     args->put(arg, i);
                 }
-                args->append(new_integer(named_argCountMsg));
+                args->appendEndmost(new_integer(named_argCountMsg));
 
                 // Now use the array with count of named arguments
                 argPtr = args;

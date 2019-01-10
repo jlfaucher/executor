@@ -187,9 +187,8 @@ void RexxInstructionForward::execute(
             temp = this->arguments->evaluate(context, stack);
             /* get an array version              */
             RexxArray *argArray = REQUEST_ARRAY(temp);
-            // stack->push(argArray);           /* protect this on the stack         */
             p_argArray = argArray; // GC protect without using the stack
-            stack->toss(); // pop the temp array, the items of argArray will be pushed.
+            stack->toss();
 
             /* not an array item or a multiple   */
             /* dimension one?                    */
@@ -217,14 +216,10 @@ void RexxInstructionForward::execute(
 #endif
             // _arguments = argArray->data();    /* point directly to the argument data */
 
-            // JLF: Push each item on the stack.
-            // Reason: I may need to append named arguments, so use ALWAYS the stack,
-            // even when the array already exists, like here.
             for (i = 1; i <= count; i++)
             {
                 RexxObject *item = argArray->get(i);
-                // stack->push(item);
-                newArguments->append(item);
+                newArguments->appendEndmost(item);
             }
         }
 
@@ -239,14 +234,13 @@ void RexxInstructionForward::execute(
                 {
                     /* evaluate the expression           */
                     RexxObject * value = argElement->evaluate(context, stack);
-                    newArguments->append(value);
+                    newArguments->appendEndmost(value);
                     stack->toss();
                 }
                 else
                 {
                     /* just push a null reference for the missing ones */
-                    // stack->push(OREF_NULL);
-                    newArguments->append(OREF_NULL);
+                    newArguments->appendEndmost(OREF_NULL);
                 }
             }
             /* now point at the stacked values */
@@ -260,8 +254,7 @@ void RexxInstructionForward::execute(
             for (i = 0; i < argcount; i++)
             {
                 RexxObject *arg = arglist[i];
-                // stack->push(arg);
-                newArguments->append(arg);
+                newArguments->appendEndmost(arg);
             }
         }
 
@@ -275,9 +268,7 @@ void RexxInstructionForward::execute(
         // Both are exclusive (enforced by the parser)
 
         // Placeholder for namedCount (not yet known)
-        // stack->push(IntegerZero);
-        // RexxObject **namedCountPtr = stack->pointer(0);
-        size_t namedCountIndex = newArguments->append(IntegerZero);
+        size_t namedCountIndex = newArguments->appendEndmost(IntegerZero);
 
         if (this->namedArgumentsExpression != OREF_NULL) /* overriding the named arguments? */
         {
@@ -300,9 +291,7 @@ void RexxInstructionForward::execute(
                     // todo: Should create the error Error_Execution_forward_namedarguments
                     reportException(Error_Execution_user_defined , "FORWARD namedArguments must be a directory or NIL");
                 }
-                // Push each index, item on the stack
-                // namedCount = argDirectory->appendAllIndexesItemsTo(stack);
-                namedCount = argDirectory->appendAllIndexesItemsTo(newArguments);
+                namedCount = argDirectory->appendEndmostAllIndexesItemsTo(newArguments);
             }
         }
 
@@ -312,12 +301,11 @@ void RexxInstructionForward::execute(
             for (i = 1; i <= (2 * namedCount); i+=2)     /* loop through the name,expression list  */
             {
                 RexxString *argName = (RexxString *)this->namedArgumentsArray->get(i);
-                // stack->push(argName);
-                newArguments->append(argName);
+                newArguments->appendEndmost(argName);
 
                 RexxObject *argExpression = this->namedArgumentsArray->get(i+1); // can't be OREF_NULL
                 RexxObject *argValue = argExpression->evaluate(context, stack);
-                newArguments->append(argValue);
+                newArguments->appendEndmost(argValue);
                 stack->toss();
             }
         }
@@ -329,20 +317,16 @@ void RexxInstructionForward::execute(
             for (i = argcount + 1; i < argcount + 1 + (2 * namedCount); i += 2)
             {
                 RexxString *argName = (RexxString *)arglist[i];
-                // stack->push(argName);
-                newArguments->append(argName);
+                newArguments->appendEndmost(argName);
 
                 RexxObject *argValue = arglist[i+1];
-                // stack->push(argValue);
-                newArguments->append(argValue);
+                newArguments->appendEndmost(argValue);
             }
         }
 
         // Now we can store namedCount
-        // *namedCountPtr = new_integer(namedCount);
         newArguments->put(new_integer(namedCount), namedCountIndex);
 
-        // _arguments = stack->arguments(count + 1 + (2 * namedCount));
         _arguments = newArguments->data();
     }
 

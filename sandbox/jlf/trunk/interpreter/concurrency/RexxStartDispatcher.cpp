@@ -90,7 +90,7 @@ void RexxStartDispatcher::run()
         }
     }
 
-    new_arglist->append(IntegerZero); // 0 named argument
+    new_arglist->appendEndmost(IntegerZero); // 0 named argument
 
     RexxString *source_calltype;
 
@@ -237,7 +237,7 @@ void CallProgramDispatcher::run()
     {
         RexxArray *argumentsCopy = (RexxArray *)arguments->copy();
         ProtectedObject p(argumentsCopy);
-        argumentsCopy->append(new_integer(0)); // no named arguments
+        argumentsCopy->appendEndmost(new_integer(0)); // no named arguments
         // use the provided name for the call name
         routine->runProgram(activity, argumentsCopy->data(), argumentsCopy->size() - 1, result);
     }

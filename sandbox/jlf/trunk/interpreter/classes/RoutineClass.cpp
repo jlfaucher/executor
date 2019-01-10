@@ -313,8 +313,8 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
         RexxObject *arg = args->get(i);
         new_args->put(arg, i);
     }
-    new_args->append(new_integer(named_count));
-    if (named_count != 0) named_args_value->appendAllIndexesItemsTo(new_args);
+    new_args->appendEndmost(new_integer(named_count));
+    if (named_count != 0) named_args_value->appendEndmostAllIndexesItemsTo(new_args);
 
     ProtectedObject result;
 
