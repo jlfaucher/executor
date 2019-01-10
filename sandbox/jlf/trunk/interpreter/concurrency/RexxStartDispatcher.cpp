@@ -90,7 +90,10 @@ void RexxStartDispatcher::run()
         }
     }
 
-    new_arglist->appendEndmost(IntegerZero); // 0 named argument
+    // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
+    // Omitted positional arguments not applicable here, but better to have the same approach everywhere.
+    // Here, no named arguments : Zero.
+    new_arglist->put(IntegerZero, new_arglist->size() + 1);
 
     RexxString *source_calltype;
 
@@ -235,11 +238,12 @@ void CallProgramDispatcher::run()
 
     if (arguments != OREF_NULL)
     {
+        size_t argumentsCount = arguments->size();
         RexxArray *argumentsCopy = (RexxArray *)arguments->copy();
         ProtectedObject p(argumentsCopy);
-        argumentsCopy->appendEndmost(new_integer(0)); // no named arguments
+        argumentsCopy->put(IntegerZero, argumentsCount + 1); // Counter of named arguments (Zero). To support correctly omitted positional arguments, don't use append!
         // use the provided name for the call name
-        routine->runProgram(activity, argumentsCopy->data(), argumentsCopy->size() - 1, result);
+        routine->runProgram(activity, argumentsCopy->data(), argumentsCount, result);
     }
     else
     {

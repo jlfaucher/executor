@@ -2,9 +2,6 @@
 Named arguments
 */
 
-call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,))'
-return
-
 -------------------
 -- Instruction CALL
 -------------------

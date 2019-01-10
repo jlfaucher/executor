@@ -4607,11 +4607,11 @@ void RexxActivation::setArguments(RexxArray *positionalArguments, RexxDirectory 
     size_t count = positionalArguments->size(); // count of positional arguments
     RexxArray *arguments = (RexxArray *)positionalArguments->copy();
     ProtectedObject p(arguments);
-    size_t namedCountIndex = arguments->appendEndmost(IntegerZero); // Placeholder of the count of named arguments
+    arguments->put(IntegerZero, count + 1); // Placeholder at index count+1 of the count of named arguments
     if (namedArguments != OREF_NULL && namedArguments != TheNilObject)
     {
-        size_t namedCount = namedArguments->appendEndmostAllIndexesItemsTo(arguments);
-        arguments->put(new_integer(namedCount), namedCountIndex);
+        size_t namedCount = namedArguments->appendAllIndexesItemsTo(arguments);
+        arguments->put(new_integer(namedCount), count + 1);
     }
     this->arglist = arguments->data();
     this->argcount = count; // yes, only the count of positional arguments.

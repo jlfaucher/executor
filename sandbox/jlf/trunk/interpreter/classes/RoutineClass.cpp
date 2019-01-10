@@ -306,18 +306,12 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
         named_count = named_args_value->items();
     }
 
-    RexxArray *new_args = new_array(count + 1 + (2 * named_count));
+    RexxArray *new_args = args->copy();
     ProtectedObject p_new_args(new_args);
-    for (size_t i = 1; i <= count; i++)
-    {
-        RexxObject *arg = args->get(i);
-        new_args->put(arg, i);
-    }
-    new_args->appendEndmost(new_integer(named_count));
-    if (named_count != 0) named_args_value->appendEndmostAllIndexesItemsTo(new_args);
+    new_args->put(new_integer(named_count), count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
+    if (named_count != 0) named_args_value->appendAllIndexesItemsTo(new_args);
 
     ProtectedObject result;
-
     code->call(ActivityManager::currentActivity, this, executableName, new_args->data(), count, result);
     return (RexxObject *)result;
 }

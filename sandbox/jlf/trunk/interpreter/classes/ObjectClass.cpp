@@ -1763,15 +1763,10 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
         named_count = named_arguments_value->items();
     }
 
-    RexxArray *new_arguments = new_array(count + 1 + (2 * named_count));
+    RexxArray *new_arguments = arguments->copy();
     ProtectedObject p_new_arguments(new_arguments);
-    for (size_t i = 1; i <= count; i++)
-    {
-        RexxObject *arg = arguments->get(i);
-        new_arguments->put(arg, i);
-    }
-    new_arguments->appendEndmost(new_integer(named_count));
-    if (named_count != 0) named_arguments_value->appendEndmostAllIndexesItemsTo(new_arguments);
+    new_arguments->put(new_integer(named_count), count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
+    if (named_count != 0) named_arguments_value->appendAllIndexesItemsTo(new_arguments);
 
     ProtectedObject r;
     if (startScope == OREF_NULL)
@@ -2136,8 +2131,8 @@ RexxObject  *RexxObject::run(
                 arglist = new_array(argcount + 1 + (2 * named_argcount));
                 p_arglist = arglist;
             }
-            arglist->appendEndmost(new_integer(named_argcount));
-            if (named_argcount != 0) argdirectory->appendEndmostAllIndexesItemsTo(arglist);
+            arglist->put(new_integer(named_argcount), argcount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
+            if (named_argcount != 0) argdirectory->appendAllIndexesItemsTo(arglist);
             argumentPtr = arglist->data();
         }
     }

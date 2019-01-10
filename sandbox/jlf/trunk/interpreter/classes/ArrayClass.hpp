@@ -149,7 +149,6 @@ typedef struct copyElementParm {
    RexxObject  *removeRexx(RexxObject **, size_t);
    RexxObject  *appendRexx(RexxObject *);
    size_t       append(RexxObject *);
-   size_t       appendEndmost(RexxObject *);
    void         setExpansion(RexxObject * expansion);
    RexxInteger *available(size_t position);
    bool         validateIndex(RexxObject **, size_t, size_t, size_t, stringsize_t &);
@@ -250,36 +249,113 @@ inline RexxArray *new_externalArray(size_t s, RexxClass *c)
     return new (s, RexxArray::ARRAY_DEFAULT_SIZE, c) RexxArray;
 }
 
+/**
+ * Create an array with a given size.
+ *
+ * @param s      The size of the array.
+ *
+ * @return The new array item.
+ */
 inline RexxArray *new_array(size_t s)
 {
     return new (s, RexxArray::ARRAY_MIN_SIZE, TheArrayClass) RexxArray;
 }
 
+
+/**
+* Make a zero-length array item.
+*
+* @return A new array.
+*/
+inline RexxArray *new_array()
+{
+    return new_array((size_t)0);
+}
+
+
+/**
+ * Create an array populated with objects from another source.
+ *
+ * @param s      The number of objects.
+ * @param o      The pointer to the set of objects.
+ *
+ * @return A new array object.
+ */
 inline RexxArray *new_array(size_t s, RexxObject **o)
 {
     return new (s, o) RexxArray;
 }
 
+
+/**
+ * Create a new array with one item.
+ *
+ * @param o1     The object to add to the array.
+ *
+ * @return A new array object.
+ */
 inline RexxArray *new_array(RexxObject *o1)
 {
     return new (o1) RexxArray;
 }
 
+
+/**
+ * Create a new array with two items.
+ *
+ * @param o1     The first object to add to the array.
+ * @param o2     The second object to add
+ *
+ * @return A new array object.
+ */
 inline RexxArray *new_array(RexxObject *o1, RexxObject *o2)
 {
     return new (o1, o2) RexxArray;
 }
 
+
+/**
+ * Create a new array with three items.
+ *
+ * @param o1     The first object to add to the array.
+ * @param o2     The second object to add
+ * @param o3     The third object to add.
+ *
+ * @return A new array object.
+ */
 inline RexxArray *new_array(RexxObject *o1, RexxObject *o2, RexxObject *o3)
 {
     return new (o1, o2, o3) RexxArray;
 }
 
+
+/**
+ * Create a new array with four items.
+ *
+ * @param o1     The first object to add to the array.
+ * @param o2     The second object to add
+ * @param o3     The third object to add.
+ * @param o4     The fourth object to add.
+ *
+ * @return A new array object.
+ */
 inline RexxArray *new_array(RexxObject *o1, RexxObject *o2, RexxObject *o3, RexxObject *o4)
 {
     return new (o1, o2, o3, o4) RexxArray;
 }
 
+
+/**
+ * Create a new array with five items.
+ *
+ * @param o1     The first object to add to the array.
+ * @param o2     The second object to add
+ * @param o3     The third object to add.
+ * @param o4     The fourth object to add.
+ * @param o5     The fifth object to add.
+ *
+ * @return A new array object.
+ */
 inline RexxArray *new_array(RexxObject *o1, RexxObject *o2, RexxObject *o3, RexxObject *o4, RexxObject *o5)
 {
     return new (o1, o2, o3, o4, o5) RexxArray;

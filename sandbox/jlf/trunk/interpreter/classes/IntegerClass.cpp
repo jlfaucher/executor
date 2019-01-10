@@ -427,15 +427,11 @@ RexxObject *RexxInteger::unknown(
     // Optimization: don't create an intermediate array if no arg
     if (argumentsCount == 0 && namedArgumentsCount == 0) return this->stringValue()->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
 
-    RexxArray *args = new_array(argumentsCount + 1 + (2 * namedArgumentsCount));
+    RexxArray *args = arguments->copy();
     ProtectedObject p(args);
-    for (size_t i = 1; i <= argumentsCount; i++)
-    {
-        RexxObject *arg = arguments->get(i);
-        args->put(arg, i);
-    }
-    args->appendEndmost(new_integer(namedArgumentsCount));
-    if (namedArgumentsCount != 0) namedArgumentsValue->appendEndmostAllIndexesItemsTo(args);
+    args->put(new_integer(namedArgumentsCount), argumentsCount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
+    if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);
+
     return this->stringValue()->sendMessage(msgname, args->data(), argumentsCount);
 }
 
