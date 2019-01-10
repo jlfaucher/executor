@@ -1094,6 +1094,15 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", , , 3, , a5:5)
         A5 : 5
 
 
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, a3:3, namedArguments:.directory~of(a2:2, a3:3))
+    positional count=2 size=2
+        1 : 1
+        2 : 2
+    named count=2
+        A3 : 3
+        NAMEDARGUMENTS : a Directory
+
+
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "I", 1, 2, 3){}
     positional count=4 size=4
         1 : 1
@@ -1134,7 +1143,7 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3))
     named count=0
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), "D", .directory~of(a3:3))
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3))
     positional count=2 size=2
         1 : 1
         2 : 2
@@ -1142,7 +1151,7 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), "D", .directory~of
         A3 : 3
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .directory~of(a2:2, a3:3))
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3))
     positional count=1 size=1
         1 : 1
     named count=2
@@ -1150,7 +1159,7 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .direct
         A3 : 3
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:(2*5/4)**5, a3:.array~new(3,3)))
     positional count=1 size=1
         1 : 1
     named count=2
@@ -1164,7 +1173,7 @@ r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,))
     named count=0
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,), "D", .directory~of(a5:5))
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", ( , , 3, ,), namedArguments:.directory~of(a5:5))
     positional count=1 size=5
         3 : 3
     named count=1
@@ -1315,8 +1324,8 @@ n1=1 n2=2
         N1 : 1
         N2 : 2
 
-
-    On entry in the thread (migrated arguments)
+    
+On entry in the thread (migrated arguments)
     positional count=2 size=2
         1 : 1
         2 : 2
@@ -1537,21 +1546,21 @@ Expected: Error 98.900: FORWARD: The value of 'NAMEDARGUMENTS' must be a directo
 
 
 r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3)){}
-    [trapped] Method positional argument 4 must have a string value
-    [trapped] Code= 93.938
-Expected: Error 93.938: Method argument 4 must have a string value
-
-
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), "D", .directory~of(a3:3)){}
-    [trapped] Too many positional arguments in invocation of method; 5 expected
+    [trapped] Too many positional arguments in invocation of method; 3 expected
     [trapped] Code= 93.902
-Expected: Error 93.902: Too many arguments in invocation of method; 5 expected
+Expected: Error 93.902: Too many positional arguments in invocation of method; 3 expected
 
 
-r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), "D", .directory~of(a2:2, a3:3)){}
-    [trapped] Too many positional arguments in invocation of method; 5 expected
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3)){}
+    [trapped] Too many positional arguments in invocation of method; 3 expected
     [trapped] Code= 93.902
-Expected: Error 93.902: Too many arguments in invocation of method; 5 expected
+Expected: Error 93.902: Too many positional arguments in invocation of method; 3 expected
+
+
+r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3)){}
+    [trapped] Too many positional arguments in invocation of method; 3 expected
+    [trapped] Code= 93.902
+Expected: Error 93.902: Too many positional arguments in invocation of method; 3 expected
 
 
 call useNamed_EnvironmentSymbolNotAllowed
@@ -1580,7 +1589,7 @@ call useStrictZeroNamed a1:1
     named count=1
         A1 : 1
     use strict named arg
-    [trapped] Too many positional arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
+    [trapped] Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
     [trapped] Code= 40.4
 Expected: Error 40.4: Too many named arguments in invocation of USESTRICTZERONAMED; maximum expected is 0
 
@@ -1610,7 +1619,7 @@ call useStrictOneNamed_NoDefault b1:1, b2:2
         B1 : 1
         B2 : 2
     use strict named arg a1
-    [trapped] Too many positional arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
+    [trapped] Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
     [trapped] Code= 40.4
 Expected: Error 40.4: Too many named arguments in invocation of USESTRICTONENAMED_NODEFAULT; maximum expected is 1
 

@@ -632,7 +632,7 @@ RexxObject *RexxMessage::newRexx(
                 argCountMsg = argPtr->size(); // count of positional arguments
 
                 // Must create a copy of the array to add the count of named arguments
-                RexxArray *args = argPtr->copy();
+                RexxArray *args = (RexxArray *)argPtr->copy();
                 ProtectedObject p_args(args);
                 args->put(new_integer(named_argCountMsg), argCountMsg + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
 

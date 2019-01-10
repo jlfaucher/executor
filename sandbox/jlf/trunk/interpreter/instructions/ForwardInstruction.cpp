@@ -266,7 +266,7 @@ void RexxInstructionForward::execute(
         // Both are exclusive (enforced by the parser)
 
         // Placeholder for namedCount (not yet known)
-        size_t namedCountIndex = newArguments->put(IntegerZero, count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
+        newArguments->put(IntegerZero, count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
 
         if (this->namedArgumentsExpression != OREF_NULL) /* overriding the named arguments? */
         {

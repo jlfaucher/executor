@@ -196,15 +196,18 @@ void RexxArray::flatten(RexxEnvelope *envelope)
 
 
 /**
- * Place an object into the array.  Note:  This version does not
- * do any bounds checking.  The caller is responsible for
- * ensuring there is sufficient space.
+ * Place an object into the array.
+ * JLF:
+ * ooRexx4 doesn't check if there is sufficient space, it's up to the caller to check that.
+ * I added the call 'ensureSpace(pos)' to ensure there is sufficient space.
+ * ooRexx5 does the same, so...
  *
  * @param eref   The object to add.
  * @param pos    The index of the added item (origin 1)
  */
 void RexxArray::put(RexxObject * eref, size_t pos)
 {
+    this->ensureSpace(pos);
     OrefSet(this->expansionArray, (this->data())[pos - 1], eref);
     // check the last set element
     if (pos > lastElement)

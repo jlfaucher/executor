@@ -226,7 +226,7 @@ RexxObject *RexxStem::unknown(
     // Optimization: don't create an intermediate array if no arg
     if (argumentsCount == 0 && namedArgumentsCount == 0) return this->value->sendMessage(msgname, (RexxObject**)OREF_NULL, (size_t)0);
 
-    RexxArray *args = arguments->copy();
+    RexxArray *args = (RexxArray *)arguments->copy();
     ProtectedObject p_args(args);
     args->put(new_integer(namedArgumentsCount), argumentsCount + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
     if (namedArgumentsCount != 0) namedArgumentsValue->appendAllIndexesItemsTo(args);

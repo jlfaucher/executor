@@ -306,7 +306,7 @@ RexxObject *RoutineClass::callWithRexx(RexxArray *args,
         named_count = named_args_value->items();
     }
 
-    RexxArray *new_args = args->copy();
+    RexxArray *new_args = (RexxArray *)args->copy();
     ProtectedObject p_new_args(new_args);
     new_args->put(new_integer(named_count), count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
     if (named_count != 0) named_args_value->appendAllIndexesItemsTo(new_args);

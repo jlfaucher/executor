@@ -1763,7 +1763,7 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
         named_count = named_arguments_value->items();
     }
 
-    RexxArray *new_arguments = arguments->copy();
+    RexxArray *new_arguments = (RexxArray *)arguments->copy();
     ProtectedObject p_new_arguments(new_arguments);
     new_arguments->put(new_integer(named_count), count + 1); // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
     if (named_count != 0) named_arguments_value->appendAllIndexesItemsTo(new_arguments);

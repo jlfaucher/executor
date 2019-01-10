@@ -448,11 +448,11 @@ call interpret 'r = .myclass~forwardNamedArgumentsNotDirectory' -
 
 -- Method 'run'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2, 3)){}' -
-             , 'Error XX.XXX: ...'
+             , 'Error 93.902: Too many positional arguments in invocation of method; 3 expected'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", (1, 2), namedArguments:.directory~of(a3:3)){}' -
-             , 'Error XX.XXX: ...'
+             , 'Error 93.902: Too many positional arguments in invocation of method; 3 expected'
 call interpret 'r = .myclass~myrun(.methods["MYFLOATINGMETHOD"], "A", .array~of(1), namedArguments:.directory~of(a2:2, a3:3)){}' -
-             , 'Error XX.XXX: ...'
+             , 'Error 93.902: Too many positional arguments in invocation of method; 3 expected'
 
 -- Instruction 'use named'
 call interpret 'call useNamed_EnvironmentSymbolNotAllowed' -
