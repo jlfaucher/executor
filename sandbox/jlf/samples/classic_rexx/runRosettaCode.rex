@@ -1,7 +1,7 @@
 /*
 Run the Rosetta Code solutions for REXX.
 The solutions are installed locally from https://github.com/acmeism/RosettaCodeData
-This script has been written for the commit of June 22 2018.
+This script has been written for the commit of August 17 2018.
 
 This script must be executed from the directory which contains the directory Lang.
 You can create a symbolic link to the script, if needed:
@@ -55,7 +55,7 @@ end
 say "Your system is" system
 isWindows = (left(system, 3) == "WIN")
 isLinux = (system == "LINUX")
-isMacOS = (left(system, 5) == "MACOS")
+isMacOS = (left(system, 5) == "MACOS") || (left(system, 5) == "DARWIN")
 
 if isWindows
 then do
@@ -291,7 +291,7 @@ runall:
 /*
 The list of REXX solutions is found like that:
 cd Lang/REXX
-find -L . -type f
+find -L . -type f | sort
 */
 
 call run "100-doors/100-doors-1.rexx"
@@ -301,7 +301,7 @@ call run "100-doors/100-doors-2.rexx"   /* hard-way */
 /* interactive */
 call run "24-game/24-game-1.rexx", "stdin", "quit"
 
-/* 24-game-2.rexx: just a routine, nothing to execute */
+/* 24-game/24-game-2.rexx: just a routine, nothing to execute */
 
 call run "24-game-Solve/24-game-solve.rexx", "1111-1129"
 
@@ -545,6 +545,8 @@ call run "Calendar/calendar.rexx", "1/1/1969 (noGrid smallest narrowest)"
 /* To investigate: why parse error if no space after 5 */
 /* The output is not correctly aligned. Font problem ? */
 call run "Calendar/calendar.rexx", "1/1/1969 (smallest narrowest width 156 calSpaces 5 )"
+
+call run "Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx", "1/1/1969 (noGrid shortest narrowest)"
 
 /* Better to skip, because executes a systel command. */
 call skip "Call-a-foreign-language-function/call-a-foreign-language-function.rexx"
@@ -1545,6 +1547,7 @@ call run "Towers-of-Hanoi/towers-of-hanoi-1.rexx"
 call run "Towers-of-Hanoi/towers-of-hanoi-2.rexx"
 call run "Trabb-Pardo-Knuth-algorithm/trabb-pardo-knuth-algorithm.rexx"
 call run "Tree-traversal/tree-traversal.rexx"
+call run "Trigonometric-functions/trigonometric-functions.rexx"
 call run "Trigonometric-functions/trigonometric-functions-1.rexx"
 call run "Trigonometric-functions/trigonometric-functions-2.rexx"
 call run "Trigonometric-functions/trigonometric-functions-3.rexx"

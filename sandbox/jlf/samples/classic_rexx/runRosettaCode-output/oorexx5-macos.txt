@@ -1,11 +1,11 @@
-Your REXX interpreter is REXX-ooRexx_5.0.0(MT)_64-bit 6.05 5 May 2018
+Your REXX interpreter is REXX-ooRexx_5.0.0(MT)_64-bit 6.05 14 Jan 2019
 Your system is DARWIN
 ================================================================================
 [1] 100-doors/100-doors-1.rexx
 ================================================================================
      7 *-* do #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/100-doors/100-doors-1.rexx line 7:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/100-doors/100-doors-1.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -13,8 +13,8 @@ RC=243
 [2] 100-doors/100-doors-2.rexx
 ================================================================================
      6 *-* do #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/100-doors/100-doors-2.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/100-doors/100-doors-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -22,8 +22,8 @@ RC=243
 [3] 24-game/24-game-1.rexx
 ================================================================================
     11 *-*   @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/24-game/24-game-1.rexx line 11:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/24-game/24-game-1.rexx line 11:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -31,8 +31,8 @@ RC=243
 [4] 24-game-Solve/24-game-solve.rexx
 ================================================================================
     41 *-* L.=   /*assume no left parenthesis so far.   */
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/24-game-Solve/24-game-solve.rexx line 41:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/24-game-Solve/24-game-solve.rexx line 41:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -40,8 +40,8 @@ RC=221
 [5] 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
 ================================================================================
      4 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx line 4:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -49,8 +49,8 @@ RC=243
 [6] 99-Bottles-of-Beer/99-bottles-of-beer.rexx
 ================================================================================
      4 *-* do #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/99-Bottles-of-Beer/99-bottles-of-beer.rexx line 4:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/99-Bottles-of-Beer/99-bottles-of-beer.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -79,8 +79,8 @@ RC=0
 [10] A+B/a+b-4.rexx
 ================================================================================
      6 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/A+B/a+b-4.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/A+B/a+b-4.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -88,8 +88,8 @@ RC=243
 [11] ABC-Problem/abc-problem-1.rexx
 ================================================================================
     10 *-*     @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/ABC-Problem/abc-problem-1.rexx line 10:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/ABC-Problem/abc-problem-1.rexx line 10:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -112,8 +112,8 @@ RC=0
 [13] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
 ================================================================================
      6 *-*          $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -121,8 +121,8 @@ RC=243
 [14] Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
 ================================================================================
      6 *-*          $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -138,8 +138,8 @@ RC=0
 [17] Ackermann-function/ackermann-function-1.rexx
 ================================================================================
     16 *-*            #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-1.rexx line 16:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-1.rexx line 16:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -147,8 +147,8 @@ RC=243
 [18] Ackermann-function/ackermann-function-2.rexx
 ================================================================================
     11 *-*            #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-2.rexx line 11:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-2.rexx line 11:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -156,8 +156,8 @@ RC=243
 [19] Ackermann-function/ackermann-function-3.rexx
 ================================================================================
     18 *-*            #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-3.rexx line 18:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Ackermann-function/ackermann-function-3.rexx line 18:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -194,8 +194,8 @@ RC=0
 [23] AKS-test-for-primes/aks-test-for-primes-2.rexx
 ================================================================================
      8 *-* say "primes found:"   #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/AKS-test-for-primes/aks-test-for-primes-2.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/AKS-test-for-primes/aks-test-for-primes-2.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -235,8 +235,8 @@ RC=0
 [25] Align-columns/align-columns-2.rexx
 ================================================================================
      2 *-* t.=;
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-2.rexx line 2:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-2.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -244,8 +244,8 @@ RC=221
 [26] Align-columns/align-columns-3.rexx
 ================================================================================
      2 *-* t.=;
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-3.rexx line 2:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Align-columns/align-columns-3.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -253,8 +253,8 @@ RC=221
 [27] Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
 ================================================================================
      8 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -262,8 +262,8 @@ RC=243
 [28] Almost-prime/almost-prime-1.rexx
 ================================================================================
      6 *-*      $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Almost-prime/almost-prime-1.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Almost-prime/almost-prime-1.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -271,8 +271,8 @@ RC=243
 [29] Almost-prime/almost-prime-2.rexx
 ================================================================================
     12 *-* say 'The highest prime computed: '        @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Almost-prime/almost-prime-2.rexx line 12:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Almost-prime/almost-prime-2.rexx line 12:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -280,8 +280,8 @@ RC=243
 [30] Amb/amb-1.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amb/amb-1.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amb/amb-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -304,8 +304,8 @@ RC=0
 [33] Amicable-pairs/amicable-pairs-2.rexx
 ================================================================================
      4 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-2.rexx line 4:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-2.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -313,8 +313,8 @@ RC=243
 [34] Amicable-pairs/amicable-pairs-3.rexx
 ================================================================================
      5 *-*   $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-3.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-3.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -322,8 +322,8 @@ RC=243
 [35] Amicable-pairs/amicable-pairs-4.rexx
 ================================================================================
      5 *-*   $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-4.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-4.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -331,8 +331,8 @@ RC=243
 [36] Amicable-pairs/amicable-pairs-5.rexx
 ================================================================================
      5 *-*   $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-5.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Amicable-pairs/amicable-pairs-5.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -340,8 +340,8 @@ RC=243
 [37] Anagrams/anagrams-1.rexx
 ================================================================================
      3 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-1.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-1.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -349,8 +349,8 @@ RC=243
 [38] Anagrams/anagrams-2.rexx
 ================================================================================
      3 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-2.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-2.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -358,8 +358,8 @@ RC=243
 [39] Anagrams/anagrams-3.rexx
 ================================================================================
      8 *-* _.=
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-3.rexx line 8:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-3.rexx line 8:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -367,8 +367,8 @@ RC=221
 [40] Anagrams/anagrams-4.rexx
 ================================================================================
      6 *-* _.=
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-4.rexx line 6:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Anagrams/anagrams-4.rexx line 6:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -382,7 +382,7 @@ RC=221
 There are 1 set(s) of anagrams with 0 elements each:
  
     
-0.001209
+0.001311
 
 RC=0
 
@@ -396,7 +396,7 @@ RC=0
 There are 1 set(s) of anagrams with 0 elements each:
  
     
-0.001246
+0.001277
 
 RC=0
 
@@ -404,8 +404,8 @@ RC=0
 [43] Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
 ================================================================================
      8 *-*       #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -413,8 +413,8 @@ RC=243
 [44] Anonymous-recursion/anonymous-recursion-1.rexx
 ================================================================================
     13 *-* parse arg #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anonymous-recursion/anonymous-recursion-1.rexx line 13:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anonymous-recursion/anonymous-recursion-1.rexx line 13:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -422,8 +422,8 @@ RC=243
 [45] Anonymous-recursion/anonymous-recursion-2.rexx
 ================================================================================
      5 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anonymous-recursion/anonymous-recursion-2.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Anonymous-recursion/anonymous-recursion-2.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -437,8 +437,8 @@ RC=0
 [47] Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
 ================================================================================
      2 *-* a.=;
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx line 2:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -452,8 +452,8 @@ RC=0
 [51] Arithmetic-Complex/arithmetic-complex.rexx
 ================================================================================
     14 *-* call C#
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-Complex/arithmetic-complex.rexx line 14:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-Complex/arithmetic-complex.rexx line 14:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -461,8 +461,8 @@ RC=243
 [52] Arithmetic-evaluation/arithmetic-evaluation.rexx
 ================================================================================
      3 *-*     $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-evaluation/arithmetic-evaluation.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-evaluation/arithmetic-evaluation.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -470,8 +470,8 @@ RC=243
 [53] Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
 ================================================================================
     19 *-* do #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx line 19:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx line 19:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -520,8 +520,8 @@ RC=0
 [57] Arithmetic-Integer/arithmetic-integer.rexx
 ================================================================================
     24 *-* show: parse arg c,o,#
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-Integer/arithmetic-integer.rexx line 24:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Arithmetic-Integer/arithmetic-integer.rexx line 24:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -541,8 +541,8 @@ RC=0
 [61] Array-concatenation/array-concatenation-3.rexx
 ================================================================================
      3 *-* p.=                                    /*(below) a short list of primes.*/
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Array-concatenation/array-concatenation-3.rexx line 3:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Array-concatenation/array-concatenation-3.rexx line 3:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -632,8 +632,8 @@ RC=0
 [71] Associative-array-Iteration/associative-array-iteration.rexx
 ================================================================================
     11 *-* stateL=
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Associative-array-Iteration/associative-array-iteration.rexx line 11:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Associative-array-Iteration/associative-array-iteration.rexx line 11:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -641,8 +641,8 @@ RC=221
 [73] Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
 ================================================================================
      2 *-* parse arg @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Arithmetic-mean/averages-arithmetic-mean.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Arithmetic-mean/averages-arithmetic-mean.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -650,8 +650,8 @@ RC=243
 [74] Averages-Mean-angle/averages-mean-angle.rexx
 ================================================================================
      5 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Mean-angle/averages-mean-angle.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Mean-angle/averages-mean-angle.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -666,8 +666,8 @@ RC=0
 [76] Averages-Median/averages-median.rexx
 ================================================================================
      9 *-* eSORT:  procedure expose @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Median/averages-median.rexx line 9:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Median/averages-median.rexx line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -675,8 +675,8 @@ RC=243
 [77] Averages-Mode/averages-mode-1.rexx
 ================================================================================
      9 *-* sort: procedure expose @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Mode/averages-mode-1.rexx line 9:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Mode/averages-mode-1.rexx line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -707,8 +707,8 @@ RC=0
 [79] Averages-Pythagorean-means/averages-pythagorean-means.rexx
 ================================================================================
      6 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Pythagorean-means/averages-pythagorean-means.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Pythagorean-means/averages-pythagorean-means.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -716,8 +716,8 @@ RC=243
 [80] Averages-Root-mean-square/averages-root-mean-square.rexx
 ================================================================================
      7 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Root-mean-square/averages-root-mean-square.rexx line 7:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Root-mean-square/averages-root-mean-square.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -725,8 +725,8 @@ RC=243
 [81] Averages-Simple-moving-average/averages-simple-moving-average.rexx
 ================================================================================
      6 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Simple-moving-average/averages-simple-moving-average.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Averages-Simple-moving-average/averages-simple-moving-average.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -734,8 +734,8 @@ RC=243
 [82] Balanced-brackets/balanced-brackets-1.rexx
 ================================================================================
      4 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Balanced-brackets/balanced-brackets-1.rexx line 4:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Balanced-brackets/balanced-brackets-1.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -779,8 +779,8 @@ RC=0
 [84] Balanced-brackets/balanced-brackets-3.rexx
 ================================================================================
      3 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Balanced-brackets/balanced-brackets-3.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Balanced-brackets/balanced-brackets-3.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -788,8 +788,8 @@ RC=243
 [85] Balanced-ternary/balanced-ternary.rexx
 ================================================================================
      4 *-*                    @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Balanced-ternary/balanced-ternary.rexx line 4:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Balanced-ternary/balanced-ternary.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -797,8 +797,8 @@ RC=243
 [86] Benfords-law/benfords-law.rexx
 ================================================================================
      8 *-*    #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Benfords-law/benfords-law.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Benfords-law/benfords-law.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -806,8 +806,8 @@ RC=243
 [87] Bernoulli-numbers/bernoulli-numbers.rexx
 ================================================================================
      6 *-* do #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bernoulli-numbers/bernoulli-numbers.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bernoulli-numbers/bernoulli-numbers.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -815,8 +815,8 @@ RC=243
 [88] Best-shuffle/best-shuffle-1.rexx
 ================================================================================
      2 *-* parse arg $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Best-shuffle/best-shuffle-1.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Best-shuffle/best-shuffle-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -824,8 +824,8 @@ RC=243
 [92] Best-shuffle/best-shuffle.rexx
 ================================================================================
      2 *-* parse arg $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Best-shuffle/best-shuffle.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Best-shuffle/best-shuffle.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -833,8 +833,8 @@ RC=243
 [93] Binary-digits/binary-digits-1.rexx
 ================================================================================
      3 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-1.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-1.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -842,8 +842,8 @@ RC=243
 [94] Binary-digits/binary-digits-2.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-2.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-2.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -851,8 +851,8 @@ RC=243
 [95] Binary-digits/binary-digits-3.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-3.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-3.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -860,8 +860,8 @@ RC=243
 [96] Binary-digits/binary-digits-4.rexx
 ================================================================================
      3 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-4.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-digits/binary-digits-4.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -869,8 +869,8 @@ RC=243
 [97] Binary-search/binary-search-1.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-search/binary-search-1.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-search/binary-search-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -878,8 +878,8 @@ RC=243
 [98] Binary-search/binary-search-2.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-search/binary-search-2.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Binary-search/binary-search-2.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -893,15 +893,15 @@ RC=0
 [100] Bitmap/bitmap-1.rexx
 ================================================================================
      5 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap/bitmap-1.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap/bitmap-1.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
 [101] Bitmap/bitmap-2.rexx
 ================================================================================
-sh: erase: command not found
+/bin/sh: erase: command not found
      5 *-* 'erase' oid
        >>>   "erase pic.bmp"
        +++   "RC(127)"
@@ -918,8 +918,8 @@ RC=0
 [102] Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
 ================================================================================
      5 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -950,8 +950,8 @@ RC=0
 [104] Bitmap-Flood-fill/bitmap-flood-fill.rexx
 ================================================================================
     19 *-* pixel=@
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Flood-fill/bitmap-flood-fill.rexx line 19:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Flood-fill/bitmap-flood-fill.rexx line 19:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -959,8 +959,8 @@ RC=243
 [105] Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -968,8 +968,8 @@ RC=243
 [106] Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx
 ================================================================================
      8 *-* parse var  y   id  3 c 4 3 width height #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -977,8 +977,8 @@ RC=243
 [107] Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
 ================================================================================
      9 *-*  @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx line 9:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -996,8 +996,8 @@ RC=0
 [109] Bitwise-IO/bitwise-io-2.rexx
 ================================================================================
      2 *-* parse arg $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitwise-IO/bitwise-io-2.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitwise-IO/bitwise-io-2.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -1005,8 +1005,8 @@ RC=243
 [110] Bitwise-operations/bitwise-operations.rexx
 ================================================================================
     23 *-* bShiftR: $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitwise-operations/bitwise-operations.rexx line 23:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bitwise-operations/bitwise-operations.rexx line 23:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -1038,8 +1038,8 @@ RC=0
 [115] Boolean-values/boolean-values-5.rexx
 ================================================================================
      1 *-* false = �
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Boolean-values/boolean-values-5.rexx line 1:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "�" ('C2'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Boolean-values/boolean-values-5.rexx line 1:  Invalid character in program.
+Error 13.1:  Incorrect character in program "�" ('C2'X).
 
 RC=243
 
@@ -1053,8 +1053,8 @@ RC=0
 [117] Box-the-compass/box-the-compass.rexx
 ================================================================================
      2 *-* parse arg $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Box-the-compass/box-the-compass.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Box-the-compass/box-the-compass.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
@@ -1062,8 +1062,8 @@ RC=243
 [118] Brownian-tree/brownian-tree.rexx
 ================================================================================
     31 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Brownian-tree/brownian-tree.rexx line 31:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Brownian-tree/brownian-tree.rexx line 31:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -1071,8 +1071,8 @@ RC=243
 [119] Bulls-and-cows/bulls-and-cows-1.rexx
 ================================================================================
      2 *-* ?=;
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Bulls-and-cows/bulls-and-cows-1.rexx line 2:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Bulls-and-cows/bulls-and-cows-1.rexx line 2:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
@@ -1089,8 +1089,8 @@ RC=0
 [121] Bulls-and-cows-Player/bulls-and-cows-player.rexx
 ================================================================================
      3 *-* call gen@
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bulls-and-cows-Player/bulls-and-cows-player.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Bulls-and-cows-Player/bulls-and-cows-player.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -1098,8 +1098,8 @@ RC=243
 [122] Caesar-cipher/caesar-cipher-1.rexx
 ================================================================================
     12 *-*   @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Caesar-cipher/caesar-cipher-1.rexx line 12:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Caesar-cipher/caesar-cipher-1.rexx line 12:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -1107,8 +1107,8 @@ RC=243
 [123] Caesar-cipher/caesar-cipher-2.rexx
 ================================================================================
     10 *-*      @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Caesar-cipher/caesar-cipher-2.rexx line 10:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Caesar-cipher/caesar-cipher-2.rexx line 10:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -1116,8 +1116,8 @@ RC=243
 [124] Calendar/calendar.rexx
 ================================================================================
      3 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Calendar/calendar.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Calendar/calendar.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
@@ -1125,20 +1125,29 @@ RC=243
 [125] Calendar/calendar.rexx
 ================================================================================
      3 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Calendar/calendar.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Calendar/calendar.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[127] Call-a-function/call-a-function-1.rexx
+[126] Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx
+================================================================================
+     2 *-* @
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
+
+RC=243
+
+================================================================================
+[128] Call-a-function/call-a-function-1.rexx
 ================================================================================
 year= 4  
 
 RC=0
 
 ================================================================================
-[128] Call-a-function/call-a-function-2.rexx
+[129] Call-a-function/call-a-function-2.rexx
 ================================================================================
 f1 doesn't need an argument
 f2: Sum of 3 arguments: 6
@@ -1152,7 +1161,7 @@ f5: Argument 1 (A) contains 4700
 f5: Argument 2 (B) contains 11
 f5: sum=4711
 f6: dir ft.rex
-sh: dir: command not found
+/bin/sh: dir: command not found
     31 *-* f6()  /* returned value is used as command */
        >>>   "dir ft.rex"
        +++   "RC(127)"
@@ -1161,7 +1170,7 @@ f8 returns arg(1)+arg(2)
 f8 returns arg(1)+arg(2)
 3 = 3
 date is my date function
-20180630 06/30/2018
+20190114 01/14/2019
 fa returns arg(1)+arg(2)
 fa returns arg(1)+arg(2)
 33 = 3
@@ -1175,79 +1184,79 @@ fb cannot be invoked as function (it does not return a value
 RC=0
 
 ================================================================================
-[129] Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
+[130] Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
 ================================================================================
     11 *-* y=systextscreensize()                  /*Y now contains 2 numbers:  rows cols */
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx line 11:  Routine not found.
-REX0417E: Error 43.1:  Could not find routine "SYSTEXTSCREENSIZE".
+Error 43 running /local/RosettaCodeData/git/Lang/REXX/Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx line 11:  Routine not found.
+Error 43.1:  Could not find routine "SYSTEXTSCREENSIZE".
 
 RC=213
 
 ================================================================================
-[130] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
+[131] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
 ================================================================================
      5 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[131] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
+[132] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
 ================================================================================
      5 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[132] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
+[133] Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
 ================================================================================
      5 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[133] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
+[134] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
 ================================================================================
     10 *-* say center('using simple variables', 35, "─")     /*title.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx line 10:  Incorrect call to routine.
-REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "─".
+Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx line 10:  Incorrect call to routine.
+Error 40.23:  CENTER argument 3 must be a single character; found "─".
 
 RC=216
 
 ================================================================================
-[134] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
+[135] Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
 ================================================================================
     11 *-* say center('using compound variables', 35, "═")   /*title.*/
-REX0040E: Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx line 11:  Incorrect call to routine.
-REX0385E: Error 40.23:  CENTER argument 3 must be a single character; found "═".
+Error 40 running /local/RosettaCodeData/git/Lang/REXX/Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx line 11:  Incorrect call to routine.
+Error 40.23:  CENTER argument 3 must be a single character; found "═".
 
 RC=216
 
 ================================================================================
-[135] Casting-out-nines/casting-out-nines.rexx
+[136] Casting-out-nines/casting-out-nines.rexx
 ================================================================================
      8 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Casting-out-nines/casting-out-nines.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Casting-out-nines/casting-out-nines.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[136] Catalan-numbers/catalan-numbers-1.rexx
+[137] Catalan-numbers/catalan-numbers-1.rexx
 ================================================================================
     21 *-*   $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers/catalan-numbers-1.rexx line 21:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers/catalan-numbers-1.rexx line 21:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[137] Catalan-numbers/catalan-numbers-2.rexx
+[138] Catalan-numbers/catalan-numbers-2.rexx
 ================================================================================
  n       c1.n       c2.n       c3.n
  0          1          1          1
@@ -1276,25 +1285,25 @@ RC=243
 RC=0
 
 ================================================================================
-[138] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
+[139] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
 ================================================================================
      5 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[139] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
+[140] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
 ================================================================================
      5 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx line 5:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[140] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
+[141] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
 ================================================================================
 1
 2
@@ -1315,7 +1324,7 @@ RC=243
 RC=0
 
 ================================================================================
-[141] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
+[142] Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
 ================================================================================
 1
 2
@@ -1336,16 +1345,16 @@ RC=0
 RC=0
 
 ================================================================================
-[142] Catamorphism/catamorphism.rexx
+[143] Catamorphism/catamorphism.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catamorphism/catamorphism.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Catamorphism/catamorphism.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[143] Character-codes/character-codes-1.rexx
+[144] Character-codes/character-codes-1.rexx
 ================================================================================
 from char, yyy code= c
 from  hex, yyy code= c
@@ -1361,7 +1370,7 @@ char code:  c
 RC=0
 
 ================================================================================
-[144] Character-codes/character-codes-2.rexx
+[145] Character-codes/character-codes-2.rexx
 ================================================================================
 �
 81
@@ -1371,100 +1380,100 @@ RC=0
 RC=0
 
 ================================================================================
-[145] Check-Machin-like-formulas/check-machin-like-formulas.rexx
+[146] Check-Machin-like-formulas/check-machin-like-formulas.rexx
 ================================================================================
      2 *-*           @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Check-Machin-like-formulas/check-machin-like-formulas.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Check-Machin-like-formulas/check-machin-like-formulas.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[146] Check-that-file-exists/check-that-file-exists-1.rexx
+[147] Check-that-file-exists/check-that-file-exists-1.rexx
 ================================================================================
      4 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-1.rexx line 4:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-1.rexx line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[147] Check-that-file-exists/check-that-file-exists-2.rexx
+[148] Check-that-file-exists/check-that-file-exists-2.rexx
 ================================================================================
      3 *-* IF ~Openfile(filename) THEN CALL Openfile(':'filename)
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-2.rexx line 3:  Invalid expression.
-REX0340E: Error 35.1:  Incorrect expression detected at "~".
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Check-that-file-exists/check-that-file-exists-2.rexx line 3:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "~".
 
 RC=221
 
 ================================================================================
-[148] Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
+[149] Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
 ================================================================================
      7 *-*   #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx line 7:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[149] Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
+[150] Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
 ================================================================================
      7 *-*   #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx line 7:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[150] Cholesky-decomposition/cholesky-decomposition.rexx
+[151] Cholesky-decomposition/cholesky-decomposition.rexx
 ================================================================================
     15 *-*  $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Cholesky-decomposition/cholesky-decomposition.rexx line 15:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Cholesky-decomposition/cholesky-decomposition.rexx line 15:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[151] Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
+[152] Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[152] Closest-pair-problem/closest-pair-problem.rexx
+[153] Closest-pair-problem/closest-pair-problem.rexx
 ================================================================================
      9 *-*    /*║ generate  N  points. ║*/      @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Closest-pair-problem/closest-pair-problem.rexx line 9:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Closest-pair-problem/closest-pair-problem.rexx line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[153] Closures-Value-capture/closures-value-capture.rexx
+[154] Closures-Value-capture/closures-value-capture.rexx
 ================================================================================
      2 *-* parse arg seed base $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Closures-Value-capture/closures-value-capture.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Closures-Value-capture/closures-value-capture.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[154] Collections/collections-1.rexx
+[155] Collections/collections-1.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[155] Collections/collections-2.rexx
+[156] Collections/collections-2.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[157] Collections/collections-4.rexx
+[158] Collections/collections-4.rexx
 ================================================================================
 prime 1 is 2
 prime 2 is 3
@@ -1484,52 +1493,52 @@ prime 14 is 43
 RC=0
 
 ================================================================================
-[159] Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
+[160] Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
 ================================================================================
      2 *-* parse value  cursor()  with  r  c  .             /*get cursor's location in DOS screen. */
-REX0043E: Error 43 running /local/RosettaCodeData/git/Lang/REXX/Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx line 2:  Routine not found.
-REX0417E: Error 43.1:  Could not find routine "CURSOR".
+Error 43 running /local/RosettaCodeData/git/Lang/REXX/Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx line 2:  Routine not found.
+Error 43.1:  Could not find routine "CURSOR".
 
 RC=213
 
 ================================================================================
-[160] Colour-bars-Display/colour-bars-display.rexx
+[161] Colour-bars-Display/colour-bars-display.rexx
 ================================================================================
      6 *-*     $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Colour-bars-Display/colour-bars-display.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Colour-bars-Display/colour-bars-display.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[161] Combinations/combinations.rexx
+[162] Combinations/combinations.rexx
 ================================================================================
      2 *-* parse arg x y $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Combinations/combinations.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Combinations/combinations.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[162] Combinations-and-permutations/combinations-and-permutations.rexx
+[163] Combinations-and-permutations/combinations-and-permutations.rexx
 ================================================================================
      4 *-* _=    /*show all permutations from  1 ──► 12.*/
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Combinations-and-permutations/combinations-and-permutations.rexx line 4:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Combinations-and-permutations/combinations-and-permutations.rexx line 4:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
 ================================================================================
-[163] Combinations-with-repetitions/combinations-with-repetitions-1.rexx
+[164] Combinations-with-repetitions/combinations-with-repetitions-1.rexx
 ================================================================================
      8 *-*            $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Combinations-with-repetitions/combinations-with-repetitions-1.rexx line 8:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Combinations-with-repetitions/combinations-with-repetitions-1.rexx line 8:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[164] Combinations-with-repetitions/combinations-with-repetitions-2.rexx
+[165] Combinations-with-repetitions/combinations-with-repetitions-2.rexx
 ================================================================================
 ------------ 3 doughnut selection taken 2 at a time:
  iced iced
@@ -1548,12 +1557,12 @@ RC=243
  list output suppressed
 ------------ 48620 combinations.
 
-0.307292 seconds
+0.268301 seconds
 
 RC=0
 
 ================================================================================
-[165] Combinations-with-repetitions/combinations-with-repetitions-3.rexx
+[166] Combinations-with-repetitions/combinations-with-repetitions-3.rexx
 ================================================================================
 ------------ 3 doughnut selection taken 2 at a time:
  iced iced
@@ -1569,12 +1578,12 @@ RC=0
 ------------ 10 doughnut selection taken 9 at a time:
  list output suppressed
 48620
-0.304860 seconds
+0.214267 seconds
 
 RC=0
 
 ================================================================================
-[166] Comma-quibbling/comma-quibbling-1.rexx
+[167] Comma-quibbling/comma-quibbling-1.rexx
 ================================================================================
 {}
 {ABC}
@@ -1584,7 +1593,7 @@ RC=0
 RC=0
 
 ================================================================================
-[167] Comma-quibbling/comma-quibbling-2.rexx
+[168] Comma-quibbling/comma-quibbling-2.rexx
 ================================================================================
 {}
 {ABC}
@@ -1594,7 +1603,7 @@ RC=0
 RC=0
 
 ================================================================================
-[168] Comma-quibbling/comma-quibbling-3.rexx
+[169] Comma-quibbling/comma-quibbling-3.rexx
 ================================================================================
 
                             [] : {}
@@ -1605,7 +1614,7 @@ RC=0
 RC=0
 
 ================================================================================
-[169] Command-line-arguments/command-line-arguments-1.rexx
+[170] Command-line-arguments/command-line-arguments-1.rexx
 ================================================================================
 command arguments:
 
@@ -1613,7 +1622,7 @@ command arguments:
 RC=0
 
 ================================================================================
-[170] Command-line-arguments/command-line-arguments-2.rexx
+[171] Command-line-arguments/command-line-arguments-2.rexx
 ================================================================================
 command arguments:
 ARG1 ARG2 ARG3
@@ -1624,159 +1633,159 @@ options=
 RC=0
 
 ================================================================================
-[171] Comments/comments-1.rexx
+[172] Comments/comments-1.rexx
 ================================================================================
      3 *-* say 44 / (7-y)      /* divide by some strange thingy.*/
-REX0042E: Error 42 running /local/RosettaCodeData/git/Lang/REXX/Comments/comments-1.rexx line 3:  Arithmetic overflow/underflow.
-REX0413E: Error 42.3:  Arithmetic overflow; divisor must not be zero.
+Error 42 running /local/RosettaCodeData/git/Lang/REXX/Comments/comments-1.rexx line 3:  Arithmetic overflow/underflow.
+Error 42.3:  Arithmetic overflow; divisor must not be zero.
 
 RC=214
 
 ================================================================================
-[172] Comments/comments-2.rexx
+[173] Comments/comments-2.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[173] Comments/comments-3.rexx
+[174] Comments/comments-3.rexx
 ================================================================================
 something
 
 RC=0
 
 ================================================================================
-[174] Compile-time-calculation/compile-time-calculation.rexx
+[175] Compile-time-calculation/compile-time-calculation.rexx
 ================================================================================
 10! = 3628800
 
 RC=0
 
 ================================================================================
-[175] Compound-data-type/compound-data-type-1.rexx
+[176] Compound-data-type/compound-data-type-1.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[176] Compound-data-type/compound-data-type-2.rexx
+[177] Compound-data-type/compound-data-type-2.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[180] Conjugate-transpose/conjugate-transpose.rexx
+[181] Conjugate-transpose/conjugate-transpose.rexx
 ================================================================================
     23 *-* _=
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Conjugate-transpose/conjugate-transpose.rexx line 23:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Conjugate-transpose/conjugate-transpose.rexx line 23:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
 ================================================================================
-[181] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
+[182] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
 ================================================================================
      6 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[182] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
+[183] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
 ================================================================================
      6 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[183] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
+[184] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
 ================================================================================
-                              O
-                                O     O
-                              O     O   O O
-                  O O O     O       O       O
-                O     O           O O       O
-              O O         O O     O     O
-                O                             O O
-              O   O                           O O     O
-            O                                 O O
-          O                                   O
-  O O O
-  O     O                                           O
-  O     O                                               O
-  O     O
-          O                                         O
-    O                                                     O O
-                                                    O
-        O O                                             O O
-                                                  O O
+
+                    O O           O   O
+                  O O         O O O
+            O O     O   O     O O       O O O
+                O
+                  O         O     O           O
+              O                         O     O
+      O                                         O
+    O     O                                   O     O
+          O                                     O
+    O       O
+        O                                           O
+      O                                             O
+    O     O                                       O   O   O
+  O   O                                           O
+O O                                               O
           O
-        O O O
-    O O                                               O
-            O                                   O
-      O   O
-        O                                             O
-        O     O   O       O O         O   O O   O   O
-          O                             O     O O O
-                  O   O         O     O
-                O O     O         O
-                    O O O               O
-
+        O                                         O
+        O O
+      O                                           O
+                                                  O
+            O                                   O O O   O
+    O                                           O       O
+      O         O                             O   O
+      O O           O                         O O O
+          O O             O       O O             O
+            O O     O   O   O       O       O
+                        O   O       O   O       O
+                  O               O
+                    O                   O
+                              O
 
 RC=0
 
 ================================================================================
-[184] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
+[185] Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
 ================================================================================
                               +
-                      +       +     + +
-                      +   +   +     +       +
-              +       +       +             +
-                  +                     +
-              +                 +   +               +
-                  +                                   +
-                                                    +
-    +                                         +
-                                                  +     +
-  +   +     +                                   +         +
-    +   + +                                       + +
-                                                    +     +
-      + +                                           + + + +
-          +                                               +
-  + +     +                                       +
-  + +     +                                               +
-    + +                                           + + +   +
-    + + +                                         +   +
-                                                    +
-                                                      +
-      +                                       + + +
-        + + +                                 +     +   +
-        +     + +                               +     +
-              +                               +
-                        + +   +
-            +     + +       +   +
+                              +       +
+                +   +       +   +
+                              +             + +
+                              + +         + +
+                                            +
+      +             +                     +       +
+                                          +   +
+              +
+        +     +                               + +
+      +                                                 +
+    +   +                                         +   + + +
+  + + + + +                                       + + +   +
+  +                                               +     +
+        + +                                             +
+    +                                             +       +
+        + +                                           + +
+  + +                                                     +
+      + +
+    + + +                                           + + + +
 
-                + +     +         +
-                        +         +
+      +                                         +
+    +         +                                 +
+                                            + +   +
+                    +                   +             +
+              +                   +               +
+          +     +             +   + + + +         +
+                                      +     +   +
+                +                       + +
+                    + +         +
                               +
 100 points filled
 
 RC=0
 
 ================================================================================
-[185] Continued-fraction/continued-fraction-1.rexx
+[186] Continued-fraction/continued-fraction-1.rexx
 ================================================================================
     38 *-*    $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Continued-fraction/continued-fraction-1.rexx line 38:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Continued-fraction/continued-fraction-1.rexx line 38:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[186] Continued-fraction/continued-fraction-2.rexx
+[187] Continued-fraction/continued-fraction-2.rexx
 ================================================================================
 SQRT2=     1.41421356237309504880168872421
 NAPIER=    2.71828182845904523536028747135
@@ -1785,7 +1794,7 @@ PI=        3.14159262280484694855146925223
 RC=0
 
 ================================================================================
-[187] Continued-fraction/continued-fraction-3.rexx
+[188] Continued-fraction/continued-fraction-3.rexx
 ================================================================================
 PI =3.1415926535897932384626433832795028841971693993751...
 PIX=3.1415926535897932384626433832795028841971693993751...
@@ -1794,16 +1803,16 @@ PIX=3.1415926535897932384626433832795028841971693993751...
 RC=0
 
 ================================================================================
-[188] Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
+[189] Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
 ================================================================================
     25 *-* $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx line 25:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx line 25:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[189] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
+[190] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
 ================================================================================
 old = 0.9054054054
 new = 67/74
@@ -1811,7 +1820,7 @@ new = 67/74
 RC=0
 
 ================================================================================
-[190] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
+[191] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
 ================================================================================
   0.9054054054 67/74
  
@@ -1841,7 +1850,7 @@ RC=0
 RC=0
 
 ================================================================================
-[191] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
+[192] Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
 ================================================================================
 5.55555 = 111111/20000 ok
 3 = 3 ok
@@ -1862,114 +1871,114 @@ RC=0
 RC=0
 
 ================================================================================
-[192] Conways-Game-of-Life/conways-game-of-life-1.rexx
+[193] Conways-Game-of-Life/conways-game-of-life-1.rexx
 ================================================================================
     12 *-* #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-1.rexx line 12:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-1.rexx line 12:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[193] Conways-Game-of-Life/conways-game-of-life-2.rexx
+[194] Conways-Game-of-Life/conways-game-of-life-2.rexx
 ================================================================================
-sh: erase: command not found
+/bin/sh: erase: command not found
     12 *-* 'erase' oid
        >>>   "erase bipole.txt"
        +++   "RC(127)"
     92 *-*   st=st||'-'right(s,2,'-')||copies('-',xmax-xmin)'+'
-REX0093E: Error 93 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-2.rexx line 92:  Incorrect call to method.
-REX0436E: Error 93.906:  Method argument 1 must be zero or a positive whole number; found "-999".
+Error 93 running /local/RosettaCodeData/git/Lang/REXX/Conways-Game-of-Life/conways-game-of-life-2.rexx line 92:  Incorrect call to method.
+Error 93.906:  Method argument 1 must be zero or a positive whole number; found "-999".
 
 RC=163
 
 ================================================================================
-[194] Copy-a-string/copy-a-string.rexx
+[195] Copy-a-string/copy-a-string.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[195] Count-in-factors/count-in-factors-1.rexx
+[196] Count-in-factors/count-in-factors-1.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-in-factors/count-in-factors-1.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-in-factors/count-in-factors-1.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[196] Count-in-factors/count-in-factors-2.rexx
+[197] Count-in-factors/count-in-factors-2.rexx
 ================================================================================
      2 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-in-factors/count-in-factors-2.rexx line 2:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-in-factors/count-in-factors-2.rexx line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[197] Count-in-octal/count-in-octal.rexx
+[198] Count-in-octal/count-in-octal.rexx
 ================================================================================
     19 *-* do #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-in-octal/count-in-octal.rexx line 19:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-in-octal/count-in-octal.rexx line 19:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[198] Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
+[199] Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
 ================================================================================
      8 *-* bag=                       ;
-REX0035E: Error 35 running /local/RosettaCodeData/git/Lang/REXX/Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx line 8:  Invalid expression.
-REX0357E: Error 35.918:  Missing expression following assignment instruction.
+Error 35 running /local/RosettaCodeData/git/Lang/REXX/Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx line 8:  Invalid expression.
+Error 35.918:  Missing expression following assignment instruction.
 
 RC=221
 
 ================================================================================
-[199] Count-the-coins/count-the-coins-1.rexx
+[200] Count-the-coins/count-the-coins-1.rexx
 ================================================================================
      3 *-* parse arg N $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-the-coins/count-the-coins-1.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-the-coins/count-the-coins-1.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[200] Count-the-coins/count-the-coins-2.rexx
+[201] Count-the-coins/count-the-coins-2.rexx
 ================================================================================
      3 *-* parse arg N $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-the-coins/count-the-coins-2.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-the-coins/count-the-coins-2.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[201] Count-the-coins/count-the-coins-3.rexx
+[202] Count-the-coins/count-the-coins-3.rexx
 ================================================================================
      3 *-* parse arg N $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-the-coins/count-the-coins-3.rexx line 3:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Count-the-coins/count-the-coins-3.rexx line 3:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[202] CRC-32/crc-32.rexx
+[203] CRC-32/crc-32.rexx
 ================================================================================
      7 *-* parse arg !,$
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/CRC-32/crc-32.rexx line 7:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/CRC-32/crc-32.rexx line 7:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[203] Create-a-file/create-a-file.rexx
+[204] Create-a-file/create-a-file.rexx
 ================================================================================
-sh: COPY: command not found
+/bin/sh: COPY: command not found
      3 *-*   'COPY NUL output.txt'           /*copy a "null" (empty) file.    */
        >>>     "COPY NUL output.txt"
        +++     "RC(127)"
 MKDIR: DOCS: File exists
-sh: COPY: command not found
+/bin/sh: COPY: command not found
      3 *-*   'COPY NUL output.txt'           /*copy a "null" (empty) file.    */
        >>>     "COPY NUL output.txt"
        +++     "RC(127)"
@@ -1978,22 +1987,22 @@ MKDIR: DOCS: File exists
 RC=0
 
 ================================================================================
-[204] Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
+[205] Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[205] Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
+[206] Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
 ================================================================================
     10 *-* @
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx line 10:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "@" ('40'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx line 10:  Invalid character in program.
+Error 13.1:  Incorrect character in program "@" ('40'X).
 
 RC=243
 
 ================================================================================
-[206] Create-an-HTML-table/create-an-html-table.rexx
+[207] Create-an-HTML-table/create-an-html-table.rexx
 ================================================================================
 ══► <html>
 ══► <head></head>
@@ -2004,25 +2013,25 @@ RC=243
 ══► <th> Y </th>
 ══► <th> Z </th>
 ══► <tr><th> 1 </th>
-══► <td align=right>  7501 </td>
-══► <td align=right> -1299 </td>
-══► <td align=right> -3225 </td>
+══► <td align=right>  4860 </td>
+══► <td align=right>  9988 </td>
+══► <td align=right> -7146 </td>
 ══► <tr><th> 2 </th>
-══► <td align=right> -6545 </td>
-══► <td align=right>  4982 </td>
-══► <td align=right>  -694 </td>
+══► <td align=right>  2620 </td>
+══► <td align=right> -6241 </td>
+══► <td align=right>  2948 </td>
 ══► <tr><th> 3 </th>
-══► <td align=right> -5238 </td>
-══► <td align=right> -9879 </td>
-══► <td align=right> -4825 </td>
+══► <td align=right> -8005 </td>
+══► <td align=right> -7987 </td>
+══► <td align=right> -3259 </td>
 ══► <tr><th> 4 </th>
-══► <td align=right> -6371 </td>
-══► <td align=right> -5543 </td>
-══► <td align=right> -8953 </td>
+══► <td align=right>  9343 </td>
+══► <td align=right> -5325 </td>
+══► <td align=right> -3943 </td>
 ══► <tr><th> 5 </th>
-══► <td align=right>   904 </td>
-══► <td align=right> -2663 </td>
-══► <td align=right> -3676 </td>
+══► <td align=right> -7638 </td>
+══► <td align=right> -9114 </td>
+══► <td align=right> -1618 </td>
 ══► </table>
 ══► </body>
 ══► </html>
@@ -2032,9 +2041,9 @@ RC=243
 RC=0
 
 ================================================================================
-[207] CSV-data-manipulation/csv-data-manipulation.rexx
+[208] CSV-data-manipulation/csv-data-manipulation.rexx
 ================================================================================
-sh: erase: command not found
+/bin/sh: erase: command not found
     21 *-* 'erase' csv
        >>>   "erase in.csv"
        +++   "RC(127)"
@@ -2042,44 +2051,44 @@ sh: erase: command not found
 RC=0
 
 ================================================================================
-[208] CSV-to-HTML-translation/csv-to-html-translation.rexx
+[209] CSV-to-HTML-translation/csv-to-html-translation.rexx
 ================================================================================
 
 RC=0
 
 ================================================================================
-[209] Currying/currying-1.rexx
+[210] Currying/currying-1.rexx
 ================================================================================
      6 *-*  $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Currying/currying-1.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Currying/currying-1.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[210] Currying/currying-2.rexx
+[211] Currying/currying-2.rexx
 ================================================================================
      6 *-*   $
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Currying/currying-2.rexx line 6:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "$" ('24'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Currying/currying-2.rexx line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "$" ('24'X).
 
 RC=243
 
 ================================================================================
-[211] Cut-a-rectangle/cut-a-rectangle-1.rexx
+[212] Cut-a-rectangle/cut-a-rectangle-1.rexx
 ================================================================================
     19 *-* solve: procedure expose #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Cut-a-rectangle/cut-a-rectangle-1.rexx line 19:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Cut-a-rectangle/cut-a-rectangle-1.rexx line 19:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
 ================================================================================
-[212] Cut-a-rectangle/cut-a-rectangle-2.rexx
+[213] Cut-a-rectangle/cut-a-rectangle-2.rexx
 ================================================================================
     19 *-* solve: procedure expose #
-REX0013E: Error 13 running /local/RosettaCodeData/git/Lang/REXX/Cut-a-rectangle/cut-a-rectangle-2.rexx line 19:  Invalid character in program.
-REX0219E: Error 13.1:  Incorrect character in program "#" ('23'X).
+Error 13 running /local/RosettaCodeData/git/Lang/REXX/Cut-a-rectangle/cut-a-rectangle-2.rexx line 19:  Invalid character in program.
+Error 13.1:  Incorrect character in program "#" ('23'X).
 
 RC=243
 
@@ -2087,81 +2096,81 @@ RC=243
 ================================================================================
 Summary Ok
 ================================================================================
-Ok:    7 ; 0.030328 ; 0 ; A+B/a+b-1.rexx
-Ok:    8 ; 0.032557 ; 0 ; A+B/a+b-2.rexx
-Ok:    9 ; 0.031907 ; 0 ; A+B/a+b-3.rexx
-Ok:   12 ; 0.031172 ; 0 ; ABC-Problem/abc-problem-2.rexx
-Ok:   16 ; 0.030190 ; 0 ; Accumulator-factory/accumulator-factory.rexx
-Ok:   20 ; 0.180286 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
-Ok:   22 ; 0.834736 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
-Ok:   24 ; 0.036333 ; 0 ; Align-columns/align-columns-1.rexx
-Ok:   31 ; 0.032786 ; 0 ; Amb/amb-2.rexx
-Ok:   41 ; 0.031516 ; 0 ; Anagrams/anagrams-5.rexx
-Ok:   42 ; 0.030402 ; 0 ; Anagrams/anagrams-6.rexx
-Ok:   46 ; 0.034538 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
-Ok:   50 ; 0.035875 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
-Ok:   54 ; 0.098022 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
-Ok:   55 ; 0.083953 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
-Ok:   56 ; 12.075803 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
-Ok:   59 ; 0.029926 ; 0 ; Array-concatenation/array-concatenation-1.rexx
-Ok:   60 ; 0.030235 ; 0 ; Array-concatenation/array-concatenation-2.rexx
-Ok:   62 ; 0.029858 ; 0 ; Arrays/arrays-1.rexx
-Ok:   63 ; 0.027456 ; 0 ; Arrays/arrays-2.rexx
-Ok:   64 ; 0.030305 ; 0 ; Arrays/arrays-3.rexx
-Ok:   65 ; 0.037384 ; 0 ; Arrays/arrays-4.rexx
-Ok:   66 ; 0.030874 ; 0 ; Arrays/arrays-5.rexx
-Ok:   67 ; 0.027119 ; 0 ; Arrays/arrays-6.rexx
-Ok:   68 ; 0.044426 ; 0 ; Assertions/assertions.rexx
-Ok:   69 ; 0.029717 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
-Ok:   70 ; 0.030661 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
-Ok:   75 ; 0.031918 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
-Ok:   78 ; 0.031624 ; 0 ; Averages-Mode/averages-mode-2.rexx
-Ok:   83 ; 0.029980 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
-Ok:   99 ; 0.030002 ; 0 ; Binary-strings/binary-strings.rexx
-Ok:  101 ; 0.142830 ; 0 ; Bitmap/bitmap-2.rexx
-Ok:  103 ; 0.036640 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
-Ok:  108 ; 0.031927 ; 0 ; Bitwise-IO/bitwise-io-1.rexx
-Ok:  111 ; 0.027409 ; 0 ; Boolean-values/boolean-values-1.rexx
-Ok:  112 ; 0.032678 ; 0 ; Boolean-values/boolean-values-2.rexx
-Ok:  113 ; 0.029082 ; 0 ; Boolean-values/boolean-values-3.rexx
-Ok:  114 ; 0.028371 ; 0 ; Boolean-values/boolean-values-4.rexx
-Ok:  116 ; 0.034138 ; 0 ; Boolean-values/boolean-values-6.rexx
-Ok:  120 ; 0.035269 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
-Ok:  127 ; 0.030934 ; 0 ; Call-a-function/call-a-function-1.rexx
-Ok:  128 ; 0.040286 ; 0 ; Call-a-function/call-a-function-2.rexx
-Ok:  137 ; 0.033072 ; 0 ; Catalan-numbers/catalan-numbers-2.rexx
-Ok:  140 ; 0.037632 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
-Ok:  141 ; 0.033329 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
-Ok:  143 ; 0.029276 ; 0 ; Character-codes/character-codes-1.rexx
-Ok:  144 ; 0.029825 ; 0 ; Character-codes/character-codes-2.rexx
-Ok:  154 ; 0.038153 ; 0 ; Collections/collections-1.rexx
-Ok:  155 ; 0.035359 ; 0 ; Collections/collections-2.rexx
-Ok:  157 ; 0.031473 ; 0 ; Collections/collections-4.rexx
-Ok:  164 ; 0.351488 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-2.rexx
-Ok:  165 ; 0.351838 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-3.rexx
-Ok:  166 ; 0.030198 ; 0 ; Comma-quibbling/comma-quibbling-1.rexx
-Ok:  167 ; 0.029995 ; 0 ; Comma-quibbling/comma-quibbling-2.rexx
-Ok:  168 ; 0.030130 ; 0 ; Comma-quibbling/comma-quibbling-3.rexx
-Ok:  169 ; 0.032409 ; 0 ; Command-line-arguments/command-line-arguments-1.rexx
-Ok:  170 ; 0.030300 ; 0 ; Command-line-arguments/command-line-arguments-2.rexx
-Ok:  172 ; 0.029546 ; 0 ; Comments/comments-2.rexx
-Ok:  173 ; 0.030011 ; 0 ; Comments/comments-3.rexx
-Ok:  174 ; 0.030117 ; 0 ; Compile-time-calculation/compile-time-calculation.rexx
-Ok:  175 ; 0.029537 ; 0 ; Compound-data-type/compound-data-type-1.rexx
-Ok:  176 ; 0.030365 ; 0 ; Compound-data-type/compound-data-type-2.rexx
-Ok:  183 ; 0.032296 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
-Ok:  184 ; 0.045885 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
-Ok:  186 ; 0.039200 ; 0 ; Continued-fraction/continued-fraction-2.rexx
-Ok:  187 ; 1.841972 ; 0 ; Continued-fraction/continued-fraction-3.rexx
-Ok:  189 ; 0.030380 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
-Ok:  190 ; 0.030460 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
-Ok:  191 ; 0.033294 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
-Ok:  194 ; 0.052310 ; 0 ; Copy-a-string/copy-a-string.rexx
-Ok:  203 ; 0.131486 ; 0 ; Create-a-file/create-a-file.rexx
-Ok:  204 ; 0.032402 ; 0 ; Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
-Ok:  206 ; 0.031267 ; 0 ; Create-an-HTML-table/create-an-html-table.rexx
-Ok:  207 ; 0.036593 ; 0 ; CSV-data-manipulation/csv-data-manipulation.rexx
-Ok:  208 ; 0.032500 ; 0 ; CSV-to-HTML-translation/csv-to-html-translation.rexx
+Ok:    7 ; 0.026547 ; 0 ; A+B/a+b-1.rexx
+Ok:    8 ; 0.024206 ; 0 ; A+B/a+b-2.rexx
+Ok:    9 ; 0.036159 ; 0 ; A+B/a+b-3.rexx
+Ok:   12 ; 0.026526 ; 0 ; ABC-Problem/abc-problem-2.rexx
+Ok:   16 ; 0.023990 ; 0 ; Accumulator-factory/accumulator-factory.rexx
+Ok:   20 ; 0.223529 ; 0 ; Active-Directory-Search-for-a-user/active-directory-search-for-a-user.rexx
+Ok:   22 ; 1.300103 ; 0 ; AKS-test-for-primes/aks-test-for-primes-1.rexx
+Ok:   24 ; 0.023227 ; 0 ; Align-columns/align-columns-1.rexx
+Ok:   31 ; 0.023091 ; 0 ; Amb/amb-2.rexx
+Ok:   41 ; 0.023370 ; 0 ; Anagrams/anagrams-5.rexx
+Ok:   42 ; 0.022989 ; 0 ; Anagrams/anagrams-6.rexx
+Ok:   46 ; 0.032365 ; 0 ; Append-a-record-to-the-end-of-a-text-file/append-a-record-to-the-end-of-a-text-file.rexx
+Ok:   50 ; 0.020821 ; 0 ; Arena-storage-pool/arena-storage-pool.rexx
+Ok:   54 ; 0.072322 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-1.rexx
+Ok:   55 ; 0.072621 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-2.rexx
+Ok:   56 ; 12.264708 ; 0 ; Arithmetic-geometric-mean-Calculate-Pi/arithmetic-geometric-mean-calculate-pi-3.rexx
+Ok:   59 ; 0.023436 ; 0 ; Array-concatenation/array-concatenation-1.rexx
+Ok:   60 ; 0.023250 ; 0 ; Array-concatenation/array-concatenation-2.rexx
+Ok:   62 ; 0.022060 ; 0 ; Arrays/arrays-1.rexx
+Ok:   63 ; 0.021738 ; 0 ; Arrays/arrays-2.rexx
+Ok:   64 ; 0.025820 ; 0 ; Arrays/arrays-3.rexx
+Ok:   65 ; 0.030411 ; 0 ; Arrays/arrays-4.rexx
+Ok:   66 ; 0.023465 ; 0 ; Arrays/arrays-5.rexx
+Ok:   67 ; 0.024332 ; 0 ; Arrays/arrays-6.rexx
+Ok:   68 ; 0.030682 ; 0 ; Assertions/assertions.rexx
+Ok:   69 ; 0.029190 ; 0 ; Associative-array-Creation/associative-array-creation-1.rexx
+Ok:   70 ; 0.022315 ; 0 ; Associative-array-Creation/associative-array-creation-2.rexx
+Ok:   75 ; 0.033177 ; 0 ; Averages-Mean-time-of-day/averages-mean-time-of-day.rexx
+Ok:   78 ; 0.041929 ; 0 ; Averages-Mode/averages-mode-2.rexx
+Ok:   83 ; 0.026858 ; 0 ; Balanced-brackets/balanced-brackets-2.rexx
+Ok:   99 ; 0.025326 ; 0 ; Binary-strings/binary-strings.rexx
+Ok:  101 ; 0.139045 ; 0 ; Bitmap/bitmap-2.rexx
+Ok:  103 ; 0.024475 ; 0 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-2.rexx
+Ok:  108 ; 0.021462 ; 0 ; Bitwise-IO/bitwise-io-1.rexx
+Ok:  111 ; 0.021713 ; 0 ; Boolean-values/boolean-values-1.rexx
+Ok:  112 ; 0.022878 ; 0 ; Boolean-values/boolean-values-2.rexx
+Ok:  113 ; 0.022109 ; 0 ; Boolean-values/boolean-values-3.rexx
+Ok:  114 ; 0.021459 ; 0 ; Boolean-values/boolean-values-4.rexx
+Ok:  116 ; 0.022885 ; 0 ; Boolean-values/boolean-values-6.rexx
+Ok:  120 ; 0.037524 ; 0 ; Bulls-and-cows/bulls-and-cows-2.rexx
+Ok:  128 ; 0.021632 ; 0 ; Call-a-function/call-a-function-1.rexx
+Ok:  129 ; 0.029179 ; 0 ; Call-a-function/call-a-function-2.rexx
+Ok:  138 ; 0.026040 ; 0 ; Catalan-numbers/catalan-numbers-2.rexx
+Ok:  141 ; 0.021942 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-3.rexx
+Ok:  142 ; 0.022723 ; 0 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-4.rexx
+Ok:  144 ; 0.028141 ; 0 ; Character-codes/character-codes-1.rexx
+Ok:  145 ; 0.021675 ; 0 ; Character-codes/character-codes-2.rexx
+Ok:  155 ; 0.021427 ; 0 ; Collections/collections-1.rexx
+Ok:  156 ; 0.022447 ; 0 ; Collections/collections-2.rexx
+Ok:  158 ; 0.022466 ; 0 ; Collections/collections-4.rexx
+Ok:  165 ; 0.296216 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-2.rexx
+Ok:  166 ; 0.241433 ; 0 ; Combinations-with-repetitions/combinations-with-repetitions-3.rexx
+Ok:  167 ; 0.023716 ; 0 ; Comma-quibbling/comma-quibbling-1.rexx
+Ok:  168 ; 0.023682 ; 0 ; Comma-quibbling/comma-quibbling-2.rexx
+Ok:  169 ; 0.023846 ; 0 ; Comma-quibbling/comma-quibbling-3.rexx
+Ok:  170 ; 0.021124 ; 0 ; Command-line-arguments/command-line-arguments-1.rexx
+Ok:  171 ; 0.025083 ; 0 ; Command-line-arguments/command-line-arguments-2.rexx
+Ok:  173 ; 0.022818 ; 0 ; Comments/comments-2.rexx
+Ok:  174 ; 0.023312 ; 0 ; Comments/comments-3.rexx
+Ok:  175 ; 0.023032 ; 0 ; Compile-time-calculation/compile-time-calculation.rexx
+Ok:  176 ; 0.023610 ; 0 ; Compound-data-type/compound-data-type-1.rexx
+Ok:  177 ; 0.021837 ; 0 ; Compound-data-type/compound-data-type-2.rexx
+Ok:  184 ; 0.025707 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-3.rexx
+Ok:  185 ; 0.033766 ; 0 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-4.rexx
+Ok:  187 ; 0.032685 ; 0 ; Continued-fraction/continued-fraction-2.rexx
+Ok:  188 ; 1.869699 ; 0 ; Continued-fraction/continued-fraction-3.rexx
+Ok:  190 ; 0.024077 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-1.rexx
+Ok:  191 ; 0.024963 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-2.rexx
+Ok:  192 ; 0.027247 ; 0 ; Convert-decimal-number-to-rational/convert-decimal-number-to-rational-3.rexx
+Ok:  195 ; 0.025199 ; 0 ; Copy-a-string/copy-a-string.rexx
+Ok:  204 ; 0.091416 ; 0 ; Create-a-file/create-a-file.rexx
+Ok:  205 ; 0.027903 ; 0 ; Create-a-file-on-magnetic-tape/create-a-file-on-magnetic-tape.rexx
+Ok:  207 ; 0.026169 ; 0 ; Create-an-HTML-table/create-an-html-table.rexx
+Ok:  208 ; 0.032904 ; 0 ; CSV-data-manipulation/csv-data-manipulation.rexx
+Ok:  209 ; 0.024167 ; 0 ; CSV-to-HTML-translation/csv-to-html-translation.rexx
 
 ================================================================================
 Summary Skip
@@ -2176,143 +2185,144 @@ Skip:   72 ; 0 ; 0 ; Average-loop-length/average-loop-length.rexx
 Skip:   89 ; 0 ; 0 ; Best-shuffle/best-shuffle-2.rexx
 Skip:   90 ; 0 ; 0 ; Best-shuffle/best-shuffle-3.rexx
 Skip:   91 ; 0 ; 0 ; Best-shuffle/best-shuffle-4.rexx
-Skip:  126 ; 0 ; 0 ; Call-a-foreign-language-function/call-a-foreign-language-function.rexx
-Skip:  156 ; 0 ; 0 ; Collections/collections-3.rexx
-Skip:  158 ; 0 ; 0 ; Collections/collections-5.rexx
-Skip:  177 ; 0 ; 0 ; Conditional-structures/conditional-structures-1.rexx
-Skip:  178 ; 0 ; 0 ; Conditional-structures/conditional-structures-2.rexx
-Skip:  179 ; 0 ; 0 ; Conditional-structures/conditional-structures-3.rexx
+Skip:  127 ; 0 ; 0 ; Call-a-foreign-language-function/call-a-foreign-language-function.rexx
+Skip:  157 ; 0 ; 0 ; Collections/collections-3.rexx
+Skip:  159 ; 0 ; 0 ; Collections/collections-5.rexx
+Skip:  178 ; 0 ; 0 ; Conditional-structures/conditional-structures-1.rexx
+Skip:  179 ; 0 ; 0 ; Conditional-structures/conditional-structures-2.rexx
+Skip:  180 ; 0 ; 0 ; Conditional-structures/conditional-structures-3.rexx
 
 ================================================================================
 Summary Ko
 ================================================================================
-Ko:    1 ; 0.031395 ; 243 ; 100-doors/100-doors-1.rexx
-Ko:    2 ; 0.034485 ; 243 ; 100-doors/100-doors-2.rexx
-Ko:    3 ; 0.042630 ; 243 ; 24-game/24-game-1.rexx
-Ko:    4 ; 0.030899 ; 221 ; 24-game-Solve/24-game-solve.rexx
-Ko:    5 ; 0.029619 ; 243 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
-Ko:    6 ; 0.030536 ; 243 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
-Ko:   10 ; 0.035854 ; 243 ; A+B/a+b-4.rexx
-Ko:   11 ; 0.028991 ; 243 ; ABC-Problem/abc-problem-1.rexx
-Ko:   13 ; 0.032874 ; 243 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
-Ko:   14 ; 0.041553 ; 243 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
-Ko:   17 ; 0.031206 ; 243 ; Ackermann-function/ackermann-function-1.rexx
-Ko:   18 ; 0.031463 ; 243 ; Ackermann-function/ackermann-function-2.rexx
-Ko:   19 ; 0.038558 ; 243 ; Ackermann-function/ackermann-function-3.rexx
-Ko:   23 ; 0.037258 ; 243 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
-Ko:   25 ; 0.036977 ; 221 ; Align-columns/align-columns-2.rexx
-Ko:   26 ; 0.036630 ; 221 ; Align-columns/align-columns-3.rexx
-Ko:   27 ; 0.035824 ; 243 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
-Ko:   28 ; 0.033768 ; 243 ; Almost-prime/almost-prime-1.rexx
-Ko:   29 ; 0.035425 ; 243 ; Almost-prime/almost-prime-2.rexx
-Ko:   30 ; 0.030294 ; 243 ; Amb/amb-1.rexx
-Ko:   33 ; 0.037118 ; 243 ; Amicable-pairs/amicable-pairs-2.rexx
-Ko:   34 ; 0.033199 ; 243 ; Amicable-pairs/amicable-pairs-3.rexx
-Ko:   35 ; 0.031038 ; 243 ; Amicable-pairs/amicable-pairs-4.rexx
-Ko:   36 ; 0.030845 ; 243 ; Amicable-pairs/amicable-pairs-5.rexx
-Ko:   37 ; 0.034954 ; 243 ; Anagrams/anagrams-1.rexx
-Ko:   38 ; 0.033435 ; 243 ; Anagrams/anagrams-2.rexx
-Ko:   39 ; 0.031120 ; 221 ; Anagrams/anagrams-3.rexx
-Ko:   40 ; 0.030971 ; 221 ; Anagrams/anagrams-4.rexx
-Ko:   43 ; 0.031357 ; 243 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
-Ko:   44 ; 0.034136 ; 243 ; Anonymous-recursion/anonymous-recursion-1.rexx
-Ko:   45 ; 0.035039 ; 243 ; Anonymous-recursion/anonymous-recursion-2.rexx
-Ko:   47 ; 0.032050 ; 221 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
-Ko:   51 ; 0.033766 ; 243 ; Arithmetic-Complex/arithmetic-complex.rexx
-Ko:   52 ; 0.033735 ; 243 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
-Ko:   53 ; 0.034915 ; 243 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
-Ko:   57 ; 0.037762 ; 243 ; Arithmetic-Integer/arithmetic-integer.rexx
-Ko:   61 ; 0.031047 ; 221 ; Array-concatenation/array-concatenation-3.rexx
-Ko:   71 ; 0.032116 ; 221 ; Associative-array-Iteration/associative-array-iteration.rexx
-Ko:   73 ; 0.033585 ; 243 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
-Ko:   74 ; 0.030456 ; 243 ; Averages-Mean-angle/averages-mean-angle.rexx
-Ko:   76 ; 0.031420 ; 243 ; Averages-Median/averages-median.rexx
-Ko:   77 ; 0.032302 ; 243 ; Averages-Mode/averages-mode-1.rexx
-Ko:   79 ; 0.031773 ; 243 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
-Ko:   80 ; 0.033089 ; 243 ; Averages-Root-mean-square/averages-root-mean-square.rexx
-Ko:   81 ; 0.030530 ; 243 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
-Ko:   82 ; 0.030005 ; 243 ; Balanced-brackets/balanced-brackets-1.rexx
-Ko:   84 ; 0.029441 ; 243 ; Balanced-brackets/balanced-brackets-3.rexx
-Ko:   85 ; 0.032369 ; 243 ; Balanced-ternary/balanced-ternary.rexx
-Ko:   86 ; 0.031045 ; 243 ; Benfords-law/benfords-law.rexx
-Ko:   87 ; 0.035340 ; 243 ; Bernoulli-numbers/bernoulli-numbers.rexx
-Ko:   88 ; 0.032659 ; 243 ; Best-shuffle/best-shuffle-1.rexx
-Ko:   92 ; 0.031355 ; 243 ; Best-shuffle/best-shuffle.rexx
-Ko:   93 ; 0.031081 ; 243 ; Binary-digits/binary-digits-1.rexx
-Ko:   94 ; 0.032926 ; 243 ; Binary-digits/binary-digits-2.rexx
-Ko:   95 ; 0.030874 ; 243 ; Binary-digits/binary-digits-3.rexx
-Ko:   96 ; 0.030823 ; 243 ; Binary-digits/binary-digits-4.rexx
-Ko:   97 ; 0.033079 ; 243 ; Binary-search/binary-search-1.rexx
-Ko:   98 ; 0.032318 ; 243 ; Binary-search/binary-search-2.rexx
-Ko:  100 ; 0.030533 ; 243 ; Bitmap/bitmap-1.rexx
-Ko:  102 ; 0.033872 ; 243 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
-Ko:  104 ; 0.031120 ; 243 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
-Ko:  105 ; 0.031584 ; 243 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
-Ko:  106 ; 0.030301 ; 243 ; Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx
-Ko:  107 ; 0.031308 ; 243 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
-Ko:  109 ; 0.032494 ; 243 ; Bitwise-IO/bitwise-io-2.rexx
-Ko:  110 ; 0.031729 ; 243 ; Bitwise-operations/bitwise-operations.rexx
-Ko:  115 ; 0.032255 ; 243 ; Boolean-values/boolean-values-5.rexx
-Ko:  117 ; 0.030716 ; 243 ; Box-the-compass/box-the-compass.rexx
-Ko:  118 ; 0.032633 ; 243 ; Brownian-tree/brownian-tree.rexx
-Ko:  119 ; 0.051789 ; 221 ; Bulls-and-cows/bulls-and-cows-1.rexx
-Ko:  121 ; 0.041015 ; 243 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
-Ko:  122 ; 0.032984 ; 243 ; Caesar-cipher/caesar-cipher-1.rexx
-Ko:  123 ; 0.030939 ; 243 ; Caesar-cipher/caesar-cipher-2.rexx
-Ko:  124 ; 0.032722 ; 243 ; Calendar/calendar.rexx
-Ko:  125 ; 0.030172 ; 243 ; Calendar/calendar.rexx
-Ko:  129 ; 0.030857 ; 213 ; Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
-Ko:  130 ; 0.030758 ; 243 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
-Ko:  131 ; 0.031505 ; 243 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
-Ko:  132 ; 0.033760 ; 243 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
-Ko:  133 ; 0.032334 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
-Ko:  134 ; 0.032011 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
-Ko:  135 ; 0.031320 ; 243 ; Casting-out-nines/casting-out-nines.rexx
-Ko:  136 ; 0.031284 ; 243 ; Catalan-numbers/catalan-numbers-1.rexx
-Ko:  138 ; 0.033329 ; 243 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
-Ko:  139 ; 0.058112 ; 243 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
-Ko:  142 ; 0.033130 ; 243 ; Catamorphism/catamorphism.rexx
-Ko:  145 ; 0.029327 ; 243 ; Check-Machin-like-formulas/check-machin-like-formulas.rexx
-Ko:  146 ; 0.034081 ; 243 ; Check-that-file-exists/check-that-file-exists-1.rexx
-Ko:  147 ; 0.030919 ; 221 ; Check-that-file-exists/check-that-file-exists-2.rexx
-Ko:  148 ; 0.031087 ; 243 ; Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
-Ko:  149 ; 0.031067 ; 243 ; Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
-Ko:  150 ; 0.036619 ; 243 ; Cholesky-decomposition/cholesky-decomposition.rexx
-Ko:  151 ; 0.031894 ; 243 ; Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
-Ko:  152 ; 0.031468 ; 243 ; Closest-pair-problem/closest-pair-problem.rexx
-Ko:  153 ; 0.033284 ; 243 ; Closures-Value-capture/closures-value-capture.rexx
-Ko:  159 ; 0.034323 ; 213 ; Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
-Ko:  160 ; 0.030816 ; 243 ; Colour-bars-Display/colour-bars-display.rexx
-Ko:  161 ; 0.031440 ; 243 ; Combinations/combinations.rexx
-Ko:  162 ; 0.030918 ; 221 ; Combinations-and-permutations/combinations-and-permutations.rexx
-Ko:  163 ; 0.033203 ; 243 ; Combinations-with-repetitions/combinations-with-repetitions-1.rexx
-Ko:  171 ; 0.031300 ; 214 ; Comments/comments-1.rexx
-Ko:  180 ; 0.029503 ; 221 ; Conjugate-transpose/conjugate-transpose.rexx
-Ko:  181 ; 0.030390 ; 243 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
-Ko:  182 ; 0.031800 ; 243 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
-Ko:  185 ; 0.033741 ; 243 ; Continued-fraction/continued-fraction-1.rexx
-Ko:  188 ; 0.032370 ; 243 ; Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
-Ko:  192 ; 0.036349 ; 243 ; Conways-Game-of-Life/conways-game-of-life-1.rexx
-Ko:  193 ; 0.041982 ; 163 ; Conways-Game-of-Life/conways-game-of-life-2.rexx
-Ko:  195 ; 0.036207 ; 243 ; Count-in-factors/count-in-factors-1.rexx
-Ko:  196 ; 0.032150 ; 243 ; Count-in-factors/count-in-factors-2.rexx
-Ko:  197 ; 0.030593 ; 243 ; Count-in-octal/count-in-octal.rexx
-Ko:  198 ; 0.036687 ; 221 ; Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
-Ko:  199 ; 0.035510 ; 243 ; Count-the-coins/count-the-coins-1.rexx
-Ko:  200 ; 0.031081 ; 243 ; Count-the-coins/count-the-coins-2.rexx
-Ko:  201 ; 0.031719 ; 243 ; Count-the-coins/count-the-coins-3.rexx
-Ko:  202 ; 0.031460 ; 243 ; CRC-32/crc-32.rexx
-Ko:  205 ; 0.034980 ; 243 ; Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
-Ko:  209 ; 0.031496 ; 243 ; Currying/currying-1.rexx
-Ko:  210 ; 0.033528 ; 243 ; Currying/currying-2.rexx
-Ko:  211 ; 0.030396 ; 243 ; Cut-a-rectangle/cut-a-rectangle-1.rexx
-Ko:  212 ; 0.039125 ; 243 ; Cut-a-rectangle/cut-a-rectangle-2.rexx
+Ko:    1 ; 0.030483 ; 243 ; 100-doors/100-doors-1.rexx
+Ko:    2 ; 0.026697 ; 243 ; 100-doors/100-doors-2.rexx
+Ko:    3 ; 0.029460 ; 243 ; 24-game/24-game-1.rexx
+Ko:    4 ; 0.022341 ; 221 ; 24-game-Solve/24-game-solve.rexx
+Ko:    5 ; 0.023384 ; 243 ; 9-billion-names-of-God-the-integer/9-billion-names-of-god-the-integer.rexx
+Ko:    6 ; 0.021738 ; 243 ; 99-Bottles-of-Beer/99-bottles-of-beer.rexx
+Ko:   10 ; 0.024265 ; 243 ; A+B/a+b-4.rexx
+Ko:   11 ; 0.023034 ; 243 ; ABC-Problem/abc-problem-1.rexx
+Ko:   13 ; 0.023489 ; 243 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-1.rexx
+Ko:   14 ; 0.024406 ; 243 ; Abundant,-deficient-and-perfect-number-classifications/abundant,-deficient-and-perfect-number-classifications-2.rexx
+Ko:   17 ; 0.024575 ; 243 ; Ackermann-function/ackermann-function-1.rexx
+Ko:   18 ; 0.025397 ; 243 ; Ackermann-function/ackermann-function-2.rexx
+Ko:   19 ; 0.026996 ; 243 ; Ackermann-function/ackermann-function-3.rexx
+Ko:   23 ; 0.022479 ; 243 ; AKS-test-for-primes/aks-test-for-primes-2.rexx
+Ko:   25 ; 0.022406 ; 221 ; Align-columns/align-columns-2.rexx
+Ko:   26 ; 0.022727 ; 221 ; Align-columns/align-columns-3.rexx
+Ko:   27 ; 0.022838 ; 243 ; Aliquot-sequence-classifications/aliquot-sequence-classifications.rexx
+Ko:   28 ; 0.021594 ; 243 ; Almost-prime/almost-prime-1.rexx
+Ko:   29 ; 0.021499 ; 243 ; Almost-prime/almost-prime-2.rexx
+Ko:   30 ; 0.023784 ; 243 ; Amb/amb-1.rexx
+Ko:   33 ; 0.024135 ; 243 ; Amicable-pairs/amicable-pairs-2.rexx
+Ko:   34 ; 0.023906 ; 243 ; Amicable-pairs/amicable-pairs-3.rexx
+Ko:   35 ; 0.022633 ; 243 ; Amicable-pairs/amicable-pairs-4.rexx
+Ko:   36 ; 0.023040 ; 243 ; Amicable-pairs/amicable-pairs-5.rexx
+Ko:   37 ; 0.025130 ; 243 ; Anagrams/anagrams-1.rexx
+Ko:   38 ; 0.029033 ; 243 ; Anagrams/anagrams-2.rexx
+Ko:   39 ; 0.023244 ; 221 ; Anagrams/anagrams-3.rexx
+Ko:   40 ; 0.021554 ; 221 ; Anagrams/anagrams-4.rexx
+Ko:   43 ; 0.028609 ; 243 ; Anagrams-Deranged-anagrams/anagrams-deranged-anagrams.rexx
+Ko:   44 ; 0.024507 ; 243 ; Anonymous-recursion/anonymous-recursion-1.rexx
+Ko:   45 ; 0.021511 ; 243 ; Anonymous-recursion/anonymous-recursion-2.rexx
+Ko:   47 ; 0.024231 ; 221 ; Apply-a-callback-to-an-array/apply-a-callback-to-an-array.rexx
+Ko:   51 ; 0.024344 ; 243 ; Arithmetic-Complex/arithmetic-complex.rexx
+Ko:   52 ; 0.022773 ; 243 ; Arithmetic-evaluation/arithmetic-evaluation.rexx
+Ko:   53 ; 0.023861 ; 243 ; Arithmetic-geometric-mean/arithmetic-geometric-mean.rexx
+Ko:   57 ; 0.025999 ; 243 ; Arithmetic-Integer/arithmetic-integer.rexx
+Ko:   61 ; 0.021884 ; 221 ; Array-concatenation/array-concatenation-3.rexx
+Ko:   71 ; 0.021495 ; 221 ; Associative-array-Iteration/associative-array-iteration.rexx
+Ko:   73 ; 0.171532 ; 243 ; Averages-Arithmetic-mean/averages-arithmetic-mean.rexx
+Ko:   74 ; 0.045362 ; 243 ; Averages-Mean-angle/averages-mean-angle.rexx
+Ko:   76 ; 0.039386 ; 243 ; Averages-Median/averages-median.rexx
+Ko:   77 ; 0.061634 ; 243 ; Averages-Mode/averages-mode-1.rexx
+Ko:   79 ; 0.048439 ; 243 ; Averages-Pythagorean-means/averages-pythagorean-means.rexx
+Ko:   80 ; 0.026195 ; 243 ; Averages-Root-mean-square/averages-root-mean-square.rexx
+Ko:   81 ; 0.029711 ; 243 ; Averages-Simple-moving-average/averages-simple-moving-average.rexx
+Ko:   82 ; 0.027008 ; 243 ; Balanced-brackets/balanced-brackets-1.rexx
+Ko:   84 ; 0.026832 ; 243 ; Balanced-brackets/balanced-brackets-3.rexx
+Ko:   85 ; 0.032087 ; 243 ; Balanced-ternary/balanced-ternary.rexx
+Ko:   86 ; 0.030150 ; 243 ; Benfords-law/benfords-law.rexx
+Ko:   87 ; 0.025140 ; 243 ; Bernoulli-numbers/bernoulli-numbers.rexx
+Ko:   88 ; 0.027240 ; 243 ; Best-shuffle/best-shuffle-1.rexx
+Ko:   92 ; 0.032782 ; 243 ; Best-shuffle/best-shuffle.rexx
+Ko:   93 ; 0.036124 ; 243 ; Binary-digits/binary-digits-1.rexx
+Ko:   94 ; 0.031111 ; 243 ; Binary-digits/binary-digits-2.rexx
+Ko:   95 ; 0.034112 ; 243 ; Binary-digits/binary-digits-3.rexx
+Ko:   96 ; 0.026565 ; 243 ; Binary-digits/binary-digits-4.rexx
+Ko:   97 ; 0.025248 ; 243 ; Binary-search/binary-search-1.rexx
+Ko:   98 ; 0.024789 ; 243 ; Binary-search/binary-search-2.rexx
+Ko:  100 ; 0.028509 ; 243 ; Bitmap/bitmap-1.rexx
+Ko:  102 ; 0.022117 ; 243 ; Bitmap-Bresenhams-line-algorithm/bitmap-bresenhams-line-algorithm-1.rexx
+Ko:  104 ; 0.021613 ; 243 ; Bitmap-Flood-fill/bitmap-flood-fill.rexx
+Ko:  105 ; 0.021368 ; 243 ; Bitmap-Midpoint-circle-algorithm/bitmap-midpoint-circle-algorithm.rexx
+Ko:  106 ; 0.024578 ; 243 ; Bitmap-Read-a-PPM-file/bitmap-read-a-ppm-file.rexx
+Ko:  107 ; 0.024150 ; 243 ; Bitmap-Write-a-PPM-file/bitmap-write-a-ppm-file.rexx
+Ko:  109 ; 0.024481 ; 243 ; Bitwise-IO/bitwise-io-2.rexx
+Ko:  110 ; 0.023272 ; 243 ; Bitwise-operations/bitwise-operations.rexx
+Ko:  115 ; 0.023766 ; 243 ; Boolean-values/boolean-values-5.rexx
+Ko:  117 ; 0.022218 ; 243 ; Box-the-compass/box-the-compass.rexx
+Ko:  118 ; 0.023195 ; 243 ; Brownian-tree/brownian-tree.rexx
+Ko:  119 ; 0.023969 ; 221 ; Bulls-and-cows/bulls-and-cows-1.rexx
+Ko:  121 ; 0.031488 ; 243 ; Bulls-and-cows-Player/bulls-and-cows-player.rexx
+Ko:  122 ; 0.022079 ; 243 ; Caesar-cipher/caesar-cipher-1.rexx
+Ko:  123 ; 0.030686 ; 243 ; Caesar-cipher/caesar-cipher-2.rexx
+Ko:  124 ; 0.021856 ; 243 ; Calendar/calendar.rexx
+Ko:  125 ; 0.025143 ; 243 ; Calendar/calendar.rexx
+Ko:  126 ; 0.022967 ; 243 ; Calendar---for-REAL-programmers/calendar---for-real-programmers.rexx
+Ko:  130 ; 0.024092 ; 213 ; Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx
+Ko:  131 ; 0.021993 ; 243 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx
+Ko:  132 ; 0.021648 ; 243 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx
+Ko:  133 ; 0.021647 ; 243 ; Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx
+Ko:  134 ; 0.028823 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-1.rexx
+Ko:  135 ; 0.024243 ; 216 ; Case-sensitivity-of-identifiers/case-sensitivity-of-identifiers-2.rexx
+Ko:  136 ; 0.022842 ; 243 ; Casting-out-nines/casting-out-nines.rexx
+Ko:  137 ; 0.021563 ; 243 ; Catalan-numbers/catalan-numbers-1.rexx
+Ko:  139 ; 0.022199 ; 243 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-1.rexx
+Ko:  140 ; 0.021761 ; 243 ; Catalan-numbers-Pascals-triangle/catalan-numbers-pascals-triangle-2.rexx
+Ko:  143 ; 0.024135 ; 243 ; Catamorphism/catamorphism.rexx
+Ko:  146 ; 0.021823 ; 243 ; Check-Machin-like-formulas/check-machin-like-formulas.rexx
+Ko:  147 ; 0.025093 ; 243 ; Check-that-file-exists/check-that-file-exists-1.rexx
+Ko:  148 ; 0.023418 ; 221 ; Check-that-file-exists/check-that-file-exists-2.rexx
+Ko:  149 ; 0.022947 ; 243 ; Chinese-remainder-theorem/chinese-remainder-theorem-1.rexx
+Ko:  150 ; 0.022662 ; 243 ; Chinese-remainder-theorem/chinese-remainder-theorem-2.rexx
+Ko:  151 ; 0.021856 ; 243 ; Cholesky-decomposition/cholesky-decomposition.rexx
+Ko:  152 ; 0.021681 ; 243 ; Circles-of-given-radius-through-two-points/circles-of-given-radius-through-two-points.rexx
+Ko:  153 ; 0.022863 ; 243 ; Closest-pair-problem/closest-pair-problem.rexx
+Ko:  154 ; 0.021117 ; 243 ; Closures-Value-capture/closures-value-capture.rexx
+Ko:  160 ; 0.028967 ; 213 ; Color-of-a-screen-pixel/color-of-a-screen-pixel.rexx
+Ko:  161 ; 0.021484 ; 243 ; Colour-bars-Display/colour-bars-display.rexx
+Ko:  162 ; 0.021539 ; 243 ; Combinations/combinations.rexx
+Ko:  163 ; 0.022122 ; 221 ; Combinations-and-permutations/combinations-and-permutations.rexx
+Ko:  164 ; 0.022471 ; 243 ; Combinations-with-repetitions/combinations-with-repetitions-1.rexx
+Ko:  172 ; 0.022337 ; 214 ; Comments/comments-1.rexx
+Ko:  181 ; 0.021885 ; 221 ; Conjugate-transpose/conjugate-transpose.rexx
+Ko:  182 ; 0.023826 ; 243 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-1.rexx
+Ko:  183 ; 0.022573 ; 243 ; Constrained-random-points-on-a-circle/constrained-random-points-on-a-circle-2.rexx
+Ko:  186 ; 0.022294 ; 243 ; Continued-fraction/continued-fraction-1.rexx
+Ko:  189 ; 0.023253 ; 243 ; Continued-fraction-Arithmetic-Construct-from-rational-number/continued-fraction-arithmetic-construct-from-rational-number.rexx
+Ko:  193 ; 0.025020 ; 243 ; Conways-Game-of-Life/conways-game-of-life-1.rexx
+Ko:  194 ; 0.032930 ; 163 ; Conways-Game-of-Life/conways-game-of-life-2.rexx
+Ko:  196 ; 0.025708 ; 243 ; Count-in-factors/count-in-factors-1.rexx
+Ko:  197 ; 0.024375 ; 243 ; Count-in-factors/count-in-factors-2.rexx
+Ko:  198 ; 0.023177 ; 243 ; Count-in-octal/count-in-octal.rexx
+Ko:  199 ; 0.023878 ; 221 ; Count-occurrences-of-a-substring/count-occurrences-of-a-substring.rexx
+Ko:  200 ; 0.025163 ; 243 ; Count-the-coins/count-the-coins-1.rexx
+Ko:  201 ; 0.028887 ; 243 ; Count-the-coins/count-the-coins-2.rexx
+Ko:  202 ; 0.025103 ; 243 ; Count-the-coins/count-the-coins-3.rexx
+Ko:  203 ; 0.022149 ; 243 ; CRC-32/crc-32.rexx
+Ko:  206 ; 0.025441 ; 243 ; Create-a-two-dimensional-array-at-runtime/create-a-two-dimensional-array-at-runtime.rexx
+Ko:  210 ; 0.024506 ; 243 ; Currying/currying-1.rexx
+Ko:  211 ; 0.024591 ; 243 ; Currying/currying-2.rexx
+Ko:  212 ; 0.024727 ; 243 ; Cut-a-rectangle/cut-a-rectangle-1.rexx
+Ko:  213 ; 0.029687 ; 243 ; Cut-a-rectangle/cut-a-rectangle-2.rexx
 
 ================================================================================
 Summary counters
 ================================================================================
 Ok=75
 Skip=16
-Ko=121
-duration=22.496083
+Ko=122
+duration=21.705489
 
