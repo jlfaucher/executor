@@ -554,8 +554,10 @@ call skip "Call-a-foreign-language-function/call-a-foreign-language-function.rex
 call run "Call-a-function/call-a-function-1.rexx"
 call run "Call-a-function/call-a-function-2.rexx"
 
-/* [KO] Error 43.1:  Could not find routine "SYSTEXTSCREENSIZE" */
+/* MacOs: [KO] Error 43.1:  Could not find routine "SYSTEXTSCREENSIZE" */
+/* Windows: no error */
 call run "Call-a-function-in-a-shared-library/call-a-function-in-a-shared-library.rexx"
+
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-1.rexx"
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes-2.rexx"
 call run "Carmichael-3-strong-pseudoprimes/carmichael-3-strong-pseudoprimes.rexx"
@@ -1657,5 +1659,21 @@ Character name	BOX DRAWINGS DOUBLE HORIZONTAL
 Hex code point	2550
 Decimal code point	9552
 Hex UTF-8 bytes	E2 95 90
+
+*/
+
+/*
+Boolean-values/boolean-values-5.rexx
+false = ¬true
+Error 13.1:  Incorrect character in program "Â" ('C2'X)
+
+say "¬"~c2x --> C2AC
+
+not sign (U+00AC)
+UTF-8 (hex)	0xC2 0xAC (c2ac)
+Unicode Code Point	U+00AC
+Script	Common
+Category	Math Symbol
+Block	Latin-1 Supplement
 
 */
