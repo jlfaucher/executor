@@ -93,7 +93,7 @@ void RexxStartDispatcher::run()
     // Counter of named arguments. To support correctly omitted positional arguments, don't use append!
     // Omitted positional arguments not applicable here, but better to have the same approach everywhere.
     // Here, no named arguments : Zero.
-    new_arglist->put(IntegerZero, new_arglist->size() + 1);
+    new_arglist->put(IntegerZero, argcount + 1);
 
     RexxString *source_calltype;
 
