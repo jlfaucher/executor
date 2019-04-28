@@ -257,25 +257,27 @@ xorOp                       X           X           X
 Notes moved from my daily raw notes
 -------------------------------------------------------------------------------
 
------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Arithmetic
 
 Integer arithmetic possible only if (number_digits() == Numerics::DEFAULT_DIGITS )
 
+-------------------------------------------------------------------------------
 Rounding problems
 The iteration is stable for numbers above 6 but unstable below 6.
 If numerical computing were perfect, the ui values would never fall below 6;
 however, rounding error leads them to stumble into the unstable region, and then make a beeline for 100.
 u0=2.;u1=-4.;do i=0 to 18;u2 = (111 - (1130 / u1)) + (3000 / (u1 * u0)); say u2; u0=u1; u1=u2; end
 
-With IEEE-style floats, Rump’s formula gives the same answer, about 1.18E21, for
+With IEEE-style floats, Rumpâ€™s formula gives the same answer, about 1.18E21, for
 single, double, and even quad precision, yet is massively wrong in all three cases.
-The correct answer is –0.827..., so floats don’t even get the sign of the answer right.
+The correct answer is â€“0.827..., so floats donâ€™t even get the sign of the answer right.
 Not to mention that little problem of being off by 21 orders of magnitude.
 ooRexx : must use 37 digits to get the right result.
 x = 77617; y = 33096; say 333.75 * y**6 + x**2 * (11 * x**2 * y**2 - y**6 - 121 * y**4 - 2) + (5.5) * y**8 + x / (2 * y)
 
 
+-------------------------------------------------------------------------------
 ObjectClass.hpp
      virtual bool numberValue(wholenumber_t &result, size_t precision);
      virtual bool numberValue(wholenumber_t &result);
