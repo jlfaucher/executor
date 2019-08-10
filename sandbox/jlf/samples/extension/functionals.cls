@@ -397,8 +397,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class "StringFilter" mixinclass Object public
 -----------------------------------------------
 
+::method dropFirstC unguarded
+    forward message "drop" to (self~makeArray(""))
+
 ::method dropC unguarded
     forward message "drop" to (self~makeArray(""))
+
+::method dropFirstCI unguarded
+    forward message "dropI" to (self~makeArray(""))
 
 ::method dropCI unguarded
     forward message "dropI" to (self~makeArray(""))
@@ -441,8 +447,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method selectCI unguarded
     forward message "selectI" to (self~makeArray(""))
 
+::method takeFirstC unguarded
+    forward message "take" to (self~makeArray(""))
+
 ::method takeC unguarded
     forward message "take" to (self~makeArray(""))
+
+::method takeFirstCI unguarded
+    forward message "takeI" to (self~makeArray(""))
 
 ::method takeCI unguarded
     forward message "takeI" to (self~makeArray(""))
@@ -453,20 +465,38 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method takeLastCI unguarded
     forward message "takeLastI" to (self~makeArray(""))
 
+::method takeUntilC unguarded
+    forward message "until" to (self~makeArray(""))
+
 ::method untilC unguarded
     forward message "until" to (self~makeArray(""))
+
+::method takeUntilCI unguarded
+    forward message "untilI" to (self~makeArray(""))
 
 ::method untilCI unguarded
     forward message "untilI" to (self~makeArray(""))
 
+::method takeWhileC unguarded
+    forward message "while" to (self~makeArray(""))
+
 ::method whileC unguarded
     forward message "while" to (self~makeArray(""))
+
+::method takeWhileCI unguarded
+    forward message "whileI" to (self~makeArray(""))
 
 ::method whileCI unguarded
     forward message "whileI" to (self~makeArray(""))
 
+::method dropFirstW unguarded
+    forward message "drop" to (self~subwords)
+
 ::method dropW unguarded
     forward message "drop" to (self~subwords)
+
+::method dropFirstWI unguarded
+    forward message "dropI" to (self~subwords)
 
 ::method dropWI unguarded
     forward message "dropI" to (self~subwords)
@@ -509,8 +539,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method selectWI unguarded
     forward message "selectI" to (self~subwords)
 
+::method takeFirstW unguarded
+    forward message "take" to (self~subwords)
+
 ::method takeW unguarded
     forward message "take" to (self~subwords)
+
+::method takeFirstWI unguarded
+    forward message "takeI" to (self~subwords)
 
 ::method takeWI unguarded
     forward message "takeI" to (self~subwords)
@@ -521,14 +557,26 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method takeLastWI unguarded
     forward message "takeLastI" to (self~subwords)
 
+::method takeUntilW unguarded
+    forward message "until" to (self~subwords)
+
 ::method untilW unguarded
     forward message "until" to (self~subwords)
+
+::method takeUntilWI unguarded
+    forward message "untilI" to (self~subwords)
 
 ::method untilWI unguarded
     forward message "untilI" to (self~subwords)
 
+::method takeWhileW unguarded
+    forward message "while" to (self~subwords)
+
 ::method whileW unguarded
     forward message "while" to (self~subwords)
+
+::method takeWhileWI unguarded
+    forward message "whileI" to (self~subwords)
 
 ::method whileWI unguarded
     forward message "whileI" to (self~subwords)
@@ -538,8 +586,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::class "MutableBufferFilter" mixinclass Object public
 ------------------------------------------------------
 
+::method dropFirstC unguarded
+    forward message "drop" to (self~makeArray(""))
+
 ::method dropC unguarded
     forward message "drop" to (self~makeArray(""))
+
+::method dropFirstCI unguarded
+    forward message "dropI" to (self~makeArray(""))
 
 ::method dropCI unguarded
     forward message "dropI" to (self~makeArray(""))
@@ -582,8 +636,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method selectCI unguarded
     forward message "selectI" to (self~makeArray(""))
 
+::method takeFirstC unguarded
+    forward message "take" to (self~makeArray(""))
+
 ::method takeC unguarded
     forward message "take" to (self~makeArray(""))
+
+::method takeFirstCI unguarded
+    forward message "takeI" to (self~makeArray(""))
 
 ::method takeCI unguarded
     forward message "takeI" to (self~makeArray(""))
@@ -594,14 +654,26 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method takeLastCI unguarded
     forward message "takeLastI" to (self~makeArray(""))
 
+::method takeUntilC unguarded
+    forward message "until" to (self~makeArray(""))
+
 ::method untilC unguarded
     forward message "until" to (self~makeArray(""))
+
+::method takeUntilCI unguarded
+    forward message "untilI" to (self~makeArray(""))
 
 ::method untilCI unguarded
     forward message "untilI" to (self~makeArray(""))
 
+::method takeWhileC unguarded
+    forward message "while" to (self~makeArray(""))
+
 ::method whileC unguarded
     forward message "while" to (self~makeArray(""))
+
+::method takeWhileCI unguarded
+    forward message "whileI" to (self~makeArray(""))
 
 ::method whileCI unguarded
     forward message "whileI" to (self~makeArray(""))
@@ -650,8 +722,14 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method selectWI unguarded
     forward message "selectI" to (self~subwords)
 
+::method takeFirstW unguarded
+    forward message "take" to (self~subwords)
+
 ::method takeW unguarded
     forward message "take" to (self~subwords)
+
+::method takeFirstWI unguarded
+    forward message "takeI" to (self~subwords)
 
 ::method takeWI unguarded
     forward message "takeI" to (self~subwords)
@@ -662,14 +740,26 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method takeLastWI unguarded
     forward message "takeLastI" to (self~subwords)
 
+::method takeUntilW unguarded
+    forward message "until" to (self~subwords)
+
 ::method untilW unguarded
     forward message "until" to (self~subwords)
+
+::method takeUntilWI unguarded
+    forward message "untilI" to (self~subwords)
 
 ::method untilWI unguarded
     forward message "untilI" to (self~subwords)
 
+::method takeWhileW unguarded
+    forward message "while" to (self~subwords)
+
 ::method whileW unguarded
     forward message "while" to (self~subwords)
+
+::method takeWhileWI unguarded
+    forward message "whileI" to (self~subwords)
 
 ::method whileWI unguarded
     forward message "whileI" to (self~subwords)
@@ -706,7 +796,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- If you really want to apply this kind of filters on not ordered collections
 -- then do : myNotOrderedCollection~supplier~<filter>
 
+::method dropFirst unguarded
+    forward to (self~supplier)
+
 ::method drop unguarded
+    forward to (self~supplier)
+
+::method dropFirstI unguarded
     forward to (self~supplier)
 
 ::method dropI unguarded
@@ -730,7 +826,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method dropWhileI unguarded
     forward to (self~supplier)
 
+::method takeFirst unguarded
+    forward to (self~supplier)
+
 ::method take unguarded
+    forward to (self~supplier)
+
+::method takeFirstI unguarded
     forward to (self~supplier)
 
 ::method takeI unguarded
@@ -742,13 +844,25 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::method takeLastI unguarded
     forward to (self~supplier)
 
+::method takeUntil unguarded
+    forward to (self~supplier)
+
 ::method until unguarded
+    forward to (self~supplier)
+
+::method takeUntilI unguarded
     forward to (self~supplier)
 
 ::method untilI unguarded
     forward to (self~supplier)
 
+::method takeWhile unguarded
+    forward to (self~supplier)
+
 ::method while unguarded
+    forward to (self~supplier)
+
+::method takeWhileI unguarded
     forward to (self~supplier)
 
 ::method whileI unguarded
@@ -761,9 +875,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -- No distinction between ordered and not ordered...
 -- By definition, the items returned by a supplier are ordered.
 
+::method dropFirst unguarded
+    use strict arg count=1
+    return self~dropFirstImpl(count, .false)
+
 ::method drop unguarded
     use strict arg count=1
     return self~dropFirstImpl(count, .false)
+
+::method dropFirstI unguarded
+    use strict arg count=1
+    return self~dropFirstImpl(count, .true)
 
 ::method dropI unguarded
     use strict arg count=1
@@ -817,9 +939,17 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg predicate
     return self~selectImpl(predicate, .true)
 
+::method takeFirst unguarded
+    use strict arg count=1
+    return self~takeFirstImpl(count, .false)
+
 ::method take unguarded
     use strict arg count=1
     return self~takeFirstImpl(count, .false)
+
+::method takeFirstI unguarded
+    use strict arg count=1
+    return self~takeFirstImpl(count, .true)
 
 ::method takeI unguarded
     use strict arg count=1
@@ -833,17 +963,33 @@ This script needs a modified ooRexx interpreter which support extension of prede
     use strict arg count=1
     return self~takeLastImpl(count, .true)
 
+::method takeUntil unguarded
+    use strict arg predicate
+    return self~takeUntilImpl(predicate, .false)
+
 ::method until unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .false)
+
+::method takeUntilI unguarded
+    use strict arg predicate
+    return self~takeUntilImpl(predicate, .true)
 
 ::method untilI unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .true)
 
+::method takeWhile unguarded
+    use strict arg predicate
+    return self~takeWhileImpl(predicate, .false)
+
 ::method while unguarded
     use strict arg predicate
     return self~takeWhileImpl(predicate, .false)
+
+::method takeWhileI unguarded
+    use strict arg predicate
+    return self~takeWhileImpl(predicate, .true)
 
 ::method whileI unguarded
     use strict arg predicate
@@ -890,7 +1036,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     do while self~available
         item = self~item
         index = self~index
-        self~next -- do it before testing the predicate
+        self~next -- do it before testing the predicate (same behavior as rexx loop...until)
         if arity >= 2 then logicalValue = doer~do(item, index)
                       else logicalValue = doer~do(item)
         if logicalValue then leave
@@ -983,12 +1129,11 @@ This script needs a modified ooRexx interpreter which support extension of prede
     do while count > 0, self~available
         item = self~item
         index = self~index
+        self~next
         if returnIndex then newItem = .array~of(item, index)
                        else newItem = item
         collectedItems~append(newItem)
         count -= 1
-        if count == 0 then leave -- stop now, to not consume datas if the count has been reached
-        self~next
     end
     return collectedItems
 
@@ -1014,13 +1159,13 @@ This script needs a modified ooRexx interpreter which support extension of prede
     do while self~available
         item = self~item
         index = self~index
+        self~next -- do it before testing the predicate (same behavior as rexx loop...until)
         if returnIndex then newItem = .array~of(item, index)
                        else newItem = item
         collectedItems~append(newItem)
         if arity >=2 then logicalValue = doer~do(item, index)
                      else logicalValue = doer~do(item)
         if logicalValue then leave
-        self~next
     end
     return collectedItems
 
