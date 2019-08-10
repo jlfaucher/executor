@@ -177,6 +177,11 @@ To let a coactivity's thread be stopped when the coactivity is GC'ed, must use t
     forward to (coactivityObj)
 
 
+::method currentIndexItem
+    expose coactivityObj
+    forward to (coactivityObj)
+
+
 ::method resume -- MUST be guarded ! If unguarded then the same value could be returned to different concurrent clients
                 -- Remember : Was declared unguarded to fix deadlock4 but that was a bad decision. Now, yield is unguarded.
     -- You can pass arguments to this method.
@@ -364,6 +369,13 @@ Status transitions :
     end
 
 
+::method currentIndexItem
+    expose yieldIndex yieldItem
+    if self~isAlive then do
+        if var("yieldItem") then return .array~of(yieldItem, yieldIndex)
+    end
+
+
 ::method resume
     expose arguments namedArguments status yieldItem
     if status == .CoactivityObj~notStarted then self~start
@@ -500,34 +512,68 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
     use strict arg coactivity
     empty = .array~new(0) -- Lazy supplier
     self~init:super(empty, empty)
-    --self~next -- Too early ! The first call to ~next must be done from ~available
+    --self~first -- Too early ! The first call to ~first must be done from ~available
     isAvailable = -1 -- special value to indicate that ~next must be executed
 
 
 ::method available
     expose isAvailable
-    if isAvailable == -1 then self~next
+    if isAvailable == -1 then self~first
     return isAvailable
 
 
 ::method index
     expose currentIndex isAvailable
-    if isAvailable == -1 then self~next
+    if isAvailable == -1 then self~first
     if isAvailable then return currentIndex
 
 
 ::method item
     expose currentItem isAvailable
-    if isAvailable == -1 then self~next
+    if isAvailable == -1 then self~first
     if isAvailable then return currentItem
 
 
--- If no result returned by the coactivity, then item=.nil and index=.nil
--- This is conform to the description of .Supplier~new :
--- The supplier iterates for the number of items contained in the values array,
--- returning the Nil object for any nonexistent items in either array.
+::method first private
+    expose coactivity currentIndex currentItem isAvailable
+
+    isAvailable = .false
+    if coactivity~isStarted then do
+        -- A new supplier can be created from a coactivity already started.
+        -- In this case, don't use resume otherwise the current item would be skipped.
+        coactivity~currentIndexItem
+        if var("result") then do
+            currentItem = result[1]
+            currentIndex = result[2]
+            isAvailable = .true
+        end
+    end
+    else do
+        coactivity~resumeWithIndex
+        if var("result") then do
+            currentItem = result[1]
+            currentIndex = result[2]
+            isAvailable = .true
+        end
+        else if coactivity~isAlive then do
+            -- If no result returned by the coactivity, then item=.nil and index=.nil
+            -- This is conform to the description of .Supplier~new :
+            -- The supplier iterates for the number of items contained in the values array,
+            -- returning the Nil object for any nonexistent items in either array.
+            currentItem = .nil
+            currentIndex = .nil -- By testing index==.nil, you know that the coactivity yielded no item
+            isAvailable = .true
+        end
+    end
+
+
 ::method next
     expose coactivity currentIndex currentItem isAvailable
+
+    -- to be consistent with a supplier of collection : s=collection~supplier; s~next; s~item returns the SECOND item
+    -- without this line, we would have the FIRST item
+    if \ coactivity~isStarted then coactivity~resume
+
     isAvailable = .false
     coactivity~resumeWithIndex
     if var("result") then do
@@ -536,6 +582,10 @@ And once the pipeline is GC'ed, there is no more reference to the coactivity sup
         isAvailable = .true
     end
     else if coactivity~isAlive then do
+        -- If no result returned by the coactivity, then item=.nil and index=.nil
+        -- This is conform to the description of .Supplier~new :
+        -- The supplier iterates for the number of items contained in the values array,
+        -- returning the Nil object for any nonexistent items in either array.
         currentItem = .nil
         currentIndex = .nil -- By testing index==.nil, you know that the coactivity yielded no item
         isAvailable = .true
@@ -553,37 +603,37 @@ Problem with iterator of coactivity ? no...
 g={::co loop i=1; .yield[i]; end}
 i=g~iterator
 i~take(10)=     -- [1,2,3,4,5,6,7,8,9,10]
-g~()=           -- 11
-i~take(10)=     -- [10,12,13,14,15,16,17,18,19,20]      <-- 10 ??
-g~()=           -- 21
-g~()=           -- 22
-i~take(10)=     -- [20,23,24,25,26,27,28,29,30,31]      <-- 20 ??
+g~currentIndexItem= -- [11,11]
+g~()=           -- 12
+i~take(10)=     -- [11,13,14,15,16,17,18,19,20,21]      <-- 11 ?? yes... the next value is bufferized on the supplier
+g~currentIndexItem= -- [22,22]
+g~()=           -- 23
+g~()=           -- 24
+i~take(10)=     -- [22,25,26,27,28,29,30,31,32,33]      <-- 22 ?? yes... the next value is bufferized on the supplier
 
 After code review, no problem...
 See takeFirstImpl in functional.cls
-While you don't call ~next, you get the last returned item.
-Exception : for the first invocation of ~item, the ~next method is called because the supplier is not yet started.
 
 g={::co loop i=1; .yield[i]; end}
 i=g~iterator
 i~take(10)=     -- [1,2,3,4,5,6,7,8,9,10]
-i~take(10)=     -- [10,11,12,13,14,15,16,17,18,19]      <-- 10 is re-included
-i~take(10)=     -- [19,20,21,22,23,24,25,26,27,28]      <-- 19 is re-included
+i~take(10)=     -- [11,12,13,14,15,16,17,18,19,20]
+i~take(10)=     -- [21,22,23,24,25,26,27,28,29,30]
 
 
 Same behaviour with supplier...
 g={::co loop i=1; .yield[i]; end}
 s=g~supplier
 s~take(10)~iterator~each=       -- [1,2,3,4,5,6,7,8,9,10]
-s~take(10)~iterator~each=       -- [10,11,12,13,14,15,16,17,18,19]
-s~take(10)~iterator~each=       -- [19,20,21,22,23,24,25,26,27,28]
+s~take(10)~iterator~each=       -- [11,12,13,14,15,16,17,18,19,20]
+s~take(10)~iterator~each=       -- [20,21,22,23,24,25,26,27,28,29,30]
 
-No such problem when working directly with the coactivity...
-And yet behind the scene, a supplier is used...
-This is because a new supplier is created at each invocation of ~take.
-The method ~next is called when calling ~item for the first time.
+Same behaviour when working directly with the coactivity...
+Behind the scene, a supplier is used...
+A new supplier is created at each invocation of ~take.
 g={::co loop i=1; .yield[i]; end}
 g~take(10)~iterator~each=       -- [1,2,3,4,5,6,7,8,9,10]
+g~currentIndexItem=             -- [11,11]
 g~take(10)~iterator~each=       -- [11,12,13,14,15,16,17,18,19,20]
 g~take(10)~iterator~each=       -- [21,22,23,24,25,26,27,28,29,30]
 
