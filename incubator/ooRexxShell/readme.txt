@@ -260,6 +260,7 @@ Known problems under Windows
   with accent. Try Lucida Console, for example.
   See:
   http://blogs.msdn.com/michkap/archive/2005/02/08/369197.aspx
+  http://archives.miloush.net/michkap/archive/2005/02/08/369197.html
   http://en.wikipedia.org/wiki/Windows-1252
 
 - Assuming you defined this doskey macro: ll=ls -lap $*

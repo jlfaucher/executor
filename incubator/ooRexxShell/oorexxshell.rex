@@ -563,7 +563,7 @@ Helpers
     if .CoactivitySupplier~isA(.Class), value~isA(.CoactivitySupplier) then .ooRexxShell~sayPrettyString(value) -- must not consume the datas
     else if .ooRexxShell~isExtended, value~isA(.enclosedArray), dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if .ooRexxShell~isExtended, value~isA(.array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
-    else if value~isA(.Collection) | value~isA(.Supplier) then .ooRexxShell~sayCollection(value, /*title*/, /*comparator*/, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Collection) /* | value~isA(.Supplier) */ then .ooRexxShell~sayCollection(value, /*title*/, /*comparator*/, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
     else .ooRexxShell~sayPrettyString(value)
 
     return value -- To get this value in the variable RESULT
@@ -594,7 +594,13 @@ Helpers
     call loadPackage("streamsocket.cls")
     call loadPackage("pipeline/pipe.rex")
     --call loadPackage("ooSQLite.cls")
-    .ooRexxShell~hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex") -- http://wi.wu.ac.at/rgf/rexx/orx20/rgf_util2.rex
+    .ooRexxShell~hasRgfUtil2 = .false
+    if loadPackage("rgf_util2/rgf_util2.rex"),, -- derived from the offical rgf_util2.rex (in BSF4ooRexx)
+       .nil <> .context~package~findroutine("rgf_util_extended") then do
+            .ooRexxShell~hasRgfUtil2 = .true
+            .ooRexxShell~dump2 = .context~package~findroutine("dump2")
+            .ooRexxShell~pp2 = .context~package~findroutine("pp2")
+    end
     .ooRexxShell~hasBsf = loadPackage("BSF.CLS")
     if value("UNO_INSTALLED",,"ENVIRONMENT") <> "" then call loadPackage("UNO.CLS")
     .ooRexxShell~isExtended = .true
@@ -691,9 +697,12 @@ Helpers
 ::attribute trapLostdigits class -- default true: the condition LOSTDIGITS is trapped when interpreting the command
 ::attribute trapSyntax class -- default true: the condition SYNTAX is trapped when interpreting the command
 
+::attribute dump2 class -- The routine dump2 of extended rgf_util, or .nil
+::attribute pp2 class -- The routine pp2 of extended rgf_util, or .nil
 
 ::method init class
     self~debug = .false
+    self~dump2 = .nil
     self~error = .false
     self~hasBsf = .false
     self~hasQueries = .false
@@ -702,6 +711,7 @@ Helpers
     self~isExtended = .false
     self~isInteractive = .false
     self~maxItemsDisplayed = 1000
+    self~pp2 = .nil
     self~readline = .false
     self~showColor = .false
     self~stackFrames = .list~new
@@ -796,8 +806,7 @@ Helpers
 ::method sayCollection class
     use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     -- The package rgfutil2 is optional, use it if loaded.
-    dump2 = .context~package~findroutine("dump2")
-    if dump2 <> .nil then dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
+    if .ooRexxShell~dump2 <> .nil then .ooRexxShell~dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
     else say coll
 
 
@@ -815,8 +824,7 @@ Helpers
 ::method prettyString class
     use strict arg value, surroundByQuotes=.true
     -- The package rgfutil2 is optional, use it if loaded.
-    pp2 = .context~package~findroutine("pp2")
-    if pp2 <> .nil then return pp2~call(value, surroundByQuotes)
+    if .ooRexxShell~pp2 <> .nil then return .ooRexxShell~pp2~call(value, surroundByQuotes)
     return arg(1)
 
 
