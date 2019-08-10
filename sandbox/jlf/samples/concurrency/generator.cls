@@ -139,7 +139,13 @@
 ::method selectI unguarded
     forward to (self~supplier)
 
+::method takeFirst unguarded
+    forward to (self~supplier)
+
 ::method take unguarded
+    forward to (self~supplier)
+
+::method takeFirstI unguarded
     forward to (self~supplier)
 
 ::method takeI unguarded
@@ -151,13 +157,25 @@
 ::method takeLastI unguarded
     forward to (self~supplier)
 
+::method takeUntil unguarded
+    forward to (self~supplier)
+
 ::method until unguarded
+    forward to (self~supplier)
+
+::method takeUntilI unguarded
     forward to (self~supplier)
 
 ::method untilI unguarded
     forward to (self~supplier)
 
+::method takeWhile unguarded
+    forward to (self~supplier)
+
 ::method while unguarded
+    forward to (self~supplier)
+
+::method takeWhileI unguarded
     forward to (self~supplier)
 
 ::method whileI unguarded
@@ -168,9 +186,17 @@
 ::class "CoactivitySupplierForGenerationFilter" mixinclass SupplierFilter public
 -------------------------------------------------------------------
 
+::method dropFirst unguarded
+    use strict arg count=1
+    return self~dropFirstImpl(count, .false)
+
 ::method drop unguarded
     use strict arg count=1
     return self~dropFirstImpl(count, .false)
+
+::method dropFirstI unguarded
+    use strict arg count=1
+    return self~dropFirstImpl(count, .true)
 
 ::method dropI unguarded
     use strict arg count=1
@@ -224,9 +250,17 @@
     use strict arg predicate
     return self~selectImpl(predicate, .true)
 
+::method takeFirst unguarded
+    use strict arg count=1
+    return self~takeFirstImpl(count, .false)
+
 ::method take unguarded
     use strict arg count=1
     return self~takeFirstImpl(count, .false)
+
+::method takeFirstI unguarded
+    use strict arg count=1
+    return self~takeFirstImpl(count, .true)
 
 ::method takeI unguarded
     use strict arg count=1
@@ -240,17 +274,33 @@
     use strict arg count=1
     return self~takeLastImpl(count, .true)
 
+::method takeUntil unguarded
+    use strict arg predicate
+    return self~takeUntilImpl(predicate, .false)
+
 ::method until unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .false)
+
+::method takeUntilI unguarded
+    use strict arg predicate
+    return self~takeUntilImpl(predicate, .true)
 
 ::method untilI unguarded
     use strict arg predicate
     return self~takeUntilImpl(predicate, .true)
 
+::method takeWhile unguarded
+    use strict arg predicate
+    return self~takeWhileImpl(predicate, .false)
+
 ::method while unguarded
     use strict arg predicate
     return self~takeWhileImpl(predicate, .false)
+
+::method takeWhileI unguarded
+    use strict arg predicate
+    return self~takeWhileImpl(predicate, .true)
 
 ::method whileI unguarded
     use strict arg predicate
@@ -412,13 +462,12 @@
             do while count > 0, self~available
                 item = self~item
                 index = self~index
+                self~next
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
                 use strict arg -- none
                 count -= 1
-                if count == 0 then leave -- stop now, to not consume datas if the count has been reached
-                self~next
             end
            }~doer
 
@@ -455,6 +504,7 @@
             do while self~available
                 item = self~item
                 index = self~index
+                self~next
                 if returnIndex then newItem = .array~of(item, index)
                                else newItem = item
                 .yield[newItem]
@@ -462,7 +512,6 @@
                 if arity >= 2 then logicalValue = doer~do(item, index)
                               else logicalValue = doer~do(item)
                 if logicalValue then leave
-                self~next
             end
            }~doer
 
