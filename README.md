@@ -1,3 +1,5 @@
+![WordCloud](sandbox/jlf/docs/WordCloud/WordCloud.png)
+
 Experimental ooRexx
 ===================
 Forked from http://sourceforge.net/projects/oorexx/

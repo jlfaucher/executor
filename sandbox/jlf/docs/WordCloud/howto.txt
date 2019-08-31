@@ -1,0 +1,8 @@
+Created using Wolfram Language in Jupyter.
+
+ExecutorReadme = Import["https://raw.githubusercontent.com/jlfaucher/executor/master/README.md"];
+Executor = StringRepeat["executor ", 500];
+ooRexx = StringRepeat["ooRexx ", 200];
+WordCloud[ExecutorReadme <> Executor <> ooRexx,
+          IgnoreCase -> False,
+          WordSelectionFunction -> (# != "Win64rel-master-delivery" &)]
