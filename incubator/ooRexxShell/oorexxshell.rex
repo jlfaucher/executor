@@ -1067,6 +1067,7 @@ Helpers
 ::method helpClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames
     .QueryManager~displayClasses(classnames, self, .context)
@@ -1075,6 +1076,7 @@ Helpers
 ::method helpClassMethods class
     -- Display the methods of each specified class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames, inherited, displaySource, filteringStream
     .QueryManager~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
@@ -1106,12 +1108,14 @@ Helpers
 
 ::method helpFlags class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     .QueryManager~displayFlags
 
 
 ::method helpHelp class
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg classnames, inherited
     .QueryManager~displayHelp(classnames, inherited, self, .context)
@@ -1127,6 +1131,7 @@ Helpers
 ::method helpMethods class
     -- Display the defining classes of each specified method
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg methodnames, displaySource
     .QueryManager~displayMethods(methodnames, displaySource, self, .context)
@@ -1135,6 +1140,7 @@ Helpers
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg packagenames, displaySource
     .QueryManager~displayPackages(packagenames, displaySource, self, .context)
@@ -1145,6 +1151,7 @@ Helpers
     -- Example of variables: LD_LIBRARY_PATH, MANPATH, PATH
     -- Can be filtered, as any help output.
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg variablenames
     .QueryManager~displayPath(variablenames)
@@ -1153,6 +1160,7 @@ Helpers
 ::method helpRoutines class
     -- Display the defining package of each specified routine
     if \.ooRexxShell~isExtended then do; .ooRexxShell~sayError("Needs extended ooRexx"); return; end
+    if \.ooRexxShell~hasRgfUtil2 then do; .ooRexxShell~sayError("Needs extended rgf_util2"); return; end
     if \.ooRexxShell~hasQueries then do; .ooRexxShell~sayError("Package 'queries' not loaded"); return; end
     use strict arg routinenames, displaySource
     .QueryManager~displayRoutines(routinenames, displaySource, self, .context)

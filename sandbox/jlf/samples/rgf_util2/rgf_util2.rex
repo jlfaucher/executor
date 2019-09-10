@@ -175,6 +175,13 @@ do
    thisPackage~addPublicClass("StringOfWords"         , .StringOfWords         )
 end
 
+
+::routine rgf_util_extended public
+  -- JLF :
+  -- To let test if the extended version of rgf_util2.rex is loaded
+  -- dump2 and pp2 takes more arguments in this extended version.
+
+
 /* ======================================================================= */
 /* === methods to be used for new BIFs                                 === */
 /* ======================================================================= */
