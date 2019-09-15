@@ -573,14 +573,18 @@ Helpers
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
     if .platform~is("windows") then do
+        call loadPackage("ole.cls")
         call loadPackage("oodialog.cls")
         call loadPackage("winsystm.cls")
     end
     if \.platform~is("windows") then do
         call loadLibrary("rxunixsys")
     end
+    call loadPackage("csvStream.cls")
     if loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
+    call loadPackage("json.cls")
     call loadPackage("mime.cls")
+    call loadPackage("ncurses.cls")
     call loadPackage("rxftp.cls")
     call loadLibrary("rxmath")
     call loadPackage("rxregexp.cls")
