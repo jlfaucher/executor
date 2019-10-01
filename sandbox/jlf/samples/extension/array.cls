@@ -779,29 +779,37 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     a~pipe(.console dataflow)
         source:1,'string1'
         source:2,'string2'
-        source:3,[v1='string2',['string1',v1,*1,*0]]
-        source:4,['string1',v1='string2',[v1,*1],*0]
+        source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]]
+        source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1]
 
     a~pipe(.inject iterateBefore {item} recursive.0.memorize | .console dataflow)
         source:1,v1='string1' | inject:1,v1
+source:1,v1='string1' | inject:1,*v1
         source:2,v1='string2' | inject:1,v1
+source:2,v1='string2' | inject:2,*v1
         source:3,[v1='string2',['string1',v1,*1,*0]] | inject:1,v1
+source:3,a1=[v1='string2',a2=['string1',*v1,*a1,*a2]] | inject:1,*v1
         source:3,[v1='string2',[v2='string1',v1,*1,*0]] | inject:1,[v2,v1,[v1,*1],*0]
+source:3,a1=[v1='string2',a2=[v2='string1',*v1,*a1,*a2]] | inject:2,a1=[*v2,*v1,a2=[*v1,*a1],*a1]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,v1
+source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:1,*v1
         source:4,['string1',v1='string2',[v1,*1],*0] | inject:1,v1
+source:4,a1=['string1',v1='string2',a2=[*v1,*a1],*a1] | inject:2,*v1
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v2,[v1,v2,*1,*0]]
+source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:3,a1=[*v2,a2=[*v1,*v2,*a1,*a2]]
         source:4,[v1='string1',v2='string2',[v2,*1],*0] | inject:1,[v1,v2,[v2,*1],*0]
+source:4,a1=[v1='string1',v2='string2',a2=[*v2,*a1],*a1] | inject:4,a1=[*v1,*v2,a2=[*v2,*a1],*a1]
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil
     -- Remember : this code has been duplicated in pipe.rex, routine dataflow_representation.
-    if referencesTable == .nil then referencesTable = self~collectReferences -- do it before pretty printing, to display the reference identifiers only when needed
+    if referencesTable == .nil then referencesTable = self~collectReferences(maxItems) -- do it before pretty printing, to display the reference identifiers only when needed
     if val~isA(.enclosedArray) then do
         -- Remember : would be better to have a method ppRepresentation on class EnclosedArray, but I prefer to remain close to dataflow_representation.
         reference = referencesTable[val]
-        if reference~selfReferenceId <> 0, reference~displayed == .true then return "*a" || reference~selfReferenceId -- pointer to the array already displayed
+        if reference~selfReferenceId <> 0, reference~displayed == .true then return "*e" || reference~selfReferenceId -- pointer to the enclosed array already displayed
         reference~displayed(.true)
         valstr = ""
-        if reference~selfReferenceId <> 0 then valstr = "a" || reference~selfReferenceId || "="
+        if reference~selfReferenceId <> 0 then valstr = "e" || reference~selfReferenceId || "="
         return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable)">"
     end
     else if val~isA(.array), val~dimension == 1 then do
@@ -853,17 +861,16 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
 
 
 ::method collectReferences
-    -- Collect all the references to array or encloseArray.
+    -- Collect all the references to array or enclosedArray.
     -- Same code organization as ppstring, to make easier joint updates.
     -- Use the same logic as ppstring to limit the number of items to analyze.
     -- When a referenced array is seen more than once, then the reference is marked as selfReference, to stop the infinite recursion.
-    use strict arg maxItems=(-1), val=(self), referencesTable=.nil, selfReferenceCount=0
+    use strict arg maxItems=(-1), val=(self), referencesTable=.nil
     if .nil == referencesTable then referencesTable = .identityTable~new
     if val~isA(.enclosedArray) then do
         reference = referencesTable[val]
         if .nil <> reference then do
-            selfReferenceCount += 1
-            reference~selfReferenceId(selfReferenceCount)
+            reference~selfReferenceId(1)
             return referencesTable
         end
         referencesTable[val] = .reference~new
@@ -873,8 +880,7 @@ b=                              -- <<[1,2,*0,<*1>,<<<*2>>>,*2]>>
     else if val~isA(.array), val~dimension == 1 then do
         reference = referencesTable[val]
         if .nil <> reference then do
-            selfReferenceCount +=1
-            reference~selfReferenceId(selfReferenceCount)
+            reference~selfReferenceId(1)
             return referencesTable
         end
         referencesTable[val] = .reference~new

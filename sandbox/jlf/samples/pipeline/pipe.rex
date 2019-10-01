@@ -551,6 +551,33 @@ return 0
 
 
 /******************************************************************************/
+::class "dataflowPool"
+
+::attribute nextValueIndex
+::attribute nextArrayIndex
+::attribute nextEnclosedArrayIndex
+::attribute values
+
+::method init
+self~nextValueIndex = 1
+self~nextArrayIndex = 1
+self~nextEnclosedArrayIndex = 1
+self~values = .table~new
+
+
+::class "dataflowValuePoolValue"
+
+::attribute index
+::attribute count
+::attribute printed
+
+::method init
+self~index = 0
+self~count = 0
+self~printed = .false
+
+
+/******************************************************************************/
 ::class "dataflow" public subclass Array inherit Comparable
 
 /*
@@ -603,7 +630,7 @@ dataflow~makeString(mask="1 2 3 4", showPool=.false)
       references to previous items, instead of repeating the items.
       Ex :
       with showPool == .false : "my string",(a Method)|"my string",(a Method)
-      with showPool == .true  : i1="my string",i2=(a Method)|i1,i2
+      with showPool == .true  : v1="my string",v2=(a Method)|*v1,*v2
 dataflow~previous
     Returns the previous dataflow.
 dataflow~tag
@@ -716,99 +743,132 @@ else if .nil == previousDataflow2 then return 1 -- nonNil > nil
 return previousDataflow1~compareTo(previousDataflow2)
 
 ::method makeString
--- mask lets indicate which fields to include.
--- If previous is included, then the same mask is used everywhere.
---
--- A dataflow can generate a long string.
--- The parameter showPool lets reduce the length of the string, by inserting
--- references to previous items, instead of repeating the items.
--- Ex :
--- with showPool == .false : "my string",(a Method)|"my string",(a Method)
--- with showPool == .true  : v1="my string",v2=(a Method)|v1,v2
-use strict arg mask="1 2 3 4", showPool=.false, pool=(.queue~new), values=(.table~new)
-if showPool then do
-    do index = self~firstIndexPoolManaged to self~dimension(1)
-        if mask~pos(index) == 0 then iterate
-        call dataflow_value self[index], values
-    end
+/*
+mask lets indicate which fields to include.
+If previous is included, then the same mask is used everywhere.
+
+A dataflow can generate a long string.
+The parameter showPool lets reduce the length of the string, by inserting
+references to previous items, instead of repeating the items.
+Ex :
+with showPool == .false : "my string",(a Method)|"my string",(a Method)
+with showPool == .true  : v1="my string",v2=(a Method)|*v1,*v2
+*/
+use strict arg mask="1 2 3 4", showPool=.false, pool=(.dataflowPool~new)
+/*****************************************
+* Pass 1: count the occurences of values *
+*****************************************/
+-- Collect the index, item and additional values (if any) of the current dataflow.
+-- Here we just count the number of occurences of each value.
+-- The first occurence of a value having more than 1 occurence will be tagged
+-- vN= or aN= or eN= (value, array, enclosed array).
+-- But to know that, you need first to know if the value has more than 1 occurence...
+do index = self~firstIndexPoolManaged to self~dimension(1)
+    if mask~pos(index) == 0 then iterate
+    call dataflow_value self[index], showPool, pool
 end
+/********************************
+* Pass 2: string representation *
+********************************/
 previous = self~previous
 string = ""
-if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool, values)" | "
+if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
 if mask~pos(2) <> 0 then string ||= self~tag":"
+-- Now we print the index, item and additional values (if any) of the current dataflow
 separator = ""
 do index = self~firstIndexPoolManaged to self~dimension(1)
     if mask~pos(index) == 0 then iterate
-    string ||= separator || dataflow_representation(self[index], showPool, pool, values)
+    string ||= separator || dataflow_representation(self[index], showPool, pool)
     separator = ","
 end
 return string
 
 ::routine dataflow_value
--- 'values' is a collection which remembers the values inserted in the dataflow representation.
--- The goal is to know if a given value appears more than once in the representation (count > 1) : shared value.
--- If reused and showPool==.true, then a compacted representation will be used (see dataflow_representation).
-use strict arg val, values, stack=(.queue~new)
-if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
-    -- each item of the array will be inserted in the representation.
-    if .nil <> stack~index(val) then return -- recursive array
-    stack~push(val)
-    do v over val
-        call dataflow_value v, values, stack
-    end
-    stack~pull
+/*
+pool~values is a collection which remembers the values inserted in the dataflow representation.
+The goal is to know if a given value appears more than once in the representation (count > 1) : shared value.
+If reused and showPool==.true, then a compacted representation will be used (see dataflow_representation).
+*/
+use strict arg val, showPool, pool
+-- The arrays and enclosed arrays are always managed with a pool, even if not showPool, to support self-referencing.
+if \showPool, val~class~id <> "EnclosedArray", \val~isA(.array) then return
+isnum = .false
+if val~isA(.String) then do
+    isnum = val~dataType("N")
 end
-else do
-    isnum = .false
-    if val~isA(.String) then do
-        isnum = val~dataType("N")
+if isnum then return -- numbers are not managed by pool
+poolValue = pool~values[val]
+if .nil == poolValue then do
+    poolValue = .dataflowValuePoolValue~new
+    pool~values[val] = poolValue
+end
+poolValue~count += 1
+if poolValue~count > 1 then return -- first occurence already analyzed
+if val~class~id == "EnclosedArray" then do
+    call dataflow_value val~disclose, showPool, pool
+end
+else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
+    -- each item of the array will be inserted in the representation.
+    do v over val
+        call dataflow_value v, showPool, pool
     end
-    if isnum then return -- numbers are not managed by pool
-    count = values[val]
-    if .nil == count then count = 0
-    values[val] = count+1
 end
 
 ::routine dataflow_representation
--- 'pool' is a collection which remembers the shared values (count > 1) already inserted in the representation.
--- The first occurence of a shared value is represented by vN=<shared value representation>
--- The next occurences of this shared value is just *vN.
-use strict arg val, showPool, pool, values, stack=(.queue~new)
+/*
+pool~values is a collection which remembers the values inserted in the dataflow representation.
+The goal is to know if a given value appears more than once in the representation (count > 1) : shared value.
+- The first occurence of a shared value is represented by vN or aN or eN = <shared value representation>
+- The next occurences of this shared value is just *vN or *aN *eN (value, array, enclosed array).
+*/
+use strict arg val, showPool, pool
+-- The arrays and enclosed arrays are always managed with a pool, even if not showPool, to support self-referencing.
+if showPool | val~class~id == "EnclosedArray" | val~isA(.array) then do
+    poolValue = pool~values[val]
+    if .nil == poolValue then do
+        -- should not happen, but...
+        poolValue = .dataflowValuePoolValue~new
+        pool~values[val] = poolValue
+        poolValue~count = 1
+    end
+end
 -- if val~isA(.enclosedArray) then do -- Can't use this test because .enclosedArray is not a class here. I don't want to require "extension/array.cls"
 if val~class~id == "EnclosedArray" then do
-    level = stack~index(val)
-    --if .nil <> level then return "*"level-1
-    if .nil <> level then return "*a"level
-    stack~append(val)
-    level = stack~index(val)
-    valstr = "a" || level || "=" || "<"dataflow_representation(val~disclose, showPool, pool, values, stack)">"
-    --stack~pull
-    return valstr
+    if showPool, poolValue~printed then return "*e"poolValue~index
+    -- Here, first printing
+    poolValue~printed = .true -- set it now, will be tested to avoid infinite recursion with self-referencing enclosed arrays
+    poolValue~index = pool~nextEnclosedArrayIndex
+    pool~nextEnclosedArrayIndex += 1
+    valstr = "<"dataflow_representation(val~disclose, showPool, pool)">"
+    if \showPool then return valstr
+    if poolValue~count == 1 then return valstr -- no need of eN= in front
+    return "e" || poolValue~index || "=" || valstr
 end
 else if val~isA(.array), val~dimension == 1, val~items <= .dataflow~arrayPrintMaxSize then do
-    -- Remember : this part of code is a duplication of .array~ppRepresentation.
-    -- Must find a way to avoid this duplication...
-    -- One difference is the call to dataflow_representation instead of ppRepresentation,
-    -- but the problem is that additional parameters are passed : showPool, pool, values.
-    -- Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
-    -- Other difference : no management of sparse array. Most of the time, an array is iterated over using a supplier, which skips the holes.
-
+    /*
+    Remember : this part of code is a duplication of .array~ppRepresentation.
+    Must find a way to avoid this duplication...
+    One difference is the call to dataflow_representation instead of ppRepresentation,
+    but the problem is that additional parameters are passed : showPool, pool.
+    Other difference : no maxItems. Most of the time, the arrays passing through the pipe are not printed as a whole, they are iterated over.
+    Other difference : no management of sparse array. Most of the time, an array is iterated over using a supplier, which skips the holes.
+    */
+    if showPool, poolValue~printed then return "*a"poolValue~index
+    -- Here, first printing
     -- each item of the array is inserted.
-    -- special care for recursive arrays
-    level = stack~index(val)
-    --if .nil <> level then return "*"level-1
-    if .nil <> level then return "*a"level
-    stack~append(val)
-    level = stack~index(val)
-    valstr = "a" || level || "=" || "["
+    poolValue~printed = .true -- set it now, will be tested to avoid infinite recursion with self-referencing arrays
+    poolValue~index = pool~nextArrayIndex
+    pool~nextArrayIndex += 1
+    valstr = "["
     separator = ""
     do v over val
-        valstr ||= separator || dataflow_representation(v, showPool, pool, values, stack)
+        valstr ||= separator || dataflow_representation(v, showPool, pool)
         separator = ","
     end
     valstr ||= "]"
-    --stack~pull
-    return valstr
+    if \showPool then return valstr
+    if poolValue~count == 1 then return valstr -- no need of aN= in front
+    return "a" || poolValue~index || "=" || valstr
 end
 else do
     valstr = val~string
@@ -825,16 +885,12 @@ else do
     end
     if isnum | \showPool then return valstr
     else do
-        num = pool~index(val)
-        if .nil == num then do
-            count = values[val]
-            if .nil <> count, count > 1 then do
-                num = pool~append(val)
-                return "v"num"="valstr
-            end
-            else return valstr
-        end
-        else return "*v"num
+        if poolValue~printed then return "*v"poolValue~index
+        if poolValue~count == 1 then return valstr -- no need of vN= in front
+        poolValue~index = pool~nextValueIndex
+        pool~nextValueIndex += 1
+        poolValue~printed = .true
+        return "v" || poolValue~index || "=" || valstr
     end
 end
 
@@ -1695,7 +1751,7 @@ forward class (super) arguments (unknown)   -- forward the initialization to sup
 
 ::method representation
 use strict arg val
-return dataflow_representation(val, .false, .nil, .nil) -- showPool=.false, pool=.nil, values=.nil
+return dataflow_representation(val, .false, .nil) -- showPool=.false, pool=.nil, values=.nil
 
 ::method displayDataflow -- private (in comment otherwise error "does not understand message DISPLAYDATAFLOW_UNPROTECTED when profiling)
 expose showPool showTags
