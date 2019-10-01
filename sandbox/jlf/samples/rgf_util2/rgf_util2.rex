@@ -182,6 +182,16 @@ end
   -- dump2 and pp2 takes more arguments in this extended version.
 
 
+::routine interpreter_extended public
+    -- Temporary helper, maybe I will put in place something better...
+    -- In Executor
+    --     The tokenizer has been modified to split a symbol of the form <number><after number> in two distinct tokens.
+    --     0a is the number 0 followed by the symbol a. If a=0 then 0a is (0 "" 0) = "00"
+    -- In Official ooRexx, 0a is parsed as "0A" and is not impacted by the value of the variable a.
+    a = 0
+    return 0a == "00"
+
+
 /* ======================================================================= */
 /* === methods to be used for new BIFs                                 === */
 /* ======================================================================= */
@@ -1824,7 +1834,10 @@ syntax:              -- propagate condition
 
   if coll~isA(.Collection) then
   do
-     s=makeSortedSupplier(coll, comparator, maxCount)
+     if interpreter_extended() then
+         s=makeSortedSupplier(coll, comparator, maxCount)
+     else
+         s=makeSortedSupplier(coll, comparator) -- maxCount not supported
   end
 
    -- determine maximum length of "pretty printed" index-value
@@ -1874,7 +1887,12 @@ makeSortedSupplier: procedure
   use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
 
   if coll~isA(.OrderedCollection) then do  -- don't sort, just return the supplier
-     if coll~isA(.array) then return coll~supplier(maxCount+1) -- +1 to let display the ellipsis
+     if coll~isA(.array) then do
+         if interpreter_extended() then
+             return coll~supplier(maxCount+1) -- +1 to let display the ellipsis
+         else
+             return coll~supplier -- maxCount not supported
+     end
      return coll~supplier -- optional argument maxCount not yet implemented
   end
 
