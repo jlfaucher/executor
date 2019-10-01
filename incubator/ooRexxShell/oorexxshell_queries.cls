@@ -61,6 +61,8 @@ loadPackage:
         'MutableBuffer',
         'NumericComparator',
         'Object',
+        'OLEObject',
+        'OLEVariant',
         'Orderable',
         'OrderedCollection',
         'OutputStream',
@@ -72,6 +74,7 @@ loadPackage:
         'RexxBlock',            -- extension
         'RexxContext',
         'RexxQueue',
+        'RexxText',             -- extension
         'Routine',
         'SERIALIZEFUNCTIONS',
         'Serializable',
