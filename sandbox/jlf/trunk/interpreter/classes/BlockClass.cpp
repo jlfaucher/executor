@@ -110,12 +110,32 @@ RexxSourceLiteral::RexxSourceLiteral(RexxString *s, PackageClass *p, size_t star
     this->package = p; // transient, no need of OrefSet
     RexxArray *sourceArray = (RexxArray *)sa->copy();
     ProtectedObject pSourceArray(sourceArray);
+
+    // clauser = .Clauser~new(sourceArray)
+    // The clauser will have a direct impact on sourceArray :
+    // - The message KIND returns the kind of the source after removing the keyword(s) that declares the kind of the source.
+    // - The message TRANSFORMSOURCE updates directly the sourceArray.
     RexxObject *clauserClass = TheEnvironment->at(OREF_CLAUSER);
     RexxObject *clauser = clauserClass->sendMessage(OREF_NEW, (RexxObject *)sourceArray); // must cast sourceArray, otherwise taken as array of arguments
     ProtectedObject pClauser(clauser);
-    RexxObject *sourceLiteralParserClass = TheEnvironment->at(OREF_SOURCELITERALPARSER);
-    this->kind = (RexxString *)sourceLiteralParserClass->sendMessage(OREF_KIND, clauser); // transient, no need of OrefSet
-    this->rawExecutable =sourceLiteralParserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package); // transient, no need of OrefSet
+
+    // kind = clauser~kind(remove: .true)
+    RexxObject *arguments[0 + (1+ 1*2)]; // 0 positional arg, 1 cell for named arg count, 1 named arg
+    arguments[0] = IntegerOne; // 1 named arg
+    arguments[1] = OREF_REMOVE; // named arg name
+    arguments[2] = TheTrueObject; // named arg value
+    this->kind = (RexxString *)clauser->sendMessage(OREF_KIND, arguments, 0); // transient, no need of OrefSet
+
+    // clauser~transformSource(clauseBefore, clauseAfter)
+    // Transform the source to accept auto named arguments, and to return implicitely the result of the last evaluated expression
+    RexxString *clauseBefore = new_string("use auto named arg ; options \"NOCOMMANDS\"");
+    ProtectedObject pClauseBefore(clauseBefore);
+    RexxString *clauseAfter = new_string(" ; if var(\"result\") then return result");
+    ProtectedObject pClauseAfter(clauseAfter);
+    clauser->sendMessage(OREF_TRANSFORMSOURCE, clauseBefore, clauseAfter);
+
+    // rawExecutable = .Clauser~rawExecutable(kind, sourceArray, package)
+    this->rawExecutable =clauserClass->sendMessage(OREF_RAWEXECUTABLE, this->kind, sourceArray, this->package); // transient, no need of OrefSet
     this->closure = (0 == strncmp(this->kind->getStringData(), "cl", 2));
 }
 

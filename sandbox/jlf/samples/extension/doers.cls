@@ -251,8 +251,18 @@ aMethod~do("hello") --> No error, display "hello" (so the private method is visi
 ::method doer unguarded
     expose executable
     if .nil <> executable then return executable
+
     use strict arg -- none
-    executable = self~sourceDoer
+    executable = self~sourceDoer -- The source is transformed to accept auto named arguments, and to return implicitely the result of the last evaluated expression
+
+    -- The arity can be set on the RexxBlock before calling ~doer.
+    -- If already set (<> -1) then this arity will be stored on the executable
+    -- otherwise the arbitrary value 9999 is stored on the executable
+    -- The arity of the RexxBlock is unchanged.
+    arity = self~arity
+    if arity == -1 then arity = 9999
+    executable~arity(arity)
+
     return executable
 
 ::method executable unguarded
@@ -275,24 +285,10 @@ Possible transformations :
     if clauseBefore <> "" | clauseAfter <> "" | .nil == rawExecutable then do
         sourceArray = self~source -- always an array, even if empty or just one line
         clauser = .Clauser~new(sourceArray)
-        kind = .SourceLiteralParser~kind(clauser)
-
-        -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
-        if clauser~clauseAvailable then do
-            clause = clauser~clause
-            if .Clauser~isExposeClause(clause) then clauser~nextClause
-        end
-
-        -- Insert the 'clauseBefore', if any
-        if clauseBefore <> "" then do
-            if clauser~clauseAvailable then clauser~clause = clauseBefore ";" clauser~clause
-            else sourceArray~append(clauseBefore)
-        end
-
-        -- Insert the 'clauseAfter', if any
-        if clauseAfter <> "" then sourceArray~append(clauseAfter)
-
-        rawExecutable = .SourceLiteralParser~rawExecutable(kind, sourceArray, context)
+        kind = clauser~kind(remove: .true) -- do that before the transformation, to remove the keywords that declares the kind of the source
+        clauser~transformSource(clauseBefore, clauseAfter)
+        rawExecutable = .Clauser~rawExecutable(kind, sourceArray, context)
+        -- Note that the rawExecutable of the RexxBlock is unchanged.
     end
 
     -- Returns the executable

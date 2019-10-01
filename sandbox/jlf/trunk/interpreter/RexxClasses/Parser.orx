@@ -36,175 +36,115 @@
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
--- The parser delegates to these classes when parsing source literals
-.environment~setentry("SOURCELITERALPARSER", .SourceLiteralParser)
+-- The parser delegates to this class when parsing source literals
 .environment~setentry("CLAUSER", .Clauser)
-
-
-::class "SourceLiteralParser" public
-
-/*
-Helper for immediate parsing.
-For each RexxSourceLiteral created during the parsing, the interpreter will call this method
-to get the kind of executable to store on the RexxSourceLiteral.
-*/
-::method kind class unguarded
-    use strict arg clauser
-    -- If the first word is ::co[activity] then remove this word and remember it's a coactive routine : "r.co"
-    --     If the first clause is an expose clause then it's a coactive closure : "cl.co"
-    -- If the first word is ::r[outine] then remove this word and remember it's a routine : "r"
-    --     If the first clause is an expose clause then it's a closure : "cl"
-    -- If the first word is ::[xxx] then raise an error (unknown tag)
-    kind = "r" -- routine by default
-    if clauser~clauseAvailable then do
-        clause = clauser~clause
-        parse var clause word rest
-        if "::coactivity"~caselessAbbrev(word, 4) then do
-            clauser~clause = rest
-            kind = "r.co" -- routine by default
-        end
-        else if "::routine"~caselessAbbrev(word, 3) then do
-            clauser~clause = rest
-            kind = "r"
-        end
-        else if "::tokens"~caselessAbbrev(word, 3) then do
-            -- This is for debug. Currently, I get nothing interesting, most of the tokens are TOKEN_OTHER.
-            clauser~clause = rest
-            kind = "t"
-        end
-        else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
-
-        -- If a tag has been removed, and the rest of the clause is blank only, then go to the next clause
-        -- The goal is to respect the invariant of the clauser : returns only non-empty clauses.
-        if clauser~clause~strip == "" then clauser~nextClause
-        if clauser~clauseAvailable, .Clauser~isExposeClause(clauser~clause) then do
-            -- The existence of an expose clause indicates that it's a closure
-            if kind == "r" then kind = "cl"
-            else if kind == "r.co" then kind = "cl.co"
-        end
-    end
-    return kind
-
-
-/*
-Helper for immediate parsing.
-For each RexxSourceLiteral created during the parsing, the interpreter will call this method
-to get the executable to store on the RexxSourceLiteral.
-*/
-::method rawExecutable class unguarded
-    use strict arg kind, sourceArray, context=.nil, isBlock=.true
-    parse var kind kind "." option
-    if kind == "r" then executable = .Routine~new("", sourceArray, context, isBlock)
-    else if kind == "cl" then executable = .Method~new("do", sourceArray, context, isBlock)
-    else executable = .nil
-    return executable
 
 
 -----------------------------------------------------------------------------
 -- Helper for source analysis & transformation.
 
 /*
-The Clauser works directly on the source array passed at creation.
-It returns only non-empty clauses (unless you modify a clause, see below).
-You can modify the source array by replacing the current clause by a new one :
-    myClauser~clause = mySourceFragment
-The new clause is inserted as-is and not iterated over by the clauser.
-Of course, you can create a new clauser using the modified source, and
-then you will iterate over your modified clauses.
-While you don't call ~nextClause, ~clause will return the last assigned value,
-which can be anything, like an empty string or a string containing several clauses.
+    The Clauser works directly on the source array passed at creation.
+    It returns only non-empty clauses (unless you modify a clause, see below).
+    You can modify the source array by replacing the current clause by a new one :
+        myClauser~clause = mySourceFragment
+    The new clause is inserted as-is and not iterated over by the clauser.
+    Of course, you can create a new clauser using the modified source, and
+    then you will iterate over your modified clauses.
+    While you don't call ~nextClause, ~clause will return the last assigned value,
+    which can be anything, like an empty string or a string containing several clauses.
 
-Exemple :
+    Exemple :
 
-------------------------------------
-csource = {
-    clause1
+    ------------------------------------
+    csource = {
+        clause1
 
-    clause2 ; clause3
-    clause4 ; ;
-    clause5a, -- comment
-    clause5b /* multiline
-    comment */ clause5c ; clause6
-}
-sourceArray = csource~source -- Each time you call this method, you get a copy of the original source literal
+        clause2 ; clause3
+        clause4 ; ;
+        clause5a, -- comment
+        clause5b /* multiline
+        comment */ clause5c ; clause6
+    }
+    sourceArray = csource~source -- Each time you call this method, you get a copy of the original source literal
 
-say "Iterate over the original source :"
-i = 1
-do sourceLine over sourceArray
-    say i '"'sourceLine'"'
-    i +=1
-end
+    say "Iterate over the original source :"
+    i = 1
+    do sourceLine over sourceArray
+        say i '"'sourceLine'"'
+        i +=1
+    end
 
-say
-say "Iterate over the clauses, surround clause2, remove clause3, shrink clause5:"
-clauser = .Clauser~new(sourceArray) -- The clauser works directly on this source array, no copy
-i = 1
-do while clauser~clauseAvailable
-    clause = clauser~clause
-    if clause~match(1, "clause2") then clauser~clause = "clause2 before ; "clause" ; clause2 after"
-    if clause~match(1, "clause3") then clauser~clause = ""
-    if clause~match(1, "clause5") then clauser~clause = "clause5"
-    say i '"'clause'" --> "'clauser~clause'"'
-    clauser~nextClause
-    i += 1
-end
+    say
+    say "Iterate over the clauses, surround clause2, remove clause3, shrink clause5:"
+    clauser = .Clauser~new(sourceArray) -- The clauser works directly on this source array, no copy
+    i = 1
+    do while clauser~clauseAvailable
+        clause = clauser~clause
+        if clause~match(1, "clause2") then clauser~clause = "clause2 before ; "clause" ; clause2 after"
+        if clause~match(1, "clause3") then clauser~clause = ""
+        if clause~match(1, "clause5") then clauser~clause = "clause5"
+        say i '"'clause'" --> "'clauser~clause'"'
+        clauser~nextClause
+        i += 1
+    end
 
-say
-say "Iterate over the modified source :"
-i = 1
-do sourceLine over sourceArray
-    say i '"'sourceLine'"'
-    i += 1
-end
+    say
+    say "Iterate over the modified source :"
+    i = 1
+    do sourceLine over sourceArray
+        say i '"'sourceLine'"'
+        i += 1
+    end
 
-say
-say "Iterate over the clauses of the modified source :"
-clauser = .Clauser~new(sourceArray)
-i = 1
-do while clauser~clauseAvailable
-    clause = clauser~clause
-    say i '"'clause'"'
-    clauser~nextClause
-    i += 1
-end
-------------------------------------
-Output :
-Iterate over the original source :
-1 ""
-2 "    clause1"
-3 ""
-4 "    clause2 ; clause3"
-5 "    clause4 ; ;"
-6 "    clause5a, -- comment"
-7 "    clause5b /* multiline"
-8 "    comment */ clause5c ; clause6"
+    say
+    say "Iterate over the clauses of the modified source :"
+    clauser = .Clauser~new(sourceArray)
+    i = 1
+    do while clauser~clauseAvailable
+        clause = clauser~clause
+        say i '"'clause'"'
+        clauser~nextClause
+        i += 1
+    end
+    ------------------------------------
+    Output :
+    Iterate over the original source :
+    1 ""
+    2 "    clause1"
+    3 ""
+    4 "    clause2 ; clause3"
+    5 "    clause4 ; ;"
+    6 "    clause5a, -- comment"
+    7 "    clause5b /* multiline"
+    8 "    comment */ clause5c ; clause6"
 
-Iterate over the clauses, surround clause2, remove clause3, shrink clause5:
-1 "clause1" --> "clause1"
-2 "clause2" --> "clause2 before ; clause2 ; clause2 after"
-3 "clause3" --> ""
-4 "clause4" --> "clause4"
-5 "clause5a     clause5b  clause5c" --> "clause5"
-6 "clause6" --> "clause6"
+    Iterate over the clauses, surround clause2, remove clause3, shrink clause5:
+    1 "clause1" --> "clause1"
+    2 "clause2" --> "clause2 before ; clause2 ; clause2 after"
+    3 "clause3" --> ""
+    4 "clause4" --> "clause4"
+    5 "clause5a     clause5b  clause5c" --> "clause5"
+    6 "clause6" --> "clause6"
 
-Iterate over the modified source :
-1 ""
-2 "    clause1"
-3 ""
-4 "clause2 before ; clause2 ; clause2 after;"
-5 "    clause4 ; ;"
-6 "clause5"
-7 ""
-8 "; clause6"
+    Iterate over the modified source :
+    1 ""
+    2 "    clause1"
+    3 ""
+    4 "clause2 before ; clause2 ; clause2 after;"
+    5 "    clause4 ; ;"
+    6 "clause5"
+    7 ""
+    8 "; clause6"
 
-Iterate over the clauses of the modified source :
-1 "clause1"
-2 "clause2 before"
-3 "clause2"
-4 "clause2 after"
-5 "clause4"
-6 "clause5"
-7 "clause6"
+    Iterate over the clauses of the modified source :
+    1 "clause1"
+    2 "clause2 before"
+    3 "clause2"
+    4 "clause2 after"
+    5 "clause4"
+    6 "clause5"
+    7 "clause6"
 */
 
 ::class "Clauser" public
@@ -243,6 +183,20 @@ Iterate over the clauses of the modified source :
     return .false
 
 
+/*
+Helper for immediate parsing.
+For each RexxSourceLiteral created during the parsing, the interpreter will call this method
+to get the executable to store on the RexxSourceLiteral.
+*/
+::method rawExecutable class unguarded
+    use strict arg kind, sourceArray, context=.nil, isBlock=.true
+    parse var kind kind "." option
+    if kind == "r" then executable = .Routine~new("", sourceArray, context, isBlock)
+    else if kind == "cl" then executable = .Method~new("do", sourceArray, context, isBlock)
+    else executable = .nil
+    return executable
+
+
 ::method init
     expose sourceArray buffer
     use strict arg sourceArray
@@ -250,14 +204,17 @@ Iterate over the clauses of the modified source :
     buffer = .MutableBuffer~new
     self~nextClause
 
+
 ::method clauseAvailable
     expose clause
     return clause <> .nil
+
 
 ::method clause
     expose clause
     if \ self~clauseAvailable then raise syntax 93.937
     return clause
+
 
 -- Replace the current clause by the new source fragment (black box, can be several clauses, won't be scanned)
 -- The new source fragment is always monoline
@@ -300,6 +257,14 @@ Iterate over the clauses of the modified source :
     end
     clause = newSourceFragment -- If you recall ~clause then you will get the modified clause
 
+
+-- Append a source fragment (black box, can be several clauses, won't be scanned by this method) at the end of the sources
+::method appendSourceFragment
+    expose sourceArray
+    use strict arg sourceFragment
+    sourceArray~append(sourceFragment)
+
+
 ::method nextClause -- next non empty stripped clause
     expose lineNum lineOffset clauseStartLine clauseStartOffset buffer clause
     do while lineNum <> .nil
@@ -314,6 +279,7 @@ Iterate over the clauses of the modified source :
     end
     clause = .nil
 
+
 ::method gotoLine private
     expose sourceArray sourceLine lineNum lineOffset lineLength
     use strict arg lineNum, lineOffset=1
@@ -322,10 +288,12 @@ Iterate over the clauses of the modified source :
     lineLength = sourceLine~length
     return .true
 
+
 ::method gotoNextLine private
     expose sourceArray lineNum
     lineNum = sourceArray~next(lineNum)
     return self~gotoLine(lineNum)
+
 
 -- ooRexx adaptation of method RexxSource::comment in interpreter/parser/scanner.cpp
 ::method skipComment private
@@ -349,6 +317,7 @@ Iterate over the clauses of the modified source :
             lineOffset += 1
         end
     end
+
 
 -- ooRexx adaptation of method RexxSource::locateToken in interpreter/parser/scanner.cpp
 ::method locateToken private
@@ -413,6 +382,7 @@ Iterate over the clauses of the modified source :
     end
     return character
 
+
 -- ooRexx adaptation of method RexxSource::nextSpecial in interpreter/parser/scanner.cpp
 ::method nextSpecial private
     -- Find the next special character and verify against a target
@@ -427,6 +397,7 @@ Iterate over the clauses of the modified source :
         end
     end
     return .false
+
 
 -- ooRexx adaptation of a subset of method RexxSource::sourceNextToken in interpreter/parser/scanner.cpp
 -- I don't need to get ALL the tokens, I just need to skip them correctly (in particular strings and
@@ -506,3 +477,73 @@ Iterate over the clauses of the modified source :
         return self~TOKEN_OTHER
     end
 
+
+/*
+Helper for immediate parsing.
+For each RexxSourceLiteral created during the parsing, the interpreter will call this method
+to get the kind of executable to store on the RexxSourceLiteral.
+*/
+::method kind
+    -- If the first word is ::co[activity] then remove this word and remember it's a coactive routine : "r.co"
+    --     If the first clause is an expose clause then it's a coactive closure : "cl.co"
+    -- If the first word is ::r[outine] then remove this word and remember it's a routine : "r"
+    --     If the first clause is an expose clause then it's a closure : "cl"
+    -- If the first word is ::[xxx] then raise an error (unknown tag)
+    use named arg remove=.false
+    kind = "r" -- routine by default
+    if self~clauseAvailable then do
+        clause = self~clause
+        parse var clause word rest
+        if "::coactivity"~caselessAbbrev(word, 4) then do
+            if remove then self~clause = rest
+            kind = "r.co" -- routine by default
+        end
+        else if "::routine"~caselessAbbrev(word, 3) then do
+            if remove then self~clause = rest
+            kind = "r"
+        end
+        else if "::tokens"~caselessAbbrev(word, 3) then do
+            -- This is for debug. Currently, I get nothing interesting, most of the tokens are TOKEN_OTHER.
+            if remove then self~clause = rest
+            kind = "t"
+        end
+        else if word~left(2) == "::" then raise syntax 93.900 array("Unknow tag '"word"'")
+
+        -- If a tag has been removed, and the rest of the clause is blank only, then go to the next clause
+        -- The goal is to respect the invariant of the clauser : returns only non-empty clauses.
+        if self~clause~strip == "" then self~nextClause
+        if self~clauseAvailable, self~class~isExposeClause(self~clause) then do
+            -- The existence of an expose clause indicates that it's a closure
+            if kind == "r" then kind = "cl"
+            else if kind == "r.co" then kind = "cl.co"
+        end
+    end
+    return kind
+
+
+/*
+Helper to transform a source.
+Possible transformations :
+- Insert a clause at the begining (takes care of the expose instruction, keep it always as
+  first instruction).
+- Insert a clause at the end.
+*/
+::method transformSource
+    use strict arg clauseBefore="", clauseAfter=""
+
+    if clauseBefore <> "" | clauseAfter <> "" then do
+        -- If the clause is an "expose" clause then skip it (must remain the first clause, always)
+        if self~clauseAvailable then do
+            clause = self~clause
+            if self~class~isExposeClause(clause) then self~nextClause
+        end
+
+        -- Insert the 'clauseBefore', if any
+        if clauseBefore <> "" then do
+            if self~clauseAvailable then self~clause = clauseBefore ";" self~clause
+            else self~appendSourceFragment(clauseBefore)
+        end
+
+        -- Insert the 'clauseAfter', if any
+        if clauseAfter <> "" then self~appendSourceFragment(clauseAfter)
+    end
