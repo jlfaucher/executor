@@ -573,7 +573,7 @@ Helpers
 -- Load optional packages/libraries
 ::routine loadOptionalComponents
     if .platform~is("windows") then do
-        call loadPackage("ole.cls")
+        -- call loadPackage("orexxole.cls") -- not needed, already included in the image
         call loadPackage("oodialog.cls")
         call loadPackage("winsystm.cls")
     end
